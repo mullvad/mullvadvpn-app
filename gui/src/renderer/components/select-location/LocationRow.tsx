@@ -19,7 +19,7 @@ import ChevronButton from '../ChevronButton';
 import { measurements, normalText } from '../common-styles';
 import ImageView from '../ImageView';
 import RelayStatusIndicator from '../RelayStatusIndicator';
-import { AddToListDialog, EditListDialog } from './CustomListDialogs';
+import { AddToListDialog, DeleteConfirmDialog, EditListDialog } from './CustomListDialogs';
 import {
   CitySpecification,
   CountrySpecification,
@@ -105,6 +105,10 @@ const StyledHoverIconButton = styled.button<IButtonColorProps & { $isLast?: bool
     height: measurements.rowMinHeight,
     appearance: 'none',
 
+    '&&:last-child': {
+      paddingRight: '25px',
+    },
+
     '&&:not(:disabled):hover': {
       backgroundColor: props.$backgroundColor,
     },
@@ -158,6 +162,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
   const { updateCustomList, deleteCustomList } = useAppContext();
   const [addToListDialogVisible, showAddToListDialog, hideAddToListDialog] = useBoolean();
   const [editDialogVisible, showEditDialog, hideEditDialog] = useBoolean();
+  const [deleteDialogVisible, showDeleteDialog, hideDeleteDialog] = useBoolean();
   const background = getButtonColor(props.source.selected, props.level, props.source.disabled);
 
   const customLists = useSelector((state) => state.settings.customLists);
@@ -165,12 +170,12 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
   // Expand/collapse should only be available if the expanded property is provided in the source
   const expanded = 'expanded' in props.source ? props.source.expanded : undefined;
   const toggleCollapse = useCallback(() => {
-    if (expanded !== undefined) {
+    if (expanded !== undefined && hasChildren) {
       userInvokedExpand.current = true;
       const callback = expanded ? props.onCollapse : props.onExpand;
       callback(props.source.location);
     }
-  }, [props.onExpand, props.onCollapse, props.source.location, expanded]);
+  }, [props.onExpand, props.onCollapse, props.source.location, expanded, hasChildren]);
 
   const handleClick = useCallback(() => {
     if (!props.source.selected) {
@@ -214,7 +219,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
   }, [customLists, props.source.location]);
 
   // Remove an entire custom list.
-  const onRemoveCustomList = useCallback(async () => {
+  const confirmRemoveCustomList = useCallback(async () => {
     if (props.source.location.customList) {
       try {
         await deleteCustomList(props.source.location.customList);
@@ -269,16 +274,18 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
             <StyledHoverIconButton onClick={showEditDialog} {...background}>
               <StyledHoverIcon source="icon-edit" />
             </StyledHoverIconButton>
-            <StyledHoverIconButton onClick={onRemoveCustomList} $isLast {...background}>
+            <StyledHoverIconButton onClick={showDeleteDialog} $isLast {...background}>
               <StyledHoverIcon source="icon-close" />
             </StyledHoverIconButton>
           </>
         ) : null}
 
-        {hasChildren ? (
+        {hasChildren ||
+        ('customList' in props.source.location && !('country' in props.source.location)) ? (
           <StyledLocationRowIcon
             as={ChevronButton}
             onClick={toggleCollapse}
+            disabled={!hasChildren}
             up={expanded ?? false}
             aria-label={sprintf(
               expanded === true
@@ -311,6 +318,15 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
 
       {'list' in props.source && (
         <EditListDialog list={props.source.list} isOpen={editDialogVisible} hide={hideEditDialog} />
+      )}
+
+      {'list' in props.source && (
+        <DeleteConfirmDialog
+          list={props.source.list}
+          isOpen={deleteDialogVisible}
+          hide={hideDeleteDialog}
+          confirm={confirmRemoveCustomList}
+        />
       )}
     </>
   );

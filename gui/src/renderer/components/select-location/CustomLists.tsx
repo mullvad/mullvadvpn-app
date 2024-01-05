@@ -10,6 +10,7 @@ import { useBoolean, useStyledRef } from '../../lib/utilityHooks';
 import Accordion from '../Accordion';
 import * as Cell from '../cell';
 import { measurements } from '../common-styles';
+import { BackAction } from '../KeyboardNavigation';
 import SimpleInput from '../SimpleInput';
 import { StyledLocationRowIcon } from './LocationRow';
 import { useRelayListContext } from './RelayListContext';
@@ -52,7 +53,11 @@ const StyledAddListCellButton = styled(StyledCellButton)({
 const StyledSideButtonIcon = styled(Cell.Icon)({
   padding: '3px',
 
-  [`${StyledCellButton}:hover &&, ${StyledAddListCellButton}:hover &&`]: {
+  [`${StyledCellButton}:disabled &&, ${StyledAddListCellButton}:disabled &&`]: {
+    backgroundColor: colors.white40,
+  },
+
+  [`${StyledCellButton}:not(:disabled):hover &&, ${StyledAddListCellButton}:not(:disabled):hover &&`]: {
     backgroundColor: colors.white,
   },
 });
@@ -117,6 +122,7 @@ interface AddListFormProps {
 
 function AddListForm(props: AddListFormProps) {
   const [name, setName] = useState('');
+  const nameValid = name.trim() !== '';
   const [error, setError, unsetError] = useBoolean();
   const containerRef = useStyledRef<HTMLDivElement>();
   const inputRef = useStyledRef<HTMLInputElement>();
@@ -128,16 +134,18 @@ function AddListForm(props: AddListFormProps) {
   }, []);
 
   const createList = useCallback(async () => {
-    try {
-      const result = await props.onCreateList(name);
-      if (result) {
-        setError();
+    if (nameValid) {
+      try {
+        const result = await props.onCreateList(name);
+        if (result) {
+          setError();
+        }
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to create list:', error.message);
       }
-    } catch (e) {
-      const error = e as Error;
-      log.error('Failed to create list:', error.message);
     }
-  }, [name, props.onCreateList]);
+  }, [name, props.onCreateList, nameValid]);
 
   const onBlur = useCallback(
     (event: React.FocusEvent<HTMLInputElement>) => {
@@ -162,34 +170,37 @@ function AddListForm(props: AddListFormProps) {
   }, [props.visible]);
 
   return (
-    <Accordion expanded={props.visible} onTransitionEnd={onTransitionEnd}>
-      <StyledCellContainer ref={containerRef}>
-        <StyledInputContainer>
-          <StyledInput
-            ref={inputRef}
-            value={name}
-            onChangeValue={onChange}
-            onSubmitValue={createList}
-            onBlur={onBlur}
-            maxLength={30}
-            $error={error}
-            autoFocus
-          />
-        </StyledInputContainer>
+    <BackAction disabled={!props.visible} action={props.cancel}>
+      <Accordion expanded={props.visible} onTransitionEnd={onTransitionEnd}>
+        <StyledCellContainer ref={containerRef}>
+          <StyledInputContainer>
+            <StyledInput
+              ref={inputRef}
+              value={name}
+              onChangeValue={onChange}
+              onSubmitValue={createList}
+              onBlur={onBlur}
+              maxLength={30}
+              $error={error}
+              autoFocus
+            />
+          </StyledInputContainer>
 
-        <StyledAddListCellButton
-          $backgroundColor={colors.blue}
-          $backgroundColorHover={colors.blue80}
-          onClick={createList}>
-          <StyledSideButtonIcon source="icon-check" tintColor={colors.white60} width={18} />
-        </StyledAddListCellButton>
-      </StyledCellContainer>
-      <Cell.CellFooter>
-        <Cell.CellFooterText>
-          {messages.pgettext('select-location-view', 'List names must be unique.')}
-        </Cell.CellFooterText>
-      </Cell.CellFooter>
-    </Accordion>
+          <StyledAddListCellButton
+            $backgroundColor={colors.blue}
+            $backgroundColorHover={colors.blue80}
+            disabled={!nameValid}
+            onClick={createList}>
+            <StyledSideButtonIcon source="icon-check" tintColor={colors.white60} width={18} />
+          </StyledAddListCellButton>
+        </StyledCellContainer>
+        <Cell.CellFooter>
+          <Cell.CellFooterText>
+            {messages.pgettext('select-location-view', 'List names must be unique.')}
+          </Cell.CellFooterText>
+        </Cell.CellFooter>
+      </Accordion>
+    </BackAction>
   );
 }
 
