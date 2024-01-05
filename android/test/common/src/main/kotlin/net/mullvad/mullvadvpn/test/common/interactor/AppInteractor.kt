@@ -13,9 +13,6 @@ import net.mullvad.mullvadvpn.test.common.constant.CONNECTION_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LOGIN_PROMPT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LOGIN_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.MULLVAD_PACKAGE
-import net.mullvad.mullvadvpn.test.common.constant.SETTINGS_COG_ID
-import net.mullvad.mullvadvpn.test.common.constant.TUNNEL_INFO_ID
-import net.mullvad.mullvadvpn.test.common.constant.TUNNEL_OUT_ADDRESS_ID
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
@@ -49,6 +46,14 @@ class AppInteractor(private val device: UiDevice, private val targetContext: Con
         ensureLoggedIn()
     }
 
+    fun launchAndCreateAccount() {
+        launch()
+        device.clickAgreeOnPrivacyDisclaimer()
+        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+        attemptCreateAccount()
+        ensureAccountCreated()
+    }
+
     fun attemptLogin(accountToken: String) {
         val loginObject =
             device.findObjectWithTimeout(By.clazz("android.widget.EditText")).apply {
@@ -57,20 +62,31 @@ class AppInteractor(private val device: UiDevice, private val targetContext: Con
         loginObject.parent.findObject(By.clazz(Button::class.java)).click()
     }
 
+    private fun attemptCreateAccount() {
+        device.findObjectWithTimeout(By.text("Create account")).click()
+    }
+
+    private fun ensureAccountCreated() {
+        device.findObjectWithTimeout(By.text("Congrats!"), LOGIN_TIMEOUT)
+    }
+
     fun ensureLoggedIn() {
         device.findObjectWithTimeout(By.text("UNSECURED CONNECTION"), LOGIN_TIMEOUT)
     }
 
     fun extractIpAddress(): String {
-        device.findObjectWithTimeout(By.res(TUNNEL_INFO_ID)).click()
+        device.findObjectWithTimeout(By.res("location_info_test_tag")).click()
         return device
-            .findObjectWithTimeout(By.res(TUNNEL_OUT_ADDRESS_ID), CONNECTION_TIMEOUT)
+            .findObjectWithTimeout(
+                By.res("location_info_connection_out_test_tag"),
+                CONNECTION_TIMEOUT
+            )
             .text
             .extractIpAddress()
     }
 
     fun clickSettingsCog() {
-        device.findObjectWithTimeout(By.res(SETTINGS_COG_ID)).click()
+        device.findObjectWithTimeout(By.res("top_bar_settings_button")).click()
     }
 
     fun clickAccountCog() {
@@ -90,6 +106,6 @@ class AppInteractor(private val device: UiDevice, private val targetContext: Con
     }
 
     private fun String.extractIpAddress(): String {
-        return split("  ")[1].split(" ")[0]
+        return split(" ")[1].split(" ")[0]
     }
 }

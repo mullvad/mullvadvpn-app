@@ -24,14 +24,14 @@ abstract class EndToEndTest {
 
     @Rule
     @JvmField
-    val permissionRule: GrantPermissionRule =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            GrantPermissionRule.grant(Manifest.permission.READ_MEDIA_IMAGES)
-        } else {
+    val permissionRule: GrantPermissionRule? =
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             GrantPermissionRule.grant(
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             )
+        } else {
+            null
         }
 
     lateinit var device: UiDevice
