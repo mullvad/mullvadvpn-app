@@ -1,12 +1,10 @@
 [package]
 name = "talpid-tunnel"
 description = "Library for creating tunnel devices and interfacing with various VPN tunnels"
-version.workspace = true
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
 edition.workspace = true
-publish.workspace = true
 
 [lints]
 workspace = true

@@ -1,12 +1,10 @@
 [package]
 name = "translations-converter"
 description = "Converts between PO and Android style localization formats"
-version.workspace = true
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
 edition.workspace = true
-publish.workspace = true
 
 [lints]
 workspace = true

@@ -1,12 +1,10 @@
 [package]
 name = "mullvad-nsis"
 description = "Helper library used by Mullvad NSIS plugins"
-version.workspace = true
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
 edition.workspace = true
-publish.workspace = true
 
 [lints]
 workspace = true
