@@ -70,7 +70,7 @@ class AccountDeletionContentView: UIView {
             value: """
             This logs out all devices using this account and all \
             VPN access will be denied even if there is time left on the account. \
-            Enter the last 4 digits of the account number and hit OK if you really want to delete the account :
+            Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account :
             """,
             comment: ""
         )
@@ -101,9 +101,9 @@ class AccountDeletionContentView: UIView {
         let button = AppButton(style: .danger)
         button.accessibilityIdentifier = .deleteButton
         button.setTitle(NSLocalizedString(
-            "OK_BUTTON_TITLE",
+            "DELETE_ACCOUNT_BUTTON_TITLE",
             tableName: "Account",
-            value: "Ok",
+            value: "Delete Account",
             comment: ""
         ), for: .normal)
         return button
