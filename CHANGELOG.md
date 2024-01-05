@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add account UUID to verbose 'mullvad account get -v' output.
+- Respect OS prefer-reduced-motion setting
 
 #### Android
 - Add support for all screen orientations.
