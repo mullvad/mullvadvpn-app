@@ -1,12 +1,10 @@
 [package]
 name = "mullvad-api"
 description = "Mullvad VPN API clients. Providing an interface to query our infrastructure for information."
-version.workspace = true
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
 edition.workspace = true
-publish.workspace = true
 
 [lints]
 workspace = true

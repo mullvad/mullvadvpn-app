@@ -1,12 +1,10 @@
 [package]
 name = "talpid-tunnel-config-client"
 description = "Uses the relay RPC service to set up PQ-safe peers, etc."
-version.workspace = true
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
 edition.workspace = true
-publish.workspace = true
 
 [lints]
 workspace = true

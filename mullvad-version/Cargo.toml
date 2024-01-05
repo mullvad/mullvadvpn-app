@@ -6,12 +6,10 @@ what version string a build should have. This crate is responsible for computing
 `-dev-$git_hash` suffix as well as transforming the version into semver, Android versionCode
 and other formats.
 """
-version.workspace = true
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
 edition.workspace = true
-publish.workspace = true
 
 [lints]
 workspace = true

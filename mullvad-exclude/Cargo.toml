@@ -1,12 +1,10 @@
 [package]
 name = "mullvad-exclude"
 description = "Runs programs outside the Mullvad VPN tunnel on Linux"
-version.workspace = true
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
 edition.workspace = true
-publish.workspace = true
 
 [lints]
 workspace = true

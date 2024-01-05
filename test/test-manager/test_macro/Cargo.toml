@@ -3,7 +3,6 @@ proc-macro = true
 
 [package]
 name = "test_macro"
-version = "0.1.0"
 edition = "2021"
 
 [dependencies]

@@ -1,12 +1,10 @@
 [package]
 name = "talpid-openvpn-plugin"
 description = "OpenVPN shared library plugin for relaying OpenVPN events to talpid_core"
-version.workspace = true
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
 edition.workspace = true
-publish.workspace = true
 
 [lints]
 workspace = true
