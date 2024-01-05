@@ -60,6 +60,10 @@ const LanIpRanges = styled.ul({
   marginLeft: '20px',
 });
 
+const IndentedValueLabel = styled(Cell.ValueLabel)({
+  marginLeft: '16px',
+});
+
 export default function VpnSettings() {
   const { pop } = useHistory();
 
@@ -255,6 +259,7 @@ function useDns(setting: keyof IDnsOptions['defaultOptions']) {
 
 function DnsBlockers() {
   const dns = useSelector((state) => state.settings.dns);
+  const customDnsFeatureName = messages.pgettext('vpn-settings-view', 'Use custom DNS server');
 
   const title = (
     <>
@@ -271,7 +276,18 @@ function DnsBlockers() {
         <ModalMessage>
           {messages.pgettext(
             'vpn-settings-view',
-            'This might cause issues on certain websites, services, and programs.',
+            'This might cause issues on certain websites, services, and apps.',
+          )}
+        </ModalMessage>
+        <ModalMessage>
+          {formatHtml(
+            sprintf(
+              messages.pgettext(
+                'vpn-settings-view',
+                'Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>',
+              ),
+              { customDnsFeatureName },
+            ),
           )}
         </ModalMessage>
       </InfoButton>
@@ -297,12 +313,12 @@ function BlockAds() {
     <AriaInputGroup>
       <StyledSectionItem disabled={dns.state === 'custom'}>
         <AriaLabel>
-          <Cell.InputLabel>
+          <IndentedValueLabel>
             {
               // TRANSLATORS: Label for settings that enables ad blocking.
               messages.pgettext('vpn-settings-view', 'Ads')
             }
-          </Cell.InputLabel>
+          </IndentedValueLabel>
         </AriaLabel>
         <AriaInput>
           <Cell.Switch
@@ -322,12 +338,12 @@ function BlockTrackers() {
     <AriaInputGroup>
       <StyledSectionItem disabled={dns.state === 'custom'}>
         <AriaLabel>
-          <Cell.InputLabel>
+          <IndentedValueLabel>
             {
               // TRANSLATORS: Label for settings that enables tracker blocking.
               messages.pgettext('vpn-settings-view', 'Trackers')
             }
-          </Cell.InputLabel>
+          </IndentedValueLabel>
         </AriaLabel>
         <AriaInput>
           <Cell.Switch
@@ -347,12 +363,12 @@ function BlockMalware() {
     <AriaInputGroup>
       <StyledSectionItem disabled={dns.state === 'custom'}>
         <AriaLabel>
-          <Cell.InputLabel>
+          <IndentedValueLabel>
             {
               // TRANSLATORS: Label for settings that enables malware blocking.
               messages.pgettext('vpn-settings-view', 'Malware')
             }
-          </Cell.InputLabel>
+          </IndentedValueLabel>
         </AriaLabel>
         <AriaDetails>
           <InfoButton>
@@ -382,12 +398,12 @@ function BlockGambling() {
     <AriaInputGroup>
       <StyledSectionItem disabled={dns.state === 'custom'}>
         <AriaLabel>
-          <Cell.InputLabel>
+          <IndentedValueLabel>
             {
               // TRANSLATORS: Label for settings that enables block of gamling related websites.
               messages.pgettext('vpn-settings-view', 'Gambling')
             }
-          </Cell.InputLabel>
+          </IndentedValueLabel>
         </AriaLabel>
         <AriaInput>
           <Cell.Switch
@@ -407,12 +423,12 @@ function BlockAdultContent() {
     <AriaInputGroup>
       <StyledSectionItem disabled={dns.state === 'custom'}>
         <AriaLabel>
-          <Cell.InputLabel>
+          <IndentedValueLabel>
             {
               // TRANSLATORS: Label for settings that enables block of adult content.
               messages.pgettext('vpn-settings-view', 'Adult content')
             }
-          </Cell.InputLabel>
+          </IndentedValueLabel>
         </AriaLabel>
         <AriaInput>
           <Cell.Switch
@@ -432,12 +448,12 @@ function BlockSocialMedia() {
     <AriaInputGroup>
       <StyledSectionItem disabled={dns.state === 'custom'}>
         <AriaLabel>
-          <Cell.InputLabel>
+          <IndentedValueLabel>
             {
               // TRANSLATORS: Label for settings that enables block of social media.
               messages.pgettext('vpn-settings-view', 'Social media')
             }
-          </Cell.InputLabel>
+          </IndentedValueLabel>
         </AriaLabel>
         <AriaInput>
           <Cell.Switch
