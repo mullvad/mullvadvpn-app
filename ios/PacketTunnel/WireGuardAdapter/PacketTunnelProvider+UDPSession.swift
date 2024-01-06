@@ -57,12 +57,13 @@ class TunUdpSession {
             if session.state == .cancelled || session.state == .failed {
                 excluded_udp_session_not_ready(rustContext)
             }
-            }
+        }
         
         
             betterPathObserver = session.observe(\.hasBetterPath, options: [.new]) { [weak self] session, _ in
                 guard let self else { return }
                 if session.hasBetterPath {
+                    excluded_udp_session_not_ready(rustContext)
                     self.session = NWUDPSession(upgradeFor: session)
                     setupWatchers()
                     excluded_udp_session_ready(rustContext)
