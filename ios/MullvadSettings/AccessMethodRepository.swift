@@ -30,12 +30,10 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
     }
 
     public var accessMethods: [PersistentAccessMethod] {
-        passthroughSubject.value
+        fetchAll()
     }
 
-    public static let shared = AccessMethodRepository()
-
-    private init() {
+    public init() {
         add(passthroughSubject.value)
     }
 

@@ -42,6 +42,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private var relayConstraintsObserver: TunnelBlockObserver!
     private let migrationManager = MigrationManager()
 
+    private(set) var accessMethodRepository = AccessMethodRepository()
+
     // MARK: - Application lifecycle
 
     func application(
@@ -92,7 +94,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         // This init cannot fail as long as the security group identifier is valid
         let sharedUserDefaults = UserDefaults(suiteName: ApplicationConfiguration.securityGroupIdentifier)!
-        let transportStrategy = TransportStrategy(sharedUserDefaults)
+        let transportStrategy = TransportStrategy(sharedUserDefaults, datasource: accessMethodRepository)
 
         let transportProvider = TransportProvider(
             urlSessionTransport: urlSessionTransport,

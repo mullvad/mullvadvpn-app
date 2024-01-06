@@ -9,6 +9,7 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import NetworkExtension
 import PacketTunnelCore
@@ -41,7 +42,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         // This init cannot fail as long as the security group identifier is valid
         let sharedUserDefaults = UserDefaults(suiteName: ApplicationConfiguration.securityGroupIdentifier)!
-        let transportStrategy = TransportStrategy(sharedUserDefaults)
+        let transportStrategy = TransportStrategy(sharedUserDefaults, datasource: AccessMethodRepository())
 
         let transportProvider = TransportProvider(
             urlSessionTransport: urlSessionTransport,

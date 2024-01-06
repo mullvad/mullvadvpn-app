@@ -12,16 +12,15 @@ import MullvadTypes
 
 public final class TransportProvider: RESTTransportProvider {
     private let urlSessionTransport: URLSessionTransport
-    private let relayCache: RelayCacheProtocol
+
     private let logger = Logger(label: "TransportProvider")
     private let addressCache: REST.AddressCache
-    private let shadowsocksCache: ShadowsocksConfigurationCache
     private var transportStrategy: TransportStrategy
-
     private var currentTransport: RESTTransport?
     private let parallelRequestsMutex = NSLock()
     private var relayConstraints = RelayConstraints()
     private let constraintsUpdater: RelayConstraintsUpdater
+    private var localShadowsocksLoader: LocalShadowsocksLoader
 
     public init(
         urlSessionTransport: URLSessionTransport,
@@ -32,9 +31,8 @@ public final class TransportProvider: RESTTransportProvider {
         constraintsUpdater: RelayConstraintsUpdater
     ) {
         self.urlSessionTransport = urlSessionTransport
-        self.relayCache = relayCache
+        self.localShadowsocksLoader = LocalShadowsocksLoader(shadowsocksCache: shadowsocksCache, relayCache: relayCache)
         self.addressCache = addressCache
-        self.shadowsocksCache = shadowsocksCache
         self.transportStrategy = transportStrategy
         self.constraintsUpdater = constraintsUpdater
         constraintsUpdater.onNewConstraints = { [weak self] newConstraints in
@@ -42,7 +40,7 @@ public final class TransportProvider: RESTTransportProvider {
             defer {
                 self?.parallelRequestsMutex.unlock()
             }
-            self?.relayConstraints = newConstraints
+            self?.localShadowsocksLoader.relayConstraints = newConstraints
         }
     }
 
@@ -57,72 +55,6 @@ public final class TransportProvider: RESTTransportProvider {
                 }
             }
         }
-    }
-
-    // MARK: -
-
-    private func shadowsocks() -> RESTTransport? {
-        do {
-            let shadowsocksConfiguration = try shadowsocksConfiguration()
-
-            let shadowsocksURLSession = urlSessionTransport.urlSession
-            let shadowsocksTransport = ShadowsocksTransport(
-                urlSession: shadowsocksURLSession,
-                configuration: shadowsocksConfiguration,
-                addressCache: addressCache
-            )
-            return shadowsocksTransport
-        } catch {
-            logger.error(error: error, message: "Failed to produce shadowsocks configuration.")
-            return nil
-        }
-    }
-
-    private func socks5() -> RESTTransport? {
-        return URLSessionSocks5Transport(
-            urlSession: urlSessionTransport.urlSession,
-            configuration: Socks5Configuration(address: .ipv4(.loopback), port: 8889),
-            addressCache: addressCache
-        )
-    }
-
-    /// Returns the last used shadowsocks configuration, otherwise a new randomized configuration.
-    private func shadowsocksConfiguration() throws -> ShadowsocksConfiguration {
-        // If a previous shadowsocks configuration was in cache, return it directly.
-        do {
-            return try shadowsocksCache.read()
-        } catch {
-            // There is no previous configuration either if this is the first time this code ran
-            // Or because the previous shadowsocks configuration was invalid, therefore generate a new one.
-            return try makeNewShadowsocksConfiguration()
-        }
-    }
-
-    /// Returns a randomly selected shadowsocks configuration.
-    private func makeNewShadowsocksConfiguration() throws -> ShadowsocksConfiguration {
-        let cachedRelays = try relayCache.read()
-        let bridgeConfiguration = RelaySelector.shadowsocksTCPBridge(from: cachedRelays.relays)
-        let closestRelay = RelaySelector.closestShadowsocksRelayConstrained(
-            by: relayConstraints,
-            in: cachedRelays.relays
-        )
-
-        guard let bridgeAddress = closestRelay?.ipv4AddrIn, let bridgeConfiguration else { throw POSIXError(.ENOENT) }
-
-        let newConfiguration = ShadowsocksConfiguration(
-            address: .ipv4(bridgeAddress),
-            port: bridgeConfiguration.port,
-            password: bridgeConfiguration.password,
-            cipher: bridgeConfiguration.cipher
-        )
-
-        do {
-            try shadowsocksCache.write(newConfiguration)
-        } catch {
-            logger.error(error: error, message: "Failed to persist shadowsocks cache.")
-        }
-
-        return newConfiguration
     }
 
     // MARK: -
@@ -149,15 +81,29 @@ public final class TransportProvider: RESTTransportProvider {
     ///
     /// - Returns: A `RESTTransport` object to make a connection
     private func makeTransportInner() -> RESTTransport? {
-        if currentTransport == nil {
-            switch transportStrategy.connectionTransport() {
-            case .useShadowsocks:
-                currentTransport = shadowsocks()
-            case .useURLSession:
-                currentTransport = urlSessionTransport
-            case .useSocks5:
-                currentTransport = socks5()
+        switch transportStrategy.connectionTransport() {
+        case .direct:
+            currentTransport = urlSessionTransport
+        case let .shadowsocks(configuration):
+            do {
+                let localConfiguration = try localShadowsocksLoader.configuration
+                let config = configuration ?? localConfiguration
+                currentTransport = ShadowsocksTransport(
+                    urlSession: urlSessionTransport.urlSession,
+                    configuration: config,
+                    addressCache: addressCache
+                )
+            } catch {
+                logger.error(error: error, message: error.localizedDescription)
+                return nil
             }
+
+        case let .socks5(configuration):
+            currentTransport = URLSessionSocks5Transport(
+                urlSession: urlSessionTransport.urlSession,
+                configuration: configuration,
+                addressCache: addressCache
+            )
         }
         return currentTransport
     }
@@ -196,5 +142,55 @@ private struct TransportWrapper: RESTTransport {
             onComplete(error)
             completion(data, response, error)
         }
+    }
+}
+
+private struct LocalShadowsocksLoader {
+    private let shadowsocksCache: ShadowsocksConfigurationCache
+    private let relayCache: RelayCacheProtocol
+    var relayConstraints = RelayConstraints()
+
+    init(shadowsocksCache: ShadowsocksConfigurationCache, relayCache: RelayCacheProtocol) {
+        self.shadowsocksCache = shadowsocksCache
+        self.relayCache = relayCache
+    }
+
+    var configuration: ShadowsocksConfiguration {
+        get throws {
+            try load()
+        }
+    }
+
+    /// Returns the last used shadowsocks configuration, otherwise a new randomized configuration.
+    private func load() throws -> ShadowsocksConfiguration {
+        do {
+            // If a previous shadowsocks configuration was in cache, return it directly.
+            return try shadowsocksCache.read()
+        } catch {
+            // There is no previous configuration either if this is the first time this code ran
+            // Or because the previous shadowsocks configuration was invalid, therefore generate a new one.
+            let newConfiguration = try create()
+            try shadowsocksCache.write(newConfiguration)
+            return newConfiguration
+        }
+    }
+
+    /// Returns a randomly selected shadowsocks configuration.
+    private func create() throws -> ShadowsocksConfiguration {
+        let cachedRelays = try relayCache.read()
+        let bridgeConfiguration = RelaySelector.shadowsocksTCPBridge(from: cachedRelays.relays)
+        let closestRelay = RelaySelector.closestShadowsocksRelayConstrained(
+            by: relayConstraints,
+            in: cachedRelays.relays
+        )
+
+        guard let bridgeAddress = closestRelay?.ipv4AddrIn, let bridgeConfiguration else { throw POSIXError(.ENOENT) }
+
+        return ShadowsocksConfiguration(
+            address: .ipv4(bridgeAddress),
+            port: bridgeConfiguration.port,
+            password: bridgeConfiguration.password,
+            cipher: bridgeConfiguration.cipher
+        )
     }
 }
