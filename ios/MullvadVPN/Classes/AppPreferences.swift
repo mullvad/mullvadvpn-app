@@ -20,12 +20,12 @@ enum AppStorageKey: String {
 }
 
 final class AppPreferences: AppPreferencesDataSource {
-    @AppStorage(key: AppStorageKey.isShownOnboarding.rawValue)
+    @AppStorage(key: AppStorageKey.isShownOnboarding.rawValue, container: .standard)
     var isShownOnboarding = true
 
-    @AppStorage(key: AppStorageKey.isAgreedToTermsOfService.rawValue)
+    @AppStorage(key: AppStorageKey.isAgreedToTermsOfService.rawValue, container: .standard)
     var isAgreedToTermsOfService = false
 
-    @AppStorage(key: AppStorageKey.lastSeenChangeLogVersion.rawValue)
+    @AppStorage(key: AppStorageKey.lastSeenChangeLogVersion.rawValue, container: .standard)
     var lastSeenChangeLogVersion = ""
 }

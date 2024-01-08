@@ -18,6 +18,8 @@ final class TransportStrategyTests: XCTestCase {
     private var directAccess: PersistentAccessMethod!
     private var bridgeAccess: PersistentAccessMethod!
 
+    private var shadowsocksLoader: ShadowsocksLoaderProtocol!
+
     override class func setUp() {
         super.setUp()
         suiteName = UUID().uuidString
@@ -26,6 +28,13 @@ final class TransportStrategyTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         userDefaults = UserDefaults(suiteName: Self.suiteName)
+
+        shadowsocksLoader = ShadowsocksLoaderStub(configuration: ShadowsocksConfiguration(
+            address: .ipv4(.loopback),
+            port: 1080,
+            password: "123",
+            cipher: CipherIdentifiers.CHACHA20.description
+        ))
 
         directAccess = PersistentAccessMethod(
             id: UUID(uuidString: "C9DB7457-2A55-42C3-A926-C07F82131994")!,
@@ -47,7 +56,7 @@ final class TransportStrategyTests: XCTestCase {
         try super.tearDownWithError()
     }
 
-    func testUseDefaultStrategyWhenAllIsDisabled() {
+    func testUseDefaultStrategyWhenAllIsDisabled() throws {
         directAccess.isEnabled = false
         bridgeAccess.isEnabled = false
         let transportStrategy = TransportStrategy(
@@ -55,28 +64,33 @@ final class TransportStrategyTests: XCTestCase {
             datasource: AccessMethodRepositoryStub(accessMethods: [
                 directAccess,
                 bridgeAccess,
-            ])
+            ]),
+            shadowsocksLoader: shadowsocksLoader
         )
-
         for _ in 0 ... 4 {
             transportStrategy.didFail()
             XCTAssertEqual(transportStrategy.connectionTransport(), .direct)
         }
     }
 
-    func testReuseSameStrategyWhenEverythingElseIsDisabled() {
+    func testReuseSameStrategyWhenEverythingElseIsDisabled() throws {
         directAccess.isEnabled = false
         let transportStrategy = TransportStrategy(
             userDefaults,
             datasource: AccessMethodRepositoryStub(accessMethods: [
                 directAccess,
                 bridgeAccess,
-            ])
+            ]),
+            shadowsocksLoader: shadowsocksLoader
         )
 
         for _ in 0 ... 10 {
             transportStrategy.didFail()
-            XCTAssertEqual(transportStrategy.connectionTransport(), .shadowsocks(configuration: nil))
+
+            XCTAssertEqual(
+                transportStrategy.connectionTransport(),
+                .shadowsocks(configuration: try XCTUnwrap(shadowsocksLoader.configuration))
+            )
         }
     }
 
@@ -98,7 +112,8 @@ final class TransportStrategyTests: XCTestCase {
                         cipher: .default
                     ))
                 ),
-            ])
+            ]),
+            shadowsocksLoader: shadowsocksLoader
         )
 
         for _ in 0 ..< 6 {
@@ -125,7 +140,8 @@ final class TransportStrategyTests: XCTestCase {
                         cipher: .default
                     ))
                 ),
-            ])
+            ]),
+            shadowsocksLoader: shadowsocksLoader
         )
         XCTAssertEqual(transportStrategy.connectionTransport(), .direct)
         transportStrategy.didFail()
@@ -147,7 +163,7 @@ extension TransportStrategy.Transport: Equatable {
         case(.direct, .direct):
             return true
         case let (.shadowsocks(config1), .shadowsocks(config2)):
-            return config1?.port == config2?.port && config1?.cipher == config2?.cipher && config1?.password == config2?
+            return config1.port == config2.port && config1.cipher == config2.cipher && config1.password == config2
                 .password
         case let (.socks5(config1), .socks5(config2)):
             return config1.address.rawValue == config2.address.rawValue && config1.port == config2.port

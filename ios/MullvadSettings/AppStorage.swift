@@ -15,8 +15,7 @@ public struct AppStorage<Value> {
 
     public var wrappedValue: Value {
         get {
-            let value = container.value(forKey: key)
-            return value.flatMap { $0 as? Value } ?? defaultValue
+            container.value(forKey: key) as? Value ?? defaultValue
         }
         set {
             if let anyOptional = newValue as? AnyOptional,
@@ -28,7 +27,7 @@ public struct AppStorage<Value> {
         }
     }
 
-    public init(wrappedValue: Value, key: String, container: UserDefaults = .standard) {
+    public init(wrappedValue: Value, key: String, container: UserDefaults) {
         self.defaultValue = wrappedValue
         self.container = container
         self.key = key

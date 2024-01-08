@@ -13,6 +13,12 @@ public protocol AccessMethodRepositoryDataSource {
     var accessMethods: [PersistentAccessMethod] { get }
 }
 
+public extension AccessMethodRepositoryDataSource {
+    var directAccess: PersistentAccessMethod {
+        accessMethods.first(where: { $0.kind == .direct })!
+    }
+}
+
 public protocol AccessMethodRepositoryProtocol: AccessMethodRepositoryDataSource {
     /// Publisher that propagates a snapshot of persistent store upon modifications.
     var publisher: AnyPublisher<[PersistentAccessMethod], Never> { get }
