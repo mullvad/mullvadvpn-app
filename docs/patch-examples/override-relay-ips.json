@@ -1,0 +1,7 @@
+{
+    "relay_overrides": [
+        { "hostname": "test1", "ipv4_addr_in": "1.3.3.7" },
+        { "hostname": "test2", "ipv6_addr_in": "::1" },
+        { "hostname": "test3", "ipv4_addr_in": "1.2.3.4", "ipv6_addr_in": "::1" }
+    ]
+}
