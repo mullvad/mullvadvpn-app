@@ -3,7 +3,7 @@ use crate::network_monitor::{
     self, start_packet_monitor, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor,
 };
 use futures::StreamExt;
-use mullvad_management_interface::{types, ManagementServiceClient, MullvadProxyClient};
+use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
 use mullvad_types::{
     location::Location,
     relay_constraints::{
@@ -27,7 +27,7 @@ use tokio::time::timeout;
 #[macro_export]
 macro_rules! assert_tunnel_state {
     ($mullvad_client:expr, $pattern:pat) => {{
-        let state = get_tunnel_state($mullvad_client).await;
+        let state = $mullvad_client.get_tunnel_state().await?;
         assert!(matches!(state, $pattern), "state: {:?}", state);
     }};
 }
@@ -85,8 +85,7 @@ pub async fn using_mullvad_exit(rpc: &ServiceClient) -> bool {
 }
 
 /// Get VPN tunnel interface name
-pub async fn get_tunnel_interface(rpc: ManagementServiceClient) -> Option<String> {
-    let mut client = MullvadProxyClient::from_rpc_client(rpc);
+pub async fn get_tunnel_interface(client: &mut MullvadProxyClient) -> Option<String> {
     match client.get_tunnel_state().await.ok()? {
         TunnelState::Connecting { endpoint, .. } | TunnelState::Connected { endpoint, .. } => {
             endpoint.tunnel_interface
@@ -194,11 +193,11 @@ pub async fn ping_with_timeout(
 ///
 /// If that fails for whatever reason, the Mullvad daemon ends up in the
 /// [`TunnelState::Error`] state & [`Error::DaemonError`] is returned.
-pub async fn connect_and_wait(mullvad_client: &mut ManagementServiceClient) -> Result<(), Error> {
+pub async fn connect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Result<(), Error> {
     log::info!("Connecting");
 
     mullvad_client
-        .connect_tunnel(())
+        .connect_tunnel()
         .await
         .map_err(|error| Error::Daemon(format!("failed to begin connecting: {}", error)))?;
 
@@ -219,13 +218,11 @@ pub async fn connect_and_wait(mullvad_client: &mut ManagementServiceClient) -> R
     Ok(())
 }
 
-pub async fn disconnect_and_wait(
-    mullvad_client: &mut ManagementServiceClient,
-) -> Result<(), Error> {
+pub async fn disconnect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Result<(), Error> {
     log::info!("Disconnecting");
 
     mullvad_client
-        .disconnect_tunnel(())
+        .disconnect_tunnel()
         .await
         .map_err(|error| Error::Daemon(format!("failed to begin disconnecting: {}", error)))?;
     wait_for_tunnel_state(mullvad_client.clone(), |state| {
@@ -239,30 +236,29 @@ pub async fn disconnect_and_wait(
 }
 
 pub async fn wait_for_tunnel_state(
-    mut rpc: mullvad_management_interface::ManagementServiceClient,
+    mut rpc: MullvadProxyClient,
     accept_state_fn: impl Fn(&mullvad_types::states::TunnelState) -> bool,
 ) -> Result<mullvad_types::states::TunnelState, Error> {
     let events = rpc
-        .events_listen(())
+        .events_listen()
         .await
         .map_err(|status| Error::Daemon(format!("Failed to get event stream: {}", status)))?;
 
-    let state = mullvad_types::states::TunnelState::try_from(
-        rpc.get_tunnel_state(())
-            .await
-            .map_err(|error| Error::Daemon(format!("Failed to get tunnel state: {:?}", error)))?
-            .into_inner(),
-    )
-    .map_err(|error| Error::Daemon(format!("Invalid tunnel state: {:?}", error)))?;
+    let state = rpc
+        .get_tunnel_state()
+        .await
+        .map_err(|error| Error::Daemon(format!("Failed to get tunnel state: {:?}", error)))?;
+
     if accept_state_fn(&state) {
         return Ok(state);
     }
 
-    find_next_tunnel_state(events.into_inner(), accept_state_fn).await
+    find_next_tunnel_state(events, accept_state_fn).await
 }
 
 pub async fn find_next_tunnel_state(
-    stream: impl futures::Stream<Item = Result<types::DaemonEvent, tonic::Status>> + Unpin,
+    stream: impl futures::Stream<Item = Result<DaemonEvent, mullvad_management_interface::Error>>
+        + Unpin,
     accept_state_fn: impl Fn(&mullvad_types::states::TunnelState) -> bool,
 ) -> Result<mullvad_types::states::TunnelState, Error> {
     tokio::time::timeout(
@@ -274,24 +270,16 @@ pub async fn find_next_tunnel_state(
 }
 
 async fn find_next_tunnel_state_inner(
-    mut stream: impl futures::Stream<Item = Result<types::DaemonEvent, tonic::Status>> + Unpin,
+    mut stream: impl futures::Stream<Item = Result<DaemonEvent, mullvad_management_interface::Error>>
+        + Unpin,
     accept_state_fn: impl Fn(&mullvad_types::states::TunnelState) -> bool,
 ) -> Result<mullvad_types::states::TunnelState, Error> {
     loop {
         match stream.next().await {
-            Some(Ok(event)) => match event.event.unwrap() {
-                mullvad_management_interface::types::daemon_event::Event::TunnelState(
-                    new_state,
-                ) => {
-                    let state = mullvad_types::states::TunnelState::try_from(new_state).map_err(
-                        |error| Error::Daemon(format!("Invalid tunnel state: {:?}", error)),
-                    )?;
-                    if accept_state_fn(&state) {
-                        return Ok(state);
-                    }
-                }
-                _ => continue,
-            },
+            Some(Ok(DaemonEvent::TunnelState(state))) if accept_state_fn(&state) => {
+                return Ok(state)
+            }
+            Some(Ok(_)) => continue,
             Some(Err(status)) => {
                 break Err(Error::Daemon(format!(
                     "Failed to get next event: {}",
@@ -351,9 +339,7 @@ impl<T> Drop for AbortOnDrop<T> {
 ///   see [`mullvad_types::relay_constraints::WireguardConstraints`] for details.
 /// * OpenVPN settings are default (i.e. any port is used, no obfuscation ..)
 ///   see [`mullvad_types::relay_constraints::OpenVpnConstraints`] for details.
-pub async fn reset_relay_settings(
-    mullvad_client: &mut ManagementServiceClient,
-) -> Result<(), Error> {
+pub async fn reset_relay_settings(mullvad_client: &mut MullvadProxyClient) -> Result<(), Error> {
     disconnect_and_wait(mullvad_client).await?;
 
     let relay_settings = RelaySettings::Normal(RelayConstraints {
@@ -372,12 +358,12 @@ pub async fn reset_relay_settings(
         .map_err(|error| Error::Daemon(format!("Failed to reset relay settings: {}", error)))?;
 
     mullvad_client
-        .set_bridge_state(types::BridgeState::from(bridge_state))
+        .set_bridge_state(bridge_state)
         .await
         .map_err(|error| Error::Daemon(format!("Failed to reset bridge mode: {}", error)))?;
 
     mullvad_client
-        .set_obfuscation_settings(types::ObfuscationSettings::from(obfuscation_settings))
+        .set_obfuscation_settings(obfuscation_settings)
         .await
         .map_err(|error| Error::Daemon(format!("Failed to reset obfuscation: {}", error)))?;
 
@@ -385,62 +371,44 @@ pub async fn reset_relay_settings(
 }
 
 pub async fn set_relay_settings(
-    mullvad_client: &mut ManagementServiceClient,
+    mullvad_client: &mut MullvadProxyClient,
     relay_settings: RelaySettings,
 ) -> Result<(), Error> {
-    let new_settings = types::RelaySettings::from(relay_settings);
-
     mullvad_client
-        .set_relay_settings(new_settings)
+        .set_relay_settings(relay_settings)
         .await
-        .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {}", error)))?;
-    Ok(())
+        .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {}", error)))
 }
 
 pub async fn set_bridge_settings(
-    mullvad_client: &mut ManagementServiceClient,
+    mullvad_client: &mut MullvadProxyClient,
     bridge_settings: BridgeSettings,
 ) -> Result<(), Error> {
-    let new_settings = types::BridgeSettings::from(bridge_settings);
-
     mullvad_client
-        .set_bridge_settings(new_settings)
+        .set_bridge_settings(bridge_settings)
         .await
-        .map_err(|error| Error::Daemon(format!("Failed to set bridge settings: {}", error)))?;
-    Ok(())
-}
-
-pub async fn get_tunnel_state(mullvad_client: &mut ManagementServiceClient) -> TunnelState {
-    let state = mullvad_client
-        .get_tunnel_state(())
-        .await
-        .expect("mullvad RPC failed")
-        .into_inner();
-    TunnelState::try_from(state).unwrap()
+        .map_err(|error| Error::Daemon(format!("Failed to set bridge settings: {}", error)))
 }
 
 /// Wait for the relay list to be updated, to make sure we have the overridden one.
 /// Time out after a while.
-pub async fn ensure_updated_relay_list(mullvad_client: &mut ManagementServiceClient) {
-    let mut events = mullvad_client.events_listen(()).await.unwrap().into_inner();
-    mullvad_client.update_relay_locations(()).await.unwrap();
+pub async fn ensure_updated_relay_list(
+    mullvad_client: &mut MullvadProxyClient,
+) -> Result<(), mullvad_management_interface::Error> {
+    let mut events = mullvad_client.events_listen().await?;
+    mullvad_client.update_relay_locations().await?;
 
-    let wait_for_relay_update = async move {
+    let _ = tokio::time::timeout(std::time::Duration::from_secs(3), async move {
         while let Some(Ok(event)) = events.next().await {
-            if matches!(
-                event,
-                mullvad_management_interface::types::DaemonEvent {
-                    event: Some(
-                        mullvad_management_interface::types::daemon_event::Event::RelayList { .. }
-                    )
-                }
-            ) {
+            if matches!(event, DaemonEvent::RelayList(_)) {
                 log::debug!("Received new relay list");
                 break;
             }
         }
-    };
-    let _ = tokio::time::timeout(std::time::Duration::from_secs(3), wait_for_relay_update).await;
+    })
+    .await;
+
+    Ok(())
 }
 
 pub fn unreachable_wireguard_tunnel() -> talpid_types::net::wireguard::ConnectionConfig {
@@ -471,18 +439,16 @@ pub fn unreachable_wireguard_tunnel() -> talpid_types::net::wireguard::Connectio
 /// * `mullvad_client` - An interface to the Mullvad daemon.
 /// * `critera` - A function used to determine which relays to return.
 pub async fn filter_relays<Filter>(
-    mullvad_client: &mut ManagementServiceClient,
+    mullvad_client: &mut MullvadProxyClient,
     criteria: Filter,
 ) -> Result<Vec<Relay>, Error>
 where
     Filter: Fn(&Relay) -> bool,
 {
     let relay_list: RelayList = mullvad_client
-        .get_relay_locations(())
+        .get_relay_locations()
         .await
-        .map_err(|error| Error::Daemon(format!("Failed to obtain relay list: {}", error)))?
-        .into_inner()
-        .try_into()?;
+        .map_err(|error| Error::Daemon(format!("Failed to obtain relay list: {}", error)))?;
 
     Ok(relay_list
         .relays()
