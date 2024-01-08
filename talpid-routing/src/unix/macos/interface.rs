@@ -160,8 +160,22 @@ impl PrimaryInterfaceMonitor {
 
         // If the gateway is a link-local address, scope ID must be specified
         if let SocketAddr::V6(ref mut v6_addr) = router_addr {
-            if is_link_local_v6(&v6_addr.ip()) {
-                v6_addr.set_scope_id(index);
+            let v6ip = v6_addr.ip();
+
+            if is_link_local_v6(&v6ip) {
+                // The second pair of octets should be set to the scope id
+                // See getaddr() in route.c:
+                // https://opensource.apple.com/source/network_cmds/network_cmds-396.6/route.tproj/route.c.auto.html
+
+                let second_octet = u16::try_from(index).unwrap().to_be_bytes();
+
+                let mut octets = v6ip.octets();
+                octets[2] = second_octet[0];
+                octets[3] = second_octet[1];
+
+                let new_ip = Ipv6Addr::from(octets);
+
+                v6_addr.set_ip(new_ip);
             }
         }
 
