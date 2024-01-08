@@ -29,10 +29,14 @@
         <!--
             MainActivity
             Must be exported in order to be launchable.
+            Launch mode should singleInstance to avoid this vulnerability;
+            https://developer.android.com/privacy-and-security/risks/strandhogg
+            This can be disregarded when the minimum supported version is 28 or higher
+            since after that it has been patched on a OS level.
         -->
         <activity android:name="net.mullvad.mullvadvpn.ui.MainActivity"
                   android:exported="true"
-                  android:launchMode="singleTask"
+                  android:launchMode="singleInstance"
                   android:configChanges="orientation|screenSize|screenLayout"
                   android:screenOrientation="fullUser"
                   android:windowSoftInputMode="adjustResize">
