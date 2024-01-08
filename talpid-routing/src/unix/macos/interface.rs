@@ -7,7 +7,7 @@ use nix::{
 use std::{
     collections::BTreeMap,
     io,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV6},
 };
 
 use super::data::{Destination, RouteMessage};
@@ -155,9 +155,18 @@ impl PrimaryInterfaceMonitor {
             })
             .next()?;
 
-        // Synthesize a scoped route for the interface
+        let router_addr = (iface.router_ip, 0);
+        let mut router_addr = SocketAddr::from(router_addr);
+
+        // If the gateway is a link-local address, scope ID must be specified
+        if let SocketAddr::V6(ref mut v6_addr) = router_addr {
+            if is_link_local_v6(&v6_addr.ip()) {
+                v6_addr.set_scope_id(index);
+            }
+        }
+
         let msg = RouteMessage::new_route(Destination::Network(family.default_network()))
-            .set_gateway_addr(iface.router_ip)
+            .set_gateway_addr(router_addr)
             .set_interface_index(u16::try_from(index).unwrap());
         Some(msg)
     }
@@ -301,8 +310,9 @@ fn is_routable_v4(addr: &Ipv4Addr) -> bool {
 }
 
 fn is_routable_v6(addr: &Ipv6Addr) -> bool {
-    !addr.is_unspecified()
-    && !addr.is_loopback()
-    // !(link local)
-    && (addr.segments()[0] & 0xffc0) != 0xfe80
+    !addr.is_unspecified() && !addr.is_loopback() && !is_link_local_v6(addr)
+}
+
+fn is_link_local_v6(addr: &Ipv6Addr) -> bool {
+    (addr.segments()[0] & 0xffc0) == 0xfe80
 }

@@ -179,9 +179,8 @@ impl RouteMessage {
         self
     }
 
-    pub fn set_gateway_addr(mut self, addr: IpAddr) -> Self {
-        let gateway: SocketAddr = (addr, 0).into();
-        self.insert_sockaddr(RouteSocketAddress::Gateway(Some(gateway.into())));
+    pub fn set_gateway_addr(mut self, gateway: impl Into<SocketAddr>) -> Self {
+        self.insert_sockaddr(RouteSocketAddress::Gateway(Some(gateway.into().into())));
         self.route_flags |= RouteFlag::RTF_GATEWAY;
 
         self
