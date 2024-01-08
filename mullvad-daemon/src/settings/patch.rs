@@ -457,6 +457,25 @@ fn test_valid_patch_files() {
 }
 
 #[test]
+fn test_patch_export() {
+    use mullvad_types::relay_constraints::RelayOverride;
+
+    let mut settings = Settings::default();
+
+    let mut relay_override = RelayOverride::empty("test".to_owned());
+    relay_override.ipv4_addr_in = Some("1.2.3.4".parse().unwrap());
+    relay_override.ipv6_addr_in = Some("::1".parse().unwrap());
+    settings.relay_overrides.push(relay_override);
+
+    let exported = export_settings_inner(&settings).expect("patch export failed");
+
+    let expected = r#"{ "relay_overrides": [ { "hostname": "test", "ipv4_addr_in": "1.2.3.4", "ipv6_addr_in": "::1" } ] }"#;
+    let expected: serde_json::Value = serde_json::from_str(expected).unwrap();
+
+    assert_eq!(exported, expected);
+}
+
+#[test]
 fn test_patch_relay_override() {
     const PERMITTED_SUBKEYS: &PermittedKey = &PermittedKey::object(&[(
         "relay_overrides",
