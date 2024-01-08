@@ -28,7 +28,7 @@ abstract class EndToEndTest {
                 Manifest.permission.READ_EXTERNAL_STORAGE
             )
         } else {
-            null
+            GrantPermissionExtension.grant()
         })
 
     lateinit var device: UiDevice
