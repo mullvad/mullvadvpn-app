@@ -46,6 +46,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.
 
+### Security
+#### Android
+- Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
+
 
 ## [android/2023.10] - 2023-12-14
 Identical to `android/2023.10-beta1`.
