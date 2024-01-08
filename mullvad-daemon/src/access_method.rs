@@ -1,9 +1,9 @@
 use crate::{
-    api::{self, AccessModeSelectorHandle},
+    api,
     settings::{self, MadeChanges},
     Daemon, EventListener,
 };
-use mullvad_api::rest::{self, MullvadRestHandle};
+use mullvad_api::rest;
 use mullvad_types::{
     access_method::{self, AccessMethod, AccessMethodSetting},
     settings::Settings,
@@ -32,18 +32,6 @@ pub enum Error {
     /// Access methods settings error
     #[error(display = "Settings error")]
     Settings(#[error(source)] settings::Error),
-}
-
-/// A tiny datastructure used for signaling whether the daemon should force a
-/// rotation of the currently used [`AccessMethodSetting`] or not, and if so:
-/// how it should do it.
-pub enum Command {
-    /// There is no need to force a rotation of [`AccessMethodSetting`]
-    Nothing,
-    /// Select the next available [`AccessMethodSetting`], whichever that is
-    Rotate,
-    /// Select the [`AccessMethodSetting`] with a certain [`access_method::Id`]
-    Set(access_method::Id),
 }
 
 impl<L> Daemon<L>
@@ -79,30 +67,29 @@ where
         &mut self,
         access_method: access_method::Id,
     ) -> Result<(), Error> {
-        // Make sure that we are not trying to remove a built-in API access
-        // method
-        let command = match self.settings.api_access_methods.find_by_id(&access_method) {
-            Some(api_access_method) => {
-                if api_access_method.is_builtin() {
-                    Err(Error::RemoveBuiltIn)
-                } else if api_access_method.get_id()
-                    == self.get_current_access_method().await?.get_id()
-                {
-                    Ok(Command::Rotate)
-                } else {
-                    Ok(Command::Nothing)
-                }
+        match self.settings.api_access_methods.find_by_id(&access_method) {
+            // Make sure that we are not trying to remove a built-in API access
+            // method
+            Some(api_access_method) if api_access_method.is_builtin() => {
+                return Err(Error::RemoveBuiltIn)
             }
-            None => Ok(Command::Nothing),
-        }?;
+            // If the currently active access method is removed, a new access
+            // method should trigger
+            Some(api_access_method)
+                if api_access_method.get_id()
+                    == self.get_current_access_method().await?.get_id() =>
+            {
+                self.force_api_endpoint_rotation().await?;
+            }
+            _ => (),
+        }
 
         self.settings
             .update(|settings| settings.api_access_methods.remove(&access_method))
             .await
             .map(|did_change| self.notify_on_change(did_change))
-            .map_err(Error::Settings)?
-            .process_command(command)
-            .await
+            .map(|_| ())
+            .map_err(Error::Settings)
     }
 
     /// Set a [`AccessMethodSetting`] as the current API access method.
@@ -119,9 +106,6 @@ where
             .set_access_method(access_method)
             .await?;
         // Force a rotation of Access Methods.
-        //
-        // This is not a call to `process_command` due to the restrictions on
-        // recursively calling async functions.
         self.force_api_endpoint_rotation().await
     }
 
@@ -150,7 +134,8 @@ where
         // If the currently active access method is updated, we need to re-set
         // it after updating the settings.
         let current = self.get_current_access_method().await?;
-        let mut command = Command::Nothing;
+        // If the currently active access method is updated, we need to re-set it.
+        let mut refresh = None;
         let settings_update = |settings: &mut Settings| {
             let access_methods = &mut settings.api_access_methods;
             if let Some(access_method) =
@@ -158,7 +143,7 @@ where
             {
                 *access_method = access_method_update;
                 if access_method.get_id() == current.get_id() {
-                    command = Command::Set(access_method.get_id())
+                    refresh = Some(access_method.get_id())
                 }
                 // We have to be a bit careful. If we are about to disable the last
                 // remaining enabled access method, we would cause an inconsistent state
@@ -185,19 +170,25 @@ where
             .update(settings_update)
             .await
             .map(|did_change| self.notify_on_change(did_change))
-            .map_err(Error::Settings)?
-            .process_command(command)
-            .await
+            .map_err(Error::Settings)?;
+        if let Some(id) = refresh {
+            self.set_api_access_method(id).await?;
+        }
+        Ok(())
     }
 
     /// Return the [`AccessMethodSetting`] which is currently used to access the
     /// Mullvad API.
     pub async fn get_current_access_method(&self) -> Result<AccessMethodSetting, Error> {
-        Ok(self.connection_modes_handler.get_access_method().await?)
+        self.connection_modes_handler
+            .get_current()
+            .await
+            .map(|current| current.setting)
+            .map_err(Error::ConnectionMode)
     }
 
-    /// Change which [`AccessMethodSetting`] which will be used to figure out
-    /// the Mullvad API endpoint.
+    /// Change which [`AccessMethodSetting`] which will be used as the Mullvad
+    /// API endpoint.
     async fn force_api_endpoint_rotation(&self) -> Result<(), Error> {
         self.api_handle
             .service()
@@ -233,102 +224,4 @@ where
         };
         self
     }
-
-    /// The semantics of the [`Command`] datastructure.
-    async fn process_command(&mut self, command: Command) -> Result<(), Error> {
-        match command {
-            Command::Nothing => Ok(()),
-            Command::Rotate => self.force_api_endpoint_rotation().await,
-            Command::Set(id) => self.set_api_access_method(id).await,
-        }
-    }
-}
-
-/// Try to reach the Mullvad API using a specific access method, returning
-/// an [`Error`] in the case where the test fails to reach the API.
-///
-/// Ephemerally sets a new access method (associated with `access_method`)
-/// to be used for subsequent API calls, before performing an API call and
-/// switching back to the previously active access method. The previous
-/// access method is *always* reset.
-pub async fn test_access_method(
-    new_access_method: AccessMethodSetting,
-    access_mode_selector: AccessModeSelectorHandle,
-    rest_handle: MullvadRestHandle,
-) -> Result<bool, Error> {
-    // Setup test
-    let previous_access_method = access_mode_selector
-        .get_access_method()
-        .await
-        .map_err(Error::ConnectionMode)?;
-
-    let method_under_test = new_access_method.clone();
-    access_mode_selector
-        .set_access_method(new_access_method)
-        .await
-        .map_err(Error::ConnectionMode)?;
-
-    // We need to perform a rotation of API endpoint after a set action
-    let rotation_handle = rest_handle.clone();
-    rotation_handle
-        .service()
-        .next_api_endpoint()
-        .await
-        .map_err(|err| {
-            log::error!("Failed to rotate API endpoint: {err}");
-            Error::Rest(err)
-        })?;
-
-    // Set up the reset
-    //
-    // In case the API call fails, the next API endpoint will
-    // automatically be selected, which means that we need to set up
-    // with the previous API endpoint beforehand.
-    access_mode_selector
-        .set_access_method(previous_access_method)
-        .await
-        .map_err(|err| {
-            log::error!(
-                "Could not reset to previous access
-            method after API reachability test was carried out. This should only
-            happen if the previous access method was removed in the meantime."
-            );
-            Error::ConnectionMode(err)
-        })?;
-
-    // Perform test
-    //
-    // Send a HEAD request to some Mullvad API endpoint. We issue a HEAD
-    // request because we are *only* concerned with if we get a reply from
-    // the API, and not with the actual data that the endpoint returns.
-    let result = mullvad_api::ApiProxy::new(rest_handle)
-        .api_addrs_available()
-        .await
-        .map_err(Error::Rest)?;
-
-    // We need to perform a rotation of API endpoint after a set action
-    // Note that this will be done automatically if the API call fails,
-    // so it only has to be done if the call succeeded ..
-    if result {
-        rotation_handle
-            .service()
-            .next_api_endpoint()
-            .await
-            .map_err(|err| {
-                log::error!("Failed to rotate API endpoint: {err}");
-                Error::Rest(err)
-            })?;
-    }
-
-    log::info!(
-        "The result of testing {method:?} is {result}",
-        method = method_under_test.access_method,
-        result = if result {
-            "success".to_string()
-        } else {
-            "failed".to_string()
-        }
-    );
-
-    Ok(result)
 }

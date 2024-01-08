@@ -27,6 +27,7 @@ pub mod version;
 mod version_check;
 
 use crate::target_state::PersistentTargetState;
+use api::NewAccessMethodEvent;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
@@ -369,6 +370,11 @@ pub(crate) enum InternalDaemonEvent {
     NewAppVersionInfo(AppVersionInfo),
     /// Sent when a device is updated in any way (key rotation, login, logout, etc.).
     DeviceEvent(AccountEvent),
+    /// Sent when access methods are changed in any way (new active access method).
+    AccessMethodEvent {
+        event: NewAccessMethodEvent,
+        endpoint_active_tx: oneshot::Sender<()>,
+    },
     /// Handles updates from versions without devices.
     DeviceMigrationEvent(Result<PrivateAccountAndDevice, device::Error>),
     /// A geographical location has has been received from am.i.mullvad.net
@@ -405,6 +411,15 @@ impl From<AppVersionInfo> for InternalDaemonEvent {
 impl From<AccountEvent> for InternalDaemonEvent {
     fn from(event: AccountEvent) -> Self {
         InternalDaemonEvent::DeviceEvent(event)
+    }
+}
+
+impl From<(NewAccessMethodEvent, oneshot::Sender<()>)> for InternalDaemonEvent {
+    fn from(event: (NewAccessMethodEvent, oneshot::Sender<()>)) -> Self {
+        InternalDaemonEvent::AccessMethodEvent {
+            event: event.0,
+            endpoint_active_tx: event.1,
+        }
     }
 }
 
@@ -590,6 +605,9 @@ pub trait EventListener {
 
     /// Notify that a device was revoked using `RemoveDevice`.
     fn notify_remove_device_event(&self, event: RemoveDeviceEvent);
+
+    /// Notify that the api access method changed.
+    fn notify_new_access_method_event(&self, new_access_method: AccessMethodSetting);
 }
 
 pub struct Daemon<L: EventListener> {
@@ -654,8 +672,6 @@ where
         let api_availability = api_runtime.availability_handle();
         api_availability.suspend();
 
-        let endpoint_updater = api::ApiEndpointUpdaterHandle::new();
-
         let migration_data = migrations::migrate_all(&cache_dir, &settings_dir)
             .await
             .unwrap_or_else(|error| {
@@ -687,18 +703,20 @@ where
         });
 
         let connection_modes = settings.api_access_methods.collect_enabled();
+        let connection_modes_address_cache = api_runtime.address_cache.clone();
 
         let connection_modes_handler = api::AccessModeSelector::spawn(
             cache_dir.clone(),
             relay_selector.clone(),
             connection_modes,
-        );
+            internal_event_tx.to_specialized_sender(),
+            connection_modes_address_cache.clone(),
+        )
+        .await
+        .map_err(Error::ApiConnectionModeError)?;
 
         let api_handle = api_runtime
-            .mullvad_rest_handle(
-                Box::pin(connection_modes_handler.clone().into_stream()),
-                endpoint_updater.callback(),
-            )
+            .mullvad_rest_handle(Box::pin(connection_modes_handler.clone().into_stream()))
             .await;
 
         let migration_complete = if let Some(migration_data) = migration_data {
@@ -750,11 +768,6 @@ where
             vec![]
         };
 
-        let initial_api_endpoint =
-            api::get_allowed_endpoint(talpid_types::net::Endpoint::from_socket_address(
-                api_runtime.address_cache.get_address().await,
-                talpid_types::net::TransportProtocol::Tcp,
-            ));
         let parameters_generator = tunnel::ParametersGenerator::new(
             account_manager.clone(),
             relay_selector.clone(),
@@ -772,6 +785,11 @@ where
             let _ = param_gen_tx.unbounded_send(settings.tunnel_options.to_owned());
         });
 
+        let initial_api_endpoint = connection_modes_handler
+            .get_current()
+            .await
+            .map_err(Error::ApiConnectionModeError)?
+            .endpoint;
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         #[cfg(target_os = "windows")]
         let (volume_update_tx, volume_update_rx) = mpsc::unbounded();
@@ -802,9 +820,6 @@ where
         )
         .await
         .map_err(Error::TunnelError)?;
-
-        endpoint_updater
-            .set_tunnel_command_tx(Arc::downgrade(tunnel_state_machine_handle.command_tx()));
 
         api::forward_offline_state(api_availability.clone(), offline_state_rx);
 
@@ -962,6 +977,10 @@ where
                 self.handle_new_app_version_info(app_version_info);
             }
             DeviceEvent(event) => self.handle_device_event(event).await,
+            AccessMethodEvent {
+                event,
+                endpoint_active_tx,
+            } => self.handle_access_method_event(event, endpoint_active_tx),
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event),
             LocationEvent(location_data) => self.handle_location_event(location_data),
             #[cfg(windows)]
@@ -1218,7 +1237,7 @@ where
             UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
-            TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method),
+            TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -1315,6 +1334,32 @@ where
             self.event_listener
                 .notify_device_event(DeviceEvent::from(event));
         }
+    }
+
+    fn handle_access_method_event(
+        &mut self,
+        event: NewAccessMethodEvent,
+        endpoint_active_tx: oneshot::Sender<()>,
+    ) {
+        // Update the firewall to exempt a new API endpoint.
+        let (completion_tx, completion_rx) = oneshot::channel();
+        self.send_tunnel_command(TunnelCommand::AllowEndpoint(event.endpoint, completion_tx));
+        // If the `NewAccessMethodEvent` should be announced to any client
+        // listening for updates of the currently active access method, we need
+        // to clone the handle to the broadcaster of such events. The
+        // announcement should be made after the firewall policy has been
+        // updated, since the new access method will be useless before then.
+        let event_listener = self.event_listener.clone();
+        tokio::spawn(async move {
+            // Wait for the firewall policy to be updated.
+            let _ = completion_rx.await;
+            // Let the emitter of this event know that the firewall has been updated.
+            let _ = endpoint_active_tx.send(());
+            // Notify clients about the change if necessary.
+            if event.announce {
+                event_listener.notify_new_access_method_event(event.setting);
+            }
+        });
     }
 
     fn handle_device_migration_event(
@@ -2405,42 +2450,88 @@ where
         let handle = self.connection_modes_handler.clone();
         tokio::spawn(async move {
             let result = handle
-                .get_access_method()
+                .get_current()
                 .await
+                .map(|current| current.setting)
                 .map_err(Error::ApiConnectionModeError);
             Self::oneshot_send(tx, result, "get_current_api_access_method response");
         });
     }
 
-    fn on_test_api_access_method(
+    async fn on_test_api_access_method(
         &mut self,
         tx: ResponseTx<bool, Error>,
         access_method: mullvad_types::access_method::Id,
     ) {
-        // NOTE: Preferably we would block all new API calls until the test is
-        // done and the previous access method is reset. Otherwise we run the
-        // risk of errounously triggering a rotation of the currently in-use
-        // access method.
-        let api_handle = self.api_handle.clone();
-        let handle = self.connection_modes_handler.clone();
-        let access_method_lookup = self
-            .get_api_access_method(access_method)
-            .map_err(Error::AccessMethodError);
+        let reply =
+            |response| Self::oneshot_send(tx, response, "on_test_api_access_method response");
 
-        match access_method_lookup {
-            Ok(access_method) => {
-                tokio::spawn(async move {
-                    let result =
-                        access_method::test_access_method(access_method, handle, api_handle)
-                            .await
-                            .map_err(Error::AccessMethodError);
-                    Self::oneshot_send(tx, result, "on_test_api_access_method response");
-                });
-            }
+        let access_method = match self.get_api_access_method(access_method) {
+            Ok(x) => x,
             Err(err) => {
-                Self::oneshot_send(tx, Err(err), "on_test_api_access_method response");
+                reply(Err(Error::AccessMethodError(err)));
+                return;
             }
-        }
+        };
+
+        let test_subject = match self.connection_modes_handler.resolve(access_method).await {
+            Ok(test_subject) => test_subject,
+            Err(err) => {
+                reply(Err(Error::ApiConnectionModeError(err)));
+                return;
+            }
+        };
+
+        let test_subject_name = test_subject.setting.name.clone();
+        let proxy_provider = test_subject.connection_mode.clone().into_repeat();
+        let rest_handle = self.api_runtime.mullvad_rest_handle(proxy_provider).await;
+        let api_proxy = mullvad_api::ApiProxy::new(rest_handle);
+        let daemon_event_sender = self.tx.to_specialized_sender();
+        let access_method_selector = self.connection_modes_handler.clone();
+
+        tokio::spawn(async move {
+            let result = async move {
+                // Send an internal daemon event which will punch a hole in the firewall
+                // for the connection mode we are testing.
+                let _ = api::NewAccessMethodEvent::new(test_subject.setting, test_subject.endpoint)
+                    .announce(false)
+                    .send(daemon_event_sender.clone())
+                    .await;
+
+                // Send a HEAD request to some Mullvad API endpoint. We issue a HEAD
+                // request because we are *only* concerned with if we get a reply from
+                // the API, and not with the actual data that the endpoint returns.
+                let result = api_proxy
+                    .api_addrs_available()
+                    .await
+                    .map_err(Error::RestError);
+
+                // Tell the daemon to reset the hole we just punched to whatever was in
+                // place before.
+                let active = access_method_selector
+                    .get_current()
+                    .await
+                    .map_err(Error::ApiConnectionModeError)?;
+                let _ = api::NewAccessMethodEvent::new(active.setting, active.endpoint)
+                    .announce(false)
+                    .send(daemon_event_sender.clone())
+                    .await;
+
+                result
+            }
+            .await;
+
+            log::debug!(
+                "API access method {method} {verdict}",
+                method = test_subject_name,
+                verdict = match result {
+                    Ok(true) => "could successfully connect to the Mullvad API",
+                    _ => "could not connect to the Mullvad API",
+                }
+            );
+
+            reply(result);
+        });
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
