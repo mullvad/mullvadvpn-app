@@ -6,7 +6,6 @@ import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaime
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.e2e.misc.CleanupAccountTestRule
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
