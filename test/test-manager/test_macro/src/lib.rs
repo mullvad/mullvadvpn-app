@@ -11,11 +11,11 @@ use syn::{AttributeArgs, Lit, Meta, NestedMeta};
 /// be used to perform arbitrary network requests, inspect the local file
 /// system, rebooting ..
 ///
-/// * `mullvad_client` - a
-/// [`mullvad_management_interface::ManagementServiceClient`] which provides a
-/// bi-directional communication channel with the `mullvad-daemon` running
-/// inside of the virtual machine. All RPC-calls as defined by
-/// [`mullvad_management_interface::client`] are available on `mullvad_client`.
+/// * `mullvad_client` - a [`mullvad_management_interface::MullvadProxyClient`]
+/// which provides a bi-directional communication channel with the
+/// `mullvad-daemon` running inside of the virtual machine. All RPC-calls as
+/// defined in [`mullvad_management_interface::MullvadProxyClient`] are
+/// available on `mullvad_client`.
 ///
 ///# Arguments
 ///
@@ -47,11 +47,11 @@ use syn::{AttributeArgs, Lit, Meta, NestedMeta};
 /// Remember that [`test_function`] will inject `rpc` and `mullvad_client` for
 /// us.
 ///
-/// ```
+/// ```ignore
 /// #[test_function]
 /// pub async fn test_function(
 ///     rpc: ServiceClient,
-///     mut mullvad_client: mullvad_management_interface::ManagementServiceClient,
+///     mut mullvad_client: mullvad_management_interface::MullvadProxyClient,
 /// ) -> Result<(), Error> {
 ///     Ok(())
 /// }
@@ -62,11 +62,11 @@ use syn::{AttributeArgs, Lit, Meta, NestedMeta};
 /// This test will run early in the test loop, won't perform any cleanup, must
 /// succeed and will always run.
 ///
-/// ```
+/// ```ignore
 /// #[test_function(priority = -1337, cleanup = false, must_succeed = true, always_run = true)]
 /// pub async fn test_function(
 ///     rpc: ServiceClient,
-///     mut mullvad_client: mullvad_management_interface::ManagementServiceClient,
+///     mut mullvad_client: mullvad_management_interface::MullvadProxyClient,
 /// ) -> Result<(), Error> {
 ///     Ok(())
 /// }
@@ -274,7 +274,7 @@ fn get_test_function_parameters(
                 let mullvad_client = match &*pat_type.ty {
                     syn::Type::Path(syn::TypePath { path, .. }) => {
                         match path.segments[0].ident.to_string().as_str() {
-                            "mullvad_management_interface" | "ManagementServiceClient" => {
+                            "mullvad_management_interface" | "MullvadProxyClient" => {
                                 let mullvad_client_version =
                                     quote! { test_rpc::mullvad_daemon::MullvadClientVersion::New };
                                 MullvadClient::New {

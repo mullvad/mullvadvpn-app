@@ -1,13 +1,14 @@
-use super::helpers::{connect_and_wait, get_package_desc};
+use super::config::TEST_CONFIG;
+use super::helpers::{connect_and_wait, get_package_desc, wait_for_tunnel_state, Pinger};
 use super::{Error, TestContext};
 
-use super::config::TEST_CONFIG;
-use crate::tests::helpers::{wait_for_tunnel_state, Pinger};
-use mullvad_management_interface::{types, ManagementServiceClient};
-use std::{collections::HashMap, net::ToSocketAddrs, time::Duration};
+use mullvad_management_interface::MullvadProxyClient;
+use mullvad_types::relay_constraints;
 use test_macro::test_function;
 use test_rpc::meta::Os;
 use test_rpc::{mullvad_daemon::ServiceStatus, ServiceClient};
+
+use std::{collections::HashMap, net::ToSocketAddrs, time::Duration};
 
 /// Install the last stable version of the app and verify that it is running.
 #[test_function(priority = -200)]
@@ -130,26 +131,19 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
     log::info!("Sanity checking settings");
 
     let settings = mullvad_client
-        .get_settings(())
+        .get_settings()
         .await
-        .expect("failed to obtain settings")
-        .into_inner();
+        .expect("failed to obtain settings");
 
     const EXPECTED_COUNTRY: &str = "xx";
 
     let relay_location_was_preserved = match &settings.relay_settings {
-        Some(types::RelaySettings {
-            endpoint:
-                Some(types::relay_settings::Endpoint::Normal(types::NormalRelaySettings {
-                    location:
-                        Some(types::LocationConstraint {
-                            r#type:
-                                Some(types::location_constraint::Type::Location(
-                                    types::GeographicLocationConstraint { country, .. },
-                                )),
-                        }),
-                    ..
-                })),
+        relay_constraints::RelaySettings::Normal(relay_constraints::RelayConstraints {
+            location:
+                relay_constraints::Constraint::Only(relay_constraints::LocationConstraint::Location(
+                    relay_constraints::GeographicLocationConstraint::Country(country),
+                )),
+            ..
         }) => country == EXPECTED_COUNTRY,
         _ => false,
     };
@@ -192,7 +186,7 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
 pub async fn test_uninstall_app(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: mullvad_management_interface::ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
         return Err(Error::DaemonNotRunning);
@@ -208,15 +202,12 @@ pub async fn test_uninstall_app(
     // save device to verify that uninstalling removes the device
     // we should still be logged in after upgrading
     let uninstalled_device = mullvad_client
-        .get_device(())
+        .get_device()
         .await
         .expect("failed to get device data")
-        .into_inner();
-    let uninstalled_device = uninstalled_device
+        .into_device()
+        .expect("failed to get device")
         .device
-        .expect("missing account/device")
-        .device
-        .expect("missing device id")
         .id;
 
     log::debug!("Uninstalling app");
@@ -291,7 +282,7 @@ pub async fn test_install_new_app(_: TestContext, rpc: ServiceClient) -> Result<
 pub async fn test_installation_idempotency(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     // Connect to any relay
     connect_and_wait(&mut mullvad_client).await?;

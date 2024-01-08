@@ -5,8 +5,10 @@ use std::{
 };
 
 use itertools::Itertools;
-use mullvad_management_interface::{types, ManagementServiceClient};
-use mullvad_types::{relay_constraints::RelaySettings, ConnectionConfig, CustomTunnelEndpoint};
+use mullvad_management_interface::MullvadProxyClient;
+use mullvad_types::{
+    relay_constraints::RelaySettings, settings, ConnectionConfig, CustomTunnelEndpoint,
+};
 use talpid_types::net::wireguard;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
@@ -43,7 +45,7 @@ const MONITOR_TIMEOUT: Duration = Duration::from_secs(5);
 pub async fn test_dns_leak_default(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     leak_test_dns(
         &rpc,
@@ -66,19 +68,19 @@ pub async fn test_dns_leak_default(
 pub async fn test_dns_leak_custom_public_ip(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     const CONFIG_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(1, 3, 3, 7));
 
     log::debug!("Setting custom DNS resolver to {CONFIG_IP}");
 
     mullvad_client
-        .set_dns_options(types::DnsOptions {
-            default_options: Some(types::DefaultDnsOptions::default()),
-            custom_options: Some(types::CustomDnsOptions {
-                addresses: vec![CONFIG_IP.to_string()],
-            }),
-            state: i32::from(types::dns_options::DnsState::Custom),
+        .set_dns_options(settings::DnsOptions {
+            default_options: settings::DefaultDnsOptions::default(),
+            custom_options: settings::CustomDnsOptions {
+                addresses: vec![CONFIG_IP],
+            },
+            state: settings::DnsState::Custom,
         })
         .await
         .expect("failed to configure DNS server");
@@ -98,19 +100,19 @@ pub async fn test_dns_leak_custom_public_ip(
 pub async fn test_dns_leak_custom_private_ip(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     const CONFIG_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(10, 64, 10, 1));
 
     log::debug!("Setting custom DNS resolver to {CONFIG_IP}");
 
     mullvad_client
-        .set_dns_options(types::DnsOptions {
-            default_options: Some(types::DefaultDnsOptions::default()),
-            custom_options: Some(types::CustomDnsOptions {
-                addresses: vec![CONFIG_IP.to_string()],
-            }),
-            state: i32::from(types::dns_options::DnsState::Custom),
+        .set_dns_options(settings::DnsOptions {
+            default_options: settings::DefaultDnsOptions::default(),
+            custom_options: settings::CustomDnsOptions {
+                addresses: vec![CONFIG_IP],
+            },
+            state: settings::DnsState::Custom,
         })
         .await
         .expect("failed to configure DNS server");
@@ -124,7 +126,7 @@ pub async fn test_dns_leak_custom_private_ip(
 /// * Packets to any other destination or a non-matching interface are observed.
 async fn leak_test_dns(
     rpc: &ServiceClient,
-    mullvad_client: &mut ManagementServiceClient,
+    mullvad_client: &mut MullvadProxyClient,
     use_tun: bool,
     whitelisted_dest: IpAddr,
 ) -> Result<(), Error> {
@@ -140,7 +142,7 @@ async fn leak_test_dns(
         .get_default_interface()
         .await
         .expect("failed to find non-tun interface");
-    let tunnel_iface = helpers::get_tunnel_interface(mullvad_client.clone())
+    let tunnel_iface = helpers::get_tunnel_interface(mullvad_client)
         .await
         .expect("failed to find tunnel interface");
 
@@ -335,7 +337,7 @@ async fn leak_test_dns(
 pub async fn test_dns_config_default(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     run_dns_config_tunnel_test(
         &rpc,
@@ -354,17 +356,17 @@ pub async fn test_dns_config_default(
 pub async fn test_dns_config_custom_private(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     log::debug!("Setting custom DNS resolver to {NON_TUN_GATEWAY}");
 
     mullvad_client
-        .set_dns_options(types::DnsOptions {
-            default_options: Some(types::DefaultDnsOptions::default()),
-            custom_options: Some(types::CustomDnsOptions {
-                addresses: vec![NON_TUN_GATEWAY.to_string()],
-            }),
-            state: i32::from(types::dns_options::DnsState::Custom),
+        .set_dns_options(settings::DnsOptions {
+            default_options: settings::DefaultDnsOptions::default(),
+            custom_options: settings::CustomDnsOptions {
+                addresses: vec![IpAddr::V4(NON_TUN_GATEWAY)],
+            },
+            state: settings::DnsState::Custom,
         })
         .await
         .expect("failed to configure DNS server");
@@ -381,19 +383,19 @@ pub async fn test_dns_config_custom_private(
 pub async fn test_dns_config_custom_public(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     let custom_ip = IpAddr::V4(Ipv4Addr::new(1, 3, 3, 7));
 
     log::debug!("Setting custom DNS resolver to {custom_ip}");
 
     mullvad_client
-        .set_dns_options(types::DnsOptions {
-            default_options: Some(types::DefaultDnsOptions::default()),
-            custom_options: Some(types::CustomDnsOptions {
-                addresses: vec![custom_ip.to_string()],
-            }),
-            state: i32::from(types::dns_options::DnsState::Custom),
+        .set_dns_options(settings::DnsOptions {
+            default_options: settings::DefaultDnsOptions::default(),
+            custom_options: settings::CustomDnsOptions {
+                addresses: vec![custom_ip],
+            },
+            state: settings::DnsState::Custom,
         })
         .await
         .expect("failed to configure DNS server");
@@ -407,14 +409,14 @@ pub async fn test_dns_config_custom_public(
 pub async fn test_content_blockers(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     const DNS_BLOCKING_IP_BASE: Ipv4Addr = Ipv4Addr::new(100, 64, 0, 0);
     let content_blockers = [
         (
             "adblocking",
             1 << 0,
-            types::DefaultDnsOptions {
+            settings::DefaultDnsOptions {
                 block_ads: true,
                 ..Default::default()
             },
@@ -422,7 +424,7 @@ pub async fn test_content_blockers(
         (
             "tracker",
             1 << 1,
-            types::DefaultDnsOptions {
+            settings::DefaultDnsOptions {
                 block_trackers: true,
                 ..Default::default()
             },
@@ -430,7 +432,7 @@ pub async fn test_content_blockers(
         (
             "malware",
             1 << 2,
-            types::DefaultDnsOptions {
+            settings::DefaultDnsOptions {
                 block_malware: true,
                 ..Default::default()
             },
@@ -438,7 +440,7 @@ pub async fn test_content_blockers(
         (
             "adult",
             1 << 3,
-            types::DefaultDnsOptions {
+            settings::DefaultDnsOptions {
                 block_adult_content: true,
                 ..Default::default()
             },
@@ -446,17 +448,17 @@ pub async fn test_content_blockers(
         (
             "gambling",
             1 << 4,
-            types::DefaultDnsOptions {
+            settings::DefaultDnsOptions {
                 block_gambling: true,
                 ..Default::default()
             },
         ),
     ];
 
-    let combine_cases = |v: Vec<&(&str, u8, types::DefaultDnsOptions)>| {
+    let combine_cases = |v: Vec<&(&str, u8, settings::DefaultDnsOptions)>| {
         let mut combination_name = String::new();
         let mut last_byte = 0;
-        let mut options = types::DefaultDnsOptions::default();
+        let mut options = settings::DefaultDnsOptions::default();
 
         for case in v {
             if !combination_name.is_empty() {
@@ -494,10 +496,10 @@ pub async fn test_content_blockers(
         log::debug!("Testing content blocker: {test_name}, {test_ip}");
 
         mullvad_client
-            .set_dns_options(types::DnsOptions {
-                default_options: Some(test_opts),
-                custom_options: Some(types::CustomDnsOptions::default()),
-                state: i32::from(types::dns_options::DnsState::Default),
+            .set_dns_options(settings::DnsOptions {
+                default_options: test_opts,
+                custom_options: settings::CustomDnsOptions::default(),
+                state: settings::DnsState::Default,
             })
             .await
             .expect("failed to configure DNS server");
@@ -510,7 +512,7 @@ pub async fn test_content_blockers(
 
 async fn run_dns_config_tunnel_test(
     rpc: &ServiceClient,
-    mullvad_client: &mut ManagementServiceClient,
+    mullvad_client: &mut MullvadProxyClient,
     expected_dns_resolver: IpAddr,
 ) -> Result<(), Error> {
     run_dns_config_test(
@@ -534,7 +536,7 @@ async fn run_dns_config_tunnel_test(
 
 async fn run_dns_config_non_tunnel_test(
     rpc: &ServiceClient,
-    mullvad_client: &mut ManagementServiceClient,
+    mullvad_client: &mut MullvadProxyClient,
     expected_dns_resolver: IpAddr,
 ) -> Result<(), Error> {
     run_dns_config_test(
@@ -561,18 +563,12 @@ async fn run_dns_config_test<
 >(
     rpc: &ServiceClient,
     create_monitor: impl FnOnce() -> F,
-    mullvad_client: &mut ManagementServiceClient,
+    mullvad_client: &mut MullvadProxyClient,
     expected_dns_resolver: IpAddr,
 ) -> Result<(), Error> {
-    match mullvad_client
-        .get_tunnel_state(())
-        .await
-        .unwrap()
-        .into_inner()
-        .state
-    {
+    match mullvad_client.get_tunnel_state().await {
         // prevent reconnect
-        Some(types::tunnel_state::State::Connected(_)) => (),
+        Ok(mullvad_types::states::TunnelState::Connected { .. }) => (),
         _ => {
             connect_local_wg_relay(mullvad_client)
                 .await
@@ -584,7 +580,7 @@ async fn run_dns_config_test<
         .get_default_interface()
         .await
         .expect("failed to find non-tun interface");
-    let tunnel_iface = helpers::get_tunnel_interface(mullvad_client.clone())
+    let tunnel_iface = helpers::get_tunnel_interface(mullvad_client)
         .await
         .expect("failed to find tunnel interface");
 
@@ -633,7 +629,7 @@ async fn run_dns_config_test<
 
 /// Connect to the WireGuard relay that is set up in scripts/setup-network.sh
 /// See that script for details.
-async fn connect_local_wg_relay(mullvad_client: &mut ManagementServiceClient) -> Result<(), Error> {
+async fn connect_local_wg_relay(mullvad_client: &mut MullvadProxyClient) -> Result<(), Error> {
     let peer_addr: SocketAddr = SocketAddr::new(
         IpAddr::V4(CUSTOM_TUN_REMOTE_REAL_ADDR),
         CUSTOM_TUN_REMOTE_REAL_PORT,
