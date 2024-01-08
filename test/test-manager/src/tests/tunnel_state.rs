@@ -1,18 +1,21 @@
-use super::helpers::{
-    self, connect_and_wait, get_tunnel_state, send_guest_probes, set_relay_settings,
-    unreachable_wireguard_tunnel, wait_for_tunnel_state,
+use super::{
+    helpers::{
+        self, connect_and_wait, get_tunnel_state, send_guest_probes, set_relay_settings,
+        unreachable_wireguard_tunnel, wait_for_tunnel_state,
+    },
+    ui, Error, TestContext,
 };
-use super::{ui, Error, TestContext};
-use crate::assert_tunnel_state;
-use crate::vm::network::DUMMY_LAN_INTERFACE_IP;
+use crate::{assert_tunnel_state, vm::network::DUMMY_LAN_INTERFACE_IP};
 
 use mullvad_management_interface::ManagementServiceClient;
-use mullvad_types::relay_constraints::GeographicLocationConstraint;
-use mullvad_types::relay_list::{Relay, RelayEndpointData};
-use mullvad_types::CustomTunnelEndpoint;
 use mullvad_types::{
-    relay_constraints::{Constraint, LocationConstraint, RelayConstraints, RelaySettings},
+    relay_constraints::{
+        Constraint, GeographicLocationConstraint, LocationConstraint, RelayConstraints,
+        RelaySettings,
+    },
+    relay_list::{Relay, RelayEndpointData},
     states::TunnelState,
+    CustomTunnelEndpoint,
 };
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType};
@@ -32,7 +35,7 @@ pub async fn test_disconnected_state(
     let inet_destination = "1.3.3.7:1337".parse().unwrap();
 
     log::info!("Verify tunnel state: disconnected");
-    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected(_));
+    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
 
     // Test whether outgoing packets can be observed
     //
@@ -51,7 +54,6 @@ pub async fn test_disconnected_state(
         "did not see (all) outgoing packets to destination: {detected_probes:?}",
     );
 
-    //
     // Test UI view
     //
 
@@ -89,7 +91,7 @@ pub async fn test_connecting_state(
     let lan_dns: SocketAddr = SocketAddr::new(IpAddr::V4(DUMMY_LAN_INTERFACE_IP), 53);
 
     log::info!("Verify tunnel state: disconnected");
-    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected(_));
+    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
 
     let relay_settings = RelaySettings::CustomTunnelEndpoint(CustomTunnelEndpoint {
         host: "1.3.3.7".to_owned(),
@@ -118,7 +120,6 @@ pub async fn test_connecting_state(
         new_state
     );
 
-    //
     // Leak test
     //
 
@@ -171,7 +172,7 @@ pub async fn test_error_state(
     let lan_dns: SocketAddr = SocketAddr::new(IpAddr::V4(DUMMY_LAN_INTERFACE_IP), 53);
 
     log::info!("Verify tunnel state: disconnected");
-    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected(_));
+    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
 
     // Connect to non-existent location
     //
@@ -197,7 +198,6 @@ pub async fn test_error_state(
     let _ = connect_and_wait(&mut mullvad_client).await;
     assert_tunnel_state!(&mut mullvad_client, TunnelState::Error { .. });
 
-    //
     // Leak test
     //
 
@@ -235,12 +235,11 @@ pub async fn test_error_state(
 }
 
 /// Connect to a single relay and verify that:
-/// * Traffic can be sent and received in the tunnel.
-///   This is done by pinging a single public IP address
-///   and failing if there is no response.
+/// * Traffic can be sent and received in the tunnel. This is done by pinging a single public IP
+///   address and failing if there is no response.
 /// * The correct relay is used.
-/// * Leaks outside the tunnel are blocked. Refer to the
-///   `test_connecting_state` documentation for details.
+/// * Leaks outside the tunnel are blocked. Refer to the `test_connecting_state` documentation for
+///   details.
 #[test_function]
 pub async fn test_connected_state(
     _: TestContext,
@@ -249,7 +248,6 @@ pub async fn test_connected_state(
 ) -> Result<(), Error> {
     let inet_destination = "1.1.1.1:1337".parse().unwrap();
 
-    //
     // Set relay to use
     //
 
@@ -273,7 +271,6 @@ pub async fn test_connected_state(
         .await
         .expect("failed to update relay settings");
 
-    //
     // Connect
     //
 
@@ -281,7 +278,6 @@ pub async fn test_connected_state(
 
     let state = get_tunnel_state(&mut mullvad_client).await;
 
-    //
     // Verify that endpoint was selected
     //
 
@@ -309,7 +305,6 @@ pub async fn test_connected_state(
         actual => panic!("unexpected tunnel state: {:?}", actual),
     }
 
-    //
     // Ping outside of tunnel while connected
     //
 

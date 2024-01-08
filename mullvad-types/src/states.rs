@@ -34,7 +34,11 @@ impl fmt::Display for TargetState {
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum TunnelState {
-    Disconnected(Option<GeoIpLocation>),
+    Disconnected {
+        location: Option<GeoIpLocation>,
+        /// Whether internet access is blocked due to lockdown mode
+        locked_down: bool,
+    },
     Connecting {
         endpoint: TunnelEndpoint,
         location: Option<GeoIpLocation>,
@@ -60,6 +64,6 @@ impl TunnelState {
 
     /// Returns true if the tunnel state is in the disconnected state.
     pub fn is_disconnected(&self) -> bool {
-        matches!(self, TunnelState::Disconnected(_))
+        matches!(self, TunnelState::Disconnected { .. })
     }
 }

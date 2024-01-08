@@ -1,8 +1,9 @@
-use super::helpers;
-use super::helpers::{connect_and_wait, get_tunnel_state, send_guest_probes};
-use super::{Error, TestContext};
-use crate::assert_tunnel_state;
-use crate::vm::network::DUMMY_LAN_INTERFACE_IP;
+use super::{
+    helpers,
+    helpers::{connect_and_wait, get_tunnel_state, send_guest_probes},
+    Error, TestContext,
+};
+use crate::{assert_tunnel_state, vm::network::DUMMY_LAN_INTERFACE_IP};
 
 use mullvad_management_interface::ManagementServiceClient;
 use mullvad_types::states::TunnelState;
@@ -23,13 +24,11 @@ pub async fn test_lan(
 ) -> Result<(), Error> {
     let lan_destination = SocketAddr::new(IpAddr::V4(DUMMY_LAN_INTERFACE_IP), 1234);
 
-    //
     // Connect
     //
 
     connect_and_wait(&mut mullvad_client).await?;
 
-    //
     // Disable LAN sharing
     //
 
@@ -40,7 +39,6 @@ pub async fn test_lan(
         .await
         .expect("failed to disable LAN sharing");
 
-    //
     // Ensure LAN is not reachable
     //
 
@@ -54,7 +52,6 @@ pub async fn test_lan(
         "observed unexpected outgoing LAN packets: {detected_probes:?}"
     );
 
-    //
     // Enable LAN sharing
     //
 
@@ -65,7 +62,6 @@ pub async fn test_lan(
         .await
         .expect("failed to enable LAN sharing");
 
-    //
     // Ensure LAN is reachable
     //
 
@@ -83,13 +79,10 @@ pub async fn test_lan(
 
 /// Enable lockdown mode. This test succeeds if:
 ///
-/// * Disconnected state: Outgoing traffic leaks (UDP/TCP/ICMP)
-///   cannot be produced.
-/// * Disconnected state: Outgoing traffic to a single
-///   private IP can be produced, if and only if LAN
-///   sharing is enabled.
-/// * Connected state: Outgoing traffic leaks (UDP/TCP/ICMP)
-///   cannot be produced.
+/// * Disconnected state: Outgoing traffic leaks (UDP/TCP/ICMP) cannot be produced.
+/// * Disconnected state: Outgoing traffic to a single private IP can be produced, if and only if
+///   LAN sharing is enabled.
+/// * Connected state: Outgoing traffic leaks (UDP/TCP/ICMP) cannot be produced.
 ///
 /// # Limitations
 ///
@@ -107,7 +100,7 @@ pub async fn test_lockdown(
     let inet_destination: SocketAddr = "1.1.1.1:1337".parse().unwrap();
 
     log::info!("Verify tunnel state: disconnected");
-    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected(_));
+    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
 
     // Enable lockdown mode
     //
@@ -116,7 +109,6 @@ pub async fn test_lockdown(
         .await
         .expect("failed to enable lockdown mode");
 
-    //
     // Disable LAN sharing
     //
 
@@ -127,7 +119,6 @@ pub async fn test_lockdown(
         .await
         .expect("failed to disable LAN sharing");
 
-    //
     // Ensure all destinations are unreachable
     //
 
@@ -147,7 +138,6 @@ pub async fn test_lockdown(
         "observed outgoing packets to internet: {detected_probes:?}"
     );
 
-    //
     // Enable LAN sharing
     //
 
@@ -158,7 +148,6 @@ pub async fn test_lockdown(
         .await
         .expect("failed to enable LAN sharing");
 
-    //
     // Ensure private IPs are reachable, but not others
     //
 
@@ -176,13 +165,11 @@ pub async fn test_lockdown(
         "observed outgoing packets to internet: {detected_probes:?}"
     );
 
-    //
     // Connect
     //
 
     connect_and_wait(&mut mullvad_client).await?;
 
-    //
     // Leak test
     //
 
@@ -200,7 +187,6 @@ pub async fn test_lockdown(
         "observed outgoing packets to internet: {detected_probes:?}"
     );
 
-    //
     // Disable lockdown mode
     //
     mullvad_client

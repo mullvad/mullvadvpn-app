@@ -81,7 +81,7 @@ async fn wait_for_tunnel_state(
 ) -> Result<()> {
     while let Some(state) = event_stream.next().await {
         if let DaemonEvent::TunnelState(new_state) = state? {
-            format::print_state(&new_state, false).await;
+            format::print_state(&new_state, false);
             if matches_event(&new_state)? {
                 return Ok(());
             }
