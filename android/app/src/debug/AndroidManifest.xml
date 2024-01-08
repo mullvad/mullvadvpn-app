@@ -13,13 +13,5 @@
                  android:allowBackup="false"
                  android:banner="@drawable/banner"
                  android:name=".MullvadApplication"
-                 tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name="net.mullvad.mullvadvpn.TestActivity"
-                  android:label="@string/app_name"
-                  android:launchMode="singleInstance"
-                  android:configChanges="orientation|screenSize|screenLayout"
-                  android:screenOrientation="locked"
-                  android:windowSoftInputMode="adjustPan"
-                  android:exported="true"></activity>
-    </application>
+                 tools:ignore="DataExtractionRules,GoogleAppIndexingWarning"></application>
 </manifest>
