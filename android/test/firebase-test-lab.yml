@@ -12,3 +12,4 @@ default:
     - {model: GoogleTvEmulator, version: 30, locale: en, orientation: landscape}
   environment-variables:
     clearPackageData: "true"
+    runnerBuilder: "de.mannodermaus.junit5.AndroidJUnit5Builder"
