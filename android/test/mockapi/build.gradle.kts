@@ -72,13 +72,12 @@ dependencies {
     implementation(Dependencies.AndroidX.testRules)
     implementation(Dependencies.AndroidX.testUiAutomator)
     implementation(Dependencies.jodaTime)
-    implementation(Dependencies.Kotlin.stdlib)
-    implementation(Dependencies.mockkWebserver)
-
     implementation(Dependencies.junitAndroidTestExtensions)
     implementation(Dependencies.junitApi)
     implementation(Dependencies.junitAndroidTestCore)
     implementation(Dependencies.junitAndroidTestRunner)
+    implementation(Dependencies.Kotlin.stdlib)
+    implementation(Dependencies.mockkWebserver)
 
     androidTestUtil(Dependencies.AndroidX.testOrchestrator)
 }
