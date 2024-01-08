@@ -1282,7 +1282,7 @@ impl TunnelStateChangeHandler {
             }
             TunnelStateTransition::Error(_)
             | TunnelStateTransition::Connected(_)
-            | TunnelStateTransition::Disconnected => 0,
+            | TunnelStateTransition::Disconnected { .. } => 0,
             _ => retry_attempt,
         }
     }
