@@ -33,6 +33,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Out IP missing forever when am.i.mullvad.net returns error
 
+#### macOS
+- Fix default route not being restored when disconnecting when the gateway was a link-local IPv6
+  address.
+
 ### Changed
 - Remove `--location` flag from `mullvad status` CLI. Location and IP will now always
   be printed (if available). `mullvad status listen` no longer prints location info.

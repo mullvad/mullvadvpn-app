@@ -7,7 +7,7 @@ use nix::{
 use std::{
     collections::BTreeMap,
     io,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 
 use super::data::{Destination, RouteMessage};
@@ -155,9 +155,32 @@ impl PrimaryInterfaceMonitor {
             })
             .next()?;
 
-        // Synthesize a scoped route for the interface
+        let router_addr = (iface.router_ip, 0);
+        let mut router_addr = SocketAddr::from(router_addr);
+
+        // If the gateway is a link-local address, scope ID must be specified
+        if let SocketAddr::V6(ref mut v6_addr) = router_addr {
+            let v6ip = v6_addr.ip();
+
+            if is_link_local_v6(v6ip) {
+                // The second pair of octets should be set to the scope id
+                // See getaddr() in route.c:
+                // https://opensource.apple.com/source/network_cmds/network_cmds-396.6/route.tproj/route.c.auto.html
+
+                let second_octet = u16::try_from(index).unwrap().to_be_bytes();
+
+                let mut octets = v6ip.octets();
+                octets[2] = second_octet[0];
+                octets[3] = second_octet[1];
+
+                let new_ip = Ipv6Addr::from(octets);
+
+                v6_addr.set_ip(new_ip);
+            }
+        }
+
         let msg = RouteMessage::new_route(Destination::Network(family.default_network()))
-            .set_gateway_addr(iface.router_ip)
+            .set_gateway_addr(router_addr)
             .set_interface_index(u16::try_from(index).unwrap());
         Some(msg)
     }
@@ -301,8 +324,9 @@ fn is_routable_v4(addr: &Ipv4Addr) -> bool {
 }
 
 fn is_routable_v6(addr: &Ipv6Addr) -> bool {
-    !addr.is_unspecified()
-    && !addr.is_loopback()
-    // !(link local)
-    && (addr.segments()[0] & 0xffc0) != 0xfe80
+    !addr.is_unspecified() && !addr.is_loopback() && !is_link_local_v6(addr)
+}
+
+fn is_link_local_v6(addr: &Ipv6Addr) -> bool {
+    (addr.segments()[0] & 0xffc0) == 0xfe80
 }
