@@ -162,7 +162,7 @@ impl PrimaryInterfaceMonitor {
         if let SocketAddr::V6(ref mut v6_addr) = router_addr {
             let v6ip = v6_addr.ip();
 
-            if is_link_local_v6(&v6ip) {
+            if is_link_local_v6(v6ip) {
                 // The second pair of octets should be set to the scope id
                 // See getaddr() in route.c:
                 // https://opensource.apple.com/source/network_cmds/network_cmds-396.6/route.tproj/route.c.auto.html
