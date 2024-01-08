@@ -1002,10 +1002,9 @@ where
             .handle_state_transition(&tunnel_state_transition);
 
         let tunnel_state = match tunnel_state_transition {
-            TunnelStateTransition::Disconnected => TunnelState::Disconnected {
+            TunnelStateTransition::Disconnected { locked_down } => TunnelState::Disconnected {
                 location: None,
-                // If lockdown mode is enabled and state is disconnected
-                locked_down: self.settings.block_when_disconnected,
+                locked_down,
             },
             TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
                 endpoint,
