@@ -64,7 +64,7 @@ jobs:
           RUSTFLAGS: --deny warnings
         run: |
           source env.sh
-          time cargo clippy --locked
+          time cargo clippy --locked --all-targets
 
   clippy-check-android:
     name: Clippy linting, Android
