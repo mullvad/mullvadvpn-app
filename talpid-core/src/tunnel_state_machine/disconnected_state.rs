@@ -34,7 +34,6 @@ impl DisconnectedState {
                 error.display_chain_with_msg("Unable to disable filtering resolver")
             );
         }
-
         #[cfg(windows)]
         Self::register_split_tunnel_addresses(shared_values, should_reset_firewall);
         Self::set_firewall_policy(shared_values, should_reset_firewall);
@@ -43,9 +42,17 @@ impl DisconnectedState {
         #[cfg(target_os = "android")]
         shared_values.tun_provider.lock().unwrap().close_tun();
 
+        Self::construct_state_transition(shared_values)
+    }
+
+    fn construct_state_transition(
+        shared_values: &mut SharedTunnelStateValues,
+    ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
         (
             Box::new(DisconnectedState(())),
-            TunnelStateTransition::Disconnected,
+            TunnelStateTransition::Disconnected {
+                locked_down: shared_values.block_when_disconnected,
+            },
         )
     }
 
@@ -160,6 +167,12 @@ impl TunnelState for DisconnectedState {
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected, complete_tx)) => {
                 if shared_values.block_when_disconnected != block_when_disconnected {
                     shared_values.block_when_disconnected = block_when_disconnected;
+
+                    // TODO: Investigate if we can simply return
+                    // `NewState(Self::enter(shared_values, true))`.
+                    // The logic for updating the firewall in `DisconnectedState::enter` is
+                    // identical but it does not enter the error state if setting the local DNS
+                    // fails.
                     Self::set_firewall_policy(shared_values, true);
                     #[cfg(windows)]
                     Self::register_split_tunnel_addresses(shared_values, true);
@@ -178,9 +191,12 @@ impl TunnelState for DisconnectedState {
                     } else {
                         Self::reset_dns(shared_values);
                     }
+                    let _ = complete_tx.send(());
+                    NewState(Self::construct_state_transition(shared_values))
+                } else {
+                    let _ = complete_tx.send(());
+                    SameState(self)
                 }
-                let _ = complete_tx.send(());
-                SameState(self)
             }
             Some(TunnelCommand::IsOffline(is_offline)) => {
                 shared_values.is_offline = is_offline;
