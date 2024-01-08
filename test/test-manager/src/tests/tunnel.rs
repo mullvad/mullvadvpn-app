@@ -2,21 +2,21 @@ use super::helpers::{
     self, connect_and_wait, disconnect_and_wait, set_bridge_settings, set_relay_settings,
 };
 use super::{config::TEST_CONFIG, Error, TestContext};
-
 use crate::network_monitor::{start_packet_monitor, MonitorOptions};
-use mullvad_management_interface::{types, ManagementServiceClient};
+
+use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::relay_constraints::{
-    BridgeSettings, BridgeState, Constraint, ObfuscationSettings, OpenVpnConstraints,
-    RelayConstraints, RelaySettings, SelectedObfuscation, TransportPort,
-    Udp2TcpObfuscationSettings, WireguardConstraints,
+    self, BridgeSettings, Constraint, OpenVpnConstraints, RelayConstraints, RelaySettings,
+    SelectedObfuscation, TransportPort, Udp2TcpObfuscationSettings, WireguardConstraints,
 };
 use mullvad_types::wireguard;
-use pnet_packet::ip::IpNextHeaderProtocols;
 use talpid_types::net::{TransportProtocol, TunnelType};
 use test_macro::test_function;
 use test_rpc::meta::Os;
 use test_rpc::mullvad_daemon::ServiceStatus;
 use test_rpc::ServiceClient;
+
+use pnet_packet::ip::IpNextHeaderProtocols;
 
 /// Set up an OpenVPN tunnel, UDP as well as TCP.
 /// This test fails if a working tunnel cannot be set up.
@@ -24,7 +24,7 @@ use test_rpc::ServiceClient;
 pub async fn test_openvpn_tunnel(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     // TODO: observe traffic on the expected destination/port (only)
 
@@ -79,7 +79,7 @@ pub async fn test_openvpn_tunnel(
 pub async fn test_wireguard_tunnel(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     // TODO: observe UDP traffic on the expected destination/port (only)
     // TODO: IPv6
@@ -128,15 +128,15 @@ pub async fn test_wireguard_tunnel(
 pub async fn test_udp2tcp_tunnel(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     mullvad_client
-        .set_obfuscation_settings(types::ObfuscationSettings::from(ObfuscationSettings {
+        .set_obfuscation_settings(relay_constraints::ObfuscationSettings {
             selected_obfuscation: SelectedObfuscation::Udp2Tcp,
             udp2tcp: Udp2TcpObfuscationSettings {
                 port: Constraint::Any,
             },
-        }))
+        })
         .await
         .expect("failed to enable udp2tcp");
 
@@ -153,7 +153,7 @@ pub async fn test_udp2tcp_tunnel(
 
     connect_and_wait(&mut mullvad_client).await?;
 
-    let endpoint = match helpers::get_tunnel_state(&mut mullvad_client).await {
+    let endpoint = match mullvad_client.get_tunnel_state().await? {
         mullvad_types::states::TunnelState::Connected { endpoint, .. } => endpoint.endpoint,
         _ => panic!("unexpected tunnel state"),
     };
@@ -197,7 +197,7 @@ pub async fn test_udp2tcp_tunnel(
 pub async fn test_bridge(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     //
     // Enable bridge mode
@@ -205,7 +205,7 @@ pub async fn test_bridge(
     log::info!("Updating bridge settings");
 
     mullvad_client
-        .set_bridge_state(types::BridgeState::from(BridgeState::On))
+        .set_bridge_state(relay_constraints::BridgeState::On)
         .await
         .expect("failed to enable bridge mode");
 
@@ -231,11 +231,13 @@ pub async fn test_bridge(
 
     connect_and_wait(&mut mullvad_client).await?;
 
-    let (entry, exit) = match helpers::get_tunnel_state(&mut mullvad_client).await {
+    let (entry, exit) = match mullvad_client.get_tunnel_state().await? {
         mullvad_types::states::TunnelState::Connected { endpoint, .. } => {
             (endpoint.proxy.unwrap().endpoint, endpoint.endpoint)
         }
-        _ => panic!("unexpected tunnel state"),
+        actual => {
+            panic!("unexpected tunnel state. Expected `TunnelState::Connected` but got {actual:?}")
+        }
     };
 
     log::info!(
@@ -285,7 +287,7 @@ pub async fn test_bridge(
 pub async fn test_multihop(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     let wireguard_constraints = WireguardConstraints {
         use_multihop: true,
@@ -309,11 +311,13 @@ pub async fn test_multihop(
 
     connect_and_wait(&mut mullvad_client).await?;
 
-    let (entry, exit) = match helpers::get_tunnel_state(&mut mullvad_client).await {
+    let (entry, exit) = match mullvad_client.get_tunnel_state().await? {
         mullvad_types::states::TunnelState::Connected { endpoint, .. } => {
             (endpoint.entry_endpoint.unwrap(), endpoint.endpoint)
         }
-        _ => panic!("unexpected tunnel state"),
+        actual => {
+            panic!("unexpected tunnel state. Expected `TunnelState::Connected` but got {actual:?}")
+        }
     };
 
     log::info!(
@@ -363,7 +367,7 @@ pub async fn test_multihop(
 pub async fn test_wireguard_autoconnect(
     _: TestContext,
     mut rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     log::info!("Setting tunnel protocol to WireGuard");
 
@@ -405,7 +409,7 @@ pub async fn test_wireguard_autoconnect(
 pub async fn test_openvpn_autoconnect(
     _: TestContext,
     mut rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     log::info!("Setting tunnel protocol to OpenVPN");
 
@@ -449,12 +453,10 @@ pub async fn test_openvpn_autoconnect(
 pub async fn test_quantum_resistant_tunnel(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     mullvad_client
-        .set_quantum_resistant_tunnel(types::QuantumResistantState::from(
-            wireguard::QuantumResistantState::Off,
-        ))
+        .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::Off)
         .await
         .expect("Failed to disable PQ tunnels");
 
@@ -476,9 +478,7 @@ pub async fn test_quantum_resistant_tunnel(
         .expect("Failed to update relay settings");
 
     mullvad_client
-        .set_quantum_resistant_tunnel(types::QuantumResistantState::from(
-            wireguard::QuantumResistantState::On,
-        ))
+        .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
         .await
         .expect("Failed to enable PQ tunnels");
 
@@ -499,12 +499,12 @@ pub async fn test_quantum_resistant_tunnel(
 
 async fn check_tunnel_psk(
     rpc: &ServiceClient,
-    mullvad_client: &ManagementServiceClient,
+    mullvad_client: &MullvadProxyClient,
     should_have_psk: bool,
 ) {
     match TEST_CONFIG.os {
         Os::Linux => {
-            let name = helpers::get_tunnel_interface(mullvad_client.clone())
+            let name = helpers::get_tunnel_interface(&mut mullvad_client.clone())
                 .await
                 .expect("failed to get tun name");
             let output = rpc
@@ -533,36 +533,32 @@ async fn check_tunnel_psk(
 pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     mullvad_client
-        .set_quantum_resistant_tunnel(types::QuantumResistantState::from(
-            wireguard::QuantumResistantState::On,
-        ))
+        .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
         .await
         .expect("Failed to enable PQ tunnels");
 
     mullvad_client
-        .set_obfuscation_settings(types::ObfuscationSettings::from(ObfuscationSettings {
+        .set_obfuscation_settings(relay_constraints::ObfuscationSettings {
             selected_obfuscation: SelectedObfuscation::Udp2Tcp,
             udp2tcp: Udp2TcpObfuscationSettings {
                 port: Constraint::Any,
             },
-        }))
+        })
         .await
         .expect("Failed to enable obfuscation");
 
     mullvad_client
-        .set_relay_settings(types::RelaySettings::from(RelaySettings::Normal(
-            RelayConstraints {
-                wireguard_constraints: WireguardConstraints {
-                    use_multihop: true,
-                    ..Default::default()
-                },
-                tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
+        .set_relay_settings(relay_constraints::RelaySettings::Normal(RelayConstraints {
+            wireguard_constraints: WireguardConstraints {
+                use_multihop: true,
                 ..Default::default()
             },
-        )))
+            tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
+            ..Default::default()
+        }))
         .await
         .expect("Failed to update relay settings");
 

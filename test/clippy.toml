@@ -1,0 +1,3 @@
+disallowed-types = [
+    { path = "mullvad_management_interface::ManagementServiceClient", reason = "use `mullvad_management_interface::MullvadProxyClient` instead" },
+]

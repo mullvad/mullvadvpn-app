@@ -1,7 +1,8 @@
+#![allow(clippy::disallowed_types)]
 use std::{io, time::Duration};
 
 use futures::{channel::mpsc, future::BoxFuture, pin_mut, FutureExt, SinkExt, StreamExt};
-use mullvad_management_interface::ManagementServiceClient;
+use mullvad_management_interface::{ManagementServiceClient, MullvadProxyClient};
 use test_rpc::{
     mullvad_daemon::MullvadClientVersion,
     transport::{ConnectionHandle, GrpcForwarder},
@@ -61,7 +62,7 @@ impl RpcClientProvider {
         }
     }
 
-    pub async fn new_client(&self) -> ManagementServiceClient {
+    pub async fn new_client(&self) -> MullvadProxyClient {
         // FIXME: Ugly workaround to ensure that we don't receive stuff from a
         // previous RPC session.
         tokio::time::sleep(std::time::Duration::from_millis(500)).await;
@@ -72,7 +73,7 @@ impl RpcClientProvider {
             .await
             .unwrap();
 
-        ManagementServiceClient::new(channel)
+        MullvadProxyClient::from_rpc_client(ManagementServiceClient::new(channel))
     }
 }
 
