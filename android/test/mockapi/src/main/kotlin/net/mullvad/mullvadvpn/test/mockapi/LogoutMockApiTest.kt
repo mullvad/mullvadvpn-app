@@ -6,7 +6,7 @@ import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPerm
 import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 
 class LogoutMockApiTest : MockApiTest() {
@@ -32,6 +32,6 @@ class LogoutMockApiTest : MockApiTest() {
         app.clickActionButtonByText("Log out")
 
         // Assert
-        Assertions.assertNotNull(device.findObjectWithTimeout(By.text("Login")))
+        assertNotNull(device.findObjectWithTimeout(By.text("Login")))
     }
 }
