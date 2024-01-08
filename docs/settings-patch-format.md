@@ -54,3 +54,6 @@ compatibility should not be broken for no good reason.
 Patches must not edit any settings that may compromise security. For example, enabling custom DNS
 should not be allowed.
 
+## Examples
+
+See [patch-examples](./patch-examples) for examples of patch files.
