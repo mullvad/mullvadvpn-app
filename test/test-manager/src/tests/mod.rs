@@ -17,10 +17,7 @@ use test_rpc::ServiceClient;
 
 use futures::future::BoxFuture;
 
-use mullvad_management_interface::{
-    types::{self, Settings},
-    ManagementServiceClient,
-};
+use mullvad_management_interface::MullvadProxyClient;
 use once_cell::sync::OnceCell;
 use std::time::Duration;
 
@@ -60,24 +57,23 @@ pub enum Error {
     #[error(display = "The daemon returned an error: {}", _0)]
     Daemon(String),
 
-    #[error(display = "Failed to parse gRPC response")]
-    InvalidGrpcResponse(#[error(source)] types::FromProtobufTypeError),
+    #[error(display = "The gRPC client ran into an error: {}", _0)]
+    ManagementInterface(#[source] mullvad_management_interface::Error),
 
     #[cfg(target_os = "macos")]
     #[error(display = "An error occurred: {}", _0)]
     Other(String),
 }
 
-static DEFAULT_SETTINGS: OnceCell<Settings> = OnceCell::new();
+static DEFAULT_SETTINGS: OnceCell<mullvad_types::settings::Settings> = OnceCell::new();
 
 /// Initializes `DEFAULT_SETTINGS`. This has only has an effect the first time it's called.
-pub async fn init_default_settings(mullvad_client: &mut ManagementServiceClient) {
+pub async fn init_default_settings(mullvad_client: &mut MullvadProxyClient) {
     if DEFAULT_SETTINGS.get().is_none() {
-        let settings: Settings = mullvad_client
-            .get_settings(())
+        let settings = mullvad_client
+            .get_settings()
             .await
-            .expect("Failed to obtain settings")
-            .into_inner();
+            .expect("Failed to obtain settings");
         DEFAULT_SETTINGS.set(settings).unwrap();
     }
 }
@@ -88,9 +84,7 @@ pub async fn init_default_settings(mullvad_client: &mut ManagementServiceClient)
 ///
 /// `DEFAULT_SETTINGS` must be initialized using `init_default_settings` before any settings are
 /// modified, or this function panics.
-pub async fn cleanup_after_test(
-    mullvad_client: &mut ManagementServiceClient,
-) -> anyhow::Result<()> {
+pub async fn cleanup_after_test(mullvad_client: &mut MullvadProxyClient) -> anyhow::Result<()> {
     log::debug!("Cleaning up daemon in test cleanup");
 
     let default_settings = DEFAULT_SETTINGS
@@ -112,56 +106,37 @@ pub async fn cleanup_after_test(
         .await
         .context("Could not set show beta releases in cleanup")?;
     mullvad_client
-        .set_bridge_state(default_settings.bridge_state.clone().unwrap())
+        .set_bridge_state(default_settings.bridge_state)
         .await
         .context("Could not set bridge state in cleanup")?;
     mullvad_client
-        .set_bridge_settings(default_settings.bridge_settings.clone().unwrap())
+        .set_bridge_settings(default_settings.bridge_settings.clone())
         .await
         .context("Could not set bridge settings in cleanup")?;
     mullvad_client
-        .set_obfuscation_settings(default_settings.obfuscation_settings.clone().unwrap())
+        .set_obfuscation_settings(default_settings.obfuscation_settings.clone())
         .await
         .context("Could set obfuscation settings in cleanup")?;
     mullvad_client
         .set_block_when_disconnected(default_settings.block_when_disconnected)
         .await
         .context("Could not set block when disconnected setting in cleanup")?;
+    #[cfg(target_os = "windows")]
     mullvad_client
-        .clear_split_tunnel_apps(())
+        .clear_split_tunnel_apps()
         .await
         .context("Could not clear split tunnel apps in cleanup")?;
+    #[cfg(not(target_os = "macos"))]
     mullvad_client
-        .clear_split_tunnel_processes(())
+        .clear_split_tunnel_processes()
         .await
         .context("Could not clear split tunnel processes in cleanup")?;
     mullvad_client
-        .set_dns_options(
-            default_settings
-                .tunnel_options
-                .as_ref()
-                .unwrap()
-                .dns_options
-                .as_ref()
-                .unwrap()
-                .clone(),
-        )
+        .set_dns_options(default_settings.tunnel_options.dns_options.clone())
         .await
         .context("Could not clear dns options in cleanup")?;
     mullvad_client
-        .set_quantum_resistant_tunnel(
-            default_settings
-                .tunnel_options
-                .as_ref()
-                .unwrap()
-                .wireguard
-                .as_ref()
-                .unwrap()
-                .quantum_resistant
-                .as_ref()
-                .unwrap()
-                .clone(),
-        )
+        .set_quantum_resistant_tunnel(default_settings.tunnel_options.wireguard.quantum_resistant)
         .await
         .context("Could not clear PQ options in cleanup")?;
 
