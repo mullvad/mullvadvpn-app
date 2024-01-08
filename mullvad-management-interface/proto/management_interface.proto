@@ -100,6 +100,7 @@ service ManagementService {
   rpc CheckVolumes(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
   // Apply a JSON blob to the settings
+  // See ../../docs/settings-patch-format.md for a description of the format
   rpc ApplyJsonSettings(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 }
 
