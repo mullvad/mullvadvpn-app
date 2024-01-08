@@ -1,8 +1,53 @@
-# Create private key and Certificate Signing Request (CSR)
+## Dependencies
 
-## Create new private key and CSR
+One needs Go v1.19 and the latest stable rust to build the app.
+Go can be installed via
+```bash
+brew install go@1.19
+```
 
-OpenSSL will ask you the password for the private key, make sure to memorize it, you'll need it 
+Rust should be installed via [rustup](https://rustup.rs). Once rust is
+installed, do not forget to install the iOS targets:
+
+```bash
+rustup target install aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
+```
+Pick between the ARM or x86 simulator targets, selecting the one that matches
+the host system.
+
+Once both rust and go are installed, ensure they are available in your path.
+
+## Configure Xcode project
+
+Copy template files of Xcode build configuration:
+
+```
+for file in ./ios/Configurations/*.template ; do cp $file ${file//.template/} ; done
+```
+
+Template files provide our team ID and correct provisioning profiles and generally do not require
+any changes when configuring our build server or developer machines for members of Mullvad
+development team. In all other cases perform the following steps to configure the project:
+
+1. Edit `Base.xcconfig` and fill in your Apple development team ID, which can be found on Apple
+developer portal in the top right corner next to your organization name (uppercase letters and
+digits).
+1. Edit `App.xcconfig` and `PacketTunnel.xcconfig` and supply the names of your provisioning profiles
+for development (Debug) and distribution (Release).
+1. Edit `Screenshots.xcconfig` and supply the name of your provisioning profile. We only specify
+development profile here as we never build UI testing targets for distribution. Skip this step if
+you do not intend to generate screenshots for the app.
+
+Ensure you have a valid build profile for a development build for both
+MullvadVPN and PacketTunnel, both need the
+`packet-tunnel-provider-systemextension` NetworkExtension entitlement.
+
+# The following instructions are only relevant for release builds.
+
+## Create private key and Certificate Signing Request (CSR)
+### Create new private key and CSR
+
+OpenSSL will ask you the password for the private key, make sure to memorize it, you'll need it
 later.
 
 ```
@@ -13,7 +58,7 @@ openssl req -new -newkey rsa:2048 \
   -subj "/C=SE/O=<ORGANIZATION_NAME>/emailAddress=<YOUR_EMAIL>"
 ```
 
-## [Alternative] Create CSR using an existing private key
+### [Alternative] Create CSR using an existing private key
 
 ```
 openssl req -new \
@@ -23,7 +68,7 @@ openssl req -new \
   -subj "/C=SE/O=<ORGANIZATION_NAME>/emailAddress=<YOUR_EMAIL>"
 ```
 
-# Upload Certificate Signing Request (CSR) to Apple
+## Upload Certificate Signing Request (CSR) to Apple
 
 1. Go to https://developer.apple.com/account/resources/certificates/list
 1. Click the plus button (+) in the heading to create a new certificate
@@ -31,7 +76,7 @@ openssl req -new \
 1. Select the previously created `cert_signing_request` file for upload
 1. Download the provided `distribution.cer` on disk
 
-# Download Apple WWDR certificate
+## Download Apple WWDR certificate
 
 WWDR certificate is used to verify the development and distribution certificates issued by Apple.
 
@@ -51,7 +96,7 @@ openssl x509 -inform der -outform pem \
   -out AppleWWDRCAG3.pem
 ```
 
-# Export private key and certificates
+## Export private key and certificates
 
 Produce a PKCS12 container with the private key and all certificates. You will be asked to enter two
 passphrases:
@@ -60,7 +105,7 @@ passphrases:
 1. Export passphrase for PKCS12 file
 
 You can store the produced `apple_code_signing.p12` file as a backup to be able to restore the keys
-in the event of hardware failure. However you should always be able to re-create everything from 
+in the event of hardware failure. However you should always be able to re-create everything from
 scratch.
 
 ```
@@ -72,11 +117,11 @@ openssl pkcs12 -export \
   -name "<FRIENDLY_KEYCHAIN_NAME>"
 ```
 
-# Remove old private key and certificates from Keychain
+## Remove old private key and certificates from Keychain
 
 __Skip this section if you create the private key for the very first time.__
 
-If you happen to re-create the keys, you will have to remove the old keys and certificates from 
+If you happen to re-create the keys, you will have to remove the old keys and certificates from
 Keychain.
 
 You can list all certificates with corresponding keys by using the following command:
@@ -93,17 +138,17 @@ Valid identities only
 2) <HASH_ID> "Apple Development: <COMPANY NAME> (<TEAM ID>)"
 ```
 
-Pick the one that you don't want anymore and copy the `<HASH_ID>` from the output, then paste into 
+Pick the one that you don't want anymore and copy the `<HASH_ID>` from the output, then paste into
 the command below:
 
 ```
 security delete-identity -Z <HASH_ID>
 ```
 
-This should take care of removing both private keys and certificates. Repeat as many times as needed 
+This should take care of removing both private keys and certificates. Repeat as many times as needed
 if you wish to remove multiple identities.
 
-# Import private key and certificates into Keychain
+## Import private key and certificates into Keychain
 
 ```
 security import apple_code_signing.p12 -f pkcs12 \
@@ -111,15 +156,15 @@ security import apple_code_signing.p12 -f pkcs12 \
   -P <EXPORT_PASSPHRASE>
 ```
 
-Note: `-T /usr/bin/codesign` instructs Keychain to suppress password prompt during code signing, 
-although you still have to unlock Keychain for that to have any effect. This instruction is 
-equivalent to choosing "Always allow" in the password prompt GUI on the first run of `codesign` 
+Note: `-T /usr/bin/codesign` instructs Keychain to suppress password prompt during code signing,
+although you still have to unlock Keychain for that to have any effect. This instruction is
+equivalent to choosing "Always allow" in the password prompt GUI on the first run of `codesign`
 tool.
 
-Note: providing the export passphrase using the `-P` flag is considered unsafe. 
+Note: providing the export passphrase using the `-P` flag is considered unsafe.
 Leave the `-P <EXPORT_PASSPHRASE>` out to enter the passphrase via GUI.
 
-Technically after that you can clean up all created keys and certificates since all of them are 
+Technically after that you can clean up all created keys and certificates since all of them are
 securely stored in Keychain now.
 
 ```
@@ -130,7 +175,7 @@ rm distribution.{pem,cer} \
   private_key.pem
 ```
 
-# Create iOS provisioning profiles
+## Create iOS provisioning profiles
 
 We will now create the provisioning profiles listed below using the Apple developer console.
 
@@ -145,14 +190,14 @@ Follow these steps to add each of provisioning profiles:
 1. Click the plus button (+) in the heading to create a new provisioning profile
 1. Choose "App Store" under "Distribution", then hit "Continue"
 1. Choose the App ID (see the table above) and hit "Continue"
-1. Choose the distribution certificate that you had created after uploading the CSR 
+1. Choose the distribution certificate that you had created after uploading the CSR
    (i.e `<ORGANIZATION_NAME> (Distribution)`)
 1. Type in the profile name (see the table above) and hit "Generate"
-1. Download the certificate in `ios/iOS Provisioning Profiles` directory. Create the directory if it 
-   does not exist. 
-   
+1. Download the certificate in `ios/iOS Provisioning Profiles` directory. Create the directory if it
+   does not exist.
+
    Note: you can use a different directory for storing provisioning profiles, however in that case,
-   make sure to provide the path to the custom location via `IOS_PROVISIONING_PROFILES_DIR` 
+   make sure to provide the path to the custom location via `IOS_PROVISIONING_PROFILES_DIR`
    environment variable when running `build.sh` (more on that later).
 
 # Setup AppStore credentials
@@ -166,8 +211,8 @@ environment variables:
 
 `IOS_APPLE_ID_PASSWORD` accepts a keychain reference in form of `@keychain:<KEYCHAIN_ITEM_NAME>`.
 
-Use the app specific password instead of the actual account password and save it to Keychain. 
-The app specific password can be created via [Apple ID website] and added to Keychain using the 
+Use the app specific password instead of the actual account password and save it to Keychain.
+The app specific password can be created via [Apple ID website] and added to Keychain using the
 following command (note that `altool` will be authorized to access the saved password):
 
 ```
@@ -178,38 +223,7 @@ xcrun altool --store-password-in-keychain-item <KEYCHAIN_ITEM_NAME> \
 
 [Apple ID website]: https://appleid.apple.com/account/manage
 
-# Configure Xcode project
-
-Copy template files of Xcode build configuration:
-
-```
-for file in ./ios/Configurations/*.template ; do cp $file ${file//.template/} ; done
-```
-
-Template files provide our team ID and correct provisioning profiles and generally do not require 
-any changes when configuring our build server or developer machines for members of Mullvad 
-development team. In all other cases perform the following steps to configure the project:
-
-1. Edit `Base.xcconfig` and fill in your Apple development team ID, which can be found on Apple 
-developer portal in the top right corner next to your organization name (uppercase letters and 
-digits).
-1. Edit `App.xcconfig` and `PacketTunnel.xcconfig` and supply the names of your provisioning profiles 
-for development (Debug) and distribution (Release).
-1. Edit `Api.xcconfig` to supply the endpoint that will be used to reach the Mullvad API.
-1. Edit `Screenshots.xcconfig` and supply the name of your provisioning profile. We only specify 
-development profile here as we never build UI testing targets for distribution. Skip this step if 
-you do not intend to generate screenshots for the app.
-
-# Automated build and deployment
-
-Build script does not bump the build number, so make sure to edit `Configurations/Version.xcconfig` 
-and commit it back to repo.
-
-1. Run `./ios/build.sh` to build and export the app for upload to AppStore.
-1. Run `./ios/build.sh --deploy` - same as above but also uploads the app to AppStore and 
-                                   makes it available over TestFlight.
-
-# Keychain quirks
+## Keychain quirks
 
 It's possible that `codesign` will keep throwing the password prompts for Keychain, in that case try
 running the following commands __after__ importing the credentials into Keychain:
@@ -219,7 +233,7 @@ security unlock-keychain <KEYCHAIN>
 security set-key-partition-list -S apple-tool:,apple: -s <KEYCHAIN>
 ```
 
-where `<KEYCHAIN>` is the name of the target Keychain where the signing credentials are stored. 
+where `<KEYCHAIN>` is the name of the target Keychain where the signing credentials are stored.
 This guide does not use a separate Keychain store, so use `login.keychain-db` then.
 
 Reference: https://docs.travis-ci.com/user/common-build-problems/#mac-macos-sierra-1012-code-signing-errors
