@@ -13,7 +13,7 @@ with the `#[test_function]` attribute
 #[test_function]
 pub async fn test(
     rpc: ServiceClient,
-    mut mullvad_client: mullvad_management_interface::ManagementServiceClient,
+    mut mullvad_client: mullvad_management_interface::MullvadProxyClient,
 ) -> Result<(), Error> {
     Ok(())
 }

@@ -1,10 +1,10 @@
 use super::helpers;
-use super::helpers::{connect_and_wait, get_tunnel_state, send_guest_probes};
+use super::helpers::{connect_and_wait, send_guest_probes};
 use super::{Error, TestContext};
 use crate::assert_tunnel_state;
 use crate::vm::network::DUMMY_LAN_INTERFACE_IP;
 
-use mullvad_management_interface::ManagementServiceClient;
+use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::states::TunnelState;
 use std::net::{IpAddr, SocketAddr};
 use test_macro::test_function;
@@ -19,7 +19,7 @@ use test_rpc::ServiceClient;
 pub async fn test_lan(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     let lan_destination = SocketAddr::new(IpAddr::V4(DUMMY_LAN_INTERFACE_IP), 1234);
 
@@ -101,7 +101,7 @@ pub async fn test_lan(
 pub async fn test_lockdown(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     let lan_destination: SocketAddr = SocketAddr::new(IpAddr::V4(DUMMY_LAN_INTERFACE_IP), 1337);
     let inet_destination: SocketAddr = "1.1.1.1:1337".parse().unwrap();
