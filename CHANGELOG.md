@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 - Respect OS prefer-reduced-motion setting
 - Add CLI command for exporting settings patches: `mullvad export-settings`. Currently, it generates
   a patch containing all patchable settings, which only includes relay IP overrides.
+- Make `mullvad status` prints if lockdown mode is enabled when disconnected.
 
 #### Android
 - Add support for all screen orientations.
