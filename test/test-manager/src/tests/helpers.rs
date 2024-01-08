@@ -226,7 +226,7 @@ pub async fn disconnect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Res
         .await
         .map_err(|error| Error::Daemon(format!("failed to begin disconnecting: {}", error)))?;
     wait_for_tunnel_state(mullvad_client.clone(), |state| {
-        matches!(state, TunnelState::Disconnected(_))
+        matches!(state, TunnelState::Disconnected { .. })
     })
     .await?;
 

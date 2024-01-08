@@ -32,7 +32,7 @@ pub async fn test_disconnected_state(
     let inet_destination = "1.3.3.7:1337".parse().unwrap();
 
     log::info!("Verify tunnel state: disconnected");
-    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected(_));
+    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
 
     // Test whether outgoing packets can be observed
     //
@@ -89,7 +89,7 @@ pub async fn test_connecting_state(
     let lan_dns: SocketAddr = SocketAddr::new(IpAddr::V4(DUMMY_LAN_INTERFACE_IP), 53);
 
     log::info!("Verify tunnel state: disconnected");
-    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected(_));
+    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
 
     let relay_settings = RelaySettings::CustomTunnelEndpoint(CustomTunnelEndpoint {
         host: "1.3.3.7".to_owned(),
@@ -171,7 +171,7 @@ pub async fn test_error_state(
     let lan_dns: SocketAddr = SocketAddr::new(IpAddr::V4(DUMMY_LAN_INTERFACE_IP), 53);
 
     log::info!("Verify tunnel state: disconnected");
-    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected(_));
+    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
 
     // Connect to non-existent location
     //

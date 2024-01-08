@@ -1,4 +1,3 @@
-use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{auth_failed::AuthFailed, location::GeoIpLocation, states::TunnelState};
 use talpid_types::{
     net::{Endpoint, TunnelEndpoint},
@@ -15,7 +14,7 @@ macro_rules! print_option {
     }};
 }
 
-pub async fn print_state(state: &TunnelState, verbose: bool) {
+pub fn print_state(state: &TunnelState, verbose: bool) {
     use TunnelState::*;
 
     match state {
@@ -38,11 +37,12 @@ pub async fn print_state(state: &TunnelState, verbose: bool) {
                 format_relay_connection(endpoint, location.as_ref(), verbose)
             );
         }
-        Disconnected(_) => {
-            let mut rpc = MullvadProxyClient::new().await.unwrap();
-            let lockdown_mode_enabled = rpc.get_settings().await.unwrap().block_when_disconnected;
-            if lockdown_mode_enabled {
-                println!("Disconnected and local internet access is disabled by lockdown mode");
+        Disconnected {
+            location: _,
+            locked_down,
+        } => {
+            if *locked_down {
+                println!("Disconnected (Internet access is blocked due to lockdown mode)");
             } else {
                 println!("Disconnected");
             }
@@ -53,7 +53,10 @@ pub async fn print_state(state: &TunnelState, verbose: bool) {
 
 pub fn print_location(state: &TunnelState) {
     let location = match state {
-        TunnelState::Disconnected(location) => location,
+        TunnelState::Disconnected {
+            location,
+            locked_down: _,
+        } => location,
         TunnelState::Connected { location, .. } => location,
         _ => return,
     };
