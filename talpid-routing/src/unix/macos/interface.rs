@@ -7,7 +7,7 @@ use nix::{
 use std::{
     collections::BTreeMap,
     io,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV6},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 
 use super::data::{Destination, RouteMessage};
