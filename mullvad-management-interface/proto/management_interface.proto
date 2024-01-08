@@ -175,7 +175,10 @@ message ErrorState {
 }
 
 message TunnelState {
-  message Disconnected { GeoIpLocation disconnected_location = 1; }
+  message Disconnected {
+    GeoIpLocation disconnected_location = 1;
+    bool locked_down = 2;
+  }
   message Connecting { TunnelStateRelayInfo relay_info = 1; }
   message Connected { TunnelStateRelayInfo relay_info = 1; }
   message Disconnecting { AfterDisconnect after_disconnect = 1; }

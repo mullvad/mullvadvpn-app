@@ -229,7 +229,7 @@ pub async fn disconnect_and_wait(
         .await
         .map_err(|error| Error::Daemon(format!("failed to begin disconnecting: {}", error)))?;
     wait_for_tunnel_state(mullvad_client.clone(), |state| {
-        matches!(state, TunnelState::Disconnected(_))
+        matches!(state, TunnelState::Disconnected { .. })
     })
     .await?;
 
@@ -347,10 +347,10 @@ impl<T> Drop for AbortOnDrop<T> {
 /// * Provider constraint is [`Constraint::Any`]
 /// * Ownership constraint is [`Constraint::Any`]
 /// * The default tunnel protocol is [`talpid_types::net::TunnelType::Wireguard`]
-/// * Wireguard settings are default (i.e. any port is used, no obfuscation ..)
-///   see [`mullvad_types::relay_constraints::WireguardConstraints`] for details.
-/// * OpenVPN settings are default (i.e. any port is used, no obfuscation ..)
-///   see [`mullvad_types::relay_constraints::OpenVpnConstraints`] for details.
+/// * Wireguard settings are default (i.e. any port is used, no obfuscation ..) see
+///   [`mullvad_types::relay_constraints::WireguardConstraints`] for details.
+/// * OpenVPN settings are default (i.e. any port is used, no obfuscation ..) see
+///   [`mullvad_types::relay_constraints::OpenVpnConstraints`] for details.
 pub async fn reset_relay_settings(
     mullvad_client: &mut ManagementServiceClient,
 ) -> Result<(), Error> {
@@ -559,8 +559,9 @@ impl Pinger {
         log::debug!("Monitoring outgoing traffic");
         let monitor = start_packet_monitor(
             move |packet| {
-                // NOTE: Many packets will likely be observed for API traffic. Rather than filtering all
-                // of those specifically, simply fail if our probes are observed.
+                // NOTE: Many packets will likely be observed for API traffic. Rather than filtering
+                // all of those specifically, simply fail if our probes are
+                // observed.
                 packet.source.ip() == guest_ip
                     && packet.destination.ip() == builder.destination.ip()
             },
