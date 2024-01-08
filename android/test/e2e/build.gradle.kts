@@ -97,12 +97,11 @@ dependencies {
     implementation(Dependencies.AndroidX.testRules)
     implementation(Dependencies.AndroidX.testUiAutomator)
     implementation(Dependencies.androidVolley)
-    implementation(Dependencies.Kotlin.stdlib)
-
     implementation(Dependencies.junitAndroidTestExtensions)
     implementation(Dependencies.junitApi)
     implementation(Dependencies.junitAndroidTestCore)
     implementation(Dependencies.junitAndroidTestRunner)
+    implementation(Dependencies.Kotlin.stdlib)
 
     androidTestUtil(Dependencies.AndroidX.testOrchestrator)
 }
