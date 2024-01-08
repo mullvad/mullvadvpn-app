@@ -109,14 +109,6 @@ impl ServiceClient {
             .map_err(Error::Tarpc)
     }
 
-    /// Return the OS of the guest.
-    pub async fn get_os(&self) -> Result<meta::Os, Error> {
-        self.client
-            .get_os(tarpc::context::current())
-            .await
-            .map_err(Error::Tarpc)
-    }
-
     /// Wait for the Mullvad service to enter a specified state. The state is inferred from the presence
     /// of a named pipe or UDS, not the actual system service state.
     pub async fn mullvad_daemon_wait_for_state(

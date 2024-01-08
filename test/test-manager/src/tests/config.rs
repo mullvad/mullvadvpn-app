@@ -1,5 +1,6 @@
 use once_cell::sync::OnceCell;
 use std::ops::Deref;
+use test_rpc::meta::Os;
 
 // Default `mullvad_host`. This should match the production env.
 pub const DEFAULT_MULLVAD_HOST: &str = "mullvad.net";
@@ -20,6 +21,8 @@ pub struct TestConfig {
     pub mullvad_host: String,
 
     pub host_bridge_name: String,
+
+    pub os: Os,
 }
 
 #[derive(Debug, Clone)]

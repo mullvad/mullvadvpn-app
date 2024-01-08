@@ -32,7 +32,7 @@ pub async fn run_test_env<
     let new_params: Vec<String>;
     let bin_path;
 
-    match rpc.get_os().await? {
+    match TEST_CONFIG.os {
         Os::Linux => {
             bin_path = PathBuf::from("/usr/bin/xvfb-run");
 

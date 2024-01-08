@@ -195,6 +195,16 @@ pub enum OsType {
     Macos,
 }
 
+impl From<OsType> for test_rpc::meta::Os {
+    fn from(ostype: OsType) -> Self {
+        match ostype {
+            OsType::Windows => Self::Windows,
+            OsType::Linux => Self::Linux,
+            OsType::Macos => Self::Macos,
+        }
+    }
+}
+
 #[derive(clap::ValueEnum, Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum PackageType {
