@@ -30,6 +30,10 @@ on:
         description: Override container image
         type: string
         required: false
+      run_e2e_tests:
+        description: Run e2e tests
+        type: boolean
+        required: false
       run_firebase_tests:
         description: Run firebase tests
         type: boolean
@@ -259,6 +263,15 @@ jobs:
           build-root-directory: android
           execution-only-caches: true
 
+      - name: Assemble instrumented test apk (e2e)
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          job-id: jdk17
+          arguments: :test:e2e:assemble
+          gradle-version: wrapper
+          build-root-directory: android
+          execution-only-caches: true
+
       - name: Upload apks
         uses: actions/upload-artifact@v3
         with:
@@ -266,6 +279,7 @@ jobs:
           path: |
             android/app/build/outputs/apk
             android/test/mockapi/build/outputs/apk
+            android/test/e2e/build/outputs/apk
           if-no-files-found: error
           retention-days: 1
 
@@ -302,6 +316,30 @@ jobs:
           path: /tmp/mullvad-${{ matrix.test-type }}-instrumentation-report
           if-no-files-found: ignore
           retention-days: 1
+
+  instrumented-e2e-tests:
+    name: Run instrumented e2e tests
+    runs-on: [self-hosted, android-emulator]
+    if: github.event_name == 'schedule' || github.event.inputs.run_e2e_tests == 'true'
+    timeout-minutes: 30
+    needs: [build-app]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: apks
+          path: android
+
+      - name: Run instrumented test script
+        shell: bash -ieo pipefail {0}
+        env:
+          AUTO_FETCH_TEST_HELPER_APKS: true
+          VALID_TEST_ACCOUNT_TOKEN: ${{ secrets.ANDROID_PROD_TEST_ACCOUNT }}
+          INVALID_TEST_ACCOUNT_TOKEN: '0000000000000000'
+        run: |
+          ./android/scripts/run-instrumented-tests.sh e2e
 
   instrumented-firebase-tests:
     name: Run instrumented firebase tests
