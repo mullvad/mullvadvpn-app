@@ -11,6 +11,9 @@
 //!    existing settings.
 //!
 //! Permitted settings and merge strategies are defined in the [PERMITTED_SUBKEYS] constant.
+//!
+//! This implementation must be kept in sync with the
+//! [spec](../../../docs/settings-patch-format.md).
 
 use super::SettingsPersister;
 use mullvad_types::settings::Settings;
