@@ -1,12 +1,12 @@
 use super::helpers::{
-    self, connect_and_wait, get_tunnel_state, send_guest_probes, set_relay_settings,
-    unreachable_wireguard_tunnel, wait_for_tunnel_state,
+    self, connect_and_wait, send_guest_probes, set_relay_settings, unreachable_wireguard_tunnel,
+    wait_for_tunnel_state,
 };
 use super::{ui, Error, TestContext};
 use crate::assert_tunnel_state;
 use crate::vm::network::DUMMY_LAN_INTERFACE_IP;
 
-use mullvad_management_interface::ManagementServiceClient;
+use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::relay_constraints::GeographicLocationConstraint;
 use mullvad_types::relay_list::{Relay, RelayEndpointData};
 use mullvad_types::CustomTunnelEndpoint;
@@ -27,7 +27,7 @@ use test_rpc::ServiceClient;
 pub async fn test_disconnected_state(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     let inet_destination = "1.3.3.7:1337".parse().unwrap();
 
@@ -81,7 +81,7 @@ pub async fn test_disconnected_state(
 pub async fn test_connecting_state(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     let inet_destination = "1.1.1.1:1337".parse().unwrap();
     let lan_destination: SocketAddr = SocketAddr::new(IpAddr::V4(DUMMY_LAN_INTERFACE_IP), 1337);
@@ -101,7 +101,7 @@ pub async fn test_connecting_state(
         .expect("failed to update relay settings");
 
     mullvad_client
-        .connect_tunnel(())
+        .connect_tunnel()
         .await
         .expect("failed to begin connecting");
     let new_state = wait_for_tunnel_state(mullvad_client.clone(), |state| {
@@ -163,7 +163,7 @@ pub async fn test_connecting_state(
 pub async fn test_error_state(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     let inet_destination = "1.1.1.1:1337".parse().unwrap();
     let lan_destination: SocketAddr = SocketAddr::new(IpAddr::V4(DUMMY_LAN_INTERFACE_IP), 1337);
@@ -245,7 +245,7 @@ pub async fn test_error_state(
 pub async fn test_connected_state(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     let inet_destination = "1.1.1.1:1337".parse().unwrap();
 
@@ -279,13 +279,11 @@ pub async fn test_connected_state(
 
     connect_and_wait(&mut mullvad_client).await?;
 
-    let state = get_tunnel_state(&mut mullvad_client).await;
-
     //
     // Verify that endpoint was selected
     //
 
-    match state {
+    match mullvad_client.get_tunnel_state().await? {
         TunnelState::Connected {
             endpoint:
                 TunnelEndpoint {
@@ -340,7 +338,7 @@ pub async fn test_connected_state(
 pub async fn test_connecting_state_when_corrupted_state_cache(
     _: TestContext,
     rpc: ServiceClient,
-    mullvad_client: ManagementServiceClient,
+    mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     // The test should start in a disconnected state. Normally this would be
     // preserved when restarting the app, i.e. the user would still be

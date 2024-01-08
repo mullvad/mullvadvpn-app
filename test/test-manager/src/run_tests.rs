@@ -8,7 +8,7 @@ use crate::{
 };
 use anyhow::{Context, Result};
 use futures::FutureExt;
-use mullvad_management_interface::ManagementServiceClient;
+use mullvad_management_interface::MullvadProxyClient;
 use std::future::Future;
 use std::panic;
 use std::time::Duration;
@@ -84,7 +84,7 @@ pub async fn run(
             .as_type(test.mullvad_client_version)
             .await;
 
-        if let Some(client) = mclient.downcast_mut::<ManagementServiceClient>() {
+        if let Some(client) = mclient.downcast_mut::<MullvadProxyClient>() {
             crate::tests::init_default_settings(client).await;
         }
 
