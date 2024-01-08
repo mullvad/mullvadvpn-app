@@ -131,8 +131,19 @@ pub async fn merge_validate_patch(
     settings: &mut SettingsPersister,
     json_patch: &str,
 ) -> Result<(), Error> {
+    let new_settings = merge_validate_patch_inner(settings, json_patch)?;
+
+    settings
+        .update(move |settings| *settings = new_settings)
+        .await
+        .map_err(Error::Settings)?;
+
+    Ok(())
+}
+
+fn merge_validate_patch_inner(settings: &Settings, json_patch: &str) -> Result<Settings, Error> {
     let mut settings_value: serde_json::Value =
-        serde_json::to_value(settings.to_settings()).map_err(Error::SerializeSettings)?;
+        serde_json::to_value(settings).map_err(Error::SerializeSettings)?;
     let patch_value: serde_json::Value =
         serde_json::from_str(json_patch).map_err(Error::ParsePatch)?;
 
@@ -142,12 +153,7 @@ pub async fn merge_validate_patch(
     let new_settings: Settings =
         serde_json::from_value(settings_value).map_err(Error::DeserializePatched)?;
 
-    settings
-        .update(move |settings| *settings = new_settings)
-        .await
-        .map_err(Error::Settings)?;
-
-    Ok(())
+    Ok(new_settings)
 }
 
 /// Replace overrides for existing values in the array if there's a matching hostname. For hostnames
@@ -398,6 +404,17 @@ fn test_overflow() {
         validate_patch_value(PERMITTED_SUBKEYS, &patch, 0),
         Err(Error::RecursionLimit)
     ));
+}
+
+/// Test whether valid patches from documentation are accepted by the implementation
+#[test]
+fn test_valid_patch_files() {
+    const OVERRIDE_PATCH: &str =
+        include_str!("../../../docs/patch-examples/override-relay-ips.json");
+
+    let prev_settings = Settings::default();
+    let _ = merge_validate_patch_inner(&prev_settings, OVERRIDE_PATCH)
+        .expect("failed to apply relay overrides");
 }
 
 #[test]
