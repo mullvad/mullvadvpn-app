@@ -1,7 +1,7 @@
 use super::config::TEST_CONFIG;
 use super::helpers;
 use super::{Error, TestContext};
-use mullvad_management_interface::ManagementServiceClient;
+use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::relay_constraints::{RelayConstraints, RelaySettings};
 use mullvad_types::relay_list::{Relay, RelayEndpointData};
 use std::{
@@ -84,7 +84,7 @@ pub async fn run_test_env<
 pub async fn test_ui_tunnel_settings(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     // tunnel-state.spec precondition: a single WireGuard relay should be selected
     log::info!("Select WireGuard relay");

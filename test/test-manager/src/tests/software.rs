@@ -1,7 +1,7 @@
 //! Tests of interoperability with other software
 
 use super::{helpers, Error, TestContext};
-use mullvad_management_interface::ManagementServiceClient;
+use mullvad_management_interface::MullvadProxyClient;
 use test_macro::test_function;
 use test_rpc::{ExecResult, ServiceClient};
 
@@ -10,7 +10,7 @@ use test_rpc::{ExecResult, ServiceClient};
 pub async fn test_containers(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     let result = probe_container_connectivity(&rpc).await?;
     assert!(
