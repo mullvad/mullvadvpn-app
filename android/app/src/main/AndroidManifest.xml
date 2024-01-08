@@ -32,7 +32,7 @@
         -->
         <activity android:name="net.mullvad.mullvadvpn.ui.MainActivity"
                   android:exported="true"
-                  android:launchMode="singleTask"
+                  android:launchMode="singleInstance"
                   android:configChanges="orientation|screenSize|screenLayout"
                   android:screenOrientation="fullUser"
                   android:windowSoftInputMode="adjustResize">
