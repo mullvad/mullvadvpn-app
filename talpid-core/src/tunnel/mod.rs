@@ -171,7 +171,7 @@ impl TunnelMonitor {
                 true => IPV6_HEADER_SIZE,
             };
         // The largest peer MTU that we allow
-        const MAX_PEER_MTU: u16 = 1500 - MTU_SAFETY_MARGIN;
+        let max_peer_mtu: u16 = 1500 - MTU_SAFETY_MARGIN - total_header_size;
         // The minimum allowed MTU size for our tunnel in IPv6 is 1280 and 576 for IPv4
         const MIN_IPV4_MTU: u16 = 576;
         const MIN_IPV6_MTU: u16 = 1280;
@@ -181,7 +181,7 @@ impl TunnelMonitor {
         };
         let tunnel_mtu = peer_mtu
             .saturating_sub(total_header_size)
-            .clamp(min_mtu, MAX_PEER_MTU - total_header_size);
+            .clamp(min_mtu, max_peer_mtu);
         params.options.mtu = Some(tunnel_mtu);
     }
 
