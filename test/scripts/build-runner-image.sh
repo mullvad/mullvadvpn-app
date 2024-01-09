@@ -7,9 +7,6 @@ set -eu
 TEST_RUNNER_IMAGE_SIZE_MB=1000
 
 case $TARGET in
-    "x86_64-unknown-linux-gnu")
-        TEST_RUNNER_IMAGE_FILENAME=linux-test-runner.img
-        ;;
     "x86_64-pc-windows-gnu")
         TEST_RUNNER_IMAGE_FILENAME=windows-test-runner.img
         ;;
@@ -29,22 +26,6 @@ mkdir -p "${SCRIPT_DIR}/../testrunner-images/"
 TEST_RUNNER_IMAGE_PATH="${SCRIPT_DIR}/../testrunner-images/${TEST_RUNNER_IMAGE_FILENAME}"
 
 case $TARGET in
-
-    "x86_64-unknown-linux-gnu")
-        truncate -s "${TEST_RUNNER_IMAGE_SIZE_MB}M" "${TEST_RUNNER_IMAGE_PATH}"
-        mkfs.ext4 -F "${TEST_RUNNER_IMAGE_PATH}"
-        e2cp \
-            -P 500 \
-            "${SCRIPT_DIR}/../target/$TARGET/release/test-runner" \
-            "${PACKAGES_DIR}/"app-e2e-* \
-            "${TEST_RUNNER_IMAGE_PATH}:/"
-        e2cp "${PACKAGES_DIR}/"*.deb \
-            "${TEST_RUNNER_IMAGE_PATH}:/" || true
-        e2cp "${PACKAGES_DIR}/"*.rpm \
-            "${TEST_RUNNER_IMAGE_PATH}:/" || true
-        e2cp "${SCRIPT_DIR}/../openvpn.ca.crt" \
-            "${TEST_RUNNER_IMAGE_PATH}:/"
-        ;;
 
     "x86_64-pc-windows-gnu")
         truncate -s "${TEST_RUNNER_IMAGE_SIZE_MB}M" "${TEST_RUNNER_IMAGE_PATH}"

@@ -22,7 +22,7 @@ else
     cargo build --bin test-runner --release --target "${TARGET}"
 fi
 
-# Don't build a runner image for macOS.
-if [[ $TARGET != aarch64-apple-darwin ]]; then
+# Only build runner image for Windows
+if [[ $TARGET == x86_64-pc-windows-gnu ]]; then
     ./scripts/build-runner-image.sh
 fi
