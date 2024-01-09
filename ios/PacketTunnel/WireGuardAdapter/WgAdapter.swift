@@ -20,7 +20,6 @@ struct WgAdapter: TunnelAdapterProtocol {
     init(packetTunnelProvider: NEPacketTunnelProvider) {
         let wgGoLogger = Logger(label: "WireGuard")
 
-
         adapter = WireGuardAdapter(
             with: packetTunnelProvider,
             shouldHandleReasserting: false,

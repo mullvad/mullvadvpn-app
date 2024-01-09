@@ -56,9 +56,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let ptr = Unmanaged.passUnretained(self).toOpaque()
         test_udp_sesh(ptr)
 
-        
-        
-
         let adapter = WgAdapter(packetTunnelProvider: self)
 
         let tunnelMonitor = TunnelMonitor(
