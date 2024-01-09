@@ -8,6 +8,7 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+source scripts/utils/host
 source scripts/utils/log
 
 ################################################################################
@@ -71,6 +72,8 @@ if [[ -n ${TARGETS:-""} ]]; then
     NPM_PACK_ARGS+=(--targets "${TARGETS[*]}")
 fi
 
+NPM_PACK_ARGS+=(--host-target-triple "$HOST")
+
 if [[ "$UNIVERSAL" == "true" ]]; then
     if [[ -n ${TARGETS:-""} ]]; then
         log_error "'TARGETS' and '--universal' cannot be specified simultaneously."
@@ -79,8 +82,6 @@ if [[ "$UNIVERSAL" == "true" ]]; then
         log_info "Building universal macOS distribution"
     fi
 
-    source env.sh
-    
     # Universal macOS builds package targets for both aarch64-apple-darwin and x86_64-apple-darwin.
     # We leave the target corresponding to the host machine empty to avoid rebuilding multiple times.
     # When the --target flag is provided to cargo it always puts the build in the target/$ENV_TARGET

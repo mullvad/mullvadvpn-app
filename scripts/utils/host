@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# shellcheck shell=bash
+
+# This function returns the target triple of the machine running this script
+
+case "$(uname -s)" in
+  Linux*)
+    arch="$(uname -m)"
+    HOST="${arch}-unknown-linux-gnu"
+    ;;
+  Darwin*)
+    arch="$(uname -m)"
+    if [[ ("${arch}" == "arm64") ]]; then
+        arch="aarch64"
+    fi
+    HOST="${arch}-apple-darwin"
+    ;;
+  MINGW*|MSYS_NT*)
+    HOST="x86_64-pc-windows-msvc"
+    ;;
+esac

@@ -11,11 +11,14 @@ const shouldNotarize = process.argv.includes('--notarize');
 const universal = process.argv.includes('--universal');
 const release = process.argv.includes('--release');
 
-const targetsIndex = process.argv.indexOf('--targets');
-let targets = null;
+const targets = getOptionValue('--targets');
+const hostTargetTriple = getOptionValue('--host-target-triple');
 
-if (targetsIndex !== -1) {
-  targets = process.argv[targetsIndex + 1];
+function getOptionValue(option) {
+  const optionIndex = process.argv.indexOf(option);
+  if (optionIndex !== -1) {
+    return process.argv[optionIndex + 1];
+  }
 }
 
 const config = {
@@ -90,12 +93,12 @@ const config = {
       NSUserNotificationAlertStyle: 'banner',
     },
     extraResources: [
-      { from: distAssets(path.join('${env.TARGET_TRIPLE}', 'mullvad')), to: '.' },
-      { from: distAssets(path.join('${env.TARGET_TRIPLE}', 'mullvad-problem-report')), to: '.' },
-      { from: distAssets(path.join('${env.TARGET_TRIPLE}', 'mullvad-daemon')), to: '.' },
-      { from: distAssets(path.join('${env.TARGET_TRIPLE}', 'mullvad-setup')), to: '.' },
+      { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad')), to: '.' },
+      { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad-problem-report')), to: '.' },
+      { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad-daemon')), to: '.' },
+      { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad-setup')), to: '.' },
       {
-        from: distAssets(path.join('${env.TARGET_TRIPLE}', 'libtalpid_openvpn_plugin.dylib')),
+        from: distAssets(path.join('${env.BINARIES_PATH}', 'libtalpid_openvpn_plugin.dylib')),
         to: '.',
       },
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
@@ -283,6 +286,10 @@ function packMac() {
             delete process.env.TARGET_TRIPLE;
             break;
         }
+
+        process.env.BINARIES_PATH = hostTargetTriple !== process.env.TARGET_TRIPLE
+          ? process.env.TARGET_TRIPLE
+          : '';
 
         return true;
       },

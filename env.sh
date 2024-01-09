@@ -4,22 +4,7 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-case "$(uname -s)" in
-  Linux*)
-    arch="$(uname -m)"
-    HOST="${arch}-unknown-linux-gnu"
-    ;;
-  Darwin*)
-    arch="$(uname -m)"
-    if [[ ("${arch}" == "arm64") ]]; then
-        arch="aarch64"
-    fi
-    HOST="${arch}-apple-darwin"
-    ;;
-  MINGW*|MSYS_NT*)
-    HOST="x86_64-pc-windows-msvc"
-    ;;
-esac
+source scripts/utils/host
 
 ENV_TARGET=${1:-$HOST}
 
