@@ -1,12 +1,10 @@
 [package]
 name = "talpid-types"
 description = "Common base structures for talpid"
-version.workspace = true
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
 edition.workspace = true
-publish.workspace = true
 
 [lints]
 workspace = true

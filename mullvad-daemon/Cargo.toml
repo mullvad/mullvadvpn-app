@@ -1,12 +1,10 @@
 [package]
 name = "mullvad-daemon"
 description = "Mullvad VPN daemon. Runs and controls the VPN tunnels"
-version.workspace = true
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
 edition.workspace = true
-publish.workspace = true
 
 [lints]
 workspace = true

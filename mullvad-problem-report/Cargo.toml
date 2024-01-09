@@ -1,12 +1,10 @@
 [package]
 name = "mullvad-problem-report"
 description = "Collect Mullvad VPN logs into a report and send it to support"
-version.workspace = true
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
 edition.workspace = true
-publish.workspace = true
 
 [lints]
 workspace = true
