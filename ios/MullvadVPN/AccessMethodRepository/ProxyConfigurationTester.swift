@@ -8,31 +8,38 @@
 
 import Combine
 import Foundation
+import MullvadREST
 import MullvadSettings
+import MullvadTypes
 
 /// A concrete implementation of an access method proxy configuration.
 class ProxyConfigurationTester: ProxyConfigurationTesterProtocol {
-    private var cancellable: Cancellable?
+    private var cancellable: MullvadTypes.Cancellable?
+    private let transportProvider: ConfiguredTransportProvider
+    private var headRequest: REST.HeadRequest?
 
-    static let shared = ProxyConfigurationTester()
-
-    init() {}
+    init(transportProvider: ConfiguredTransportProvider) {
+        self.transportProvider = transportProvider
+    }
 
     func start(configuration: PersistentProxyConfiguration, completion: @escaping (Error?) -> Void) {
-        let workItem = DispatchWorkItem {
-            let randomResult = (0 ... 255).randomElement()?.isMultiple(of: 2) ?? true
-
-            completion(randomResult ? nil : URLError(.timedOut))
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2), execute: workItem)
-
-        cancellable = AnyCancellable {
-            workItem.cancel()
+        do {
+            let transport = try transportProvider.makeTransport(with: configuration)
+            let request = REST.HeadRequest(transport: transport)
+            headRequest = request
+            cancellable = request.makeRequest { error in
+                DispatchQueue.main.async {
+                    completion(error)
+                }
+            }
+        } catch {
+            completion(error)
         }
     }
 
     func cancel() {
+        cancellable?.cancel()
         cancellable = nil
+        headRequest = nil
     }
 }

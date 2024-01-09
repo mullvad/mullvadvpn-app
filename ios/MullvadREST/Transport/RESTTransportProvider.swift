@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadSettings
 
 public protocol RESTTransportProvider {
     func makeTransport() -> RESTTransport?

@@ -78,6 +78,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private var appPreferences: AppPreferencesDataSource
     private var outgoingConnectionService: OutgoingConnectionServiceHandling
     private var accessMethodRepository: AccessMethodRepositoryProtocol
+    private let configuredTransportProvider: ConfiguredTransportProvider
 
     private var outOfTimeTimer: Timer?
 
@@ -94,7 +95,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         accountsProxy: RESTAccountHandling,
         outgoingConnectionService: OutgoingConnectionServiceHandling,
         appPreferences: AppPreferencesDataSource,
-        accessMethodRepository: AccessMethodRepositoryProtocol
+        accessMethodRepository: AccessMethodRepositoryProtocol,
+        transportProvider: ConfiguredTransportProvider
     ) {
         self.tunnelManager = tunnelManager
         self.storePaymentManager = storePaymentManager
@@ -105,6 +107,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         self.appPreferences = appPreferences
         self.outgoingConnectionService = outgoingConnectionService
         self.accessMethodRepository = accessMethodRepository
+        self.configuredTransportProvider = transportProvider
 
         super.init()
 
@@ -758,10 +761,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
 
         let navigationController = CustomNavigationController()
+
+        let configurationTester = ProxyConfigurationTester(transportProvider: configuredTransportProvider)
+
         let coordinator = SettingsCoordinator(
             navigationController: navigationController,
             interactorFactory: interactorFactory,
-            accessMethodRepository: accessMethodRepository
+            accessMethodRepository: accessMethodRepository,
+            proxyConfigurationTester: configurationTester
         )
 
         coordinator.didFinish = { [weak self] _ in
