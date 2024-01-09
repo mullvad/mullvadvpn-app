@@ -15,10 +15,10 @@ object Versions {
 
     object Android {
         const val compileSdkVersion = 34
+        const val junit = "1.4.0"
         const val minSdkVersion = 26
         const val targetSdkVersion = 34
         const val volley = "1.2.1"
-        const val junit = "1.4.0"
     }
 
     object AndroidX {
@@ -53,11 +53,11 @@ object Versions {
         const val playPublisher = "3.8.4"
         const val dependencyCheck = "8.3.1"
         const val gradleVersions = "0.47.0"
+        const val junit5 = "1.10.0.0"
         const val ktfmt = "0.13.0"
         // Ksp version is linked with kotlin version, find matching release here:
         // https://github.com/google/ksp/releases
         const val ksp = "${kotlin}-1.0.14"
-        const val junit5 = "1.10.0.0"
     }
 
     object Koin {
