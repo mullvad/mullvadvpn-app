@@ -7,7 +7,7 @@
 //
 
 @testable import MullvadREST
-import MullvadTypes
+@testable import MullvadTypes
 import XCTest
 
 final class RequestExecutorTests: XCTestCase {
@@ -18,8 +18,8 @@ final class RequestExecutorTests: XCTestCase {
         super.setUp()
 
         let transportProvider = REST.AnyTransportProvider {
-            return AnyTransport {
-                return Response(delay: 1, statusCode: 200, value: TimeResponse(dateTime: Date()))
+            AnyTransport {
+                Response(delay: 1, statusCode: 200, value: TimeResponse(dateTime: Date()))
             }
         }
 
