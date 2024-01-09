@@ -606,6 +606,10 @@
 		A917352129FAAA5200D5DCFD /* TransportStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */; };
 		A91D78E32B03BDF200FCD5D3 /* TunnelObfuscation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5840231F2A406BF5007B27AC /* TunnelObfuscation.framework */; };
 		A91D78E42B03C01600FCD5D3 /* MullvadSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */; };
+		A932D9EF2B5ADD0700999395 /* ConfiguredTransportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932D9EE2B5ADD0700999395 /* ConfiguredTransportProvider.swift */; };
+		A932D9F32B5EB61100999395 /* HeadRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932D9F22B5EB61100999395 /* HeadRequestTests.swift */; };
+		A932D9F52B5EBB9D00999395 /* RESTTransportStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932D9F42B5EBB9D00999395 /* RESTTransportStub.swift */; };
+		A935594C2B4C2DA900D5D524 /* HeadRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A935594B2B4C2DA900D5D524 /* HeadRequest.swift */; };
 		A94D691A2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E22AA72AE9003D1918 /* WireGuardKitTypes */; };
 		A94D691B2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E72AA7399D003D1918 /* WireGuardKitTypes */; };
 		A970C89D2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A970C89C2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift */; };
@@ -1763,6 +1767,10 @@
 		A92ECC232A7802520052F1B1 /* StoredAccountData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredAccountData.swift; sourceTree = "<group>"; };
 		A92ECC272A7802AB0052F1B1 /* StoredDeviceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredDeviceData.swift; sourceTree = "<group>"; };
 		A92ECC2B2A7803A50052F1B1 /* DeviceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceState.swift; sourceTree = "<group>"; };
+		A932D9EE2B5ADD0700999395 /* ConfiguredTransportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfiguredTransportProvider.swift; sourceTree = "<group>"; };
+		A932D9F22B5EB61100999395 /* HeadRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadRequestTests.swift; sourceTree = "<group>"; };
+		A932D9F42B5EBB9D00999395 /* RESTTransportStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransportStub.swift; sourceTree = "<group>"; };
+		A935594B2B4C2DA900D5D524 /* HeadRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadRequest.swift; sourceTree = "<group>"; };
 		A935594D2B4E919F00D5D524 /* Api.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Api.xcconfig; sourceTree = "<group>"; };
 		A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTests.swift; sourceTree = "<group>"; };
 		A970C89C2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socks5UsernamePasswordCommand.swift; sourceTree = "<group>"; };
@@ -2824,6 +2832,7 @@
 			children = (
 				58BDEB982A98F4ED00F578F2 /* AnyTransport.swift */,
 				58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */,
+				A932D9F42B5EBB9D00999395 /* RESTTransportStub.swift */,
 				58BDEB9A2A98F58600F578F2 /* TimeServerProxy.swift */,
 			);
 			path = Mocks;
@@ -3238,6 +3247,7 @@
 			children = (
 				F0164EB92B4456D30020268D /* AccessMethodRepositoryStub.swift */,
 				58FBFBE8291622580020E046 /* ExponentialBackoffTests.swift */,
+				A932D9F22B5EB61100999395 /* HeadRequestTests.swift */,
 				58BDEB9E2A98F6B400F578F2 /* Mocks */,
 				58B4656F2A98C53300467203 /* RequestExecutorTests.swift */,
 				F0164EC22B4C49D30020268D /* ShadowsocksLoaderStub.swift */,
@@ -3394,6 +3404,7 @@
 			isa = PBXGroup;
 			children = (
 				06AC114128F8413A0037AF9A /* AddressCache.swift */,
+				A935594B2B4C2DA900D5D524 /* HeadRequest.swift */,
 				06FAE67128F83CA40033DD93 /* HTTP.swift */,
 				06FAE67228F83CA40033DD93 /* RESTAccessTokenManager.swift */,
 				06FAE66828F83CA30033DD93 /* RESTAccountsProxy.swift */,
@@ -3444,6 +3455,7 @@
 			isa = PBXGroup;
 			children = (
 				F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */,
+				A932D9EE2B5ADD0700999395 /* ConfiguredTransportProvider.swift */,
 				F0DC77A32B2315800087F09D /* Direct */,
 				F0164EC02B4C03980020268D /* LastReachableApiAccessCache.swift */,
 				06FAE67D28F83CA50033DD93 /* RESTTransport.swift */,
@@ -4376,6 +4388,7 @@
 			files = (
 				F05F39982B21C73C006E60A7 /* CachedRelays.swift in Sources */,
 				F05F39972B21C735006E60A7 /* RelayCache.swift in Sources */,
+				A932D9EF2B5ADD0700999395 /* ConfiguredTransportProvider.swift in Sources */,
 				06799AE728F98E4800ACD94E /* RESTURLSession.swift in Sources */,
 				A90763B52B2857D50045ADF0 /* Socks5Constants.swift in Sources */,
 				A90763BA2B2857D50045ADF0 /* Socks5Error.swift in Sources */,
@@ -4434,6 +4447,7 @@
 				06799ADF28F98E4800ACD94E /* RESTDevicesProxy.swift in Sources */,
 				06799ADA28F98E4800ACD94E /* RESTResponseHandler.swift in Sources */,
 				062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */,
+				A935594C2B4C2DA900D5D524 /* HeadRequest.swift in Sources */,
 				A90763C32B2858630045ADF0 /* Socks5Configuration.swift in Sources */,
 				06799AE428F98E4800ACD94E /* RESTAccountsProxy.swift in Sources */,
 				5897F1742913EAF800AF5695 /* ExponentialBackoff.swift in Sources */,
@@ -5170,7 +5184,9 @@
 				F0164EC32B4C49D30020268D /* ShadowsocksLoaderStub.swift in Sources */,
 				58BDEB9D2A98F69E00F578F2 /* MemoryCache.swift in Sources */,
 				58BDEB9B2A98F58600F578F2 /* TimeServerProxy.swift in Sources */,
+				A932D9F52B5EBB9D00999395 /* RESTTransportStub.swift in Sources */,
 				58BDEB992A98F4ED00F578F2 /* AnyTransport.swift in Sources */,
+				A932D9F32B5EB61100999395 /* HeadRequestTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

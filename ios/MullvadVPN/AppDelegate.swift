@@ -43,6 +43,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private let migrationManager = MigrationManager()
 
     private(set) var accessMethodRepository = AccessMethodRepository()
+    private(set) var shadowsocksLoader: ShadowsocksLoaderProtocol!
+    private(set) var configuredTransportProvider: ProxyConfiguredTransportProvider!
 
     // MARK: - Application lifecycle
 
@@ -94,14 +96,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         // This init cannot fail as long as the security group identifier is valid
         let sharedUserDefaults = UserDefaults(suiteName: ApplicationConfiguration.securityGroupIdentifier)!
+        shadowsocksLoader = ShadowsocksLoader(
+            shadowsocksCache: shadowsocksCache,
+            relayCache: relayCache,
+            constraintsUpdater: constraintsUpdater
+        )
+
+        configuredTransportProvider = ProxyConfiguredTransportProvider(
+            shadowsocksLoader: shadowsocksLoader,
+            addressCache: addressCache
+        )
+
         let transportStrategy = TransportStrategy(
             sharedUserDefaults,
             datasource: accessMethodRepository,
-            shadowsocksLoader: ShadowsocksLoader(
-                shadowsocksCache: shadowsocksCache,
-                relayCache: relayCache,
-                constraintsUpdater: constraintsUpdater
-            )
+            shadowsocksLoader: shadowsocksLoader
         )
 
         let transportProvider = TransportProvider(

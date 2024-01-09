@@ -14,6 +14,7 @@ struct HTTPMethod: RawRepresentable {
     static let post = HTTPMethod(rawValue: "POST")
     static let delete = HTTPMethod(rawValue: "DELETE")
     static let put = HTTPMethod(rawValue: "PUT")
+    static let head = HTTPMethod(rawValue: "HEAD")
 
     let rawValue: String
     init(rawValue: String) {
