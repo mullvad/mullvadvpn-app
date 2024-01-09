@@ -511,13 +511,13 @@ mod test {
 
     #[derive(Default)]
     struct MockPinger {
-        on_send_ping: Option<Box<dyn FnMut() + Send>>,
+        on_send_ping: Option<Box<dyn FnMut(u16) + Send>>,
     }
 
     impl Pinger for MockPinger {
-        fn send_icmp(&mut self) -> Result<(), crate::ping_monitor::Error> {
+        fn send_icmp_sized(&mut self, size: u16) -> Result<(), crate::ping_monitor::Error> {
             if let Some(callback) = self.on_send_ping.as_mut() {
-                (callback)();
+                (callback)(size);
             }
             Ok(())
         }
