@@ -24,6 +24,7 @@ final class AccountInputGroupView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "IconArrow"), for: .normal)
         button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        button.accessibilityIdentifier = .loginTextFieldButton
         button.accessibilityLabel = NSLocalizedString(
             "ACCOUNT_INPUT_LOGIN_BUTTON_ACCESSIBILITY_LABEL",
             tableName: "AccountInput",
