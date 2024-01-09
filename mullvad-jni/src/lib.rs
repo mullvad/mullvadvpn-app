@@ -307,11 +307,10 @@ fn api_endpoint_from_java(env: &JnixEnv<'_>, object: JObject<'_>) -> mullvad_api
         .l()
         .expect("ApiEndpoint.address is not an InetSocketAddress");
 
-    endpoint.addr =
-        try_socketaddr_from_java(env, address).expect("received unresolved InetSocketAddress");
-    if let Some(host) = try_hostname_from_java(env, address) {
-        endpoint.host = host;
-    }
+    endpoint.address = Some(
+        try_socketaddr_from_java(env, address).expect("received unresolved InetSocketAddress"),
+    );
+    endpoint.host = try_hostname_from_java(env, address);
     endpoint.disable_address_cache = env
         .call_method(object, "component2", "()Z", &[])
         .expect("missing ApiEndpoint.disableAddressCache")
@@ -322,11 +321,6 @@ fn api_endpoint_from_java(env: &JnixEnv<'_>, object: JObject<'_>) -> mullvad_api
         .expect("missing ApiEndpoint.disableTls")
         .z()
         .expect("ApiEndpoint.disableTls is not a bool");
-    endpoint.force_direct_connection = env
-        .call_method(object, "component4", "()Z", &[])
-        .expect("missing ApiEndpoint.forceDirectConnection")
-        .z()
-        .expect("ApiEndpoint.forceDirectConnection is not a bool");
 
     endpoint
 }

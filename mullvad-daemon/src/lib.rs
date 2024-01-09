@@ -27,7 +27,7 @@ pub mod version;
 mod version_check;
 
 use crate::target_state::PersistentTargetState;
-use api::NewAccessMethodEvent;
+use api::AccessMethodEvent;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
@@ -374,7 +374,7 @@ pub(crate) enum InternalDaemonEvent {
     DeviceEvent(AccountEvent),
     /// Sent when access methods are changed in any way (new active access method).
     AccessMethodEvent {
-        event: NewAccessMethodEvent,
+        event: AccessMethodEvent,
         endpoint_active_tx: oneshot::Sender<()>,
     },
     /// Handles updates from versions without devices.
@@ -416,8 +416,8 @@ impl From<AccountEvent> for InternalDaemonEvent {
     }
 }
 
-impl From<(NewAccessMethodEvent, oneshot::Sender<()>)> for InternalDaemonEvent {
-    fn from(event: (NewAccessMethodEvent, oneshot::Sender<()>)) -> Self {
+impl From<(AccessMethodEvent, oneshot::Sender<()>)> for InternalDaemonEvent {
+    fn from(event: (AccessMethodEvent, oneshot::Sender<()>)) -> Self {
         InternalDaemonEvent::AccessMethodEvent {
             event: event.0,
             endpoint_active_tx: event.1,
@@ -1341,28 +1341,39 @@ where
 
     fn handle_access_method_event(
         &mut self,
-        event: NewAccessMethodEvent,
+        event: AccessMethodEvent,
         endpoint_active_tx: oneshot::Sender<()>,
     ) {
-        // Update the firewall to exempt a new API endpoint.
-        let (completion_tx, completion_rx) = oneshot::channel();
-        self.send_tunnel_command(TunnelCommand::AllowEndpoint(event.endpoint, completion_tx));
-        // If the `NewAccessMethodEvent` should be announced to any client
-        // listening for updates of the currently active access method, we need
-        // to clone the handle to the broadcaster of such events. The
-        // announcement should be made after the firewall policy has been
-        // updated, since the new access method will be useless before then.
-        let event_listener = self.event_listener.clone();
-        tokio::spawn(async move {
-            // Wait for the firewall policy to be updated.
-            let _ = completion_rx.await;
-            // Let the emitter of this event know that the firewall has been updated.
-            let _ = endpoint_active_tx.send(());
-            // Notify clients about the change if necessary.
-            if event.announce {
-                event_listener.notify_new_access_method_event(event.setting);
+        match event {
+            AccessMethodEvent::Allow { endpoint } => {
+                let (completion_tx, completion_rx) = oneshot::channel();
+                self.send_tunnel_command(TunnelCommand::AllowEndpoint(endpoint, completion_tx));
+                tokio::spawn(async move {
+                    // Wait for the firewall policy to be updated.
+                    let _ = completion_rx.await;
+                    // Let the emitter of this event know that the firewall has been updated.
+                    let _ = endpoint_active_tx.send(());
+                });
             }
-        });
+            AccessMethodEvent::New { setting, endpoint } => {
+                // Update the firewall to exempt a new API endpoint.
+                let (completion_tx, completion_rx) = oneshot::channel();
+                self.send_tunnel_command(TunnelCommand::AllowEndpoint(endpoint, completion_tx));
+                // Announce to all clients listening for updates of the
+                // currently active access method. The announcement should be
+                // made after the firewall policy has been updated, since the
+                // new access method will be useless before then.
+                let event_listener = self.event_listener.clone();
+                tokio::spawn(async move {
+                    // Wait for the firewall policy to be updated.
+                    let _ = completion_rx.await;
+                    // Let the emitter of this event know that the firewall has been updated.
+                    let _ = endpoint_active_tx.send(());
+                    // Notify clients about the change if necessary.
+                    event_listener.notify_new_access_method_event(setting);
+                });
+            }
+        }
     }
 
     fn handle_device_migration_event(
@@ -2496,10 +2507,11 @@ where
             let result = async move {
                 // Send an internal daemon event which will punch a hole in the firewall
                 // for the connection mode we are testing.
-                let _ = api::NewAccessMethodEvent::new(test_subject.setting, test_subject.endpoint)
-                    .announce(false)
-                    .send(daemon_event_sender.clone())
-                    .await;
+                let _ = api::AccessMethodEvent::Allow {
+                    endpoint: test_subject.endpoint,
+                }
+                .send(daemon_event_sender.clone())
+                .await;
 
                 // Send a HEAD request to some Mullvad API endpoint. We issue a HEAD
                 // request because we are *only* concerned with if we get a reply from
@@ -2515,10 +2527,12 @@ where
                     .get_current()
                     .await
                     .map_err(Error::ApiConnectionModeError)?;
-                let _ = api::NewAccessMethodEvent::new(active.setting, active.endpoint)
-                    .announce(false)
-                    .send(daemon_event_sender.clone())
-                    .await;
+
+                let _ = api::AccessMethodEvent::Allow {
+                    endpoint: active.endpoint,
+                }
+                .send(daemon_event_sender.clone())
+                .await;
 
                 result
             }
