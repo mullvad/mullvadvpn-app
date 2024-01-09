@@ -106,5 +106,8 @@ fi
 setup_systemd
 
 # Install required packages
-which apt &>/dev/null && apt install -f xvfb wireguard-tools
-which dnf &>/dev/null && dnf install -y xorg-x11-server-Xvfb wireguard-tools
+if which apt &>/dev/null; then
+    apt install -f xvfb wireguard-tools
+elif which dnf &>/dev/null; then
+    dnf install -y xorg-x11-server-Xvfb wireguard-tools
+fi

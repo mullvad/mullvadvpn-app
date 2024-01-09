@@ -3110,7 +3110,7 @@ dependencies = [
 
 [[package]]
 name = "test-manager"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "anyhow",
  "async-tempfile",
@@ -3179,7 +3179,7 @@ dependencies = [
 
 [[package]]
 name = "test-runner"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "bytes",
  "chrono",
@@ -3211,7 +3211,7 @@ dependencies = [
 
 [[package]]
 name = "test_macro"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "proc-macro2",
  "quote",
