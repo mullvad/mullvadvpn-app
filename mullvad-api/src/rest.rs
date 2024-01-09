@@ -26,9 +26,6 @@ use std::{
 };
 use talpid_types::ErrorExt;
 
-#[cfg(feature = "api-override")]
-use crate::API;
-
 pub use hyper::StatusCode;
 
 const USER_AGENT: &str = "mullvad-app";
@@ -147,14 +144,7 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestServic
             socket_bypass_tx.clone(),
         );
 
-        #[cfg(feature = "api-override")]
-        let force_direct_connection = API.force_direct_connection;
-        #[cfg(not(feature = "api-override"))]
-        let force_direct_connection = false;
-
-        if force_direct_connection {
-            log::debug!("API proxies are disabled");
-        } else if let Some(config) = proxy_config_provider.next().await {
+        if let Some(config) = proxy_config_provider.next().await {
             connector_handle.set_connection_mode(config);
         }
 
@@ -185,17 +175,9 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestServic
                 self.connector_handle.reset();
             }
             RequestCommand::NextApiConfig(completion_tx) => {
-                #[cfg(feature = "api-override")]
-                let force_direct_connection = API.force_direct_connection;
-                #[cfg(not(feature = "api-override"))]
-                let force_direct_connection = false;
-
-                if force_direct_connection {
-                    log::debug!("Ignoring API connection mode");
-                } else if let Some(connection_mode) = self.proxy_config_provider.next().await {
+                if let Some(connection_mode) = self.proxy_config_provider.next().await {
                     self.connector_handle.set_connection_mode(connection_mode);
                 }
-
                 let _ = completion_tx.send(Ok(()));
             }
         }
@@ -632,8 +614,10 @@ impl MullvadRestHandle {
             availability,
         };
         #[cfg(feature = "api-override")]
-        if API.disable_address_cache {
-            return handle;
+        {
+            if crate::API.disable_address_cache {
+                return handle;
+            }
         }
         handle.spawn_api_address_fetcher(address_cache);
         handle
