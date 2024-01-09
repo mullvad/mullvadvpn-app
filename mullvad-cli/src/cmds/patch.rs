@@ -2,15 +2,15 @@ use anyhow::{anyhow, Context, Result};
 use mullvad_management_interface::MullvadProxyClient;
 use std::{
     fs::File,
-    io::{stdin, BufRead, BufReader},
+    io::{stdin, stdout, BufRead, BufReader, BufWriter, Write},
     path::Path,
 };
 
 /// Maximum size of a settings patch. Bigger files/streams cause the read to fail.
 const MAX_PATCH_BYTES: usize = 10 * 1024;
 
-/// If source is specified, read from the provided file and send it as a settings patch to the daemon.
-/// Otherwise, read the patch from standard input.
+/// If source is specified, read from the provided file and send it as a settings patch to the
+/// daemon. Otherwise, read the patch from standard input.
 pub async fn import(source: String) -> Result<()> {
     let json_blob = tokio::task::spawn_blocking(|| get_blob(source))
         .await
@@ -22,6 +22,22 @@ pub async fn import(source: String) -> Result<()> {
         .context("Error applying patch")?;
 
     println!("Settings applied");
+
+    Ok(())
+}
+
+/// If source is specified, write a patch to the file. Otherwise, write the patch to standard
+/// output.
+pub async fn export(dest: String) -> Result<()> {
+    let mut rpc = MullvadProxyClient::new().await?;
+    let json_blob = rpc
+        .export_json_settings()
+        .await
+        .context("Error exporting patch")?;
+
+    tokio::task::spawn_blocking(|| put_blob(dest, json_blob))
+        .await
+        .unwrap()?;
 
     Ok(())
 }
@@ -98,4 +114,28 @@ fn read_settings_from_reader(mut reader: impl BufRead) -> Result<String> {
     Ok(std::str::from_utf8(&buf[0..cursor_pos])
         .context("settings must be utf8 encoded")?
         .to_owned())
+}
+
+fn put_blob(dest: String, blob: String) -> Result<()> {
+    match dest.as_str() {
+        "-" => write_settings_to_stdout(blob).context("Failed to write to stdout"),
+        _ => write_settings_to_file(dest, blob).context("Failed to write to path {dest}: {source}"),
+    }
+}
+
+/// Write patch to standard output
+fn write_settings_to_stdout(blob: String) -> Result<()> {
+    write_settings_using_writer(BufWriter::new(stdout()), blob)
+}
+
+/// Write patch to path
+fn write_settings_to_file(path: impl AsRef<Path>, blob: String) -> Result<()> {
+    write_settings_using_writer(BufWriter::new(File::open(path)?), blob)
+}
+
+fn write_settings_using_writer(mut writer: impl Write, blob: String) -> Result<()> {
+    writer
+        .write_all(blob.as_bytes())
+        .context("Failed to write blob to destination")?;
+    writer.write_all(b"\n").context("Failed to write newline")
 }
