@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add account UUID to verbose 'mullvad account get -v' output.
 - Respect OS prefer-reduced-motion setting
+- Add CLI command for exporting settings patches: `mullvad export-settings`. Currently, it generates
+  a patch containing all patchable settings, which only includes relay IP overrides.
 
 #### Android
 - Add support for all screen orientations.
