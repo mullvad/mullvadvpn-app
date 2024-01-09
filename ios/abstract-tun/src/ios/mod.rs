@@ -207,10 +207,6 @@ pub extern "C" fn test_if_it_actually_works() -> u32 {
     return sum;
 }
 
-extern "C" {
-    fn swift_log_crash() -> u32;
-}
-
 #[no_mangle]
 pub extern "C" fn test_udp_sesh(packet_tunnel: *const libc::c_void) {
     let rt = tokio::runtime::Runtime::new().expect("Failed to initialize the runtime");
@@ -229,7 +225,6 @@ pub extern "C" fn test_udp_sesh(packet_tunnel: *const libc::c_void) {
 
     rt.spawn(async move {
         while let Ok(data) = reader.recv().await {
-            unsafe { swift_log_crash() };
             responder.send(data).await;
         }
     });

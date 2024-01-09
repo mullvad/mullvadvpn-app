@@ -15,12 +15,34 @@ import WireGuardKitC
 import WireGuardKitTypes
 
 // Wrapper class around AbstractTun to provide an interface similar to WireGuardAdapter.
-class AbstractTunAdapter {
+class AbstractTunAdapter: TunnelAdapterProtocol  {
     private let abstractTun: AbstractTun
     private let queue: DispatchQueue
-    init(queue: DispatchQueue, packetTunnel: PacketTunnelProvider, logClosure: @escaping (String) -> Void) {
+    
+    init(queue: DispatchQueue, packetTunnel: PacketTunnelProvider) {
         self.queue = queue
-        abstractTun = AbstractTun(queue: queue, packetTunnel: packetTunnel, logClosure: logClosure)
+        abstractTun = AbstractTun(queue: queue, packetTunnel: packetTunnel)
+    }
+    
+    
+    func start(configuration: PacketTunnelCore.TunnelAdapterConfiguration) async throws {
+        return try await withCheckedThrowingContinuation {
+            continuation in
+            if case let .failure(error)  = self.start(tunnelConfiguration: configuration) {
+                continuation.resume(throwing: error)
+            } else {
+                continuation.resume(returning: ())
+            }
+        }
+    }
+    
+    func stop() async throws {
+        return await withCheckedContinuation {
+            continuation in
+            self.stop(completionHandler: {_ in 
+                continuation.resume(returning: ())
+            }) 
+        }
     }
 
     public func start(tunnelConfiguration: TunnelAdapterConfiguration) -> Result<Void, AbstractTunError> {
@@ -36,7 +58,6 @@ class AbstractTunAdapter {
     }
 
     public func stop(completionHandler: @escaping (WireGuardAdapterError?) -> Void) {
-//        abstractTun.stopOnQueue()
         abstractTun.stop()
         completionHandler(nil)
     }
@@ -106,6 +127,14 @@ class AbstractTunAdapter {
     }
 }
 
+extension AbstractTunAdapter: TunnelDeviceInfoProtocol {
+    func getStats() throws -> PacketTunnelCore.WgStats {
+        return self.stats()
+    }
+}
+
+
+
 class AbstractTun: NSObject {
     private var tunRef: OpaquePointer?
     private var dispatchQueue: DispatchQueue
@@ -121,7 +150,6 @@ class AbstractTun: NSObject {
     private let tunQueue = DispatchQueue(label: "AbstractTun", qos: .userInitiated)
 
     private var wgTaskTimer: DispatchSourceTimer?
-    private let logClosure: (String) -> Void
 
     private var socketObservers: [UInt32: NSKeyValueObservation] = [:]
 
@@ -134,12 +162,12 @@ class AbstractTun: NSObject {
         }
     }
 
-    init(queue: DispatchQueue, packetTunnel: PacketTunnelProvider, logClosure: @escaping (String) -> Void) {
+    init(queue: DispatchQueue, packetTunnel: PacketTunnelProvider) {
         dispatchQueue = queue
         packetTunnelProvider = packetTunnel
-        self.logClosure = logClosure
     }
 
+    
     deinit {
         self.stop()
     }
@@ -163,7 +191,7 @@ class AbstractTun: NSObject {
     }
 
     func update(tunnelConfiguration: TunnelAdapterConfiguration) -> Result<Void, AbstractTunError> {
-        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+//        dispatchPrecondition(condition: .onQueue(dispatchQueue))
         stop()
         bytesSent = 0
         bytesReceived = 0
@@ -171,7 +199,7 @@ class AbstractTun: NSObject {
     }
 
     func start(tunnelConfig: TunnelAdapterConfiguration) -> Result<Void, AbstractTunError> {
-        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+//        dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
         wgTaskTimer = DispatchSource.makeTimerSource(queue: dispatchQueue)
         wgTaskTimer?.setEventHandler(handler: {
@@ -413,6 +441,7 @@ class AbstractTun: NSObject {
         return setConfiguration(tunnelConfiguration)
     }
 }
+
 
 func generateNetworkSettings(tunnelConfiguration: TunnelConfiguration) -> NEPacketTunnelNetworkSettings {
     /* iOS requires a tunnel endpoint, whereas in WireGuard it's valid for
