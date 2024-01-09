@@ -285,7 +285,7 @@ impl WireguardMonitor {
             #[cfg(target_os = "android")]
             psk_negotiation,
         )?;
-        let iface_name = tunnel.get_interface_name();
+        let iface_name = dbg!(tunnel.get_interface_name());
 
         #[cfg(target_os = "android")]
         if let Some(remote_socket_fd) = obfuscator.as_ref().map(|obfs| obfs.remote_socket_fd()) {
@@ -309,7 +309,7 @@ impl WireguardMonitor {
             obfuscator,
         };
 
-        let gateway = config.ipv4_gateway;
+        let gateway = dbg!(config.ipv4_gateway);
         let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
             gateway,
             #[cfg(any(target_os = "macos", target_os = "linux"))]
@@ -415,6 +415,42 @@ impl WireguardMonitor {
             })
             .await
             .unwrap();
+
+            let mut pinger = ping_monitor::new_pinger(
+                gateway,
+                #[cfg(any(target_os = "macos", target_os = "linux"))]
+                iface_name.clone(),
+            )
+            .unwrap();
+
+            let num_steps = 10;
+            let min_mtu = 576;
+            let max_mtu = 1600;
+            for mtu in (min_mtu..=max_mtu).step_by((max_mtu - min_mtu) / num_steps) {
+                log::warn!("Sending {mtu}");
+                if let Err(e) = pinger.send_icmp_sized(mtu as u16) {
+                    log::error!("{e}");
+                }
+            }
+            let mtu = 1337;
+            config.mtu = mtu;
+
+            Self::reconfigure_tunnel(
+                &tunnel,
+                config.clone(),
+                obfuscator,
+                close_obfs_sender,
+                #[cfg(target_os = "android")]
+                &tun_provider,
+            )
+            .await?;
+            // tunnel
+            //     .lock()
+            //     .unwrap()
+            //     .as_ref()
+            //     .unwrap()
+            //     .set_config(config)
+            //     .await;
 
             Err::<Infallible, CloseMsg>(CloseMsg::PingErr)
         };
