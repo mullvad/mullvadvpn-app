@@ -100,6 +100,8 @@ class TermsOfServiceContentView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
+        self.accessibilityIdentifier = .termsOfServiceView
+
         addSubviews()
     }
 

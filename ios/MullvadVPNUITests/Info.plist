@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>MullvadFiveWireGuardKeysAccountNumber</key>
+	<string>$(MULLVAD_FIVE_WIREGUARD_KEYS_ACCOUNT_NUMBER)</string>
+	<key>MullvadHasTimeAccountNumber</key>
+	<string>$(MULLVAD_HAS_TIME_ACCOUNT_NUMBER)</string>
+	<key>MullvadNoTimeAccountNumber</key>
+	<string>$(MULLVAD_NO_TIME_ACCOUNT_NUMBER)</string>
+</dict>
+</plist>
