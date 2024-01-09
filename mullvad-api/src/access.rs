@@ -38,7 +38,7 @@ struct AccountState {
 
 impl AccessTokenStore {
     pub(crate) fn new(service: RequestServiceHandle) -> Self {
-        let factory = rest::RequestFactory::new(&API.host, None);
+        let factory = rest::RequestFactory::new(API.host(), None);
         let (tx, rx) = mpsc::unbounded();
         tokio::spawn(Self::service_requests(rx, service, factory));
         Self { tx }

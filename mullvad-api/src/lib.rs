@@ -103,95 +103,167 @@ impl<T> Deref for LazyManual<T> {
 /// A hostname and socketaddr to reach the Mullvad REST API over.
 #[derive(Debug)]
 pub struct ApiEndpoint {
-    pub host: String,
-    pub addr: SocketAddr,
+    /// An overriden API hostname. Initialized with the value of the environment
+    /// variable `MULLVAD_API_HOSt` if it has been set.
+    ///
+    /// Use the associated function [`Self::host`] to read this value with a
+    /// default fallback if `MULLVAD_API_HOST` was not set.
+    pub host: Option<String>,
+    /// An overriden API address. Initialized with the value of the environment
+    /// variable `MULLVAD_API_ADDR` if it has been set.
+    ///
+    /// Use the associated function [`Self::address()`] to read this value with
+    /// a default fallback if `MULLVAD_API_ADDR` was not set.
+    ///
+    /// # Note
+    ///
+    /// If [`Self::address`] is populated with [`Some(SocketAddr)`], it should
+    /// always be respected when establishing API connections.
+    pub address: Option<SocketAddr>,
     #[cfg(feature = "api-override")]
     pub disable_address_cache: bool,
     #[cfg(feature = "api-override")]
     pub disable_tls: bool,
-    #[cfg(feature = "api-override")]
-    pub force_direct_connection: bool,
 }
 
 impl ApiEndpoint {
+    const API_HOST_DEFAULT: &'static str = "api.mullvad.net";
+    const API_IP_DEFAULT: IpAddr = IpAddr::V4(Ipv4Addr::new(45, 83, 223, 196));
+    const API_PORT_DEFAULT: u16 = 443;
+
+    const API_HOST_VAR: &'static str = "MULLVAD_API_HOST";
+    const API_ADDR_VAR: &'static str = "MULLVAD_API_ADDR";
+    const DISABLE_TLS_VAR: &'static str = "MULLVAD_API_DISABLE_TLS";
+
     /// Returns the endpoint to connect to the API over.
     ///
     /// # Panics
     ///
     /// Panics if `MULLVAD_API_ADDR` has invalid contents or if only one of
     /// `MULLVAD_API_ADDR` or `MULLVAD_API_HOST` has been set but not the other.
+    #[cfg(feature = "api-override")]
     pub fn from_env_vars() -> ApiEndpoint {
-        const API_HOST_DEFAULT: &str = "api.mullvad.net";
-        const API_IP_DEFAULT: IpAddr = IpAddr::V4(Ipv4Addr::new(45, 83, 223, 196));
-        const API_PORT_DEFAULT: u16 = 443;
+        use std::net::ToSocketAddrs;
 
-        fn read_var(key: &'static str) -> Option<String> {
-            use std::env;
-            match env::var(key) {
-                Ok(v) => Some(v),
-                Err(env::VarError::NotPresent) => None,
-                Err(env::VarError::NotUnicode(_)) => panic!("{key} does not contain valid UTF-8"),
-            }
-        }
+        let host_var = Self::read_var(ApiEndpoint::API_HOST_VAR);
+        let address_var = Self::read_var(ApiEndpoint::API_ADDR_VAR);
+        let disable_tls_var = Self::read_var(ApiEndpoint::DISABLE_TLS_VAR);
 
-        let host_var = read_var("MULLVAD_API_HOST");
-        let address_var = read_var("MULLVAD_API_ADDR");
-        let disable_tls_var = read_var("MULLVAD_API_DISABLE_TLS");
-
-        #[cfg_attr(not(feature = "api-override"), allow(unused_mut))]
         let mut api = ApiEndpoint {
-            host: API_HOST_DEFAULT.to_owned(),
-            addr: SocketAddr::new(API_IP_DEFAULT, API_PORT_DEFAULT),
-            #[cfg(feature = "api-override")]
-            disable_address_cache: false,
-            #[cfg(feature = "api-override")]
-            disable_tls: false,
-            #[cfg(feature = "api-override")]
-            force_direct_connection: false,
+            host: host_var.clone(),
+            address: None,
+            disable_address_cache: true,
+            disable_tls: disable_tls_var
+                .as_ref()
+                .map(|disable_tls| disable_tls != "0")
+                .unwrap_or(false),
         };
 
-        #[cfg(feature = "api-override")]
-        {
-            use std::net::ToSocketAddrs;
-
-            if host_var.is_none() && address_var.is_none() {
-                if disable_tls_var.is_some() {
-                    log::warn!("MULLVAD_API_DISABLE_TLS is ignored since MULLVAD_API_HOST and MULLVAD_API_ADDR are not set");
-                }
-                return api;
+        api.address = match address_var {
+            Some(user_addr) => {
+                let addr = user_addr.parse().unwrap_or_else(|_| {
+                    panic!(
+                        "{api_addr} is not a valid socketaddr",
+                        api_addr = ApiEndpoint::API_ADDR_VAR,
+                    )
+                });
+                Some(addr)
             }
-
-            let scheme = if let Some(disable_tls_var) = disable_tls_var {
-                api.disable_tls = disable_tls_var != "0";
-                "http://"
-            } else {
-                "https://"
-            };
-
-            if let Some(user_host) = host_var {
-                api.host = user_host;
-            }
-            if let Some(user_addr) = address_var {
-                api.addr = user_addr
-                    .parse()
-                    .expect("MULLVAD_API_ADDR is not a valid socketaddr");
-            } else {
-                log::warn!("Resolving API IP from MULLVAD_API_HOST");
-                api.addr = format!("{}:{}", api.host, API_PORT_DEFAULT)
+            None => {
+                log::warn!(
+                    "Resolving API host from {api_host}",
+                    api_host = ApiEndpoint::API_HOST_VAR
+                );
+                format!("{}:{}", api.host(), ApiEndpoint::API_PORT_DEFAULT)
                     .to_socket_addrs()
                     .expect("failed to resolve API host")
                     .next()
-                    .expect("API host yielded 0 addresses");
             }
-            api.disable_address_cache = true;
-            api.force_direct_connection = true;
-            log::debug!("Overriding API. Using {} at {scheme}{}", api.host, api.addr);
-        }
-        #[cfg(not(feature = "api-override"))]
-        if host_var.is_some() || address_var.is_some() || disable_tls_var.is_some() {
-            log::warn!("These variables are ignored in production builds: MULLVAD_API_HOST, MULLVAD_API_ADDR, MULLVAD_API_DISABLE_TLS");
+        };
+
+        if api.host.is_none() && api.address.is_none() {
+            if disable_tls_var.is_some() {
+                log::warn!(
+                    "{disable_tls} is ignored since {api_host} and {api_addr} are not set",
+                    disable_tls = ApiEndpoint::DISABLE_TLS_VAR,
+                    api_host = ApiEndpoint::API_HOST_VAR,
+                    api_addr = ApiEndpoint::API_ADDR_VAR,
+                );
+            }
+        } else {
+            log::debug!(
+                "Overriding API. Using {host} at {scheme}{addr}",
+                host = api.host(),
+                addr = api.address(),
+                scheme = if api.disable_tls {
+                    "http://"
+                } else {
+                    "https://"
+                }
+            );
         }
         api
+    }
+
+    /// Returns the endpoint to connect to the API over.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `MULLVAD_API_ADDR`, `MULLVAD_API_HOST` or
+    /// `MULLVAD_API_DISABLE_TLS` has invalid contents.
+    #[cfg(not(feature = "api-override"))]
+    pub fn from_env_vars() -> ApiEndpoint {
+        let host_var = Self::read_var(ApiEndpoint::API_HOST_VAR);
+        let address_var = Self::read_var(ApiEndpoint::API_ADDR_VAR);
+        let disable_tls_var = Self::read_var(ApiEndpoint::DISABLE_TLS_VAR);
+
+        if host_var.is_some() || address_var.is_some() || disable_tls_var.is_some() {
+            log::warn!(
+                "These variables are ignored in production builds: {api_host}, {api_addr}, {disable_tls}",
+                api_host = ApiEndpoint::API_HOST_VAR,
+                api_addr = ApiEndpoint::API_ADDR_VAR,
+                disable_tls = ApiEndpoint::DISABLE_TLS_VAR
+            );
+        }
+
+        ApiEndpoint {
+            host: None,
+            address: None,
+        }
+    }
+
+    /// Read the [`Self::host`] value, falling back to
+    /// [`Self::API_HOST_DEFAULT`] as default value if it does not exist.
+    pub fn host(&self) -> String {
+        self.host
+            .clone()
+            .unwrap_or(ApiEndpoint::API_HOST_DEFAULT.to_string())
+    }
+
+    /// Read the [`Self::address`] value, falling back to
+    /// [`Self::API_IP_DEFAULT`]:[`Self::API_PORT_DEFAULT`] as default if it
+    /// does not exist.
+    pub fn address(&self) -> SocketAddr {
+        self.address.unwrap_or(SocketAddr::new(
+            ApiEndpoint::API_IP_DEFAULT,
+            ApiEndpoint::API_PORT_DEFAULT,
+        ))
+    }
+
+    /// Try to read the value of an environment variable. Returns `None` if the
+    /// environment variable has not been set.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the environment variable was found, but it did not contain
+    /// valid unicode data.
+    fn read_var(key: &'static str) -> Option<String> {
+        use std::env;
+        match env::var(key) {
+            Ok(v) => Some(v),
+            Err(env::VarError::NotPresent) => None,
+            Err(env::VarError::NotUnicode(_)) => panic!("{key} does not contain valid UTF-8"),
+        }
     }
 }
 
@@ -314,14 +386,14 @@ impl Runtime {
     ) -> rest::MullvadRestHandle {
         let service = self
             .new_request_service(
-                Some(API.host.clone()),
+                Some(API.host()),
                 proxy_provider,
                 #[cfg(target_os = "android")]
                 self.socket_bypass_tx.clone(),
             )
             .await;
         let token_store = access::AccessTokenStore::new(service.clone());
-        let factory = rest::RequestFactory::new(&API.host, Some(token_store));
+        let factory = rest::RequestFactory::new(API.host(), Some(token_store));
 
         rest::MullvadRestHandle::new(
             service,

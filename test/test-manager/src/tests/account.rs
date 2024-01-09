@@ -221,7 +221,7 @@ pub async fn new_device_client() -> DevicesProxy {
     let api_endpoint = mullvad_api::ApiEndpoint::from_env_vars();
 
     let api_host = format!("api.{}", TEST_CONFIG.mullvad_host);
-    let api_addr = format!("{api_host}:443")
+    let api_address = format!("{api_host}:443")
         .to_socket_addrs()
         .expect("failed to resolve API host")
         .next()
@@ -229,8 +229,8 @@ pub async fn new_device_client() -> DevicesProxy {
 
     // Override the API endpoint to use the one specified in the test config
     let _ = mullvad_api::API.override_init(mullvad_api::ApiEndpoint {
-        host: api_host,
-        addr: api_addr,
+        host: Some(api_host),
+        address: Some(api_address),
         ..api_endpoint
     });
 
