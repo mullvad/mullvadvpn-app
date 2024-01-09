@@ -31,7 +31,7 @@ pub struct AddressCache {
 impl AddressCache {
     /// Initialize cache using the hardcoded address, and write changes to `write_path`.
     pub fn new(write_path: Option<Box<Path>>) -> Result<Self, Error> {
-        Self::new_inner(API.addr, write_path)
+        Self::new_inner(API.address(), write_path)
     }
 
     /// Initialize cache using `read_path`, and write changes to `write_path`.
@@ -53,7 +53,7 @@ impl AddressCache {
 
     /// Returns the address if the hostname equals `API.host`. Otherwise, returns `None`.
     pub async fn resolve_hostname(&self, hostname: &str) -> Option<SocketAddr> {
-        if hostname.eq_ignore_ascii_case(&API.host) {
+        if hostname.eq_ignore_ascii_case(API.host()) {
             Some(self.get_address().await)
         } else {
             None

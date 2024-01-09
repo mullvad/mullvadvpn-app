@@ -32,65 +32,39 @@ pub enum Message {
     Resolve(ResponseTx<ResolvedConnectionMode>, AccessMethodSetting),
 }
 
-/// A [`NewAccessMethodEvent`] is emitted when the active access method changes,
-/// which happens in any of the following two scenarios:
-///
-/// * When a [`mullvad_api::rest::RequestService`] requests a new
-/// [`ApiConnectionMode`] from the running [`AccessModeSelector`]. This will
-/// lead to a [`crate::InternalDaemonEvent::AccessMethodEvent`] being sent to
-/// the daemon, which in turn will notify all clients about the new access
-/// method.
-///
-/// * When testing if some [`AccessMethodSetting`] can be used to reach the
-/// Mullvad API. In this scenario, the currently active access method will
-/// temporarily change (approximately for the duration of 1 API call). Since
-/// this is just an internal test which should be opaque to any client, it
-/// should not produce any unwanted noise and as such it is *not* broadcasted
-/// after the daemon is done processing this [`NewAccessMethodEvent`].
-pub struct NewAccessMethodEvent {
-    /// The new active [`AccessMethodSetting`].
-    pub setting: AccessMethodSetting,
-    /// The endpoint which represents how to connect to the Mullvad API and
-    /// which clients are allowed to initiate such a connection.
-    pub endpoint: AllowedEndpoint,
-    /// If the daemon should notify clients about the new access method.
+/// Calling [`AccessMethodEvent::send`] will cause a
+/// [`crate::InternalDaemonEvent::AccessMethodEvent`] being sent to the daemon,
+/// which in turn will handle updating the firewall and notifying clients as
+/// applicable.
+pub enum AccessMethodEvent {
+    /// A [`AccessMethodEvent::New`] event is emitted when the active access
+    /// method changes.
     ///
-    /// Defaults to `true`.
-    pub announce: bool,
+    /// This happens when a [`mullvad_api::rest::RequestService`] requests a new
+    /// [`ApiConnectionMode`] from the running [`AccessModeSelector`].
+    New {
+        /// The new active [`AccessMethodSetting`].
+        setting: AccessMethodSetting,
+        /// The endpoint which represents how to connect to the Mullvad API and
+        /// which clients are allowed to initiate such a connection.
+        endpoint: AllowedEndpoint,
+    },
+    /// Emitted when the the firewall should be updated.
+    ///
+    /// This is useful for example when testing if some [`AccessMethodSetting`]
+    /// can be used to reach the Mullvad API. In this scenario, the currently
+    /// active access method will temporarily change (approximately for the
+    /// duration of 1 API call). Since this is just an internal test which
+    /// should be opaque to any client, it should not produce any unwanted noise
+    /// and as such it is *not* broadcasted after the daemon is done processing
+    /// this [`AccessMethodEvent::Allow`].
+    Allow { endpoint: AllowedEndpoint },
 }
 
-impl NewAccessMethodEvent {
-    /// Create a new [`NewAccessMethodEvent`] for the daemon to process. A
-    /// [`oneshot::Receiver`] can be used to await the daemon while it finishes
-    /// handling the new event.
-    pub fn new(setting: AccessMethodSetting, endpoint: AllowedEndpoint) -> NewAccessMethodEvent {
-        NewAccessMethodEvent {
-            setting,
-            endpoint,
-            announce: true,
-        }
-    }
-
-    /// Whether the daemon should notify clients about the new access method or
-    /// not.
-    ///
-    /// * If `announce` is set to `true` the daemon will broadcast this event to
-    /// clients.
-    /// * If `announce` is set to `false` the daemon will *not* broadcast this
-    /// event.
-    pub fn announce(mut self, announce: bool) -> Self {
-        self.announce = announce;
-        self
-    }
-
-    /// Send an internal daemon event which will punch a hole in the firewall
-    /// for the connection mode we are testing.
-    ///
-    /// Returns the channel on which the daemon will send a message over when it
-    /// is done applying the firewall changes.
+impl AccessMethodEvent {
     pub(crate) async fn send(
         self,
-        daemon_event_sender: DaemonEventSender<(NewAccessMethodEvent, oneshot::Sender<()>)>,
+        daemon_event_sender: DaemonEventSender<(AccessMethodEvent, oneshot::Sender<()>)>,
     ) -> std::result::Result<(), Canceled> {
         // It is up to the daemon to actually allow traffic to/from `api_endpoint`
         // by updating the firewall. This [`oneshot::Sender`] allows the daemon to
@@ -251,7 +225,7 @@ pub struct AccessModeSelector {
     relay_selector: RelaySelector,
     connection_modes: ConnectionModesIterator,
     address_cache: AddressCache,
-    access_method_event_sender: DaemonEventSender<(NewAccessMethodEvent, oneshot::Sender<()>)>,
+    access_method_event_sender: DaemonEventSender<(AccessMethodEvent, oneshot::Sender<()>)>,
     current: ResolvedConnectionMode,
 }
 
@@ -260,7 +234,7 @@ impl AccessModeSelector {
         cache_dir: PathBuf,
         relay_selector: RelaySelector,
         connection_modes: Vec<AccessMethodSetting>,
-        access_method_event_sender: DaemonEventSender<(NewAccessMethodEvent, oneshot::Sender<()>)>,
+        access_method_event_sender: DaemonEventSender<(AccessMethodEvent, oneshot::Sender<()>)>,
         address_cache: AddressCache,
     ) -> Result<AccessModeSelectorHandle> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
@@ -348,6 +322,36 @@ impl AccessModeSelector {
     }
 
     async fn next_connection_mode(&mut self) -> Result<ApiConnectionMode> {
+        #[cfg(feature = "api-override")]
+        {
+            use mullvad_api::API;
+            // If the API address has been explicitly overridden, it should
+            // always be used. This implies that a direct API connection mode is
+            // used.
+            if API.address.is_some() {
+                log::debug!("API proxies are disabled");
+                let endpoint = resolve_allowed_endpoint(
+                    &ApiConnectionMode::Direct,
+                    // Note that the address cache *should* be initialized with
+                    // the overridden API endpoint, so we can simply fetch the
+                    // endpoint address from it.
+                    self.address_cache.get_address().await,
+                );
+                let daemon_sender = self.access_method_event_sender.clone();
+                tokio::spawn(async move {
+                    let _ = AccessMethodEvent::Allow { endpoint }
+                        .send(daemon_sender)
+                        .await;
+                });
+                return Ok(ApiConnectionMode::Direct);
+            }
+
+            log::warn!(
+                "The `api-override` feature is enabled, but the API address \
+                 was not overridden. Selecting API access methods as normal"
+            );
+        }
+
         let access_method = self.connection_modes.next().ok_or(Error::NoAccessMethods)?;
         log::info!(
             "A new API access method has been selected: {name}",
@@ -365,7 +369,7 @@ impl AccessModeSelector {
         let endpoint = resolved.endpoint.clone();
         let daemon_sender = self.access_method_event_sender.clone();
         tokio::spawn(async move {
-            let _ = NewAccessMethodEvent::new(setting, endpoint)
+            let _ = AccessMethodEvent::New { setting, endpoint }
                 .send(daemon_sender)
                 .await;
         });
