@@ -1,6 +1,6 @@
 use crate::config::{OsType, Provisioner, VmConfig};
 use crate::package;
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use ssh2::Session;
 use std::fs::File;
 use std::io::{self, Read};
@@ -203,5 +203,15 @@ fn ssh_exec(session: &Session, command: &str) -> Result<String> {
     channel.send_eof()?;
     channel.wait_eof()?;
     channel.wait_close()?;
+
+    log::debug!("{command} output:\n{output}");
+
+    let exit_status = channel
+        .exit_status()
+        .context("Failed to obtain exit status")?;
+    if exit_status != 0 {
+        bail!("ssh-setup.sh failed: {exit_status}");
+    }
+
     Ok(output)
 }
