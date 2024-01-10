@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.test.arch
 import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.architecture.KoArchitectureCreator.assertArchitecture
 import com.lemonappdev.konsist.api.architecture.Layer
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class ArchitectureTests {
 

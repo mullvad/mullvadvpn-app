@@ -2,9 +2,8 @@ package net.mullvad.mullvadvpn.test.arch.classes
 
 import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.ext.list.modifierprovider.withValueModifier
-import com.lemonappdev.konsist.api.ext.list.properties
 import com.lemonappdev.konsist.api.verify.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class ValueClassTests {
     @Test
