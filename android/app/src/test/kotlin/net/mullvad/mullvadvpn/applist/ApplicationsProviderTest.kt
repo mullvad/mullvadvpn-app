@@ -8,8 +8,8 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verifyAll
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
-import org.junit.After
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Test
 
 class ApplicationsProviderTest {
     private val mockedPackageManager = mockk<PackageManager>()
@@ -17,7 +17,7 @@ class ApplicationsProviderTest {
     private val testSubject = ApplicationsProvider(mockedPackageManager, selfPackageName)
     private val internet = Manifest.permission.INTERNET
 
-    @After
+    @AfterEach
     fun tearDown() {
         unmockkAll()
     }

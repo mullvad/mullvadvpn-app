@@ -38,13 +38,13 @@ import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 import org.joda.time.ReadableInstant
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class OutOfTimeViewModelTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     private val serviceConnectionStateFlow =
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
@@ -70,7 +70,7 @@ class OutOfTimeViewModelTest {
 
     private lateinit var viewModel: OutOfTimeViewModel
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockkStatic(SERVICE_CONNECTION_MANAGER_EXTENSIONS)
         mockkStatic(PURCHASE_RESULT_EXTENSIONS_CLASS)
@@ -103,75 +103,71 @@ class OutOfTimeViewModelTest {
             )
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         viewModel.viewModelScope.coroutineContext.cancel()
         unmockkAll()
     }
 
     @Test
-    fun testSitePaymentClick() =
-        runTest(testCoroutineRule.testDispatcher) {
-            // Arrange
-            val mockToken = "4444 5555 6666 7777"
-            val mockAuthTokenCache: AuthTokenCache = mockk(relaxed = true)
-            every { mockServiceConnectionManager.authTokenCache() } returns mockAuthTokenCache
-            coEvery { mockAuthTokenCache.fetchAuthToken() } returns mockToken
+    fun testSitePaymentClick() = runTest {
+        // Arrange
+        val mockToken = "4444 5555 6666 7777"
+        val mockAuthTokenCache: AuthTokenCache = mockk(relaxed = true)
+        every { mockServiceConnectionManager.authTokenCache() } returns mockAuthTokenCache
+        coEvery { mockAuthTokenCache.fetchAuthToken() } returns mockToken
 
-            // Act, Assert
-            viewModel.uiSideEffect.test {
-                viewModel.onSitePaymentClick()
-                val action = awaitItem()
-                assertIs<OutOfTimeViewModel.UiSideEffect.OpenAccountView>(action)
-                assertEquals(mockToken, action.token)
-            }
+        // Act, Assert
+        viewModel.uiSideEffect.test {
+            viewModel.onSitePaymentClick()
+            val action = awaitItem()
+            assertIs<OutOfTimeViewModel.UiSideEffect.OpenAccountView>(action)
+            assertEquals(mockToken, action.token)
         }
+    }
 
     @Test
-    fun testUpdateTunnelState() =
-        runTest(testCoroutineRule.testDispatcher) {
-            // Arrange
-            val tunnelRealStateTestItem = TunnelState.Connected(mockk(), mockk())
+    fun testUpdateTunnelState() = runTest {
+        // Arrange
+        val tunnelRealStateTestItem = TunnelState.Connected(mockk(), mockk())
 
-            // Act, Assert
-            viewModel.uiState.test {
-                assertEquals(OutOfTimeUiState(deviceName = ""), awaitItem())
-                eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)
-                serviceConnectionStateFlow.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                val result = awaitItem()
-                assertEquals(tunnelRealStateTestItem, result.tunnelState)
-            }
+        // Act, Assert
+        viewModel.uiState.test {
+            assertEquals(OutOfTimeUiState(deviceName = ""), awaitItem())
+            eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)
+            serviceConnectionStateFlow.value =
+                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+            val result = awaitItem()
+            assertEquals(tunnelRealStateTestItem, result.tunnelState)
         }
+    }
 
     @Test
-    fun testOpenConnectScreen() =
-        runTest(testCoroutineRule.testDispatcher) {
-            // Arrange
-            val mockExpiryDate: DateTime = mockk()
-            every { mockExpiryDate.isAfter(any<ReadableInstant>()) } returns true
+    fun testOpenConnectScreen() = runTest {
+        // Arrange
+        val mockExpiryDate: DateTime = mockk()
+        every { mockExpiryDate.isAfter(any<ReadableInstant>()) } returns true
 
-            // Act, Assert
-            viewModel.uiSideEffect.test {
-                outOfTimeFlow.value = false
-                val action = awaitItem()
-                assertIs<OutOfTimeViewModel.UiSideEffect.OpenConnectScreen>(action)
-            }
+        // Act, Assert
+        viewModel.uiSideEffect.test {
+            outOfTimeFlow.value = false
+            val action = awaitItem()
+            assertIs<OutOfTimeViewModel.UiSideEffect.OpenConnectScreen>(action)
         }
+    }
 
     @Test
-    fun testOnDisconnectClick() =
-        runTest(testCoroutineRule.testDispatcher) {
-            // Arrange
-            val mockProxy: ConnectionProxy = mockk(relaxed = true)
-            every { mockServiceConnectionManager.connectionProxy() } returns mockProxy
+    fun testOnDisconnectClick() = runTest {
+        // Arrange
+        val mockProxy: ConnectionProxy = mockk(relaxed = true)
+        every { mockServiceConnectionManager.connectionProxy() } returns mockProxy
 
-            // Act
-            viewModel.onDisconnectClick()
+        // Act
+        viewModel.onDisconnectClick()
 
-            // Assert
-            verify { mockProxy.disconnect() }
-        }
+        // Assert
+        verify { mockProxy.disconnect() }
+    }
 
     @Test
     fun testBillingProductsUnavailableState() = runTest {
