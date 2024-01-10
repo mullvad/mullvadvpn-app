@@ -195,6 +195,7 @@ developer portal in the top right corner next to your organization name (upperca
 digits).
 1. Edit `App.xcconfig` and `PacketTunnel.xcconfig` and supply the names of your provisioning profiles 
 for development (Debug) and distribution (Release).
+1. Edit `Api.xcconfig` to supply the endpoint that will be used to reach the Mullvad API.
 1. Edit `Screenshots.xcconfig` and supply the name of your provisioning profile. We only specify 
 development profile here as we never build UI testing targets for distribution. Skip this step if 
 you do not intend to generate screenshots for the app.
