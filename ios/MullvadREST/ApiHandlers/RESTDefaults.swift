@@ -9,12 +9,13 @@
 import Foundation
 import MullvadTypes
 
+// swiftlint:disable force_cast
 extension REST {
     /// Default API hostname.
-    public static let defaultAPIHostname = "api.mullvad.net"
+    public static let defaultAPIHostname = Bundle.main.infoDictionary!["ApiHostName"] as! String
 
     /// Default API endpoint.
-    public static let defaultAPIEndpoint = AnyIPEndpoint(string: "45.83.223.196:443")!
+    public static let defaultAPIEndpoint = AnyIPEndpoint(string: Bundle.main.infoDictionary!["ApiEndpoint"] as! String)!
 
     /// Disables API IP address cache when in staging environment and sticks to using default API endpoint instead.
     public static let isStagingEnvironment = false
@@ -22,3 +23,5 @@ extension REST {
     /// Default network timeout for API requests.
     public static let defaultAPINetworkTimeout: Duration = .seconds(10)
 }
+
+// swiftlint:enable force_cast
