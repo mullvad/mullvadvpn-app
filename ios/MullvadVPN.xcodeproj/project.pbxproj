@@ -722,6 +722,13 @@
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
 		E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */; };
+		F0164EBA2B4456D30020268D /* AccessMethodRepositoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EB92B4456D30020268D /* AccessMethodRepositoryStub.swift */; };
+		F0164EBC2B482E430020268D /* AppStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EBB2B482E430020268D /* AppStorage.swift */; };
+		F0164EBE2B4BFF940020268D /* ShadowsocksLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */; };
+		F0164EC12B4C03980020268D /* LastReachableApiAccessCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EC02B4C03980020268D /* LastReachableApiAccessCache.swift */; };
+		F0164EC32B4C49D30020268D /* ShadowsocksLoaderStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EC22B4C49D30020268D /* ShadowsocksLoaderStub.swift */; };
+		F0164ED12B4F2DCB0020268D /* AccessMethodIterator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */; };
+		F0164ED32B4F2F3E0020268D /* AccessMethodIteratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164ED22B4F2F3E0020268D /* AccessMethodIteratorTests.swift */; };
 		F028A56A2A34D4E700C0CAA3 /* RedeemVoucherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */; };
 		F028A56C2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A56B2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift */; };
 		F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */; };
@@ -1758,6 +1765,13 @@
 		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* String+AccountFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+AccountFormatting.swift"; sourceTree = "<group>"; };
 		E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusActivityView.swift; sourceTree = "<group>"; };
+		F0164EB92B4456D30020268D /* AccessMethodRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodRepositoryStub.swift; sourceTree = "<group>"; };
+		F0164EBB2B482E430020268D /* AppStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorage.swift; sourceTree = "<group>"; };
+		F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksLoader.swift; sourceTree = "<group>"; };
+		F0164EC02B4C03980020268D /* LastReachableApiAccessCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastReachableApiAccessCache.swift; sourceTree = "<group>"; };
+		F0164EC22B4C49D30020268D /* ShadowsocksLoaderStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksLoaderStub.swift; sourceTree = "<group>"; };
+		F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodIterator.swift; sourceTree = "<group>"; };
+		F0164ED22B4F2F3E0020268D /* AccessMethodIteratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodIteratorTests.swift; sourceTree = "<group>"; };
 		F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewController.swift; sourceTree = "<group>"; };
 		F028A56B2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCreditSucceededViewController.swift; sourceTree = "<group>"; };
 		F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncreasedHitButton.swift; sourceTree = "<group>"; };
@@ -2747,6 +2761,7 @@
 				588D7ED72AF3A533005DF40A /* AccessMethodKind.swift */,
 				5827B0A02B0E064E00CCBBA1 /* AccessMethodRepository.swift */,
 				58EF875A2B16385400C098B2 /* AccessMethodRepositoryProtocol.swift */,
+				F0164EBB2B482E430020268D /* AppStorage.swift */,
 				A92ECC2B2A7803A50052F1B1 /* DeviceState.swift */,
 				580F8B8528197958002E0998 /* DNSSettings.swift */,
 				06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */,
@@ -2774,8 +2789,8 @@
 			isa = PBXGroup;
 			children = (
 				58BDEB982A98F4ED00F578F2 /* AnyTransport.swift */,
-				58BDEB9A2A98F58600F578F2 /* TimeServerProxy.swift */,
 				58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */,
+				58BDEB9A2A98F58600F578F2 /* TimeServerProxy.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -3182,10 +3197,13 @@
 		58FBFBE7291622580020E046 /* MullvadRESTTests */ = {
 			isa = PBXGroup;
 			children = (
+				F0164ED22B4F2F3E0020268D /* AccessMethodIteratorTests.swift */,
+				F0164EB92B4456D30020268D /* AccessMethodRepositoryStub.swift */,
 				58FBFBE8291622580020E046 /* ExponentialBackoffTests.swift */,
-				A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */,
-				58B4656F2A98C53300467203 /* RequestExecutorTests.swift */,
 				58BDEB9E2A98F6B400F578F2 /* Mocks */,
+				58B4656F2A98C53300467203 /* RequestExecutorTests.swift */,
+				F0164EC22B4C49D30020268D /* ShadowsocksLoaderStub.swift */,
+				A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */,
 			);
 			path = MullvadRESTTests;
 			sourceTree = "<group>";
@@ -3354,7 +3372,9 @@
 		F0DC77A02B2223290087F09D /* Transport */ = {
 			isa = PBXGroup;
 			children = (
+				F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */,
 				F0DC77A32B2315800087F09D /* Direct */,
+				F0164EC02B4C03980020268D /* LastReachableApiAccessCache.swift */,
 				06FAE67D28F83CA50033DD93 /* RESTTransport.swift */,
 				58E7BA182A975DF70068EC3A /* RESTTransportProvider.swift */,
 				F0DC77A22B2314EF0087F09D /* Shadowsocks */,
@@ -3381,6 +3401,7 @@
 				F04F95A02B21D24400431E08 /* shadowsocks.h */,
 				F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */,
 				F0DDE4102B220458006B57A7 /* ShadowsocksConfigurationCache.swift */,
+				F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */,
 				F0DDE40F2B220458006B57A7 /* ShadowSocksProxy.swift */,
 				F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */,
 			);
@@ -4257,6 +4278,7 @@
 				06799AE728F98E4800ACD94E /* RESTURLSession.swift in Sources */,
 				A90763B52B2857D50045ADF0 /* Socks5Constants.swift in Sources */,
 				A90763BA2B2857D50045ADF0 /* Socks5Error.swift in Sources */,
+				F0164EC12B4C03980020268D /* LastReachableApiAccessCache.swift in Sources */,
 				06799AF428F98E4800ACD94E /* RESTAuthorization.swift in Sources */,
 				06799AE228F98E4800ACD94E /* RESTRequestFactory.swift in Sources */,
 				A90763BD2B2857D50045ADF0 /* Socks5Connection.swift in Sources */,
@@ -4266,6 +4288,7 @@
 				F0DDE4162B220458006B57A7 /* TransportProvider.swift in Sources */,
 				06799AEF28F98E4800ACD94E /* RetryStrategy.swift in Sources */,
 				06799AE128F98E4800ACD94E /* SSLPinningURLSessionDelegate.swift in Sources */,
+				F0164EBE2B4BFF940020268D /* ShadowsocksLoader.swift in Sources */,
 				A9A1DE792AD5708E0073F689 /* TransportStrategy.swift in Sources */,
 				A90763BF2B2857D50045ADF0 /* Socks5Handshake.swift in Sources */,
 				A90763C52B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift in Sources */,
@@ -4296,6 +4319,7 @@
 				589E76C02A9378F100E502F3 /* RESTRequestExecutor.swift in Sources */,
 				A90763C12B2858320045ADF0 /* URLSessionSocks5Transport.swift in Sources */,
 				06799AE528F98E4800ACD94E /* HTTP.swift in Sources */,
+				F0164ED12B4F2DCB0020268D /* AccessMethodIterator.swift in Sources */,
 				A9D99B9A2A1F7C3200DE27D3 /* RESTTransport.swift in Sources */,
 				A90763BB2B2857D50045ADF0 /* Socks5AddressType.swift in Sources */,
 				06799AE028F98E4800ACD94E /* RESTCoding.swift in Sources */,
@@ -4489,6 +4513,7 @@
 				58B2FDE02AA71D5C003EB5C6 /* TunnelSettings.swift in Sources */,
 				A988DF2A2ADE880300D807EF /* TunnelSettingsV3.swift in Sources */,
 				58B2FDE42AA71D5C003EB5C6 /* SettingsManager.swift in Sources */,
+				F0164EBC2B482E430020268D /* AppStorage.swift in Sources */,
 				58B2FDE62AA71D5C003EB5C6 /* DeviceState.swift in Sources */,
 				58FE25BF2AA72311003D1918 /* MigrationManager.swift in Sources */,
 				58B2FDEF2AA720C4003EB5C6 /* ApplicationTarget.swift in Sources */,
@@ -5035,8 +5060,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				58B465702A98C53300467203 /* RequestExecutorTests.swift in Sources */,
+				F0164EBA2B4456D30020268D /* AccessMethodRepositoryStub.swift in Sources */,
 				A917352129FAAA5200D5DCFD /* TransportStrategyTests.swift in Sources */,
+				F0164ED32B4F2F3E0020268D /* AccessMethodIteratorTests.swift in Sources */,
 				58FBFBE9291622580020E046 /* ExponentialBackoffTests.swift in Sources */,
+				F0164EC32B4C49D30020268D /* ShadowsocksLoaderStub.swift in Sources */,
 				58BDEB9D2A98F69E00F578F2 /* MemoryCache.swift in Sources */,
 				58BDEB9B2A98F58600F578F2 /* TimeServerProxy.swift in Sources */,
 				58BDEB992A98F4ED00F578F2 /* AnyTransport.swift in Sources */,

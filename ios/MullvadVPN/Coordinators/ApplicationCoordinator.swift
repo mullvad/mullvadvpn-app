@@ -77,6 +77,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private var tunnelObserver: TunnelObserver?
     private var appPreferences: AppPreferencesDataSource
     private var outgoingConnectionService: OutgoingConnectionServiceHandling
+    private var accessMethodRepository: AccessMethodRepositoryProtocol
 
     private var outOfTimeTimer: Timer?
 
@@ -92,7 +93,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         devicesProxy: DeviceHandling,
         accountsProxy: RESTAccountHandling,
         outgoingConnectionService: OutgoingConnectionServiceHandling,
-        appPreferences: AppPreferencesDataSource
+        appPreferences: AppPreferencesDataSource,
+        accessMethodRepository: AccessMethodRepositoryProtocol
     ) {
         self.tunnelManager = tunnelManager
         self.storePaymentManager = storePaymentManager
@@ -102,6 +104,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         self.accountsProxy = accountsProxy
         self.appPreferences = appPreferences
         self.outgoingConnectionService = outgoingConnectionService
+        self.accessMethodRepository = accessMethodRepository
 
         super.init()
 
@@ -757,7 +760,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         let navigationController = CustomNavigationController()
         let coordinator = SettingsCoordinator(
             navigationController: navigationController,
-            interactorFactory: interactorFactory
+            interactorFactory: interactorFactory,
+            accessMethodRepository: accessMethodRepository
         )
 
         coordinator.didFinish = { [weak self] _ in

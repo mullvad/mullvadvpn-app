@@ -12,6 +12,8 @@ import Foundation
 public protocol AccessMethodRepositoryDataSource {
     /// Publisher that propagates a snapshot of persistent store upon modifications.
     var publisher: AnyPublisher<[PersistentAccessMethod], Never> { get }
+
+    var directAccess: PersistentAccessMethod { get }
 }
 
 public protocol AccessMethodRepositoryProtocol: AccessMethodRepositoryDataSource {
