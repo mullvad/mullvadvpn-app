@@ -1,5 +1,6 @@
 plugins {
     id(Dependencies.Plugin.androidLibraryId)
+    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
     id(Dependencies.Plugin.kotlinAndroidId)
 }
 
@@ -55,11 +56,13 @@ dependencies {
     implementation(project(Dependencies.Mullvad.paymentLib))
 
     // Test dependencies
+    testRuntimeOnly(Dependencies.junitEngine)
+
     testImplementation(project(Dependencies.Mullvad.commonTestLib))
     testImplementation(Dependencies.Kotlin.test)
     testImplementation(Dependencies.KotlinX.coroutinesTest)
     testImplementation(Dependencies.MockK.core)
-    testImplementation(Dependencies.junit)
+    testImplementation(Dependencies.junitApi)
     testImplementation(Dependencies.turbine)
 
     androidTestImplementation(project(Dependencies.Mullvad.commonTestLib))
@@ -67,6 +70,7 @@ dependencies {
     androidTestImplementation(Dependencies.Kotlin.test)
     androidTestImplementation(Dependencies.KotlinX.coroutinesTest)
     androidTestImplementation(Dependencies.turbine)
-    androidTestImplementation(Dependencies.junit)
+    androidTestImplementation(Dependencies.junitApi)
+    androidTestImplementation(Dependencies.junitEngine)
     androidTestImplementation(Dependencies.AndroidX.espressoCore)
 }

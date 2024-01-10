@@ -25,12 +25,12 @@ import net.mullvad.mullvadvpn.model.PlayPurchaseInitError
 import net.mullvad.mullvadvpn.model.PlayPurchaseInitResult
 import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyError
 import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyResult
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class BillingPaymentRepositoryTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     private val mockBillingRepository: BillingRepository = mockk()
     private val mockPlayPurchaseRepository: PlayPurchaseRepository = mockk()
@@ -39,7 +39,7 @@ class BillingPaymentRepositoryTest {
 
     private lateinit var paymentRepository: BillingPaymentRepository
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockkStatic(PRODUCT_DETAILS_TO_PAYMENT_PRODUCT_EXT)
 
