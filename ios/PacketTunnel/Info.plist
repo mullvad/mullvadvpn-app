@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ApiEndpoint</key>
+	<string>$(API_ENDPOINT)</string>
+	<key>ApiHostName</key>
+	<string>$(API_HOST_NAME)</string>
 	<key>ApplicationSecurityGroupIdentifier</key>
 	<string>$(SECURITY_GROUP_IDENTIFIER)</string>
 	<key>MainApplicationIdentifier</key>

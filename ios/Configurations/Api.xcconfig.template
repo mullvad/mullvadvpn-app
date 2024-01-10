@@ -1,0 +1,7 @@
+API_HOST_NAME[config=Debug] = your.hostname.here
+API_HOST_NAME[config=Release] = your.hostname.here
+API_HOST_NAME[config=Staging] = your.hostname.here
+
+API_ENDPOINT[config=Debug] = 1.2.3.4:443
+API_ENDPOINT[config=Release] = 1.2.3.4:443
+API_ENDPOINT[config=Staging] = 1.2.3.4:443

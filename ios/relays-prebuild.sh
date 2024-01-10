@@ -7,7 +7,13 @@ fi
 
 RELAYS_FILE="$PROJECT_DIR/MullvadREST/Assets/relays.json"
 
-if [ $CONFIGURATION == "Release" ]; then
+if [ "$CONFIGURATION" == "Staging" ]; then
+  API_ENDPOINT="api.stagemole.eu"
+else
+  API_ENDPOINT="api.mullvad.net"
+fi
+
+if [ "$CONFIGURATION" == "Release" ]; then
   echo "Remove relays file"
   if [ -f "$RELAYS_FILE" ]; then
     rm "$RELAYS_FILE"
@@ -18,5 +24,5 @@ fi
 
 if [ ! -f "$RELAYS_FILE" ]; then
   echo "Download relays file"
-  curl https://api.mullvad.net/app/v1/relays -s -o "$RELAYS_FILE"
+  curl https://"$API_ENDPOINT"/app/v1/relays -s -o "$RELAYS_FILE"
 fi
