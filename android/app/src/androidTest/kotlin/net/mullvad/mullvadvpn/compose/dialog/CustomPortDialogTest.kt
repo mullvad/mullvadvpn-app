@@ -2,22 +2,26 @@ package net.mullvad.mullvadvpn.compose.dialog
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextInput
+import de.mannodermaus.junit5.compose.createComposeExtension
 import io.mockk.MockKAnnotations
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.test.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.onNodeWithTagAndText
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
 
 class CustomPortDialogTest {
-    @get:Rule val composeTestRule = createComposeRule()
+    @OptIn(ExperimentalTestApi::class)
+    @JvmField
+    @RegisterExtension
+    val composeExtension = createComposeExtension()
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
     }
@@ -40,23 +44,22 @@ class CustomPortDialogTest {
     }
 
     @Test
-    fun testShowWireguardCustomPortDialogInvalidInt() {
-        // Input a number to make sure that a too long number does not show and it does not crash
-        // the app
+    fun testShowWireguardCustomPortDialogInvalidInt() =
+        composeExtension.use {
+            // Input a number to make sure that a too long number does not show and it does not
+            // crash
+            // the app
 
-        // Arrange
-        composeTestRule.setContentWithTheme { testWireguardCustomPortDialog() }
+            // Arrange
+            setContentWithTheme { testWireguardCustomPortDialog() }
 
-        // Act
-        composeTestRule
-            .onNodeWithTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG)
-            .performTextInput(invalidCustomPort)
+            // Act
+            onNodeWithTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).performTextInput(invalidCustomPort)
 
-        // Assert
-        composeTestRule
-            .onNodeWithTagAndText(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG, invalidCustomPort)
-            .assertDoesNotExist()
-    }
+            // Assert
+            onNodeWithTagAndText(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG, invalidCustomPort)
+                .assertDoesNotExist()
+        }
 
     companion object {
         const val invalidCustomPort = "21474836471"

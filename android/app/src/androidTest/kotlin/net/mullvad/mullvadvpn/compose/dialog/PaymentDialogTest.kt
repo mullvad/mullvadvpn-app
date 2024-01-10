@@ -1,57 +1,64 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
+import de.mannodermaus.junit5.compose.createComposeExtension
 import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.util.toPaymentDialogData
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
 
 class PaymentDialogTest {
-    @get:Rule val composeTestRule = createComposeRule()
+    @OptIn(ExperimentalTestApi::class)
+    @JvmField
+    @RegisterExtension
+    val composeExtension = createComposeExtension()
 
     @Test
-    fun testShowPurchaseCompleteDialog() {
-        // Arrange
-        composeTestRule.setContentWithTheme {
-            PaymentDialog(
-                paymentDialogData = PurchaseResult.Completed.Success.toPaymentDialogData()!!
-            )
-        }
+    fun testShowPurchaseCompleteDialog() =
+        composeExtension.use {
+            // Arrange
+            setContentWithTheme {
+                PaymentDialog(
+                    paymentDialogData = PurchaseResult.Completed.Success.toPaymentDialogData()!!
+                )
+            }
 
-        // Assert
-        composeTestRule.onNodeWithText("Time was successfully added").assertExists()
-    }
+            // Assert
+            onNodeWithText("Time was successfully added").assertExists()
+        }
 
     @Test
-    fun testShowVerificationErrorDialog() {
-        // Arrange
-        composeTestRule.setContentWithTheme {
-            PaymentDialog(
-                paymentDialogData =
-                    PurchaseResult.Error.VerificationError(null).toPaymentDialogData()!!
-            )
-        }
+    fun testShowVerificationErrorDialog() =
+        composeExtension.use {
+            // Arrange
+            setContentWithTheme {
+                PaymentDialog(
+                    paymentDialogData =
+                        PurchaseResult.Error.VerificationError(null).toPaymentDialogData()!!
+                )
+            }
 
-        // Assert
-        composeTestRule.onNodeWithText("Verifying purchase").assertExists()
-    }
+            // Assert
+            onNodeWithText("Verifying purchase").assertExists()
+        }
 
     @Test
-    fun testShowFetchProductsErrorDialog() {
-        // Arrange
-        composeTestRule.setContentWithTheme {
-            PaymentDialog(
-                paymentDialogData =
-                    PurchaseResult.Error.FetchProductsError(ProductId(""), null)
-                        .toPaymentDialogData()!!
-            )
-        }
+    fun testShowFetchProductsErrorDialog() =
+        composeExtension.use {
+            // Arrange
+            setContentWithTheme {
+                PaymentDialog(
+                    paymentDialogData =
+                        PurchaseResult.Error.FetchProductsError(ProductId(""), null)
+                            .toPaymentDialogData()!!
+                )
+            }
 
-        // Assert
-        composeTestRule.onNodeWithText("Google Play unavailable").assertExists()
-    }
+            // Assert
+            onNodeWithText("Google Play unavailable").assertExists()
+        }
 }
