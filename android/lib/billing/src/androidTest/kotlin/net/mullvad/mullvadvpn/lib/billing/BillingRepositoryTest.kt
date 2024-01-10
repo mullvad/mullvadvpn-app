@@ -34,13 +34,13 @@ import net.mullvad.mullvadvpn.lib.billing.model.BillingException
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class BillingRepositoryTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     private val mockContext: Context = mockk()
     private lateinit var billingRepository: BillingRepository
@@ -51,7 +51,7 @@ class BillingRepositoryTest {
     private val purchaseUpdatedListenerSlot: CapturingSlot<PurchasesUpdatedListener> =
         CapturingSlot()
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockkStatic(BILLING_CLIENT_CLASS)
         mockkStatic(BILLING_CLIENT_KOTLIN_CLASS)
@@ -66,7 +66,7 @@ class BillingRepositoryTest {
         billingRepository = BillingRepository(mockContext)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         unmockkAll()
     }
