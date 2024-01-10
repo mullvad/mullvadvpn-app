@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
-import androidx.test.runner.AndroidJUnit4
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
@@ -10,11 +9,9 @@ import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPerm
 import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
-import org.junit.Assert.assertTrue
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 
-@RunWith(AndroidJUnit4::class)
 class LoginMockApiTest : MockApiTest() {
     @Test
     fun testLoginWithInvalidCredentials() {
