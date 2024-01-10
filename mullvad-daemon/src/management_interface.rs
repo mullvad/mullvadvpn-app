@@ -892,6 +892,14 @@ impl ManagementService for ManagementServiceImpl {
         self.wait_for_result(rx).await??;
         Ok(Response::new(()))
     }
+
+    async fn export_json_settings(&self, _: Request<()>) -> ServiceResult<String> {
+        log::debug!("export_json_settings");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ExportJsonSettings(tx))?;
+        let blob = self.wait_for_result(rx).await??;
+        Ok(Response::new(blob))
+    }
 }
 
 impl ManagementServiceImpl {
