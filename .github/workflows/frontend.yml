@@ -19,6 +19,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Update Rust to the latest stable
+      - name: Install Rust toolchain
+        run: rustup toolchain install stable
+
       - name: Read volta info
         id: volta
         uses: zoexx/github-action-json-file-properties@release
