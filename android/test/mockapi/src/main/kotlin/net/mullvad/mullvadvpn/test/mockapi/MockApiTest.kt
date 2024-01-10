@@ -5,29 +5,26 @@ import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.Context
 import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.GrantPermissionRule
-import androidx.test.runner.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
+import de.mannodermaus.junit5.extensions.GrantPermissionExtension
 import java.net.InetAddress
 import net.mullvad.mullvadvpn.lib.endpoint.CustomApiEndpointConfiguration
 import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
 import net.mullvad.mullvadvpn.test.common.rule.CaptureScreenshotOnFailedTestRule
 import net.mullvad.mullvadvpn.test.mockapi.constant.LOG_TAG
 import okhttp3.mockwebserver.MockWebServer
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.extension.RegisterExtension
 
-@RunWith(AndroidJUnit4::class)
 abstract class MockApiTest {
 
-    @Rule @JvmField val rule = CaptureScreenshotOnFailedTestRule(LOG_TAG)
+    @RegisterExtension @JvmField val rule = CaptureScreenshotOnFailedTestRule(LOG_TAG)
 
-    @Rule
+    @RegisterExtension
     @JvmField
-    val permissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)
+    val permissionRule: GrantPermissionExtension =
+        GrantPermissionExtension.grant(WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE)
 
     protected val apiDispatcher = MockApiDispatcher()
     private val mockWebServer = MockWebServer().apply { dispatcher = apiDispatcher }
@@ -37,7 +34,7 @@ abstract class MockApiTest {
     lateinit var app: AppInteractor
     lateinit var endpoint: CustomApiEndpointConfiguration
 
-    @Before
+    @BeforeEach
     open fun setup() {
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         targetContext = InstrumentationRegistry.getInstrumentation().targetContext
@@ -49,7 +46,7 @@ abstract class MockApiTest {
         endpoint = createEndpoint(mockWebServer.port)
     }
 
-    @After
+    @AfterEach
     open fun teardown() {
         mockWebServer.shutdown()
     }
