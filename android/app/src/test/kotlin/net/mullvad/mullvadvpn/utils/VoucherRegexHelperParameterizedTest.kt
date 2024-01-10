@@ -1,34 +1,29 @@
 package net.mullvad.mullvadvpn.utils
 
+import java.util.stream.Stream
+import kotlin.test.assertEquals
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.util.VoucherRegexHelper
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 
 private const val IS_ACCEPTED_FORMAT = true
 private const val IS_UNACCEPTED_FORMAT = false
 
-@RunWith(Parameterized::class)
-class VoucherRegexHelperParameterizedTest(
-    private val isValid: Boolean,
-    private val voucher: String
-) {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
+@ExtendWith(TestCoroutineRule::class)
+class VoucherRegexHelperParameterizedTest {
 
-    @Test
-    fun testVoucherFormat() {
-        assertThat(VoucherRegexHelper.validate(voucher), equalTo(isValid))
+    @ParameterizedTest
+    @MethodSource("data")
+    fun testVoucherFormat(isValid: Boolean, voucher: String) {
+        assertEquals(VoucherRegexHelper.validate(voucher), isValid)
     }
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters
-        fun data(): Collection<Array<Any>> =
-            listOf(
+        fun data(): Stream<Array<Any>> =
+            Stream.of(
                 arrayOf(IS_ACCEPTED_FORMAT, "1"),
                 arrayOf(IS_ACCEPTED_FORMAT, "a"),
                 arrayOf(IS_ACCEPTED_FORMAT, "A"),

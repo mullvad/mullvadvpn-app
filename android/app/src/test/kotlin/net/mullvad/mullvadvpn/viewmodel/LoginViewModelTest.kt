@@ -30,13 +30,13 @@ import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import org.joda.time.DateTime
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class LoginViewModelTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     @MockK private lateinit var connectivityUseCase: ConnectivityUseCase
     @MockK private lateinit var mockedAccountRepository: AccountRepository
@@ -46,7 +46,7 @@ class LoginViewModelTest {
     private lateinit var loginViewModel: LoginViewModel
     private val accountHistoryTestEvents = MutableStateFlow<AccountHistory>(AccountHistory.Missing)
 
-    @Before
+    @BeforeEach
     fun setup() {
 
         Dispatchers.setMain(UnconfinedTestDispatcher())

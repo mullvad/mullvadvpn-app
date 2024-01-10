@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class PlayPaymentUseCaseTest {
 
