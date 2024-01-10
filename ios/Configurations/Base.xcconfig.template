@@ -1,4 +1,5 @@
 #include "Version.xcconfig"
+#include "Api.xcconfig"
 
 // Development team
 DEVELOPMENT_TEAM = CKG9MXH72F
@@ -15,4 +16,6 @@ CODE_SIGN_STYLE = Manual
 
 // Code signing identity
 CODE_SIGN_IDENTITY[config=Debug] = Apple Development
+CODE_SIGN_IDENTITY[config=Staging] = Apple Development
+CODE_SIGN_IDENTITY[config=MockRelease] = Apple Development
 CODE_SIGN_IDENTITY[config=Release] = Apple Distribution

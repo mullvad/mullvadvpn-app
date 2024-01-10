@@ -16,6 +16,9 @@ RELFLAG=
 if [[ "$CONFIGURATION" == "Release" ]]; then
   RELFLAG=--release
 fi
+if [[ "$CONFIGURATION" == "MockRelease" ]]; then
+  RELFLAG=--release
+fi
 
 if [[ -n "${DEVELOPER_SDK_DIR:-}" ]]; then
   # Assume we're in Xcode, which means we're probably cross-compiling.
