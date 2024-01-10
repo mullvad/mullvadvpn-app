@@ -81,6 +81,7 @@ jobs:
           cp App.xcconfig.template App.xcconfig
           cp PacketTunnel.xcconfig.template PacketTunnel.xcconfig
           cp Screenshots.xcconfig.template Screenshots.xcconfig
+          cp Api.xcconfig.template Api.xcconfig
         working-directory: ios/Configurations
 
       - name: Install xcbeautify
