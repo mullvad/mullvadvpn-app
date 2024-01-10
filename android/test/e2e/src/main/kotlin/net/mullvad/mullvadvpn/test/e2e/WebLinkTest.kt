@@ -5,7 +5,7 @@ import net.mullvad.mullvadvpn.test.common.constant.WEB_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class WebLinkTest : EndToEndTest() {
     @Test
