@@ -5,6 +5,8 @@
     <issue id="MissingTranslation" severity="ignore" />
     <issue id="Typos" severity="ignore" />
     <issue id="UnusedResources" severity="ignore" />
-    <!-- We are currently not using the ellipsis character -->
+    <!-- We are currently not using the ellipsis character. -->
     <issue id="TypographyEllipsis" severity="ignore" />
+    <!-- Tracked externally (DROID-245) since the same texts are used across multiple platforms. -->
+    <issue id="ImpliedQuantity" severity="ignore" />
 </lint>
