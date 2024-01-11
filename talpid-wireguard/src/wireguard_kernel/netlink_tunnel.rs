@@ -122,7 +122,7 @@ impl Tunnel for NetlinkTunnel {
             wg.set_config(interface_index, &config)
                 .await
                 .map_err(|err| {
-                    log::error!("Failed to fetch WireGuard device config: {}", err);
+                    log::error!("Failed to set WireGuard device config: {}", err);
                     TunnelError::SetConfigError
                 })
         })
