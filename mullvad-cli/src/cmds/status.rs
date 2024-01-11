@@ -2,7 +2,10 @@ use anyhow::Result;
 use clap::{Args, Subcommand};
 use futures::StreamExt;
 use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
-use mullvad_types::{device::DeviceState, states::TunnelState};
+use mullvad_types::{
+    device::DeviceState,
+    states::{Disconnected, TunnelState},
+};
 
 use crate::format;
 
@@ -42,14 +45,14 @@ impl Status {
                         // invisible, so this is only an issue for the CLI.
                         match (&previous_tunnel_state, &new_state) {
                             (
-                                Some(TunnelState::Disconnected {
+                                Some(TunnelState::Disconnected(Disconnected {
                                     location: _,
                                     locked_down: was_locked_down,
-                                }),
-                                TunnelState::Disconnected {
+                                })),
+                                TunnelState::Disconnected(Disconnected {
                                     location: _,
                                     locked_down,
-                                },
+                                }),
                                 // Do print an updated state if the lockdown setting was changed
                             ) if was_locked_down == locked_down => continue,
                             (

@@ -1,4 +1,8 @@
-use mullvad_types::{auth_failed::AuthFailed, location::GeoIpLocation, states::TunnelState};
+use mullvad_types::{
+    auth_failed::AuthFailed,
+    location::GeoIpLocation,
+    states::{self, TunnelState},
+};
 use talpid_types::{
     net::{Endpoint, TunnelEndpoint},
     tunnel::ErrorState,
@@ -37,10 +41,10 @@ pub fn print_state(state: &TunnelState, verbose: bool) {
                 format_relay_connection(endpoint, location.as_ref(), verbose)
             );
         }
-        Disconnected {
+        Disconnected(states::Disconnected {
             location: _,
             locked_down,
-        } => {
+        }) => {
             if *locked_down {
                 println!("Disconnected (Internet access is blocked due to lockdown mode)");
             } else {
@@ -53,10 +57,10 @@ pub fn print_state(state: &TunnelState, verbose: bool) {
 
 pub fn print_location(state: &TunnelState) {
     let location = match state {
-        TunnelState::Disconnected {
+        TunnelState::Disconnected(states::Disconnected {
             location,
             locked_down: _,
-        } => location,
+        }) => location,
         TunnelState::Connected { location, .. } => location,
         _ => return,
     };

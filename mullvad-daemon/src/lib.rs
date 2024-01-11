@@ -53,7 +53,7 @@ use mullvad_types::{
     },
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
-    states::{TargetState, TunnelState},
+    states::{Disconnected, TargetState, TunnelState},
     version::{AppVersion, AppVersionInfo},
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
@@ -856,10 +856,10 @@ where
         );
 
         let daemon = Daemon {
-            tunnel_state: TunnelState::Disconnected {
+            tunnel_state: TunnelState::Disconnected(Disconnected {
                 location: None,
                 locked_down: settings.block_when_disconnected,
-            },
+            }),
             target_state,
             state: DaemonExecutionState::Running,
             #[cfg(target_os = "linux")]
@@ -1002,10 +1002,12 @@ where
             .handle_state_transition(&tunnel_state_transition);
 
         let tunnel_state = match tunnel_state_transition {
-            TunnelStateTransition::Disconnected { locked_down } => TunnelState::Disconnected {
-                location: None,
-                locked_down,
-            },
+            TunnelStateTransition::Disconnected { locked_down } => {
+                TunnelState::Disconnected(Disconnected {
+                    location: None,
+                    locked_down,
+                })
+            }
             TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
                 endpoint,
                 location: self.parameters_generator.get_last_location().await,
@@ -1118,10 +1120,10 @@ where
         }
 
         match self.tunnel_state {
-            TunnelState::Disconnected {
+            TunnelState::Disconnected(Disconnected {
                 ref mut location,
                 locked_down: _,
-            } => *location = Some(fetched_location),
+            }) => *location = Some(fetched_location),
             TunnelState::Connected {
                 ref mut location, ..
             } => {
