@@ -303,7 +303,7 @@ impl Bridge {
         match custom_bridge {
             CustomProxy::Shadowsocks(ss) => *ss = edit.merge_shadowsocks(ss),
             CustomProxy::Socks5Local(local) => *local = edit.merge_socks_local(local),
-            CustomProxy::Socks5Remote(remote) => *remote = edit.merge_socks_remote(remote),
+            CustomProxy::Socks5Remote(remote) => *remote = edit.merge_socks_remote(remote)?,
         };
 
         rpc.set_bridge_settings(settings.bridge_settings)
@@ -343,7 +343,7 @@ impl Bridge {
                 CustomProxy::Socks5Local(Socks5Local::from(add))
             }
             AddCustomCommands::Socks5(AddSocks5Commands::Remote { add }) => {
-                CustomProxy::Socks5Remote(Socks5Remote::from(add))
+                CustomProxy::Socks5Remote(Socks5Remote::try_from(add)?)
             }
             AddCustomCommands::Shadowsocks { add } => {
                 CustomProxy::Shadowsocks(Shadowsocks::from(add))

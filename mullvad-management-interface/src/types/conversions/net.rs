@@ -236,18 +236,21 @@ mod proxy {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::Socks5Remote) -> Result<Self, Self::Error> {
-            let proto::Socks5Remote { ip, port, auth } = value;
-            let ip = ip.parse::<Ipv4Addr>().map_err(|_| {
+            let ip = value.ip.parse::<Ipv4Addr>().map_err(|_| {
                 FromProtobufTypeError::InvalidArgument(
                     "Could not parse Socks5 (remote) message from protobuf",
                 )
             })?;
-            let port = port as u16;
-
-            Ok(match auth.map(SocksAuth::from) {
-                Some(auth) => Socks5Remote::new_with_authentication((ip, port), auth),
+            let port = value.port as u16;
+            let socks = match value.auth {
+                Some(credentials) => {
+                    let auth = SocksAuth::try_from(credentials)?;
+                    Socks5Remote::new_with_authentication((ip, port), auth)
+                }
                 None => Socks5Remote::new((ip, port)),
-            })
+            };
+
+            Ok(socks)
         }
     }
 
@@ -271,37 +274,58 @@ mod proxy {
 
     impl From<CustomProxy> for proto::CustomProxy {
         fn from(value: CustomProxy) -> Self {
-            let proxy_method = match value {
-                CustomProxy::Shadowsocks(ss) => {
-                    proto::custom_proxy::ProxyMethod::Shadowsocks(proto::Shadowsocks {
-                        ip: ss.endpoint.ip().to_string(),
-                        port: ss.endpoint.port() as u32,
-                        password: ss.password,
-                        cipher: ss.cipher,
-                    })
-                }
-                CustomProxy::Socks5Local(Socks5Local {
-                    remote_endpoint,
-                    local_port,
-                }) => proto::custom_proxy::ProxyMethod::Socks5local(proto::Socks5Local {
-                    remote_ip: remote_endpoint.address.ip().to_string(),
-                    remote_port: remote_endpoint.address.port() as u32,
-                    remote_transport_protocol: i32::from(proto::TransportProtocol::from(
-                        remote_endpoint.protocol,
-                    )),
-                    local_port: local_port as u32,
-                }),
-                CustomProxy::Socks5Remote(Socks5Remote { endpoint, auth }) => {
-                    proto::custom_proxy::ProxyMethod::Socks5remote(proto::Socks5Remote {
-                        ip: endpoint.ip().to_string(),
-                        port: endpoint.port() as u32,
-                        auth: auth.map(proto::SocksAuth::from),
-                    })
-                }
-            };
-
             proto::CustomProxy {
-                proxy_method: Some(proxy_method),
+                proxy_method: Some(match value {
+                    CustomProxy::Shadowsocks(config) => {
+                        proto::custom_proxy::ProxyMethod::Shadowsocks(proto::Shadowsocks::from(
+                            config,
+                        ))
+                    }
+                    CustomProxy::Socks5Local(config) => {
+                        proto::custom_proxy::ProxyMethod::Socks5local(proto::Socks5Local::from(
+                            config,
+                        ))
+                    }
+                    CustomProxy::Socks5Remote(config) => {
+                        proto::custom_proxy::ProxyMethod::Socks5remote(proto::Socks5Remote::from(
+                            config,
+                        ))
+                    }
+                }),
+            }
+        }
+    }
+
+    impl From<Shadowsocks> for proto::Shadowsocks {
+        fn from(value: Shadowsocks) -> Self {
+            proto::Shadowsocks {
+                ip: value.endpoint.ip().to_string(),
+                port: value.endpoint.port() as u32,
+                password: value.password,
+                cipher: value.cipher,
+            }
+        }
+    }
+
+    impl From<Socks5Local> for proto::Socks5Local {
+        fn from(value: Socks5Local) -> Self {
+            proto::Socks5Local {
+                remote_ip: value.remote_endpoint.address.ip().to_string(),
+                remote_port: value.remote_endpoint.address.port() as u32,
+                remote_transport_protocol: i32::from(proto::TransportProtocol::from(
+                    value.remote_endpoint.protocol,
+                )),
+                local_port: value.local_port as u32,
+            }
+        }
+    }
+
+    impl From<Socks5Remote> for proto::Socks5Remote {
+        fn from(value: Socks5Remote) -> Self {
+            proto::Socks5Remote {
+                ip: value.endpoint.ip().to_string(),
+                port: value.endpoint.port() as u32,
+                auth: value.auth.map(proto::SocksAuth::from),
             }
         }
     }
@@ -309,18 +333,22 @@ mod proxy {
     impl From<SocksAuth> for proto::SocksAuth {
         fn from(value: SocksAuth) -> Self {
             proto::SocksAuth {
-                username: value.username,
-                password: value.password,
+                username: value.username().to_string(),
+                password: value.password().to_string(),
             }
         }
     }
 
-    impl From<proto::SocksAuth> for SocksAuth {
-        fn from(value: proto::SocksAuth) -> Self {
-            Self {
-                username: value.username,
-                password: value.password,
-            }
+    impl TryFrom<proto::SocksAuth> for SocksAuth {
+        type Error = FromProtobufTypeError;
+
+        fn try_from(value: proto::SocksAuth) -> Result<Self, Self::Error> {
+            SocksAuth::new(value.username, value.password).map_err(|_| {
+                FromProtobufTypeError::InvalidArgument(
+                    "Failed to parse Socks5 with authentication. \
+                     Make sure the credentials are valid.",
+                )
+            })
         }
     }
 }

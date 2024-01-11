@@ -86,7 +86,7 @@ impl ApiAccess {
         let mut rpc = MullvadProxyClient::new().await?;
         let name = cmd.name().to_string();
         let enabled = cmd.enabled();
-        let access_method = AccessMethod::from(cmd);
+        let access_method = AccessMethod::try_from(cmd)?;
         rpc.add_access_method(name, enabled, access_method).await?;
         Ok(())
     }
@@ -139,10 +139,16 @@ impl ApiAccess {
                     let port = cmd.params.port.unwrap_or(remote.endpoint.port());
                     AccessMethod::from(match remote.auth {
                         None => Socks5Remote::new((ip, port)),
-                        Some(SocksAuth { username, password }) => {
-                            let username = cmd.params.username.unwrap_or(username);
-                            let password = cmd.params.password.unwrap_or(password);
-                            let auth = SocksAuth { username, password };
+                        Some(credentials) => {
+                            let username = cmd
+                                .params
+                                .username
+                                .unwrap_or(credentials.username().to_string());
+                            let password = cmd
+                                .params
+                                .password
+                                .unwrap_or(credentials.password().to_string());
+                            let auth = SocksAuth::new(username, password)?;
                             Socks5Remote::new_with_authentication((ip, port), auth)
                         }
                     })
@@ -361,14 +367,14 @@ pub struct EditParams {
 /// Since these are not supposed to be used outside of the CLI,
 /// we define them in a hidden-away module.
 mod conversions {
-    use crate::cmds::proxies::SocksAuthentication;
-
     use super::{AddCustomCommands, AddSocks5Commands};
+    use crate::cmds::proxies::{Error, SocksAuthentication};
     use mullvad_types::access_method as daemon_types;
     use talpid_types::net::proxy as talpid_types;
 
-    impl From<AddCustomCommands> for daemon_types::AccessMethod {
-        fn from(value: AddCustomCommands) -> Self {
+    impl TryFrom<AddCustomCommands> for daemon_types::AccessMethod {
+        type Error = Error;
+        fn try_from(value: AddCustomCommands) -> Result<Self, Self::Error> {
             match value {
                 AddCustomCommands::Socks5(socks) => match socks {
                     AddSocks5Commands::Local {
@@ -383,24 +389,25 @@ mod conversions {
                             add.transport_protocol,
                         );
                         println!("Adding SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}/{transport_protocol}");
-                        talpid_types::Socks5Local::new_with_transport_protocol(
-                            (remote_ip, remote_port),
-                            local_port,
-                            transport_protocol,
-                        )
-                        .into()
+                        Ok(daemon_types::AccessMethod::from(
+                            talpid_types::Socks5Local::new_with_transport_protocol(
+                                (remote_ip, remote_port),
+                                local_port,
+                                transport_protocol,
+                            ),
+                        ))
                     }
                     AddSocks5Commands::Remote {
                         add,
                         name: _,
                         disabled: _,
-                    } => daemon_types::AccessMethod::from(match add.authentication {
+                    } => Ok(daemon_types::AccessMethod::from(match add.authentication {
                         Some(SocksAuthentication { username, password }) => {
                             println!(
                                 "Adding SOCKS5-proxy: {username}:{password}@{}:{}",
                                 add.remote_ip, add.remote_port
                             );
-                            let auth = talpid_types::SocksAuth { username, password };
+                            let auth = talpid_types::SocksAuth::new(username, password)?;
                             talpid_types::Socks5Remote::new_with_authentication(
                                 (add.remote_ip, add.remote_port),
                                 auth,
@@ -410,7 +417,7 @@ mod conversions {
                             println!("Adding SOCKS5-proxy: {}:{}", add.remote_ip, add.remote_port);
                             talpid_types::Socks5Remote::new((add.remote_ip, add.remote_port))
                         }
-                    }),
+                    })),
                 },
                 AddCustomCommands::Shadowsocks {
                     add,
@@ -422,10 +429,8 @@ mod conversions {
                     println!(
                 "Adding Shadowsocks-proxy: {password} @ {remote_ip}:{remote_port} using {cipher}"
                     );
-                    daemon_types::AccessMethod::from(talpid_types::Shadowsocks::new(
-                        (remote_ip, remote_port),
-                        cipher,
-                        password,
+                    Ok(daemon_types::AccessMethod::from(
+                        talpid_types::Shadowsocks::new((remote_ip, remote_port), cipher, password),
                     ))
                 }
             }
