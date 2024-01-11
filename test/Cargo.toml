@@ -1,3 +1,9 @@
+[workspace.package]
+authors = ["Mullvad VPN"]
+repository = "https://github.com/mullvad/mullvadvpn-app/"
+license = "GPL-3.0"
+edition = "2021"
+
 [workspace]
 resolver = "2"
 members = [

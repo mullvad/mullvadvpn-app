@@ -1,9 +1,13 @@
+[package]
+name = "test_macro"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+
 [lib]
 proc-macro = true
 
-[package]
-name = "test_macro"
-edition = "2021"
 
 [dependencies]
 syn = "1.0"

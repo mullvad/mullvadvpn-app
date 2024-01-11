@@ -1,8 +1,10 @@
 [package]
 name = "test-rpc"
-version = "0.1.0"
-edition = "2021"
 description = "Supports IPC between test-runner and test-manager"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
 
 [lints]
 workspace = true

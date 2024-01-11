@@ -1,6 +1,10 @@
 [package]
 name = "test-manager"
-edition = "2021"
+description = "Manager process orchestrating e2e tests of the Mullvad VPN app"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
 
 [lints]
 workspace = true

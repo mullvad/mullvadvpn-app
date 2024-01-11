@@ -1,6 +1,10 @@
 [package]
 name = "test-runner"
-edition = "2021"
+description = "Runs inside the VM where the Mullvad VPN app is being tested"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
 
 [lints]
 workspace = true
