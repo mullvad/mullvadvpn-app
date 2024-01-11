@@ -13,7 +13,7 @@ import XCTest
  Generic alert "page".
  */
 class Alert: Page {
-    override init(_ app: XCUIApplication) {
+    @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
         self.pageAccessibilityIdentifier = .alertContainerView

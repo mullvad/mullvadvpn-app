@@ -10,7 +10,7 @@ import Foundation
 import XCTest
 
 class LoginPage: Page {
-    override init(_ app: XCUIApplication) {
+    @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
         self.pageAccessibilityIdentifier = .loginView
@@ -34,6 +34,11 @@ class LoginPage: Page {
 
     @discardableResult public func verifySuccessIconShown() -> Self {
         app.images.element(matching: .image, identifier: "IconSuccess")
+        return self
+    }
+
+    @discardableResult public func verifyFailIconShown() -> Self {
+        app.images.element(matching: .image, identifier: "IconFail")
         return self
     }
 }

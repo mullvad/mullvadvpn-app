@@ -37,4 +37,22 @@ final class AccountTests: XCTestCase {
             .verifySuccessIconShown()
             .verifyDeviceLabelShown()
     }
+
+    func testLoginWithIncorrectAccountNumber() throws {
+        let app = XCUIApplication()
+        app.launch()
+
+        TermsOfServicePage(app)
+            .tapAgree()
+
+        Alert(app)
+            .tapOkay()
+
+        LoginPage(app)
+            .tapAccountNumberTextField()
+            .enterText("1234123412341234")
+            .tapAccountNumberSubmitButton()
+            .verifyFailIconShown()
+            .waitForPageToBeShown() // Verify still on login page
+    }
 }

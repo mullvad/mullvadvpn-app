@@ -10,7 +10,7 @@ import Foundation
 import XCTest
 
 class TermsOfServicePage: Page {
-    override init(_ app: XCUIApplication) {
+    @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
         self.pageAccessibilityIdentifier = .termsOfServiceView
