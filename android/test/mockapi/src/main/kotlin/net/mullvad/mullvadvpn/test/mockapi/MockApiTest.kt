@@ -59,8 +59,7 @@ abstract class MockApiTest {
             InetAddress.getLocalHost().hostName,
             port,
             disableAddressCache = true,
-            disableTls = true,
-            forceDirectConnection = true
+            disableTls = true
         )
     }
 }
