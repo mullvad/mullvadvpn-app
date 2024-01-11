@@ -16,6 +16,7 @@ use std::env;
 use std::io;
 use std::{
     convert::Infallible,
+    io,
     net::IpAddr,
     path::Path,
     pin::Pin,
@@ -69,6 +70,10 @@ pub enum Error {
     /// Failed to set up routing.
     #[error(display = "Failed to setup routing")]
     SetupRoutingError(#[error(source)] talpid_routing::Error),
+
+    /// Failed to set MTU
+    #[error(display = "Failed to setup routing")]
+    SetMtu(#[error(source)] io::Error),
 
     /// Tunnel timed out
     #[error(display = "Tunnel timed out")]
@@ -286,7 +291,7 @@ impl WireguardMonitor {
             #[cfg(target_os = "android")]
             psk_negotiation,
         )?;
-        let iface_name = dbg!(tunnel.get_interface_name());
+        let iface_name = tunnel.get_interface_name();
 
         #[cfg(target_os = "android")]
         if let Some(remote_socket_fd) = obfuscator.as_ref().map(|obfs| obfs.remote_socket_fd()) {
@@ -377,6 +382,24 @@ impl WireguardMonitor {
                 .await?;
             }
 
+            let iface_name_clone = iface_name.clone();
+            tokio::task::spawn(async move {
+                tokio::time::sleep(Duration::from_secs(10)).await;
+                let mtu = get_mtu(
+                    gateway,
+                    #[cfg(any(target_os = "macos", target_os = "linux"))]
+                    iface_name_clone.clone(),
+                ); // TODO: detect real MTU
+
+                #[cfg(not(unix))]
+                todo!("set MTU");
+
+                // TODO: Set IPv6 too
+                #[cfg(unix)]
+                if let Err(e) = unix::set_mtu(&iface_name_clone, mtu as u32) {
+                    log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
+                };
+            });
             let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
                 match connectivity_monitor.establish_connectivity(args.retry_attempt) {
                     Ok(true) => Ok(connectivity_monitor),
@@ -416,42 +439,6 @@ impl WireguardMonitor {
             })
             .await
             .unwrap();
-
-            let mut pinger = ping_monitor::new_pinger(
-                gateway,
-                #[cfg(any(target_os = "macos", target_os = "linux"))]
-                iface_name.clone(),
-            )
-            .unwrap();
-
-            let num_steps = 10;
-            let min_mtu = 576;
-            let max_mtu = 1600;
-            for mtu in (min_mtu..=max_mtu).step_by((max_mtu - min_mtu) / num_steps) {
-                log::warn!("Sending {mtu}");
-                if let Err(e) = pinger.send_icmp_sized(mtu as u16) {
-                    log::error!("{e}");
-                }
-            }
-            let mtu = 1337;
-            config.mtu = mtu;
-
-            Self::reconfigure_tunnel(
-                &tunnel,
-                config.clone(),
-                obfuscator,
-                close_obfs_sender,
-                #[cfg(target_os = "android")]
-                &tun_provider,
-            )
-            .await?;
-            // tunnel
-            //     .lock()
-            //     .unwrap()
-            //     .as_ref()
-            //     .unwrap()
-            //     .set_config(config)
-            //     .await;
 
             Err::<Infallible, CloseMsg>(CloseMsg::PingErr)
         };
@@ -984,6 +971,28 @@ impl WireguardMonitor {
             ipv6_gateway: config.ipv6_gateway,
         }
     }
+}
+
+fn get_mtu(gateway: std::net::Ipv4Addr, iface_name: String) -> u16 {
+    let mut pinger = ping_monitor::new_pinger(
+        gateway,
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        iface_name,
+    )
+    .unwrap();
+
+    let num_steps = 20;
+    let min_mtu = 500;
+    let max_mtu = 2500;
+    for mtu in (min_mtu..=max_mtu).step_by((max_mtu - min_mtu) / num_steps) {
+        log::warn!("Sending {mtu}");
+        if let Err(e) = pinger.send_icmp_sized(mtu as u16) {
+            log::error!("{e}");
+        }
+    }
+    // TODO: Implement the actual MTU detection here
+
+    1337
 }
 
 #[derive(Debug)]

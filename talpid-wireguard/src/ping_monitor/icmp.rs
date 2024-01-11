@@ -1,9 +1,12 @@
 use byteorder::{NetworkEndian, WriteBytesExt};
+use libc::{setsockopt, IPPROTO_IP, IP_MTU_DISCOVER, IP_PMTUDISC_PROBE};
 use rand::Rng;
 use socket2::{Domain, Protocol, Socket, Type};
 use std::{
     io::{self, Write},
+    mem,
     net::{Ipv4Addr, SocketAddr},
+    os::fd::AsRawFd,
     thread,
     time::Duration,
 };
@@ -71,6 +74,18 @@ impl Pinger {
         #[cfg(target_os = "linux")]
         sock.bind_device(Some(interface_name.as_bytes()))
             .map_err(Error::SocketOp)?;
+
+        let raw_fd = sock.as_raw_fd();
+        unsafe {
+            setsockopt(
+                raw_fd,
+                IPPROTO_IP,
+                IP_MTU_DISCOVER,
+                &IP_PMTUDISC_PROBE as *const i32 as *const libc::c_void,
+                mem::size_of_val(&IP_PMTUDISC_PROBE) as u32,
+            )
+        };
+        // nix::sys::socket::setsockopt(fd, opt, val) // TODO: deleteme
 
         #[cfg(target_os = "macos")]
         Self::set_device_index(&sock, &interface_name)?;
