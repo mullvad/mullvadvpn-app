@@ -17,9 +17,10 @@ path = "src/main.rs"
 anyhow = "1.0"
 chrono = { workspace = true }
 clap = { workspace = true }
+err-derive = { workspace = true }
 futures = "0.3"
-natord = "1.0.9"
 itertools = "0.10"
+natord = "1.0.9"
 
 mullvad-types = { path = "../mullvad-types", features = ["clap"] }
 mullvad-version = { path = "../mullvad-version" }

@@ -33,8 +33,7 @@ use std::{
     task::{Context, Poll},
     time::Duration,
 };
-use talpid_types::ErrorExt;
-
+use talpid_types::{net::proxy, ErrorExt};
 use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::{TcpSocket, TcpStream},
@@ -126,13 +125,16 @@ impl InnerConnectionMode {
                 let first_hop = socks.peer;
                 let make_proxy_stream = |tcp_stream| async {
                     match socks.authentication {
-                        SocksAuth::None => {
+                        None => {
                             tokio_socks::tcp::Socks5Stream::connect_with_socket(tcp_stream, addr)
                                 .await
                         }
-                        SocksAuth::Password { username, password } => {
+                        Some(credentials) => {
                             tokio_socks::tcp::Socks5Stream::connect_with_password_and_socket(
-                                tcp_stream, addr, &username, &password,
+                                tcp_stream,
+                                addr,
+                                credentials.username(),
+                                credentials.password(),
                             )
                             .await
                         }
@@ -217,13 +219,7 @@ impl From<ParsedShadowsocksConfig> for ServerConfig {
 #[derive(Clone)]
 struct SocksConfig {
     peer: SocketAddr,
-    authentication: SocksAuth,
-}
-
-#[derive(Clone)]
-pub enum SocksAuth {
-    None,
-    Password { username: String, password: String },
+    authentication: Option<proxy::SocksAuth>,
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -237,7 +233,6 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
 
     fn try_from(config: ApiConnectionMode) -> Result<Self, Self::Error> {
         use std::net::Ipv4Addr;
-        use talpid_types::net::proxy;
         Ok(match config {
             ApiConnectionMode::Direct => InnerConnectionMode::Direct,
             ApiConnectionMode::Proxied(proxy_settings) => match proxy_settings {
@@ -254,20 +249,12 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                 }
                 ProxyConfig::Socks5Local(config) => InnerConnectionMode::Socks5(SocksConfig {
                     peer: SocketAddr::new(IpAddr::from(Ipv4Addr::LOCALHOST), config.local_port),
-                    authentication: SocksAuth::None,
+                    authentication: None,
                 }),
-                ProxyConfig::Socks5Remote(config) => {
-                    let authentication = match config.auth {
-                        Some(proxy::SocksAuth { username, password }) => {
-                            SocksAuth::Password { username, password }
-                        }
-                        None => SocksAuth::None,
-                    };
-                    InnerConnectionMode::Socks5(SocksConfig {
-                        peer: config.endpoint,
-                        authentication,
-                    })
-                }
+                ProxyConfig::Socks5Remote(config) => InnerConnectionMode::Socks5(SocksConfig {
+                    peer: config.endpoint,
+                    authentication: config.auth,
+                }),
             },
         })
     }

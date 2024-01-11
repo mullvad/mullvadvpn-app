@@ -82,10 +82,83 @@ pub struct Socks5Remote {
     pub auth: Option<SocksAuth>,
 }
 
+/// A valid SOCKS5 username/password authentication according to
+/// RFC 1929: <https://datatracker.ietf.org/doc/html/rfc1929>.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct SocksAuth {
-    pub username: String,
-    pub password: String,
+    username: String,
+    password: String,
+}
+
+impl SocksAuth {
+    /// Validate a SOCKS5 username/password based authentication.
+    ///
+    /// # Examples
+    ///
+    /// A valid username and password both have to be between 1 and 255 bytes.
+    ///
+    /// ```
+    /// use talpid_types::net::proxy::SocksAuth;
+    ///
+    /// let valid_auth = SocksAuth::new("FooBar".to_string(), "hunter2".to_string());
+    /// assert!(valid_auth.is_ok());
+    /// ```
+    ///
+    /// An empty username or password is not valid.
+    ///
+    /// ```
+    /// use talpid_types::net::proxy::SocksAuth;
+    ///
+    /// // An empty username is not a valid username.
+    /// let invalid_username = SocksAuth::new("".to_string(), "hunter2".to_string());
+    /// assert!(invalid_username.is_err());
+    ///
+    /// // Likeweise, an empty password is not a valid password.
+    /// let invalid_password = SocksAuth::new("FooBar".to_string(), "".to_string());
+    /// assert!(invalid_password.is_err());
+    /// ```
+    ///
+    /// The upper limit for a valid username and password is 255 bytes
+    ///
+    /// ```
+    /// use talpid_types::net::proxy::SocksAuth;
+    ///
+    /// let max_valid_username = SocksAuth::new("x".repeat(255), "hunter2".to_string());
+    /// assert!(max_valid_username.is_ok());
+    ///
+    /// let too_long_username = SocksAuth::new("x".repeat(256), "hunter2".to_string());
+    /// assert!(too_long_username.is_err());
+    ///
+    /// let max_valid_password = SocksAuth::new("FooBar".to_string(), "x".repeat(255));
+    /// assert!(max_valid_username.is_ok());
+    ///
+    /// let too_long_password = SocksAuth::new("FooBar".to_string(), "x".repeat(256));
+    /// assert!(too_long_username.is_err());
+    /// ```
+    pub fn new(username: String, password: String) -> Result<Self, Error> {
+        if !(1..=255).contains(&password.as_bytes().len()) {
+            return Err(Error::InvalidSocksAuthValues(
+                "Password length should between 1 and 255 bytes",
+            ));
+        }
+        if !(1..=255).contains(&username.as_bytes().len()) {
+            return Err(Error::InvalidSocksAuthValues(
+                "Username length should between 1 and 255 bytes",
+            ));
+        }
+
+        Ok(SocksAuth { username, password })
+    }
+
+    /// Read the username.
+    pub fn username(&self) -> &str {
+        &self.username
+    }
+
+    /// Read the password.
+    pub fn password(&self) -> &str {
+        &self.password
+    }
 }
 
 impl Shadowsocks {
@@ -135,6 +208,13 @@ impl Socks5Remote {
             auth: Some(authentication),
         }
     }
+}
+
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Validation of SOCKS5 username or password failed.
+    #[error(display = "Invalid SOCKS5 authentication credentials: {}", _0)]
+    InvalidSocksAuthValues(&'static str),
 }
 
 /// List of ciphers usable by a Shadowsocks proxy.
