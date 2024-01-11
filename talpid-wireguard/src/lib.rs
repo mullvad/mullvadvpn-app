@@ -48,6 +48,7 @@ mod connectivity_check;
 mod logging;
 mod ping_monitor;
 mod stats;
+mod unix;
 #[cfg(wireguard_go)]
 mod wireguard_go;
 #[cfg(target_os = "linux")]
