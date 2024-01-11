@@ -29,13 +29,7 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
         passthroughSubject.eraseToAnyPublisher()
     }
 
-    public var accessMethods: [PersistentAccessMethod] {
-        passthroughSubject.value
-    }
-
-    public static let shared = AccessMethodRepository()
-
-    private init() {
+    public init() {
         add(passthroughSubject.value)
     }
 
@@ -114,5 +108,9 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
 
     private func makeParser() -> SettingsParser {
         SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
+    }
+
+    public var directAccess: PersistentAccessMethod {
+        passthroughSubject.value.first(where: { $0.kind == .direct })!
     }
 }
