@@ -1817,6 +1817,7 @@ dependencies = [
  "chrono",
  "clap",
  "clap_complete",
+ "err-derive",
  "futures",
  "itertools",
  "mullvad-management-interface",
