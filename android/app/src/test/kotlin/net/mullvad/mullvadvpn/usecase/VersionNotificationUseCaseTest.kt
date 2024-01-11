@@ -18,13 +18,13 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class VersionNotificationUseCaseTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private lateinit var mockAppVersionInfoCache: AppVersionInfoCache
@@ -43,7 +43,7 @@ class VersionNotificationUseCaseTest {
         )
     private lateinit var versionNotificationUseCase: VersionNotificationUseCase
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
         mockkStatic(CACHE_EXTENSION_CLASS)
@@ -63,7 +63,7 @@ class VersionNotificationUseCaseTest {
             )
     }
 
-    @After
+    @AfterEach
     fun teardown() {
         unmockkAll()
     }

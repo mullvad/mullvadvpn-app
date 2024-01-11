@@ -7,11 +7,11 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import net.mullvad.mullvadvpn.test.common.extension.findObjectByCaseInsensitiveText
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
-import org.junit.rules.TestWatcher
-import org.junit.runner.Description
+import org.junit.jupiter.api.extension.BeforeTestExecutionCallback
+import org.junit.jupiter.api.extension.ExtensionContext
 
-class ForgetAllVpnAppsInSettingsTestRule : TestWatcher() {
-    override fun starting(description: Description) {
+class ForgetAllVpnAppsInSettingsTestRule : BeforeTestExecutionCallback {
+    override fun beforeTestExecution(context: ExtensionContext) {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
         targetContext.startActivity(

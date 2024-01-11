@@ -14,18 +14,18 @@ import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import org.joda.time.DateTime
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class AccountExpiryNotificationUseCaseTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     private val accountExpiry = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
     private lateinit var accountExpiryNotificationUseCase: AccountExpiryNotificationUseCase
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
 
@@ -35,7 +35,7 @@ class AccountExpiryNotificationUseCaseTest {
         accountExpiryNotificationUseCase = AccountExpiryNotificationUseCase(accountRepository)
     }
 
-    @After
+    @AfterEach
     fun teardown() {
         unmockkAll()
     }

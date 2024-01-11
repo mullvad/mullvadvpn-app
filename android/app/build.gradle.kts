@@ -1,3 +1,4 @@
+import Dependencies.Plugin.ksp
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import java.io.FileInputStream
@@ -10,6 +11,7 @@ plugins {
     id(Dependencies.Plugin.kotlinAndroidId)
     id(Dependencies.Plugin.kotlinParcelizeId)
     id(Dependencies.Plugin.ksp) version Versions.Plugin.ksp
+    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
@@ -349,21 +351,25 @@ dependencies {
     // Leak canary
     leakCanaryImplementation(Dependencies.leakCanary)
 
-    // Test dependencies
+    // Needed for createComposeExtension() and createAndroidComposeExtension()
+    debugImplementation(Dependencies.Compose.uiTestManifest)
     testImplementation(project(Dependencies.Mullvad.commonTestLib))
     testImplementation(Dependencies.Kotlin.test)
     testImplementation(Dependencies.KotlinX.coroutinesTest)
     testImplementation(Dependencies.MockK.core)
-    testImplementation(Dependencies.junit)
     testImplementation(Dependencies.turbine)
+    testImplementation(Dependencies.junitApi)
+    testRuntimeOnly(Dependencies.junitEngine)
+    testImplementation(Dependencies.junitParams)
 
     // UI test dependencies
     debugImplementation(Dependencies.AndroidX.fragmentTestning)
     // Fixes: https://github.com/android/android-test/issues/1589
     debugImplementation(Dependencies.AndroidX.testMonitor)
     debugImplementation(Dependencies.Compose.testManifest)
-    androidTestImplementation(Dependencies.Compose.junit)
     androidTestImplementation(Dependencies.Koin.test)
     androidTestImplementation(Dependencies.Kotlin.test)
     androidTestImplementation(Dependencies.MockK.android)
+    androidTestImplementation(Dependencies.junitApi)
+    androidTestImplementation(Dependencies.Compose.junit5)
 }

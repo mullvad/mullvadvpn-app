@@ -16,15 +16,15 @@ import java.io.IOException
 import java.nio.file.Paths
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
-import org.junit.rules.TestWatcher
-import org.junit.runner.Description
+import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.jupiter.api.extension.TestWatcher
 
-class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatcher() {
+class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatcher {
 
-    override fun failed(e: Throwable?, description: Description) {
-        Log.d(testTag, "Capturing screenshot of failed test: " + description.methodName)
+    override fun testFailed(context: ExtensionContext, cause: Throwable) {
+        Log.d(testTag, "Capturing screenshot of failed test: " + context.requiredTestMethod.name)
         val timestamp = OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)
-        val screenshotName = "$timestamp-${description.methodName}.jpeg"
+        val screenshotName = "$timestamp-${context.requiredTestMethod.name}.jpeg"
         captureScreenshot(testTag, screenshotName)
     }
 

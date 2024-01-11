@@ -1,66 +1,66 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
+import de.mannodermaus.junit5.compose.createComposeExtension
 import io.mockk.MockKAnnotations
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
 
+@OptIn(ExperimentalTestApi::class)
 class SettingsScreenTest {
-    @get:Rule val composeTestRule = createComposeRule()
+    @JvmField @RegisterExtension val composeExtension = createComposeExtension()
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
     }
 
     @Test
     @OptIn(ExperimentalMaterial3Api::class)
-    fun testLoggedInState() {
-        // Arrange
-        composeTestRule.setContentWithTheme {
-            SettingsScreen(
-                uiState =
-                    SettingsUiState(
-                        appVersion = "",
-                        isLoggedIn = true,
-                        isUpdateAvailable = true,
-                        isPlayBuild = false
-                    ),
-            )
-        }
-        // Assert
-        composeTestRule.apply {
+    fun testLoggedInState() =
+        composeExtension.use {
+            // Arrange
+            setContentWithTheme {
+                SettingsScreen(
+                    uiState =
+                        SettingsUiState(
+                            appVersion = "",
+                            isLoggedIn = true,
+                            isUpdateAvailable = true,
+                            isPlayBuild = false
+                        ),
+                )
+            }
+            // Assert
             onNodeWithText("VPN settings").assertExists()
             onNodeWithText("Split tunneling").assertExists()
             onNodeWithText("App version").assertExists()
         }
-    }
 
     @Test
     @OptIn(ExperimentalMaterial3Api::class)
-    fun testLoggedOutState() {
-        // Arrange
-        composeTestRule.setContentWithTheme {
-            SettingsScreen(
-                uiState =
-                    SettingsUiState(
-                        appVersion = "",
-                        isLoggedIn = false,
-                        isUpdateAvailable = true,
-                        isPlayBuild = false
-                    ),
-            )
-        }
-        // Assert
-        composeTestRule.apply {
+    fun testLoggedOutState() =
+        composeExtension.use {
+            // Arrange
+            setContentWithTheme {
+                SettingsScreen(
+                    uiState =
+                        SettingsUiState(
+                            appVersion = "",
+                            isLoggedIn = false,
+                            isUpdateAvailable = true,
+                            isPlayBuild = false
+                        ),
+                )
+            }
+            // Assert
             onNodeWithText("VPN settings").assertDoesNotExist()
             onNodeWithText("Split tunneling").assertDoesNotExist()
             onNodeWithText("App version").assertExists()
         }
-    }
 }

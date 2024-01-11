@@ -22,6 +22,16 @@ android {
         abortOnError = true
         warningsAsErrors = true
     }
+
+    packaging {
+        resources {
+            pickFirsts += setOf(
+                // Fixes packaging error caused by: jetified-junit-*
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md"
+            )
+        }
+    }
 }
 
 androidComponents {
@@ -37,7 +47,7 @@ dependencies {
     implementation(Dependencies.AndroidX.testRunner)
     implementation(Dependencies.AndroidX.testRules)
     implementation(Dependencies.AndroidX.testUiAutomator)
-    implementation(Dependencies.junit)
+    implementation(Dependencies.junitEngine)
     implementation(Dependencies.Kotlin.stdlib)
 
     androidTestUtil(Dependencies.AndroidX.testOrchestrator)

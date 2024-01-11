@@ -27,13 +27,13 @@ import net.mullvad.mullvadvpn.model.WireguardTunnelOptions
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class VpnSettingsViewModelTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     private val mockSettingsRepository: SettingsRepository = mockk()
     private val mockResources: Resources = mockk()
@@ -45,7 +45,7 @@ class VpnSettingsViewModelTest {
 
     private lateinit var viewModel: VpnSettingsViewModel
 
-    @Before
+    @BeforeEach
     fun setUp() {
         every { mockSettingsRepository.settingsUpdates } returns mockSettingsUpdate
         every { mockPortRangeUseCase.portRanges() } returns portRangeFlow
@@ -60,7 +60,7 @@ class VpnSettingsViewModelTest {
             )
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         viewModel.viewModelScope.coroutineContext.cancel()
         unmockkAll()
