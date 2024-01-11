@@ -42,7 +42,10 @@ public enum AccessibilityIdentifier: String {
     case headerDeviceNameLabel
     
     // Views
+    case alertContainerView
+    case alertTitle
     case loginView
+    case termsOfServiceView
 
     // Other UI elements
     case loginTextField

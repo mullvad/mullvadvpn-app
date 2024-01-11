@@ -566,8 +566,12 @@
 		7AF9BE902A39F26000DBFEDB /* Collection+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */; };
 		7AF9BE952A40461100DBFEDB /* RelayFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE942A40461100DBFEDB /* RelayFilterView.swift */; };
 		7AF9BE972A41C71F00DBFEDB /* RelayFilterChipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE962A41C71F00DBFEDB /* RelayFilterChipView.swift */; };
-		852969282B4D9C1F007EAD4C /* MullvadVPNUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969272B4D9C1F007EAD4C /* MullvadVPNUITests.swift */; };
-		8529692A2B4D9C1F007EAD4C /* MullvadVPNUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969292B4D9C1F007EAD4C /* MullvadVPNUITestsLaunchTests.swift */; };
+		852969282B4D9C1F007EAD4C /* AccountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969272B4D9C1F007EAD4C /* AccountTests.swift */; };
+		852969332B4E9232007EAD4C /* Page.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969322B4E9232007EAD4C /* Page.swift */; };
+		852969352B4E9270007EAD4C /* LoginPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969342B4E9270007EAD4C /* LoginPage.swift */; };
+		852969362B4E9724007EAD4C /* AccessbilityIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0B311D2B303A0D004B12E0 /* AccessbilityIdentifier.swift */; };
+		8529693A2B4F0238007EAD4C /* TermsOfServicePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969392B4F0238007EAD4C /* TermsOfServicePage.swift */; };
+		8529693C2B4F0257007EAD4C /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8529693B2B4F0257007EAD4C /* Alert.swift */; };
 		A900E9B82ACC5C2B00C95F67 /* AccountsProxy+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A900E9B72ACC5C2B00C95F67 /* AccountsProxy+Stubs.swift */; };
 		A900E9BA2ACC5D0600C95F67 /* RESTRequestExecutor+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A900E9B92ACC5D0600C95F67 /* RESTRequestExecutor+Stubs.swift */; };
 		A900E9BC2ACC609200C95F67 /* DevicesProxy+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */; };
@@ -1707,9 +1711,14 @@
 		7AF9BE942A40461100DBFEDB /* RelayFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterView.swift; sourceTree = "<group>"; };
 		7AF9BE962A41C71F00DBFEDB /* RelayFilterChipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterChipView.swift; sourceTree = "<group>"; };
 		852969252B4D9C1F007EAD4C /* MullvadVPNUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadVPNUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		852969272B4D9C1F007EAD4C /* MullvadVPNUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadVPNUITests.swift; sourceTree = "<group>"; };
-		852969292B4D9C1F007EAD4C /* MullvadVPNUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadVPNUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		852969272B4D9C1F007EAD4C /* AccountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTests.swift; sourceTree = "<group>"; };
 		852969302B4D9E70007EAD4C /* MullvadVPNUITests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = MullvadVPNUITests.xctestplan; sourceTree = "<group>"; };
+		852969322B4E9232007EAD4C /* Page.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Page.swift; sourceTree = "<group>"; };
+		852969342B4E9270007EAD4C /* LoginPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPage.swift; sourceTree = "<group>"; };
+		852969372B4ED20E007EAD4C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		852969382B4ED818007EAD4C /* UITests.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = UITests.xcconfig; sourceTree = "<group>"; };
+		852969392B4F0238007EAD4C /* TermsOfServicePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfServicePage.swift; sourceTree = "<group>"; };
+		8529693B2B4F0257007EAD4C /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		A900E9B72ACC5C2B00C95F67 /* AccountsProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccountsProxy+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9B92ACC5D0600C95F67 /* RESTRequestExecutor+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RESTRequestExecutor+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DevicesProxy+Stubs.swift"; sourceTree = "<group>"; };
@@ -3165,6 +3174,7 @@
 				5808273B284888BC006B77A4 /* App.xcconfig */,
 				5808273C284888E5006B77A4 /* PacketTunnel.xcconfig */,
 				58ECD29123F178FD004298B6 /* Screenshots.xcconfig */,
+				852969382B4ED818007EAD4C /* UITests.xcconfig */,
 			);
 			path = Configurations;
 			sourceTree = "<group>";
@@ -3288,10 +3298,22 @@
 		852969262B4D9C1F007EAD4C /* MullvadVPNUITests */ = {
 			isa = PBXGroup;
 			children = (
-				852969272B4D9C1F007EAD4C /* MullvadVPNUITests.swift */,
-				852969292B4D9C1F007EAD4C /* MullvadVPNUITestsLaunchTests.swift */,
+				852969372B4ED20E007EAD4C /* Info.plist */,
+				852969312B4E9220007EAD4C /* Pages */,
+				852969272B4D9C1F007EAD4C /* AccountTests.swift */,
 			);
 			path = MullvadVPNUITests;
+			sourceTree = "<group>";
+		};
+		852969312B4E9220007EAD4C /* Pages */ = {
+			isa = PBXGroup;
+			children = (
+				852969322B4E9232007EAD4C /* Page.swift */,
+				852969342B4E9270007EAD4C /* LoginPage.swift */,
+				852969392B4F0238007EAD4C /* TermsOfServicePage.swift */,
+				8529693B2B4F0257007EAD4C /* Alert.swift */,
+			);
+			path = Pages;
 			sourceTree = "<group>";
 		};
 		A907639F2B2857D50045ADF0 /* Socks5 */ = {
@@ -4073,6 +4095,7 @@
 				58CE5E78224146470008646E /* PacketTunnel */,
 				58B0A29F238EE67E00BC001D /* MullvadVPNTests */,
 				58D0C79223F1CE7000FE9BA7 /* MullvadVPNScreenshots */,
+				852969242B4D9C1F007EAD4C /* MullvadVPNUITests */,
 				58D223A4294C8A480029F5F8 /* Operations */,
 				589A455128E094B300565204 /* OperationsTests */,
 				06799ABB28F98E1D00ACD94E /* MullvadREST */,
@@ -4086,7 +4109,6 @@
 				58B2FDD22AA71D2A003EB5C6 /* MullvadSettings */,
 				7A88DCCD2A8FABBE00D2FF0E /* Routing */,
 				7A88DCD62A8FABBE00D2FF0E /* RoutingTests */,
-				852969242B4D9C1F007EAD4C /* MullvadVPNUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -5136,8 +5158,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				852969282B4D9C1F007EAD4C /* MullvadVPNUITests.swift in Sources */,
-				8529692A2B4D9C1F007EAD4C /* MullvadVPNUITestsLaunchTests.swift in Sources */,
+				8529693C2B4F0257007EAD4C /* Alert.swift in Sources */,
+				852969362B4E9724007EAD4C /* AccessbilityIdentifier.swift in Sources */,
+				852969352B4E9270007EAD4C /* LoginPage.swift in Sources */,
+				852969282B4D9C1F007EAD4C /* AccountTests.swift in Sources */,
+				8529693A2B4F0238007EAD4C /* TermsOfServicePage.swift in Sources */,
+				852969332B4E9232007EAD4C /* Page.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6476,6 +6502,7 @@
 		};
 		8529692D2B4D9C1F007EAD4C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 852969382B4ED818007EAD4C /* UITests.xcconfig */;
 			buildSettings = {
 				APPLICATION_IDENTIFIER = net.mullvad.MullvadVPN;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -6490,6 +6517,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MullvadVPNUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
@@ -6519,6 +6547,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MullvadVPNUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;

@@ -1,0 +1,13 @@
+//
+//  MullvadVPNUITests.xcconfig
+//  MullvadVPN
+//
+//  Created by Niklas Berglund on 2024-01-10.
+//  Copyright © 2024 Mullvad VPN AB. All rights reserved.
+//
+
+// Mullvad accounts used by UI tests
+MULLVAD_NO_TIME_ACCOUNT_NUMBER = 
+MULLVAD_HAS_TIME_ACCOUNT_NUMBER = 
+MULLVAD_FIVE_WIREGUARD_KEYS_ACCOUNT_NUMBER =
+ 
