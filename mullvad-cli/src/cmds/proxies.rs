@@ -1,10 +1,15 @@
+use clap::Args;
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::{
     proxy::{Shadowsocks, Socks5Local, Socks5Remote, SocksAuth, SHADOWSOCKS_CIPHERS},
     Endpoint, TransportProtocol,
 };
 
-use clap::Args;
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "{}", _0)]
+    InvalidAuth(#[error(source)] talpid_types::net::proxy::Error),
+}
 
 #[derive(Args, Debug, Clone)]
 pub struct Socks5LocalAdd {
@@ -48,15 +53,16 @@ pub struct Socks5RemoteAdd {
     pub authentication: Option<SocksAuthentication>,
 }
 
-impl From<Socks5RemoteAdd> for Socks5Remote {
-    fn from(add: Socks5RemoteAdd) -> Self {
-        Self {
+impl TryFrom<Socks5RemoteAdd> for Socks5Remote {
+    type Error = Error;
+    fn try_from(add: Socks5RemoteAdd) -> Result<Self, Self::Error> {
+        Ok(Self {
             endpoint: SocketAddr::new(add.remote_ip, add.remote_port),
-            auth: add.authentication.map(|auth| SocksAuth {
-                username: auth.username,
-                password: auth.password,
-            }),
-        }
+            auth: add
+                .authentication
+                .map(|auth| SocksAuth::new(auth.username, auth.password))
+                .transpose()?,
+        })
     }
 }
 
@@ -134,13 +140,13 @@ impl ProxyEditParams {
         )
     }
 
-    pub fn merge_socks_remote(self, remote: &Socks5Remote) -> Socks5Remote {
+    pub fn merge_socks_remote(self, remote: &Socks5Remote) -> Result<Socks5Remote, Error> {
         let ip = self.ip.unwrap_or(remote.endpoint.ip());
         let port = self.port.unwrap_or(remote.endpoint.port());
-        match &remote.auth {
+        let config = match &remote.auth {
             None => match (self.username, self.password) {
                 (Some(username), Some(password)) => {
-                    let auth = SocksAuth { username, password };
+                    let auth = SocksAuth::new(username, password)?;
                     Socks5Remote::new_with_authentication((ip, port), auth)
                 }
                 (None, None) => Socks5Remote::new((ip, port)),
@@ -149,13 +155,14 @@ impl ProxyEditParams {
                     Socks5Remote::new((ip, port))
                 }
             },
-            Some(SocksAuth { username, password }) => {
-                let username = self.username.unwrap_or(username.to_owned());
-                let password = self.password.unwrap_or(password.to_owned());
-                let auth = SocksAuth { username, password };
+            Some(credentials) => {
+                let username = self.username.unwrap_or(credentials.username().to_string());
+                let password = self.password.unwrap_or(credentials.password().to_string());
+                let auth = SocksAuth::new(username, password)?;
                 Socks5Remote::new_with_authentication((ip, port), auth)
             }
-        }
+        };
+        Ok(config)
     }
 
     pub fn merge_shadowsocks(self, shadowsocks: &Shadowsocks) -> Shadowsocks {
@@ -169,7 +176,7 @@ impl ProxyEditParams {
 
 pub mod pp {
     use crate::print_option;
-    use talpid_types::net::proxy::{CustomProxy, SocksAuth};
+    use talpid_types::net::proxy::CustomProxy;
 
     pub struct CustomProxyFormatter<'a> {
         pub custom_proxy: &'a CustomProxy,
@@ -188,9 +195,9 @@ pub mod pp {
                     print_option!("Protocol", "Socks5");
                     print_option!("Peer", remote.endpoint);
                     match &remote.auth {
-                        Some(SocksAuth { username, password }) => {
-                            print_option!("Username", username);
-                            print_option!("Password", password);
+                        Some(credentials) => {
+                            print_option!("Username", credentials.username());
+                            print_option!("Password", credentials.password());
                         }
                         None => (),
                     }

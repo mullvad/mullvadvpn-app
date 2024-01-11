@@ -182,10 +182,9 @@ fn migrate_bridge_settings(settings: &mut serde_json::Value) -> Result<()> {
                     .parse()
                     .map_err(|_| Error::InvalidSettingsContent)?,
                 auth: custom_bridge_remote.get("auth").and_then(|auth| {
-                    Some(SocksAuth {
-                        username: auth.get("username")?.to_string(),
-                        password: auth.get("password")?.to_string(),
-                    })
+                    let username = auth.get("username")?.to_string();
+                    let password = auth.get("password")?.to_string();
+                    SocksAuth::new(username, password).ok()
                 }),
             })),
         }
