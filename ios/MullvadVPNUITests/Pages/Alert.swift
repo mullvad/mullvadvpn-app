@@ -15,11 +15,11 @@ import XCTest
 class Alert: Page {
     override init(_ app: XCUIApplication) {
         super.init(app)
-        
+
         self.pageAccessibilityIdentifier = .alertContainerView
         waitForPageToBeShown()
     }
-    
+
     @discardableResult func tapOkay() -> Self {
         app.buttons[AccessibilityIdentifier.alertOkButton.rawValue].tap()
         return self

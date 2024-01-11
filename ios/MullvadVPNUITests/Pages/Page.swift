@@ -12,16 +12,16 @@ import XCTest
 class Page {
     let app: XCUIApplication
     var pageAccessibilityIdentifier: AccessibilityIdentifier?
-    
+
     init(_ app: XCUIApplication) {
         self.app = app
     }
-    
+
     public func enterText(_ text: String) -> Self {
         app.typeText(text)
         return self
     }
-    
+
     public func waitForPageToBeShown() {
         if let pageAccessibilityIdentifier = self.pageAccessibilityIdentifier {
             XCTAssert(self.app.otherElements[pageAccessibilityIdentifier.rawValue].waitForExistence(timeout: 10))

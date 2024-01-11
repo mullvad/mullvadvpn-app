@@ -52,7 +52,7 @@ class AlertViewController: UIViewController {
 
         view.backgroundColor = .secondaryColor
         view.layer.cornerRadius = 11
-        
+
         view.accessibilityIdentifier = .alertContainerView
 
         return view

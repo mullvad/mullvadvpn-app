@@ -37,10 +37,10 @@ public enum AccessibilityIdentifier: String {
     case apiAccessCell
     case relayFilterOwnershipCell
     case relayFilterProviderCell
-    
+
     // Labels
     case headerDeviceNameLabel
-    
+
     // Views
     case alertContainerView
     case alertTitle

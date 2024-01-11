@@ -12,10 +12,10 @@ import XCTest
 class TermsOfServicePage: Page {
     override init(_ app: XCUIApplication) {
         super.init(app)
-        
+
         self.pageAccessibilityIdentifier = .termsOfServiceView
     }
-    
+
     @discardableResult func tapAgree() -> Self {
         app.buttons[AccessibilityIdentifier.agreeButton.rawValue].tap()
         return self
