@@ -55,6 +55,7 @@ jobs:
           cp App.xcconfig.template App.xcconfig
           cp PacketTunnel.xcconfig.template PacketTunnel.xcconfig
           cp Screenshots.xcconfig.template Screenshots.xcconfig
+          cp Api.xcconfig.template Api.xcconfig
           sed -i "" "s/MULLVAD_ACCOUNT_TOKEN = /MULLVAD_ACCOUNT_TOKEN = $TEST_ACCOUNT/g" Screenshots.xcconfig
         working-directory: ios/Configurations
 
