@@ -566,6 +566,7 @@
 		7AF9BE902A39F26000DBFEDB /* Collection+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */; };
 		7AF9BE952A40461100DBFEDB /* RelayFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE942A40461100DBFEDB /* RelayFilterView.swift */; };
 		7AF9BE972A41C71F00DBFEDB /* RelayFilterChipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE962A41C71F00DBFEDB /* RelayFilterChipView.swift */; };
+		850201E12B51389500EF8C96 /* BaseTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201E02B51389500EF8C96 /* BaseTestCase.swift */; };
 		852969282B4D9C1F007EAD4C /* AccountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969272B4D9C1F007EAD4C /* AccountTests.swift */; };
 		852969332B4E9232007EAD4C /* Page.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969322B4E9232007EAD4C /* Page.swift */; };
 		852969352B4E9270007EAD4C /* LoginPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969342B4E9270007EAD4C /* LoginPage.swift */; };
@@ -1710,6 +1711,7 @@
 		7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Sorting.swift"; sourceTree = "<group>"; };
 		7AF9BE942A40461100DBFEDB /* RelayFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterView.swift; sourceTree = "<group>"; };
 		7AF9BE962A41C71F00DBFEDB /* RelayFilterChipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterChipView.swift; sourceTree = "<group>"; };
+		850201E02B51389500EF8C96 /* BaseTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTestCase.swift; sourceTree = "<group>"; };
 		852969252B4D9C1F007EAD4C /* MullvadVPNUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadVPNUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		852969272B4D9C1F007EAD4C /* AccountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTests.swift; sourceTree = "<group>"; };
 		852969302B4D9E70007EAD4C /* MullvadVPNUITests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = MullvadVPNUITests.xctestplan; sourceTree = "<group>"; };
@@ -3301,6 +3303,7 @@
 				852969372B4ED20E007EAD4C /* Info.plist */,
 				852969312B4E9220007EAD4C /* Pages */,
 				852969272B4D9C1F007EAD4C /* AccountTests.swift */,
+				850201E02B51389500EF8C96 /* BaseTestCase.swift */,
 			);
 			path = MullvadVPNUITests;
 			sourceTree = "<group>";
@@ -5161,6 +5164,7 @@
 				8529693C2B4F0257007EAD4C /* Alert.swift in Sources */,
 				852969362B4E9724007EAD4C /* AccessbilityIdentifier.swift in Sources */,
 				852969352B4E9270007EAD4C /* LoginPage.swift in Sources */,
+				850201E12B51389500EF8C96 /* BaseTestCase.swift in Sources */,
 				852969282B4D9C1F007EAD4C /* AccountTests.swift in Sources */,
 				8529693A2B4F0238007EAD4C /* TermsOfServicePage.swift in Sources */,
 				852969332B4E9232007EAD4C /* Page.swift in Sources */,

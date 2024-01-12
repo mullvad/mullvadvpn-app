@@ -8,12 +8,7 @@
 
 import XCTest
 
-final class AccountTests: XCTestCase {
-    let noTimeAccountNumber = Bundle(for: AccountTests.self).infoDictionary?["MullvadNoTimeAccountNumber"] as! String
-    let hasTimeAccountNumber = Bundle(for: AccountTests.self).infoDictionary?["MullvadHasTimeAccountNumber"] as! String
-    let fiveWireGuardKeysAccountNumber = Bundle(for: AccountTests.self)
-        .infoDictionary?["MullvadFiveWireGuardKeysAccountNumber"] as! String
-
+class AccountTests: BaseTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
     }
