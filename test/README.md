@@ -53,7 +53,7 @@ For running tests on Linux and Windows guests, you will need these tools and lib
 
 ```bash
 dnf install git gcc protobuf-devel libpcap-devel qemu \
-    podman e2tools mingw64-gcc mingw64-winpthreads-static mtools \
+    podman mingw64-gcc mingw64-winpthreads-static mtools \
     golang-github-rootless-containers-rootlesskit slirp4netns dnsmasq \
     dbus-devel pkgconf-pkg-config swtpm edk2-ovmf \
     wireguard-tools
@@ -110,8 +110,7 @@ Here is an example of how to create a new OS configuration and then run all test
 # The image is assumed to contain a test runner service set up as described in ./docs/BUILD_OS_IMAGE.md
 cargo run --bin test-manager set debian11 qemu ./os-images/debian11.qcow2 linux \
     --package-type deb --architecture x64 \
-    --artifacts-dir /opt/testing \
-    --disks ./testrunner-images/linux-test-runner.img
+    --provisioner ssh --ssh-user test --ssh-password test
 
 # Try it out to see if it works
 cargo run --bin test-manager run-vm debian11

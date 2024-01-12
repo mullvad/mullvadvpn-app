@@ -105,9 +105,15 @@ fi
 
 setup_systemd
 
+function install_packages_apt {
+    apt update
+    apt install -yf xvfb wireguard-tools curl
+    curl -fsSL https://get.docker.com | sh
+}
+
 # Install required packages
 if which apt &>/dev/null; then
-    apt install -f xvfb wireguard-tools
+    install_packages_apt
 elif which dnf &>/dev/null; then
-    dnf install -y xorg-x11-server-Xvfb wireguard-tools
+    dnf install -y xorg-x11-server-Xvfb wireguard-tools podman
 fi
