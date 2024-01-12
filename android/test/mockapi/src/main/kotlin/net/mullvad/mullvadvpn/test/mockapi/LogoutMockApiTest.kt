@@ -5,6 +5,9 @@ import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaime
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
+import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
+import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_2
 import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
@@ -18,6 +21,8 @@ class LogoutMockApiTest : MockApiTest() {
         apiDispatcher.apply {
             expectedAccountToken = validAccountToken
             accountExpiry = currentUtcTimeWithOffsetZero().plusMonths(1)
+            devices = DEFAULT_DEVICE_LIST.toMutableMap()
+            devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }
 
         // Act

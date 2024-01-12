@@ -6,14 +6,14 @@ import net.mullvad.mullvadvpn.test.mockapi.constant.AUTH_TOKEN_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.CREATE_ACCOUNT_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEVICES_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ACCESS_TOKEN
-import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME
-import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID
+import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_1
 import net.mullvad.mullvadvpn.test.mockapi.constant.LOG_TAG
 import net.mullvad.mullvadvpn.test.mockapi.util.accessTokenJsonResponse
 import net.mullvad.mullvadvpn.test.mockapi.util.accountCreationJson
 import net.mullvad.mullvadvpn.test.mockapi.util.accountInfoJson
 import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
 import net.mullvad.mullvadvpn.test.mockapi.util.deviceJson
+import net.mullvad.mullvadvpn.test.mockapi.util.tooManyDevicesJsonResponse
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
@@ -25,12 +25,17 @@ class MockApiDispatcher : Dispatcher() {
 
     var expectedAccountToken: String? = null
     var accountExpiry: DateTime? = null
+    var devices: MutableMap<String, String>? = null
+    private val canAddDevices: Boolean
+        get() = (devices?.size ?: 0) < 5
+
+    var devicePendingToGetCreated: Pair<String, String>? = null
 
     private var cachedPubKeyFromAppUnderTest: String? = null
 
     override fun dispatch(request: RecordedRequest): MockResponse {
         Log.d(LOG_TAG, "Request: $request (body=${request.body.peek().readUtf8()})")
-        return when (request.path) {
+        return when (request.path ?: "") {
             AUTH_TOKEN_URL_PATH -> handleLoginRequest(request.body)
             DEVICES_URL_PATH -> {
                 when (request.method) {
@@ -41,10 +46,29 @@ class MockApiDispatcher : Dispatcher() {
                     else -> MockResponse().setResponseCode(404)
                 }
             }
-            "$DEVICES_URL_PATH/$DUMMY_ID" -> handleDeviceInfoRequest()
             ACCOUNT_URL_PATH -> handleAccountInfoRequest()
             CREATE_ACCOUNT_URL_PATH -> handleAccountCreationRequest()
-            else -> MockResponse().setResponseCode(404)
+            else -> {
+                if (request.path?.contains(DEVICES_URL_PATH) == true) {
+                    val deviceId = request.path?.split("/")?.lastOrNull()
+                    if (deviceId != null && devices?.contains(deviceId) == true) {
+                        when (request.method) {
+                            "get",
+                            "GET" -> handleDeviceInfoRequest(deviceId)
+                            "delete",
+                            "DELETE" -> {
+                                devices?.remove(deviceId)
+                                MockResponse().setResponseCode(204)
+                            }
+                            else -> MockResponse().setResponseCode(404)
+                        }
+                    } else {
+                        MockResponse().setResponseCode(404)
+                    }
+                } else {
+                    MockResponse().setResponseCode(404)
+                }
+            }
         }.also { response ->
             Log.d(LOG_TAG, "Response: $response (body=${response.getBody()?.peek()?.readUtf8()})")
         }
@@ -78,20 +102,20 @@ class MockApiDispatcher : Dispatcher() {
             MockResponse()
                 .setResponseCode(200)
                 .addJsonHeader()
-                .setBody(accountInfoJson(id = DUMMY_ID, expiry = expiry).toString())
+                .setBody(accountInfoJson(id = DUMMY_ID_1, expiry = expiry).toString())
         }
             ?: MockResponse().setResponseCode(400)
     }
 
-    private fun handleDeviceInfoRequest(): MockResponse {
+    private fun handleDeviceInfoRequest(deviceId: String): MockResponse {
         return cachedPubKeyFromAppUnderTest?.let { cachedKey ->
             MockResponse()
                 .setResponseCode(200)
                 .addJsonHeader()
                 .setBody(
                     deviceJson(
-                            id = DUMMY_ID,
-                            name = DUMMY_DEVICE_NAME,
+                            id = deviceId,
+                            name = devices!![deviceId]!!, // Should always exist
                             publicKey = cachedKey,
                             creationDate = currentUtcTimeWithOffsetZero().minusDays(1)
                         )
@@ -106,53 +130,57 @@ class MockApiDispatcher : Dispatcher() {
             .getPubKey()
             .also { newKey -> cachedPubKeyFromAppUnderTest = newKey }
             ?.let { newKey ->
-                MockResponse()
-                    .setResponseCode(201)
-                    .addJsonHeader()
-                    .setBody(
-                        deviceJson(
-                                id = DUMMY_ID,
-                                name = DUMMY_DEVICE_NAME,
-                                publicKey = newKey,
-                                creationDate = currentUtcTimeWithOffsetZero().minusDays(1)
-                            )
-                            .toString()
-                    )
+                if (canAddDevices && devicePendingToGetCreated != null) {
+                    MockResponse()
+                        .setResponseCode(201)
+                        .addJsonHeader()
+                        .setBody(
+                            deviceJson(
+                                    id = devicePendingToGetCreated!!.first,
+                                    name = devicePendingToGetCreated!!.second,
+                                    publicKey = newKey,
+                                    creationDate = currentUtcTimeWithOffsetZero().minusDays(1)
+                                )
+                                .toString()
+                        )
+                } else {
+                    MockResponse()
+                        .setResponseCode(400)
+                        .addJsonHeader()
+                        .setBody(tooManyDevicesJsonResponse().toString())
+                }
             }
             ?: MockResponse().setResponseCode(400)
     }
 
     private fun handleDeviceListRequest(): MockResponse {
         return cachedPubKeyFromAppUnderTest?.let { cachedKey ->
-            MockResponse()
-                .setResponseCode(200)
-                .addJsonHeader()
-                .setBody(
-                    JSONArray()
-                        .put(
-                            deviceJson(
-                                id = DUMMY_ID,
-                                name = DUMMY_DEVICE_NAME,
-                                publicKey = cachedKey,
-                                creationDate = currentUtcTimeWithOffsetZero().minusDays(1)
-                            )
-                        )
-                        .toString()
+            val body = JSONArray()
+            devices?.onEachIndexed { index, entry ->
+                body.put(
+                    deviceJson(
+                        id = entry.key,
+                        name = entry.value,
+                        publicKey = cachedKey,
+                        creationDate = currentUtcTimeWithOffsetZero().minusDays(index + 1)
+                    )
                 )
+            }
+            MockResponse().setResponseCode(200).addJsonHeader().setBody(body.toString())
         }
             ?: MockResponse().setResponseCode(400)
     }
 
     private fun handleAccountCreationRequest(): MockResponse {
-        return expectedAccountToken?.let { expiry ->
+        return expectedAccountToken?.let { expectedAccountToken ->
             MockResponse()
                 .setResponseCode(201)
                 .addJsonHeader()
                 .setBody(
                     accountCreationJson(
-                            id = DUMMY_ID,
+                            id = DUMMY_ID_1,
                             expiry = DateTime(),
-                            accountToken = expectedAccountToken!!
+                            accountToken = expectedAccountToken
                         )
                         .toString()
                 )

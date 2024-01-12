@@ -30,3 +30,9 @@ fun accessTokenJsonResponse(accessToken: String, expiry: DateTime) =
         put("access_token", accessToken)
         put("expiry", expiry.formatStrictlyAccordingToIso8601AndRfc3339())
     }
+
+fun tooManyDevicesJsonResponse() =
+    JSONObject().apply {
+        put("code", "MAX_DEVICES_REACHED")
+        put("detail", "This account already has the maximum number of devices.")
+    }
