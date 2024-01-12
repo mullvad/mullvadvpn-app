@@ -28,7 +28,7 @@ class LoginPage: Page {
     }
 
     @discardableResult public func verifyDeviceLabelShown() -> Self {
-        XCTAssert(app.staticTexts[AccessibilityIdentifier.headerDeviceNameLabel.rawValue].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts[AccessibilityIdentifier.headerDeviceNameLabel.rawValue].waitForExistence(timeout: 10))
         return self
     }
 
