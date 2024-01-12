@@ -3311,10 +3311,10 @@
 		852969312B4E9220007EAD4C /* Pages */ = {
 			isa = PBXGroup;
 			children = (
-				852969322B4E9232007EAD4C /* Page.swift */,
-				852969342B4E9270007EAD4C /* LoginPage.swift */,
-				852969392B4F0238007EAD4C /* TermsOfServicePage.swift */,
 				8529693B2B4F0257007EAD4C /* Alert.swift */,
+				852969342B4E9270007EAD4C /* LoginPage.swift */,
+				852969322B4E9232007EAD4C /* Page.swift */,
+				852969392B4F0238007EAD4C /* TermsOfServicePage.swift */,
 			);
 			path = Pages;
 			sourceTree = "<group>";
