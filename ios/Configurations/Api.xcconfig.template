@@ -1,7 +1,9 @@
 API_HOST_NAME[config=Debug] = api.mullvad.net
 API_HOST_NAME[config=Release] = api.mullvad.net
+API_HOST_NAME[config=MockRelease] = api.mullvad.net
 API_HOST_NAME[config=Staging] = api.stagemole.eu
 
 API_ENDPOINT[config=Debug] = 45.83.223.196:443
 API_ENDPOINT[config=Release] = 45.83.223.196:443
+API_ENDPOINT[config=MockRelease] = 45.83.223.196:443
 API_ENDPOINT[config=Staging] = 85.203.53.95:443
