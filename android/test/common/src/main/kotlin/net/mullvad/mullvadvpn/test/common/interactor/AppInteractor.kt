@@ -116,6 +116,11 @@ class AppInteractor(private val device: UiDevice, private val targetContext: Con
         device.findObjectWithTimeout(By.text("Login"), timeout)
     }
 
+    fun attemptToRemoveDevice() {
+        device.findObjectWithTimeout(By.desc("Remove")).click()
+        clickActionButtonByText("Yes, log out device")
+    }
+
     private fun String.extractIpAddress(): String {
         return split(" ")[1].split(" ")[0]
     }
