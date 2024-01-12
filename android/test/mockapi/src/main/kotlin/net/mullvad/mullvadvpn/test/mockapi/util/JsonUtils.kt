@@ -11,6 +11,9 @@ fun accountInfoJson(id: String, expiry: DateTime) =
         put("can_add_devices", true)
     }
 
+fun accountCreationJson(id: String, accountToken: String, expiry: DateTime) =
+    accountInfoJson(id, expiry).apply { put("number", accountToken) }
+
 fun deviceJson(id: String, name: String, publicKey: String, creationDate: DateTime) =
     JSONObject().apply {
         put("id", id)

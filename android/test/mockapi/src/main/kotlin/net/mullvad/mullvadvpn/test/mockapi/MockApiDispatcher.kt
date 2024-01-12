@@ -3,12 +3,14 @@ package net.mullvad.mullvadvpn.test.mockapi
 import android.util.Log
 import net.mullvad.mullvadvpn.test.mockapi.constant.ACCOUNT_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.AUTH_TOKEN_URL_PATH
+import net.mullvad.mullvadvpn.test.mockapi.constant.CREATE_ACCOUNT_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEVICES_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ACCESS_TOKEN
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID
 import net.mullvad.mullvadvpn.test.mockapi.constant.LOG_TAG
 import net.mullvad.mullvadvpn.test.mockapi.util.accessTokenJsonResponse
+import net.mullvad.mullvadvpn.test.mockapi.util.accountCreationJson
 import net.mullvad.mullvadvpn.test.mockapi.util.accountInfoJson
 import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
 import net.mullvad.mullvadvpn.test.mockapi.util.deviceJson
@@ -41,6 +43,7 @@ class MockApiDispatcher : Dispatcher() {
             }
             "$DEVICES_URL_PATH/$DUMMY_ID" -> handleDeviceInfoRequest()
             ACCOUNT_URL_PATH -> handleAccountInfoRequest()
+            CREATE_ACCOUNT_URL_PATH -> handleAccountCreationRequest()
             else -> MockResponse().setResponseCode(404)
         }.also { response ->
             Log.d(LOG_TAG, "Response: $response (body=${response.getBody()?.peek()?.readUtf8()})")
@@ -133,6 +136,23 @@ class MockApiDispatcher : Dispatcher() {
                                 publicKey = cachedKey,
                                 creationDate = currentUtcTimeWithOffsetZero().minusDays(1)
                             )
+                        )
+                        .toString()
+                )
+        }
+            ?: MockResponse().setResponseCode(400)
+    }
+
+    private fun handleAccountCreationRequest(): MockResponse {
+        return expectedAccountToken?.let { expiry ->
+            MockResponse()
+                .setResponseCode(201)
+                .addJsonHeader()
+                .setBody(
+                    accountCreationJson(
+                            id = DUMMY_ID,
+                            expiry = DateTime(),
+                            accountToken = expectedAccountToken!!
                         )
                         .toString()
                 )
