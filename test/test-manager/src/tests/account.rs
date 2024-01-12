@@ -306,7 +306,6 @@ pub async fn test_automatic_wireguard_rotation(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    use futures::StreamExt;
     // Make note of current WG key
     let old_key = mullvad_client
         .get_device()
@@ -340,36 +339,26 @@ pub async fn test_automatic_wireguard_rotation(
     // Verify rotation has happened after a minute
     const KEY_ROTATION_TIMEOUT: Duration = Duration::from_secs(100);
 
-    let mut event_stream = mullvad_client.events_listen().await.unwrap();
-    let get_pub_key_event = async {
-        loop {
-            // TODO(markus): See if this can be refactored. This is exactly the same as helpers:274.
-            match event_stream.next().await {
-                Some(Ok(DaemonEvent::Device(device_event))) => {
-                    let pubkey = device_event
-                        .new_state
-                        .into_device()
-                        .expect("Could not get device")
-                        .device
-                        .pubkey;
-                    return Ok(pubkey);
-                }
-                Some(Ok(_)) => continue,
-                Some(Err(status)) => {
-                    break Err(Error::Daemon(format!(
-                        "Failed to get next event: {}",
-                        status
-                    )))
-                }
-                None => break Err(Error::Daemon(String::from("Lost daemon event stream"))),
-            }
-        }
-    };
-
-    let new_key = tokio::time::timeout(KEY_ROTATION_TIMEOUT, get_pub_key_event)
-        .await
-        .unwrap()
-        .unwrap();
+    let new_key = tokio::time::timeout(
+        KEY_ROTATION_TIMEOUT,
+        helpers::find_daemon_event(
+            mullvad_client.events_listen().await.unwrap(),
+            |daemon_event| match daemon_event {
+                DaemonEvent::Device(device_event) => Some(device_event),
+                _ => None,
+            },
+        ),
+    )
+    .await
+    .map_err(|_error| Error::Daemon(String::from("Tunnel event listener timed out")))?
+    .map(|device_event| {
+        device_event
+            .new_state
+            .into_device()
+            .expect("Could not get device")
+            .device
+            .pubkey
+    })?;
 
     assert_ne!(old_key, new_key);
     Ok(())
