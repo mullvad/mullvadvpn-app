@@ -528,8 +528,8 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         if let Some(CustomProxy::Socks5Remote(ref remote_proxy)) = proxy_settings {
             if let Some(ref proxy_auth) = remote_proxy.auth {
                 return Ok(Some(Self::create_credentials_file(
-                    &proxy_auth.username,
-                    &proxy_auth.password,
+                    proxy_auth.username(),
+                    proxy_auth.password(),
                 )?));
             }
         }
