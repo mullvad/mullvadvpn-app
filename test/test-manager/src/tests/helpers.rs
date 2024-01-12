@@ -263,23 +263,29 @@ pub async fn find_next_tunnel_state(
 ) -> Result<mullvad_types::states::TunnelState, Error> {
     tokio::time::timeout(
         WAIT_FOR_TUNNEL_STATE_TIMEOUT,
-        find_next_tunnel_state_inner(stream, accept_state_fn),
+        find_daemon_event(stream, |daemon_event| match daemon_event {
+            DaemonEvent::TunnelState(state) if accept_state_fn(&state) => Some(state),
+            _ => None,
+        }),
     )
     .await
     .map_err(|_error| Error::Daemon(String::from("Tunnel event listener timed out")))?
 }
 
-async fn find_next_tunnel_state_inner(
-    mut stream: impl futures::Stream<Item = Result<DaemonEvent, mullvad_management_interface::Error>>
+pub async fn find_daemon_event<Accept, AcceptedEvent>(
+    mut event_stream: impl futures::Stream<Item = Result<DaemonEvent, mullvad_management_interface::Error>>
         + Unpin,
-    accept_state_fn: impl Fn(&mullvad_types::states::TunnelState) -> bool,
-) -> Result<mullvad_types::states::TunnelState, Error> {
+    accept_event: Accept,
+) -> Result<AcceptedEvent, Error>
+where
+    Accept: Fn(DaemonEvent) -> Option<AcceptedEvent>,
+{
     loop {
-        match stream.next().await {
-            Some(Ok(DaemonEvent::TunnelState(state))) if accept_state_fn(&state) => {
-                return Ok(state)
-            }
-            Some(Ok(_)) => continue,
+        match event_stream.next().await {
+            Some(Ok(daemon_event)) => match accept_event(daemon_event) {
+                Some(accepted_event) => break Ok(accepted_event),
+                None => continue,
+            },
             Some(Err(status)) => {
                 break Err(Error::Daemon(format!(
                     "Failed to get next event: {}",
