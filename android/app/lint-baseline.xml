@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0)" variant="all" version="8.1.0">
+<issues format="6" by="lint 8.1.4" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.4)" variant="all" version="8.1.4">
 
     <issue
         id="MissingSuperCall"
@@ -8,41 +8,8 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/MainActivity.kt"
-            line="134"
+            line="70"
             column="18"/>
-    </issue>
-
-    <issue
-        id="InlinedApi"
-        message="Field requires API level 33 (current min is 26): `android.Manifest.permission#POST_NOTIFICATIONS`"
-        errorLine1="            requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)"
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/MainActivity.kt"
-            line="357"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="RedundantLabel"
-        message="Redundant label can be removed"
-        errorLine1="            android:label=&quot;@string/app_name&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/debug/AndroidManifest.xml"
-            line="21"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="RedundantLabel"
-        message="Redundant label can be removed"
-        errorLine1="                  android:label=&quot;@string/app_name&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="33"
-            column="19"/>
     </issue>
 
     <issue
@@ -63,7 +30,7 @@
         errorLine2="                                      ~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="23"
+            line="25"
             column="39"/>
     </issue>
 
@@ -76,17 +43,6 @@
             file="src/main/AndroidManifest.xml"
             line="6"
             column="22"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/main.xml"
-            line="1"
-            column="1"/>
     </issue>
 
 </issues>

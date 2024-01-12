@@ -10,7 +10,7 @@ import androidx.core.app.NotificationCompat
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionGranted
+import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionMissing
 import net.mullvad.mullvadvpn.lib.common.util.getErrorNotificationResources
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.R
@@ -99,7 +99,7 @@ class TunnelStateNotification(val context: Context) {
     @SuppressLint("MissingPermission")
     private fun update() {
         if (
-            context.isNotificationPermissionGranted() &&
+            context.isNotificationPermissionMissing().not() &&
                 visible &&
                 (!reconnecting || !showingReconnecting)
         ) {

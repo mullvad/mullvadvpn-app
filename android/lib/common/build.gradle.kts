@@ -19,7 +19,6 @@ android {
 
     lint {
         lintConfig = file("${rootProject.projectDir}/config/lint.xml")
-        baseline = file("lint-baseline.xml")
         abortOnError = true
         warningsAsErrors = true
     }
@@ -30,6 +29,7 @@ dependencies {
     implementation(project(Dependencies.Mullvad.resourceLib))
     implementation(project(Dependencies.Mullvad.talpidLib))
 
+    implementation(Dependencies.AndroidX.appcompat)
     implementation(Dependencies.jodaTime)
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
