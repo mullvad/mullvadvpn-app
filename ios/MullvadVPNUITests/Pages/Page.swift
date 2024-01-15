@@ -12,6 +12,7 @@ import XCTest
 class Page {
     let app: XCUIApplication
     var pageAccessibilityIdentifier: AccessibilityIdentifier?
+    let defaultTimeout = 10.0
 
     init(_ app: XCUIApplication) {
         self.app = app
@@ -24,7 +25,7 @@ class Page {
 
     public func waitForPageToBeShown() {
         if let pageAccessibilityIdentifier = self.pageAccessibilityIdentifier {
-            XCTAssert(self.app.otherElements[pageAccessibilityIdentifier.rawValue].waitForExistence(timeout: 10))
+            XCTAssert(self.app.otherElements[pageAccessibilityIdentifier.rawValue].waitForExistence(timeout: defaultTimeout))
         }
     }
 }
