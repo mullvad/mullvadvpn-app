@@ -7,6 +7,7 @@
 //
 
 import MullvadLogging
+import MullvadSettings
 import Operations
 import Routing
 import UIKit
@@ -37,6 +38,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     private let interactorFactory: SettingsInteractorFactory
     private var currentRoute: SettingsNavigationRoute?
     private var modalRoute: SettingsNavigationRoute?
+    private let accessMethodRepository: AccessMethodRepositoryProtocol
 
     let navigationController: UINavigationController
 
@@ -60,10 +62,12 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     ///   - interactorFactory: an instance of a factory that produces interactors for the child routes.
     init(
         navigationController: UINavigationController,
-        interactorFactory: SettingsInteractorFactory
+        interactorFactory: SettingsInteractorFactory,
+        accessMethodRepository: AccessMethodRepositoryProtocol
     ) {
         self.navigationController = navigationController
         self.interactorFactory = interactorFactory
+        self.accessMethodRepository = accessMethodRepository
     }
 
     /// Start the coordinator fllow.
@@ -246,7 +250,10 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             ))
 
         case .apiAccess:
-            return .childCoordinator(ListAccessMethodCoordinator(navigationController: navigationController))
+            return .childCoordinator(ListAccessMethodCoordinator(
+                navigationController: navigationController,
+                accessMethodRepository: accessMethodRepository
+            ))
 
         case .faq:
             // Handled separately and presented as a modal.

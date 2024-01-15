@@ -7,56 +7,91 @@
 //
 
 import Foundation
+import Logging
+import MullvadSettings
+import MullvadTypes
 
-public struct TransportStrategy: Equatable {
+public class TransportStrategy: Equatable {
     /// The different transports suggested by the strategy
     public enum Transport {
-        /// Suggests using a direct connection
-        case useURLSession
-        /// Suggests connecting via Shadowsocks proxy
-        case useShadowsocks
-        /// Suggests connecting via socks proxy
-        case useSocks5
+        /// Connecting a direct connection
+        case direct
+
+        /// Connecting via  shadowsocks proxy
+        case shadowsocks(configuration: ShadowsocksConfiguration)
+
+        /// Connecting via socks proxy
+        case socks5(configuration: Socks5Configuration)
+
+        /// Failing  to retrive transport
+        case none
     }
 
-    /// The internal counter for suggested transports.
-    ///
-    /// A value of `0` means  a direct transport suggestion, a value of `1` or `2` means a Shadowsocks transport
-    /// suggestion.
-    ///
-    /// `internal` instead of `private` for testing purposes.
-    internal var connectionAttempts: Int
+    private let shadowsocksLoader: ShadowsocksLoaderProtocol
 
-    /// Enables recording of failed connection attempts.
-    private let userDefaults: UserDefaults
+    private let accessMethodIterator: AccessMethodIterator
 
-    /// `UserDefaults` key shared by both processes. Used to cache and synchronize connection attempts between them.
-    internal static let connectionAttemptsSharedCacheKey = "ConnectionAttemptsSharedCacheKey"
-
-    public init(_ userDefaults: UserDefaults) {
-        self.connectionAttempts = userDefaults.integer(forKey: Self.connectionAttemptsSharedCacheKey)
-        self.userDefaults = userDefaults
+    public init(
+        _ userDefaults: UserDefaults,
+        datasource: AccessMethodRepositoryDataSource,
+        shadowsocksLoader: ShadowsocksLoaderProtocol
+    ) {
+        self.shadowsocksLoader = shadowsocksLoader
+        self.accessMethodIterator = AccessMethodIterator(
+            userDefaults,
+            dataSource: datasource
+        )
     }
 
-    /// Instructs the strategy that a network connection failed
-    ///
-    /// Every third failure results in a direct transport suggestion.
-    public mutating func didFail() {
-        let (partial, isOverflow) = connectionAttempts.addingReportingOverflow(1)
-        // (Int.max - 1) is a multiple of 3, go directly to 2 when overflowing
-        // to keep the "every third failure" algorithm correct
-        connectionAttempts = isOverflow ? 2 : partial
-        userDefaults.set(connectionAttempts, forKey: Self.connectionAttemptsSharedCacheKey)
+    /// Rotating between enabled configurations by what order they were added in
+    public func didFail() {
+        let configuration = accessMethodIterator.pick()
+        switch configuration.kind {
+        case .bridges:
+            try? shadowsocksLoader.reloadConfiguration()
+            fallthrough
+        default:
+            self.accessMethodIterator.rotate()
+        }
     }
 
     /// The suggested connection transport
-    ///
-    /// - Returns: `.useURLSession` for every 3rd failed attempt, `.useShadowsocks` otherwise
     public func connectionTransport() -> Transport {
-        connectionAttempts.isMultiple(of: 3) ? .useURLSession : .useShadowsocks
+        let configuration = accessMethodIterator.pick()
+        switch configuration.proxyConfiguration {
+        case .direct:
+            return .direct
+        case .bridges:
+            do {
+                let configuration = try shadowsocksLoader.load()
+                return .shadowsocks(configuration: configuration)
+            } catch {
+                didFail()
+                guard accessMethodIterator.pick().kind != .bridges else { return .none }
+                return connectionTransport()
+            }
+        case let .shadowsocks(configuration):
+            return .shadowsocks(configuration: ShadowsocksConfiguration(
+                address: configuration.server,
+                port: configuration.port,
+                password: configuration.password,
+                cipher: configuration.cipher.rawValue.description
+            ))
+        case let .socks5(configuration):
+            switch configuration.authentication {
+            case .noAuthentication:
+                return .socks5(configuration: Socks5Configuration(proxyEndpoint: configuration.toAnyIPEndpoint))
+            case let .usernamePassword(username, password):
+                return .socks5(configuration: Socks5Configuration(
+                    proxyEndpoint: configuration.toAnyIPEndpoint,
+                    username: username,
+                    password: password
+                ))
+            }
+        }
     }
 
     public static func == (lhs: TransportStrategy, rhs: TransportStrategy) -> Bool {
-        lhs.connectionAttempts == rhs.connectionAttempts
+        lhs.accessMethodIterator.pick() == rhs.accessMethodIterator.pick()
     }
 }

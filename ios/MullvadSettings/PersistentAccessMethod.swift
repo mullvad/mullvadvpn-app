@@ -74,6 +74,15 @@ extension PersistentProxyConfiguration {
             self.port = port
             self.authentication = authentication
         }
+
+        public var toAnyIPEndpoint: AnyIPEndpoint {
+            switch server {
+            case let .ipv4(ip):
+                return .ipv4(IPv4Endpoint(ip: ip, port: port))
+            case let .ipv6(ip):
+                return .ipv6(IPv6Endpoint(ip: ip, port: port))
+            }
+        }
     }
 
     /// Shadowsocks configuration.

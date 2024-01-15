@@ -12,6 +12,8 @@ import Foundation
 public protocol AccessMethodRepositoryDataSource {
     /// Publisher that propagates a snapshot of persistent store upon modifications.
     var publisher: AnyPublisher<[PersistentAccessMethod], Never> { get }
+
+    var directAccess: PersistentAccessMethod { get }
 }
 
 public protocol AccessMethodRepositoryProtocol: AccessMethodRepositoryDataSource {
@@ -35,4 +37,7 @@ public protocol AccessMethodRepositoryProtocol: AccessMethodRepositoryDataSource
     /// Fetch all access method from the persistent store.
     /// - Returns: an array of all persistent access method.
     func fetchAll() -> [PersistentAccessMethod]
+
+    ///  Refreshes the storage with default values.
+    func reloadWithDefaultsAfterDataRemoval()
 }
