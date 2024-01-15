@@ -312,18 +312,21 @@ fun VpnSettingsScreen(
                         text = stringResource(id = R.string.auto_connect_and_lockdown_mode_footer)
                     )
                 }
-            }
-            item {
-                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-                HeaderSwitchComposeCell(
-                    title = stringResource(R.string.auto_connect),
-                    isToggled = uiState.isAutoConnectEnabled,
-                    isEnabled = true,
-                    onCellClicked = { newValue -> onToggleAutoConnect(newValue) }
-                )
-            }
-            item {
-                SwitchComposeSubtitleCell(text = stringResource(id = R.string.auto_connect_footer))
+            } else {
+                item {
+                    Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                    HeaderSwitchComposeCell(
+                        title = stringResource(R.string.auto_connect),
+                        isToggled = uiState.isAutoConnectEnabled,
+                        isEnabled = true,
+                        onCellClicked = { newValue -> onToggleAutoConnect(newValue) }
+                    )
+                }
+                item {
+                    SwitchComposeSubtitleCell(
+                        text = stringResource(id = R.string.auto_connect_footer)
+                    )
+                }
             }
             item {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
