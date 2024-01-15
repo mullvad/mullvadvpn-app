@@ -9,10 +9,12 @@
 import Foundation
 
 extension URL {
-    func securelyScoped(_ completionHandler: (Self) -> Void) {
+    func securelyScoped(_ completionHandler: (Self?) -> Void) {
         if startAccessingSecurityScopedResource() {
             completionHandler(self)
             stopAccessingSecurityScopedResource()
+        } else {
+            completionHandler(nil)
         }
     }
 }

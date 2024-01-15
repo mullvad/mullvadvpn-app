@@ -14,6 +14,8 @@ public protocol RelayCacheProtocol {
     func write(record: CachedRelays) throws
 }
 
+/// - Warning: `RelayCache` should not be used directly. It should be used through `IPOverrideWrapper` to have
+/// ip overrides applied.
 public final class RelayCache: RelayCacheProtocol {
     private let fileCache: any FileCacheProtocol<CachedRelays>
 

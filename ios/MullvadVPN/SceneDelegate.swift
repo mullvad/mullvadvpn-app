@@ -77,7 +77,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
             ),
             appPreferences: AppPreferences(),
             accessMethodRepository: accessMethodRepository,
-            transportProvider: appDelegate.configuredTransportProvider
+            transportProvider: appDelegate.configuredTransportProvider,
+            ipOverrideRepository: appDelegate.ipOverrideRepository
         )
 
         appCoordinator?.onShowSettings = { [weak self] in

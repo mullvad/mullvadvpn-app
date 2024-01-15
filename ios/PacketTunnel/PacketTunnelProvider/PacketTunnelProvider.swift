@@ -34,29 +34,18 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let addressCache = REST.AddressCache(canWriteToCache: false, cacheDirectory: containerURL)
         addressCache.loadFromFile()
 
-        let relayCache = RelayCache(cacheDirectory: containerURL)
-
-        let urlSession = REST.makeURLSession()
-        let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
-        let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
-
-        // This init cannot fail as long as the security group identifier is valid
-        let transportStrategy = TransportStrategy(
-            datasource: AccessMethodRepository(),
-            shadowsocksLoader: ShadowsocksLoader(
-                shadowsocksCache: shadowsocksCache,
-                relayCache: relayCache,
-                constraintsUpdater: constraintsUpdater
-            )
-        )
-
-        let transportProvider = TransportProvider(
-            urlSessionTransport: urlSessionTransport,
-            addressCache: addressCache,
-            transportStrategy: transportStrategy
+        let ipOverrideWrapper = IPOverrideWrapper(
+            relayCache: RelayCache(cacheDirectory: containerURL),
+            ipOverrideRepository: IPOverrideRepository()
         )
 
         super.init()
+
+        let transportProvider = setUpTransportProvider(
+            appContainerURL: containerURL,
+            ipOverrideWrapper: ipOverrideWrapper,
+            addressCache: addressCache
+        )
 
         let adapter = WgAdapter(packetTunnelProvider: self)
 
@@ -82,7 +71,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             tunnelMonitor: tunnelMonitor,
             defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self, eventQueue: internalQueue),
             blockedStateErrorMapper: BlockedStateErrorMapper(),
-            relaySelector: RelaySelectorWrapper(relayCache: relayCache),
+            relaySelector: RelaySelectorWrapper(relayCache: ipOverrideWrapper),
             settingsReader: SettingsReader(),
             protocolObfuscator: ProtocolObfuscator<UDPOverTCPObfuscator>()
         )
@@ -140,6 +129,31 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     override func wake() {
         actor.onWake()
+    }
+
+    private func setUpTransportProvider(
+        appContainerURL: URL,
+        ipOverrideWrapper: IPOverrideWrapper,
+        addressCache: REST.AddressCache
+    ) -> TransportProvider {
+        let urlSession = REST.makeURLSession()
+        let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
+        let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: appContainerURL)
+
+        let transportStrategy = TransportStrategy(
+            datasource: AccessMethodRepository(),
+            shadowsocksLoader: ShadowsocksLoader(
+                shadowsocksCache: shadowsocksCache,
+                relayCache: ipOverrideWrapper,
+                constraintsUpdater: constraintsUpdater
+            )
+        )
+
+        return TransportProvider(
+            urlSessionTransport: urlSessionTransport,
+            addressCache: addressCache,
+            transportStrategy: transportStrategy
+        )
     }
 }
 

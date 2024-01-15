@@ -21,6 +21,7 @@ protocol RelayCacheTrackerProtocol {
     func getNextUpdateDate() -> Date
     func addObserver(_ observer: RelayCacheTrackerObserver)
     func removeObserver(_ observer: RelayCacheTrackerObserver)
+    func refreshCachedRelays() throws
 }
 
 final class RelayCacheTracker: RelayCacheTrackerProtocol {
@@ -144,6 +145,20 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
         }
     }
 
+    func refreshCachedRelays() throws {
+        let newCachedRelays = try cache.read()
+
+        nslock.lock()
+        cachedRelays = newCachedRelays
+        nslock.unlock()
+
+        DispatchQueue.main.async {
+            self.observerList.forEach { observer in
+                observer.relayCacheTracker(self, didUpdateCachedRelays: newCachedRelays)
+            }
+        }
+    }
+
     func getNextUpdateDate() -> Date {
         nslock.lock()
         defer { nslock.unlock() }
@@ -208,17 +223,8 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
             updatedAt: Date()
         )
 
-        nslock.lock()
-        cachedRelays = newCachedRelays
-        nslock.unlock()
-
         try cache.write(record: newCachedRelays)
-
-        DispatchQueue.main.async {
-            self.observerList.forEach { observer in
-                observer.relayCacheTracker(self, didUpdateCachedRelays: newCachedRelays)
-            }
-        }
+        try refreshCachedRelays()
     }
 
     private func scheduleRepeatingTimer(startTime: DispatchWallTime) {

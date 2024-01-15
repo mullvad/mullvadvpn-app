@@ -306,19 +306,6 @@ public struct RelaySelectorResult: Codable, Equatable {
     public var location: Location
 }
 
-public protocol AnyRelay {
-    var hostname: String { get }
-    var owned: Bool { get }
-    var location: String { get }
-    var provider: String { get }
-    var weight: UInt64 { get }
-    var active: Bool { get }
-    var includeInCountry: Bool { get }
-}
-
-extension REST.ServerRelay: AnyRelay {}
-extension REST.BridgeRelay: AnyRelay {}
-
 private struct RelayWithLocation<T: AnyRelay> {
     let relay: T
     let serverLocation: Location

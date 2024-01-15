@@ -10,7 +10,7 @@
 import XCTest
 
 final class RelayCacheTests: XCTestCase {
-    func testCanReadCache() throws {
+    func testReadCache() throws {
         let fileCache = MockFileCache(
             initialState: .exists(CachedRelays(relays: .mock(), updatedAt: .distantPast))
         )
@@ -20,7 +20,7 @@ final class RelayCacheTests: XCTestCase {
         XCTAssertEqual(fileCache.getState(), .exists(relays))
     }
 
-    func testCanWriteCache() throws {
+    func testWriteCache() throws {
         let fileCache = MockFileCache(
             initialState: .exists(CachedRelays(relays: .mock(), updatedAt: .distantPast))
         )
@@ -31,7 +31,7 @@ final class RelayCacheTests: XCTestCase {
         XCTAssertEqual(fileCache.getState(), .exists(newCachedRelays))
     }
 
-    func testCanReadPrebundledRelaysWhenNoCacheIsStored() throws {
+    func testReadPrebundledRelaysWhenNoCacheIsStored() throws {
         let fileCache = MockFileCache<CachedRelays>(initialState: .fileNotFound)
         let cache = RelayCache(fileCache: fileCache)
 
@@ -39,17 +39,20 @@ final class RelayCacheTests: XCTestCase {
     }
 }
 
-private extension REST.ServerRelaysResponse {
-    static func mock() -> Self {
+extension REST.ServerRelaysResponse {
+    static func mock(
+        serverRelays: [REST.ServerRelay] = [],
+        brideRelays: [REST.BridgeRelay] = []
+    ) -> Self {
         REST.ServerRelaysResponse(
             locations: [:],
             wireguard: REST.ServerWireguardTunnels(
                 ipv4Gateway: .loopback,
                 ipv6Gateway: .loopback,
                 portRanges: [],
-                relays: []
+                relays: serverRelays
             ),
-            bridge: REST.ServerBridges(shadowsocks: [], relays: [])
+            bridge: REST.ServerBridges(shadowsocks: [], relays: brideRelays)
         )
     }
 }

@@ -241,8 +241,10 @@ class IPOverrideViewController: UIViewController {
 extension IPOverrideViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         if let url = urls.first {
-            url.securelyScoped { [weak self] url in
-                self?.interactor.import(url: url)
+            url.securelyScoped { [weak self] scopedUrl in
+                if let scopedUrl {
+                    self?.interactor.import(url: scopedUrl)
+                }
             }
         }
     }
