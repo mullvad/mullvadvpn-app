@@ -11,6 +11,8 @@ import UIKit
 class IPOverrideViewController: UIViewController {
     let alertPresenter: AlertPresenter
 
+    weak var delegate: IPOverrideViewControllerDelegate?
+
     private lazy var containerView: UIStackView = {
         let view = UIStackView()
         view.axis = .vertical
@@ -29,6 +31,8 @@ class IPOverrideViewController: UIViewController {
         ), for: .normal)
         return button
     }()
+
+    private let statusView = IPOverrideStatusView()
 
     init(alertPresenter: AlertPresenter) {
         self.alertPresenter = alertPresenter
@@ -52,8 +56,12 @@ class IPOverrideViewController: UIViewController {
 
         view.addConstrainedSubviews([containerView, clearButton]) {
             containerView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
-            clearButton.pinEdgesToSuperviewMargins(.all().excluding(.top))
+            clearButton.pinEdgesToSuperviewMargins(PinnableEdges([.leading(0), .trailing(0), .bottom(16)]))
         }
+    }
+
+    func setStatus(_ status: IPOverrideStatus) {
+        statusView.setStatus(status)
     }
 
     private func addHeader() {
@@ -123,17 +131,7 @@ class IPOverrideViewController: UIViewController {
     }
 
     private func addStatusLabel() {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 22, weight: .bold)
-        label.textColor = .white
-        label.text = NSLocalizedString(
-            "IP_OVERRIDE_STATUS",
-            tableName: "IPOverride",
-            value: "Overrides active",
-            comment: ""
-        ).uppercased()
-
-        containerView.addArrangedSubview(label)
+        containerView.addArrangedSubview(statusView)
     }
 
     @objc private func didTapInfoButton() {
@@ -198,6 +196,19 @@ class IPOverrideViewController: UIViewController {
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
+                        "IP_OVERRIDE_CLEAR_DIALOG_CLEAR_BUTTON",
+                        tableName: "IPOverride",
+                        value: "Clear",
+                        comment: ""
+                    ),
+                    style: .destructive,
+                    handler: { [weak self] in
+                        guard let self else { return }
+                        delegate?.controllerShouldClearAllOverrides(self)
+                    }
+                ),
+                AlertAction(
+                    title: NSLocalizedString(
                         "IP_OVERRIDE_CLEAR_DIALOG_CANCEL_BUTTON",
                         tableName: "IPOverride",
                         value: "Cancel",
@@ -205,21 +216,17 @@ class IPOverrideViewController: UIViewController {
                     ),
                     style: .default
                 ),
-                AlertAction(
-                    title: NSLocalizedString(
-                        "IP_OVERRIDE_CLEAR_DIALOG_CLEAR_BUTTON",
-                        tableName: "IPOverride",
-                        value: "Clear",
-                        comment: ""
-                    ),
-                    style: .destructive
-                ),
             ]
         )
 
         alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
-    @objc private func didTapImportTextButton() {}
-    @objc private func didTapImportFileButton() {}
+    @objc private func didTapImportTextButton() {
+        delegate?.controllerShouldShowTextImportView(self)
+    }
+
+    @objc private func didTapImportFileButton() {
+        delegate?.controllerShouldShowFileImportView(self)
+    }
 }
