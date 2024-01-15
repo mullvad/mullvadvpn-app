@@ -66,8 +66,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         setUpProxies(containerURL: containerURL)
 
-        let relayCache = RelayCache(cacheDirectory: containerURL)
-        relayCacheTracker = RelayCacheTracker(relayCache: relayCache, application: application, apiProxy: apiProxy)
+        let ipOverrideWrapper = IPOverrideWrapper(
+            relayCache: RelayCache(cacheDirectory: containerURL),
+            ipOverrideRepository: IPOverrideRepository()
+        )
+
+        relayCacheTracker = RelayCacheTracker(
+            relayCache: ipOverrideWrapper,
+            application: application,
+            apiProxy: apiProxy
+        )
 
         addressCacheTracker = AddressCacheTracker(application: application, apiProxy: apiProxy, store: addressCache)
 
@@ -93,7 +101,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         shadowsocksLoader = ShadowsocksLoader(
             shadowsocksCache: shadowsocksCache,
-            relayCache: relayCache,
+            relayCache: ipOverrideWrapper,
             constraintsUpdater: constraintsUpdater
         )
 

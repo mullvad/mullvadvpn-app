@@ -265,7 +265,8 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         case .ipOverride:
             return .childCoordinator(IPOverrideCoordinator(
                 navigationController: navigationController,
-                repository: IPOverrideRepository()
+                repository: IPOverrideRepository(),
+                tunnelManager: interactorFactory.tunnelManager
             ))
 
         case .faq:

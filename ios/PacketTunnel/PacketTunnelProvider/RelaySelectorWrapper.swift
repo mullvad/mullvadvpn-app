@@ -12,7 +12,7 @@ import MullvadTypes
 import PacketTunnelCore
 
 struct RelaySelectorWrapper: RelaySelectorProtocol {
-    let relayCache: RelayCache
+    let relayCache: RelayCacheProtocol
 
     func selectRelay(
         with constraints: RelayConstraints,

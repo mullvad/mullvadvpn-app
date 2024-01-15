@@ -13,8 +13,9 @@ import UIKit
 
 class IPOverrideCoordinator: Coordinator, Presenting, SettingsChildCoordinator {
     private let navigationController: UINavigationController
-    private let interactor: IPOverrideInteractor
+    private var interactor: IPOverrideInteractor
     private let repository: IPOverrideRepositoryProtocol
+    private let tunnelManager: TunnelManager
 
     private lazy var ipOverrideViewController: IPOverrideViewController = {
         let viewController = IPOverrideViewController(
@@ -29,14 +30,23 @@ class IPOverrideCoordinator: Coordinator, Presenting, SettingsChildCoordinator {
         navigationController
     }
 
-    init(navigationController: UINavigationController, repository: IPOverrideRepositoryProtocol) {
+    init(
+        navigationController: UINavigationController,
+        repository: IPOverrideRepositoryProtocol,
+        tunnelManager: TunnelManager
+    ) {
         self.navigationController = navigationController
         self.repository = repository
+        self.tunnelManager = tunnelManager
 
         interactor = IPOverrideInteractor(repository: repository)
     }
 
     func start(animated: Bool) {
+        interactor.didUpdateOverrides = { [weak self] in
+            self?.tunnelManager.reconnectTunnel(selectNewRelay: true)
+        }
+
         navigationController.pushViewController(ipOverrideViewController, animated: animated)
     }
 }

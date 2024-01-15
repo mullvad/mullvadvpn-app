@@ -202,17 +202,20 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
 
         logger.info("Downloaded \(numRelays) relays.")
 
-        let newCachedRelays = CachedRelays(
+        var newCachedRelays = CachedRelays(
             etag: etag,
             relays: relays,
             updatedAt: Date()
         )
 
+        try cache.write(record: newCachedRelays)
+
+        // Fetching relays from store reapplies any existing ip overrides.
+        newCachedRelays = try cache.read()
+
         nslock.lock()
         cachedRelays = newCachedRelays
         nslock.unlock()
-
-        try cache.write(record: newCachedRelays)
 
         DispatchQueue.main.async {
             self.observerList.forEach { observer in

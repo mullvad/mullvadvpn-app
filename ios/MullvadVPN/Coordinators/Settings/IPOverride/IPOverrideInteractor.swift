@@ -20,6 +20,8 @@ struct IPOverrideInteractor {
         statusSubject.eraseToAnyPublisher()
     }
 
+    var didUpdateOverrides: (() -> Void)?
+
     var defaultStatus: IPOverrideStatus {
         if repository.fetchAll().isEmpty {
             return .noImports
@@ -46,6 +48,8 @@ struct IPOverrideInteractor {
 
     func deleteAllOverrides() {
         repository.deleteAll()
+
+        didUpdateOverrides?()
         resetToDefaultStatus()
     }
 
@@ -59,6 +63,8 @@ struct IPOverrideInteractor {
             statusSubject.send(.importFailed(context))
             logger.error("Error importing ip overrides: \(error)")
         }
+
+        didUpdateOverrides?()
 
         // After an import - successful or not - the UI should be reset back to default
         // state after a certain amount of time.

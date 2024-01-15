@@ -27,7 +27,7 @@ public struct IPOverride: Codable, Equatable {
         case ipv6Address = "ipv6_addr_in"
     }
 
-    init(hostname: String, ipv4Address: IPv4Address?, ipv6Address: IPv6Address?) throws {
+    public init(hostname: String, ipv4Address: IPv4Address?, ipv6Address: IPv6Address?) throws {
         self.hostname = hostname
         self.ipv4Address = ipv4Address
         self.ipv6Address = ipv6Address
