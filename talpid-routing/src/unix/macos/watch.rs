@@ -6,20 +6,28 @@ use std::io;
 
 type Result<T> = std::result::Result<T, Error>;
 
+/// Errors that can occur for a PF_ROUTE socket
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
+    /// Generic routing socket error
     #[error(display = "Routing socket error: {}", _0)]
     RoutingSocket(routing_socket::Error),
+    /// Failed to parse route message
     #[error(display = "Invalid message")]
     InvalidMessage(data::Error),
+    /// Failed to send route message
     #[error(display = "Failed to send routing message")]
     Send(routing_socket::Error),
+    /// Received unexpected response to route message
     #[error(display = "Unexpected message type")]
     UnexpectedMessageType(RouteSocketMessage, MessageType),
+    /// Route not found
     #[error(display = "Route not found")]
     RouteNotFound,
+    /// No route to destination
     #[error(display = "Destination unreachable")]
     Unreachable,
+    /// Failed to delete route
     #[error(display = "Failed to delete a route")]
     Deletion(RouteMessage),
 }

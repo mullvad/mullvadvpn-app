@@ -38,6 +38,8 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix default route not being restored when disconnecting when the gateway was a link-local IPv6
   address.
+- Fix app sometimes getting stuck in error state when the connection is unstable. This occurred
+  when the default route was removed while connecting.
 
 ### Changed
 - Remove `--location` flag from `mullvad status` CLI. Location and IP will now always
