@@ -2,6 +2,7 @@ plugins {
     id(Dependencies.Plugin.androidLibraryId)
     id(Dependencies.Plugin.kotlinAndroidId)
     id(Dependencies.Plugin.kotlinParcelizeId)
+    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
 }
 
 android {
@@ -33,6 +34,8 @@ dependencies {
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
 
+    androidTestImplementation(Dependencies.junitApi)
+    androidTestImplementation(Dependencies.junitEngine)
     androidTestImplementation(Dependencies.AndroidX.testRunner)
     androidTestImplementation(Dependencies.Kotlin.test)
 }
