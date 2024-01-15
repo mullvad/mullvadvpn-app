@@ -495,6 +495,13 @@
 		7A5869A82B5140C200640D27 /* MethodSettingsValidationErrorContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869A72B5140C200640D27 /* MethodSettingsValidationErrorContentView.swift */; };
 		7A5869AB2B55527C00640D27 /* IPOverrideCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869AA2B55527C00640D27 /* IPOverrideCoordinator.swift */; };
 		7A5869AD2B5552E200640D27 /* IPOverrideViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869AC2B5552E200640D27 /* IPOverrideViewController.swift */; };
+		7A5869B72B56B41500640D27 /* IPOverrideTextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869B62B56B41500640D27 /* IPOverrideTextViewController.swift */; };
+		7A5869B92B56E7F000640D27 /* IPOverrideViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869B82B56E7F000640D27 /* IPOverrideViewControllerDelegate.swift */; };
+		7A5869BC2B56EF3400640D27 /* IPOverrideRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869BA2B56EE9500640D27 /* IPOverrideRepository.swift */; };
+		7A5869BD2B56EF7300640D27 /* IPOverride.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869B22B5697AC00640D27 /* IPOverride.swift */; };
+		7A5869BF2B57D0A100640D27 /* IPOverrideStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869BE2B57D0A100640D27 /* IPOverrideStatus.swift */; };
+		7A5869C12B57D21A00640D27 /* IPOverrideStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869C02B57D21A00640D27 /* IPOverrideStatusView.swift */; };
+		7A5869C32B5820CE00640D27 /* IPOverrideRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869C22B5820CE00640D27 /* IPOverrideRepositoryTests.swift */; };
 		7A5869C52B5A899C00640D27 /* MethodSettingsCellConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869C42B5A899C00640D27 /* MethodSettingsCellConfiguration.swift */; };
 		7A5869C72B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869C62B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift */; };
 		7A6000F62B60092F001CF0D9 /* AccessMethodViewModelEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6000F52B60092F001CF0D9 /* AccessMethodViewModelEditing.swift */; };
@@ -539,6 +546,8 @@
 		7A9CCCC42A96302800DD6A34 /* TunnelCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCB22A96302800DD6A34 /* TunnelCoordinator.swift */; };
 		7A9FA1422A2E3306000B728D /* CheckboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9FA1412A2E3306000B728D /* CheckboxView.swift */; };
 		7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9FA1432A2E3FE5000B728D /* CheckableSettingsCell.swift */; };
+		7AB4CCB92B69097E006037F5 /* IPOverrideTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB4CCB82B69097E006037F5 /* IPOverrideTests.swift */; };
+		7AB4CCBB2B691BBB006037F5 /* IPOverrideInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB4CCBA2B691BBB006037F5 /* IPOverrideInteractor.swift */; };
 		7ABCA5B32A9349F20044A708 /* Routing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A88DCCE2A8FABBE00D2FF0E /* Routing.framework */; };
 		7ABCA5B42A9349F20044A708 /* Routing.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7A88DCCE2A8FABBE00D2FF0E /* Routing.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7ABCA5B72A9353C60044A708 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CAF9F72983D36800BE19F7 /* Coordinator.swift */; };
@@ -1656,6 +1665,13 @@
 		7A5869A72B5140C200640D27 /* MethodSettingsValidationErrorContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodSettingsValidationErrorContentView.swift; sourceTree = "<group>"; };
 		7A5869AA2B55527C00640D27 /* IPOverrideCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideCoordinator.swift; sourceTree = "<group>"; };
 		7A5869AC2B5552E200640D27 /* IPOverrideViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideViewController.swift; sourceTree = "<group>"; };
+		7A5869B22B5697AC00640D27 /* IPOverride.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverride.swift; sourceTree = "<group>"; };
+		7A5869B62B56B41500640D27 /* IPOverrideTextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideTextViewController.swift; sourceTree = "<group>"; };
+		7A5869B82B56E7F000640D27 /* IPOverrideViewControllerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideViewControllerDelegate.swift; sourceTree = "<group>"; };
+		7A5869BA2B56EE9500640D27 /* IPOverrideRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideRepository.swift; sourceTree = "<group>"; };
+		7A5869BE2B57D0A100640D27 /* IPOverrideStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideStatus.swift; sourceTree = "<group>"; };
+		7A5869C02B57D21A00640D27 /* IPOverrideStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideStatusView.swift; sourceTree = "<group>"; };
+		7A5869C22B5820CE00640D27 /* IPOverrideRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideRepositoryTests.swift; sourceTree = "<group>"; };
 		7A5869C42B5A899C00640D27 /* MethodSettingsCellConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodSettingsCellConfiguration.swift; sourceTree = "<group>"; };
 		7A5869C62B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodSettingsDataSourceConfiguration.swift; sourceTree = "<group>"; };
 		7A6000F52B60092F001CF0D9 /* AccessMethodViewModelEditing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodViewModelEditing.swift; sourceTree = "<group>"; };
@@ -1696,6 +1712,8 @@
 		7A9CCCB22A96302800DD6A34 /* TunnelCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelCoordinator.swift; sourceTree = "<group>"; };
 		7A9FA1412A2E3306000B728D /* CheckboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxView.swift; sourceTree = "<group>"; };
 		7A9FA1432A2E3FE5000B728D /* CheckableSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckableSettingsCell.swift; sourceTree = "<group>"; };
+		7AB4CCB82B69097E006037F5 /* IPOverrideTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideTests.swift; sourceTree = "<group>"; };
+		7AB4CCBA2B691BBB006037F5 /* IPOverrideInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideInteractor.swift; sourceTree = "<group>"; };
 		7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Weight.swift"; sourceTree = "<group>"; };
 		7AC8A3AD2ABC6FBB00DC4939 /* SettingsHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsHeaderView.swift; sourceTree = "<group>"; };
 		7AD0AA192AD69B6E00119E10 /* PacketTunnelActorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelActorProtocol.swift; sourceTree = "<group>"; };
@@ -2712,6 +2730,8 @@
 				58B0A2A4238EE67E00BC001D /* Info.plist */,
 				A9B6AC192ADE8FBB00F7802A /* InMemorySettingsStore.swift */,
 				F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */,
+				7A5869C22B5820CE00640D27 /* IPOverrideRepositoryTests.swift */,
+				7AB4CCB82B69097E006037F5 /* IPOverrideTests.swift */,
 				A9B6AC172ADE8F4300F7802A /* MigrationManagerTests.swift */,
 				58C3FA652A38549D006A450A /* MockFileCache.swift */,
 				F09D04B42AE93CB6003D4F89 /* OutgoingConnectionProxy+Stub.swift */,
@@ -2770,6 +2790,8 @@
 				F0164EBB2B482E430020268D /* AppStorage.swift */,
 				A92ECC2B2A7803A50052F1B1 /* DeviceState.swift */,
 				580F8B8528197958002E0998 /* DNSSettings.swift */,
+				7A5869B22B5697AC00640D27 /* IPOverride.swift */,
+				7A5869BA2B56EE9500640D27 /* IPOverrideRepository.swift */,
 				06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */,
 				068CE5732927B7A400A068BB /* Migration.swift */,
 				A9D96B192A8247C100A5C673 /* MigrationManager.swift */,
@@ -3243,7 +3265,12 @@
 			isa = PBXGroup;
 			children = (
 				7A5869AA2B55527C00640D27 /* IPOverrideCoordinator.swift */,
+				7AB4CCBA2B691BBB006037F5 /* IPOverrideInteractor.swift */,
+				7A5869BE2B57D0A100640D27 /* IPOverrideStatus.swift */,
+				7A5869C02B57D21A00640D27 /* IPOverrideStatusView.swift */,
+				7A5869B62B56B41500640D27 /* IPOverrideTextViewController.swift */,
 				7A5869AC2B5552E200640D27 /* IPOverrideViewController.swift */,
+				7A5869B82B56E7F000640D27 /* IPOverrideViewControllerDelegate.swift */,
 			);
 			path = IPOverride;
 			sourceTree = "<group>";
@@ -4460,6 +4487,7 @@
 				A9A5FA402ACB05D90083449F /* DeviceCheckRemoteServiceProtocol.swift in Sources */,
 				A9A5FA412ACB05D90083449F /* DeviceStateAccessor.swift in Sources */,
 				A9A5FA422ACB05D90083449F /* DeviceStateAccessorProtocol.swift in Sources */,
+				7A5869C32B5820CE00640D27 /* IPOverrideRepositoryTests.swift in Sources */,
 				A9A5FA392ACB05910083449F /* UIColor+Palette.swift in Sources */,
 				A9A5FA3A2ACB05910083449F /* UIEdgeInsets+Extensions.swift in Sources */,
 				A9C342C52ACC42130045F00E /* ServerRelaysResponse+Stubs.swift in Sources */,
@@ -4575,6 +4603,7 @@
 				58DFF7D32B02570000F864E0 /* MarkdownStylingOptions.swift in Sources */,
 				A9A5FA342ACB05160083449F /* StringTests.swift in Sources */,
 				A9A5FA352ACB05160083449F /* WgKeyRotationTests.swift in Sources */,
+				7AB4CCB92B69097E006037F5 /* IPOverrideTests.swift in Sources */,
 				A9A5FA362ACB05160083449F /* TunnelManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4583,6 +4612,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7A5869BD2B56EF7300640D27 /* IPOverride.swift in Sources */,
 				58B2FDEE2AA72098003EB5C6 /* ApplicationConfiguration.swift in Sources */,
 				58B2FDE52AA71D5C003EB5C6 /* TunnelSettingsV2.swift in Sources */,
 				A97D30172AE6B5E90045C0E4 /* StoredWgKeyData.swift in Sources */,
@@ -4606,6 +4636,7 @@
 				F08827892B3192110020A383 /* AccessMethodRepositoryProtocol.swift in Sources */,
 				58B2FDE22AA71D5C003EB5C6 /* StoredAccountData.swift in Sources */,
 				F0D7FF902B31E00B00E0FDE5 /* AccessMethodKind.swift in Sources */,
+				7A5869BC2B56EF3400640D27 /* IPOverrideRepository.swift in Sources */,
 				58B2FDE82AA71D5C003EB5C6 /* KeychainSettingsStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4882,6 +4913,7 @@
 				5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */,
 				5891BF1C25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift in Sources */,
 				5878A26F2907E7E00096FC88 /* ProblemReportInteractor.swift in Sources */,
+				7AB4CCBB2B691BBB006037F5 /* IPOverrideInteractor.swift in Sources */,
 				7A3353912AAA014400F0A71C /* SimulatorVPNConnection.swift in Sources */,
 				F028A56A2A34D4E700C0CAA3 /* RedeemVoucherViewController.swift in Sources */,
 				7A5869C52B5A899C00640D27 /* MethodSettingsCellConfiguration.swift in Sources */,
@@ -4911,6 +4943,7 @@
 				58C8191829FAA2C400DEB1B4 /* NotificationConfiguration.swift in Sources */,
 				58FF9FE82B07650A00E4C97D /* ButtonCellContentConfiguration.swift in Sources */,
 				5827B0A82B0F49EF00CCBBA1 /* ProxyConfigurationInteractorProtocol.swift in Sources */,
+				7A5869B92B56E7F000640D27 /* IPOverrideViewControllerDelegate.swift in Sources */,
 				586C0D7A2B039CE300E7CDD7 /* ShadowsocksCipherPicker.swift in Sources */,
 				58EFC76A2AFAC3B800E9F4CB /* ListAccessMethodHeaderView.swift in Sources */,
 				58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */,
@@ -4953,6 +4986,7 @@
 				7AF10EB42ADE85BC00C090B9 /* RelayFilterCoordinator.swift in Sources */,
 				58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */,
 				F09D04B32AE919AC003D4F89 /* OutgoingConnectionProxy.swift in Sources */,
+				7A5869BF2B57D0A100640D27 /* IPOverrideStatus.swift in Sources */,
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
 				7AF10EB22ADE859200C090B9 /* AlertViewController.swift in Sources */,
 				587D9676288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift in Sources */,
@@ -4976,6 +5010,7 @@
 				5871167F2910035700D41AAC /* PreferencesInteractor.swift in Sources */,
 				7A9CCCC22A96302800DD6A34 /* SafariCoordinator.swift in Sources */,
 				58CEB3082AFD484100E6E088 /* BasicCell.swift in Sources */,
+				7A5869C12B57D21A00640D27 /* IPOverrideStatusView.swift in Sources */,
 				58CEB2F52AFD0BB500E6E088 /* TextCellContentConfiguration.swift in Sources */,
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
 				F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */,
@@ -4999,6 +5034,7 @@
 				585B1FF02AB09F97008AD470 /* VPNConnectionProtocol.swift in Sources */,
 				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
 				F09A297C2A9F8A9B00EA3B6F /* VoucherTextField.swift in Sources */,
+				7A5869B72B56B41500640D27 /* IPOverrideTextViewController.swift in Sources */,
 				58ACF64B26553C3F00ACE4B7 /* SettingsSwitchCell.swift in Sources */,
 				7AF9BE952A40461100DBFEDB /* RelayFilterView.swift in Sources */,
 				7A09C98129D99215000C2CAC /* String+FuzzyMatch.swift in Sources */,
