@@ -8,7 +8,7 @@
 
 import XCTest
 
-class AccountTests: BaseTestCase {
+class AccountTests: BaseUITestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
     }

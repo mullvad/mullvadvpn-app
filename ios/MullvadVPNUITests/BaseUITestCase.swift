@@ -9,7 +9,7 @@
 import Foundation
 import XCTest
 
-class BaseTestCase: XCTestCase {
+class BaseUITestCase: XCTestCase {
     // swiftlint:disable force_cast
     let noTimeAccountNumber = Bundle(for: AccountTests.self).infoDictionary?["MullvadNoTimeAccountNumber"] as! String
     let hasTimeAccountNumber = Bundle(for: AccountTests.self).infoDictionary?["MullvadHasTimeAccountNumber"] as! String
