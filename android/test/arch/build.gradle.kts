@@ -1,6 +1,7 @@
 plugins {
     id(Dependencies.Plugin.androidLibraryId)
     id(Dependencies.Plugin.kotlinAndroidId)
+    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
 }
 
 android {
@@ -28,6 +29,8 @@ androidComponents {
 }
 
 dependencies {
+    testRuntimeOnly(Dependencies.junitEngine)
+
     testImplementation(Dependencies.Compose.uiToolingAndroidPreview)
     testImplementation(Dependencies.AndroidX.appcompat)
     testImplementation(Dependencies.junitApi)
