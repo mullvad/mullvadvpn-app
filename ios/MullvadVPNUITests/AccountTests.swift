@@ -45,7 +45,7 @@ class AccountTests: BaseTestCase {
 
         LoginPage(app)
             .tapAccountNumberTextField()
-            .enterText("1234123412341234")
+            .enterText("0000000000000000")
             .tapAccountNumberSubmitButton()
             .verifyFailIconShown()
             .waitForPageToBeShown() // Verify still on login page
