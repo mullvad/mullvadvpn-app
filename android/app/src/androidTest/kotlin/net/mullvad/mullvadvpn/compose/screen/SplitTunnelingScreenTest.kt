@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
-import org.junit.After
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -41,7 +41,7 @@ class SplitTunnelingScreenTest {
         loadKoinModules(testModule)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         unloadKoinModules(testModule)
         unmockkAll()
