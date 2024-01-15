@@ -259,7 +259,12 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             ))
 
         case .ipOverride:
-            return .childCoordinator(IPOverrideCoordinator(navigationController: navigationController))
+            return .childCoordinator(
+                IPOverrideCoordinator(
+                    navigationController: navigationController,
+                    repository: IPOverrideRepository()
+                )
+            )
 
         case .faq:
             // Handled separately and presented as a modal.

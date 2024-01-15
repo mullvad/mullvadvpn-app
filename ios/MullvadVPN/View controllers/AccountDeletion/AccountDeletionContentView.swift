@@ -70,7 +70,8 @@ class AccountDeletionContentView: UIView {
             value: """
             This logs out all devices using this account and all \
             VPN access will be denied even if there is time left on the account. \
-            Enter the last 4 digits of the account number and hit "Delete account" if you really want to delete the account :
+            Enter the last 4 digits of the account number and hit "Delete account" \
+            if you really want to delete the account:
             """,
             comment: ""
         )

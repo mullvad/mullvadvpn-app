@@ -116,6 +116,9 @@ extension UIMetrics {
     /// Text field margins
     static let textFieldMargins = UIEdgeInsets(top: 12, left: 14, bottom: 12, right: 14)
 
+    /// Text view margins
+    static let textViewMargins = UIEdgeInsets(top: 14, left: 14, bottom: 14, right: 14)
+
     /// Corner radius used for controls such as buttons and text fields
     static let controlCornerRadius: CGFloat = 4
 
