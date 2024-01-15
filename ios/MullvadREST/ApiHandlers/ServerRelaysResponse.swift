@@ -34,6 +34,19 @@ extension REST {
         public let ipv4AddrIn: IPv4Address
         public let weight: UInt64
         public let includeInCountry: Bool
+
+        public func copyWith(ipv4AddrIn: IPv4Address?) -> Self {
+            return BridgeRelay(
+                hostname: hostname,
+                active: active,
+                owned: owned,
+                location: location,
+                provider: provider,
+                ipv4AddrIn: ipv4AddrIn ?? self.ipv4AddrIn,
+                weight: weight,
+                includeInCountry: includeInCountry
+            )
+        }
     }
 
     public struct ServerRelay: Codable, Equatable {
@@ -47,6 +60,21 @@ extension REST {
         public let ipv6AddrIn: IPv6Address
         public let publicKey: Data
         public let includeInCountry: Bool
+
+        public func copyWith(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> Self {
+            return ServerRelay(
+                hostname: hostname,
+                active: active,
+                owned: owned,
+                location: location,
+                provider: provider,
+                weight: weight,
+                ipv4AddrIn: ipv4AddrIn ?? self.ipv4AddrIn,
+                ipv6AddrIn: ipv6AddrIn ?? self.ipv6AddrIn,
+                publicKey: publicKey,
+                includeInCountry: includeInCountry
+            )
+        }
     }
 
     public struct ServerWireguardTunnels: Codable, Equatable {

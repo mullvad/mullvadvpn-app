@@ -6,8 +6,9 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+import MullvadSettings
 import MullvadTypes
+import Network
 
 public protocol RelayCacheProtocol {
     func read() throws -> CachedRelays
@@ -16,22 +17,28 @@ public protocol RelayCacheProtocol {
 
 public final class RelayCache: RelayCacheProtocol {
     private let fileCache: any FileCacheProtocol<CachedRelays>
+    private let ipOverrideRepository: any IPOverrideRepositoryProtocol
 
     /// Designated initializer
-    public init(cacheDirectory: URL) {
+    public init(cacheDirectory: URL, ipOverrideRepository: IPOverrideRepositoryProtocol) {
         fileCache = FileCache(fileURL: cacheDirectory.appendingPathComponent("relays.json", isDirectory: false))
+        self.ipOverrideRepository = ipOverrideRepository
     }
 
     /// Initializer that accepts a custom FileCache implementation. Used in tests.
-    init(fileCache: some FileCacheProtocol<CachedRelays>) {
+    init(fileCache: some FileCacheProtocol<CachedRelays>, ipOverrideRepository: some IPOverrideRepositoryProtocol) {
         self.fileCache = fileCache
+        self.ipOverrideRepository = ipOverrideRepository
     }
 
     /// Safely read the cache file from disk using file coordinator and fallback to prebundled
     /// relays in case if the relay cache file is missing.
     public func read() throws -> CachedRelays {
         do {
-            return try fileCache.read()
+            let cache = try fileCache.read()
+            let relayResponse = apply(overrides: ipOverrideRepository.fetchAll(), to: cache.relays)
+
+            return CachedRelays(relays: relayResponse, updatedAt: cache.updatedAt)
         } catch {
             if error is DecodingError || (error as? CocoaError)?.code == .fileReadNoSuchFile {
                 return try readPrebundledRelays()
@@ -58,5 +65,47 @@ public final class RelayCache: RelayCacheProtocol {
             relays: relays,
             updatedAt: Date(timeIntervalSince1970: 0)
         )
+    }
+
+    private func apply(
+        overrides: [IPOverride],
+        to relyResponse: REST.ServerRelaysResponse
+    ) -> REST.ServerRelaysResponse {
+        let wireguard = relyResponse.wireguard
+        let bridge = relyResponse.bridge
+
+        let wireguardRelays = wireguard.relays.map { relay in
+            return apply(overrides: overrides, to: relay)
+        }
+        let bridgeRelays = bridge.relays.map { relay in
+            return apply(overrides: overrides, to: relay)
+        }
+
+        return REST.ServerRelaysResponse(
+            locations: relyResponse.locations,
+            wireguard: REST.ServerWireguardTunnels(
+                ipv4Gateway: wireguard.ipv4Gateway,
+                ipv6Gateway: wireguard.ipv6Gateway,
+                portRanges: wireguard.portRanges,
+                relays: wireguardRelays
+            ),
+            bridge: REST.ServerBridges(
+                shadowsocks: bridge.shadowsocks,
+                relays: bridgeRelays
+            )
+        )
+    }
+
+    private func apply<T: AnyRelay>(overrides: [IPOverride], to relay: T) -> T {
+        if let override = overrides.first(where: { host in
+            host.hostname == relay.hostname
+        }) {
+            return relay.copyWith(
+                ipv4AddrIn: override.ipv4Address,
+                ipv6AddrIn: override.ipv6Address
+            )
+        }
+
+        return relay
     }
 }

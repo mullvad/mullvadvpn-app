@@ -66,7 +66,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         setUpProxies(containerURL: containerURL)
 
-        let relayCache = RelayCache(cacheDirectory: containerURL)
+        let relayCache = RelayCache(cacheDirectory: containerURL, ipOverrideRepository: IPOverrideRepository())
         relayCacheTracker = RelayCacheTracker(relayCache: relayCache, application: application, apiProxy: apiProxy)
 
         addressCacheTracker = AddressCacheTracker(application: application, apiProxy: apiProxy, store: addressCache)

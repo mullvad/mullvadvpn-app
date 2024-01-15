@@ -34,7 +34,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let addressCache = REST.AddressCache(canWriteToCache: false, cacheDirectory: containerURL)
         addressCache.loadFromFile()
 
-        let relayCache = RelayCache(cacheDirectory: containerURL)
+        let relayCache = RelayCache(cacheDirectory: containerURL, ipOverrideRepository: IPOverrideRepository())
 
         let urlSession = REST.makeURLSession()
         let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
