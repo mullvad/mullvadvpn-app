@@ -10,6 +10,7 @@ import net.mullvad.mullvadvpn.lib.endpoint.CustomApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
 import net.mullvad.mullvadvpn.test.common.constant.APP_LAUNCH_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.CONNECTION_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_INTERACTION_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LOGIN_PROMPT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LOGIN_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.MULLVAD_PACKAGE
@@ -62,12 +63,22 @@ class AppInteractor(private val device: UiDevice, private val targetContext: Con
         loginObject.parent.findObject(By.clazz(Button::class.java)).click()
     }
 
-    private fun attemptCreateAccount() {
+    fun attemptCreateAccount() {
         device.findObjectWithTimeout(By.text("Create account")).click()
     }
 
-    private fun ensureAccountCreated() {
-        device.findObjectWithTimeout(By.text("Congrats!"), LOGIN_TIMEOUT)
+    fun ensureAccountCreated(accountToken: String? = null) {
+        device.findObjectWithTimeout(By.text("Congrats!"), DEFAULT_INTERACTION_TIMEOUT)
+        accountToken?.let {
+            device.findObjectWithTimeout(By.text(accountToken), DEFAULT_INTERACTION_TIMEOUT)
+        }
+    }
+
+    fun ensureAccountCreationFailed() {
+        device.findObjectWithTimeout(
+            By.text("Failed to create account"),
+            DEFAULT_INTERACTION_TIMEOUT
+        )
     }
 
     fun ensureLoggedIn() {
