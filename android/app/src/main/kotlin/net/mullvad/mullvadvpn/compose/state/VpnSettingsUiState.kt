@@ -20,6 +20,7 @@ data class VpnSettingsUiState(
     val selectedWireguardPort: Constraint<Port>,
     val customWireguardPort: Constraint<Port>?,
     val availablePortRanges: List<PortRange>,
+    val systemVpnSettingsAvailable: Boolean,
 ) {
 
     companion object {
@@ -35,6 +36,7 @@ data class VpnSettingsUiState(
             selectedWireguardPort: Constraint<Port> = Constraint.Any(),
             customWireguardPort: Constraint.Only<Port>? = null,
             availablePortRanges: List<PortRange> = emptyList(),
+            systemVpnSettingsAvailable: Boolean = false,
         ) =
             VpnSettingsUiState(
                 mtu,
@@ -48,6 +50,7 @@ data class VpnSettingsUiState(
                 selectedWireguardPort,
                 customWireguardPort,
                 availablePortRanges,
+                systemVpnSettingsAvailable
             )
     }
 }
