@@ -599,7 +599,7 @@ fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
             TunnelError::BypassError(_),
         )) => true,
 
-        #[cfg(windows)]
+        #[cfg(any(target_os = "windows", target_os = "macos"))]
         tunnel::Error::WireguardTunnelMonitoringError(Error::SetupRoutingError(error)) => {
             is_recoverable_routing_error(error)
         }
@@ -622,6 +622,18 @@ fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
 #[cfg(windows)]
 fn is_recoverable_routing_error(error: &talpid_routing::Error) -> bool {
     matches!(error, talpid_routing::Error::AddRoutesFailed(_))
+}
+
+#[cfg(target_os = "macos")]
+fn is_recoverable_routing_error(error: &talpid_routing::Error) -> bool {
+    // If the default route disappears while connecting but before it is caught by the offline
+    // monitor, then the gateway will be unreachable. In this case, just retry.
+    matches!(
+        error,
+        talpid_routing::Error::PlatformError(talpid_routing::PlatformError::AddRoute(
+            talpid_routing::RouteError::Unreachable,
+        ))
+    )
 }
 
 impl TunnelState for ConnectingState {

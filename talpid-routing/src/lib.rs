@@ -23,7 +23,7 @@ mod imp;
 use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
 
 #[cfg(target_os = "macos")]
-pub use imp::{DefaultRouteEvent, PlatformError};
+pub use imp::{imp::RouteError, DefaultRouteEvent, PlatformError};
 
 pub use imp::{Error, RouteManager};
 
