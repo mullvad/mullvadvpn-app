@@ -88,6 +88,8 @@ extension SettingsDataSource.Item {
             return .faq
         case .apiAccess:
             return .apiAccess
+        case .ipOverride:
+            return .ipOverride
         }
     }
 }

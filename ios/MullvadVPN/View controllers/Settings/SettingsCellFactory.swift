@@ -92,6 +92,19 @@ struct SettingsCellFactory: CellFactoryProtocol {
             cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.disclosureType = .chevron
+
+        case .ipOverride:
+            guard let cell = cell as? SettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "IP_OVERRIDE_CELL_LABEL",
+                tableName: "Settings",
+                value: "Server IP override",
+                comment: ""
+            )
+            cell.detailTitleLabel.text = nil
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.disclosureType = .chevron
         }
     }
 }

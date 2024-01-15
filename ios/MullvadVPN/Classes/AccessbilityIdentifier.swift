@@ -35,6 +35,7 @@ public enum AccessibilityIdentifier: String {
     case problemReportCell
     case faqCell
     case apiAccessCell
+    case ipOverrideCell
     case relayFilterOwnershipCell
     case relayFilterProviderCell
 

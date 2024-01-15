@@ -505,6 +505,8 @@
 		7A42DEC92A05164100B209BE /* SettingsInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42DEC82A05164100B209BE /* SettingsInputCell.swift */; };
 		7A5869952B32E9C700640D27 /* LinkButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869942B32E9C700640D27 /* LinkButton.swift */; };
 		7A5869972B32EA4500640D27 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869962B32EA4500640D27 /* AppButton.swift */; };
+		7A5869AB2B55527C00640D27 /* IPOverrideCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869AA2B55527C00640D27 /* IPOverrideCoordinator.swift */; };
+		7A5869AD2B5552E200640D27 /* IPOverrideViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869AC2B5552E200640D27 /* IPOverrideViewController.swift */; };
 		7A6B4F592AB8412E00123853 /* TunnelMonitorTimings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */; };
 		7A6F2FA52AFA3CB2006D0856 /* AccountExpiryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */; };
 		7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */; };
@@ -1643,7 +1645,6 @@
 		58FF9FF32B07C61B00E4C97D /* AccessMethodValidationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodValidationError.swift; sourceTree = "<group>"; };
 		7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MullvadVPNScreenshots.xctestplan; sourceTree = "<group>"; };
 		7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+FuzzyMatch.swift"; sourceTree = "<group>"; };
-		7A0B31152B2B4BE7004B12E0 /* AccessbilityIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessbilityIdentifier.swift; sourceTree = "<group>"; };
 		7A0B311D2B303A0D004B12E0 /* AccessbilityIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessbilityIdentifier.swift; sourceTree = "<group>"; };
 		7A0C0F622A979C4A0058EFCE /* Coordinator+Router.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+Router.swift"; sourceTree = "<group>"; };
 		7A12D0752B062D5C00E9602D /* URLSessionProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSessionProtocol.swift; sourceTree = "<group>"; };
@@ -1665,6 +1666,8 @@
 		7A42DEC82A05164100B209BE /* SettingsInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInputCell.swift; sourceTree = "<group>"; };
 		7A5869942B32E9C700640D27 /* LinkButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkButton.swift; sourceTree = "<group>"; };
 		7A5869962B32EA4500640D27 /* AppButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppButton.swift; sourceTree = "<group>"; };
+		7A5869AA2B55527C00640D27 /* IPOverrideCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideCoordinator.swift; sourceTree = "<group>"; };
+		7A5869AC2B5552E200640D27 /* IPOverrideViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideViewController.swift; sourceTree = "<group>"; };
 		7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorTimings.swift; sourceTree = "<group>"; };
 		7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryTests.swift; sourceTree = "<group>"; };
 		7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiry.swift; sourceTree = "<group>"; };
@@ -2060,7 +2063,6 @@
 		581943F228F8014500B0CB5E /* MullvadTypes */ = {
 			isa = PBXGroup;
 			children = (
-				7A0B31152B2B4BE7004B12E0 /* AccessbilityIdentifier.swift */,
 				584D26BE270C550B004EA533 /* AnyIPAddress.swift */,
 				586A951329013235007BAF2B /* AnyIPEndpoint.swift */,
 				06AC113628F83FD70037AF9A /* Cancellable.swift */,
@@ -3200,6 +3202,7 @@
 			isa = PBXGroup;
 			children = (
 				58CEB2E72AFBB9F300E6E088 /* APIAccess */,
+				7A5869A92B55516700640D27 /* IPOverride */,
 				58EFC7702AFB45E500E9F4CB /* SettingsChildCoordinator.swift */,
 				7A9CCCAD2A96302800DD6A34 /* SettingsCoordinator.swift */,
 			);
@@ -3267,6 +3270,15 @@
 				7AF10EB12ADE859200C090B9 /* AlertViewController.swift */,
 			);
 			path = Alert;
+			sourceTree = "<group>";
+		};
+		7A5869A92B55516700640D27 /* IPOverride */ = {
+			isa = PBXGroup;
+			children = (
+				7A5869AA2B55527C00640D27 /* IPOverrideCoordinator.swift */,
+				7A5869AC2B5552E200640D27 /* IPOverrideViewController.swift */,
+			);
+			path = IPOverride;
 			sourceTree = "<group>";
 		};
 		7A83C3FC2A55B39500DFB83A /* TestPlans */ = {
@@ -4723,6 +4735,7 @@
 				58DFF7D82B02774C00F864E0 /* ListItemPickerViewController.swift in Sources */,
 				5896CEF226972DEB00B0FAE8 /* AccountContentView.swift in Sources */,
 				7A3353932AAA089000F0A71C /* SimulatorTunnelInfo.swift in Sources */,
+				7A5869AB2B55527C00640D27 /* IPOverrideCoordinator.swift in Sources */,
 				5867771429097BCD006F721F /* PaymentState.swift in Sources */,
 				F0EF50D32A8FA47E0031E8DF /* ChangeLogInteractor.swift in Sources */,
 				7AC8A3AF2ABC71D600DC4939 /* TermsOfServiceCoordinator.swift in Sources */,
@@ -4948,6 +4961,7 @@
 				58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */,
 				58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */,
 				58FF9FEA2B07653800E4C97D /* ButtonCellContentView.swift in Sources */,
+				7A5869AD2B5552E200640D27 /* IPOverrideViewController.swift in Sources */,
 				F0E8E4C12A602CCB00ED26A3 /* AccountDeletionContentView.swift in Sources */,
 				58EF87512B16176300C098B2 /* AccessMethodActionSheetContentConfiguration.swift in Sources */,
 				58B26E1E2943514300D5980C /* InAppNotificationDescriptor.swift in Sources */,
