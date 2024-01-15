@@ -23,6 +23,8 @@ mod interface;
 mod routing_socket;
 mod watch;
 
+pub use watch::Error as RouteError;
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 const BURST_BUFFER_PERIOD: Duration = Duration::from_millis(200);
@@ -36,7 +38,7 @@ pub enum Error {
     #[error(display = "Error occurred when interfacing with the routing table")]
     RoutingTable(#[error(source)] watch::Error),
 
-    /// Failed to remvoe route
+    /// Failed to remove route
     #[error(display = "Error occurred when deleting a route")]
     DeleteRoute(#[error(source)] watch::Error),
 
