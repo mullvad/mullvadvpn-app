@@ -536,6 +536,10 @@ final class TunnelManager: StorePaymentObserver {
         )
     }
 
+    func refreshRelayCacheTracker() throws {
+        try relayCacheTracker.refreshCachedRelays()
+    }
+
     // MARK: - Tunnel observeration
 
     /// Add tunnel observer.

@@ -12,13 +12,13 @@ import MullvadLogging
 public protocol IPOverrideRepositoryProtocol {
     func add(_ overrides: [IPOverride])
     func fetchAll() -> [IPOverride]
-    func fetchByHostname(_ hostname: String) -> IPOverride?
     func deleteAll()
     func parse(data: Data) throws -> [IPOverride]
 }
 
 public class IPOverrideRepository: IPOverrideRepositoryProtocol {
     private let logger = Logger(label: "IPOverrideRepository")
+    private let readWriteLock = NSLock()
 
     public init() {}
 
@@ -54,13 +54,11 @@ public class IPOverrideRepository: IPOverrideRepositoryProtocol {
         return (try? readIpOverrides()) ?? []
     }
 
-    public func fetchByHostname(_ hostname: String) -> IPOverride? {
-        return fetchAll().first { $0.hostname == hostname }
-    }
-
     public func deleteAll() {
         do {
-            try SettingsManager.store.delete(key: .ipOverrides)
+            try readWriteLock.withLock {
+                try SettingsManager.store.delete(key: .ipOverrides)
+            }
         } catch {
             logger.error("Could not delete all overrides. \nError: \(error)")
         }
@@ -74,17 +72,20 @@ public class IPOverrideRepository: IPOverrideRepositoryProtocol {
     }
 
     private func readIpOverrides() throws -> [IPOverride] {
-        let parser = makeParser()
-        let data = try SettingsManager.store.read(key: .ipOverrides)
-
-        return try parser.parseUnversionedPayload(as: [IPOverride].self, from: data)
+        try readWriteLock.withLock {
+            let parser = makeParser()
+            let data = try SettingsManager.store.read(key: .ipOverrides)
+            return try parser.parseUnversionedPayload(as: [IPOverride].self, from: data)
+        }
     }
 
     private func writeIpOverrides(_ overrides: [IPOverride]) throws {
         let parser = makeParser()
         let data = try parser.produceUnversionedPayload(overrides)
 
-        try SettingsManager.store.write(data, for: .ipOverrides)
+        try readWriteLock.withLock {
+            try SettingsManager.store.write(data, for: .ipOverrides)
+        }
     }
 
     private func makeParser() -> SettingsParser {

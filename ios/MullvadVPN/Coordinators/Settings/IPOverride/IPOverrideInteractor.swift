@@ -14,6 +14,7 @@ import MullvadTypes
 struct IPOverrideInteractor {
     private let logger = Logger(label: "IPOverrideInteractor")
     private let repository: IPOverrideRepositoryProtocol
+    private let tunnelManager: TunnelManager
 
     private let statusSubject = CurrentValueSubject<IPOverrideStatus, Never>(.noImports)
     var statusPublisher: AnyPublisher<IPOverrideStatus, Never> {
@@ -28,8 +29,9 @@ struct IPOverrideInteractor {
         }
     }
 
-    init(repository: IPOverrideRepositoryProtocol) {
+    init(repository: IPOverrideRepositoryProtocol, tunnelManager: TunnelManager) {
         self.repository = repository
+        self.tunnelManager = tunnelManager
 
         resetToDefaultStatus()
     }
@@ -46,6 +48,8 @@ struct IPOverrideInteractor {
 
     func deleteAllOverrides() {
         repository.deleteAll()
+
+        updateTunnel()
         resetToDefaultStatus()
     }
 
@@ -60,9 +64,26 @@ struct IPOverrideInteractor {
             logger.error("Error importing ip overrides: \(error)")
         }
 
+        updateTunnel()
+
         // After an import - successful or not - the UI should be reset back to default
         // state after a certain amount of time.
         resetToDefaultStatus(delay: .seconds(10))
+    }
+
+    private func updateTunnel() {
+        do {
+            try tunnelManager.refreshRelayCacheTracker()
+        } catch {
+            logger.error(error: error, message: "Could not refresh relay cache tracker.")
+        }
+
+        switch tunnelManager.tunnelStatus.observedState {
+        case .connecting, .connected, .reconnecting:
+            tunnelManager.reconnectTunnel(selectNewRelay: true)
+        default:
+            break
+        }
     }
 
     private func resetToDefaultStatus(delay: Duration = .zero) {
