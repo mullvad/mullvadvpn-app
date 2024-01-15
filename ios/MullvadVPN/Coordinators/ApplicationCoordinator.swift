@@ -159,7 +159,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             presentTOS(animated: animated, completion: completion)
 
         case .main:
-            presentMain(animated: animated, completion: completion)
+//            presentMain(animated: animated, completion: completion)
+            presentSettings(route: .ipOverride, animated: false, completion: completion)
 
         case .welcome:
             presentWelcome(animated: animated, completion: completion)

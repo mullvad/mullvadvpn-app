@@ -27,6 +27,9 @@ enum SettingsNavigationRoute: Equatable {
 
     /// API access route.
     case apiAccess
+
+    /// IP override route.
+    case ipOverride
 }
 
 /// Top-level settings coordinator.
@@ -248,6 +251,9 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         case .apiAccess:
             return .childCoordinator(ListAccessMethodCoordinator(navigationController: navigationController))
 
+        case .ipOverride:
+            return .childCoordinator(IPOverrideCoordinator(navigationController: navigationController))
+
         case .faq:
             // Handled separately and presented as a modal.
             return .failed
@@ -267,6 +273,8 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             return .problemReport
         case is ListAccessMethodViewController:
             return .apiAccess
+        case is IPOverrideViewController:
+            return .ipOverride
         default:
             return nil
         }
