@@ -16,7 +16,7 @@ class TermsOfServicePage: Page {
         self.pageAccessibilityIdentifier = .termsOfServiceView
     }
 
-    @discardableResult func tapAgree() -> Self {
+    @discardableResult func tapAgreeButton() -> Self {
         app.buttons[AccessibilityIdentifier.agreeButton.rawValue].tap()
         return self
     }

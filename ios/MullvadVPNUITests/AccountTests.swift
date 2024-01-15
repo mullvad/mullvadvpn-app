@@ -20,7 +20,7 @@ class AccountTests: BaseTestCase {
         app.launch()
 
         TermsOfServicePage(app)
-            .tapAgree()
+            .tapAgreeButton()
 
         Alert(app)
             .tapOkay()
@@ -38,7 +38,7 @@ class AccountTests: BaseTestCase {
         app.launch()
 
         TermsOfServicePage(app)
-            .tapAgree()
+            .tapAgreeButton()
 
         Alert(app)
             .tapOkay()
