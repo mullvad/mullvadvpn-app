@@ -67,21 +67,17 @@ where
         &mut self,
         access_method: access_method::Id,
     ) -> Result<(), Error> {
+        // Make sure that we are not trying to remove a built-in API access
+        // method
         match self.settings.api_access_methods.find_by_id(&access_method) {
-            // Make sure that we are not trying to remove a built-in API access
-            // method
-            Some(api_access_method) if api_access_method.is_builtin() => {
-                return Err(Error::RemoveBuiltIn)
-            }
-            // If the currently active access method is removed, a new access
-            // method should trigger
-            Some(api_access_method)
-                if api_access_method.get_id()
-                    == self.get_current_access_method().await?.get_id() =>
-            {
-                self.force_api_endpoint_rotation().await?;
-            }
+            Some(access_method) if access_method.is_builtin() => return Err(Error::RemoveBuiltIn),
             _ => (),
+        };
+
+        // If the currently active access method is removed, a new access
+        // method should be selected.
+        if self.is_in_use(access_method.clone()).await? {
+            self.force_api_endpoint_rotation().await?;
         }
 
         self.settings
@@ -148,11 +144,17 @@ where
         self.update_access_method_inner(&access_method_update)
             .await?;
 
-        // If the currently active access method is updated, we need to re-set
-        // it after updating the settings.
-        if access_method_update.get_id() == self.get_current_access_method().await?.get_id() {
-            self.set_api_access_method(access_method_update.get_id())
-                .await?;
+        // If the currently active access method is updated..
+        if self.is_in_use(access_method_update.get_id()).await? {
+            // Check if this current method is disabled
+            if access_method_update.disabled() {
+                // If so, we should select the next access method
+                self.force_api_endpoint_rotation().await?;
+            } else {
+                // else we need to re-set it after updating the settings
+                self.set_api_access_method(access_method_update.get_id())
+                    .await?;
+            }
         }
 
         Ok(())
@@ -202,6 +204,13 @@ where
             .map_err(Error::Settings)?;
 
         Ok(())
+    }
+
+    /// Check if some access method is the same as the currently active one.
+    ///
+    /// This can be useful for invalidating stale states.
+    async fn is_in_use(&self, access_method: access_method::Id) -> Result<bool, Error> {
+        Ok(access_method == self.get_current_access_method().await?.get_id())
     }
 
     /// Return the [`AccessMethodSetting`] which is currently used to access the
