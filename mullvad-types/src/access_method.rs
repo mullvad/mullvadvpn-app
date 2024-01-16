@@ -178,6 +178,10 @@ impl AccessMethodSetting {
         self.enabled
     }
 
+    pub fn disabled(&self) -> bool {
+        !self.enabled
+    }
+
     pub fn as_custom(&self) -> Option<&CustomProxy> {
         self.access_method.as_custom()
     }
