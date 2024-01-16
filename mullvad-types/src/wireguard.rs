@@ -12,7 +12,12 @@ pub const DEFAULT_ROTATION_INTERVAL: Duration = MAX_ROTATION_INTERVAL;
 
 /// Whether to enable or disable quantum resistant tunnels when the setting
 /// is set to `QuantumResistantState::Auto`.
+#[cfg(not(target_os = "linux"))]
 const QUANTUM_RESISTANT_AUTO_STATE: bool = false;
+
+// On Linux, enable PQ tunnels by default
+#[cfg(target_os = "linux")]
+const QUANTUM_RESISTANT_AUTO_STATE: bool = true;
 
 #[derive(Serialize, Deserialize, Copy, Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(target_os = "android", derive(IntoJava, FromJava))]
