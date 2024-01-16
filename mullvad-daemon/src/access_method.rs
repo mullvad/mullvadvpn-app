@@ -81,7 +81,10 @@ where
         }
 
         self.settings
-            .update(|settings| settings.api_access_methods.remove(&access_method))
+            .update(|settings| {
+                settings.api_access_methods.remove(&access_method);
+                ensure_consistent_access_methods_settings(settings);
+            })
             .await
             .map(|did_change| self.notify_on_change(did_change))
             .map(|_| ())
@@ -177,24 +180,9 @@ where
                 .find_by_id_mut(&access_method_update_moved.get_id())
             {
                 *access_method = access_method_update_moved;
-                // We have to be a bit careful. If the update is about to
-                // disable the last remaining enabled access method, we would
-                // cause an inconsistent state in the daemon's settings.
-                // Therefore, we have to explicitly safeguard against this by.
-                // In that case, we should re-enable the `Direct` access method.
-                if settings.api_access_methods.collect_enabled().is_empty() {
-                    if let Some(direct) = settings.api_access_methods.get_direct() {
-                        direct.enabled = true;
-                    } else {
-                        // If the `Direct` access method does not exist within the
-                        // settings for some reason, the settings are in an
-                        // inconsistent state. We don't have much choice but to
-                        // reset these settings to their default value.
-                        log::warn!("The built-in access methods can not be found. This might be due to a corrupt settings file");
-                        settings.api_access_methods = access_method::Settings::default();
-                    }
-                }
             }
+
+            ensure_consistent_access_methods_settings(settings);
         };
 
         self.settings
@@ -259,5 +247,25 @@ where
             });
         };
         self
+    }
+}
+
+/// This function checks if the current settings is about to
+/// disable the last remaining enabled access method, which would
+/// cause an inconsistent state in the daemon's settings.
+///
+/// In that case, the `Direct` access method is re-enabled.
+fn ensure_consistent_access_methods_settings(settings: &mut Settings) {
+    if settings.api_access_methods.collect_enabled().is_empty() {
+        if let Some(direct) = settings.api_access_methods.get_direct() {
+            direct.enabled = true;
+        } else {
+            // If the `Direct` access method does not exist within the
+            // settings for some reason, the settings are in an
+            // inconsistent state. We don't have much choice but to
+            // reset these settings to their default value.
+            log::warn!("The built-in access methods can not be found. This might be due to a corrupt settings file");
+            settings.api_access_methods = access_method::Settings::default();
+        }
     }
 }
