@@ -2451,7 +2451,7 @@ where
         access_method: mullvad_types::access_method::Id,
     ) {
         let result = self
-            .set_api_access_method(access_method)
+            .use_api_access_method(access_method)
             .await
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "set_api_access_method response");
