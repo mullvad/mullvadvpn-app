@@ -81,17 +81,19 @@ jobs:
           git config --global --add safe.directory '*'
           git submodule update --init --recursive --depth=1 wireguard-go-rs
 
-      - name: Install nightly Rust toolchain
-        run: |
-          rustup default $RUST_NIGHTLY_TOOLCHAIN
-          rustup target add aarch64-linux-android
+      - name: Install nightly Rust
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: ${{ env.RUST_NIGHTLY_TOOLCHAIN }}
+          profile: minimal
+          target: aarch64-linux-android
 
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-udeps
 
       - name: Check for unused dependencies
-        run: cargo udeps --target aarch64-linux-android --package mullvad-jni
+        run: cargo +${{ env.RUST_NIGHTLY_TOOLCHAIN }} udeps --target aarch64-linux-android --package mullvad-jni
 
   cargo-udeps:
     strategy:
@@ -123,11 +125,10 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Rust
+      - name: Install nightly Rust
         uses: actions-rs/toolchain@v1.0.6
         with:
           toolchain: ${{ env.RUST_NIGHTLY_TOOLCHAIN }}
-          default: true
           profile: minimal
 
       - uses: taiki-e/install-action@v2
@@ -142,4 +143,4 @@ jobs:
 
       - name: Check for unused dependencies
         shell: bash
-        run: cargo udeps --workspace
+        run: cargo +${{ env.RUST_NIGHTLY_TOOLCHAIN }} udeps --workspace
