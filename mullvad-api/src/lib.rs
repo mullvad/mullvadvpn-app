@@ -148,35 +148,42 @@ impl ApiEndpoint {
         let disable_tls_var = Self::read_var(ApiEndpoint::DISABLE_TLS_VAR);
 
         let mut api = ApiEndpoint {
-            host: host_var.clone(),
+            host: None,
             address: None,
             disable_address_cache: true,
             disable_tls: false,
         };
 
-        api.address = match address_var {
-            Some(user_addr) => {
-                let addr = user_addr.parse().unwrap_or_else(|_| {
-                    panic!(
-                        "{api_addr}={user_addr} is not a valid socketaddr",
-                        api_addr = ApiEndpoint::API_ADDR_VAR,
-                    )
-                });
-                Some(addr)
-            }
-            None => {
+        match (host_var, address_var) {
+            (None, None) => {}
+            (Some(host), None) => {
                 use std::net::ToSocketAddrs;
                 log::debug!(
-                    "{api_addr} not found. Resolving API IP from {api_host}",
+                    "{api_addr} not found. Resolving API IP address from {api_host}={host}",
                     api_addr = ApiEndpoint::API_ADDR_VAR,
                     api_host = ApiEndpoint::API_HOST_VAR
                 );
-                format!("{}:{}", api.host(), ApiEndpoint::API_PORT_DEFAULT)
+                api.address = format!("{}:{}", host, ApiEndpoint::API_PORT_DEFAULT)
                     .to_socket_addrs()
-                    .expect("failed to resolve API host")
-                    .next()
+                    .unwrap_or_else(|_| {
+                        panic!(
+                            "Unable to resolve API IP address from host {host}:{port}",
+                            port = ApiEndpoint::API_PORT_DEFAULT,
+                        )
+                    })
+                    .next();
             }
-        };
+            (host, Some(address)) => {
+                let addr = address.parse().unwrap_or_else(|_| {
+                    panic!(
+                        "{api_addr}={address} is not a valid socketaddr",
+                        api_addr = ApiEndpoint::API_ADDR_VAR,
+                    )
+                });
+                api.address = Some(addr);
+                api.host = host;
+            }
+        }
 
         if api.host.is_none() && api.address.is_none() {
             if disable_tls_var.is_some() {
