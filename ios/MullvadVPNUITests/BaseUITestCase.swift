@@ -16,4 +16,12 @@ class BaseUITestCase: XCTestCase {
     let fiveWireGuardKeysAccountNumber = Bundle(for: AccountTests.self)
         .infoDictionary?["MullvadFiveWireGuardKeysAccountNumber"] as! String
     // swiftlint:enable force_cast
+
+    func allowAddVPNConfigurations() {
+        addUIInterruptionMonitor(withDescription: "System Alert") { (alert) -> Bool in
+            let allowButton = alert.buttons["Allow"]
+            allowButton.tap()
+            return true
+        }
+    }
 }

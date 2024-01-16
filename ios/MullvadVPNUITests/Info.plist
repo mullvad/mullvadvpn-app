@@ -6,6 +6,8 @@
 	<string>$(MULLVAD_FIVE_WIREGUARD_KEYS_ACCOUNT_NUMBER)</string>
 	<key>MullvadHasTimeAccountNumber</key>
 	<string>$(MULLVAD_HAS_TIME_ACCOUNT_NUMBER)</string>
+	<key>MullvadIOSDevicePinCode</key>
+	<string>$(MULLVAD_IOS_DEVICE_PIN_CODE)</string>
 	<key>MullvadNoTimeAccountNumber</key>
 	<string>$(MULLVAD_NO_TIME_ACCOUNT_NUMBER)</string>
 </dict>

@@ -46,9 +46,14 @@ public enum AccessibilityIdentifier: String {
     case alertTitle
     case loginView
     case termsOfServiceView
+    case selectLocationView
+    case selectLocationTableView
+    case settingsTableView
+    case tunnelControlView
 
     // Other UI elements
     case loginTextField
+    case selectLocationSearchTextField
 
     // DNS settings
     case dnsSettings

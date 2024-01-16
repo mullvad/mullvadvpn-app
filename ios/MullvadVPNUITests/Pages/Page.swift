@@ -18,11 +18,6 @@ class Page {
         self.app = app
     }
 
-    public func enterText(_ text: String) -> Self {
-        app.typeText(text)
-        return self
-    }
-
     public func waitForPageToBeShown() {
         if let pageAccessibilityIdentifier = self.pageAccessibilityIdentifier {
             XCTAssert(
@@ -30,5 +25,10 @@ class Page {
                     .waitForExistence(timeout: defaultTimeout)
             )
         }
+    }
+
+    @discardableResult public func enterText(_ text: String) -> Self {
+        app.typeText(text)
+        return self
     }
 }

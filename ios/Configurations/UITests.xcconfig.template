@@ -6,8 +6,11 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+// Pin code of the iOS device under test
+MULLVAD_IOS_DEVICE_PIN_CODE = 
+
 // Mullvad accounts used by UI tests
 MULLVAD_NO_TIME_ACCOUNT_NUMBER = 
 MULLVAD_HAS_TIME_ACCOUNT_NUMBER = 
-MULLVAD_FIVE_WIREGUARD_KEYS_ACCOUNT_NUMBER =
+MULLVAD_FIVE_WIREGUARD_KEYS_ACCOUNT_NUMBER = 
  
