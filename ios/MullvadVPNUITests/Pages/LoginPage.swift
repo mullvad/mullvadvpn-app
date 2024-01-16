@@ -18,19 +18,19 @@ class LoginPage: Page {
     }
 
     @discardableResult public func tapAccountNumberTextField() -> Self {
-        app.textFields[AccessibilityIdentifier.loginTextField.rawValue].tap()
+        app.textFields[AccessibilityIdentifier.loginTextField].tap()
         return self
     }
 
     @discardableResult public func tapAccountNumberSubmitButton() -> Self {
-        app.buttons[AccessibilityIdentifier.loginTextFieldButton.rawValue].tap()
+        app.buttons[AccessibilityIdentifier.loginTextFieldButton].tap()
         return self
     }
 
     @discardableResult public func verifyDeviceLabelShown() -> Self {
         XCTAssertTrue(
-            app.staticTexts[AccessibilityIdentifier.headerDeviceNameLabel.rawValue]
-                .waitForExistence(timeout: defaultTimeout)
+            app.staticTexts[AccessibilityIdentifier.headerDeviceNameLabel]
+                .waitForExistence(timeout: BaseUITestCase.defaultTimeout)
         )
 
         return self
