@@ -10,6 +10,7 @@ import { measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
+import { SmallButtonGrid } from './SmallButton';
 
 const MODAL_CONTAINER_ID = 'modal-container';
 
@@ -147,6 +148,10 @@ const ModalAlertButtonGroupContainer = styled.div({
   marginTop: measurements.buttonVerticalMargin,
 });
 
+const StyledSmallButtonGrid = styled(SmallButtonGrid)({
+  marginRight: '16px',
+});
+
 const ModalAlertButtonContainer = styled.div({
   display: 'flex',
   flexDirection: 'column',
@@ -157,7 +162,8 @@ interface IModalAlertProps {
   type?: ModalAlertType;
   iconColor?: string;
   message?: string | Array<string>;
-  buttons: React.ReactNode[];
+  buttons?: React.ReactNode[];
+  gridButtons?: React.ReactNode[];
   children?: React.ReactNode;
   close?: () => void;
 }
@@ -277,11 +283,16 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
               </StyledCustomScrollbars>
 
               <ModalAlertButtonGroupContainer>
-                <AppButton.ButtonGroup>
-                  {this.props.buttons.map((button, index) => (
-                    <ModalAlertButtonContainer key={index}>{button}</ModalAlertButtonContainer>
-                  ))}
-                </AppButton.ButtonGroup>
+                {this.props.gridButtons && (
+                  <StyledSmallButtonGrid>{this.props.gridButtons}</StyledSmallButtonGrid>
+                )}
+                {this.props.buttons && (
+                  <AppButton.ButtonGroup>
+                    {this.props.buttons.map((button, index) => (
+                      <ModalAlertButtonContainer key={index}>{button}</ModalAlertButtonContainer>
+                    ))}
+                  </AppButton.ButtonGroup>
+                )}
               </ModalAlertButtonGroupContainer>
             </StyledModalAlert>
           </ModalAlertContainer>
