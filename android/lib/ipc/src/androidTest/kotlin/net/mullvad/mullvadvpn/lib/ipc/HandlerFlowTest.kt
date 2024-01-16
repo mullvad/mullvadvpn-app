@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.parcelize.Parcelize
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class HandlerFlowTest {
     val looper by lazy { Looper.getMainLooper() }
