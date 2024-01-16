@@ -54,6 +54,7 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate 
             })
         )
 
+        tableView.accessibilityIdentifier = .settingsTableView
         tableView.backgroundColor = .secondaryColor
         tableView.separatorColor = .secondaryColor
         tableView.rowHeight = UITableView.automaticDimension

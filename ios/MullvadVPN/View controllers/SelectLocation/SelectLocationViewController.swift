@@ -133,6 +133,7 @@ final class SelectLocationViewController: UIViewController {
         tableView.estimatedRowHeight = 53
         tableView.indicatorStyle = .white
         tableView.keyboardDismissMode = .onDrag
+        tableView.accessibilityIdentifier = .selectLocationTableView
     }
 
     private func setUpTopContent() {
@@ -167,6 +168,7 @@ final class SelectLocationViewController: UIViewController {
             value: "Search for...",
             comment: ""
         )
+        searchBar.searchTextField.accessibilityIdentifier = .selectLocationSearchTextField
 
         UITextField.SearchTextFieldAppearance.inactive.apply(to: searchBar)
     }

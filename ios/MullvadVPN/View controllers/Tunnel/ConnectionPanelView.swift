@@ -75,6 +75,9 @@ class ConnectionPanelView: UIView {
         inAddressRow.translatesAutoresizingMaskIntoConstraints = false
         outAddressRow.translatesAutoresizingMaskIntoConstraints = false
 
+        inAddressRow.accessibilityIdentifier = .connectionPanelInAddressRow
+        outAddressRow.accessibilityIdentifier = .connectionPanelOutAddressRow
+
         inAddressRow.title = NSLocalizedString(
             "IN_ADDRESS_LABEL",
             tableName: "ConnectionPanel",
@@ -284,6 +287,8 @@ class ConnectionPanelCollapseButton: CustomButton {
         contentHorizontalAlignment = .leading
         imageAlignment = .trailing
         inlineImageSpacing = 0
+
+        accessibilityIdentifier = .connectionPanelButton
 
         updateButtonImage()
     }
