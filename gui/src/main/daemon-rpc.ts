@@ -145,7 +145,7 @@ export class DaemonRpc {
   private isClosed = false;
   private nextSubscriptionId = 0;
   private subscriptions: Map<number, grpc.ClientReadableStream<grpcTypes.DaemonEvent>> = new Map();
-  private reconnectionTimeout?: NodeJS.Timer;
+  private reconnectionTimeout?: NodeJS.Timeout;
 
   constructor(private connectionObserver?: ConnectionObserver) {
     this.client = new ManagementServiceClient(
