@@ -294,7 +294,7 @@ pub async fn test_connected_state(
                         },
                     // TODO: Consider the type of `relay` / `relay_filter` instead
                     tunnel_type: TunnelType::Wireguard,
-                    quantum_resistant: false,
+                    quantum_resistant: _,
                     proxy: None,
                     obfuscation: None,
                     entry_endpoint: None,
