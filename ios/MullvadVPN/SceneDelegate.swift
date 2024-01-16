@@ -31,6 +31,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
         UIApplication.shared.delegate as! AppDelegate
     }
 
+    private var accessMethodRepository: AccessMethodRepositoryProtocol {
+        appDelegate.accessMethodRepository
+    }
+
     private var tunnelManager: TunnelManager {
         appDelegate.tunnelManager
     }
@@ -71,7 +75,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
             outgoingConnectionService: OutgoingConnectionService(
                 outgoingConnectionProxy: OutgoingConnectionProxy(urlSession: URLSession(configuration: .ephemeral))
             ),
-            appPreferences: AppPreferences()
+            appPreferences: AppPreferences(),
+            accessMethodRepository: accessMethodRepository
         )
 
         appCoordinator?.onShowSettings = { [weak self] in

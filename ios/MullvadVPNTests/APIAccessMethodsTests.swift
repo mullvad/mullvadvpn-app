@@ -21,14 +21,15 @@ final class APIAccessMethodsTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
-        let repository = AccessMethodRepository.shared
+        let repository = AccessMethodRepository()
         repository.fetchAll().forEach {
             repository.delete(id: $0.id)
         }
     }
 
     func testDefaultAccessMethodsExist() throws {
-        let storedMethods = AccessMethodRepository.shared.fetchAll()
+        let repository = AccessMethodRepository()
+        let storedMethods = repository.fetchAll()
 
         let hasDirectMethod = storedMethods.contains { method in
             method.kind == .direct
@@ -43,60 +44,69 @@ final class APIAccessMethodsTests: XCTestCase {
     }
 
     func testAddingSocks5AccessMethod() throws {
+        let repository = AccessMethodRepository()
+
         let uuid = UUID()
         let methodToStore = socks5AccessMethod(with: uuid)
+        repository.add(methodToStore)
 
-        AccessMethodRepository.shared.add(methodToStore)
-        let storedMethod = AccessMethodRepository.shared.fetch(by: uuid)
+        let storedMethod = repository.fetch(by: uuid)
 
         XCTAssertEqual(methodToStore.id, storedMethod?.id)
     }
 
     func testAddingShadowSocksAccessMethod() throws {
+        let repository = AccessMethodRepository()
+
         let uuid = UUID()
         let methodToStore = shadowsocksAccessMethod(with: uuid)
+        repository.add(methodToStore)
 
-        AccessMethodRepository.shared.add(methodToStore)
-        let storedMethod = AccessMethodRepository.shared.fetch(by: uuid)
+        let storedMethod = repository.fetch(by: uuid)
 
         XCTAssertEqual(methodToStore.id, storedMethod?.id)
     }
 
     func testAddingDuplicateAccessMethodDoesNothing() throws {
+        let repository = AccessMethodRepository()
+
         let methodToStore = socks5AccessMethod(with: UUID())
 
-        AccessMethodRepository.shared.add(methodToStore)
-        AccessMethodRepository.shared.add(methodToStore)
-        let storedMethods = AccessMethodRepository.shared.fetchAll()
+        repository.add(methodToStore)
+        repository.add(methodToStore)
+
+        let storedMethods = repository.fetchAll()
 
         // Account for .direct and .bridges that are always added by default.
         XCTAssertEqual(storedMethods.count, 3)
     }
 
     func testUpdatingAccessMethod() throws {
+        let repository = AccessMethodRepository()
+
         let uuid = UUID()
         var methodToStore = socks5AccessMethod(with: uuid)
-
-        AccessMethodRepository.shared.add(methodToStore)
+        repository.add(methodToStore)
 
         let newName = "Renamed method"
         methodToStore.name = newName
 
-        AccessMethodRepository.shared.update(methodToStore)
+        repository.update(methodToStore)
 
-        let storedMethod = AccessMethodRepository.shared.fetch(by: uuid)
+        let storedMethod = repository.fetch(by: uuid)
 
         XCTAssertEqual(storedMethod?.name, newName)
     }
 
     func testDeletingAccessMethod() throws {
+        let repository = AccessMethodRepository()
         let uuid = UUID()
         let methodToStore = socks5AccessMethod(with: uuid)
 
-        AccessMethodRepository.shared.add(methodToStore)
-        AccessMethodRepository.shared.delete(id: uuid)
+        repository.add(methodToStore)
+        repository.delete(id: uuid)
 
-        let storedMethod = AccessMethodRepository.shared.fetch(by: uuid)
+        let storedMethod = repository.fetch(by: uuid)
 
         XCTAssertNil(storedMethod)
     }

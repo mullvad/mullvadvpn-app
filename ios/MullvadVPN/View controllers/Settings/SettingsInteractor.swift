@@ -19,7 +19,9 @@ final class SettingsInteractor {
         tunnelManager.deviceState
     }
 
-    init(tunnelManager: TunnelManager) {
+    init(
+        tunnelManager: TunnelManager
+    ) {
         self.tunnelManager = tunnelManager
 
         let tunnelObserver =
