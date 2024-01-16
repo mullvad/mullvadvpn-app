@@ -67,21 +67,17 @@ where
         &mut self,
         access_method: access_method::Id,
     ) -> Result<(), Error> {
+        // Make sure that we are not trying to remove a built-in API access
+        // method
         match self.settings.api_access_methods.find_by_id(&access_method) {
-            // Make sure that we are not trying to remove a built-in API access
-            // method
-            Some(api_access_method) if api_access_method.is_builtin() => {
-                return Err(Error::RemoveBuiltIn)
-            }
-            // If the currently active access method is removed, a new access
-            // method should trigger
-            Some(api_access_method)
-                if api_access_method.get_id()
-                    == self.get_current_access_method().await?.get_id() =>
-            {
-                self.force_api_endpoint_rotation().await?;
-            }
+            Some(access_method) if access_method.is_builtin() => return Err(Error::RemoveBuiltIn),
             _ => (),
+        };
+
+        // If the currently active access method is removed, a new access
+        // method should be selected.
+        if self.is_in_use(access_method.clone()).await? {
+            self.force_api_endpoint_rotation().await?;
         }
 
         self.settings
@@ -148,11 +144,17 @@ where
         self.update_access_method_inner(&access_method_update)
             .await?;
 
-        // If the currently active access method is updated, we need to re-set
-        // it after updating the settings.
-        if access_method_update.get_id() == self.get_current_access_method().await?.get_id() {
-            self.use_api_access_method(access_method_update.get_id())
-                .await?;
+        if self.is_in_use(access_method_update.get_id()).await? {
+            if access_method_update.disabled() {
+                // If the currently active access method is updated & disabled
+                // we should select the next access method
+                self.force_api_endpoint_rotation().await?;
+            } else {
+                // If the currently active access method is just updated, we
+                // need to re-set it after updating the settings
+                self.use_api_access_method(access_method_update.get_id())
+                    .await?;
+            }
         }
 
         Ok(())
@@ -168,31 +170,14 @@ where
         &mut self,
         access_method_update: &AccessMethodSetting,
     ) -> Result<(), Error> {
-        let access_method_update_moved = access_method_update.clone();
         let settings_update = |settings: &mut Settings| {
             if let Some(access_method) = settings
                 .api_access_methods
-                .find_by_id_mut(&access_method_update_moved.get_id())
+                .find_by_id_mut(&access_method_update.get_id())
             {
-                *access_method = access_method_update_moved;
-                // We have to be a bit careful. If the update is about to
-                // disable the last remaining enabled access method, we would
-                // cause an inconsistent state in the daemon's settings.
-                // Therefore, we have to explicitly safeguard against this by.
-                // In that case, we should re-enable the `Direct` access method.
-                if settings.api_access_methods.collect_enabled().is_empty() {
-                    if let Some(direct) = settings.api_access_methods.get_direct() {
-                        direct.enabled = true;
-                    } else {
-                        // If the `Direct` access method does not exist within the
-                        // settings for some reason, the settings are in an
-                        // inconsistent state. We don't have much choice but to
-                        // reset these settings to their default value.
-                        log::warn!("The built-in access methods can not be found. This might be due to a corrupt settings file");
-                        settings.api_access_methods = access_method::Settings::default();
-                    }
-                }
+                *access_method = access_method_update.clone();
             }
+            ensure_direct_is_available(settings);
         };
 
         self.settings
@@ -202,6 +187,13 @@ where
             .map_err(Error::Settings)?;
 
         Ok(())
+    }
+
+    /// Check if some access method is the same as the currently active one.
+    ///
+    /// This can be useful for invalidating stale states.
+    async fn is_in_use(&self, access_method: access_method::Id) -> Result<bool, Error> {
+        Ok(access_method == self.get_current_access_method().await?.get_id())
     }
 
     /// Return the [`AccessMethodSetting`] which is currently used to access the
@@ -250,5 +242,24 @@ where
             });
         };
         self
+    }
+}
+
+/// This function checks if the current settings is about to disable the last
+/// remaining enabled access method, which would cause an inconsistent state in
+/// the daemon's settings. In that case, the `Direct` access method is
+/// re-enabled.
+fn ensure_direct_is_available(settings: &mut Settings) {
+    if settings.api_access_methods.collect_enabled().is_empty() {
+        if let Some(direct) = settings.api_access_methods.get_direct() {
+            direct.enabled = true;
+        } else {
+            // If the `Direct` access method does not exist within the
+            // settings for some reason, the settings are in an
+            // inconsistent state. We don't have much choice but to
+            // reset these settings to their default value.
+            log::warn!("The built-in access methods can not be found. This might be due to a corrupt settings file");
+            settings.api_access_methods = access_method::Settings::default();
+        }
     }
 }
