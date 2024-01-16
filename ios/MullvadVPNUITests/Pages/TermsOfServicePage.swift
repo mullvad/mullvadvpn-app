@@ -17,7 +17,7 @@ class TermsOfServicePage: Page {
     }
 
     @discardableResult func tapAgreeButton() -> Self {
-        app.buttons[AccessibilityIdentifier.agreeButton.rawValue].tap()
+        app.buttons[AccessibilityIdentifier.agreeButton].tap()
         return self
     }
 }
