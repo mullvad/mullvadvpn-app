@@ -12,20 +12,24 @@ import UIKit
 
 class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordinator {
     let navigationController: UINavigationController
-    let accessMethodRepo: AccessMethodRepository = .shared
+    let accessMethodRepository: AccessMethodRepositoryProtocol
     let proxyConfigurationTester: ProxyConfigurationTester = .shared
 
     var presentationContext: UIViewController {
         navigationController
     }
 
-    init(navigationController: UINavigationController) {
+    init(
+        navigationController: UINavigationController,
+        accessMethodRepository: AccessMethodRepositoryProtocol
+    ) {
         self.navigationController = navigationController
+        self.accessMethodRepository = accessMethodRepository
     }
 
     func start(animated: Bool) {
         let listController = ListAccessMethodViewController(
-            interactor: ListAccessMethodInteractor(repo: accessMethodRepo)
+            interactor: ListAccessMethodInteractor(repo: accessMethodRepository)
         )
         listController.delegate = self
         navigationController.pushViewController(listController, animated: animated)
@@ -34,7 +38,7 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
     private func addNew() {
         let coordinator = AddAccessMethodCoordinator(
             navigationController: CustomNavigationController(),
-            accessMethodRepo: accessMethodRepo,
+            accessMethodRepo: accessMethodRepository,
             proxyConfigurationTester: proxyConfigurationTester
         )
 
@@ -48,7 +52,7 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
 
         let editCoordinator = EditAccessMethodCoordinator(
             navigationController: navigationController,
-            accessMethodRepo: accessMethodRepo,
+            accessMethodRepo: accessMethodRepository,
             proxyConfigurationTester: proxyConfigurationTester,
             methodIdentifier: item.id
         )

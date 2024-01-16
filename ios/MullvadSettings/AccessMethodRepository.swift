@@ -10,33 +10,30 @@ import Combine
 import Foundation
 
 public class AccessMethodRepository: AccessMethodRepositoryProtocol {
-    let passthroughSubject: CurrentValueSubject<[PersistentAccessMethod], Never> = CurrentValueSubject([
-        PersistentAccessMethod(
-            id: UUID(uuidString: "C9DB7457-2A55-42C3-A926-C07F82131994")!,
-            name: "",
-            isEnabled: true,
-            proxyConfiguration: .direct
-        ),
-        PersistentAccessMethod(
-            id: UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95084")!,
-            name: "",
-            isEnabled: true,
-            proxyConfiguration: .bridges
-        ),
-    ])
+    let passthroughSubject: CurrentValueSubject<[PersistentAccessMethod], Never> = CurrentValueSubject([])
+    private let direct = PersistentAccessMethod(
+        id: UUID(uuidString: "C9DB7457-2A55-42C3-A926-C07F82131994")!,
+        name: "",
+        isEnabled: true,
+        proxyConfiguration: .direct
+    )
+    private let bridge = PersistentAccessMethod(
+        id: UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95084")!,
+        name: "",
+        isEnabled: true,
+        proxyConfiguration: .bridges
+    )
 
     public var publisher: AnyPublisher<[PersistentAccessMethod], Never> {
         passthroughSubject.eraseToAnyPublisher()
     }
 
-    public var accessMethods: [PersistentAccessMethod] {
-        passthroughSubject.value
+    public var directAccess: PersistentAccessMethod {
+        direct
     }
 
-    public static let shared = AccessMethodRepository()
-
-    private init() {
-        add(passthroughSubject.value)
+    public init() {
+        add([direct, bridge])
     }
 
     public func add(_ method: PersistentAccessMethod) {
@@ -94,6 +91,10 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
 
     public func fetchAll() -> [PersistentAccessMethod] {
         (try? readApiAccessMethods()) ?? []
+    }
+
+    public func reloadWithDefaultsAfterDataRemoval() {
+        add([direct, bridge])
     }
 
     private func readApiAccessMethods() throws -> [PersistentAccessMethod] {
