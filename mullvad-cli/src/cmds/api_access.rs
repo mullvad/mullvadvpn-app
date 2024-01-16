@@ -213,7 +213,7 @@ impl ApiAccess {
     /// configured ones.
     async fn set(item: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let mut new_access_method = Self::get_access_method(&mut rpc, &item).await?;
+        let new_access_method = Self::get_access_method(&mut rpc, &item).await?;
         let current_access_method = rpc.get_current_api_access_method().await?;
         // Try to reach the API with the newly selected access method.
         rpc.test_api_access_method(new_access_method.get_id())
@@ -226,11 +226,6 @@ impl ApiAccess {
         // If the test succeeded, the new access method should be used from now on.
         rpc.set_access_method(new_access_method.get_id()).await?;
         println!("Using access method \"{}\"", new_access_method.get_name());
-        // Toggle the enabled status if needed
-        if !new_access_method.enabled() {
-            new_access_method.enable();
-            rpc.update_access_method(new_access_method).await?;
-        }
         Ok(())
     }
 
