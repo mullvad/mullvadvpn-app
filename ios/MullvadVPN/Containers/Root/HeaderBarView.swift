@@ -33,6 +33,7 @@ class HeaderBarView: UIView {
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
         label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        label.accessibilityIdentifier = .headerDeviceNameLabel
         return label
     }()
 

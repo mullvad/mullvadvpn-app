@@ -53,6 +53,8 @@ class AlertViewController: UIViewController {
         view.backgroundColor = .secondaryColor
         view.layer.cornerRadius = 11
 
+        view.accessibilityIdentifier = .alertContainerView
+
         return view
     }()
 
@@ -198,6 +200,7 @@ class AlertViewController: UIViewController {
         header.adjustsFontForContentSizeCategory = true
         header.textAlignment = .center
         header.numberOfLines = 0
+        header.accessibilityIdentifier = .alertTitle
 
         contentView.addArrangedSubview(header)
         contentView.setCustomSpacing(16, after: header)
