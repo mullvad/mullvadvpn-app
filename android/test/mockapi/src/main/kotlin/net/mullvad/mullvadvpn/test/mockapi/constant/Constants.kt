@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.test.mockapi.constant
 
+const val PACKAGE_NAME = "net.mullvad.mullvadvpn"
+
 const val LOG_TAG = "mullvad-mockapi"
 
 const val AUTH_TOKEN_URL_PATH = "/auth/v1/token"
