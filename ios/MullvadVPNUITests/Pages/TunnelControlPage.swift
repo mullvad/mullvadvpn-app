@@ -25,5 +25,4 @@ class TunnelControlPage: Page {
         app.buttons[AccessibilityIdentifier.settingsButton.rawValue].tap()
         return self
     }
-
 }

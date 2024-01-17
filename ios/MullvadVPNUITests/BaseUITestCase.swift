@@ -14,7 +14,8 @@ class BaseUITestCase: XCTestCase {
 
     // swiftlint:disable force_cast line_length
     let noTimeAccountNumber = Bundle(for: BaseUITestCase.self).infoDictionary?["MullvadNoTimeAccountNumber"] as! String
-    let hasTimeAccountNumber = Bundle(for: BaseUITestCase.self).infoDictionary?["MullvadHasTimeAccountNumber"] as! String
+    let hasTimeAccountNumber = Bundle(for: BaseUITestCase.self)
+        .infoDictionary?["MullvadHasTimeAccountNumber"] as! String
     let fiveWireGuardKeysAccountNumber = Bundle(for: BaseUITestCase.self)
         .infoDictionary?["MullvadFiveWireGuardKeysAccountNumber"] as! String
     let iOSDevicePinCode = Bundle(for: BaseUITestCase.self).infoDictionary?["MullvadIOSDevicePinCode"] as! String
@@ -27,7 +28,7 @@ class BaseUITestCase: XCTestCase {
 
         let alertAllowButton = springboard.buttons.element(boundBy: 0)
         if alertAllowButton.waitForExistence(timeout: Self.defaultTimeout) {
-           alertAllowButton.tap()
+            alertAllowButton.tap()
         }
 
         _ = springboard.buttons["1"].waitForExistence(timeout: Self.defaultTimeout)

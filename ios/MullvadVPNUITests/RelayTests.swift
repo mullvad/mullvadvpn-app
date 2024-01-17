@@ -81,7 +81,7 @@ class RelayTests: BaseUITestCase {
         _ = semaphore.wait(timeout: .distantFuture)
 
         if let urlError = requestError as? URLError {
-            if (urlError.code == .cannotFindHost) {
+            if urlError.code == .cannotFindHost {
                 return false
             }
         }
