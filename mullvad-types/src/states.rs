@@ -65,6 +65,10 @@ impl TunnelState {
 }
 
 #[cfg(target_os = "android")]
+// Here we manually implement the `IntoJava` trait of jnix to skip the `locked_down` field of
+// `TunnelState::Disconnected` as the derive macro currently does not support skipping fields of
+// struct variants in an enum. It was decided that this solution is the preferred to updating the
+// macro since the jnix crate will be dropped once android implements gRPC.
 impl<'borrow, 'env> jnix::IntoJava<'borrow, 'env> for TunnelState
 where
     'env: 'borrow,
