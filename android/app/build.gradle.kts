@@ -243,7 +243,7 @@ androidComponents {
         variantBuilder.enable =
             variantBuilder.let { currentVariant ->
                 val enabledVariants =
-                    enabledVariantTriples.map { (billing, infra, buildType) ->
+                    enabledAppVariantTriples.map { (billing, infra, buildType) ->
                         billing + infra.capitalized() + buildType.capitalized()
                     }
                 enabledVariants.contains(currentVariant.name)
