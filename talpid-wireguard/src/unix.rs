@@ -4,6 +4,8 @@ use socket2::Domain;
 use talpid_types::ErrorExt;
 
 pub fn set_mtu(interface_name: &str, mtu: u32) -> Result<(), io::Error> {
+    log::info!("Setting MTU to {mtu}");
+
     let sock = socket2::Socket::new(
         Domain::IPV4,
         socket2::Type::STREAM,
