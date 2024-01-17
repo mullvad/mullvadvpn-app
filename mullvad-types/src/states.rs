@@ -151,7 +151,7 @@ where
                 let error_state_signature = error_state.jni_signature();
                 let error_state_java = error_state.into_java(env);
 
-                let constructor_signature = format!("({error_state})V");
+                let constructor_signature = format!("({error_state_signature})V");
                 let parameters = [jnix::AsJValue::as_jvalue(&error_state_java)];
                 let class = env.get_class("net/mullvad/mullvadvpn/model/TunnelState$Error");
                 let object = env
