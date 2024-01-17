@@ -10,7 +10,7 @@ import Foundation
 import XCTest
 
 class TunnelControlPage: Page {
-    override init(_ app: XCUIApplication) {
+    @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
         self.pageAccessibilityIdentifier = .tunnelControlView
@@ -20,4 +20,10 @@ class TunnelControlPage: Page {
         app.buttons[AccessibilityIdentifier.selectLocationButton.rawValue].tap()
         return self
     }
+
+    @discardableResult func tapSettingsButton() -> Self {
+        app.buttons[AccessibilityIdentifier.settingsButton.rawValue].tap()
+        return self
+    }
+
 }

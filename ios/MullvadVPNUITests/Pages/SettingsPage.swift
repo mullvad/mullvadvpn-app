@@ -10,7 +10,7 @@ import Foundation
 import XCTest
 
 class SettingsPage: Page {
-    override init(_ app: XCUIApplication) {
+    @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
         self.pageAccessibilityIdentifier = .settingsTableView
@@ -24,9 +24,25 @@ class SettingsPage: Page {
         return self
     }
 
-    @discardableResult func tapDNSSettings() -> Self {
-        app.tables[AccessibilityIdentifier.settingsTableView.rawValue]
+    @discardableResult func tapDNSSettingsCell() -> Self {
+        app.tables
             .cells[AccessibilityIdentifier.dnsSettings.rawValue]
+            .tap()
+
+        return self
+    }
+
+    @discardableResult func tapDNSContentBlockingHeaderExpandButton() -> Self {
+        let headerView = app.otherElements[AccessibilityIdentifier.dnsContentBlockersHeaderView.rawValue]
+        let expandButton = headerView.buttons[AccessibilityIdentifier.collapseButton.rawValue]
+        expandButton.tap()
+
+        return self
+    }
+
+    @discardableResult func tapBlockAdsSwitch() -> Self {
+        app.cells[AccessibilityIdentifier.blockAdvertising.rawValue]
+            .switches[AccessibilityIdentifier.customSwitch.rawValue]
             .tap()
 
         return self

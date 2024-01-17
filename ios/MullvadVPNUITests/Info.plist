@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>MullvadAdServingDomain</key>
+	<string>$(MULLVAD_AD_SERVING_DOMAIN)</string>
 	<key>MullvadFiveWireGuardKeysAccountNumber</key>
 	<string>$(MULLVAD_FIVE_WIREGUARD_KEYS_ACCOUNT_NUMBER)</string>
 	<key>MullvadHasTimeAccountNumber</key>

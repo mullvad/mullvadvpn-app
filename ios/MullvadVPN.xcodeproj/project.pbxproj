@@ -566,10 +566,10 @@
 		7AF9BE902A39F26000DBFEDB /* Collection+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */; };
 		7AF9BE952A40461100DBFEDB /* RelayFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE942A40461100DBFEDB /* RelayFilterView.swift */; };
 		7AF9BE972A41C71F00DBFEDB /* RelayFilterChipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE962A41C71F00DBFEDB /* RelayFilterChipView.swift */; };
-		850201E12B51389500EF8C96 /* BaseUITestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201E02B51389500EF8C96 /* BaseUITestCase.swift */; };
 		850201DB2B503D7700EF8C96 /* RelayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DA2B503D7700EF8C96 /* RelayTests.swift */; };
 		850201DD2B503D8C00EF8C96 /* SelectLocationPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DC2B503D8C00EF8C96 /* SelectLocationPage.swift */; };
 		850201DF2B5040A500EF8C96 /* TunnelControlPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DE2B5040A500EF8C96 /* TunnelControlPage.swift */; };
+		850201E12B51389500EF8C96 /* BaseUITestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201E02B51389500EF8C96 /* BaseUITestCase.swift */; };
 		850201E32B51A93C00EF8C96 /* SettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201E22B51A93C00EF8C96 /* SettingsPage.swift */; };
 		852969282B4D9C1F007EAD4C /* AccountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969272B4D9C1F007EAD4C /* AccountTests.swift */; };
 		852969332B4E9232007EAD4C /* Page.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969322B4E9232007EAD4C /* Page.swift */; };
@@ -1721,10 +1721,10 @@
 		7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Sorting.swift"; sourceTree = "<group>"; };
 		7AF9BE942A40461100DBFEDB /* RelayFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterView.swift; sourceTree = "<group>"; };
 		7AF9BE962A41C71F00DBFEDB /* RelayFilterChipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterChipView.swift; sourceTree = "<group>"; };
-		850201E02B51389500EF8C96 /* BaseUITestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseUITestCase.swift; sourceTree = "<group>"; };
 		850201DA2B503D7700EF8C96 /* RelayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayTests.swift; sourceTree = "<group>"; };
 		850201DC2B503D8C00EF8C96 /* SelectLocationPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationPage.swift; sourceTree = "<group>"; };
 		850201DE2B5040A500EF8C96 /* TunnelControlPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlPage.swift; sourceTree = "<group>"; };
+		850201E02B51389500EF8C96 /* BaseUITestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseUITestCase.swift; sourceTree = "<group>"; };
 		850201E22B51A93C00EF8C96 /* SettingsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPage.swift; sourceTree = "<group>"; };
 		852969252B4D9C1F007EAD4C /* MullvadVPNUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadVPNUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		852969272B4D9C1F007EAD4C /* AccountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTests.swift; sourceTree = "<group>"; };
@@ -3337,10 +3337,9 @@
 		852969312B4E9220007EAD4C /* Pages */ = {
 			isa = PBXGroup;
 			children = (
-				852969322B4E9232007EAD4C /* Page.swift */,
-				852969342B4E9270007EAD4C /* LoginPage.swift */,
-				852969392B4F0238007EAD4C /* TermsOfServicePage.swift */,
 				8529693B2B4F0257007EAD4C /* Alert.swift */,
+				852969342B4E9270007EAD4C /* LoginPage.swift */,
+				852969322B4E9232007EAD4C /* Page.swift */,
 				850201DC2B503D8C00EF8C96 /* SelectLocationPage.swift */,
 				850201E22B51A93C00EF8C96 /* SettingsPage.swift */,
 				852969392B4F0238007EAD4C /* TermsOfServicePage.swift */,

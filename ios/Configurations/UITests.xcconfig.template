@@ -9,6 +9,9 @@
 // Pin code of the iOS device under test
 MULLVAD_IOS_DEVICE_PIN_CODE = 
 
+// Ad serving domain used when testing ad blocking
+MULLVAD_AD_SERVING_DOMAIN = 
+
 // Mullvad accounts used by UI tests
 MULLVAD_NO_TIME_ACCOUNT_NUMBER = 
 MULLVAD_HAS_TIME_ACCOUNT_NUMBER = 

@@ -15,6 +15,7 @@ public enum AccessibilityIdentifier: String {
     case alertOkButton
     case applyButton
     case cancelButton
+    case connectionPanelButton
     case collapseButton
     case deleteButton
     case disconnectButton
@@ -52,6 +53,10 @@ public enum AccessibilityIdentifier: String {
     case tunnelControlView
 
     // Other UI elements
+    case connectionPanelInAddressRow
+    case connectionPanelOutAddressRow
+    case customSwitch
+    case dnsContentBlockersHeaderView
     case loginTextField
     case selectLocationSearchTextField
 
