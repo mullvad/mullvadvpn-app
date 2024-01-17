@@ -38,6 +38,9 @@ pub enum Error {
 
     #[error(display = "Unable to write settings to {}", _0)]
     WriteError(String, #[error(source)] io::Error),
+
+    #[error(display = "Failed to apply settings update")]
+    UpdateFailed(Box<dyn std::error::Error + Send + Sync>),
 }
 
 /// Converts an [Error] to a management interface status
@@ -53,6 +56,7 @@ impl From<Error> for mullvad_management_interface::Status {
             Error::SerializeError(..) | Error::ParseError(..) => {
                 Status::new(Code::Internal, error.to_string())
             }
+            _ => todo!("Markus implement this differently"),
         }
     }
 }
@@ -224,18 +228,82 @@ impl SettingsPersister {
         settings
     }
 
-    /// Edit the settings in a closure, and write the changes, if any, to disk.
+    /// Edit the settings in a closure and write the changes to disk.
     ///
-    /// On success, the function returns a boolean indicating whether any settings were changed.
-    /// If the settings could not be written to disk, all changes are rolled back, and an error is
-    /// returned.
+    /// # On success
+    ///
+    /// Returns a boolean indicating whether any settings were changed.
+    ///
+    /// # On failure
+    ///
+    /// If the settings could not be written to disk, all changes are rolled
+    /// back, and an error is returned.
+    ///
+    /// # Note
+    ///
+    /// If no settings were changed, no I/O will be performed.
     pub async fn update(
         &mut self,
         update_fn: impl FnOnce(&mut Settings),
     ) -> Result<MadeChanges, Error> {
+        self.try_update(|settings| -> Result<(), Error> {
+            update_fn(settings);
+            Ok(())
+        })
+        .await
+    }
+
+    /// Edit the settings in a closure, and write the changes to disk.
+    ///
+    /// # On success
+    ///
+    /// Returns a boolean indicating whether any settings were changed.
+    ///
+    /// # On failure
+    ///
+    /// `try_update` may fail in two scenarios
+    ///
+    /// ## The settings could not be written to disk
+    ///
+    /// In this case, all changes are rolled back and an error is returned.
+    ///
+    /// ## `update_fn` failed
+    ///
+    /// If `update_fn` were to fail the error will be propagated through the
+    /// [`Error::UpdateFailed`] error variant. Since the error will be boxed, it
+    /// has to be downcasted at runtime using [`Box::downcast`] in case you want
+    /// to inspect the error closer.
+    ///
+    /// ```ignore
+    /// #[derive(Debug, err_derive::Error)]
+    /// pub enum MyError {
+    ///   #[error(display = "Failed for this reason: {:?}", _0)]
+    ///   Failed(String),
+    /// }
+    ///
+    /// let settings = Settings::default_settings();
+    /// let err = settings.try_update(|settings| {
+    ///   // Perform some update on the settings
+    ///   settings.allow_lan = !settings.allow_lan;
+    ///   // Fail the update procedure due to some error
+    ///   Err(MyError::Failed("No particular reason".to_string()))
+    /// });
+    ///
+    /// matches!(err, Error::UpdateFailed(_)) ;
+    /// assert_eq!(settings, Settings::default_settings())
+    /// ```
+    pub async fn try_update<E>(
+        &mut self,
+        update_fn: impl FnOnce(&mut Settings) -> Result<(), E>,
+    ) -> Result<MadeChanges, Error>
+    where
+        E: std::error::Error + Send + Sync + 'static,
+    {
         let mut new_settings = self.settings.clone();
 
-        update_fn(&mut new_settings);
+        update_fn(&mut new_settings)
+            .map_err(Box::from)
+            .map_err(Error::UpdateFailed)?;
 
         if self.settings == new_settings {
             return Ok(false);
