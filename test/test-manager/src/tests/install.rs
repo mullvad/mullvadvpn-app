@@ -277,7 +277,7 @@ pub async fn test_install_new_app(_: TestContext, rpc: ServiceClient) -> Result<
 ///
 /// This test is supposed to guard against regressions to this fix included in
 /// the 2021.3-beta1 release:
-/// https://github.com/mullvad/mullvadvpn-app/blob/main/CHANGELOG.md#security-10
+/// https://github.com/mullvad/mullvadvpn-app/blob/2021.3-beta1/CHANGELOG.md#security
 #[test_function(priority = -150)]
 pub async fn test_installation_idempotency(
     _: TestContext,
