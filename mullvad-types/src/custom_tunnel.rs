@@ -58,13 +58,20 @@ impl CustomTunnelEndpoint {
                 fwmark: crate::TUNNEL_FWMARK,
             }
             .into(),
-            ConnectionConfig::Wireguard(connection) => wireguard::TunnelParameters {
-                connection,
-                options: tunnel_options.wireguard.into_talpid_tunnel_options(),
-                generic_options: tunnel_options.generic,
-                obfuscation: None,
+            ConnectionConfig::Wireguard(connection) => {
+                let mut options = tunnel_options.wireguard.into_talpid_tunnel_options();
+                if options.quantum_resistant {
+                    options.quantum_resistant = false;
+                    log::info!("Ignoring quantum resistant option for custom tunnel");
+                }
+                wireguard::TunnelParameters {
+                    connection,
+                    options,
+                    generic_options: tunnel_options.generic,
+                    obfuscation: None,
+                }
+                .into()
             }
-            .into(),
         };
         Ok(parameters)
     }

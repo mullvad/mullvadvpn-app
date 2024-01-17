@@ -50,6 +50,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.
 
+#### Linux
+- Enable quantum resistant tunnels by default (when set to `auto`). On other platforms, `auto` still
+  always means the same thing as `off`.
+
 ### Security
 #### Android
 - Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
