@@ -10,7 +10,7 @@ import Foundation
 import XCTest
 
 class RelayTests: BaseUITestCase {
-    func testAdBlockingViaRelay() throws {
+    func testAdBlockingViaDNS() throws {
         let app = XCUIApplication()
         app.launch()
 
