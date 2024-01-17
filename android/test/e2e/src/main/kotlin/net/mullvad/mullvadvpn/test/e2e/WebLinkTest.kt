@@ -8,7 +8,7 @@ import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPerm
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import org.junit.jupiter.api.Test
 
-class WebLinkTest : EndToEndTest() {
+class WebLinkTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @Test
     @SkipForFlavors(currentFlavor = BuildConfig.FLAVOR_billing, "play")
     fun testOpenFaqFromApp() {

@@ -13,12 +13,15 @@ import net.mullvad.mullvadvpn.test.common.constant.CONNECTION_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_INTERACTION_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LOGIN_PROMPT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LOGIN_TIMEOUT
-import net.mullvad.mullvadvpn.test.common.constant.MULLVAD_PACKAGE
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
-class AppInteractor(private val device: UiDevice, private val targetContext: Context) {
+class AppInteractor(
+    private val device: UiDevice,
+    private val targetContext: Context,
+    private val targetPackageName: String
+) {
     fun launch(customApiEndpointConfiguration: CustomApiEndpointConfiguration? = null) {
         device.pressHome()
         // Wait for launcher
@@ -28,7 +31,7 @@ class AppInteractor(private val device: UiDevice, private val targetContext: Con
         )
 
         val intent =
-            targetContext.packageManager.getLaunchIntentForPackage(MULLVAD_PACKAGE)?.apply {
+            targetContext.packageManager.getLaunchIntentForPackage(targetPackageName)?.apply {
                 // Clear out any previous instances
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 if (customApiEndpointConfiguration != null) {
@@ -36,7 +39,7 @@ class AppInteractor(private val device: UiDevice, private val targetContext: Con
                 }
             }
         targetContext.startActivity(intent)
-        device.wait(Until.hasObject(By.pkg(MULLVAD_PACKAGE).depth(0)), APP_LAUNCH_TIMEOUT)
+        device.wait(Until.hasObject(By.pkg(targetPackageName).depth(0)), APP_LAUNCH_TIMEOUT)
     }
 
     fun launchAndEnsureLoggedIn(accountToken: String) {

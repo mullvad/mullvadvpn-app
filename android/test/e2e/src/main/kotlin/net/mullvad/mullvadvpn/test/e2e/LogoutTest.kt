@@ -2,19 +2,19 @@ package net.mullvad.mullvadvpn.test.e2e
 
 import androidx.test.uiautomator.By
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
-import net.mullvad.mullvadvpn.test.e2e.misc.CleanupAccountTestRule
+import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
-class LogoutTest : EndToEndTest() {
+class LogoutTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
-    @RegisterExtension @JvmField val cleanupAccountTestRule = CleanupAccountTestRule()
+    @RegisterExtension @JvmField val accountTestRule = AccountTestRule()
 
     @Test
     fun testLogout() {
         // Given
-        app.launchAndEnsureLoggedIn(validTestAccountToken)
+        app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
 
         // When
         app.clickAccountCog()

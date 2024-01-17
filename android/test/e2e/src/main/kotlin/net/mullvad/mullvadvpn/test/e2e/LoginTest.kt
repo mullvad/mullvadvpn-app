@@ -5,18 +5,32 @@ import net.mullvad.mullvadvpn.test.common.constant.LOGIN_FAILURE_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
-import net.mullvad.mullvadvpn.test.e2e.misc.CleanupAccountTestRule
+import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
-class LoginTest : EndToEndTest() {
+class LoginTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
-    @RegisterExtension @JvmField val cleanupAccountTestRule = CleanupAccountTestRule()
+    @RegisterExtension @JvmField val accountTestRule = AccountTestRule()
 
     @Test
+    fun testLoginWithValidCredentials() {
+        // Given
+        val validTestAccountToken = accountTestRule.validAccountNumber
+
+        // When
+        app.launchAndEnsureLoggedIn(validTestAccountToken)
+
+        // Then
+        app.ensureLoggedIn()
+    }
+
+    @Test
+    @Disabled("Disabled to avoid getting rate-limited.")
     fun testLoginWithInvalidCredentials() {
         // Given
-        val invalidDummyAccountToken = invalidTestAccountToken
+        val invalidDummyAccountToken = accountTestRule.invalidAccountNumber
 
         // When
         app.launch()
@@ -27,17 +41,5 @@ class LoginTest : EndToEndTest() {
 
         // Then
         device.findObjectWithTimeout(By.text("Invalid account number"), LOGIN_FAILURE_TIMEOUT)
-    }
-
-    @Test
-    fun testLoginWithValidCredentials() {
-        // Given
-        val token = validTestAccountToken
-
-        // When
-        app.launchAndEnsureLoggedIn(token)
-
-        // Then
-        app.ensureLoggedIn()
     }
 }
