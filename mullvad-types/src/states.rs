@@ -31,8 +31,8 @@ impl fmt::Display for TargetState {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "state", content = "details")]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+// #[cfg_attr(target_os = "android", derive(IntoJava))]
+// #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum TunnelState {
     Disconnected {
         location: Option<GeoIpLocation>,
@@ -68,7 +68,7 @@ impl TunnelState {
     }
 }
 
-// #[cfg(target_os = "android")]
+#[cfg(target_os = "android")]
 impl<'borrow, 'env> jnix::IntoJava<'borrow, 'env> for TunnelState
 where
     'env: 'borrow,
@@ -78,11 +78,12 @@ where
     #[allow(non_snake_case)]
     fn into_java(self, env: &'borrow jnix::JnixEnv<'env>) -> Self::JavaType {
         match self {
-            Self::Disconnected(_0) => {
-                let _source__0 = _0;
-                let _converted__0 = _source__0;
-                let _signature__0 = _converted__0.jni_signature();
-                let _final__0 = _converted__0.into_java(env);
+            Self::Disconnected {
+                location,
+                locked_down: _,
+            } => {
+                let _signature__0 = location.jni_signature();
+                let _final__0 = location.into_java(env);
                 let mut constructor_signature =
                     String::with_capacity(1 + _signature__0.as_bytes().len() + 2);
                 constructor_signature.push_str("(");
@@ -98,14 +99,10 @@ where
                 env.auto_local(object)
             }
             Self::Connecting { endpoint, location } => {
-                let _source_endpoint = endpoint;
-                let _source_location = location;
-                let _converted_endpoint = _source_endpoint;
-                let _signature_endpoint = _converted_endpoint.jni_signature();
-                let _final_endpoint = _converted_endpoint.into_java(env);
-                let _converted_location = _source_location;
-                let _signature_location = _converted_location.jni_signature();
-                let _final_location = _converted_location.into_java(env);
+                let _signature_endpoint = endpoint.jni_signature();
+                let _final_endpoint = endpoint.into_java(env);
+                let _signature_location = location.jni_signature();
+                let _final_location = location.into_java(env);
                 let mut constructor_signature = String::with_capacity(
                     1 + _signature_endpoint.as_bytes().len()
                         + _signature_location.as_bytes().len()
@@ -128,14 +125,10 @@ where
                 env.auto_local(object)
             }
             Self::Connected { endpoint, location } => {
-                let _source_endpoint = endpoint;
-                let _source_location = location;
-                let _converted_endpoint = _source_endpoint;
-                let _signature_endpoint = _converted_endpoint.jni_signature();
-                let _final_endpoint = _converted_endpoint.into_java(env);
-                let _converted_location = _source_location;
-                let _signature_location = _converted_location.jni_signature();
-                let _final_location = _converted_location.into_java(env);
+                let _signature_endpoint = endpoint.jni_signature();
+                let _final_endpoint = endpoint.into_java(env);
+                let _signature_location = location.jni_signature();
+                let _final_location = location.into_java(env);
                 let mut constructor_signature = String::with_capacity(
                     1 + _signature_endpoint.as_bytes().len()
                         + _signature_location.as_bytes().len()
@@ -157,11 +150,9 @@ where
                     );
                 env.auto_local(object)
             }
-            Self::Disconnecting(_0) => {
-                let _source__0 = _0;
-                let _converted__0 = _source__0;
-                let _signature__0 = _converted__0.jni_signature();
-                let _final__0 = _converted__0.into_java(env);
+            Self::Disconnecting(action_after_disconnect) => {
+                let _signature__0 = action_after_disconnect.jni_signature();
+                let _final__0 = action_after_disconnect.into_java(env);
                 let mut constructor_signature =
                     String::with_capacity(1 + _signature__0.as_bytes().len() + 2);
                 constructor_signature.push_str("(");
@@ -176,11 +167,9 @@ where
                     );
                 env.auto_local(object)
             }
-            Self::Error(_0) => {
-                let _source__0 = _0;
-                let _converted__0 = _source__0;
-                let _signature__0 = _converted__0.jni_signature();
-                let _final__0 = _converted__0.into_java(env);
+            Self::Error(error_state) => {
+                let _signature__0 = error_state.jni_signature();
+                let _final__0 = error_state.into_java(env);
                 let mut constructor_signature =
                     String::with_capacity(1 + _signature__0.as_bytes().len() + 2);
                 constructor_signature.push_str("(");
