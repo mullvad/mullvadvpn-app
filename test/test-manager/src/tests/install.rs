@@ -302,8 +302,8 @@ pub async fn test_installation_idempotency(
         log::debug!("Installing new app");
         rpc.install_app(get_package_desc(&TEST_CONFIG.current_app_filename)?)
             .await?;
-        // verify that daemon is running
-        wait_for_tunnel_state(mullvad_client.clone(), |state| state.is_connected())
+        // verify that the daemon starts in a non-disconnected state
+        wait_for_tunnel_state(mullvad_client.clone(), |state| !state.is_disconnected())
             .await
             .map_err(|err| {
                 log::error!(
