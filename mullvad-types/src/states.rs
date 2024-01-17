@@ -82,14 +82,11 @@ where
                 location,
                 locked_down: _,
             } => {
-                let _signature__0 = location.jni_signature();
-                let _final__0 = location.into_java(env);
-                let mut constructor_signature =
-                    String::with_capacity(1 + _signature__0.as_bytes().len() + 2);
-                constructor_signature.push('(');
-                constructor_signature.push_str(_signature__0);
-                constructor_signature.push_str(")V");
-                let parameters = [jnix::AsJValue::as_jvalue(&_final__0)];
+                let location_signature = location.jni_signature();
+                let location_java = location.into_java(env);
+
+                let constructor_signature = format!("({location_signature})V");
+                let parameters = [jnix::AsJValue::as_jvalue(&location_java)];
                 let class = env.get_class("net/mullvad/mullvadvpn/model/TunnelState$Disconnected");
                 let object = env
                     .new_object(&class, constructor_signature, &parameters)
@@ -99,22 +96,15 @@ where
                 env.auto_local(object)
             }
             Self::Connecting { endpoint, location } => {
-                let _signature_endpoint = endpoint.jni_signature();
-                let _final_endpoint = endpoint.into_java(env);
-                let _signature_location = location.jni_signature();
-                let _final_location = location.into_java(env);
-                let mut constructor_signature = String::with_capacity(
-                    1 + _signature_endpoint.as_bytes().len()
-                        + _signature_location.as_bytes().len()
-                        + 2,
-                );
-                constructor_signature.push('(');
-                constructor_signature.push_str(_signature_endpoint);
-                constructor_signature.push_str(_signature_location);
-                constructor_signature.push_str(")V");
+                let endpoint_signature = endpoint.jni_signature();
+                let endpoint_java = endpoint.into_java(env);
+                let location_signature = location.jni_signature();
+                let location_java = location.into_java(env);
+
+                let constructor_signature = format!("({endpoint_signature}{location_signature})V");
                 let parameters = [
-                    jnix::AsJValue::as_jvalue(&_final_endpoint),
-                    jnix::AsJValue::as_jvalue(&_final_location),
+                    jnix::AsJValue::as_jvalue(&endpoint_java),
+                    jnix::AsJValue::as_jvalue(&location_java),
                 ];
                 let class = env.get_class("net/mullvad/mullvadvpn/model/TunnelState$Connecting");
                 let object = env
@@ -125,22 +115,15 @@ where
                 env.auto_local(object)
             }
             Self::Connected { endpoint, location } => {
-                let _signature_endpoint = endpoint.jni_signature();
-                let _final_endpoint = endpoint.into_java(env);
-                let _signature_location = location.jni_signature();
-                let _final_location = location.into_java(env);
-                let mut constructor_signature = String::with_capacity(
-                    1 + _signature_endpoint.as_bytes().len()
-                        + _signature_location.as_bytes().len()
-                        + 2,
-                );
-                constructor_signature.push('(');
-                constructor_signature.push_str(_signature_endpoint);
-                constructor_signature.push_str(_signature_location);
-                constructor_signature.push_str(")V");
+                let endpoint_signature = endpoint.jni_signature();
+                let endpoint_java = endpoint.into_java(env);
+                let location_signature = location.jni_signature();
+                let location_java = location.into_java(env);
+
+                let constructor_signature = format!("({endpoint_signature}{location_signature})V");
                 let parameters = [
-                    jnix::AsJValue::as_jvalue(&_final_endpoint),
-                    jnix::AsJValue::as_jvalue(&_final_location),
+                    jnix::AsJValue::as_jvalue(&endpoint_java),
+                    jnix::AsJValue::as_jvalue(&location_java),
                 ];
                 let class = env.get_class("net/mullvad/mullvadvpn/model/TunnelState$Connected");
                 let object = env
@@ -151,14 +134,11 @@ where
                 env.auto_local(object)
             }
             Self::Disconnecting(action_after_disconnect) => {
-                let _signature__0 = action_after_disconnect.jni_signature();
-                let _final__0 = action_after_disconnect.into_java(env);
-                let mut constructor_signature =
-                    String::with_capacity(1 + _signature__0.as_bytes().len() + 2);
-                constructor_signature.push('(');
-                constructor_signature.push_str(_signature__0);
-                constructor_signature.push_str(")V");
-                let parameters = [jnix::AsJValue::as_jvalue(&_final__0)];
+                let action_after_disconnect_signature = action_after_disconnect.jni_signature();
+                let action_after_disconnect_java = action_after_disconnect.into_java(env);
+
+                let constructor_signature = format!("({action_after_disconnect_signature})V");
+                let parameters = [jnix::AsJValue::as_jvalue(&action_after_disconnect_java)];
                 let class = env.get_class("net/mullvad/mullvadvpn/model/TunnelState$Disconnecting");
                 let object = env
                     .new_object(&class, constructor_signature, &parameters)
@@ -168,14 +148,11 @@ where
                 env.auto_local(object)
             }
             Self::Error(error_state) => {
-                let _signature__0 = error_state.jni_signature();
-                let _final__0 = error_state.into_java(env);
-                let mut constructor_signature =
-                    String::with_capacity(1 + _signature__0.as_bytes().len() + 2);
-                constructor_signature.push('(');
-                constructor_signature.push_str(_signature__0);
-                constructor_signature.push_str(")V");
-                let parameters = [jnix::AsJValue::as_jvalue(&_final__0)];
+                let error_state_signature = error_state.jni_signature();
+                let error_state_java = error_state.into_java(env);
+
+                let constructor_signature = format!("({error_state})V");
+                let parameters = [jnix::AsJValue::as_jvalue(&error_state_java)];
                 let class = env.get_class("net/mullvad/mullvadvpn/model/TunnelState$Error");
                 let object = env
                     .new_object(&class, constructor_signature, &parameters)
