@@ -9,8 +9,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
@@ -60,46 +64,37 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent { AppTheme { MullvadApp() } }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
+                    startServiceSuspend(waitForConnectedReady = false)
+                }
+            }
+        }
     }
 
-    fun initializeStateHandlerAndServiceConnection() {
+    suspend fun startServiceSuspend(waitForConnectedReady: Boolean = true) {
         requestNotificationPermissionIfMissing(requestNotificationPermissionLauncher)
         serviceConnectionManager.bind(
             vpnPermissionRequestHandler = ::requestVpnPermission,
             apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
         )
-    }
-
-    suspend fun startServiceSuspend() {
-        requestNotificationPermissionIfMissing(requestNotificationPermissionLauncher)
-        serviceConnectionManager.bind(
-            vpnPermissionRequestHandler = ::requestVpnPermission,
-            apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
-        )
-        // Ensure we wait until the service is ready
-        serviceConnectionManager.connectionState
-            .filterIsInstance<ServiceConnectionState.ConnectedReady>()
-            .first()
+        if (waitForConnectedReady) {
+            // Ensure we wait until the service is ready
+            serviceConnectionManager.connectionState
+                .filterIsInstance<ServiceConnectionState.ConnectedReady>()
+                .first()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         serviceConnectionManager.onVpnPermissionResult(resultCode == Activity.RESULT_OK)
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
-            initializeStateHandlerAndServiceConnection()
-        }
-    }
-
     override fun onStop() {
         Log.d("mullvad", "Stopping main activity")
         super.onStop()
-
-        // NOTE: `super.onStop()` must be called before unbinding due to the fragment state handling
-        // otherwise the fragments will believe there was an unexpected disconnect.
         serviceConnectionManager.unbind()
     }
 
