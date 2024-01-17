@@ -191,8 +191,9 @@ pub async fn ping_with_timeout(
 
 /// Try to connect to a Mullvad Tunnel.
 ///
-/// If that fails for whatever reason, the Mullvad daemon ends up in the
-/// [`TunnelState::Error`] state & [`Error::DaemonError`] is returned.
+/// If that fails to begin to connect, [`Error::DaemonError`] is returned. If it fails to connect
+/// after that, the daemon ends up in the [`TunnelState::Error`] state, and
+/// [`Error::UnexpectedErrorState`] is returned.
 pub async fn connect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Result<(), Error> {
     log::info!("Connecting");
 
@@ -209,8 +210,8 @@ pub async fn connect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Result
     })
     .await?;
 
-    if matches!(new_state, TunnelState::Error(..)) {
-        return Err(Error::Daemon("daemon entered error state".to_string()));
+    if let TunnelState::Error(error_state) = new_state {
+        return Err(Error::UnexpectedErrorState(error_state));
     }
 
     log::info!("Connected");

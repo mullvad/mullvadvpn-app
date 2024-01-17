@@ -58,6 +58,9 @@ pub enum Error {
     #[error(display = "The daemon returned an error: {}", _0)]
     Daemon(String),
 
+    #[error(display = "The daemon ended up in the error state")]
+    UnexpectedErrorState(talpid_types::tunnel::ErrorState),
+
     #[error(display = "The gRPC client ran into an error: {}", _0)]
     ManagementInterface(#[source] mullvad_management_interface::Error),
 
