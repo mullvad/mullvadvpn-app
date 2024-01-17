@@ -53,17 +53,17 @@ class RelayTests: BaseUITestCase {
         verifyCannotReachAdServingDomain()
     }
 
-    /// Verify that an ad serving domain is reachable by making sure the host can be found
+    /// Verify that  ad serving domain is reachable by making sure the host can be found when sending HTTP request to it
     func verifyCanReachAdServingDomain() {
         XCTAssertTrue(canReachAdServingDomain())
     }
 
-    /// Verify that an ad serving domain is NOT reachable by making sure the host cannot be found
+    /// Verify that an ad serving domain is NOT reachable by making sure the host cannot be found when sending HTTP request to it
     func verifyCannotReachAdServingDomain() {
         XCTAssertFalse(canReachAdServingDomain())
     }
 
-    /// Attempt to reach ad serving domain
+    /// Attempt to reach HTTP server on an ad serving domain
     /// - Returns: `true` if host can be resolved, otherwise `false`
     private func canReachAdServingDomain() -> Bool {
         guard let url = URL(string: "http://\(adServingDomain)") else { return false }
