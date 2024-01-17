@@ -33,7 +33,7 @@ object Flavors {
     const val STAGEMOLE = "stagemole"
 }
 
-val enabledVariantTriples =
+val enabledAppVariantTriples =
     listOf(
         Triple(OSS, PROD, DEBUG),
         Triple(OSS, PROD, RELEASE),
