@@ -58,6 +58,7 @@ export const LabelContainer = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
+  minWidth: 0,
 });
 
 export function Label(props: React.HTMLAttributes<HTMLDivElement>) {
