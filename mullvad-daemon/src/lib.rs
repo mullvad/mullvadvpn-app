@@ -298,7 +298,12 @@ pub enum DaemonCommand {
     /// Get the currently used API access method
     GetCurrentAccessMethod(ResponseTx<AccessMethodSetting, Error>),
     /// Test an API access method
-    TestApiAccessMethod(ResponseTx<bool, Error>, mullvad_types::access_method::Id),
+    TestApiAccessMethodById(ResponseTx<bool, Error>, mullvad_types::access_method::Id),
+    /// Test a custom API access method
+    TestCustomApiAccessMethod(
+        ResponseTx<bool, Error>,
+        talpid_types::net::proxy::CustomProxy,
+    ),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -1248,7 +1253,10 @@ where
             UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
-            TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method).await,
+            TestApiAccessMethodById(tx, method) => self.on_test_api_access_method(tx, method).await,
+            TestCustomApiAccessMethod(tx, proxy) => {
+                self.on_test_proxy_as_access_method(tx, proxy).await
+            }
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2481,6 +2489,37 @@ where
         });
     }
 
+    async fn on_test_proxy_as_access_method(
+        &mut self,
+        tx: ResponseTx<bool, Error>,
+        proxy: talpid_types::net::proxy::CustomProxy,
+    ) {
+        use mullvad_api::proxy::{ApiConnectionMode, ProxyConfig};
+        use talpid_types::net::AllowedEndpoint;
+
+        let connection_mode = ApiConnectionMode::Proxied(ProxyConfig::from(proxy.clone()));
+        let api_proxy = self.create_limited_api_proxy(connection_mode.clone()).await;
+        let proxy_endpoint = AllowedEndpoint {
+            endpoint: proxy.get_remote_endpoint().endpoint,
+            clients: api::allowed_clients(&connection_mode),
+        };
+
+        let daemon_event_sender = self.tx.to_specialized_sender();
+        let access_method_selector = self.connection_modes_handler.clone();
+        tokio::spawn(async move {
+            let result = Self::test_access_method(
+                proxy_endpoint,
+                access_method_selector,
+                daemon_event_sender,
+                api_proxy,
+            )
+            .await
+            .map_err(Error::AccessMethodError);
+
+            Self::oneshot_send(tx, result, "on_test_proxy_as_access_method response");
+        });
+    }
+
     async fn on_test_api_access_method(
         &mut self,
         tx: ResponseTx<bool, Error>,
@@ -2505,51 +2544,25 @@ where
             }
         };
 
-        let test_subject_name = test_subject.setting.name.clone();
-        let proxy_provider = test_subject.connection_mode.clone().into_repeat();
-        let rest_handle = self.api_runtime.mullvad_rest_handle(proxy_provider).await;
-        let api_proxy = mullvad_api::ApiProxy::new(rest_handle);
+        let api_proxy = self
+            .create_limited_api_proxy(test_subject.connection_mode)
+            .await;
         let daemon_event_sender = self.tx.to_specialized_sender();
         let access_method_selector = self.connection_modes_handler.clone();
 
         tokio::spawn(async move {
-            let result = async move {
-                // Send an internal daemon event which will punch a hole in the firewall
-                // for the connection mode we are testing.
-                let _ = api::AccessMethodEvent::Allow {
-                    endpoint: test_subject.endpoint,
-                }
-                .send(daemon_event_sender.clone())
-                .await;
-
-                // Send a HEAD request to some Mullvad API endpoint. We issue a HEAD
-                // request because we are *only* concerned with if we get a reply from
-                // the API, and not with the actual data that the endpoint returns.
-                let result = api_proxy
-                    .api_addrs_available()
-                    .await
-                    .map_err(Error::RestError);
-
-                // Tell the daemon to reset the hole we just punched to whatever was in
-                // place before.
-                let active = access_method_selector
-                    .get_current()
-                    .await
-                    .map_err(Error::ApiConnectionModeError)?;
-
-                let _ = api::AccessMethodEvent::Allow {
-                    endpoint: active.endpoint,
-                }
-                .send(daemon_event_sender.clone())
-                .await;
-
-                result
-            }
-            .await;
+            let result = Self::test_access_method(
+                test_subject.endpoint,
+                access_method_selector,
+                daemon_event_sender,
+                api_proxy,
+            )
+            .await
+            .map_err(Error::AccessMethodError);
 
             log::debug!(
                 "API access method {method} {verdict}",
-                method = test_subject_name,
+                method = test_subject.setting.name,
                 verdict = match result {
                     Ok(true) => "could successfully connect to the Mullvad API",
                     _ => "could not connect to the Mullvad API",
