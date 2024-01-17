@@ -3,7 +3,7 @@ use crate::{
     settings::{self, MadeChanges},
     Daemon, EventListener,
 };
-use mullvad_api::rest;
+use mullvad_api::{proxy::ApiConnectionMode, rest, ApiProxy};
 use mullvad_types::{
     access_method::{self, AccessMethod, AccessMethodSetting},
     settings::Settings,
@@ -24,10 +24,11 @@ pub enum Error {
     #[error(display = "Access method could not be rotated")]
     RotationFailed,
     /// Some error occured in the daemon's state of handling
-    /// [`AccessMethodSetting`]s & [`ApiConnectionMode`]s.
+    /// [`AccessMethodSetting`]s & [`ApiConnectionMode`]s
     #[error(display = "Error occured when handling connection settings & details")]
-    ConnectionMode(#[error(source)] api::Error),
-    #[error(display = "API endpoint rotation failed")]
+    ApiService(#[error(source)] api::Error),
+    /// A REST request failed
+    #[error(display = "Reset request failed")]
     Rest(#[error(source)] rest::Error),
     /// Access methods settings error
     #[error(display = "Settings error")]
@@ -184,7 +185,7 @@ where
             .get_current()
             .await
             .map(|current| current.setting)
-            .map_err(Error::ConnectionMode)
+            .map_err(Error::ApiService)
     }
 
     /// Change which [`AccessMethodSetting`] which will be used as the Mullvad
@@ -198,6 +199,62 @@ where
                 log::error!("Failed to rotate API endpoint: {}", error);
                 Error::RotationFailed
             })
+    }
+
+    /// Test if the API is reachable via `proxy`.
+    ///
+    /// This function tests if [`AccessMethod`] can be used to reach the API.
+    /// Its parameters are as low-level as possible to promot re-use between
+    /// different kinds of testing contexts, such as testing
+    /// [`AccessMethodSetting`]s or on the fly testing of
+    /// [`talpid_types::net::proxy::CustomProxy`]s.
+    pub(crate) async fn test_access_method(
+        proxy: talpid_types::net::AllowedEndpoint,
+        access_method_selector: api::AccessModeSelectorHandle,
+        daemon_event_sender: crate::DaemonEventSender<(
+            api::AccessMethodEvent,
+            futures::channel::oneshot::Sender<()>,
+        )>,
+        api_proxy: ApiProxy,
+    ) -> Result<bool, Error> {
+        let reset = access_method_selector
+            .get_current()
+            .await
+            .map(|connection_mode| connection_mode.endpoint)?;
+
+        api::AccessMethodEvent::Allow { endpoint: proxy }
+            .send(daemon_event_sender.clone())
+            .await?;
+
+        let result = Self::perform_api_request(api_proxy).await;
+
+        api::AccessMethodEvent::Allow { endpoint: reset }
+            .send(daemon_event_sender)
+            .await?;
+
+        result
+    }
+
+    /// Create an [`ApiProxy`] which will perform all REST requests against one
+    /// specific endpoint `proxy_provider`.
+    pub async fn create_limited_api_proxy(
+        &mut self,
+        proxy_provider: ApiConnectionMode,
+    ) -> ApiProxy {
+        let rest_handle = self
+            .api_runtime
+            .mullvad_rest_handle(proxy_provider.into_repeat())
+            .await;
+        ApiProxy::new(rest_handle)
+    }
+
+    /// Perform some REST request against the Mullvad API.
+    ///
+    /// * Returns `Ok(true)` if the API returned the expected result
+    /// * Returns `Ok(false)` if the API returned an unexpected result
+    /// * Returns `Err(..)` if the API could not be reached
+    async fn perform_api_request(api_proxy: ApiProxy) -> Result<bool, Error> {
+        api_proxy.api_addrs_available().await.map_err(Error::Rest)
     }
 
     /// If settings were changed due to an update, notify all listeners.

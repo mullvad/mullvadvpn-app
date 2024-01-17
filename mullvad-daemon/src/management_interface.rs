@@ -682,6 +682,17 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
+    async fn test_access_method(&self, config: Request<types::CustomProxy>) -> ServiceResult<bool> {
+        log::debug!("test_access_method");
+        let (tx, rx) = oneshot::channel();
+        let proxy = talpid_types::net::proxy::CustomProxy::try_from(config.into_inner())?;
+        self.send_command_to_daemon(DaemonCommand::TestAccessMethod(tx, proxy))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
     async fn test_api_access_method(&self, request: Request<types::Uuid>) -> ServiceResult<bool> {
         log::debug!("test_api_access_method");
         let (tx, rx) = oneshot::channel();

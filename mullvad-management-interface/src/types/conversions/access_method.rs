@@ -104,14 +104,8 @@ mod data {
             Ok(match access_method {
                 proto::access_method::AccessMethod::Direct(direct) => AccessMethod::from(direct),
                 proto::access_method::AccessMethod::Bridges(bridge) => AccessMethod::from(bridge),
-                proto::access_method::AccessMethod::Socks5local(sockslocal) => {
-                    AccessMethod::try_from(sockslocal)?
-                }
-                proto::access_method::AccessMethod::Socks5remote(socksremote) => {
-                    AccessMethod::try_from(socksremote)?
-                }
-                proto::access_method::AccessMethod::Shadowsocks(shadowsocks) => {
-                    AccessMethod::try_from(shadowsocks)?
+                proto::access_method::AccessMethod::Custom(custom) => {
+                    CustomProxy::try_from(custom).map(AccessMethod::from)?
                 }
             })
         }
@@ -193,23 +187,7 @@ mod data {
 
     impl From<CustomProxy> for proto::access_method::AccessMethod {
         fn from(value: CustomProxy) -> Self {
-            match value {
-                CustomProxy::Shadowsocks(config) => {
-                    proto::access_method::AccessMethod::Shadowsocks(proto::Shadowsocks::from(
-                        config,
-                    ))
-                }
-                CustomProxy::Socks5Local(config) => {
-                    proto::access_method::AccessMethod::Socks5local(proto::Socks5Local::from(
-                        config,
-                    ))
-                }
-                CustomProxy::Socks5Remote(config) => {
-                    proto::access_method::AccessMethod::Socks5remote(proto::Socks5Remote::from(
-                        config,
-                    ))
-                }
-            }
+            proto::access_method::AccessMethod::Custom(proto::CustomProxy::from(value))
         }
     }
 

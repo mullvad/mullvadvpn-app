@@ -7,10 +7,7 @@
 use crate::DaemonCommand;
 use crate::DaemonEventSender;
 use futures::{
-    channel::{
-        mpsc,
-        oneshot::{self, Canceled},
-    },
+    channel::{mpsc, oneshot},
     Stream, StreamExt,
 };
 use mullvad_api::{
@@ -65,14 +62,14 @@ impl AccessMethodEvent {
     pub(crate) async fn send(
         self,
         daemon_event_sender: DaemonEventSender<(AccessMethodEvent, oneshot::Sender<()>)>,
-    ) -> std::result::Result<(), Canceled> {
+    ) -> Result<()> {
         // It is up to the daemon to actually allow traffic to/from `api_endpoint`
         // by updating the firewall. This [`oneshot::Sender`] allows the daemon to
         // communicate when that action is done.
         let (update_finished_tx, update_finished_rx) = oneshot::channel();
         let _ = daemon_event_sender.send((self, update_finished_tx));
         // Wait for the daemon to finish processing `event`.
-        update_finished_rx.await
+        update_finished_rx.await.map_err(Error::NotRunning)
     }
 }
 
@@ -94,6 +91,8 @@ pub struct ResolvedConnectionMode {
     pub setting: AccessMethodSetting,
 }
 
+/// Describes all the ways the daemon service which handles access methods can
+/// fail.
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "No access methods were provided.")]
