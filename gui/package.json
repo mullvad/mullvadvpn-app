@@ -22,7 +22,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^7.2.9",
-    "react-router": "^5.1.2",
+    "react-router": "^5.3.4",
     "react-simple-maps": "^3.0.0",
     "redux": "^4.2.0",
     "sprintf-js": "^1.1.2",
