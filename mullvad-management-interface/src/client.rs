@@ -222,6 +222,18 @@ impl MullvadProxyClient {
         Ok(result.into_inner())
     }
 
+    pub async fn test_config_as_access_method(
+        &mut self,
+        config: talpid_types::net::proxy::CustomProxy,
+    ) -> Result<bool> {
+        let result = self
+            .0
+            .test_access_method(types::CustomProxy::from(config))
+            .await
+            .map_err(Error::Rpc)?;
+        Ok(result.into_inner())
+    }
+
     pub async fn update_relay_locations(&mut self) -> Result<()> {
         self.0
             .update_relay_locations(())
