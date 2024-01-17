@@ -9,6 +9,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
@@ -19,6 +24,7 @@ import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
 import org.koin.android.ext.android.getKoin
@@ -37,6 +43,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var serviceConnectionManager: ServiceConnectionManager
     private lateinit var changelogViewModel: ChangelogViewModel
     private lateinit var serviceConnectionViewModel: NoDaemonViewModel
+
+    private var startServiceJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(listOf(uiModule, paymentModule))
@@ -59,12 +67,18 @@ class MainActivity : ComponentActivity() {
         setContent { AppTheme { MullvadApp() } }
     }
 
-    fun initializeStateHandlerAndServiceConnection() {
+    suspend fun startServiceSuspend(waitForConnectedReady: Boolean = true) {
         requestNotificationPermissionIfMissing(requestNotificationPermissionLauncher)
         serviceConnectionManager.bind(
             vpnPermissionRequestHandler = ::requestVpnPermission,
             apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
         )
+        // Ensure we wait until the service is ready
+        if (waitForConnectedReady) {
+            serviceConnectionManager.connectionState
+                .filterIsInstance<ServiceConnectionState.ConnectedReady>()
+                .first()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
@@ -75,7 +89,8 @@ class MainActivity : ComponentActivity() {
         super.onStart()
 
         if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
-            initializeStateHandlerAndServiceConnection()
+            startServiceJob =
+                lifecycleScope.launch { startServiceSuspend(waitForConnectedReady = false) }
         }
     }
 
@@ -86,6 +101,8 @@ class MainActivity : ComponentActivity() {
         // NOTE: `super.onStop()` must be called before unbinding due to the fragment state handling
         // otherwise the fragments will believe there was an unexpected disconnect.
         serviceConnectionManager.unbind()
+
+        startServiceJob?.cancel()
     }
 
     override fun onDestroy() {
