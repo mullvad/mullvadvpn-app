@@ -46,3 +46,9 @@ val enabledAppVariantTriples =
         Triple(PLAY, STAGEMOLE, DEBUG),
         Triple(PLAY, STAGEMOLE, RELEASE)
     )
+
+val enabledE2eVariantTriples =
+    listOf(
+        Triple(OSS, PROD, DEBUG),
+        Triple(PLAY, STAGEMOLE, DEBUG)
+    )

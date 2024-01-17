@@ -1,5 +1,6 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import java.util.Properties
+import org.gradle.configurationcache.extensions.capitalized
 
 plugins {
     id(Dependencies.Plugin.androidTestId)
@@ -19,9 +20,6 @@ android {
             "de.mannodermaus.junit5.AndroidJUnit5Builder"
         targetProjectPath = ":app"
 
-        missingDimensionStrategy(FlavorDimensions.BILLING, Flavors.OSS)
-        missingDimensionStrategy(FlavorDimensions.INFRASTRUCTURE, Flavors.PROD)
-
         fun Properties.addRequiredPropertyAsBuildConfigField(name: String) {
             val value = getProperty(name) ?: throw GradleException("Missing property: $name")
             buildConfigField(type = "String", name = name, value = "\"$value\"")
@@ -29,7 +27,6 @@ android {
 
         Properties().apply {
             load(project.file("e2e.properties").inputStream())
-            addRequiredPropertyAsBuildConfigField("API_BASE_URL")
             addRequiredPropertyAsBuildConfigField("API_VERSION")
         }
 
@@ -49,6 +46,30 @@ android {
                 addOptionalPropertyAsArgument("valid_test_account_token")
                 addOptionalPropertyAsArgument("invalid_test_account_token")
             }
+    }
+
+    flavorDimensions += FlavorDimensions.BILLING
+    flavorDimensions += FlavorDimensions.INFRASTRUCTURE
+
+    productFlavors {
+        create(Flavors.OSS) { dimension = FlavorDimensions.BILLING }
+        create(Flavors.PLAY) { dimension = FlavorDimensions.BILLING }
+        create(Flavors.PROD) {
+            dimension = FlavorDimensions.INFRASTRUCTURE
+            buildConfigField(
+                type = "String",
+                name = "INFRASTRUCTURE_BASE_DOMAIN",
+                value = "\"mullvad.net\""
+            )
+        }
+        create(Flavors.STAGEMOLE) {
+            dimension = FlavorDimensions.INFRASTRUCTURE
+            buildConfigField(
+                type = "String",
+                name = "INFRASTRUCTURE_BASE_DOMAIN",
+                value = "\"stagemole.eu\""
+            )
+        }
     }
 
     testOptions { execution = "ANDROIDX_TEST_ORCHESTRATOR" }
@@ -75,6 +96,19 @@ android {
                     "META-INF/LICENSE-notice.md"
                 )
         }
+    }
+}
+
+androidComponents {
+    beforeVariants { variantBuilder ->
+        variantBuilder.enable =
+            variantBuilder.let { currentVariant ->
+                val enabledVariants =
+                    enabledE2eVariantTriples.map { (billing, infra, buildType) ->
+                        billing + infra.capitalized() + buildType.capitalized()
+                    }
+                enabledVariants.contains(currentVariant.name)
+            }
     }
 }
 
