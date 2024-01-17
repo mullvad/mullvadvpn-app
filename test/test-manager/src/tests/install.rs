@@ -284,8 +284,13 @@ pub async fn test_installation_idempotency(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    // Connect to any relay
-    connect_and_wait(&mut mullvad_client).await?;
+    // Connect to any relay. This forces the daemon to enter a secured target state
+    connect_and_wait(&mut mullvad_client)
+        .await
+        .or_else(|error| match error {
+            Error::UnexpectedErrorState(_) => Ok(()),
+            err => Err(err),
+        })?;
     // Disable auto-connect
     mullvad_client
         .set_auto_connect(false)
@@ -302,8 +307,8 @@ pub async fn test_installation_idempotency(
         log::debug!("Installing new app");
         rpc.install_app(get_package_desc(&TEST_CONFIG.current_app_filename)?)
             .await?;
-        // verify that daemon is running
-        wait_for_tunnel_state(mullvad_client.clone(), |state| state.is_connected())
+        // verify that the daemon starts in a non-disconnected state
+        wait_for_tunnel_state(mullvad_client.clone(), |state| !state.is_disconnected())
             .await
             .map_err(|err| {
                 log::error!(
