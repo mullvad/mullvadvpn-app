@@ -1,6 +1,4 @@
 use crate::location::GeoIpLocation;
-#[cfg(target_os = "android")]
-use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use talpid_types::{
@@ -86,7 +84,7 @@ where
                 let _final__0 = location.into_java(env);
                 let mut constructor_signature =
                     String::with_capacity(1 + _signature__0.as_bytes().len() + 2);
-                constructor_signature.push_str("(");
+                constructor_signature.push('(');
                 constructor_signature.push_str(_signature__0);
                 constructor_signature.push_str(")V");
                 let parameters = [jnix::AsJValue::as_jvalue(&_final__0)];
@@ -108,7 +106,7 @@ where
                         + _signature_location.as_bytes().len()
                         + 2,
                 );
-                constructor_signature.push_str("(");
+                constructor_signature.push('(');
                 constructor_signature.push_str(_signature_endpoint);
                 constructor_signature.push_str(_signature_location);
                 constructor_signature.push_str(")V");
@@ -134,7 +132,7 @@ where
                         + _signature_location.as_bytes().len()
                         + 2,
                 );
-                constructor_signature.push_str("(");
+                constructor_signature.push('(');
                 constructor_signature.push_str(_signature_endpoint);
                 constructor_signature.push_str(_signature_location);
                 constructor_signature.push_str(")V");
@@ -155,7 +153,7 @@ where
                 let _final__0 = action_after_disconnect.into_java(env);
                 let mut constructor_signature =
                     String::with_capacity(1 + _signature__0.as_bytes().len() + 2);
-                constructor_signature.push_str("(");
+                constructor_signature.push('(');
                 constructor_signature.push_str(_signature__0);
                 constructor_signature.push_str(")V");
                 let parameters = [jnix::AsJValue::as_jvalue(&_final__0)];
@@ -172,7 +170,7 @@ where
                 let _final__0 = error_state.into_java(env);
                 let mut constructor_signature =
                     String::with_capacity(1 + _signature__0.as_bytes().len() + 2);
-                constructor_signature.push_str("(");
+                constructor_signature.push('(');
                 constructor_signature.push_str(_signature__0);
                 constructor_signature.push_str(")V");
                 let parameters = [jnix::AsJValue::as_jvalue(&_final__0)];
