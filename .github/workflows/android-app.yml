@@ -204,11 +204,20 @@ jobs:
           name: relay-list
           path: build
 
-      - name: Build Android app
+      - name: Build app
         uses: burrunan/gradle-cache-action@v1
         with:
           job-id: jdk17
           arguments: assembleOssProdDebug
+          gradle-version: wrapper
+          build-root-directory: android
+
+      - name: Build stagemole app
+        uses: burrunan/gradle-cache-action@v1
+        if: github.event_name == 'schedule' || github.event.inputs.run_firebase_tests == 'true'
+        with:
+          job-id: jdk17
+          arguments: assemblePlayStagemoleDebug
           gradle-version: wrapper
           build-root-directory: android
 
@@ -306,8 +315,11 @@ jobs:
         shell: bash -ieo pipefail {0}
         env:
           AUTO_FETCH_TEST_HELPER_APKS: true
+          TEST_TYPE: ${{ matrix.test-type }}
+          BILLING_FLAVOR: oss
+          INFRA_FLAVOR: prod
         run: |
-          ./android/scripts/run-instrumented-tests.sh ${{ matrix.test-type }}
+          ./android/scripts/run-instrumented-tests.sh
 
       - name: Upload instrumentation report (${{ matrix.test-type }})
         uses: actions/upload-artifact@v3
@@ -337,17 +349,30 @@ jobs:
         shell: bash -ieo pipefail {0}
         env:
           AUTO_FETCH_TEST_HELPER_APKS: true
+          TEST_TYPE: e2e
+          BILLING_FLAVOR: oss
+          INFRA_FLAVOR: prod
           VALID_TEST_ACCOUNT_TOKEN: ${{ secrets.ANDROID_PROD_TEST_ACCOUNT }}
           INVALID_TEST_ACCOUNT_TOKEN: '0000000000000000'
         run: |
-          ./android/scripts/run-instrumented-tests.sh e2e
+          ./android/scripts/run-instrumented-tests.sh
 
-  instrumented-firebase-tests:
-    name: Run instrumented firebase tests
+  firebase-tests:
+    name: Run firebase tests
     if: github.event_name == 'schedule' || github.event.inputs.run_firebase_tests == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: [build-app]
+    env:
+      FIREBASE_ENVIRONMENT_VARIABLES: "\
+        clearPackageData=true,\
+        runnerBuilder=de.mannodermaus.junit5.AndroidJUnit5Builder,\
+        invalid_test_account_token=0000000000000000,\
+        partner_auth=${{ secrets.STAGEMOLE_PARTNER_AUTH }}"
+    strategy:
+      fail-fast: false
+      matrix:
+        arg-spec-file: [mockapi-oss.yml, e2e-play-stagemole.yml]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -362,4 +387,6 @@ jobs:
         env:
           SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         with:
-          arg-spec: 'android/test/firebase-test-lab.yml:default'
+          arg-spec: |
+            android/test/firebase/${{ matrix.arg-spec-file }}:default
+            --environment-variables ${{ env.FIREBASE_ENVIRONMENT_VARIABLES }}

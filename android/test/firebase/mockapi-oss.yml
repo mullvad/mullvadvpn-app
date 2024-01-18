@@ -2,7 +2,7 @@
 default:
   type: instrumentation
   app: android/app/build/outputs/apk/ossProd/debug/app-oss-prod-debug.apk
-  test: android/test/mockapi/build/outputs/apk/debug/mockapi-debug.apk
+  test: android/test/mockapi/build/outputs/apk/oss/debug/mockapi-oss-debug.apk
   timeout: 10m
   use-orchestrator: true
   device:
