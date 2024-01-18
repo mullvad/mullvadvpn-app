@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.lib.endpoint.CustomApiEndpointConfiguration
 import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
 import net.mullvad.mullvadvpn.test.common.rule.CaptureScreenshotOnFailedTestRule
 import net.mullvad.mullvadvpn.test.mockapi.constant.LOG_TAG
+import net.mullvad.mullvadvpn.test.mockapi.constant.PACKAGE_NAME
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -39,7 +40,7 @@ abstract class MockApiTest {
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         targetContext = InstrumentationRegistry.getInstrumentation().targetContext
 
-        app = AppInteractor(device, targetContext)
+        app = AppInteractor(device, targetContext, PACKAGE_NAME)
 
         mockWebServer.start()
         Log.d(LOG_TAG, "Mocked web server started using port: ${mockWebServer.port}")

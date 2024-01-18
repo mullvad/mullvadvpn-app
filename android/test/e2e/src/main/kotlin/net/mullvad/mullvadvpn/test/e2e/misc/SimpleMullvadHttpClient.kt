@@ -9,9 +9,12 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.RequestFuture
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import net.mullvad.mullvadvpn.test.e2e.BuildConfig
+import net.mullvad.mullvadvpn.test.e2e.constant.ACCOUNT_URL
+import net.mullvad.mullvadvpn.test.e2e.constant.AUTH_URL
 import net.mullvad.mullvadvpn.test.e2e.constant.CONN_CHECK_URL
+import net.mullvad.mullvadvpn.test.e2e.constant.DEVICE_LIST_URL
 import net.mullvad.mullvadvpn.test.e2e.constant.LOG_TAG
+import net.mullvad.mullvadvpn.test.e2e.constant.PARTNER_ACCOUNT_URL
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -35,6 +38,24 @@ class SimpleMullvadHttpClient(context: Context) {
                 Log.v(LOG_TAG, "Successfully logged in and received access token: $accessToken")
             }
         }
+    }
+
+    fun createAccount(): String {
+        return sendSimpleSynchronousRequest(method = Request.Method.POST, url = ACCOUNT_URL)!!
+            .getString("number")
+    }
+
+    fun addTimeToAccountUsingPartnerAuth(
+        accountNumber: String,
+        daysToAdd: Int,
+        partnerAuth: String
+    ) {
+        sendSimpleSynchronousRequest(
+            method = Request.Method.POST,
+            url = "$PARTNER_ACCOUNT_URL/$accountNumber/extend",
+            body = JSONObject().apply { put("days", "$daysToAdd") },
+            authorizationHeader = "Basic $partnerAuth"
+        )
     }
 
     fun getDeviceList(accessToken: String): List<String> {
@@ -62,9 +83,9 @@ class SimpleMullvadHttpClient(context: Context) {
     fun removeDevice(token: String, deviceId: String) {
         Log.v(LOG_TAG, "Remove device: $deviceId")
         sendSimpleSynchronousRequestString(
-            Request.Method.DELETE,
-            "$DEVICE_LIST_URL/$deviceId",
-            token = token
+            method = Request.Method.DELETE,
+            url = "$DEVICE_LIST_URL/$deviceId",
+            authorizationHeader = "Bearer $token"
         )
     }
 
@@ -83,7 +104,7 @@ class SimpleMullvadHttpClient(context: Context) {
         method: Int,
         url: String,
         body: JSONObject? = null,
-        token: String? = null
+        authorizationHeader: String? = null
     ): JSONObject? {
         val future = RequestFuture.newFuture<JSONObject>()
         val request =
@@ -93,8 +114,8 @@ class SimpleMullvadHttpClient(context: Context) {
                     if (body != null) {
                         headers.put("Content-Type", "application/json")
                     }
-                    if (token != null) {
-                        headers.put("Authorization", "Bearer $token")
+                    if (authorizationHeader != null) {
+                        headers.put("Authorization", authorizationHeader)
                     }
                     return headers
                 }
@@ -114,7 +135,7 @@ class SimpleMullvadHttpClient(context: Context) {
         method: Int,
         url: String,
         body: String? = null,
-        token: String? = null
+        authorizationHeader: String? = null
     ): String? {
         val future = RequestFuture.newFuture<String>()
         val request =
@@ -124,8 +145,8 @@ class SimpleMullvadHttpClient(context: Context) {
                     if (body != null) {
                         headers.put("Content-Type", "application/json")
                     }
-                    if (token != null) {
-                        headers.put("Authorization", "Bearer $token")
+                    if (authorizationHeader != null) {
+                        headers.put("Authorization", authorizationHeader)
                     }
                     return headers
                 }
@@ -172,10 +193,6 @@ class SimpleMullvadHttpClient(context: Context) {
         (0 until this.length()).asSequence().map { this.get(it) as T }.iterator()
 
     companion object {
-        private const val AUTH_URL =
-            "${BuildConfig.API_BASE_URL}/auth/${BuildConfig.API_VERSION}/token"
-        private const val DEVICE_LIST_URL =
-            "${BuildConfig.API_BASE_URL}/accounts/${BuildConfig.API_VERSION}/devices"
         private const val REQUEST_ERROR_MESSAGE =
             "Unable to verify account due to invalid account or connectivity issues."
     }

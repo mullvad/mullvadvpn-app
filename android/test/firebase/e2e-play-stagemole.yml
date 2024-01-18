@@ -1,0 +1,11 @@
+---
+default:
+  type: instrumentation
+  app: android/app/build/outputs/apk/playStagemole/debug/app-play-stagemole-debug.apk
+  test: android/test/e2e/build/outputs/apk/playStagemole/debug/e2e-play-stagemole-debug.apk
+  timeout: 10m
+  use-orchestrator: true
+  device:
+    - {model: shiba, version: 34, locale: en, orientation: portrait}
+    - {model: tangorpro, version: 33, locale: en, orientation: portrait}
+    - {model: felix, version: 33, locale: en, orientation: portrait}
