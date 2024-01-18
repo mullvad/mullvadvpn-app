@@ -32,11 +32,13 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
             };
 
         let state = match state {
-            MullvadTunnelState::Disconnected(disconnected_location) => {
-                proto::tunnel_state::State::Disconnected(proto::tunnel_state::Disconnected {
-                    disconnected_location: disconnected_location.map(proto::GeoIpLocation::from),
-                })
-            }
+            MullvadTunnelState::Disconnected {
+                location: disconnected_location,
+                locked_down,
+            } => proto::tunnel_state::State::Disconnected(proto::tunnel_state::Disconnected {
+                disconnected_location: disconnected_location.map(proto::GeoIpLocation::from),
+                locked_down,
+            }),
             MullvadTunnelState::Connecting { endpoint, location } => {
                 proto::tunnel_state::State::Connecting(proto::tunnel_state::Connecting {
                     relay_info: Some(proto::TunnelStateRelayInfo {
@@ -193,11 +195,13 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
         let state = match state.state {
             Some(proto::tunnel_state::State::Disconnected(proto::tunnel_state::Disconnected {
                 disconnected_location,
-            })) => MullvadState::Disconnected(
-                disconnected_location
+                locked_down,
+            })) => MullvadState::Disconnected {
+                location: disconnected_location
                     .map(mullvad_types::location::GeoIpLocation::try_from)
                     .transpose()?,
-            ),
+                locked_down,
+            },
             Some(proto::tunnel_state::State::Connecting(proto::tunnel_state::Connecting {
                 relay_info:
                     Some(proto::TunnelStateRelayInfo {

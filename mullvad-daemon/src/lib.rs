@@ -439,7 +439,7 @@ impl DaemonExecutionState {
         match self {
             Running => {
                 match tunnel_state {
-                    TunnelState::Disconnected(_) => mem::replace(self, Finished),
+                    TunnelState::Disconnected { .. } => mem::replace(self, Finished),
                     _ => mem::replace(self, Exiting),
                 };
             }
@@ -856,7 +856,10 @@ where
         );
 
         let daemon = Daemon {
-            tunnel_state: TunnelState::Disconnected(None),
+            tunnel_state: TunnelState::Disconnected {
+                location: None,
+                locked_down: settings.block_when_disconnected,
+            },
             target_state,
             state: DaemonExecutionState::Running,
             #[cfg(target_os = "linux")]
@@ -999,7 +1002,10 @@ where
             .handle_state_transition(&tunnel_state_transition);
 
         let tunnel_state = match tunnel_state_transition {
-            TunnelStateTransition::Disconnected => TunnelState::Disconnected(None),
+            TunnelStateTransition::Disconnected { locked_down } => TunnelState::Disconnected {
+                location: None,
+                locked_down,
+            },
             TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
                 endpoint,
                 location: self.parameters_generator.get_last_location().await,
@@ -1024,7 +1030,7 @@ where
         log::debug!("New tunnel state: {:?}", tunnel_state);
 
         match tunnel_state {
-            TunnelState::Disconnected(_) => {
+            TunnelState::Disconnected { .. } => {
                 self.api_handle.availability.reset_inactivity_timer();
             }
             _ => {
@@ -1033,7 +1039,7 @@ where
         }
 
         match &tunnel_state {
-            TunnelState::Disconnected(_) => self.state.disconnected(),
+            TunnelState::Disconnected { .. } => self.state.disconnected(),
             TunnelState::Connecting { .. } => {
                 log::debug!("Settings: {}", self.settings.summary());
             }
@@ -1079,7 +1085,7 @@ where
             TunnelState::Connected { .. } => self.settings.tunnel_options.generic.enable_ipv6,
             // If not connected, we have to guess whether the users local connection supports IPv6.
             // The only thing we have to go on is the wireguard setting.
-            TunnelState::Disconnected(_) => {
+            TunnelState::Disconnected { .. } => {
                 if let RelaySettings::Normal(relay_constraints) = &self.settings.relay_settings {
                     // Note that `Constraint::Any` corresponds to just IPv4
                     matches!(
@@ -1098,7 +1104,7 @@ where
         self.location_handler.send_geo_location_request(use_ipv6);
     }
 
-    /// Recieves and handles the geographical exit location received from am.i.mullvad.net, i.e. the
+    /// Receives and handles the geographical exit location received from am.i.mullvad.net, i.e. the
     /// [`InternalDaemonEvent::LocationEvent`] event.
     fn handle_location_event(&mut self, location_data: LocationEventData) {
         let LocationEventData {
@@ -1112,7 +1118,10 @@ where
         }
 
         match self.tunnel_state {
-            TunnelState::Disconnected(ref mut location) => *location = Some(fetched_location),
+            TunnelState::Disconnected {
+                ref mut location,
+                locked_down: _,
+            } => *location = Some(fetched_location),
             TunnelState::Connected {
                 ref mut location, ..
             } => {

@@ -34,13 +34,25 @@ impl Status {
                         println!("New tunnel state: {new_state:#?}");
                     } else {
                         // When we enter the connected or disconnected state, am.i.mullvad.net will
-                        // be polled to get IP information. When it arrives, we will get another
-                        // tunnel state of the same enum type, but with the IP filled in. This
-                        // match statement checks for duplicate tunnel states and skips the second
-                        // print to avoid spamming the user.
+                        // be polled to get exit location. When it arrives, we will get another
+                        // tunnel state of the same enum type, but with the location filled in. This
+                        // match statement checks if the new state is an updated version of the old
+                        // one and if so skips the print to avoid spamming the user. Note that for
+                        // graphical frontends updating the drawn state with an identical one is
+                        // invisible, so this is only an issue for the CLI.
                         match (&previous_tunnel_state, &new_state) {
-                            (Some(TunnelState::Disconnected(_)), TunnelState::Disconnected(_))
-                            | (
+                            (
+                                Some(TunnelState::Disconnected {
+                                    location: _,
+                                    locked_down: was_locked_down,
+                                }),
+                                TunnelState::Disconnected {
+                                    location: _,
+                                    locked_down,
+                                },
+                                // Do print an updated state if the lockdown setting was changed
+                            ) if was_locked_down == locked_down => continue,
+                            (
                                 Some(TunnelState::Connected { .. }),
                                 TunnelState::Connected { .. },
                             ) => continue,
@@ -91,7 +103,7 @@ pub async fn handle(cmd: Option<Status>, args: StatusArgs) -> Result<()> {
     let state = rpc.get_tunnel_state().await?;
     let device = rpc.get_device().await?;
 
-    print_account_loggedout(&state, &device);
+    print_account_logged_out(&state, &device);
 
     if args.debug {
         println!("Tunnel state: {state:#?}");
@@ -106,7 +118,7 @@ pub async fn handle(cmd: Option<Status>, args: StatusArgs) -> Result<()> {
     Ok(())
 }
 
-fn print_account_loggedout(state: &TunnelState, device: &DeviceState) {
+fn print_account_logged_out(state: &TunnelState, device: &DeviceState) {
     match state {
         TunnelState::Connecting { .. } | TunnelState::Connected { .. } | TunnelState::Error(_) => {
             match device {
@@ -117,6 +129,6 @@ fn print_account_loggedout(state: &TunnelState, device: &DeviceState) {
                 DeviceState::LoggedIn(_) => (),
             }
         }
-        TunnelState::Disconnected(_) | TunnelState::Disconnecting(_) => (),
+        TunnelState::Disconnected { .. } | TunnelState::Disconnecting(_) => (),
     }
 }
