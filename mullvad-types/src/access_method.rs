@@ -16,8 +16,22 @@ impl Settings {
     }
 
     /// Remove an [`ApiAccessMethod`] from `api_access_methods`.
-    pub fn remove(&mut self, api_access_method: &Id) {
-        self.retain(|method| method.get_id() != *api_access_method)
+    ///
+    /// This function will return an error if a built-in API access is about to
+    /// be removed.
+    pub fn remove(&mut self, api_access_method: &Id) -> Result<(), Error> {
+        match self.find(|x| x.get_id() == *api_access_method) {
+            None => Ok(()),
+            Some(access_method_setting) => match access_method_setting.access_method {
+                AccessMethod::BuiltIn(ref built_in) => Err(Error::RemoveBuiltin {
+                    attempted: built_in.clone(),
+                }),
+                AccessMethod::Custom(_) => {
+                    self.retain(|method| method.get_id() != *api_access_method);
+                    Ok(())
+                }
+            },
+        }
     }
 
     /// Search for any [`AccessMethod`] in `api_access_methods` which matches `predicate`.
@@ -95,6 +109,13 @@ impl Default for Settings {
             access_method_settings: vec![Settings::direct(), Settings::mullvad_bridges()],
         }
     }
+}
+
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Built-in access methods can not be removed
+    #[error(display = "Cannot remove built-in access method {}", attempted)]
+    RemoveBuiltin { attempted: BuiltInAccessMethod },
 }
 
 /// API Access Method datastructure
@@ -224,6 +245,12 @@ impl BuiltInAccessMethod {
             BuiltInAccessMethod::Direct => "Direct".to_string(),
             BuiltInAccessMethod::Bridge => "Mullvad Bridges".to_string(),
         }
+    }
+}
+
+impl std::fmt::Display for BuiltInAccessMethod {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.canonical_name())
     }
 }
 
