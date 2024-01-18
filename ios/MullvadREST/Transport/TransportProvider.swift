@@ -15,6 +15,7 @@ public final class TransportProvider: RESTTransportProvider {
     private let addressCache: REST.AddressCache
     private var transportStrategy: TransportStrategy
     private var currentTransport: RESTTransport?
+    private var currentTransportType: TransportStrategy.Transport
     private let parallelRequestsMutex = NSLock()
 
     public init(
@@ -25,6 +26,7 @@ public final class TransportProvider: RESTTransportProvider {
         self.urlSessionTransport = urlSessionTransport
         self.addressCache = addressCache
         self.transportStrategy = transportStrategy
+        self.currentTransportType = transportStrategy.connectionTransport()
     }
 
     public func makeTransport() -> RESTTransport? {
@@ -62,25 +64,35 @@ public final class TransportProvider: RESTTransportProvider {
     ///
     /// - Returns: A `RESTTransport` object to make a connection
     private func makeTransportInner() -> RESTTransport? {
-        switch transportStrategy.connectionTransport() {
-        case .direct:
-            currentTransport = urlSessionTransport
-        case let .shadowsocks(configuration):
-            currentTransport = ShadowsocksTransport(
-                urlSession: urlSessionTransport.urlSession,
-                configuration: configuration,
-                addressCache: addressCache
-            )
-        case let .socks5(configuration):
-            currentTransport = URLSessionSocks5Transport(
-                urlSession: urlSessionTransport.urlSession,
-                configuration: configuration,
-                addressCache: addressCache
-            )
-        case .none:
-            currentTransport = nil
+        if currentTransport == nil || shouldNotReuseCurrentTransport {
+            currentTransportType = transportStrategy.connectionTransport()
+            switch currentTransportType {
+            case .direct:
+                currentTransport = urlSessionTransport
+            case let .shadowsocks(configuration):
+                currentTransport = ShadowsocksTransport(
+                    urlSession: urlSessionTransport.urlSession,
+                    configuration: configuration,
+                    addressCache: addressCache
+                )
+            case let .socks5(configuration):
+                currentTransport = URLSessionSocks5Transport(
+                    urlSession: urlSessionTransport.urlSession,
+                    configuration: configuration,
+                    addressCache: addressCache
+                )
+            case .none:
+                currentTransport = nil
+            }
         }
         return currentTransport
+    }
+
+    /// The `Main` allows modifications to access methods through the UI.
+    /// The `TransportProvider` relies on a `CurrentTransport` value set during build time or network error.
+    /// To ensure  both process `Packet Tunnel` and `Main`  uses the latest changes, the `TransportProvider` compares the `transportType` with the latest value in the cache and reuse it if it's still valid .
+    private var shouldNotReuseCurrentTransport: Bool {
+        currentTransportType != transportStrategy.connectionTransport()
     }
 }
 

@@ -15,8 +15,11 @@ class AccessMethodIterator {
     private let dataSource: AccessMethodRepositoryDataSource
 
     private var index = 0
-    private var enabledConfigurations: [PersistentAccessMethod] = []
     private var cancellables = Set<Combine.AnyCancellable>()
+
+    private var enabledConfigurations: [PersistentAccessMethod] {
+        dataSource.accessMethods.filter { $0.isEnabled }
+    }
 
     private var lastReachableApiAccessId: UUID {
         lastReachableApiAccessCache.id
@@ -31,9 +34,8 @@ class AccessMethodIterator {
 
         self.dataSource
             .publisher
-            .sink { [weak self] configurations in
+            .sink { [weak self] _ in
                 guard let self else { return }
-                self.enabledConfigurations = configurations.filter { $0.isEnabled }
                 self.refreshCacheIfNeeded()
             }
             .store(in: &cancellables)
