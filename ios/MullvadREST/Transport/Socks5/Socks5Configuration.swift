@@ -11,7 +11,7 @@ import MullvadTypes
 
 /// Socks5 configuration.
 /// - See: ``URLSessionSocks5Transport``
-public struct Socks5Configuration {
+public struct Socks5Configuration: Equatable {
     /// The socks proxy endpoint.
     public var proxyEndpoint: AnyIPEndpoint
 

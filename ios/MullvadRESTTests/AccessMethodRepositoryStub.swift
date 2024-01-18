@@ -17,6 +17,10 @@ struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource {
         passthroughSubject.eraseToAnyPublisher()
     }
 
+    var accessMethods: [PersistentAccessMethod] {
+        passthroughSubject.value
+    }
+
     let passthroughSubject: CurrentValueSubject<[PersistentAccessMethod], Never> = CurrentValueSubject([])
 
     init(accessMethods: [PersistentAccessMethod]) {

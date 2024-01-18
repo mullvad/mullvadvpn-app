@@ -14,6 +14,8 @@ public protocol AccessMethodRepositoryDataSource {
     var publisher: AnyPublisher<[PersistentAccessMethod], Never> { get }
 
     var directAccess: PersistentAccessMethod { get }
+
+    var accessMethods: [PersistentAccessMethod] { get }
 }
 
 public protocol AccessMethodRepositoryProtocol: AccessMethodRepositoryDataSource {

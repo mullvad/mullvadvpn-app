@@ -32,6 +32,10 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
         direct
     }
 
+    public var accessMethods: [PersistentAccessMethod] {
+        fetchAll()
+    }
+
     public init() {
         add([direct, bridge])
     }
