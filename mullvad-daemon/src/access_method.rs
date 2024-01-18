@@ -14,9 +14,6 @@ pub enum Error {
     /// Can not add access method
     #[error(display = "Cannot add custom access method")]
     Add,
-    /// Can not remove built-in access method
-    #[error(display = "Cannot remove built-in access method")]
-    RemoveBuiltIn,
     /// Can not find access method
     #[error(display = "Cannot find custom access method {}", _0)]
     NoSuchMethod(access_method::Id),
@@ -29,6 +26,9 @@ pub enum Error {
     ConnectionMode(#[error(source)] api::Error),
     #[error(display = "API endpoint rotation failed")]
     Rest(#[error(source)] rest::Error),
+    /// Something went wrong in the [`access_method`](mod@access_method) module.
+    #[error(display = "Access method error")]
+    AccessMethod(#[error(source)] access_method::Error),
     /// Access methods settings error
     #[error(display = "Settings error")]
     Settings(#[error(source)] settings::Error),
@@ -67,12 +67,15 @@ where
         &mut self,
         access_method: access_method::Id,
     ) -> Result<(), Error> {
-        // Make sure that we are not trying to remove a built-in API access
-        // method
-        match self.settings.api_access_methods.find_by_id(&access_method) {
-            Some(access_method) if access_method.is_builtin() => return Err(Error::RemoveBuiltIn),
-            _ => (),
-        };
+        self.settings
+            .try_update(|settings| -> Result<(), Error> {
+                settings.api_access_methods.remove(&access_method)?;
+                ensure_direct_is_available(settings);
+                Ok(())
+            })
+            .await
+            .map(|did_change| self.notify_on_change(did_change))
+            .map_err(Error::Settings)?;
 
         // If the currently active access method is removed, a new access
         // method should be selected.
@@ -80,12 +83,7 @@ where
             self.force_api_endpoint_rotation().await?;
         }
 
-        self.settings
-            .update(|settings| settings.api_access_methods.remove(&access_method))
-            .await
-            .map(|did_change| self.notify_on_change(did_change))
-            .map(|_| ())
-            .map_err(Error::Settings)
+        Ok(())
     }
 
     /// Select an [`AccessMethodSetting`] as the current API access method.
