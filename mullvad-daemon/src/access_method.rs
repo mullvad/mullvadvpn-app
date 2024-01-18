@@ -92,11 +92,11 @@ where
             .map_err(Error::Settings)
     }
 
-    /// Set an [`AccessMethodSetting`] as the current API access method.
+    /// Select an [`AccessMethodSetting`] as the current API access method.
     ///
     /// If successful, the daemon will force a rotation of the active API access
     /// method, which means that subsequent API calls will use the new
-    /// [`AccessMethodSetting`] to figure out the API endpoint.
+    /// [`AccessMethodSetting`] as to reach the API endpoint.
     ///
     /// # Note
     ///
@@ -105,7 +105,7 @@ where
     /// [`AccessMethodSetting`] is enabled, it is eligible to be part of the
     /// automatic selection of access methods that the Daemon will perform at
     /// start up or if the current access method starts failing.
-    pub async fn set_api_access_method(
+    pub async fn select_api_access_method(
         &mut self,
         access_method: access_method::Id,
     ) -> Result<(), Error> {
@@ -151,7 +151,7 @@ where
         // If the currently active access method is updated, we need to re-set
         // it after updating the settings.
         if access_method_update.get_id() == self.get_current_access_method().await?.get_id() {
-            self.set_api_access_method(access_method_update.get_id())
+            self.select_api_access_method(access_method_update.get_id())
                 .await?;
         }
 
