@@ -37,12 +37,12 @@ class LoginPage: Page {
     }
 
     @discardableResult public func verifySuccessIconShown() -> Self {
-        app.images.element(matching: .image, identifier: "IconSuccess")
+        _ = app.images.element(matching: .image, identifier: "IconSuccess")
         return self
     }
 
     @discardableResult public func verifyFailIconShown() -> Self {
-        app.images.element(matching: .image, identifier: "IconFail")
+        _ = app.images.element(matching: .image, identifier: "IconFail").waitForExistence(timeout: 15)
         return self
     }
 }
