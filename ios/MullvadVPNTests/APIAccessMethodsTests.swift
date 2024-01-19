@@ -120,8 +120,7 @@ extension APIAccessMethodsTests {
             isEnabled: true,
             proxyConfiguration: .socks5(PersistentProxyConfiguration.SocksConfiguration(
                 server: .ipv4(.any),
-                port: 1,
-                authentication: .noAuthentication
+                port: 1
             ))
         )
     }

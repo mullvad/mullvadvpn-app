@@ -194,11 +194,9 @@ class TransportStrategyTests: XCTestCase {
     }
 
     func testUsesSocks5WithAuthenticationWhenItReaches() throws {
-        let username = "user"
-        let password = "pass"
-        let authentication = PersistentProxyConfiguration.SocksAuthentication.usernamePassword(
-            username: username,
-            password: password
+        let authentication = PersistentProxyConfiguration.SocksAuthentication(
+            username: "user",
+            password: "pass"
         )
         let socks5Configuration = PersistentProxyConfiguration.SocksConfiguration(
             server: .ipv4(.loopback),
@@ -230,8 +228,8 @@ class TransportStrategyTests: XCTestCase {
         transportStrategy.didFail()
 
         guard case let .socks5(configuration) = transportStrategy.connectionTransport(),
-              username == configuration.username,
-              password == configuration.password else {
+              authentication.username == configuration.username,
+              authentication.password == configuration.password else {
             XCTAssertThrowsError("Failed to load Socks5 with authentication")
             return
         }

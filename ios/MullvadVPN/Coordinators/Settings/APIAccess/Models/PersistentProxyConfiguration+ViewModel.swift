@@ -21,15 +21,9 @@ extension PersistentProxyConfiguration {
             port: "\(config.port)"
         )
 
-        switch config.authentication {
-        case let .usernamePassword(username, password):
-            socks.username = username
-            socks.password = password
-            socks.authenticate = true
-
-        case .noAuthentication:
-            socks.authenticate = false
-        }
+        socks.username = config.authentication?.username ?? ""
+        socks.password = config.authentication?.password ?? ""
+        socks.authenticate = config.hasAuthentication
 
         return socks
     }

@@ -78,16 +78,11 @@ public class TransportStrategy: Equatable {
                 cipher: configuration.cipher.rawValue.description
             ))
         case let .socks5(configuration):
-            switch configuration.authentication {
-            case .noAuthentication:
-                return .socks5(configuration: Socks5Configuration(proxyEndpoint: configuration.toAnyIPEndpoint))
-            case let .usernamePassword(username, password):
-                return .socks5(configuration: Socks5Configuration(
-                    proxyEndpoint: configuration.toAnyIPEndpoint,
-                    username: username,
-                    password: password
-                ))
-            }
+            return .socks5(configuration: Socks5Configuration(
+                proxyEndpoint: configuration.toAnyIPEndpoint,
+                username: configuration.authentication?.username,
+                password: configuration.authentication?.password
+            ))
         }
     }
 

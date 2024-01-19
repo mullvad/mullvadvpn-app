@@ -58,8 +58,7 @@ extension AccessMethodViewModel.Socks {
     func intoPersistentProxyConfiguration() throws -> PersistentProxyConfiguration {
         var draftConfiguration = PersistentProxyConfiguration.SocksConfiguration(
             server: .ipv4(.loopback),
-            port: 0,
-            authentication: .noAuthentication
+            port: 0
         )
 
         let context: AccessMethodFieldValidationError.Context = .socks
@@ -87,7 +86,10 @@ extension AccessMethodViewModel.Socks {
                     context: context
                 ))
             } else {
-                draftConfiguration.authentication = .usernamePassword(username: username, password: password)
+                draftConfiguration.authentication = PersistentProxyConfiguration.SocksAuthentication(
+                    username: username,
+                    password: password
+                )
             }
         }
 
