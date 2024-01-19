@@ -24,6 +24,14 @@ class SettingsPage: Page {
         return self
     }
 
+    @discardableResult func tapReportAProblemCell() -> Self {
+        app.tables[AccessibilityIdentifier.settingsTableView]
+            .cells[AccessibilityIdentifier.problemReportCell]
+            .tap()
+
+        return self
+    }
+
     @discardableResult func tapDNSSettingsCell() -> Self {
         app.tables
             .cells[AccessibilityIdentifier.dnsSettings]

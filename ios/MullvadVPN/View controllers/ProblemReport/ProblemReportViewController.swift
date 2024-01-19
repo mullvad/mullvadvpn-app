@@ -136,6 +136,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     private lazy var viewLogsButton: AppButton = {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.accessibilityIdentifier = .problemReportAppLogsButton
         button.setTitle(NSLocalizedString(
             "VIEW_APP_LOGS_BUTTON_TITLE",
             tableName: "ProblemReport",
@@ -149,6 +150,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     private lazy var sendButton: AppButton = {
         let button = AppButton(style: .success)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.accessibilityIdentifier = .problemReportSendButton
         button.setTitle(NSLocalizedString(
             "SEND_BUTTON_TITLE",
             tableName: "ProblemReport",
@@ -210,6 +212,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         super.viewDidLoad()
 
         view.backgroundColor = .secondaryColor
+        view.accessibilityIdentifier = .problemReportView
 
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
@@ -229,6 +232,9 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         emailTextField.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
         messageTextView.setContentHuggingPriority(.defaultLow, for: .vertical)
         messageTextView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+
+        emailTextField.accessibilityIdentifier = .problemReportEmailTextField
+        messageTextView.accessibilityIdentifier = .problemReportMessageTextView
 
         addConstraints()
         registerForNotifications()
