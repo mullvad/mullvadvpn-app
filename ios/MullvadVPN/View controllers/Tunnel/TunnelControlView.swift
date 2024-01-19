@@ -64,6 +64,7 @@ final class TunnelControlView: UIView {
 
     private let connectButton: AppButton = {
         let button = AppButton(style: .success)
+        button.accessibilityIdentifier = .secureConnectionButton
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -119,6 +120,8 @@ final class TunnelControlView: UIView {
         directionalLayoutMargins = UIMetrics.contentLayoutMargins
         accessibilityContainerType = .semanticGroup
         accessibilityIdentifier = .tunnelControlView
+
+        secureLabel.accessibilityIdentifier = .connectionStatusLabel
 
         addSubviews()
         addButtonHandlers()
