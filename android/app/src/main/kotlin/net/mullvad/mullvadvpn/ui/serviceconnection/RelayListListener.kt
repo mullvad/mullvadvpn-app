@@ -32,7 +32,11 @@ class RelayListListener(
             // not be a relay list since the fetching of a relay list would be done before the
             // event stream is available.
             .onStart { messageHandler.trySendRequest(Request.FetchRelayList) }
-            .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, defaultRelayList())
+            .stateIn(
+                CoroutineScope(dispatcher),
+                SharingStarted.WhileSubscribed(),
+                defaultRelayList()
+            )
 
     fun updateSelectedRelayLocation(value: GeographicLocationConstraint) {
         messageHandler.trySendRequest(Request.SetRelayLocation(value))
@@ -47,6 +51,10 @@ class RelayListListener(
         providers: Constraint<Providers>
     ) {
         messageHandler.trySendRequest(Request.SetOwnershipAndProviders(ownership, providers))
+    }
+
+    fun fetchRelayList() {
+        messageHandler.trySendRequest(Request.FetchRelayList)
     }
 
     private fun defaultRelayList() = RelayList(ArrayList(), WireguardEndpointData(ArrayList()))

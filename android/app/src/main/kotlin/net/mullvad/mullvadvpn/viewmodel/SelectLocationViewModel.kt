@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.compose.state.RelayListState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.state.toNullableOwnership
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
@@ -44,35 +45,30 @@ class SelectLocationViewModel(
                 selectedOwnership,
                 allProviders,
                 selectedConstraintProviders ->
-                val selectedProviders =
-                    selectedConstraintProviders.toSelectedProviders(allProviders)
-
-                val selectedProvidersByOwnershipList =
+                val selectedOwnershipItem = selectedOwnership.toNullableOwnership()
+                val selectedProvidersCount =
                     filterSelectedProvidersByOwnership(
-                        selectedProviders,
-                        selectedOwnership.toNullableOwnership()
-                    )
-
-                val allProvidersByOwnershipListList =
-                    filterAllProvidersByOwnership(
-                        allProviders,
-                        selectedOwnership.toNullableOwnership()
-                    )
+                            selectedConstraintProviders.toSelectedProviders(allProviders),
+                            selectedOwnershipItem
+                        )
+                        ?.size
 
                 val filteredRelayCountries =
                     relayCountries.filterOnSearchTerm(searchTerm, relayItem)
-                SelectLocationUiState.ShowData(
+
+                SelectLocationUiState.Data(
                     searchTerm = searchTerm,
-                    countries = filteredRelayCountries,
-                    selectedRelay = relayItem,
-                    selectedOwnership = selectedOwnership.toNullableOwnership(),
-                    selectedProvidersCount =
-                        if (
-                            selectedProvidersByOwnershipList.size ==
-                                allProvidersByOwnershipListList.size
-                        )
-                            null
-                        else selectedProvidersByOwnershipList.size
+                    selectedOwnership = selectedOwnershipItem,
+                    selectedProvidersCount = selectedProvidersCount,
+                    relayListState =
+                        if (filteredRelayCountries.isNotEmpty()) {
+                            RelayListState.RelayList(
+                                countries = filteredRelayCountries,
+                                selectedRelay = relayItem
+                            )
+                        } else {
+                            RelayListState.Empty
+                        },
                 )
             }
             .stateIn(
@@ -83,6 +79,10 @@ class SelectLocationViewModel(
 
     private val _uiSideEffect = Channel<SelectLocationSideEffect>(1, BufferOverflow.DROP_OLDEST)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
+
+    init {
+        viewModelScope.launch { relayListUseCase.fetchRelayList() }
+    }
 
     fun selectRelay(relayItem: RelayItem) {
         relayListUseCase.updateSelectedRelayLocation(relayItem.location)
@@ -95,26 +95,16 @@ class SelectLocationViewModel(
     }
 
     private fun filterSelectedProvidersByOwnership(
-        selectedProviders: List<Provider>,
+        selectedProviders: List<Provider>?,
         selectedOwnership: Ownership?
-    ): List<Provider> {
-        return when (selectedOwnership) {
-            Ownership.MullvadOwned -> selectedProviders.filter { it.mullvadOwned }
-            Ownership.Rented -> selectedProviders.filterNot { it.mullvadOwned }
-            else -> selectedProviders
+    ): List<Provider>? =
+        selectedProviders?.let {
+            when (selectedOwnership) {
+                Ownership.MullvadOwned -> selectedProviders.filter { it.mullvadOwned }
+                Ownership.Rented -> selectedProviders.filterNot { it.mullvadOwned }
+                else -> selectedProviders
+            }
         }
-    }
-
-    private fun filterAllProvidersByOwnership(
-        allProviders: List<Provider>,
-        selectedOwnership: Ownership?
-    ): List<Provider> {
-        return when (selectedOwnership) {
-            Ownership.MullvadOwned -> allProviders.filter { it.mullvadOwned }
-            Ownership.Rented -> allProviders.filterNot { it.mullvadOwned }
-            else -> allProviders
-        }
-    }
 
     fun removeOwnerFilter() {
         viewModelScope.launch {

@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
@@ -45,6 +45,7 @@ import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.destinations.FilterScreenDestination
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
+import net.mullvad.mullvadvpn.compose.state.RelayListState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
@@ -62,12 +63,15 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 private fun PreviewSelectLocationScreen() {
     val state =
-        SelectLocationUiState.ShowData(
+        SelectLocationUiState.Data(
             searchTerm = "",
-            countries = listOf(RelayCountry("Country 1", "Code 1", false, emptyList())),
-            selectedRelay = null,
             selectedOwnership = null,
-            selectedProvidersCount = 0
+            selectedProvidersCount = 0,
+            relayListState =
+                RelayListState.RelayList(
+                    countries = listOf(RelayCountry("Country 1", "Code 1", false, emptyList())),
+                    selectedRelay = null,
+                )
         )
     AppTheme {
         SelectLocationScreen(
@@ -141,7 +145,7 @@ fun SelectLocationScreen(
 
             when (uiState) {
                 SelectLocationUiState.Loading -> {}
-                is SelectLocationUiState.ShowData -> {
+                is SelectLocationUiState.Data -> {
                     if (uiState.hasFilter) {
                         FilterCell(
                             ownershipFilter = uiState.selectedOwnership,
@@ -163,12 +167,16 @@ fun SelectLocationScreen(
             }
             Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
             val lazyListState = rememberLazyListState()
-            if (uiState is SelectLocationUiState.ShowData && uiState.selectedRelay != null) {
-                LaunchedEffect(uiState.selectedRelay) {
+            if (
+                uiState is SelectLocationUiState.Data &&
+                    uiState.relayListState is RelayListState.RelayList &&
+                    uiState.relayListState.selectedRelay != null
+            ) {
+                LaunchedEffect(uiState.relayListState.selectedRelay) {
                     val index =
-                        uiState.countries.indexOfFirst {
-                            it.location.location.country ==
-                                uiState.selectedRelay.location.location.country
+                        uiState.relayListState.countries.indexOfFirst { relayCountry ->
+                            relayCountry.location.location.country ==
+                                uiState.relayListState.selectedRelay.location.location.country
                         }
 
                     lazyListState.scrollToItem(index)
@@ -187,69 +195,82 @@ fun SelectLocationScreen(
             ) {
                 when (uiState) {
                     SelectLocationUiState.Loading -> {
-                        item(contentType = ContentType.PROGRESS) {
-                            MullvadCircularProgressIndicatorLarge(
-                                Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
-                            )
-                        }
+                        loading()
                     }
-                    is SelectLocationUiState.ShowData -> {
-                        if (uiState.countries.isEmpty()) {
-                            item(contentType = ContentType.EMPTY_TEXT) {
-                                val firstRow =
-                                    HtmlCompat.fromHtml(
-                                            textResource(
-                                                id = R.string.select_location_empty_text_first_row,
-                                                uiState.searchTerm
-                                            ),
-                                            HtmlCompat.FROM_HTML_MODE_COMPACT
-                                        )
-                                        .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
-                                val secondRow =
-                                    textResource(
-                                        id = R.string.select_location_empty_text_second_row
-                                    )
-                                Column(
-                                    modifier =
-                                        Modifier.padding(
-                                            horizontal = Dimens.selectLocationTitlePadding
-                                        ),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text(
-                                        text = firstRow,
-                                        style = MaterialTheme.typography.labelMedium,
-                                        textAlign = TextAlign.Center,
-                                        color = MaterialTheme.colorScheme.onSecondary,
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                    Text(
-                                        text = secondRow,
-                                        style = MaterialTheme.typography.labelMedium,
-                                        textAlign = TextAlign.Center,
-                                        color = MaterialTheme.colorScheme.onSecondary
-                                    )
-                                }
-                            }
-                        } else {
-                            items(
-                                count = uiState.countries.size,
-                                key = { index -> uiState.countries[index].hashCode() },
-                                contentType = { ContentType.ITEM }
-                            ) { index ->
-                                val country = uiState.countries[index]
-                                RelayLocationCell(
-                                    relay = country,
-                                    selectedItem = uiState.selectedRelay,
-                                    onSelectRelay = onSelectRelay,
-                                    modifier = Modifier.animateContentSize()
-                                )
-                            }
-                        }
+                    is SelectLocationUiState.Data -> {
+                        relayList(
+                            relayListState = uiState.relayListState,
+                            searchTerm = uiState.searchTerm,
+                            onSelectRelay = onSelectRelay
+                        )
                     }
                 }
             }
+        }
+    }
+}
+
+private fun LazyListScope.loading() {
+    item(contentType = ContentType.PROGRESS) {
+        MullvadCircularProgressIndicatorLarge(Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR))
+    }
+}
+
+private fun LazyListScope.relayList(
+    relayListState: RelayListState,
+    searchTerm: String,
+    onSelectRelay: (item: RelayItem) -> Unit
+) {
+    when (relayListState) {
+        is RelayListState.RelayList -> {
+            items(
+                count = relayListState.countries.size,
+                key = { index -> relayListState.countries[index].hashCode() },
+                contentType = { ContentType.ITEM }
+            ) { index ->
+                val country = relayListState.countries[index]
+                RelayLocationCell(
+                    relay = country,
+                    selectedItem = relayListState.selectedRelay,
+                    onSelectRelay = onSelectRelay,
+                    modifier = Modifier.animateContentSize()
+                )
+            }
+        }
+        RelayListState.Empty -> {
+            if (searchTerm.isNotEmpty())
+                item(contentType = ContentType.EMPTY_TEXT) {
+                    val firstRow =
+                        HtmlCompat.fromHtml(
+                                textResource(
+                                    id = R.string.select_location_empty_text_first_row,
+                                    searchTerm
+                                ),
+                                HtmlCompat.FROM_HTML_MODE_COMPACT
+                            )
+                            .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
+                    val secondRow =
+                        textResource(id = R.string.select_location_empty_text_second_row)
+                    Column(
+                        modifier = Modifier.padding(horizontal = Dimens.selectLocationTitlePadding),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = firstRow,
+                            style = MaterialTheme.typography.labelMedium,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSecondary,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = secondRow,
+                            style = MaterialTheme.typography.labelMedium,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSecondary
+                        )
+                    }
+                }
         }
     }
 }
