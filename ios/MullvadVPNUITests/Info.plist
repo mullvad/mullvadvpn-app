@@ -2,17 +2,25 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>MullvadAdServingDomain</key>
-	<string>$(MULLVAD_AD_SERVING_DOMAIN)</string>
-	<key>MullvadDisplayName</key>
+	<key>AdServingDomain</key>
+	<string>$(AD_SERVING_DOMAIN)</string>
+	<key>ApiEndpoint</key>
+	<string>$(API_ENDPOINT)</string>
+	<key>ApiHostName</key>
+	<string>$(API_HOST_NAME)</string>
+	<key>DisplayName</key>
 	<string>$(DISPLAY_NAME)</string>
-	<key>MullvadFiveWireGuardKeysAccountNumber</key>
-	<string>$(MULLVAD_FIVE_WIREGUARD_KEYS_ACCOUNT_NUMBER)</string>
-	<key>MullvadHasTimeAccountNumber</key>
-	<string>$(MULLVAD_HAS_TIME_ACCOUNT_NUMBER)</string>
-	<key>MullvadIOSDevicePinCode</key>
-	<string>$(MULLVAD_IOS_DEVICE_PIN_CODE)</string>
-	<key>MullvadNoTimeAccountNumber</key>
-	<string>$(MULLVAD_NO_TIME_ACCOUNT_NUMBER)</string>
+	<key>FirewallApiBaseURL</key>
+	<string>$(FIREWALL_API_BASE_URL)</string>
+	<key>FiveWireGuardKeysAccountNumber</key>
+	<string>$(FIVE_WIREGUARD_KEYS_ACCOUNT_NUMBER)</string>
+	<key>HasTimeAccountNumber</key>
+	<string>$(HAS_TIME_ACCOUNT_NUMBER)</string>
+	<key>IOSDevicePinCode</key>
+	<string>$(IOS_DEVICE_PIN_CODE)</string>
+	<key>NoTimeAccountNumber</key>
+	<string>$(NO_TIME_ACCOUNT_NUMBER)</string>
+	<key>TestDeviceIdentifier</key>
+	<string>$(TEST_DEVICE_IDENTIFIER_UUID</string>
 </dict>
 </plist>

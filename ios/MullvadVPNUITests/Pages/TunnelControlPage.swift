@@ -20,4 +20,15 @@ class TunnelControlPage: Page {
         app.buttons[AccessibilityIdentifier.selectLocationButton].tap()
         return self
     }
+
+    @discardableResult func tapSecureConnectionButton() -> Self {
+        app.buttons[AccessibilityIdentifier.secureConnectionButton].tap()
+        return self
+    }
+
+    @discardableResult func waitForSecureConnectionLabel() -> Self {
+        _ = app.staticTexts[AccessibilityIdentifier.connectionStatusLabel]
+            .waitForExistence(timeout: BaseUITestCase.defaultTimeout)
+        return self
+    }
 }
