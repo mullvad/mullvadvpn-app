@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
@@ -93,7 +94,17 @@ fun SplitTunneling(navigator: DestinationsNavigator) {
         onIncludeAppClick = viewModel::onIncludeAppClick,
         onBackClick = navigator::navigateUp,
         onResolveIcon = { packageName ->
-            packageManager.getApplicationIcon(packageName).toBitmapOrNull()
+            try {
+                packageManager.getApplicationIcon(packageName).toBitmapOrNull()
+            } catch (e: Exception) {
+                // Name not found is thrown if the application is not installed
+                // IllegalArgumentException is thrown if the application has an invalid icon
+                when (e) {
+                    is PackageManager.NameNotFoundException,
+                    is IllegalArgumentException -> null
+                    else -> throw e
+                }
+            }
         }
     )
 }
