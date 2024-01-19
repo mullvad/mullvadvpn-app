@@ -84,7 +84,7 @@ pub const CONFIG_SERVICE_PORT: u16 = 1337;
 
 /// MTU to set on the tunnel config client socket. We want a low value to prevent fragmentation.
 /// This is needed for two reasons:
-/// 1. Especially on Android, we've found that the default MTU is often lower than the real MTU, and
+/// 1. Especially on Android, we've found that the real MTU is often lower than the default MTU, and
 ///    we cannot lower it further. This causes the outer packets to be dropped. Also, MTU detection
 ///    will likely occur after the PQ handshake, so we cannot assume that the MTU is already
 ///    correctly configured.
