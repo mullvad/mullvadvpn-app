@@ -73,7 +73,7 @@ class RelayTests: BaseUITestCase {
 
         let task = URLSession.shared.dataTask(with: url) { _, response, error in
             if let urlError = error as? URLError {
-                if (urlError.code == .cannotFindHost && response == nil) {
+                if urlError.code == .cannotFindHost && response == nil {
                     resultIndicatesDNSBlock = true
                 }
             }
