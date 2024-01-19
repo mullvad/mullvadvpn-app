@@ -954,37 +954,46 @@ async fn get_mtu(gateway: std::net::Ipv4Addr, iface_name: String, max_mtu: u16) 
     .unwrap();
 
     let num_steps = 20;
-    let min_mtu = 576; // TODO: Account for header size
-                       // let max_mtu = 2500;
-    for mtu in linspace(min_mtu, dbg!(max_mtu), num_steps) {
+    let min_mtu = 576;
+    let linspace = linspace(min_mtu, dbg!(max_mtu), num_steps);
+    for mtu in &linspace {
         log::warn!("Sending {mtu}");
-        ping_monitor::Pinger::send_icmp_sized(&mut pinger, mtu).map_err(Error::SetMtu)?;
+        ping_monitor::Pinger::send_icmp_sized(&mut pinger, *mtu).map_err(Error::SetMtu)?;
     }
     let mut largest_verified_mtu = min_mtu;
-    for _ in 0..num_steps {
+    for _ in linspace {
         let size = match pinger.receive_ping_response().await {
             Ok((size, _)) => size,
-            Err(ping_monitor::imp::Error::Read(e)) if e.kind() == io::ErrorKind::TimedOut => break,
+            Err(ping_monitor::imp::Error::Read(e)) if e.kind() == io::ErrorKind::TimedOut => {
+                log::warn!("MTU lowered from {max_mtu} to {largest_verified_mtu} because of dropped packets");
+                return Ok(largest_verified_mtu);
+            }
             Err(e) => return Err(Error::SetMtu(e)),
         };
         if size > largest_verified_mtu.into() {
             largest_verified_mtu = size as u16;
         }
+        // TODO: Remove
         log::warn!("Got response of size {size}")
     }
-    log::warn!("Largest found MTU: {largest_verified_mtu}");
+    // TODO: Remove
+    log::debug!("MTU {largest_verified_mtu} verified");
 
     Ok(largest_verified_mtu)
 }
 
-fn linspace(x_start: u16, x_end: u16, n: u16) -> impl Iterator<Item = u16> {
-    // TODO: handle edge cases where e.g. x_end < x_start
-    let max_step_size = 50;
+fn linspace(x_start: u16, x_end: u16, step_size: u16) -> Vec<u16> {
+    if x_start > x_end {
+        todo!("Handle manual MTU lowr that minimum")
+    }
     let diff = dbg!(x_end - x_start);
-    let steps = std::cmp::min(diff / max_step_size, n);
+    let steps = std::cmp::max(diff / step_size, 2);
 
     let dx = dbg!(diff as f32 / ((steps - 1) as f32));
-    (0..steps).map(move |n| (x_start as f32 + (n as f32) * dx).round() as u16)
+
+    (0..steps)
+        .map(move |n| (x_start as f32 + (n as f32) * dx).round() as u16)
+        .collect()
 }
 
 #[derive(Debug)]
