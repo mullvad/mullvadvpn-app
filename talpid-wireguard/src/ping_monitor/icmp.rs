@@ -3,7 +3,7 @@ use libc::{setsockopt, IPPROTO_IP, IP_MTU_DISCOVER, IP_PMTUDISC_PROBE};
 use rand::Rng;
 use socket2::{Domain, Protocol, Socket, Type};
 use std::{
-    io::{self, Write},
+    io::{self, ErrorKind, Read, Write},
     mem,
     net::{Ipv4Addr, SocketAddr},
     os::fd::AsRawFd,
@@ -62,9 +62,14 @@ pub struct Pinger {
 }
 
 impl Pinger {
+    /// Creates a new `Pinger`.
+    ///
+    /// `mtu_discover` sets the `IP_MTU_DISCOVER` flag for the socker, implying no fragementation is
+    /// allowed.
     pub fn new(
         addr: Ipv4Addr,
         #[cfg(not(target_os = "windows"))] interface_name: String,
+        mtu_discover: bool,
     ) -> Result<Self> {
         let addr = SocketAddr::new(addr.into(), 0);
         let sock =
@@ -75,16 +80,10 @@ impl Pinger {
         sock.bind_device(Some(interface_name.as_bytes()))
             .map_err(Error::SocketOp)?;
 
-        let raw_fd = sock.as_raw_fd();
-        unsafe {
-            setsockopt(
-                raw_fd,
-                IPPROTO_IP,
-                IP_MTU_DISCOVER,
-                &IP_PMTUDISC_PROBE as *const i32 as *const libc::c_void,
-                mem::size_of_val(&IP_PMTUDISC_PROBE) as u32,
-            )
-        };
+        // TODO: Find a way to do it without unsafe code?
+        if mtu_discover {
+            set_mtu_discover(&sock);
+        }
         // nix::sys::socket::setsockopt(fd, opt, val) // TODO: deleteme
 
         #[cfg(target_os = "macos")]
@@ -131,6 +130,35 @@ impl Pinger {
         result
     }
 
+    pub async fn receive_ping_response(&mut self) -> Result<(usize, Vec<u8>)> {
+        let mut buf = vec![0; 2048];
+        // TODO: pick out sequence number
+        // TODO: verify payload?
+        // NOTE: This assumes abound peer address, which we do not for send
+
+        // tokio::net::TcpSocket::from(value)
+        let mut attempt = 0;
+        loop {
+            match self.sock.read(&mut buf) {
+                Ok(size) => {
+                    return {
+                        buf.resize(size, 0);
+                        Ok((size, buf))
+                    }
+                }
+                Err(e) if e.kind() == ErrorKind::WouldBlock => {
+                    log::warn!("Retrying");
+                    attempt += 1;
+                    if attempt > 10 {
+                        return Err(Error::Read(io::ErrorKind::TimedOut.into()));
+                    }
+                    tokio::time::sleep(Duration::from_millis(100)).await;
+                }
+                Err(e) => return Err(Error::Read(e)),
+            }
+        }
+    }
+
     fn construct_icmpv4_packet(&mut self, buffer: &mut [u8]) -> Result<()> {
         if !construct_icmpv4_packet_inner(buffer, self) {
             return Err(Error::BufferTooSmall);
@@ -139,9 +167,24 @@ impl Pinger {
     }
 }
 
+// TODO: Move to unix.rs? Is this OS independent?
+fn set_mtu_discover(sock: &Socket) {
+    let raw_fd = sock.as_raw_fd();
+    unsafe {
+        setsockopt(
+            raw_fd,
+            IPPROTO_IP,
+            IP_MTU_DISCOVER,
+            &IP_PMTUDISC_PROBE as *const i32 as *const libc::c_void,
+            mem::size_of_val(&IP_PMTUDISC_PROBE) as u32,
+        )
+    };
+}
+
 impl super::Pinger for Pinger {
     fn send_icmp_sized(&mut self, size: u16) -> Result<()> {
-        let mut message = vec![0u8; size as usize];
+        const IPV4_HEADER_SIZE: u16 = 20;
+        let mut message = vec![0u8; (size - IPV4_HEADER_SIZE) as usize];
         self.construct_icmpv4_packet(&mut message)?;
         self.send_ping_request(&message, self.addr)
     }
