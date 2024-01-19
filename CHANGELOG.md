@@ -33,6 +33,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for all screen orientations.
 
 ### Fixed
+- Fix connectivity issues that would occur when using quantum-resistant tunnels with an incorrectly
+  configured MTU.
+
 #### Linux
 - Out IP missing forever when am.i.mullvad.net returns error
 
