@@ -73,7 +73,7 @@ pub enum Error {
 
     /// Failed to set MTU
     #[error(display = "Failed to setup routing")]
-    SetMtu(#[error(source)] io::Error),
+    SetMtu(#[error(source)] ping_monitor::Error),
 
     /// Tunnel timed out
     #[error(display = "Tunnel timed out")]
@@ -389,7 +389,10 @@ impl WireguardMonitor {
                     gateway,
                     #[cfg(any(target_os = "macos", target_os = "linux"))]
                     iface_name_clone.clone(),
-                ); // TODO: detect real MTU
+                    config.mtu,
+                )
+                .await
+                .unwrap(); // TODO: detect real MTU
 
                 #[cfg(not(unix))]
                 todo!("set MTU");
@@ -973,26 +976,47 @@ impl WireguardMonitor {
     }
 }
 
-fn get_mtu(gateway: std::net::Ipv4Addr, iface_name: String) -> u16 {
-    let mut pinger = ping_monitor::new_pinger(
+async fn get_mtu(gateway: std::net::Ipv4Addr, iface_name: String, max_mtu: u16) -> Result<u16> {
+    let mut pinger = ping_monitor::imp::Pinger::new(
         gateway,
         #[cfg(any(target_os = "macos", target_os = "linux"))]
         iface_name,
+        true,
     )
     .unwrap();
 
     let num_steps = 20;
-    let min_mtu = 500;
-    let max_mtu = 2500;
-    for mtu in (min_mtu..=max_mtu).step_by((max_mtu - min_mtu) / num_steps) {
+    let min_mtu = 576; // TODO: Account for header size
+                       // let max_mtu = 2500;
+    for mtu in linspace(min_mtu, dbg!(max_mtu), num_steps) {
         log::warn!("Sending {mtu}");
-        if let Err(e) = pinger.send_icmp_sized(mtu as u16) {
-            log::error!("{e}");
-        }
+        ping_monitor::Pinger::send_icmp_sized(&mut pinger, mtu).map_err(Error::SetMtu)?;
     }
-    // TODO: Implement the actual MTU detection here
+    let mut largest_verified_mtu = min_mtu;
+    for _ in 0..num_steps {
+        let size = match pinger.receive_ping_response().await {
+            Ok((size, _)) => size,
+            Err(ping_monitor::imp::Error::Read(e)) if e.kind() == io::ErrorKind::TimedOut => break,
+            Err(e) => return Err(Error::SetMtu(e)),
+        };
+        if size > largest_verified_mtu.into() {
+            largest_verified_mtu = size as u16;
+        }
+        log::warn!("Got response of size {size}")
+    }
+    log::warn!("Largest found MTU: {largest_verified_mtu}");
 
-    1337
+    Ok(largest_verified_mtu)
+}
+
+fn linspace(x_start: u16, x_end: u16, n: u16) -> impl Iterator<Item = u16> {
+    // TODO: handle edge cases where e.g. x_end < x_start
+    let max_step_size = 50;
+    let diff = dbg!(x_end - x_start);
+    let steps = std::cmp::min(diff / max_step_size, n);
+
+    let dx = dbg!(diff as f32 / ((steps - 1) as f32));
+    (0..steps).map(move |n| (x_start as f32 + (n as f32) * dx).round() as u16)
 }
 
 #[derive(Debug)]
