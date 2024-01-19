@@ -8,6 +8,8 @@ use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Fu
 use futures::{channel::mpsc, StreamExt};
 #[cfg(target_os = "linux")]
 use once_cell::sync::Lazy;
+#[cfg(target_os = "android")]
+use std::borrow::Cow;
 #[cfg(target_os = "linux")]
 use std::env;
 #[cfg(windows)]
