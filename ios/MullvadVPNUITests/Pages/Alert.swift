@@ -19,7 +19,7 @@ class Alert: Page {
     }
 
     @discardableResult func tapOkay() -> Self {
-        app.buttons[AccessibilityIdentifier.alertOkButton.rawValue].tap()
+        app.buttons[AccessibilityIdentifier.alertOkButton].tap()
         return self
     }
 }

@@ -17,12 +17,12 @@ class TunnelControlPage: Page {
     }
 
     @discardableResult func tapSelectLocationButton() -> Self {
-        app.buttons[AccessibilityIdentifier.selectLocationButton.rawValue].tap()
+        app.buttons[AccessibilityIdentifier.selectLocationButton].tap()
         return self
     }
 
     @discardableResult func tapSettingsButton() -> Self {
-        app.buttons[AccessibilityIdentifier.settingsButton.rawValue].tap()
+        app.buttons[AccessibilityIdentifier.settingsButton].tap()
         return self
     }
 }

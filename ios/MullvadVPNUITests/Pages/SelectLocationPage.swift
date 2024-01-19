@@ -17,15 +17,15 @@ class SelectLocationPage: Page {
     }
 
     @discardableResult func tapLocationCell(withName name: String) -> Self {
-        app.tables[AccessibilityIdentifier.selectLocationTableView.rawValue].cells.staticTexts[name].tap()
+        app.tables[AccessibilityIdentifier.selectLocationTableView].cells.staticTexts[name].tap()
         return self
     }
 
     @discardableResult func tapLocationCellExpandButton(withName name: String) -> Self {
-        let table = app.tables[AccessibilityIdentifier.selectLocationTableView.rawValue]
+        let table = app.tables[AccessibilityIdentifier.selectLocationTableView]
         let matchingCells = table.cells.containing(.any, identifier: name)
         let buttons = matchingCells.buttons
-        let expandButton = buttons[AccessibilityIdentifier.collapseButton.rawValue]
+        let expandButton = buttons[AccessibilityIdentifier.collapseButton]
 
         expandButton.tap()
 

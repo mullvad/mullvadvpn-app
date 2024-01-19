@@ -53,7 +53,7 @@ class RelayTests: BaseUITestCase {
         verifyCannotReachAdServingDomain()
     }
 
-    /// Verify that  ad serving domain is reachable by making sure the host can be found when sending HTTP request to it
+    /// Verify that an ad serving domain is reachable by making sure the host can be found when sending HTTP request to it
     func verifyCanReachAdServingDomain() {
         XCTAssertTrue(canReachAdServingDomain())
     }
@@ -69,23 +69,22 @@ class RelayTests: BaseUITestCase {
         guard let url = URL(string: "http://\(adServingDomain)") else { return false }
 
         let semaphore = DispatchSemaphore(value: 0)
-        var requestError: Error?
+        var resultIndicatesDNSBlock = false
 
-        let task = URLSession.shared.dataTask(with: url) { _, _, error in
-            requestError = error
+        let task = URLSession.shared.dataTask(with: url) { _, response, error in
+            if let urlError = error as? URLError {
+                if (urlError.code == .cannotFindHost && response == nil) {
+                    resultIndicatesDNSBlock = true
+                }
+            }
+
             semaphore.signal()
         }
 
         task.resume()
 
-        _ = semaphore.wait(timeout: .distantFuture)
+        _ = semaphore.wait(timeout: .now() + 10)
 
-        if let urlError = requestError as? URLError {
-            if urlError.code == .cannotFindHost {
-                return false
-            }
-        }
-
-        return true
+        return !resultIndicatesDNSBlock
     }
 }

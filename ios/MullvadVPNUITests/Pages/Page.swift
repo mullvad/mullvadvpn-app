@@ -20,7 +20,7 @@ class Page {
     public func waitForPageToBeShown() {
         if let pageAccessibilityIdentifier = self.pageAccessibilityIdentifier {
             XCTAssert(
-                self.app.otherElements[pageAccessibilityIdentifier.rawValue]
+                self.app.otherElements[pageAccessibilityIdentifier]
                     .waitForExistence(timeout: BaseUITestCase.defaultTimeout)
             )
         }
