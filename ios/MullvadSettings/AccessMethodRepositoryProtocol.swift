@@ -13,7 +13,12 @@ public protocol AccessMethodRepositoryDataSource {
     /// Publisher that propagates a snapshot of persistent store upon modifications.
     var publisher: AnyPublisher<[PersistentAccessMethod], Never> { get }
 
+    /// - Returns: the default strategy.
     var directAccess: PersistentAccessMethod { get }
+
+    /// Fetch all access method from the persistent store.
+    /// - Returns: an array of all persistent access method.
+    func fetchAll() -> [PersistentAccessMethod]
 }
 
 public protocol AccessMethodRepositoryProtocol: AccessMethodRepositoryDataSource {
@@ -33,10 +38,6 @@ public protocol AccessMethodRepositoryProtocol: AccessMethodRepositoryDataSource
     /// - Parameter id: an access method id.
     /// - Returns: a persistent access method model upon success, otherwise `nil`.
     func fetch(by id: UUID) -> PersistentAccessMethod?
-
-    /// Fetch all access method from the persistent store.
-    /// - Returns: an array of all persistent access method.
-    func fetchAll() -> [PersistentAccessMethod]
 
     ///  Refreshes the storage with default values.
     func reloadWithDefaultsAfterDataRemoval()

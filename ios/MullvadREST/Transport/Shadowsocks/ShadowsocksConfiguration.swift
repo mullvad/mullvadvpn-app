@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 import Network
 
-public struct ShadowsocksConfiguration: Codable {
+public struct ShadowsocksConfiguration: Codable, Equatable {
     public let address: AnyIPAddress
     public let port: UInt16
     public let password: String

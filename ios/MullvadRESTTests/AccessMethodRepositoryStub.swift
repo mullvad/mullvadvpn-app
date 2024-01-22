@@ -12,7 +12,6 @@ import MullvadSettings
 typealias PersistentAccessMethod = MullvadSettings.PersistentAccessMethod
 struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource {
     var directAccess: MullvadSettings.PersistentAccessMethod
-
     var publisher: AnyPublisher<[MullvadSettings.PersistentAccessMethod], Never> {
         passthroughSubject.eraseToAnyPublisher()
     }
@@ -22,5 +21,9 @@ struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource {
     init(accessMethods: [PersistentAccessMethod]) {
         directAccess = accessMethods.first(where: { $0.kind == .direct })!
         passthroughSubject.send(accessMethods)
+    }
+
+    func fetchAll() -> [MullvadSettings.PersistentAccessMethod] {
+        passthroughSubject.value
     }
 }
