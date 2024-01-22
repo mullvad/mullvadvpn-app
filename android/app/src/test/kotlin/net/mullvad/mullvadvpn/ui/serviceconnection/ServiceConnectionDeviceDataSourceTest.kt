@@ -22,8 +22,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class ServiceConnectionDeviceDataSourceTest {
-    private val tracker = JobTracker()
-
     @MockK private lateinit var mockedMainLooper: Looper
 
     @MockK private lateinit var mockedDispatchingHandler: EventDispatcher
