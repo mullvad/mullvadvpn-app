@@ -130,8 +130,7 @@ impl Pinger {
         result
     }
 
-    pub async fn receive_ping_response(&mut self) -> Result<(usize, Vec<u8>)> {
-        let mut buf = vec![0; 2048];
+    pub async fn receive_ping_response(&mut self, buf: &mut [u8]) -> Result<usize> {
         // TODO: pick out sequence number
         // TODO: verify payload?
         // NOTE: This assumes abound peer address, which we do not for send
@@ -139,12 +138,11 @@ impl Pinger {
         // tokio::net::TcpSocket::from(value)
         let mut attempt = 0;
         loop {
-            match self.sock.read(&mut buf) {
+            // NOTE: This read statement seems to always read one entire ping response in its
+            // entirety. Is this guaranteed?
+            match self.sock.read(buf) {
                 Ok(size) => {
-                    return {
-                        buf.resize(size, 0);
-                        Ok((size, buf))
-                    }
+                    return Ok(size);
                 }
                 Err(e) if e.kind() == ErrorKind::WouldBlock => {
                     log::warn!("Retrying");
