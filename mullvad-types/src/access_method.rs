@@ -1,9 +1,7 @@
-use std::str::FromStr;
-
 use serde::{Deserialize, Serialize};
 use talpid_types::net::proxy::{CustomProxy, Shadowsocks, Socks5Local, Socks5Remote};
 
-/// Dttings for API access methods.
+/// Settings for API access methods.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
     pub direct: AccessMethodSetting,
@@ -22,68 +20,48 @@ impl Settings {
     /// This function will return an error if a built-in API access is about to
     /// be removed.
     pub fn remove(&mut self, api_access_method: &Id) -> Result<(), Error> {
-        match self.find(|x| x.get_id() == *api_access_method) {
-            None => Ok(()),
-            Some(access_method_setting) => match access_method_setting.access_method {
+        let maybe_setting = self
+            .access_method_settings
+            .iter()
+            .find(|setting| setting.get_id() == *api_access_method);
+
+        match maybe_setting {
+            Some(x) => match x.access_method {
                 AccessMethod::BuiltIn(ref built_in) => Err(Error::RemoveBuiltin {
                     attempted: built_in.clone(),
                 }),
                 AccessMethod::Custom(_) => {
-                    self.retain(|method| method.get_id() != *api_access_method);
+                    self.access_method_settings
+                        .retain(|method| method.get_id() != *api_access_method);
                     Ok(())
                 }
             },
+            None => Ok(()),
         }
     }
 
-    /// Search for any [`AccessMethod`] in `api_access_methods` which matches `predicate`.
-    pub fn find<P>(&self, predicate: P) -> Option<&AccessMethodSetting>
-    where
-        P: Fn(&AccessMethodSetting) -> bool,
-    {
-        self.access_method_settings
-            .iter()
-            .find(|api_access_method| predicate(api_access_method))
+    /// Retrieve all [`AccessMethodSetting`]s which are enabled.
+    pub fn collect_enabled(&self) -> Vec<AccessMethodSetting> {
+        self.iter()
+            .filter(|access_method| access_method.enabled)
+            .cloned()
+            .collect()
     }
 
-    /// Search for any [`AccessMethod`] in `api_access_methods`.
-    pub fn find_mut<P>(&mut self, predicate: P) -> Option<&mut AccessMethodSetting>
-    where
-        P: Fn(&AccessMethodSetting) -> bool,
-    {
-        self.access_method_settings
-            .iter_mut()
-            .find(|api_access_method| predicate(api_access_method))
+    /// Iterate over references of built-in & custom access methods.
+    pub fn iter(&self) -> impl Iterator<Item = &AccessMethodSetting> {
+        use std::iter::once;
+        once(&self.direct)
+            .chain(once(&self.mullvad_bridges))
+            .chain(&self.access_method_settings)
     }
 
-    /// Search for a particular [`AccessMethod`] in `api_access_methods`.
-    pub fn find_by_id(&self, element: &Id) -> Option<&AccessMethodSetting> {
-        self.find(|api_access_method| *element == api_access_method.get_id())
-    }
-
-    /// Search for a particular [`AccessMethod`] in `api_access_methods`.
-    pub fn find_by_id_mut(&mut self, element: &Id) -> Option<&mut AccessMethodSetting> {
-        self.find_mut(|api_access_method| *element == api_access_method.get_id())
-    }
-
-    /// Equivalent to [`Vec::retain`].
-    pub fn retain<F>(&mut self, f: F)
-    where
-        F: FnMut(&AccessMethodSetting) -> bool,
-    {
-        self.access_method_settings.retain(f)
-    }
-
-    /// Clone the content of `api_access_methods`.
-    pub fn cloned(&self) -> Vec<AccessMethodSetting> {
-        self.access_method_settings.clone()
-    }
-
-    /// Get a reference to the `Direct` access method instance of this [`Settings`].
-    pub fn get_direct(&mut self) -> Option<&mut AccessMethodSetting> {
-        self.find_mut(|access_method| {
-            access_method.access_method == BuiltInAccessMethod::Direct.into()
-        })
+    /// Iterate over mutable references of built-in & custom access methods.
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut AccessMethodSetting> {
+        use std::iter::once;
+        once(&mut self.direct)
+            .chain(once(&mut self.mullvad_bridges))
+            .chain(&mut self.access_method_settings)
     }
 
     pub fn direct() -> AccessMethodSetting {
@@ -91,17 +69,9 @@ impl Settings {
         AccessMethodSetting::new(method.canonical_name(), true, AccessMethod::from(method))
     }
 
-    pub fn mullvad_bridges() -> AccessMethodSetting {
+    fn mullvad_bridges() -> AccessMethodSetting {
         let method = BuiltInAccessMethod::Bridge;
         AccessMethodSetting::new(method.canonical_name(), true, AccessMethod::from(method))
-    }
-
-    /// Retrieve all [`AccessMethodSetting`]s which are enabled.
-    pub fn collect_enabled(&self) -> Vec<AccessMethodSetting> {
-        self.cloned()
-            .into_iter()
-            .filter(|access_method| access_method.enabled)
-            .collect()
     }
 }
 
@@ -145,6 +115,7 @@ impl Id {
     /// Tries to parse a UUID from a raw String. If it is successful, an
     /// [`Id`] is instantiated.
     pub fn from_string(id: String) -> Option<Self> {
+        use std::str::FromStr;
         uuid::Uuid::from_str(&id).ok().map(Self)
     }
 }
