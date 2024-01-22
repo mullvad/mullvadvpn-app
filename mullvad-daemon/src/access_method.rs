@@ -92,20 +92,34 @@ where
             .map_err(Error::Settings)
     }
 
-    /// Set a [`AccessMethodSetting`] as the current API access method.
+    /// Select an [`AccessMethodSetting`] as the current API access method.
     ///
     /// If successful, the daemon will force a rotation of the active API access
     /// method, which means that subsequent API calls will use the new
-    /// [`AccessMethodSetting`] to figure out the API endpoint.
-    pub async fn set_api_access_method(
+    /// [`AccessMethodSetting`] as to reach the API endpoint.
+    ///
+    /// # Note
+    ///
+    /// If the selected [`AccessMethodSetting`] is disabled, it will be enabled
+    /// and the Daemon's settings will be updated accordingly. If an
+    /// [`AccessMethodSetting`] is enabled, it is eligible to be part of the
+    /// automatic selection of access methods that the Daemon will perform at
+    /// start up or if the current access method starts failing.
+    pub async fn use_api_access_method(
         &mut self,
         access_method: access_method::Id,
     ) -> Result<(), Error> {
-        let access_method = self.get_api_access_method(access_method)?;
+        let mut access_method = self.get_api_access_method(access_method)?;
+        // Toggle the enabled status if needed
+        if !access_method.enabled() {
+            access_method.enable();
+            self.update_access_method_inner(&access_method).await?
+        }
+        // Set `access_method` as the next access method to use
         self.connection_modes_handler
             .set_access_method(access_method)
             .await?;
-        // Force a rotation of Access Methods.
+        // Force a rotation of Access Methods
         self.force_api_endpoint_rotation().await
     }
 
@@ -120,9 +134,9 @@ where
             .cloned()
     }
 
-    /// "Updates" an [`AccessMethodSetting`] by replacing the existing entry
-    /// with the argument `access_method_update` if an existing entry with
-    /// matching [`access_method::Id`] is found.
+    /// Updates a [`AccessMethodSetting`] by replacing the existing entry with
+    /// the argument `access_method_update`.  if an entry with a matching
+    /// [`access_method::Id`] is found.
     ///
     /// If the currently active [`AccessMethodSetting`] is updated, the daemon
     /// will automatically use this updated [`AccessMethodSetting`] when
@@ -131,28 +145,43 @@ where
         &mut self,
         access_method_update: AccessMethodSetting,
     ) -> Result<(), Error> {
+        self.update_access_method_inner(&access_method_update)
+            .await?;
+
         // If the currently active access method is updated, we need to re-set
         // it after updating the settings.
-        let current = self.get_current_access_method().await?;
-        // If the currently active access method is updated, we need to re-set it.
-        let mut refresh = None;
+        if access_method_update.get_id() == self.get_current_access_method().await?.get_id() {
+            self.use_api_access_method(access_method_update.get_id())
+                .await?;
+        }
+
+        Ok(())
+    }
+
+    /// Updates a [`AccessMethodSetting`] by replacing the existing entry with
+    /// the argument `access_method_update`.  if an entry with a matching
+    /// [`access_method::Id`] is found.
+    ///
+    /// This inner function does not perform any kind of check to see if the
+    /// existing, in-use setting needs to be re-set.
+    async fn update_access_method_inner(
+        &mut self,
+        access_method_update: &AccessMethodSetting,
+    ) -> Result<(), Error> {
+        let access_method_update_moved = access_method_update.clone();
         let settings_update = |settings: &mut Settings| {
-            let access_methods = &mut settings.api_access_methods;
-            if let Some(access_method) =
-                access_methods.find_by_id_mut(&access_method_update.get_id())
+            if let Some(access_method) = settings
+                .api_access_methods
+                .find_by_id_mut(&access_method_update_moved.get_id())
             {
-                *access_method = access_method_update;
-                if access_method.get_id() == current.get_id() {
-                    refresh = Some(access_method.get_id())
-                }
-                // We have to be a bit careful. If we are about to disable the last
-                // remaining enabled access method, we would cause an inconsistent state
-                // in the daemon's settings. Therefore, we have to safeguard against
-                // this by explicitly checking for any update which would cause the last
-                // enabled access method to become disabled. In that case, we should
-                // re-enable the `Direct` access method.
-                if access_methods.collect_enabled().is_empty() {
-                    if let Some(direct) = access_methods.get_direct() {
+                *access_method = access_method_update_moved;
+                // We have to be a bit careful. If the update is about to
+                // disable the last remaining enabled access method, we would
+                // cause an inconsistent state in the daemon's settings.
+                // Therefore, we have to explicitly safeguard against this by.
+                // In that case, we should re-enable the `Direct` access method.
+                if settings.api_access_methods.collect_enabled().is_empty() {
+                    if let Some(direct) = settings.api_access_methods.get_direct() {
                         direct.enabled = true;
                     } else {
                         // If the `Direct` access method does not exist within the
@@ -160,7 +189,7 @@ where
                         // inconsistent state. We don't have much choice but to
                         // reset these settings to their default value.
                         log::warn!("The built-in access methods can not be found. This might be due to a corrupt settings file");
-                        *access_methods = access_method::Settings::default();
+                        settings.api_access_methods = access_method::Settings::default();
                     }
                 }
             }
@@ -171,9 +200,7 @@ where
             .await
             .map(|did_change| self.notify_on_change(did_change))
             .map_err(Error::Settings)?;
-        if let Some(id) = refresh {
-            self.set_api_access_method(id).await?;
-        }
+
         Ok(())
     }
 
