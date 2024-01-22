@@ -216,7 +216,19 @@ impl MullvadProxyClient {
     pub async fn test_api_access_method(&mut self, id: access_method::Id) -> Result<bool> {
         let result = self
             .0
-            .test_api_access_method(types::Uuid::from(id))
+            .test_api_access_method_by_id(types::Uuid::from(id))
+            .await
+            .map_err(Error::Rpc)?;
+        Ok(result.into_inner())
+    }
+
+    pub async fn test_custom_api_access_method(
+        &mut self,
+        config: talpid_types::net::proxy::CustomProxy,
+    ) -> Result<bool> {
+        let result = self
+            .0
+            .test_custom_api_access_method(types::CustomProxy::from(config))
             .await
             .map_err(Error::Rpc)?;
         Ok(result.into_inner())

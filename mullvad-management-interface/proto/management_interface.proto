@@ -80,7 +80,8 @@ service ManagementService {
   rpc SetApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
   rpc UpdateApiAccessMethod(AccessMethodSetting) returns (google.protobuf.Empty) {}
   rpc GetCurrentApiAccessMethod(google.protobuf.Empty) returns (AccessMethodSetting) {}
-  rpc TestApiAccessMethod(UUID) returns (google.protobuf.BoolValue) {}
+  rpc TestCustomApiAccessMethod(CustomProxy) returns (google.protobuf.BoolValue) {}
+  rpc TestApiAccessMethodById(UUID) returns (google.protobuf.BoolValue) {}
 
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
@@ -359,9 +360,7 @@ message AccessMethod {
   oneof access_method {
     Direct direct = 1;
     Bridges bridges = 2;
-    Socks5Local socks5local = 3;
-    Socks5Remote socks5remote = 4;
-    Shadowsocks shadowsocks = 5;
+    CustomProxy custom = 3;
   }
 }
 
