@@ -26,6 +26,7 @@ public enum AccessibilityIdentifier: String {
     case logoutButton
     case purchaseButton
     case redeemVoucherButton
+    case restorePurchasesButton
     case selectLocationButton
     case settingsButton
     case startUsingTheAppButton
@@ -44,8 +45,10 @@ public enum AccessibilityIdentifier: String {
     case headerDeviceNameLabel
 
     // Views
+    case accountView
     case alertContainerView
     case alertTitle
+    case headerBarView
     case loginView
     case termsOfServiceView
     case selectLocationView

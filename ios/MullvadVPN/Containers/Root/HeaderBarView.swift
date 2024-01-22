@@ -170,6 +170,7 @@ class HeaderBarView: UIView {
         )
 
         accessibilityContainerType = .semanticGroup
+        accessibilityIdentifier = .headerBarView
 
         let brandImageSize = brandNameImage?.size ?? .zero
         let brandNameAspectRatio = brandImageSize.width / max(brandImageSize.height, 1)
