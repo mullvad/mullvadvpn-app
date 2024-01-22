@@ -993,15 +993,20 @@ async fn get_mtu(gateway: std::net::Ipv4Addr, iface_name: String, max_mtu: u16) 
         ping_monitor::Pinger::send_icmp_sized(&mut pinger, *mtu).map_err(Error::SetMtu)?;
     }
     let mut largest_verified_mtu = min_mtu;
-    for _ in linspace {
-        let size = match pinger.receive_ping_response().await {
-            Ok((size, _)) => size,
+    let mut buf = vec![0; max_mtu as usize];
+    for _ in &linspace {
+        let size = match pinger.receive_ping_response(&mut buf).await {
+            Ok(size) => size,
             Err(ping_monitor::imp::Error::Read(e)) if e.kind() == io::ErrorKind::TimedOut => {
                 log::warn!("MTU lowered from {max_mtu} to {largest_verified_mtu} because of dropped packets");
                 return Ok(largest_verified_mtu);
             }
             Err(e) => return Err(Error::SetMtu(e)),
         };
+        debug_assert!(
+            linspace.contains(&size.try_into().unwrap()),
+            "Received PING response was not the size of any sent pings"
+        );
         if size > largest_verified_mtu.into() {
             largest_verified_mtu = size as u16;
         }
