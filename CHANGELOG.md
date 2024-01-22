@@ -34,6 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 #### Linux
+- Fix Bash shell completions for subcommands in the CLI
 - Out IP missing forever when am.i.mullvad.net returns error
 
 #### macOS
