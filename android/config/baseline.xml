@@ -675,15 +675,6 @@
     <ID>UnusedParameter:SimpleMullvadHttpClient.kt$SimpleMullvadHttpClient$body: JSONArray? = null</ID>
     <ID>UnusedParameter:VpnSettingsScreen.kt$navigateUdp2TcpInfo: () -&gt; Unit = {}</ID>
     <ID>UnusedPrivateMember:ConnectivityListener.kt$ConnectivityListener$private fun finalize()</ID>
-    <ID>UnusedPrivateMember:MullvadDaemon.kt$MullvadDaemon$private fun notifyAppVersionInfoEvent(appVersionInfo: AppVersionInfo)</ID>
-    <ID>UnusedPrivateMember:MullvadDaemon.kt$MullvadDaemon$private fun notifyDaemonStopped()</ID>
-    <ID>UnusedPrivateMember:MullvadDaemon.kt$MullvadDaemon$private fun notifyDeviceEvent(event: DeviceEvent)</ID>
-    <ID>UnusedPrivateMember:MullvadDaemon.kt$MullvadDaemon$private fun notifyRelayListEvent(relayList: RelayList)</ID>
-    <ID>UnusedPrivateMember:MullvadDaemon.kt$MullvadDaemon$private fun notifyRemoveDeviceEvent(event: RemoveDeviceEvent)</ID>
-    <ID>UnusedPrivateMember:MullvadDaemon.kt$MullvadDaemon$private fun notifySettingsEvent(settings: Settings)</ID>
-    <ID>UnusedPrivateMember:MullvadDaemon.kt$MullvadDaemon$private fun notifyTunnelStateEvent(event: TunnelState)</ID>
-    <ID>UnusedPrivateProperty:RedeemVoucherDialogTest.kt$RedeemVoucherDialogTest.Companion$private const val REDEEM_BUTTON_TEXT = "Redeem"</ID>
-    <ID>UnusedPrivateProperty:ServiceConnectionDeviceDataSourceTest.kt$ServiceConnectionDeviceDataSourceTest$private val tracker = JobTracker()</ID>
     <ID>WildcardImport:Destination.kt$import com.ramcosta.composedestinations.spec.*</ID>
     <ID>WildcardImport:NavGraphs.kt$import com.ramcosta.composedestinations.spec.*</ID>
     <ID>WildcardImport:NavGraphs.kt$import net.mullvad.mullvadvpn.compose.destinations.*</ID>
