@@ -12,8 +12,7 @@ use once_cell::sync::Lazy;
 use std::borrow::Cow;
 #[cfg(target_os = "linux")]
 use std::env;
-#[cfg(windows)]
-use std::io;
+
 use std::{
     convert::Infallible,
     io,
@@ -49,6 +48,7 @@ mod connectivity_check;
 mod logging;
 mod ping_monitor;
 mod stats;
+#[cfg(target_os = "linux")]
 mod unix;
 #[cfg(wireguard_go)]
 mod wireguard_go;
@@ -363,7 +363,9 @@ impl WireguardMonitor {
                 .unwrap(); // TODO: detect real MTU
 
                 #[cfg(not(unix))]
-                todo!("set MTU");
+                {
+                    todo!("set MTU");
+                }
 
                 // TODO: Set IPv6 too
                 #[cfg(unix)]
@@ -944,7 +946,11 @@ impl WireguardMonitor {
     }
 }
 
-async fn get_mtu(gateway: std::net::Ipv4Addr, iface_name: String, max_mtu: u16) -> Result<u16> {
+async fn get_mtu(
+    gateway: std::net::Ipv4Addr,
+    #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
+    max_mtu: u16,
+) -> Result<u16> {
     let mut pinger = ping_monitor::imp::Pinger::new(
         gateway,
         #[cfg(any(target_os = "macos", target_os = "linux"))]

@@ -1,12 +1,10 @@
 use byteorder::{NetworkEndian, WriteBytesExt};
-use libc::{setsockopt, IPPROTO_IP, IP_MTU_DISCOVER, IP_PMTUDISC_PROBE};
 use rand::Rng;
 use socket2::{Domain, Protocol, Socket, Type};
+
 use std::{
     io::{self, ErrorKind, Read, Write},
-    mem,
     net::{Ipv4Addr, SocketAddr},
-    os::fd::AsRawFd,
     thread,
     time::Duration,
 };
@@ -165,18 +163,27 @@ impl Pinger {
     }
 }
 
-// TODO: Move to unix.rs? Is this OS independent?
+// TODO: Find a way to set this for windows
+// TODO: Move to unix.rs?
 fn set_mtu_discover(sock: &Socket) {
-    let raw_fd = sock.as_raw_fd();
-    unsafe {
-        setsockopt(
-            raw_fd,
-            IPPROTO_IP,
-            IP_MTU_DISCOVER,
-            &IP_PMTUDISC_PROBE as *const i32 as *const libc::c_void,
-            mem::size_of_val(&IP_PMTUDISC_PROBE) as u32,
-        )
-    };
+    #[cfg(target_os = "linux")]
+    {
+        use libc::{setsockopt, IPPROTO_IP, IP_MTU_DISCOVER, IP_PMTUDISC_PROBE};
+        use std::os::fd::AsRawFd;
+
+        let raw_fd = AsRawFd::as_raw_fd(sock);
+        unsafe {
+            setsockopt(
+                raw_fd,
+                IPPROTO_IP,
+                IP_MTU_DISCOVER,
+                &IP_PMTUDISC_PROBE as *const i32 as *const libc::c_void,
+                std::mem::size_of_val(&IP_PMTUDISC_PROBE) as u32,
+            )
+        };
+    }
+    #[cfg(not(target_os = "linux"))]
+    todo!("Set IP_MTU_DISCOVER")
 }
 
 impl super::Pinger for Pinger {
