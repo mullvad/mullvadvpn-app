@@ -64,7 +64,7 @@ shadowsocks-service = { version = "1.16" }
 windows-sys = "0.48.0"
 
 chrono = { version = "0.4.26", default-features = false}
-clap = { version = "4.2.7", features = ["cargo", "derive"] }
+clap = { version = "4.4.18", features = ["cargo", "derive"] }
 once_cell = "1.13"
 
 

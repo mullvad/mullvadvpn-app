@@ -31,7 +31,7 @@ mullvad-management-interface = { path = "../mullvad-management-interface" }
 tokio = { workspace = true, features =  ["macros", "rt-multi-thread", "fs"] }
 
 [target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
-clap_complete = { version = "4.2.1" }
+clap_complete = { version = "4.4.8" }
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"
