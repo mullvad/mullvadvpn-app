@@ -542,8 +542,9 @@ class CustomScrollbars extends React.Component<IProps, IState> {
       const thumbHeight = this.computeThumbHeight(scrollable);
       thumb.style.setProperty('height', thumbHeight + 'px');
 
-      // hide thumb when there is nothing to scroll
-      const canScroll = thumbHeight < scrollable.offsetHeight;
+      // hide thumb when there is nothing to scroll. We've had issues with scrollHeight being
+      // off-by-one, to ensure this doesn't happen we subtract 1 here.
+      const canScroll = thumbHeight < scrollable.offsetHeight - 1;
       if (this.state.canScroll !== canScroll) {
         this.setState({ canScroll });
 
