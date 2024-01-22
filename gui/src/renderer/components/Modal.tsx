@@ -102,6 +102,10 @@ export enum ModalAlertType {
   info = 1,
   caution,
   warning,
+
+  loading,
+  success,
+  failure,
 }
 
 const ModalAlertContainer = styled.div({
@@ -307,7 +311,7 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
 
   private renderTypeIcon(type: ModalAlertType) {
     let source = '';
-    let color = '';
+    let color = undefined;
     switch (type) {
       case ModalAlertType.info:
         source = 'icon-info';
@@ -321,7 +325,18 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
         source = 'icon-alert';
         color = colors.red;
         break;
+
+      case ModalAlertType.loading:
+        source = 'icon-spinner';
+        break;
+      case ModalAlertType.success:
+        source = 'icon-success';
+        break;
+      case ModalAlertType.failure:
+        source = 'icon-fail';
+        break;
     }
+
     return (
       <ImageView height={44} width={44} source={source} tintColor={this.props.iconColor ?? color} />
     );
