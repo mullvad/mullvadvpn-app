@@ -384,7 +384,7 @@ impl WireguardMonitor {
 
             let iface_name_clone = iface_name.clone();
             tokio::task::spawn(async move {
-                tokio::time::sleep(Duration::from_secs(10)).await;
+                tokio::time::sleep(Duration::from_secs(10)).await; // TODO: Delete this
                 let mtu = get_mtu(
                     gateway,
                     #[cfg(any(target_os = "macos", target_os = "linux"))]
@@ -985,14 +985,15 @@ async fn get_mtu(gateway: std::net::Ipv4Addr, iface_name: String, max_mtu: u16) 
     )
     .unwrap();
 
-    let num_steps = 20;
+    let step_size = 20;
     let min_mtu = 576;
-    let linspace = linspace(min_mtu, dbg!(max_mtu), num_steps);
+    let linspace = linspace(min_mtu, max_mtu, step_size);
     for mtu in &linspace {
         log::warn!("Sending {mtu}");
         ping_monitor::Pinger::send_icmp_sized(&mut pinger, *mtu).map_err(Error::SetMtu)?;
     }
     let mut largest_verified_mtu = min_mtu;
+    // tokio::time::sleep(Duration::from_millis(3000)).await; // TODO: Remove this
     let mut buf = vec![0; max_mtu as usize];
     for _ in &linspace {
         let size = match pinger.receive_ping_response(&mut buf).await {
@@ -1021,12 +1022,12 @@ async fn get_mtu(gateway: std::net::Ipv4Addr, iface_name: String, max_mtu: u16) 
 
 fn linspace(x_start: u16, x_end: u16, step_size: u16) -> Vec<u16> {
     if x_start > x_end {
-        todo!("Handle manual MTU lowr that minimum")
+        todo!("Handle manual MTU lower that minimum")
     }
-    let diff = dbg!(x_end - x_start);
+    let diff = x_end - x_start;
     let steps = std::cmp::max(diff / step_size, 2);
 
-    let dx = dbg!(diff as f32 / ((steps - 1) as f32));
+    let dx = diff as f32 / ((steps - 1) as f32);
 
     (0..steps)
         .map(move |n| (x_start as f32 + (n as f32) * dx).round() as u16)
