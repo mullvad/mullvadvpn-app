@@ -1,9 +1,12 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
 plugins {
     id(Dependencies.Plugin.dependencyCheckId) version Versions.Plugin.dependencyCheck apply false
     id(Dependencies.Plugin.gradleVersionsId) version Versions.Plugin.gradleVersions
     id(Dependencies.Plugin.ktfmtId) version Versions.Plugin.ktfmt apply false
+    id(Dependencies.Plugin.detektId) version Versions.Plugin.detekt
 }
 
 buildscript {
@@ -11,6 +14,7 @@ buildscript {
         google()
         mavenCentral()
         maven(Repositories.GradlePlugins)
+        gradlePluginPortal()
     }
 
     dependencies {
@@ -27,9 +31,41 @@ buildscript {
     }
 }
 
+val baselineFile = file("$rootDir/config/baseline.xml")
+val configFile = files("$rootDir/config/detekt.yml")
+
+val projectSource = file(projectDir)
+val kotlinFiles = "**/*.kt"
+val resourceFiles = "**/resources/**"
+val buildFiles = "**/build/**"
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config.setFrom(configFile)
+    source.setFrom(projectSource)
+    baseline = baselineFile
+    parallel = true
+    ignoreFailures = false
+    autoCorrect = true
+}
+
+tasks.withType<Detekt>().configureEach {
+    exclude(buildFiles)
+
+    reports {
+        html.required.set(true)
+        html.outputLocation.set(file("build/reports/detekt.html"))
+    }
+}
+
+// Kotlin DSL
+tasks.withType<Detekt>().configureEach { jvmTarget = "1.8" }
+
+tasks.withType<DetektCreateBaselineTask>().configureEach { jvmTarget = "1.8" }
+
 allprojects {
     apply(plugin = Dependencies.Plugin.dependencyCheckId)
-    apply(plugin = Dependencies.Plugin.ktfmtId)
 
     repositories {
         google()
@@ -39,12 +75,6 @@ allprojects {
     configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
         failBuildOnCVSS = 0F // All severity levels
         suppressionFile = "${rootProject.projectDir}/config/dependency-check-suppression.xml"
-    }
-
-    configure<com.ncorti.ktfmt.gradle.KtfmtExtension> {
-        kotlinLangStyle()
-        maxWidth.set(100)
-        removeUnusedImports.set(true)
     }
 }
 
