@@ -43,7 +43,7 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
                 settings.custom_lists.clone(),
             )),
             api_access_methods: Some(proto::ApiAccessMethodSettings::from(
-                &settings.api_access_methods,
+                settings.api_access_methods.clone(),
             )),
             relay_overrides: settings
                 .relay_overrides
