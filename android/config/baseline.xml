@@ -1,0 +1,616 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>ComplexCondition:TunnelStateNotification.kt$TunnelStateNotification$context.isNotificationPermissionMissing().not() &amp;&amp; visible &amp;&amp; (!reconnecting || !showingReconnecting)</ID>
+    <ID>ConstructorParameterNaming:AccessMethodKt.kt$AccessMethodKt.BridgesKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Bridges.Builder</ID>
+    <ID>ConstructorParameterNaming:AccessMethodKt.kt$AccessMethodKt.DirectKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Direct.Builder</ID>
+    <ID>ConstructorParameterNaming:AccessMethodKt.kt$AccessMethodKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Builder</ID>
+    <ID>ConstructorParameterNaming:AccessMethodKt.kt$AccessMethodKt.ShadowsocksKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Shadowsocks.Builder</ID>
+    <ID>ConstructorParameterNaming:AccessMethodKt.kt$AccessMethodKt.Socks5LocalKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Socks5Local.Builder</ID>
+    <ID>ConstructorParameterNaming:AccessMethodKt.kt$AccessMethodKt.Socks5RemoteKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Socks5Remote.Builder</ID>
+    <ID>ConstructorParameterNaming:AccessMethodKt.kt$AccessMethodKt.SocksAuthKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.SocksAuth.Builder</ID>
+    <ID>ConstructorParameterNaming:AccessMethodSettingKt.kt$AccessMethodSettingKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethodSetting.Builder</ID>
+    <ID>ConstructorParameterNaming:AccountAndDevice.kt$AccountAndDevice$val account_token: String</ID>
+    <ID>ConstructorParameterNaming:AccountAndDeviceKt.kt$AccountAndDeviceKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AccountAndDevice.Builder</ID>
+    <ID>ConstructorParameterNaming:AccountDataKt.kt$AccountDataKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AccountData.Builder</ID>
+    <ID>ConstructorParameterNaming:AccountHistoryKt.kt$AccountHistoryKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AccountHistory.Builder</ID>
+    <ID>ConstructorParameterNaming:ApiAccessMethodSettingsKt.kt$ApiAccessMethodSettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ApiAccessMethodSettings.Builder</ID>
+    <ID>ConstructorParameterNaming:ApiAddressesKt.kt$ApiAddressesKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ApiAddresses.Builder</ID>
+    <ID>ConstructorParameterNaming:AppVersionInfoKt.kt$AppVersionInfoKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AppVersionInfo.Builder</ID>
+    <ID>ConstructorParameterNaming:BridgeEndpointDataKt.kt$BridgeEndpointDataKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.BridgeEndpointData.Builder</ID>
+    <ID>ConstructorParameterNaming:BridgeSettingsKt.kt$BridgeSettingsKt.BridgeConstraintsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.BridgeConstraints.Builder</ID>
+    <ID>ConstructorParameterNaming:BridgeSettingsKt.kt$BridgeSettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.Builder</ID>
+    <ID>ConstructorParameterNaming:BridgeSettingsKt.kt$BridgeSettingsKt.LocalProxySettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.LocalProxySettings.Builder</ID>
+    <ID>ConstructorParameterNaming:BridgeSettingsKt.kt$BridgeSettingsKt.RemoteProxyAuthKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.RemoteProxyAuth.Builder</ID>
+    <ID>ConstructorParameterNaming:BridgeSettingsKt.kt$BridgeSettingsKt.RemoteProxySettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.RemoteProxySettings.Builder</ID>
+    <ID>ConstructorParameterNaming:BridgeSettingsKt.kt$BridgeSettingsKt.ShadowsocksProxySettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.ShadowsocksProxySettings.Builder</ID>
+    <ID>ConstructorParameterNaming:BridgeStateKt.kt$BridgeStateKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.BridgeState.Builder</ID>
+    <ID>ConstructorParameterNaming:ConnectionConfigKt.kt$ConnectionConfigKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.Builder</ID>
+    <ID>ConstructorParameterNaming:ConnectionConfigKt.kt$ConnectionConfigKt.OpenvpnConfigKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.OpenvpnConfig.Builder</ID>
+    <ID>ConstructorParameterNaming:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.Builder</ID>
+    <ID>ConstructorParameterNaming:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.PeerConfigKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.PeerConfig.Builder</ID>
+    <ID>ConstructorParameterNaming:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.TunnelConfigKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.TunnelConfig.Builder</ID>
+    <ID>ConstructorParameterNaming:CustomDnsOptionsKt.kt$CustomDnsOptionsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.CustomDnsOptions.Builder</ID>
+    <ID>ConstructorParameterNaming:CustomListKt.kt$CustomListKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.CustomList.Builder</ID>
+    <ID>ConstructorParameterNaming:CustomListSettingsKt.kt$CustomListSettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.CustomListSettings.Builder</ID>
+    <ID>ConstructorParameterNaming:CustomRelaySettingsKt.kt$CustomRelaySettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.CustomRelaySettings.Builder</ID>
+    <ID>ConstructorParameterNaming:DaemonEventKt.kt$DaemonEventKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.DaemonEvent.Builder</ID>
+    <ID>ConstructorParameterNaming:DefaultDnsOptionsKt.kt$DefaultDnsOptionsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.DefaultDnsOptions.Builder</ID>
+    <ID>ConstructorParameterNaming:DeviceEventKt.kt$DeviceEventKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.DeviceEvent.Builder</ID>
+    <ID>ConstructorParameterNaming:DeviceKt.kt$DeviceKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.Device.Builder</ID>
+    <ID>ConstructorParameterNaming:DeviceListKt.kt$DeviceListKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.DeviceList.Builder</ID>
+    <ID>ConstructorParameterNaming:DeviceRemovalKt.kt$DeviceRemovalKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.DeviceRemoval.Builder</ID>
+    <ID>ConstructorParameterNaming:DeviceStateKt.kt$DeviceStateKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.DeviceState.Builder</ID>
+    <ID>ConstructorParameterNaming:DnsOptionsKt.kt$DnsOptionsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.DnsOptions.Builder</ID>
+    <ID>ConstructorParameterNaming:EndpointKt.kt$EndpointKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.Endpoint.Builder</ID>
+    <ID>ConstructorParameterNaming:ErrorStateKt.kt$ErrorStateKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ErrorState.Builder</ID>
+    <ID>ConstructorParameterNaming:ErrorStateKt.kt$ErrorStateKt.FirewallPolicyErrorKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ErrorState.FirewallPolicyError.Builder</ID>
+    <ID>ConstructorParameterNaming:ExcludedProcessKt.kt$ExcludedProcessKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ExcludedProcess.Builder</ID>
+    <ID>ConstructorParameterNaming:ExcludedProcessListKt.kt$ExcludedProcessListKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ExcludedProcessList.Builder</ID>
+    <ID>ConstructorParameterNaming:GeoIpLocationKt.kt$GeoIpLocationKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.GeoIpLocation.Builder</ID>
+    <ID>ConstructorParameterNaming:GeographicLocationConstraintKt.kt$GeographicLocationConstraintKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.GeographicLocationConstraint.Builder</ID>
+    <ID>ConstructorParameterNaming:LocationConstraintKt.kt$LocationConstraintKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.LocationConstraint.Builder</ID>
+    <ID>ConstructorParameterNaming:LocationKt.kt$LocationKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.Location.Builder</ID>
+    <ID>ConstructorParameterNaming:NewAccessMethodSettingKt.kt$NewAccessMethodSettingKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.NewAccessMethodSetting.Builder</ID>
+    <ID>ConstructorParameterNaming:NormalRelaySettingsKt.kt$NormalRelaySettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.NormalRelaySettings.Builder</ID>
+    <ID>ConstructorParameterNaming:ObfuscationEndpointKt.kt$ObfuscationEndpointKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ObfuscationEndpoint.Builder</ID>
+    <ID>ConstructorParameterNaming:ObfuscationSettingsKt.kt$ObfuscationSettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ObfuscationSettings.Builder</ID>
+    <ID>ConstructorParameterNaming:OpenVpnEndpointDataKt.kt$OpenVpnEndpointDataKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.OpenVpnEndpointData.Builder</ID>
+    <ID>ConstructorParameterNaming:OpenVpnEndpointKt.kt$OpenVpnEndpointKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.OpenVpnEndpoint.Builder</ID>
+    <ID>ConstructorParameterNaming:OpenvpnConstraintsKt.kt$OpenvpnConstraintsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.OpenvpnConstraints.Builder</ID>
+    <ID>ConstructorParameterNaming:PortRangeKt.kt$PortRangeKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.PortRange.Builder</ID>
+    <ID>ConstructorParameterNaming:ProxyEndpointKt.kt$ProxyEndpointKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ProxyEndpoint.Builder</ID>
+    <ID>ConstructorParameterNaming:PublicKeyKt.kt$PublicKeyKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.PublicKey.Builder</ID>
+    <ID>ConstructorParameterNaming:QuantumResistantStateKt.kt$QuantumResistantStateKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.QuantumResistantState.Builder</ID>
+    <ID>ConstructorParameterNaming:RelayKt.kt$RelayKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.Relay.Builder</ID>
+    <ID>ConstructorParameterNaming:RelayListCityKt.kt$RelayListCityKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.RelayListCity.Builder</ID>
+    <ID>ConstructorParameterNaming:RelayListCountryKt.kt$RelayListCountryKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.RelayListCountry.Builder</ID>
+    <ID>ConstructorParameterNaming:RelayListKt.kt$RelayListKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.RelayList.Builder</ID>
+    <ID>ConstructorParameterNaming:RelaySettingsKt.kt$RelaySettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.RelaySettings.Builder</ID>
+    <ID>ConstructorParameterNaming:RemoveDeviceEventKt.kt$RemoveDeviceEventKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.RemoveDeviceEvent.Builder</ID>
+    <ID>ConstructorParameterNaming:SettingsKt.kt$SettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.Settings.Builder</ID>
+    <ID>ConstructorParameterNaming:ShadowsocksEndpointDataKt.kt$ShadowsocksEndpointDataKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ShadowsocksEndpointData.Builder</ID>
+    <ID>ConstructorParameterNaming:SplitTunnelSettingsKt.kt$SplitTunnelSettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.SplitTunnelSettings.Builder</ID>
+    <ID>ConstructorParameterNaming:TransportPortKt.kt$TransportPortKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TransportPort.Builder</ID>
+    <ID>ConstructorParameterNaming:TunnelEndpointKt.kt$TunnelEndpointKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelEndpoint.Builder</ID>
+    <ID>ConstructorParameterNaming:TunnelMetadataKt.kt$TunnelMetadataKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelMetadata.Builder</ID>
+    <ID>ConstructorParameterNaming:TunnelOptionsKt.kt$TunnelOptionsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.Builder</ID>
+    <ID>ConstructorParameterNaming:TunnelOptionsKt.kt$TunnelOptionsKt.GenericOptionsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.GenericOptions.Builder</ID>
+    <ID>ConstructorParameterNaming:TunnelOptionsKt.kt$TunnelOptionsKt.OpenvpnOptionsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.OpenvpnOptions.Builder</ID>
+    <ID>ConstructorParameterNaming:TunnelOptionsKt.kt$TunnelOptionsKt.WireguardOptionsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.WireguardOptions.Builder</ID>
+    <ID>ConstructorParameterNaming:TunnelStateKt.kt$TunnelStateKt.ConnectedKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelState.Connected.Builder</ID>
+    <ID>ConstructorParameterNaming:TunnelStateKt.kt$TunnelStateKt.ConnectingKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelState.Connecting.Builder</ID>
+    <ID>ConstructorParameterNaming:TunnelStateKt.kt$TunnelStateKt.DisconnectedKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelState.Disconnected.Builder</ID>
+    <ID>ConstructorParameterNaming:TunnelStateKt.kt$TunnelStateKt.DisconnectingKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelState.Disconnecting.Builder</ID>
+    <ID>ConstructorParameterNaming:TunnelStateKt.kt$TunnelStateKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelState.Builder</ID>
+    <ID>ConstructorParameterNaming:TunnelStateKt.kt$TunnelStateKt.ErrorKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelState.Error.Builder</ID>
+    <ID>ConstructorParameterNaming:TunnelStateRelayInfoKt.kt$TunnelStateRelayInfoKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelStateRelayInfo.Builder</ID>
+    <ID>ConstructorParameterNaming:UUIDKt.kt$UUIDKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.UUID.Builder</ID>
+    <ID>ConstructorParameterNaming:Udp2TcpObfuscationSettingsKt.kt$Udp2TcpObfuscationSettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.Udp2TcpObfuscationSettings.Builder</ID>
+    <ID>ConstructorParameterNaming:VoucherSubmissionKt.kt$VoucherSubmissionKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.VoucherSubmission.Builder</ID>
+    <ID>ConstructorParameterNaming:WireguardConstraintsKt.kt$WireguardConstraintsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.WireguardConstraints.Builder</ID>
+    <ID>ConstructorParameterNaming:WireguardEndpointDataKt.kt$WireguardEndpointDataKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.WireguardEndpointData.Builder</ID>
+    <ID>ConstructorParameterNaming:WireguardRelayEndpointDataKt.kt$WireguardRelayEndpointDataKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.WireguardRelayEndpointData.Builder</ID>
+    <ID>CyclomaticComplexMethod:BillingPaymentRepository.kt$BillingPaymentRepository$override fun purchaseProduct( productId: ProductId, activityProvider: () -&gt; Activity ): Flow&lt;PurchaseResult&gt;</ID>
+    <ID>CyclomaticComplexMethod:MockApiDispatcher.kt$MockApiDispatcher$override fun dispatch(request: RecordedRequest): MockResponse</ID>
+    <ID>CyclomaticComplexMethod:RelayLocationCell.kt$@Composable fun RelayLocationCell( relay: RelayItem, modifier: Modifier = Modifier, activeColor: Color = MaterialTheme.colorScheme.selected, inactiveColor: Color = MaterialTheme.colorScheme.error, selectedItem: RelayItem? = null, onSelectRelay: (item: RelayItem) -&gt; Unit = {} )</ID>
+    <ID>EmptyFunctionBlock:AccountTestRule.kt$AccountTestRule${}</ID>
+    <ID>EmptyKtFile:build.gradle.kts$.build.gradle.kts</ID>
+    <ID>ForbiddenComment:DeviceRevokedViewModel.kt$DeviceRevokedViewModel$// TODO: Refactor ConnectionProxy to be easily injectable rather than injecting</ID>
+    <ID>ForbiddenComment:MullvadDaemon.kt$MullvadDaemon$// TODO: Review this method when redoing Daemon communication, it can be null which was not</ID>
+    <ID>ForbiddenComment:PlayPurchaseInitError.kt$PlayPurchaseInitError.OtherError$// TODO: Add more errors here.</ID>
+    <ID>ForbiddenComment:PlayPurchaseVerifyError.kt$PlayPurchaseVerifyError.OtherError$// TODO: Add more errors here.</ID>
+    <ID>ForbiddenComment:ServiceConnectionManager.kt$ServiceConnectionManager$// TODO: Remove after refactoring fragments to support flow.</ID>
+    <ID>ForbiddenComment:ServiceConnectionManager.kt$ServiceConnectionManager$// TODO: Remove once `serviceNotifier` is no longer used.</ID>
+    <ID>FunctionNaming:AccessMethodKt.kt$AccessMethodKt.BridgesKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Bridges</ID>
+    <ID>FunctionNaming:AccessMethodKt.kt$AccessMethodKt.BridgesKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Bridges.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:AccessMethodKt.kt$AccessMethodKt.DirectKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Direct</ID>
+    <ID>FunctionNaming:AccessMethodKt.kt$AccessMethodKt.DirectKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Direct.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:AccessMethodKt.kt$AccessMethodKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.AccessMethod</ID>
+    <ID>FunctionNaming:AccessMethodKt.kt$AccessMethodKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:AccessMethodKt.kt$AccessMethodKt.ShadowsocksKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Shadowsocks</ID>
+    <ID>FunctionNaming:AccessMethodKt.kt$AccessMethodKt.ShadowsocksKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Shadowsocks.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:AccessMethodKt.kt$AccessMethodKt.Socks5LocalKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Socks5Local</ID>
+    <ID>FunctionNaming:AccessMethodKt.kt$AccessMethodKt.Socks5LocalKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Socks5Local.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:AccessMethodKt.kt$AccessMethodKt.Socks5RemoteKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Socks5Remote</ID>
+    <ID>FunctionNaming:AccessMethodKt.kt$AccessMethodKt.Socks5RemoteKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Socks5Remote.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:AccessMethodKt.kt$AccessMethodKt.SocksAuthKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.AccessMethod.SocksAuth</ID>
+    <ID>FunctionNaming:AccessMethodKt.kt$AccessMethodKt.SocksAuthKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.SocksAuth.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:AccessMethodSettingKt.kt$AccessMethodSettingKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.AccessMethodSetting</ID>
+    <ID>FunctionNaming:AccessMethodSettingKt.kt$AccessMethodSettingKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethodSetting.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:AccountAndDeviceKt.kt$AccountAndDeviceKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.AccountAndDevice</ID>
+    <ID>FunctionNaming:AccountAndDeviceKt.kt$AccountAndDeviceKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.AccountAndDevice.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:AccountDataKt.kt$AccountDataKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.AccountData</ID>
+    <ID>FunctionNaming:AccountDataKt.kt$AccountDataKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.AccountData.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:AccountHistoryKt.kt$AccountHistoryKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.AccountHistory</ID>
+    <ID>FunctionNaming:AccountHistoryKt.kt$AccountHistoryKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.AccountHistory.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:ApiAccessMethodSettingsKt.kt$ApiAccessMethodSettingsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ApiAccessMethodSettings</ID>
+    <ID>FunctionNaming:ApiAccessMethodSettingsKt.kt$ApiAccessMethodSettingsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ApiAccessMethodSettings.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:ApiAddressesKt.kt$ApiAddressesKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ApiAddresses</ID>
+    <ID>FunctionNaming:ApiAddressesKt.kt$ApiAddressesKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ApiAddresses.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:AppVersionInfoKt.kt$AppVersionInfoKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.AppVersionInfo</ID>
+    <ID>FunctionNaming:AppVersionInfoKt.kt$AppVersionInfoKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.AppVersionInfo.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:BridgeEndpointDataKt.kt$BridgeEndpointDataKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.BridgeEndpointData</ID>
+    <ID>FunctionNaming:BridgeEndpointDataKt.kt$BridgeEndpointDataKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.BridgeEndpointData.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:BridgeSettingsKt.kt$BridgeSettingsKt.BridgeConstraintsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.BridgeConstraints</ID>
+    <ID>FunctionNaming:BridgeSettingsKt.kt$BridgeSettingsKt.BridgeConstraintsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.BridgeConstraints.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:BridgeSettingsKt.kt$BridgeSettingsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.BridgeSettings</ID>
+    <ID>FunctionNaming:BridgeSettingsKt.kt$BridgeSettingsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:BridgeSettingsKt.kt$BridgeSettingsKt.LocalProxySettingsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.LocalProxySettings</ID>
+    <ID>FunctionNaming:BridgeSettingsKt.kt$BridgeSettingsKt.LocalProxySettingsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.LocalProxySettings.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:BridgeSettingsKt.kt$BridgeSettingsKt.RemoteProxyAuthKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.RemoteProxyAuth</ID>
+    <ID>FunctionNaming:BridgeSettingsKt.kt$BridgeSettingsKt.RemoteProxyAuthKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.RemoteProxyAuth.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:BridgeSettingsKt.kt$BridgeSettingsKt.RemoteProxySettingsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.RemoteProxySettings</ID>
+    <ID>FunctionNaming:BridgeSettingsKt.kt$BridgeSettingsKt.RemoteProxySettingsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.RemoteProxySettings.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:BridgeSettingsKt.kt$BridgeSettingsKt.ShadowsocksProxySettingsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.ShadowsocksProxySettings</ID>
+    <ID>FunctionNaming:BridgeSettingsKt.kt$BridgeSettingsKt.ShadowsocksProxySettingsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.ShadowsocksProxySettings.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:BridgeStateKt.kt$BridgeStateKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.BridgeState</ID>
+    <ID>FunctionNaming:BridgeStateKt.kt$BridgeStateKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.BridgeState.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:ConnectionConfigKt.kt$ConnectionConfigKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig</ID>
+    <ID>FunctionNaming:ConnectionConfigKt.kt$ConnectionConfigKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:ConnectionConfigKt.kt$ConnectionConfigKt.OpenvpnConfigKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.OpenvpnConfig</ID>
+    <ID>FunctionNaming:ConnectionConfigKt.kt$ConnectionConfigKt.OpenvpnConfigKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.OpenvpnConfig.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig</ID>
+    <ID>FunctionNaming:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.PeerConfigKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.PeerConfig</ID>
+    <ID>FunctionNaming:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.PeerConfigKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.PeerConfig.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.TunnelConfigKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.TunnelConfig</ID>
+    <ID>FunctionNaming:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.TunnelConfigKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.TunnelConfig.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:CustomDnsOptionsKt.kt$CustomDnsOptionsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.CustomDnsOptions</ID>
+    <ID>FunctionNaming:CustomDnsOptionsKt.kt$CustomDnsOptionsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.CustomDnsOptions.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:CustomListKt.kt$CustomListKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.CustomList</ID>
+    <ID>FunctionNaming:CustomListKt.kt$CustomListKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.CustomList.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:CustomListSettingsKt.kt$CustomListSettingsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.CustomListSettings</ID>
+    <ID>FunctionNaming:CustomListSettingsKt.kt$CustomListSettingsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.CustomListSettings.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:CustomRelaySettingsKt.kt$CustomRelaySettingsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.CustomRelaySettings</ID>
+    <ID>FunctionNaming:CustomRelaySettingsKt.kt$CustomRelaySettingsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.CustomRelaySettings.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:DaemonEventKt.kt$DaemonEventKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.DaemonEvent</ID>
+    <ID>FunctionNaming:DaemonEventKt.kt$DaemonEventKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.DaemonEvent.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:DefaultDnsOptionsKt.kt$DefaultDnsOptionsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.DefaultDnsOptions</ID>
+    <ID>FunctionNaming:DefaultDnsOptionsKt.kt$DefaultDnsOptionsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.DefaultDnsOptions.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:DeviceEventKt.kt$DeviceEventKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.DeviceEvent</ID>
+    <ID>FunctionNaming:DeviceEventKt.kt$DeviceEventKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.DeviceEvent.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:DeviceKt.kt$DeviceKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.Device</ID>
+    <ID>FunctionNaming:DeviceKt.kt$DeviceKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.Device.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:DeviceListKt.kt$DeviceListKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.DeviceList</ID>
+    <ID>FunctionNaming:DeviceListKt.kt$DeviceListKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.DeviceList.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:DeviceRemovalKt.kt$DeviceRemovalKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.DeviceRemoval</ID>
+    <ID>FunctionNaming:DeviceRemovalKt.kt$DeviceRemovalKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.DeviceRemoval.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:DeviceStateKt.kt$DeviceStateKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.DeviceState</ID>
+    <ID>FunctionNaming:DeviceStateKt.kt$DeviceStateKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.DeviceState.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:DnsOptionsKt.kt$DnsOptionsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.DnsOptions</ID>
+    <ID>FunctionNaming:DnsOptionsKt.kt$DnsOptionsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.DnsOptions.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:EndpointKt.kt$EndpointKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.Endpoint</ID>
+    <ID>FunctionNaming:EndpointKt.kt$EndpointKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.Endpoint.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:ErrorStateKt.kt$ErrorStateKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ErrorState</ID>
+    <ID>FunctionNaming:ErrorStateKt.kt$ErrorStateKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ErrorState.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:ErrorStateKt.kt$ErrorStateKt.FirewallPolicyErrorKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ErrorState.FirewallPolicyError</ID>
+    <ID>FunctionNaming:ErrorStateKt.kt$ErrorStateKt.FirewallPolicyErrorKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ErrorState.FirewallPolicyError.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:ExcludedProcessKt.kt$ExcludedProcessKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ExcludedProcess</ID>
+    <ID>FunctionNaming:ExcludedProcessKt.kt$ExcludedProcessKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ExcludedProcess.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:ExcludedProcessListKt.kt$ExcludedProcessListKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ExcludedProcessList</ID>
+    <ID>FunctionNaming:ExcludedProcessListKt.kt$ExcludedProcessListKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ExcludedProcessList.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:GeoIpLocationKt.kt$GeoIpLocationKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.GeoIpLocation</ID>
+    <ID>FunctionNaming:GeoIpLocationKt.kt$GeoIpLocationKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.GeoIpLocation.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:GeographicLocationConstraintKt.kt$GeographicLocationConstraintKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.GeographicLocationConstraint</ID>
+    <ID>FunctionNaming:GeographicLocationConstraintKt.kt$GeographicLocationConstraintKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.GeographicLocationConstraint.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:LocationConstraintKt.kt$LocationConstraintKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.LocationConstraint</ID>
+    <ID>FunctionNaming:LocationConstraintKt.kt$LocationConstraintKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.LocationConstraint.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:LocationKt.kt$LocationKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.Location</ID>
+    <ID>FunctionNaming:LocationKt.kt$LocationKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.Location.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:NewAccessMethodSettingKt.kt$NewAccessMethodSettingKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.NewAccessMethodSetting</ID>
+    <ID>FunctionNaming:NewAccessMethodSettingKt.kt$NewAccessMethodSettingKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.NewAccessMethodSetting.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:NormalRelaySettingsKt.kt$NormalRelaySettingsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.NormalRelaySettings</ID>
+    <ID>FunctionNaming:NormalRelaySettingsKt.kt$NormalRelaySettingsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.NormalRelaySettings.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:ObfuscationEndpointKt.kt$ObfuscationEndpointKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ObfuscationEndpoint</ID>
+    <ID>FunctionNaming:ObfuscationEndpointKt.kt$ObfuscationEndpointKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ObfuscationEndpoint.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:ObfuscationSettingsKt.kt$ObfuscationSettingsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ObfuscationSettings</ID>
+    <ID>FunctionNaming:ObfuscationSettingsKt.kt$ObfuscationSettingsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ObfuscationSettings.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:OpenVpnEndpointDataKt.kt$OpenVpnEndpointDataKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.OpenVpnEndpointData</ID>
+    <ID>FunctionNaming:OpenVpnEndpointDataKt.kt$OpenVpnEndpointDataKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.OpenVpnEndpointData.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:OpenVpnEndpointKt.kt$OpenVpnEndpointKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.OpenVpnEndpoint</ID>
+    <ID>FunctionNaming:OpenVpnEndpointKt.kt$OpenVpnEndpointKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.OpenVpnEndpoint.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:OpenvpnConstraintsKt.kt$OpenvpnConstraintsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.OpenvpnConstraints</ID>
+    <ID>FunctionNaming:OpenvpnConstraintsKt.kt$OpenvpnConstraintsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.OpenvpnConstraints.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:PortRangeKt.kt$PortRangeKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.PortRange</ID>
+    <ID>FunctionNaming:PortRangeKt.kt$PortRangeKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.PortRange.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:ProxyEndpointKt.kt$ProxyEndpointKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ProxyEndpoint</ID>
+    <ID>FunctionNaming:ProxyEndpointKt.kt$ProxyEndpointKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ProxyEndpoint.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:PublicKeyKt.kt$PublicKeyKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.PublicKey</ID>
+    <ID>FunctionNaming:PublicKeyKt.kt$PublicKeyKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.PublicKey.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:QuantumResistantStateKt.kt$QuantumResistantStateKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.QuantumResistantState</ID>
+    <ID>FunctionNaming:QuantumResistantStateKt.kt$QuantumResistantStateKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.QuantumResistantState.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:RelayKt.kt$RelayKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.Relay</ID>
+    <ID>FunctionNaming:RelayKt.kt$RelayKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.Relay.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:RelayListCityKt.kt$RelayListCityKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.RelayListCity</ID>
+    <ID>FunctionNaming:RelayListCityKt.kt$RelayListCityKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.RelayListCity.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:RelayListCountryKt.kt$RelayListCountryKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.RelayListCountry</ID>
+    <ID>FunctionNaming:RelayListCountryKt.kt$RelayListCountryKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.RelayListCountry.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:RelayListKt.kt$RelayListKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.RelayList</ID>
+    <ID>FunctionNaming:RelayListKt.kt$RelayListKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.RelayList.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:RelaySettingsKt.kt$RelaySettingsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.RelaySettings</ID>
+    <ID>FunctionNaming:RelaySettingsKt.kt$RelaySettingsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.RelaySettings.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:RemoveDeviceEventKt.kt$RemoveDeviceEventKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.RemoveDeviceEvent</ID>
+    <ID>FunctionNaming:RemoveDeviceEventKt.kt$RemoveDeviceEventKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.RemoveDeviceEvent.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:SettingsKt.kt$SettingsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.Settings</ID>
+    <ID>FunctionNaming:SettingsKt.kt$SettingsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.Settings.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:ShadowsocksEndpointDataKt.kt$ShadowsocksEndpointDataKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ShadowsocksEndpointData</ID>
+    <ID>FunctionNaming:ShadowsocksEndpointDataKt.kt$ShadowsocksEndpointDataKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ShadowsocksEndpointData.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:SplitTunnelSettingsKt.kt$SplitTunnelSettingsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.SplitTunnelSettings</ID>
+    <ID>FunctionNaming:SplitTunnelSettingsKt.kt$SplitTunnelSettingsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.SplitTunnelSettings.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:TransportPortKt.kt$TransportPortKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.TransportPort</ID>
+    <ID>FunctionNaming:TransportPortKt.kt$TransportPortKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.TransportPort.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:TunnelEndpointKt.kt$TunnelEndpointKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.TunnelEndpoint</ID>
+    <ID>FunctionNaming:TunnelEndpointKt.kt$TunnelEndpointKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.TunnelEndpoint.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:TunnelMetadataKt.kt$TunnelMetadataKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.TunnelMetadata</ID>
+    <ID>FunctionNaming:TunnelMetadataKt.kt$TunnelMetadataKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.TunnelMetadata.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:TunnelOptionsKt.kt$TunnelOptionsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.TunnelOptions</ID>
+    <ID>FunctionNaming:TunnelOptionsKt.kt$TunnelOptionsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:TunnelOptionsKt.kt$TunnelOptionsKt.GenericOptionsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.GenericOptions</ID>
+    <ID>FunctionNaming:TunnelOptionsKt.kt$TunnelOptionsKt.GenericOptionsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.GenericOptions.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:TunnelOptionsKt.kt$TunnelOptionsKt.OpenvpnOptionsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.OpenvpnOptions</ID>
+    <ID>FunctionNaming:TunnelOptionsKt.kt$TunnelOptionsKt.OpenvpnOptionsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.OpenvpnOptions.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:TunnelOptionsKt.kt$TunnelOptionsKt.WireguardOptionsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.WireguardOptions</ID>
+    <ID>FunctionNaming:TunnelOptionsKt.kt$TunnelOptionsKt.WireguardOptionsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.WireguardOptions.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:TunnelStateKt.kt$TunnelStateKt.ConnectedKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.TunnelState.Connected</ID>
+    <ID>FunctionNaming:TunnelStateKt.kt$TunnelStateKt.ConnectedKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.TunnelState.Connected.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:TunnelStateKt.kt$TunnelStateKt.ConnectingKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.TunnelState.Connecting</ID>
+    <ID>FunctionNaming:TunnelStateKt.kt$TunnelStateKt.ConnectingKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.TunnelState.Connecting.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:TunnelStateKt.kt$TunnelStateKt.DisconnectedKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.TunnelState.Disconnected</ID>
+    <ID>FunctionNaming:TunnelStateKt.kt$TunnelStateKt.DisconnectedKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.TunnelState.Disconnected.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:TunnelStateKt.kt$TunnelStateKt.DisconnectingKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.TunnelState.Disconnecting</ID>
+    <ID>FunctionNaming:TunnelStateKt.kt$TunnelStateKt.DisconnectingKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.TunnelState.Disconnecting.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:TunnelStateKt.kt$TunnelStateKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.TunnelState</ID>
+    <ID>FunctionNaming:TunnelStateKt.kt$TunnelStateKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.TunnelState.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:TunnelStateKt.kt$TunnelStateKt.ErrorKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.TunnelState.Error</ID>
+    <ID>FunctionNaming:TunnelStateKt.kt$TunnelStateKt.ErrorKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.TunnelState.Error.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:TunnelStateRelayInfoKt.kt$TunnelStateRelayInfoKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.TunnelStateRelayInfo</ID>
+    <ID>FunctionNaming:TunnelStateRelayInfoKt.kt$TunnelStateRelayInfoKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.TunnelStateRelayInfo.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:UUIDKt.kt$UUIDKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.UUID</ID>
+    <ID>FunctionNaming:UUIDKt.kt$UUIDKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.UUID.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:Udp2TcpObfuscationSettingsKt.kt$Udp2TcpObfuscationSettingsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.Udp2TcpObfuscationSettings</ID>
+    <ID>FunctionNaming:Udp2TcpObfuscationSettingsKt.kt$Udp2TcpObfuscationSettingsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.Udp2TcpObfuscationSettings.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:VoucherSubmissionKt.kt$VoucherSubmissionKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.VoucherSubmission</ID>
+    <ID>FunctionNaming:VoucherSubmissionKt.kt$VoucherSubmissionKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.VoucherSubmission.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:WireguardConstraintsKt.kt$WireguardConstraintsKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.WireguardConstraints</ID>
+    <ID>FunctionNaming:WireguardConstraintsKt.kt$WireguardConstraintsKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.WireguardConstraints.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:WireguardEndpointDataKt.kt$WireguardEndpointDataKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.WireguardEndpointData</ID>
+    <ID>FunctionNaming:WireguardEndpointDataKt.kt$WireguardEndpointDataKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.WireguardEndpointData.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:WireguardRelayEndpointDataKt.kt$WireguardRelayEndpointDataKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.WireguardRelayEndpointData</ID>
+    <ID>FunctionNaming:WireguardRelayEndpointDataKt.kt$WireguardRelayEndpointDataKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.WireguardRelayEndpointData.Builder, ): Dsl</ID>
+    <ID>LargeClass:ConnectScreenTest.kt$ConnectScreenTest</ID>
+    <ID>LargeClass:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt$ManagementServiceCoroutineImplBase : AbstractCoroutineServerImpl</ID>
+    <ID>LargeClass:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt$ManagementServiceCoroutineStub : AbstractCoroutineStub</ID>
+    <ID>LongMethod:ConnectScreen.kt$@Composable fun ConnectScreen( uiState: ConnectUiState, onDisconnectClick: () -&gt; Unit = {}, onReconnectClick: () -&gt; Unit = {}, onConnectClick: () -&gt; Unit = {}, onCancelClick: () -&gt; Unit = {}, onSwitchLocationClick: () -&gt; Unit = {}, onUpdateVersionClick: () -&gt; Unit = {}, onManageAccountClick: () -&gt; Unit = {}, onSettingsClick: () -&gt; Unit = {}, onAccountClick: () -&gt; Unit = {}, onDismissNewDeviceClick: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:ConnectionButton.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun ConnectionButton( text: String, mainClick: () -&gt; Unit, reconnectClick: () -&gt; Unit, isReconnectButtonEnabled: Boolean, containerColor: Color, contentColor: Color, modifier: Modifier = Modifier, reconnectButtonTestTag: String = "" )</ID>
+    <ID>LongMethod:FilterScreen.kt$@Composable fun FilterScreen( uiState: RelayFilterState, onBackClick: () -&gt; Unit = {}, onApplyClick: () -&gt; Unit = {}, onSelectedOwnership: (ownership: Ownership?) -&gt; Unit = {}, onAllProviderCheckChange: (isChecked: Boolean) -&gt; Unit = {}, onSelectedProvider: (checked: Boolean, provider: Provider) -&gt; Unit = { _, _ -&gt; } )</ID>
+    <ID>LongMethod:LoginScreen.kt$@Composable @OptIn(ExperimentalComposeUiApi::class) private fun LoginContent( uiState: LoginUiState, onAccountNumberChange: (String) -&gt; Unit, onLoginClick: (String) -&gt; Unit, onDeleteHistoryClick: () -&gt; Unit )</ID>
+    <ID>LongMethod:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$final override fun bindService(): ServerServiceDefinition</ID>
+    <ID>LongMethod:NotificationBanner.kt$@Composable private fun Notification(notificationBannerData: NotificationData)</ID>
+    <ID>LongMethod:OutOfTimeScreen.kt$@Composable fun OutOfTimeScreen( uiState: OutOfTimeUiState, onDisconnectClick: () -&gt; Unit = {}, onSitePaymentClick: () -&gt; Unit = {}, onRedeemVoucherClick: () -&gt; Unit = {}, onSettingsClick: () -&gt; Unit = {}, onAccountClick: () -&gt; Unit = {}, onPurchaseBillingProductClick: (ProductId) -&gt; Unit = { _ -&gt; }, navigateToVerificationPendingDialog: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:PrivacyDisclaimerScreen.kt$@Composable fun PrivacyDisclaimerScreen( uiState: PrivacyDisclaimerViewState, onPrivacyPolicyLinkClicked: () -&gt; Unit, onAcceptClicked: () -&gt; Unit, )</ID>
+    <ID>LongMethod:RedeemVoucherDialog.kt$@Composable fun RedeemVoucherDialog( uiState: VoucherDialogUiState, onVoucherInputChange: (String) -&gt; Unit = {}, onRedeem: (voucherCode: String) -&gt; Unit, onDismiss: (isTimeAdded: Boolean) -&gt; Unit )</ID>
+    <ID>LongMethod:RelayLocationCell.kt$@Composable @Preview private fun PreviewRelayLocationCell()</ID>
+    <ID>LongMethod:RelayLocationCell.kt$@Composable fun RelayLocationCell( relay: RelayItem, modifier: Modifier = Modifier, activeColor: Color = MaterialTheme.colorScheme.selected, inactiveColor: Color = MaterialTheme.colorScheme.error, selectedItem: RelayItem? = null, onSelectRelay: (item: RelayItem) -&gt; Unit = {} )</ID>
+    <ID>LongMethod:SelectLocationScreen.kt$@Composable fun SelectLocationScreen( uiState: SelectLocationUiState, onSelectRelay: (item: RelayItem) -&gt; Unit = {}, onSearchTermInput: (searchTerm: String) -&gt; Unit = {}, onBackClick: () -&gt; Unit = {}, onFilterClick: () -&gt; Unit = {}, removeOwnershipFilter: () -&gt; Unit = {}, removeProviderFilter: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:SettingsScreen.kt$@ExperimentalMaterial3Api @Composable fun SettingsScreen( uiState: SettingsUiState, onVpnSettingCellClick: () -&gt; Unit = {}, onSplitTunnelingCellClick: () -&gt; Unit = {}, onReportProblemCellClick: () -&gt; Unit = {}, onBackClick: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:SplitTunnelingScreen.kt$@Composable @OptIn(ExperimentalFoundationApi::class) fun SplitTunnelingScreen( uiState: SplitTunnelingUiState = SplitTunnelingUiState.Loading, onShowSystemAppsClick: (show: Boolean) -&gt; Unit = {}, onExcludeAppClick: (packageName: String) -&gt; Unit = {}, onIncludeAppClick: (packageName: String) -&gt; Unit = {}, onBackClick: () -&gt; Unit = {}, onResolveIcon: (String) -&gt; Bitmap? = { null }, )</ID>
+    <ID>LongMethod:VpnSettingsScreen.kt$@Destination(style = SlideInFromRightTransition::class) @Composable fun VpnSettings( navigator: DestinationsNavigator, dnsDialogResult: ResultRecipient&lt;DnsDialogDestination, Boolean&gt;, customWgPortResult: ResultRecipient&lt;WireguardCustomPortDialogDestination, Int?&gt; )</ID>
+    <ID>LongMethod:VpnSettingsScreen.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun VpnSettingsScreen( uiState: VpnSettingsUiState, snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }, navigateToContentBlockersInfo: () -&gt; Unit = {}, navigateToCustomDnsInfo: () -&gt; Unit = {}, navigateToMalwareInfo: () -&gt; Unit = {}, navigateToObfuscationInfo: () -&gt; Unit = {}, navigateToQuantumResistanceInfo: () -&gt; Unit = {}, navigateUdp2TcpInfo: () -&gt; Unit = {}, navigateToWireguardPortInfo: (availablePortRanges: List&lt;PortRange&gt;) -&gt; Unit = {}, navigateToLocalNetworkSharingInfo: () -&gt; Unit = {}, navigateToWireguardPortDialog: () -&gt; Unit = {}, onToggleBlockTrackers: (Boolean) -&gt; Unit = {}, onToggleBlockAds: (Boolean) -&gt; Unit = {}, onToggleBlockMalware: (Boolean) -&gt; Unit = {}, onToggleAutoConnect: (Boolean) -&gt; Unit = {}, onToggleLocalNetworkSharing: (Boolean) -&gt; Unit = {}, onToggleBlockAdultContent: (Boolean) -&gt; Unit = {}, onToggleBlockGambling: (Boolean) -&gt; Unit = {}, onToggleBlockSocialMedia: (Boolean) -&gt; Unit = {}, navigateToMtuDialog: (mtu: Int?) -&gt; Unit = {}, navigateToDns: (index: Int?, address: String?) -&gt; Unit = { _, _ -&gt; }, onToggleDnsClick: (Boolean) -&gt; Unit = {}, onBackClick: () -&gt; Unit = {}, onSelectObfuscationSetting: (selectedObfuscation: SelectedObfuscation) -&gt; Unit = {}, onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -&gt; Unit = {}, onWireguardPortSelected: (port: Constraint&lt;Port&gt;) -&gt; Unit = {}, )</ID>
+    <ID>MagicNumber:Chevron.kt$100</ID>
+    <ID>MagicNumber:Chevron.kt$270f</ID>
+    <ID>MagicNumber:Chevron.kt$90f</ID>
+    <ID>MagicNumber:CustomTextField.kt$100</ID>
+    <ID>MagicNumber:IntegerExtension.kt$1280</ID>
+    <ID>MagicNumber:IntegerExtension.kt$1420</ID>
+    <ID>MagicNumber:LoginScreen.kt$3f</ID>
+    <ID>MagicNumber:LoginViewModel.kt$LoginViewModel$1000</ID>
+    <ID>MagicNumber:MullvadTileService.kt$MullvadTileService$300L</ID>
+    <ID>MagicNumber:NavigateBackIconButton.kt$90f</ID>
+    <ID>MagicNumber:RedeemVoucherDialog.kt$30</ID>
+    <ID>MagicNumber:RedeemVoucherDialog.kt$59</ID>
+    <ID>MagicNumber:ResourcesExtensions.kt$3</ID>
+    <ID>MagicNumber:SelectLocationScreen.kt$270f</ID>
+    <ID>MagicNumber:TalpidVpnService.kt$TalpidVpnService$128</ID>
+    <ID>MagicNumber:TalpidVpnService.kt$TalpidVpnService$32</ID>
+    <ID>MatchingDeclarationName:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt</ID>
+    <ID>MatchingDeclarationName:SingleModuleExtensions.kt$NavGraph : NavGraphSpec</ID>
+    <ID>MaxLineLength:AccessMethodKt.kt$AccessMethodKt.Dsl$public</ID>
+    <ID>MaxLineLength:AccessMethodKt.kt$AccessMethodKt.ShadowsocksKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Shadowsocks.Builder</ID>
+    <ID>MaxLineLength:AccessMethodKt.kt$AccessMethodKt.Socks5LocalKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Socks5Local.Builder</ID>
+    <ID>MaxLineLength:AccessMethodKt.kt$AccessMethodKt.Socks5RemoteKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.Socks5Remote.Builder</ID>
+    <ID>MaxLineLength:AccessMethodKt.kt$AccessMethodKt.SocksAuthKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.AccessMethod.SocksAuth.Builder</ID>
+    <ID>MaxLineLength:AccessMethodKt.kt$public</ID>
+    <ID>MaxLineLength:AccessMethodSettingKt.kt$public</ID>
+    <ID>MaxLineLength:AccountAndDeviceKt.kt$public</ID>
+    <ID>MaxLineLength:AccountDataKt.kt$public</ID>
+    <ID>MaxLineLength:AccountHistoryKt.kt$public</ID>
+    <ID>MaxLineLength:ApiAccessMethodSettingsKt.kt$ApiAccessMethodSettingsKt.Dsl$public</ID>
+    <ID>MaxLineLength:ApiAccessMethodSettingsKt.kt$ApiAccessMethodSettingsKt.Dsl$values: kotlin.collections.Iterable&lt;mullvad_daemon.management_interface.ManagementInterface.AccessMethodSetting&gt;</ID>
+    <ID>MaxLineLength:ApiAddressesKt.kt$ApiAddressesKt.Dsl$public</ID>
+    <ID>MaxLineLength:BridgeEndpointDataKt.kt$BridgeEndpointDataKt.Dsl$public</ID>
+    <ID>MaxLineLength:BridgeEndpointDataKt.kt$BridgeEndpointDataKt.Dsl$values: kotlin.collections.Iterable&lt;mullvad_daemon.management_interface.ManagementInterface.ShadowsocksEndpointData&gt;</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt$mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.ShadowsocksProxySettings.newBuilder()</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.BridgeConstraintsKt.Dsl$@kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.BridgeConstraintsKt.Dsl$internal</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.BridgeConstraintsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.BridgeConstraints.Builder</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.BridgeConstraintsKt.Dsl.Companion$builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.BridgeConstraints.Builder</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.Dsl$public</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.LocalProxySettingsKt.Dsl$internal</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.LocalProxySettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.LocalProxySettings.Builder</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.LocalProxySettingsKt.Dsl.Companion$builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.LocalProxySettings.Builder</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.RemoteProxyAuthKt.Dsl$internal</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.RemoteProxyAuthKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.RemoteProxyAuth.Builder</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.RemoteProxyAuthKt.Dsl.Companion$builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.RemoteProxyAuth.Builder</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.RemoteProxySettingsKt.Dsl$internal</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.RemoteProxySettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.RemoteProxySettings.Builder</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.RemoteProxySettingsKt.Dsl.Companion$builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.RemoteProxySettings.Builder</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.ShadowsocksProxySettingsKt.Dsl$internal</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.ShadowsocksProxySettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.ShadowsocksProxySettings.Builder</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$BridgeSettingsKt.ShadowsocksProxySettingsKt.Dsl.Companion$builder: mullvad_daemon.management_interface.ManagementInterface.BridgeSettings.ShadowsocksProxySettings.Builder</ID>
+    <ID>MaxLineLength:BridgeSettingsKt.kt$public</ID>
+    <ID>MaxLineLength:ChangelogDestination.kt$ChangelogDestination$changeLog = changelogNavType.get(savedStateHandle, "changeLog") ?: throw RuntimeException("'changeLog' argument is mandatory, but was not present!")</ID>
+    <ID>MaxLineLength:ChangelogDestination.kt$ChangelogDestination$changeLog = changelogNavType.safeGet(bundle, "changeLog") ?: throw RuntimeException("'changeLog' argument is mandatory, but was not present!")</ID>
+    <ID>MaxLineLength:ChangelogNavType.kt$public val changelogNavType: ChangelogNavType = ChangelogNavType(DefaultParcelableNavTypeSerializer(Changelog::class.java))</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.OpenvpnConfigKt.Dsl$internal</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.OpenvpnConfigKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.OpenvpnConfig.Builder</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.OpenvpnConfigKt.Dsl.Companion$builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.OpenvpnConfig.Builder</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt$block: mullvad_daemon.management_interface.ConnectionConfigKt.WireguardConfigKt.PeerConfigKt.Dsl.() -&gt; kotlin.Unit</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt$block: mullvad_daemon.management_interface.ConnectionConfigKt.WireguardConfigKt.TunnelConfigKt.Dsl.() -&gt; kotlin.Unit</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt$mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.PeerConfig.newBuilder()</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt$mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.TunnelConfig.newBuilder()</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.Dsl$internal</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.Builder</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.Dsl$public</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.Dsl.Companion$builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.Builder</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.PeerConfigKt.Dsl$@kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.PeerConfigKt.Dsl$internal</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.PeerConfigKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.PeerConfig.Builder</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.PeerConfigKt.Dsl$public</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.PeerConfigKt.Dsl.Companion$builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.PeerConfig.Builder</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.TunnelConfigKt.Dsl$@kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.TunnelConfigKt.Dsl$internal</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.TunnelConfigKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.TunnelConfig.Builder</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$ConnectionConfigKt.WireguardConfigKt.TunnelConfigKt.Dsl.Companion$builder: mullvad_daemon.management_interface.ManagementInterface.ConnectionConfig.WireguardConfig.TunnelConfig.Builder</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$block: mullvad_daemon.management_interface.ConnectionConfigKt.WireguardConfigKt.TunnelConfigKt.Dsl.() -&gt; kotlin.Unit</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$public</ID>
+    <ID>MaxLineLength:ConnectionConfigKt.kt$public inline</ID>
+    <ID>MaxLineLength:CustomDnsOptionsKt.kt$CustomDnsOptionsKt.Dsl$@kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)</ID>
+    <ID>MaxLineLength:CustomListKt.kt$CustomListKt.Dsl$public</ID>
+    <ID>MaxLineLength:CustomListKt.kt$CustomListKt.Dsl$values: kotlin.collections.Iterable&lt;mullvad_daemon.management_interface.ManagementInterface.GeographicLocationConstraint&gt;</ID>
+    <ID>MaxLineLength:CustomListSettingsKt.kt$CustomListSettingsKt.Dsl$public</ID>
+    <ID>MaxLineLength:CustomRelaySettingsKt.kt$public</ID>
+    <ID>MaxLineLength:DaemonEventKt.kt$public</ID>
+    <ID>MaxLineLength:DeviceEventKt.kt$public</ID>
+    <ID>MaxLineLength:DeviceKt.kt$public</ID>
+    <ID>MaxLineLength:DeviceListDestination.kt$DeviceListDestination$accountToken = DestinationsStringNavType.get(savedStateHandle, "accountToken") ?: throw RuntimeException("'accountToken' argument is mandatory, but was not present!")</ID>
+    <ID>MaxLineLength:DeviceListDestination.kt$DeviceListDestination$accountToken = DestinationsStringNavType.safeGet(bundle, "accountToken") ?: throw RuntimeException("'accountToken' argument is mandatory, but was not present!")</ID>
+    <ID>MaxLineLength:DeviceListKt.kt$DeviceListKt.Dsl$public</ID>
+    <ID>MaxLineLength:DeviceStateKt.kt$public</ID>
+    <ID>MaxLineLength:DnsOptionsKt.kt$public</ID>
+    <ID>MaxLineLength:ErrorStateKt.kt$ErrorStateKt.FirewallPolicyErrorKt.Dsl$internal</ID>
+    <ID>MaxLineLength:ErrorStateKt.kt$ErrorStateKt.FirewallPolicyErrorKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ErrorState.FirewallPolicyError.Builder</ID>
+    <ID>MaxLineLength:ErrorStateKt.kt$ErrorStateKt.FirewallPolicyErrorKt.Dsl$public</ID>
+    <ID>MaxLineLength:ErrorStateKt.kt$ErrorStateKt.FirewallPolicyErrorKt.Dsl.Companion$builder: mullvad_daemon.management_interface.ManagementInterface.ErrorState.FirewallPolicyError.Builder</ID>
+    <ID>MaxLineLength:ErrorStateKt.kt$public</ID>
+    <ID>MaxLineLength:ExcludedProcessListKt.kt$ExcludedProcessListKt.Dsl$public</ID>
+    <ID>MaxLineLength:ExcludedProcessListKt.kt$ExcludedProcessListKt.Dsl$values: kotlin.collections.Iterable&lt;mullvad_daemon.management_interface.ManagementInterface.ExcludedProcess&gt;</ID>
+    <ID>MaxLineLength:GeographicLocationConstraintKt.kt$GeographicLocationConstraintKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.GeographicLocationConstraint.Builder</ID>
+    <ID>MaxLineLength:LocationConstraintKt.kt$public</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt$public</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.AddSplitTunnelProcess is unimplemented"</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.ClearSplitTunnelProcesses is unimplemented"</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.GetCurrentApiAccessMethod is unimplemented"</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.GetExcludedProcesses is unimplemented"</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.GetSplitTunnelProcesses is unimplemented"</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.IsPerformingPostUpgrade is unimplemented"</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.RemoveApiAccessMethod is unimplemented"</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.RemoveSplitTunnelApp is unimplemented"</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.RemoveSplitTunnelProcess is unimplemented"</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.ResetWireguardRotationInterval is unimplemented"</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.SetBlockWhenDisconnected is unimplemented"</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.SetObfuscationSettings is unimplemented"</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.SetQuantumResistantTunnel is unimplemented"</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.SetWireguardRotationInterval is unimplemented"</ID>
+    <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.UpdateApiAccessMethod is unimplemented"</ID>
+    <ID>MaxLineLength:NavArgsGetters.kt$RemoveDeviceConfirmationDialogDestination.NavArgs::class.java -&gt; RemoveDeviceConfirmationDialogDestination.argsFrom(argsContainer) as T</ID>
+    <ID>MaxLineLength:NavArgsGetters.kt$WireguardCustomPortDialogDestination.NavArgs::class.java -&gt; WireguardCustomPortDialogDestination.argsFrom(argsContainer) as T</ID>
+    <ID>MaxLineLength:NavArgsGetters.kt$WireguardPortInfoDialogDestination.NavArgs::class.java -&gt; WireguardPortInfoDialogDestination.argsFrom(argsContainer) as T</ID>
+    <ID>MaxLineLength:NewAccessMethodSettingKt.kt$public</ID>
+    <ID>MaxLineLength:NormalRelaySettingsKt.kt$NormalRelaySettingsKt.Dsl$@kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)</ID>
+    <ID>MaxLineLength:NormalRelaySettingsKt.kt$public</ID>
+    <ID>MaxLineLength:ObfuscationSettingsKt.kt$ObfuscationSettingsKt.Dsl$public</ID>
+    <ID>MaxLineLength:ObfuscationSettingsKt.kt$public</ID>
+    <ID>MaxLineLength:OpenVpnEndpointDataKt.kt$OpenVpnEndpointDataKt.Dsl$public</ID>
+    <ID>MaxLineLength:OpenVpnEndpointDataKt.kt$OpenVpnEndpointDataKt.Dsl$values: kotlin.collections.Iterable&lt;mullvad_daemon.management_interface.ManagementInterface.OpenVpnEndpoint&gt;</ID>
+    <ID>MaxLineLength:OpenvpnConstraintsKt.kt$public</ID>
+    <ID>MaxLineLength:PaymentDestination.kt$PaymentDestination$productId = DestinationsStringNavType.get(savedStateHandle, "productId")?.let { ProductId(it) } ?: throw RuntimeException("'productId' argument is mandatory, but was not present!")</ID>
+    <ID>MaxLineLength:PaymentDestination.kt$PaymentDestination$productId = DestinationsStringNavType.safeGet(bundle, "productId")?.let { ProductId(it) } ?: throw RuntimeException("'productId' argument is mandatory, but was not present!")</ID>
+    <ID>MaxLineLength:PublicKeyKt.kt$public</ID>
+    <ID>MaxLineLength:RelayKt.kt$public</ID>
+    <ID>MaxLineLength:RelayListCityKt.kt$RelayListCityKt.Dsl$public</ID>
+    <ID>MaxLineLength:RelayListCountryKt.kt$RelayListCountryKt.Dsl$public</ID>
+    <ID>MaxLineLength:RelayListKt.kt$RelayListKt.Dsl$public</ID>
+    <ID>MaxLineLength:RelayListKt.kt$RelayListKt.Dsl$values: kotlin.collections.Iterable&lt;mullvad_daemon.management_interface.ManagementInterface.RelayListCountry&gt;</ID>
+    <ID>MaxLineLength:RelayListKt.kt$public</ID>
+    <ID>MaxLineLength:RelaySettingsKt.kt$public</ID>
+    <ID>MaxLineLength:RemoveDeviceConfirmationDialogDestination.kt$RemoveDeviceConfirmationDialogDestination$device = deviceNavType.get(savedStateHandle, "device") ?: throw RuntimeException("'device' argument is mandatory, but was not present!")</ID>
+    <ID>MaxLineLength:RemoveDeviceConfirmationDialogDestination.kt$RemoveDeviceConfirmationDialogDestination$device = deviceNavType.safeGet(bundle, "device") ?: throw RuntimeException("'device' argument is mandatory, but was not present!")</ID>
+    <ID>MaxLineLength:RemoveDeviceConfirmationDialogDestination.kt$RemoveDeviceConfirmationDialogDestination$public</ID>
+    <ID>MaxLineLength:RemoveDeviceEventKt.kt$RemoveDeviceEventKt.Dsl$public</ID>
+    <ID>MaxLineLength:SettingsKt.kt$public</ID>
+    <ID>MaxLineLength:SplitTunnelSettingsKt.kt$SplitTunnelSettingsKt.Dsl$@kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)</ID>
+    <ID>MaxLineLength:TunnelEndpointKt.kt$public</ID>
+    <ID>MaxLineLength:TunnelOptionsKt.kt$TunnelOptionsKt.GenericOptionsKt.Dsl$internal</ID>
+    <ID>MaxLineLength:TunnelOptionsKt.kt$TunnelOptionsKt.GenericOptionsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.GenericOptions.Builder</ID>
+    <ID>MaxLineLength:TunnelOptionsKt.kt$TunnelOptionsKt.GenericOptionsKt.Dsl.Companion$builder: mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.GenericOptions.Builder</ID>
+    <ID>MaxLineLength:TunnelOptionsKt.kt$TunnelOptionsKt.OpenvpnOptionsKt.Dsl$internal</ID>
+    <ID>MaxLineLength:TunnelOptionsKt.kt$TunnelOptionsKt.OpenvpnOptionsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.OpenvpnOptions.Builder</ID>
+    <ID>MaxLineLength:TunnelOptionsKt.kt$TunnelOptionsKt.OpenvpnOptionsKt.Dsl.Companion$builder: mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.OpenvpnOptions.Builder</ID>
+    <ID>MaxLineLength:TunnelOptionsKt.kt$TunnelOptionsKt.WireguardOptionsKt.Dsl$internal</ID>
+    <ID>MaxLineLength:TunnelOptionsKt.kt$TunnelOptionsKt.WireguardOptionsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.WireguardOptions.Builder</ID>
+    <ID>MaxLineLength:TunnelOptionsKt.kt$TunnelOptionsKt.WireguardOptionsKt.Dsl.Companion$builder: mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.WireguardOptions.Builder</ID>
+    <ID>MaxLineLength:TunnelOptionsKt.kt$public</ID>
+    <ID>MaxLineLength:TunnelStateKt.kt$TunnelStateKt.ConnectingKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelState.Connecting.Builder</ID>
+    <ID>MaxLineLength:TunnelStateKt.kt$TunnelStateKt.DisconnectedKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelState.Disconnected.Builder</ID>
+    <ID>MaxLineLength:TunnelStateKt.kt$TunnelStateKt.DisconnectingKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.TunnelState.Disconnecting.Builder</ID>
+    <ID>MaxLineLength:TunnelStateKt.kt$public</ID>
+    <ID>MaxLineLength:TunnelStateRelayInfoKt.kt$public</ID>
+    <ID>MaxLineLength:Udp2TcpObfuscationSettingsKt.kt$Udp2TcpObfuscationSettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.Udp2TcpObfuscationSettings.Builder</ID>
+    <ID>MaxLineLength:VoucherSubmissionKt.kt$public</ID>
+    <ID>MaxLineLength:WireguardConstraintsKt.kt$public</ID>
+    <ID>MaxLineLength:WireguardCustomPortDialogDestination.kt$WireguardCustomPortDialogDestination$navArg = wireguardCustomPortNavArgsNavType.get(savedStateHandle, "navArg") ?: throw RuntimeException("'navArg' argument is mandatory, but was not present!")</ID>
+    <ID>MaxLineLength:WireguardCustomPortDialogDestination.kt$WireguardCustomPortDialogDestination$navArg = wireguardCustomPortNavArgsNavType.safeGet(bundle, "navArg") ?: throw RuntimeException("'navArg' argument is mandatory, but was not present!")</ID>
+    <ID>MaxLineLength:WireguardCustomPortNavArgsNavType.kt$public val wireguardCustomPortNavArgsNavType: WireguardCustomPortNavArgsNavType = WireguardCustomPortNavArgsNavType(DefaultParcelableNavTypeSerializer(WireguardCustomPortNavArgs::class.java))</ID>
+    <ID>MaxLineLength:WireguardEndpointDataKt.kt$WireguardEndpointDataKt.Dsl$public</ID>
+    <ID>MaxLineLength:WireguardPortInfoDialogArgumentNavType.kt$public val wireguardPortInfoDialogArgumentNavType: WireguardPortInfoDialogArgumentNavType = WireguardPortInfoDialogArgumentNavType(DefaultParcelableNavTypeSerializer(WireguardPortInfoDialogArgument::class.java))</ID>
+    <ID>MaxLineLength:WireguardPortInfoDialogDestination.kt$WireguardPortInfoDialogDestination$argument = wireguardPortInfoDialogArgumentNavType.get(savedStateHandle, "argument") ?: throw RuntimeException("'argument' argument is mandatory, but was not present!")</ID>
+    <ID>MaxLineLength:WireguardPortInfoDialogDestination.kt$WireguardPortInfoDialogDestination$argument = wireguardPortInfoDialogArgumentNavType.safeGet(bundle, "argument") ?: throw RuntimeException("'argument' argument is mandatory, but was not present!")</ID>
+    <ID>MaxLineLength:WireguardRelayEndpointDataKt.kt$WireguardRelayEndpointDataKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.WireguardRelayEndpointData.Builder</ID>
+    <ID>MemberNameEqualsClassName:Message.kt$Message$val message: RawMessage get() = RawMessage.obtain().also { message -&gt; message.what = messageId message.data = Bundle() message.data.putParcelable(messageKey, this) }</ID>
+    <ID>NestedBlockDepth:MockApiDispatcher.kt$MockApiDispatcher$override fun dispatch(request: RecordedRequest): MockResponse</ID>
+    <ID>NestedBlockDepth:RelayListExtensions.kt$fun List&lt;RelayCountry&gt;.filterOnSearchTerm( searchTerm: String, selectedItem: RelayItem? ): List&lt;RelayCountry&gt;</ID>
+    <ID>NewLineAtEndOfFile:AccountDestination.kt$net.mullvad.mullvadvpn.compose.destinations.AccountDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:ChangelogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.ChangelogDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:ChangelogNavType.kt$net.mullvad.mullvadvpn.compose.navtype.ChangelogNavType.kt</ID>
+    <ID>NewLineAtEndOfFile:ConnectDestination.kt$net.mullvad.mullvadvpn.compose.destinations.ConnectDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:ContentBlockersInfoDialogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.ContentBlockersInfoDialogDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:CustomDnsInfoDialogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.CustomDnsInfoDialogDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:DeviceListDestination.kt$net.mullvad.mullvadvpn.compose.destinations.DeviceListDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:DeviceNameInfoDialogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.DeviceNameInfoDialogDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:DeviceNavType.kt$net.mullvad.mullvadvpn.compose.navtype.DeviceNavType.kt</ID>
+    <ID>NewLineAtEndOfFile:DeviceRevokedDestination.kt$net.mullvad.mullvadvpn.compose.destinations.DeviceRevokedDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:DnsDialogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.DnsDialogDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:FilterScreenDestination.kt$net.mullvad.mullvadvpn.compose.destinations.FilterScreenDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:LocalNetworkSharingInfoDialogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.LocalNetworkSharingInfoDialogDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:LoginDestination.kt$net.mullvad.mullvadvpn.compose.destinations.LoginDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:MalwareInfoDialogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.MalwareInfoDialogDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:MtuDialogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.MtuDialogDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:NavGraphs.kt$net.mullvad.mullvadvpn.compose.NavGraphs.kt</ID>
+    <ID>NewLineAtEndOfFile:NoDaemonScreenDestination.kt$net.mullvad.mullvadvpn.compose.destinations.NoDaemonScreenDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:ObfuscationInfoDialogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.ObfuscationInfoDialogDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:OutOfTimeDestination.kt$net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:PaymentDestination.kt$net.mullvad.mullvadvpn.compose.destinations.PaymentDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:PrivacyDisclaimerDestination.kt$net.mullvad.mullvadvpn.compose.destinations.PrivacyDisclaimerDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:QuantumResistanceInfoDialogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.QuantumResistanceInfoDialogDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:RedeemVoucherDestination.kt$net.mullvad.mullvadvpn.compose.destinations.RedeemVoucherDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:RemoveDeviceConfirmationDialogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.RemoveDeviceConfirmationDialogDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:ReportProblemDestination.kt$net.mullvad.mullvadvpn.compose.destinations.ReportProblemDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:ReportProblemNoEmailDialogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.ReportProblemNoEmailDialogDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:SelectLocationDestination.kt$net.mullvad.mullvadvpn.compose.destinations.SelectLocationDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:SettingsDestination.kt$net.mullvad.mullvadvpn.compose.destinations.SettingsDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:SplashDestination.kt$net.mullvad.mullvadvpn.compose.destinations.SplashDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:SplitTunnelingDestination.kt$net.mullvad.mullvadvpn.compose.destinations.SplitTunnelingDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:UdpOverTcpPortInfoDialogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.UdpOverTcpPortInfoDialogDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:VerificationPendingDialogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.VerificationPendingDialogDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:ViewLogsDestination.kt$net.mullvad.mullvadvpn.compose.destinations.ViewLogsDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:VpnSettingsDestination.kt$net.mullvad.mullvadvpn.compose.destinations.VpnSettingsDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:WelcomeDestination.kt$net.mullvad.mullvadvpn.compose.destinations.WelcomeDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:WireguardCustomPortDialogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.WireguardCustomPortDialogDestination.kt</ID>
+    <ID>NewLineAtEndOfFile:WireguardCustomPortNavArgsNavType.kt$net.mullvad.mullvadvpn.compose.navtype.WireguardCustomPortNavArgsNavType.kt</ID>
+    <ID>NewLineAtEndOfFile:WireguardPortInfoDialogArgumentNavType.kt$net.mullvad.mullvadvpn.compose.navtype.WireguardPortInfoDialogArgumentNavType.kt</ID>
+    <ID>NewLineAtEndOfFile:WireguardPortInfoDialogDestination.kt$net.mullvad.mullvadvpn.compose.destinations.WireguardPortInfoDialogDestination.kt</ID>
+    <ID>PackageNaming:AccessMethodKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:AccessMethodSettingKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:AccountAndDeviceKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:AccountDataKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:AccountHistoryKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:ApiAccessMethodSettingsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:ApiAddressesKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:AppVersionInfoKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:BridgeEndpointDataKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:BridgeSettingsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:BridgeStateKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:ConnectionConfigKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:CustomDnsOptionsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:CustomListKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:CustomListSettingsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:CustomRelaySettingsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:DaemonEventKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:DefaultDnsOptionsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:DeviceEventKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:DeviceKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:DeviceListKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:DeviceRemovalKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:DeviceStateKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:DnsOptionsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:EndpointKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:ErrorStateKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:ExcludedProcessKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:ExcludedProcessListKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:GeoIpLocationKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:GeographicLocationConstraintKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:InetNetwork.kt$package net.mullvad.talpid.tun_provider</ID>
+    <ID>PackageNaming:LocationConstraintKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:LocationKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:ManagementInterfaceGrpcKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:ManagementInterfaceKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:NewAccessMethodSettingKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:NormalRelaySettingsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:ObfuscationEndpointKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:ObfuscationSettingsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:OpenVpnEndpointDataKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:OpenVpnEndpointKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:OpenvpnConstraintsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:PortRangeKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:ProxyEndpointKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:PublicKeyKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:QuantumResistantStateKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:RelayKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:RelayListCityKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:RelayListCountryKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:RelayListKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:RelaySettingsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:RemoveDeviceEventKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:SettingsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:ShadowsocksEndpointDataKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:SplitTunnelSettingsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:TransportPortKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:TunConfig.kt$package net.mullvad.talpid.tun_provider</ID>
+    <ID>PackageNaming:TunnelEndpointKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:TunnelMetadataKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:TunnelOptionsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:TunnelStateKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:TunnelStateRelayInfoKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:UUIDKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:Udp2TcpObfuscationSettingsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:VoucherSubmissionKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:WireguardConstraintsKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:WireguardEndpointDataKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:WireguardRelayEndpointDataKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PrintStackTrace:Extensions.kt$ex</ID>
+    <ID>ProtectedMemberInFinalClass:MullvadDaemon.kt$MullvadDaemon$protected var daemonInterfaceAddress = 0L</ID>
+    <ID>ReturnCount:AccountExpiryNotification.kt$AccountExpiryNotification$private fun format(expiry: DateTime, remainingTime: Duration): String</ID>
+    <ID>ReturnCount:RelayNameComparator.kt$RelayNameComparator$private infix fun List&lt;String&gt;.compareWith(other: List&lt;String&gt;): Int</ID>
+    <ID>ReturnCount:TalpidVpnService.kt$TalpidVpnService$private fun createTun(config: TunConfig): CreateTunResult</ID>
+    <ID>TooGenericExceptionThrown:ChangelogDestination.kt$ChangelogDestination$throw RuntimeException("'changeLog' argument is mandatory, but was not present!")</ID>
+    <ID>TooGenericExceptionThrown:DeviceListDestination.kt$DeviceListDestination$throw RuntimeException("'accountToken' argument is mandatory, but was not present!")</ID>
+    <ID>TooGenericExceptionThrown:PaymentDestination.kt$PaymentDestination$throw RuntimeException("'productId' argument is mandatory, but was not present!")</ID>
+    <ID>TooGenericExceptionThrown:RemoveDeviceConfirmationDialogDestination.kt$RemoveDeviceConfirmationDialogDestination$throw RuntimeException("'device' argument is mandatory, but was not present!")</ID>
+    <ID>TooGenericExceptionThrown:WireguardCustomPortDialogDestination.kt$WireguardCustomPortDialogDestination$throw RuntimeException("'navArg' argument is mandatory, but was not present!")</ID>
+    <ID>TooGenericExceptionThrown:WireguardPortInfoDialogDestination.kt$WireguardPortInfoDialogDestination$throw RuntimeException("'argument' argument is mandatory, but was not present!")</ID>
+    <ID>TooManyFunctions:DaemonEventKt.kt$DaemonEventKt$Dsl</ID>
+    <ID>TooManyFunctions:GeoIpLocationKt.kt$GeoIpLocationKt$Dsl</ID>
+    <ID>TooManyFunctions:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt$ManagementServiceCoroutineImplBase : AbstractCoroutineServerImpl</ID>
+    <ID>TooManyFunctions:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt$ManagementServiceCoroutineStub : AbstractCoroutineStub</ID>
+    <ID>TooManyFunctions:MullvadDaemon.kt$MullvadDaemon</ID>
+    <ID>TooManyFunctions:MullvadVpnService.kt$MullvadVpnService : TalpidVpnService</ID>
+    <ID>TooManyFunctions:NormalRelaySettingsKt.kt$NormalRelaySettingsKt$Dsl</ID>
+    <ID>TooManyFunctions:RelayKt.kt$RelayKt$Dsl</ID>
+    <ID>TooManyFunctions:SettingsKt.kt$SettingsKt$Dsl</ID>
+    <ID>TooManyFunctions:VpnSettingsViewModel.kt$VpnSettingsViewModel : ViewModel</ID>
+    <ID>TooManyFunctions:WireguardEndpointDataKt.kt$WireguardEndpointDataKt$Dsl</ID>
+    <ID>TopLevelPropertyNaming:OutOfTimeUseCase.kt$const val accountRefreshIntervalMillis = 60L * 1000L // 1 minute</ID>
+    <ID>TopLevelPropertyNaming:OutOfTimeUseCase.kt$const val bufferTimeMillis = 60L * 1000L // 1 minute</ID>
+    <ID>UnusedParameter:MullvadFileProvider.kt$shareTitle: String</ID>
+    <ID>UnusedParameter:SimpleMullvadHttpClient.kt$SimpleMullvadHttpClient$body: JSONArray? = null</ID>
+    <ID>UnusedParameter:VpnSettingsScreen.kt$navigateUdp2TcpInfo: () -&gt; Unit = {}</ID>
+    <ID>UnusedPrivateMember:ConnectivityListener.kt$ConnectivityListener$private fun finalize()</ID>
+    <ID>WildcardImport:Destination.kt$import com.ramcosta.composedestinations.spec.*</ID>
+    <ID>WildcardImport:NavGraphs.kt$import com.ramcosta.composedestinations.spec.*</ID>
+    <ID>WildcardImport:NavGraphs.kt$import net.mullvad.mullvadvpn.compose.destinations.*</ID>
+    <ID>WildcardImport:SingleModuleExtensions.kt$import com.ramcosta.composedestinations.spec.*</ID>
+    <ID>WildcardImport:SingleModuleExtensions.kt$import net.mullvad.mullvadvpn.compose.destinations.*</ID>
+  </CurrentIssues>
+</SmellBaseline>
