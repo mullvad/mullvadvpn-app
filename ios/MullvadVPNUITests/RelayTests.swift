@@ -9,24 +9,8 @@
 import Foundation
 import XCTest
 
-class RelayTests: BaseUITestCase {
+class RelayTests: LoggedInWithTimeUITestCase {
     func testAdBlockingViaDNS() throws {
-        let app = XCUIApplication()
-        app.launch()
-
-        TermsOfServicePage(app)
-            .tapAgreeButton()
-
-        Alert(app)
-            .tapOkay()
-
-        LoginPage(app)
-            .tapAccountNumberTextField()
-            .enterText(self.hasTimeAccountNumber)
-            .tapAccountNumberSubmitButton()
-            .verifySuccessIconShown()
-            .verifyDeviceLabelShown()
-
         TunnelControlPage(app)
             .tapSelectLocationButton()
 
@@ -41,7 +25,7 @@ class RelayTests: BaseUITestCase {
 
         verifyCanReachAdServingDomain()
 
-        TunnelControlPage(app)
+        HeaderBar(app)
             .tapSettingsButton()
 
         SettingsPage(app)

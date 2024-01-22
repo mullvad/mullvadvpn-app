@@ -8,23 +8,14 @@
 
 import XCTest
 
-class AccountTests: BaseUITestCase {
+class AccountTests: LoggedOutUITestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
+
+        try super.setUpWithError()
     }
 
-    override func tearDownWithError() throws {}
-
     func testLogin() throws {
-        let app = XCUIApplication()
-        app.launch()
-
-        TermsOfServicePage(app)
-            .tapAgreeButton()
-
-        Alert(app)
-            .tapOkay()
-
         LoginPage(app)
             .tapAccountNumberTextField()
             .enterText(self.noTimeAccountNumber)
@@ -34,15 +25,6 @@ class AccountTests: BaseUITestCase {
     }
 
     func testLoginWithIncorrectAccountNumber() throws {
-        let app = XCUIApplication()
-        app.launch()
-
-        TermsOfServicePage(app)
-            .tapAgreeButton()
-
-        Alert(app)
-            .tapOkay()
-
         LoginPage(app)
             .tapAccountNumberTextField()
             .enterText("0000000000000000")

@@ -4,6 +4,9 @@
 // Development team
 DEVELOPMENT_TEAM = CKG9MXH72F
 
+// Product display name
+DISPLAY_NAME = Mullvad VPN
+
 // Bundle ID
 APPLICATION_IDENTIFIER = net.mullvad.MullvadVPN
 
