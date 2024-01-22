@@ -12,13 +12,18 @@ import XCTest
 class BaseUITestCase: XCTestCase {
     public static let defaultTimeout = 10.0
 
-    // swiftlint:disable force_cast line_length
-    let noTimeAccountNumber = Bundle(for: BaseUITestCase.self).infoDictionary?["MullvadNoTimeAccountNumber"] as! String
-    let hasTimeAccountNumber = Bundle(for: BaseUITestCase.self).infoDictionary?["MullvadHasTimeAccountNumber"] as! String
-    let fiveWireGuardKeysAccountNumber = Bundle(for: BaseUITestCase.self).infoDictionary?["MullvadFiveWireGuardKeysAccountNumber"] as! String
-    let iOSDevicePinCode = Bundle(for: BaseUITestCase.self).infoDictionary?["MullvadIOSDevicePinCode"] as! String
-    let adServingDomain = Bundle(for: BaseUITestCase.self).infoDictionary?["MullvadAdServingDomain"] as! String
-    // swiftlint:enable force_cast line_length
+    // swiftlint:disable force_cast
+    let noTimeAccountNumber = Bundle(for: BaseUITestCase.self)
+        .infoDictionary?["MullvadNoTimeAccountNumber"] as! String
+    let hasTimeAccountNumber = Bundle(for: BaseUITestCase.self)
+        .infoDictionary?["MullvadHasTimeAccountNumber"] as! String
+    let fiveWireGuardKeysAccountNumber = Bundle(for: BaseUITestCase.self)
+        .infoDictionary?["MullvadFiveWireGuardKeysAccountNumber"] as! String
+    let iOSDevicePinCode = Bundle(for: BaseUITestCase.self)
+        .infoDictionary?["MullvadIOSDevicePinCode"] as! String
+    let adServingDomain = Bundle(for: BaseUITestCase.self)
+        .infoDictionary?["MullvadAdServingDomain"] as! String
+    // swiftlint:enable force_cast
 
     /// Handle iOS add VPN configuration permission alert - allow and enter device PIN code
     func allowAddVPNConfigurations() {
