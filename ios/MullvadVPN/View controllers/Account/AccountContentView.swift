@@ -19,6 +19,7 @@ class AccountContentView: UIView {
     let restorePurchasesButton: AppButton = {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.accessibilityIdentifier = .restorePurchasesButton
         button.setTitle(NSLocalizedString(
             "RESTORE_PURCHASES_BUTTON_TITLE",
             tableName: "Account",
@@ -121,6 +122,7 @@ class AccountContentView: UIView {
         super.init(frame: frame)
 
         directionalLayoutMargins = UIMetrics.contentLayoutMargins
+        accessibilityIdentifier = .accountView
 
         addConstrainedSubviews([contentStackView, buttonStackView]) {
             contentStackView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
