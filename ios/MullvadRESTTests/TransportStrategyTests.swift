@@ -196,10 +196,11 @@ class TransportStrategyTests: XCTestCase {
     func testUsesSocks5WithAuthenticationWhenItReaches() throws {
         let username = "user"
         let password = "pass"
-        let authentication = PersistentProxyConfiguration.SocksAuthentication.usernamePassword(
-            username: username,
-            password: password
-        )
+        let authentication = PersistentProxyConfiguration.SocksAuthentication
+            .authentication(PersistentProxyConfiguration.UserCredential(
+                username: username,
+                password: password
+            ))
         let socks5Configuration = PersistentProxyConfiguration.SocksConfiguration(
             server: .ipv4(.loopback),
             port: 1080,
