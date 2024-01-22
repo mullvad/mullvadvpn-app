@@ -503,15 +503,11 @@ impl RequestFactory {
         let mut request = self.hyper_request(path, method)?;
 
         let json_body = serde_json::to_string(&body)?;
-        let body_length = json_body.as_bytes().len() as u64;
+        let body_length = json_body.as_bytes().len();
         *request.body_mut() = json_body.into_bytes().into();
 
         let headers = request.headers_mut();
-        headers.insert(
-            header::CONTENT_LENGTH,
-            HeaderValue::from_str(&body_length.to_string())
-                .map_err(|_| Error::InvalidHeaderError)?,
-        );
+        headers.insert(header::CONTENT_LENGTH, HeaderValue::from(body_length));
         headers.insert(
             header::CONTENT_TYPE,
             HeaderValue::from_static("application/json"),
