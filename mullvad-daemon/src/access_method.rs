@@ -71,7 +71,7 @@ where
         self.settings
             .try_update(|settings| -> Result<(), Error> {
                 settings.api_access_methods.remove(&access_method)?;
-                ensure_direct_is_available(settings);
+                ensure_direct_is_enabled(settings);
                 Ok(())
             })
             .await
@@ -124,7 +124,8 @@ where
     ) -> Result<AccessMethodSetting, Error> {
         self.settings
             .api_access_methods
-            .find_by_id(&access_method)
+            .iter()
+            .find(|setting| setting.get_id() == access_method)
             .ok_or(Error::NoSuchMethod(access_method))
             .cloned()
     }
@@ -172,11 +173,12 @@ where
         let settings_update = |settings: &mut Settings| {
             if let Some(access_method) = settings
                 .api_access_methods
-                .find_by_id_mut(&access_method_update.get_id())
+                .iter_mut()
+                .find(|setting| setting.get_id() == access_method_update.get_id())
             {
                 *access_method = access_method_update.clone();
             }
-            ensure_direct_is_available(settings);
+            ensure_direct_is_enabled(settings);
         };
 
         self.settings
@@ -304,17 +306,8 @@ where
 /// remaining enabled access method, which would cause an inconsistent state in
 /// the daemon's settings. In that case, the `Direct` access method is
 /// re-enabled.
-fn ensure_direct_is_available(settings: &mut Settings) {
+fn ensure_direct_is_enabled(settings: &mut Settings) {
     if settings.api_access_methods.collect_enabled().is_empty() {
-        if let Some(direct) = settings.api_access_methods.get_direct() {
-            direct.enabled = true;
-        } else {
-            // If the `Direct` access method does not exist within the
-            // settings for some reason, the settings are in an
-            // inconsistent state. We don't have much choice but to
-            // reset these settings to their default value.
-            log::warn!("The built-in access methods can not be found. This might be due to a corrupt settings file");
-            settings.api_access_methods = access_method::Settings::default();
-        }
+        settings.api_access_methods.direct.enable();
     }
 }

@@ -176,19 +176,20 @@ impl MullvadProxyClient {
     }
 
     pub async fn get_api_access_methods(&mut self) -> Result<Vec<AccessMethodSetting>> {
-        self.0
+        let access_method_settings = self
+            .0
             .get_settings(())
             .await
             .map_err(Error::Rpc)?
             .into_inner()
             .api_access_methods
-            .ok_or(Error::ApiAccessMethodSettingsNotFound)?
-            .access_method_settings
-            .into_iter()
-            .map(|api_access_method| {
-                AccessMethodSetting::try_from(api_access_method).map_err(Error::InvalidResponse)
-            })
-            .collect()
+            .ok_or(Error::ApiAccessMethodSettingsNotFound)
+            .and_then(|access_method_settings| {
+                access_method::Settings::try_from(access_method_settings)
+                    .map_err(Error::InvalidResponse)
+            })?;
+
+        Ok(access_method_settings.iter().cloned().collect())
     }
 
     pub async fn get_api_access_method(
