@@ -5,21 +5,17 @@ mod settings {
     use crate::types::{proto, FromProtobufTypeError};
     use mullvad_types::access_method;
 
-    impl From<&access_method::Settings> for proto::ApiAccessMethodSettings {
-        fn from(settings: &access_method::Settings) -> Self {
-            Self {
-                access_method_settings: settings
-                    .access_method_settings
-                    .iter()
-                    .map(|method| method.clone().into())
-                    .collect(),
-            }
-        }
-    }
-
     impl From<access_method::Settings> for proto::ApiAccessMethodSettings {
         fn from(settings: access_method::Settings) -> Self {
-            proto::ApiAccessMethodSettings::from(&settings)
+            Self {
+                direct: Some(settings.direct.into()),
+                mullvad_bridges: Some(settings.mullvad_bridges.into()),
+                access_method_settings: settings
+                    .access_method_settings
+                    .into_iter()
+                    .map(|method| method.into())
+                    .collect(),
+            }
         }
     }
 
@@ -28,6 +24,20 @@ mod settings {
 
         fn try_from(settings: proto::ApiAccessMethodSettings) -> Result<Self, Self::Error> {
             Ok(Self {
+                direct: settings
+                    .direct
+                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                        "Could not deserialize Direct Access Method from protobuf",
+                    ))
+                    .and_then(access_method::AccessMethodSetting::try_from)?,
+
+                mullvad_bridges: settings
+                    .mullvad_bridges
+                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                        "Could not deserialize Mullvad Bridges Access Method from protobuf",
+                    ))
+                    .and_then(access_method::AccessMethodSetting::try_from)?,
+
                 access_method_settings: settings
                     .access_method_settings
                     .iter()

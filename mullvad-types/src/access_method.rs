@@ -6,6 +6,8 @@ use talpid_types::net::proxy::{CustomProxy, Shadowsocks, Socks5Local, Socks5Remo
 /// Dttings for API access methods.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
+    pub direct: AccessMethodSetting,
+    pub mullvad_bridges: AccessMethodSetting,
     pub access_method_settings: Vec<AccessMethodSetting>,
 }
 
@@ -106,7 +108,9 @@ impl Settings {
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            access_method_settings: vec![Settings::direct(), Settings::mullvad_bridges()],
+            direct: Settings::direct(),
+            mullvad_bridges: Settings::mullvad_bridges(),
+            access_method_settings: vec![],
         }
     }
 }
