@@ -312,7 +312,7 @@ exceptions:
     active: true
     ignoreLabeled: false
   SwallowedException:
-    active: true
+    active: false
     ignoredExceptionTypes:
       - 'InterruptedException'
       - 'MalformedURLException'
