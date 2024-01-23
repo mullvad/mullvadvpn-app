@@ -1,9 +1,6 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Until
-import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
-import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_INTERACTION_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
@@ -12,43 +9,19 @@ import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_2
 import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
-import org.junit.jupiter.api.Assertions.assertTrue
+import net.mullvad.mullvadvpn.util.toExpiryDateString
 import org.junit.jupiter.api.Test
 
-class LoginMockApiTest : MockApiTest() {
-    @Test
-    fun testLoginWithInvalidCredentials() {
-        // Arrange
-        val validAccountToken = "1234123412341234"
-        apiDispatcher.apply {
-            expectedAccountToken = null
-            accountExpiry = currentUtcTimeWithOffsetZero().plusDays(1)
-        }
-        app.launch(endpoint)
-
-        // Act
-        device.clickAgreeOnPrivacyDisclaimer()
-        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        device.dismissChangelogDialogIfShown()
-        app.waitForLoginPrompt()
-        app.attemptLogin(validAccountToken)
-
-        // Assert
-        val result =
-            device
-                .findObject(By.res(LOGIN_TITLE_TEST_TAG))
-                .wait(Until.textEquals("Login failed"), DEFAULT_INTERACTION_TIMEOUT)
-
-        assertTrue(result)
-    }
+class AccountExpiryMockApiTest : MockApiTest() {
 
     @Test
-    fun testLoginWithValidCredentialsToUnexpiredAccount() {
+    fun testAccountExpiryDateUpdated() {
         // Arrange
         val validAccountToken = "1234123412341234"
+        val oldAccountExpiry = currentUtcTimeWithOffsetZero().plusMonths(1)
         apiDispatcher.apply {
             expectedAccountToken = validAccountToken
-            accountExpiry = currentUtcTimeWithOffsetZero().plusDays(1)
+            accountExpiry = oldAccountExpiry
             devices = DEFAULT_DEVICE_LIST.toMutableMap()
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }
@@ -61,17 +34,28 @@ class LoginMockApiTest : MockApiTest() {
         app.waitForLoginPrompt()
         app.attemptLogin(validAccountToken)
 
-        // Assert
-        device.findObjectWithTimeout(By.text("UNSECURED CONNECTION"))
+        // Assert logged in
+        app.ensureLoggedIn()
+
+        // Add one month to the account expiry
+        val newAccountExpiry = oldAccountExpiry.plusMonths(1)
+        apiDispatcher.accountExpiry = newAccountExpiry
+
+        // Go to account page to update the account expiry
+        app.clickAccountCog()
+
+        app.ensureAccountScreen()
+        device.findObjectWithTimeout(By.text(newAccountExpiry.toExpiryDateString()))
     }
 
     @Test
-    fun testLoginWithValidCredentialsToExpiredAccount() {
+    fun testAccountTimeExpiredWhileUsingTheAppShouldShowOutOfTimeScreen() {
         // Arrange
         val validAccountToken = "1234123412341234"
+        val oldAccountExpiry = currentUtcTimeWithOffsetZero().plusMonths(1)
         apiDispatcher.apply {
             expectedAccountToken = validAccountToken
-            accountExpiry = currentUtcTimeWithOffsetZero().minusDays(1)
+            accountExpiry = oldAccountExpiry
             devices = DEFAULT_DEVICE_LIST.toMutableMap()
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }
@@ -84,7 +68,28 @@ class LoginMockApiTest : MockApiTest() {
         app.waitForLoginPrompt()
         app.attemptLogin(validAccountToken)
 
-        // Assert
-        app.ensureOutOfTime()
+        // Assert logged in
+        app.ensureLoggedIn()
+
+        // Set account time as expired
+        val newAccountExpiry = oldAccountExpiry.minusMonths(2)
+        apiDispatcher.accountExpiry = newAccountExpiry
+
+        // Go to account page to update the account expiry
+        app.clickAccountCog()
+
+        // Some times the out of time screen is shown immediately, this is not expected behaviour
+        try {
+            app.ensureOutOfTime()
+        } catch (e: IllegalArgumentException) {
+            // This is expected behaviour
+            app.ensureAccountScreen()
+
+            // Go back to the main screen
+            device.pressBack()
+
+            // Assert that we show the out of time screen
+            app.ensureOutOfTime()
+        }
     }
 }
