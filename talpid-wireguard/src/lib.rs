@@ -860,7 +860,7 @@ impl WireguardMonitor {
 
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
 
-        #[cfg(target_os = "linux")]
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
         let gateway_routes =
             gateway_routes.map(|route| Self::apply_route_mtu_for_multihop(route, config));
 
