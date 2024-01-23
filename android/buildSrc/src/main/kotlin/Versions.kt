@@ -59,7 +59,7 @@ object Versions {
     }
 
     object Koin {
-        const val base = "3.4.3"
-        const val compose = "3.4.6"
+        const val base = "3.5.3"
+        const val compose = "3.5.3"
     }
 }
