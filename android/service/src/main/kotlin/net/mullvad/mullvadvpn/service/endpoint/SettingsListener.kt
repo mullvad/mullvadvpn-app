@@ -8,7 +8,11 @@ import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.trySendBlocking
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.Request
-import net.mullvad.mullvadvpn.model.*
+import net.mullvad.mullvadvpn.model.DnsOptions
+import net.mullvad.mullvadvpn.model.ObfuscationSettings
+import net.mullvad.mullvadvpn.model.QuantumResistantState
+import net.mullvad.mullvadvpn.model.RelaySettings
+import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.talpid.util.EventNotifier
 
