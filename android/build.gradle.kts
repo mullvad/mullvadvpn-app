@@ -52,11 +52,6 @@ detekt {
 
 tasks.withType<Detekt>().configureEach {
     exclude(buildFiles)
-
-    reports {
-        html.required.set(true)
-        html.outputLocation.set(file("build/reports/detekt.html"))
-    }
 }
 
 // Kotlin DSL
