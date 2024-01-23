@@ -89,7 +89,7 @@ service ManagementService {
   rpc RemoveSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
   rpc ClearSplitTunnelProcesses(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
-  // Split tunneling (Windows)
+  // Split tunneling (Windows, macOS)
   rpc AddSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc RemoveSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc ClearSplitTunnelApps(google.protobuf.Empty) returns (google.protobuf.Empty) {}

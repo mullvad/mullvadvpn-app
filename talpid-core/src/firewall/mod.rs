@@ -123,6 +123,9 @@ pub enum FirewallPolicy {
         allowed_endpoint: AllowedEndpoint,
         /// Networks for which to permit in-tunnel traffic.
         allowed_tunnel_traffic: AllowedTunnelTraffic,
+        /// Interface to redirect (VPN tunnel) traffic to
+        #[cfg(target_os = "macos")]
+        redirect_interface: Option<String>,
     },
 
     /// Allow traffic only to server and over tunnel interface
@@ -136,6 +139,9 @@ pub enum FirewallPolicy {
         /// Servers that are allowed to respond to DNS requests.
         #[cfg(not(target_os = "android"))]
         dns_servers: Vec<IpAddr>,
+        /// Interface to redirect (VPN tunnel) traffic to
+        #[cfg(target_os = "macos")]
+        redirect_interface: Option<String>,
     },
 
     /// Block all network traffic in and out from the computer.

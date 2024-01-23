@@ -74,6 +74,27 @@ pub enum InterfaceEvent {
     Update,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DefaultRoute {
+    pub interface: String,
+    pub interface_index: u16,
+    pub router_ip: IpAddr,
+}
+
+impl From<DefaultRoute> for RouteMessage {
+    fn from(route: DefaultRoute) -> Self {
+        let network = if route.router_ip.is_ipv4() {
+            Family::V4.default_network()
+        } else {
+            Family::V6.default_network()
+        };
+        let router_addr = SocketAddr::from((route.router_ip, 0));
+        RouteMessage::new_route(Destination::Network(network))
+            .set_gateway_addr(router_addr)
+            .set_interface_index(u16::try_from(route.interface_index).unwrap())
+    }
+}
+
 impl PrimaryInterfaceMonitor {
     pub fn new() -> (Self, UnboundedReceiver<InterfaceEvent>) {
         let store = SCDynamicStoreBuilder::new("talpid-routing").build();
@@ -126,7 +147,7 @@ impl PrimaryInterfaceMonitor {
 
     /// Retrieve the best current default route. This is based on the primary interface, or else
     /// the first active interface in the network service order.
-    pub fn get_route(&self, family: Family) -> Option<RouteMessage> {
+    pub fn get_route(&self, family: Family) -> Option<DefaultRoute> {
         let ifaces = self
             .get_primary_interface(family)
             .map(|iface| {
@@ -155,34 +176,30 @@ impl PrimaryInterfaceMonitor {
             })
             .next()?;
 
-        let router_addr = (iface.router_ip, 0);
-        let mut router_addr = SocketAddr::from(router_addr);
+        let index = u16::try_from(index).unwrap();
 
-        // If the gateway is a link-local address, scope ID must be specified
-        if let SocketAddr::V6(ref mut v6_addr) = router_addr {
-            let v6ip = v6_addr.ip();
-
-            if is_link_local_v6(v6ip) {
+        let mut router_ip = iface.router_ip;
+        if let IpAddr::V6(ref mut addr) = router_ip {
+            if is_link_local_v6(addr) {
                 // The second pair of octets should be set to the scope id
                 // See getaddr() in route.c:
                 // https://opensource.apple.com/source/network_cmds/network_cmds-396.6/route.tproj/route.c.auto.html
 
-                let second_octet = u16::try_from(index).unwrap().to_be_bytes();
+                let second_octet = index.to_be_bytes();
 
-                let mut octets = v6ip.octets();
+                let mut octets = addr.octets();
                 octets[2] = second_octet[0];
                 octets[3] = second_octet[1];
 
-                let new_ip = Ipv6Addr::from(octets);
-
-                v6_addr.set_ip(new_ip);
+                *addr = Ipv6Addr::from(octets);
             }
         }
 
-        let msg = RouteMessage::new_route(Destination::Network(family.default_network()))
-            .set_gateway_addr(router_addr)
-            .set_interface_index(u16::try_from(index).unwrap());
-        Some(msg)
+        Some(DefaultRoute {
+            interface: iface.name,
+            interface_index: index,
+            router_ip,
+        })
     }
 
     fn get_primary_interface(&self, family: Family) -> Option<NetworkServiceDetails> {

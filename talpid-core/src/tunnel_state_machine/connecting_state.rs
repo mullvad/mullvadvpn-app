@@ -158,12 +158,16 @@ impl ConnectingState {
 
         let peer_endpoint = AllowedEndpoint { endpoint, clients };
 
+        #[cfg(target_os = "macos")]
+        let redirect_interface = shared_values.split_tunnel.interface().map(|s| s.to_owned());
+
         let policy = FirewallPolicy::Connecting {
             peer_endpoint,
             tunnel: tunnel_metadata.clone(),
             allow_lan: shared_values.allow_lan,
             allowed_endpoint: shared_values.allowed_endpoint.clone(),
             allowed_tunnel_traffic,
+            redirect_interface,
         };
         shared_values
             .firewall
@@ -482,9 +486,41 @@ impl ConnectingState {
                 shared_values.bypass_socket(fd, done_tx);
                 SameState(self)
             }
-            #[cfg(windows)]
+            #[cfg(any(target_os = "windows", target_os = "macos"))]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
+                #[cfg(target_os = "windows")]
                 shared_values.split_tunnel.set_paths(&paths, result_tx);
+                #[cfg(target_os = "macos")]
+                {
+                    match shared_values.set_exclude_paths(paths) {
+                        Ok(added_device) => {
+                            let _ = result_tx.send(Ok(()));
+
+                            if added_device {
+                                if let Err(error) = Self::set_firewall_policy(
+                                    shared_values,
+                                    &self.tunnel_parameters,
+                                    &self.tunnel_metadata,
+                                    self.allowed_tunnel_traffic.clone(),
+                                ) {
+                                    return self.disconnect(
+                                        shared_values,
+                                        AfterDisconnect::Block(
+                                            ErrorStateCause::SetFirewallPolicyError(error),
+                                        ),
+                                    );
+                                }
+                            }
+                        }
+                        Err(error) => {
+                            let _ = result_tx.send(Err(error));
+                            return self.disconnect(
+                                shared_values,
+                                AfterDisconnect::Block(ErrorStateCause::SplitTunnelError),
+                            );
+                        }
+                    }
+                }
                 SameState(self)
             }
         }
@@ -518,6 +554,11 @@ impl ConnectingState {
                         shared_values,
                         AfterDisconnect::Block(ErrorStateCause::SplitTunnelError),
                     );
+                }
+
+                #[cfg(target_os = "macos")]
+                if let Err(error) = shared_values.maybe_enable_split_tunnel(&metadata) {
+                    return self.disconnect(shared_values, AfterDisconnect::Block(error));
                 }
 
                 self.allowed_tunnel_traffic = allowed_tunnel_traffic;

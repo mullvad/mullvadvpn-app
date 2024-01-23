@@ -96,7 +96,6 @@ enum Cli {
     #[clap(subcommand)]
     Obfuscation(obfuscation::Obfuscation),
 
-    #[cfg(any(target_os = "windows", target_os = "linux"))]
     #[clap(subcommand)]
     SplitTunnel(split_tunnel::SplitTunnel),
 
@@ -171,7 +170,6 @@ async fn main() -> Result<()> {
         Cli::FactoryReset => reset::handle().await,
         Cli::Relay(cmd) => cmd.handle().await,
         Cli::Tunnel(cmd) => cmd.handle().await,
-        #[cfg(any(target_os = "windows", target_os = "linux"))]
         Cli::SplitTunnel(cmd) => cmd.handle().await,
         Cli::Status { cmd, args } => status::handle(cmd, args).await,
         Cli::CustomList(cmd) => cmd.handle().await,
