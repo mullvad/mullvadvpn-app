@@ -9,7 +9,7 @@ object Versions {
     const val kotlinx = "1.7.3"
     const val leakCanary = "2.12"
     const val mockk = "1.13.8"
-    const val mockWebserver = "4.11.0"
+    const val mockWebserver = "4.12.0"
     const val turbine = "1.0.0"
     const val billingClient = "6.0.1"
 
