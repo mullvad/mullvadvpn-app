@@ -283,52 +283,29 @@
     <ID>FunctionNaming:WireguardEndpointDataKt.kt$WireguardEndpointDataKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.WireguardEndpointData.Builder, ): Dsl</ID>
     <ID>FunctionNaming:WireguardRelayEndpointDataKt.kt$WireguardRelayEndpointDataKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.WireguardRelayEndpointData</ID>
     <ID>FunctionNaming:WireguardRelayEndpointDataKt.kt$WireguardRelayEndpointDataKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.WireguardRelayEndpointData.Builder, ): Dsl</ID>
-    <ID>InstanceOfCheckForException:BillingRepository.kt$BillingRepository$t is BillingException</ID>
     <ID>LargeClass:ConnectScreenTest.kt$ConnectScreenTest</ID>
     <ID>LargeClass:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt$ManagementServiceCoroutineImplBase : AbstractCoroutineServerImpl</ID>
     <ID>LargeClass:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt$ManagementServiceCoroutineStub : AbstractCoroutineStub</ID>
-    <ID>LongMethod:AccountScreen.kt$@ExperimentalMaterial3Api @Composable fun AccountScreen( uiState: AccountUiState, uiSideEffect: Flow&lt;AccountViewModel.UiSideEffect&gt;, onCopyAccountNumber: (String) -&gt; Unit = {}, onRedeemVoucherClick: () -&gt; Unit = {}, onManageAccountClick: () -&gt; Unit = {}, onLogoutClick: () -&gt; Unit = {}, onPurchaseBillingProductClick: (productId: ProductId) -&gt; Unit = { _ -&gt; }, navigateToLogin: () -&gt; Unit = {}, navigateToDeviceInfo: () -&gt; Unit = {}, navigateToVerificationPendingDialog: () -&gt; Unit = {}, onBackClick: () -&gt; Unit = {} )</ID>
-    <ID>LongMethod:ApplicationsProviderTest.kt$ApplicationsProviderTest$@Test fun test_get_apps()</ID>
-    <ID>LongMethod:BillingPaymentRepository.kt$BillingPaymentRepository$override fun purchaseProduct( productId: ProductId, activityProvider: () -&gt; Activity ): Flow&lt;PurchaseResult&gt;</ID>
     <ID>LongMethod:ConnectScreen.kt$@Composable fun ConnectScreen( uiState: ConnectUiState, onDisconnectClick: () -&gt; Unit = {}, onReconnectClick: () -&gt; Unit = {}, onConnectClick: () -&gt; Unit = {}, onCancelClick: () -&gt; Unit = {}, onSwitchLocationClick: () -&gt; Unit = {}, onUpdateVersionClick: () -&gt; Unit = {}, onManageAccountClick: () -&gt; Unit = {}, onSettingsClick: () -&gt; Unit = {}, onAccountClick: () -&gt; Unit = {}, onDismissNewDeviceClick: () -&gt; Unit = {} )</ID>
     <ID>LongMethod:ConnectionButton.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun ConnectionButton( text: String, mainClick: () -&gt; Unit, reconnectClick: () -&gt; Unit, isReconnectButtonEnabled: Boolean, containerColor: Color, contentColor: Color, modifier: Modifier = Modifier, reconnectButtonTestTag: String = "" )</ID>
-    <ID>LongMethod:DeviceRevokedScreen.kt$@Composable fun DeviceRevokedScreen( state: DeviceRevokedUiState, onSettingsClicked: () -&gt; Unit = {}, onGoToLoginClicked: () -&gt; Unit = {} )</ID>
-    <ID>LongMethod:DnsDialog.kt$@Composable fun DnsDialog( state: DnsDialogViewState, onDnsInputChange: (String) -&gt; Unit, onSaveDnsClick: () -&gt; Unit, onRemoveDnsClick: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
     <ID>LongMethod:FilterScreen.kt$@Composable fun FilterScreen( uiState: RelayFilterState, onBackClick: () -&gt; Unit = {}, onApplyClick: () -&gt; Unit = {}, onSelectedOwnership: (ownership: Ownership?) -&gt; Unit = {}, onAllProviderCheckChange: (isChecked: Boolean) -&gt; Unit = {}, onSelectedProvider: (checked: Boolean, provider: Provider) -&gt; Unit = { _, _ -&gt; } )</ID>
-    <ID>LongMethod:LocationInfo.kt$@Composable fun LocationInfo( modifier: Modifier = Modifier, colorExpanded: Color = MaterialTheme.colorScheme.onPrimary, colorCollapsed: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaInactive), onToggleTunnelInfo: () -&gt; Unit, isVisible: Boolean, isExpanded: Boolean, location: GeoIpLocation?, inAddress: Triple&lt;String, Int, TransportProtocol&gt;?, outAddress: String )</ID>
     <ID>LongMethod:LoginScreen.kt$@Composable @OptIn(ExperimentalComposeUiApi::class) private fun LoginContent( uiState: LoginUiState, onAccountNumberChange: (String) -&gt; Unit, onLoginClick: (String) -&gt; Unit, onDeleteHistoryClick: () -&gt; Unit )</ID>
     <ID>LongMethod:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$final override fun bindService(): ServerServiceDefinition</ID>
-    <ID>LongMethod:MtuDialog.kt$@Composable fun MtuDialog( mtuInitial: Int?, onSaveMtu: (Int) -&gt; Unit, onResetMtu: () -&gt; Unit, onDismiss: () -&gt; Unit, )</ID>
     <ID>LongMethod:NotificationBanner.kt$@Composable private fun Notification(notificationBannerData: NotificationData)</ID>
-    <ID>LongMethod:NotificationData.kt$@Composable fun InAppNotification.toNotificationData( isPlayBuild: Boolean, onClickUpdateVersion: () -&gt; Unit, onClickShowAccount: () -&gt; Unit, onDismissNewDevice: () -&gt; Unit )</ID>
     <ID>LongMethod:OutOfTimeScreen.kt$@Composable fun OutOfTimeScreen( uiState: OutOfTimeUiState, onDisconnectClick: () -&gt; Unit = {}, onSitePaymentClick: () -&gt; Unit = {}, onRedeemVoucherClick: () -&gt; Unit = {}, onSettingsClick: () -&gt; Unit = {}, onAccountClick: () -&gt; Unit = {}, onPurchaseBillingProductClick: (ProductId) -&gt; Unit = { _ -&gt; }, navigateToVerificationPendingDialog: () -&gt; Unit = {} )</ID>
-    <ID>LongMethod:PaymentDialog.kt$@Composable fun PaymentDialog( paymentDialogData: PaymentDialogData, retryPurchase: (ProductId) -&gt; Unit = {}, onCloseDialog: (isPaymentSuccessful: Boolean) -&gt; Unit = {} )</ID>
-    <ID>LongMethod:PlayPayment.kt$@Composable fun PlayPayment( billingPaymentState: PaymentState, onPurchaseBillingProductClick: (ProductId) -&gt; Unit, onInfoClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:PrivacyDisclaimerScreen.kt$@Composable fun PrivacyDisclaimerScreen( uiState: PrivacyDisclaimerViewState, onPrivacyPolicyLinkClicked: () -&gt; Unit, onAcceptClicked: () -&gt; Unit, )</ID>
-    <ID>LongMethod:PurchaseResultExtensions.kt$fun PurchaseResult.toPaymentDialogData(): PaymentDialogData?</ID>
     <ID>LongMethod:RedeemVoucherDialog.kt$@Composable fun RedeemVoucherDialog( uiState: VoucherDialogUiState, onVoucherInputChange: (String) -&gt; Unit = {}, onRedeem: (voucherCode: String) -&gt; Unit, onDismiss: (isTimeAdded: Boolean) -&gt; Unit )</ID>
     <ID>LongMethod:RelayLocationCell.kt$@Composable @Preview private fun PreviewRelayLocationCell()</ID>
     <ID>LongMethod:RelayLocationCell.kt$@Composable fun RelayLocationCell( relay: RelayItem, modifier: Modifier = Modifier, activeColor: Color = MaterialTheme.colorScheme.selected, inactiveColor: Color = MaterialTheme.colorScheme.error, selectedItem: RelayItem? = null, onSelectRelay: (item: RelayItem) -&gt; Unit = {} )</ID>
-    <ID>LongMethod:ReportProblemScreen.kt$@Composable private fun ReportProblemScreen( uiState: ReportProblemUiState, onSendReport: () -&gt; Unit = {}, onClearSendResult: () -&gt; Unit = {}, onNavigateToViewLogs: () -&gt; Unit = {}, onEmailChanged: (String) -&gt; Unit = {}, onDescriptionChanged: (String) -&gt; Unit = {}, onBackClick: () -&gt; Unit = {} )</ID>
-    <ID>LongMethod:SearchTextField.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SearchTextField( modifier: Modifier = Modifier, placeHolder: String = stringResource(id = R.string.search_placeholder), backgroundColor: Color = MullvadWhite10, enabled: Boolean = true, singleLine: Boolean = true, interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }, visualTransformation: VisualTransformation = VisualTransformation.None, onValueChange: (String) -&gt; Unit )</ID>
     <ID>LongMethod:SelectLocationScreen.kt$@Composable fun SelectLocationScreen( uiState: SelectLocationUiState, onSelectRelay: (item: RelayItem) -&gt; Unit = {}, onSearchTermInput: (searchTerm: String) -&gt; Unit = {}, onBackClick: () -&gt; Unit = {}, onFilterClick: () -&gt; Unit = {}, removeOwnershipFilter: () -&gt; Unit = {}, removeProviderFilter: () -&gt; Unit = {} )</ID>
     <ID>LongMethod:SettingsScreen.kt$@ExperimentalMaterial3Api @Composable fun SettingsScreen( uiState: SettingsUiState, onVpnSettingCellClick: () -&gt; Unit = {}, onSplitTunnelingCellClick: () -&gt; Unit = {}, onReportProblemCellClick: () -&gt; Unit = {}, onBackClick: () -&gt; Unit = {} )</ID>
     <ID>LongMethod:SplitTunnelingScreen.kt$@Composable @OptIn(ExperimentalFoundationApi::class) fun SplitTunnelingScreen( uiState: SplitTunnelingUiState = SplitTunnelingUiState.Loading, onShowSystemAppsClick: (show: Boolean) -&gt; Unit = {}, onExcludeAppClick: (packageName: String) -&gt; Unit = {}, onIncludeAppClick: (packageName: String) -&gt; Unit = {}, onBackClick: () -&gt; Unit = {}, onResolveIcon: (String) -&gt; Bitmap? = { null }, )</ID>
-    <ID>LongMethod:TopBar.kt$@Composable fun MullvadTopBar( containerColor: Color, onSettingsClicked: (() -&gt; Unit)?, onAccountClicked: (() -&gt; Unit)?, modifier: Modifier = Modifier, enabled: Boolean = true, iconTintColor: Color, isIconAndLogoVisible: Boolean = true )</ID>
-    <ID>LongMethod:TopBar.kt$@Composable fun MullvadTopBarWithDeviceName( containerColor: Color, onSettingsClicked: (() -&gt; Unit)?, onAccountClicked: (() -&gt; Unit)?, iconTintColor: Color, isIconAndLogoVisible: Boolean = true, deviceName: String?, daysLeftUntilExpiry: Int? )</ID>
-    <ID>LongMethod:ViewLogsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ViewLogsScreen( uiState: ViewLogsUiState, onBackClick: () -&gt; Unit = {}, )</ID>
     <ID>LongMethod:VpnSettingsScreen.kt$@Destination(style = SlideInFromRightTransition::class) @Composable fun VpnSettings( navigator: DestinationsNavigator, dnsDialogResult: ResultRecipient&lt;DnsDialogDestination, Boolean&gt;, customWgPortResult: ResultRecipient&lt;WireguardCustomPortDialogDestination, Int?&gt; )</ID>
     <ID>LongMethod:VpnSettingsScreen.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun VpnSettingsScreen( uiState: VpnSettingsUiState, snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }, navigateToContentBlockersInfo: () -&gt; Unit = {}, navigateToCustomDnsInfo: () -&gt; Unit = {}, navigateToMalwareInfo: () -&gt; Unit = {}, navigateToObfuscationInfo: () -&gt; Unit = {}, navigateToQuantumResistanceInfo: () -&gt; Unit = {}, navigateUdp2TcpInfo: () -&gt; Unit = {}, navigateToWireguardPortInfo: (availablePortRanges: List&lt;PortRange&gt;) -&gt; Unit = {}, navigateToLocalNetworkSharingInfo: () -&gt; Unit = {}, navigateToWireguardPortDialog: () -&gt; Unit = {}, onToggleBlockTrackers: (Boolean) -&gt; Unit = {}, onToggleBlockAds: (Boolean) -&gt; Unit = {}, onToggleBlockMalware: (Boolean) -&gt; Unit = {}, onToggleAutoConnect: (Boolean) -&gt; Unit = {}, onToggleLocalNetworkSharing: (Boolean) -&gt; Unit = {}, onToggleBlockAdultContent: (Boolean) -&gt; Unit = {}, onToggleBlockGambling: (Boolean) -&gt; Unit = {}, onToggleBlockSocialMedia: (Boolean) -&gt; Unit = {}, navigateToMtuDialog: (mtu: Int?) -&gt; Unit = {}, navigateToDns: (index: Int?, address: String?) -&gt; Unit = { _, _ -&gt; }, onToggleDnsClick: (Boolean) -&gt; Unit = {}, onBackClick: () -&gt; Unit = {}, onSelectObfuscationSetting: (selectedObfuscation: SelectedObfuscation) -&gt; Unit = {}, onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -&gt; Unit = {}, onWireguardPortSelected: (port: Constraint&lt;Port&gt;) -&gt; Unit = {}, )</ID>
-    <ID>LongMethod:WireguardCustomPortDialog.kt$@Composable fun WireguardCustomPortDialog( initialPort: Int?, allowedPortRanges: List&lt;PortRange&gt;, onSave: (Int?) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
     <ID>MagicNumber:Chevron.kt$100</ID>
     <ID>MagicNumber:Chevron.kt$270f</ID>
     <ID>MagicNumber:Chevron.kt$90f</ID>
     <ID>MagicNumber:CustomTextField.kt$100</ID>
-    <ID>MagicNumber:FlowUtils.kt$3</ID>
-    <ID>MagicNumber:FlowUtils.kt$4</ID>
-    <ID>MagicNumber:FlowUtils.kt$5</ID>
-    <ID>MagicNumber:FlowUtils.kt$6</ID>
-    <ID>MagicNumber:FlowUtils.kt$7</ID>
     <ID>MagicNumber:IntegerExtension.kt$1280</ID>
     <ID>MagicNumber:IntegerExtension.kt$1420</ID>
     <ID>MagicNumber:LoginScreen.kt$3f</ID>
@@ -341,7 +318,6 @@
     <ID>MagicNumber:SelectLocationScreen.kt$270f</ID>
     <ID>MagicNumber:TalpidVpnService.kt$TalpidVpnService$128</ID>
     <ID>MagicNumber:TalpidVpnService.kt$TalpidVpnService$32</ID>
-    <ID>MatchingDeclarationName:DataClassTests.kt$DataClasses</ID>
     <ID>MatchingDeclarationName:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt</ID>
     <ID>MatchingDeclarationName:SingleModuleExtensions.kt$NavGraph : NavGraphSpec</ID>
     <ID>MaxLineLength:AccessMethodKt.kt$AccessMethodKt.Dsl$public</ID>
@@ -496,10 +472,6 @@
     <ID>MaxLineLength:WireguardPortInfoDialogDestination.kt$WireguardPortInfoDialogDestination$argument = wireguardPortInfoDialogArgumentNavType.get(savedStateHandle, "argument") ?: throw RuntimeException("'argument' argument is mandatory, but was not present!")</ID>
     <ID>MaxLineLength:WireguardPortInfoDialogDestination.kt$WireguardPortInfoDialogDestination$argument = wireguardPortInfoDialogArgumentNavType.safeGet(bundle, "argument") ?: throw RuntimeException("'argument' argument is mandatory, but was not present!")</ID>
     <ID>MaxLineLength:WireguardRelayEndpointDataKt.kt$WireguardRelayEndpointDataKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.WireguardRelayEndpointData.Builder</ID>
-    <ID>MayBeConst:AccountExpiryNotification.kt$AccountExpiryNotification.Companion$val NOTIFICATION_ID: Int = 2</ID>
-    <ID>MayBeConst:AccountExpiryNotification.kt$AccountExpiryNotification.Companion$val TIME_BETWEEN_CHECKS: Long = 12 /* h */ * 60 /* min */ * 60 /* s */ * 1000 /* ms */</ID>
-    <ID>MayBeConst:MullvadVpnService.kt$MullvadVpnService.Companion$private val TAG = "mullvad"</ID>
-    <ID>MayBeConst:TunnelStateNotification.kt$TunnelStateNotification.Companion$val NOTIFICATION_ID: Int = 1</ID>
     <ID>MemberNameEqualsClassName:Message.kt$Message$val message: RawMessage get() = RawMessage.obtain().also { message -&gt; message.what = messageId message.data = Bundle() message.data.putParcelable(messageKey, this) }</ID>
     <ID>NestedBlockDepth:MockApiDispatcher.kt$MockApiDispatcher$override fun dispatch(request: RecordedRequest): MockResponse</ID>
     <ID>NestedBlockDepth:RelayListExtensions.kt$fun List&lt;RelayCountry&gt;.filterOnSearchTerm( searchTerm: String, selectedItem: RelayItem? ): List&lt;RelayCountry&gt;</ID>
@@ -614,34 +586,10 @@
     <ID>PrintStackTrace:Extensions.kt$ex</ID>
     <ID>ProtectedMemberInFinalClass:MullvadDaemon.kt$MullvadDaemon$protected var daemonInterfaceAddress = 0L</ID>
     <ID>ReturnCount:AccountExpiryNotification.kt$AccountExpiryNotification$private fun format(expiry: DateTime, remainingTime: Duration): String</ID>
-    <ID>ReturnCount:BillingRepository.kt$BillingRepository$private suspend fun queryProductDetails(productIds: List&lt;String&gt;): ProductDetailsResult</ID>
     <ID>ReturnCount:RelayNameComparator.kt$RelayNameComparator$private infix fun List&lt;String&gt;.compareWith(other: List&lt;String&gt;): Int</ID>
     <ID>ReturnCount:TalpidVpnService.kt$TalpidVpnService$private fun createTun(config: TunConfig): CreateTunResult</ID>
-    <ID>SwallowedException:AccountCache.kt$AccountCache$exception: ClosedReceiveChannelException</ID>
-    <ID>SwallowedException:AuthTokenCache.kt$AuthTokenCache$exception: ClosedReceiveChannelException</ID>
-    <ID>SwallowedException:ChangelogDataProvider.kt$ChangelogDataProvider$ex: IOException</ID>
-    <ID>SwallowedException:CommonStringExtensions.kt$ex: Exception</ID>
-    <ID>SwallowedException:ConnectionProxy.kt$ConnectionProxy$exception: ClosedReceiveChannelException</ID>
-    <ID>SwallowedException:ContextExtensions.kt$ex: SecurityException</ID>
-    <ID>SwallowedException:CustomDns.kt$CustomDns$exception: ClosedReceiveChannelException</ID>
-    <ID>SwallowedException:DaemonInstance.kt$DaemonInstance$exception: ClosedReceiveChannelException</ID>
-    <ID>SwallowedException:DispatchingFlow.kt$DispatchingFlow$closedException: ClosedSendChannelException</ID>
-    <ID>SwallowedException:Extensions.kt$ex: JSONException</ID>
-    <ID>SwallowedException:FlowUtils.kt$e: IllegalStateException</ID>
-    <ID>SwallowedException:MessengerExtensions.kt$deadObjectException: DeadObjectException</ID>
-    <ID>SwallowedException:MessengerExtensions.kt$remoteException: RemoteException</ID>
-    <ID>SwallowedException:PrivacyDisclaimerScreen.kt$e: CancellationException</ID>
-    <ID>SwallowedException:ServiceEndpoint.kt$ServiceEndpoint$exception: ClosedReceiveChannelException</ID>
-    <ID>SwallowedException:SettingsListener.kt$SettingsListener$exception: ClosedReceiveChannelException</ID>
-    <ID>SwallowedException:TalpidVpnService.kt$TalpidVpnService$exception: IllegalArgumentException</ID>
-    <ID>SwallowedException:UiAutomatorExtensions.kt$e: IllegalArgumentException</ID>
-    <ID>SwallowedException:UiAutomatorExtensions.kt$e: NullPointerException</ID>
-    <ID>SwallowedException:VoucherRedeemer.kt$VoucherRedeemer$exception: ClosedReceiveChannelException</ID>
-    <ID>SwallowedException:VpnSettingsViewModel.kt$VpnSettingsViewModel$ex: Exception</ID>
-    <ID>TooGenericExceptionCaught:BillingRepository.kt$BillingRepository$t: Throwable</ID>
     <ID>TooGenericExceptionCaught:CommonStringExtensions.kt$ex: Exception</ID>
     <ID>TooGenericExceptionCaught:HandlerFlow.kt$HandlerFlow$exception: Exception</ID>
-    <ID>TooGenericExceptionCaught:VpnSettingsViewModel.kt$VpnSettingsViewModel$ex: Exception</ID>
     <ID>TooGenericExceptionThrown:ChangelogDestination.kt$ChangelogDestination$throw RuntimeException("'changeLog' argument is mandatory, but was not present!")</ID>
     <ID>TooGenericExceptionThrown:DeviceListDestination.kt$DeviceListDestination$throw RuntimeException("'accountToken' argument is mandatory, but was not present!")</ID>
     <ID>TooGenericExceptionThrown:PaymentDestination.kt$PaymentDestination$throw RuntimeException("'productId' argument is mandatory, but was not present!")</ID>
@@ -678,9 +626,7 @@
     <ID>WildcardImport:Destination.kt$import com.ramcosta.composedestinations.spec.*</ID>
     <ID>WildcardImport:NavGraphs.kt$import com.ramcosta.composedestinations.spec.*</ID>
     <ID>WildcardImport:NavGraphs.kt$import net.mullvad.mullvadvpn.compose.destinations.*</ID>
-    <ID>WildcardImport:SettingsListener.kt$import net.mullvad.mullvadvpn.model.*</ID>
     <ID>WildcardImport:SingleModuleExtensions.kt$import com.ramcosta.composedestinations.spec.*</ID>
     <ID>WildcardImport:SingleModuleExtensions.kt$import net.mullvad.mullvadvpn.compose.destinations.*</ID>
-    <ID>WildcardImport:SplitTunnelingCell.kt$import androidx.compose.runtime.*</ID>
   </CurrentIssues>
 </SmellBaseline>
