@@ -21,7 +21,7 @@ use mullvad_types::{
     version,
     wireguard::{RotationInterval, RotationIntervalError},
 };
-#[cfg(windows)]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::path::PathBuf;
 use std::{
     str::FromStr,
@@ -792,7 +792,7 @@ impl ManagementService for ManagementServiceImpl {
         }
     }
 
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     async fn add_split_tunnel_app(&self, request: Request<String>) -> ServiceResult<()> {
         log::debug!("add_split_tunnel_app");
         let path = PathBuf::from(request.into_inner());
@@ -803,12 +803,12 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
             .map(Response::new)
     }
-    #[cfg(not(windows))]
+    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
     async fn add_split_tunnel_app(&self, _: Request<String>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     async fn remove_split_tunnel_app(&self, request: Request<String>) -> ServiceResult<()> {
         log::debug!("remove_split_tunnel_app");
         let path = PathBuf::from(request.into_inner());
@@ -819,12 +819,12 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
             .map(Response::new)
     }
-    #[cfg(not(windows))]
+    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
     async fn remove_split_tunnel_app(&self, _: Request<String>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     async fn clear_split_tunnel_apps(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("clear_split_tunnel_apps");
         let (tx, rx) = oneshot::channel();
@@ -834,12 +834,12 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
             .map(Response::new)
     }
-    #[cfg(not(windows))]
+    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
     async fn clear_split_tunnel_apps(&self, _: Request<()>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     async fn set_split_tunnel_state(&self, request: Request<bool>) -> ServiceResult<()> {
         log::debug!("set_split_tunnel_state");
         let enabled = request.into_inner();
@@ -850,7 +850,7 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
             .map(Response::new)
     }
-    #[cfg(not(windows))]
+    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
     async fn set_split_tunnel_state(&self, _: Request<bool>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
@@ -1070,7 +1070,7 @@ fn map_daemon_error(error: crate::Error) -> Status {
         DaemonError::RemoveDeviceError(error) => map_device_error(&error),
         DaemonError::UpdateDeviceError(error) => map_device_error(&error),
         DaemonError::VoucherSubmission(error) => map_device_error(&error),
-        #[cfg(windows)]
+        #[cfg(any(target_os = "windows", target_os = "macos"))]
         DaemonError::SplitTunnelError(error) => map_split_tunnel_error(error),
         DaemonError::AccountHistory(error) => map_account_history_error(error),
         DaemonError::NoAccountToken | DaemonError::NoAccountTokenHistory => {
@@ -1105,6 +1105,12 @@ fn map_split_tunnel_error(error: talpid_core::split_tunnel::Error) -> Status {
         }
         _ => Status::unknown(error.to_string()),
     }
+}
+
+#[cfg(target_os = "macos")]
+/// Converts [`talpid_core::split_tunnel::Error`] into a tonic status.
+fn map_split_tunnel_error(error: talpid_core::split_tunnel::Error) -> Status {
+    Status::unknown(error.to_string())
 }
 
 /// Converts a REST API error into a tonic status.

@@ -1,5 +1,7 @@
-#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[cfg(target_os = "linux")]
 use crate::Route;
+#[cfg(target_os = "macos")]
+pub use crate::{imp::imp::DefaultRoute, Gateway};
 
 use super::RequiredRoute;
 
@@ -83,7 +85,10 @@ pub(crate) enum RouteManagerCommand {
     #[cfg(target_os = "macos")]
     NewDefaultRouteListener(oneshot::Sender<mpsc::UnboundedReceiver<DefaultRouteEvent>>),
     #[cfg(target_os = "macos")]
-    GetDefaultRoutes(oneshot::Sender<(Option<Route>, Option<Route>)>),
+    GetDefaultRoutes(oneshot::Sender<(Option<DefaultRoute>, Option<DefaultRoute>)>),
+    /// Return gateway for V4 and V6
+    #[cfg(target_os = "macos")]
+    GetDefaultGateway(oneshot::Sender<(Option<Gateway>, Option<Gateway>)>),
     #[cfg(target_os = "linux")]
     CreateRoutingRules(bool, oneshot::Sender<Result<(), PlatformError>>),
     #[cfg(target_os = "linux")]
@@ -196,10 +201,22 @@ impl RouteManagerHandle {
 
     /// Get current non-tunnel default routes.
     #[cfg(target_os = "macos")]
-    pub async fn get_default_routes(&self) -> Result<(Option<Route>, Option<Route>), Error> {
+    pub async fn get_default_routes(
+        &self,
+    ) -> Result<(Option<DefaultRoute>, Option<DefaultRoute>), Error> {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RouteManagerCommand::GetDefaultRoutes(response_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+        response_rx.await.map_err(|_| Error::ManagerChannelDown)
+    }
+
+    /// Get default gateway
+    #[cfg(target_os = "macos")]
+    pub async fn get_default_gateway(&self) -> Result<(Option<Gateway>, Option<Gateway>), Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::GetDefaultGateway(response_tx))
             .map_err(|_| Error::RouteManagerDown)?;
         response_rx.await.map_err(|_| Error::ManagerChannelDown)
     }

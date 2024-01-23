@@ -23,8 +23,8 @@ use system_configuration::{
     network_configuration::SCNetworkSet,
     preferences::SCPreferences,
     sys::schema_definitions::{
-        kSCDynamicStorePropNetPrimaryInterface, kSCPropInterfaceName, kSCPropNetIPv4Router,
-        kSCPropNetIPv6Router,
+        kSCDynamicStorePropNetPrimaryInterface, kSCPropInterfaceName, kSCPropNetIPv4Addresses,
+        kSCPropNetIPv4Router, kSCPropNetIPv6Addresses, kSCPropNetIPv6Router,
     },
 };
 
@@ -60,6 +60,7 @@ impl Family {
 struct NetworkServiceDetails {
     name: String,
     router_ip: IpAddr,
+    first_ip: IpAddr,
 }
 
 pub struct PrimaryInterfaceMonitor {
@@ -72,6 +73,34 @@ unsafe impl Send for PrimaryInterfaceMonitor {}
 
 pub enum InterfaceEvent {
     Update,
+}
+
+/// Default interface/route
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DefaultRoute {
+    /// Default interface name
+    pub interface: String,
+    /// Default interface index
+    pub interface_index: u16,
+    /// Router IP
+    pub router_ip: IpAddr,
+    /// Default interface IP address
+    pub ip: IpAddr,
+}
+
+impl From<DefaultRoute> for RouteMessage {
+    fn from(route: DefaultRoute) -> Self {
+        let network = if route.router_ip.is_ipv4() {
+            Family::V4.default_network()
+        } else {
+            Family::V6.default_network()
+        };
+        // The route message requires a socket address. The port is ignored in this case.
+        let router_addr = SocketAddr::from((route.router_ip, 0));
+        RouteMessage::new_route(Destination::Network(network))
+            .set_gateway_addr(router_addr)
+            .set_interface_index(u16::try_from(route.interface_index).unwrap())
+    }
 }
 
 impl PrimaryInterfaceMonitor {
@@ -126,7 +155,7 @@ impl PrimaryInterfaceMonitor {
 
     /// Retrieve the best current default route. This is based on the primary interface, or else
     /// the first active interface in the network service order.
-    pub fn get_route(&self, family: Family) -> Option<RouteMessage> {
+    pub fn get_route(&self, family: Family) -> Option<DefaultRoute> {
         let ifaces = self
             .get_primary_interface(family)
             .map(|iface| {
@@ -155,34 +184,31 @@ impl PrimaryInterfaceMonitor {
             })
             .next()?;
 
-        let router_addr = (iface.router_ip, 0);
-        let mut router_addr = SocketAddr::from(router_addr);
+        let index = u16::try_from(index).unwrap();
 
-        // If the gateway is a link-local address, scope ID must be specified
-        if let SocketAddr::V6(ref mut v6_addr) = router_addr {
-            let v6ip = v6_addr.ip();
-
-            if is_link_local_v6(v6ip) {
+        let mut router_ip = iface.router_ip;
+        if let IpAddr::V6(ref mut addr) = router_ip {
+            if is_link_local_v6(addr) {
                 // The second pair of octets should be set to the scope id
                 // See getaddr() in route.c:
                 // https://opensource.apple.com/source/network_cmds/network_cmds-396.6/route.tproj/route.c.auto.html
 
-                let second_octet = u16::try_from(index).unwrap().to_be_bytes();
+                let second_octet = index.to_be_bytes();
 
-                let mut octets = v6ip.octets();
+                let mut octets = addr.octets();
                 octets[2] = second_octet[0];
                 octets[3] = second_octet[1];
 
-                let new_ip = Ipv6Addr::from(octets);
-
-                v6_addr.set_ip(new_ip);
+                *addr = Ipv6Addr::from(octets);
             }
         }
 
-        let msg = RouteMessage::new_route(Destination::Network(family.default_network()))
-            .set_gateway_addr(router_addr)
-            .set_interface_index(u16::try_from(index).unwrap());
-        Some(msg)
+        Some(DefaultRoute {
+            interface: iface.name,
+            interface_index: index,
+            router_ip,
+            ip: iface.first_ip,
+        })
     }
 
     fn get_primary_interface(&self, family: Family) -> Option<NetworkServiceDetails> {
@@ -221,7 +247,32 @@ impl PrimaryInterfaceMonitor {
                 None
             })?;
 
-        Some(NetworkServiceDetails { name, router_ip })
+        let ip_key = if family == Family::V4 {
+            unsafe { kSCPropNetIPv4Addresses.to_void() }
+        } else {
+            unsafe { kSCPropNetIPv6Addresses.to_void() }
+        };
+
+        let first_ip = global_dict
+            .find(ip_key)
+            .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+            .and_then(|s| s.downcast::<CFArray>())
+            .and_then(|ips| {
+                ips.get(0)
+                    .map(|ip| unsafe { CFType::wrap_under_get_rule(*ip) })
+            })
+            .and_then(|s| s.downcast::<CFString>())
+            .and_then(|ip| ip.to_string().parse().ok())
+            .or_else(|| {
+                log::debug!("Missing IP for primary interface \"{name}\"");
+                None
+            })?;
+
+        Some(NetworkServiceDetails {
+            name,
+            router_ip,
+            first_ip,
+        })
     }
 
     fn network_services(&self, family: Family) -> Vec<NetworkServiceDetails> {
@@ -265,7 +316,32 @@ impl PrimaryInterfaceMonitor {
                         None
                     })?;
 
-                Some(NetworkServiceDetails { name, router_ip })
+                let ip_key = if family == Family::V4 {
+                    unsafe { kSCPropNetIPv4Addresses.to_void() }
+                } else {
+                    unsafe { kSCPropNetIPv6Addresses.to_void() }
+                };
+
+                let first_ip = ip_dict
+                    .find(ip_key)
+                    .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+                    .and_then(|s| s.downcast::<CFArray>())
+                    .and_then(|ips| {
+                        ips.get(0)
+                            .map(|ip| unsafe { CFType::wrap_under_get_rule(*ip) })
+                    })
+                    .and_then(|s| s.downcast::<CFString>())
+                    .and_then(|ip| ip.to_string().parse().ok())
+                    .or_else(|| {
+                        log::debug!("Missing IP for primary interface \"{name}\"");
+                        None
+                    })?;
+
+                Some(NetworkServiceDetails {
+                    name,
+                    router_ip,
+                    first_ip,
+                })
             })
             .collect::<Vec<_>>()
     }
