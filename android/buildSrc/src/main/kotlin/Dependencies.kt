@@ -19,8 +19,6 @@ object Dependencies {
 
     object AndroidX {
         const val appcompat = "androidx.appcompat:appcompat:${Versions.AndroidX.appcompat}"
-        const val constraintlayout =
-            "androidx.constraintlayout:constraintlayout:${Versions.AndroidX.constraintlayout}"
         const val coreKtx = "androidx.core:core-ktx:${Versions.AndroidX.coreKtx}"
         const val fragmentTestning =
             "androidx.fragment:fragment-testing:${Versions.AndroidX.fragment}"
@@ -53,8 +51,6 @@ object Dependencies {
         const val material3 = "androidx.compose.material3:material3:${Versions.Compose.material3}"
         const val testManifest = "androidx.compose.ui:ui-test-manifest:${Versions.Compose.base}"
         const val ui = "androidx.compose.ui:ui:${Versions.Compose.base}"
-        const val uiController =
-            "com.google.accompanist:accompanist-systemuicontroller:${Versions.Compose.uiController}"
         const val uiTestManifest = "androidx.compose.ui:ui-test-manifest:${Versions.Compose.base}"
         const val uiTooling = "androidx.compose.ui:ui-tooling:${Versions.Compose.base}"
         const val uiToolingAndroidPreview =
