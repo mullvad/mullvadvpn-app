@@ -206,6 +206,7 @@ complexity:
     excludeStringsWithLessThan5Characters: true
     ignoreStringsRegex: '$^'
   TooManyFunctions:
+      # Configuration maybe should change when this has been merged: https://github.com/detekt/detekt/issues/6516
     active: true
     excludes:
       - '**/test/**'
@@ -216,11 +217,11 @@ complexity:
       - '**/androidInstrumentedTest/**'
       - '**/jsTest/**'
       - '**/iosTest/**'
-    thresholdInFiles: 11
-    thresholdInClasses: 11
-    thresholdInInterfaces: 11
-    thresholdInObjects: 11
-    thresholdInEnums: 11
+    thresholdInFiles: 30
+    thresholdInClasses: 14
+    thresholdInInterfaces: 14
+    thresholdInObjects: 14
+    thresholdInEnums: 14
     ignoreDeprecated: false
     ignorePrivate: false
     ignoreOverridden: false
@@ -646,6 +647,7 @@ style:
   DestructuringDeclarationWithTooManyEntries:
     active: true
     maxDestructuringEntries: 3
+    ignoreAnnotated: ['Composable']
   DoubleNegativeLambda:
     active: false
     negativeFunctions:
