@@ -41,6 +41,9 @@ msgstr ""
 msgid "Account settings"
 msgstr ""
 
+msgid "Add"
+msgstr ""
+
 msgid "Any"
 msgstr ""
 
@@ -71,6 +74,9 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
+msgid "Cipher"
+msgstr ""
+
 msgid "Clear"
 msgstr ""
 
@@ -97,6 +103,9 @@ msgid "Custom"
 msgstr ""
 
 msgid "Default"
+msgstr ""
+
+msgid "Delete"
 msgstr ""
 
 msgid "Delete list"
@@ -148,6 +157,9 @@ msgstr ""
 msgid "less than a day left"
 msgstr ""
 
+msgid "Name"
+msgstr ""
+
 msgid "Next"
 msgstr ""
 
@@ -163,6 +175,15 @@ msgstr ""
 msgid "Open URL"
 msgstr ""
 
+msgid "Optional"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "Port"
+msgstr ""
+
 #. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr ""
@@ -171,6 +192,9 @@ msgid "Quit"
 msgstr ""
 
 msgid "Reconnect"
+msgstr ""
+
+msgid "Required"
 msgstr ""
 
 msgid "Save"
@@ -201,6 +225,9 @@ msgstr ""
 msgid "Try a different search."
 msgstr ""
 
+msgid "Type"
+msgstr ""
+
 msgid "UDP"
 msgstr ""
 
@@ -208,6 +235,9 @@ msgid "Unblock"
 msgstr ""
 
 msgid "UNSECURED CONNECTION"
+msgstr ""
+
+msgid "Username"
 msgstr ""
 
 msgctxt "accessibility"
@@ -304,6 +334,174 @@ msgstr ""
 
 msgctxt "account-view"
 msgid "Paid until"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Add method"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Adding a new API access method also tests it."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "API reachable"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, adding method…"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, saving method…"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, add anyway?"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, save anyway?"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Authentication"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Clicking “Save” changes the in use method."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Delete %(name)s?"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Edit method"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Editing an API access method also tests it."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Enter IP"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Enter name"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Enter port"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "In use"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Local SOCKS5 server"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Manage and add custom methods to access the Mullvad API."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "On some networks, where various types of censorship are being used, the API servers might not be directly reachable."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid IPv4 or IPv6 address."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid localhost port."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid remote server port."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Remote Server"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Server"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Server details"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 local"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 remote"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Testing method..."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Testing..."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "The API could not be reached using the %(name)s method."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "The in use API access method will change."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "The TCP port where your local SOCKS5 server is listening."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful when you are not affected by censorship."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "This is needed so our app can allow that traffic in the firewall."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "Transport protocol"
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
+msgstr ""
+
+msgctxt "api-access-methods-view"
+msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr ""
 
 msgctxt "auth-failure"
@@ -743,6 +941,11 @@ msgstr ""
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
+msgid "API access"
+msgstr ""
+
+#. Title label in navigation bar
+msgctxt "navigation-bar"
 msgid "Settings"
 msgstr ""
 
@@ -1084,6 +1287,11 @@ msgstr ""
 
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
+msgstr ""
+
+#. Navigation button to the 'API access methods' view
+msgctxt "settings-view"
+msgid "API access methods"
 msgstr ""
 
 msgctxt "settings-view"
@@ -1739,9 +1947,6 @@ msgid "Enable"
 msgstr ""
 
 msgid "Enter MTU"
-msgstr ""
-
-msgid "Enter port"
 msgstr ""
 
 msgid "Excluded applications"
