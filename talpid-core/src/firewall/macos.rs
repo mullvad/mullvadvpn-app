@@ -1,9 +1,11 @@
 use super::{FirewallArguments, FirewallPolicy};
 use ipnetwork::IpNetwork;
+use libc::{c_int, sysctlbyname};
 use pfctl::{DropAction, FilterRuleAction, Uid};
 use std::{
-    env,
+    env, io,
     net::{IpAddr, Ipv4Addr},
+    ptr,
 };
 use subslice::SubsliceExt;
 use talpid_types::net::{self, AllowedEndpoint, AllowedTunnelTraffic};
@@ -128,6 +130,7 @@ impl Firewall {
                 allow_lan,
                 allowed_endpoint,
                 allowed_tunnel_traffic,
+                redirect_interface,
             } => {
                 let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint)?);
@@ -137,14 +140,37 @@ impl Firewall {
                 rules.append(&mut self.get_block_dns_rules()?);
 
                 if let Some(tunnel) = tunnel {
-                    rules.extend(
-                        self.get_allow_tunnel_rules(&tunnel.interface, allowed_tunnel_traffic)?,
-                    );
+                    match redirect_interface {
+                        Some(redirect_interface) => {
+                            enable_forwarding();
+
+                            if !allowed_tunnel_traffic.all() {
+                                log::warn!("Split tunneling does not respect the 'allowed tunnel traffic' setting");
+                            }
+                            rules.extend(self.get_allow_established_tunnel_rules(
+                                &tunnel.interface,
+                                allowed_tunnel_traffic,
+                            )?);
+                            rules.append(
+                                &mut self.get_split_tunnel_rules(
+                                    &tunnel.interface,
+                                    redirect_interface,
+                                )?,
+                            );
+                        }
+                        None => {
+                            rules.extend(self.get_allow_tunnel_rules(
+                                &tunnel.interface,
+                                allowed_tunnel_traffic,
+                            )?);
+                        }
+                    }
                 }
 
                 if *allow_lan {
                     rules.append(&mut self.get_allow_lan_rules()?);
                 }
+
                 Ok(rules)
             }
             FirewallPolicy::Connected {
@@ -152,6 +178,7 @@ impl Firewall {
                 tunnel,
                 allow_lan,
                 dns_servers,
+                redirect_interface,
             } => {
                 let mut rules = vec![];
 
@@ -165,13 +192,25 @@ impl Firewall {
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
                 rules.append(&mut self.get_block_dns_rules()?);
 
-                rules.extend(self.get_allow_tunnel_rules(
-                    tunnel.interface.as_str(),
-                    &AllowedTunnelTraffic::All,
-                )?);
-
                 if *allow_lan {
                     rules.append(&mut self.get_allow_lan_rules()?);
+                }
+
+                if let Some(redirect_interface) = redirect_interface {
+                    enable_forwarding();
+
+                    rules.extend(self.get_allow_established_tunnel_rules(
+                        &tunnel.interface,
+                        &AllowedTunnelTraffic::All,
+                    )?);
+                    rules.append(
+                        &mut self.get_split_tunnel_rules(&tunnel.interface, redirect_interface)?,
+                    );
+                } else {
+                    rules.extend(self.get_allow_tunnel_rules(
+                        tunnel.interface.as_str(),
+                        &AllowedTunnelTraffic::All,
+                    )?);
                 }
 
                 Ok(rules)
@@ -343,28 +382,44 @@ impl Firewall {
         Ok(vec![block_tcp_dns_rule, block_udp_dns_rule])
     }
 
-    fn base_rule(
-        &self,
-        action: FilterRuleAction,
-        tunnel_interface: &str,
-    ) -> pfctl::FilterRuleBuilder {
-        let mut rule_builder = self.create_rule_builder(action);
-        rule_builder
-            .quick(true)
-            .interface(tunnel_interface)
-            .keep_state(pfctl::StatePolicy::Keep)
-            .tcp_flags(Self::get_tcp_flags());
-        rule_builder
-    }
-
     fn get_allow_tunnel_rules(
         &self,
         tunnel_interface: &str,
         allowed_traffic: &AllowedTunnelTraffic,
     ) -> Result<Vec<pfctl::FilterRule>> {
+        self.get_allow_tunnel_rules_inner(tunnel_interface, allowed_traffic, Self::get_tcp_flags())
+    }
+
+    fn get_allow_established_tunnel_rules(
+        &self,
+        tunnel_interface: &str,
+        allowed_traffic: &AllowedTunnelTraffic,
+    ) -> Result<Vec<pfctl::FilterRule>> {
+        self.get_allow_tunnel_rules_inner(
+            tunnel_interface,
+            allowed_traffic,
+            pfctl::TcpFlags::new(
+                &[pfctl::TcpFlag::Syn, pfctl::TcpFlag::Ack],
+                &[pfctl::TcpFlag::Syn, pfctl::TcpFlag::Ack],
+            ),
+        )
+    }
+
+    fn get_allow_tunnel_rules_inner(
+        &self,
+        tunnel_interface: &str,
+        allowed_traffic: &AllowedTunnelTraffic,
+        tcp_flags: pfctl::TcpFlags,
+    ) -> Result<Vec<pfctl::FilterRule>> {
+        let mut base_rule = &mut self.create_rule_builder(FilterRuleAction::Pass);
+        base_rule
+            .quick(true)
+            .interface(tunnel_interface)
+            .keep_state(pfctl::StatePolicy::Keep)
+            .tcp_flags(tcp_flags);
+
         Ok(match allowed_traffic {
             AllowedTunnelTraffic::One(endpoint) => {
-                let mut base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
                 let pfctl_proto = as_pfctl_proto(endpoint.protocol);
                 base_rule = base_rule.to(endpoint.address).proto(pfctl_proto);
                 vec![base_rule.build()?]
@@ -372,12 +427,10 @@ impl Firewall {
             AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
                 let mut rules = Vec::with_capacity(2);
 
-                let mut base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
                 let pfctl_proto = as_pfctl_proto(endpoint1.protocol);
                 base_rule = base_rule.to(endpoint1.address).proto(pfctl_proto);
                 rules.push(base_rule.build()?);
 
-                let mut base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
                 let pfctl_proto = as_pfctl_proto(endpoint2.protocol);
                 base_rule = base_rule.to(endpoint2.address).proto(pfctl_proto);
                 rules.push(base_rule.build()?);
@@ -385,7 +438,6 @@ impl Firewall {
                 rules
             }
             AllowedTunnelTraffic::All => {
-                let base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
                 vec![base_rule.build()?]
             }
             AllowedTunnelTraffic::None => {
@@ -456,6 +508,32 @@ impl Firewall {
         rules.push(dhcpv4_in);
 
         Ok(rules)
+    }
+
+    fn get_split_tunnel_rules(
+        &self,
+        from_interface: &str,
+        to_interface: &str,
+    ) -> Result<Vec<pfctl::FilterRule>> {
+        let allow_rule = self
+            .create_rule_builder(FilterRuleAction::Pass)
+            .quick(true)
+            .direction(pfctl::Direction::Any)
+            .keep_state(pfctl::StatePolicy::Keep)
+            .interface(to_interface)
+            .build()?;
+        let redir_rule = self
+            .create_rule_builder(FilterRuleAction::Pass)
+            .quick(true)
+            .direction(pfctl::Direction::Out)
+            .route(pfctl::Route::RouteTo(pfctl::PoolAddr::from(
+                pfctl::Interface::from(to_interface),
+            )))
+            .keep_state(pfctl::StatePolicy::Keep)
+            .tcp_flags(Self::get_tcp_flags())
+            .interface(from_interface)
+            .build()?;
+        Ok(vec![allow_rule, redir_rule])
     }
 
     fn get_allow_dhcp_client_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
@@ -675,4 +753,44 @@ enum RuleLogging {
     Pass,
     Drop,
     All,
+}
+
+fn enable_forwarding() {
+    if let Err(error) = enable_forwarding_for_family(true) {
+        log::error!("Failed to enable forwarding (IPv4): {error}");
+    }
+    if let Err(error) = enable_forwarding_for_family(false) {
+        log::error!("Failed to enable forwarding (IPv6): {error}");
+    }
+}
+
+fn enable_forwarding_for_family(ipv4: bool) -> io::Result<()> {
+    if ipv4 {
+        log::trace!("Enabling forwarding (IPv4)");
+    } else {
+        log::trace!("Enabling forwarding (IPv6)");
+    }
+
+    let mut val: c_int = 1;
+
+    let option = if ipv4 {
+        c"net.inet.ip.forwarding"
+    } else {
+        c"net.inet6.ip6.forwarding"
+    };
+
+    // SAFETY: The strings are null-terminated.
+    let result = unsafe {
+        sysctlbyname(
+            option.as_ptr(),
+            ptr::null_mut(),
+            ptr::null_mut(),
+            &mut val as *mut _ as _,
+            std::mem::size_of_val(&val),
+        )
+    };
+    if result != 0 {
+        return Err(io::Error::from_raw_os_error(result));
+    }
+    Ok(())
 }

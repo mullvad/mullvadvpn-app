@@ -53,6 +53,13 @@ subslice = "0.2"
 system-configuration = "0.5.1"
 hickory-proto = "0.24.1"
 hickory-server = { version = "0.24.1", features = ["resolver"] }
+talpid-platform-metadata = { path = "../talpid-platform-metadata" }
+pcap = { version = "2.0", features = ["capture-stream"] }
+pnet_packet = "0.34"
+tun = { version = "0.5.5", features = ["async"] }
+nix = { version = "0.28", features = ["socket"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 [target.'cfg(windows)'.dependencies]
 bitflags = "1.2"
