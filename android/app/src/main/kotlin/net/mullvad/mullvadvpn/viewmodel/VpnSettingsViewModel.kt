@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.net.InetAddress
+import java.net.UnknownHostException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -223,7 +224,7 @@ class VpnSettingsViewModel(
     private fun List<String>.asInetAddressList(): List<InetAddress> {
         return try {
             map { InetAddress.getByName(it) }
-        } catch (ex: Exception) {
+        } catch (ex: UnknownHostException) {
             Log.e("mullvad", "Error parsing the DNS address list.")
             emptyList()
         }
