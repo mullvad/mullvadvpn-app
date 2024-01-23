@@ -39,6 +39,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case problemReport
         case faq
         case apiAccess
+        case ipOverride
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
@@ -52,6 +53,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 return .faqCell
             case .apiAccess:
                 return .apiAccessCell
+            case .ipOverride:
+                return .ipOverrideCell
             }
         }
 
@@ -153,6 +156,10 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
             snapshot.appendSections([.main])
         }
         snapshot.appendItems([.apiAccess], toSection: .main)
+        #endif
+
+        #if DEBUG
+        snapshot.appendItems([.ipOverride], toSection: .main)
         #endif
 
         snapshot.appendSections([.version, .problemReport])
