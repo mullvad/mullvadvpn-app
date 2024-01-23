@@ -201,6 +201,7 @@ impl RouteManagerImpl {
                                     },
                                     prefix: interface::Family::V4.default_network(),
                                     metric: None,
+                                    mtu: None,
                                 }
                             });
                             let v6_route = self.v6_default_route.as_ref().map(|route| {
@@ -211,6 +212,7 @@ impl RouteManagerImpl {
                                     },
                                     prefix: interface::Family::V6.default_network(),
                                     metric: None,
+                                    mtu: None,
                                 }
                             });
 
@@ -263,7 +265,11 @@ impl RouteManagerImpl {
                     self.non_tunnel_routes.insert(route.prefix);
                 }
 
-                NetNode::RealNode(node) => routes_to_apply.push(Route::new(node, route.prefix)),
+                NetNode::RealNode(node) => {
+                    let mut applied_route = Route::new(node, route.prefix);
+                    applied_route.mtu = route.mtu.map(u32::from);
+                    routes_to_apply.push(applied_route);
+                }
             }
         }
 
@@ -273,7 +279,7 @@ impl RouteManagerImpl {
 
         // Add routes not using the default interface
         for route in routes_to_apply {
-            let message = if let Some(ref device) = route.node.device {
+            let mut message = if let Some(ref device) = route.node.device {
                 // If we specify route by interface name, use the link address of the given
                 // interface
                 match interface_link_addrs.get(device) {
@@ -288,6 +294,10 @@ impl RouteManagerImpl {
                 log::error!("Specifying gateway by IP rather than device is unimplemented");
                 continue;
             };
+
+            if let Some(mtu) = route.mtu {
+                message = message.set_mtu(mtu);
+            }
 
             // Default routes are a special case: We must apply it after replacing the current
             // default route with an ifscope route.
