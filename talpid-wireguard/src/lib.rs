@@ -899,7 +899,8 @@ impl WireguardMonitor {
         return iter;
 
         #[cfg(target_os = "linux")]
-        return iter.map(|route| route.use_main_table(false))
+        return iter
+            .map(|route| route.use_main_table(false))
             .map(|route| Self::apply_route_mtu_for_multihop(route, config));
 
         #[cfg(target_os = "macos")]
