@@ -85,6 +85,6 @@ class LoginMockApiTest : MockApiTest() {
         app.attemptLogin(validAccountToken)
 
         // Assert
-        device.findObjectWithTimeout(By.text("Out of time"))
+        app.ensureOutOfTime()
     }
 }
