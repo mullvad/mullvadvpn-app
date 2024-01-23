@@ -273,7 +273,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     companion object {
-        private val TAG = "mullvad"
+        private const val TAG = "mullvad"
 
         init {
             System.loadLibrary("mullvad_jni")

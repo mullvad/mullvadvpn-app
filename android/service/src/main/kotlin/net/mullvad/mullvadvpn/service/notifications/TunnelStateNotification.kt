@@ -147,6 +147,6 @@ class TunnelStateNotification(val context: Context) {
     }
 
     companion object {
-        val NOTIFICATION_ID: Int = 1
+        const val NOTIFICATION_ID: Int = 1
     }
 }
