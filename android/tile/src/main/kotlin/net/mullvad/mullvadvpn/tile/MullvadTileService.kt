@@ -51,8 +51,7 @@ class MullvadTileService : TileService() {
                     delay(unlockCheckDelayMillis)
                 }
                 return@withTimeoutOrNull true
-            }
-                ?: false
+            } ?: false
         }
 
         unlockAndRun {

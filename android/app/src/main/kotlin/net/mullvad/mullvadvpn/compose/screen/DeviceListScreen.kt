@@ -248,8 +248,7 @@ private fun DeviceListItem(
                     text =
                         deviceUiState.device.created.parseAsDateTime()?.let { creationDate ->
                             stringResource(id = R.string.created_x, creationDate.formatDate())
-                        }
-                            ?: "",
+                        } ?: "",
                     style = MaterialTheme.typography.listItemSubText,
                     color =
                         MaterialTheme.colorScheme.onPrimary

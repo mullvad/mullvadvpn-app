@@ -103,8 +103,7 @@ class MockApiDispatcher : Dispatcher() {
                 .setResponseCode(200)
                 .addJsonHeader()
                 .setBody(accountInfoJson(id = DUMMY_ID_1, expiry = expiry).toString())
-        }
-            ?: MockResponse().setResponseCode(400)
+        } ?: MockResponse().setResponseCode(400)
     }
 
     private fun handleDeviceInfoRequest(deviceId: String): MockResponse {
@@ -121,8 +120,7 @@ class MockApiDispatcher : Dispatcher() {
                         )
                         .toString()
                 )
-        }
-            ?: MockResponse().setResponseCode(400)
+        } ?: MockResponse().setResponseCode(400)
     }
 
     private fun handleDeviceCreationRequest(body: Buffer): MockResponse {
@@ -149,8 +147,7 @@ class MockApiDispatcher : Dispatcher() {
                         .addJsonHeader()
                         .setBody(tooManyDevicesJsonResponse().toString())
                 }
-            }
-            ?: MockResponse().setResponseCode(400)
+            } ?: MockResponse().setResponseCode(400)
     }
 
     private fun handleDeviceListRequest(): MockResponse {
@@ -167,8 +164,7 @@ class MockApiDispatcher : Dispatcher() {
                 )
             }
             MockResponse().setResponseCode(200).addJsonHeader().setBody(body.toString())
-        }
-            ?: MockResponse().setResponseCode(400)
+        } ?: MockResponse().setResponseCode(400)
     }
 
     private fun handleAccountCreationRequest(): MockResponse {
@@ -184,7 +180,6 @@ class MockApiDispatcher : Dispatcher() {
                         )
                         .toString()
                 )
-        }
-            ?: MockResponse().setResponseCode(400)
+        } ?: MockResponse().setResponseCode(400)
     }
 }

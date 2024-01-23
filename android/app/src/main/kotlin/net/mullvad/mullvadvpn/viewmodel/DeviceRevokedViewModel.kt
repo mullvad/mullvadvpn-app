@@ -38,8 +38,7 @@ class DeviceRevokedViewModel(
                     } else {
                         DeviceRevokedUiState.UNSECURED
                     }
-                }
-                    ?: flowOf(DeviceRevokedUiState.UNKNOWN)
+                } ?: flowOf(DeviceRevokedUiState.UNKNOWN)
             }
             .stateIn(
                 scope = CoroutineScope(dispatcher),

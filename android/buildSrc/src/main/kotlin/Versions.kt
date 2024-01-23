@@ -52,7 +52,7 @@ object Versions {
         const val dependencyCheck = "8.3.1"
         const val gradleVersions = "0.47.0"
         const val junit5 = "1.10.0.0"
-        const val ktfmt = "0.13.0"
+        const val ktfmt = "0.16.0"
         // Ksp version is linked with kotlin version, find matching release here:
         // https://github.com/google/ksp/releases
         const val ksp = "${kotlin}-1.0.14"

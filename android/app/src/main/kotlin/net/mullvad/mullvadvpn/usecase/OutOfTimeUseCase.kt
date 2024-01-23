@@ -50,8 +50,7 @@ class OutOfTimeUseCase(
 
     private fun TunnelState.isTunnelErrorStateDueToExpiredAccount(): Boolean {
         return ((this as? TunnelState.Error)?.errorState?.cause as? ErrorStateCause.AuthFailed)
-            ?.isCausedByExpiredAccount()
-            ?: false
+            ?.isCausedByExpiredAccount() ?: false
     }
 
     private fun pastAccountExpiry(): Flow<Boolean?> =

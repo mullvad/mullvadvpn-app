@@ -67,10 +67,10 @@ class VpnSettingsViewModel(
                     isLocalNetworkSharingEnabled = settings?.allowLan ?: false,
                     isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
                     customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
-                    contentBlockersOptions = settings?.contentBlockersSettings()
-                            ?: DefaultDnsOptions(),
-                    selectedObfuscation = settings?.selectedObfuscationSettings()
-                            ?: SelectedObfuscation.Off,
+                    contentBlockersOptions =
+                        settings?.contentBlockersSettings() ?: DefaultDnsOptions(),
+                    selectedObfuscation =
+                        settings?.selectedObfuscationSettings() ?: SelectedObfuscation.Off,
                     quantumResistant = settings?.quantumResistant() ?: QuantumResistantState.Off,
                     selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any(),
                     customWireguardPort = customWgPort,
