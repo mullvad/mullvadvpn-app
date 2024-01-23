@@ -191,8 +191,6 @@
     <ID>FunctionNaming:ExcludedProcessKt.kt$ExcludedProcessKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ExcludedProcess.Builder, ): Dsl</ID>
     <ID>FunctionNaming:ExcludedProcessListKt.kt$ExcludedProcessListKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.ExcludedProcessList</ID>
     <ID>FunctionNaming:ExcludedProcessListKt.kt$ExcludedProcessListKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ExcludedProcessList.Builder, ): Dsl</ID>
-    <ID>FunctionNaming:Extensions.kt$fun DependencyHandler.`leakCanaryImplementation`(dependencyNotation: Any): Dependency?</ID>
-    <ID>FunctionNaming:Extensions.kt$fun DependencyHandler.`playImplementation`(dependencyNotation: Any): Dependency?</ID>
     <ID>FunctionNaming:GeoIpLocationKt.kt$GeoIpLocationKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.GeoIpLocation</ID>
     <ID>FunctionNaming:GeoIpLocationKt.kt$GeoIpLocationKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.GeoIpLocation.Builder, ): Dsl</ID>
     <ID>FunctionNaming:GeographicLocationConstraintKt.kt$GeographicLocationConstraintKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.GeographicLocationConstraint</ID>
