@@ -24,7 +24,6 @@ object Versions {
     object AndroidX {
         const val appcompat = "1.6.1"
         const val coreKtx = "1.9.0"
-        const val constraintlayout = "2.1.4"
         const val espresso = "3.5.1"
         const val lifecycle = "2.6.1"
         const val fragment = "1.6.1"
@@ -41,7 +40,6 @@ object Versions {
         const val constrainLayout = "1.0.1"
         const val foundation = base
         const val material3 = "1.1.1"
-        const val uiController = "0.30.1"
     }
 
     object Plugin {
