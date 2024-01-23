@@ -39,3 +39,6 @@ const val LOGIN_INPUT_TEST_TAG = "login_input_test_tag"
 
 // VoucherDialog
 const val VOUCHER_INPUT_TEST_TAG = "voucher_input_test_tag"
+
+// OutOfTimeScreen
+const val OUT_OF_TIME_SCREEN_TITLE_TEST_TAG = "out_of_time_screen_title_test_tag"
