@@ -32,7 +32,7 @@ class LogoutMockApiTest : MockApiTest() {
         device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
         app.attemptLogin(validAccountToken)
-        device.findObjectWithTimeout(By.text("UNSECURED CONNECTION"))
+        app.ensureLoggedIn()
         app.clickAccountCog()
         app.clickActionButtonByText("Log out")
 

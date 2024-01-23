@@ -62,7 +62,7 @@ class LoginMockApiTest : MockApiTest() {
         app.attemptLogin(validAccountToken)
 
         // Assert
-        device.findObjectWithTimeout(By.text("UNSECURED CONNECTION"))
+        app.ensureLoggedIn()
     }
 
     @Test

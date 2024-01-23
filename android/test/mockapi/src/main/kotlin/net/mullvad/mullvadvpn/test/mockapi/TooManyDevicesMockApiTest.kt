@@ -62,6 +62,6 @@ class TooManyDevicesMockApiTest : MockApiTest() {
         app.clickActionButtonByText("Continue with login")
 
         // Assert that we are logged in
-        device.findObjectWithTimeout(By.text("UNSECURED CONNECTION"))
+        app.ensureLoggedIn()
     }
 }
