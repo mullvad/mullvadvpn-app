@@ -35,8 +35,6 @@ val baselineFile = file("$rootDir/config/baseline.xml")
 val configFile = files("$rootDir/config/detekt.yml")
 
 val projectSource = file(projectDir)
-val kotlinFiles = "**/*.kt"
-val resourceFiles = "**/resources/**"
 val buildFiles = "**/build/**"
 
 detekt {
@@ -51,6 +49,7 @@ detekt {
 }
 
 tasks.withType<Detekt>().configureEach {
+    // Ignore generated files from the build directory, e.g files created by ksp.
     exclude(buildFiles)
 }
 
