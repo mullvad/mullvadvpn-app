@@ -141,7 +141,7 @@ open class TalpidVpnService : VpnService() {
         return when (address) {
             is Inet4Address -> 32
             is Inet6Address -> 128
-            else -> throw RuntimeException("Invalid IP address (not IPv4 nor IPv6)")
+            else -> throw IllegalArgumentException("Invalid IP address (not IPv4 nor IPv6)")
         }
     }
 

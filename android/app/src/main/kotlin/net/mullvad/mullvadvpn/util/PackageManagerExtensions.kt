@@ -7,12 +7,10 @@ import androidx.core.graphics.drawable.toBitmapOrNull
 fun PackageManager.getApplicationIconBitmapOrNull(packageName: String): Bitmap? =
     try {
         getApplicationIcon(packageName).toBitmapOrNull()
-    } catch (e: Exception) {
+    } catch (e: PackageManager.NameNotFoundException) {
         // Name not found is thrown if the application is not installed
+        null
+    } catch (e: IllegalArgumentException) {
         // IllegalArgumentException is thrown if the application has an invalid icon
-        when (e) {
-            is PackageManager.NameNotFoundException,
-            is IllegalArgumentException -> null
-            else -> throw e
-        }
+        null
     }

@@ -131,12 +131,8 @@ class BillingRepository(context: Context) {
             val activity = activityProvider()
             // Launch the billing flow
             billingClient.launchBillingFlow(activity, billingFlowParams)
-        } catch (t: Throwable) {
-            if (t is BillingException) {
-                t.toBillingResult()
-            } else {
-                throw t
-            }
+        } catch (t: BillingException) {
+            t.toBillingResult()
         }
     }
 
@@ -150,15 +146,12 @@ class BillingRepository(context: Context) {
                     .build()
 
             billingClient.queryPurchasesAsync(queryPurchaseHistoryParams)
-        } catch (t: Throwable) {
-            if (t is BillingException) {
-                t.toPurchasesResult()
-            } else {
-                throw t
-            }
+        } catch (t: BillingException) {
+            t.toPurchasesResult()
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun queryProductDetails(productIds: List<String>): ProductDetailsResult {
         return try {
             ensureConnected()
@@ -174,15 +167,13 @@ class BillingRepository(context: Context) {
             params.setProductList(productList)
 
             billingClient.queryProductDetails(params.build())
+        } catch (billingException: BillingException) {
+            ProductDetailsResult(billingException.toBillingResult(), null)
         } catch (t: Throwable) {
-            if (t is BillingException) {
-                return ProductDetailsResult(t.toBillingResult(), null)
-            } else {
-                return ProductDetailsResult(
-                    BillingResult.newBuilder().setResponseCode(BillingResponseCode.ERROR).build(),
-                    null
-                )
-            }
+            ProductDetailsResult(
+                BillingResult.newBuilder().setResponseCode(BillingResponseCode.ERROR).build(),
+                null
+            )
         }
     }
 }

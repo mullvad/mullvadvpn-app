@@ -10,7 +10,9 @@ private const val SPACE_CHAR = ' '
 fun String.parseAsDateTime(): DateTime? {
     return try {
         DateTime.parse(this, DateTimeFormat.forPattern(EXPIRY_FORMAT))
-    } catch (ex: Exception) {
+    } catch (ex: IllegalArgumentException) {
+        null
+    } catch (ex: UnsupportedOperationException) {
         null
     }
 }
