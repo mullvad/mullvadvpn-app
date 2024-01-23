@@ -6,13 +6,14 @@ use talpid_types::net::proxy::{CustomProxy, Shadowsocks, Socks5Local, Socks5Remo
 pub struct Settings {
     pub direct: AccessMethodSetting,
     pub mullvad_bridges: AccessMethodSetting,
-    pub access_method_settings: Vec<AccessMethodSetting>,
+    /// User-defined API access methods.
+    pub user_defined: Vec<AccessMethodSetting>,
 }
 
 impl Settings {
     /// Append an [`AccessMethod`] to the end of `api_access_methods`.
     pub fn append(&mut self, api_access_method: AccessMethodSetting) {
-        self.access_method_settings.push(api_access_method)
+        self.user_defined.push(api_access_method)
     }
 
     /// Remove an [`ApiAccessMethod`] from `api_access_methods`.
@@ -21,7 +22,7 @@ impl Settings {
     /// be removed.
     pub fn remove(&mut self, api_access_method: &Id) -> Result<(), Error> {
         let maybe_setting = self
-            .access_method_settings
+            .user_defined
             .iter()
             .find(|setting| setting.get_id() == *api_access_method);
 
@@ -31,7 +32,7 @@ impl Settings {
                     attempted: built_in.clone(),
                 }),
                 AccessMethod::Custom(_) => {
-                    self.access_method_settings
+                    self.user_defined
                         .retain(|method| method.get_id() != *api_access_method);
                     Ok(())
                 }
@@ -53,7 +54,7 @@ impl Settings {
         use std::iter::once;
         once(&self.direct)
             .chain(once(&self.mullvad_bridges))
-            .chain(&self.access_method_settings)
+            .chain(&self.user_defined)
     }
 
     /// Iterate over mutable references of built-in & custom access methods.
@@ -61,7 +62,7 @@ impl Settings {
         use std::iter::once;
         once(&mut self.direct)
             .chain(once(&mut self.mullvad_bridges))
-            .chain(&mut self.access_method_settings)
+            .chain(&mut self.user_defined)
     }
 
     pub fn direct() -> AccessMethodSetting {
@@ -80,7 +81,7 @@ impl Default for Settings {
         Self {
             direct: Settings::direct(),
             mullvad_bridges: Settings::mullvad_bridges(),
-            access_method_settings: vec![],
+            user_defined: vec![],
         }
     }
 }
