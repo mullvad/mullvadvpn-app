@@ -11,7 +11,7 @@ use self::{
     disconnecting_state::{AfterDisconnect, DisconnectingState},
     error_state::ErrorState,
 };
-#[cfg(windows)]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use crate::split_tunnel;
 use crate::{
     dns::DnsMonitor,
@@ -19,10 +19,14 @@ use crate::{
     mpsc::Sender,
     offline,
 };
-#[cfg(windows)]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::ffi::OsString;
 use talpid_routing::RouteManagerHandle;
+#[cfg(target_os = "macos")]
+use talpid_tunnel::TunnelMetadata;
 use talpid_tunnel::{tun_provider::TunProvider, TunnelEvent};
+#[cfg(target_os = "macos")]
+use talpid_types::ErrorExt;
 
 use futures::{
     channel::{mpsc, oneshot},
@@ -56,7 +60,7 @@ pub enum Error {
     OfflineMonitorError(#[from] crate::offline::Error),
 
     /// Unable to set up split tunneling
-    #[cfg(target_os = "windows")]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     #[error("Failed to initialize split tunneling")]
     InitSplitTunneling(#[from] split_tunnel::Error),
 
@@ -100,7 +104,7 @@ pub struct InitialTunnelState {
     /// Whether to reset any existing firewall rules when initializing the disconnected state.
     pub reset_firewall: bool,
     /// Programs to exclude from the tunnel using the split tunnel driver.
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     pub exclude_paths: Vec<OsString>,
 }
 
@@ -210,7 +214,7 @@ pub enum TunnelCommand {
     #[cfg(target_os = "android")]
     BypassSocket(RawFd, oneshot::Sender<()>),
     /// Set applications that are allowed to send and receive traffic outside of the tunnel.
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     SetExcludedApps(
         oneshot::Sender<Result<(), split_tunnel::Error>>,
         Vec<OsString>,
@@ -288,6 +292,10 @@ impl TunnelStateMachine {
         )
         .map_err(Error::InitSplitTunneling)?;
 
+        #[cfg(target_os = "macos")]
+        let split_tunnel =
+            split_tunnel::SplitTunnel::spawn(args.command_tx.clone(), route_manager.clone());
+
         let fw_args = FirewallArguments {
             initial_state: if args.settings.block_when_disconnected || !args.settings.reset_firewall
             {
@@ -341,8 +349,25 @@ impl TunnelStateMachine {
             .set_paths_sync(&args.settings.exclude_paths)
             .map_err(Error::InitSplitTunneling)?;
 
+        #[cfg(target_os = "macos")]
+        if let Err(error) = split_tunnel
+            .set_exclude_paths(
+                args.settings
+                    .exclude_paths
+                    .iter()
+                    .map(PathBuf::from)
+                    .collect(),
+            )
+            .await
+        {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to set initial split tunnel paths")
+            );
+        }
+
         let mut shared_values = SharedTunnelStateValues {
-            #[cfg(windows)]
+            #[cfg(any(target_os = "windows", target_os = "macos"))]
             split_tunnel,
             runtime,
             firewall,
@@ -405,6 +430,8 @@ impl TunnelStateMachine {
 
         log::debug!("Tunnel state machine exited");
 
+        #[cfg(target_os = "macos")]
+        runtime.block_on(self.shared_values.split_tunnel.shutdown());
         runtime.block_on(self.shared_values.route_manager.stop());
     }
 }
@@ -428,6 +455,8 @@ struct SharedTunnelStateValues {
     /// instance), since the driver may add filters to the same sublayer.
     #[cfg(windows)]
     split_tunnel: split_tunnel::SplitTunnel,
+    #[cfg(target_os = "macos")]
+    split_tunnel: split_tunnel::Handle,
     runtime: tokio::runtime::Handle,
     firewall: Firewall,
     dns_monitor: DnsMonitor,
@@ -462,6 +491,69 @@ struct SharedTunnelStateValues {
 }
 
 impl SharedTunnelStateValues {
+    /// Return whether an split tunnel interface was created
+    #[cfg(target_os = "macos")]
+    pub fn set_exclude_paths(&mut self, paths: Vec<OsString>) -> Result<bool, split_tunnel::Error> {
+        self.runtime.block_on(async {
+            let had_interface = self.split_tunnel.interface().await.is_some();
+            self.split_tunnel
+                .set_exclude_paths(paths.into_iter().map(PathBuf::from).collect())
+                .await
+                .map_err(|error| {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to set split tunnel paths")
+                    );
+                    error
+                })?;
+            let has_interface = self.split_tunnel.interface().await.is_some();
+            Ok(!had_interface && has_interface)
+        })
+    }
+
+    #[cfg(target_os = "macos")]
+    pub fn enable_split_tunnel(
+        &mut self,
+        metadata: &TunnelMetadata,
+    ) -> Result<(), ErrorStateCause> {
+        let v4_address = metadata
+            .ips
+            .iter()
+            .find(|ip| ip.is_ipv4())
+            .map(|addr| match addr {
+                IpAddr::V4(addr) => *addr,
+                _ => unreachable!("unexpected address family"),
+            });
+        let v6_address = metadata
+            .ips
+            .iter()
+            .find(|ip| ip.is_ipv6())
+            .map(|addr| match addr {
+                IpAddr::V6(addr) => *addr,
+                _ => unreachable!("unexpected address family"),
+            });
+        let vpn_interface = crate::split_tunnel::VpnInterface {
+            name: metadata.interface.clone(),
+            v4_address,
+            v6_address,
+        };
+        self.runtime
+            .block_on(self.split_tunnel.set_tunnel(Some(vpn_interface)))
+            .inspect_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to set VPN interface for split tunnel")
+                )
+            })
+            .map_err(|error| {
+                if error.is_offline() {
+                    ErrorStateCause::IsOffline
+                } else {
+                    ErrorStateCause::SplitTunnelError
+                }
+            })
+    }
+
     pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<(), ErrorStateCause> {
         if self.allow_lan != allow_lan {
             self.allow_lan = allow_lan;
