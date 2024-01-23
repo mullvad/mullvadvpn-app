@@ -55,7 +55,17 @@ extension PersistentProxyConfiguration {
     /// Socks autentication method.
     public enum SocksAuthentication: Codable {
         case noAuthentication
-        case usernamePassword(username: String, password: String)
+        case authentication(UserCredential)
+    }
+
+    public struct UserCredential: Codable {
+        public let username: String
+        public let password: String
+
+        public init(username: String, password: String) {
+            self.username = username
+            self.password = password
+        }
     }
 
     /// Socks v5 proxy configuration.
@@ -73,6 +83,13 @@ extension PersistentProxyConfiguration {
             self.server = server
             self.port = port
             self.authentication = authentication
+        }
+
+        public var credential: UserCredential? {
+            guard case let .authentication(credential) = authentication else {
+                return nil
+            }
+            return credential
         }
 
         public var toAnyIPEndpoint: AnyIPEndpoint {

@@ -87,7 +87,10 @@ extension AccessMethodViewModel.Socks {
                     context: context
                 ))
             } else {
-                draftConfiguration.authentication = .usernamePassword(username: username, password: password)
+                draftConfiguration.authentication = .authentication(PersistentProxyConfiguration.UserCredential(
+                    username: username,
+                    password: password
+                ))
             }
         }
 

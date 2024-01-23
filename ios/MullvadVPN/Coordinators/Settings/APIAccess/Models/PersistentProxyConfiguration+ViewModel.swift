@@ -22,9 +22,9 @@ extension PersistentProxyConfiguration {
         )
 
         switch config.authentication {
-        case let .usernamePassword(username, password):
-            socks.username = username
-            socks.password = password
+        case let .authentication(userCredential):
+            socks.username = userCredential.username
+            socks.password = userCredential.password
             socks.authenticate = true
 
         case .noAuthentication:
