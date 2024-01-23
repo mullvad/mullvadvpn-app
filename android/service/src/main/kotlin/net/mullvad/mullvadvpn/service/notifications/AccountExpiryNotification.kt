@@ -140,8 +140,8 @@ class AccountExpiryNotification(
     }
 
     companion object {
-        val NOTIFICATION_ID: Int = 2
+        const val NOTIFICATION_ID: Int = 2
         val REMAINING_TIME_FOR_REMINDERS = Duration.standardDays(2)
-        val TIME_BETWEEN_CHECKS: Long = 12 /* h */ * 60 /* min */ * 60 /* s */ * 1000 /* ms */
+        const val TIME_BETWEEN_CHECKS: Long = 12 /* h */ * 60 /* min */ * 60 /* s */ * 1000 /* ms */
     }
 }
