@@ -26,7 +26,9 @@ use talpid_routing as routing;
 use talpid_routing::{self, RequiredRoute};
 #[cfg(not(windows))]
 use talpid_tunnel::tun_provider;
-use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
+use talpid_tunnel::{
+    network_interface, tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata,
+};
 
 use ipnetwork::IpNetwork;
 use talpid_types::{
@@ -382,26 +384,31 @@ impl WireguardMonitor {
                 .await?;
             }
 
-            #[cfg(any(target_os = "macos", target_os = "linux"))]
             let iface_name_clone = iface_name.clone();
             tokio::task::spawn(async move {
-                // tokio::time::sleep(Duration::from_secs(10)).await; // TODO: Delete this
+                tokio::time::sleep(Duration::from_secs(10)).await; // TODO: Delete this
+                log::warn!("MTU detection");
                 let mtu = get_mtu(
                     gateway,
                     #[cfg(any(target_os = "macos", target_os = "linux"))]
                     iface_name_clone.clone(),
-                    config.mtu,
+                    dbg!(config.mtu),
                 )
                 .await
                 .unwrap(); // TODO: detect real MTU
 
-                #[cfg(not(unix))]
-                {
-                    netsh::set_mtu(mtu).unwrap();
-                }
+                // let mtu = 900;
+                #[cfg(windows)]
+                if let Err(e) = network_interface::set_mtu(
+                    &iface_name_clone,
+                    mtu as u32,
+                    config.ipv6_gateway.is_some(),
+                ) {
+                    log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
+                };
 
                 // TODO: Set IPv6 too
-                #[cfg(unix)]
+                #[cfg(not(windows))]
                 if let Err(e) = unix::set_mtu(&iface_name_clone, mtu as u32) {
                     log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
                 };
@@ -979,126 +986,6 @@ impl WireguardMonitor {
     }
 }
 
-/// Delete this module
-#[cfg(target_os = "windows")]
-pub mod netsh {
-    use std::{
-        ffi::OsString,
-        io::{self, Write},
-        os::windows::{ffi::OsStringExt, io::AsRawHandle},
-        path::PathBuf,
-        process::{Child, Command, ExitStatus, Stdio},
-        time::Duration,
-    };
-
-    use windows_sys::Win32::{
-        Foundation::{MAX_PATH, WAIT_OBJECT_0, WAIT_TIMEOUT},
-        System::{
-            SystemInformation::GetSystemDirectoryW,
-            Threading::{WaitForSingleObject, INFINITE},
-        },
-    };
-
-    /// TODO: Fill me in
-    pub fn set_mtu(mtu: u16) -> std::result::Result<(), Error> {
-        let netsh_input = format!("interface ipv4 set interface Mullvad mtu={mtu}");
-        run_netsh_with_timeout(netsh_input, Duration::from_secs(5))
-    }
-
-    fn run_netsh_with_timeout(netsh_input: String, timeout: Duration) -> Result<(), Error> {
-        log::debug!("running netsh:\n{}", netsh_input);
-
-        let sysdir = get_system_dir().map_err(Error::GetSystemDir)?;
-        let mut netsh = Command::new(sysdir.join(r"netsh.exe"));
-
-        let mut subproc = netsh
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()
-            .map_err(Error::SpawnNetsh)?;
-
-        let mut stdin = subproc.stdin.take().unwrap();
-        stdin
-            .write_all(netsh_input.as_bytes())
-            .map_err(Error::NetshInput)?;
-        drop(stdin);
-
-        match wait_for_child(&mut subproc, timeout) {
-            Ok(Some(status)) => {
-                if !status.success() {
-                    return Err(Error::Netsh(status.code()));
-                }
-                Ok(())
-            }
-            Ok(None) => {
-                let _ = subproc.kill();
-                Err(Error::NetshTimeout)
-            }
-            Err(error) => Err(Error::WaitNetsh(error)),
-        }
-    }
-
-    fn get_system_dir() -> io::Result<PathBuf> {
-        let mut sysdir = [0u16; MAX_PATH as usize + 1];
-        let len = unsafe { GetSystemDirectoryW(sysdir.as_mut_ptr(), (sysdir.len() - 1) as u32) };
-        if len == 0 {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(PathBuf::from(OsString::from_wide(
-            &sysdir[0..(len as usize)],
-        )))
-    }
-
-    fn wait_for_child(subproc: &mut Child, timeout: Duration) -> io::Result<Option<ExitStatus>> {
-        let dur_millis = u32::try_from(timeout.as_millis()).unwrap_or(INFINITE);
-
-        let subproc_handle = subproc.as_raw_handle();
-        match unsafe { WaitForSingleObject(subproc_handle as isize, dur_millis) } {
-            WAIT_OBJECT_0 => subproc.try_wait(),
-            WAIT_TIMEOUT => Ok(None),
-            _error => Err(io::Error::last_os_error()),
-        }
-    }
-
-    /// Errors that can happen when configuring DNS on Windows.
-    #[derive(err_derive::Error, Debug)]
-    #[error(no_from)]
-    pub enum Error {
-        /// Failure to obtain an interface LUID given an alias.
-        #[error(display = "Failed to obtain LUID for the interface alias")]
-        ObtainInterfaceLuid(#[error(source)] io::Error),
-
-        /// Failure to obtain an interface index.
-        #[error(display = "Failed to obtain index of the interface")]
-        ObtainInterfaceIndex(#[error(source)] io::Error),
-
-        /// Failure to spawn netsh subprocess.
-        #[error(display = "Failed to spawn 'netsh'")]
-        SpawnNetsh(#[error(source)] io::Error),
-
-        /// Failure to spawn netsh subprocess.
-        #[error(display = "Failed to obtain system directory")]
-        GetSystemDir(#[error(source)] io::Error),
-
-        /// Failure to write to stdin.
-        #[error(display = "Failed to write to stdin for 'netsh'")]
-        NetshInput(#[error(source)] io::Error),
-
-        /// Failure to wait for netsh result.
-        #[error(display = "Failed to wait for 'netsh'")]
-        WaitNetsh(#[error(source)] io::Error),
-
-        /// netsh returned a non-zero status.
-        #[error(display = "'netsh' returned an error: {:?}", _0)]
-        Netsh(Option<i32>),
-
-        /// netsh did not return in a timely manner.
-        #[error(display = "'netsh' took too long to complete")]
-        NetshTimeout,
-    }
-}
-
 async fn get_mtu(
     gateway: std::net::Ipv4Addr,
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
@@ -1113,7 +1000,7 @@ async fn get_mtu(
     .unwrap();
 
     let step_size = 20;
-    let min_mtu = 576;
+    let min_mtu = 576; // TODO: Account for IPv6?
     let linspace = mut_spacing(min_mtu, max_mtu, step_size);
     for mtu in &linspace {
         log::warn!("Sending {mtu}");
@@ -1126,7 +1013,9 @@ async fn get_mtu(
         let size = match pinger.receive_ping_response(&mut buf).await {
             Ok(size) => size,
             Err(ping_monitor::imp::Error::Read(e)) if e.kind() == io::ErrorKind::TimedOut => {
-                log::warn!("MTU lowered from {max_mtu} to {largest_verified_mtu} because of dropped packets");
+                // TODO: This can sometimes trigger with max_mtu == largest_verified_mtu,
+                // investigate why
+                log::warn!("Lowering MTU from {max_mtu} to {largest_verified_mtu} because of dropped packets");
                 return Ok(largest_verified_mtu);
             }
             Err(e) => return Err(Error::SetMtu(e)),
