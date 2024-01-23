@@ -103,7 +103,7 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                             talpid_tunnel::ErrorStateCause::VpnPermissionDenied => {
                                 i32::from(Cause::VpnPermissionDenied)
                             }
-                            #[cfg(target_os = "windows")]
+                            #[cfg(any(target_os = "windows", target_os = "macos"))]
                             talpid_tunnel::ErrorStateCause::SplitTunnelError => {
                                 i32::from(Cause::SplitTunnelError)
                             }

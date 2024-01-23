@@ -403,6 +403,12 @@ pub enum AllowedTunnelTraffic {
     Two(Endpoint, Endpoint),
 }
 
+impl AllowedTunnelTraffic {
+    pub fn all(&self) -> bool {
+        matches!(self, AllowedTunnelTraffic::All)
+    }
+}
+
 impl fmt::Display for AllowedTunnelTraffic {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {

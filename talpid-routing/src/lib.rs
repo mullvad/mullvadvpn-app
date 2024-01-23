@@ -27,6 +27,46 @@ pub use imp::{imp::RouteError, DefaultRouteEvent, PlatformError};
 
 pub use imp::{Error, RouteManager, RouteManagerHandle};
 
+/// Link-layer/MAC adress
+#[cfg(target_os = "macos")]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+pub struct MacAddress(pub [u8; 6]);
+
+impl MacAddress {
+    /// Consume bytes that make up the link address
+    pub fn into_bytes(self) -> [u8; 6] {
+        self.0
+    }
+}
+
+#[cfg(target_os = "macos")]
+impl From<[u8; 6]> for MacAddress {
+    fn from(addr: [u8; 6]) -> Self {
+        Self(addr)
+    }
+}
+
+#[cfg(target_os = "macos")]
+impl fmt::Display for MacAddress {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{:<02X}{:<02X}{:<02X}{:<02X}{:<02X}{:<02X}",
+            self.0[0], self.0[1], self.0[2], self.0[3], self.0[4], self.0[5]
+        )
+    }
+}
+
+/// Gateway, including IP address and MAC address
+#[cfg(target_os = "macos")]
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct Gateway {
+    /// Network layer address for the gateway
+    pub ip_address: IpAddr,
+    /// Link layer address for the gateway
+    pub mac_address: MacAddress,
+}
+
 /// A network route with a specific network node, destination and an optional metric.
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct Route {

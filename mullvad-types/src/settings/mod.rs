@@ -11,7 +11,7 @@ use crate::{
 #[cfg(target_os = "android")]
 use jnix::IntoJava;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::{collections::HashSet, path::PathBuf};
 use talpid_types::net::{openvpn, GenericTunnelOptions};
 
@@ -100,14 +100,14 @@ pub struct Settings {
     /// Whether to notify users of beta updates.
     pub show_beta_releases: bool,
     /// Split tunneling settings
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     pub split_tunnel: SplitTunnelSettings,
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub settings_version: SettingsVersion,
 }
 
-#[cfg(windows)]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
 pub struct SplitTunnelSettings {
     /// Toggles split tunneling on or off
@@ -145,7 +145,7 @@ impl Default for Settings {
             tunnel_options: TunnelOptions::default(),
             relay_overrides: vec![],
             show_beta_releases: false,
-            #[cfg(windows)]
+            #[cfg(any(target_os = "windows", target_os = "macos"))]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
         }

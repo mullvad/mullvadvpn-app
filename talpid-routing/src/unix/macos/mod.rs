@@ -1,4 +1,4 @@
-use crate::{debounce::BurstGuard, NetNode, Node, RequiredRoute, Route};
+use crate::{debounce::BurstGuard, Gateway, MacAddress, NetNode, Node, RequiredRoute, Route};
 
 use futures::{
     channel::mpsc::{self, UnboundedReceiver},
@@ -8,6 +8,7 @@ use futures::{
 use ipnetwork::IpNetwork;
 use std::{
     collections::{BTreeMap, HashSet},
+    net::{IpAddr, SocketAddr},
     pin::Pin,
     sync::Weak,
     time::Duration,
@@ -83,8 +84,8 @@ pub struct RouteManagerImpl {
     v4_tunnel_default_route: Option<data::RouteMessage>,
     v6_tunnel_default_route: Option<data::RouteMessage>,
     applied_routes: BTreeMap<RouteDestination, RouteMessage>,
-    v4_default_route: Option<data::RouteMessage>,
-    v6_default_route: Option<data::RouteMessage>,
+    v4_default_route: Option<interface::DefaultRoute>,
+    v6_default_route: Option<interface::DefaultRoute>,
     update_trigger: BurstGuard,
     default_route_listeners: Vec<mpsc::UnboundedSender<DefaultRouteEvent>>,
     check_default_routes_restored: Pin<Box<dyn FusedStream<Item = ()> + Send>>,
@@ -190,13 +191,11 @@ impl RouteManagerImpl {
                             let _ = tx.send(events_rx);
                         }
                         Some(RouteManagerCommand::GetDefaultRoutes(tx)) => {
-                            // NOTE: The device name isn't really relevant here,
-                            // as we only care about routes with a gateway IP.
                             let v4_route = self.v4_default_route.as_ref().map(|route| {
                                 Route {
                                     node: Node {
-                                        device: None,
-                                        ip: route.gateway_ip(),
+                                        device: Some(route.interface.clone()),
+                                        ip: Some(route.router_ip),
                                     },
                                     prefix: interface::Family::V4.default_network(),
                                     metric: None,
@@ -206,8 +205,8 @@ impl RouteManagerImpl {
                             let v6_route = self.v6_default_route.as_ref().map(|route| {
                                 Route {
                                     node: Node {
-                                        device: None,
-                                        ip: route.gateway_ip(),
+                                        device: Some(route.interface.clone()),
+                                        ip: Some(route.router_ip),
                                     },
                                     prefix: interface::Family::V6.default_network(),
                                     metric: None,
@@ -216,6 +215,18 @@ impl RouteManagerImpl {
                             });
 
                             let _ = tx.send((v4_route, v6_route));
+                        }
+                        Some(RouteManagerCommand::GetDefaultGateway(tx)) => {
+                            let mut v4_gateway = None;
+                            let mut v6_gateway = None;
+
+                            if let Some(v4_route) = &self.v4_default_route {
+                                v4_gateway = self.get_gateway_link_address(v4_route.router_ip).await;
+                            }
+                            if let Some(v6_route) = &self.v6_default_route {
+                                v6_gateway = self.get_gateway_link_address(v6_route.router_ip).await;
+                            }
+                            let _ = tx.send((v4_gateway, v6_gateway));
                         }
 
                         Some(RouteManagerCommand::AddRoutes(routes, tx)) => {
@@ -253,6 +264,25 @@ impl RouteManagerImpl {
         if let Some(tx) = completion_tx {
             let _ = tx.send(());
         }
+    }
+
+    async fn get_gateway_link_address(&mut self, gateway_ip: IpAddr) -> Option<Gateway> {
+        let gateway_msg = RouteMessage::new_route(Destination::Host(gateway_ip));
+
+        if let Ok(Some(msg)) = self.routing_table.get_route(&gateway_msg).await {
+            if let Some(gateway) = msg
+                .gateway()
+                .and_then(|gateway| gateway.as_link_addr())
+                .and_then(|addr| addr.addr())
+            {
+                let mac_address = MacAddress::from(gateway);
+                return Some(Gateway {
+                    ip_address: gateway_ip,
+                    mac_address,
+                });
+            }
+        }
+        None
     }
 
     async fn add_required_routes(&mut self, required_routes: HashSet<RequiredRoute>) -> Result<()> {
@@ -428,10 +458,10 @@ impl RouteManagerImpl {
 
         let old_pair = current_route
             .as_ref()
-            .map(|r| (r.interface_index(), r.gateway_ip()));
+            .map(|r| (r.interface_index, r.router_ip));
         let new_pair = best_route
             .as_ref()
-            .map(|r| (r.interface_index(), r.gateway_ip()));
+            .map(|r| (r.interface_index, r.router_ip));
         log::debug!("Best default route ({family}) changed from {old_pair:?} to {new_pair:?}");
         let _ = std::mem::replace(current_route, best_route);
 
@@ -522,13 +552,11 @@ impl RouteManagerImpl {
         let v4_gateway = self
             .v4_default_route
             .as_ref()
-            .and_then(|route| route.gateway())
-            .cloned();
+            .map(|route| SocketAddr::new(route.router_ip, 0));
         let v6_gateway = self
             .v6_default_route
             .as_ref()
-            .and_then(|route| route.gateway())
-            .cloned();
+            .map(|route| SocketAddr::new(route.router_ip, 0));
 
         // Reapply routes that use the default (non-tunnel) node
         for dest in self.non_tunnel_routes.clone() {
@@ -542,7 +570,7 @@ impl RouteManagerImpl {
                 None => continue,
             };
             let route =
-                RouteMessage::new_route(Destination::Network(dest)).set_gateway_sockaddr(gateway);
+                RouteMessage::new_route(Destination::Network(dest)).set_gateway_addr(gateway);
 
             if let Some(dest) = self
                 .applied_routes
@@ -566,8 +594,9 @@ impl RouteManagerImpl {
             return Ok(());
         };
 
-        let interface_index = default_route.interface_index();
-        let new_route = default_route.clone().set_ifscope(interface_index);
+        let interface_index = default_route.interface_index;
+        let default_route = RouteMessage::from(default_route.clone());
+        let new_route = default_route.set_ifscope(interface_index);
 
         log::trace!("Setting ifscope: {new_route:?}");
 
@@ -659,6 +688,7 @@ impl RouteManagerImpl {
         let Some(desired_default_route) = self.primary_interface_monitor.get_route(family) else {
             return true;
         };
+        let desired_default_route = RouteMessage::from(desired_default_route);
 
         let current_default_route = RouteMessage::new_route(family.default_network().into());
         if let Ok(Some(current_default)) =
