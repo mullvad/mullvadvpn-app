@@ -88,6 +88,14 @@ class AppInteractor(
         device.findObjectWithTimeout(By.text("UNSECURED CONNECTION"), LOGIN_TIMEOUT)
     }
 
+    fun ensureOutOfTime() {
+        device.findObjectWithTimeout(By.text("Out of time"))
+    }
+
+    fun ensureAccountScreen() {
+        device.findObjectWithTimeout(By.text("Account"))
+    }
+
     fun extractIpAddress(): String {
         device.findObjectWithTimeout(By.res("location_info_test_tag")).click()
         return device
