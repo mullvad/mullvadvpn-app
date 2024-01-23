@@ -94,10 +94,10 @@ class ConnectViewModel(
                     ConnectUiState(
                         location =
                             when (tunnelRealState) {
-                                is TunnelState.Disconnected -> tunnelRealState.location()
-                                        ?: lastKnownDisconnectedLocation
-                                is TunnelState.Connecting -> tunnelRealState.location
-                                        ?: relayLocation?.location?.location
+                                is TunnelState.Disconnected ->
+                                    tunnelRealState.location() ?: lastKnownDisconnectedLocation
+                                is TunnelState.Connecting ->
+                                    tunnelRealState.location ?: relayLocation?.location?.location
                                 is TunnelState.Connected -> tunnelRealState.location
                                 is TunnelState.Disconnecting -> lastKnownDisconnectedLocation
                                 is TunnelState.Error -> null

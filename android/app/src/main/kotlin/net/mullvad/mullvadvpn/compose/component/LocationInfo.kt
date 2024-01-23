@@ -100,8 +100,7 @@ fun LocationInfo(
                         TransportProtocol.Udp -> stringResource(id = R.string.udp)
                     }
                 "${inAddress.first}:${inAddress.second} $protocol"
-            }
-                ?: ""
+            } ?: ""
         Text(
             text = "${stringResource(id = R.string.in_address)} $textInAddress",
             color = colorExpanded,

@@ -23,7 +23,6 @@ data class SplitTunnelingViewModelState(
                             .sortedBy { it.name },
                     showSystemApps = showSystemApps
                 )
-            }
-            ?: SplitTunnelingUiState.Loading
+            } ?: SplitTunnelingUiState.Loading
     }
 }

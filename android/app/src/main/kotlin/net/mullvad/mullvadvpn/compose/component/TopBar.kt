@@ -315,8 +315,7 @@ fun MullvadTopBarWithDeviceName(
                 text =
                     deviceName?.let {
                         stringResource(id = R.string.top_bar_device_name, deviceName)
-                    }
-                        ?: "",
+                    } ?: "",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodySmall,
