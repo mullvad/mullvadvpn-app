@@ -183,7 +183,7 @@ fn set_mtu_discover(sock: &Socket) {
         };
     }
     #[cfg(not(target_os = "linux"))]
-    todo!("Set IP_MTU_DISCOVER")
+    log::warn!("Set IP_MTU_DISCOVER not unix")
 }
 
 impl super::Pinger for Pinger {
