@@ -95,8 +95,6 @@
     <ID>CyclomaticComplexMethod:BillingPaymentRepository.kt$BillingPaymentRepository$override fun purchaseProduct( productId: ProductId, activityProvider: () -&gt; Activity ): Flow&lt;PurchaseResult&gt;</ID>
     <ID>CyclomaticComplexMethod:MockApiDispatcher.kt$MockApiDispatcher$override fun dispatch(request: RecordedRequest): MockResponse</ID>
     <ID>CyclomaticComplexMethod:RelayLocationCell.kt$@Composable fun RelayLocationCell( relay: RelayItem, modifier: Modifier = Modifier, activeColor: Color = MaterialTheme.colorScheme.selected, inactiveColor: Color = MaterialTheme.colorScheme.error, selectedItem: RelayItem? = null, onSelectRelay: (item: RelayItem) -&gt; Unit = {} )</ID>
-    <ID>DestructuringDeclarationWithTooManyEntries:NotificationBanner.kt$val (status, textTitle, textMessage, actionIcon) = createRefs()</ID>
-    <ID>DestructuringDeclarationWithTooManyEntries:NotificationBanner.kt$val (title, message, statusLevel, action) = notificationBannerData</ID>
     <ID>EmptyFunctionBlock:AccountTestRule.kt$AccountTestRule${}</ID>
     <ID>EmptyKtFile:build.gradle.kts$.build.gradle.kts</ID>
     <ID>ForbiddenComment:DeviceRevokedViewModel.kt$DeviceRevokedViewModel$// TODO: Refactor ConnectionProxy to be easily injectable rather than injecting</ID>
@@ -588,33 +586,21 @@
     <ID>ReturnCount:AccountExpiryNotification.kt$AccountExpiryNotification$private fun format(expiry: DateTime, remainingTime: Duration): String</ID>
     <ID>ReturnCount:RelayNameComparator.kt$RelayNameComparator$private infix fun List&lt;String&gt;.compareWith(other: List&lt;String&gt;): Int</ID>
     <ID>ReturnCount:TalpidVpnService.kt$TalpidVpnService$private fun createTun(config: TunConfig): CreateTunResult</ID>
-    <ID>TooGenericExceptionCaught:CommonStringExtensions.kt$ex: Exception</ID>
-    <ID>TooGenericExceptionCaught:HandlerFlow.kt$HandlerFlow$exception: Exception</ID>
     <ID>TooGenericExceptionThrown:ChangelogDestination.kt$ChangelogDestination$throw RuntimeException("'changeLog' argument is mandatory, but was not present!")</ID>
     <ID>TooGenericExceptionThrown:DeviceListDestination.kt$DeviceListDestination$throw RuntimeException("'accountToken' argument is mandatory, but was not present!")</ID>
     <ID>TooGenericExceptionThrown:PaymentDestination.kt$PaymentDestination$throw RuntimeException("'productId' argument is mandatory, but was not present!")</ID>
     <ID>TooGenericExceptionThrown:RemoveDeviceConfirmationDialogDestination.kt$RemoveDeviceConfirmationDialogDestination$throw RuntimeException("'device' argument is mandatory, but was not present!")</ID>
-    <ID>TooGenericExceptionThrown:TalpidVpnService.kt$TalpidVpnService$throw RuntimeException("Invalid IP address (not IPv4 nor IPv6)")</ID>
     <ID>TooGenericExceptionThrown:WireguardCustomPortDialogDestination.kt$WireguardCustomPortDialogDestination$throw RuntimeException("'navArg' argument is mandatory, but was not present!")</ID>
     <ID>TooGenericExceptionThrown:WireguardPortInfoDialogDestination.kt$WireguardPortInfoDialogDestination$throw RuntimeException("'argument' argument is mandatory, but was not present!")</ID>
-    <ID>TooManyFunctions:AccessMethodKt.kt$AccessMethodKt$Dsl</ID>
     <ID>TooManyFunctions:DaemonEventKt.kt$DaemonEventKt$Dsl</ID>
     <ID>TooManyFunctions:GeoIpLocationKt.kt$GeoIpLocationKt$Dsl</ID>
-    <ID>TooManyFunctions:LoginScreen.kt$net.mullvad.mullvadvpn.compose.screen.LoginScreen.kt</ID>
     <ID>TooManyFunctions:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt$ManagementServiceCoroutineImplBase : AbstractCoroutineServerImpl</ID>
     <ID>TooManyFunctions:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt$ManagementServiceCoroutineStub : AbstractCoroutineStub</ID>
     <ID>TooManyFunctions:MullvadDaemon.kt$MullvadDaemon</ID>
     <ID>TooManyFunctions:MullvadVpnService.kt$MullvadVpnService : TalpidVpnService</ID>
     <ID>TooManyFunctions:NormalRelaySettingsKt.kt$NormalRelaySettingsKt$Dsl</ID>
     <ID>TooManyFunctions:RelayKt.kt$RelayKt$Dsl</ID>
-    <ID>TooManyFunctions:RelayListCityKt.kt$RelayListCityKt$Dsl</ID>
-    <ID>TooManyFunctions:RelayListKt.kt$RelayListKt$Dsl</ID>
-    <ID>TooManyFunctions:Scrollbar.kt$net.mullvad.mullvadvpn.compose.component.Scrollbar.kt</ID>
     <ID>TooManyFunctions:SettingsKt.kt$SettingsKt$Dsl</ID>
-    <ID>TooManyFunctions:TalpidVpnService.kt$TalpidVpnService : VpnService</ID>
-    <ID>TooManyFunctions:TopBar.kt$net.mullvad.mullvadvpn.compose.component.TopBar.kt</ID>
-    <ID>TooManyFunctions:TunnelEndpointKt.kt$TunnelEndpointKt$Dsl</ID>
-    <ID>TooManyFunctions:TunnelStateKt.kt$TunnelStateKt$Dsl</ID>
     <ID>TooManyFunctions:VpnSettingsViewModel.kt$VpnSettingsViewModel : ViewModel</ID>
     <ID>TooManyFunctions:WireguardEndpointDataKt.kt$WireguardEndpointDataKt$Dsl</ID>
     <ID>TopLevelPropertyNaming:OutOfTimeUseCase.kt$const val accountRefreshIntervalMillis = 60L * 1000L // 1 minute</ID>
