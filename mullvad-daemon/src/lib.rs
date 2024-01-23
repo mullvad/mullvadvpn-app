@@ -60,7 +60,7 @@ use relay_list::updater::{self, RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::{collections::HashSet, ffi::OsString};
 use std::{
     marker::PhantomData,
@@ -70,7 +70,7 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
-#[cfg(any(target_os = "linux", windows))]
+#[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
 use talpid_core::split_tunnel;
 use talpid_core::{
     mpsc::Sender,
@@ -142,7 +142,7 @@ pub enum Error {
     #[error("Unable to initialize split tunneling")]
     InitSplitTunneling(#[source] split_tunnel::Error),
 
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     #[error("Split tunneling error")]
     SplitTunnelError(#[source] split_tunnel::Error),
 
@@ -323,16 +323,16 @@ pub enum DaemonCommand {
     #[cfg(target_os = "linux")]
     ClearSplitTunnelProcesses(ResponseTx<(), split_tunnel::Error>),
     /// Exclude traffic of an application from the tunnel
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     AddSplitTunnelApp(ResponseTx<(), Error>, PathBuf),
     /// Remove application from list of apps to exclude from the tunnel
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     RemoveSplitTunnelApp(ResponseTx<(), Error>, PathBuf),
     /// Clear list of apps to exclude from the tunnel
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     ClearSplitTunnelApps(ResponseTx<(), Error>),
     /// Enable or disable split tunneling
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     SetSplitTunnelState(ResponseTx<(), Error>, bool),
     /// Returns all processes currently being excluded from the tunnel
     #[cfg(windows)]
@@ -384,11 +384,11 @@ pub(crate) enum InternalDaemonEvent {
     /// A geographical location has has been received from am.i.mullvad.net
     LocationEvent(LocationEventData),
     /// The split tunnel paths or state were updated.
-    #[cfg(target_os = "windows")]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 pub(crate) enum ExcludedPathsUpdate {
     SetState(bool),
     SetPaths(HashSet<PathBuf>),
@@ -774,7 +774,7 @@ where
             PersistentTargetState::new(&cache_dir).await
         };
 
-        #[cfg(windows)]
+        #[cfg(any(target_os = "windows", target_os = "macos"))]
         let exclude_paths = if settings.split_tunnel.enable_exclusions {
             settings
                 .split_tunnel
@@ -817,7 +817,7 @@ where
                     .map_err(Error::ApiConnectionModeError)?
                     .endpoint,
                 reset_firewall: *target_state != TargetState::Secured,
-                #[cfg(windows)]
+                #[cfg(any(target_os = "windows", target_os = "macos"))]
                 exclude_paths,
             },
             parameters_generator.clone(),
@@ -1003,7 +1003,7 @@ where
             } => self.handle_access_method_event(event, endpoint_active_tx),
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event),
             LocationEvent(location_data) => self.handle_location_event(location_data),
-            #[cfg(windows)]
+            #[cfg(any(target_os = "windows", target_os = "macos"))]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
         }
     }
@@ -1276,13 +1276,13 @@ where
             RemoveSplitTunnelProcess(tx, pid) => self.on_remove_split_tunnel_process(tx, pid),
             #[cfg(target_os = "linux")]
             ClearSplitTunnelProcesses(tx) => self.on_clear_split_tunnel_processes(tx),
-            #[cfg(windows)]
+            #[cfg(any(target_os = "windows", target_os = "macos"))]
             AddSplitTunnelApp(tx, path) => self.on_add_split_tunnel_app(tx, path),
-            #[cfg(windows)]
+            #[cfg(any(target_os = "windows", target_os = "macos"))]
             RemoveSplitTunnelApp(tx, path) => self.on_remove_split_tunnel_app(tx, path),
-            #[cfg(windows)]
+            #[cfg(any(target_os = "windows", target_os = "macos"))]
             ClearSplitTunnelApps(tx) => self.on_clear_split_tunnel_apps(tx),
-            #[cfg(windows)]
+            #[cfg(any(target_os = "windows", target_os = "macos"))]
             SetSplitTunnelState(tx, enabled) => self.on_set_split_tunnel_state(tx, enabled),
             #[cfg(windows)]
             GetSplitTunnelProcesses(tx) => self.on_get_split_tunnel_processes(tx),
@@ -1439,7 +1439,7 @@ where
         });
     }
 
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     async fn handle_new_excluded_paths(
         &mut self,
         update: ExcludedPathsUpdate,
@@ -1821,7 +1821,7 @@ where
     }
 
     /// Update the split app paths in both the settings and tunnel
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     fn set_split_tunnel_paths(
         &mut self,
         tx: ResponseTx<(), Error>,
@@ -1887,7 +1887,7 @@ where
         }
     }
 
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     fn on_add_split_tunnel_app(&mut self, tx: ResponseTx<(), Error>, path: PathBuf) {
         let settings = self.settings.to_settings();
 
@@ -1902,7 +1902,7 @@ where
         );
     }
 
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     fn on_remove_split_tunnel_app(&mut self, tx: ResponseTx<(), Error>, path: PathBuf) {
         let settings = self.settings.to_settings();
 
@@ -1917,7 +1917,7 @@ where
         );
     }
 
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     fn on_clear_split_tunnel_apps(&mut self, tx: ResponseTx<(), Error>) {
         let settings = self.settings.to_settings();
         let new_list = HashSet::new();
@@ -1929,7 +1929,7 @@ where
         );
     }
 
-    #[cfg(windows)]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     fn on_set_split_tunnel_state(&mut self, tx: ResponseTx<(), Error>, state: bool) {
         let settings = self.settings.to_settings();
         self.set_split_tunnel_paths(

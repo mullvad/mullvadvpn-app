@@ -214,9 +214,12 @@ impl TunnelState for DisconnectedState {
                 shared_values.bypass_socket(fd, done_tx);
                 SameState(self)
             }
-            #[cfg(windows)]
+            #[cfg(any(target_os = "windows", target_os = "macos"))]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
+                #[cfg(target_os = "windows")]
                 shared_values.split_tunnel.set_paths(&paths, result_tx);
+                #[cfg(target_os = "macos")]
+                let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
                 SameState(self)
             }
             None => {
