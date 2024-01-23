@@ -895,25 +895,28 @@ impl WireguardMonitor {
                     RequiredRoute::new(allowed_ip, node_v6.clone())
                 }
             });
-        #[cfg(not(target_os = "linux"))]
+        #[cfg(not(any(target_os = "linux", target_os = "macos")))]
         return iter;
 
         #[cfg(target_os = "linux")]
-        iter.map(|route| route.use_main_table(false))
-            .map(|route| Self::apply_route_mtu_for_multihop(route, config))
+        return iter.map(|route| route.use_main_table(false))
+            .map(|route| Self::apply_route_mtu_for_multihop(route, config));
+
+        #[cfg(target_os = "macos")]
+        iter.map(|route| Self::apply_route_mtu_for_multihop(route, config))
     }
 
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     fn apply_route_mtu_for_multihop(route: RequiredRoute, config: &Config) -> RequiredRoute {
         if !config.is_multihop() {
             route
         } else {
-            // Set route MTU by subtracting the WireGuard overhead from the tunnel MTU.
-            // NOTE: Somewhat incorrect since it doesn't account for packet padding/alignment?
+            // Set route MTU by subtracting the WireGuard overhead from the tunnel MTU. Plus
+            // some margin to make room for padding bytes.
             // TODO: Move consts to shared location
             const IPV4_HEADER_SIZE: u16 = 20;
             const IPV6_HEADER_SIZE: u16 = 40;
-            const WIREGUARD_HEADER_SIZE: u16 = 40;
+            const WIREGUARD_HEADER_SIZE: u16 = 40 + 15;
 
             let ip_overhead = match route.prefix.is_ipv4() {
                 true => IPV4_HEADER_SIZE,
