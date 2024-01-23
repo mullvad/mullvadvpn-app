@@ -11,7 +11,7 @@ mod settings {
                 direct: Some(settings.direct.into()),
                 mullvad_bridges: Some(settings.mullvad_bridges.into()),
                 access_method_settings: settings
-                    .access_method_settings
+                    .user_defined
                     .into_iter()
                     .map(|method| method.into())
                     .collect(),
@@ -38,7 +38,7 @@ mod settings {
                     ))
                     .and_then(access_method::AccessMethodSetting::try_from)?,
 
-                access_method_settings: settings
+                user_defined: settings
                     .access_method_settings
                     .iter()
                     .map(access_method::AccessMethodSetting::try_from)
