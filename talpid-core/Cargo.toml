@@ -53,6 +53,14 @@ subslice = "0.2"
 system-configuration = "0.5.1"
 hickory-proto = { git = "https://github.com/mullvad/hickory-dns", rev = "9e8f8c67fbcb6d2985503027362a3fb022529802" }
 hickory-server = { git = "https://github.com/mullvad/hickory-dns", rev = "9e8f8c67fbcb6d2985503027362a3fb022529802", features = ["resolver"] }
+talpid-platform-metadata = { path = "../talpid-platform-metadata" }
+talpid-time = { path = "../talpid-time" }
+pcap = { version = "*", features = ["capture-stream"] }
+pnet = "*"
+tun = { version = "0.5.5", features = ["async"] }
+nix = { version = "0.28", features = ["socket"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 [target.'cfg(windows)'.dependencies]
 bitflags = "1.2"
