@@ -13,7 +13,7 @@ import MullvadTypes
 
 public class TransportStrategy: Equatable {
     /// The different transports suggested by the strategy
-    public enum Transport {
+    public enum Transport: Equatable {
         /// Connecting a direct connection
         case direct
 
@@ -25,6 +25,19 @@ public class TransportStrategy: Equatable {
 
         /// Failing  to retrive transport
         case none
+
+        public static func == (lhs: Self, rhs: Self) -> Bool {
+            switch (lhs, rhs) {
+            case(.direct, .direct), (.none, .none):
+                return true
+            case let (.shadowsocks(lhsConfiguration), .shadowsocks(rhsConfiguration)):
+                return lhsConfiguration == rhsConfiguration
+            case let (.socks5(lhsConfiguration), .socks5(rhsConfiguration)):
+                return lhsConfiguration == rhsConfiguration
+            default:
+                return false
+            }
+        }
     }
 
     private let shadowsocksLoader: ShadowsocksLoaderProtocol

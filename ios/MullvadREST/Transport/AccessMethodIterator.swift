@@ -15,8 +15,11 @@ class AccessMethodIterator {
     private let dataSource: AccessMethodRepositoryDataSource
 
     private var index = 0
-    private var enabledConfigurations: [PersistentAccessMethod] = []
     private var cancellables = Set<Combine.AnyCancellable>()
+
+    private var enabledConfigurations: [PersistentAccessMethod] {
+        dataSource.fetchAll().filter { $0.isEnabled }
+    }
 
     private var lastReachableApiAccessId: UUID {
         lastReachableApiAccessCache.id
@@ -31,9 +34,8 @@ class AccessMethodIterator {
 
         self.dataSource
             .publisher
-            .sink { [weak self] configurations in
+            .sink { [weak self] _ in
                 guard let self else { return }
-                self.enabledConfigurations = configurations.filter { $0.isEnabled }
                 self.refreshCacheIfNeeded()
             }
             .store(in: &cancellables)
@@ -45,7 +47,7 @@ class AccessMethodIterator {
             index = firstIndex
         } else {
             /// When `firstIndex` is `nil`, that means the current configuration is not valid anymore
-            /// Invalidating cache by replacing the `current`  to the next enabled access method
+            /// Invalidating cache by replacing the `current` to the next enabled access method
             lastReachableApiAccessCache.id = pick().id
         }
     }
@@ -57,14 +59,15 @@ class AccessMethodIterator {
     }
 
     func pick() -> PersistentAccessMethod {
-        if enabledConfigurations.isEmpty {
-            /// Returning  `Default` strategy  when  all is disabled
+        let configurations = enabledConfigurations
+        if configurations.isEmpty {
+            /// Returning `Default` strategy  when  all is disabled
             return dataSource.directAccess
         } else {
             /// Picking the next `Enabled` configuration in order they are added
             /// And starting from the beginning when it reaches end
-            let circularIndex = index % enabledConfigurations.count
-            return enabledConfigurations[circularIndex]
+            let circularIndex = index % configurations.count
+            return configurations[circularIndex]
         }
     }
 }

@@ -238,23 +238,6 @@ class TransportStrategyTests: XCTestCase {
     }
 }
 
-extension TransportStrategy.Transport: Equatable {
-    public static func == (lhs: Self, rhs: Self) -> Bool {
-        switch (lhs, rhs) {
-        case(.direct, .direct), (.none, .none):
-            return true
-        case let (.shadowsocks(config1), .shadowsocks(config2)):
-            return config1.port == config2.port && config1.cipher == config2.cipher && config1.password == config2
-                .password
-        case let (.socks5(config1), .socks5(config2)):
-            return config1.proxyEndpoint == config2.proxyEndpoint && config1.username == config2.username && config1
-                .password == config2.password
-        default:
-            return false
-        }
-    }
-}
-
 private enum IOError: Error {
     case fileNotFound
 }
