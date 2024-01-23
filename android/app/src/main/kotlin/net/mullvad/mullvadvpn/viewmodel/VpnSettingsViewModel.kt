@@ -36,6 +36,7 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.util.isCustom
+import java.net.UnknownHostException
 
 sealed interface VpnSettingsSideEffect {
     data class ShowToast(val message: String) : VpnSettingsSideEffect
@@ -223,7 +224,7 @@ class VpnSettingsViewModel(
     private fun List<String>.asInetAddressList(): List<InetAddress> {
         return try {
             map { InetAddress.getByName(it) }
-        } catch (ex: Exception) {
+        } catch (ex: UnknownHostException) {
             Log.e("mullvad", "Error parsing the DNS address list.")
             emptyList()
         }
