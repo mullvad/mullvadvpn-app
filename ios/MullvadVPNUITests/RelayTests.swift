@@ -71,7 +71,6 @@ class RelayTests: BaseUITestCase {
         var requestError: Error?
         var requestResponse: URLResponse?
 
-            if let urlError = error as? URLError {
         let completionHandlerInvokedExpectation = expectation(
             description: "Completion handler for the request is invoked")
 
