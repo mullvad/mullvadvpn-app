@@ -7,6 +7,7 @@ import kotlinx.parcelize.Parcelize
 data class Settings(
     val relaySettings: RelaySettings,
     val obfuscationSettings: ObfuscationSettings,
+    val customLists: CustomListsSettings,
     val allowLan: Boolean,
     val autoConnect: Boolean,
     val tunnelOptions: TunnelOptions,

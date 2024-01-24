@@ -40,7 +40,7 @@ class SelectLocationViewModel(
                 relayListFilterUseCase.availableProviders(),
                 relayListFilterUseCase.selectedProviders()
             ) {
-                (relayCountries, relayItem),
+                (customList, relayCountries, selectedLocation),
                 searchTerm,
                 selectedOwnership,
                 allProviders,
@@ -54,7 +54,7 @@ class SelectLocationViewModel(
                         ?.size
 
                 val filteredRelayCountries =
-                    relayCountries.filterOnSearchTerm(searchTerm, relayItem)
+                    relayCountries.filterOnSearchTerm(searchTerm, selectedLocation)
 
                 SelectLocationUiState.Data(
                     searchTerm = searchTerm,
@@ -64,7 +64,7 @@ class SelectLocationViewModel(
                         if (filteredRelayCountries.isNotEmpty()) {
                             RelayListState.RelayList(
                                 countries = filteredRelayCountries,
-                                selectedRelay = relayItem
+                                selectedLocation = selectedLocation
                             )
                         } else {
                             RelayListState.Empty

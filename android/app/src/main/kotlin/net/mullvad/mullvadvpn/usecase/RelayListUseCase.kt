@@ -3,16 +3,18 @@ package net.mullvad.mullvadvpn.usecase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import net.mullvad.mullvadvpn.lib.common.util.toGeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
+import net.mullvad.mullvadvpn.relaylist.CustomRelayItemList
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
-import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
-import net.mullvad.mullvadvpn.relaylist.findItemForLocation
+import net.mullvad.mullvadvpn.relaylist.SelectedLocation
+import net.mullvad.mullvadvpn.relaylist.findItemForGeographicLocationConstraint
 import net.mullvad.mullvadvpn.relaylist.toRelayCountries
+import net.mullvad.mullvadvpn.relaylist.toRelayItemLists
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 
@@ -39,23 +41,57 @@ class RelayListUseCase(
                 settings?.relaySettings?.relayConstraints()?.providers ?: Constraint.Any()
             val relayCountries =
                 relayList.toRelayCountries(ownership = ownership, providers = providers)
+            val customLists =
+                settings?.customLists?.customLists?.toRelayItemLists(relayCountries) ?: emptyList()
             val selectedItem =
-                relayCountries.findSelectedRelayItem(
+                findSelectedRelayItem(
                     relaySettings = settings?.relaySettings,
+                    relayCountries = relayCountries,
+                    customLists = customLists
                 )
-            RelayList(relayCountries, selectedItem)
+            RelayList(customLists, relayCountries, selectedItem)
         }
 
-    fun selectedRelayItem(): Flow<RelayItem?> = relayListWithSelection().map { it.selectedItem }
+    fun selectedLocation(): Flow<SelectedLocation?> =
+        relayListWithSelection().map { it.selectedItem }
 
     fun fetchRelayList() {
         relayListListener.fetchRelayList()
     }
 
-    private fun List<RelayCountry>.findSelectedRelayItem(
+    private fun findSelectedRelayItem(
         relaySettings: RelaySettings?,
-    ): RelayItem? {
-        val location = relaySettings?.relayConstraints()?.location
-        return location?.let { this.findItemForLocation(location.toGeographicLocationConstraint()) }
+        relayCountries: List<RelayCountry>,
+        customLists: List<CustomRelayItemList>
+    ): SelectedLocation? {
+        val locationConstraint = relaySettings?.relayConstraints()?.location
+        return if (locationConstraint is Constraint.Only) {
+            when (val location = locationConstraint.value) {
+                is LocationConstraint.CustomList -> {
+                    customLists
+                        .firstOrNull { it.id == location.listId }
+                        ?.let { customList ->
+                            SelectedLocation(
+                                id = customList.id,
+                                name = customList.name,
+                                geographicLocationConstraint = null
+                            )
+                        }
+                }
+                is LocationConstraint.Location -> {
+                    relayCountries
+                        .findItemForGeographicLocationConstraint(location.location)
+                        ?.let { relayItem ->
+                            SelectedLocation(
+                                id = relayItem.code,
+                                name = relayItem.locationName,
+                                geographicLocationConstraint = relayItem.location
+                            )
+                        }
+                }
+            }
+        } else {
+            null
+        }
     }
 }

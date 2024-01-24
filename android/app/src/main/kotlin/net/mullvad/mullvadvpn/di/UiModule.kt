@@ -15,6 +15,7 @@ import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
+import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
@@ -25,6 +26,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
+import net.mullvad.mullvadvpn.usecase.CustomListsUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
@@ -98,6 +100,7 @@ val uiModule = module {
     }
     single { SettingsRepository(get()) }
     single { MullvadProblemReport(get()) }
+    single { CustomListsRepository(get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }
@@ -107,6 +110,7 @@ val uiModule = module {
     single { RelayListUseCase(get(), get()) }
     single { OutOfTimeUseCase(get(), get()) }
     single { ConnectivityUseCase(get()) }
+    single { CustomListsUseCase(get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
 

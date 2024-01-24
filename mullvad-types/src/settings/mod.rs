@@ -77,7 +77,6 @@ pub struct Settings {
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_state: BridgeState,
     /// All of the custom relay lists
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub custom_lists: CustomListsSettings,
     /// API access methods.
     #[cfg_attr(target_os = "android", jnix(skip))]

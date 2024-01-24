@@ -70,7 +70,7 @@ private fun PreviewSelectLocationScreen() {
             relayListState =
                 RelayListState.RelayList(
                     countries = listOf(RelayCountry("Country 1", "Code 1", false, emptyList())),
-                    selectedRelay = null,
+                    selectedLocation = null,
                 )
         )
     AppTheme {
@@ -170,13 +170,15 @@ fun SelectLocationScreen(
             if (
                 uiState is SelectLocationUiState.Data &&
                     uiState.relayListState is RelayListState.RelayList &&
-                    uiState.relayListState.selectedRelay != null
+                    uiState.relayListState.selectedLocation != null
             ) {
-                LaunchedEffect(uiState.relayListState.selectedRelay) {
+                LaunchedEffect(uiState.relayListState.selectedLocation) {
                     val index =
                         uiState.relayListState.countries.indexOfFirst { relayCountry ->
                             relayCountry.location.location.country ==
-                                uiState.relayListState.selectedRelay.location.location.country
+                                uiState.relayListState.selectedLocation.geographicLocationConstraint
+                                    ?.location
+                                    ?.country
                         }
 
                     lazyListState.scrollToItem(index)
@@ -231,7 +233,7 @@ private fun LazyListScope.relayList(
                 val country = relayListState.countries[index]
                 RelayLocationCell(
                     relay = country,
-                    selectedItem = relayListState.selectedRelay,
+                    selectedLocation = relayListState.selectedLocation,
                     onSelectRelay = onSelectRelay,
                     modifier = Modifier.animateContentSize()
                 )
