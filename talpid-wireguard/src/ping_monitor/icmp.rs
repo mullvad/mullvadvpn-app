@@ -78,7 +78,6 @@ impl Pinger {
         sock.bind_device(Some(interface_name.as_bytes()))
             .map_err(Error::SocketOp)?;
 
-        // TODO: Find a way to do it without unsafe code?
         if mtu_discover {
             set_mtu_discover(&sock);
         }
@@ -163,6 +162,7 @@ impl Pinger {
     }
 }
 
+// TODO: Find a way to do it without unsafe code?
 // TODO: Find a way to set this for windows
 // TODO: Move to unix.rs?
 fn set_mtu_discover(sock: &Socket) {
