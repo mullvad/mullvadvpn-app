@@ -24,8 +24,6 @@ use std::{
 };
 use talpid_routing as routing;
 use talpid_routing::{self, RequiredRoute};
-#[cfg(windows)]
-use talpid_tunnel::network_interface;
 #[cfg(not(windows))]
 use talpid_tunnel::tun_provider;
 use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
@@ -285,7 +283,7 @@ impl WireguardMonitor {
             obfuscator,
         };
 
-        let gateway = dbg!(config.ipv4_gateway);
+        let gateway = config.ipv4_gateway;
         let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
             gateway,
             #[cfg(any(target_os = "macos", target_os = "linux"))]
@@ -351,36 +349,28 @@ impl WireguardMonitor {
                 )
                 .await?;
             }
+            #[cfg(target_os = "linux")]
+            {
+                let iface_name_clone = iface_name.clone();
+                tokio::task::spawn(async move {
+                    tokio::time::sleep(Duration::from_secs(10)).await; // TODO: Delete this
+                    log::warn!("MTU detection");
+                    let mtu = get_mtu(
+                        gateway,
+                        #[cfg(any(target_os = "macos", target_os = "linux"))]
+                        iface_name_clone.clone(),
+                        dbg!(config.mtu),
+                    )
+                    .await
+                    .unwrap(); // TODO: detect real MTU
 
-            let iface_name_clone = iface_name.clone();
-            tokio::task::spawn(async move {
-                tokio::time::sleep(Duration::from_secs(10)).await; // TODO: Delete this
-                log::warn!("MTU detection");
-                let mtu = get_mtu(
-                    gateway,
-                    #[cfg(any(target_os = "macos", target_os = "linux"))]
-                    iface_name_clone.clone(),
-                    dbg!(config.mtu),
-                )
-                .await
-                .unwrap(); // TODO: detect real MTU
-
-                // let mtu = 900;
-                #[cfg(windows)]
-                if let Err(e) = network_interface::set_mtu(
-                    &iface_name_clone,
-                    mtu as u32,
-                    config.ipv6_gateway.is_some(),
-                ) {
-                    log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
-                };
-
-                // TODO: Set IPv6 too
-                #[cfg(not(windows))]
-                if let Err(e) = unix::set_mtu(&iface_name_clone, mtu as u32) {
-                    log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
-                };
-            });
+                    // TODO: Set IPv6 too
+                    #[cfg(target_os = "linux")]
+                    if let Err(e) = unix::set_mtu(&iface_name_clone, mtu as u32) {
+                        log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
+                    };
+                });
+            }
             let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
                 match connectivity_monitor.establish_connectivity(args.retry_attempt) {
                     Ok(true) => Ok(connectivity_monitor),
@@ -954,6 +944,7 @@ impl WireguardMonitor {
     }
 }
 
+#[cfg(target_os = "linux")]
 async fn get_mtu(
     gateway: std::net::Ipv4Addr,
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
@@ -1004,6 +995,7 @@ async fn get_mtu(
     Ok(largest_verified_mtu)
 }
 
+#[cfg(target_os = "linux")]
 fn mut_spacing(x_start: u16, x_end: u16, step_size: u16) -> Vec<u16> {
     if x_start > x_end {
         log::warn!("Setting MTU to {x_end} which is lower than");
