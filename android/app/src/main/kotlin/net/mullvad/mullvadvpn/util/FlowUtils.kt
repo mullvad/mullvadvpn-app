@@ -1,4 +1,5 @@
 @file:Suppress("MagicNumber")
+
 package net.mullvad.mullvadvpn.util
 
 import kotlinx.coroutines.Deferred
