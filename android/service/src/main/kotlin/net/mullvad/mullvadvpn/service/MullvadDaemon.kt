@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.model.AppVersionInfo
+import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceEvent
 import net.mullvad.mullvadvpn.model.DeviceListEvent
@@ -189,6 +190,18 @@ class MullvadDaemon(
         setQuantumResistantTunnel(daemonInterfaceAddress, quantumResistant)
     }
 
+    fun createCustomList(name: String): String {
+        return createCustomList(daemonInterfaceAddress, name)
+    }
+
+    fun deleteCustomList(id: String) {
+        deleteCustomList(daemonInterfaceAddress, id)
+    }
+
+    fun updateCustomList(customList: CustomList) {
+        updateCustomList(daemonInterfaceAddress, customList)
+    }
+
     fun onDestroy() {
         onSettingsChange.unsubscribeAll()
         onTunnelStateChange.unsubscribeAll()
@@ -297,6 +310,13 @@ class MullvadDaemon(
     )
 
     // Used by JNI
+
+    private external fun createCustomList(daemonInterfaceAddress: Long, name: String): String
+
+    private external fun deleteCustomList(daemonInterfaceAddress: Long, id: String)
+
+    private external fun updateCustomList(daemonInterfaceAddress: Long, customList: CustomList)
+
     @Suppress("unused")
     private fun notifyAppVersionInfoEvent(appVersionInfo: AppVersionInfo) {
         onAppVersionInfoChange?.invoke(appVersionInfo)

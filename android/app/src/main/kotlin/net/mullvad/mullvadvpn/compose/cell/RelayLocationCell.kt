@@ -43,6 +43,7 @@ import net.mullvad.mullvadvpn.relaylist.RelayCity
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayItemType
+import net.mullvad.mullvadvpn.relaylist.SelectedLocation
 
 @Composable
 @Preview
@@ -154,7 +155,7 @@ fun RelayLocationCell(
     modifier: Modifier = Modifier,
     activeColor: Color = MaterialTheme.colorScheme.selected,
     inactiveColor: Color = MaterialTheme.colorScheme.error,
-    selectedItem: RelayItem? = null,
+    selectedLocation: SelectedLocation? = null,
     onSelectRelay: (item: RelayItem) -> Unit = {}
 ) {
     val startPadding =
@@ -163,7 +164,7 @@ fun RelayLocationCell(
             RelayItemType.City -> Dimens.cityRowPadding
             RelayItemType.Relay -> Dimens.relayRowPadding
         }
-    val selected = selectedItem?.code == relay.code
+    val selected = selectedLocation?.id == relay.code
     val expanded =
         rememberSaveable(key = relay.expanded.toString()) { mutableStateOf(relay.expanded) }
     val backgroundColor =
@@ -277,7 +278,7 @@ fun RelayLocationCell(
                     relay.cities.forEach { relayCity ->
                         RelayLocationCell(
                             relay = relayCity,
-                            selectedItem = selectedItem,
+                            selectedLocation = selectedLocation,
                             onSelectRelay = onSelectRelay,
                             modifier = Modifier.animateContentSize()
                         )
@@ -287,7 +288,7 @@ fun RelayLocationCell(
                     relay.relays.forEach { relay ->
                         RelayLocationCell(
                             relay = relay,
-                            selectedItem = selectedItem,
+                            selectedLocation = selectedLocation,
                             onSelectRelay = onSelectRelay,
                             modifier = Modifier.animateContentSize()
                         )

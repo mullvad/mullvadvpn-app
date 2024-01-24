@@ -51,6 +51,7 @@ class ServiceEndpoint(
     val voucherRedeemer = VoucherRedeemer(this, accountCache)
 
     private val playPurchaseHandler = PlayPurchaseHandler(this)
+    private val customLists = CustomLists(this)
 
     private val deviceRepositoryBackend = DaemonDeviceDataSource(this)
 
@@ -81,6 +82,7 @@ class ServiceEndpoint(
         splitTunneling.onDestroy()
         voucherRedeemer.onDestroy()
         playPurchaseHandler.onDestroy()
+        customLists.onDestroy()
     }
 
     internal fun sendEvent(event: Event) {

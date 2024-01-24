@@ -1,3 +1,7 @@
 package net.mullvad.mullvadvpn.relaylist
 
-data class RelayList(val country: List<RelayCountry>, val selectedItem: RelayItem?)
+data class RelayList(
+    val customLists: List<CustomRelayItemList>,
+    val country: List<RelayCountry>,
+    val selectedItem: SelectedLocation?,
+)

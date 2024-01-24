@@ -65,6 +65,8 @@ sealed class Event : Message.EventMessage() {
 
     @Parcelize object VpnPermissionRequest : Event()
 
+    @Parcelize data class CreateCustomListResultEvent(val result: String) : Event()
+
     companion object {
         private const val MESSAGE_KEY = "event"
 

@@ -10,6 +10,7 @@ use mullvad_types::{
     version::AppVersionInfo,
     wireguard,
     wireguard::QuantumResistantState,
+    custom_list::CustomList,
 };
 
 #[derive(Debug, err_derive::Error)]
@@ -352,6 +353,45 @@ impl DaemonInterface {
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
             .map_err(|_| Error::UpdateSettings)
+    }
+
+    pub fn create_custom_list(
+        &self,
+        name: String,
+    ) -> Result<mullvad_types::custom_list::Id> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::CreateCustomList(tx, name))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::from)
+    }
+
+    pub fn delete_custom_list(
+        &self,
+        id: mullvad_types::custom_list::Id,
+    ) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::DeleteCustomList(tx, id))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::from)
+    }
+
+    pub fn update_custom_list(
+        &self,
+        custom_list: CustomList,
+    ) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::UpdateCustomList(tx, custom_list))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::from)
     }
 
     fn send_command(&self, command: DaemonCommand) -> Result<()> {

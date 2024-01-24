@@ -5,6 +5,7 @@ import android.os.Messenger
 import java.net.InetAddress
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
@@ -110,6 +111,12 @@ sealed class Request : Message.RequestMessage() {
         val ownership: Constraint<Ownership>,
         val providers: Constraint<Providers>
     ) : Request()
+
+    @Parcelize data class CreateCustomList(val name: String) : Request()
+
+    @Parcelize data class DeleteCustomList(val id: String) : Request()
+
+    @Parcelize data class UpdateCustomList(val customList: CustomList) : Request()
 
     companion object {
         private const val MESSAGE_KEY = "request"

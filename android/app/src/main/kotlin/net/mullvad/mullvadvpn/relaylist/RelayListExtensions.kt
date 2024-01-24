@@ -69,32 +69,26 @@ fun RelayList.toRelayCountries(
     return relayCountries.toList()
 }
 
-fun List<RelayCountry>.findItemForLocation(
-    constraint: Constraint<GeographicLocationConstraint>
-): RelayItem? {
-    return when (constraint) {
-        is Constraint.Any -> null
-        is Constraint.Only -> {
-            when (val location = constraint.value) {
-                is GeographicLocationConstraint.Country -> {
-                    this.find { country -> country.code == location.countryCode }
-                }
-                is GeographicLocationConstraint.City -> {
-                    val country = this.find { country -> country.code == location.countryCode }
+fun List<RelayCountry>.findItemForGeographicLocationConstraint(
+    location: GeographicLocationConstraint
+) =
+    when (location) {
+        is GeographicLocationConstraint.Country -> {
+            this.find { country -> country.code == location.countryCode }
+        }
+        is GeographicLocationConstraint.City -> {
+            val country = this.find { country -> country.code == location.countryCode }
 
-                    country?.cities?.find { city -> city.code == location.cityCode }
-                }
-                is GeographicLocationConstraint.Hostname -> {
-                    val country = this.find { country -> country.code == location.countryCode }
+            country?.cities?.find { city -> city.code == location.cityCode }
+        }
+        is GeographicLocationConstraint.Hostname -> {
+            val country = this.find { country -> country.code == location.countryCode }
 
-                    val city = country?.cities?.find { city -> city.code == location.cityCode }
+            val city = country?.cities?.find { city -> city.code == location.cityCode }
 
-                    city?.relays?.find { relay -> relay.name == location.hostname }
-                }
-            }
+            city?.relays?.find { relay -> relay.name == location.hostname }
         }
     }
-}
 
 /**
  * Filter and expand the list based on search terms If a country is matched, that country and all
@@ -104,7 +98,7 @@ fun List<RelayCountry>.findItemForLocation(
  */
 fun List<RelayCountry>.filterOnSearchTerm(
     searchTerm: String,
-    selectedItem: RelayItem?
+    selectedItem: SelectedLocation?
 ): List<RelayCountry> {
     return if (searchTerm.length >= MIN_SEARCH_LENGTH) {
         val filteredCountries = mutableMapOf<String, RelayCountry>()
@@ -201,10 +195,10 @@ private fun List<DaemonRelay>.filterValidRelays(
 
 /** Expand the parent(s), if any, for the current selected item */
 private fun List<RelayCountry>.expandItemForSelection(
-    selectedItem: RelayItem?
+    selectedItem: SelectedLocation?
 ): List<RelayCountry> {
     return selectedItem?.let {
-        when (val location = selectedItem.location) {
+        when (val location = selectedItem.geographicLocationConstraint) {
             is GeographicLocationConstraint.Country -> {
                 this
             }
@@ -236,6 +230,7 @@ private fun List<RelayCountry>.expandItemForSelection(
                     }
                 }
             }
+            else -> this
         }
     } ?: this
 }
