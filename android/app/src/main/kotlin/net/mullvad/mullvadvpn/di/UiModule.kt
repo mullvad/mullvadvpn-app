@@ -7,7 +7,6 @@ import android.os.Messenger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
-import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
@@ -67,7 +66,6 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import org.koin.dsl.onClose
 
 val uiModule = module {
     single<SharedPreferences>(named(APP_PREFERENCES_NAME)) {
@@ -78,7 +76,6 @@ val uiModule = module {
     single<String>(named(SELF_PACKAGE_NAME)) { androidContext().packageName }
 
     viewModel { SplitTunnelingViewModel(get(), get(), Dispatchers.Default) }
-    single { ApplicationsIconManager(get()) } onClose { it?.dispose() }
     single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
 
     single { (messenger: Messenger, dispatcher: EventDispatcher) ->

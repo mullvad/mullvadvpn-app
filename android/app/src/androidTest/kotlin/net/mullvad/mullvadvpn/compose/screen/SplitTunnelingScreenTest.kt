@@ -1,49 +1,32 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.graphics.Bitmap
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import de.mannodermaus.junit5.compose.createComposeExtension
 import io.mockk.MockKAnnotations
-import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verify
 import net.mullvad.mullvadvpn.applist.AppData
-import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
-import org.koin.core.context.loadKoinModules
-import org.koin.core.context.unloadKoinModules
-import org.koin.dsl.module
 
 @OptIn(ExperimentalTestApi::class)
 class SplitTunnelingScreenTest {
     @JvmField @RegisterExtension val composeExtension = createComposeExtension()
 
-    private val mockBitmap: Bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
-    private val testModule = module {
-        single {
-            mockk<ApplicationsIconManager>().apply {
-                every { getAppIcon(any()) } returns mockBitmap
-            }
-        }
-    }
-
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        loadKoinModules(testModule)
     }
 
     @AfterEach
     fun tearDown() {
-        unloadKoinModules(testModule)
         unmockkAll()
     }
 

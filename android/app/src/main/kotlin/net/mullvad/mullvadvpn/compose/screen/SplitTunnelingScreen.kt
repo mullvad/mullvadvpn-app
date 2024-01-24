@@ -23,7 +23,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.graphics.drawable.toBitmapOrNull
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
@@ -42,6 +41,7 @@ import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.util.getApplicationIconBitmapOrNull
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -93,7 +93,7 @@ fun SplitTunneling(navigator: DestinationsNavigator) {
         onIncludeAppClick = viewModel::onIncludeAppClick,
         onBackClick = navigator::navigateUp,
         onResolveIcon = { packageName ->
-            packageManager.getApplicationIcon(packageName).toBitmapOrNull()
+            packageManager.getApplicationIconBitmapOrNull(packageName)
         }
     )
 }
