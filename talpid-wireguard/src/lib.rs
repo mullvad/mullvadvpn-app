@@ -917,13 +917,14 @@ impl WireguardMonitor {
             // TODO: Move consts to shared location
             const IPV4_HEADER_SIZE: u16 = 20;
             const IPV6_HEADER_SIZE: u16 = 40;
-            const WIREGUARD_HEADER_SIZE: u16 = 40 + 15;
+            const WIREGUARD_HEADER_SIZE: u16 = 40;
+            const PADDING_BYTES_MARGIN: u16 = 15;
 
             let ip_overhead = match route.prefix.is_ipv4() {
                 true => IPV4_HEADER_SIZE,
                 false => IPV6_HEADER_SIZE,
             };
-            let mtu = config.mtu - ip_overhead - WIREGUARD_HEADER_SIZE;
+            let mtu = config.mtu - ip_overhead - WIREGUARD_HEADER_SIZE - PADDING_BYTES_MARGIN;
 
             route.mtu(mtu)
         }
