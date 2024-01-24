@@ -15,7 +15,7 @@ class EditAccessMethodCoordinator: Coordinator {
     let navigationController: UINavigationController
     let subject: CurrentValueSubject<AccessMethodViewModel, Never> = .init(AccessMethodViewModel())
     let accessMethodRepo: AccessMethodRepositoryProtocol
-    let proxyConfigurationTester: ProxyConfigurationTester
+    let proxyConfigurationTester: ProxyConfigurationTesterProtocol
     let methodIdentifier: UUID
 
     var onFinish: ((EditAccessMethodCoordinator) -> Void)?
@@ -23,7 +23,7 @@ class EditAccessMethodCoordinator: Coordinator {
     init(
         navigationController: UINavigationController,
         accessMethodRepo: AccessMethodRepositoryProtocol,
-        proxyConfigurationTester: ProxyConfigurationTester,
+        proxyConfigurationTester: ProxyConfigurationTesterProtocol,
         methodIdentifier: UUID
     ) {
         self.navigationController = navigationController

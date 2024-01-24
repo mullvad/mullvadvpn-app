@@ -42,6 +42,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     private var currentRoute: SettingsNavigationRoute?
     private var modalRoute: SettingsNavigationRoute?
     private let accessMethodRepository: AccessMethodRepositoryProtocol
+    private let proxyConfigurationTester: ProxyConfigurationTesterProtocol
 
     let navigationController: UINavigationController
 
@@ -66,11 +67,13 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     init(
         navigationController: UINavigationController,
         interactorFactory: SettingsInteractorFactory,
-        accessMethodRepository: AccessMethodRepositoryProtocol
+        accessMethodRepository: AccessMethodRepositoryProtocol,
+        proxyConfigurationTester: ProxyConfigurationTesterProtocol
     ) {
         self.navigationController = navigationController
         self.interactorFactory = interactorFactory
         self.accessMethodRepository = accessMethodRepository
+        self.proxyConfigurationTester = proxyConfigurationTester
     }
 
     /// Start the coordinator fllow.
@@ -255,7 +258,8 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         case .apiAccess:
             return .childCoordinator(ListAccessMethodCoordinator(
                 navigationController: navigationController,
-                accessMethodRepository: accessMethodRepository
+                accessMethodRepository: accessMethodRepository,
+                proxyConfigurationTester: proxyConfigurationTester
             ))
 
         case .ipOverride:
