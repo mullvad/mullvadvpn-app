@@ -127,6 +127,7 @@ impl Pinger {
         result
     }
 
+    #[cfg(target_os = "linux")]
     pub async fn receive_ping_response(&mut self, buf: &mut [u8]) -> Result<usize> {
         // TODO: pick out sequence number
         // TODO: verify payload?
