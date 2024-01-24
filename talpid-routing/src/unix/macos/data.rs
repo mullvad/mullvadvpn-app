@@ -1171,4 +1171,4 @@ fn test_failing_rtmsg() {
 }
 
 // Set MTU flag. See route.h
-const RTV_MTU: u32 = 1;
+const RTV_MTU: u32 = 0x1;
