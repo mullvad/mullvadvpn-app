@@ -6,7 +6,7 @@ import { colors } from '../../config.json';
 import log from '../../shared/logging';
 import { useWillExit } from '../lib/will-exit';
 import * as AppButton from './AppButton';
-import { measurements, tinyText } from './common-styles';
+import { measurements, normalText, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
@@ -165,6 +165,7 @@ const ModalAlertButtonContainer = styled.div({
 interface IModalAlertProps {
   type?: ModalAlertType;
   iconColor?: string;
+  title?: string;
   message?: string | Array<string>;
   buttons?: React.ReactNode[];
   gridButtons?: React.ReactNode[];
@@ -281,6 +282,7 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
                 {this.props.type && (
                   <ModalAlertIcon>{this.renderTypeIcon(this.props.type)}</ModalAlertIcon>
                 )}
+                {this.props.title && <ModalTitle>{this.props.title}</ModalTitle>}
                 {messages &&
                   messages.map((message) => <ModalMessage key={message}>{message}</ModalMessage>)}
                 {this.props.children}
@@ -349,7 +351,17 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
   };
 }
 
+const ModalTitle = styled.h1(normalText, {
+  color: colors.white,
+  fontWeight: 600,
+  margin: '18px 0 0 0',
+});
+
 export const ModalMessage = styled.span(tinyText, {
   color: colors.white80,
   marginTop: '16px',
+
+  [`${ModalTitle} ~ &&`]: {
+    marginTop: '6px',
+  },
 });
