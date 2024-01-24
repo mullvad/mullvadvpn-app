@@ -60,6 +60,7 @@ tasks.withType<DetektCreateBaselineTask>().configureEach { jvmTarget = "1.8" }
 
 allprojects {
     apply(plugin = Dependencies.Plugin.dependencyCheckId)
+    apply(plugin = Dependencies.Plugin.ktfmtId)
 
     repositories {
         google()
@@ -69,6 +70,12 @@ allprojects {
     configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
         failBuildOnCVSS = 0F // All severity levels
         suppressionFile = "${rootProject.projectDir}/config/dependency-check-suppression.xml"
+    }
+
+    configure<com.ncorti.ktfmt.gradle.KtfmtExtension> {
+        kotlinLangStyle()
+        maxWidth.set(100)
+        removeUnusedImports.set(true)
     }
 }
 
