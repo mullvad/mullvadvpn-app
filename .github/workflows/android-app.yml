@@ -243,6 +243,15 @@ jobs:
           build-root-directory: android
           execution-only-caches: true
 
+      - name: Run detekt
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          job-id: jdk17
+          arguments: detekt
+          gradle-version: wrapper
+          build-root-directory: android
+          execution-only-caches: true
+
       # Running the AGP lint here rather than in the separate lint workflow
       # (android-kotlin-format-check.yml) since it's easier to make use of the running container,
       # cache and previously ran tasks.
