@@ -954,7 +954,6 @@ async fn get_mtu(
         gateway,
         #[cfg(any(target_os = "macos", target_os = "linux"))]
         iface_name,
-        true,
     )
     .unwrap();
 

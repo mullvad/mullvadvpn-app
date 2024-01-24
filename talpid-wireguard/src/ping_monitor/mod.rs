@@ -24,12 +24,10 @@ pub trait Pinger: Send {
 pub fn new_pinger(
     addr: std::net::Ipv4Addr,
     #[cfg(any(target_os = "linux", target_os = "macos"))] interface_name: String,
-    mtu_detection: bool,
 ) -> Result<Box<dyn Pinger>, Error> {
     Ok(Box::new(imp::Pinger::new(
         addr,
         #[cfg(any(target_os = "linux", target_os = "macos"))]
         interface_name,
-        mtu_detection,
     )?))
 }
