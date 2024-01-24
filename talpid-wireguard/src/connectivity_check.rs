@@ -89,7 +89,6 @@ impl ConnectivityMonitor {
             addr,
             #[cfg(any(target_os = "macos", target_os = "linux"))]
             interface,
-            false,
         )
         .map_err(Error::PingError)?;
 

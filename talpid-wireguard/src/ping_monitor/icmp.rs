@@ -3,7 +3,7 @@ use rand::Rng;
 use socket2::{Domain, Protocol, Socket, Type};
 
 use std::{
-    io::{self, ErrorKind, Read, Write},
+    io::{self, Write},
     net::{Ipv4Addr, SocketAddr},
     thread,
     time::Duration,
@@ -67,7 +67,6 @@ impl Pinger {
     pub fn new(
         addr: Ipv4Addr,
         #[cfg(not(target_os = "windows"))] interface_name: String,
-        mtu_discover: bool,
     ) -> Result<Self> {
         let addr = SocketAddr::new(addr.into(), 0);
         let sock =
@@ -78,9 +77,6 @@ impl Pinger {
         sock.bind_device(Some(interface_name.as_bytes()))
             .map_err(Error::SocketOp)?;
 
-        if mtu_discover {
-            set_mtu_discover(&sock);
-        }
         // nix::sys::socket::setsockopt(fd, opt, val) // TODO: deleteme
 
         #[cfg(target_os = "macos")]
@@ -134,6 +130,8 @@ impl Pinger {
         // NOTE: This assumes abound peer address, which we do not for send
 
         // tokio::net::TcpSocket::from(value)
+
+        use std::io::Read;
         let mut attempt = 0;
         loop {
             // NOTE: This read statement seems to always read one entire ping response in its
@@ -142,7 +140,7 @@ impl Pinger {
                 Ok(size) => {
                     return Ok(size);
                 }
-                Err(e) if e.kind() == ErrorKind::WouldBlock => {
+                Err(e) if e.kind() == io::ErrorKind::WouldBlock => {
                     log::warn!("Retrying");
                     attempt += 1;
                     if attempt > 10 {
@@ -161,30 +159,6 @@ impl Pinger {
         }
         Ok(())
     }
-}
-
-// TODO: Find a way to do it without unsafe code?
-// TODO: Find a way to set this for windows
-// TODO: Move to unix.rs?
-fn set_mtu_discover(sock: &Socket) {
-    #[cfg(target_os = "linux")]
-    {
-        use libc::{setsockopt, IPPROTO_IP, IP_MTU_DISCOVER, IP_PMTUDISC_PROBE};
-        use std::os::fd::AsRawFd;
-
-        let raw_fd = AsRawFd::as_raw_fd(sock);
-        unsafe {
-            setsockopt(
-                raw_fd,
-                IPPROTO_IP,
-                IP_MTU_DISCOVER,
-                &IP_PMTUDISC_PROBE as *const i32 as *const libc::c_void,
-                std::mem::size_of_val(&IP_PMTUDISC_PROBE) as u32,
-            )
-        };
-    }
-    #[cfg(not(target_os = "linux"))]
-    log::warn!("Set IP_MTU_DISCOVER not unix")
 }
 
 impl super::Pinger for Pinger {
