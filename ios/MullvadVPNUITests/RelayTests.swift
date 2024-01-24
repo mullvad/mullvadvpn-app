@@ -68,23 +68,29 @@ class RelayTests: BaseUITestCase {
     private func canReachAdServingDomain() -> Bool {
         guard let url = URL(string: "http://\(adServingDomain)") else { return false }
 
-        let semaphore = DispatchSemaphore(value: 0)
-        var resultIndicatesDNSBlock = false
+        var requestError: Error?
+        var requestResponse: URLResponse?
+
+            if let urlError = error as? URLError {
+        let completionHandlerInvokedExpectation = expectation(
+            description: "Completion handler for the request is invoked")
 
         let task = URLSession.shared.dataTask(with: url) { _, response, error in
-            if let urlError = error as? URLError {
-                if urlError.code == .cannotFindHost && response == nil {
-                    resultIndicatesDNSBlock = true
-                }
-            }
-
-            semaphore.signal()
+            requestError = error
+            requestResponse = response
+            completionHandlerInvokedExpectation.fulfill()
         }
 
         task.resume()
 
-        _ = semaphore.wait(timeout: .now() + 10)
+        wait(for: [completionHandlerInvokedExpectation], timeout: 30)
 
-        return !resultIndicatesDNSBlock
+        if let urlError = requestError as? URLError {
+            if urlError.code == .cannotFindHost && requestResponse == nil {
+                return false
+            }
+        }
+
+        return true
     }
 }
