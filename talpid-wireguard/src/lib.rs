@@ -24,11 +24,11 @@ use std::{
 };
 use talpid_routing as routing;
 use talpid_routing::{self, RequiredRoute};
+#[cfg(windows)]
+use talpid_tunnel::network_interface;
 #[cfg(not(windows))]
 use talpid_tunnel::tun_provider;
-use talpid_tunnel::{
-    network_interface, tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata,
-};
+use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
 
 use ipnetwork::IpNetwork;
 use talpid_types::{
