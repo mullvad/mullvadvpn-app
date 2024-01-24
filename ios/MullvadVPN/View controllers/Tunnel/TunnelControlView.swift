@@ -118,6 +118,7 @@ final class TunnelControlView: UIView {
         backgroundColor = .clear
         directionalLayoutMargins = UIMetrics.contentLayoutMargins
         accessibilityContainerType = .semanticGroup
+        accessibilityIdentifier = .tunnelControlView
 
         addSubviews()
         addButtonHandlers()

@@ -12,23 +12,22 @@ import XCTest
 class Page {
     let app: XCUIApplication
     var pageAccessibilityIdentifier: AccessibilityIdentifier?
-    let defaultTimeout = 10.0
 
-    init(_ app: XCUIApplication) {
+    @discardableResult init(_ app: XCUIApplication) {
         self.app = app
-    }
-
-    public func enterText(_ text: String) -> Self {
-        app.typeText(text)
-        return self
     }
 
     public func waitForPageToBeShown() {
         if let pageAccessibilityIdentifier = self.pageAccessibilityIdentifier {
             XCTAssert(
-                self.app.otherElements[pageAccessibilityIdentifier.rawValue]
-                    .waitForExistence(timeout: defaultTimeout)
+                self.app.otherElements[pageAccessibilityIdentifier]
+                    .waitForExistence(timeout: BaseUITestCase.defaultTimeout)
             )
         }
+    }
+
+    @discardableResult public func enterText(_ text: String) -> Self {
+        app.typeText(text)
+        return self
     }
 }
