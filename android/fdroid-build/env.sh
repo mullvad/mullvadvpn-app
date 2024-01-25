@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Sourcing this file prepares the environment for building inside the F-Droid build server
 
 # Ensure Cargo tools are accessible
