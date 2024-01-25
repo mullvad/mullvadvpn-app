@@ -87,7 +87,7 @@ function build_unix {
 function build_android {
     echo "Building for android"
 
-    if is_docker_build $@; then
+    if is_docker_build "$@"; then
         ../building/container-run.sh android wireguard/libwg/build-android.sh
     else
         ./libwg/build-android.sh
@@ -95,8 +95,8 @@ function build_android {
 }
 
 function build_wireguard_go {
-    if is_android_build $@; then
-        build_android $@
+    if is_android_build "$@"; then
+        build_android "$@"
         return
     fi
 
@@ -113,4 +113,4 @@ function build_wireguard_go {
 # Ensure we are in the correct directory for the execution of this script
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$script_dir"
-build_wireguard_go $@
+build_wireguard_go "$@"

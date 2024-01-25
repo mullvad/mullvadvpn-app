@@ -59,7 +59,7 @@ echo "$NEW_APP_VERSION" > "$SCRIPT_DIR/.ci-logs/last-version.log"
 
 function nice_time {
     SECONDS=0
-    if $@; then
+    if "$@"; then
         result=0
     else
         result=$?
