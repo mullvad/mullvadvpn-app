@@ -23,7 +23,7 @@ INVALID_TEST_ACCOUNT_TOKEN="${INVALID_TEST_ACCOUNT_TOKEN:-}"
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --test-type)
-            if [[ ! -z ${2-} && "$2" =~ ^(app|mockapi|e2e)$ ]]; then
+            if [[ -n "${2-}" && "$2" =~ ^(app|mockapi|e2e)$ ]]; then
                 TEST_TYPE="$2"
             else
                 echo "Error: Bad or missing test type. Must be one of: app, mockapi, e2e"
@@ -32,7 +32,7 @@ while [[ "$#" -gt 0 ]]; do
             shift 2
             ;;
         --infra-flavor)
-            if [[ ! -z ${2-} && "$2" =~ ^(prod|stagemole)$ ]]; then
+            if [[ -n "${2-}" && "$2" =~ ^(prod|stagemole)$ ]]; then
                 INFRA_FLAVOR="$2"
             else
                 echo "Error: Bad or missing infra flavor. Must be one of: prod, stagemole"
@@ -41,7 +41,7 @@ while [[ "$#" -gt 0 ]]; do
             shift 2
             ;;
         --billing-flavor)
-            if [[ ! -z ${2-} && "$2" =~ ^(oss|play)$ ]]; then
+            if [[ -n "${2-}" && "$2" =~ ^(oss|play)$ ]]; then
                 BILLING_FLAVOR="$2"
             else
                 echo "Error: Bad or missing billing flavor. Must be one of: oss, play"
