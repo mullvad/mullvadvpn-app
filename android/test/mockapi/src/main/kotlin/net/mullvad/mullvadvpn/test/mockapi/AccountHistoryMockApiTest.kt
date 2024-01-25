@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.uiautomator.By
+import net.mullvad.mullvadvpn.compose.test.LOGIN_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
@@ -12,10 +14,10 @@ import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 
-class LogoutMockApiTest : MockApiTest() {
+class AccountHistoryMockApiTest : MockApiTest() {
 
     @Test
-    fun testLoginWithValidCredentialsToUnexpiredAccountAndLogout() {
+    fun testShowAccountHistory() {
         // Arrange
         val validAccountToken = "1234123412341234"
         apiDispatcher.apply {
@@ -35,8 +37,13 @@ class LogoutMockApiTest : MockApiTest() {
         app.ensureLoggedIn()
         app.clickAccountCog()
         app.clickActionButtonByText("Log out")
+        device.findObjectWithTimeout(By.res(LOGIN_INPUT_TEST_TAG)).click()
 
         // Assert
-        assertNotNull(device.findObjectWithTimeout(By.text("Login")))
+        assertNotNull(device.findObjectWithTimeout(By.text(validAccountToken.groupWithSpaces())))
+
+        // Try to login with the same account again
+        device.findObjectWithTimeout(By.text(validAccountToken.groupWithSpaces())).click()
+        app.ensureLoggedIn()
     }
 }
