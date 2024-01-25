@@ -27,12 +27,15 @@ function is_docker_build {
 }
 
 function unix_target_triple {
-    local platform="$(uname -s)"
+    local platform
+    platform="$(uname -s)"
     if [[ ("${platform}" == "Linux") ]]; then
-        local arch="$(uname -m)"
+        local arch
+        arch="$(uname -m)"
         echo "${arch}-unknown-linux-gnu"
     elif [[ ("${platform}" == "Darwin") ]]; then
-        local arch="$(uname -m)"
+        local arch
+        arch="$(uname -m)"
         if [[ ("${arch}" == "arm64") ]]; then
             arch="aarch64"
         fi
@@ -68,7 +71,8 @@ function build_unix {
                 export GOARCH=arm64
             fi
 
-            export CC="$(xcrun -sdk "$SDKROOT" --find clang) -arch $arch -isysroot $SDKROOT"
+            CC="$(xcrun -sdk "$SDKROOT" --find clang) -arch $arch -isysroot $SDKROOT"
+            export CC
             export CFLAGS="-isysroot $SDKROOT -arch $arch -I$SDKROOT/usr/include"
             export LD_LIBRARY_PATH="$SDKROOT/usr/lib"
             export CGO_CFLAGS="-isysroot $SDKROOT -arch $arch"
@@ -100,7 +104,8 @@ function build_wireguard_go {
         return
     fi
 
-    local platform="$(uname -s)";
+    local platform
+    platform="$(uname -s)";
     case  "$platform" in
         Linux*|Darwin*) build_unix "${1:-$(unix_target_triple)}";;
         *)
