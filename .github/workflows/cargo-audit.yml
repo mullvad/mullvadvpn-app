@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/cargo-audit.yml
       - Cargo.lock
+      - test/Cargo.lock
   schedule:
     # At 06:20 UTC every day. Will create an issue if a CVE is found.
     - cron: '20 6 * * *'
@@ -18,7 +19,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - uses: actions-rust-lang/audit@v1
+      - uses: actions-rust-lang/audit@v1.1.11
         name: Audit Rust Dependencies
         with:
+          file: Cargo.lock
           denyWarnings: true
+
+      - uses: actions-rust-lang/audit@v1.1.11
+        name: Audit testrunner Rust Dependencies
+        with:
+          file: test/Cargo.lock
+          denyWarnings: true
+          # Ignored audit issues. This list should be kept short, and effort should be
+          # put into removing items from the list.
+          # RUSTSEC-2023-0057,RUSTSEC-2023-0058 - Unsoundness in `inventory`.
+          # RUSTSEC-2020-0168 - `mach` is unmaintained. Can be fixed by upgrading `serialport`.
+          ignore: RUSTSEC-2023-0057,RUSTSEC-2023-0058,RUSTSEC-2020-0168
