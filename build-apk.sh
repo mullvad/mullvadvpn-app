@@ -21,7 +21,7 @@ BUILD_BUNDLE="no"
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
 SKIP_STRIPPING=${SKIP_STRIPPING:-"no"}
 
-while [ ! -z "${1:-""}" ]; do
+while [ -n "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
         BUILD_TYPE="debug"
         GRADLE_BUILD_TYPE="debug"
