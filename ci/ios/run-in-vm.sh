@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # This takes the following positional arguments 
 # 1. tart VM name
 # 2. Script to execute in the VM

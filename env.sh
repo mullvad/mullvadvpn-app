@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # shellcheck shell=bash
 #
 # Sourcing this file should set up the environment to build the app
