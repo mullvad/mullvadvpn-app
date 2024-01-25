@@ -149,7 +149,6 @@ class RedeemVoucherDialogTest {
         }
 
     companion object {
-        private const val REDEEM_BUTTON_TEXT = "Redeem"
         private const val CANCEL_BUTTON_TEXT = "Cancel"
         private const val GOT_IT_BUTTON_TEXT = "Got it!"
         private const val DUMMY_VOUCHER = "DUMMY____VOUCHER"
