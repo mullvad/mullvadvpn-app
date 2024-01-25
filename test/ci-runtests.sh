@@ -122,7 +122,8 @@ function download_app_package {
         package_repo="${BUILD_RELEASE_REPOSITORY}"
     fi
 
-    local filename=$(get_app_filename "$version" "$os")
+    local filename
+    filename=$(get_app_filename "$version" "$os")
     local url="${package_repo}/$version/$filename"
 
     mkdir -p "$PACKAGES_DIR"
@@ -170,7 +171,8 @@ function download_e2e_executable {
         package_repo="${BUILD_RELEASE_REPOSITORY}"
     fi
 
-    local filename=$(get_e2e_filename "$version" "$os")
+    local filename
+    filename=$(get_e2e_filename "$version" "$os")
     local url="${package_repo}/$version/additional-files/$filename"
 
     mkdir -p "$PACKAGES_DIR"
@@ -185,8 +187,10 @@ function download_e2e_executable {
 function run_tests_for_os {
     local os=$1
 
-    local prev_filename=$(get_app_filename "$OLD_APP_VERSION" "$os")
-    local cur_filename=$(get_app_filename "$NEW_APP_VERSION" "$os")
+    local prev_filename
+    prev_filename=$(get_app_filename "$OLD_APP_VERSION" "$os")
+    local cur_filename
+    cur_filename=$(get_app_filename "$NEW_APP_VERSION" "$os")
 
     rm -f "$SCRIPT_DIR/.ci-logs/${os}_report"
 

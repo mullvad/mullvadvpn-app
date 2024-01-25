@@ -46,11 +46,12 @@ function convert_image() {
 
     local source_image="$1"
     local dpi_config="$2"
-
+    local destination_image
+    
     if (( $# >= 3 )); then
-        local destination_image="$3"
+        destination_image="$3"
     else
-        local destination_image="$(basename "$source_image" .svg | sed -e 's/-/_/g')"
+        destination_image="$(basename "$source_image" .svg | sed -e 's/-/_/g')"
     fi
 
     if (( $# >= 4 )); then
@@ -59,8 +60,10 @@ function convert_image() {
         local destination_dir="drawable"
     fi
 
-    local dpi="$(echo "$dpi_config" | cut -f1 -d'-')"
-    local size="$(echo "$dpi_config" | cut -f2 -d'-')"
+    local dpi
+    dpi="$(echo "$dpi_config" | cut -f1 -d'-')"
+    local size
+    size="$(echo "$dpi_config" | cut -f2 -d'-')"
 
     local dpi_dir="../lib/resource/src/main/res/${destination_dir}-${dpi}"
 
