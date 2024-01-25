@@ -11,6 +11,7 @@ TOOLCHAINS_DIR="$HOME/android-ndk-toolchains"
 curl -sf -L https://sh.rustup.rs > /tmp/rustup.sh
 chmod +x /tmp/rustup.sh
 /tmp/rustup.sh -y
+# shellcheck source=/dev/null
 source "$HOME/.cargo/env"
 rustup set profile minimal
 rustup target add \
