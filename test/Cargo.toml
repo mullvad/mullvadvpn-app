@@ -19,9 +19,6 @@ rust_2018_idioms = "deny"
 [workspace.lints.clippy]
 unused_async = "deny"
 
-[patch.crates-io]
-serialport = { git = "https://github.com/mullvad/serialport-rs", rev = "1401c9d39e4a89685e3506a7160869b2c8e9ceb0" }
-
 [workspace.dependencies]
 futures = "0.3"
 tokio = { version = "1.8", features = ["macros", "rt", "process", "time", "fs", "io-util", "rt-multi-thread"] }
