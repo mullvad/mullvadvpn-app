@@ -2,7 +2,8 @@
 set -eu
 shopt -s nullglob
 
-readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly SCRIPT_DIR
 readonly REPO_DIR="$SCRIPT_DIR/.."
 
 # In the CI environment we would like to import trusted public keys from a file,

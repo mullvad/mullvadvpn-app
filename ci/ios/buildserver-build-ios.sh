@@ -92,7 +92,8 @@ function run_build_loop() {
         run_git tag | xargs git tag -d > /dev/null
 
         run_git fetch --prune --tags 2> /dev/null || continue
-        local tags=( $(run_git tag | grep "$TAG_PATTERN_TO_BUILD") )
+        local tags
+        tags=( $(run_git tag | grep "$TAG_PATTERN_TO_BUILD") )
 
         for tag in "${tags[@]}"; do
           build_ref "refs/tags/$tag"
