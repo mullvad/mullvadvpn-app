@@ -69,6 +69,8 @@ class AddAccessMethodViewController: UIViewController, UITableViewDelegate {
         configureTableView()
         configureNavigationItem()
         configureDataSource()
+
+        LocalNetworkProbe().triggerLocalNetworkPrivacyAlert()
     }
 
     // MARK: - UITableViewDelegate
