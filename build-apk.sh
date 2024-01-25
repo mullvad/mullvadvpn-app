@@ -103,7 +103,7 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     esac
 
     echo "Building mullvad-daemon for $TARGET"
-    cargo build $CARGO_ARGS --target "$TARGET" --package mullvad-jni
+    cargo build "$CARGO_ARGS" --target "$TARGET" --package mullvad-jni
 
     STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/llvm-strip"
     TARGET_LIB_PATH="$SCRIPT_DIR/android/app/build/extraJni/$ABI/libmullvad_jni.so"
@@ -117,7 +117,7 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
 done
 
 echo "Updating relays.json..."
-cargo run --bin relay_list $CARGO_ARGS > build/relays.json
+cargo run --bin relay_list "$CARGO_ARGS" > build/relays.json
 
 cd "$SCRIPT_DIR/android"
 $GRADLE_CMD --console plain "${GRADLE_TASKS[@]}"
