@@ -71,7 +71,6 @@ where
         self.settings
             .try_update(|settings| -> Result<(), Error> {
                 settings.api_access_methods.remove(&access_method)?;
-                ensure_direct_is_enabled(settings);
                 Ok(())
             })
             .await
@@ -108,7 +107,8 @@ where
         // Toggle the enabled status if needed
         if !access_method.enabled() {
             access_method.enable();
-            self.update_access_method_inner(&access_method).await?
+            self.update_access_method_inner(access_method.clone())
+                .await?
         }
         // Set `access_method` as the next access method to use
         self.connection_modes_handler
@@ -141,7 +141,7 @@ where
         &mut self,
         access_method_update: AccessMethodSetting,
     ) -> Result<(), Error> {
-        self.update_access_method_inner(&access_method_update)
+        self.update_access_method_inner(access_method_update.clone())
             .await?;
 
         if self.is_in_use(access_method_update.get_id()).await? {
@@ -168,17 +168,14 @@ where
     /// existing, in-use setting needs to be re-set.
     async fn update_access_method_inner(
         &mut self,
-        access_method_update: &AccessMethodSetting,
+        access_method_update: AccessMethodSetting,
     ) -> Result<(), Error> {
         let settings_update = |settings: &mut Settings| {
-            if let Some(access_method) = settings
-                .api_access_methods
-                .iter_mut()
-                .find(|setting| setting.get_id() == access_method_update.get_id())
-            {
-                *access_method = access_method_update.clone();
-            }
-            ensure_direct_is_enabled(settings);
+            let target = access_method_update.get_id();
+            settings.api_access_methods.update(
+                |access_method| access_method.get_id() == target,
+                |_| access_method_update,
+            );
         };
 
         self.settings
@@ -292,22 +289,12 @@ where
                         // disabled all access methods. If we ever get into this
                         // state, we should default to using the direct access
                         // method.
-                        let default = access_method::Settings::direct();
+                        let default = access_method::Settings::create_direct();
                         handle.update_access_methods(vec![default]).await.expect("Failed to create the data structure responsible for managing access methods");
                     }
                 }
             });
         };
         self
-    }
-}
-
-/// This function checks if the current settings is about to disable the last
-/// remaining enabled access method, which would cause an inconsistent state in
-/// the daemon's settings. In that case, the `Direct` access method is
-/// re-enabled.
-fn ensure_direct_is_enabled(settings: &mut Settings) {
-    if settings.api_access_methods.collect_enabled().is_empty() {
-        settings.api_access_methods.direct.enable();
     }
 }
