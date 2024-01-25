@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useId, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
@@ -33,14 +33,9 @@ interface SettingsGroupContext {
 
 const settingsGroupContext = React.createContext<SettingsGroupContext>({});
 
-let keyCounter = 0;
-function getErrorKey() {
-  return ++keyCounter;
-}
-
 export function useSettingsGroupContext() {
   const { setError, unsetError } = useContext(settingsGroupContext);
-  const key = useMemo(() => `error-${getErrorKey()}`, []);
+  const key = useId();
 
   const reportError = useCallback(
     (errorMessage: string) => {
