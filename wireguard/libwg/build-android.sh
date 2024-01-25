@@ -4,11 +4,11 @@ set -eu
 
 # Ensure we are in the correct directory for the execution of this script
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd $script_dir
+cd "$script_dir"
 
 # Keep a GOPATH in the build directory to maintain a cache of downloaded libraries
 export GOPATH=$script_dir/../../build/android-go-path/
-mkdir -p $GOPATH
+mkdir -p "$GOPATH"
 
 ANDROID_STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/llvm-strip"
 
@@ -62,4 +62,4 @@ for arch in ${ARCHITECTURES:-armv7 aarch64 x86_64 i686}; do
 done
 
 # ensure `git clean -fd` does not require root permissions
-find $GOPATH -exec chmod +rw {} \;
+find "$GOPATH" -exec chmod +rw {} \;

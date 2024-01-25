@@ -17,7 +17,7 @@ cd ~/build/ios
 rm -r Build
 
 # Instantiate Xcconfig templates.
-for file in ./Configurations/*.template ; do cp $file ${file//.template/} ; done
+for file in ./Configurations/*.template ; do cp "$file" "${file//.template/}" ; done
 
 IOS_PROVISIONING_PROFILES_DIR=~/provisioning-profiles \
     PATH=/usr/local/go/bin:$PATH \

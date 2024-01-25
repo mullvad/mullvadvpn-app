@@ -82,7 +82,7 @@ function is_dev_version {
 function get_app_filename {
     local version=$1
     local os=$2
-    if is_dev_version $version; then
+    if is_dev_version "$version"; then
         # only save 6 chars of the hash
         local commit="${BASH_REMATCH[3]}"
         version="${BASH_REMATCH[1]}${commit}"
@@ -116,19 +116,19 @@ function download_app_package {
     local os=$2
     local package_repo=""
 
-    if is_dev_version $version; then
+    if is_dev_version "$version"; then
         package_repo="${BUILD_DEV_REPOSITORY}"
     else
         package_repo="${BUILD_RELEASE_REPOSITORY}"
     fi
 
-    local filename=$(get_app_filename $version $os)
+    local filename=$(get_app_filename "$version" "$os")
     local url="${package_repo}/$version/$filename"
 
     mkdir -p "$PACKAGES_DIR"
     if [[ ! -f "$PACKAGES_DIR/$filename" ]]; then
         echo "Downloading build for $version ($os) from $url"
-        curl -sf -o "$PACKAGES_DIR/$filename" $url
+        curl -sf -o "$PACKAGES_DIR/$filename" "$url"
     else
         echo "Found build for $version ($os)"
     fi
@@ -137,7 +137,7 @@ function download_app_package {
 function get_e2e_filename {
     local version=$1
     local os=$2
-    if is_dev_version $version; then
+    if is_dev_version "$version"; then
         # only save 6 chars of the hash
         local commit="${BASH_REMATCH[3]}"
         version="${BASH_REMATCH[1]}${commit}"
@@ -164,19 +164,19 @@ function download_e2e_executable {
     local os=$2
     local package_repo=""
 
-    if is_dev_version $version; then
+    if is_dev_version "$version"; then
         package_repo="${BUILD_DEV_REPOSITORY}"
     else
         package_repo="${BUILD_RELEASE_REPOSITORY}"
     fi
 
-    local filename=$(get_e2e_filename $version $os)
+    local filename=$(get_e2e_filename "$version" "$os")
     local url="${package_repo}/$version/additional-files/$filename"
 
-    mkdir -p $PACKAGES_DIR
+    mkdir -p "$PACKAGES_DIR"
     if [[ ! -f "$PACKAGES_DIR/$filename" ]]; then
         echo "Downloading e2e executable for $version ($os) from $url"
-        curl -sf -o "$PACKAGES_DIR/$filename" $url
+        curl -sf -o "$PACKAGES_DIR/$filename" "$url"
     else
         echo "Found e2e executable for $version ($os)"
     fi
@@ -185,8 +185,8 @@ function download_e2e_executable {
 function run_tests_for_os {
     local os=$1
 
-    local prev_filename=$(get_app_filename $OLD_APP_VERSION $os)
-    local cur_filename=$(get_app_filename $NEW_APP_VERSION $os)
+    local prev_filename=$(get_app_filename "$OLD_APP_VERSION" "$os")
+    local cur_filename=$(get_app_filename "$NEW_APP_VERSION" "$os")
 
     rm -f "$SCRIPT_DIR/.ci-logs/${os}_report"
 
@@ -203,10 +203,10 @@ echo "**********************************"
 echo "* Downloading app packages"
 echo "**********************************"
 
-mkdir -p $PACKAGES_DIR
-nice_time download_app_package $OLD_APP_VERSION $TEST_OS
-nice_time download_app_package $NEW_APP_VERSION $TEST_OS
-nice_time download_e2e_executable $NEW_APP_VERSION $TEST_OS
+mkdir -p "$PACKAGES_DIR"
+nice_time download_app_package "$OLD_APP_VERSION" "$TEST_OS"
+nice_time download_app_package "$NEW_APP_VERSION" "$TEST_OS"
+nice_time download_e2e_executable "$NEW_APP_VERSION" "$TEST_OS"
 
 echo "**********************************"
 echo "* Building test runner"
