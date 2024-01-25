@@ -13,7 +13,6 @@ import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlin.reflect.KClass
-import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.lib.ipc.Request
@@ -22,8 +21,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class ServiceConnectionDeviceDataSourceTest {
-    private val tracker = JobTracker()
-
     @MockK private lateinit var mockedMainLooper: Looper
 
     @MockK private lateinit var mockedDispatchingHandler: EventDispatcher

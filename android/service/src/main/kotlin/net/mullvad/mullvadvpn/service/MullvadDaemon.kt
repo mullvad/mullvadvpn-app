@@ -296,30 +296,44 @@ class MullvadDaemon(
         quantumResistant: QuantumResistantState
     )
 
+    // Used by JNI
+    @Suppress("unused")
     private fun notifyAppVersionInfoEvent(appVersionInfo: AppVersionInfo) {
         onAppVersionInfoChange?.invoke(appVersionInfo)
     }
 
+    // Used by JNI
+    @Suppress("unused")
     private fun notifyRelayListEvent(relayList: RelayList) {
         onRelayListChange?.invoke(relayList)
     }
 
+    // Used by JNI
+    @Suppress("unused")
     private fun notifySettingsEvent(settings: Settings) {
         onSettingsChange.notify(settings)
     }
 
+    // Used by JNI
+    @Suppress("unused")
     private fun notifyTunnelStateEvent(event: TunnelState) {
         onTunnelStateChange.notify(event)
     }
 
+    // Used by JNI
+    @Suppress("unused")
     private fun notifyDaemonStopped() {
         onDaemonStopped?.invoke()
     }
 
+    // Used by JNI
+    @Suppress("unused")
     private fun notifyDeviceEvent(event: DeviceEvent) {
         _deviceStateUpdates.tryEmit(event.newState)
     }
 
+    // Used by JNI
+    @Suppress("unused")
     private fun notifyRemoveDeviceEvent(event: RemoveDeviceEvent) {
         _deviceListUpdates.tryEmit(DeviceListEvent.Available(event.accountToken, event.newDevices))
     }
