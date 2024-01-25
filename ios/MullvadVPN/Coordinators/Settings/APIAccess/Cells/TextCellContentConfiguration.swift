@@ -19,6 +19,9 @@ struct TextCellContentConfiguration: UIContentConfiguration, Equatable {
     /// The text input filter that can be used to prevent user from entering illegal characters.
     var inputFilter: TextInputFilter = .allowAll
 
+    /// The maximum input length.
+    var maxLength: Int?
+
     /// The text field placeholder.
     var placeholder: String?
 
@@ -32,7 +35,7 @@ struct TextCellContentConfiguration: UIContentConfiguration, Equatable {
     var textFieldProperties = TextFieldProperties()
 
     /// The content view layout margins.
-    var directionalLayoutMargins: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.insetLayoutMargins
+    var directionalLayoutMargins: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.apiAccessInsetLayoutMargins
 
     func makeContentView() -> UIView & UIContentView {
         return TextCellContentView(configuration: self)

@@ -11,27 +11,28 @@ import UIKit
 
 /// The view controller providing the interface for editing the existing access method.
 class EditAccessMethodViewController: UITableViewController {
-    private let subject: CurrentValueSubject<AccessMethodViewModel, Never>
-    private var validationError: AccessMethodValidationError?
-    private let interactor: EditAccessMethodInteractorProtocol
-    private var cancellables = Set<AnyCancellable>()
-    private var dataSource: UITableViewDiffableDataSource<
+    typealias EditAccessMethodDataSource = UITableViewDiffableDataSource<
         EditAccessMethodSectionIdentifier,
         EditAccessMethodItemIdentifier
-    >?
-    private lazy var saveBarButton: UIBarButtonItem = {
-        let barButton = UIBarButtonItem(systemItem: .save, primaryAction: UIAction { [weak self] _ in
-            self?.onSave()
-        })
-        barButton.style = .done
-        return barButton
-    }()
+    >
+
+    private let subject: CurrentValueSubject<AccessMethodViewModel, Never>
+    private let interactor: EditAccessMethodInteractorProtocol
+    private var alertPresenter: AlertPresenter
+    private var cancellables = Set<AnyCancellable>()
+    private var dataSource: EditAccessMethodDataSource?
 
     weak var delegate: EditAccessMethodViewControllerDelegate?
 
-    init(subject: CurrentValueSubject<AccessMethodViewModel, Never>, interactor: EditAccessMethodInteractorProtocol) {
+    init(
+        subject: CurrentValueSubject<AccessMethodViewModel, Never>,
+        interactor: EditAccessMethodInteractorProtocol,
+        alertPresenter: AlertPresenter
+    ) {
         self.subject = subject
         self.interactor = interactor
+        self.alertPresenter = alertPresenter
+
         super.init(style: .insetGrouped)
     }
 
@@ -44,10 +45,20 @@ class EditAccessMethodViewController: UITableViewController {
 
         view.backgroundColor = .secondaryColor
         tableView.backgroundColor = .secondaryColor
+        navigationItem.largeTitleDisplayMode = .never
+
+        isModalInPresentation = true
 
         configureDataSource()
         configureNavigationItem()
     }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        interactor.cancelProxyConfigurationTest()
+    }
+
+    // MARK: - UITableViewDelegate
 
     override func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
         guard let itemIdentifier = dataSource?.itemIdentifier(for: indexPath) else { return false }
@@ -58,8 +69,30 @@ class EditAccessMethodViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let itemIdentifier = dataSource?.itemIdentifier(for: indexPath) else { return }
 
-        if case .proxyConfiguration = itemIdentifier {
-            delegate?.controllerShouldShowProxyConfiguration(self)
+        if case .methodSettings = itemIdentifier {
+            delegate?.controllerShouldShowMethodSettings(self)
+        }
+    }
+
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UIMetrics.SettingsCell.apiAccessCellHeight
+    }
+
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return nil
+    }
+
+    // Header height shenanigans to avoid extra spacing in testing sections when testing is NOT ongoing.
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
+
+        switch sectionIdentifier {
+        case .enableMethod, .methodSettings, .deleteMethod, .testMethod:
+            return UITableView.automaticDimension
+        case .testingStatus:
+            return subject.value.testingStatus == .initial ? 0 : UITableView.automaticDimension
+        case .cancelTest:
+            return 0
         }
     }
 
@@ -71,12 +104,32 @@ class EditAccessMethodViewController: UITableViewController {
             .dequeueReusableView(withIdentifier: AccessMethodHeaderFooterReuseIdentifier.primary)
         else { return nil }
 
-        var contentConfiguration = UIListContentConfiguration.mullvadGroupedFooter()
+        var contentConfiguration = UIListContentConfiguration.mullvadGroupedFooter(tableStyle: tableView.style)
         contentConfiguration.text = sectionFooterText
 
         headerView.contentConfiguration = contentConfiguration
 
         return headerView
+    }
+
+    // Footer height shenanigans to avoid extra spacing in testing sections when testing is NOT ongoing.
+    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
+        let marginToDeleteMethodItem: CGFloat = 24
+
+        switch sectionIdentifier {
+        case .enableMethod, .methodSettings, .deleteMethod, .testMethod:
+            return UITableView.automaticDimension
+        case .testingStatus:
+            switch subject.value.testingStatus {
+            case .initial, .inProgress:
+                return 0
+            case .succeeded, .failed:
+                return marginToDeleteMethodItem
+            }
+        case .cancelTest:
+            return subject.value.testingStatus == .inProgress ? marginToDeleteMethodItem : 0
+        }
     }
 
     // MARK: - Cell configuration
@@ -88,18 +141,18 @@ class EditAccessMethodViewController: UITableViewController {
         configureBackground(cell: cell, itemIdentifier: itemIdentifier)
 
         switch itemIdentifier {
-        case .name:
-            configureName(cell, itemIdentifier: itemIdentifier)
         case .testMethod:
             configureTestMethod(cell, itemIdentifier: itemIdentifier)
+        case .cancelTest:
+            configureCancelTest(cell, itemIdentifier: itemIdentifier)
         case .testingStatus:
             configureTestingStatus(cell, itemIdentifier: itemIdentifier)
         case .deleteMethod:
             configureDeleteMethod(cell, itemIdentifier: itemIdentifier)
-        case .useIfAvailable:
-            configureUseIfAvailable(cell, itemIdentifier: itemIdentifier)
-        case .proxyConfiguration:
-            configureProxyConfiguration(cell, itemIdentifier: itemIdentifier)
+        case .enableMethod:
+            configureEnableMethod(cell, itemIdentifier: itemIdentifier)
+        case .methodSettings:
+            configureMethodSettings(cell, itemIdentifier: itemIdentifier)
         }
 
         return cell
@@ -113,29 +166,11 @@ class EditAccessMethodViewController: UITableViewController {
             return
         }
 
-        var backgroundConfiguration = UIBackgroundConfiguration.mullvadListGroupedCell()
-
-        if case .proxyConfiguration = itemIdentifier, let validationError,
-           validationError.containsProxyConfigurationErrors(selectedMethod: subject.value.method) {
-            backgroundConfiguration.applyValidationErrorStyle()
-        }
-
-        cell.setAutoAdaptingBackgroundConfiguration(backgroundConfiguration, selectionType: .dimmed)
-    }
-
-    private func configureName(_ cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
-        var contentConfiguration = TextCellContentConfiguration()
-        contentConfiguration.text = itemIdentifier.text
-        contentConfiguration.setPlaceholder(type: .optional)
-        contentConfiguration.textFieldProperties = .withAutoResignAndDoneReturnKey()
-        contentConfiguration.inputText = subject.value.name
-        contentConfiguration.editingEvents.onChange = subject.bindTextAction(to: \.name)
-        cell.contentConfiguration = contentConfiguration
+        cell.setAutoAdaptingBackgroundConfiguration(.mullvadListGroupedCell(), selectionType: .dimmed)
     }
 
     private func configureTestMethod(_ cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
         var contentConfiguration = ButtonCellContentConfiguration()
-        contentConfiguration.style = .tableInsetGroupedSuccess
         contentConfiguration.text = itemIdentifier.text
         contentConfiguration.isEnabled = subject.value.testingStatus != .inProgress
         contentConfiguration.primaryAction = UIAction { [weak self] _ in
@@ -144,21 +179,36 @@ class EditAccessMethodViewController: UITableViewController {
         cell.contentConfiguration = contentConfiguration
     }
 
-    private func configureTestingStatus(_ cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
-        var contentConfiguration = MethodTestingStatusCellContentConfiguration()
-        contentConfiguration.sheetConfiguration = .init(status: subject.value.testingStatus.sheetStatus)
+    private func configureCancelTest(_ cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
+        var contentConfiguration = ButtonCellContentConfiguration()
+        contentConfiguration.text = itemIdentifier.text
+        contentConfiguration.isEnabled = subject.value.testingStatus == .inProgress
+        contentConfiguration.primaryAction = UIAction { [weak self] _ in
+            self?.onCancelTest()
+        }
         cell.contentConfiguration = contentConfiguration
     }
 
-    private func configureUseIfAvailable(_ cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
+    private func configureTestingStatus(_ cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
+        var contentConfiguration = MethodTestingStatusCellContentConfiguration()
+        contentConfiguration.status = subject.value.testingStatus.viewStatus
+        cell.contentConfiguration = contentConfiguration
+    }
+
+    private func configureEnableMethod(_ cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
         var contentConfiguration = SwitchCellContentConfiguration()
         contentConfiguration.text = itemIdentifier.text
         contentConfiguration.isOn = subject.value.isEnabled
-        contentConfiguration.onChange = subject.bindSwitchAction(to: \.isEnabled)
+        contentConfiguration.onChange = UIAction { [weak self] action in
+            if let customSwitch = action.sender as? UISwitch {
+                self?.subject.value.isEnabled = customSwitch.isOn
+                self?.onSave()
+            }
+        }
         cell.contentConfiguration = contentConfiguration
     }
 
-    private func configureProxyConfiguration(_ cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
+    private func configureMethodSettings(_ cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
         var contentConfiguration = UIListContentConfiguration.mullvadCell(tableStyle: tableView.style)
         contentConfiguration.text = itemIdentifier.text
         cell.contentConfiguration = contentConfiguration
@@ -190,6 +240,7 @@ class EditAccessMethodViewController: UITableViewController {
                 self?.dequeueCell(at: indexPath, for: itemIdentifier)
             }
         )
+
         subject.withPreviousValue()
             .sink { [weak self] previousValue, newValue in
                 self?.viewModelDidChange(previousValue: previousValue, newValue: newValue)
@@ -199,15 +250,11 @@ class EditAccessMethodViewController: UITableViewController {
 
     private func viewModelDidChange(previousValue: AccessMethodViewModel?, newValue: AccessMethodViewModel) {
         let animated = view.window != nil
-        let previousValidationError = validationError
 
-        validateViewModel()
-        updateBarButtons()
+        configureNavigationItem()
         updateDataSource(
             previousValue: previousValue,
             newValue: newValue,
-            previousValidationError: previousValidationError,
-            newValidationError: validationError,
             animated: animated
         )
     }
@@ -215,45 +262,41 @@ class EditAccessMethodViewController: UITableViewController {
     private func updateDataSource(
         previousValue: AccessMethodViewModel?,
         newValue: AccessMethodViewModel,
-        previousValidationError: AccessMethodValidationError?,
-        newValidationError: AccessMethodValidationError?,
         animated: Bool
     ) {
         var snapshot = NSDiffableDataSourceSnapshot<EditAccessMethodSectionIdentifier, EditAccessMethodItemIdentifier>()
 
-        // Add name field for user-defined access methods.
-        if !newValue.method.isPermanent {
-            snapshot.appendSections([.name])
-            snapshot.appendItems([.name], toSection: .name)
+        snapshot.appendSections([.enableMethod])
+        snapshot.appendItems([.enableMethod], toSection: .enableMethod)
+
+        // Add method settings if the access method is configurable.
+        if newValue.method.hasProxyConfiguration {
+            snapshot.appendSections([.methodSettings])
+            snapshot.appendItems([.methodSettings], toSection: .methodSettings)
         }
 
-        // Add static sections.
-        snapshot.appendSections([.testMethod, .useIfAvailable])
-
+        snapshot.appendSections([.testMethod])
         snapshot.appendItems([.testMethod], toSection: .testMethod)
+
         // Reconfigure the test button on status changes.
         if let previousValue, previousValue.testingStatus != newValue.testingStatus {
             snapshot.reconfigureOrReloadItems([.testMethod])
         }
 
+        snapshot.appendSections([.testingStatus])
+        snapshot.appendSections([.cancelTest])
+
         // Add test status below the test button.
         if newValue.testingStatus != .initial {
-            snapshot.appendItems([.testingStatus], toSection: .testMethod)
+            snapshot.appendItems([.testingStatus], toSection: .testingStatus)
+
             if let previousValue, previousValue.testingStatus != newValue.testingStatus {
                 snapshot.reconfigureOrReloadItems([.testingStatus])
             }
-        }
 
-        snapshot.appendItems([.useIfAvailable], toSection: .useIfAvailable)
-
-        // Add proxy configuration if the access method is configurable.
-        if newValue.method.hasProxyConfiguration {
-            snapshot.appendSections([.proxyConfiguration])
-            snapshot.appendItems([.proxyConfiguration], toSection: .proxyConfiguration)
-
-            // Reconfigure the proxy configuration cell if validation error changed.
-            if previousValidationError != newValidationError {
-                snapshot.reconfigureOrReloadItems([.proxyConfiguration])
+            // Show cancel test button below test status.
+            if newValue.testingStatus == .inProgress {
+                snapshot.appendItems([.cancelTest], toSection: .cancelTest)
             }
         }
 
@@ -270,29 +313,66 @@ class EditAccessMethodViewController: UITableViewController {
 
     private func configureNavigationItem() {
         navigationItem.title = subject.value.navigationItemTitle
-        navigationItem.rightBarButtonItem = saveBarButton
-    }
-
-    private func validateViewModel() {
-        let validationResult = Result { try subject.value.validate() }
-        validationError = validationResult.error as? AccessMethodValidationError
-    }
-
-    private func updateBarButtons() {
-        saveBarButton.isEnabled = validationError == nil
-    }
-
-    private func onDelete() {
-        interactor.deleteAccessMethod()
-        delegate?.controllerDidDeleteAccessMethod(self)
     }
 
     private func onSave() {
         interactor.saveAccessMethod()
-        delegate?.controllerDidSaveAccessMethod(self)
+    }
+
+    private func onDelete() {
+        let methodName = subject.value.name.isEmpty
+            ? NSLocalizedString(
+                "METHOD_SETTINGS_SAVE_PROMPT",
+                tableName: "APIAccess",
+                value: "method?",
+                comment: ""
+            )
+            : subject.value.name
+
+        let presentation = AlertPresentation(
+            id: "api-access-methods-delete-method-alert",
+            icon: .alert,
+            message: NSLocalizedString(
+                "METHOD_SETTINGS_SAVE_PROMPT",
+                tableName: "APIAccess",
+                value: "Delete \(methodName)?",
+                comment: ""
+            ),
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "METHOD_SETTINGS_DELETE_BUTTON",
+                        tableName: "APIAccess",
+                        value: "Delete",
+                        comment: ""
+                    ),
+                    style: .destructive,
+                    handler: { [weak self] in
+                        guard let self else { return }
+                        interactor.deleteAccessMethod()
+                        delegate?.controllerDidDeleteAccessMethod(self)
+                    }
+                ),
+                AlertAction(
+                    title: NSLocalizedString(
+                        "METHOD_SETTINGS_CANCEL_BUTTON",
+                        tableName: "APIAccess",
+                        value: "Cancel",
+                        comment: ""
+                    ),
+                    style: .default
+                ),
+            ]
+        )
+
+        alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
     private func onTest() {
         interactor.startProxyConfigurationTest()
+    }
+
+    private func onCancelTest() {
+        interactor.cancelProxyConfigurationTest()
     }
 }

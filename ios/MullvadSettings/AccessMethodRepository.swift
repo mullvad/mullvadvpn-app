@@ -8,21 +8,26 @@
 
 import Combine
 import Foundation
+import MullvadLogging
 
 public class AccessMethodRepository: AccessMethodRepositoryProtocol {
-    let passthroughSubject: CurrentValueSubject<[PersistentAccessMethod], Never> = CurrentValueSubject([])
+    private let logger = Logger(label: "AccessMethodRepository")
+
     private let direct = PersistentAccessMethod(
         id: UUID(uuidString: "C9DB7457-2A55-42C3-A926-C07F82131994")!,
-        name: "",
+        name: "Direct",
         isEnabled: true,
         proxyConfiguration: .direct
     )
+
     private let bridge = PersistentAccessMethod(
         id: UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95084")!,
-        name: "",
+        name: "Mullvad bridges",
         isEnabled: true,
         proxyConfiguration: .bridges
     )
+
+    let passthroughSubject: CurrentValueSubject<[PersistentAccessMethod], Never> = CurrentValueSubject([])
 
     public var publisher: AnyPublisher<[PersistentAccessMethod], Never> {
         passthroughSubject.eraseToAnyPublisher()
@@ -36,35 +41,19 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
         add([direct, bridge])
     }
 
-    public func add(_ method: PersistentAccessMethod) {
-        add([method])
-    }
-
-    public func add(_ methods: [PersistentAccessMethod]) {
+    public func save(_ method: PersistentAccessMethod) {
         var storedMethods = fetchAll()
 
-        methods.forEach { method in
-            guard !storedMethods.contains(where: { $0.id == method.id }) else { return }
+        if let index = storedMethods.firstIndex(where: { $0.id == method.id }) {
+            storedMethods[index] = method
+        } else {
             storedMethods.append(method)
         }
 
         do {
             try writeApiAccessMethods(storedMethods)
         } catch {
-            print("Could not add access method(s): \(methods) \nError: \(error)")
-        }
-    }
-
-    public func update(_ method: PersistentAccessMethod) {
-        var methods = fetchAll()
-
-        guard let index = methods.firstIndex(where: { $0.id == method.id }) else { return }
-        methods[index] = method
-
-        do {
-            try writeApiAccessMethods(methods)
-        } catch {
-            print("Could not update access method: \(method) \nError: \(error)")
+            logger.error("Could not update access methods: \(storedMethods) \nError: \(error)")
         }
     }
 
@@ -81,7 +70,7 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
         do {
             try writeApiAccessMethods(methods)
         } catch {
-            print("Could not delete access method with id: \(id) \nError: \(error)")
+            logger.error("Could not delete access method with id: \(id) \nError: \(error)")
         }
     }
 
@@ -95,6 +84,22 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
 
     public func reloadWithDefaultsAfterDataRemoval() {
         add([direct, bridge])
+    }
+
+    private func add(_ methods: [PersistentAccessMethod]) {
+        var storedMethods = fetchAll()
+
+        methods.forEach { method in
+            if !storedMethods.contains(where: { $0.id == method.id }) {
+                storedMethods.append(method)
+            }
+        }
+
+        do {
+            try writeApiAccessMethods(storedMethods)
+        } catch {
+            logger.error("Could not update access methods: \(storedMethods) \nError: \(error)")
+        }
     }
 
     private func readApiAccessMethods() throws -> [PersistentAccessMethod] {
