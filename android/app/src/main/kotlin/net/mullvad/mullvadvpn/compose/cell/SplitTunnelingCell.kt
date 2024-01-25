@@ -77,7 +77,8 @@ fun SplitTunnelingCell(
                 .clickable(onClick = onCellClicked)
     ) {
         Image(
-            painter = icon?.let { iconImage -> BitmapPainter(iconImage) }
+            painter =
+                icon?.let { iconImage -> BitmapPainter(iconImage) }
                     ?: painterResource(id = R.drawable.ic_icons_missing),
             contentDescription = null,
             modifier =

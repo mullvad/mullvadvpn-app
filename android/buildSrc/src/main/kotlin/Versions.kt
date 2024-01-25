@@ -1,5 +1,5 @@
 object Versions {
-    const val commonsValidator = "1.7"
+    const val commonsValidator = "1.8.0"
     const val jodaTime = "2.12.5"
     const val junit = "5.10.0"
     const val jvmTarget = "17"
@@ -9,7 +9,7 @@ object Versions {
     const val kotlinx = "1.7.3"
     const val leakCanary = "2.12"
     const val mockk = "1.13.8"
-    const val mockWebserver = "4.11.0"
+    const val mockWebserver = "4.12.0"
     const val turbine = "1.0.0"
     const val billingClient = "6.0.1"
 
@@ -23,10 +23,9 @@ object Versions {
 
     object AndroidX {
         const val appcompat = "1.6.1"
-        const val coreKtx = "1.9.0"
-        const val constraintlayout = "2.1.4"
+        const val coreKtx = "1.12.0"
         const val espresso = "3.5.1"
-        const val lifecycle = "2.6.1"
+        const val lifecycle = "2.7.0"
         const val fragment = "1.6.1"
         const val test = "1.5.0"
         const val testMonitor = "1.6.1"
@@ -41,7 +40,6 @@ object Versions {
         const val constrainLayout = "1.0.1"
         const val foundation = base
         const val material3 = "1.1.1"
-        const val uiController = "0.30.1"
     }
 
     object Plugin {
@@ -54,14 +52,14 @@ object Versions {
         const val dependencyCheck = "8.3.1"
         const val gradleVersions = "0.47.0"
         const val junit5 = "1.10.0.0"
-        const val ktfmt = "0.13.0"
+        const val ktfmt = "0.16.0"
         // Ksp version is linked with kotlin version, find matching release here:
         // https://github.com/google/ksp/releases
         const val ksp = "${kotlin}-1.0.14"
     }
 
     object Koin {
-        const val base = "3.4.3"
-        const val compose = "3.4.6"
+        const val base = "3.5.3"
+        const val compose = "3.5.3"
     }
 }

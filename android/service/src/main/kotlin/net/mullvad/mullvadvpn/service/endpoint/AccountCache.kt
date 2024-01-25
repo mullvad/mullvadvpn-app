@@ -44,8 +44,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
                     deviceState
                         .token()
                         .also { cachedAccountToken = it }
-                        ?.let { fetchAccountExpiry(it) }
-                        ?: AccountExpiry.Missing
+                        ?.let { fetchAccountExpiry(it) } ?: AccountExpiry.Missing
             }
         }
 

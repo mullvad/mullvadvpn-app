@@ -122,8 +122,7 @@ class DeviceRepository(
             withTimeoutOrNull(timeoutMillis) {
                 deviceListEvents.onStart { refreshDeviceList(accountToken) }.firstOrNull()
                     ?: DeviceListEvent.Error
-            }
-                ?: DeviceListEvent.Error
+            } ?: DeviceListEvent.Error
 
         if (shouldOverrideCache) {
             updateCache(result, accountToken)
