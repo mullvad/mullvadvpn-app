@@ -33,4 +33,5 @@ jobs:
           # Ignored audit issues. This list should be kept short, and effort should be
           # put into removing items from the list.
           # RUSTSEC-2023-0057,RUSTSEC-2023-0058 - Unsoundness in `inventory`.
-          ignore: RUSTSEC-2023-0057,RUSTSEC-2023-0058
+          # RUSTSEC-2020-0168 - `mach` is unmaintained. Can be fixed by upgrading `serialport`.
+          ignore: RUSTSEC-2023-0057,RUSTSEC-2023-0058,RUSTSEC-2020-0168
