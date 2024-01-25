@@ -65,7 +65,7 @@ function nice_time {
         result=$?
     fi
     s=$SECONDS
-    echo "\"$@\" completed in $(($s/60))m:$(($s%60))s"
+    echo "\"$@\" completed in $((s/60))m:$((s%60))s"
     return $result
 }
 
