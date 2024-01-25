@@ -14,7 +14,7 @@ export GIT_DIR="$GIT_WORK_TREE/.git"
 function run_git {
     # `git submodule` needs more info than just $GIT_DIR and $GIT_WORK_TREE.
     # But -C makes it work.
-    git -C "$GIT_WORK_TREE" $@
+    git -C "$GIT_WORK_TREE" "$@"
 }
 
 
