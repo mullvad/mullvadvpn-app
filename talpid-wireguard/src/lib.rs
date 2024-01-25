@@ -959,7 +959,7 @@ async fn get_mtu(
 
     let step_size = 20;
     let min_mtu = 576; // TODO: Account for IPv6?
-    let linspace = mut_spacing(min_mtu, max_mtu, step_size);
+    let linspace = mtu_spacing(min_mtu, max_mtu, step_size);
     for mtu in &linspace {
         log::warn!("Sending {mtu}");
         ping_monitor::Pinger::send_icmp_sized(&mut pinger, *mtu).map_err(Error::SetMtu)?;
@@ -995,7 +995,7 @@ async fn get_mtu(
 }
 
 #[cfg(target_os = "linux")]
-fn mut_spacing(x_start: u16, x_end: u16, step_size: u16) -> Vec<u16> {
+fn mtu_spacing(x_start: u16, x_end: u16, step_size: u16) -> Vec<u16> {
     if x_start > x_end {
         log::warn!("Setting MTU to {x_end} which is lower than");
         return vec![x_end];
