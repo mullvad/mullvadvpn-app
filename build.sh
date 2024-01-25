@@ -200,17 +200,12 @@ function sign_win {
 }
 
 # Build the daemon and other Rust/C++ binaries, optionally
-# sign them, strip them of debug symbols and copy to `dist-assets/`.
+# sign them, and copy to `dist-assets/`.
 function build {
     local current_target=${1:-""}
     local for_target_string=" for local target $HOST"
-    local stripbin="strip"
     if [[ -n $current_target ]]; then
         for_target_string=" for $current_target"
-
-        if [[ "$current_target" == "aarch64-unknown-linux-gnu" && "$(uname -m)" != "aarch64" ]]; then
-            stripbin="aarch64-linux-gnu-strip"
-        fi
     fi
 
     ################################################################################
@@ -287,13 +282,8 @@ function build {
         local source="$cargo_output_dir/$binary"
         local destination="$destination_dir/$binary"
 
-        if [[ "$(uname -s)" == "MINGW"* || "$binary" == *.dylib ]]; then
-            log_info "Copying $source => $destination"
-            cp "$source" "$destination"
-        else
-            log_info "Stripping $source => $destination"
-            "${stripbin}" "$source" -o "$destination"
-        fi
+        log_info "Copying $source => $destination"
+        cp "$source" "$destination"
 
         if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
             sign_win "$destination"
