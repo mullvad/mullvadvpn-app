@@ -85,7 +85,7 @@ fi
 if [[ "$DESKTOP" == "true" ]]; then
     echo "Tagging current git commit with release tag $PRODUCT_VERSION..."
 
-    git tag -s $PRODUCT_VERSION -m $PRODUCT_VERSION
+    git tag -s "$PRODUCT_VERSION" -m "$PRODUCT_VERSION"
     NEW_TAGS+=" $PRODUCT_VERSION"
 fi
 
