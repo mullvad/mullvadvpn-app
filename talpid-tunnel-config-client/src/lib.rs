@@ -82,6 +82,17 @@ type RelayConfigService = proto::post_quantum_secure_client::PostQuantumSecureCl
 /// Port used by the tunnel config service.
 pub const CONFIG_SERVICE_PORT: u16 = 1337;
 
+/// MTU to set on the tunnel config client socket. We want a low value to prevent fragmentation.
+/// This is needed for two reasons:
+/// 1. Especially on Android, we've found that the real MTU is often lower than the default MTU, and
+///    we cannot lower it further. This causes the outer packets to be dropped. Also, MTU detection
+///    will likely occur after the PQ handshake, so we cannot assume that the MTU is already
+///    correctly configured.
+/// 2. MH + PQ on macOS has connection issues during the handshake due to PF blocking packet
+///    fragments for not having a port. In the longer term this might be fixed by allowing the
+///    handshake to work even if there is fragmentation.
+const CONFIG_CLIENT_MTU: u16 = 576;
+
 /// Generates a new WireGuard key pair and negotiates a PSK with the relay in a PQ-safe
 /// manner. This creates a peer on the relay with the new WireGuard pubkey and PSK,
 /// which can then be used to establish a PQ-safe tunnel to the relay.
@@ -91,19 +102,10 @@ pub async fn push_pq_key(
     wg_pubkey: PublicKey,
     wg_psk_pubkey: PublicKey,
 ) -> Result<PresharedKey, Error> {
-    push_pq_key_with_opts(service_address, wg_pubkey, wg_psk_pubkey, None).await
-}
-
-pub async fn push_pq_key_with_opts(
-    service_address: IpAddr,
-    wg_pubkey: PublicKey,
-    wg_psk_pubkey: PublicKey,
-    mtu: Option<u16>,
-) -> Result<PresharedKey, Error> {
     let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
     let kyber_keypair = kyber::keypair(&mut rand::thread_rng());
 
-    let mut client = new_client(service_address, mtu).await?;
+    let mut client = new_client(service_address).await?;
     let response = client
         .psk_exchange_v1(proto::PskRequestV1 {
             wg_pubkey: wg_pubkey.as_bytes().to_vec(),
@@ -166,20 +168,18 @@ fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
     }
 }
 
-async fn new_client(addr: IpAddr, mtu: Option<u16>) -> Result<RelayConfigService, Error> {
+async fn new_client(addr: IpAddr) -> Result<RelayConfigService, Error> {
     let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
 
     let conn = endpoint
         .connect_with_connector(service_fn(move |_| async move {
             let sock = TcpSocket::new_v4()?;
 
-            if let Some(mtu) = mtu {
-                #[cfg(target_os = "windows")]
-                try_set_tcp_sock_mtu(sock.as_raw_socket(), mtu);
+            #[cfg(target_os = "windows")]
+            try_set_tcp_sock_mtu(sock.as_raw_socket(), CONFIG_CLIENT_MTU);
 
-                #[cfg(not(target_os = "windows"))]
-                try_set_tcp_sock_mtu(&addr, sock.as_raw_fd(), mtu);
-            }
+            #[cfg(not(target_os = "windows"))]
+            try_set_tcp_sock_mtu(&addr, sock.as_raw_fd(), CONFIG_CLIENT_MTU);
 
             sock.connect(SocketAddr::new(addr, CONFIG_SERVICE_PORT))
                 .await

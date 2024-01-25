@@ -8,12 +8,13 @@ use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Fu
 use futures::{channel::mpsc, StreamExt};
 #[cfg(target_os = "linux")]
 use once_cell::sync::Lazy;
+#[cfg(target_os = "android")]
+use std::borrow::Cow;
 #[cfg(target_os = "linux")]
 use std::env;
 #[cfg(windows)]
 use std::io;
 use std::{
-    borrow::Cow,
     convert::Infallible,
     net::IpAddr,
     path::Path,
@@ -237,29 +238,11 @@ impl WireguardMonitor {
             close_obfs_sender.clone(),
         ))?;
 
-        // TODO: Currently MH + PQ on MacOS has connection issues during the handshake. This seems
-        // be be due to packet fragmentation happening and PF blocking fragmented packets during
-        // the handshake due to them sometimes not having a port. Lowering the MTU for the initial
-        // tunnel which connects to the exit during PSK + MH negotiation causes less fragmentation
-        // and should be a hacky fix for the problem. In the longer term this should be fixed by
-        // allowing the handshake to work even if there is fragmentation and/or setting the MTU
-        // properly so fragmentation does not happen.
-        let init_tunnel_config = if cfg!(target_os = "macos") {
-            let mut init_tunnel_config = config.clone();
-            if psk_negotiation && config.is_multihop() {
-                const MH_PQ_HANDSHAKE_MTU: u16 = 1280;
-                init_tunnel_config.mtu = MH_PQ_HANDSHAKE_MTU;
-            }
-            Cow::Owned(init_tunnel_config)
-        } else {
-            Cow::Borrowed(&config)
-        };
-
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
         let tunnel = Self::open_tunnel(
             args.runtime.clone(),
-            &init_tunnel_config,
+            &config,
             log_path,
             args.resource_dir,
             args.tun_provider.clone(),
@@ -464,9 +447,8 @@ impl WireguardMonitor {
         let metadata = Self::tunnel_metadata(iface_name, config);
         (on_event)(TunnelEvent::InterfaceUp(metadata, allowed_traffic.clone())).await;
 
-        let mtu = Self::get_exit_psk_socket_mtu(config);
         let exit_psk =
-            Self::perform_psk_negotiation(retry_attempt, config, wg_psk_privkey.public_key(), mtu)
+            Self::perform_psk_negotiation(retry_attempt, config, wg_psk_privkey.public_key())
                 .await?;
 
         log::debug!("Successfully exchanged PSK with exit peer");
@@ -494,7 +476,6 @@ impl WireguardMonitor {
                     retry_attempt,
                     &entry_config,
                     wg_psk_privkey.public_key(),
-                    None,
                 )
                 .await?,
             );
@@ -639,7 +620,6 @@ impl WireguardMonitor {
         retry_attempt: u32,
         config: &Config,
         wg_psk_pubkey: PublicKey,
-        mss: Option<u16>,
     ) -> std::result::Result<PresharedKey, CloseMsg> {
         log::debug!("Performing PQ-safe PSK exchange");
 
@@ -651,11 +631,10 @@ impl WireguardMonitor {
 
         let psk = tokio::time::timeout(
             timeout,
-            talpid_tunnel_config_client::push_pq_key_with_opts(
-                Self::get_tunnel_config_client_addr(config),
+            talpid_tunnel_config_client::push_pq_key(
+                IpAddr::from(config.ipv4_gateway),
                 config.tunnel.private_key.public_key(),
                 wg_psk_pubkey,
-                mss,
             ),
         )
         .await
@@ -667,33 +646,6 @@ impl WireguardMonitor {
         .map_err(CloseMsg::SetupError)?;
 
         Ok(psk)
-    }
-
-    /// TODO: This hack makes sure that the max segment size is small enough to prevent
-    /// fragmentation. This is an issue when using multihop, because the MTU is too small to
-    /// accommodate the headers of the inner tunnel, and lowering it does no good.
-    //
-    /// When we have fixed fragmentation issues for multihop, this workaround can be removed.
-    ///
-    /// Note that TCP imposes max and min bounds on the specified size as well.
-    fn get_exit_psk_socket_mtu(config: &Config) -> Option<u16> {
-        // macOS is averse(?) to large values for MSS, so we just use the minimum
-        const MIN_IPV4_MTU: u16 = 576;
-        const MIN_IPV6_MTU: u16 = 1280;
-
-        if !config.is_multihop() {
-            return None;
-        }
-
-        if Self::get_tunnel_config_client_addr(config).is_ipv4() {
-            Some(MIN_IPV4_MTU)
-        } else {
-            Some(MIN_IPV6_MTU)
-        }
-    }
-
-    fn get_tunnel_config_client_addr(config: &Config) -> IpAddr {
-        IpAddr::V4(config.ipv4_gateway)
     }
 
     #[allow(unused_variables)]
