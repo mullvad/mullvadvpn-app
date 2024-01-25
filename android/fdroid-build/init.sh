@@ -5,7 +5,6 @@ set -eux
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 REPO_DIR="$SCRIPT_DIR/../../"
-TOOLCHAINS_DIR="$HOME/android-ndk-toolchains"
 
 # Install Rust
 curl -sf -L https://sh.rustup.rs > /tmp/rustup.sh
