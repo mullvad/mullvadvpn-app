@@ -62,7 +62,7 @@ rm "$TMP_ICONSET_DIR"/*
 
 # Linux .icns icon
 for size in 16 32 128 256 512; do
-    double_size="$[$size * 2]"
+    double_size="$(($size * 2))"
     rsvg-convert -o "$TMP_ICONSET_DIR"/icon-$size.png -w $size -h $size $SVG_SOURCE_PATH
     rsvg-convert -o "$TMP_ICONSET_DIR"/icon-$size@2x.png -w "$double_size" -h "$double_size" \
         $SVG_SOURCE_PATH
