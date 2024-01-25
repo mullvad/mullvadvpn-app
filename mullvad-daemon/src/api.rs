@@ -242,7 +242,7 @@ impl AccessModeSelector {
             ConnectionModesIterator::new(connection_modes).unwrap_or_else(|_| {
                 // No settings seem to have been found. Default to using the the
                 // direct access method.
-                let default = mullvad_types::access_method::Settings::direct();
+                let default = mullvad_types::access_method::Settings::create_direct();
                 ConnectionModesIterator::new(vec![default]).expect(
                     "Failed to create the data structure responsible for managing access methods",
                 )
