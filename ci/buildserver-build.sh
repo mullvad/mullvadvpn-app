@@ -20,6 +20,7 @@ LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 
 BRANCHES_TO_BUILD=("origin/main")
 
+# shellcheck source=ci/buildserver-config.sh
 source "$SCRIPT_DIR/buildserver-config.sh"
 
 # Ask for the passphrase to the signing keys
