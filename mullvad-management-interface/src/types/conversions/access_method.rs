@@ -8,11 +8,11 @@ mod settings {
     impl From<access_method::Settings> for proto::ApiAccessMethodSettings {
         fn from(settings: access_method::Settings) -> Self {
             Self {
-                direct: Some(settings.direct.into()),
-                mullvad_bridges: Some(settings.mullvad_bridges.into()),
-                access_method_settings: settings
-                    .user_defined
-                    .into_iter()
+                direct: Some(settings.direct().clone().into()),
+                mullvad_bridges: Some(settings.mullvad_bridges().clone().into()),
+                custom: settings
+                    .iter_custom()
+                    .cloned()
                     .map(|method| method.into())
                     .collect(),
             }
@@ -23,27 +23,31 @@ mod settings {
         type Error = FromProtobufTypeError;
 
         fn try_from(settings: proto::ApiAccessMethodSettings) -> Result<Self, Self::Error> {
-            Ok(Self {
-                direct: settings
-                    .direct
-                    .ok_or(FromProtobufTypeError::InvalidArgument(
-                        "Could not deserialize Direct Access Method from protobuf",
-                    ))
-                    .and_then(access_method::AccessMethodSetting::try_from)?,
+            let direct = settings
+                .direct
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "Could not deserialize Direct Access Method from protobuf",
+                ))
+                .and_then(access_method::AccessMethodSetting::try_from)?;
 
-                mullvad_bridges: settings
-                    .mullvad_bridges
-                    .ok_or(FromProtobufTypeError::InvalidArgument(
-                        "Could not deserialize Mullvad Bridges Access Method from protobuf",
-                    ))
-                    .and_then(access_method::AccessMethodSetting::try_from)?,
+            let mullvad_bridges = settings
+                .mullvad_bridges
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "Could not deserialize Mullvad Bridges Access Method from protobuf",
+                ))
+                .and_then(access_method::AccessMethodSetting::try_from)?;
 
-                user_defined: settings
-                    .access_method_settings
-                    .iter()
-                    .map(access_method::AccessMethodSetting::try_from)
-                    .collect::<Result<Vec<access_method::AccessMethodSetting>, _>>()?,
-            })
+            let user_defined = settings
+                .custom
+                .iter()
+                .map(access_method::AccessMethodSetting::try_from)
+                .collect::<Result<Vec<_>, _>>()?;
+
+            Ok(access_method::Settings::new(
+                direct,
+                mullvad_bridges,
+                user_defined,
+            ))
         }
     }
 }

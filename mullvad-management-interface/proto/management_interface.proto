@@ -380,7 +380,7 @@ message NewAccessMethodSetting {
 message ApiAccessMethodSettings {
   AccessMethodSetting direct = 1;
   AccessMethodSetting mullvad_bridges = 2;
-  repeated AccessMethodSetting access_method_settings = 3;
+  repeated AccessMethodSetting custom = 3;
 }
 
 message Settings {
