@@ -37,4 +37,9 @@ class BaseUITestCase: XCTestCase {
         _ = springboard.buttons["1"].waitForExistence(timeout: Self.defaultTimeout)
         springboard.typeText(iOSDevicePinCode)
     }
+
+    /// Note: should be used sparingly. Some setting changes triggers a reconnect. In these cases there isn't always any visual update in the UI indicating that the reconnect is done so we need to sleep a little to give the reconnect a chance to finish.
+    func waitWhileReconnecting() {
+        sleep(2)
+    }
 }

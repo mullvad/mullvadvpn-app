@@ -50,6 +50,8 @@ class RelayTests: BaseUITestCase {
             .tapDNSContentBlockingHeaderExpandButton()
             .tapBlockAdsSwitch()
 
+        waitWhileReconnecting() // Enabling ad blocking triggers a reconnect, so we need to give it a chance to finish before proceeding
+
         verifyCannotReachAdServingDomain()
     }
 
