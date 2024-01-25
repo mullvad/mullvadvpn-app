@@ -41,9 +41,6 @@ XCODE_ARCHIVE_DIR="$BUILD_OUTPUT_DIR/$PROJECT_NAME.xcarchive"
 # Export options file used for producing .xcarchive
 EXPORT_OPTIONS_PATH="$SCRIPT_DIR/ExportOptions.plist"
 
-# Path to generated IPA file produced after .xcarchive export
-IPA_PATH="$BUILD_OUTPUT_DIR/$PROJECT_NAME.ipa"
-
 # Xcodebuild intermediate files directory
 DERIVED_DATA_DIR="$BUILD_OUTPUT_DIR/DerivedData"
 
