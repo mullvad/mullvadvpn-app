@@ -4,16 +4,28 @@ use talpid_types::net::proxy::{CustomProxy, Shadowsocks, Socks5Local, Socks5Remo
 /// Settings for API access methods.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
-    pub direct: AccessMethodSetting,
-    pub mullvad_bridges: AccessMethodSetting,
-    /// User-defined API access methods.
-    pub user_defined: Vec<AccessMethodSetting>,
+    direct: AccessMethodSetting,
+    mullvad_bridges: AccessMethodSetting,
+    /// Custom API access methods.
+    custom: Vec<AccessMethodSetting>,
 }
 
 impl Settings {
+    pub fn new(
+        direct: AccessMethodSetting,
+        mullvad_bridges: AccessMethodSetting,
+        custom: Vec<AccessMethodSetting>,
+    ) -> Settings {
+        Settings {
+            direct,
+            mullvad_bridges,
+            custom,
+        }
+    }
+
     /// Append an [`AccessMethod`] to the end of `api_access_methods`.
     pub fn append(&mut self, api_access_method: AccessMethodSetting) {
-        self.user_defined.push(api_access_method)
+        self.custom.push(api_access_method)
     }
 
     /// Remove an [`ApiAccessMethod`] from `api_access_methods`.
@@ -22,7 +34,7 @@ impl Settings {
     /// be removed.
     pub fn remove(&mut self, api_access_method: &Id) -> Result<(), Error> {
         let maybe_setting = self
-            .user_defined
+            .custom
             .iter()
             .find(|setting| setting.get_id() == *api_access_method);
 
@@ -32,7 +44,7 @@ impl Settings {
                     attempted: built_in.clone(),
                 }),
                 AccessMethod::Custom(_) => {
-                    self.user_defined
+                    self.custom
                         .retain(|method| method.get_id() != *api_access_method);
                     Ok(())
                 }
@@ -41,6 +53,33 @@ impl Settings {
         }
     }
 
+    /// Update an existing [`AccessMethodSetting`] chosen by `predicate`, in a
+    /// closure `f`, saving the result to `self`.
+    ///
+    /// Returns a bool to indicate whether some [`AccessMethodSetting`] was
+    /// updated.
+    pub fn update(
+        &mut self,
+        predicate: impl Fn(&AccessMethodSetting) -> bool,
+        f: impl FnOnce(&AccessMethodSetting) -> AccessMethodSetting,
+    ) -> bool {
+        let mut updated = false;
+        if let Some(access_method) = self.iter_mut().find(|setting| predicate(setting)) {
+            *access_method = f(access_method);
+            updated = true;
+        }
+        // Check if the current settings is about to disable the last remaining
+        // enabled access method, which would cause an inconsistent state in
+        // the daemon's settings. In that case, the `Direct` access method is
+        // re-enabled.
+        if self.collect_enabled().is_empty() {
+            self.direct.enable();
+        }
+
+        updated
+    }
+
+    // TODO(markus): This can surely be removed.
     /// Retrieve all [`AccessMethodSetting`]s which are enabled.
     pub fn collect_enabled(&self) -> Vec<AccessMethodSetting> {
         self.iter()
@@ -54,23 +93,37 @@ impl Settings {
         use std::iter::once;
         once(&self.direct)
             .chain(once(&self.mullvad_bridges))
-            .chain(&self.user_defined)
+            .chain(&self.custom)
     }
 
     /// Iterate over mutable references of built-in & custom access methods.
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut AccessMethodSetting> {
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut AccessMethodSetting> {
         use std::iter::once;
         once(&mut self.direct)
             .chain(once(&mut self.mullvad_bridges))
-            .chain(&mut self.user_defined)
+            .chain(&mut self.custom)
     }
 
-    pub fn direct() -> AccessMethodSetting {
+    /// Iterate over references of custom access methods.
+    pub fn iter_custom(&self) -> impl Iterator<Item = &AccessMethodSetting> {
+        self.custom.iter()
+    }
+
+    pub fn direct(&self) -> &AccessMethodSetting {
+        &self.direct
+    }
+
+    pub fn mullvad_bridges(&self) -> &AccessMethodSetting {
+        &self.mullvad_bridges
+    }
+
+    // TODO(markus): This can probably be made private
+    pub fn create_direct() -> AccessMethodSetting {
         let method = BuiltInAccessMethod::Direct;
         AccessMethodSetting::new(method.canonical_name(), true, AccessMethod::from(method))
     }
 
-    fn mullvad_bridges() -> AccessMethodSetting {
+    fn create_mullvad_bridges() -> AccessMethodSetting {
         let method = BuiltInAccessMethod::Bridge;
         AccessMethodSetting::new(method.canonical_name(), true, AccessMethod::from(method))
     }
@@ -79,9 +132,9 @@ impl Settings {
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            direct: Settings::direct(),
-            mullvad_bridges: Settings::mullvad_bridges(),
-            user_defined: vec![],
+            direct: Settings::create_direct(),
+            mullvad_bridges: Settings::create_mullvad_bridges(),
+            custom: vec![],
         }
     }
 }

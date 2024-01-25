@@ -145,23 +145,19 @@ fn migrate_api_access_settings(settings: &mut serde_json::Value) -> Result<()> {
         }
     }
 
-    // Step 1. Rename { "api_access_methods": { "access_method_settings": .. } } to { "api_access_methods": { "user_defined": .. } }.
-    // Step 2. Collect all of the built-in methods from { "api_access_methods": { "user_defined": [ .. ] } }.
-    // Step 3. Remove all of the built-in methods from { "api_access_methods": { "user_defined": [ .. ] } }.
+    // Step 1. Rename { "api_access_methods": { "access_method_settings": .. } } to { "api_access_methods": { "custom": .. } }.
+    // Step 2. Collect all of the built-in methods from { "api_access_methods": { "custom": [ .. ] } }.
+    // Step 3. Remove all of the built-in methods from { "api_access_methods": { "custom": [ .. ] } }.
     // Step 4. Add the collected built-in methods from step 2 to { "api_access_methods": { .. } } under some appropriate key.
     if let Some(access_method_settings) = settings
         .get_mut("api_access_methods")
         .and_then(serde_json::value::Value::as_object_mut)
     {
         // Step 1.
-        rename_map_field(
-            access_method_settings,
-            "access_method_settings",
-            "user_defined",
-        )?;
+        rename_map_field(access_method_settings, "access_method_settings", "custom")?;
 
         if let Some(access_method_settings_list) = access_method_settings
-            .get_mut("user_defined")
+            .get_mut("custom")
             .and_then(serde_json::value::Value::as_array_mut)
         {
             // Step 2.
@@ -564,7 +560,7 @@ mod test {
         "built_in": "bridge"
       }
     },
-    "user_defined": [
+    "custom": [
       {
         "id": "1aaff7ab-e09f-4c03-af02-765e41943a7b",
         "name": "localsox",
@@ -924,7 +920,7 @@ mod test {
             r#"
 {
   "api_access_methods": {
-    "user_defined": [
+    "custom": [
       {
         "id": "5eb9b2ee-f764-47c8-8111-ee95910d0099",
         "name": "mysocks",
@@ -982,7 +978,7 @@ mod test {
             r#"
 {
   "api_access_methods": {
-    "user_defined": [
+    "custom": [
       {
         "id": "8e377232-8a53-4414-8b8f-f487227aaedb",
         "name": "remotesox",
@@ -1037,7 +1033,7 @@ mod test {
             r#"
 {
   "api_access_methods": {
-    "user_defined": [
+    "custom": [
       {
         "id": "74e5c659-acdd-4cad-a632-a25bf63c20e2",
         "name": "remotess",
@@ -1096,7 +1092,7 @@ mod test {
         "built_in": "direct"
       }
     },
-    "user_defined": []
+    "custom": []
   }
 }
 "#,
@@ -1141,7 +1137,7 @@ mod test {
         "built_in": "bridge"
       }
     },
-    "user_defined": []
+    "custom": []
   }
 }
 "#,
@@ -1188,7 +1184,7 @@ mod test {
             r#"
 {
   "api_access_methods": {
-    "user_defined": [
+    "custom": [
       {
         "id": "1aaff7ab-e09f-4c03-af02-765e41943a7b",
         "name": "localsox",
@@ -1242,7 +1238,7 @@ mod test {
             r#"
 {
   "api_access_methods": {
-    "user_defined": []
+    "custom": []
   }
 }
 "#,

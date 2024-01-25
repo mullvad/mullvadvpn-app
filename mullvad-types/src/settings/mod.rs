@@ -79,7 +79,7 @@ pub struct Settings {
     /// All of the custom relay lists
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub custom_lists: CustomListsSettings,
-    /// API access methods.
+    /// API access methods
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub api_access_methods: access_method::Settings,
     /// If the daemon should allow communication with private (LAN) networks.
