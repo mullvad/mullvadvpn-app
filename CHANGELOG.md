@@ -45,6 +45,8 @@ Line wrap the file at 100 chars.                                              Th
   address.
 - Fix app sometimes getting stuck in error state when the connection is unstable. This occurred
   when the default route was removed while connecting.
+- Improve multihop performance by preventing fragmentation in the tunnel. This is done by setting
+  an MTU on the default route.
 
 ### Changed
 - Remove `--location` flag from `mullvad status` CLI. Location and IP will now always

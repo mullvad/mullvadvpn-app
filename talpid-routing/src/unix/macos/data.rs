@@ -13,6 +13,7 @@ use std::{
 #[derive(Debug, Clone, PartialEq)]
 pub struct RouteMessage {
     sockaddrs: BTreeMap<AddressFlag, RouteSocketAddress>,
+    mtu: u32,
     route_flags: RouteFlag,
     interface_index: u16,
     errno: i32,
@@ -41,6 +42,7 @@ impl RouteMessage {
 
         Self {
             sockaddrs,
+            mtu: 0,
             route_flags,
             interface_index: 0,
             errno: 0,
@@ -136,8 +138,15 @@ impl RouteMessage {
             .collect::<Result<BTreeMap<_, _>>>()?;
         let interface_index = header.rtm_index;
 
+        let mtu = if header.rtm_inits & RTV_MTU != 0 {
+            header.rtm_rmx.rmx_mtu
+        } else {
+            0
+        };
+
         Ok(Self {
             route_flags,
+            mtu,
             sockaddrs,
             interface_index,
             errno: header.rtm_errno,
@@ -164,6 +173,11 @@ impl RouteMessage {
             }
         };
 
+        self
+    }
+
+    pub fn set_mtu(mut self, mtu: u32) -> Self {
+        self.mtu = mtu;
         self
     }
 
@@ -298,7 +312,7 @@ impl RouteMessage {
             .try_into()
             .expect("route message buffer size cannot fit in 32 bits");
 
-        let header = super::data::rt_msghdr {
+        let mut header = super::data::rt_msghdr {
             rtm_msglen,
             rtm_version: libc::RTM_VERSION.try_into().unwrap(),
             rtm_type: message_type.bits(),
@@ -312,6 +326,11 @@ impl RouteMessage {
             rtm_inits: 0,
             rtm_rmx: Default::default(),
         };
+
+        if self.mtu != 0 {
+            header.rtm_inits |= RTV_MTU;
+            header.rtm_rmx.rmx_mtu = self.mtu;
+        }
 
         (header, payload_bytes)
     }
@@ -1150,3 +1169,6 @@ fn test_failing_rtmsg() {
     ];
     let _ = RouteSocketMessage::parse_message(&bytes).unwrap();
 }
+
+// Set MTU flag. See route.h
+const RTV_MTU: u32 = 0x1;

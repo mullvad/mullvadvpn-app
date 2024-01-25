@@ -37,7 +37,7 @@ pub struct Route {
     metric: Option<u32>,
     #[cfg(target_os = "linux")]
     table_id: u32,
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     mtu: Option<u32>,
 }
 
@@ -50,7 +50,7 @@ impl Route {
             metric: None,
             #[cfg(target_os = "linux")]
             table_id: u32::from(RT_TABLE_MAIN),
-            #[cfg(target_os = "linux")]
+            #[cfg(any(target_os = "linux", target_os = "macos"))]
             mtu: None,
         }
     }
@@ -95,7 +95,7 @@ pub struct RequiredRoute {
     #[cfg(target_os = "linux")]
     main_table: bool,
     /// Specifies route MTU
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     mtu: Option<u16>,
 }
 
@@ -107,7 +107,7 @@ impl RequiredRoute {
             prefix,
             #[cfg(target_os = "linux")]
             main_table: true,
-            #[cfg(target_os = "linux")]
+            #[cfg(any(target_os = "linux", target_os = "macos"))]
             mtu: None,
         }
     }
@@ -120,7 +120,7 @@ impl RequiredRoute {
     }
 
     /// Set route MTU to the given value.
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     pub fn mtu(mut self, mtu: u16) -> Self {
         self.mtu = Some(mtu);
         self
