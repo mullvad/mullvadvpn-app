@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useId, useMemo, useState } from 'react';
 
 interface SettingsFormContext {
   formSubmittable: boolean;
@@ -9,12 +9,6 @@ interface SettingsFormContext {
 // Keep track of all submittable and non submittable inputs in a form to enable e.g. buttons to
 // become enabled/disabled based on input states.
 const settingsFormContext = React.createContext<SettingsFormContext | undefined>(undefined);
-
-// Each form needs an unique ID, this key is part of that ID.
-let keyCounter = 0;
-function getInputKey() {
-  return ++keyCounter;
-}
 
 function useSettingsFormContext() {
   return useContext(settingsFormContext);
@@ -29,7 +23,9 @@ export function useSettingsFormSubmittable() {
 // Hook that returns function that input can use to report if it's submittable or not.
 export function useSettingsFormSubmittableReporter() {
   const context = useSettingsFormContext();
-  const key = useMemo(() => `input-${getInputKey()}`, []);
+
+  // Each form needs an unique ID, this key is part of that ID.
+  const key = useId();
 
   const reportInputSubmittable = useCallback(
     (submittable: boolean) => {
