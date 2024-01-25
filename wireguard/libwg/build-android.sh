@@ -41,7 +41,7 @@ for arch in ${ARCHITECTURES:-armv7 aarch64 x86_64 i686}; do
     esac
 
     # Build Wireguard-Go
-    echo $(pwd)
+    echo "$(pwd)"
     make -f Android.mk clean
     make -f Android.mk
 
