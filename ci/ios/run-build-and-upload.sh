@@ -10,7 +10,7 @@
 set -eu -o pipefail
 
 # Add SSH key for iOS build VMs to be able to SSH into them without user interaction
-eval $(ssh-agent)
+eval "$(ssh-agent)"
 ssh-add ~/.ssh/ios-vm-key
 
 # This single path really screws with XCode and wireguard-go's makefiles, which

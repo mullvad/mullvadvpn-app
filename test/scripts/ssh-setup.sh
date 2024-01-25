@@ -3,7 +3,7 @@
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd $SCRIPT_DIR
+cd "$SCRIPT_DIR"
 
 RUNNER_DIR="$1"
 CURRENT_APP="$2"
@@ -14,11 +14,11 @@ UI_RUNNER="$4"
 
 echo "Copying test-runner to $RUNNER_DIR"
 
-mkdir -p $RUNNER_DIR
+mkdir -p "$RUNNER_DIR"
 
 for file in test-runner $CURRENT_APP $PREVIOUS_APP $UI_RUNNER openvpn.ca.crt; do
     echo "Moving $file to $RUNNER_DIR"
-    cp -f "$SCRIPT_DIR/$file" $RUNNER_DIR
+    cp -f "$SCRIPT_DIR/$file" "$RUNNER_DIR"
 done
 
 chown -R root "$RUNNER_DIR/"

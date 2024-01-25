@@ -14,7 +14,7 @@ export GIT_DIR="$GIT_WORK_TREE/.git"
 function run_git {
     # `git submodule` needs more info than just $GIT_DIR and $GIT_WORK_TREE.
     # But -C makes it work.
-    git -C $GIT_WORK_TREE $@
+    git -C "$GIT_WORK_TREE" "$@"
 }
 
 
@@ -43,7 +43,7 @@ function build_ref() {
     fi
 
     run_git reset --hard
-    run_git checkout $tag
+    run_git checkout "$tag"
     run_git submodule update
     run_git clean -df
 
@@ -92,7 +92,8 @@ function run_build_loop() {
         run_git tag | xargs git tag -d > /dev/null
 
         run_git fetch --prune --tags 2> /dev/null || continue
-        local tags=( $(run_git tag | grep "$TAG_PATTERN_TO_BUILD") )
+        local tags
+        tags=( $(run_git tag | grep "$TAG_PATTERN_TO_BUILD") )
 
         for tag in "${tags[@]}"; do
           build_ref "refs/tags/$tag"

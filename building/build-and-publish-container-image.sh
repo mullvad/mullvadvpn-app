@@ -53,7 +53,7 @@ trap 'delete_tmp_signature_dir' EXIT
 
 log_header "Pushing $full_container_name:latest"
 podman push "$full_container_name:latest" \
-    --sign-by $CONTAINER_SIGNING_KEY_FINGERPRINT \
+    --sign-by "$CONTAINER_SIGNING_KEY_FINGERPRINT" \
     --digestfile "$tmp_signature_dir/digest_latest"
 
 digest=$(cat "$tmp_signature_dir/digest_latest")
@@ -68,7 +68,7 @@ cp "$signature_dir/signature-1" "$tmp_signature_dir/signature-2"
 
 log_header "Pushing $full_container_name:$tag"
 podman push "$full_container_name:$tag" \
-    --sign-by $CONTAINER_SIGNING_KEY_FINGERPRINT \
+    --sign-by "$CONTAINER_SIGNING_KEY_FINGERPRINT" \
     --digestfile "$tmp_signature_dir/digest_$tag"
 
 if ! cmp -s "$tmp_signature_dir/digest_latest" "$tmp_signature_dir/digest_$tag"; then
