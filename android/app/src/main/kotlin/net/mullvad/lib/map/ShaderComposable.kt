@@ -1,7 +1,5 @@
 package net.mullvad.lib.map
 
-import android.opengl.GLSurfaceView.DEBUG_CHECK_GL_ERROR
-import android.opengl.GLSurfaceView.DEBUG_LOG_GL_CALLS
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -13,14 +11,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 
 @Composable
-fun GLShader(
-    renderer: ShaderRenderer,
-    modifier: Modifier = Modifier
-) {
+fun GLShader(renderer: ShaderRenderer, modifier: Modifier = Modifier) {
 
-    var view: MyGLSurfaceView? = remember {
-        null
-    }
+    var view: MyGLSurfaceView? = remember { null }
 
     val lifeCycleState = LocalLifecycleOwner.current.lifecycle
 
@@ -35,8 +28,7 @@ fun GLShader(
                     view?.onPause()
                     renderer.onPause()
                 }
-                else -> {
-                }
+                else -> {}
             }
         }
         lifeCycleState.addObserver(observer)
@@ -49,14 +41,16 @@ fun GLShader(
         }
     }
 
-    AndroidView(modifier = modifier,
+    AndroidView(
+        modifier = modifier,
         factory = {
-            //ShaderGLSurfaceView(it)
+            // ShaderGLSurfaceView(it)
             MyGLSurfaceView(it)
-        }) { glSurfaceView ->
+        }
+    ) { glSurfaceView ->
         view = glSurfaceView
-//        glSurfaceView.setShaderRenderer(
-//            renderer
-//        )
+        //        glSurfaceView.setShaderRenderer(
+        //            renderer
+        //        )
     }
 }

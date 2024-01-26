@@ -8,10 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import net.mullvad.mullvadvpn.R
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
+import net.mullvad.mullvadvpn.R
 
 @Composable
 fun MullvadMap() {
@@ -31,9 +31,7 @@ fun MullvadMap() {
     )
 }
 
-private fun Context.readTextFileFromResource(
-    resourceId: Int
-): String {
+private fun Context.readTextFileFromResource(resourceId: Int): String {
     val body = StringBuilder()
     try {
         val inputStream = resources.openRawResource(resourceId)
@@ -45,9 +43,7 @@ private fun Context.readTextFileFromResource(
             body.append('\n')
         }
     } catch (e: IOException) {
-        throw RuntimeException(
-            "Could not open resource: $resourceId", e
-        )
+        throw RuntimeException("Could not open resource: $resourceId", e)
     } catch (nfe: Resources.NotFoundException) {
         throw RuntimeException("Resource not found: $resourceId", nfe)
     }

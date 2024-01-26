@@ -5,7 +5,9 @@ import android.opengl.GLSurfaceView
 import android.util.AttributeSet
 import android.util.Log
 
-class ShaderGLSurfaceView @JvmOverloads constructor(
+class ShaderGLSurfaceView
+@JvmOverloads
+constructor(
     context: Context,
     attrs: AttributeSet? = null,
 ) : GLSurfaceView(context, attrs) {
@@ -16,19 +18,13 @@ class ShaderGLSurfaceView @JvmOverloads constructor(
         setEGLContextClientVersion(2)
 
         preserveEGLContextOnPause = true
-
     }
 
     private var hasSetShader = false
 
-    fun setShaderRenderer(
-        renderer: Renderer
-    ) {
+    fun setShaderRenderer(renderer: Renderer) {
 
-        if (hasSetShader.not())
-            setRenderer(
-                renderer
-            )
+        if (hasSetShader.not()) setRenderer(renderer)
 
         hasSetShader = true
     }

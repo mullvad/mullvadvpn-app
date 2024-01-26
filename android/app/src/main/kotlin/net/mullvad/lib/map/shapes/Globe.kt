@@ -2,6 +2,7 @@ package net.mullvad.lib.map.shapes
 
 import android.content.Context
 import android.opengl.GLES31
+import android.opengl.Matrix
 import android.util.Log
 import java.lang.RuntimeException
 import java.nio.Buffer
@@ -36,8 +37,8 @@ class Globe(context: Context) {
     private var vertexShader: Int = 0
     private var fragmentShader: Int = 0
 
-    private lateinit var attribLocations: AttribLocations
-    private lateinit var uniformLocation: UniformLocation
+    private var attribLocations: AttribLocations
+    private var uniformLocation: UniformLocation
 
     data class AttribLocations(val vertexPosition: Int)
 
@@ -45,10 +46,15 @@ class Globe(context: Context) {
 
     data class IndexBufferWithLength(val indexBuffer: Int, val length: Int)
 
-    val landColor: FloatArray = floatArrayOf(0.16f, 0.302f, 0.45f, 1.0f)
-    //    val oceanColor: FloatArray = floatArrayOf(0.098f, 0.18f, 0.271f, 1.0f)
-    val landIndices: IndexBufferWithLength
-    val landPositionBuffer: Int
+    private val landColor: FloatArray = floatArrayOf(0.16f, 0.302f, 0.45f, 1.0f)
+    private val oceanColor: FloatArray = floatArrayOf(0.098f, 0.18f, 0.271f, 1.0f)
+    private val contourColor: FloatArray = oceanColor
+    private val landIndices: IndexBufferWithLength
+    private val landContour: IndexBufferWithLength
+    private val landPositionBuffer: Int
+
+    private val oceanIndices: IndexBufferWithLength
+    private val oceanPositionBuffer: Int
 
     init {
 
@@ -67,11 +73,30 @@ class Globe(context: Context) {
         // Load triangles
         val landTriangleIndicesBuffer = ByteBuffer.wrap(landTriangleIndicesByteArray)
         landIndices = initIndexBuffer(landTriangleIndicesBuffer)
+
+        val landContourIndicesStream = context.resources.openRawResource(R.raw.land_contour_indices)
+        val landContourIndicesByteArray = landContourIndicesStream.use { it.readBytes() }
+        val landContourIndicesBuffer = ByteBuffer.wrap(landContourIndicesByteArray)
+        landContour = initIndexBuffer(landContourIndicesBuffer)
+
+        val oceanPosStream = context.resources.openRawResource(R.raw.ocean_positions)
+        val oceanPosByteArray = oceanPosStream.use { it.readBytes() }
+        val oceanPosByteBuffer = ByteBuffer.wrap(oceanPosByteArray)
+
+        oceanPositionBuffer = initArrayBuffer(oceanPosByteBuffer)
+
+        val oceanTriangleIndicesStream = context.resources.openRawResource(R.raw.ocean_indices)
+        val oceanTriangleIndicesByteArray = oceanTriangleIndicesStream.use { it.readBytes() }
+
+        // Load triangles
+        val oceanTriangleIndicesBuffer = ByteBuffer.wrap(oceanTriangleIndicesByteArray)
+        oceanIndices = initIndexBuffer(oceanTriangleIndicesBuffer)
+
         // create empty OpenGL ES Program
         shaderProgram = initShaderProgram(vertexShaderCode, fragmentShaderCode)
 
-
-        attribLocations = AttribLocations(GLES31.glGetAttribLocation(shaderProgram, "aVertexPosition"))
+        attribLocations =
+            AttribLocations(GLES31.glGetAttribLocation(shaderProgram, "aVertexPosition"))
         uniformLocation =
             UniformLocation(
                 color = GLES31.glGetUniformLocation(shaderProgram, "uColor"),
@@ -80,7 +105,7 @@ class Globe(context: Context) {
             )
     }
 
-    fun initShaderProgram(vsSource: String, fsSource: String): Int {
+    private fun initShaderProgram(vsSource: String, fsSource: String): Int {
         vertexShader = loadShader(GLES31.GL_VERTEX_SHADER, vsSource)
         if (vertexShader == -1) {
             throw Exception("vertexShader == -1")
@@ -114,7 +139,7 @@ class Globe(context: Context) {
         return program
     }
 
-    fun initArrayBuffer(dataBuffer: Buffer): Int {
+    private fun initArrayBuffer(dataBuffer: Buffer): Int {
         val buffer = IntArray(1)
         GLES31.glGenBuffers(1, buffer, 0)
 
@@ -128,7 +153,7 @@ class Globe(context: Context) {
         return buffer[0]
     }
 
-    fun initIndexBuffer(dataBuffer: Buffer): IndexBufferWithLength {
+    private fun initIndexBuffer(dataBuffer: Buffer): IndexBufferWithLength {
 
         val buffer = IntArray(1)
         GLES31.glGenBuffers(1, buffer, 0)
@@ -144,7 +169,7 @@ class Globe(context: Context) {
         return IndexBufferWithLength(indexBuffer = buffer[0], length = dataBuffer.capacity() / 4)
     }
 
-    fun loadShader(type: Int, shaderCode: String): Int {
+    private fun loadShader(type: Int, shaderCode: String): Int {
 
         // create a vertex shader type (GLES31.GL_VERTEX_SHADER)
         // or a fragment shader type (GLES31.GL_FRAGMENT_SHADER)
@@ -171,9 +196,20 @@ class Globe(context: Context) {
 
     fun draw(projectionMatrix: FloatArray, viewMatrix: FloatArray) {
         val globeViewMatrix = viewMatrix.clone()
+        val oceanViewMatrix = viewMatrix.clone()
 
         // Add program to OpenGL ES environment
         GLES31.glUseProgram(shaderProgram)
+
+        Matrix.scaleM(oceanViewMatrix, 0, 0.999f, 0.999f, 0.999f)
+        drawBufferElements(
+            projectionMatrix,
+            oceanViewMatrix,
+            oceanPositionBuffer,
+            oceanIndices,
+            oceanColor,
+            GLES31.GL_TRIANGLES
+        )
 
         drawBufferElements(
             projectionMatrix,
@@ -183,9 +219,17 @@ class Globe(context: Context) {
             landColor,
             GLES31.GL_TRIANGLES,
         )
+        drawBufferElements(
+            projectionMatrix,
+            globeViewMatrix,
+            landPositionBuffer,
+            landContour,
+            oceanColor,
+            GLES31.GL_LINES
+        )
     }
 
-    fun drawBufferElements(
+    private fun drawBufferElements(
         projectionMatrix: FloatArray,
         modelViewMatrix: FloatArray,
         positionBuffer: Int,

@@ -3,10 +3,8 @@ package net.mullvad.lib.map
 import android.graphics.Bitmap
 import android.opengl.GLES31.*
 import android.opengl.GLSurfaceView
-import android.os.Trace
 import android.util.Log
 import androidx.palette.graphics.Palette
-import androidx.palette.graphics.Target
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.concurrent.atomic.AtomicBoolean
@@ -18,14 +16,7 @@ open class ShaderRenderer : GLSurfaceView.Renderer {
 
     private val positionComponentCount = 2
 
-    private val quadVertices by lazy {
-        floatArrayOf(
-            -1f, 1f,
-            1f, 1f,
-            -1f, -1f,
-            1f, -1f
-        )
-    }
+    private val quadVertices by lazy { floatArrayOf(-1f, 1f, 1f, 1f, -1f, -1f, 1f, -1f) }
 
     private var surfaceHeight = 0f
     private var surfaceWidth = 0f
@@ -34,18 +25,15 @@ open class ShaderRenderer : GLSurfaceView.Renderer {
 
     private val verticesData by lazy {
         ByteBuffer.allocateDirect(quadVertices.size * bytesPerFloat)
-            .order(ByteOrder.nativeOrder()).asFloatBuffer().also {
-                it.put(quadVertices)
-            }
+            .order(ByteOrder.nativeOrder())
+            .asFloatBuffer()
+            .also { it.put(quadVertices) }
     }
 
     private var snapshotBuffer = initializeSnapshotBuffer(0, 0)
 
-    private fun initializeSnapshotBuffer(width: Int, height: Int) = ByteBuffer.allocateDirect(
-        width *
-                height *
-                bytesPerFloat
-    ).order(ByteOrder.nativeOrder())
+    private fun initializeSnapshotBuffer(width: Int, height: Int) =
+        ByteBuffer.allocateDirect(width * height * bytesPerFloat).order(ByteOrder.nativeOrder())
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         glClearColor(0f, 0f, 0f, 1f)
@@ -72,56 +60,60 @@ open class ShaderRenderer : GLSurfaceView.Renderer {
     private fun setupProgram() {
         programId?.let { glDeleteProgram(it) }
 
-        programId = glCreateProgram().also { newProgramId ->
-            if (programId == 0) {
-                Log.d("mullvad", "AAA Could not create new program")
-                return
+        programId =
+            glCreateProgram().also { newProgramId ->
+                if (programId == 0) {
+                    Log.d("mullvad", "AAA Could not create new program")
+                    return
+                }
+
+                val fragShader = createAndVerifyShader(fragmentShader, GL_FRAGMENT_SHADER)
+                val vertShader = createAndVerifyShader(vertexShader, GL_VERTEX_SHADER)
+
+                glAttachShader(newProgramId, vertShader)
+                glAttachShader(newProgramId, fragShader)
+
+                glLinkProgram(newProgramId)
+
+                val linkStatus = IntArray(1)
+                glGetProgramiv(newProgramId, GL_LINK_STATUS, linkStatus, 0)
+
+                if (linkStatus[0] == 0) {
+                    glDeleteProgram(newProgramId)
+                    Log.d(
+                        "mullvad",
+                        "AAA Linking of program failed. ${glGetProgramInfoLog(newProgramId)}"
+                    )
+                    return
+                }
+
+                if (validateProgram(newProgramId)) {
+                    positionAttributeLocation = glGetAttribLocation(newProgramId, "a_Position")
+                    resolutionUniformLocation = glGetUniformLocation(newProgramId, "u_resolution")
+                    timeUniformLocation = glGetUniformLocation(newProgramId, "u_time")
+                } else {
+                    Log.d("mullvad", "AAA Validating of program failed.")
+                    return
+                }
+
+                verticesData.position(0)
+
+                positionAttributeLocation?.let { attribLocation ->
+                    glVertexAttribPointer(
+                        attribLocation,
+                        positionComponentCount,
+                        GL_FLOAT,
+                        false,
+                        0,
+                        verticesData
+                    )
+                }
+
+                glDetachShader(newProgramId, vertShader)
+                glDetachShader(newProgramId, fragShader)
+                glDeleteShader(vertShader)
+                glDeleteShader(fragShader)
             }
-
-            val fragShader = createAndVerifyShader(fragmentShader, GL_FRAGMENT_SHADER)
-            val vertShader = createAndVerifyShader(vertexShader, GL_VERTEX_SHADER)
-
-            glAttachShader(newProgramId, vertShader)
-            glAttachShader(newProgramId, fragShader)
-
-            glLinkProgram(newProgramId)
-
-            val linkStatus = IntArray(1)
-            glGetProgramiv(newProgramId, GL_LINK_STATUS, linkStatus, 0)
-
-            if (linkStatus[0] == 0) {
-                glDeleteProgram(newProgramId)
-                Log.d("mullvad", "AAA Linking of program failed. ${glGetProgramInfoLog(newProgramId)}")
-                return
-            }
-
-            if (validateProgram(newProgramId)) {
-                positionAttributeLocation = glGetAttribLocation(newProgramId, "a_Position")
-                resolutionUniformLocation = glGetUniformLocation(newProgramId, "u_resolution")
-                timeUniformLocation = glGetUniformLocation(newProgramId, "u_time")
-            } else {
-                Log.d("mullvad", "AAA Validating of program failed.");
-                return
-            }
-
-            verticesData.position(0)
-
-            positionAttributeLocation?.let { attribLocation ->
-                glVertexAttribPointer(
-                    attribLocation,
-                    positionComponentCount,
-                    GL_FLOAT,
-                    false,
-                    0,
-                    verticesData
-                )
-            }
-
-            glDetachShader(newProgramId, vertShader)
-            glDetachShader(newProgramId, fragShader)
-            glDeleteShader(vertShader)
-            glDeleteShader(fragShader)
-        }
     }
 
     private var positionAttributeLocation: Int? = null
@@ -134,8 +126,6 @@ open class ShaderRenderer : GLSurfaceView.Renderer {
         surfaceWidth = width.toFloat()
         surfaceHeight = height.toFloat()
         frameCount = 0f
-
-
     }
 
     private var frameCount = 0f
@@ -143,65 +133,35 @@ open class ShaderRenderer : GLSurfaceView.Renderer {
     override fun onDrawFrame(gl: GL10?) {
 
         /**
-        if (shouldPlay.get()) {
-            Trace.beginSection(eventSource)
-            glDisable(GL10.GL_DITHER)
-            glClear(GL10.GL_COLOR_BUFFER_BIT)
-
-
-            if (isProgramChanged.getAndSet(false)) {
-                setupProgram()
-            } else {
-                programId?.let {
-                    glUseProgram(it)
-                } ?: return
-            }
-
-            positionAttributeLocation?.let {
-                glEnableVertexAttribArray(it)
-            } ?: return
-
-
-            resolutionUniformLocation?.let {
-                glUniform2f(it, surfaceWidth, surfaceHeight)
-            }
-
-            timeUniformLocation?.let {
-                glUniform1f(it, frameCount)
-            }
-
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
-
-            positionAttributeLocation?.let {
-                glDisableVertexAttribArray(it)
-            } ?: return
-
-            getPaletteCallback?.let { callback ->
-                if (surfaceWidth != 0f && surfaceHeight != 0f) {
-                    getCurrentBitmap()?.let { bitmap ->
-                        Palette.Builder(bitmap)
-                            .maximumColorCount(6)
-                            .addTarget(Target.VIBRANT)
-                            .generate().let { palette ->
-                                callback(palette)
-                                getPaletteCallback = null
-                                bitmap.recycle()
-                            }
-                    }
-                }
-            }
-
-//            glFinish()
-
-            if (frameCount > 30) {
-                frameCount = 0f
-            }
-
-            frameCount += 0.01f
-
-            Trace.endSection()
-        }
-        */
+         * if (shouldPlay.get()) { Trace.beginSection(eventSource) glDisable(GL10.GL_DITHER)
+         * glClear(GL10.GL_COLOR_BUFFER_BIT)
+         *
+         * if (isProgramChanged.getAndSet(false)) { setupProgram() } else { programId?.let {
+         * glUseProgram(it) } ?: return }
+         *
+         * positionAttributeLocation?.let { glEnableVertexAttribArray(it) } ?: return
+         *
+         * resolutionUniformLocation?.let { glUniform2f(it, surfaceWidth, surfaceHeight) }
+         *
+         * timeUniformLocation?.let { glUniform1f(it, frameCount) }
+         *
+         * glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
+         *
+         * positionAttributeLocation?.let { glDisableVertexAttribArray(it) } ?: return
+         *
+         * getPaletteCallback?.let { callback -> if (surfaceWidth != 0f && surfaceHeight != 0f) {
+         * getCurrentBitmap()?.let { bitmap -> Palette.Builder(bitmap) .maximumColorCount(6)
+         * .addTarget(Target.VIBRANT) .generate().let { palette -> callback(palette)
+         * getPaletteCallback = null bitmap.recycle() } } } }
+         *
+         * // glFinish()
+         *
+         * if (frameCount > 30) { frameCount = 0f }
+         *
+         * frameCount += 0.01f
+         *
+         * Trace.endSection() }
+         */
     }
 
     private fun getCurrentBitmap(): Bitmap? {
@@ -229,11 +189,7 @@ open class ShaderRenderer : GLSurfaceView.Renderer {
             snapshotBuffer
         )
 
-        val bitmap = Bitmap.createBitmap(
-            24,
-            24,
-            Bitmap.Config.ARGB_8888
-        )
+        val bitmap = Bitmap.createBitmap(24, 24, Bitmap.Config.ARGB_8888)
 
         bitmap.copyPixelsFromBuffer(snapshotBuffer)
         return bitmap
@@ -244,13 +200,13 @@ open class ShaderRenderer : GLSurfaceView.Renderer {
         val validateStatus = IntArray(1)
         glGetProgramiv(programObjectId, GL_VALIDATE_STATUS, validateStatus, 0)
 
-//        Timber.tag("Results of validating").v(
-//            "${validateStatus[0]} \n  Log : ${
-//                glGetProgramInfoLog(
-//                    programObjectId
-//                )
-//            } \n".trimIndent()
-//        )
+        //        Timber.tag("Results of validating").v(
+        //            "${validateStatus[0]} \n  Log : ${
+        //                glGetProgramInfoLog(
+        //                    programObjectId
+        //                )
+        //            } \n".trimIndent()
+        //        )
 
         return validateStatus[0] != 0
     }
@@ -270,5 +226,4 @@ open class ShaderRenderer : GLSurfaceView.Renderer {
     fun onPause() {
         shouldPlay.compareAndSet(true, false)
     }
-
 }
