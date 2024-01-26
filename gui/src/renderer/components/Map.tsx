@@ -108,7 +108,7 @@ function MapInner(props: MapParams) {
 
       // Propagate location change to the map
       if (newParams.current) {
-        map.setLocation(newParams.current.location, newParams.current.connectionState, now);
+        map.setLocation(newParams.current.location, newParams.current.connectionState, now, true);
         newParams.current = undefined;
       }
 

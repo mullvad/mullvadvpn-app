@@ -452,40 +452,52 @@ export default class GlMap {
 
   // Move the location marker to `newCoordinate` (with state `connectionState`) and queue
   // animation to move to that coordinate.
-  public setLocation(newCoordinate: Coordinate, connectionState: ConnectionState, now: number) {
+  public setLocation(
+    newCoordinate: Coordinate,
+    connectionState: ConnectionState,
+    now: number,
+    animate: boolean,
+  ) {
     const endZoom = connectionState == ConnectionState.connected ? connectedZoom : disconnectedZoom;
 
     // Only perform a coordinate animation if the new coordinate is
     // different from the current position/latest ongoing animation.
     // If the new coordinate is the same as the current target, we just
     // queue a zoom animation.
-    if (newCoordinate !== this.targetCoordinate) {
-      const path = shortestPath(
-        Vector.fromCoordinate(this.coordinate),
-        Vector.fromCoordinate(newCoordinate),
-      );
+    if (animate) {
+      if (newCoordinate !== this.targetCoordinate) {
+        const path = shortestPath(
+          Vector.fromCoordinate(this.coordinate),
+          Vector.fromCoordinate(newCoordinate),
+        );
 
-      // Compute animation time as a function of movement distance. Clamp the
-      // duration range between animationMinTime and animationMaxTime
-      const duration = Math.min(Math.max(path.length() / 20, animationMinTime), animationMaxTime);
+        // Compute animation time as a function of movement distance. Clamp the
+        // duration range between animationMinTime and animationMaxTime
+        const duration = Math.min(Math.max(path.length() / 20, animationMinTime), animationMaxTime);
 
-      this.animations.push(
-        new SmoothLerp(Vector.fromCoordinate(this.coordinate), path, now, duration),
-      );
-      if (duration > zoomAnimationStyleTimeBreakpoint) {
-        this.zoomAnimations.push(new SmoothZoomOutIn(this.zoom, endZoom, now, duration));
+        this.animations.push(
+          new SmoothLerp(Vector.fromCoordinate(this.coordinate), path, now, duration),
+        );
+        if (duration > zoomAnimationStyleTimeBreakpoint) {
+          this.zoomAnimations.push(new SmoothZoomOutIn(this.zoom, endZoom, now, duration));
+        } else {
+          this.zoomAnimations.push(new SmoothZoomDirect(this.zoom, endZoom, now, duration));
+        }
       } else {
+        let duration = animationMinTime;
+        // If an animation is in progress, make sure our zoom animation ends at the same time.
+        // Just makes a smooth transition from one zoom end state to the other.
+        if (this.zoomAnimations.length > 0) {
+          const lastZoomAnimation = this.zoomAnimations[this.zoomAnimations.length - 1];
+          duration = Math.max(lastZoomAnimation.endTime - now, animationMinTime);
+        }
         this.zoomAnimations.push(new SmoothZoomDirect(this.zoom, endZoom, now, duration));
       }
     } else {
-      let duration = animationMinTime;
-      // If an animation is in progress, make sure our zoom animation ends at the same time.
-      // Just makes a smooth transition from one zoom end state to the other.
-      if (this.zoomAnimations.length > 0) {
-        const lastZoomAnimation = this.zoomAnimations[this.zoomAnimations.length - 1];
-        duration = Math.max(lastZoomAnimation.endTime - now, animationMinTime);
-      }
-      this.zoomAnimations.push(new SmoothZoomDirect(this.zoom, endZoom, now, duration));
+      this.animations = [];
+      this.zoomAnimations = [];
+      this.coordinate = newCoordinate;
+      this.zoom = endZoom;
     }
 
     this.connectionState = connectionState;
