@@ -91,8 +91,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
 
-        // This init cannot fail as long as the security group identifier is valid
-        let sharedUserDefaults = UserDefaults(suiteName: ApplicationConfiguration.securityGroupIdentifier)!
         shadowsocksLoader = ShadowsocksLoader(
             shadowsocksCache: shadowsocksCache,
             relayCache: relayCache,
@@ -105,7 +103,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         let transportStrategy = TransportStrategy(
-            sharedUserDefaults,
             datasource: accessMethodRepository,
             shadowsocksLoader: shadowsocksLoader
         )

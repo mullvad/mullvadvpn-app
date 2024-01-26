@@ -42,7 +42,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         // This init cannot fail as long as the security group identifier is valid
         let transportStrategy = TransportStrategy(
-            UserDefaults(suiteName: ApplicationConfiguration.securityGroupIdentifier)!,
             datasource: AccessMethodRepository(),
             shadowsocksLoader: ShadowsocksLoader(
                 shadowsocksCache: shadowsocksCache,
