@@ -15,14 +15,6 @@ struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
     let repository: AccessMethodRepositoryProtocol
     let proxyConfigurationTester: ProxyConfigurationTesterProtocol
 
-    var directAccess: PersistentAccessMethod {
-        repository.directAccess
-    }
-
-    var publisher: AnyPublisher<[PersistentAccessMethod], Never> {
-        repository.publisher.eraseToAnyPublisher()
-    }
-
     func saveAccessMethod() {
         guard let persistentMethod = try? subject.value.intoPersistentAccessMethod() else { return }
 
@@ -31,10 +23,6 @@ struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
 
     func deleteAccessMethod() {
         repository.delete(id: subject.value.id)
-    }
-
-    func fetchAll() -> [MullvadSettings.PersistentAccessMethod] {
-        return repository.fetchAll()
     }
 
     func startProxyConfigurationTest(_ completion: ((Bool) -> Void)?) {

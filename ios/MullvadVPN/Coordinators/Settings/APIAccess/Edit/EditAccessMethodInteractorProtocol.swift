@@ -9,7 +9,7 @@
 import MullvadSettings
 
 /// The type implementing the interface for persisting changes to the underlying access method view model in the editing context.
-protocol EditAccessMethodInteractorProtocol: ProxyConfigurationInteractorProtocol, AccessMethodRepositoryDataSource {
+protocol EditAccessMethodInteractorProtocol: ProxyConfigurationInteractorProtocol {
     /// Save changes to persistent store.
     ///
     /// - Calling this method when the underlying view model fails validation does nothing.
