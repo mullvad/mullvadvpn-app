@@ -57,6 +57,17 @@ impl ConnectingState {
         shared_values: &mut SharedTunnelStateValues,
         retry_attempt: u32,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
+        #[cfg(target_os = "macos")]
+        if let Err(err) = shared_values.dns_monitor.set(
+            "lo",
+            crate::dns::DnsConfig::default().resolve(&[std::net::Ipv4Addr::LOCALHOST.into()]),
+        ) {
+            log::error!(
+                "{}",
+                err.display_chain_with_msg("Failed to configure system to use filtering resolver")
+            );
+        }
+
         if shared_values.connectivity.is_offline() {
             // FIXME: Temporary: Nudge route manager to update the default interface
             #[cfg(target_os = "macos")]
@@ -174,6 +185,8 @@ impl ConnectingState {
             redirect_interface,
             #[cfg(target_os = "macos")]
             apple_services_bypass: shared_values.apple_services_bypass,
+            #[cfg(target_os = "macos")]
+            dns_redirect_port: shared_values.filtering_resolver.listening_port(),
         };
         shared_values
             .firewall

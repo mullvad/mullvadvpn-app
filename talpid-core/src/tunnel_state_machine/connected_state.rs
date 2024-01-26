@@ -144,6 +144,8 @@ impl ConnectedState {
             redirect_interface,
             #[cfg(target_os = "macos")]
             apple_services_bypass: shared_values.apple_services_bypass,
+            #[cfg(target_os = "macos")]
+            dns_redirect_port: shared_values.filtering_resolver.listening_port(),
         }
     }
 
@@ -157,18 +159,34 @@ impl ConnectedState {
     fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<(), BoxedError> {
         let dns_config = Self::resolve_dns(&self.metadata, shared_values);
 
+        #[cfg(not(target_os = "macos"))]
         shared_values
             .dns_monitor
             .set(&self.metadata.interface, dns_config)
             .map_err(BoxedError::new)?;
 
+        // On macOS, configure only the local DNS resolver
+        #[cfg(target_os = "macos")]
+        shared_values.runtime.block_on(
+            shared_values
+                .filtering_resolver
+                .enable_forward(dns_config.addresses().collect()),
+        );
+
         Ok(())
     }
 
     fn reset_dns(shared_values: &mut SharedTunnelStateValues) {
+        #[cfg(not(target_os = "macos"))]
         if let Err(error) = shared_values.dns_monitor.reset_before_interface_removal() {
             log::error!("{}", error.display_chain_with_msg("Unable to reset DNS"));
         }
+
+        // On macOS, configure only the local DNS resolver
+        #[cfg(target_os = "macos")]
+        shared_values
+            .runtime
+            .block_on(shared_values.filtering_resolver.disable_forward());
     }
 
     fn reset_routes(

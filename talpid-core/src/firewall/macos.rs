@@ -177,6 +177,12 @@ impl Firewall {
         let redirect_rules = match policy {
             FirewallPolicy::Blocked {
                 dns_redirect_port, ..
+            }
+            | FirewallPolicy::Connecting {
+                dns_redirect_port, ..
+            }
+            | FirewallPolicy::Connected {
+                dns_redirect_port, ..
             } => {
                 vec![pfctl::RedirectRuleBuilder::default()
                     .action(pfctl::RedirectRuleAction::Redirect)
@@ -186,7 +192,6 @@ impl Firewall {
                     .redirect_to(pfctl::Port::from(*dns_redirect_port))
                     .build()?]
             }
-            _ => vec![],
         };
         Ok(redirect_rules)
     }
@@ -204,6 +209,7 @@ impl Firewall {
                 allowed_tunnel_traffic,
                 redirect_interface,
                 apple_services_bypass,
+                dns_redirect_port: _,
             } => {
                 let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint)?);
@@ -253,6 +259,7 @@ impl Firewall {
                 dns_config,
                 redirect_interface,
                 apple_services_bypass,
+                dns_redirect_port: _,
             } => {
                 let mut rules = vec![];
 

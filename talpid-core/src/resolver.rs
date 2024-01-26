@@ -1,14 +1,15 @@
 use std::{
     io,
-    net::{Ipv4Addr, SocketAddr},
+    net::{IpAddr, Ipv4Addr, SocketAddr},
+    path::{Path, PathBuf},
     str::FromStr,
     sync::{Arc, Weak},
+    time::{Duration, Instant},
 };
-
-use std::time::{Duration, Instant};
 
 use futures::{
     channel::{mpsc, oneshot},
+    future::Either,
     SinkExt, StreamExt,
 };
 
@@ -24,13 +25,20 @@ use hickory_server::{
         op::{header::MessageType, op_code::OpCode, Header},
         rr::{domain::Name, rdata, record_data::RData, Record},
     },
-    resolver::lookup::Lookup,
+    resolver::{
+        config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
+        error::{ResolveError, ResolveErrorKind},
+        lookup::Lookup,
+        TokioAsyncResolver,
+    },
     server::{Request, RequestHandler, ResponseHandler, ResponseInfo},
     ServerFuture,
 };
+use libc::{c_void, kill, pid_t, proc_listallpids, proc_pidpath, SIGHUP};
 use std::sync::LazyLock;
 
-const ALLOWED_RECORD_TYPES: &[RecordType] = &[RecordType::A, RecordType::CNAME];
+const ALLOWED_RECORD_TYPES: &[RecordType] =
+    &[RecordType::A, /*RecordType::AAAA,*/ RecordType::CNAME];
 const CAPTIVE_PORTAL_DOMAINS: &[&str] = &["captive.apple.com", "netcts.cdn-apple.com"];
 
 static ALLOWED_DOMAINS: LazyLock<Vec<LowerName>> = LazyLock::new(|| {
@@ -48,7 +56,7 @@ const RESOLVED_ADDR: Ipv4Addr = Ipv4Addr::new(198, 51, 100, 1);
 /// Starts a resolver. Returns a cloneable handle, which can activate, deactivate and shut down the
 /// resolver. When all instances of a handle are dropped, the server will stop.
 pub(crate) async fn start_resolver() -> Result<ResolverHandle, Error> {
-    let (resolver, resolver_handle) = FilteringResolver::new().await?;
+    let (resolver, resolver_handle) = ForwardingResolver::new().await?;
     tokio::spawn(resolver.run());
     Ok(resolver_handle)
 }
@@ -65,43 +73,187 @@ pub enum Error {
     GetSocketAddrError(#[source] io::Error),
 }
 
-/// A filtering resolver. Listens on a specified port for DNS queries and responds queries for
-/// `catpive.apple.com`. Can be toggled to unbind, be bound but not respond or bound and responding
-/// to some queries.
-struct FilteringResolver {
-    rx: mpsc::Receiver<ResolverMessage>,
+/// A forwarding resolver
+struct ForwardingResolver {
+    rx: mpsc::UnboundedReceiver<ResolverMessage>,
     dns_server: Option<(tokio::task::JoinHandle<()>, oneshot::Receiver<()>)>,
+    forward_resolver: LocalResolver,
 }
 
-/// The `FilteringResolver` is an actor responding to DNS queries.
-type ResolverMessage = (LowerQuery, oneshot::Sender<Box<dyn LookupObject>>);
+/// Resolver message
+enum ResolverMessage {
+    /// Set config
+    SetConfig {
+        /// New DNS config to use
+        new_config: LocalConfig,
+        /// Response channel when resolvers have been updated
+        response_tx: oneshot::Sender<()>,
+    },
+    /// Query
+    Query(
+        LowerQuery,
+        oneshot::Sender<std::result::Result<Box<dyn LookupObject>, ResolveError>>,
+    ),
+}
 
-/// A handle to control a filtering resolver. When all resolver handles are dropped, custom
+/// Resolver config
+#[derive(Debug, Default, Clone)]
+enum LocalConfig {
+    /// Drop DNS queries. For captive portal domains, return faux records
+    #[default]
+    Blocked,
+    /// Forward DNS queries to a configured server
+    ForwardDns {
+        /// Remote DNS server to use
+        dns_servers: Vec<IpAddr>,
+    },
+}
+
+enum LocalResolver {
+    /// Drop DNS queries. For captive portal domains, return faux records
+    Blocked,
+    /// Forward DNS queries to a configured server
+    ForwardDns(TokioAsyncResolver),
+}
+
+impl From<LocalConfig> for LocalResolver {
+    fn from(config: LocalConfig) -> Self {
+        match config {
+            LocalConfig::Blocked => LocalResolver::Blocked,
+            LocalConfig::ForwardDns { ref dns_servers } => {
+                let forward_server_config =
+                    NameServerConfigGroup::from_ips_clear(dns_servers, 53, true);
+
+                let forward_config =
+                    ResolverConfig::from_parts(None, vec![], forward_server_config);
+                let resolver_opts = ResolverOpts::default();
+
+                let resolver = TokioAsyncResolver::tokio(forward_config, resolver_opts);
+
+                LocalResolver::ForwardDns(resolver)
+            }
+        }
+    }
+}
+
+impl LocalResolver {
+    pub fn resolve(
+        &self,
+        query: LowerQuery,
+        tx: oneshot::Sender<std::result::Result<Box<dyn LookupObject>, ResolveError>>,
+    ) {
+        let lookup = match self {
+            LocalResolver::Blocked => Either::Left(async move { Self::resolve_blocked(query) }),
+            LocalResolver::ForwardDns(resolver) => {
+                Either::Right(Self::resolve_forward(resolver.clone(), query))
+            }
+        };
+
+        tokio::spawn(async move {
+            let _ = tx.send(lookup.await);
+        });
+    }
+
+    /// Resolution in blocked state will return spoofed records for captive portal domains.
+    fn resolve_blocked(
+        query: LowerQuery,
+    ) -> std::result::Result<Box<dyn LookupObject>, ResolveError> {
+        if !Self::is_captive_portal_domain(&query) {
+            return Ok(Box::new(EmptyLookup));
+        }
+
+        let return_query = query.original().clone();
+        let mut return_record = Record::with(
+            return_query.name().clone(),
+            return_query.query_type(),
+            TTL_SECONDS,
+        );
+        return_record.set_data(Some(RData::A(rdata::A(RESOLVED_ADDR))));
+
+        log::debug!(
+            "Spoofing query for captive portal domain: {}",
+            return_query.name()
+        );
+
+        let lookup = Lookup::new_with_deadline(
+            return_query,
+            Arc::new([return_record]),
+            Instant::now() + Duration::from_secs(3),
+        );
+        Ok(Box::new(ForwardLookup(lookup)) as Box<_>)
+    }
+
+    /// Determines whether a DNS query is allowable. Currently, this implies that the query is
+    /// either a `A` or a `CNAME` query for `captive.apple.com`.
+    fn is_captive_portal_domain(query: &LowerQuery) -> bool {
+        ALLOWED_RECORD_TYPES.contains(&query.query_type()) && ALLOWED_DOMAINS.contains(query.name())
+    }
+
+    /// Forward DNS queries to the specified DNS resolver.
+    async fn resolve_forward(
+        resolver: TokioAsyncResolver,
+        query: LowerQuery,
+    ) -> std::result::Result<Box<dyn LookupObject>, ResolveError> {
+        let return_query = query.original().clone();
+
+        let lookup = resolver
+            .lookup(return_query.name().clone(), return_query.query_type())
+            .await;
+
+        lookup.map(|lookup| Box::new(ForwardLookup(lookup)) as Box<_>)
+    }
+}
+
+/// A handle to control a forwarding resolver. When all resolver handles are dropped, custom
 /// resolver will stop.
 #[derive(Clone)]
 pub(crate) struct ResolverHandle {
-    _tx: Arc<mpsc::Sender<ResolverMessage>>,
+    tx: Arc<mpsc::UnboundedSender<ResolverMessage>>,
     listening_port: u16,
 }
 
 impl ResolverHandle {
-    fn new(tx: Arc<mpsc::Sender<ResolverMessage>>, listening_port: u16) -> Self {
-        Self {
-            _tx: tx,
-            listening_port,
-        }
+    fn new(tx: Arc<mpsc::UnboundedSender<ResolverMessage>>, listening_port: u16) -> Self {
+        Self { tx, listening_port }
     }
 
     /// Get listening port for resolver handle
     pub fn listening_port(&self) -> u16 {
         self.listening_port
     }
+
+    /// Set the DNS server to forward queries to
+    pub async fn enable_forward(&self, dns_servers: Vec<IpAddr>) {
+        let dns_servers = dns_servers
+            .into_iter()
+            .filter(|addr| !addr.is_loopback())
+            .collect();
+
+        let (response_tx, response_rx) = oneshot::channel();
+        let _ = self.tx.unbounded_send(ResolverMessage::SetConfig {
+            new_config: LocalConfig::ForwardDns { dns_servers },
+            response_tx,
+        });
+
+        let _ = response_rx.await;
+    }
+
+    // Disable forwarding
+    pub async fn disable_forward(&self) {
+        let (response_tx, response_rx) = oneshot::channel();
+        let _ = self.tx.unbounded_send(ResolverMessage::SetConfig {
+            new_config: LocalConfig::Blocked,
+            response_tx,
+        });
+
+        let _ = response_rx.await;
+    }
 }
 
-impl FilteringResolver {
+impl ForwardingResolver {
     /// Constructs a new filtering resolver and it's handle.
     async fn new() -> Result<(Self, ResolverHandle), Error> {
-        let (tx, rx) = mpsc::channel(0);
+        let (tx, rx) = mpsc::unbounded();
         let command_tx = Arc::new(tx);
 
         let weak_tx = Arc::downgrade(&command_tx);
@@ -131,9 +283,11 @@ impl FilteringResolver {
 
             let _ = server_done_tx.send(());
         });
+
         let resolver = Self {
             rx,
             dns_server: Some((server_handle, server_done_rx)),
+            forward_resolver: LocalResolver::from(LocalConfig::Blocked),
         };
 
         Ok((resolver, ResolverHandle::new(command_tx, port)))
@@ -141,7 +295,7 @@ impl FilteringResolver {
 
     async fn new_server(
         port: u16,
-        command_tx: Weak<mpsc::Sender<ResolverMessage>>,
+        command_tx: Weak<mpsc::UnboundedSender<ResolverMessage>>,
     ) -> Result<(ServerFuture<ResolverImpl>, u16), Error> {
         let mut server = ServerFuture::new(ResolverImpl { tx: command_tx });
 
@@ -162,8 +316,22 @@ impl FilteringResolver {
     /// related [ResolverHandle] instances are dropped, this function will return, closing the DNS
     /// server.
     async fn run(mut self) {
-        while let Some((query, tx)) = self.rx.next().await {
-            self.resolve(query, tx);
+        while let Some(request) = self.rx.next().await {
+            match request {
+                ResolverMessage::SetConfig {
+                    new_config,
+                    response_tx,
+                } => {
+                    log::debug!("Updating config: {new_config:?}");
+
+                    self.forward_resolver = LocalResolver::from(new_config);
+                    flush_system_cache();
+                    let _ = response_tx.send(());
+                }
+                ResolverMessage::Query(query, tx) => {
+                    self.forward_resolver.resolve(query, tx);
+                }
+            }
         }
 
         if let Some((server_handle, done_rx)) = self.dns_server.take() {
@@ -171,35 +339,86 @@ impl FilteringResolver {
             let _ = done_rx.await;
         }
     }
+}
 
-    /// Resolvers a query to nothing or a documentation address
-    fn resolve(&mut self, query: LowerQuery, tx: oneshot::Sender<Box<dyn LookupObject>>) {
-        if !self.allow_query(&query) {
-            let _ = tx.send(Box::new(EmptyLookup) as Box<dyn LookupObject>);
-            return;
+/// Flush the DNS cache.
+fn flush_system_cache() {
+    if let Err(error) = kill_mdnsresponder() {
+        log::error!("Failed to kill mDNSResponder: {error}");
+    }
+}
+
+const MDNS_RESPONDER_PATH: &str = "/usr/sbin/mDNSResponder";
+
+/// Find and kill mDNSResponder. The OS will restart the service.
+fn kill_mdnsresponder() -> io::Result<()> {
+    if let Some(mdns_pid) = pid_of_path(MDNS_RESPONDER_PATH) {
+        if unsafe { kill(mdns_pid as i32, SIGHUP) } != 0 {
+            return Err(io::Error::last_os_error());
         }
+    }
+    Ok(())
+}
 
-        let return_query = query.original().clone();
-        let mut return_record = Record::with(
-            return_query.name().clone(),
-            return_query.query_type(),
-            TTL_SECONDS,
-        );
-        return_record.set_data(Some(RData::A(rdata::A(RESOLVED_ADDR))));
+/// Return the first process identifier matching a specified path, if one exists.
+fn pid_of_path(find_path: impl AsRef<Path>) -> Option<pid_t> {
+    match list_pids() {
+        Ok(pids) => {
+            for pid in pids {
+                if let Ok(path) = process_path(pid) {
+                    if path == find_path.as_ref() {
+                        return Some(pid);
+                    }
+                }
+            }
+            None
+        }
+        Err(error) => {
+            log::error!("Failed to list processes: {error}");
+            None
+        }
+    }
+}
 
-        let lookup = Lookup::new_with_deadline(
-            return_query,
-            Arc::new([return_record]),
-            Instant::now() + Duration::from_secs(3),
-        );
-        let _ = tx.send(Box::new(ForwardLookup(lookup)));
+/// Obtain a list of all pids
+fn list_pids() -> io::Result<Vec<pid_t>> {
+    // SAFETY: Passing in null and 0 returns the number of processes
+    let num_pids = unsafe { proc_listallpids(std::ptr::null_mut(), 0) };
+    if num_pids <= 0 {
+        return Err(io::Error::last_os_error());
+    }
+    let num_pids = usize::try_from(num_pids).unwrap();
+    let mut pids = vec![0i32; num_pids];
+
+    let buf_sz = (num_pids * std::mem::size_of::<pid_t>()) as i32;
+    // SAFETY: 'pids' is large enough to contain 'num_pids' processes
+    let num_pids = unsafe { proc_listallpids(pids.as_mut_ptr() as *mut c_void, buf_sz) };
+    if num_pids == -1 {
+        return Err(io::Error::last_os_error());
     }
 
-    /// Determines whether a DNS query is allowable. Currently, this implies that the query is
-    /// either a `A`, `AAAA` or a `CNAME` query for `captive.apple.com`.
-    fn allow_query(&self, query: &LowerQuery) -> bool {
-        ALLOWED_RECORD_TYPES.contains(&query.query_type()) && ALLOWED_DOMAINS.contains(query.name())
+    pids.resize(usize::try_from(num_pids).unwrap(), 0);
+
+    Ok(pids)
+}
+
+fn process_path(pid: pid_t) -> io::Result<PathBuf> {
+    let mut buffer = [0u8; libc::MAXPATHLEN as usize];
+    // SAFETY: `proc_pidpath` returns at most `buffer.len()` bytes
+    let buf_len = unsafe {
+        proc_pidpath(
+            pid,
+            buffer.as_mut_ptr() as *mut c_void,
+            u32::try_from(buffer.len()).unwrap(),
+        )
+    };
+    if buf_len == -1 {
+        return Err(io::Error::last_os_error());
     }
+    Ok(PathBuf::from(
+        std::str::from_utf8(&buffer[0..buf_len as usize])
+            .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid process path"))?,
+    ))
 }
 
 type LookupResponse<'a> = MessageResponse<
@@ -214,7 +433,7 @@ type LookupResponse<'a> = MessageResponse<
 /// An implementation of [hickory_server::server::RequestHandler] that forwards queries to
 /// `FilteringResolver`.
 struct ResolverImpl {
-    tx: Weak<mpsc::Sender<ResolverMessage>>,
+    tx: Weak<mpsc::UnboundedSender<ResolverMessage>>,
 }
 
 impl ResolverImpl {
@@ -238,19 +457,37 @@ impl ResolverImpl {
         )
     }
 
+    /// This function is called when a DNS query is sent to the local resolver
     async fn lookup<R: ResponseHandler>(&self, message: &Request, mut response_handler: R) {
         if let Some(tx_ref) = self.tx.upgrade() {
             let mut tx = (*tx_ref).clone();
             let query = message.query();
             let (lookup_tx, lookup_rx) = oneshot::channel();
-            let _ = tx.send((query.clone(), lookup_tx)).await;
-            let lookup_result: Box<dyn LookupObject> = lookup_rx
-                .await
-                .unwrap_or_else(|_| Box::new(EmptyLookup) as Box<dyn LookupObject>);
-            let response = Self::build_response(message, lookup_result.as_ref());
+            let _ = tx
+                .send(ResolverMessage::Query(query.clone(), lookup_tx))
+                .await;
 
-            if let Err(err) = response_handler.send_response(response).await {
-                log::error!("Failed to send response: {}", err);
+            let lookup_result = lookup_rx.await;
+            let response_result = match lookup_result {
+                Ok(Ok(ref lookup)) => {
+                    let response = Self::build_response(message, lookup.as_ref());
+                    response_handler.send_response(response).await
+                }
+                Err(_error) => return,
+                Ok(Err(resolve_err)) => match resolve_err.kind() {
+                    ResolveErrorKind::NoRecordsFound { response_code, .. } => {
+                        let response = MessageResponseBuilder::from_message_request(message)
+                            .error_msg(message.header(), *response_code);
+                        response_handler.send_response(response).await
+                    }
+                    _other => {
+                        let response = Self::build_response(message, &EmptyLookup);
+                        response_handler.send_response(response).await
+                    }
+                },
+            };
+            if let Err(err) = response_result {
+                log::error!("Failed to send response: {err}");
             }
         }
     }
