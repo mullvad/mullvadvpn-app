@@ -328,10 +328,8 @@ class LocationMarker {
   }
 }
 
-// Class for computing a smooth linear interpolation from
-// `startCoordinate` (2D coordinate in degrees), along `path` (2D vector),
-// starting at zoom level `startZoom` and ending in `endZoom`.
-// starting at time `startTime` (usually now() at the time of creating an instance),
+// Class for computing a smooth linear interpolation from `start` along `path`.
+// Starting at time `startTime` (usually now() at the time of creating an instance),
 // and animating for `duration` seconds
 class SmoothLerp {
   public constructor(
@@ -341,7 +339,7 @@ class SmoothLerp {
     private duration: number,
   ) {}
 
-  // Computes and returns the coordinate as well as the zoom level and the smoothened transition
+  // Computes and returns the position as well as the smoothened transition
   // ratio of this lerp operation.
   public compute(now: number): [Vector, number] {
     const animationRatio = Math.min(Math.max((now - this.startTime) / this.duration, 0.0), 1.0);
@@ -417,11 +415,16 @@ export default class GlMap {
   private locationMarkerSecure: LocationMarker;
   private locationMarkerUnsecure: LocationMarker;
 
+  // Current state of the map positioning
   private coordinate: Coordinate;
   private zoom: number;
   private connectionState: ConnectionState;
+
+  // `targetCoordinate` is the same as `coordinate` when no animation is in progress.
+  // This is where the location marker is drawn.
   private targetCoordinate: Coordinate;
 
+  // Current ongoing animations. Empty arrays when no animation in progress.
   private animations: Array<SmoothLerp>;
   private zoomAnimations: Array<ZoomAnimation>;
 
@@ -441,17 +444,16 @@ export default class GlMap {
     this.coordinate = startCoordinate;
     this.zoom = connectionState === ConnectionState.connected ? connectedZoom : disconnectedZoom;
     this.connectionState = connectionState;
-    // `targetCoordinate` is the same as `coordinate` when no animation is in progress.
-    // This is where the location marker is drawn.
+
     this.targetCoordinate = startCoordinate;
-    // An array of smooth lerps between coordinates. Empty when no animation is in progress.
+
     this.animations = [];
-    // An array of zoom animations. Empty when no animation is in progress.
     this.zoomAnimations = [];
   }
 
-  // Move the location marker to `newCoordinate` (with state `connectionState`) and queue
-  // animation to move to that coordinate.
+  // Move the location marker to `newCoordinate` (with state `connectionState`).
+  // Queues an animation to `newCoordinate` if `animate` is true. Otherwise it moves
+  // directly to that location.
   public setLocation(
     newCoordinate: Coordinate,
     connectionState: ConnectionState,
@@ -506,7 +508,7 @@ export default class GlMap {
 
   // Render the map for the time `now`.
   public draw(now: number) {
-    this.clear();
+    this.clearCanvas();
     this.updatePosition(now);
     this.updateZoom(now);
 
@@ -518,6 +520,7 @@ export default class GlMap {
 
     // Offset Y for placing the marker at the same area as the spinner. The zoom calculation is
     // required for the unsecured and secured markers to be placed in the same spot.
+    // The constants look arbitrary. They are found by just trying stuff until it looks good.
     const offsetY = 0.088 + (this.zoom - connectedZoom) * 0.3;
 
     // Move the camera back `this.zoom` away from the center of the globe.
@@ -555,9 +558,9 @@ export default class GlMap {
     }
   }
 
-  private clear() {
-    this.gl.clearColor(...spaceColor); // Clear to black, fully opaque
-    this.gl.clearDepth(1.0); // Clear everything
+  private clearCanvas() {
+    this.gl.clearColor(...spaceColor); // Set the clear color to space color
+    this.gl.clearDepth(1.0);
     this.gl.enable(this.gl.DEPTH_TEST); // Enable depth testing
     this.gl.depthFunc(this.gl.LEQUAL); // Near things obscure far things
 
@@ -760,7 +763,7 @@ function coordinates2thetaphi(coordinate: Coordinate) {
   return [theta, phi];
 }
 
-// Returns a `Coordinate` between c1 and c2.
+// Returns a `Vector` between c1 and c2.
 // ratio=0.0 returns c1. ratio=1.0 returns c2.
 function lerpVector(c1: Vector, c2: Vector, ratio: number) {
   const x = lerp(c1.x, c2.x, ratio);
@@ -774,7 +777,8 @@ function lerp(x: number, y: number, ratio: number) {
 }
 
 // The shortest coordinate change from c1 to c2.
-// Returns a vector representing the movement needed to go from c1 to c2 (as a `Coordinate`)
+// Returns a vector representing the movement needed to go from c1 to c2 (as a `Vector`)
+// The input vectors are expected to be lat/long coordinates *in degrees*
 function shortestPath(c1: Vector, c2: Vector) {
   let longDiff = c2.y - c1.y;
   if (longDiff > 180) {
