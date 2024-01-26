@@ -133,6 +133,10 @@ impl DisconnectedState {
     fn setup_local_dns_config(
         shared_values: &mut SharedTunnelStateValues,
     ) -> Result<(), dns::Error> {
+        shared_values
+            .runtime
+            .block_on(shared_values.filtering_resolver.disable_forward());
+
         shared_values.dns_monitor.set(
             "lo",
             dns::DnsConfig::default().resolve(&[Ipv4Addr::LOCALHOST.into()]),

@@ -4081,6 +4081,7 @@ dependencies = [
  "subslice",
  "system-configuration",
  "talpid-dbus",
+ "talpid-macos",
  "talpid-net",
  "talpid-openvpn",
  "talpid-platform-metadata",
@@ -4121,6 +4122,14 @@ dependencies = [
  "rand 0.8.5",
  "talpid-time",
  "tokio",
+]
+
+[[package]]
+name = "talpid-macos"
+version = "0.0.0"
+dependencies = [
+ "libc",
+ "log",
 ]
 
 [[package]]

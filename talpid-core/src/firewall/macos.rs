@@ -98,6 +98,17 @@ impl Firewall {
         let remote_address = state.remote_address()?;
         let proto = state.proto()?;
 
+        if local_address.ip().is_loopback() || remote_address.ip().is_loopback() {
+            // Ignore connections to localhost
+            return Ok(false);
+        }
+
+        if [5353, 53].contains(&remote_address.port()) {
+            // Ignore DNS states. The local resolver takes care of everything,
+            // and PQ seems to timeout if these states are flushed
+            return Ok(false);
+        }
+
         let Some(peer) = policy.peer_endpoint().map(|endpoint| endpoint.endpoint) else {
             // If there's no peer, there's also no tunnel. We have no states to preserve
             return Ok(true);
@@ -177,6 +188,12 @@ impl Firewall {
         let redirect_rules = match policy {
             FirewallPolicy::Blocked {
                 dns_redirect_port, ..
+            }
+            | FirewallPolicy::Connecting {
+                dns_redirect_port, ..
+            }
+            | FirewallPolicy::Connected {
+                dns_redirect_port, ..
             } => {
                 vec![pfctl::RedirectRuleBuilder::default()
                     .action(pfctl::RedirectRuleAction::Redirect)
@@ -186,7 +203,6 @@ impl Firewall {
                     .redirect_to(pfctl::Port::from(*dns_redirect_port))
                     .build()?]
             }
-            _ => vec![],
         };
         Ok(redirect_rules)
     }
@@ -204,6 +220,7 @@ impl Firewall {
                 allowed_tunnel_traffic,
                 redirect_interface,
                 apple_services_bypass,
+                dns_redirect_port: _,
             } => {
                 let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint)?);
@@ -253,6 +270,7 @@ impl Firewall {
                 dns_config,
                 redirect_interface,
                 apple_services_bypass,
+                dns_redirect_port: _,
             } => {
                 let mut rules = vec![];
 

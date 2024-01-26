@@ -22,9 +22,15 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
-### Added
-#### Windows
-- Add experimental support for Windows ARM64.
+### Changed
+#### macOS
+- Enable IPv6 by default. This fixes DNS and routing being broken on some platforms.
+- Proxy DNS queries through a local resolver.
+
+### Fixed
+#### macOS
+- Fix Apple leak toggle not working. The issue was that DNS queries to the tunnel resolver were
+  being sent on the physical interface.
 
 
 ## [2024.6-beta1] - 2024-09-26
@@ -46,9 +52,6 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Disable split tunnel interface when disconnected. This prevents traffic from being sent through
   the daemon when the VPN is disconnected.
-- Don't hijack DNS when localhost is configured. This is more in line with other platforms.
-  Unexpected DNS traffic is still blocked when leaving the host.
-- Enable IPv6 by default. This fixes DNS and routing being broken on some platforms.
 
 ### Fixed
 #### Linux

@@ -41,4 +41,4 @@ mod linux;
 
 /// A resolver that's controlled by the tunnel state machine
 #[cfg(target_os = "macos")]
-pub mod resolver;
+pub(crate) mod resolver;
