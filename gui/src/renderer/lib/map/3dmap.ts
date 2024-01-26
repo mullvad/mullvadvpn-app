@@ -76,25 +76,32 @@ const animationMaxTime = 2.5;
 
 // A geographical latitude, longitude coordinate in *degrees*.
 // This class is also being abused as a 2D vector in some parts of the code.
-export class Coordinate {
-  public constructor(public lat: number, public long: number) {
-    this.lat = lat;
-    this.long = long;
+export interface Coordinate {
+  latitude: number;
+  longitude: number;
+}
+
+class Vector {
+  public constructor(public x: number, public y: number) {}
+
+  public static fromCoordinate(coordinate: Coordinate): Vector {
+    return new Vector(coordinate.latitude, coordinate.longitude);
   }
 
-  // When treated as a 2D vector: Get the length of said vector.
+  public toCoordinate() {
+    return { latitude: this.x, longitude: this.y };
+  }
+
   public length() {
-    return Math.sqrt(this.lat * this.lat + this.long * this.long);
+    return Math.sqrt(this.x * this.x + this.y * this.y);
   }
 
-  // When treated as a 2D vector: Scale that vector by `r`
   public scale(r: number) {
-    return new Coordinate(this.lat * r, this.long * r);
+    return new Vector(this.x * r, this.y * r);
   }
 
-  // When treated as a 2D vector: Add two vectors together returning the sum
-  public add(otherCoordinate: Coordinate) {
-    return new Coordinate(this.lat + otherCoordinate.lat, this.long + otherCoordinate.long);
+  public add(other: Vector) {
+    return new Vector(this.x + other.x, this.y + other.y);
   }
 }
 
@@ -328,18 +335,18 @@ class LocationMarker {
 // and animating for `duration` seconds
 class SmoothLerp {
   public constructor(
-    private startCoordinate: Coordinate,
-    private path: Coordinate,
+    private start: Vector,
+    private path: Vector,
     private startTime: number,
     private duration: number,
   ) {}
 
   // Computes and returns the coordinate as well as the zoom level and the smoothened transition
   // ratio of this lerp operation.
-  public compute(now: number): [Coordinate, number] {
+  public compute(now: number): [Vector, number] {
     const animationRatio = Math.min(Math.max((now - this.startTime) / this.duration, 0.0), 1.0);
     const smoothAnimationRatio = smoothTransition(animationRatio);
-    const position = this.startCoordinate.add(this.path.scale(smoothAnimationRatio));
+    const position = this.start.add(this.path.scale(smoothAnimationRatio));
     return [position, smoothAnimationRatio];
   }
 }
@@ -453,13 +460,18 @@ export default class GlMap {
     // If the new coordinate is the same as the current target, we just
     // queue a zoom animation.
     if (newCoordinate !== this.targetCoordinate) {
-      const path = shortestPath(this.coordinate, newCoordinate);
+      const path = shortestPath(
+        Vector.fromCoordinate(this.coordinate),
+        Vector.fromCoordinate(newCoordinate),
+      );
 
       // Compute animation time as a function of movement distance. Clamp the
       // duration range between animationMinTime and animationMaxTime
       const duration = Math.min(Math.max(path.length() / 20, animationMinTime), animationMaxTime);
 
-      this.animations.push(new SmoothLerp(this.coordinate, path, now, duration));
+      this.animations.push(
+        new SmoothLerp(Vector.fromCoordinate(this.coordinate), path, now, duration),
+      );
       if (duration > zoomAnimationStyleTimeBreakpoint) {
         this.zoomAnimations.push(new SmoothZoomOutIn(this.zoom, endZoom, now, duration));
       } else {
@@ -559,7 +571,7 @@ export default class GlMap {
     // lerp between them to compute our actual location.
     for (let i = this.animations.length - 2; i >= 0; i--) {
       const [previousPoint, animationRatio] = this.animations[i].compute(now);
-      coordinate = lerpCoordinate(previousPoint, coordinate, ratio);
+      coordinate = lerpVector(previousPoint, coordinate, ratio);
       // If this animation is finished, none of the animations [0, i) will have any effect,
       // so they can be pruned
       if (animationRatio >= 1.0 && i > 0) {
@@ -571,7 +583,7 @@ export default class GlMap {
     }
 
     // Set our coordinate and zoom to the values interpolated from all ongoing animations.
-    this.coordinate = coordinate;
+    this.coordinate = coordinate.toCoordinate();
   }
 
   // Private function that updates the current zoom level according to ongoing animations.
@@ -731,17 +743,17 @@ function loadShader(gl: WebGL2RenderingContext, type: GLenum, source: string) {
 
 // Takes coordinates in degrees and outputs [theta, phi]
 function coordinates2thetaphi(coordinate: Coordinate) {
-  const phi = coordinate.lat * (Math.PI / 180);
-  const theta = coordinate.long * (Math.PI / 180);
+  const phi = coordinate.latitude * (Math.PI / 180);
+  const theta = coordinate.longitude * (Math.PI / 180);
   return [theta, phi];
 }
 
 // Returns a `Coordinate` between c1 and c2.
 // ratio=0.0 returns c1. ratio=1.0 returns c2.
-function lerpCoordinate(c1: Coordinate, c2: Coordinate, ratio: number) {
-  const lat = lerp(c1.lat, c2.lat, ratio);
-  const long = lerp(c1.long, c2.long, ratio);
-  return new Coordinate(lat, long);
+function lerpVector(c1: Vector, c2: Vector, ratio: number) {
+  const x = lerp(c1.x, c2.x, ratio);
+  const y = lerp(c1.y, c2.y, ratio);
+  return new Vector(x, y);
 }
 
 // Performs linear interpolation between two floats, `x` and `y`.
@@ -751,14 +763,14 @@ function lerp(x: number, y: number, ratio: number) {
 
 // The shortest coordinate change from c1 to c2.
 // Returns a vector representing the movement needed to go from c1 to c2 (as a `Coordinate`)
-function shortestPath(c1: Coordinate, c2: Coordinate) {
-  let longDiff = c2.long - c1.long;
+function shortestPath(c1: Vector, c2: Vector) {
+  let longDiff = c2.y - c1.y;
   if (longDiff > 180) {
     longDiff -= 360;
   } else if (longDiff < -180) {
     longDiff += 360;
   }
-  return new Coordinate(c2.lat - c1.lat, longDiff);
+  return new Vector(c2.x - c1.x, longDiff);
 }
 
 // smooths out a linear 0-1 transition into an accelerating and decelerating transition

@@ -8,7 +8,8 @@ import GlMap, { ConnectionState, Coordinate } from '../lib/map/3dmap';
 import { useCombinedRefs } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 
-const defaultLocation = new Coordinate(57.70887, 11.97456);
+// Default to Gothenburg when we don't know the actual location.
+const defaultLocation: Coordinate = { latitude: 57.70887, longitude: 11.97456 };
 
 const StyledCanvas = styled.canvas({
   position: 'absolute',
@@ -28,9 +29,7 @@ export default function Map() {
 
   const hasLocationValue = hasLocation(connection);
   const location = useMemo<Coordinate | undefined>(() => {
-    return hasLocationValue
-      ? new Coordinate(connection.latitude, connection.longitude)
-      : defaultLocation;
+    return hasLocationValue ? connection : defaultLocation;
   }, [hasLocationValue, connection.latitude, connection.longitude]);
 
   const connectionState = getConnectionState(hasLocationValue, connection.status.state);
@@ -38,8 +37,7 @@ export default function Map() {
   return <MapInner location={location ?? defaultLocation} connectionState={connectionState} />;
 }
 
-type SimpleCoordinate = { latitude: number; longitude: number };
-function hasLocation(location: Partial<SimpleCoordinate>): location is SimpleCoordinate {
+function hasLocation(location: Partial<Coordinate>): location is Coordinate {
   return typeof location.latitude === 'number' && typeof location.longitude === 'number';
 }
 
