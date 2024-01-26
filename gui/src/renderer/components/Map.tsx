@@ -2,6 +2,7 @@ import { mat4 } from 'gl-matrix';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
+import { TunnelState } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
 import GLMap, { ConnectionState, Coordinate } from '../lib/map/3dmap';
@@ -10,6 +11,8 @@ import { useSelector } from '../redux/store';
 
 // The angle in degrees that the camera sees in
 const angleOfView = 70;
+
+const defaultLocation = new Coordinate(57.70887, 11.97456);
 
 const StyledCanvas = styled.canvas({
   position: 'absolute',
@@ -27,28 +30,35 @@ type AnimationFrameCallback = (now: number, newParams?: MapParams) => void;
 export default function Map() {
   const connection = useSelector((state) => state.connection);
 
+  const hasLocationValue = hasLocation(connection);
   const location = useMemo<Coordinate | undefined>(() => {
-    const { latitude, longitude } = connection;
-    return typeof latitude === 'number' && typeof longitude === 'number'
-      ? new Coordinate(latitude, longitude)
-      : undefined;
-  }, [connection.latitude, connection.longitude]);
+    return hasLocationValue
+      ? new Coordinate(connection.latitude, connection.longitude)
+      : defaultLocation;
+  }, [hasLocationValue, connection.latitude, connection.longitude]);
 
-  const connectionState = useMemo<ConnectionState>(() => {
-    switch (connection.status.state) {
-      case 'connected':
-        return ConnectionState.connected;
-      case 'disconnected':
-        return ConnectionState.disconnected;
-      default:
-        return ConnectionState.noMarker;
-    }
-  }, [connection.status]);
+  const connectionState = getConnectionState(hasLocationValue, connection.status.state);
 
-  if (location === undefined) {
-    return null;
-  } else {
-    return <MapInner location={location} connectionState={connectionState} />;
+  return <MapInner location={location ?? defaultLocation} connectionState={connectionState} />;
+}
+
+type SimpleCoordinate = { latitude: number; longitude: number };
+function hasLocation(location: Partial<SimpleCoordinate>): location is SimpleCoordinate {
+  return typeof location.latitude === 'number' && typeof location.longitude === 'number';
+}
+
+function getConnectionState(hasLocation: boolean, connectionState: TunnelState['state']) {
+  if (!hasLocation) {
+    return ConnectionState.noMarker;
+  }
+
+  switch (connectionState) {
+    case 'connected':
+      return ConnectionState.connected;
+    case 'disconnected':
+      return ConnectionState.disconnected;
+    default:
+      return ConnectionState.noMarker;
   }
 }
 
