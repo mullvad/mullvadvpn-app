@@ -75,14 +75,11 @@ function MapInner(props: MapParams) {
   // This constant is used for the height the first frame that is rendered only.
   const [canvasHeight, setCanvasHeight] = useState(493);
 
-  const scaleFactor = window.devicePixelRatio;
-
   const updateCanvasSize = useCallback((canvas: HTMLCanvasElement) => {
-    const scaleFactor = window.devicePixelRatio;
     const canvasRect = canvas.getBoundingClientRect();
 
-    canvas.width = Math.floor(canvasRect.width * scaleFactor);
-    canvas.height = Math.floor(canvasRect.height * scaleFactor);
+    canvas.width = applyScaleFactor(canvasRect.width);
+    canvas.height = applyScaleFactor(canvasRect.height);
 
     setCanvasWidth(canvasRect.width);
     setCanvasHeight(canvasRect.height);
@@ -156,15 +153,22 @@ function MapInner(props: MapParams) {
   }, [updateCanvasSize]);
 
   // Log new scale factor if it changes
-  useEffect(() => log.verbose('Map canvas scale factor:', scaleFactor), [scaleFactor]);
+  useEffect(() => log.verbose('Map canvas scale factor:', window.devicePixelRatio), [
+    window.devicePixelRatio,
+  ]);
 
   const combinedCanvasRef = useCombinedRefs(canvasRef, canvasCallback);
 
   return (
     <StyledCanvas
       ref={combinedCanvasRef}
-      width={Math.floor(canvasWidth * scaleFactor)}
-      height={Math.floor(canvasHeight * scaleFactor)}
+      width={applyScaleFactor(canvasWidth)}
+      height={applyScaleFactor(canvasHeight)}
     />
   );
+}
+
+function applyScaleFactor(dimension: number): number {
+  const scaleFactor = window.devicePixelRatio;
+  return Math.floor(dimension * scaleFactor);
 }
