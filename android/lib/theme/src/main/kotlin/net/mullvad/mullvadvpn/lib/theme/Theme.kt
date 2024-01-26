@@ -26,8 +26,10 @@ import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_error
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_onError
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_onPrimary
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_onSurfaceVariant
+import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_onTertiaryContainer
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_primary
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceVariant
+import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_tertiaryContainer
 import net.mullvad.mullvadvpn.lib.theme.dimensions.Dimensions
 import net.mullvad.mullvadvpn.lib.theme.dimensions.defaultDimensions
 import net.mullvad.mullvadvpn.lib.theme.typeface.TypeScale
@@ -64,8 +66,8 @@ private val darkColorScheme =
         // onSecondaryContainer = md_theme_dark_onSecondaryContainer,
         tertiary = MullvadRed,
         // onTertiary = md_theme_dark_onTertiary,
-        // tertiaryContainer = md_theme_dark_tertiaryContainer,
-        // onTertiaryContainer = md_theme_dark_onTertiaryContainer,
+        tertiaryContainer = md_theme_dark_tertiaryContainer,
+        onTertiaryContainer = md_theme_dark_onTertiaryContainer,
         error = md_theme_dark_error,
         errorContainer = MullvadYellow,
         onError = md_theme_dark_onError,

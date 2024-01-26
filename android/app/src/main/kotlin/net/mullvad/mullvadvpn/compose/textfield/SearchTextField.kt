@@ -29,14 +29,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite10
 
 @Preview
 @Composable
 private fun PreviewSearchTextField() {
     AppTheme {
         Column(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            SearchTextField(placeHolder = "Search for...") {}
+            SearchTextField(
+                placeHolder = "Search for...",
+                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+                textColor = MaterialTheme.colorScheme.onTertiaryContainer,
+            ) {}
         }
     }
 }
@@ -46,7 +49,8 @@ private fun PreviewSearchTextField() {
 fun SearchTextField(
     modifier: Modifier = Modifier,
     placeHolder: String = stringResource(id = R.string.search_placeholder),
-    backgroundColor: Color = MullvadWhite10,
+    backgroundColor: Color,
+    textColor: Color,
     enabled: Boolean = true,
     singleLine: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -57,14 +61,13 @@ fun SearchTextField(
 
     BasicTextField(
         value = searchTerm,
-        textStyle =
-            MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.onSecondary),
+        textStyle = MaterialTheme.typography.labelLarge.copy(color = textColor),
         onValueChange = { text: String ->
             searchTerm = text
             onValueChange.invoke(text)
         },
         singleLine = singleLine,
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSecondary),
+        cursorBrush = SolidColor(textColor),
         decorationBox =
             @Composable { innerTextField ->
                 TextFieldDefaults.DecorationBox(
@@ -83,8 +86,7 @@ fun SearchTextField(
                                     width = Dimens.searchIconSize,
                                     height = Dimens.searchIconSize,
                                 ),
-                            colorFilter =
-                                ColorFilter.tint(color = MaterialTheme.colorScheme.onSecondary),
+                            colorFilter = ColorFilter.tint(color = textColor),
                         )
                     },
                     placeholder = {
@@ -106,15 +108,15 @@ fun SearchTextField(
                     shape = MaterialTheme.shapes.medium,
                     colors =
                         TextFieldDefaults.colors(
-                            focusedTextColor = MaterialTheme.colorScheme.onSecondary,
-                            unfocusedTextColor = MaterialTheme.colorScheme.onSecondary,
+                            focusedTextColor = textColor,
+                            unfocusedTextColor = textColor,
                             focusedContainerColor = backgroundColor,
                             unfocusedContainerColor = backgroundColor,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
-                            cursorColor = MaterialTheme.colorScheme.onSecondary,
-                            focusedPlaceholderColor = MaterialTheme.colorScheme.onSecondary,
-                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSecondary
+                            cursorColor = textColor,
+                            focusedPlaceholderColor = textColor,
+                            unfocusedPlaceholderColor = textColor
                         ),
                     contentPadding = PaddingValues(),
                 )
