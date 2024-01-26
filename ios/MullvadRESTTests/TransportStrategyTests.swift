@@ -60,7 +60,6 @@ class TransportStrategyTests: XCTestCase {
         directAccess.isEnabled = false
         bridgeAccess.isEnabled = false
         let transportStrategy = TransportStrategy(
-            userDefaults,
             datasource: AccessMethodRepositoryStub(accessMethods: [
                 directAccess,
                 bridgeAccess,
@@ -76,7 +75,6 @@ class TransportStrategyTests: XCTestCase {
     func testReuseSameStrategyWhenEverythingElseIsDisabled() throws {
         directAccess.isEnabled = false
         let transportStrategy = TransportStrategy(
-            userDefaults,
             datasource: AccessMethodRepositoryStub(accessMethods: [
                 directAccess,
                 bridgeAccess,
@@ -96,7 +94,6 @@ class TransportStrategyTests: XCTestCase {
 
     func testLoopsFromTheStartAfterTryingAllEnabledStrategies() {
         let transportStrategy = TransportStrategy(
-            userDefaults,
             datasource: AccessMethodRepositoryStub(accessMethods: [
                 directAccess,
                 bridgeAccess,
@@ -130,7 +127,6 @@ class TransportStrategyTests: XCTestCase {
     func testUsesNextWhenItIsNotReachable() {
         bridgeAccess.isEnabled = false
         let transportStrategy = TransportStrategy(
-            userDefaults,
             datasource: AccessMethodRepositoryStub(accessMethods: [
                 directAccess,
                 bridgeAccess,
@@ -164,7 +160,6 @@ class TransportStrategyTests: XCTestCase {
     func testGoToNextStrategyWhenItFailsToLoadBridgeConfiguration() {
         shadowsocksLoader.error = IOError.fileNotFound
         let transportStrategy = TransportStrategy(
-            userDefaults,
             datasource: AccessMethodRepositoryStub(accessMethods: [
                 directAccess,
                 bridgeAccess,
@@ -180,7 +175,6 @@ class TransportStrategyTests: XCTestCase {
         shadowsocksLoader.error = IOError.fileNotFound
         directAccess.isEnabled = false
         let transportStrategy = TransportStrategy(
-            userDefaults,
             datasource: AccessMethodRepositoryStub(accessMethods: [
                 directAccess,
                 bridgeAccess,
@@ -207,7 +201,6 @@ class TransportStrategyTests: XCTestCase {
             authentication: authentication
         )
         let transportStrategy = TransportStrategy(
-            userDefaults,
             datasource: AccessMethodRepositoryStub(accessMethods: [
                 directAccess,
                 bridgeAccess,

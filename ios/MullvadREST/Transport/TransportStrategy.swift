@@ -45,15 +45,11 @@ public class TransportStrategy: Equatable {
     private let accessMethodIterator: AccessMethodIterator
 
     public init(
-        _ userDefaults: UserDefaults,
         datasource: AccessMethodRepositoryDataSource,
         shadowsocksLoader: ShadowsocksLoaderProtocol
     ) {
         self.shadowsocksLoader = shadowsocksLoader
-        self.accessMethodIterator = AccessMethodIterator(
-            userDefaults,
-            dataSource: datasource
-        )
+        self.accessMethodIterator = AccessMethodIterator(dataSource: datasource)
     }
 
     /// Rotating between enabled configurations by what order they were added in

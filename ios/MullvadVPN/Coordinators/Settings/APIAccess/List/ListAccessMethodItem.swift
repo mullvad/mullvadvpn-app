@@ -17,4 +17,7 @@ struct ListAccessMethodItem: Hashable, Identifiable, Equatable {
 
     /// The detailed information displayed alongside.
     let detail: String?
+
+    /// Whether method is enabled or not.
+    let isEnabled: Bool
 }

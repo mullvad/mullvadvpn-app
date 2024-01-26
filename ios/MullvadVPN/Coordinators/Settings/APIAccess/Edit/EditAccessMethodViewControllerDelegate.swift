@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol EditAccessMethodViewControllerDelegate: AnyObject {
+protocol EditAccessMethodViewControllerDelegate: AnyObject, AccessMethodEditing {
     /// The view controller requests the delegate to present the proxy configuration view controller.
     /// - Parameter controller: the calling controller.
     func controllerShouldShowMethodSettings(_ controller: EditAccessMethodViewController)

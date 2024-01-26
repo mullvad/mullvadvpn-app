@@ -11,24 +11,30 @@ import MullvadSettings
 
 /// A concrete implementation of an API access list interactor.
 struct ListAccessMethodInteractor: ListAccessMethodInteractorProtocol {
-    let reporepository: AccessMethodRepositoryProtocol
+    let repository: AccessMethodRepositoryProtocol
 
     init(repository: AccessMethodRepositoryProtocol) {
-        self.reporepository = repository
+        self.repository = repository
     }
 
-    var publisher: any Publisher<[ListAccessMethodItem], Never> {
-        reporepository.publisher.map { newElements in
-            newElements.map { $0.toListItem() }
+    var itemsPublisher: any Publisher<[ListAccessMethodItem], Never> {
+        repository.accessMethodsPublisher.map { methods in
+            methods.map { $0.toListItem() }
+        }
+    }
+
+    var itemInUsePublisher: any Publisher<ListAccessMethodItem?, Never> {
+        repository.lastReachableAccessMethodPublisher.map { method in
+            method?.toListItem()
         }
     }
 
     func item(by id: UUID) -> ListAccessMethodItem? {
-        reporepository.fetch(by: id)?.toListItem()
+        repository.fetch(by: id)?.toListItem()
     }
 
     func fetch() -> [ListAccessMethodItem] {
-        reporepository.fetchAll().map { $0.toListItem() }
+        repository.fetchAll().map { $0.toListItem() }
     }
 }
 
@@ -47,7 +53,8 @@ extension PersistentAccessMethod {
                     tableName: "APIAccess",
                     value: "Disabled",
                     comment: ""
-                )
+                ),
+            isEnabled: isEnabled
         )
     }
 }
