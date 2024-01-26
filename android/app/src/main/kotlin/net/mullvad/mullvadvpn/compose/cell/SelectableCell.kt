@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -17,6 +18,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.Alpha20
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.color.selected
@@ -50,7 +52,10 @@ fun SelectableCell(
     titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
     startPadding: Dp = Dimens.cellStartPadding,
     selectedColor: Color = MaterialTheme.colorScheme.selected,
-    backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer,
+    backgroundColor: Color =
+        MaterialTheme.colorScheme.primaryContainer
+            .copy(alpha = Alpha20)
+            .compositeOver(MaterialTheme.colorScheme.background),
     onCellClicked: () -> Unit = {},
     testTag: String = ""
 ) {

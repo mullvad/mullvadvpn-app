@@ -15,7 +15,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadBlue20
 import net.mullvad.mullvadvpn.lib.theme.color.MullvadDarkBlue
 import net.mullvad.mullvadvpn.lib.theme.color.MullvadGreen
 import net.mullvad.mullvadvpn.lib.theme.color.MullvadRed
@@ -60,7 +59,6 @@ private val darkColorScheme =
         // onPrimaryContainer = md_theme_dark_onPrimaryContainer,
         secondary = MullvadDarkBlue,
         onSecondary = MullvadWhite60,
-        secondaryContainer = MullvadBlue20,
         // onSecondaryContainer = md_theme_dark_onSecondaryContainer,
         tertiary = MullvadRed,
         // onTertiary = md_theme_dark_onTertiary,

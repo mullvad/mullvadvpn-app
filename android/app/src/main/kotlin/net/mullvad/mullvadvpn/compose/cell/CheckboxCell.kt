@@ -18,10 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.Alpha20
 import net.mullvad.mullvadvpn.lib.theme.color.MullvadGreen
 
 @Preview
@@ -36,7 +38,10 @@ internal fun CheckboxCell(
     providerName: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    background: Color = MaterialTheme.colorScheme.secondaryContainer,
+    background: Color =
+        MaterialTheme.colorScheme.primaryContainer
+            .copy(alpha = Alpha20)
+            .compositeOver(MaterialTheme.colorScheme.background),
     startPadding: Dp = Dimens.cellStartPadding,
     endPadding: Dp = Dimens.cellEndPadding,
     minHeight: Dp = Dimens.cellHeight

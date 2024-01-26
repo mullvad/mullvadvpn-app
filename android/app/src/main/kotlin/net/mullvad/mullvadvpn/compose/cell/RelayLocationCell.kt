@@ -32,6 +32,7 @@ import net.mullvad.mullvadvpn.compose.component.ChevronView
 import net.mullvad.mullvadvpn.compose.component.VerticalDivider
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.Alpha20
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha40
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
@@ -174,7 +175,10 @@ fun RelayLocationCell(
                 MaterialTheme.colorScheme.primary
                     .copy(alpha = Alpha40)
                     .compositeOver(MaterialTheme.colorScheme.background)
-            relay.type == RelayItemType.Relay -> MaterialTheme.colorScheme.secondaryContainer
+            relay.type == RelayItemType.Relay ->
+                MaterialTheme.colorScheme.primaryContainer
+                    .copy(alpha = Alpha20)
+                    .compositeOver(MaterialTheme.colorScheme.background)
             else -> MaterialTheme.colorScheme.primary
         }
     Column(
