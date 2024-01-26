@@ -1342,6 +1342,14 @@ msgid "Switch location"
 msgstr ""
 
 msgctxt "user-interface-settings-view"
+msgid "Animate map"
+msgstr ""
+
+msgctxt "user-interface-settings-view"
+msgid "Animate map movements."
+msgstr ""
+
+msgctxt "user-interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
 msgstr ""
 
