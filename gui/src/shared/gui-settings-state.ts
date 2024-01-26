@@ -33,5 +33,5 @@ export interface IGuiSettingsState {
   changelogDisplayedForVersion: string;
 
   // Tells the app whether or not to show the map in the main view.
-  displayMap: boolean;
+  animateMap: boolean;
 }

@@ -58,8 +58,6 @@ export default function Connect() {
   const relayLocations = useSelector((state) => state.settings.relayLocations);
   const customLists = useSelector((state) => state.settings.customLists);
 
-  const displayMap = useSelector((state) => state.settings.guiSettings.displayMap);
-
   const showSpinner =
     connection.status.state === 'connecting' || connection.status.state === 'disconnecting';
 
@@ -103,7 +101,7 @@ export default function Connect() {
     <Layout>
       <DefaultHeaderBar barStyle={calculateHeaderBarStyle(connection.status)} />
       <StyledContainer>
-        {displayMap && <Map />}
+        <Map />
         <Content>
           <StyledNotificationArea />
 

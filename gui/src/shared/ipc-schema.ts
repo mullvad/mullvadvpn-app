@@ -185,7 +185,7 @@ export const ipcSchema = {
     setMonochromaticIcon: send<boolean>(),
     setPreferredLocale: invoke<string, ITranslations>(),
     setUnpinnedWindow: send<boolean>(),
-    setDisplayMap: send<boolean>(),
+    setAnimateMap: send<boolean>(),
   },
   account: {
     '': notifyRenderer<IAccountData | undefined>(),

@@ -26,6 +26,7 @@ type AnimationFrameCallback = (now: number, newParams?: MapParams) => void;
 
 export default function Map() {
   const connection = useSelector((state) => state.connection);
+  const animateMap = useSelector((state) => state.settings.guiSettings.animateMap);
 
   const hasLocationValue = hasLocation(connection);
   const location = useMemo<Coordinate | undefined>(() => {
@@ -34,7 +35,16 @@ export default function Map() {
 
   const connectionState = getConnectionState(hasLocationValue, connection.status.state);
 
-  return <MapInner location={location ?? defaultLocation} connectionState={connectionState} />;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const animate = !reduceMotion && animateMap;
+
+  return (
+    <MapInner
+      location={location ?? defaultLocation}
+      connectionState={connectionState}
+      animate={animate}
+    />
+  );
 }
 
 function hasLocation(location: Partial<Coordinate>): location is Coordinate {
@@ -56,7 +66,11 @@ function getConnectionState(hasLocation: boolean, connectionState: TunnelState['
   }
 }
 
-function MapInner(props: MapParams) {
+interface MapInnerProps extends MapParams {
+  animate: boolean;
+}
+
+function MapInner(props: MapInnerProps) {
   const { getMapData } = useAppContext();
 
   // Callback that should be passed to requestAnimationFrame. This is initialized after the canvas
@@ -108,7 +122,12 @@ function MapInner(props: MapParams) {
 
       // Propagate location change to the map
       if (newParams.current) {
-        map.setLocation(newParams.current.location, newParams.current.connectionState, now, true);
+        map.setLocation(
+          newParams.current.location,
+          newParams.current.connectionState,
+          now,
+          props.animate,
+        );
         newParams.current = undefined;
       }
 

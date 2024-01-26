@@ -343,8 +343,8 @@ export default class AppRenderer {
     IpcRendererEventChannel.customLists.deleteCustomList(id);
   public updateCustomList = (customList: ICustomList) =>
     IpcRendererEventChannel.customLists.updateCustomList(customList);
-  public setDisplayMap = (displayMap: boolean): void =>
-    IpcRendererEventChannel.guiSettings.setDisplayMap(displayMap);
+  public setAnimateMap = (displayMap: boolean): void =>
+    IpcRendererEventChannel.guiSettings.setAnimateMap(displayMap);
   public getMapData = () => IpcRendererEventChannel.map.getData();
 
   public login = async (accountToken: AccountToken) => {

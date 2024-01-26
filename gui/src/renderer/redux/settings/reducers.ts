@@ -120,7 +120,7 @@ const initialState: ISettingsReduxState = {
     unpinnedWindow: window.env.platform !== 'win32' && window.env.platform !== 'darwin',
     browsedForSplitTunnelingApplications: [],
     changelogDisplayedForVersion: '',
-    displayMap: false,
+    animateMap: true,
   },
   relaySettings: {
     normal: {
