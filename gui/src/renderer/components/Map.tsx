@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
-import GLMap, { ConnectionState, Coordinate } from '../lib/map/3dmap';
+import GlMap, { ConnectionState, Coordinate } from '../lib/map/3dmap';
 import { useCombinedRefs } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 
@@ -98,7 +98,7 @@ function MapInner(props: MapParams) {
 
     const gl = canvas.getContext('webgl2', { antialias: true })!;
 
-    const map = new GLMap(
+    const map = new GlMap(
       gl,
       await getMapData(),
       props.location,

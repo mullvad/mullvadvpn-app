@@ -404,7 +404,7 @@ class SmoothZoomDirect implements ZoomAnimation {
   }
 }
 
-export default class Map {
+export default class GlMap {
   private projectionMatrix: mat4;
   private globe: Globe;
   private locationMarkerSecure: LocationMarker;
