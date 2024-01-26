@@ -72,6 +72,7 @@ function MapInner(props: MapParams) {
 
   const canvasRef = useRef<HTMLCanvasElement>();
   const [canvasWidth, setCanvasWidth] = useState(window.innerWidth);
+  // This constant is used for the height the first frame that is rendered only.
   const [canvasHeight, setCanvasHeight] = useState(493);
 
   const scaleFactor = window.devicePixelRatio;
