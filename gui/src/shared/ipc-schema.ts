@@ -29,6 +29,7 @@ interface ILogEntry {
   level: LogLevel;
   message: string;
 }
+import { MapData } from '../renderer/lib/map/3dmap';
 import { invoke, invokeSync, notifyRenderer, send } from './ipc-helpers';
 import {
   IChangelog,
@@ -36,7 +37,6 @@ import {
   IHistoryObject,
   IWindowShapeParameters,
 } from './ipc-types';
-import { MapData } from '../renderer/lib/map/3dmap';
 
 export interface ITranslations {
   locale: string;
