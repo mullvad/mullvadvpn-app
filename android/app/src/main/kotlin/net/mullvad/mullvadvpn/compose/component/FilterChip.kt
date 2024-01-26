@@ -20,7 +20,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadBlue
 import net.mullvad.mullvadvpn.lib.theme.shape.chipShape
 
 @Preview
@@ -40,7 +39,8 @@ fun MullvadFilterChip(text: String, onRemoveClick: () -> Unit) {
     FilterChip(
         modifier = Modifier.padding(vertical = Dimens.chipVerticalPadding),
         shape = MaterialTheme.shapes.chipShape,
-        colors = FilterChipDefaults.filterChipColors(containerColor = MullvadBlue),
+        colors =
+            FilterChipDefaults.filterChipColors(containerColor = MaterialTheme.colorScheme.primary),
         border =
             FilterChipDefaults.filterChipBorder(
                 borderColor = Color.Transparent,

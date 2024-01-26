@@ -161,7 +161,9 @@ fun SelectLocationScreen(
                 modifier =
                     Modifier.fillMaxWidth()
                         .height(Dimens.searchFieldHeight)
-                        .padding(horizontal = Dimens.searchFieldHorizontalPadding)
+                        .padding(horizontal = Dimens.searchFieldHorizontalPadding),
+                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+                textColor = MaterialTheme.colorScheme.onTertiaryContainer
             ) { searchString ->
                 onSearchTermInput.invoke(searchString)
             }
