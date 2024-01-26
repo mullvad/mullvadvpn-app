@@ -163,7 +163,6 @@ function MapInner(props: MapParams) {
   return (
     <StyledCanvas
       ref={combinedCanvasRef}
-      id="glcanvas"
       width={Math.floor(canvasWidth * scaleFactor)}
       height={Math.floor(canvasHeight * scaleFactor)}
     />
