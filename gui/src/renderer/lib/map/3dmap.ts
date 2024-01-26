@@ -40,9 +40,6 @@ export enum ConnectionState {
   noMarker,
 }
 
-// The angle in degrees that the camera sees in
-const angleOfView = 70;
-
 // Color of "space" as seen in the corners when zooming out
 const spaceColor: ColorRgba = [10 / 255, 25 / 255, 35 / 255, 1];
 // Color values for various components of the map.
@@ -55,6 +52,9 @@ const contourColor: ColorRgba = oceanColor;
 const locationMarkerSecureColor: ColorRgb = [0.267, 0.678, 0.302];
 // The red color of the location marken when in the unsecured state
 const locationMarkerUnsecureColor: ColorRgb = [0.89, 0.251, 0.224];
+
+// The angle in degrees that the camera sees in
+const angleOfView = 70;
 
 // Zoom is distance from earths center. 1.0 is at the surface.
 // These constants define the zoom levels for the connected and disconnected states.
