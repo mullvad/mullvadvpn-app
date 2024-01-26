@@ -11,7 +11,7 @@ import Logging
 import MullvadSettings
 import MullvadTypes
 
-public class TransportStrategy: Equatable {
+public struct TransportStrategy: Equatable {
     /// The different transports suggested by the strategy
     public enum Transport: Equatable {
         /// Connecting a direct connection
@@ -45,15 +45,11 @@ public class TransportStrategy: Equatable {
     private let accessMethodIterator: AccessMethodIterator
 
     public init(
-        _ userDefaults: UserDefaults,
         datasource: AccessMethodRepositoryDataSource,
         shadowsocksLoader: ShadowsocksLoaderProtocol
     ) {
         self.shadowsocksLoader = shadowsocksLoader
-        self.accessMethodIterator = AccessMethodIterator(
-            userDefaults,
-            dataSource: datasource
-        )
+        self.accessMethodIterator = AccessMethodIterator(dataSource: datasource)
     }
 
     /// Rotating between enabled configurations by what order they were added in

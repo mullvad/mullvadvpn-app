@@ -499,6 +499,8 @@
 		7A5869C72B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869C62B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift */; };
 		7A6000F62B60092F001CF0D9 /* AccessMethodViewModelEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6000F52B60092F001CF0D9 /* AccessMethodViewModelEditing.swift */; };
 		7A6000F92B6273A4001CF0D9 /* AccessMethodViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D7B2B03BDD100E7CDD7 /* AccessMethodViewModel.swift */; };
+		7A6000FC2B628DF6001CF0D9 /* ListCellContentConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6000FB2B628DF6001CF0D9 /* ListCellContentConfiguration.swift */; };
+		7A6000FE2B628E9F001CF0D9 /* ListCellContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6000FD2B628E9F001CF0D9 /* ListCellContentView.swift */; };
 		7A6B4F592AB8412E00123853 /* TunnelMonitorTimings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */; };
 		7A6F2FA52AFA3CB2006D0856 /* AccountExpiryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */; };
 		7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */; };
@@ -736,7 +738,6 @@
 		F0164EBA2B4456D30020268D /* AccessMethodRepositoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EB92B4456D30020268D /* AccessMethodRepositoryStub.swift */; };
 		F0164EBC2B482E430020268D /* AppStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EBB2B482E430020268D /* AppStorage.swift */; };
 		F0164EBE2B4BFF940020268D /* ShadowsocksLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */; };
-		F0164EC12B4C03980020268D /* LastReachableApiAccessCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EC02B4C03980020268D /* LastReachableApiAccessCache.swift */; };
 		F0164EC32B4C49D30020268D /* ShadowsocksLoaderStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EC22B4C49D30020268D /* ShadowsocksLoaderStub.swift */; };
 		F0164ED12B4F2DCB0020268D /* AccessMethodIterator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */; };
 		F028A56A2A34D4E700C0CAA3 /* RedeemVoucherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */; };
@@ -1659,6 +1660,8 @@
 		7A5869C42B5A899C00640D27 /* MethodSettingsCellConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodSettingsCellConfiguration.swift; sourceTree = "<group>"; };
 		7A5869C62B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodSettingsDataSourceConfiguration.swift; sourceTree = "<group>"; };
 		7A6000F52B60092F001CF0D9 /* AccessMethodViewModelEditing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodViewModelEditing.swift; sourceTree = "<group>"; };
+		7A6000FB2B628DF6001CF0D9 /* ListCellContentConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCellContentConfiguration.swift; sourceTree = "<group>"; };
+		7A6000FD2B628E9F001CF0D9 /* ListCellContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCellContentView.swift; sourceTree = "<group>"; };
 		7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorTimings.swift; sourceTree = "<group>"; };
 		7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryTests.swift; sourceTree = "<group>"; };
 		7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiry.swift; sourceTree = "<group>"; };
@@ -1797,7 +1800,6 @@
 		F0164EB92B4456D30020268D /* AccessMethodRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodRepositoryStub.swift; sourceTree = "<group>"; };
 		F0164EBB2B482E430020268D /* AppStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorage.swift; sourceTree = "<group>"; };
 		F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksLoader.swift; sourceTree = "<group>"; };
-		F0164EC02B4C03980020268D /* LastReachableApiAccessCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastReachableApiAccessCache.swift; sourceTree = "<group>"; };
 		F0164EC22B4C49D30020268D /* ShadowsocksLoaderStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksLoaderStub.swift; sourceTree = "<group>"; };
 		F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodIterator.swift; sourceTree = "<group>"; };
 		F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewController.swift; sourceTree = "<group>"; };
@@ -2617,6 +2619,8 @@
 				58FF9FE92B07653800E4C97D /* ButtonCellContentView.swift */,
 				58CEB3092AFD584700E6E088 /* CustomCellDisclosureHandling.swift */,
 				58CEB30B2AFD586600E6E088 /* DynamicBackgroundConfiguration.swift */,
+				7A6000FB2B628DF6001CF0D9 /* ListCellContentConfiguration.swift */,
+				7A6000FD2B628E9F001CF0D9 /* ListCellContentView.swift */,
 				58CEB3012AFD365600E6E088 /* SwitchCellContentConfiguration.swift */,
 				58CEB3032AFD36CE00E6E088 /* SwitchCellContentView.swift */,
 				58CEB2F42AFD0BB500E6E088 /* TextCellContentConfiguration.swift */,
@@ -3419,7 +3423,6 @@
 				F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */,
 				A932D9EE2B5ADD0700999395 /* ProxyConfigurationTransportProvider.swift */,
 				F0DC77A32B2315800087F09D /* Direct */,
-				F0164EC02B4C03980020268D /* LastReachableApiAccessCache.swift */,
 				06FAE67D28F83CA50033DD93 /* RESTTransport.swift */,
 				58E7BA182A975DF70068EC3A /* RESTTransportProvider.swift */,
 				F0DC77A22B2314EF0087F09D /* Shadowsocks */,
@@ -4354,7 +4357,6 @@
 				06799AE728F98E4800ACD94E /* RESTURLSession.swift in Sources */,
 				A90763B52B2857D50045ADF0 /* Socks5Constants.swift in Sources */,
 				A90763BA2B2857D50045ADF0 /* Socks5Error.swift in Sources */,
-				F0164EC12B4C03980020268D /* LastReachableApiAccessCache.swift in Sources */,
 				06799AF428F98E4800ACD94E /* RESTAuthorization.swift in Sources */,
 				06799AE228F98E4800ACD94E /* RESTRequestFactory.swift in Sources */,
 				A90763BD2B2857D50045ADF0 /* Socks5Connection.swift in Sources */,
@@ -4769,6 +4771,7 @@
 				7AC8A3AE2ABC6FBB00DC4939 /* SettingsHeaderView.swift in Sources */,
 				588D7EDC2AF3A55E005DF40A /* ListAccessMethodInteractorProtocol.swift in Sources */,
 				588D7ED62AF3903F005DF40A /* ListAccessMethodViewController.swift in Sources */,
+				7A6000FC2B628DF6001CF0D9 /* ListCellContentConfiguration.swift in Sources */,
 				582BB1B1229569620055B6EF /* UINavigationBar+Appearance.swift in Sources */,
 				7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */,
 				58ACF6492655365700ACE4B7 /* PreferencesViewController.swift in Sources */,
@@ -4828,6 +4831,7 @@
 				7A0C0F632A979C4A0058EFCE /* Coordinator+Router.swift in Sources */,
 				7A6F2FAB2AFD3097006D0856 /* CustomDNSCellFactory.swift in Sources */,
 				58A99ED3240014A0006599E9 /* TermsOfServiceViewController.swift in Sources */,
+				7A6000FE2B628E9F001CF0D9 /* ListCellContentView.swift in Sources */,
 				58CCA0162242560B004F3011 /* UIColor+Palette.swift in Sources */,
 				587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */,
 				7A9CCCBE2A96302800DD6A34 /* AccountDeletionCoordinator.swift in Sources */,

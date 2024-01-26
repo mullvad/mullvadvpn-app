@@ -9,10 +9,10 @@
 import Combine
 import MullvadSettings
 
-typealias PersistentAccessMethod = MullvadSettings.PersistentAccessMethod
 struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource {
-    var directAccess: MullvadSettings.PersistentAccessMethod
-    var publisher: AnyPublisher<[MullvadSettings.PersistentAccessMethod], Never> {
+    var directAccess: PersistentAccessMethod
+
+    var accessMethodsPublisher: AnyPublisher<[PersistentAccessMethod], Never> {
         passthroughSubject.eraseToAnyPublisher()
     }
 
@@ -23,7 +23,13 @@ struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource {
         passthroughSubject.send(accessMethods)
     }
 
-    func fetchAll() -> [MullvadSettings.PersistentAccessMethod] {
+    func fetchAll() -> [PersistentAccessMethod] {
         passthroughSubject.value
+    }
+
+    func saveLastReachable(_ method: PersistentAccessMethod) {}
+
+    func fetchLastReachable() -> PersistentAccessMethod {
+        directAccess
     }
 }

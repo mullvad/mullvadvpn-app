@@ -27,10 +27,14 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
         proxyConfiguration: .bridges
     )
 
-    let passthroughSubject: CurrentValueSubject<[PersistentAccessMethod], Never> = CurrentValueSubject([])
+    private let accessMethodsSubject: CurrentValueSubject<[PersistentAccessMethod], Never>
+    public var accessMethodsPublisher: AnyPublisher<[PersistentAccessMethod], Never> {
+        accessMethodsSubject.eraseToAnyPublisher()
+    }
 
-    public var publisher: AnyPublisher<[PersistentAccessMethod], Never> {
-        passthroughSubject.eraseToAnyPublisher()
+    private let lastReachableAccessMethodSubject: CurrentValueSubject<PersistentAccessMethod, Never>
+    public var lastReachableAccessMethodPublisher: AnyPublisher<PersistentAccessMethod, Never> {
+        lastReachableAccessMethodSubject.eraseToAnyPublisher()
     }
 
     public var directAccess: PersistentAccessMethod {
@@ -38,37 +42,57 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
     }
 
     public init() {
+        accessMethodsSubject = CurrentValueSubject([])
+        lastReachableAccessMethodSubject = CurrentValueSubject(direct)
+
         add([direct, bridge])
+
+        accessMethodsSubject.send(fetchAll())
+        lastReachableAccessMethodSubject.send(fetchLastReachable())
     }
 
     public func save(_ method: PersistentAccessMethod) {
-        var storedMethods = fetchAll()
+        var methodStore = readApiAccessMethodStore()
 
-        if let index = storedMethods.firstIndex(where: { $0.id == method.id }) {
-            storedMethods[index] = method
+        if let index = methodStore.accessMethods.firstIndex(where: { $0.id == method.id }) {
+            methodStore.accessMethods[index] = method
         } else {
-            storedMethods.append(method)
+            methodStore.accessMethods.append(method)
         }
 
         do {
-            try writeApiAccessMethods(storedMethods)
+            try writeApiAccessMethodStore(methodStore)
+            accessMethodsSubject.send(methodStore.accessMethods)
         } catch {
-            logger.error("Could not update access methods: \(storedMethods) \nError: \(error)")
+            logger.error("Could not save access method: \(method) \nError: \(error)")
+        }
+    }
+
+    public func saveLastReachable(_ method: PersistentAccessMethod) {
+        var methodStore = readApiAccessMethodStore()
+        methodStore.lastReachableAccessMethod = method
+
+        do {
+            try writeApiAccessMethodStore(methodStore)
+            lastReachableAccessMethodSubject.send(method)
+        } catch {
+            logger.error("Could not save last reachable access method: \(method) \nError: \(error)")
         }
     }
 
     public func delete(id: UUID) {
-        var methods = fetchAll()
-        guard let index = methods.firstIndex(where: { $0.id == id }) else { return }
+        var methodStore = readApiAccessMethodStore()
+        guard let index = methodStore.accessMethods.firstIndex(where: { $0.id == id }) else { return }
 
         // Prevent removing methods that have static UUIDs and are always present.
-        let method = methods[index]
+        let method = methodStore.accessMethods[index]
         if !method.kind.isPermanent {
-            methods.remove(at: index)
+            methodStore.accessMethods.remove(at: index)
         }
 
         do {
-            try writeApiAccessMethods(methods)
+            try writeApiAccessMethodStore(methodStore)
+            accessMethodsSubject.send(methodStore.accessMethods)
         } catch {
             logger.error("Could not delete access method with id: \(id) \nError: \(error)")
         }
@@ -79,7 +103,11 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
     }
 
     public func fetchAll() -> [PersistentAccessMethod] {
-        (try? readApiAccessMethods()) ?? []
+        readApiAccessMethodStore().accessMethods
+    }
+
+    public func fetchLastReachable() -> PersistentAccessMethod {
+        readApiAccessMethodStore().lastReachableAccessMethod
     }
 
     public func reloadWithDefaultsAfterDataRemoval() {
@@ -87,35 +115,39 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
     }
 
     private func add(_ methods: [PersistentAccessMethod]) {
-        var storedMethods = fetchAll()
+        var methodStore = readApiAccessMethodStore()
 
         methods.forEach { method in
-            if !storedMethods.contains(where: { $0.id == method.id }) {
-                storedMethods.append(method)
+            if !methodStore.accessMethods.contains(where: { $0.id == method.id }) {
+                methodStore.accessMethods.append(method)
             }
         }
 
         do {
-            try writeApiAccessMethods(storedMethods)
+            try writeApiAccessMethodStore(methodStore)
+            accessMethodsSubject.send(methods)
         } catch {
-            logger.error("Could not update access methods: \(storedMethods) \nError: \(error)")
+            logger.error("Could not update access methods: \(methods) \nError: \(error)")
         }
     }
 
-    private func readApiAccessMethods() throws -> [PersistentAccessMethod] {
+    private func readApiAccessMethodStore() -> PersistentAccessMethodStore {
         let parser = makeParser()
-        let data = try SettingsManager.store.read(key: .apiAccessMethods)
 
-        return try parser.parseUnversionedPayload(as: [PersistentAccessMethod].self, from: data)
+        do {
+            let data = try SettingsManager.store.read(key: .apiAccessMethods)
+            return try parser.parseUnversionedPayload(as: PersistentAccessMethodStore.self, from: data)
+        } catch {
+            logger.error("Could not load access method store: \(error)")
+            return PersistentAccessMethodStore(lastReachableAccessMethod: direct, accessMethods: [])
+        }
     }
 
-    private func writeApiAccessMethods(_ accessMethods: [PersistentAccessMethod]) throws {
+    private func writeApiAccessMethodStore(_ store: PersistentAccessMethodStore) throws {
         let parser = makeParser()
-        let data = try parser.produceUnversionedPayload(accessMethods)
+        let data = try parser.produceUnversionedPayload(store)
 
         try SettingsManager.store.write(data, for: .apiAccessMethods)
-
-        passthroughSubject.send(accessMethods)
     }
 
     private func makeParser() -> SettingsParser {

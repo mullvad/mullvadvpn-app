@@ -11,7 +11,6 @@ import Foundation
 import MullvadSettings
 
 class AccessMethodIterator {
-    private var lastReachableApiAccessCache: LastReachableApiAccessCache
     private let dataSource: AccessMethodRepositoryDataSource
 
     private var index = 0
@@ -21,19 +20,15 @@ class AccessMethodIterator {
         dataSource.fetchAll().filter { $0.isEnabled }
     }
 
-    private var lastReachableApiAccessId: UUID {
-        lastReachableApiAccessCache.id
+    private var lastReachableApiAccessId: UUID? {
+        dataSource.fetchLastReachable().id
     }
 
-    init(_ userDefaults: UserDefaults, dataSource: AccessMethodRepositoryDataSource) {
+    init(dataSource: AccessMethodRepositoryDataSource) {
         self.dataSource = dataSource
-        self.lastReachableApiAccessCache = LastReachableApiAccessCache(
-            defaultValue: dataSource.directAccess.id,
-            container: userDefaults
-        )
 
         self.dataSource
-            .publisher
+            .accessMethodsPublisher
             .sink { [weak self] _ in
                 guard let self else { return }
                 self.refreshCacheIfNeeded()
@@ -48,14 +43,14 @@ class AccessMethodIterator {
         } else {
             /// When `firstIndex` is `nil`, that means the current configuration is not valid anymore
             /// Invalidating cache by replacing the `current` to the next enabled access method
-            lastReachableApiAccessCache.id = pick().id
+            dataSource.saveLastReachable(pick())
         }
     }
 
     func rotate() {
         let (partial, isOverflow) = index.addingReportingOverflow(1)
         index = isOverflow ? 0 : partial
-        lastReachableApiAccessCache.id = pick().id
+        dataSource.saveLastReachable(pick())
     }
 
     func pick() -> PersistentAccessMethod {

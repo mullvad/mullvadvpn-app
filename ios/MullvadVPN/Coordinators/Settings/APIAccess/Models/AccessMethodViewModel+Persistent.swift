@@ -28,7 +28,7 @@ extension AccessMethodViewModel {
 
         do {
             configuration = try intoPersistentProxyConfiguration()
-        } catch var error as AccessMethodValidationError {
+        } catch let error as AccessMethodValidationError {
             var fieldErrors = error.fieldErrors
 
             do {

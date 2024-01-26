@@ -8,6 +8,6 @@
 
 import MullvadSettings
 
-protocol AccessMethodEditing {
+protocol AccessMethodEditing: AnyObject {
     func accessMethodDidSave(_ accessMethod: PersistentAccessMethod)
 }
