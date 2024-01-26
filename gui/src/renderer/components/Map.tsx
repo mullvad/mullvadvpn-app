@@ -1,4 +1,3 @@
-import { mat4 } from 'gl-matrix';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -8,9 +7,6 @@ import { useAppContext } from '../context';
 import GLMap, { ConnectionState, Coordinate } from '../lib/map/3dmap';
 import { useCombinedRefs } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
-
-// The angle in degrees that the camera sees in
-const angleOfView = 70;
 
 const defaultLocation = new Coordinate(57.70887, 11.97456);
 
@@ -101,9 +97,6 @@ function MapInner(props: MapParams) {
     updateCanvasSize(canvas);
 
     const gl = canvas.getContext('webgl2', { antialias: true })!;
-    setGlOptions(gl);
-
-    const projectionMatrix = getProjectionMatrix(gl);
 
     const map = new GLMap(
       gl,
@@ -123,7 +116,7 @@ function MapInner(props: MapParams) {
         newParams.current = undefined;
       }
 
-      drawScene(gl, map, projectionMatrix, now);
+      map.draw(now);
 
       // Stops rendering if pause is true. This happens when there is no ongoing movements
       if (!pause.current) {
@@ -174,45 +167,4 @@ function MapInner(props: MapParams) {
       height={Math.floor(canvasHeight * scaleFactor)}
     />
   );
-}
-
-function setGlOptions(gl: WebGL2RenderingContext) {
-  // Hide triangles not facing the camera
-  gl.enable(gl.CULL_FACE);
-  gl.cullFace(gl.BACK);
-
-  // Enable transparency (alpha < 1.0)
-  gl.enable(gl.BLEND);
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-}
-
-function getProjectionMatrix(gl: WebGL2RenderingContext): mat4 {
-  // Enables using gl.UNSIGNED_INT for indexes. Allows 32 bit integer
-  // indexes. Needed to have more than 2^16 vertices in one buffer.
-  // Not needed on WebGL2 canvases where it's enabled by default
-  // const ext = gl.getExtension('OES_element_index_uint');
-
-  // Create a perspective matrix, a special matrix that is
-  // used to simulate the distortion of perspective in a camera.
-  const fieldOfView = (angleOfView / 180) * Math.PI; // in radians
-  // @ts-ignore
-  const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-  const zNear = 0.1;
-  const zFar = 10;
-  const projectionMatrix = mat4.create();
-  mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
-
-  return projectionMatrix;
-}
-
-function drawScene(gl: WebGL2RenderingContext, map: GLMap, projectionMatrix: mat4, now: number) {
-  gl.clearColor(10 / 255, 25 / 255, 35 / 255, 1); // Clear to black, fully opaque
-  gl.clearDepth(1.0); // Clear everything
-  gl.enable(gl.DEPTH_TEST); // Enable depth testing
-  gl.depthFunc(gl.LEQUAL); // Near things obscure far things
-
-  // Clear the canvas before we start drawing on it.
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-  map.draw(projectionMatrix, now);
 }

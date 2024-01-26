@@ -1,6 +1,7 @@
 import { mat4 } from 'gl-matrix';
 
-type Color = Array<number>;
+type ColorRgba = [number, number, number, number];
+type ColorRgb = [number, number, number];
 
 export interface MapData {
   landContourIndices: ArrayBuffer;
@@ -39,16 +40,21 @@ export enum ConnectionState {
   noMarker,
 }
 
+// The angle in degrees that the camera sees in
+const angleOfView = 70;
+
+// Color of "space" as seen in the corners when zooming out
+const spaceColor: ColorRgba = [10 / 255, 25 / 255, 35 / 255, 1];
 // Color values for various components of the map.
-const landColor: Color = [0.16, 0.302, 0.45, 1.0];
-const oceanColor: Color = [0.098, 0.18, 0.271, 1.0];
+const landColor: ColorRgba = [0.16, 0.302, 0.45, 1.0];
+const oceanColor: ColorRgba = [0.098, 0.18, 0.271, 1.0];
 // The color of borders between geographical entities
-const contourColor: Color = oceanColor;
+const contourColor: ColorRgba = oceanColor;
 
 // The green color of the location marker when in the secured state
-const locationMarkerSecureColor: Color = [0.267, 0.678, 0.302];
+const locationMarkerSecureColor: ColorRgb = [0.267, 0.678, 0.302];
 // The red color of the location marken when in the unsecured state
-const locationMarkerUnsecureColor: Color = [0.89, 0.251, 0.224];
+const locationMarkerUnsecureColor: ColorRgb = [0.89, 0.251, 0.224];
 
 // Zoom is distance from earths center. 1.0 is at the surface.
 // These constants define the zoom levels for the connected and disconnected states.
@@ -227,9 +233,9 @@ class LocationMarker {
   private positionBuffer: WebGLBuffer;
   private colorBuffer: WebGLBuffer;
 
-  public constructor(private gl: WebGL2RenderingContext, color: Color) {
-    const white = [1.0, 1.0, 1.0];
-    const black = [0.0, 0.0, 0.0];
+  public constructor(private gl: WebGL2RenderingContext, color: ColorRgb) {
+    const white: ColorRgb = [1.0, 1.0, 1.0];
+    const black: ColorRgb = [0.0, 0.0, 0.0];
     const rings = [
       circleFanVertices(32, 0.5, [0.0, 0.0, 0.0], [...color, 0.4], [...color, 0.4]), // Semi-transparent outer
       circleFanVertices(16, 0.28, [0.0, -0.05, 0.00001], [...black, 0.55], [...black, 0.0]), // shadow
@@ -399,6 +405,7 @@ class SmoothZoomDirect implements ZoomAnimation {
 }
 
 export default class Map {
+  private projectionMatrix: mat4;
   private globe: Globe;
   private locationMarkerSecure: LocationMarker;
   private locationMarkerUnsecure: LocationMarker;
@@ -412,12 +419,14 @@ export default class Map {
   private zoomAnimations: Array<ZoomAnimation>;
 
   public constructor(
-    gl: WebGL2RenderingContext,
+    private gl: WebGL2RenderingContext,
     data: MapData,
     startCoordinate: Coordinate,
     connectionState: ConnectionState,
     private animationEndListener?: () => void,
   ) {
+    initGlOptions(gl);
+    this.projectionMatrix = getProjectionMatrix(gl);
     this.globe = new Globe(gl, data);
     this.locationMarkerSecure = new LocationMarker(gl, locationMarkerSecureColor);
     this.locationMarkerUnsecure = new LocationMarker(gl, locationMarkerUnsecureColor);
@@ -472,7 +481,8 @@ export default class Map {
   }
 
   // Render the map for the time `now`.
-  public draw(projectionMatrix: mat4, now: number) {
+  public draw(now: number) {
+    this.clear();
     this.updatePosition(now);
     this.updateZoom(now);
 
@@ -498,13 +508,13 @@ export default class Map {
     mat4.rotateX(viewMatrix, viewMatrix, phi);
     mat4.rotateY(viewMatrix, viewMatrix, -theta);
 
-    this.globe.draw(projectionMatrix, viewMatrix);
+    this.globe.draw(this.projectionMatrix, viewMatrix);
 
     // Draw the appropriate location marker depending on our connection state.
     switch (this.connectionState) {
       case ConnectionState.disconnected:
         this.locationMarkerUnsecure.draw(
-          projectionMatrix,
+          this.projectionMatrix,
           viewMatrix,
           this.targetCoordinate,
           0.03 * this.zoom,
@@ -512,7 +522,7 @@ export default class Map {
         break;
       case ConnectionState.connected:
         this.locationMarkerSecure.draw(
-          projectionMatrix,
+          this.projectionMatrix,
           viewMatrix,
           this.targetCoordinate,
           0.03 * this.zoom,
@@ -521,8 +531,18 @@ export default class Map {
     }
   }
 
+  private clear() {
+    this.gl.clearColor(...spaceColor); // Clear to black, fully opaque
+    this.gl.clearDepth(1.0); // Clear everything
+    this.gl.enable(this.gl.DEPTH_TEST); // Enable depth testing
+    this.gl.depthFunc(this.gl.LEQUAL); // Near things obscure far things
+
+    // Clear the canvas before we start drawing on it.
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+  }
+
   // Private function that just updates internal animation state to match with time `now`.
-  public updatePosition(now: number) {
+  private updatePosition(now: number) {
     if (this.animations.length === 0) {
       return;
     }
@@ -555,7 +575,7 @@ export default class Map {
   }
 
   // Private function that updates the current zoom level according to ongoing animations.
-  updateZoom(now: number) {
+  private updateZoom(now: number) {
     if (this.zoomAnimations.length === 0) {
       return;
     }
@@ -587,6 +607,35 @@ export default class Map {
   }
 }
 
+function initGlOptions(gl: WebGL2RenderingContext) {
+  // Hide triangles not facing the camera
+  gl.enable(gl.CULL_FACE);
+  gl.cullFace(gl.BACK);
+
+  // Enable transparency (alpha < 1.0)
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+}
+
+function getProjectionMatrix(gl: WebGL2RenderingContext): mat4 {
+  // Enables using gl.UNSIGNED_INT for indexes. Allows 32 bit integer
+  // indexes. Needed to have more than 2^16 vertices in one buffer.
+  // Not needed on WebGL2 canvases where it's enabled by default
+  // const ext = gl.getExtension('OES_element_index_uint');
+
+  // Create a perspective matrix, a special matrix that is
+  // used to simulate the distortion of perspective in a camera.
+  const fieldOfView = (angleOfView / 180) * Math.PI; // in radians
+  // @ts-ignore
+  const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+  const zNear = 0.1;
+  const zFar = 10;
+  const projectionMatrix = mat4.create();
+  mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+
+  return projectionMatrix;
+}
+
 // Draws primitives of type `mode` (TRIANGLES, LINES etc) using vertex positions from
 // `positionBuffer` at indices in `indices` with the color `color` and using the shaders in
 // `programInfo`.
@@ -597,7 +646,7 @@ function drawBufferElements(
   modelViewMatrix: mat4,
   positionBuffer: WebGLBuffer,
   indices: IndexBuffer,
-  color: Color,
+  color: ColorRgba,
   mode: GLenum,
 ) {
   {
@@ -724,8 +773,8 @@ function circleFanVertices(
   numEdges: number,
   radius: number,
   offset: [number, number, number],
-  centerColor: Color,
-  ringColor: Color,
+  centerColor: ColorRgba,
+  ringColor: ColorRgba,
 ) {
   const positions = [...offset];
   const colors = [...centerColor];
