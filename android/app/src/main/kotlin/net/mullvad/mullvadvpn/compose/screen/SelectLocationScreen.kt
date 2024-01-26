@@ -52,6 +52,7 @@ import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.Alpha10
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
@@ -161,7 +162,8 @@ fun SelectLocationScreen(
                 modifier =
                     Modifier.fillMaxWidth()
                         .height(Dimens.searchFieldHeight)
-                        .padding(horizontal = Dimens.searchFieldHorizontalPadding)
+                        .padding(horizontal = Dimens.searchFieldHorizontalPadding),
+                backgroundColor = MaterialTheme.colorScheme.onBackground.copy(alpha = Alpha10),
             ) { searchString ->
                 onSearchTermInput.invoke(searchString)
             }

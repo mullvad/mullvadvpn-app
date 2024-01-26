@@ -29,14 +29,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite10
+import net.mullvad.mullvadvpn.lib.theme.color.Alpha10
 
 @Preview
 @Composable
 private fun PreviewSearchTextField() {
     AppTheme {
         Column(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            SearchTextField(placeHolder = "Search for...") {}
+            SearchTextField(
+                placeHolder = "Search for...",
+                backgroundColor = MaterialTheme.colorScheme.onSurface.copy(alpha = Alpha10)
+            ) {}
         }
     }
 }
@@ -46,7 +49,7 @@ private fun PreviewSearchTextField() {
 fun SearchTextField(
     modifier: Modifier = Modifier,
     placeHolder: String = stringResource(id = R.string.search_placeholder),
-    backgroundColor: Color = MullvadWhite10,
+    backgroundColor: Color,
     enabled: Boolean = true,
     singleLine: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },

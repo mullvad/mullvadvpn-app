@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadGreen
+import net.mullvad.mullvadvpn.lib.theme.color.selected
 
 @Preview
 @Composable
@@ -64,7 +64,7 @@ internal fun CheckboxCell(
                     CheckboxDefaults.colors(
                         checkedColor = Color.Transparent,
                         uncheckedColor = Color.Transparent,
-                        checkmarkColor = MullvadGreen
+                        checkmarkColor = MaterialTheme.colorScheme.selected
                     ),
             )
         }

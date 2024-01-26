@@ -24,7 +24,6 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.textfield.DnsTextField
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadRed
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewState
@@ -169,7 +168,7 @@ fun DnsDialog(
                     Text(
                         text = errorMessage,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MullvadRed,
+                        color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(top = Dimens.smallPadding)
                     )
                 }
