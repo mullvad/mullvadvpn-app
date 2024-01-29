@@ -134,10 +134,11 @@ message ErrorState {
     SET_FIREWALL_POLICY_ERROR = 2;
     SET_DNS_ERROR = 3;
     START_TUNNEL_ERROR = 4;
-    TUNNEL_PARAMETER_ERROR = 5;
-    IS_OFFLINE = 6;
-    VPN_PERMISSION_DENIED = 7;
-    SPLIT_TUNNEL_ERROR = 8;
+    CREATE_TUNNEL_DEVICE = 5;
+    TUNNEL_PARAMETER_ERROR = 6;
+    IS_OFFLINE = 7;
+    VPN_PERMISSION_DENIED = 8;
+    SPLIT_TUNNEL_ERROR = 9;
   }
 
   enum AuthFailedError {
@@ -175,6 +176,8 @@ message ErrorState {
   GenerationError parameter_error = 4;
   // SET_FIREWALL_POLICY_ERROR
   FirewallPolicyError policy_error = 5;
+  // CREATE_TUNNEL_DEVICE
+  optional int32 create_tunnel_error = 6;
 }
 
 message TunnelState {

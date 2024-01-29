@@ -278,6 +278,14 @@ impl ConnectingState {
                                 ),
                             ),
                         ) => ErrorStateCause::InvalidDnsServers(addresses),
+                        #[cfg(target_os = "windows")]
+                        error => match error.get_tunnel_device_error() {
+                            Some(error) => ErrorStateCause::CreateTunnelDevice {
+                                os_error: error.raw_os_error(),
+                            },
+                            None => ErrorStateCause::StartTunnelError,
+                        },
+                        #[cfg(not(target_os = "windows"))]
                         _ => ErrorStateCause::StartTunnelError,
                     };
                     Some(block_reason)
@@ -581,8 +589,8 @@ impl ConnectingState {
 #[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
 fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
     #[cfg(target_os = "windows")]
-    if error.get_tunnel_device_error().is_some() && retry_attempt < MAX_ATTEMPT_CREATE_TUN {
-        return true;
+    if error.get_tunnel_device_error().is_some() {
+        return retry_attempt < MAX_ATTEMPT_CREATE_TUN;
     }
     error.is_recoverable()
 }
