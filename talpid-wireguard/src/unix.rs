@@ -3,9 +3,7 @@ use std::{io, os::fd::AsRawFd};
 use socket2::Domain;
 use talpid_types::ErrorExt;
 
-pub fn set_mtu(interface_name: &str, mtu: u32) -> Result<(), io::Error> {
-    log::info!("Setting MTU to {mtu}");
-
+pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
     let sock = socket2::Socket::new(
         Domain::IPV4,
         socket2::Type::STREAM,
