@@ -15,7 +15,6 @@ use std::env;
 
 use std::{
     convert::Infallible,
-    io,
     net::IpAddr,
     path::Path,
     pin::Pin,
@@ -391,7 +390,7 @@ impl WireguardMonitor {
                         gateway,
                         #[cfg(any(target_os = "macos", target_os = "linux"))]
                         iface_name_clone.clone(),
-                        dbg!(config.mtu),
+                        dbg!(config.mtu as usize),
                     )
                     .await
                     .unwrap(); // TODO: detect real MTU
@@ -980,61 +979,67 @@ impl WireguardMonitor {
 async fn get_mtu(
     gateway: std::net::Ipv4Addr,
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
-    max_mtu: u16,
-) -> Result<u16> {
-    let mut pinger = ping_monitor::imp::Pinger::new(
-        gateway,
-        #[cfg(any(target_os = "macos", target_os = "linux"))]
-        iface_name,
-    )
-    .unwrap();
+    max_mtu: usize,
+) -> Result<usize> {
+    use surge_ping::{Client, Config, PingIdentifier, PingSequence};
 
+    let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
+    // let addr = std::net::SocketAddr::new(gateway.into(), 0);
+    // let config_builder = config_builder.bind(addr);
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
+    let config_builder = config_builder.interface(&iface_name);
+    let config = config_builder.build();
+
+    let client = Client::new(&config).unwrap();
+    let mut pinger = client
+        .pinger(IpAddr::V4(gateway), PingIdentifier(111))
+        .await;
+    pinger.timeout(Duration::from_secs(5)); // TODO: choose a good timeout
+
+    // let mut buf = vec![0; max_mtu as usize];
     let step_size = 20;
     let min_mtu = 576; // TODO: Account for IPv6?
     let linspace = mtu_spacing(min_mtu, max_mtu, step_size);
-    for mtu in &linspace {
-        log::warn!("Sending {mtu}");
-        ping_monitor::Pinger::send_icmp_sized(&mut pinger, *mtu).map_err(Error::SetMtu)?;
-    }
+
+    const IPV4_HEADER_SIZE: usize = 20;
+    const ICMP_HEADER_SIZE: usize = 8;
+
     let mut largest_verified_mtu = min_mtu;
-    // tokio::time::sleep(Duration::from_millis(3000)).await; // TODO: Remove this
-    let mut buf = vec![0; max_mtu as usize];
-    for _ in &linspace {
-        let size = match pinger.receive_ping_response(&mut buf).await {
-            Ok(size) => size,
-            Err(ping_monitor::imp::Error::Read(e)) if e.kind() == io::ErrorKind::TimedOut => {
-                // TODO: This can sometimes trigger with max_mtu == largest_verified_mtu,
-                // investigate why
-                log::warn!("Lowering MTU from {max_mtu} to {largest_verified_mtu} because of dropped packets");
-                return Ok(largest_verified_mtu);
+    for (i, mtu) in linspace.iter().enumerate() {
+        log::warn!("Sending {mtu}");
+        let buf = vec![0; *mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE]; // TODO: avoid allocating
+        match pinger.ping(PingSequence(i as u16), &buf).await {
+            Ok((packet, rtt)) => {
+                println!("{:?} {:0.2?}", packet, rtt);
+                let surge_ping::IcmpPacket::V4(packet) = packet else {
+                    panic!();
+                };
+                let size = packet.get_size() + IPV4_HEADER_SIZE;
+                assert_eq!(size, *mtu);
+                if size > largest_verified_mtu {
+                    largest_verified_mtu = size;
+                }
+                // TODO: Remove
+                log::warn!("Got response of size {size}")
             }
-            Err(e) => return Err(Error::SetMtu(e)),
+            Err(e) => println!("{}", e),
         };
-        debug_assert!(
-            linspace.contains(&size.try_into().unwrap()),
-            "Received PING response was not the size of any sent pings"
-        );
-        if size > largest_verified_mtu.into() {
-            largest_verified_mtu = size as u16;
-        }
-        // TODO: Remove
-        log::warn!("Got response of size {size}")
     }
-    // TODO: Remove
+
     log::debug!("MTU {largest_verified_mtu} verified");
 
     Ok(largest_verified_mtu)
 }
 
 #[cfg(target_os = "linux")]
-fn mtu_spacing(x_start: u16, x_end: u16, step_size: u16) -> Vec<u16> {
+fn mtu_spacing(x_start: usize, x_end: usize, step_size: usize) -> Vec<usize> {
     if x_start > x_end {
         log::warn!("Setting MTU to {x_end} which is lower than");
         return vec![x_end];
         // todo!("Handle manual MTU lower that minimum")
     }
     let in_between = ((x_start + 1)..x_end).filter(|x| x % step_size == 0);
-    let mut ret = Vec::with_capacity(((x_end - x_start) / 3 + 2) as usize);
+    let mut ret = Vec::with_capacity((x_end - x_start) / 3 + 2);
     ret.push(x_start);
     ret.extend(in_between);
     ret.push(x_end);
@@ -1117,7 +1122,7 @@ pub enum TunnelError {
     /// Failed to setup a tunnel device.
     #[cfg(windows)]
     #[error(display = "Failed to config IP interfaces on tunnel device")]
-    SetupIpInterfaces(#[error(source)] io::Error),
+    SetupIpInterfaces(#[error(source)] std::io::Error),
 
     /// Failed to configure Wireguard sockets to bypass the tunnel.
     #[cfg(target_os = "android")]
