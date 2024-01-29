@@ -59,7 +59,7 @@ impl Error {
         // If the default route disappears while connecting but before it is caught by the offline
         // monitor, then the gateway will be unreachable. In this case, just retry.
         matches!(
-            error,
+            self,
             Error::PlatformError(PlatformError::AddRoute(imp::RouteError::Unreachable,))
         )
     }
