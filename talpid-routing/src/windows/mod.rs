@@ -91,6 +91,13 @@ pub enum Error {
     GetDeviceByGateway,
 }
 
+impl Error {
+    /// Return whether retrying the operation that caused this error is likely to succeed.
+    pub fn is_recoverable(&self) -> bool {
+        matches!(self, Error::AddRoutesFailed(_))
+    }
+}
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Manages routes by calling into WinNet

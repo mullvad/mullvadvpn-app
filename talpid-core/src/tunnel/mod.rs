@@ -53,6 +53,28 @@ pub enum Error {
     AssignMtuError,
 }
 
+impl Error {
+    /// Return whether retrying the operation that caused this error is likely to succeed.
+    pub fn is_recoverable(&self) -> bool {
+        match self {
+            Error::WireguardTunnelMonitoringError(error) => error.is_recoverable(),
+            #[cfg(not(target_os = "android"))]
+            Error::OpenVpnTunnelMonitoringError(error) => error.is_recoverable(),
+            _ => false,
+        }
+    }
+
+    /// Get the inner tunnel device error, if there is one
+    #[cfg(target_os = "windows")]
+    pub fn get_tunnel_device_error(&self) -> Option<&std::io::Error> {
+        match self {
+            Error::WireguardTunnelMonitoringError(error) => error.get_tunnel_device_error(),
+            Error::OpenVpnTunnelMonitoringError(error) => error.get_tunnel_device_error(),
+            _ => None,
+        }
+    }
+}
+
 /// Abstraction for monitoring a generic VPN tunnel.
 pub struct TunnelMonitor {
     monitor: InternalTunnelMonitor,

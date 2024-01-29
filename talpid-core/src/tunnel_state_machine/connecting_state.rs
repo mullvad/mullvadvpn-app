@@ -265,7 +265,7 @@ impl ConnectingState {
                         #[cfg(target_os = "android")]
                         tunnel::Error::WireguardTunnelMonitoringError(
                             talpid_wireguard::Error::TunnelError(
-                                talpid_wireguard::TunnelError::SetupTunnelDeviceError(
+                                talpid_wireguard::TunnelError::SetupTunnelDevice(
                                     tun_provider::Error::PermissionDenied,
                                 ),
                             ),
@@ -273,7 +273,7 @@ impl ConnectingState {
                         #[cfg(target_os = "android")]
                         tunnel::Error::WireguardTunnelMonitoringError(
                             talpid_wireguard::Error::TunnelError(
-                                talpid_wireguard::TunnelError::SetupTunnelDeviceError(
+                                talpid_wireguard::TunnelError::SetupTunnelDevice(
                                     tun_provider::Error::InvalidDnsServers(addresses),
                                 ),
                             ),
@@ -580,56 +580,11 @@ impl ConnectingState {
 
 #[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
 fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
-    use talpid_wireguard::{Error, TunnelError};
-
-    match error {
-        tunnel::Error::WireguardTunnelMonitoringError(Error::CreateObfuscatorError(_)) => true,
-
-        tunnel::Error::WireguardTunnelMonitoringError(Error::ObfuscatorError(_)) => true,
-
-        tunnel::Error::WireguardTunnelMonitoringError(Error::PskNegotiationError(_)) => true,
-
-        tunnel::Error::WireguardTunnelMonitoringError(Error::TunnelError(
-            TunnelError::RecoverableStartWireguardError,
-        )) => true,
-
-        #[cfg(target_os = "android")]
-        tunnel::Error::WireguardTunnelMonitoringError(Error::TunnelError(
-            TunnelError::BypassError(_),
-        )) => true,
-
-        #[cfg(any(target_os = "windows", target_os = "macos"))]
-        tunnel::Error::WireguardTunnelMonitoringError(Error::SetupRoutingError(error)) => {
-            is_recoverable_routing_error(error)
-        }
-
-        #[cfg(windows)]
-        tunnel::Error::WireguardTunnelMonitoringError(Error::TunnelError(
-            TunnelError::SetupTunnelDevice(_),
-        ))
-        | tunnel::Error::OpenVpnTunnelMonitoringError(
-            talpid_openvpn::Error::WintunCreateAdapterError(_),
-        ) if retry_attempt < MAX_ATTEMPT_CREATE_TUN => true,
-
-        _ => false,
+    #[cfg(target_os = "windows")]
+    if error.get_tunnel_device_error().is_some() && retry_attempt < MAX_ATTEMPT_CREATE_TUN {
+        return true;
     }
-}
-
-#[cfg(windows)]
-fn is_recoverable_routing_error(error: &talpid_routing::Error) -> bool {
-    matches!(error, talpid_routing::Error::AddRoutesFailed(_))
-}
-
-#[cfg(target_os = "macos")]
-fn is_recoverable_routing_error(error: &talpid_routing::Error) -> bool {
-    // If the default route disappears while connecting but before it is caught by the offline
-    // monitor, then the gateway will be unreachable. In this case, just retry.
-    matches!(
-        error,
-        talpid_routing::Error::PlatformError(talpid_routing::PlatformError::AddRoute(
-            talpid_routing::RouteError::Unreachable,
-        ))
-    )
+    error.is_recoverable()
 }
 
 impl TunnelState for ConnectingState {
