@@ -1029,6 +1029,12 @@ function convertFromTunnelStateError(state: grpcTypes.ErrorState.AsObject): Erro
         ...baseError,
         cause: ErrorStateCause.startTunnelError,
       };
+    case grpcTypes.ErrorState.Cause.CREATE_TUNNEL_DEVICE:
+      return {
+        ...baseError,
+        cause: ErrorStateCause.createTunnelDeviceError,
+        osError: state.createTunnelError,
+      };
     case grpcTypes.ErrorState.Cause.SPLIT_TUNNEL_ERROR:
       return {
         ...baseError,

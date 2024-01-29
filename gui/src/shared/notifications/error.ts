@@ -163,6 +163,14 @@ function getMessage(errorState: ErrorState): string {
           'notifications',
           'Unable to start tunnel connection. Please send a problem report.',
         );
+      case ErrorStateCause.createTunnelDeviceError:
+        if (errorState.osError === 4319) {
+          // TODO: add improved error for network device conflicts
+        }
+        return messages.pgettext(
+          'notifications',
+          'Failed to create tunnel device. Please send a problem report.',
+        );
       case ErrorStateCause.tunnelParameterError:
         return getTunnelParameterMessage(errorState.parameterError);
       case ErrorStateCause.isOffline:

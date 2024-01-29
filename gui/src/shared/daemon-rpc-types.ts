@@ -44,6 +44,7 @@ export enum ErrorStateCause {
   setFirewallPolicyError,
   setDnsError,
   startTunnelError,
+  createTunnelDeviceError,
   tunnelParameterError,
   isOffline,
   splitTunnelError,
@@ -77,6 +78,11 @@ export type ErrorState =
       cause: ErrorStateCause.authFailed;
       blockingError?: FirewallPolicyError;
       authFailedError: AuthFailedError;
+    }
+  | {
+      cause: ErrorStateCause.createTunnelDeviceError;
+      blockingError?: FirewallPolicyError;
+      osError?: number;
     }
   | {
       cause: ErrorStateCause.tunnelParameterError;
