@@ -123,36 +123,6 @@ impl Pinger {
         result
     }
 
-    #[cfg(target_os = "linux")]
-    pub async fn receive_ping_response(&mut self, buf: &mut [u8]) -> Result<usize> {
-        // TODO: pick out sequence number
-        // TODO: verify payload?
-        // NOTE: This assumes abound peer address, which we do not for send
-
-        // tokio::net::TcpSocket::from(value)
-
-        use std::io::Read;
-        let mut attempt = 0;
-        loop {
-            // NOTE: This read statement seems to always read one entire ping response in its
-            // entirety. Is this guaranteed?
-            match self.sock.read(buf) {
-                Ok(size) => {
-                    return Ok(size);
-                }
-                Err(e) if e.kind() == io::ErrorKind::WouldBlock => {
-                    log::warn!("Retrying");
-                    attempt += 1;
-                    if attempt > 10 {
-                        return Err(Error::Read(io::ErrorKind::TimedOut.into()));
-                    }
-                    tokio::time::sleep(Duration::from_millis(100)).await;
-                }
-                Err(e) => return Err(Error::Read(e)),
-            }
-        }
-    }
-
     fn construct_icmpv4_packet(&mut self, buffer: &mut [u8]) -> Result<()> {
         if !construct_icmpv4_packet_inner(buffer, self) {
             return Err(Error::BufferTooSmall);
