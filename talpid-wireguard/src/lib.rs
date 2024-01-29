@@ -352,7 +352,8 @@ impl WireguardMonitor {
             {
                 let iface_name_clone = iface_name.clone();
                 tokio::task::spawn(async move {
-                    tokio::time::sleep(Duration::from_secs(10)).await; // TODO: Delete this
+                    // tokio::time::sleep(Duration::from_secs(10)).await; // TODO: Delete this
+                    // before merging
                     log::warn!("MTU detection");
                     let mtu = get_mtu(
                         gateway,
@@ -361,9 +362,8 @@ impl WireguardMonitor {
                         dbg!(config.mtu as usize),
                     )
                     .await
-                    .unwrap(); // TODO: detect real MTU
+                    .unwrap();
 
-                    // TODO: Set IPv6 too
                     #[cfg(target_os = "linux")]
                     if let Err(e) = unix::set_mtu(&iface_name_clone, mtu as u32) {
                         log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
@@ -952,8 +952,6 @@ async fn get_mtu(
     use surge_ping::{Client, Config, PingIdentifier, PingSequence};
 
     let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
-    // let addr = std::net::SocketAddr::new(gateway.into(), 0);
-    // let config_builder = config_builder.bind(addr);
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     let config_builder = config_builder.interface(&iface_name);
     let config = config_builder.build();
