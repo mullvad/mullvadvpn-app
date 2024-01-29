@@ -95,6 +95,9 @@ pub enum ErrorStateCause {
     /// Android has rejected one or more DNS server addresses.
     #[cfg(target_os = "android")]
     InvalidDnsServers(Vec<IpAddr>),
+    /// Failed to create tunnel device.
+    #[cfg(target_os = "windows")]
+    CreateTunnelDevice { os_error: Option<i32> },
     /// Failed to start connection to remote server.
     StartTunnelError,
     /// Tunnel parameter generation failure
@@ -198,6 +201,14 @@ impl fmt::Display for ErrorStateCause {
                 );
             }
             StartTunnelError => "Failed to start connection to remote server",
+            #[cfg(target_os = "windows")]
+            CreateTunnelDevice {
+                os_error: Some(error),
+            } => return write!(f, "Failed to create tunnel device: {error}"),
+            #[cfg(target_os = "windows")]
+            CreateTunnelDevice { os_error: None } => {
+                return write!(f, "Failed to create tunnel device")
+            }
             TunnelParameterError(ref err) => {
                 return write!(f, "Failure to generate tunnel parameters: {err}");
             }
