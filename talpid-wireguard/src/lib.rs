@@ -365,9 +365,12 @@ impl WireguardMonitor {
                     .unwrap();
 
                     #[cfg(target_os = "linux")]
-                    if let Err(e) = unix::set_mtu(&iface_name_clone, mtu as u32) {
-                        log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
-                    };
+                    if mtu != config.mtu {
+                        log::info!("Updating MTU to {mtu}");
+                        if let Err(e) = unix::set_mtu(&iface_name_clone, mtu) {
+                            log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
+                        };
+                    }
                 });
             }
             let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
@@ -948,7 +951,7 @@ async fn get_mtu(
     gateway: std::net::Ipv4Addr,
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
     max_mtu: usize,
-) -> Result<usize> {
+) -> Result<u16> {
     use surge_ping::{Client, Config, PingIdentifier, PingSequence};
 
     let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
@@ -1006,7 +1009,7 @@ async fn get_mtu(
 
     log::debug!("MTU {largest_verified_mtu} verified to not drop packets");
 
-    Ok(largest_verified_mtu)
+    Ok(largest_verified_mtu as u16)
 }
 
 #[cfg(target_os = "linux")]
