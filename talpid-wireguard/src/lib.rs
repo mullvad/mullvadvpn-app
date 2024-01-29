@@ -974,12 +974,12 @@ async fn get_mtu(
     for (i, &mtu) in linspace.iter().enumerate() {
         let mut pinger = client
             .clone()
-            .pinger(IpAddr::V4(gateway), PingIdentifier(111)) // TODO: randomize?
+            .pinger(IpAddr::V4(gateway), PingIdentifier(111)) //? Is a static identified ok, or should we randomize?
             .await;
         pinger.timeout(Duration::from_secs(5)); // TODO: choose a good timeout
         let fut = async move {
-            log::warn!("Sending ICMP ping of total size {mtu}"); // TODO: Make a debug level print
-            let payload = vec![0; mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE]; // ? Can we avoid allocating here?
+            log::warn!("Sending ICMP ping of total size {mtu}"); // TODO: Make print debug/trace level before merging
+            let payload = vec![0; mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE]; //? Can we avoid allocating here?
 
             (mtu, pinger.ping(PingSequence(i as u16), &payload).await)
         };
@@ -999,14 +999,14 @@ async fn get_mtu(
                 if size > largest_verified_mtu {
                     largest_verified_mtu = size;
                 }
-                // TODO: Remove
-                log::warn!("Got response of size {size}")
+                log::warn!("Got response of size {size}") // TODO: Make print debug/trace level
+                                                          // before merging
             }
             Err(e) => println!("{}", e),
         };
     }
 
-    log::debug!("MTU {largest_verified_mtu} verified");
+    log::debug!("MTU {largest_verified_mtu} verified to not drop packets");
 
     Ok(largest_verified_mtu)
 }
