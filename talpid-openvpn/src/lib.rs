@@ -125,6 +125,28 @@ pub enum Error {
     ParseRemoteHost(#[error(source)] std::net::AddrParseError),
 }
 
+impl Error {
+    /// Return whether retrying the operation that caused this error is likely to succeed.
+    pub fn is_recoverable(&self) -> bool {
+        match self {
+            #[cfg(windows)]
+            _ => self.get_tunnel_device_error().is_some(),
+
+            #[cfg(not(windows))]
+            _ => false,
+        }
+    }
+
+    /// Get the inner tunnel device error, if there is one
+    #[cfg(target_os = "windows")]
+    pub fn get_tunnel_device_error(&self) -> Option<&io::Error> {
+        match self {
+            Error::WintunCreateAdapterError(ref error) => Some(error),
+            _ => None,
+        }
+    }
+}
+
 #[cfg(unix)]
 static OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(4);
 #[cfg(windows)]

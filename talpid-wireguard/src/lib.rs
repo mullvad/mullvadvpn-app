@@ -104,6 +104,38 @@ pub enum Error {
     SetIpAddressesError(#[error(source)] talpid_windows::net::Error),
 }
 
+impl Error {
+    /// Return whether retrying the operation that caused this error is likely to succeed.
+    pub fn is_recoverable(&self) -> bool {
+        match self {
+            Error::CreateObfuscatorError(_) => true,
+            Error::ObfuscatorError(_) => true,
+            Error::PskNegotiationError(_) => true,
+            Error::TunnelError(TunnelError::RecoverableStartWireguardError) => true,
+
+            Error::SetupRoutingError(error) => error.is_recoverable(),
+
+            #[cfg(target_os = "android")]
+            Error::TunnelError(TunnelError::BypassError(_)) => true,
+
+            #[cfg(windows)]
+            _ => self.get_tunnel_device_error().is_some(),
+
+            #[cfg(not(windows))]
+            _ => false,
+        }
+    }
+
+    /// Get the inner tunnel device error, if there is one
+    #[cfg(windows)]
+    pub fn get_tunnel_device_error(&self) -> Option<&io::Error> {
+        match self {
+            Error::TunnelError(TunnelError::SetupTunnelDevice(error)) => Some(error),
+            _ => None,
+        }
+    }
+}
+
 /// Spawns and monitors a wireguard tunnel
 pub struct WireguardMonitor {
     runtime: tokio::runtime::Handle,
@@ -983,7 +1015,7 @@ pub enum TunnelError {
     /// Failed to setup a tunnel device.
     #[cfg(not(windows))]
     #[error(display = "Failed to create tunnel device")]
-    SetupTunnelDeviceError(#[error(source)] tun_provider::Error),
+    SetupTunnelDevice(#[error(source)] tun_provider::Error),
 
     /// Failed to set up a tunnel device
     #[cfg(windows)]
