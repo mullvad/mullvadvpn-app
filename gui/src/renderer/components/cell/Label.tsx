@@ -12,6 +12,13 @@ const StyledLabel = styled.div<{ disabled: boolean }>(buttonText, (props) => ({
   flex: 1,
   color: props.disabled ? colors.white40 : colors.white,
   textAlign: 'left',
+
+  [`${LabelContainer} &&`]: {
+    marginTop: '5px',
+    marginBottom: 0,
+    height: '20px',
+    lineHeight: '20px',
+  },
 }));
 
 const StyledSubText = styled.span<{ disabled: boolean }>(tinyText, (props) => ({
@@ -31,12 +38,28 @@ const StyledTintedIcon = styled(ImageView).attrs((props: IImageViewProps) => ({
   tintHoverColor: props.tintHoverColor ?? props.tintColor ?? colors.white60,
 }))((props: IImageViewProps) => ({
   '&&:hover': {
-    backgroundColor: props.tintColor,
+    backgroundColor: props.tintHoverColor,
   },
   [`${CellButton}:not(:disabled):hover &&`]: {
     backgroundColor: props.tintHoverColor,
   },
 }));
+
+const StyledSubLabel = styled.div<{ disabled: boolean }>(tinyText, {
+  display: 'flex',
+  alignItems: 'center',
+  color: colors.white60,
+  marginBottom: '5px',
+  lineHeight: '14px',
+  height: '14px',
+});
+
+export const LabelContainer = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  minWidth: 0,
+});
 
 export function Label(props: React.HTMLAttributes<HTMLDivElement>) {
   const disabled = useContext(CellDisabledContext);
@@ -73,4 +96,9 @@ export function Icon(props: IImageViewProps) {
       <StyledTintedIcon {...props} />
     </StyledIconContainer>
   );
+}
+
+export function SubLabel(props: React.HTMLAttributes<HTMLDivElement>) {
+  const disabled = useContext(CellDisabledContext);
+  return <StyledSubLabel disabled={disabled} {...props} />;
 }

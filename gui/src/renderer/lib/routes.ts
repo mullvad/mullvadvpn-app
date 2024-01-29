@@ -17,6 +17,8 @@ export enum RoutePath {
   wireguardSettings = '/settings/advanced/wireguard',
   openVpnSettings = '/settings/advanced/openvpn',
   splitTunneling = '/settings/split-tunneling',
+  apiAccessMethods = '/settings/api-access-methods',
+  editApiAccessMethods = '/settings/api-access-methods/edit/:id?',
   support = '/settings/support',
   problemReport = '/settings/support/problem-report',
   debug = '/settings/debug',

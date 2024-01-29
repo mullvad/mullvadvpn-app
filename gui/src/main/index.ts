@@ -8,6 +8,7 @@ import config from '../config.json';
 import { hasExpired } from '../shared/account-expiry';
 import { IWindowsApplication } from '../shared/application-types';
 import {
+  AccessMethodSetting,
   DaemonEvent,
   DeviceEvent,
   IRelayListWithEndpointData,
@@ -116,6 +117,8 @@ class ApplicationMain
   private navigationHistory?: IHistoryObject;
 
   private relayList?: IRelayListWithEndpointData;
+
+  private currentApiAccessMethod?: AccessMethodSetting;
 
   public constructor() {
     this.daemonRpc = new DaemonRpc(
@@ -550,6 +553,19 @@ class ApplicationMain
       return this.handleBootstrapError(error);
     }
 
+    // fetch current api access method
+    try {
+      this.currentApiAccessMethod = await this.daemonRpc.getCurrentApiAccessMethod();
+      IpcMainEventChannel.settings.notifyApiAccessMethodSettingChange?.(
+        this.currentApiAccessMethod,
+      );
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to fetch settings: ${error.message}`);
+
+      return this.handleBootstrapError(error);
+    }
+
     if (this.tunnelStateExpectation) {
       this.tunnelStateExpectation.fulfill();
     }
@@ -658,6 +674,10 @@ class ApplicationMain
           this.account.handleDeviceEvent(daemonEvent.device);
         } else if ('deviceRemoval' in daemonEvent) {
           IpcMainEventChannel.account.notifyDevices?.(daemonEvent.deviceRemoval);
+        } else if ('accessMethodSetting' in daemonEvent) {
+          IpcMainEventChannel.settings.notifyApiAccessMethodSettingChange?.(
+            daemonEvent.accessMethodSetting,
+          );
         }
       },
       (error: Error) => {
@@ -726,6 +746,7 @@ class ApplicationMain
       changelog: this.changelog ?? [],
       forceShowChanges: CommandLineOptions.showChanges.match,
       navigationHistory: this.navigationHistory,
+      currentApiAccessMethod: this.currentApiAccessMethod,
     }));
 
     IpcMainEventChannel.tunnel.handleConnect(this.connectTunnel);

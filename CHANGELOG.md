@@ -28,6 +28,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add CLI command for exporting settings patches: `mullvad export-settings`. Currently, it generates
   a patch containing all patchable settings, which only includes relay IP overrides.
 - Make `mullvad status` prints if lockdown mode is enabled when disconnected.
+- Add option to configure custom API access methods. Custom API access methods allows the user to
+  circumvent censorship by proxying API traffic.
 
 #### Android
 - Add support for all screen orientations.

@@ -30,6 +30,7 @@ export type LocalizationContexts =
   | 'openvpn-settings-nav'
   | 'split-tunneling-view'
   | 'split-tunneling-nav'
+  | 'api-access-methods-view'
   | 'support-view'
   | 'select-language-nav'
   | 'tray-icon-context-menu'

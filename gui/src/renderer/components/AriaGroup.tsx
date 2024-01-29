@@ -16,6 +16,7 @@ const AriaControlContext = React.createContext<IAriaControlContext>({
 });
 
 interface IAriaGroupProps {
+  describedId?: string;
   children: React.ReactNode;
 }
 
@@ -49,11 +50,11 @@ export function AriaDescriptionGroup(props: IAriaGroupProps) {
 
   const contextValue = useMemo(
     () => ({
-      describedId: `${id}-described`,
+      describedId: props.describedId ?? `${id}-described`,
       descriptionId: hasDescription ? `${id}-description` : undefined,
       setHasDescription,
     }),
-    [hasDescription],
+    [hasDescription, props.describedId],
   );
 
   return (
@@ -94,7 +95,7 @@ export function AriaInputGroup(props: IAriaGroupProps) {
   );
 
   return (
-    <AriaDescriptionGroup>
+    <AriaDescriptionGroup describedId={contextValue.inputId}>
       <AriaInputContext.Provider value={contextValue}>{props.children}</AriaInputContext.Provider>
     </AriaDescriptionGroup>
   );

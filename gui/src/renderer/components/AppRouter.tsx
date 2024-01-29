@@ -7,9 +7,11 @@ import { useAppContext } from '../context';
 import { ITransitionSpecification, transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import Account from './Account';
+import ApiAccessMethods from './ApiAccessMethods';
 import Connect from './Connect';
 import Debug from './Debug';
 import { DeviceRevokedView } from './DeviceRevokedView';
+import { EditApiAccessMethod } from './EditApiAccessMethod';
 import {
   SetupFinished,
   TimeAdded,
@@ -80,6 +82,8 @@ export default function AppRouter() {
             <Route exact path={RoutePath.wireguardSettings} component={WireguardSettings} />
             <Route exact path={RoutePath.openVpnSettings} component={OpenVpnSettings} />
             <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
+            <Route exact path={RoutePath.apiAccessMethods} component={ApiAccessMethods} />
+            <Route exact path={RoutePath.editApiAccessMethods} component={EditApiAccessMethod} />
             <Route exact path={RoutePath.support} component={Support} />
             <Route exact path={RoutePath.problemReport} component={ProblemReport} />
             <Route exact path={RoutePath.debug} component={Debug} />

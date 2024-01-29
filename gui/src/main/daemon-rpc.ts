@@ -8,10 +8,13 @@ import {
 import { promisify } from 'util';
 
 import {
+  AccessMethod,
+  AccessMethodSetting,
   AccountDataError,
   AccountDataResponse,
   AccountToken,
   AfterDisconnect,
+  ApiAccessMethodSettings,
   AuthFailedError,
   BridgeSettings,
   BridgeState,
@@ -20,6 +23,7 @@ import {
   Constraint,
   CustomListError,
   CustomLists,
+  CustomProxy,
   DaemonEvent,
   DeviceEvent,
   DeviceState,
@@ -49,6 +53,7 @@ import {
   IWireguardEndpointData,
   LoggedInDeviceState,
   LoggedOutDeviceState,
+  NewAccessMethodSetting,
   ObfuscationSettings,
   ObfuscationType,
   Ownership,
@@ -58,6 +63,7 @@ import {
   RelayLocationGeographical,
   RelayProtocol,
   RelaySettings,
+  SocksAuth,
   TunnelParameterError,
   TunnelProtocol,
   TunnelState,
@@ -642,6 +648,55 @@ export class DaemonRpc {
     }
   }
 
+  public async addApiAccessMethod(method: NewAccessMethodSetting): Promise<string> {
+    const result = await this.call<grpcTypes.NewAccessMethodSetting, grpcTypes.UUID>(
+      this.client.addApiAccessMethod,
+      convertToNewApiAccessMethodSetting(method),
+    );
+    return result.getValue();
+  }
+
+  public async updateApiAccessMethod(method: AccessMethodSetting) {
+    await this.call(this.client.updateApiAccessMethod, convertToApiAccessMethodSetting(method));
+  }
+
+  public async getCurrentApiAccessMethod() {
+    const response = await this.callEmpty<grpcTypes.AccessMethodSetting>(
+      this.client.getCurrentApiAccessMethod,
+    );
+    return convertFromApiAccessMethodSetting(response);
+  }
+
+  public async removeApiAccessMethod(id: string) {
+    const uuid = new grpcTypes.UUID();
+    uuid.setValue(id);
+    await this.call(this.client.removeApiAccessMethod, uuid);
+  }
+
+  public async setApiAccessMethod(id: string) {
+    const uuid = new grpcTypes.UUID();
+    uuid.setValue(id);
+    await this.call(this.client.setApiAccessMethod, uuid);
+  }
+
+  public async testApiAccessMethodById(id: string): Promise<boolean> {
+    const uuid = new grpcTypes.UUID();
+    uuid.setValue(id);
+    const result = await this.call<grpcTypes.UUID, BoolValue>(
+      this.client.testApiAccessMethodById,
+      uuid,
+    );
+    return result.getValue();
+  }
+
+  public async testCustomApiAccessMethod(method: CustomProxy): Promise<boolean> {
+    const result = await this.call<grpcTypes.CustomProxy, BoolValue>(
+      this.client.testCustomApiAccessMethod,
+      convertToCustomProxy(method),
+    );
+    return result.getValue();
+  }
+
   private subscriptionId(): number {
     const current = this.nextSubscriptionId;
     this.nextSubscriptionId += 1;
@@ -1102,6 +1157,7 @@ function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefine
   const splitTunnel = settingsObject.splitTunnel ?? { enableExclusions: false, appsList: [] };
   const obfuscationSettings = convertFromObfuscationSettings(settingsObject.obfuscationSettings);
   const customLists = convertFromCustomListSettings(settings.getCustomLists());
+  const apiAccessMethods = convertFromApiAccessMethodSettings(settings.getApiAccessMethods());
   return {
     ...settings.toObject(),
     bridgeState,
@@ -1111,6 +1167,7 @@ function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefine
     splitTunnel,
     obfuscationSettings,
     customLists,
+    apiAccessMethods,
   };
 }
 
@@ -1409,6 +1466,11 @@ function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent {
   const versionInfo = data.getVersionInfo();
   if (versionInfo !== undefined) {
     return { appVersionInfo: versionInfo.toObject() };
+  }
+
+  const newAccessMethod = data.getNewAccessMethod();
+  if (newAccessMethod !== undefined) {
+    return { accessMethodSetting: convertFromApiAccessMethodSetting(newAccessMethod) };
   }
 
   // Handle unknown daemon events
@@ -1732,6 +1794,181 @@ function convertToCustomList(customList: ICustomList): grpcTypes.CustomList {
   grpcCustomList.setLocationsList(locations);
 
   return grpcCustomList;
+}
+
+function convertToApiAccessMethodSetting(
+  method: AccessMethodSetting,
+): grpcTypes.AccessMethodSetting {
+  const updatedMethod = new grpcTypes.AccessMethodSetting();
+  const uuid = new grpcTypes.UUID();
+  uuid.setValue(method.id);
+  updatedMethod.setId(uuid);
+  return fillApiAccessMethodSetting(updatedMethod, method);
+}
+
+function convertToNewApiAccessMethodSetting(
+  method: NewAccessMethodSetting,
+): grpcTypes.NewAccessMethodSetting {
+  const newMethod = new grpcTypes.NewAccessMethodSetting();
+  return fillApiAccessMethodSetting(newMethod, method);
+}
+
+function fillApiAccessMethodSetting<T extends grpcTypes.NewAccessMethodSetting>(
+  newMethod: T,
+  method: NewAccessMethodSetting,
+): T {
+  newMethod.setName(method.name);
+  newMethod.setEnabled(method.enabled);
+
+  const accessMethod = new grpcTypes.AccessMethod();
+  switch (method.type) {
+    case 'direct': {
+      const direct = new grpcTypes.AccessMethod.Direct();
+      accessMethod.setDirect(direct);
+      break;
+    }
+    case 'bridges': {
+      const bridges = new grpcTypes.AccessMethod.Bridges();
+      accessMethod.setBridges(bridges);
+      break;
+    }
+    default:
+      accessMethod.setCustom(convertToCustomProxy(method));
+  }
+
+  newMethod.setAccessMethod(accessMethod);
+  return newMethod;
+}
+
+function convertToCustomProxy(proxy: CustomProxy): grpcTypes.CustomProxy {
+  const customProxy = new grpcTypes.CustomProxy();
+
+  switch (proxy.type) {
+    case 'socks5-local': {
+      const socks5Local = new grpcTypes.Socks5Local();
+      socks5Local.setRemoteIp(proxy.remoteIp);
+      socks5Local.setRemotePort(proxy.remotePort);
+      socks5Local.setRemoteTransportProtocol(
+        convertToTransportProtocol(proxy.remoteTransportProtocol),
+      );
+      socks5Local.setLocalPort(proxy.localPort);
+      customProxy.setSocks5local(socks5Local);
+      break;
+    }
+    case 'socks5-remote': {
+      const socks5Remote = new grpcTypes.Socks5Remote();
+      socks5Remote.setIp(proxy.ip);
+      socks5Remote.setPort(proxy.port);
+      if (proxy.authentication !== undefined) {
+        socks5Remote.setAuth(convertToSocksAuth(proxy.authentication));
+      }
+      customProxy.setSocks5remote(socks5Remote);
+      break;
+    }
+    case 'shadowsocks': {
+      const shadowsocks = new grpcTypes.Shadowsocks();
+      shadowsocks.setIp(proxy.ip);
+      shadowsocks.setPort(proxy.port);
+      shadowsocks.setPassword(proxy.password);
+      shadowsocks.setCipher(proxy.cipher);
+      customProxy.setShadowsocks(shadowsocks);
+      break;
+    }
+  }
+
+  return customProxy;
+}
+
+function convertToSocksAuth(authentication: SocksAuth): grpcTypes.SocksAuth {
+  const auth = new grpcTypes.SocksAuth();
+  auth.setUsername(authentication.username);
+  auth.setPassword(authentication.password);
+  return auth;
+}
+
+function convertFromApiAccessMethodSettings(
+  accessMethods?: grpcTypes.ApiAccessMethodSettings,
+): ApiAccessMethodSettings {
+  return (
+    accessMethods
+      ?.getAccessMethodSettingsList()
+      .filter((setting) => setting.hasId() && setting.hasAccessMethod())
+      .map(convertFromApiAccessMethodSetting) ?? []
+  );
+}
+
+function convertFromApiAccessMethodSetting(
+  setting: grpcTypes.AccessMethodSetting,
+): AccessMethodSetting {
+  const id = setting.getId()!;
+  const accessMethod = setting.getAccessMethod()!;
+
+  return {
+    id: id.getValue(),
+    name: setting.getName(),
+    enabled: setting.getEnabled(),
+    ...convertFromAccessMethod(accessMethod),
+  };
+}
+
+function convertFromAccessMethod(method: grpcTypes.AccessMethod): AccessMethod {
+  switch (method.getAccessMethodCase()) {
+    case grpcTypes.AccessMethod.AccessMethodCase.DIRECT:
+      return { type: 'direct' };
+    case grpcTypes.AccessMethod.AccessMethodCase.BRIDGES:
+      return { type: 'bridges' };
+    case grpcTypes.AccessMethod.AccessMethodCase.CUSTOM: {
+      const proxy = method.getCustom()!;
+      switch (proxy.getProxyMethodCase()) {
+        case grpcTypes.CustomProxy.ProxyMethodCase.SOCKS5LOCAL: {
+          const socks5Local = proxy.getSocks5local()!;
+          return {
+            type: 'socks5-local',
+            remoteIp: socks5Local.getRemoteIp(),
+            remotePort: socks5Local.getRemotePort(),
+            remoteTransportProtocol: convertFromTransportProtocol(
+              socks5Local.getRemoteTransportProtocol(),
+            ),
+            localPort: socks5Local.getLocalPort(),
+          };
+        }
+        case grpcTypes.CustomProxy.ProxyMethodCase.SOCKS5REMOTE: {
+          const socks5Remote = proxy.getSocks5remote()!;
+          const auth = socks5Remote.getAuth();
+          return {
+            type: 'socks5-remote',
+            ip: socks5Remote.getIp(),
+            port: socks5Remote.getPort(),
+            authentication: auth === undefined ? undefined : convertFromSocksAuth(auth),
+          };
+        }
+        case grpcTypes.CustomProxy.ProxyMethodCase.SHADOWSOCKS: {
+          const shadowsocks = proxy.getShadowsocks()!;
+          return {
+            type: 'shadowsocks',
+            ip: shadowsocks.getIp(),
+            port: shadowsocks.getPort(),
+            password: shadowsocks.getPassword(),
+            cipher: shadowsocks.getCipher(),
+          };
+        }
+        case grpcTypes.CustomProxy.ProxyMethodCase.PROXY_METHOD_NOT_SET:
+          throw new Error('Custom method not set, which should always be set');
+      }
+      // This break is required to prevent eslint from complainting about fallthrough, even though
+      // all cases are covered above.
+      break;
+    }
+    case grpcTypes.AccessMethod.AccessMethodCase.ACCESS_METHOD_NOT_SET:
+      throw new Error('Access method not set, which should always be set');
+  }
+}
+
+function convertFromSocksAuth(auth: grpcTypes.SocksAuth): SocksAuth {
+  return {
+    username: auth.getUsername(),
+    password: auth.getPassword(),
+  };
 }
 
 function ensureExists<T>(value: T | undefined, errorMessage: string): T {

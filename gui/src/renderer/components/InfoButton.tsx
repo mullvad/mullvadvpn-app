@@ -33,12 +33,13 @@ export function InfoIcon(props: IInfoIconProps) {
 }
 
 interface IInfoButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
-  message?: string;
+  message?: string | Array<string>;
   children?: React.ReactNode;
+  size?: number;
 }
 
 export default function InfoButton(props: IInfoButtonProps) {
-  const { message, children, ...otherProps } = props;
+  const { message, children, size, ...otherProps } = props;
   const [isOpen, show, hide] = useBoolean(false);
 
   return (
@@ -47,7 +48,7 @@ export default function InfoButton(props: IInfoButtonProps) {
         onClick={show}
         aria-label={messages.pgettext('accessibility', 'More information')}
         {...otherProps}>
-        <InfoIcon />
+        <InfoIcon size={size} />
       </StyledInfoButton>
       <ModalAlert
         isOpen={isOpen}

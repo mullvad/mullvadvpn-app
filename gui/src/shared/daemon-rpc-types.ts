@@ -173,7 +173,8 @@ export type DaemonEvent =
   | { relayList: IRelayListWithEndpointData }
   | { appVersionInfo: IAppVersionInfo }
   | { device: DeviceEvent }
-  | { deviceRemoval: Array<IDevice> };
+  | { deviceRemoval: Array<IDevice> }
+  | { accessMethodSetting: AccessMethodSetting };
 
 export interface ITunnelStateRelayInfo {
   endpoint: ITunnelEndpoint;
@@ -427,6 +428,7 @@ export interface ISettings {
   splitTunnel: SplitTunnelSettings;
   obfuscationSettings: ObfuscationSettings;
   customLists: CustomLists;
+  apiAccessMethods: ApiAccessMethodSettings;
 }
 
 export type BridgeState = 'auto' | 'on' | 'off';
@@ -473,6 +475,59 @@ export interface ISocketAddress {
 export type VoucherResponse =
   | { type: 'success'; newExpiry: string; secondsAdded: number }
   | { type: 'invalid' | 'already_used' | 'error' };
+
+export interface SocksAuth {
+  username: string;
+  password: string;
+}
+
+export type Socks5LocalAccessMethod = {
+  type: 'socks5-local';
+  remoteIp: string;
+  remotePort: number;
+  remoteTransportProtocol: RelayProtocol;
+  localPort: number;
+};
+
+export type Socks5RemoteAccessMethod = {
+  type: 'socks5-remote';
+  ip: string;
+  port: number;
+  authentication?: SocksAuth;
+};
+
+export type ShadowsocksAccessMethod = {
+  type: 'shadowsocks';
+  ip: string;
+  port: number;
+  password: string;
+  cipher: string;
+};
+
+export type CustomProxy =
+  | Socks5LocalAccessMethod
+  | Socks5RemoteAccessMethod
+  | ShadowsocksAccessMethod;
+
+export type AccessMethod =
+  | {
+      type: 'direct';
+    }
+  | {
+      type: 'bridges';
+    }
+  | CustomProxy;
+
+export type NewAccessMethodSetting = AccessMethod & {
+  name: string;
+  enabled: boolean;
+};
+
+export type AccessMethodSetting = NewAccessMethodSetting & {
+  id: string;
+};
+
+export type ApiAccessMethodSettings = Array<AccessMethodSetting>;
 
 export function parseSocketAddress(socketAddrStr: string): ISocketAddress {
   const re = new RegExp(/(.+):(\d+)$/);
