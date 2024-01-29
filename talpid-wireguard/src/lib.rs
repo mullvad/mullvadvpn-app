@@ -959,12 +959,7 @@ async fn get_mtu(
     let config = config_builder.build();
 
     let client = Client::new(&config).unwrap();
-    let mut pinger = client
-        .pinger(IpAddr::V4(gateway), PingIdentifier(111))
-        .await;
-    pinger.timeout(Duration::from_secs(5)); // TODO: choose a good timeout
 
-    // let mut buf = vec![0; max_mtu as usize];
     let step_size = 20;
     let min_mtu = 576; // TODO: Account for IPv6?
     let linspace = mtu_spacing(min_mtu, max_mtu, step_size);
@@ -973,17 +968,34 @@ async fn get_mtu(
     const ICMP_HEADER_SIZE: usize = 8;
 
     let mut largest_verified_mtu = min_mtu;
-    for (i, mtu) in linspace.iter().enumerate() {
-        log::warn!("Sending {mtu}");
-        let buf = vec![0; *mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE]; // TODO: avoid allocating
-        match pinger.ping(PingSequence(i as u16), &buf).await {
-            Ok((packet, rtt)) => {
-                println!("{:?} {:0.2?}", packet, rtt);
+    use tokio::task::JoinSet;
+
+    let mut set = JoinSet::new();
+    for (i, &mtu) in linspace.iter().enumerate() {
+        let mut pinger = client
+            .clone()
+            .pinger(IpAddr::V4(gateway), PingIdentifier(111)) // TODO: randomize?
+            .await;
+        pinger.timeout(Duration::from_secs(5)); // TODO: choose a good timeout
+        let fut = async move {
+            log::warn!("Sending ICMP ping of total size {mtu}"); // TODO: Make a debug level print
+            let payload = vec![0; mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE]; // ? Can we avoid allocating here?
+
+            (mtu, pinger.ping(PingSequence(i as u16), &payload).await)
+        };
+        set.spawn(fut);
+    }
+
+    while let Some(res) = set.join_next().await {
+        let (mtu, ping) = res.expect("Join error");
+        match ping {
+            Ok((packet, _rtt)) => {
+                // println!("{:?} {:0.2?}", packet, rtt);
                 let surge_ping::IcmpPacket::V4(packet) = packet else {
                     panic!();
                 };
                 let size = packet.get_size() + IPV4_HEADER_SIZE;
-                assert_eq!(size, *mtu);
+                debug_assert_eq!(size, mtu);
                 if size > largest_verified_mtu {
                     largest_verified_mtu = size;
                 }
