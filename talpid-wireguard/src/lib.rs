@@ -985,6 +985,11 @@ pub enum TunnelError {
     #[error(display = "Failed to create tunnel device")]
     SetupTunnelDeviceError(#[error(source)] tun_provider::Error),
 
+    /// Failed to set up a tunnel device
+    #[cfg(windows)]
+    #[error(display = "Failed to create tunnel device")]
+    SetupTunnelDevice(#[error(source)] io::Error),
+
     /// Failed to setup a tunnel device.
     #[cfg(windows)]
     #[error(display = "Failed to config IP interfaces on tunnel device")]
