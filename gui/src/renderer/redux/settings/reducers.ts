@@ -1,3 +1,4 @@
+import { getDefaultApiAccessMethods } from '../../../main/default-settings';
 import { IWindowsApplication } from '../../../shared/application-types';
 import {
   AccessMethodSetting,
@@ -177,7 +178,7 @@ const initialState: ISettingsReduxState = {
     },
   },
   customLists: [],
-  apiAccessMethods: [],
+  apiAccessMethods: getDefaultApiAccessMethods(),
   currentApiAccessMethod: undefined,
 };
 
