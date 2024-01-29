@@ -58,6 +58,7 @@ impl Error {
     pub fn is_recoverable(&self) -> bool {
         match self {
             Error::WireguardTunnelMonitoringError(error) => error.is_recoverable(),
+            #[cfg(not(target_os = "android"))]
             Error::OpenVpnTunnelMonitoringError(error) => error.is_recoverable(),
             _ => false,
         }
