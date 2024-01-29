@@ -132,9 +132,8 @@ impl Pinger {
 }
 
 impl super::Pinger for Pinger {
-    fn send_icmp_sized(&mut self, size: u16) -> Result<()> {
-        const IPV4_HEADER_SIZE: u16 = 20;
-        let mut message = vec![0u8; (size - IPV4_HEADER_SIZE) as usize];
+    fn send_icmp(&mut self) -> Result<()> {
+        let mut message = [0u8; 50];
         self.construct_icmpv4_packet(&mut message)?;
         self.send_ping_request(&message, self.addr)
     }

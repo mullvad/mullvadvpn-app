@@ -11,11 +11,7 @@ pub use imp::Error;
 /// Trait for sending ICMP requests to get some traffic from a remote server
 pub trait Pinger: Send {
     /// Sends an ICMP packet
-    fn send_icmp(&mut self) -> Result<(), Error> {
-        self.send_icmp_sized(50)
-    }
-    /// Sends an ICMP packet of the given size
-    fn send_icmp_sized(&mut self, size: u16) -> Result<(), Error>;
+    fn send_icmp(&mut self) -> Result<(), Error>;
     /// Clears all resources used by the pinger.
     fn reset(&mut self) {}
 }
