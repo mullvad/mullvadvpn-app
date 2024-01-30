@@ -1,8 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
-import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { NewDeviceNotificationProvider } from '../../shared/notifications/new-device';
@@ -27,7 +25,7 @@ import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
 import { IReduxState } from '../redux/store';
 import * as AppButton from './AppButton';
-import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
+import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 import {
   NotificationActions,
   NotificationBanner,
@@ -115,12 +113,6 @@ export default function NotificationArea(props: IProps) {
   return <NotificationBanner className={props.className} aria-hidden={true} />;
 }
 
-const TroubleshootList = styled.ul({
-  listStyle: 'disc outside',
-  paddingLeft: '20px',
-  color: colors.white80,
-});
-
 interface INotificationActionWrapperProps {
   action: InAppNotificationAction;
 }
@@ -193,11 +185,11 @@ function NotificationActionWrapper(props: INotificationActionWrapperProps) {
         close={closeTroubleshootInfo}>
         <ModalMessage>{troubleshootInfo?.details}</ModalMessage>
         <ModalMessage>
-          <TroubleshootList>
+          <ModalMessageList>
             {troubleshootInfo?.steps.map((step) => (
               <li key={step}>{step}</li>
             ))}
-          </TroubleshootList>
+          </ModalMessageList>
         </ModalMessage>
         <ModalMessage>
           {messages.pgettext(
