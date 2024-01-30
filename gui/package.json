@@ -28,7 +28,7 @@
   },
   "optionalDependencies": {
     "grpc-tools": "^1.12.4",
-    "nseventmonitor": "^1.0.3"
+    "nseventmonitor": "^1.0.4"
   },
   "devDependencies": {
     "@electron/notarize": "^2.1.0",
