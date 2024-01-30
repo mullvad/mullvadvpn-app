@@ -24,6 +24,7 @@ struct AlertAction {
 struct AlertPresentation: Identifiable, CustomDebugStringConvertible {
     let id: String
 
+    var accessibilityIdentifier: AccessibilityIdentifier?
     var header: String?
     var icon: AlertIcon?
     var title: String?
