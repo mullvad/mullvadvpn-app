@@ -46,6 +46,7 @@ class AddAccessMethodCoordinator: Coordinator, Presentable, Presenting {
         setUpControllerNavigationItem(controller)
         controller.delegate = self
 
+        LocalNetworkProbe().triggerLocalNetworkPrivacyAlert()
         navigationController.pushViewController(controller, animated: false)
     }
 

@@ -616,6 +616,7 @@
 		A97D25B42B0CB59300946B2D /* TunnelObfuscationStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D25B32B0CB59300946B2D /* TunnelObfuscationStub.swift */; };
 		A97D30172AE6B5E90045C0E4 /* StoredWgKeyData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D30162AE6B5E90045C0E4 /* StoredWgKeyData.swift */; };
 		A97FF5502A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */; };
+		A98502032B627B120061901E /* LocalNetworkProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98502022B627B120061901E /* LocalNetworkProbe.swift */; };
 		A988A3E22AFE54AC0008D2C7 /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */; };
 		A988DF272ADE86ED00D807EF /* WireGuardObfuscationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A988DF252ADE86ED00D807EF /* WireGuardObfuscationSettings.swift */; };
 		A988DF2A2ADE880300D807EF /* TunnelSettingsV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = A988DF282ADE880300D807EF /* TunnelSettingsV3.swift */; };
@@ -1772,6 +1773,7 @@
 		A97D25B32B0CB59300946B2D /* TunnelObfuscationStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelObfuscationStub.swift; sourceTree = "<group>"; };
 		A97D30162AE6B5E90045C0E4 /* StoredWgKeyData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredWgKeyData.swift; sourceTree = "<group>"; };
 		A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSFileCoordinator+Extensions.swift"; sourceTree = "<group>"; };
+		A98502022B627B120061901E /* LocalNetworkProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNetworkProbe.swift; sourceTree = "<group>"; };
 		A988DF252ADE86ED00D807EF /* WireGuardObfuscationSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardObfuscationSettings.swift; sourceTree = "<group>"; };
 		A988DF282ADE880300D807EF /* TunnelSettingsV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV3.swift; sourceTree = "<group>"; };
 		A9A1DE782AD5708E0073F689 /* TransportStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransportStrategy.swift; sourceTree = "<group>"; };
@@ -2169,6 +2171,7 @@
 		5827B0A22B0E068800CCBBA1 /* AccessMethodRepository */ = {
 			isa = PBXGroup;
 			children = (
+				A98502022B627B120061901E /* LocalNetworkProbe.swift */,
 				58EF87562B16330B00C098B2 /* ProxyConfigurationTester.swift */,
 				58EF875C2B1638BF00C098B2 /* ProxyConfigurationTesterProtocol.swift */,
 			);
@@ -4896,6 +4899,7 @@
 				F0C6FA852A6A733700F521F0 /* InAppPurchaseInteractor.swift in Sources */,
 				58CEB2F92AFD136E00E6E088 /* UIBackgroundConfiguration+Extensions.swift in Sources */,
 				5878F50029CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift in Sources */,
+				A98502032B627B120061901E /* LocalNetworkProbe.swift in Sources */,
 				583FE01029C0F532006E85F9 /* CustomSplitViewController.swift in Sources */,
 				7A6F2FA92AFD0842006D0856 /* CustomDNSDataSource.swift in Sources */,
 				58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */,
