@@ -1903,7 +1903,7 @@ function convertFromApiAccessMethodSettings(
 
   return {
     direct,
-    mullvad_bridges: bridges,
+    mullvadBridges: bridges,
     custom,
   };
 }

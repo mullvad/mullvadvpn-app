@@ -130,8 +130,8 @@ export default function ApiAccessMethods() {
                       inUse={methods.direct.id === currentMethod?.id}
                     />
                     <ApiAccessMethod
-                      method={methods.mullvad_bridges}
-                      inUse={methods.mullvad_bridges.id === currentMethod?.id}
+                      method={methods.mullvadBridges}
+                      inUse={methods.mullvadBridges.id === currentMethod?.id}
                     />
                     {methods.custom.map((method) => (
                       <ApiAccessMethod
