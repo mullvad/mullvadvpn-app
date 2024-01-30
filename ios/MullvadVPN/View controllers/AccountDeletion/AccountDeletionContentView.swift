@@ -81,6 +81,7 @@ class AccountDeletionContentView: UIView {
     private lazy var accountTextField: AccountTextField = {
         let groupingStyle = AccountTextField.GroupingStyle.lastPart
         let textField = AccountTextField(groupingStyle: groupingStyle)
+        textField.accessibilityIdentifier = .deleteAccountTextField
         textField.font = .preferredFont(forTextStyle: .body, weight: .bold)
         textField.placeholder = Array(repeating: "X", count: 4).joined()
         textField.placeholderTextColor = .lightGray
@@ -346,6 +347,7 @@ class AccountDeletionContentView: UIView {
     }
 
     private func setupAppearance() {
+        accessibilityIdentifier = .deleteAccountView
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .secondaryColor
         directionalLayoutMargins = UIMetrics.contentLayoutMargins

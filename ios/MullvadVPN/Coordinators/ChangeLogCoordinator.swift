@@ -26,6 +26,7 @@ final class ChangeLogCoordinator: Coordinator, Presentable {
     func start() {
         let presentation = AlertPresentation(
             id: "change-log-ok-alert",
+            accessibilityIdentifier: .changeLogAlert,
             header: interactor.viewModel.header,
             title: interactor.viewModel.title,
             attributedMessage: interactor.viewModel.body,

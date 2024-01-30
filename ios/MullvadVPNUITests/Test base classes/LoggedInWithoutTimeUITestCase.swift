@@ -14,6 +14,7 @@ class LoggedInWithoutTimeUITestCase: BaseUITestCase {
         super.setUp()
 
         agreeToTermsOfServiceIfShown()
+        discardChangeLogIfShown()
         logoutIfLoggedIn()
 
         login(accountNumber: noTimeAccountNumber)
