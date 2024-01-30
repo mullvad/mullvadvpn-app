@@ -25,7 +25,7 @@
   - `brew install go@1.19`
 
 ## GitHub runner setup
-1. Ask GitHub admin for new runner token and set it up according to the steps presented, pass `--labels ios-test` to `config.sh` when running it. By default it will also have the labels `self-hosted` and `macOS` which are required as well.
+1. Ask GitHub admin for new runner token and setup steps from GitHub. Set it up according to the steps, pass `--labels ios-test` to `config.sh` when running it. By default it will also have the labels `self-hosted` and `macOS` which are required as well.
 2. Make sure GitHub actions secrets for the repository are correctly set up:
   - `IOS_DEVICE_PIN_CODE` - Device passcode if the device require it, otherwise leave blank. Devices used with CI should not require passcode.
   - `IOS_HAS_TIME_ACCOUNT_NUMBER` - Production server account without time left

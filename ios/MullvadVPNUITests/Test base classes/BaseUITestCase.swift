@@ -76,11 +76,17 @@ class BaseUITestCase: XCTestCase {
         if termsOfServiceIsShown {
             TermsOfServicePage(app)
                 .tapAgreeButton()
+        }
+    }
 
-            Alert(app) // Changes alert
+    func dismissChangeLogIfShown() {
+        let changeLogIsShown = app
+            .otherElements[AccessibilityIdentifier.changeLogAlert.rawValue]
+            .waitForExistence(timeout: 1.0)
+
+        if changeLogIsShown {
+            ChangeLogAlert(app)
                 .tapOkay()
-
-            LoginPage(app)
         }
     }
 
