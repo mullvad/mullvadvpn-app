@@ -55,6 +55,8 @@ Line wrap the file at 100 chars.                                              Th
   be printed (if available). `mullvad status listen` no longer prints location info.
 - Custom socks5 bridges get a new CLI interface and now work without split tunneling or root.
   In the CLI these can be found under `mullvad bridge set custom`.
+- Upgrade the background map to a new WebGL 3D map. This should both look better and be more
+  performant.
 
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.
