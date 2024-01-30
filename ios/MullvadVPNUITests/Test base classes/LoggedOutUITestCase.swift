@@ -14,6 +14,7 @@ class LoggedOutUITestCase: BaseUITestCase {
         super.setUp()
 
         agreeToTermsOfServiceIfShown()
+        discardChangeLogIfShown()
         logoutIfLoggedIn()
 
         // Relaunch app so that tests start from a deterministic state

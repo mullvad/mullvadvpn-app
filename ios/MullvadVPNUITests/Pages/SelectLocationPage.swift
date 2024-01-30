@@ -14,6 +14,7 @@ class SelectLocationPage: Page {
         super.init(app)
 
         self.pageAccessibilityIdentifier = .selectLocationView
+        waitForPageToBeShown()
     }
 
     @discardableResult func tapLocationCell(withName name: String) -> Self {

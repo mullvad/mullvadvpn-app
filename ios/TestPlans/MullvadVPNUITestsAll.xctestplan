@@ -17,9 +17,11 @@
   },
   "testTargets" : [
     {
-      "selectedTests" : [
-        "AccountTests\/testLogin()",
-        "AccountTests\/testLoginWithIncorrectAccountNumber()"
+      "skippedTests" : [
+        "BaseUITestCase",
+        "LoggedInWithTimeUITestCase",
+        "LoggedInWithoutTimeUITestCase",
+        "LoggedOutUITestCase"
       ],
       "target" : {
         "containerPath" : "container:MullvadVPN.xcodeproj",

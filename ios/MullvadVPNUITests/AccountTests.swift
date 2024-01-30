@@ -15,6 +15,45 @@ class AccountTests: LoggedOutUITestCase {
         try super.setUpWithError()
     }
 
+    override func tearDownWithError() throws {}
+
+    func testCreateAccount() throws {
+        LoginPage(app)
+            .tapCreateAccountButton()
+
+        // Verify welcome page is shown and get account number from it
+        let accountNumber = WelcomePage(app).getAccountNumber()
+
+        XCTAssertTrue(try MullvadAPIWrapper().accountExists(accountNumber))
+
+        try MullvadAPIWrapper().deleteAccount(accountNumber)
+    }
+
+    func testDeleteAccount() throws {
+        let accountNumber = try MullvadAPIWrapper().createAccount()
+
+        LoginPage(app)
+            .tapAccountNumberTextField()
+            .enterText(accountNumber)
+            .tapAccountNumberSubmitButton()
+
+        OutOfTimePage(app)
+
+        HeaderBar(app)
+            .tapAccountButton()
+
+        AccountPage(app)
+            .tapDeleteAccountButton()
+
+        AccountDeletionPage(app)
+            .enterText(String(accountNumber.suffix(4)))
+            .tapDeleteAccountButton()
+
+        LoginPage(app)
+
+        XCTAssertFalse(try MullvadAPIWrapper().accountExists(accountNumber))
+    }
+
     func testLogin() throws {
         LoginPage(app)
             .tapAccountNumberTextField()
