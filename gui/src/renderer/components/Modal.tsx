@@ -365,3 +365,9 @@ export const ModalMessage = styled.span(tinyText, {
     marginTop: '6px',
   },
 });
+
+export const ModalMessageList = styled.ul({
+  listStyle: 'disc outside',
+  paddingLeft: '20px',
+  color: colors.white80,
+});
