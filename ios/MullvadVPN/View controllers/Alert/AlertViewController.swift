@@ -56,8 +56,6 @@ class AlertViewController: UIViewController {
         view.backgroundColor = .secondaryColor
         view.layer.cornerRadius = 11
 
-        view.accessibilityIdentifier = .alertContainerView
-
         return view
     }()
 
@@ -111,6 +109,9 @@ class AlertViewController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = .black.withAlphaComponent(0.5)
+
+        let accessibilityIdentifier = presentation.accessibilityIdentifier ?? .alertContainerView
+        view.accessibilityIdentifier = accessibilityIdentifier
 
         setContent()
         setConstraints()

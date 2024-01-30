@@ -14,6 +14,7 @@ class TunnelControlPage: Page {
         super.init(app)
 
         self.pageAccessibilityIdentifier = .tunnelControlView
+        waitForPageToBeShown()
     }
 
     @discardableResult func tapSelectLocationButton() -> Self {

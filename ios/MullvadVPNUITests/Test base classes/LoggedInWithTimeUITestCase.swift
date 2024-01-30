@@ -14,6 +14,7 @@ class LoggedInWithTimeUITestCase: BaseUITestCase {
         super.setUp()
 
         agreeToTermsOfServiceIfShown()
+        dismissChangeLogIfShown()
         logoutIfLoggedIn()
 
         login(accountNumber: hasTimeAccountNumber)
