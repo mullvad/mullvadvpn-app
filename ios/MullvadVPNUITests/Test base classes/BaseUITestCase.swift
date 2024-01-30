@@ -76,11 +76,17 @@ class BaseUITestCase: XCTestCase {
         if termsOfServiceIsShown {
             TermsOfServicePage(app)
                 .tapAgreeButton()
+        }
+    }
 
-            Alert(app) // Changes alert
+    func dismissChangeLogIfShown() {
+        let changeLogIsShown = app
+            .otherElements[AccessibilityIdentifier.changeLogAlert.rawValue]
+            .waitForExistence(timeout: 1.0)
+
+        if changeLogIsShown {
+            ChangeLogAlert(app)
                 .tapOkay()
-
-            LoginPage(app)
         }
     }
 
@@ -95,11 +101,17 @@ class BaseUITestCase: XCTestCase {
 
     func logoutIfLoggedIn() {
         if isLoggedIn() {
-            HeaderBar(app)
-                .tapAccountButton()
+            if app.buttons[AccessibilityIdentifier.accountButton].exists {
+                HeaderBar(app)
+                    .tapAccountButton()
 
-            AccountPage(app)
-                .tapLogOutButton()
+                AccountPage(app)
+                    .tapLogOutButton()
+            } else {
+                // Workaround for revoked device view not showing account button
+                RevokedDevicePage(app)
+                    .tapGoToLogin()
+            }
 
             LoginPage(app)
         }
