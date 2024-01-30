@@ -1808,6 +1808,7 @@ dependencies = [
  "tokio",
  "tokio-rustls",
  "tokio-socks",
+ "uuid",
 ]
 
 [[package]]
