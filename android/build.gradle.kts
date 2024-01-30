@@ -1,9 +1,11 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import io.gitlab.arturbosch.detekt.Detekt
 
 plugins {
     id(Dependencies.Plugin.dependencyCheckId) version Versions.Plugin.dependencyCheck apply false
     id(Dependencies.Plugin.gradleVersionsId) version Versions.Plugin.gradleVersions
     id(Dependencies.Plugin.ktfmtId) version Versions.Plugin.ktfmt apply false
+    id(Dependencies.Plugin.detektId) version Versions.Plugin.detekt
 }
 
 buildscript {
@@ -11,6 +13,7 @@ buildscript {
         google()
         mavenCentral()
         maven(Repositories.GradlePlugins)
+        gradlePluginPortal()
     }
 
     dependencies {
@@ -25,6 +28,28 @@ buildscript {
         classpath(Dependencies.Plugin.aaptOsx)
         classpath(Dependencies.Plugin.aaptWindows)
     }
+}
+
+val baselineFile = file("$rootDir/config/baseline.xml")
+val configFile = files("$rootDir/config/detekt.yml")
+
+val projectSource = file(projectDir)
+val buildFiles = "**/build/**"
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config.setFrom(configFile)
+    source.setFrom(projectSource)
+    baseline = baselineFile
+    parallel = true
+    ignoreFailures = false
+    autoCorrect = true
+}
+
+tasks.withType<Detekt>().configureEach {
+    // Ignore generated files from the build directory, e.g files created by ksp.
+    exclude(buildFiles)
 }
 
 allprojects {
