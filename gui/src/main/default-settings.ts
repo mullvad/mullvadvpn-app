@@ -90,7 +90,7 @@ export function getDefaultApiAccessMethods(): ApiAccessMethodSettings {
       enabled: true,
       type: 'direct',
     },
-    mullvad_bridges: {
+    mullvadBridges: {
       id: '',
       name: 'Mullvad Bridges',
       enabled: false,

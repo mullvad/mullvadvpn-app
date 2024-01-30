@@ -529,7 +529,7 @@ export type AccessMethodSetting = NewAccessMethodSetting & {
 
 export type ApiAccessMethodSettings = {
   direct: AccessMethodSetting;
-  mullvad_bridges: AccessMethodSetting;
+  mullvadBridges: AccessMethodSetting;
   custom: Array<AccessMethodSetting>;
 };
 
