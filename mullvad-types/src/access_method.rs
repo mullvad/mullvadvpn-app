@@ -46,6 +46,7 @@ impl Settings {
                 AccessMethod::Custom(_) => {
                     self.custom
                         .retain(|method| method.get_id() != *api_access_method);
+                    self.ensure_consistent_state();
                     Ok(())
                 }
             },
@@ -68,15 +69,17 @@ impl Settings {
             *access_method = f(access_method);
             updated = true;
         }
-        // Check if the current settings is about to disable the last remaining
-        // enabled access method, which would cause an inconsistent state in
-        // the daemon's settings. In that case, the `Direct` access method is
-        // re-enabled.
+        self.ensure_consistent_state();
+
+        updated
+    }
+
+    /// Check that `self` contains atleast one enabled access methods. If not,
+    /// the `Direct` access method is re-enabled.
+    fn ensure_consistent_state(&mut self) {
         if self.collect_enabled().is_empty() {
             self.direct.enable();
         }
-
-        updated
     }
 
     // TODO(markus): This can surely be removed.
