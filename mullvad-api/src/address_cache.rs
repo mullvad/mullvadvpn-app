@@ -34,6 +34,11 @@ impl AddressCache {
         Self::new_inner(API.address(), write_path)
     }
 
+    pub fn with_static_addr(address: SocketAddr) -> Self {
+        Self::new_inner(address, None)
+            .expect("Failed to construct an address cache from a static address")
+    }
+
     /// Initialize cache using `read_path`, and write changes to `write_path`.
     pub async fn from_file(read_path: &Path, write_path: Option<Box<Path>>) -> Result<Self, Error> {
         log::debug!("Loading API addresses from {}", read_path.display());

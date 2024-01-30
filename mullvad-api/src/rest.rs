@@ -19,6 +19,7 @@ use hyper::{
 };
 use mullvad_types::account::AccountToken;
 use std::{
+    borrow::Cow,
     error::Error as StdError,
     str::FromStr,
     sync::{Arc, Weak},
@@ -440,15 +441,18 @@ struct NewErrorResponse {
 
 #[derive(Clone)]
 pub struct RequestFactory {
-    hostname: &'static str,
+    hostname: Cow<'static, str>,
     token_store: Option<AccessTokenStore>,
     default_timeout: Duration,
 }
 
 impl RequestFactory {
-    pub fn new(hostname: &'static str, token_store: Option<AccessTokenStore>) -> Self {
+    pub fn new(
+        hostname: impl Into<Cow<'static, str>>,
+        token_store: Option<AccessTokenStore>,
+    ) -> Self {
         Self {
-            hostname,
+            hostname: hostname.into(),
             token_store,
             default_timeout: DEFAULT_TIMEOUT,
         }
@@ -523,7 +527,10 @@ impl RequestFactory {
             .uri(uri)
             .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
             .header(header::ACCEPT, HeaderValue::from_static("application/json"))
-            .header(header::HOST, HeaderValue::from_static(self.hostname));
+            .header(
+                header::HOST,
+                HeaderValue::from_str(&self.hostname).map_err(|_| Error::InvalidHeaderError)?,
+            );
 
         let result = request.body(hyper::Body::empty())?;
         Ok(result)

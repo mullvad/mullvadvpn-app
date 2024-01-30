@@ -37,3 +37,13 @@ talpid-types = { path = "../talpid-types" }
 talpid-time = { path = "../talpid-time" }
 
 shadowsocks = { workspace = true,  features = [ "stream-cipher" ] }
+
+[build-dependencies]
+cbindgen = { version = "0.24.3", default-features = false }
+
+[target.'cfg(target_os = "ios")'.dependencies]
+uuid = { version = "1.4.1", features = ["v4"] }
+
+[lib]
+crate-type = [ "rlib", "staticlib" ]
+bench = false
