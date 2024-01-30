@@ -45,16 +45,16 @@ class Globe(context: Context) {
     private val contourColor: FloatArray = floatArrayOf(0.098f, 0.18f, 0.271f, 1.0f)
     private val landIndices: GLHelper.IndexBufferWithLength
     private val landContour: GLHelper.IndexBufferWithLength
-    private val landPositionBuffer: Int
+    private val landVertexBuffer: Int
 
     private val oceanIndices: GLHelper.IndexBufferWithLength
-    private val oceanPositionBuffer: Int
+    private val oceanVertexBuffer: Int
 
     init {
         val landPosStream = context.resources.openRawResource(R.raw.land_positions)
-        val landPosByteArray = landPosStream.use { it.readBytes() }
-        val landPosByteBuffer = ByteBuffer.wrap(landPosByteArray)
-        landPositionBuffer = GLHelper.initArrayBuffer(landPosByteBuffer)
+        val landVertByteArray = landPosStream.use { it.readBytes() }
+        val landVertByteBuffer = ByteBuffer.wrap(landVertByteArray)
+        landVertexBuffer = GLHelper.initArrayBuffer(landVertByteBuffer)
 
         val landTriangleIndicesStream =
             context.resources.openRawResource(R.raw.land_triangle_indices)
@@ -68,9 +68,9 @@ class Globe(context: Context) {
         landContour = GLHelper.initIndexBuffer(landContourIndicesBuffer)
 
         val oceanPosStream = context.resources.openRawResource(R.raw.ocean_positions)
-        val oceanPosByteArray = oceanPosStream.use { it.readBytes() }
-        val oceanPosByteBuffer = ByteBuffer.wrap(oceanPosByteArray)
-        oceanPositionBuffer = GLHelper.initArrayBuffer(oceanPosByteBuffer)
+        val oceanVertByteArray = oceanPosStream.use { it.readBytes() }
+        val oceanVertByteBuffer = ByteBuffer.wrap(oceanVertByteArray)
+        oceanVertexBuffer = GLHelper.initArrayBuffer(oceanVertByteBuffer)
 
         val oceanTriangleIndicesStream = context.resources.openRawResource(R.raw.ocean_indices)
         val oceanTriangleIndicesByteArray = oceanTriangleIndicesStream.use { it.readBytes() }
@@ -97,11 +97,11 @@ class Globe(context: Context) {
         GLES31.glUseProgram(shaderProgram)
 
         // Set thickness of contour lines
-        GLES31.glLineWidth(5f)
+        GLES31.glLineWidth(3f)
         drawBufferElements(
             projectionMatrix,
             globeViewMatrix,
-            landPositionBuffer,
+            landVertexBuffer,
             landContour,
             contourColor,
             GLES31.GL_LINES
@@ -111,7 +111,7 @@ class Globe(context: Context) {
         drawBufferElements(
             projectionMatrix,
             globeViewMatrix,
-            landPositionBuffer,
+            landVertexBuffer,
             landIndices,
             landColor,
             GLES31.GL_TRIANGLES,
@@ -120,7 +120,7 @@ class Globe(context: Context) {
         drawBufferElements(
             projectionMatrix,
             globeViewMatrix,
-            oceanPositionBuffer,
+            oceanVertexBuffer,
             oceanIndices,
             oceanColor,
             GLES31.GL_TRIANGLES

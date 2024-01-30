@@ -6,7 +6,6 @@ import java.nio.ByteBuffer
 import kotlin.math.cos
 import kotlin.math.sin
 import net.mullvad.lib.map.Coordinate
-import java.nio.ByteOrder
 
 class LocationMarker(val color: FloatArray) {
 
@@ -86,17 +85,17 @@ class LocationMarker(val color: FloatArray) {
 
     private val positionBuffer: Int
     private val colorBuffer: Int
-    private val ringPositionCount: List<Int> = rings.map { it.first.size }
+    private val ringSizes: List<Int> = rings.map { (positions, _) -> positions.size }
 
     init {
-        val positionArrayBuffer = rings.map { it.first.toList() }.flatten()
+        val positionArrayBuffer = rings.map { it.first }.flatten()
         val positionByteBuffer =
             ByteBuffer.allocate(positionArrayBuffer.size * 4).also { byteBuffer ->
                 positionArrayBuffer.forEach(byteBuffer::putFloat)
                 byteBuffer.position(0)
             }
 
-        val colorArrayBuffer = rings.map { it.second.toList() }.flatten().toFloatArray()
+        val colorArrayBuffer = rings.map { it.second }.flatten()
         val colorByteBuffer =
             ByteBuffer.allocate(colorArrayBuffer.size * 4).also { byteBuffer ->
                 colorArrayBuffer.forEach(byteBuffer::putFloat)
@@ -130,11 +129,11 @@ class LocationMarker(val color: FloatArray) {
 
         GLES31.glUseProgram(shaderProgram)
 
-        Matrix.rotateM(modelViewMatrix, 0, coordinate.lat, 1f, 0f, 0f)
-        Matrix.rotateM(modelViewMatrix, 0, coordinate.lon, 0f, -1f, 0f)
+        Matrix.rotateM(modelViewMatrix, 0, coordinate.lon, 0f, 1f, 0f)
+        Matrix.rotateM(modelViewMatrix, 0, -coordinate.lat, 1f, 0f, 0f)
 
         Matrix.scaleM(modelViewMatrix, 0, size, size, 1f)
-        Matrix.translateM(modelViewMatrix, 0, 0f, 0f, 1.001f)
+        Matrix.translateM(modelViewMatrix, 0, 0f, 0f, 1.0001f)
         //
         GLES31.glBindBuffer(GLES31.GL_ARRAY_BUFFER, positionBuffer)
         GLES31.glVertexAttribPointer(
@@ -162,13 +161,11 @@ class LocationMarker(val color: FloatArray) {
         GLES31.glUniformMatrix4fv(uniformLocation.modelViewMatrix, 1, false, modelViewMatrix, 0)
 
         var offset = 0
-        for (element in ringPositionCount) {
-            val numVertices = element / 3
+        for (ringSize in ringSizes) {
+            val numVertices = ringSize / 3
             GLES31.glDrawArrays(GLES31.GL_TRIANGLE_FAN, offset, numVertices)
             offset += numVertices
         }
-        //        //        GLES31.glDisableVertexAttribArray(attribLocations.vertexPosition)
-        //        //        GLES31.glDisableVertexAttribArray(attribLocations.vertexColor)
     }
 
     // Returns vertex positions and color values for a circle.
@@ -180,7 +177,7 @@ class LocationMarker(val color: FloatArray) {
         offset: FloatArray,
         centerColor: FloatArray,
         ringColor: FloatArray,
-    ): Pair<FloatArray, FloatArray> {
+    ): Pair<List<Float>, List<Float>> {
         val positions = mutableListOf(*offset.toTypedArray())
         val colors = mutableListOf(*centerColor.toTypedArray())
 
@@ -194,6 +191,6 @@ class LocationMarker(val color: FloatArray) {
             positions.add(z)
             colors.addAll(ringColor.toTypedArray())
         }
-        return positions.toFloatArray() to colors.toFloatArray()
+        return positions.toList() to colors.toList()
     }
 }

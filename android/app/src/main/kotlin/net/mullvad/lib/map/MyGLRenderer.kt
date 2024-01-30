@@ -56,24 +56,30 @@ class MyGLRenderer(val context: Context) : GLSurfaceView.Renderer {
         // Clear function
         clear()
 
-        val offsetY = 0.088f + (zoom - connectedZoom) * 0.3f
-
         val viewMatrix = FloatArray(16)
         Matrix.setIdentityM(viewMatrix, 0)
+
+        val offsetY = 0.088f + (zoom - connectedZoom) * 0.3f
+
         Matrix.translateM(viewMatrix, 0, 0f, offsetY, -zoom)
 
         val coordinate = gothenburgCoordinate
 
-        Matrix.rotateM(viewMatrix, 0, coordinate.lat, 1f, 0f, 0f)
+        val time = System.currentTimeMillis() % 4000
+        val angleInDegrees = 360.0f / 4000.0f * time.toInt()
+
+        Matrix.rotateM(viewMatrix, 0, angleInDegrees, 1f, 0f, 0f)
         Matrix.rotateM(viewMatrix, 0, coordinate.lon, 0f, -1f, 0f)
+
         globe.draw(projectionMatrix.copyOf(), viewMatrix.copyOf())
-        locationMarker2.draw(projectionMatrix.copyOf(), viewMatrix.copyOf(), gothenburgCoordinate, 100.03f)
-        //locationMarker3.draw(projectionMatrix, viewMatrix.copyOf(), helsinkiCoordinate, 300.03f)
-        //locationMarker.draw(projectionMatrix, viewMatrix.copyOf(), sydneyCoordinate, 3.03f)
+        locationMarker2.draw(projectionMatrix.copyOf(), viewMatrix.copyOf(), gothenburgCoordinate, 0.13f)
+//        locationMarker3.draw(projectionMatrix, viewMatrix.copyOf(), helsinkiCoordinate, 0.03f)
+//        locationMarker.draw(projectionMatrix, viewMatrix.copyOf(), sydneyCoordinate, 0.02f)
     }
 
     private fun clear() {
         // Redraw background color
+        // TODO Change to black
         GLES31.glClearColor(0.0f, 1.0f, 1.0f, 1.0f)
         GLES31.glClearDepthf(1.0f)
         GLES31.glEnable(GLES31.GL_DEPTH_TEST)
