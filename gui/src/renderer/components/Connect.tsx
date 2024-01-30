@@ -13,23 +13,12 @@ import { useSelector } from '../redux/store';
 import { calculateHeaderBarStyle, DefaultHeaderBar } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
-import Map, { MarkerStyle, ZoomLevel } from './Map';
+import Map from './Map';
 import NotificationArea from './NotificationArea';
 import TunnelControl from './TunnelControl';
 
-type MarkerOrSpinner = 'marker' | 'spinner' | 'none';
-
 const StyledContainer = styled(Container)({
   position: 'relative',
-});
-
-const StyledMap = styled(Map)({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  zIndex: 0,
 });
 
 const Content = styled.div({
@@ -69,70 +58,8 @@ export default function Connect() {
   const relayLocations = useSelector((state) => state.settings.relayLocations);
   const customLists = useSelector((state) => state.settings.customLists);
 
-  const mapCenter = useMemo<[number, number] | undefined>(() => {
-    const { longitude, latitude } = connection;
-    return typeof longitude === 'number' && typeof latitude === 'number'
-      ? [longitude, latitude]
-      : undefined;
-  }, [connection]);
-
-  const showMarkerOrSpinner = useMemo<MarkerOrSpinner>(() => {
-    if (!mapCenter) {
-      return 'none';
-    }
-
-    switch (connection.status.state) {
-      case 'error':
-        return 'none';
-      case 'connecting':
-      case 'disconnecting':
-        return 'spinner';
-      case 'connected':
-      case 'disconnected':
-        return 'marker';
-    }
-  }, [mapCenter, connection.status.state]);
-
-  const markerStyle = useMemo<MarkerStyle>(() => {
-    switch (connection.status.state) {
-      case 'connecting':
-      case 'connected':
-        return MarkerStyle.secure;
-      case 'error':
-        return !connection.status.details.blockingError ? MarkerStyle.secure : MarkerStyle.unsecure;
-      case 'disconnected':
-        return MarkerStyle.unsecure;
-      case 'disconnecting':
-        switch (connection.status.details) {
-          case 'block':
-          case 'reconnect':
-            return MarkerStyle.secure;
-          case 'nothing':
-            return MarkerStyle.unsecure;
-        }
-    }
-  }, [connection.status]);
-
-  const zoomLevel = useMemo<ZoomLevel>(() => {
-    const { longitude, latitude } = connection;
-
-    if (typeof longitude === 'number' && typeof latitude === 'number') {
-      return connection.status.state === 'connected' ? ZoomLevel.high : ZoomLevel.medium;
-    } else {
-      return ZoomLevel.low;
-    }
-  }, [connection.latitude, connection.longitude, connection.status.state]);
-
-  const mapProps = useMemo<Map['props']>(() => {
-    return {
-      center: mapCenter ?? [0, 0],
-      showMarker: showMarkerOrSpinner === 'marker',
-      markerStyle,
-      zoomLevel,
-      // a magic offset to align marker with spinner
-      offset: [0, mapCenter ? 123 : 0],
-    };
-  }, [mapCenter, showMarkerOrSpinner, markerStyle, zoomLevel]);
+  const showSpinner =
+    connection.status.state === 'connecting' || connection.status.state === 'disconnecting';
 
   const onSelectLocation = useCallback(() => {
     history.push(RoutePath.selectLocation, { transition: transitions.show });
@@ -174,15 +101,12 @@ export default function Connect() {
     <Layout>
       <DefaultHeaderBar barStyle={calculateHeaderBarStyle(connection.status)} />
       <StyledContainer>
-        <StyledMap {...mapProps} />
+        <Map />
         <Content>
           <StyledNotificationArea />
 
           <StyledMain>
-            {/* show spinner when connecting */}
-            {showMarkerOrSpinner === 'spinner' ? (
-              <StatusIcon source="icon-spinner" height={60} width={60} />
-            ) : null}
+            {showSpinner ? <StatusIcon source="icon-spinner" height={60} width={60} /> : null}
 
             <TunnelControl
               tunnelState={connection.status}

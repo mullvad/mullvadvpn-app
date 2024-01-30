@@ -32,6 +32,7 @@ interface ILogEntry {
   level: LogLevel;
   message: string;
 }
+import { MapData } from '../renderer/lib/3dmap';
 import { invoke, invokeSync, notifyRenderer, send } from './ipc-helpers';
 import {
   IChangelog,
@@ -120,6 +121,9 @@ export const ipcSchema = {
   state: {
     get: invokeSync<void, IAppStateSnapshot>(),
   },
+  map: {
+    getData: invoke<void, MapData>(),
+  },
   window: {
     shape: notifyRenderer<IWindowShapeParameters>(),
     focus: notifyRenderer<boolean>(),
@@ -192,6 +196,7 @@ export const ipcSchema = {
     setMonochromaticIcon: send<boolean>(),
     setPreferredLocale: invoke<string, ITranslations>(),
     setUnpinnedWindow: send<boolean>(),
+    setAnimateMap: send<boolean>(),
   },
   account: {
     '': notifyRenderer<IAccountData | undefined>(),
