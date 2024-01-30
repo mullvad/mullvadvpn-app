@@ -623,6 +623,13 @@ class ApplicationMain
     // Reset the daemon event listener since it's going to be invalidated on disconnect
     this.daemonEventListener = undefined;
 
+    if (this.tunnelState.tunnelState.state !== 'disconnected') {
+      this.notificationController.notifyDaemonDisconnected(
+        this.userInterface?.isWindowVisible() ?? false,
+        this.settings.gui.enableSystemNotifications,
+      );
+    }
+
     this.tunnelState.resetFallback();
 
     if (wasConnected) {

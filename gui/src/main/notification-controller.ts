@@ -7,6 +7,7 @@ import log from '../shared/logging';
 import {
   ConnectedNotificationProvider,
   ConnectingNotificationProvider,
+  DaemonDisconnectedNotificationProvider,
   DisconnectedNotificationProvider,
   ErrorNotificationProvider,
   NotificationAction,
@@ -118,6 +119,14 @@ export default class NotificationController {
     }
 
     return false;
+  }
+
+  public notifyDaemonDisconnected(windowVisible: boolean, infoNotificationsEnabled: boolean) {
+    this.notify(
+      new DaemonDisconnectedNotificationProvider().getSystemNotification(),
+      windowVisible,
+      infoNotificationsEnabled,
+    );
   }
 
   // Closes still relevant notifications but still lets them affect notification dot in tray icon.
