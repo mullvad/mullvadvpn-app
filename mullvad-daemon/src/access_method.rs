@@ -68,17 +68,24 @@ where
         &mut self,
         access_method: access_method::Id,
     ) -> Result<(), Error> {
-        self.settings
+        let did_change = self
+            .settings
             .try_update(|settings| -> Result<(), Error> {
                 settings.api_access_methods.remove(&access_method)?;
                 Ok(())
             })
             .await
-            .map(|did_change| self.notify_on_change(did_change))
             .map_err(Error::Settings)?;
 
+        self.notify_on_change(did_change);
         // If the currently active access method is removed, a new access
         // method should be selected.
+        //
+        // Notice the ordering here: It is important that the current method is
+        // removed before we pick a new access method. The `remove` function
+        // will ensure that atleast one access method is enabled after the
+        // removal. If the currently active access method is removed, some other
+        // method is enabled before we pick the next access method to use.
         if self.is_in_use(access_method.clone()).await? {
             self.force_api_endpoint_rotation().await?;
         }
@@ -280,19 +287,9 @@ where
                 .notify_settings(self.settings.to_settings());
 
             let handle = self.connection_modes_handler.clone();
-            let new_access_methods = self.settings.api_access_methods.collect_enabled();
+            let new_access_methods = self.settings.api_access_methods.clone();
             tokio::spawn(async move {
-                match handle.update_access_methods(new_access_methods).await {
-                    Ok(_) => (),
-                    Err(api::Error::NoAccessMethods) | Err(_) => {
-                        // `access_methods` was empty! This implies that the user
-                        // disabled all access methods. If we ever get into this
-                        // state, we should default to using the direct access
-                        // method.
-                        let default = access_method::Settings::create_direct();
-                        handle.update_access_methods(vec![default]).await.expect("Failed to create the data structure responsible for managing access methods");
-                    }
-                }
+                let _ = handle.update_access_methods(new_access_methods).await;
             });
         };
         self

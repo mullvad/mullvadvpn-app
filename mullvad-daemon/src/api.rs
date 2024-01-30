@@ -16,7 +16,9 @@ use mullvad_api::{
     AddressCache,
 };
 use mullvad_relay_selector::RelaySelector;
-use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
+use mullvad_types::access_method::{
+    AccessMethod, AccessMethodSetting, BuiltInAccessMethod, Settings,
+};
 use std::{net::SocketAddr, path::PathBuf};
 use talpid_core::mpsc::Sender;
 use talpid_types::net::{AllowedClients, AllowedEndpoint, Endpoint, TransportProtocol};
@@ -25,7 +27,7 @@ pub enum Message {
     Get(ResponseTx<ResolvedConnectionMode>),
     Set(ResponseTx<()>, AccessMethodSetting),
     Next(ResponseTx<ApiConnectionMode>),
-    Update(ResponseTx<()>, Vec<AccessMethodSetting>),
+    Update(ResponseTx<()>, Settings),
     Resolve(ResponseTx<ResolvedConnectionMode>, AccessMethodSetting),
 }
 
@@ -164,8 +166,8 @@ impl AccessModeSelectorHandle {
             })
     }
 
-    pub async fn update_access_methods(&self, values: Vec<AccessMethodSetting>) -> Result<()> {
-        self.send_command(|tx| Message::Update(tx, values))
+    pub async fn update_access_methods(&self, access_methods: Settings) -> Result<()> {
+        self.send_command(|tx| Message::Update(tx, access_methods))
             .await
             .map_err(|err| {
                 log::debug!("Failed to switch to a new set of access methods");
@@ -213,54 +215,46 @@ impl AccessModeSelectorHandle {
 /// connection mode. The API can be connected to either directly (i.e.,
 /// [`ApiConnectionMode::Direct`]) via a bridge ([`ApiConnectionMode::Proxied`])
 /// or via any supported custom proxy protocol
-/// ([`api_access_methods::ObfuscationProtocol`]).
-///
-/// The strategy for determining the next [`ApiConnectionMode`] is handled by
-/// [`ConnectionModesIterator`].
+/// ([`talpid_types::net::proxy::CustomProxy`]).
 pub struct AccessModeSelector {
     cmd_rx: mpsc::UnboundedReceiver<Message>,
     cache_dir: PathBuf,
     /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
     relay_selector: RelaySelector,
-    connection_modes: ConnectionModesIterator,
+    access_method_settings: Settings,
     address_cache: AddressCache,
     access_method_event_sender: DaemonEventSender<(AccessMethodEvent, oneshot::Sender<()>)>,
     current: ResolvedConnectionMode,
+    /// `index` is used to keep track of the [`AccessMethodSetting`] to use.
+    index: usize,
+    /// `set` is used to set the next [`AccessMethodSetting`] to use.
+    set: Option<AccessMethodSetting>,
 }
 
 impl AccessModeSelector {
     pub(crate) async fn spawn(
         cache_dir: PathBuf,
         relay_selector: RelaySelector,
-        connection_modes: Vec<AccessMethodSetting>,
+        access_method_settings: Settings,
         access_method_event_sender: DaemonEventSender<(AccessMethodEvent, oneshot::Sender<()>)>,
         address_cache: AddressCache,
     ) -> Result<AccessModeSelectorHandle> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
-        let mut connection_modes =
-            ConnectionModesIterator::new(connection_modes).unwrap_or_else(|_| {
-                // No settings seem to have been found. Default to using the the
-                // direct access method.
-                let default = mullvad_types::access_method::Settings::create_direct();
-                ConnectionModesIterator::new(vec![default]).expect(
-                    "Failed to create the data structure responsible for managing access methods",
-                )
-            });
-
-        let initial_connection_mode = {
-            let next = connection_modes.next().ok_or(Error::NoAccessMethods)?;
-            Self::resolve_inner(next, &relay_selector, &address_cache).await
-        };
+        let (index, next) = Self::get_next_inner(0, &access_method_settings);
+        let initial_connection_mode =
+            Self::resolve_inner(next, &relay_selector, &address_cache).await;
 
         let selector = AccessModeSelector {
             cmd_rx,
             cache_dir,
             relay_selector,
-            connection_modes,
+            access_method_settings,
             address_cache,
             access_method_event_sender,
             current: initial_connection_mode,
+            index,
+            set: None,
         };
 
         tokio::spawn(selector.into_future());
@@ -312,7 +306,14 @@ impl AccessModeSelector {
     /// Set the next access method to be returned by the [`Stream`] produced by
     /// calling `into_stream`.
     fn set_access_method(&mut self, value: AccessMethodSetting) {
-        self.connection_modes.set_access_method(value);
+        if let Some(index) = self
+            .access_method_settings
+            .iter()
+            .position(|access_method| access_method.get_id() == value.get_id())
+        {
+            self.index = index;
+            self.set = Some(value);
+        }
     }
 
     async fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
@@ -351,7 +352,7 @@ impl AccessModeSelector {
             );
         }
 
-        let access_method = self.connection_modes.next().ok_or(Error::NoAccessMethods)?;
+        let access_method = self.get_next();
         log::info!(
             "A new API access method has been selected: {name}",
             name = access_method.name
@@ -388,17 +389,41 @@ impl AccessModeSelector {
         self.current = resolved;
         Ok(self.current.connection_mode.clone())
     }
+
+    fn get_next(&mut self) -> AccessMethodSetting {
+        if let Some(access_method) = self.set.take() {
+            access_method
+        } else {
+            let (index, next) = Self::get_next_inner(self.index, &self.access_method_settings);
+            self.index = index;
+            next
+        }
+    }
+
+    fn get_next_inner(start: usize, access_methods: &Settings) -> (usize, AccessMethodSetting) {
+        let xs: Vec<_> = access_methods.iter().collect();
+        for offset in 1..=access_methods.cardinality() {
+            let index = (start + offset) % access_methods.cardinality();
+            if let Some(&candidate) = xs.get(index) {
+                if candidate.enabled {
+                    return (index, candidate.clone());
+                }
+            }
+        }
+        (0, access_methods.direct().clone())
+    }
+
     fn on_update_access_methods(
         &mut self,
         tx: ResponseTx<()>,
-        values: Vec<AccessMethodSetting>,
+        access_methods: Settings,
     ) -> Result<()> {
-        self.update_access_methods(values)?;
+        self.update_access_methods(access_methods);
         self.reply(tx, ())
     }
 
-    fn update_access_methods(&mut self, values: Vec<AccessMethodSetting>) -> Result<()> {
-        self.connection_modes.update_access_methods(values)
+    fn update_access_methods(&mut self, access_methods: Settings) {
+        self.access_method_settings = access_methods;
     }
 
     pub async fn on_resolve_access_method(
@@ -452,76 +477,6 @@ fn resolve_connection_mode(
                 ApiConnectionMode::Direct
             }),
         AccessMethod::Custom(config) => ApiConnectionMode::Proxied(ProxyConfig::from(config)),
-    }
-}
-
-/// An iterator which will always produce an [`AccessMethod`].
-///
-/// Safety: It is always safe to [`unwrap`] after calling [`next`] on a
-/// [`std::iter::Cycle`], so thereby it is safe to always call [`unwrap`] on a
-/// [`ConnectionModesIterator`].
-///
-/// [`unwrap`]: Option::unwrap
-/// [`next`]: std::iter::Iterator::next
-pub struct ConnectionModesIterator {
-    available_modes: Box<dyn Iterator<Item = AccessMethodSetting> + Send>,
-    next: Option<AccessMethodSetting>,
-    current: AccessMethodSetting,
-}
-
-impl ConnectionModesIterator {
-    pub fn new(
-        access_methods: Vec<AccessMethodSetting>,
-    ) -> std::result::Result<ConnectionModesIterator, Error> {
-        let mut iterator = Self::new_iterator(access_methods)?;
-        Ok(Self {
-            next: None,
-            current: iterator.next().ok_or(Error::NoAccessMethods)?,
-            available_modes: iterator,
-        })
-    }
-
-    /// Set the next [`AccessMethod`] to be returned from this iterator.
-    pub fn set_access_method(&mut self, next: AccessMethodSetting) {
-        self.next = Some(next);
-    }
-
-    /// Update the collection of [`AccessMethod`] which this iterator will
-    /// return.
-    pub fn update_access_methods(
-        &mut self,
-        access_methods: Vec<AccessMethodSetting>,
-    ) -> std::result::Result<(), Error> {
-        self.available_modes = Self::new_iterator(access_methods)?;
-        Ok(())
-    }
-
-    /// Create a cyclic iterator of [`AccessMethodSetting`]s.
-    ///
-    /// If the `access_methods` argument is an empty vector, an [`Error`] is
-    /// returned.
-    fn new_iterator(
-        access_methods: Vec<AccessMethodSetting>,
-    ) -> std::result::Result<Box<dyn Iterator<Item = AccessMethodSetting> + Send>, Error> {
-        if access_methods.is_empty() {
-            Err(Error::NoAccessMethods)
-        } else {
-            Ok(Box::new(access_methods.into_iter().cycle()))
-        }
-    }
-}
-
-impl Iterator for ConnectionModesIterator {
-    type Item = AccessMethodSetting;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let next = self
-            .next
-            .take()
-            .or_else(|| self.available_modes.next())
-            .unwrap();
-        self.current = next.clone();
-        Some(next)
     }
 }
 
