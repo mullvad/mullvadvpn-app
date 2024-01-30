@@ -280,19 +280,9 @@ where
                 .notify_settings(self.settings.to_settings());
 
             let handle = self.connection_modes_handler.clone();
-            let new_access_methods = self.settings.api_access_methods.collect_enabled();
+            let new_access_methods = self.settings.api_access_methods.clone();
             tokio::spawn(async move {
-                match handle.update_access_methods(new_access_methods).await {
-                    Ok(_) => (),
-                    Err(api::Error::NoAccessMethods) | Err(_) => {
-                        // `access_methods` was empty! This implies that the user
-                        // disabled all access methods. If we ever get into this
-                        // state, we should default to using the direct access
-                        // method.
-                        let default = access_method::Settings::create_direct();
-                        handle.update_access_methods(vec![default]).await.expect("Failed to create the data structure responsible for managing access methods");
-                    }
-                }
+                let _ = handle.update_access_methods(new_access_methods).await;
             });
         };
         self

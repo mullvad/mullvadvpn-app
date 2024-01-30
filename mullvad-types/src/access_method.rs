@@ -112,6 +112,14 @@ impl Settings {
         self.custom.iter()
     }
 
+    /// Return the total number of access methods.
+    /// This counts both enabled and disabled [`AccessMethodSetting`]s.
+    pub fn cardinality(&self) -> usize {
+        1 + // 'Direct'
+        1 + // 'Mullvad bridges'
+        self.custom.len()
+    }
+
     pub fn direct(&self) -> &AccessMethodSetting {
         &self.direct
     }
