@@ -7,6 +7,8 @@
 //
 
 import Combine
+import MullvadREST
+import MullvadSettings
 import UIKit
 
 enum ListAccessMethodSectionIdentifier: Hashable {
@@ -26,6 +28,7 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
 
     private let headerView = ListAccessMethodHeaderView()
     private let interactor: ListAccessMethodInteractorProtocol
+    private var lastReachableMethodItem: ListAccessMethodItem?
     private var cancellables = Set<AnyCancellable>()
 
     private var dataSource: ListAccessMethodDataSource?
@@ -73,13 +76,29 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
         addChild(contentController)
         contentController.didMove(toParent: self)
 
-        interactor.publisher.sink { _ in
-            self.updateDataSource(animated: true)
+        interactor.itemsPublisher.sink { [weak self] _ in
+            self?.updateDataSource(animated: true)
+        }
+        .store(in: &cancellables)
+
+        interactor.itemInUsePublisher.sink { [weak self] item in
+            self?.lastReachableMethodItem = item
+            self?.updateDataSource(animated: true)
         }
         .store(in: &cancellables)
 
         configureNavigationItem()
         configureDataSource()
+    }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        guard let itemIdentifier = dataSource?.itemIdentifier(for: indexPath) else { return 0 }
+
+        if itemIdentifier.id == lastReachableMethodItem?.id {
+            return UITableView.automaticDimension
+        } else {
+            return UIMetrics.SettingsCell.apiAccessCellHeight
+        }
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
@@ -136,25 +155,18 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
     }
 
     private func updateDataSource(animated: Bool = true) {
-        let oldFetchedItems = fetchedItems
-        let newFetchedItems = interactor.fetch()
-        fetchedItems = newFetchedItems
+        fetchedItems = interactor.fetch()
 
         var snapshot = NSDiffableDataSourceSnapshot<ListAccessMethodSectionIdentifier, ListAccessMethodItemIdentifier>()
         snapshot.appendSections([.primary])
 
-        let itemIdentifiers = newFetchedItems.map { item in
+        let itemIdentifiers = fetchedItems.map { item in
             ListAccessMethodItemIdentifier(id: item.id)
         }
         snapshot.appendItems(itemIdentifiers, toSection: .primary)
 
-        for newFetchedItem in newFetchedItems {
-            for oldFetchedItem in oldFetchedItems {
-                if newFetchedItem.id == oldFetchedItem.id,
-                   newFetchedItem.name != oldFetchedItem.name || newFetchedItem.detail != oldFetchedItem.detail {
-                    snapshot.reloadItems([ListAccessMethodItemIdentifier(id: newFetchedItem.id)])
-                }
-            }
+        for item in fetchedItems {
+            snapshot.reloadItems([ListAccessMethodItemIdentifier(id: item.id)])
         }
 
         dataSource?.apply(snapshot, animatingDifferences: animated)
@@ -167,9 +179,12 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
         let cell = tableView.dequeueReusableView(withIdentifier: CellReuseIdentifier.default, for: indexPath)
         let item = fetchedItems[indexPath.row]
 
-        var contentConfiguration = UIListContentConfiguration.mullvadValueCell(tableStyle: .plain)
+        var contentConfiguration = ListCellContentConfiguration()
         contentConfiguration.text = item.name
         contentConfiguration.secondaryText = item.detail
+        contentConfiguration.tertiaryText = lastReachableMethodItem?.id == item.id
+            ? NSLocalizedString("LIST_ACCESS_METHODS_IN_USE_ITEM", tableName: "APIAccess", value: "In use", comment: "")
+            : ""
         cell.contentConfiguration = contentConfiguration
 
         if let cell = cell as? DynamicBackgroundConfiguration {

@@ -10,6 +10,15 @@ import Foundation
 import MullvadTypes
 import Network
 
+/// Persistent access method container model.
+public struct PersistentAccessMethodStore: Codable {
+    /// The last successfully reached access method.
+    public var lastReachableAccessMethod: PersistentAccessMethod
+
+    /// Persistent access method models.
+    public var accessMethods: [PersistentAccessMethod]
+}
+
 /// Persistent access method model.
 public struct PersistentAccessMethod: Identifiable, Codable, Equatable {
     /// The unique identifier used for referencing the access method entry in a persistent store.
