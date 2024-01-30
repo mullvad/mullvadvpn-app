@@ -17,16 +17,20 @@ struct ListAccessMethodInteractor: ListAccessMethodInteractorProtocol {
         self.repository = repository
     }
 
-    var itemsPublisher: any Publisher<[ListAccessMethodItem], Never> {
-        repository.accessMethodsPublisher.map { methods in
-            methods.map { $0.toListItem() }
-        }
+    var itemsPublisher: AnyPublisher<[ListAccessMethodItem], Never> {
+        repository.accessMethodsPublisher
+            .receive(on: RunLoop.main)
+            .map { methods in
+                methods.map { $0.toListItem() }
+            }
+            .eraseToAnyPublisher()
     }
 
-    var itemInUsePublisher: any Publisher<ListAccessMethodItem?, Never> {
-        repository.lastReachableAccessMethodPublisher.map { method in
-            method.toListItem()
-        }
+    var itemInUsePublisher: AnyPublisher<ListAccessMethodItem?, Never> {
+        repository.lastReachableAccessMethodPublisher
+            .receive(on: RunLoop.main)
+            .map { $0.toListItem() }
+            .eraseToAnyPublisher()
     }
 
     func item(by id: UUID) -> ListAccessMethodItem? {

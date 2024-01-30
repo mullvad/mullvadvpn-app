@@ -146,17 +146,13 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     private func updateDataSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
 
+        snapshot.appendSections([.main])
+
         if interactor.deviceState.isLoggedIn {
-            snapshot.appendSections([.main])
             snapshot.appendItems([.preferences], toSection: .main)
         }
 
-        #if DEBUG
-        if !snapshot.sectionIdentifiers.contains(.main) {
-            snapshot.appendSections([.main])
-        }
         snapshot.appendItems([.apiAccess], toSection: .main)
-        #endif
 
         #if DEBUG
         snapshot.appendItems([.ipOverride], toSection: .main)
