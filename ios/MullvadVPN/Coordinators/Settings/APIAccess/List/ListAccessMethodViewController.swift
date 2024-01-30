@@ -81,11 +81,13 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
         }
         .store(in: &cancellables)
 
-        interactor.itemInUsePublisher.sink { [weak self] item in
-            self?.lastReachableMethodItem = item
-            self?.updateDataSource(animated: true)
-        }
-        .store(in: &cancellables)
+        interactor.itemInUsePublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] item in
+                self?.lastReachableMethodItem = item
+                self?.updateDataSource(animated: true)
+            }
+            .store(in: &cancellables)
 
         configureNavigationItem()
         configureDataSource()
