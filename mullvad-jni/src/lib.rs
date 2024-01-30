@@ -24,8 +24,8 @@ use mullvad_daemon::{
 };
 use mullvad_types::{
     account::{AccountData, PlayPurchase, VoucherSubmission},
-    settings::DnsOptions,
     custom_list::CustomList,
+    settings::DnsOptions,
 };
 use std::{
     io,
