@@ -82,8 +82,10 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
         .store(in: &cancellables)
 
         interactor.itemInUsePublisher.sink { [weak self] item in
-            self?.lastReachableMethodItem = item
-            self?.updateDataSource(animated: true)
+            DispatchQueue.main.async {
+                self?.lastReachableMethodItem = item
+                self?.updateDataSource(animated: true)
+            }
         }
         .store(in: &cancellables)
 
