@@ -280,14 +280,30 @@ function AccessMethodFormImpl(props: EditApiAccessMethodImplProps) {
 
   // State for the name input.
   const name = useRef(props.method?.name ?? '');
-  const updateName = useCallback((value: string) => (name.current = value), []);
+  const method = useRef<AccessMethod | undefined>(props.method);
 
   // When the form makes up a valid method the parent is updated.
-  const updateMethod = useCallback((value: AccessMethod) => {
-    if (name.current !== '') {
-      props.updateMethod({ ...value, name: name.current, enabled: true });
+  const onUpdate = useCallback(() => {
+    if (method.current !== undefined && name.current !== '') {
+      props.updateMethod({ ...method.current, name: name.current, enabled: true });
     }
   }, []);
+
+  const updateName = useCallback(
+    (value: string) => {
+      name.current = value;
+      onUpdate();
+    },
+    [onUpdate],
+  );
+
+  const updateMethod = useCallback(
+    (value: AccessMethod) => {
+      method.current = value;
+      onUpdate();
+    },
+    [onUpdate],
+  );
 
   return (
     <>
