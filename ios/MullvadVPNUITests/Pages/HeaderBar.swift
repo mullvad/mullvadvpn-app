@@ -10,6 +10,9 @@ import Foundation
 import XCTest
 
 class HeaderBar: Page {
+    lazy var accountButton = app.buttons[AccessibilityIdentifier.accountButton]
+    lazy var settingsButton = app.buttons[AccessibilityIdentifier.settingsButton]
+    
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
@@ -18,12 +21,12 @@ class HeaderBar: Page {
     }
 
     @discardableResult func tapAccountButton() -> Self {
-        app.buttons[AccessibilityIdentifier.accountButton.rawValue].tap()
+        accountButton.tap()
         return self
     }
 
     @discardableResult func tapSettingsButton() -> Self {
-        app.buttons[AccessibilityIdentifier.settingsButton.rawValue].tap()
+        settingsButton.tap()
         return self
     }
 }
