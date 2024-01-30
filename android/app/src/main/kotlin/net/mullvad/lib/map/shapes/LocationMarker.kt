@@ -2,7 +2,7 @@ package net.mullvad.lib.map.shapes
 
 import android.opengl.GLES31
 import android.opengl.Matrix
-import java.nio.ByteBuffer
+import java.nio.FloatBuffer
 import kotlin.math.cos
 import kotlin.math.sin
 import net.mullvad.lib.map.Coordinate
@@ -89,18 +89,10 @@ class LocationMarker(val color: FloatArray) {
 
     init {
         val positionArrayBuffer = rings.map { it.first }.flatten()
-        val positionByteBuffer =
-            ByteBuffer.allocate(positionArrayBuffer.size * 4).also { byteBuffer ->
-                positionArrayBuffer.forEach(byteBuffer::putFloat)
-                byteBuffer.position(0)
-            }
+        val positionByteBuffer = FloatBuffer.wrap(positionArrayBuffer.toFloatArray())
 
         val colorArrayBuffer = rings.map { it.second }.flatten()
-        val colorByteBuffer =
-            ByteBuffer.allocate(colorArrayBuffer.size * 4).also { byteBuffer ->
-                colorArrayBuffer.forEach(byteBuffer::putFloat)
-                byteBuffer.position(0)
-            }
+        val colorByteBuffer = FloatBuffer.wrap(colorArrayBuffer.toFloatArray())
 
         positionBuffer = GLHelper.initArrayBuffer(positionByteBuffer)
         colorBuffer = GLHelper.initArrayBuffer(colorByteBuffer)
