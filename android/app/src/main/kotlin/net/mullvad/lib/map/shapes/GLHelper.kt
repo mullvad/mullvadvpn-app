@@ -2,19 +2,19 @@ package net.mullvad.lib.map.shapes
 
 import android.opengl.GLES31
 import android.util.Log
-import java.lang.RuntimeException
 import java.nio.Buffer
+import kotlin.RuntimeException
 
 object GLHelper {
 
     fun initShaderProgram(vsSource: String, fsSource: String): Int {
         val vertexShader = loadShader(GLES31.GL_VERTEX_SHADER, vsSource)
         if (vertexShader == -1) {
-            throw Exception("vertexShader == -1")
+            throw RuntimeException("vertexShader == -1")
         }
         val fragmentShader = loadShader(GLES31.GL_FRAGMENT_SHADER, fsSource)
         if (fragmentShader == -1) {
-            throw Exception("fragmentShader == -1")
+            throw RuntimeException("fragmentShader == -1")
         }
 
         val program = GLES31.glCreateProgram()
@@ -37,6 +37,8 @@ object GLHelper {
             GLES31.glDeleteProgram(program)
             return -1
         }
+
+        Log.d("mullvad", "CREATED PROGRAM $program")
 
         return program
     }

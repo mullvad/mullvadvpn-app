@@ -91,20 +91,10 @@ class Globe(context: Context) {
     }
 
     fun draw(projectionMatrix: FloatArray, viewMatrix: FloatArray) {
-        val globeViewMatrix = viewMatrix.clone()
-        val oceanViewMatrix = viewMatrix.clone()
+        val globeViewMatrix = viewMatrix.copyOf()
 
         // Add program to OpenGL ES environment
         GLES31.glUseProgram(shaderProgram)
-
-        drawBufferElements(
-            projectionMatrix,
-            globeViewMatrix,
-            landPositionBuffer,
-            landIndices,
-            landColor,
-            GLES31.GL_TRIANGLES,
-        )
 
         // Set thickness of contour lines
         GLES31.glLineWidth(5f)
@@ -117,10 +107,19 @@ class Globe(context: Context) {
             GLES31.GL_LINES
         )
 
-        Matrix.scaleM(oceanViewMatrix, 0, 0.999f, 0.999f, 0.999f)
+        Matrix.scaleM(globeViewMatrix, 0, 0.9999f, 0.9999f, 0.9999f)
         drawBufferElements(
             projectionMatrix,
-            oceanViewMatrix,
+            globeViewMatrix,
+            landPositionBuffer,
+            landIndices,
+            landColor,
+            GLES31.GL_TRIANGLES,
+        )
+
+        drawBufferElements(
+            projectionMatrix,
+            globeViewMatrix,
             oceanPositionBuffer,
             oceanIndices,
             oceanColor,

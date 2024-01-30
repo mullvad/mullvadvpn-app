@@ -4,7 +4,6 @@ import android.content.Context
 import android.opengl.GLES31
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import android.os.SystemClock
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import net.mullvad.lib.map.shapes.Globe
@@ -13,17 +12,22 @@ import net.mullvad.lib.map.shapes.LocationMarker
 class MyGLRenderer(val context: Context) : GLSurfaceView.Renderer {
     private lateinit var globe: Globe
     private lateinit var locationMarker: LocationMarker
+    private lateinit var locationMarker2: LocationMarker
+    private lateinit var locationMarker3: LocationMarker
+
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // Set the background frame color
         // initialize a triangle
         globe = Globe(context)
-        locationMarker = LocationMarker(floatArrayOf(1.0f, 1.0f, 0.0f, 1.0f))
+        locationMarker = LocationMarker(floatArrayOf(1.0f, 1.0f, 0.0f))
+        locationMarker2 = LocationMarker(floatArrayOf(1.0f, 0.0f, 0.0f))
+        locationMarker3 = LocationMarker(floatArrayOf(0.0f, 0.0f, 1.0f))
 
         initGLOptions()
     }
 
-    private fun initGLOptions(){
+    private fun initGLOptions() {
         GLES31.glEnable(GLES31.GL_CULL_FACE)
         GLES31.glCullFace(GLES31.GL_BACK)
 
@@ -31,55 +35,46 @@ class MyGLRenderer(val context: Context) : GLSurfaceView.Renderer {
         GLES31.glBlendFunc(GLES31.GL_SRC_ALPHA, GLES31.GL_ONE_MINUS_SRC_ALPHA)
     }
 
-    private val vPMatrix = FloatArray(16)
-    private val projectionMatrix = FloatArray(16)
-    private val viewMatrix = FloatArray(16)
-    private val rotationMatrix = FloatArray(16)
+    private val projectionMatrix = FloatArray(16).apply {
+        Matrix.setIdentityM(this, 0)
+    }
 
-    val connectedZoom = 1.25f
-    private val zoom = 0.7f
+    private val gothenburgCoordinate = Coordinate(57.67f, 11.98f)
+    private val helsinkiCoordinate = Coordinate(60.170834f, 24.9375f)
+    private val sydneyCoordinate = Coordinate(-33.86f, 151.21f)
+    private val losAngelesCoordinate = Coordinate(34.05f, -118.25f)
+    private val newYorkCoordinate = Coordinate(40.73f, -73.93f)
+    private val romeCoordinate = Coordinate(41.893f, 12.482f)
+    private val poleCoordinate1 = Coordinate(88f, -90f)
+    private val poleCoordinate2 = Coordinate(88f, 90f)
+    private val antarcticaCoordinate = Coordinate(-85f, 0f)
+
+    private val connectedZoom = 1.25f
+    private val zoom = 3.35f
+
     override fun onDrawFrame(gl10: GL10) {
         // Clear function
         clear()
 
-        val scratch = FloatArray(16)
+        val offsetY = 0.088f + (zoom - connectedZoom) * 0.3f
 
+        val viewMatrix = FloatArray(16)
+        Matrix.setIdentityM(viewMatrix, 0)
+        Matrix.translateM(viewMatrix, 0, 0f, offsetY, -zoom)
 
-        val offsetY = 0.088 + (zoom - connectedZoom) * 0.3
+        val coordinate = gothenburgCoordinate
 
-        Matrix.setLookAtM(viewMatrix, 0, 0f, offsetY.toFloat(), 1f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
-        Matrix.multiplyMM(vPMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
-
-        // mTriangle.draw(vPMatrix)
-        // Set the camera position (View matrix)
-
-        //        globe.draw(
-        //            projectionMatrix,
-        //            viewMatrix,
-        //        )
-
-        // Create a rotation transformation for the triangle
-        val time = SystemClock.uptimeMillis() % 4000L
-        val angle = 0.090f * time.toInt()
-        Matrix.setRotateM(rotationMatrix, 0, angle, 0.0f, 0.0f, 1.0f)
-
-        // Combine the rotation matrix with the projection and camera view
-        // Note that the vPMatrix factor *must be first* in order
-        // for the matrix multiplication product to be correct.
-        Matrix.multiplyMM(scratch, 0, vPMatrix, 0, rotationMatrix, 0)
-
-        // Draw triangle
-        locationMarker.draw(scratch, viewMatrix, Coordinate(90f, 90f), 0.03f * 200f)
-        locationMarker.draw(scratch, viewMatrix, Coordinate(0f, 0f), 0.03f * 10200f)
-        locationMarker.draw(scratch, viewMatrix, Coordinate(180f, 180f), 0.03f * 10f)
-        locationMarker.draw(scratch, viewMatrix, Coordinate(270f, 270f), 0.03f * 1f)
-        //globe.draw(scratch, viewMatrix)
-
+        Matrix.rotateM(viewMatrix, 0, coordinate.lat, 1f, 0f, 0f)
+        Matrix.rotateM(viewMatrix, 0, coordinate.lon, 0f, -1f, 0f)
+        globe.draw(projectionMatrix.copyOf(), viewMatrix.copyOf())
+        locationMarker2.draw(projectionMatrix.copyOf(), viewMatrix.copyOf(), gothenburgCoordinate, 100.03f)
+        //locationMarker3.draw(projectionMatrix, viewMatrix.copyOf(), helsinkiCoordinate, 300.03f)
+        //locationMarker.draw(projectionMatrix, viewMatrix.copyOf(), sydneyCoordinate, 3.03f)
     }
 
     private fun clear() {
         // Redraw background color
-        GLES31.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
+        GLES31.glClearColor(0.0f, 1.0f, 1.0f, 1.0f)
         GLES31.glClearDepthf(1.0f)
         GLES31.glEnable(GLES31.GL_DEPTH_TEST)
         GLES31.glDepthFunc(GLES31.GL_LEQUAL)
