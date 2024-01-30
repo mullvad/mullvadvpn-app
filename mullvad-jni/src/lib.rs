@@ -1366,8 +1366,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_createC
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_deleteCustomList<'env>(
-    env: JNIEnv<'env>,
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_deleteCustomList(
+    env: JNIEnv<'_>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
     id: JString<'_>,
@@ -1388,8 +1388,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_deleteC
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateCustomList<'env>(
-    env: JNIEnv<'env>,
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateCustomList(
+    env: JNIEnv<'_>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
     customList: JObject<'_>,
