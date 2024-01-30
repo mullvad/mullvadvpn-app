@@ -35,6 +35,10 @@ struct InitMutableBufferError: Error {
 class MullvadApi {
     private var clientContext = MullvadApiClient()
 
+    /// Initialize the Mullvad API client
+    /// - Parameters:
+    ///   - apiAddress: Address of the Mullvad API server in the format \<IP-address\>:\<port\>
+    ///   - hostname: Hostname of the Mullvad API server
     init(apiAddress: String, hostname: String) throws {
         let result = mullvad_api_client_initialize(
             &clientContext,

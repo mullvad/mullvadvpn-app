@@ -62,6 +62,7 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
 
     private lazy var logoutButton: AppButton = {
         let button = AppButton(style: .default)
+        button.accessibilityIdentifier = .revokedDeviceLoginButton
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(
             NSLocalizedString(
@@ -108,6 +109,7 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.accessibilityIdentifier = .revokedDeviceView
         view.backgroundColor = .secondaryColor
         view.directionalLayoutMargins = UIMetrics.contentLayoutMargins
 
