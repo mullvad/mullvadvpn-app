@@ -454,6 +454,27 @@ impl Runtime {
         rest::MullvadRestHandle::new(service, factory, self.availability_handle())
     }
 
+    /// This is only to be used in test code
+    pub async fn static_mullvad_rest_handle(&self, hostname: String) -> rest::MullvadRestHandle {
+        let service = self
+            .new_request_service(
+                Some(hostname.clone()),
+                futures::stream::repeat(ApiConnectionMode::Direct),
+                #[cfg(target_os = "android")]
+                self.socket_bypass_tx.clone(),
+            )
+            .await;
+        let token_store = access::AccessTokenStore::new(service.clone());
+        let factory = rest::RequestFactory::new(hostname, Some(token_store));
+
+        rest::MullvadRestHandle::new(
+            service,
+            factory,
+            self.address_cache.clone(),
+            self.availability_handle(),
+        )
+    }
+
     /// Returns a new request service handle
     pub fn rest_handle(&self) -> rest::RequestServiceHandle {
         self.new_request_service(
