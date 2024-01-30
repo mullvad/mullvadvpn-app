@@ -88,8 +88,8 @@ function AccessMethodForm() {
     }
   }, [updatedMethod, save, history.pop]);
 
-  const title = getTitle(id !== undefined);
-  const subtitle = getSubtitle(id !== undefined);
+  const title = getTitle(id === undefined);
+  const subtitle = getSubtitle(id === undefined);
 
   return (
     <BackAction action={history.pop}>
