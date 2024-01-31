@@ -11,6 +11,7 @@ import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
 import net.mullvad.mullvadvpn.test.common.constant.APP_LAUNCH_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.CONNECTION_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_INTERACTION_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.LOGIN_FAILURE_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LOGIN_PROMPT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LOGIN_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
@@ -78,10 +79,7 @@ class AppInteractor(
     }
 
     fun ensureAccountCreationFailed() {
-        device.findObjectWithTimeout(
-            By.text("Failed to create account"),
-            DEFAULT_INTERACTION_TIMEOUT
-        )
+        device.findObjectWithTimeout(By.text("Failed to create account"), LOGIN_FAILURE_TIMEOUT)
     }
 
     fun ensureLoggedIn() {
