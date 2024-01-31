@@ -167,7 +167,7 @@ function getMessage(errorState: ErrorState): string {
         if (errorState.osError === 4319) {
           return messages.pgettext(
             'notifications',
-            'Unable to start tunnel connection. This could be caused by incompatibility with VMware, please troubleshoot.',
+            'Unable to start tunnel connection. This could be because of conflicts with VMware, please troubleshoot.',
           );
         }
 
@@ -287,11 +287,11 @@ function getActions(errorState: ErrorState): InAppNotificationAction | void {
       troubleshoot: {
         details: messages.pgettext(
           'troubleshoot',
-          'Unable to start tunnel connection because of a failure when creating the tunnel device. This is often caused by an issue with the VMware Bridge Protocol.',
+          'Unable to start tunnel connection because of a failure when creating the tunnel device. This is often caused by conflicts with the VMware Bridge Protocol.',
         ),
         steps: [
-          messages.pgettext('troubleshoot', 'Try to reinstall VMware'),
-          messages.pgettext('troubleshoot', 'Try to uninstall VMware'),
+          messages.pgettext('troubleshoot', 'Try to reinstall VMware.'),
+          messages.pgettext('troubleshoot', 'Try to uninstall VMware.'),
         ],
       },
     };
