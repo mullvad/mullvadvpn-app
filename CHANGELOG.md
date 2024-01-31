@@ -68,6 +68,10 @@ Line wrap the file at 100 chars.                                              Th
 - Enable quantum resistant tunnels by default (when set to `auto`). On other platforms, `auto` still
   always means the same thing as `off`.
 
+#### Windows
+- Add information to error notifcation about an error that is ofter caused by an incompatibility
+  with VMWare.
+
 ### Security
 #### Android
 - Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
