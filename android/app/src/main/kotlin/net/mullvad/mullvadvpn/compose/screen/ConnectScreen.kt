@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,10 +30,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
 import net.mullvad.lib.map.MullvadMap
+import net.mullvad.lib.map.data.Coordinate
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
@@ -182,7 +186,8 @@ fun ConnectScreen(
         deviceName = uiState.deviceName,
         timeLeft = uiState.daysLeftUntilExpiry
     ) {
-        MullvadMap()
+        var zoom by remember { mutableFloatStateOf(1.4f) }
+        MullvadMap(Coordinate(0f, 0f), zoom)
         Column(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.Start,
@@ -204,6 +209,12 @@ fun ConnectScreen(
                 onClickUpdateVersion = onUpdateVersionClick,
                 onClickShowAccount = onManageAccountClick,
                 onClickDismissNewDevice = onDismissNewDeviceClick,
+            )
+            Slider(
+                modifier = Modifier.padding(16.dp),
+                value = zoom,
+                onValueChange = { zoom = it },
+                valueRange = 0.5f..3f,
             )
             Spacer(modifier = Modifier.weight(1f))
             if (

@@ -5,29 +5,18 @@ import android.content.res.Resources
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
-import net.mullvad.mullvadvpn.R
+import net.mullvad.lib.map.data.Coordinate
 
 @Composable
-fun MullvadMap() {
-    val context = LocalContext.current
-
-    val fragmentShader = remember { context.readTextFileFromResource(R.raw.fragment_shader) }
-
-    val vertexShader = remember { context.readTextFileFromResource(R.raw.vertex_shader) }
-
-    val shaderRenderer = remember {
-        ShaderRenderer().apply { setShaders(fragmentShader, vertexShader, source = "dummy") }
-    }
-
-    GLShader(
-        renderer = shaderRenderer,
+fun MullvadMap(coordinate: Coordinate, zoom: Float) {
+    MapGLShader(
         modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+        coordinate = coordinate,
+        zoom = zoom
     )
 }
 

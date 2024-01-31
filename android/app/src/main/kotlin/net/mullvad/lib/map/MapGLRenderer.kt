@@ -6,14 +6,21 @@ import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+import net.mullvad.lib.map.data.Coordinate
+import net.mullvad.lib.map.data.MapViewState
+import net.mullvad.lib.map.data.Marker
+import net.mullvad.lib.map.data.MarkerType
 import net.mullvad.lib.map.shapes.Globe
 import net.mullvad.lib.map.shapes.LocationMarker
 
-class MyGLRenderer(val context: Context) : GLSurfaceView.Renderer {
+class MapGLRenderer(val context: Context) : GLSurfaceView.Renderer {
     private lateinit var globe: Globe
-    private lateinit var locationMarker: LocationMarker
-    private lateinit var locationMarker2: LocationMarker
+    private lateinit var secureLocationMarker: LocationMarker
+    private lateinit var unsecureLocationMarker: LocationMarker
 
+    private val gothenburgCoordinate = Coordinate(57.7089f, 11.9746f)
+    private var viewState: MapViewState =
+        MapViewState(2.75f, gothenburgCoordinate, Marker(gothenburgCoordinate, MarkerType.UNSECURE))
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // Set the background frame color
@@ -24,8 +31,9 @@ class MyGLRenderer(val context: Context) : GLSurfaceView.Renderer {
         val locationMarkerSecureColor = floatArrayOf(0.267f, 0.678f, 0.302f)
         // The red color of the location marker when in the unsecured state
         val locationMarkerUnsecureColor = floatArrayOf(0.89f, 0.251f, 0.224f)
-        locationMarker = LocationMarker(locationMarkerSecureColor)
-        locationMarker2 = LocationMarker(locationMarkerUnsecureColor)
+
+        secureLocationMarker = LocationMarker(locationMarkerSecureColor)
+        unsecureLocationMarker = LocationMarker(locationMarkerUnsecureColor)
 
         initGLOptions()
     }
@@ -38,23 +46,7 @@ class MyGLRenderer(val context: Context) : GLSurfaceView.Renderer {
         GLES31.glBlendFunc(GLES31.GL_SRC_ALPHA, GLES31.GL_ONE_MINUS_SRC_ALPHA)
     }
 
-    private val projectionMatrix = FloatArray(16).apply {
-        Matrix.setIdentityM(this, 0)
-    }
-
-    private val stockholmCoordinate = Coordinate(59.3293f, 18.0686f)
-    private val gothenburgCoordinate = Coordinate(57.67f, 11.98f)
-    private val helsinkiCoordinate = Coordinate(60.170834f, 24.9375f)
-    private val sydneyCoordinate = Coordinate(-33.86f, 151.21f)
-    private val losAngelesCoordinate = Coordinate(34.05f, -118.25f)
-    private val newYorkCoordinate = Coordinate(40.73f, -73.93f)
-    private val romeCoordinate = Coordinate(41.893f, 12.482f)
-    private val poleCoordinate1 = Coordinate(88f, -90f)
-    private val poleCoordinate2 = Coordinate(88f, 90f)
-    private val antarcticaCoordinate = Coordinate(-85f, 0f)
-
-    private val connectedZoom = 1.25f
-    private val zoom = 1.35f
+    private val projectionMatrix = FloatArray(16).apply { Matrix.setIdentityM(this, 0) }
 
     override fun onDrawFrame(gl10: GL10) {
         // Clear function
@@ -63,19 +55,31 @@ class MyGLRenderer(val context: Context) : GLSurfaceView.Renderer {
         val viewMatrix = FloatArray(16)
         Matrix.setIdentityM(viewMatrix, 0)
 
-        val offsetY = 0.088f + (zoom - connectedZoom) * 0.3f
+        val offsetY = 0.088f + (viewState.zoom) * 0.1f
 
-        Matrix.translateM(viewMatrix, 0, 0f, offsetY, -zoom)
+        Matrix.translateM(viewMatrix, 0, 0f, offsetY, -viewState.zoom)
 
-        val coordinate = gothenburgCoordinate
-
-        Matrix.rotateM(viewMatrix, 0, coordinate.lat, 1f, 0f, 0f)
-        Matrix.rotateM(viewMatrix, 0, coordinate.lon, 0f, -1f, 0f)
+        Matrix.rotateM(viewMatrix, 0, viewState.cameraCoordinate.lat, 1f, 0f, 0f)
+        Matrix.rotateM(viewMatrix, 0, viewState.cameraCoordinate.lon, 0f, -1f, 0f)
 
         globe.draw(projectionMatrix.copyOf(), viewMatrix.copyOf())
-        locationMarker.draw(projectionMatrix, viewMatrix.copyOf(), gothenburgCoordinate, 0.02f)
-        locationMarker2.draw(projectionMatrix.copyOf(), viewMatrix.copyOf(), stockholmCoordinate, 0.03f)
-//        locationMarker3.draw(projectionMatrix, viewMatrix.copyOf(), helsinkiCoordinate, 0.03f)
+
+        when (viewState.locationMarker.type) {
+            MarkerType.SECURE ->
+                secureLocationMarker.draw(
+                    projectionMatrix,
+                    viewMatrix.copyOf(),
+                    viewState.locationMarker.coordinate,
+                    0.02f
+                )
+            MarkerType.UNSECURE ->
+                unsecureLocationMarker.draw(
+                    projectionMatrix,
+                    viewMatrix.copyOf(),
+                    viewState.locationMarker.coordinate,
+                    0.02f
+                )
+        }
     }
 
     private fun clear() {
@@ -97,5 +101,9 @@ class MyGLRenderer(val context: Context) : GLSurfaceView.Renderer {
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
         Matrix.perspectiveM(projectionMatrix, 0, 70f, ratio, 0.1f, 10f)
+    }
+
+    fun setViewState(viewState: MapViewState) {
+        this.viewState = viewState
     }
 }

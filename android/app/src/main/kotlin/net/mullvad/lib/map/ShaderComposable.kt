@@ -9,11 +9,15 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import net.mullvad.lib.map.data.Coordinate
+import net.mullvad.lib.map.data.MapViewState
+import net.mullvad.lib.map.data.Marker
+import net.mullvad.lib.map.data.MarkerType
 
 @Composable
-fun GLShader(renderer: ShaderRenderer, modifier: Modifier = Modifier) {
+fun MapGLShader(modifier: Modifier = Modifier, coordinate: Coordinate, zoom: Float) {
 
-    var view: MyGLSurfaceView? = remember { null }
+    var view: MapGLSurfaceView? = remember { null }
 
     val lifeCycleState = LocalLifecycleOwner.current.lifecycle
 
@@ -22,11 +26,9 @@ fun GLShader(renderer: ShaderRenderer, modifier: Modifier = Modifier) {
             when (event) {
                 Lifecycle.Event.ON_RESUME -> {
                     view?.onResume()
-                    renderer.onResume()
                 }
                 Lifecycle.Event.ON_PAUSE -> {
                     view?.onPause()
-                    renderer.onPause()
                 }
                 else -> {}
             }
@@ -41,16 +43,16 @@ fun GLShader(renderer: ShaderRenderer, modifier: Modifier = Modifier) {
         }
     }
 
-    AndroidView(
-        modifier = modifier,
-        factory = {
-            // ShaderGLSurfaceView(it)
-            MyGLSurfaceView(it)
-        }
-    ) { glSurfaceView ->
+    //    animateFloatAsState(targetValue = )
+    val mapViewState =
+        MapViewState(
+            zoom = zoom,
+            cameraCoordinate = coordinate,
+            locationMarker = Marker(Coordinate(0f, 0f), MarkerType.SECURE)
+        )
+
+    AndroidView(modifier = modifier, factory = { MapGLSurfaceView(it) }) { glSurfaceView ->
         view = glSurfaceView
-        //        glSurfaceView.setShaderRenderer(
-        //            renderer
-        //        )
+        glSurfaceView.setData(mapViewState)
     }
 }

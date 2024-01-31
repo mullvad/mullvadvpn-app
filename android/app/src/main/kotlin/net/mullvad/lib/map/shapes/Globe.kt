@@ -4,6 +4,7 @@ import android.content.Context
 import android.opengl.GLES31
 import android.opengl.Matrix
 import java.nio.ByteBuffer
+import net.mullvad.lib.map.GLHelper
 import net.mullvad.mullvadvpn.R
 
 class Globe(context: Context) {
@@ -38,7 +39,6 @@ class Globe(context: Context) {
     data class AttribLocations(val vertexPosition: Int)
 
     data class UniformLocation(val color: Int, val projectionMatrix: Int, val modelViewMatrix: Int)
-
 
     private val landColor: FloatArray = floatArrayOf(0.16f, 0.302f, 0.45f, 1.0f)
     private val oceanColor: FloatArray = floatArrayOf(0.098f, 0.18f, 0.271f, 1.0f)

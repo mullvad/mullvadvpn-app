@@ -5,7 +5,8 @@ import android.opengl.Matrix
 import java.nio.FloatBuffer
 import kotlin.math.cos
 import kotlin.math.sin
-import net.mullvad.lib.map.Coordinate
+import net.mullvad.lib.map.GLHelper
+import net.mullvad.lib.map.data.Coordinate
 
 class LocationMarker(val color: FloatArray) {
 

@@ -1,4 +1,4 @@
-package net.mullvad.lib.map.shapes
+package net.mullvad.lib.map
 
 import android.opengl.GLES31
 import android.util.Log
@@ -71,6 +71,7 @@ object GLHelper {
     }
 
     fun initArrayBuffer(buffer: ByteBuffer) = initArrayBuffer(buffer, 1)
+
     fun initArrayBuffer(buffer: FloatBuffer) = initArrayBuffer(buffer, Float.SIZE_BYTES)
 
     private fun initArrayBuffer(dataBuffer: Buffer, unitSizeInBytes: Int = 1): Int {

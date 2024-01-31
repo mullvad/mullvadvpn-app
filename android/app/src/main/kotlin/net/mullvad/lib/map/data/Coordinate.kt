@@ -1,4 +1,4 @@
-package net.mullvad.lib.map
+package net.mullvad.lib.map.data
 
 import kotlin.math.sqrt
 
