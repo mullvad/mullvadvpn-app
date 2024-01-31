@@ -102,6 +102,8 @@ describe('Tunnel state', () => {
     expect(stateUpdateSpy).to.have.been.called.exactly(2);
     expect(stateUpdateSpy).on.nth(2).to.have.been.called.with.exactly('connected');
     expect(tunnelStateHandler.tunnelState.state).to.equal('connected');
+
+    clock.restore();
   });
 });
 
