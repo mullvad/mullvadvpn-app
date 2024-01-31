@@ -17,6 +17,14 @@ use talpid_wireguard;
 const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 
+/// Set the MTU to the lowest possible whilst still allowing for IPv6 to help with wireless
+/// carriers that do a lot of encapsulation.
+const DEFAULT_MTU: u16 = if cfg!(target_os = "android") {
+    1280
+} else {
+    1380
+};
+
 /// Results from operations in the tunnel module.
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -137,13 +145,7 @@ impl TunnelMonitor {
             + Clone
             + 'static,
     {
-        let default_mtu = if cfg!(target_os = "android") {
-            // Set the MTU to the lowest possible whilst still allowing for IPv6 to help
-            // with wireless carriers that do a lot of encapsulation.
-            1280
-        } else {
-            1380
-        };
+        let default_mtu = DEFAULT_MTU;
 
         #[cfg(any(target_os = "linux", target_os = "windows"))]
         // Detects the MTU of the device, calculates what the virtual device MTU should be use that
