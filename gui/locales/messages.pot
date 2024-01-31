@@ -1094,7 +1094,7 @@ msgid "Unable to start tunnel connection. Please send a problem report."
 msgstr ""
 
 msgctxt "notifications"
-msgid "Unable to start tunnel connection. This could be caused by incompatibility with VMware, please troubleshoot."
+msgid "Unable to start tunnel connection. This could be because of conflicts with VMware, please troubleshoot."
 msgstr ""
 
 msgctxt "notifications"
@@ -1326,7 +1326,7 @@ msgstr ""
 
 #. Navigation button to the 'API access methods' view
 msgctxt "settings-view"
-msgid "API access methods"
+msgid "API access"
 msgstr ""
 
 msgctxt "settings-view"
@@ -1561,7 +1561,7 @@ msgid "Try restarting your device."
 msgstr ""
 
 msgctxt "troubleshoot"
-msgid "Try to reinstall VMware"
+msgid "Try to reinstall VMware."
 msgstr ""
 
 msgctxt "troubleshoot"
@@ -1569,7 +1569,7 @@ msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart th
 msgstr ""
 
 msgctxt "troubleshoot"
-msgid "Try to uninstall VMware"
+msgid "Try to uninstall VMware."
 msgstr ""
 
 msgctxt "troubleshoot"
@@ -1577,7 +1577,7 @@ msgid "Unable to communicate with Mullvad kernel driver."
 msgstr ""
 
 msgctxt "troubleshoot"
-msgid "Unable to start tunnel connection because of a failure when creating the tunnel device. This is often caused by an issue with the VMware Bridge Protocol."
+msgid "Unable to start tunnel connection because of a failure when creating the tunnel device. This is often caused by conflicts with the VMware Bridge Protocol."
 msgstr ""
 
 msgctxt "troubleshoot"
