@@ -3,6 +3,8 @@ package net.mullvad.lib.map.shapes
 import android.opengl.GLES31
 import android.util.Log
 import java.nio.Buffer
+import java.nio.ByteBuffer
+import java.nio.FloatBuffer
 import kotlin.RuntimeException
 
 object GLHelper {
@@ -68,14 +70,17 @@ object GLHelper {
         return shader
     }
 
-    fun initArrayBuffer(dataBuffer: Buffer): Int {
+    fun initArrayBuffer(buffer: ByteBuffer) = initArrayBuffer(buffer, 1)
+    fun initArrayBuffer(buffer: FloatBuffer) = initArrayBuffer(buffer, Float.SIZE_BYTES)
+
+    private fun initArrayBuffer(dataBuffer: Buffer, unitSizeInBytes: Int = 1): Int {
         val buffer = IntArray(1)
         GLES31.glGenBuffers(1, buffer, 0)
 
         GLES31.glBindBuffer(GLES31.GL_ARRAY_BUFFER, buffer[0])
         GLES31.glBufferData(
             GLES31.GL_ARRAY_BUFFER,
-            dataBuffer.capacity(),
+            dataBuffer.capacity() * unitSizeInBytes,
             dataBuffer,
             GLES31.GL_STATIC_DRAW
         )

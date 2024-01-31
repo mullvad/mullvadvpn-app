@@ -13,16 +13,19 @@ class MyGLRenderer(val context: Context) : GLSurfaceView.Renderer {
     private lateinit var globe: Globe
     private lateinit var locationMarker: LocationMarker
     private lateinit var locationMarker2: LocationMarker
-    private lateinit var locationMarker3: LocationMarker
 
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // Set the background frame color
         // initialize a triangle
         globe = Globe(context)
-        locationMarker = LocationMarker(floatArrayOf(1.0f, 1.0f, 0.0f))
-        locationMarker2 = LocationMarker(floatArrayOf(1.0f, 0.0f, 0.0f))
-        locationMarker3 = LocationMarker(floatArrayOf(0.0f, 0.0f, 1.0f))
+
+        // The green color of the location marker when in the secured state
+        val locationMarkerSecureColor = floatArrayOf(0.267f, 0.678f, 0.302f)
+        // The red color of the location marker when in the unsecured state
+        val locationMarkerUnsecureColor = floatArrayOf(0.89f, 0.251f, 0.224f)
+        locationMarker = LocationMarker(locationMarkerSecureColor)
+        locationMarker2 = LocationMarker(locationMarkerUnsecureColor)
 
         initGLOptions()
     }
@@ -39,6 +42,7 @@ class MyGLRenderer(val context: Context) : GLSurfaceView.Renderer {
         Matrix.setIdentityM(this, 0)
     }
 
+    private val stockholmCoordinate = Coordinate(59.3293f, 18.0686f)
     private val gothenburgCoordinate = Coordinate(57.67f, 11.98f)
     private val helsinkiCoordinate = Coordinate(60.170834f, 24.9375f)
     private val sydneyCoordinate = Coordinate(-33.86f, 151.21f)
@@ -50,7 +54,7 @@ class MyGLRenderer(val context: Context) : GLSurfaceView.Renderer {
     private val antarcticaCoordinate = Coordinate(-85f, 0f)
 
     private val connectedZoom = 1.25f
-    private val zoom = 3.35f
+    private val zoom = 1.35f
 
     override fun onDrawFrame(gl10: GL10) {
         // Clear function
@@ -65,22 +69,19 @@ class MyGLRenderer(val context: Context) : GLSurfaceView.Renderer {
 
         val coordinate = gothenburgCoordinate
 
-        val time = System.currentTimeMillis() % 4000
-        val angleInDegrees = 360.0f / 4000.0f * time.toInt()
-
-        Matrix.rotateM(viewMatrix, 0, angleInDegrees, 1f, 0f, 0f)
+        Matrix.rotateM(viewMatrix, 0, coordinate.lat, 1f, 0f, 0f)
         Matrix.rotateM(viewMatrix, 0, coordinate.lon, 0f, -1f, 0f)
 
         globe.draw(projectionMatrix.copyOf(), viewMatrix.copyOf())
-        locationMarker2.draw(projectionMatrix.copyOf(), viewMatrix.copyOf(), gothenburgCoordinate, 0.13f)
+        locationMarker.draw(projectionMatrix, viewMatrix.copyOf(), gothenburgCoordinate, 0.02f)
+        locationMarker2.draw(projectionMatrix.copyOf(), viewMatrix.copyOf(), stockholmCoordinate, 0.03f)
 //        locationMarker3.draw(projectionMatrix, viewMatrix.copyOf(), helsinkiCoordinate, 0.03f)
-//        locationMarker.draw(projectionMatrix, viewMatrix.copyOf(), sydneyCoordinate, 0.02f)
     }
 
     private fun clear() {
         // Redraw background color
         // TODO Change to black
-        GLES31.glClearColor(0.0f, 1.0f, 1.0f, 1.0f)
+        GLES31.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
         GLES31.glClearDepthf(1.0f)
         GLES31.glEnable(GLES31.GL_DEPTH_TEST)
         GLES31.glDepthFunc(GLES31.GL_LEQUAL)

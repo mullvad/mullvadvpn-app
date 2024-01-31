@@ -9,11 +9,6 @@ import net.mullvad.lib.map.Coordinate
 
 class LocationMarker(val color: FloatArray) {
 
-    // The green color of the location marker when in the secured state
-    val locationMarkerSecureColor = floatArrayOf(0.267f, 0.678f, 0.302f)
-    // The red color of the location marker when in the unsecured state
-    val locationMarkerUnsecureColor = floatArrayOf(0.89f, 0.251f, 0.224f)
-
     private val vertexShaderCode =
         """
     attribute vec3 aVertexPosition;
@@ -88,10 +83,10 @@ class LocationMarker(val color: FloatArray) {
     private val ringSizes: List<Int> = rings.map { (positions, _) -> positions.size }
 
     init {
-        val positionArrayBuffer = rings.map { it.first }.flatten()
+        val positionArrayBuffer = rings.flatMap { it.first }
         val positionByteBuffer = FloatBuffer.wrap(positionArrayBuffer.toFloatArray())
 
-        val colorArrayBuffer = rings.map { it.second }.flatten()
+        val colorArrayBuffer = rings.flatMap { it.second }
         val colorByteBuffer = FloatBuffer.wrap(colorArrayBuffer.toFloatArray())
 
         positionBuffer = GLHelper.initArrayBuffer(positionByteBuffer)
@@ -155,7 +150,7 @@ class LocationMarker(val color: FloatArray) {
         var offset = 0
         for (ringSize in ringSizes) {
             val numVertices = ringSize / 3
-            GLES31.glDrawArrays(GLES31.GL_TRIANGLE_FAN, offset, numVertices)
+            GLES31.glDrawArrays(GLES31.GL_TRIANGLE_FAN, offset, numVertices * 3)
             offset += numVertices
         }
     }
@@ -174,12 +169,13 @@ class LocationMarker(val color: FloatArray) {
         val colors = mutableListOf(*centerColor.toTypedArray())
 
         for (i in 0..numEdges) {
-            val angle = (i.toDouble() / numEdges.toDouble()) * 2.0 * Math.PI
-            val x = offset[0] + radius * cos(angle)
-            val y = offset[1] + radius * sin(angle)
+
+            val angle = (i.toFloat() / numEdges.toFloat()) * 2f * Math.PI
+            val x = offset[0] + radius * cos(angle).toFloat()
+            val y = offset[1] + radius * sin(angle).toFloat()
             val z = offset[2]
-            positions.add(x.toFloat())
-            positions.add(y.toFloat())
+            positions.add(x)
+            positions.add(y)
             positions.add(z)
             colors.addAll(ringColor.toTypedArray())
         }
