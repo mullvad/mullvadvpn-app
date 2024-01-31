@@ -165,13 +165,16 @@ function getMessage(errorState: ErrorState): string {
         );
       case ErrorStateCause.createTunnelDeviceError:
         if (errorState.osError === 4319) {
-          // TODO: add improved error for network device conflicts
+          return messages.pgettext(
+            'notifications',
+            'Unable to start tunnel connection. This could be caused by incompatibility with VMWare, please troubleshoot.',
+          );
+        } else {
+          return messages.pgettext(
+            'notifications',
+            'Unable to start tunnel connection. Please send a problem report.',
+          );
         }
-        // TODO: 'Failed to create tunnel device. Please send a problem report.',
-        return messages.pgettext(
-          'notifications',
-          'Unable to start tunnel connection. Please send a problem report.',
-        );
       case ErrorStateCause.tunnelParameterError:
         return getTunnelParameterMessage(errorState.parameterError);
       case ErrorStateCause.isOffline:
@@ -272,6 +275,23 @@ function getActions(errorState: ErrorState): InAppNotificationAction | void {
         steps: [
           messages.pgettext('troubleshoot', 'Try reconnecting.'),
           messages.pgettext('troubleshoot', 'Try restarting your device.'),
+        ],
+      },
+    };
+  } else if (
+    errorState.cause === ErrorStateCause.createTunnelDeviceError &&
+    errorState.osError === 4319
+  ) {
+    return {
+      type: 'troubleshoot-dialog',
+      troubleshoot: {
+        details: messages.pgettext(
+          'troubleshoot',
+          'Unable to start tunnel connection because of a failure when creating the tunnel device. This is often caused by an issue with the VMware Bridge Protocol.',
+        ),
+        steps: [
+          messages.pgettext('troubleshoot', 'Try to reinstall VMWare'),
+          messages.pgettext('troubleshoot', 'Try to uninstall VMWare'),
         ],
       },
     };
