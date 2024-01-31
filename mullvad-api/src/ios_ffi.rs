@@ -1,4 +1,4 @@
-use std::{net::SocketAddr, sync::Arc};
+use std::{ffi::CString, net::SocketAddr, ptr, sync::Arc};
 
 use crate::{
     rest::{self, MullvadRestHandle},
@@ -6,14 +6,55 @@ use crate::{
 };
 
 #[derive(Debug, PartialEq)]
-#[repr(i32)]
-pub enum FfiError {
+#[repr(C)]
+pub enum MullvadApiErrorKind {
     NoError = 0,
     StringParsing = -1,
     SocketAddressParsing = -2,
     AsyncRuntimeInitialization = -3,
     BadResponse = -4,
     BufferTooSmall = -5,
+}
+
+/// MullvadApiErrorKind contains a description and an error kind. If the error kind is
+/// `MullvadApiErrorKind` is NoError, the pointer will be nil.
+#[repr(C)]
+pub struct MullvadApiError {
+    description: *mut i8,
+    kind: MullvadApiErrorKind,
+}
+
+impl MullvadApiError {
+    fn new(kind: MullvadApiErrorKind, error: &dyn std::error::Error) -> Self {
+        let description = CString::new(format!("{error:?}")).unwrap_or_default();
+        Self {
+            description: description.into_raw(),
+            kind,
+        }
+    }
+
+    fn api_err(error: &rest::Error) -> Self {
+        Self::new(MullvadApiErrorKind::BadResponse, error)
+    }
+
+    fn with_str(kind: MullvadApiErrorKind, description: &str) -> Self {
+        let description = CString::new(description).unwrap_or_default();
+        Self {
+            description: description.into_raw(),
+            kind,
+        }
+    }
+
+    fn ok() -> MullvadApiError {
+        Self {
+            description: CString::new("").unwrap().into_raw(),
+            kind: MullvadApiErrorKind::NoError,
+        }
+    }
+
+    fn drop(self) {
+        let _ = unsafe { CString::from_raw(self.description) };
+    }
 }
 
 /// IosMullvadApiClient is an FFI interface to our `mullvad-api`. It is a thread-safe to accessing
@@ -79,23 +120,35 @@ pub extern "C" fn mullvad_api_initialize_api_runtime(
     api_address_len: usize,
     hostname: *const u8,
     hostname_len: usize,
-) -> FfiError {
+) -> MullvadApiError {
     let Some(addr_str) = (unsafe { string_from_raw_ptr(api_address_ptr, api_address_len) }) else {
-        return FfiError::StringParsing;
+        return MullvadApiError::with_str(
+            MullvadApiErrorKind::StringParsing,
+            "Failed to parse API socket address string",
+        );
     };
     let Some(api_hostname) = (unsafe { string_from_raw_ptr(hostname, hostname_len) }) else {
-        return FfiError::StringParsing;
+        return MullvadApiError::with_str(
+            MullvadApiErrorKind::StringParsing,
+            "Failed to parse API host name",
+        );
     };
 
     let Ok(api_address): Result<SocketAddr, _> = addr_str.parse() else {
-        return FfiError::SocketAddressParsing;
+        return MullvadApiError::with_str(
+            MullvadApiErrorKind::SocketAddressParsing,
+            "Failed to parse API socket address",
+        );
     };
 
     let mut runtime_builder = tokio::runtime::Builder::new_multi_thread();
 
     runtime_builder.worker_threads(2).enable_all();
-    let Ok(tokio_runtime) = runtime_builder.build() else {
-        return FfiError::AsyncRuntimeInitialization;
+    let tokio_runtime = match runtime_builder.build() {
+        Ok(runtime) => runtime,
+        Err(err) => {
+            return MullvadApiError::new(MullvadApiErrorKind::AsyncRuntimeInitialization, &err);
+        }
     };
 
     // It is imperative that the REST runtime is created within an async context, otherwise
@@ -116,7 +169,7 @@ pub extern "C" fn mullvad_api_initialize_api_runtime(
         std::ptr::write(context_ptr, context);
     }
 
-    FfiError::NoError
+    MullvadApiError::ok()
 }
 
 #[no_mangle]
@@ -124,10 +177,13 @@ pub extern "C" fn mullvad_api_remove_all_devices(
     context: IosMullvadApiClient,
     account_str_ptr: *const u8,
     account_str_len: usize,
-) -> FfiError {
+) -> MullvadApiError {
     let ctx = unsafe { context.from_raw() };
     let Some(account) = (unsafe { string_from_raw_ptr(account_str_ptr, account_str_len) }) else {
-        return FfiError::StringParsing;
+        return MullvadApiError::with_str(
+            MullvadApiErrorKind::StringParsing,
+            "Failed to parse account number",
+        );
     };
 
     let runtime = ctx.tokio_handle();
@@ -141,8 +197,8 @@ pub extern "C" fn mullvad_api_remove_all_devices(
     });
 
     match result {
-        Ok(()) => FfiError::NoError,
-        Err(_err) => FfiError::BadResponse,
+        Ok(()) => MullvadApiError::ok(),
+        Err(err) => MullvadApiError::api_err(&err),
     }
 }
 
@@ -152,9 +208,12 @@ pub extern "C" fn mullvad_api_get_expiry(
     account_str_ptr: *const u8,
     account_str_len: usize,
     expiry_unix_timestamp: *mut i64,
-) -> FfiError {
+) -> MullvadApiError {
     let Some(account) = (unsafe { string_from_raw_ptr(account_str_ptr, account_str_len) }) else {
-        return FfiError::StringParsing;
+        return MullvadApiError::with_str(
+            MullvadApiErrorKind::StringParsing,
+            "Failed to parse account number",
+        );
     };
 
     let ctx = unsafe { context.from_raw() };
@@ -174,9 +233,9 @@ pub extern "C" fn mullvad_api_get_expiry(
             unsafe {
                 std::ptr::write(expiry_unix_timestamp, expiry);
             }
-            FfiError::NoError
+            MullvadApiError::ok()
         }
-        Err(_err) => FfiError::BadResponse,
+        Err(err) => MullvadApiError::api_err(&err),
     }
 }
 
@@ -189,10 +248,14 @@ pub extern "C" fn mullvad_api_add_device(
     account_str_ptr: *const u8,
     account_str_len: usize,
     public_key_ptr: *const u8,
-) -> FfiError {
+) -> MullvadApiError {
     let Some(account) = (unsafe { string_from_raw_ptr(account_str_ptr, account_str_len) }) else {
-        return FfiError::StringParsing;
+        return MullvadApiError::with_str(
+            MullvadApiErrorKind::StringParsing,
+            "Failed to parse account number",
+        );
     };
+
     let public_key_bytes: [u8; 32] = unsafe { std::ptr::read(public_key_ptr as *const _) };
     let public_key = public_key_bytes.into();
 
@@ -207,8 +270,8 @@ pub extern "C" fn mullvad_api_add_device(
     });
 
     match result {
-        Ok(_result) => FfiError::NoError,
-        Err(_err) => FfiError::BadResponse,
+        Ok(_result) => MullvadApiError::ok(),
+        Err(err) => MullvadApiError::api_err(&err),
     }
 }
 
@@ -265,39 +328,28 @@ pub extern "C" fn mullvad_api_create_account(
 #[no_mangle]
 pub extern "C" fn mullvad_api_delete_account(
     context: IosMullvadApiClient,
-    account_str_ptr: *mut u8,
-    account_str_len: *mut usize,
+    account_str_ptr: *const u8,
+    account_str_len: usize,
 ) -> MullvadApiError {
     let ctx = unsafe { context.from_raw() };
     let runtime = ctx.tokio_handle();
-    let buffer_len = unsafe { ptr::read(account_str_len) };
+
+    let Some(account) = (unsafe { string_from_raw_ptr(account_str_ptr, account_str_len) }) else {
+        return MullvadApiError::with_str(
+            MullvadApiErrorKind::StringParsing,
+            "Failed to parse account number",
+        );
+    };
 
     let accounts_proxy = ctx.accounts_proxy();
 
     let result: Result<_, rest::Error> = runtime.block_on(async move {
-        let new_account = accounts_proxy.create_account().await?;
+        let new_account = accounts_proxy.delete_account(account).await?;
         Ok(new_account)
     });
 
     match result {
-        Ok(new_account) => {
-            let new_account_bytes = new_account.into_bytes();
-            if new_account_bytes.len() > buffer_len {
-                return MullvadApiError::with_str(
-                    MullvadApiErrorKind::BufferTooSmall,
-                    "Buffer for account number is too small",
-                );
-            }
-            unsafe {
-                ptr::copy(
-                    new_account_bytes.as_ptr(),
-                    account_str_ptr,
-                    new_account_bytes.len(),
-                );
-            }
-
-            MullvadApiError::ok()
-        }
+        Ok(()) => MullvadApiError::ok(),
         Err(err) => MullvadApiError::api_err(&err),
     }
 }
@@ -314,4 +366,9 @@ unsafe fn string_from_raw_ptr(ptr: *const u8, size: usize) -> Option<String> {
     let slice = unsafe { std::slice::from_raw_parts(ptr, size) };
 
     String::from_utf8(slice.to_vec()).ok()
+}
+
+#[no_mangle]
+pub extern "C" fn mullvad_api_error_drop(error: MullvadApiError) {
+    error.drop()
 }
