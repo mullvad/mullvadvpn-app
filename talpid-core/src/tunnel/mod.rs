@@ -137,13 +137,19 @@ impl TunnelMonitor {
             + Clone
             + 'static,
     {
+        #[cfg(target_os = "linux")]
+        let detect_mtu = params.options.mtu.is_none();
+
         #[cfg(any(target_os = "linux", target_os = "windows"))]
         args.runtime
             .block_on(Self::assign_mtu(&args.route_manager, params));
         let config = talpid_wireguard::config::Config::from_parameters(params)?;
+
         let monitor = talpid_wireguard::WireguardMonitor::start(
             config,
             params.options.quantum_resistant,
+            #[cfg(target_os = "linux")]
+            detect_mtu,
             log.as_deref(),
             args,
         )?;
