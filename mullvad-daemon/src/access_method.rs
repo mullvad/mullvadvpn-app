@@ -114,7 +114,8 @@ where
         // Toggle the enabled status if needed
         if !access_method.enabled() {
             access_method.enable();
-            self.update_access_method_inner(&access_method).await?
+            self.update_access_method_inner(access_method.clone())
+                .await?
         }
         // Set `access_method` as the next access method to use
         self.connection_modes_handler
@@ -130,7 +131,8 @@ where
     ) -> Result<AccessMethodSetting, Error> {
         self.settings
             .api_access_methods
-            .find_by_id(&access_method)
+            .iter()
+            .find(|setting| setting.get_id() == access_method)
             .ok_or(Error::NoSuchMethod(access_method))
             .cloned()
     }
@@ -146,14 +148,20 @@ where
         &mut self,
         access_method_update: AccessMethodSetting,
     ) -> Result<(), Error> {
-        self.update_access_method_inner(&access_method_update)
+        self.update_access_method_inner(access_method_update.clone())
             .await?;
 
-        // If the currently active access method is updated, we need to re-set
-        // it after updating the settings.
-        if access_method_update.get_id() == self.get_current_access_method().await?.get_id() {
-            self.use_api_access_method(access_method_update.get_id())
-                .await?;
+        if self.is_in_use(access_method_update.get_id()).await? {
+            if access_method_update.disabled() {
+                // If the currently active access method is updated & disabled
+                // we should select the next access method
+                self.force_api_endpoint_rotation().await?;
+            } else {
+                // If the currently active access method is just updated, we
+                // need to re-set it after updating the settings
+                self.use_api_access_method(access_method_update.get_id())
+                    .await?;
+            }
         }
 
         Ok(())
@@ -167,33 +175,14 @@ where
     /// existing, in-use setting needs to be re-set.
     async fn update_access_method_inner(
         &mut self,
-        access_method_update: &AccessMethodSetting,
+        access_method_update: AccessMethodSetting,
     ) -> Result<(), Error> {
-        let access_method_update_moved = access_method_update.clone();
         let settings_update = |settings: &mut Settings| {
-            if let Some(access_method) = settings
-                .api_access_methods
-                .find_by_id_mut(&access_method_update_moved.get_id())
-            {
-                *access_method = access_method_update_moved;
-                // We have to be a bit careful. If the update is about to
-                // disable the last remaining enabled access method, we would
-                // cause an inconsistent state in the daemon's settings.
-                // Therefore, we have to explicitly safeguard against this by.
-                // In that case, we should re-enable the `Direct` access method.
-                if settings.api_access_methods.collect_enabled().is_empty() {
-                    if let Some(direct) = settings.api_access_methods.get_direct() {
-                        direct.enabled = true;
-                    } else {
-                        // If the `Direct` access method does not exist within the
-                        // settings for some reason, the settings are in an
-                        // inconsistent state. We don't have much choice but to
-                        // reset these settings to their default value.
-                        log::warn!("The built-in access methods can not be found. This might be due to a corrupt settings file");
-                        settings.api_access_methods = access_method::Settings::default();
-                    }
-                }
-            }
+            let target = access_method_update.get_id();
+            settings.api_access_methods.update(
+                |access_method| access_method.get_id() == target,
+                |_| access_method_update,
+            );
         };
 
         self.settings
@@ -203,6 +192,13 @@ where
             .map_err(Error::Settings)?;
 
         Ok(())
+    }
+
+    /// Check if some access method is the same as the currently active one.
+    ///
+    /// This can be useful for invalidating stale states.
+    async fn is_in_use(&self, access_method: access_method::Id) -> Result<bool, Error> {
+        Ok(access_method == self.get_current_access_method().await?.get_id())
     }
 
     /// Return the [`AccessMethodSetting`] which is currently used to access the
@@ -291,19 +287,9 @@ where
                 .notify_settings(self.settings.to_settings());
 
             let handle = self.connection_modes_handler.clone();
-            let new_access_methods = self.settings.api_access_methods.collect_enabled();
+            let new_access_methods = self.settings.api_access_methods.clone();
             tokio::spawn(async move {
-                match handle.update_access_methods(new_access_methods).await {
-                    Ok(_) => (),
-                    Err(api::Error::NoAccessMethods) | Err(_) => {
-                        // `access_methods` was empty! This implies that the user
-                        // disabled all access methods. If we ever get into this
-                        // state, we should default to using the direct access
-                        // method.
-                        let default = access_method::Settings::direct();
-                        handle.update_access_methods(vec![default]).await.expect("Failed to create the data structure responsible for managing access methods");
-                    }
-                }
+                let _ = handle.update_access_methods(new_access_methods).await;
             });
         };
         self

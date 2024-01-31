@@ -709,15 +709,12 @@ where
                 .set_config(new_selector_config(settings));
         });
 
-        let connection_modes = settings.api_access_methods.collect_enabled();
-        let connection_modes_address_cache = api_runtime.address_cache.clone();
-
         let connection_modes_handler = api::AccessModeSelector::spawn(
             cache_dir.clone(),
             relay_selector.clone(),
-            connection_modes,
+            settings.api_access_methods.clone(),
             internal_event_tx.to_specialized_sender(),
-            connection_modes_address_cache.clone(),
+            api_runtime.address_cache.clone().clone(),
         )
         .await
         .map_err(Error::ApiConnectionModeError)?;
