@@ -394,8 +394,7 @@ impl WireguardMonitor {
                         iface_name_clone.clone(),
                         config.mtu as usize,
                     )
-                    .await
-                    .unwrap();
+                    .await;
 
                     if mtu != config.mtu {
                         log::warn!("Lowering MTU from {} to {mtu}", config.mtu);
@@ -985,7 +984,9 @@ async fn get_mtu(
     gateway: std::net::Ipv4Addr,
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
     max_mtu: usize,
-) -> Result<u16> {
+) -> u16 {
+    use std::io;
+
     use surge_ping::{Client, Config, PingIdentifier, PingSequence, SurgeError};
 
     let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
@@ -1002,13 +1003,10 @@ async fn get_mtu(
     const IPV4_HEADER_SIZE: usize = 20;
     const ICMP_HEADER_SIZE: usize = 8;
 
-    use futures::{stream::FuturesOrdered, TryStreamExt};
-    // use futures::StreamExt;
+    use futures::stream::FuturesOrdered;
     use tokio_stream::StreamExt;
-    // use tokio::task::JoinSet;
 
     let mut set = FuturesOrdered::new();
-    // let mut set = JoinSet::new();
     for (i, &mtu) in linspace.iter().enumerate() {
         let mut pinger = client
             .clone()
@@ -1016,16 +1014,15 @@ async fn get_mtu(
             .await;
         pinger.timeout(Duration::from_secs(5)); // TODO: choose a good timeout
         set.push_back(async move {
-            // log::debug!("Sending ICMP ping of total size {mtu}"); // TODO: Make print debug/trace
-            // level before merging
+            log::trace!("Sending ICMP ping of total size {mtu}");
             let payload = vec![0; mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE]; //? Can we avoid allocating here?
 
             pinger.ping(PingSequence(i as u16), &payload).await
         });
     }
 
-    let largest_verified_mtu = set
-        .map_ok(|(packet, _rtt)| {
+    set.map(|res| match res {
+        Ok((packet, _rtt)) => {
             // println!("{:?} {:0.2?}", packet, rtt);
             let surge_ping::IcmpPacket::V4(packet) = packet else {
                 panic!("ICMP ping response was not of IPv4 type");
@@ -1033,19 +1030,17 @@ async fn get_mtu(
             let size = packet.get_size() + IPV4_HEADER_SIZE;
             log::debug!("Got ICMP ping response of total size {size}");
             debug_assert_eq!(size, linspace[packet.get_sequence().0 as usize]);
-            size
-        })
-        .inspect_err(|e| match e {
-            SurgeError::Timeout { seq } => {
-                log::info!("Ping of size {} dropped", linspace[seq.0 as usize])
-            }
-            e => println!("{}", e),
-        })
-        .filter_map(|x| x.ok())
-        .fold(min_mtu, std::cmp::max)
-        .await;
-
-    Ok(largest_verified_mtu as u16)
+            Some(size as u16)
+        }
+        Err(SurgeError::Timeout { seq }) => {
+            log::info!("Ping of size {} dropped", linspace[seq.0 as usize]);
+            None
+        }
+        Err(e) => panic!("Got unexpected ping error: {e}"),
+    })
+    .fold(None, std::cmp::max)
+    .await
+    .expect("MTU detection failed. Every ping within the valid range was dropped.")
 }
 
 #[cfg(target_os = "linux")]
