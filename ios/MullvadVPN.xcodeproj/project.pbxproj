@@ -3091,6 +3091,7 @@
 		58CE5E57224146200008646E = {
 			isa = PBXGroup;
 			children = (
+				01EF6F2D2B6A51B100125696 /* mullvad-api.h */,
 				58F3C0A824A50C0E003E76BE /* Assets */,
 				58ECD29023F178FD004298B6 /* Configurations */,
 				589A454A28DDF59B00565204 /* Shared */,
