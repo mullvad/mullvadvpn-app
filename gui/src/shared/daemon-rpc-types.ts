@@ -533,7 +533,11 @@ export type AccessMethodSetting = NewAccessMethodSetting & {
   id: string;
 };
 
-export type ApiAccessMethodSettings = Array<AccessMethodSetting>;
+export type ApiAccessMethodSettings = {
+  direct: AccessMethodSetting;
+  mullvadBridges: AccessMethodSetting;
+  custom: Array<AccessMethodSetting>;
+};
 
 export function parseSocketAddress(socketAddrStr: string): ISocketAddress {
   const re = new RegExp(/(.+):(\d+)$/);

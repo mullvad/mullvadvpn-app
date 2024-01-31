@@ -28,6 +28,10 @@ const namingConvention = [
     format: ['camelCase'],
   },
   {
+    selector: 'typeProperty',
+    format: ['camelCase'],
+  },
+  {
     selector: 'typeLike',
     format: ['PascalCase'],
   },
@@ -103,6 +107,6 @@ module.exports = {
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
-    'react/prop-types': 'off'
+    'react/prop-types': 'off',
   },
 };

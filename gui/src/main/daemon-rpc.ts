@@ -1163,7 +1163,7 @@ function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefine
   const splitTunnel = settingsObject.splitTunnel ?? { enableExclusions: false, appsList: [] };
   const obfuscationSettings = convertFromObfuscationSettings(settingsObject.obfuscationSettings);
   const customLists = convertFromCustomListSettings(settings.getCustomLists());
-  const apiAccessMethods = convertFromApiAccessMethodSettings(settings.getApiAccessMethods());
+  const apiAccessMethods = convertFromApiAccessMethodSettings(settings.getApiAccessMethods()!);
   return {
     ...settings.toObject(),
     bridgeState,
@@ -1893,14 +1893,25 @@ function convertToSocksAuth(authentication: SocksAuth): grpcTypes.SocksAuth {
 }
 
 function convertFromApiAccessMethodSettings(
-  accessMethods?: grpcTypes.ApiAccessMethodSettings,
+  accessMethods: grpcTypes.ApiAccessMethodSettings,
 ): ApiAccessMethodSettings {
-  return (
-    accessMethods
-      ?.getAccessMethodSettingsList()
-      .filter((setting) => setting.hasId() && setting.hasAccessMethod())
-      .map(convertFromApiAccessMethodSetting) ?? []
+  const direct = convertFromApiAccessMethodSetting(
+    ensureExists(accessMethods.getDirect(), "no 'Direct' access method was found"),
   );
+  const bridges = convertFromApiAccessMethodSetting(
+    ensureExists(accessMethods.getMullvadBridges(), "no 'Mullvad Bridges' access method was found"),
+  );
+  const custom =
+    accessMethods
+      .getCustomList()
+      .filter((setting) => setting.hasId() && setting.hasAccessMethod())
+      .map(convertFromApiAccessMethodSetting) ?? [];
+
+  return {
+    direct,
+    mullvadBridges: bridges,
+    custom,
+  };
 }
 
 function convertFromApiAccessMethodSetting(
