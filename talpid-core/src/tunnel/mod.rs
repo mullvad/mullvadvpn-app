@@ -27,11 +27,6 @@ pub enum Error {
     #[error(display = "Can't enable IPv6 on tunnel interface because IPv6 is disabled")]
     EnableIpv6Error,
 
-    /// Failure in Windows syscall.
-    #[cfg(windows)]
-    #[error(display = "Failure in Windows syscall")]
-    WinnetError(#[error(source)] talpid_routing::Error),
-
     /// Running on an operating system which is not supported yet.
     #[error(display = "Tunnel type not supported on this operating system")]
     UnsupportedPlatform,
@@ -56,6 +51,28 @@ pub enum Error {
     /// Could not detect and assign the correct mtu
     #[error(display = "Could not detect and assign a correct MTU for the Wireguard tunnel")]
     AssignMtuError,
+}
+
+impl Error {
+    /// Return whether retrying the operation that caused this error is likely to succeed.
+    pub fn is_recoverable(&self) -> bool {
+        match self {
+            Error::WireguardTunnelMonitoringError(error) => error.is_recoverable(),
+            #[cfg(not(target_os = "android"))]
+            Error::OpenVpnTunnelMonitoringError(error) => error.is_recoverable(),
+            _ => false,
+        }
+    }
+
+    /// Get the inner tunnel device error, if there is one
+    #[cfg(target_os = "windows")]
+    pub fn get_tunnel_device_error(&self) -> Option<&std::io::Error> {
+        match self {
+            Error::WireguardTunnelMonitoringError(error) => error.get_tunnel_device_error(),
+            Error::OpenVpnTunnelMonitoringError(error) => error.get_tunnel_device_error(),
+            _ => None,
+        }
+    }
 }
 
 /// Abstraction for monitoring a generic VPN tunnel.

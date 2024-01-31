@@ -52,6 +52,25 @@ pub enum Error {
     RouteManagerDown,
 }
 
+impl Error {
+    /// Return whether retrying the operation that caused this error is likely to succeed.
+    #[cfg(target_os = "macos")]
+    pub fn is_recoverable(&self) -> bool {
+        // If the default route disappears while connecting but before it is caught by the offline
+        // monitor, then the gateway will be unreachable. In this case, just retry.
+        matches!(
+            self,
+            Error::PlatformError(PlatformError::AddRoute(imp::RouteError::Unreachable,))
+        )
+    }
+
+    /// Return whether retrying the operation that caused this error is likely to succeed.
+    #[cfg(not(target_os = "macos"))]
+    pub fn is_recoverable(&self) -> bool {
+        false
+    }
+}
+
 /// Handle to a route manager.
 #[derive(Clone)]
 pub struct RouteManagerHandle {

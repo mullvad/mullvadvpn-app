@@ -89,6 +89,10 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                             talpid_tunnel::ErrorStateCause::StartTunnelError => {
                                 i32::from(Cause::StartTunnelError)
                             }
+                            #[cfg(target_os = "windows")]
+                            talpid_tunnel::ErrorStateCause::CreateTunnelDevice { os_error: _ } => {
+                                i32::from(Cause::CreateTunnelDevice)
+                            }
                             talpid_tunnel::ErrorStateCause::TunnelParameterError(_) => {
                                 i32::from(Cause::TunnelParameterError)
                             }
@@ -142,6 +146,15 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                             } else {
                                 None
                             },
+                        #[cfg(not(target_os = "windows"))]
+                        create_tunnel_error: None,
+                        #[cfg(target_os = "windows")]
+                        create_tunnel_error: match error_state.cause() {
+                            talpid_tunnel::ErrorStateCause::CreateTunnelDevice { os_error } => {
+                                *os_error
+                            }
+                            _ => None,
+                        },
                     }),
                 })
             }
@@ -254,8 +267,12 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                         auth_failed_error,
                         parameter_error,
                         policy_error,
+                        create_tunnel_error,
                     }),
             })) => {
+                #[cfg(not(target_os = "windows"))]
+                let _ = create_tunnel_error;
+
                 let cause = match proto::error_state::Cause::try_from(cause) {
                     Ok(proto::error_state::Cause::AuthFailed) => {
                         let auth_failed = try_auth_failed_from_i32(auth_failed_error)?;
@@ -285,6 +302,12 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                     }
                     Ok(proto::error_state::Cause::StartTunnelError) => {
                         talpid_tunnel::ErrorStateCause::StartTunnelError
+                    }
+                    #[cfg(target_os = "windows")]
+                    Ok(proto::error_state::Cause::CreateTunnelDevice) => {
+                        talpid_tunnel::ErrorStateCause::CreateTunnelDevice {
+                            os_error: create_tunnel_error,
+                        }
                     }
                     Ok(proto::error_state::Cause::TunnelParameterError) => {
                         let parameter_error = match proto::error_state::GenerationError::try_from(parameter_error) {
