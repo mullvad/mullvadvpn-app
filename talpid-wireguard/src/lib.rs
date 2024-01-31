@@ -262,6 +262,7 @@ impl WireguardMonitor {
     >(
         mut config: Config,
         psk_negotiation: bool,
+        #[cfg(target_os = "linux")] detect_mtu: bool,
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
@@ -381,7 +382,7 @@ impl WireguardMonitor {
                 .await?;
             }
             #[cfg(target_os = "linux")]
-            {
+            if detect_mtu {
                 let iface_name_clone = iface_name.clone();
                 tokio::task::spawn(async move {
                     // tokio::time::sleep(Duration::from_secs(10)).await; // TODO: Delete this
@@ -391,14 +392,13 @@ impl WireguardMonitor {
                         gateway,
                         #[cfg(any(target_os = "macos", target_os = "linux"))]
                         iface_name_clone.clone(),
-                        dbg!(config.mtu as usize),
+                        config.mtu as usize,
                     )
                     .await
                     .unwrap();
 
-                    #[cfg(target_os = "linux")]
-                    if mtu != config.mtu {
-                        log::info!("Updating MTU to {mtu}");
+                    if dbg!(mtu) != config.mtu {
+                        log::info!("Lowering MTU from {} to {mtu}", config.mtu);
                         if let Err(e) = unix::set_mtu(&iface_name_clone, mtu) {
                             log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
                         };
