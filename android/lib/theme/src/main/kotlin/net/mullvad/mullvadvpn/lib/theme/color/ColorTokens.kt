@@ -38,7 +38,8 @@ internal val md_theme_dark_primaryContainer = Color(0xFF1C344E) // Sub-container
 internal val md_theme_dark_onPrimaryContainer = Color(0xFFFFFFFF) // MullvadWhite
 internal val md_theme_dark_secondary = Color(0xFF44AD4D) // MullvadGreen
 internal val md_theme_dark_onSecondary = Color(0xFFFFFFFF) // MullvadWhite
-internal val md_theme_dark_secondaryContainer = Color(0xFF47AC4C) // Text in connection fragment
+internal val md_theme_dark_secondaryContainer =
+    Color(0xFF1c344e) // MullvadBlue Alpha 20 composite over MullvadDarkBlue
 internal val md_theme_dark_onSecondaryContainer = Color(0xFFD9EEDB) // Text in titlebar
 internal val md_theme_dark_tertiary = Color(0xFF99454F) // Disconnect button
 internal val md_theme_dark_onTertiary = Color(0xFFFFFFFF) // MullvadWhite/Text on disconnect button
