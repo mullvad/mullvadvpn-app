@@ -423,6 +423,15 @@ impl AccessModeSelector {
     }
 
     fn update_access_methods(&mut self, access_methods: Settings) {
+        let removed_active = !access_methods
+            .iter()
+            .any(|access_method| access_method.get_id() == self.current.setting.get_id());
+        if removed_active {
+            // A new access mehtod will suddenly have the same index as the one
+            // we are removing, but we want it to still be a candidate. A minor
+            // hack to achieve this is to simply decrement the current index.
+            self.index = self.index.saturating_sub(1);
+        }
         self.access_method_settings = access_methods;
     }
 
