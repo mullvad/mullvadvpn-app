@@ -423,6 +423,13 @@ impl AccessModeSelector {
     }
 
     fn update_access_methods(&mut self, access_methods: Settings) {
+        // If the currently in-use access method is removed, decrement `self.index` by one.
+        if !access_methods
+            .iter()
+            .any(|access_method| access_method.get_id() == self.current.setting.get_id())
+        {
+            self.index = self.index.saturating_sub(1);
+        }
         self.access_method_settings = access_methods;
     }
 
