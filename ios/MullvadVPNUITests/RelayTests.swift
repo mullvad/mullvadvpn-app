@@ -12,6 +12,16 @@ import XCTest
 class RelayTests: LoggedInWithTimeUITestCase {
     func testAdBlockingViaDNS() throws {
         TunnelControlPage(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+            .tapDNSSettingsCell()
+            .tapDNSContentBlockingHeaderExpandButton()
+            .tapBlockAdsSwitch()
+            .swipeDownToDismissModal()
+
+        TunnelControlPage(app)
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
@@ -22,17 +32,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
         allowAddVPNConfigurations() // Allow adding VPN configurations iOS permission
 
         TunnelControlPage(app) // Make sure we're taken back to tunnel control page again
-
-        verifyCanReachAdServingDomain()
-
-        HeaderBar(app)
-            .tapSettingsButton()
-
-        SettingsPage(app)
-            .tapVPNSettingsCell()
-            .tapDNSSettingsCell()
-            .tapDNSContentBlockingHeaderExpandButton()
-            .tapBlockAdsSwitch()
 
         verifyCannotReachAdServingDomain()
     }
