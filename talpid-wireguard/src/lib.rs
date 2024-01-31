@@ -387,7 +387,7 @@ impl WireguardMonitor {
                 tokio::task::spawn(async move {
                     // tokio::time::sleep(Duration::from_secs(10)).await; // TODO: Delete this
                     // before merging
-                    log::warn!("MTU detection");
+                    log::debug!("Starting MTU detection");
                     let mtu = get_mtu(
                         gateway,
                         #[cfg(any(target_os = "macos", target_os = "linux"))]
@@ -397,11 +397,13 @@ impl WireguardMonitor {
                     .await
                     .unwrap();
 
-                    if dbg!(mtu) != config.mtu {
-                        log::info!("Lowering MTU from {} to {mtu}", config.mtu);
+                    if mtu != config.mtu {
+                        log::warn!("Lowering MTU from {} to {mtu}", config.mtu);
                         if let Err(e) = unix::set_mtu(&iface_name_clone, mtu) {
                             log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
                         };
+                    } else {
+                        log::info!("MTU {mtu} verified to not drop packets");
                     }
                 });
             }
@@ -1000,51 +1002,48 @@ async fn get_mtu(
     const IPV4_HEADER_SIZE: usize = 20;
     const ICMP_HEADER_SIZE: usize = 8;
 
-    let mut largest_verified_mtu = min_mtu;
-    use tokio::task::JoinSet;
+    use futures::{stream::FuturesOrdered, TryStreamExt};
+    // use futures::StreamExt;
+    use tokio_stream::StreamExt;
+    // use tokio::task::JoinSet;
 
-    let mut set = JoinSet::new();
+    let mut set = FuturesOrdered::new();
+    // let mut set = JoinSet::new();
     for (i, &mtu) in linspace.iter().enumerate() {
         let mut pinger = client
             .clone()
             .pinger(IpAddr::V4(gateway), PingIdentifier(111)) //? Is a static identified ok, or should we randomize?
             .await;
         pinger.timeout(Duration::from_secs(5)); // TODO: choose a good timeout
-        let fut = async move {
-            log::warn!("Sending ICMP ping of total size {mtu}"); // TODO: Make print debug/trace level before merging
+        set.push_back(async move {
+            // log::debug!("Sending ICMP ping of total size {mtu}"); // TODO: Make print debug/trace
+            // level before merging
             let payload = vec![0; mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE]; //? Can we avoid allocating here?
 
             pinger.ping(PingSequence(i as u16), &payload).await
-        };
-        set.spawn(fut);
+        });
     }
 
-    while let Some(res) = set.join_next().await {
-        let ping = res.expect("Join error");
-        match ping {
-            Ok((packet, _rtt)) => {
-                // println!("{:?} {:0.2?}", packet, rtt);
-                let surge_ping::IcmpPacket::V4(packet) = packet else {
-                    panic!();
-                };
-                let size = packet.get_size() + IPV4_HEADER_SIZE;
-                debug_assert_eq!(size, linspace[packet.get_sequence().0 as usize]);
-                if size > largest_verified_mtu {
-                    largest_verified_mtu = size;
-                }
-                log::warn!("Got ICMP ping response of total size {size}") // TODO: Make print
-                                                                          // debug/trace level
-                                                                          // before merging
+    let largest_verified_mtu = set
+        .map_ok(|(packet, _rtt)| {
+            // println!("{:?} {:0.2?}", packet, rtt);
+            let surge_ping::IcmpPacket::V4(packet) = packet else {
+                panic!("ICMP ping response was not of IPv4 type");
+            };
+            let size = packet.get_size() + IPV4_HEADER_SIZE;
+            log::debug!("Got ICMP ping response of total size {size}");
+            debug_assert_eq!(size, linspace[packet.get_sequence().0 as usize]);
+            size
+        })
+        .inspect_err(|e| match e {
+            SurgeError::Timeout { seq } => {
+                log::info!("Ping of size {} dropped", linspace[seq.0 as usize])
             }
-            Err(SurgeError::Timeout { seq }) => {
-                log::info!("Ping of size {} dropped", linspace[seq.0 as usize]) // TODO: lower log
-                                                                                // level
-            }
-            Err(e) => println!("{}", e),
-        };
-    }
-
-    log::debug!("MTU {largest_verified_mtu} verified to not drop packets");
+            e => println!("{}", e),
+        })
+        .filter_map(|x| x.ok())
+        .fold(min_mtu, std::cmp::max)
+        .await;
 
     Ok(largest_verified_mtu as u16)
 }
