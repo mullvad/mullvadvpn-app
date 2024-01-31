@@ -494,7 +494,7 @@ impl AccountsProxy {
         }
     }
 
-    pub fn create_account(&mut self) -> impl Future<Output = Result<AccountToken, rest::Error>> {
+    pub fn create_account(&self) -> impl Future<Output = Result<AccountToken, rest::Error>> {
         #[derive(serde::Deserialize)]
         struct AccountCreationResponse {
             number: AccountToken,
@@ -514,7 +514,7 @@ impl AccountsProxy {
     }
 
     pub fn submit_voucher(
-        &mut self,
+        &self,
         account: AccountToken,
         voucher_code: String,
     ) -> impl Future<Output = Result<VoucherSubmission, rest::Error>> {
