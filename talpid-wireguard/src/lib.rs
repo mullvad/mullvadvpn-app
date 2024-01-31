@@ -952,7 +952,7 @@ async fn get_mtu(
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
     max_mtu: usize,
 ) -> Result<u16> {
-    use surge_ping::{Client, Config, PingIdentifier, PingSequence};
+    use surge_ping::{Client, Config, PingIdentifier, PingSequence, SurgeError};
 
     let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
     #[cfg(any(target_os = "macos", target_os = "linux"))]
@@ -982,13 +982,13 @@ async fn get_mtu(
             log::warn!("Sending ICMP ping of total size {mtu}"); // TODO: Make print debug/trace level before merging
             let payload = vec![0; mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE]; //? Can we avoid allocating here?
 
-            (mtu, pinger.ping(PingSequence(i as u16), &payload).await)
+            pinger.ping(PingSequence(i as u16), &payload).await
         };
         set.spawn(fut);
     }
 
     while let Some(res) = set.join_next().await {
-        let (mtu, ping) = res.expect("Join error");
+        let ping = res.expect("Join error");
         match ping {
             Ok((packet, _rtt)) => {
                 // println!("{:?} {:0.2?}", packet, rtt);
@@ -996,12 +996,17 @@ async fn get_mtu(
                     panic!();
                 };
                 let size = packet.get_size() + IPV4_HEADER_SIZE;
-                debug_assert_eq!(size, mtu);
+                debug_assert_eq!(size, linspace[packet.get_sequence().0 as usize]);
                 if size > largest_verified_mtu {
                     largest_verified_mtu = size;
                 }
-                log::warn!("Got response of size {size}") // TODO: Make print debug/trace level
-                                                          // before merging
+                log::warn!("Got ICMP ping response of total size {size}") // TODO: Make print
+                                                                          // debug/trace level
+                                                                          // before merging
+            }
+            Err(SurgeError::Timeout { seq }) => {
+                log::info!("Ping of size {} dropped", linspace[seq.0 as usize]) // TODO: lower log
+                                                                                // level
             }
             Err(e) => println!("{}", e),
         };
