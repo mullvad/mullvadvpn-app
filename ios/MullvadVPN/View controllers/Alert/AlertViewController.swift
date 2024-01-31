@@ -108,10 +108,8 @@ class AlertViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.accessibilityIdentifier = presentation.accessibilityIdentifier ?? .alertContainerView
         view.backgroundColor = .black.withAlphaComponent(0.5)
-
-        let accessibilityIdentifier = presentation.accessibilityIdentifier ?? .alertContainerView
-        view.accessibilityIdentifier = accessibilityIdentifier
 
         setContent()
         setConstraints()
