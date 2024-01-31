@@ -14,9 +14,6 @@ pub enum Error {
     /// Can not add access method
     #[error(display = "Cannot add custom access method")]
     Add,
-    /// Can not remove built-in access method
-    #[error(display = "Cannot remove built-in access method")]
-    RemoveBuiltIn,
     /// Can not find access method
     #[error(display = "Cannot find custom access method {}", _0)]
     NoSuchMethod(access_method::Id),
@@ -30,6 +27,9 @@ pub enum Error {
     /// A REST request failed
     #[error(display = "Reset request failed")]
     Rest(#[error(source)] rest::Error),
+    /// Something went wrong in the [`access_method`](mod@access_method) module.
+    #[error(display = "Access method error")]
+    AccessMethod(#[error(source)] access_method::Error),
     /// Access methods settings error
     #[error(display = "Settings error")]
     Settings(#[error(source)] settings::Error),
@@ -68,29 +68,29 @@ where
         &mut self,
         access_method: access_method::Id,
     ) -> Result<(), Error> {
-        match self.settings.api_access_methods.find_by_id(&access_method) {
-            // Make sure that we are not trying to remove a built-in API access
-            // method
-            Some(api_access_method) if api_access_method.is_builtin() => {
-                return Err(Error::RemoveBuiltIn)
-            }
-            // If the currently active access method is removed, a new access
-            // method should trigger
-            Some(api_access_method)
-                if api_access_method.get_id()
-                    == self.get_current_access_method().await?.get_id() =>
-            {
-                self.force_api_endpoint_rotation().await?;
-            }
-            _ => (),
+        let did_change = self
+            .settings
+            .try_update(|settings| -> Result<(), Error> {
+                settings.api_access_methods.remove(&access_method)?;
+                Ok(())
+            })
+            .await
+            .map_err(Error::Settings)?;
+
+        self.notify_on_change(did_change);
+        // If the currently active access method is removed, a new access
+        // method should be selected.
+        //
+        // Notice the ordering here: It is important that the current method is
+        // removed before we pick a new access method. The `remove` function
+        // will ensure that atleast one access method is enabled after the
+        // removal. If the currently active access method is removed, some other
+        // method is enabled before we pick the next access method to use.
+        if self.is_in_use(access_method.clone()).await? {
+            self.force_api_endpoint_rotation().await?;
         }
 
-        self.settings
-            .update(|settings| settings.api_access_methods.remove(&access_method))
-            .await
-            .map(|did_change| self.notify_on_change(did_change))
-            .map(|_| ())
-            .map_err(Error::Settings)
+        Ok(())
     }
 
     /// Select an [`AccessMethodSetting`] as the current API access method.
