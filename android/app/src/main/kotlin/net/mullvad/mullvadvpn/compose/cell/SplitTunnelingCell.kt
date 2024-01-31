@@ -3,20 +3,15 @@ package net.mullvad.mullvadvpn.compose.cell
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.compositeOver
@@ -27,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha40
@@ -36,7 +32,7 @@ import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
 @Composable
 private fun PreviewTunnelingCell() {
     AppTheme {
-        Column(
+        SpacedColumn(
             modifier =
                 Modifier.background(color = MaterialTheme.colorScheme.background).padding(20.dp)
         ) {
@@ -52,6 +48,10 @@ fun SplitTunnelingCell(
     packageName: String?,
     isSelected: Boolean,
     modifier: Modifier = Modifier,
+    backgroundColor: Color =
+        MaterialTheme.colorScheme.primary
+            .copy(alpha = Alpha40)
+            .compositeOver(MaterialTheme.colorScheme.background),
     onResolveIcon: (String) -> Bitmap? = { null },
     onCellClicked: () -> Unit = {}
 ) {
@@ -62,55 +62,49 @@ fun SplitTunnelingCell(
             icon = bitmap?.asImageBitmap()
         }
     }
-    Row(
-        modifier =
-            modifier
-                .wrapContentHeight()
-                .defaultMinSize(minHeight = Dimens.listItemHeightExtra)
-                .fillMaxWidth()
-                .padding(bottom = Dimens.listItemDivider)
-                .background(
-                    MaterialTheme.colorScheme.primary
+    BaseCell(
+        iconView = {
+            Image(
+                painter =
+                    icon?.let { iconImage -> BitmapPainter(iconImage) }
+                        ?: painterResource(id = R.drawable.ic_icons_missing),
+                contentDescription = null,
+                modifier =
+                    Modifier.align(Alignment.CenterVertically).size(size = Dimens.listIconSize)
+            )
+        },
+        title = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.listItemText,
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier =
+                    Modifier.weight(1f)
+                        .padding(horizontal = Dimens.mediumPadding)
+                        .align(Alignment.CenterVertically)
+            )
+        },
+        bodyView = {
+            Icon(
+                painter =
+                    painterResource(
+                        id =
+                            if (isSelected) {
+                                R.drawable.ic_icons_remove
+                            } else {
+                                R.drawable.ic_icons_add
+                            }
+                    ),
+                contentDescription = null,
+                tint =
+                    MaterialTheme.colorScheme.onBackground
                         .copy(alpha = Alpha40)
-                        .compositeOver(MaterialTheme.colorScheme.background)
-                )
-                .clickable(onClick = onCellClicked)
-    ) {
-        Image(
-            painter =
-                icon?.let { iconImage -> BitmapPainter(iconImage) }
-                    ?: painterResource(id = R.drawable.ic_icons_missing),
-            contentDescription = null,
-            modifier =
-                Modifier.padding(start = Dimens.cellStartPadding)
-                    .align(Alignment.CenterVertically)
-                    .size(width = Dimens.listIconSize, height = Dimens.listIconSize)
-        )
-        Text(
-            text = title,
-            style = MaterialTheme.typography.listItemText,
-            color = MaterialTheme.colorScheme.onPrimary,
-            modifier =
-                Modifier.weight(1f)
-                    .padding(horizontal = Dimens.mediumPadding, vertical = Dimens.smallPadding)
-                    .align(Alignment.CenterVertically)
-        )
-        Icon(
-            painter =
-                painterResource(
-                    id =
-                        if (isSelected) {
-                            R.drawable.ic_icons_remove
-                        } else {
-                            R.drawable.ic_icons_add
-                        }
-                ),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onBackground.copy(alpha = Alpha40),
-            modifier =
-                Modifier.padding(end = Dimens.cellStartPadding)
-                    .align(Alignment.CenterVertically)
-                    .padding(horizontal = Dimens.loadingSpinnerPadding)
-        )
-    }
+                        .compositeOver(backgroundColor),
+                modifier = Modifier.size(size = Dimens.addIconSize)
+            )
+        },
+        onCellClicked = onCellClicked,
+        background = backgroundColor,
+        modifier = modifier
+    )
 }

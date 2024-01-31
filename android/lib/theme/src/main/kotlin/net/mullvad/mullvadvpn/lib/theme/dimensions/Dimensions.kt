@@ -6,6 +6,7 @@ import androidx.compose.ui.unit.dp
 data class Dimensions(
     val accountRowMinHeight: Dp = 48.dp,
     val accountRowSpacing: Dp = 24.dp,
+    val addIconSize: Dp = 24.dp,
     val backButtonSideMargin: Dp = 30.dp,
     val bigIconSize: Dp = 44.dp,
     val buttonHeight: Dp = 44.dp,
