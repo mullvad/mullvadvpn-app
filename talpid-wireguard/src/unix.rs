@@ -4,6 +4,11 @@ use socket2::Domain;
 use talpid_types::ErrorExt;
 
 pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
+    debug_assert_ne!(
+        interface_name, "eth0",
+        "Should be name of mullvad tunnel interface, e.g. 'wg0-mullvad'"
+    );
+
     let sock = socket2::Socket::new(
         Domain::IPV4,
         socket2::Type::STREAM,
