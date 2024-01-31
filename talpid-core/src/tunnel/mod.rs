@@ -165,8 +165,8 @@ impl TunnelMonitor {
         let default_mtu = DEFAULT_MTU;
 
         #[cfg(any(target_os = "linux", target_os = "windows"))]
-        // Detects the MTU of the device, calculates what the virtual device MTU should be use that
-        // as the default mtu
+        // Detects the MTU of the device and sets the default tunnel MTU to that minus headers and
+        // the safety margin
         let default_mtu = args
             .runtime
             .block_on(
@@ -192,8 +192,8 @@ impl TunnelMonitor {
             monitor: InternalTunnelMonitor::Wireguard(monitor),
         })
     }
-    /// Calculates the MTU in the tunnel parameters based on the inputted device MTU and some
-    /// calculations. `peer_mtu` is the detected device MTU.
+
+    /// Calculates and appropriate tunnel MTU based on the given peer MTU minus header sizes
     #[cfg(any(target_os = "linux", target_os = "windows"))]
     fn clamp_mtu(params: &wireguard_types::TunnelParameters, peer_mtu: u16) -> u16 {
         // Some users experience fragmentation issues even when we take the interface MTU and
