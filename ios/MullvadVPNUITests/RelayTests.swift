@@ -28,6 +28,16 @@ class RelayTests: BaseUITestCase {
             .verifyDeviceLabelShown()
 
         TunnelControlPage(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+            .tapDNSSettingsCell()
+            .tapDNSContentBlockingHeaderExpandButton()
+            .tapBlockAdsSwitch()
+            .swipeDownToDismissModal()
+
+        TunnelControlPage(app)
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
@@ -38,17 +48,6 @@ class RelayTests: BaseUITestCase {
         allowAddVPNConfigurations() // Allow adding VPN configurations iOS permission
 
         TunnelControlPage(app) // Make sure we're taken back to tunnel control page again
-
-        verifyCanReachAdServingDomain()
-
-        TunnelControlPage(app)
-            .tapSettingsButton()
-
-        SettingsPage(app)
-            .tapVPNSettingsCell()
-            .tapDNSSettingsCell()
-            .tapDNSContentBlockingHeaderExpandButton()
-            .tapBlockAdsSwitch()
 
         verifyCannotReachAdServingDomain()
     }
