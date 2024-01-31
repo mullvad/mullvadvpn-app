@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,7 +26,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.applist.AppData
-import net.mullvad.mullvadvpn.compose.cell.BaseCell
+import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SplitTunnelingCell
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
@@ -37,6 +36,7 @@ import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.constant.SplitTunnelingContentKey
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
+import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -146,19 +146,13 @@ fun SplitTunnelingScreen(
                             key = SplitTunnelingContentKey.EXCLUDED_APPLICATIONS,
                             contentType = ContentType.HEADER
                         ) {
-                            BaseCell(
-                                title = {
-                                    Text(
-                                        text = stringResource(id = R.string.exclude_applications),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.onPrimary
-                                    )
-                                },
-                                bodyView = {},
+                            HeaderCell(
+                                modifier = Modifier.animateItemPlacement(),
+                                text = stringResource(id = R.string.exclude_applications),
                                 background = MaterialTheme.colorScheme.primary,
                             )
                         }
-                        itemsIndexed(
+                        itemsIndexedWithDivider(
                             items = uiState.excludedApps,
                             key = { _, listItem -> listItem.packageName },
                             contentType = { _, _ -> ContentType.ITEM }
@@ -204,20 +198,13 @@ fun SplitTunnelingScreen(
                         key = SplitTunnelingContentKey.INCLUDED_APPLICATIONS,
                         contentType = ContentType.HEADER
                     ) {
-                        BaseCell(
+                        HeaderCell(
                             modifier = Modifier.animateItemPlacement(),
-                            title = {
-                                Text(
-                                    text = stringResource(id = R.string.all_applications),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                            },
-                            bodyView = {},
+                            text = stringResource(id = R.string.all_applications),
                             background = MaterialTheme.colorScheme.primary,
                         )
                     }
-                    itemsIndexed(
+                    itemsIndexedWithDivider(
                         items = uiState.includedApps,
                         key = { _, listItem -> listItem.packageName },
                         contentType = { _, _ -> ContentType.ITEM }
