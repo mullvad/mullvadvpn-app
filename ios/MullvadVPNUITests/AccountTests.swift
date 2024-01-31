@@ -72,4 +72,21 @@ class AccountTests: LoggedOutUITestCase {
             .verifyFailIconShown()
             .waitForPageToBeShown() // Verify still on login page
     }
+
+    func testLogOut() throws {
+        let newAccountNumber = try MullvadAPIWrapper().createAccount()
+        login(accountNumber: newAccountNumber)
+        XCTAssertEqual(try MullvadAPIWrapper().getDevices(newAccountNumber).count, 1)
+
+        HeaderBar(app)
+            .tapAccountButton()
+
+        AccountPage(app)
+            .tapLogOutButton()
+
+        LoginPage(app)
+
+        XCTAssertEqual(try MullvadAPIWrapper().getDevices(newAccountNumber).count, 0)
+        try MullvadAPIWrapper().deleteAccount(newAccountNumber)
+    }
 }
