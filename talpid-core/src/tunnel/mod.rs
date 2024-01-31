@@ -137,14 +137,30 @@ impl TunnelMonitor {
             + Clone
             + 'static,
     {
+        let default_mtu = if cfg!(target_os = "android") {
+            // Set the MTU to the lowest possible whilst still allowing for IPv6 to help
+            // with wireless carriers that do a lot of encapsulation.
+            1280
+        } else {
+            1380
+        };
+
+        #[cfg(any(target_os = "linux", target_os = "windows"))]
+        // Detects the MTU of the device, calculates what the virtual device MTU should be use that
+        // as the default mtu
+        let default_mtu = args
+            .runtime
+            .block_on(
+                args.route_manager
+                    .get_mtu_for_route(params.connection.peer.endpoint.ip()),
+            )
+            .map(|mtu| Self::clamp_mtu(params, mtu))
+            .unwrap_or(default_mtu);
+
         #[cfg(target_os = "linux")]
         let detect_mtu = params.options.mtu.is_none();
 
-        #[cfg(any(target_os = "linux", target_os = "windows"))]
-        args.runtime
-            .block_on(Self::assign_mtu(&args.route_manager, params));
-        let config = talpid_wireguard::config::Config::from_parameters(params)?;
-
+        let config = talpid_wireguard::config::Config::from_parameters(params, default_mtu)?;
         let monitor = talpid_wireguard::WireguardMonitor::start(
             config,
             params.options.quantum_resistant,
@@ -157,11 +173,10 @@ impl TunnelMonitor {
             monitor: InternalTunnelMonitor::Wireguard(monitor),
         })
     }
-
-    /// Set the MTU in the tunnel parameters based on the inputted device MTU and some
+    /// Calculates the MTU in the tunnel parameters based on the inputted device MTU and some
     /// calculations. `peer_mtu` is the detected device MTU.
     #[cfg(any(target_os = "linux", target_os = "windows"))]
-    fn set_mtu(params: &mut wireguard_types::TunnelParameters, peer_mtu: u16) {
+    fn clamp_mtu(params: &wireguard_types::TunnelParameters, peer_mtu: u16) -> u16 {
         // Some users experience fragmentation issues even when we take the interface MTU and
         // subtract the header sizes. This is likely due to some program that they use which does
         // not change the interface MTU but adds its own header onto the outgoing packets. For this
@@ -185,31 +200,10 @@ impl TunnelMonitor {
             false => MIN_IPV4_MTU,
             true => MIN_IPV6_MTU,
         };
-        let tunnel_mtu = peer_mtu
-            .saturating_sub(total_header_size)
-            .clamp(min_mtu, max_peer_mtu);
-        params.options.mtu = Some(tunnel_mtu);
-    }
 
-    /// Detects the MTU of the device, calculates what the virtual device MTU should be and sets
-    /// that in the tunnel parameters.
-    #[cfg(any(target_os = "linux", target_os = "windows"))]
-    async fn assign_mtu(
-        route_manager: &RouteManagerHandle,
-        params: &mut wireguard_types::TunnelParameters,
-    ) {
-        // Only calculate the mtu automatically if the user has not set any
-        if params.options.mtu.is_none() {
-            match route_manager
-                .get_mtu_for_route(params.connection.peer.endpoint.ip())
-                .await
-            {
-                Ok(mtu) => Self::set_mtu(params, mtu),
-                Err(e) => {
-                    log::error!("Could not get the MTU for route {}", e);
-                }
-            }
-        }
+        peer_mtu
+            .saturating_sub(total_header_size)
+            .clamp(min_mtu, max_peer_mtu)
     }
 
     #[cfg(not(target_os = "android"))]
