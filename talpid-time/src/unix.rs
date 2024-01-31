@@ -3,7 +3,7 @@ use std::{mem::MaybeUninit, time::Duration};
 
 const NSEC_PER_SEC: c_long = 1_000_000_000;
 
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", target_os = "ios"))]
 const CLOCK_ID: clockid_t = libc::CLOCK_MONOTONIC;
 
 #[cfg(any(target_os = "linux", target_os = "android"))]
