@@ -3071,6 +3071,7 @@
 		58CE5E57224146200008646E = {
 			isa = PBXGroup;
 			children = (
+				01EF6F2D2B6A51B100125696 /* mullvad-api.h */,
 				58F3C0A824A50C0E003E76BE /* Assets */,
 				58ECD29023F178FD004298B6 /* Configurations */,
 				589A454A28DDF59B00565204 /* Shared */,
@@ -3513,6 +3514,8 @@
 				850201DA2B503D7700EF8C96 /* RelayTests.swift */,
 				8518F6392B601910009EB113 /* Test base classes */,
 				85557B152B5ABBBE00795FE1 /* XCUIElementQuery+Extensions.swift */,
+				01EF6F292B6A473900125696 /* MullvadApi.swift */,
+				01EF6F352B6A5AEF00125696 /* BridgingHeader.h */,
 			);
 			path = MullvadVPNUITests;
 			sourceTree = "<group>";
