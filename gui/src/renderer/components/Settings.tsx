@@ -149,7 +149,7 @@ function ApiAccessMethodsButton() {
       <Cell.Label>
         {
           // TRANSLATORS: Navigation button to the 'API access methods' view
-          messages.pgettext('settings-view', 'API access methods')
+          messages.pgettext('settings-view', 'API access')
         }
       </Cell.Label>
     </Cell.CellNavigationButton>
