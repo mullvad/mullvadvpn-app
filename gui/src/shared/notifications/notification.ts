@@ -72,6 +72,7 @@ export * from './block-when-disconnected';
 export * from './connected';
 export * from './connecting';
 export * from './disconnected';
+export * from './daemon-disconnected';
 export * from './error';
 export * from './inconsistent-version';
 export * from './reconnecting';

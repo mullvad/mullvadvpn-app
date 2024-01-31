@@ -58,6 +58,8 @@ Line wrap the file at 100 chars.                                              Th
 - Upgrade the background map to a new WebGL 3D map. This should both look better and be more
   performant.
 - Update Electron from 26.3.0 to 28.1.3.
+- Improve the "Connecting to system service"-view with information about the situation and
+  troubleshooting tips.
 
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.

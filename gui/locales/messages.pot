@@ -151,6 +151,9 @@ msgstr ""
 msgid "IPv6"
 msgstr ""
 
+msgid "Learn more"
+msgstr ""
+
 msgid "less than a day"
 msgstr ""
 
@@ -836,7 +839,31 @@ msgid "Connecting to Mullvad system service..."
 msgstr ""
 
 msgctxt "launch-view"
+msgid "If these steps do not work please send a problem report."
+msgstr ""
+
+msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
+msgstr ""
+
+msgctxt "launch-view"
+msgid "Reinstalling the app."
+msgstr ""
+
+msgctxt "launch-view"
+msgid "Restarting your computer."
+msgstr ""
+
+msgctxt "launch-view"
+msgid "Send problem report"
+msgstr ""
+
+msgctxt "launch-view"
+msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
+msgstr ""
+
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
 msgstr ""
 
 #. This is a warning message shown when the app is blocking the users
@@ -996,6 +1023,10 @@ msgstr ""
 #. %(location) - name of the server location we're connecting to (e.g. "se-got-003")
 msgctxt "notifications"
 msgid "Connecting to %(location)s"
+msgstr ""
+
+msgctxt "notifications"
+msgid "Connection might be unsecured. App lost contact with system service, please troubleshoot."
 msgstr ""
 
 msgctxt "notifications"
