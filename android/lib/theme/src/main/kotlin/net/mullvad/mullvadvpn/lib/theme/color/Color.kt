@@ -5,7 +5,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-internal val MullvadBlue20 = Color(0x33294D73)
 internal val MullvadYellow = Color(0xFFFFD524)
 
 @Deprecated(
@@ -32,10 +31,6 @@ val MullvadWhite = Color(0xFFFFFFFF)
     "Deprecated for external usage and will be marked as internal in the future. Use material colors instead."
 )
 val MullvadWhite10 = Color(0x1AFFFFFF)
-@Deprecated(
-    "Deprecated for external usage and will be marked as internal in the future. Use material colors instead."
-)
-val MullvadWhite20 = Color(0x33FFFFFF)
 @Deprecated(
     "Deprecated for external usage and will be marked as internal in the future. Use material colors instead."
 )

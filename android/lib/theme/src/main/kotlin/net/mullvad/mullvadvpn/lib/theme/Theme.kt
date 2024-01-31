@@ -15,7 +15,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadBlue20
 import net.mullvad.mullvadvpn.lib.theme.color.MullvadDarkBlue
 import net.mullvad.mullvadvpn.lib.theme.color.MullvadGreen
 import net.mullvad.mullvadvpn.lib.theme.color.MullvadRed
@@ -27,6 +26,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_onError
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_onPrimary
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_onSurfaceVariant
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_primary
+import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_secondaryContainer
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceVariant
 import net.mullvad.mullvadvpn.lib.theme.dimensions.Dimensions
 import net.mullvad.mullvadvpn.lib.theme.dimensions.defaultDimensions
@@ -60,8 +60,7 @@ private val darkColorScheme =
         // onPrimaryContainer = md_theme_dark_onPrimaryContainer,
         secondary = MullvadDarkBlue,
         onSecondary = MullvadWhite60,
-        secondaryContainer = MullvadBlue20,
-        // onSecondaryContainer = md_theme_dark_onSecondaryContainer,
+        secondaryContainer = md_theme_dark_secondaryContainer,
         tertiary = MullvadRed,
         // onTertiary = md_theme_dark_onTertiary,
         // tertiaryContainer = md_theme_dark_tertiaryContainer,
