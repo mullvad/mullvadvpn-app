@@ -280,8 +280,6 @@ pub enum DaemonCommand {
     DeleteCustomList(ResponseTx<(), Error>, mullvad_types::custom_list::Id),
     /// Update a custom list with a given id
     UpdateCustomList(ResponseTx<(), Error>, CustomList),
-    /// Get API access methods
-    GetApiAccessMethods(ResponseTx<Vec<AccessMethodSetting>, Error>),
     /// Add API access methods
     AddApiAccessMethod(
         ResponseTx<mullvad_types::access_method::Id, Error>,
@@ -709,15 +707,12 @@ where
                 .set_config(new_selector_config(settings));
         });
 
-        let connection_modes = settings.api_access_methods.collect_enabled();
-        let connection_modes_address_cache = api_runtime.address_cache.clone();
-
         let connection_modes_handler = api::AccessModeSelector::spawn(
             cache_dir.clone(),
             relay_selector.clone(),
-            connection_modes,
+            settings.api_access_methods.clone(),
             internal_event_tx.to_specialized_sender(),
-            connection_modes_address_cache.clone(),
+            api_runtime.address_cache.clone().clone(),
         )
         .await
         .map_err(Error::ApiConnectionModeError)?;
@@ -1244,7 +1239,6 @@ where
             DeleteCustomList(tx, id) => self.on_delete_custom_list(tx, id).await,
             UpdateCustomList(tx, update) => self.on_update_custom_list(tx, update).await,
             GetVersionInfo(tx) => self.on_get_version_info(tx),
-            GetApiAccessMethods(tx) => self.on_get_api_access_methods(tx),
             AddApiAccessMethod(tx, name, enabled, access_method) => {
                 self.on_add_access_method(tx, name, enabled, access_method)
                     .await
@@ -2420,11 +2414,6 @@ where
     async fn on_update_custom_list(&mut self, tx: ResponseTx<(), Error>, new_list: CustomList) {
         let result = self.update_custom_list(new_list).await;
         Self::oneshot_send(tx, result, "update_custom_list response");
-    }
-
-    fn on_get_api_access_methods(&mut self, tx: ResponseTx<Vec<AccessMethodSetting>, Error>) {
-        let result = Ok(self.settings.api_access_methods.cloned());
-        Self::oneshot_send(tx, result, "get_api_access_methods response");
     }
 
     async fn on_add_access_method(

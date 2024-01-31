@@ -125,11 +125,20 @@ export default function ApiAccessMethods() {
 
                 <StyledSettingsContent>
                   <Cell.Group>
-                    {methods.map((method) => (
+                    <ApiAccessMethod
+                      method={methods.direct}
+                      inUse={methods.direct.id === currentMethod?.id}
+                    />
+                    <ApiAccessMethod
+                      method={methods.mullvadBridges}
+                      inUse={methods.mullvadBridges.id === currentMethod?.id}
+                    />
+                    {methods.custom.map((method) => (
                       <ApiAccessMethod
                         key={method.id}
                         method={method}
                         inUse={method.id === currentMethod?.id}
+                        custom
                       />
                     ))}
                   </Cell.Group>
@@ -150,6 +159,7 @@ export default function ApiAccessMethods() {
 interface ApiAccessMethodProps {
   method: AccessMethodSetting;
   inUse: boolean;
+  custom?: boolean;
 }
 
 function ApiAccessMethod(props: ApiAccessMethodProps) {
@@ -186,8 +196,8 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
     }
   }, [testApiAccessMethod, props.method.id]);
 
-  const menuItems = useMemo<Array<ContextMenuItem>>(
-    () => [
+  const menuItems = useMemo<Array<ContextMenuItem>>(() => {
+    const items: Array<ContextMenuItem> = [
       {
         type: 'item' as const,
         label: 'Use',
@@ -195,28 +205,30 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
         onClick: setApiAccessMethod,
       },
       { type: 'item' as const, label: 'Test', onClick: () => testApiAccessMethod(props.method.id) },
-      // Edit and Delete shouldn't be available for direct and bridges.
-      ...(props.method.type === 'direct' || props.method.type === 'bridges'
-        ? []
-        : [
-            { type: 'separator' as const },
-            {
-              type: 'item' as const,
-              label: 'Edit',
-              onClick: () =>
-                history.push(
-                  generateRoutePath(RoutePath.editApiAccessMethods, { id: props.method.id }),
-                ),
-            },
-            {
-              type: 'item' as const,
-              label: 'Delete',
-              onClick: showRemoveConfirmation,
-            },
-          ]),
-    ],
-    [props.method.id, props.inUse, setApiAccessMethod, testApiAccessMethod, history.push],
-  );
+    ];
+
+    // Edit and Delete shouldn't be available for direct and bridges.
+    if (props.custom) {
+      items.push(
+        { type: 'separator' as const },
+        {
+          type: 'item' as const,
+          label: 'Edit',
+          onClick: () =>
+            history.push(
+              generateRoutePath(RoutePath.editApiAccessMethods, { id: props.method.id }),
+            ),
+        },
+        {
+          type: 'item' as const,
+          label: 'Delete',
+          onClick: showRemoveConfirmation,
+        },
+      );
+    }
+
+    return items;
+  }, [props.method.id, props.inUse, setApiAccessMethod, testApiAccessMethod, history.push]);
 
   return (
     <Cell.Row>

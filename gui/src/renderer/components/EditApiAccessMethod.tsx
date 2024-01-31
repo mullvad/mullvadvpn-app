@@ -55,7 +55,10 @@ function AccessMethodForm() {
 
   // Use id in url to figure out which method is to be edited. undefined means this is a new method.
   const { id } = useParams<{ id: string | undefined }>();
-  const method = methods.find((method) => method.id === id);
+  // Ugly way of iterating over all access methods, but it works.
+  const method = [methods.direct, methods.mullvadBridges, ...methods.custom].find(
+    (method) => method.id === id,
+  );
 
   const updatedMethod = useRef<NewAccessMethodSetting | undefined>(method);
   const updateMethod = useCallback(

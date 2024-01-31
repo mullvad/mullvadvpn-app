@@ -75,6 +75,10 @@ pub struct ShadowsocksProxySettings {
 /// that instead of having a Socks5 and Shadowsocks variant instead has a Socks5Local, Socks5Remote
 /// and Shadowsocks variant.
 ///
+/// The predefined access methods "Direct" and "Mullvad Bridges" are now stored as distinct keys in
+/// the api_access_methods settings, separating them from user-defined access methods in the settings
+/// datastructure.
+///
 /// We also take the oppertunity to rename a couple of fields that relate to proxy types.
 /// We rename
 /// - shadowsocks.peer to shadowsocks.endpoint
@@ -138,6 +142,62 @@ fn migrate_api_access_settings(settings: &mut serde_json::Value) -> Result<()> {
                     }
                 }
             }
+        }
+    }
+
+    // Step 1. Rename { "api_access_methods": { "access_method_settings": .. } } to { "api_access_methods": { "custom": .. } }.
+    // Step 2. Collect all of the built-in methods from { "api_access_methods": { "custom": [ .. ] } }.
+    // Step 3. Remove all of the built-in methods from { "api_access_methods": { "custom": [ .. ] } }.
+    // Step 4. Add the collected built-in methods from step 2 to { "api_access_methods": { .. } } under some appropriate key.
+    if let Some(access_method_settings) = settings
+        .get_mut("api_access_methods")
+        .and_then(serde_json::value::Value::as_object_mut)
+    {
+        // Step 1.
+        rename_map_field(access_method_settings, "access_method_settings", "custom")?;
+
+        if let Some(access_method_settings_list) = access_method_settings
+            .get_mut("custom")
+            .and_then(serde_json::value::Value::as_array_mut)
+        {
+            // Step 2.
+            let built_ins: Vec<_> = access_method_settings_list
+                .iter()
+                .filter(|value| {
+                    value
+                        .get("access_method")
+                        .and_then(|value| value.get("built_in"))
+                        .is_some()
+                })
+                .cloned()
+                .collect();
+
+            // Step 3.
+            for built_in in built_ins.iter() {
+                access_method_settings_list
+                    .retain(|access_method| access_method.get("id") != built_in.get("id"));
+            }
+
+            // Step 4.
+            // Note that the only supported built-in access methods at this time
+            // are "Direct" and "Mullvad Bridges", so we may discard anything
+            // else.
+            let built_ins: Vec<_> = built_ins
+                .into_iter()
+                .filter_map(|built_in| {
+                    match built_in
+                        .get("access_method")
+                        .and_then(|value| value.get("built_in"))
+                        .and_then(|value| value.as_str())
+                    {
+                        Some("direct") => Some(("direct".to_string(), built_in)),
+                        Some("bridge") => Some(("mullvad_bridges".to_string(), built_in)),
+                        Some(_) | None => None,
+                    }
+                })
+                .collect();
+
+            access_method_settings.extend(built_ins);
         }
     }
 
@@ -228,15 +288,24 @@ fn extract_str(opt: Option<&serde_json::Value>) -> Result<&str> {
         .ok_or(Error::InvalidSettingsContent)
 }
 
-fn rename_field(object: &mut serde_json::Value, old_name: &str, new_name: &str) -> Result<()> {
-    object[new_name] = object
+fn rename_field(value: &mut serde_json::Value, old_name: &str, new_name: &str) -> Result<()> {
+    value
+        .as_object_mut()
+        .ok_or(Error::InvalidSettingsContent)
+        .and_then(|object| rename_map_field(object, old_name, new_name))
+}
+
+fn rename_map_field(
+    object: &mut serde_json::Map<String, serde_json::Value>,
+    old_name: &str,
+    new_name: &str,
+) -> Result<()> {
+    let old_value = object
         .get(old_name)
         .ok_or(Error::InvalidSettingsContent)?
         .clone();
-    object
-        .as_object_mut()
-        .ok_or(Error::InvalidSettingsContent)?
-        .remove(old_name);
+    let _ = object.insert(new_name.to_string(), old_value);
+    object.remove(old_name);
     Ok(())
 }
 
@@ -475,23 +544,23 @@ mod test {
     }
   },
   "api_access_methods": {
-    "access_method_settings": [
-      {
-        "id": "8cbdcfc8-fa7b-41de-8d12-26fa37439f89",
-        "name": "Direct",
-        "enabled": true,
-        "access_method": {
-          "built_in": "direct"
-        }
-      },
-      {
-        "id": "1d0d8891-dbb3-4439-a8f7-0e7d742ddbe4",
-        "name": "Mullvad Bridges",
-        "enabled": true,
-        "access_method": {
-          "built_in": "bridge"
-        }
-      },
+    "direct": {
+      "id": "8cbdcfc8-fa7b-41de-8d12-26fa37439f89",
+      "name": "Direct",
+      "enabled": true,
+      "access_method": {
+        "built_in": "direct"
+      }
+    },
+    "mullvad_bridges": {
+      "id": "1d0d8891-dbb3-4439-a8f7-0e7d742ddbe4",
+      "name": "Mullvad Bridges",
+      "enabled": true,
+      "access_method": {
+        "built_in": "bridge"
+      }
+    },
+    "custom": [
       {
         "id": "1aaff7ab-e09f-4c03-af02-765e41943a7b",
         "name": "localsox",
@@ -851,7 +920,7 @@ mod test {
             r#"
 {
   "api_access_methods": {
-    "access_method_settings": [
+    "custom": [
       {
         "id": "5eb9b2ee-f764-47c8-8111-ee95910d0099",
         "name": "mysocks",
@@ -880,7 +949,6 @@ mod test {
 
     #[test]
     fn test_api_access_methods_custom_socks5_remote() {
-        println!("wew");
         let mut pre: serde_json::Value = serde_json::from_str(
             r#"
 {
@@ -910,7 +978,7 @@ mod test {
             r#"
 {
   "api_access_methods": {
-    "access_method_settings": [
+    "custom": [
       {
         "id": "8e377232-8a53-4414-8b8f-f487227aaedb",
         "name": "remotesox",
@@ -965,7 +1033,7 @@ mod test {
             r#"
 {
   "api_access_methods": {
-    "access_method_settings": [
+    "custom": [
       {
         "id": "74e5c659-acdd-4cad-a632-a25bf63c20e2",
         "name": "remotess",
@@ -983,6 +1051,197 @@ mod test {
     ]
   }
 }"#,
+        )
+        .unwrap();
+
+        migrate_api_access_settings(&mut pre).unwrap();
+        assert_eq!(pre, post);
+    }
+
+    #[test]
+    fn test_api_access_methods_extract_direct() {
+        let mut pre: serde_json::Value = serde_json::from_str(
+            r#"
+{
+  "api_access_methods": {
+    "access_method_settings": [
+      {
+        "id": "8cbdcfc8-fa7b-41de-8d12-26fa37439f89",
+        "name": "Direct",
+        "enabled": true,
+        "access_method": {
+          "built_in": "direct"
+        }
+      }
+    ]
+  }
+}
+"#,
+        )
+        .unwrap();
+
+        let post: serde_json::Value = serde_json::from_str(
+            r#"
+{
+  "api_access_methods": {
+    "direct": {
+      "id": "8cbdcfc8-fa7b-41de-8d12-26fa37439f89",
+      "name": "Direct",
+      "enabled": true,
+      "access_method": {
+        "built_in": "direct"
+      }
+    },
+    "custom": []
+  }
+}
+"#,
+        )
+        .unwrap();
+
+        migrate_api_access_settings(&mut pre).unwrap();
+        assert_eq!(pre, post);
+    }
+
+    #[test]
+    fn test_api_access_methods_extract_mullvad_bridges() {
+        let mut pre: serde_json::Value = serde_json::from_str(
+            r#"
+{
+  "api_access_methods": {
+    "access_method_settings": [
+      {
+        "id": "1d0d8891-dbb3-4439-a8f7-0e7d742ddbe4",
+        "name": "Mullvad Bridges",
+        "enabled": true,
+        "access_method": {
+          "built_in": "bridge"
+        }
+      }
+    ]
+  }
+}
+"#,
+        )
+        .unwrap();
+
+        let post: serde_json::Value = serde_json::from_str(
+            r#"
+{
+  "api_access_methods": {
+    "mullvad_bridges": {
+      "id": "1d0d8891-dbb3-4439-a8f7-0e7d742ddbe4",
+      "name": "Mullvad Bridges",
+      "enabled": true,
+      "access_method": {
+        "built_in": "bridge"
+      }
+    },
+    "custom": []
+  }
+}
+"#,
+        )
+        .unwrap();
+
+        migrate_api_access_settings(&mut pre).unwrap();
+        assert_eq!(pre, post);
+    }
+
+    #[test]
+    fn test_api_access_methods_do_not_extract_custom_methods() {
+        let mut pre: serde_json::Value = serde_json::from_str(
+            r#"
+{
+  "api_access_methods": {
+    "access_method_settings": [
+      {
+        "id": "1aaff7ab-e09f-4c03-af02-765e41943a7b",
+        "name": "localsox",
+        "enabled": false,
+        "access_method": {
+          "custom": {
+            "socks5": {
+              "local": {
+                "remote_endpoint": {
+                  "address": "1.3.3.7:1080",
+                  "protocol": "tcp"
+                },
+                "local_port": 1079
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}
+"#,
+        )
+        .unwrap();
+
+        let post: serde_json::Value = serde_json::from_str(
+            r#"
+{
+  "api_access_methods": {
+    "custom": [
+      {
+        "id": "1aaff7ab-e09f-4c03-af02-765e41943a7b",
+        "name": "localsox",
+        "enabled": false,
+        "access_method": {
+          "custom": {
+            "socks5_local": {
+              "remote_endpoint": {
+                "address": "1.3.3.7:1080",
+                "protocol": "tcp"
+              },
+              "local_port": 1079
+            }
+          }
+        }
+      }
+    ]
+  }
+}
+"#,
+        )
+        .unwrap();
+
+        migrate_api_access_settings(&mut pre).unwrap();
+        assert_eq!(pre, post);
+    }
+
+    #[test]
+    fn test_api_access_methods_extract_corrupt_built_in() {
+        let mut pre: serde_json::Value = serde_json::from_str(
+            r#"
+{
+  "api_access_methods": {
+    "access_method_settings": [
+      {
+        "id": "1d0d8891-dbb3-4439-a8f7-0e7d742ddbe4",
+        "name": "Mullvad Bridges",
+        "enabled": true,
+        "access_method": {
+          "built_in": "some_other_alternative"
+        }
+      }
+    ]
+  }
+}
+"#,
+        )
+        .unwrap();
+
+        let post: serde_json::Value = serde_json::from_str(
+            r#"
+{
+  "api_access_methods": {
+    "custom": []
+  }
+}
+"#,
         )
         .unwrap();
 
