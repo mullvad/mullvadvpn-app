@@ -57,6 +57,7 @@ Line wrap the file at 100 chars.                                              Th
   In the CLI these can be found under `mullvad bridge set custom`.
 - Upgrade the background map to a new WebGL 3D map. This should both look better and be more
   performant.
+- Update Electron from 26.3.0 to 28.1.3.
 
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.

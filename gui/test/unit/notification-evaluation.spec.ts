@@ -3,8 +3,8 @@ import { it, describe } from 'mocha';
 import sinon from 'sinon';
 
 import {
-  UnsupportedVersionNotificationProvider, UpdateAvailableNotificationProvider,
-  // UpdateAvailableNotificationProvider,
+  UnsupportedVersionNotificationProvider,
+  UpdateAvailableNotificationProvider,
 } from '../../src/shared/notifications/notification';
 import NotificationController from '../../src/main/notification-controller';
 import { TunnelState } from '../../src/shared/daemon-rpc-types';
