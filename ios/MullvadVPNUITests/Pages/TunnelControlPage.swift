@@ -20,9 +20,4 @@ class TunnelControlPage: Page {
         app.buttons[AccessibilityIdentifier.selectLocationButton].tap()
         return self
     }
-
-    @discardableResult func tapSettingsButton() -> Self {
-        app.buttons[AccessibilityIdentifier.settingsButton].tap()
-        return self
-    }
 }
