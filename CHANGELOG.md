@@ -57,6 +57,8 @@ Line wrap the file at 100 chars.                                              Th
   In the CLI these can be found under `mullvad bridge set custom`.
 - Upgrade the background map to a new WebGL 3D map. This should both look better and be more
   performant.
+- Improve the "Connecting to system service"-view with information about the situation and
+  troubleshooting tips.
 
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.
