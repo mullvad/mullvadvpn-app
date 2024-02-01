@@ -14,7 +14,7 @@ cd "$UPLOAD_DIR"
 function rsync_upload {
     local file=$1
     local upload_dir=$2
-    local repository_servers=("${PRODUCTION_LINUX_REPOSITORY_SERVERS[@]}")
+    local repository_servers=("${PRODUCTION_UPLOAD_SERVERS[@]}")
     for server in "${repository_servers[@]}"; do
         echo "Uploading $file to $server:$upload_dir"
         rsync -av --mkpath --rsh='ssh -p 1122' "$file" "$server:$upload_dir/"
