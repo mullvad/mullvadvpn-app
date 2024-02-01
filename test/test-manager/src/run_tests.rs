@@ -15,7 +15,12 @@ use std::time::Duration;
 use test_rpc::logging::Output;
 use test_rpc::{mullvad_daemon::MullvadClientVersion, ServiceClient};
 
-const BAUD: u32 = 115200;
+/// The baud rate of the serial connection between the test manager and the test runner.
+/// There is a known issue with setting a baud rate at all or macOS, and the workaround
+/// is to set it to zero: https://github.com/serialport/serialport-rs/pull/58
+///
+/// Keep this constant in sync with `test-runner/src/main.rs`
+const BAUD: u32 = if cfg!(target_os = "macos") { 0 } else { 115200 };
 
 pub async fn run(
     config: tests::config::TestConfig,
