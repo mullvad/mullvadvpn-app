@@ -4,6 +4,7 @@ import { expect, test } from '@playwright/test';
 import { IAccountData } from '../../../src/shared/daemon-rpc-types';
 import { getBackgroundColor } from '../utils';
 import { colors } from '../../../src/config.json';
+import { RoutePath } from '../../../src/renderer/lib/routes';
 
 let page: Page;
 let util: MockedTestUtils;
@@ -30,4 +31,16 @@ test('App should show Expired Account Error View', async () => {
   const redeemVoucherButton = page.locator('button:has-text("Redeem voucher")');
   await expect(redeemVoucherButton).toBeVisible();
   expect(await getBackgroundColor(redeemVoucherButton)).toBe(colors.green);
+});
+
+test('App should show out of time view after running out of time', async () => {
+  const expiryDate = new Date();
+  expiryDate.setSeconds(expiryDate.getSeconds() + 10);
+
+  expect(await util.waitForNavigation(async () => {
+    await util.sendMockIpcResponse<IAccountData>({
+      channel: 'account-',
+      response: { expiry: expiryDate.toISOString() },
+    });
+  })).toEqual(RoutePath.expired);
 });
