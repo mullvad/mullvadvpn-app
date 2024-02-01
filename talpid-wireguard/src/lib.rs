@@ -1060,18 +1060,18 @@ async fn auto_mtu_detection(
     }
 }
 
+/// Creates a linear spacing of MTU values with the given step size. Always includes the given end
+/// points.
 #[cfg(target_os = "linux")]
-fn mtu_spacing(x_start: u16, x_end: u16, step_size: u16) -> Vec<u16> {
-    if x_start > x_end {
-        log::warn!("Setting MTU to {x_end} which is lower than");
-        return vec![x_end];
-        // todo!("Handle manual MTU lower that minimum")
+fn mtu_spacing(mtu_min: u16, mtu_max: u16, step_size: u16) -> Vec<u16> {
+    if mtu_min > mtu_max {
+        panic!("Invalid MTU detection range: `mtu_min`={mtu_min}, `mtu_max`={mtu_max}.");
     }
-    let in_between = ((x_start + 1)..x_end).filter(|x| x % step_size == 0);
-    let mut ret = Vec::with_capacity(((x_end - x_start) / 3 + 2) as usize);
-    ret.push(x_start);
+    let in_between = ((mtu_min + 1)..mtu_max).filter(|x| x % step_size == 0);
+    let mut ret = Vec::with_capacity(((mtu_max - mtu_min) / 3 + 2) as usize);
+    ret.push(mtu_min);
     ret.extend(in_between);
-    ret.push(x_end);
+    ret.push(mtu_max);
     ret
 }
 
