@@ -4,9 +4,7 @@ fn make_lang_id(p: u16, s: u16) -> u16 {
 }
 
 fn main() {
-    const PROTO_FILE: &str = "proto/openvpn_plugin.proto";
-    tonic_build::compile_protos(PROTO_FILE).unwrap();
-    println!("cargo:rerun-if-changed={PROTO_FILE}");
+    tonic_build::compile_protos("proto/openvpn_plugin.proto").unwrap();
 
     #[cfg(windows)]
     {
