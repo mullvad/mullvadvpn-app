@@ -156,6 +156,12 @@ pub struct WireguardMonitor {
     pinger_stop_sender: sync_mpsc::Sender<()>,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
 }
+const IPV4_HEADER_SIZE: u16 = 20;
+const IPV6_HEADER_SIZE: u16 = 40;
+const ICMP_HEADER_SIZE: u16 = 8;
+const WIREGUARD_HEADER_SIZE: u16 = 40;
+const PADDING_BYTES_MARGIN: u16 = 15;
+const MIN_MTU_IPV4: u16 = 576;
 
 const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
 const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
@@ -396,7 +402,7 @@ impl WireguardMonitor {
                         gateway,
                         #[cfg(any(target_os = "macos", target_os = "linux"))]
                         iface_name_clone.clone(),
-                        config.mtu as usize,
+                        config.mtu,
                     )
                     .await
                     {
@@ -939,12 +945,6 @@ impl WireguardMonitor {
         } else {
             // Set route MTU by subtracting the WireGuard overhead from the tunnel MTU. Plus
             // some margin to make room for padding bytes.
-            // TODO: Move consts to shared location
-            const IPV4_HEADER_SIZE: u16 = 20;
-            const IPV6_HEADER_SIZE: u16 = 40;
-            const WIREGUARD_HEADER_SIZE: u16 = 40;
-            const PADDING_BYTES_MARGIN: u16 = 15;
-
             let ip_overhead = match route.prefix.is_ipv4() {
                 true => IPV4_HEADER_SIZE,
                 false => IPV6_HEADER_SIZE,
@@ -998,26 +998,23 @@ impl WireguardMonitor {
 async fn auto_mtu_detection(
     gateway: std::net::Ipv4Addr,
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
-    max_mtu: usize,
+    current_mtu: u16,
 ) -> Result<u16> {
+    use futures::{stream::FuturesOrdered, TryStreamExt};
     use surge_ping::{Client, Config, PingIdentifier, PingSequence, SurgeError};
+    use tokio_stream::StreamExt;
+
+    const PING_TIMEOUT: Duration = Duration::from_secs(5);
 
     let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     let config_builder = config_builder.interface(&iface_name);
     let config = config_builder.build();
-
     let client = Client::new(&config).unwrap();
 
     let step_size = 20;
-    let min_mtu = 576; // TODO: Account for IPv6?
-    let linspace = mtu_spacing(min_mtu, max_mtu, step_size);
 
-    const IPV4_HEADER_SIZE: usize = 20;
-    const ICMP_HEADER_SIZE: usize = 8;
-
-    use futures::{stream::FuturesOrdered, TryStreamExt};
-    use tokio_stream::StreamExt;
+    let linspace = mtu_spacing(MIN_MTU_IPV4, current_mtu, step_size);
 
     let set: FuturesOrdered<_> = linspace
         .iter()
@@ -1026,11 +1023,11 @@ async fn auto_mtu_detection(
             let client = client.clone();
             async move {
                 log::trace!("Sending ICMP ping of total size {mtu}");
-                let payload = vec![0; mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE]; //? Can we avoid allocating here?
+                let payload = vec![0; (mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE) as usize]; //? Can we avoid allocating here?
                 client
                     .pinger(IpAddr::V4(gateway), PingIdentifier(111)) //? Is a static identified ok, or should we randomize?
                     .await
-                    .timeout(Duration::from_secs(5)) // TODO: choose a good timeout
+                    .timeout(PING_TIMEOUT) // TODO: choose a good timeout
                     .ping(PingSequence(i as u16), &payload)
                     .await
             }
@@ -1043,10 +1040,10 @@ async fn auto_mtu_detection(
                 let surge_ping::IcmpPacket::V4(packet) = packet else {
                     panic!("ICMP ping response was not of IPv4 type");
                 };
-                let size = packet.get_size() + IPV4_HEADER_SIZE;
+                let size = packet.get_size() as u16 + IPV4_HEADER_SIZE;
                 log::debug!("Got ICMP ping response of total size {size}");
                 debug_assert_eq!(size, linspace[packet.get_sequence().0 as usize]);
-                Ok(Some(size as u16))
+                Ok(Some(size))
             }
             Err(SurgeError::Timeout { seq }) => {
                 log::info!("Ping of size {} dropped", linspace[seq.0 as usize]);
@@ -1064,14 +1061,14 @@ async fn auto_mtu_detection(
 }
 
 #[cfg(target_os = "linux")]
-fn mtu_spacing(x_start: usize, x_end: usize, step_size: usize) -> Vec<usize> {
+fn mtu_spacing(x_start: u16, x_end: u16, step_size: u16) -> Vec<u16> {
     if x_start > x_end {
         log::warn!("Setting MTU to {x_end} which is lower than");
         return vec![x_end];
         // todo!("Handle manual MTU lower that minimum")
     }
     let in_between = ((x_start + 1)..x_end).filter(|x| x % step_size == 0);
-    let mut ret = Vec::with_capacity((x_end - x_start) / 3 + 2);
+    let mut ret = Vec::with_capacity(((x_end - x_start) / 3 + 2) as usize);
     ret.push(x_start);
     ret.extend(in_between);
     ret.push(x_end);
