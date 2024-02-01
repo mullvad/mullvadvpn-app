@@ -933,10 +933,6 @@ export default class AppRenderer {
   }
 
   private setAccountExpiry(expiry?: string) {
-    if (window.env.e2e && expiry) {
-      log.verbose('Expiry of account:', expiry);
-    }
-
     const state = this.reduxStore.getState();
     const previousExpiry = state.account.expiry;
 
