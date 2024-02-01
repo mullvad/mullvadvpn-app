@@ -933,10 +933,6 @@ export default class AppRenderer {
   }
 
   private setAccountExpiry(expiry?: string) {
-    if (window.env.e2e && expiry) {
-      log.verbose('Expiry of account:', expiry);
-    }
-
     const state = this.reduxStore.getState();
     const previousExpiry = state.account.expiry;
     this.reduxActions.account.updateAccountExpiry(expiry);
@@ -945,6 +941,13 @@ export default class AppRenderer {
 
     if (expiry !== undefined) {
       const expired = hasExpired(expiry);
+
+      // Debug logging when running e2e tests to figure out why test fails sometimes. This can be
+      // removed after test has been fixed.
+      if (window.env.e2e && expiry) {
+        const now = new Date().toISOString();
+        log.verbose(`Expiry of account: ${expiry}, current time: ${now}, has expired: ${expired}`);
+      }
 
       // Set state to expired when expiry date passes.
       if (!expired && closeToExpiry(expiry)) {
