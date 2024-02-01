@@ -71,8 +71,12 @@ pub enum Error {
     SetupRoutingError(#[error(source)] talpid_routing::Error),
 
     /// Failed to set MTU
-    #[error(display = "Failed to setup routing")]
-    SetMtu(#[error(source)] ping_monitor::Error),
+    #[error(display = "Failed to detect MTU. Every ping within the valid range was dropped.")]
+    MtuDetectionAllDropped,
+
+    /// Failed to set MTU
+    #[error(display = "Failed to detect MTU")]
+    MtuDetectionPingError(#[error(source)] surge_ping::SurgeError),
 
     /// Tunnel timed out
     #[error(display = "Tunnel timed out")]
@@ -388,21 +392,28 @@ impl WireguardMonitor {
                     // tokio::time::sleep(Duration::from_secs(10)).await; // TODO: Delete this
                     // before merging
                     log::debug!("Starting MTU detection");
-                    let mtu = get_mtu(
+                    let verified_mtu = match get_mtu(
                         gateway,
                         #[cfg(any(target_os = "macos", target_os = "linux"))]
                         iface_name_clone.clone(),
                         config.mtu as usize,
                     )
-                    .await;
+                    .await
+                    {
+                        Ok(mtu) => mtu,
+                        Err(e) => {
+                            log::error!("{}", e.display_chain_with_msg("Failed to detect MTU"));
+                            return;
+                        }
+                    };
 
-                    if mtu != config.mtu {
-                        log::warn!("Lowering MTU from {} to {mtu}", config.mtu);
-                        if let Err(e) = unix::set_mtu(&iface_name_clone, mtu) {
+                    if verified_mtu != config.mtu {
+                        log::warn!("Lowering MTU from {} to {verified_mtu}", config.mtu);
+                        if let Err(e) = unix::set_mtu(&iface_name_clone, verified_mtu) {
                             log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
                         };
                     } else {
-                        log::info!("MTU {mtu} verified to not drop packets");
+                        log::info!("MTU {verified_mtu} verified to not drop packets");
                     }
                 });
             }
@@ -984,9 +995,7 @@ async fn get_mtu(
     gateway: std::net::Ipv4Addr,
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
     max_mtu: usize,
-) -> u16 {
-    use std::io;
-
+) -> Result<u16> {
     use surge_ping::{Client, Config, PingIdentifier, PingSequence, SurgeError};
 
     let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
@@ -1003,44 +1012,51 @@ async fn get_mtu(
     const IPV4_HEADER_SIZE: usize = 20;
     const ICMP_HEADER_SIZE: usize = 8;
 
-    use futures::stream::FuturesOrdered;
+    use futures::{stream::FuturesOrdered, TryStreamExt};
     use tokio_stream::StreamExt;
 
-    let mut set = FuturesOrdered::new();
-    for (i, &mtu) in linspace.iter().enumerate() {
-        let mut pinger = client
-            .clone()
-            .pinger(IpAddr::V4(gateway), PingIdentifier(111)) //? Is a static identified ok, or should we randomize?
-            .await;
-        pinger.timeout(Duration::from_secs(5)); // TODO: choose a good timeout
-        set.push_back(async move {
-            log::trace!("Sending ICMP ping of total size {mtu}");
-            let payload = vec![0; mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE]; //? Can we avoid allocating here?
+    let set: FuturesOrdered<_> = linspace
+        .iter()
+        .enumerate()
+        .map(|(i, &mtu)| {
+            let client = client.clone();
+            async move {
+                log::trace!("Sending ICMP ping of total size {mtu}");
+                let payload = vec![0; mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE]; //? Can we avoid allocating here?
+                client
+                    .pinger(IpAddr::V4(gateway), PingIdentifier(111)) //? Is a static identified ok, or should we randomize?
+                    .await
+                    .timeout(Duration::from_secs(5)) // TODO: choose a good timeout
+                    .ping(PingSequence(i as u16), &payload)
+                    .await
+            }
+        })
+        .collect();
 
-            pinger.ping(PingSequence(i as u16), &payload).await
-        });
+    let res = set
+        .map(|res| match res {
+            Ok((packet, _rtt)) => {
+                let surge_ping::IcmpPacket::V4(packet) = packet else {
+                    panic!("ICMP ping response was not of IPv4 type");
+                };
+                let size = packet.get_size() + IPV4_HEADER_SIZE;
+                log::debug!("Got ICMP ping response of total size {size}");
+                debug_assert_eq!(size, linspace[packet.get_sequence().0 as usize]);
+                Ok(Some(size as u16))
+            }
+            Err(SurgeError::Timeout { seq }) => {
+                log::info!("Ping of size {} dropped", linspace[seq.0 as usize]);
+                Ok(None)
+            }
+            Err(e) => Err(e),
+        })
+        .try_fold(None, |acc, x| async move { Ok(std::cmp::max(acc, x)) })
+        .await;
+    match res {
+        Ok(Some(verified_mtu)) => Ok(verified_mtu),
+        Ok(None) => Err(Error::MtuDetectionAllDropped),
+        Err(e) => Err(Error::MtuDetectionPingError(e)),
     }
-
-    set.map(|res| match res {
-        Ok((packet, _rtt)) => {
-            // println!("{:?} {:0.2?}", packet, rtt);
-            let surge_ping::IcmpPacket::V4(packet) = packet else {
-                panic!("ICMP ping response was not of IPv4 type");
-            };
-            let size = packet.get_size() + IPV4_HEADER_SIZE;
-            log::debug!("Got ICMP ping response of total size {size}");
-            debug_assert_eq!(size, linspace[packet.get_sequence().0 as usize]);
-            Some(size as u16)
-        }
-        Err(SurgeError::Timeout { seq }) => {
-            log::info!("Ping of size {} dropped", linspace[seq.0 as usize]);
-            None
-        }
-        Err(e) => panic!("Got unexpected ping error: {e}"),
-    })
-    .fold(None, std::cmp::max)
-    .await
-    .expect("MTU detection failed. Every ping within the valid range was dropped.")
 }
 
 #[cfg(target_os = "linux")]
