@@ -999,7 +999,7 @@ async fn auto_mtu_detection(
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
     current_mtu: u16,
 ) -> Result<u16> {
-    use futures::{stream::FuturesOrdered, TryStreamExt};
+    use futures::{future, stream::FuturesUnordered, TryStreamExt};
     use surge_ping::{Client, Config, PingIdentifier, PingSequence, SurgeError};
     use talpid_tunnel::{ICMP_HEADER_SIZE, MIN_IPV4_MTU};
     use tokio_stream::StreamExt;
@@ -1015,26 +1015,27 @@ async fn auto_mtu_detection(
     let step_size = 20;
 
     let linspace = mtu_spacing(MIN_IPV4_MTU, current_mtu, step_size);
+    let largest_payload = vec![0; current_mtu as usize];
 
-    let set: FuturesOrdered<_> = linspace
+    let ping_stream: FuturesUnordered<_> = linspace
         .iter()
         .enumerate()
         .map(|(i, &mtu)| {
             let client = client.clone();
+            let payload = &largest_payload[0..(mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE) as usize];
             async move {
                 log::trace!("Sending ICMP ping of total size {mtu}");
-                let payload = vec![0; (mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE) as usize]; //? Can we avoid allocating here?
                 client
                     .pinger(IpAddr::V4(gateway), PingIdentifier(111)) //? Is a static identified ok, or should we randomize?
                     .await
                     .timeout(PING_TIMEOUT) // TODO: choose a good timeout
-                    .ping(PingSequence(i as u16), &payload)
+                    .ping(PingSequence(i as u16), payload)
                     .await
             }
         })
         .collect();
 
-    let res = set
+    let res = ping_stream
         .map(|res| match res {
             // Map successful pings to packet size
             Ok((packet, _rtt)) => {
@@ -1042,7 +1043,7 @@ async fn auto_mtu_detection(
                     panic!("ICMP ping response was not of IPv4 type");
                 };
                 let size = packet.get_size() as u16 + IPV4_HEADER_SIZE;
-                log::debug!("Got ICMP ping response of total size {size}");
+                log::trace!("Got ICMP ping response of total size {size}");
                 debug_assert_eq!(size, linspace[packet.get_sequence().0 as usize]);
                 Ok(Some(size))
             }
@@ -1054,7 +1055,7 @@ async fn auto_mtu_detection(
             // Short circuit and return error on unexpected error types
             Err(e) => Err(e),
         })
-        .try_fold(None, |acc, x| async move { Ok(std::cmp::max(acc, x)) })
+        .try_fold(None, |acc, mtu| future::ready(Ok(acc.max(mtu))))
         .await;
     match res {
         Ok(Some(verified_mtu)) => Ok(verified_mtu),
