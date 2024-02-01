@@ -24,12 +24,14 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add account UUID to verbose 'mullvad account get -v' output.
-- Respect OS prefer-reduced-motion setting
+- Respect OS prefer-reduced-motion setting.
 - Add CLI command for exporting settings patches: `mullvad export-settings`. Currently, it generates
   a patch containing all patchable settings, which only includes relay IP overrides.
 - Make `mullvad status` prints if lockdown mode is enabled when disconnected.
 - Add option to configure custom API access methods. Custom API access methods allows the user to
   circumvent censorship by proxying API traffic.
+- Add confirmation dialog when deleting a custom list.
+- Add support for custom SOCKS5 OpenVPN bridges running locally.
 
 #### Android
 - Add support for all screen orientations.
@@ -37,10 +39,11 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix connectivity issues that would occur when using quantum-resistant tunnels with an incorrectly
   configured MTU.
+- Fix custom list name validation by not allowing empty names.
 
 #### Linux
-- Fix Bash shell completions for subcommands in the CLI
-- Out IP missing forever when am.i.mullvad.net returns error
+- Fix Bash shell completions for subcommands in the CLI.
+- Fix out IP missing forever when am.i.mullvad.net returns error.
 
 #### macOS
 - Fix default route not being restored when disconnecting when the gateway was a link-local IPv6
@@ -53,8 +56,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Remove `--location` flag from `mullvad status` CLI. Location and IP will now always
   be printed (if available). `mullvad status listen` no longer prints location info.
-- Custom socks5 bridges get a new CLI interface and now work without split tunneling or root.
-  In the CLI these can be found under `mullvad bridge set custom`.
+- Changed CLI interface for custom SOCKS5 bridges as part of supporting bridges running locally.
 - Upgrade the background map to a new WebGL 3D map. This should both look better and be more
   performant.
 - Update Electron from 26.3.0 to 28.1.3.
@@ -99,6 +101,7 @@ Identical to `android/2023.10-beta1`.
 
 #### Linux
 - Prevent fragmentation when multihop is enabled by setting a default route MTU.
+- Fix stable releases being considered a downgrade from a beta version by `dnf`.
 
 
 ## [android/2023.10-beta1] - 2023-12-11
