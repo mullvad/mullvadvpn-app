@@ -25,6 +25,19 @@ const DEFAULT_MTU: u16 = if cfg!(target_os = "android") {
     1380
 };
 
+/// Size of IPv4 header in bytes
+pub const IPV4_HEADER_SIZE: u16 = 20;
+/// Size of IPv6 header in bytes
+pub const IPV6_HEADER_SIZE: u16 = 40;
+/// Size of wireguard header in bytes
+pub const WIREGUARD_HEADER_SIZE: u16 = 40;
+/// Size of ICMP header in bytes
+pub const ICMP_HEADER_SIZE: u16 = 8;
+/// Smallest allowed MTU for IPv4 in bytes
+pub const MIN_IPV4_MTU: u16 = 576;
+/// Smallest allowed MTU for IPv6 in bytes
+pub const MIN_IPV6_MTU: u16 = 1280;
+
 /// Results from operations in the tunnel module.
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -201,20 +214,18 @@ impl TunnelMonitor {
         // not change the interface MTU but adds its own header onto the outgoing packets. For this
         // reason we subtract some extra bytes from our MTU in order to give other programs some
         // safety margin.
-        const MTU_SAFETY_MARGIN: u16 = 60;
-        const IPV4_HEADER_SIZE: u16 = 20;
-        const IPV6_HEADER_SIZE: u16 = 40;
-        const WIREGUARD_HEADER_SIZE: u16 = 40;
+
         let total_header_size = WIREGUARD_HEADER_SIZE
             + match params.connection.peer.endpoint.is_ipv6() {
                 false => IPV4_HEADER_SIZE,
                 true => IPV6_HEADER_SIZE,
             };
+
+        const MTU_SAFETY_MARGIN: u16 = 60;
         // The largest peer MTU that we allow
         let max_peer_mtu: u16 = 1500 - MTU_SAFETY_MARGIN - total_header_size;
         // The minimum allowed MTU size for our tunnel in IPv6 is 1280 and 576 for IPv4
-        const MIN_IPV4_MTU: u16 = 576;
-        const MIN_IPV6_MTU: u16 = 1280;
+
         let min_mtu = match params.generic_options.enable_ipv6 {
             false => MIN_IPV4_MTU,
             true => MIN_IPV6_MTU,

@@ -157,12 +157,6 @@ pub struct WireguardMonitor {
     pinger_stop_sender: sync_mpsc::Sender<()>,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
 }
-const IPV4_HEADER_SIZE: u16 = 20;
-const IPV6_HEADER_SIZE: u16 = 40;
-const ICMP_HEADER_SIZE: u16 = 8;
-const WIREGUARD_HEADER_SIZE: u16 = 40;
-const PADDING_BYTES_MARGIN: u16 = 15;
-const MIN_MTU_IPV4: u16 = 576;
 
 const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
 const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
@@ -950,6 +944,7 @@ impl WireguardMonitor {
                 true => IPV4_HEADER_SIZE,
                 false => IPV6_HEADER_SIZE,
             };
+            const PADDING_BYTES_MARGIN: u16 = 15;
             let mtu = config.mtu - ip_overhead - WIREGUARD_HEADER_SIZE - PADDING_BYTES_MARGIN;
 
             route.mtu(mtu)
