@@ -21,17 +21,12 @@ final class LoginInteractor {
         self.tunnelManager = tunnelManager
     }
 
-    func setAccount(accountNumber: String, completion: @escaping (Error?) -> Void) {
-        tunnelManager.setExistingAccount(accountNumber: accountNumber) { result in
-            completion(result.error)
-        }
+    func setAccount(accountNumber: String) async throws {
+        _ = try await tunnelManager.setExistingAccount(accountNumber: accountNumber)
     }
 
-    func createAccount(completion: @escaping (Result<String, Error>) -> Void) {
-        tunnelManager.setNewAccount { [weak self] result in
-            self?.didCreateAccount?()
-            completion(result.map { $0.number })
-        }
+    func createAccount() async throws -> String {
+        try await tunnelManager.setNewAccount().number
     }
 
     func getLastUsedAccount() -> String? {

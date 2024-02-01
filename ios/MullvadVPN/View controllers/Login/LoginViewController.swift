@@ -193,21 +193,21 @@ class LoginViewController: UIViewController, RootContainment {
 
     func start(action: LoginAction) {
         beginLogin(action)
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                switch action {
+                case .createAccount:
+                    self.contentView.accountInputGroup.setAccount(try await interactor.createAccount())
 
-        switch action {
-        case .createAccount:
-            interactor.createAccount { [weak self] result in
-                if let newAccountNumber = result.value {
-                    self?.contentView.accountInputGroup.setAccount(newAccountNumber)
+                case let .useExistingAccount(accountNumber):
+                    try await interactor.setAccount(accountNumber: accountNumber)
                 }
-
-                self?.endLogin(action: action, error: result.error)
+                self.endLogin(action: action, error: nil)
+            } catch {
+                self.endLogin(action: action, error: error)
             }
 
-        case let .useExistingAccount(accountNumber):
-            interactor.setAccount(accountNumber: accountNumber) { [weak self] error in
-                self?.endLogin(action: action, error: error)
-            }
         }
     }
 

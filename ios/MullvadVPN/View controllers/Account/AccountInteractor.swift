@@ -52,9 +52,9 @@ final class AccountInteractor {
     var deviceState: DeviceState {
         tunnelManager.deviceState
     }
-
-    func logout(_ completion: @escaping () -> Void) {
-        tunnelManager.unsetAccount(completionHandler: completion)
+    
+    func logout() async {
+        await tunnelManager.unsetAccount()
     }
 
     func addPayment(_ payment: SKPayment, for accountNumber: String) {

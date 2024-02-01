@@ -141,8 +141,9 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
         )
 
         let alertPresenter = AlertPresenter(context: self)
-
-        interactor.logout {
+        
+        Task {
+            await interactor.logout()
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
                 guard let self else { return }
 

@@ -46,16 +46,10 @@ final class RedeemVoucherInteractor {
         })
     }
 
-    func logout(completionHandler: @escaping () -> Void) {
-        preferredAccountNumber.flatMap { accountNumber in
-            tunnelManager.unsetAccount { [weak self] in
-                guard let self else {
-                    return
-                }
-                completionHandler()
-                didLogout?(accountNumber)
-            }
-        }
+    func logout() async {
+        guard let accountNumber = preferredAccountNumber else { return }
+        await tunnelManager.unsetAccount()
+        didLogout?(accountNumber)
     }
 
     func cancelAll() {
