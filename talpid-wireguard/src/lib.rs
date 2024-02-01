@@ -1035,7 +1035,7 @@ async fn auto_mtu_detection(
         })
         .collect();
 
-    let res = ping_stream
+    ping_stream
         .map(|res| match res {
             // Map successful pings to packet size
             Ok((packet, _rtt)) => {
@@ -1053,15 +1053,11 @@ async fn auto_mtu_detection(
                 Ok(None)
             }
             // Short circuit and return error on unexpected error types
-            Err(e) => Err(e),
+            Err(e) => Err(Error::MtuDetectionPingError(e)),
         })
         .try_fold(None, |acc, mtu| future::ready(Ok(acc.max(mtu))))
-        .await;
-    match res {
-        Ok(Some(verified_mtu)) => Ok(verified_mtu),
-        Ok(None) => Err(Error::MtuDetectionAllDropped),
-        Err(e) => Err(Error::MtuDetectionPingError(e)),
-    }
+        .await?
+        .ok_or(Error::MtuDetectionAllDropped)
 }
 
 /// Creates a linear spacing of MTU values with the given step size. Always includes the given end
