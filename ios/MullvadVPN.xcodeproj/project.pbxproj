@@ -192,7 +192,6 @@
 		587EB672271451E300123C75 /* PreferencesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587EB671271451E300123C75 /* PreferencesViewModel.swift */; };
 		587EB6742714520600123C75 /* PreferencesDataSourceDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587EB6732714520600123C75 /* PreferencesDataSourceDelegate.swift */; };
 		588395602A9DEEA1008B63F6 /* WgAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5883955F2A9DEEA1008B63F6 /* WgAdapter.swift */; };
-		5883A09E266A5AF7003EFFCB /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 587B7543266922BF00DEF7E9 /* Localizable.strings */; };
 		588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */; };
 		588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */; };
 		5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD82227B11080051EB06 /* SelectLocationCell.swift */; };
@@ -1420,7 +1419,6 @@
 		587B753C2666468F00DEF7E9 /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
 		587B753E2668E5A700DEF7E9 /* NotificationContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationContainerView.swift; sourceTree = "<group>"; };
 		587B75402668FD7700DEF7E9 /* AccountExpirySystemNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpirySystemNotificationProvider.swift; sourceTree = "<group>"; };
-		587B7544266922BF00DEF7E9 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		587C575226D2615F005EF767 /* PacketTunnelOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelOptions.swift; sourceTree = "<group>"; };
 		587CBFE222807F530028DED3 /* UIColor+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Helpers.swift"; sourceTree = "<group>"; };
 		587D96732886D87C00CD8F1C /* DeviceManagementContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceManagementContentView.swift; sourceTree = "<group>"; };
@@ -2192,15 +2190,6 @@
 			path = AccessMethodRepository;
 			sourceTree = "<group>";
 		};
-		582CFEE1269448160072883A /* Localizations */ = {
-			isa = PBXGroup;
-			children = (
-				587B7543266922BF00DEF7E9 /* Localizable.strings */,
-			);
-			name = Localizations;
-			path = MullvadVPN;
-			sourceTree = "<group>";
-		};
 		583FE01329C102EB006E85F9 /* Navigation */ = {
 			isa = PBXGroup;
 			children = (
@@ -2924,7 +2913,6 @@
 			children = (
 				58F3C0A824A50C0E003E76BE /* Assets */,
 				58ECD29023F178FD004298B6 /* Configurations */,
-				582CFEE1269448160072883A /* Localizations */,
 				589A454A28DDF59B00565204 /* Shared */,
 				58CE5E62224146200008646E /* MullvadVPN */,
 				58D0C79423F1CE7000FE9BA7 /* MullvadVPNScreenshots */,
@@ -4209,7 +4197,6 @@
 				7A02D4EB2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan in Resources */,
 				587DCCEF287D84A500CE821E /* countries.geo.json in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
-				5883A09E266A5AF7003EFFCB /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5436,17 +5423,6 @@
 			targetProxy = F04F959E2B21D02700431E08 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		587B7543266922BF00DEF7E9 /* Localizable.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				587B7544266922BF00DEF7E9 /* en */,
-			);
-			name = Localizable.strings;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		06799AD428F98E1D00ACD94E /* Debug */ = {

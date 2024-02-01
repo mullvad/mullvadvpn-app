@@ -40,23 +40,18 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
     var notificationRequest: UNNotificationRequest? {
         guard let trigger else { return nil }
 
-        _ = NSLocalizedString(
+        let content = UNMutableNotificationContent()
+        content.title = NSLocalizedString(
             "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE",
+            tableName: "AccountExpiry",
+            value: "Account credit expires soon",
             comment: "Title for system account expiry notification, fired 3 days prior to account expiry."
         )
-        _ = NSLocalizedString(
+        content.body = NSLocalizedString(
             "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY",
+            tableName: "AccountExpiry",
+            value: "Account credit expires in 3 days. Buy more credit.",
             comment: "Message for system account expiry notification, fired 3 days prior to account expiry."
-        )
-
-        let content = UNMutableNotificationContent()
-        content.title = NSString.localizedUserNotificationString(
-            forKey: "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE",
-            arguments: nil
-        )
-        content.body = NSString.localizedUserNotificationString(
-            forKey: "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY",
-            arguments: nil
         )
         content.sound = UNNotificationSound.default
 
