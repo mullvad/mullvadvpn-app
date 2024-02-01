@@ -392,7 +392,7 @@ impl WireguardMonitor {
                     // tokio::time::sleep(Duration::from_secs(10)).await; // TODO: Delete this
                     // before merging
                     log::debug!("Starting MTU detection");
-                    let verified_mtu = match get_mtu(
+                    let verified_mtu = match auto_mtu_detection(
                         gateway,
                         #[cfg(any(target_os = "macos", target_os = "linux"))]
                         iface_name_clone.clone(),
@@ -991,7 +991,7 @@ impl WireguardMonitor {
 }
 
 #[cfg(target_os = "linux")]
-async fn get_mtu(
+async fn auto_mtu_detection(
     gateway: std::net::Ipv4Addr,
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
     max_mtu: usize,
