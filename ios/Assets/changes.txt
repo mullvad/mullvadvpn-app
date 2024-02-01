@@ -1,4 +1,2 @@
-CHANGE THIS BEFORE A RELEASE
-Each line is treated as a separate change item shown in the GUI the first time it runs after install.
-Start each line with a capital letter and end each line with a period.
-Only point out the major changes.
+Add option to configure custom API access methods.
+Custom API access methods allows you to circumvent censorship by proxying API traffic.
