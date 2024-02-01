@@ -991,6 +991,10 @@ impl WireguardMonitor {
 }
 
 #[cfg(target_os = "linux")]
+/// Detects the maximum MTU that does not cause dropped packets.
+///
+/// The detection works by sending evenly spread out range of pings between 576 and the given
+/// current tunnel MTU, and returning the maximum packet size that war returned within a timeout.
 async fn auto_mtu_detection(
     gateway: std::net::Ipv4Addr,
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
