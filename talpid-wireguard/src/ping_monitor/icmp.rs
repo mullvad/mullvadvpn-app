@@ -61,9 +61,6 @@ pub struct Pinger {
 
 impl Pinger {
     /// Creates a new `Pinger`.
-    ///
-    /// `mtu_discover` sets the `IP_MTU_DISCOVER` flag for the socker, implying no fragementation is
-    /// allowed.
     pub fn new(
         addr: Ipv4Addr,
         #[cfg(not(target_os = "windows"))] interface_name: String,
