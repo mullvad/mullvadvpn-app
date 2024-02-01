@@ -1036,6 +1036,7 @@ async fn auto_mtu_detection(
 
     let res = set
         .map(|res| match res {
+            // Map successful pings to packet size
             Ok((packet, _rtt)) => {
                 let surge_ping::IcmpPacket::V4(packet) = packet else {
                     panic!("ICMP ping response was not of IPv4 type");
@@ -1045,10 +1046,12 @@ async fn auto_mtu_detection(
                 debug_assert_eq!(size, linspace[packet.get_sequence().0 as usize]);
                 Ok(Some(size))
             }
+            // Filter out dropped pings
             Err(SurgeError::Timeout { seq }) => {
                 log::info!("Ping of size {} dropped", linspace[seq.0 as usize]);
                 Ok(None)
             }
+            // Short circuit and return error on unexpected error types
             Err(e) => Err(e),
         })
         .try_fold(None, |acc, x| async move { Ok(std::cmp::max(acc, x)) })
