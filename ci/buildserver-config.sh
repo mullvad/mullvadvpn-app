@@ -19,9 +19,9 @@ export SUPPORTED_DEB_CODENAMES
 export SUPPORTED_RPM_ARCHITECTURES=("x86_64" "aarch64")
 
 # Servers to upload Linux deb/rpm repositories to
-export DEV_LINUX_REPOSITORY_SERVERS=("se-got-cdn-001.devmole.eu" "se-got-cdn-002.devmole.eu")
-export STAGING_LINUX_REPOSITORY_SERVERS=("se-got-cdn-001.stagemole.eu" "se-got-cdn-002.stagemole.eu")
-export PRODUCTION_LINUX_REPOSITORY_SERVERS=("se-got-cdn-111.mullvad.net" "se-mma-cdn-101.mullvad.net")
+export DEV_LINUX_REPOSITORY_SERVERS=("cdn.devmole.eu")
+export STAGING_LINUX_REPOSITORY_SERVERS=("cdn.stagemole.eu")
+export PRODUCTION_LINUX_REPOSITORY_SERVERS=("cdn.mullvad.net")
 
 export DEV_LINUX_REPOSITORY_PUBLIC_URL="https://repository.devmole.eu"
 export STAGING_LINUX_REPOSITORY_PUBLIC_URL="https://repository.stagemole.eu"
