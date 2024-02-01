@@ -34,7 +34,7 @@ pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
 
     if unsafe { libc::ioctl(sock.as_raw_fd(), libc::SIOCSIFMTU, &ifr) } < 0 {
         let e = std::io::Error::last_os_error();
-        log::error!("{}", e.display_chain_with_msg("libc::ioctl failed"));
+        log::error!("{}", e.display_chain_with_msg("SIOCSIFMTU failed"));
         return Err(e);
     }
     Ok(())
