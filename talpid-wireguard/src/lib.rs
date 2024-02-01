@@ -42,6 +42,9 @@ use tunnel_obfuscation::{
     create_obfuscator, Error as ObfuscationError, Settings as ObfuscationSettings, Udp2TcpSettings,
 };
 
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
+
 /// WireGuard config data-types
 pub mod config;
 mod connectivity_check;
@@ -998,6 +1001,7 @@ async fn auto_mtu_detection(
 ) -> Result<u16> {
     use futures::{stream::FuturesOrdered, TryStreamExt};
     use surge_ping::{Client, Config, PingIdentifier, PingSequence, SurgeError};
+    use talpid_tunnel::{ICMP_HEADER_SIZE, MIN_IPV4_MTU};
     use tokio_stream::StreamExt;
 
     const PING_TIMEOUT: Duration = Duration::from_secs(5);
@@ -1010,7 +1014,7 @@ async fn auto_mtu_detection(
 
     let step_size = 20;
 
-    let linspace = mtu_spacing(MIN_MTU_IPV4, current_mtu, step_size);
+    let linspace = mtu_spacing(MIN_IPV4_MTU, current_mtu, step_size);
 
     let set: FuturesOrdered<_> = linspace
         .iter()
