@@ -12,7 +12,8 @@ use once_cell::sync::Lazy;
 use std::borrow::Cow;
 #[cfg(target_os = "linux")]
 use std::env;
-
+#[cfg(target_os = "windows")]
+use std::io;
 use std::{
     convert::Infallible,
     net::IpAddr,
