@@ -22,7 +22,7 @@ use mullvad_types::access_method::{
 use std::{net::SocketAddr, path::PathBuf};
 use talpid_core::mpsc::Sender;
 use talpid_types::net::{
-    AllowedClients, AllowedEndpoint, ConnectivityInfo, Endpoint, TransportProtocol,
+    AllowedClients, AllowedEndpoint, Connectivity, Endpoint, TransportProtocol,
 };
 
 pub enum Message {
@@ -532,7 +532,7 @@ pub fn allowed_clients(connection_mode: &ApiConnectionMode) -> AllowedClients {
 /// Forwards the received values from `offline_state_rx` to the [`ApiAvailabilityHandle`].
 pub(crate) fn forward_offline_state(
     api_availability: ApiAvailabilityHandle,
-    mut offline_state_rx: mpsc::UnboundedReceiver<ConnectivityInfo>,
+    mut offline_state_rx: mpsc::UnboundedReceiver<Connectivity>,
 ) {
     tokio::spawn(async move {
         let is_offline = offline_state_rx
