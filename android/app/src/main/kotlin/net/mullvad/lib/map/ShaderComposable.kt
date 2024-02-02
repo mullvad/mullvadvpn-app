@@ -43,12 +43,11 @@ fun MapGLShader(modifier: Modifier = Modifier, coordinate: Coordinate, zoom: Flo
     }
 
     //    animateFloatAsState(targetValue = )
-    val gothenburg = Coordinate(57.7089f, 11.9746f)
     val mapViewState =
         MapViewState(
             zoom = zoom,
-            cameraCoordinate = gothenburg,
-            locationMarker = Marker(gothenburg, MarkerType.SECURE),
+            cameraCoordinate = coordinate,
+            locationMarker = Marker(coordinate, MarkerType.SECURE),
             percent = percent,
             mode = mode,
             fov = fov
