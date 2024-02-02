@@ -15,7 +15,7 @@ BUILD_TYPE="release"
 GRADLE_BUILD_TYPE="release"
 GRADLE_TASKS=(createOssProdReleaseDistApk createPlayProdReleaseDistApk)
 BUNDLE_TASKS=(createPlayProdReleaseDistBundle)
-CARGO_ARGS="--release"
+CARGO_ARGS=( "--release" )
 EXTRA_WGGO_ARGS=""
 BUILD_BUNDLE="no"
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
@@ -25,7 +25,7 @@ while [ -n "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
         BUILD_TYPE="debug"
         GRADLE_BUILD_TYPE="debug"
-        CARGO_ARGS=""
+        CARGO_ARGS=()
         GRADLE_TASKS=(createOssProdDebugDistApk)
         BUNDLE_TASKS=(createOssProdDebugDistBundle)
     elif [[ "${1:-""}" == "--fdroid" ]]; then
@@ -55,9 +55,9 @@ fi
 if [[ "$BUILD_TYPE" == "release" && "$PRODUCT_VERSION" != *"-dev-"* ]]; then
     echo "Removing old Rust build artifacts"
     cargo clean
-    CARGO_ARGS+=" --locked"
+    CARGO_ARGS+=( "--locked" )
 else
-    CARGO_ARGS+=" --features api-override"
+    CARGO_ARGS+=( "--features" "api-override" )
     GRADLE_TASKS+=(createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
     BUNDLE_TASKS+=(createPlayDevmoleReleaseDistBundle createPlayStagemoleReleaseDistBundle)
 fi
@@ -103,7 +103,7 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     esac
 
     echo "Building mullvad-daemon for $TARGET"
-    cargo build "$CARGO_ARGS" --target "$TARGET" --package mullvad-jni
+    cargo build "${CARGO_ARGS[@]}" --target "$TARGET" --package mullvad-jni
 
     STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/llvm-strip"
     TARGET_LIB_PATH="$SCRIPT_DIR/android/app/build/extraJni/$ABI/libmullvad_jni.so"
@@ -117,7 +117,7 @@ for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
 done
 
 echo "Updating relays.json..."
-cargo run --bin relay_list "$CARGO_ARGS" > build/relays.json
+cargo run --bin relay_list "${CARGO_ARGS[@]}" > build/relays.json
 
 cd "$SCRIPT_DIR/android"
 $GRADLE_CMD --console plain "${GRADLE_TASKS[@]}"
