@@ -4,6 +4,7 @@ import android.content.Context
 import android.opengl.GLES31
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import android.util.Log
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import net.mullvad.lib.map.data.Coordinate
@@ -12,15 +13,22 @@ import net.mullvad.lib.map.data.Marker
 import net.mullvad.lib.map.data.MarkerType
 import net.mullvad.lib.map.shapes.Globe
 import net.mullvad.lib.map.shapes.LocationMarker
+import kotlin.math.tan
 
 class MapGLRenderer(val context: Context) : GLSurfaceView.Renderer {
     private lateinit var globe: Globe
     private lateinit var secureLocationMarker: LocationMarker
     private lateinit var unsecureLocationMarker: LocationMarker
+    private val fov = 70f
 
     private val gothenburgCoordinate = Coordinate(57.7089f, 11.9746f)
     private var viewState: MapViewState =
-        MapViewState(2.75f, gothenburgCoordinate, Marker(gothenburgCoordinate, MarkerType.UNSECURE))
+        MapViewState(
+            2.75f,
+            gothenburgCoordinate,
+            Marker(gothenburgCoordinate, MarkerType.UNSECURE),
+            0f
+        )
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // Set the background frame color
@@ -55,32 +63,47 @@ class MapGLRenderer(val context: Context) : GLSurfaceView.Renderer {
         val viewMatrix = FloatArray(16)
         Matrix.setIdentityM(viewMatrix, 0)
 
-        val offsetY = 0.088f + (viewState.zoom) * 0.1f
-
-        Matrix.translateM(viewMatrix, 0, 0f, offsetY, -viewState.zoom)
-
+        Matrix.translateM(viewMatrix, 0, 0f, 0f, -viewState.zoom)
         Matrix.rotateM(viewMatrix, 0, viewState.cameraCoordinate.lat, 1f, 0f, 0f)
         Matrix.rotateM(viewMatrix, 0, viewState.cameraCoordinate.lon, 0f, -1f, 0f)
 
-        globe.draw(projectionMatrix.copyOf(), viewMatrix.copyOf())
+        val vP = projectionMatrix.copyOf()
+
+        val percent = viewState.percent
+        fov * (percent - 1/2)
+        val cameraTilt =
+            (0.5f - percent)* fov // atan2(distanceFromCenter, z) * 180f/Math.PI.toFloat() - 90f + fov
+        Matrix.rotateM(vP, 0, cameraTilt, 1f, 0f, 0f)
+
+        val z = viewState.zoom-1f
+        val planeSize = tan(fov.toRadians()/2f) * z
+
+        //        val distanceFromTop = planeSize * percent
+        //        val distanceFromCenter = abs(distanceFromTop - planeSize/2f)
+        //
+
+
+        globe.draw(vP.copyOf(), viewMatrix.copyOf())
 
         when (viewState.locationMarker.type) {
             MarkerType.SECURE ->
                 secureLocationMarker.draw(
-                    projectionMatrix,
+                    vP,
                     viewMatrix.copyOf(),
                     viewState.locationMarker.coordinate,
                     0.02f
                 )
             MarkerType.UNSECURE ->
                 unsecureLocationMarker.draw(
-                    projectionMatrix,
+                    vP,
                     viewMatrix.copyOf(),
                     viewState.locationMarker.coordinate,
                     0.02f
                 )
         }
     }
+
+    private fun Float.toRadians() = this * Math.PI.toFloat() / 180f
 
     private fun clear() {
         // Redraw background color
@@ -100,7 +123,8 @@ class MapGLRenderer(val context: Context) : GLSurfaceView.Renderer {
 
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
-        Matrix.perspectiveM(projectionMatrix, 0, 70f, ratio, 0.1f, 10f)
+        Log.d("MullvadMap", "Ratio: $ratio")
+        Matrix.perspectiveM(projectionMatrix, 0, fov, ratio, 0.05f, 10f)
     }
 
     fun setViewState(viewState: MapViewState) {

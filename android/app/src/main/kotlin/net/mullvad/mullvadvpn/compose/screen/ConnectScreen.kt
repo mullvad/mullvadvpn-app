@@ -2,15 +2,19 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -26,11 +30,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -186,8 +192,28 @@ fun ConnectScreen(
         deviceName = uiState.deviceName,
         timeLeft = uiState.daysLeftUntilExpiry
     ) {
-        var zoom by remember { mutableFloatStateOf(1.4f) }
-        MullvadMap(Coordinate(0f, 0f), zoom)
+        var zoom by remember { mutableFloatStateOf(1.10175f) }
+        var bias by remember { mutableFloatStateOf(0.5f) }
+        MullvadMap(
+            modifier = Modifier.padding(top = it.calculateTopPadding()),
+            Coordinate(0f, 0f),
+            zoom,
+            bias
+        )
+        ConstraintLayout(
+            modifier = Modifier.padding(top = it.calculateTopPadding()).fillMaxSize()
+        ) {
+            val (divider) = createRefs()
+            Divider(
+                modifier =
+                    Modifier.background(Color.Cyan).constrainAs(divider) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        top.linkTo(parent.top)
+                        centerVerticallyTo(parent, bias)
+                    }
+            )
+        }
         Column(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.Start,
@@ -212,10 +238,20 @@ fun ConnectScreen(
             )
             Slider(
                 modifier = Modifier.padding(16.dp),
+                value = bias,
+                onValueChange = { bias = it },
+                valueRange = 0f..1f,
+            )
+            Slider(
+                modifier = Modifier.padding(16.dp),
                 value = zoom,
                 onValueChange = { zoom = it },
-                valueRange = 0.5f..3f,
+                valueRange = 1f..10f,
             )
+            Button(onClick = { zoom -= 0.01f }) { Text(text = "-0.01") }
+            Button(onClick = { zoom -= 0.001f }) { Text(text = "-0.001") }
+            Button(onClick = { zoom += 0.001f }) { Text(text = "0.001") }
+            Text(text = "Zoom: $zoom")
             Spacer(modifier = Modifier.weight(1f))
             if (
                 uiState.tunnelRealState is TunnelState.Connecting ||
