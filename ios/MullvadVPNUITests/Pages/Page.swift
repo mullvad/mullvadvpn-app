@@ -30,4 +30,10 @@ class Page {
         app.typeText(text)
         return self
     }
+
+    /// Fast swipe down action to dismiss a modal view. Will swipe on the middle of the screen.
+    @discardableResult func swipeDownToDismissModal() -> Self {
+        app.swipeDown(velocity: .fast)
+        return self
+    }
 }
