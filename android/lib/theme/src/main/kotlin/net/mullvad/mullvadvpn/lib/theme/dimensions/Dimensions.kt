@@ -32,6 +32,7 @@ data class Dimensions(
     val connectButtonExtraPadding: Dp = 4.dp,
     val countryRowPadding: Dp = 18.dp,
     val customPortBoxMinWidth: Dp = 80.dp,
+    val deleteIconSize: Dp = 18.dp,
     val dialogIconHeight: Dp = 44.dp,
     val dialogIconSize: Dp = 48.dp,
     val expandableCellChevronSize: Dp = 30.dp,
