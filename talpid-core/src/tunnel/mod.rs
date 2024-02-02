@@ -196,15 +196,15 @@ impl TunnelMonitor {
     /// Calculates and appropriate tunnel MTU based on the given peer MTU minus header sizes
     #[cfg(any(target_os = "linux", target_os = "windows"))]
     fn clamp_mtu(params: &wireguard_types::TunnelParameters, peer_mtu: u16) -> u16 {
+        use talpid_tunnel::{
+            IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, MIN_IPV4_MTU, MIN_IPV6_MTU, WIREGUARD_HEADER_SIZE,
+        };
         // Some users experience fragmentation issues even when we take the interface MTU and
         // subtract the header sizes. This is likely due to some program that they use which does
         // not change the interface MTU but adds its own header onto the outgoing packets. For this
         // reason we subtract some extra bytes from our MTU in order to give other programs some
         // safety margin.
-
-        use talpid_tunnel::{
-            IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, MIN_IPV4_MTU, MIN_IPV6_MTU, WIREGUARD_HEADER_SIZE,
-        };
+        const MTU_SAFETY_MARGIN: u16 = 60;
 
         let total_header_size = WIREGUARD_HEADER_SIZE
             + match params.connection.peer.endpoint.is_ipv6() {
@@ -212,10 +212,8 @@ impl TunnelMonitor {
                 true => IPV6_HEADER_SIZE,
             };
 
-        const MTU_SAFETY_MARGIN: u16 = 60;
         // The largest peer MTU that we allow
         let max_peer_mtu: u16 = 1500 - MTU_SAFETY_MARGIN - total_header_size;
-        // The minimum allowed MTU size for our tunnel in IPv6 is 1280 and 576 for IPv4
 
         let min_mtu = match params.generic_options.enable_ipv6 {
             false => MIN_IPV4_MTU,
