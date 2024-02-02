@@ -1077,7 +1077,7 @@ fn mtu_spacing(mtu_min: u16, mtu_max: u16, step_size: u16) -> Vec<u16> {
     }
     let second_mtu = mtu_min.next_multiple_of(step_size);
     let in_between = (second_mtu..mtu_max).step_by(step_size as usize);
-    let mut ret = Vec::with_capacity(((mtu_max - mtu_min) / 3 + 2) as usize);
+    let mut ret = Vec::with_capacity(((mtu_max - second_mtu).div_ceil(step_size) + 2) as usize);
     ret.push(mtu_min);
     ret.extend(in_between);
     ret.push(mtu_max);
