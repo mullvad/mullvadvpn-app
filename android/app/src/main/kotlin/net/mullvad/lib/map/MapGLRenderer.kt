@@ -7,19 +7,18 @@ import android.opengl.Matrix
 import android.util.Log
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+import kotlin.math.tan
 import net.mullvad.lib.map.data.Coordinate
 import net.mullvad.lib.map.data.MapViewState
 import net.mullvad.lib.map.data.Marker
 import net.mullvad.lib.map.data.MarkerType
 import net.mullvad.lib.map.shapes.Globe
 import net.mullvad.lib.map.shapes.LocationMarker
-import kotlin.math.tan
 
 class MapGLRenderer(val context: Context) : GLSurfaceView.Renderer {
     private lateinit var globe: Globe
     private lateinit var secureLocationMarker: LocationMarker
     private lateinit var unsecureLocationMarker: LocationMarker
-    private val fov = 70f
 
     private val gothenburgCoordinate = Coordinate(57.7089f, 11.9746f)
     private var viewState: MapViewState =
@@ -27,7 +26,9 @@ class MapGLRenderer(val context: Context) : GLSurfaceView.Renderer {
             2.75f,
             gothenburgCoordinate,
             Marker(gothenburgCoordinate, MarkerType.UNSECURE),
-            0f
+            0f,
+            false,
+            70f
         )
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
@@ -63,25 +64,34 @@ class MapGLRenderer(val context: Context) : GLSurfaceView.Renderer {
         val viewMatrix = FloatArray(16)
         Matrix.setIdentityM(viewMatrix, 0)
 
-        Matrix.translateM(viewMatrix, 0, 0f, 0f, -viewState.zoom)
+        val percent = viewState.percent
+
+        val offsetY =
+            if (!viewState.mode) {
+                val z = viewState.zoom - 1f
+                val planeSize = tan(viewState.fov.toRadians() / 2f) * z * 2f
+                planeSize * (0.5f - percent)
+            } else {
+                0f
+            }
+        Matrix.translateM(viewMatrix, 0, 0f, offsetY, -viewState.zoom)
         Matrix.rotateM(viewMatrix, 0, viewState.cameraCoordinate.lat, 1f, 0f, 0f)
         Matrix.rotateM(viewMatrix, 0, viewState.cameraCoordinate.lon, 0f, -1f, 0f)
 
         val vP = projectionMatrix.copyOf()
 
-        val percent = viewState.percent
-        fov * (percent - 1/2)
-        val cameraTilt =
-            (0.5f - percent)* fov // atan2(distanceFromCenter, z) * 180f/Math.PI.toFloat() - 90f + fov
-        Matrix.rotateM(vP, 0, cameraTilt, 1f, 0f, 0f)
+        if (viewState.mode) {
 
-        val z = viewState.zoom-1f
-        val planeSize = tan(fov.toRadians()/2f) * z
+            val cameraTilt =
+                (0.5f - percent) *
+                    viewState
+                        .fov // atan2(distanceFromCenter, z) * 180f/Math.PI.toFloat() - 90f + fov
+            Matrix.rotateM(vP, 0, cameraTilt, 1f, 0f, 0f)
 
-        //        val distanceFromTop = planeSize * percent
-        //        val distanceFromCenter = abs(distanceFromTop - planeSize/2f)
-        //
-
+            //        val distanceFromTop = planeSize * percent
+            //        val distanceFromCenter = abs(distanceFromTop - planeSize/2f)
+            //
+        }
 
         globe.draw(vP.copyOf(), viewMatrix.copyOf())
 
@@ -116,6 +126,11 @@ class MapGLRenderer(val context: Context) : GLSurfaceView.Renderer {
         GLES31.glClear(GLES31.GL_COLOR_BUFFER_BIT or GLES31.GL_DEPTH_BUFFER_BIT)
     }
 
+    fun onFovChanged(fov: Float, width: Int, height: Int) {
+        val ratio: Float = width.toFloat() / height.toFloat()
+        Matrix.perspectiveM(projectionMatrix, 0, viewState.fov, ratio, 0.05f, 10f)
+    }
+
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         GLES31.glViewport(0, 0, width, height)
 
@@ -124,7 +139,7 @@ class MapGLRenderer(val context: Context) : GLSurfaceView.Renderer {
         // this projection matrix is applied to object coordinates
         // in the onDrawFrame() method
         Log.d("MullvadMap", "Ratio: $ratio")
-        Matrix.perspectiveM(projectionMatrix, 0, fov, ratio, 0.05f, 10f)
+        Matrix.perspectiveM(projectionMatrix, 0, viewState.fov, ratio, 0.05f, 10f)
     }
 
     fun setViewState(viewState: MapViewState) {

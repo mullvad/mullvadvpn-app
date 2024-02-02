@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -194,11 +195,15 @@ fun ConnectScreen(
     ) {
         var zoom by remember { mutableFloatStateOf(1.10175f) }
         var bias by remember { mutableFloatStateOf(0.5f) }
+        var fov by remember { mutableFloatStateOf(70f) }
+        var mode by remember { mutableStateOf(false) }
         MullvadMap(
             modifier = Modifier.padding(top = it.calculateTopPadding()),
             Coordinate(0f, 0f),
             zoom,
-            bias
+            bias,
+            mode,
+            fov
         )
         ConstraintLayout(
             modifier = Modifier.padding(top = it.calculateTopPadding()).fillMaxSize()
@@ -248,10 +253,15 @@ fun ConnectScreen(
                 onValueChange = { zoom = it },
                 valueRange = 1f..10f,
             )
-            Button(onClick = { zoom -= 0.01f }) { Text(text = "-0.01") }
-            Button(onClick = { zoom -= 0.001f }) { Text(text = "-0.001") }
-            Button(onClick = { zoom += 0.001f }) { Text(text = "0.001") }
-            Text(text = "Zoom: $zoom")
+            Slider(
+                modifier = Modifier.padding(16.dp),
+                value = fov,
+                onValueChange = { fov = it },
+                valueRange = 1f..180f,
+            )
+            Switch(checked = mode, onCheckedChange = { mode = !mode })
+
+            Text(text = "Zoom: $zoom, Bias: $bias, Fov: $fov")
             Spacer(modifier = Modifier.weight(1f))
             if (
                 uiState.tunnelRealState is TunnelState.Connecting ||

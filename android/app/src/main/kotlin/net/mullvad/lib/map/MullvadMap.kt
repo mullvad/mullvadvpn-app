@@ -5,6 +5,6 @@ import androidx.compose.ui.Modifier
 import net.mullvad.lib.map.data.Coordinate
 
 @Composable
-fun MullvadMap(modifier: Modifier, coordinate: Coordinate, zoom: Float, percent: Float) {
-    MapGLShader(modifier = modifier, coordinate = coordinate, zoom = zoom, percent = percent)
+fun MullvadMap(modifier: Modifier, coordinate: Coordinate, zoom: Float, percent: Float, mode: Boolean, fov: Float) {
+    MapGLShader(modifier = modifier, coordinate = coordinate, zoom = zoom, percent = percent, mode, fov)
 }

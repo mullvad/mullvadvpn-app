@@ -1,8 +1,12 @@
 package net.mullvad.lib.map
 
 import android.content.Context
+import android.opengl.GLES10
+import android.opengl.GLES31
+import android.opengl.GLES32
 import android.opengl.GLSurfaceView
 import net.mullvad.lib.map.data.MapViewState
+import javax.microedition.khronos.opengles.GL10
 
 class MapGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
@@ -22,6 +26,7 @@ class MapGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
     fun setData(viewState: MapViewState) {
         renderer.setViewState(viewState)
+        renderer.onFovChanged(viewState.fov, width = width, height = height)
         requestRender()
     }
 }

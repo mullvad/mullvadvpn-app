@@ -15,7 +15,7 @@ import net.mullvad.lib.map.data.Marker
 import net.mullvad.lib.map.data.MarkerType
 
 @Composable
-fun MapGLShader(modifier: Modifier = Modifier, coordinate: Coordinate, zoom: Float, percent: Float) {
+fun MapGLShader(modifier: Modifier = Modifier, coordinate: Coordinate, zoom: Float, percent: Float, mode: Boolean, fov: Float) {
     var view: MapGLSurfaceView? = remember { null }
 
     val lifeCycleState = LocalLifecycleOwner.current.lifecycle
@@ -49,7 +49,9 @@ fun MapGLShader(modifier: Modifier = Modifier, coordinate: Coordinate, zoom: Flo
             zoom = zoom,
             cameraCoordinate = gothenburg,
             locationMarker = Marker(gothenburg, MarkerType.SECURE),
-            percent = percent
+            percent = percent,
+            mode = mode,
+            fov = fov
         )
 
     AndroidView(modifier = modifier, factory = { MapGLSurfaceView(it) }) { glSurfaceView ->
