@@ -50,7 +50,7 @@ mod connectivity_check;
 mod logging;
 mod ping_monitor;
 mod stats;
-#[cfg(unix)]
+#[cfg(target_os = "linux")]
 mod unix;
 #[cfg(wireguard_go)]
 mod wireguard_go;
@@ -269,7 +269,7 @@ impl WireguardMonitor {
     >(
         mut config: Config,
         psk_negotiation: bool,
-        #[cfg(not(target_os = "android"))] detect_mtu: bool,
+        #[cfg(any(target_os = "linux", windows))] detect_mtu: bool,
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
@@ -389,7 +389,7 @@ impl WireguardMonitor {
                 .await?;
             }
 
-            #[cfg(not(target_os = "android"))]
+            #[cfg(any(target_os = "linux", windows))]
             if detect_mtu {
                 let iface_name_clone = iface_name.clone();
                 tokio::task::spawn(async move {
@@ -413,7 +413,7 @@ impl WireguardMonitor {
 
                     if verified_mtu != config.mtu {
                         log::warn!("Lowering MTU from {} to {verified_mtu}", config.mtu);
-                        #[cfg(unix)]
+                        #[cfg(target_os = "linux")]
                         let res = unix::set_mtu(&iface_name_clone, verified_mtu);
                         #[cfg(windows)]
                         let res = talpid_tunnel::network_interface::set_mtu(
@@ -1005,7 +1005,7 @@ impl WireguardMonitor {
 ///
 /// The detection works by sending evenly spread out range of pings between 576 and the given
 /// current tunnel MTU, and returning the maximum packet size that war returned within a timeout.
-#[cfg(not(target_os = "android"))]
+#[cfg(any(target_os = "linux", windows))]
 async fn auto_mtu_detection(
     gateway: std::net::Ipv4Addr,
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
@@ -1082,7 +1082,7 @@ async fn auto_mtu_detection(
 
 /// Creates a linear spacing of MTU values with the given step size. Always includes the given end
 /// points.
-#[cfg(not(target_os = "android"))]
+#[cfg(any(target_os = "linux", windows))]
 fn mtu_spacing(mtu_min: u16, mtu_max: u16, step_size: u16) -> Vec<u16> {
     if mtu_min > mtu_max {
         panic!("Invalid MTU detection range: `mtu_min`={mtu_min}, `mtu_max`={mtu_max}.");
