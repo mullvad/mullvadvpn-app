@@ -34,7 +34,6 @@ private fun PreviewMullvadFilterChip() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MullvadFilterChip(text: String, onRemoveClick: () -> Unit) {
     FilterChip(
@@ -44,7 +43,9 @@ fun MullvadFilterChip(text: String, onRemoveClick: () -> Unit) {
         border =
             FilterChipDefaults.filterChipBorder(
                 borderColor = Color.Transparent,
-                disabledBorderColor = Color.Transparent
+                disabledBorderColor = Color.Transparent,
+                enabled = true,
+                selected = false
             ),
         selected = false,
         onClick = {},
