@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +35,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
@@ -56,7 +58,73 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 @Preview
-private fun PreviewDeviceListScreen() {
+private fun PreviewDeviceListScreenTooManyDevices() {
+    AppTheme {
+        DeviceListScreen(
+            state =
+                DeviceListUiState(
+                    deviceUiItems =
+                        listOf(
+                            DeviceListItemUiState(
+                                device =
+                                    Device(
+                                        id = "ID1",
+                                        name = "Name1",
+                                        pubkey = ByteArray(10),
+                                        created = "2012-12-12 12:12:12 UTC"
+                                    ),
+                                isLoading = false
+                            ),
+                            DeviceListItemUiState(
+                                device =
+                                    Device(
+                                        id = "ID2",
+                                        name = "Name2",
+                                        pubkey = ByteArray(10),
+                                        created = "2012-12-12 12:12:12 UTC"
+                                    ),
+                                isLoading = false
+                            ),
+                            DeviceListItemUiState(
+                                device =
+                                    Device(
+                                        id = "ID3",
+                                        name = "Name3",
+                                        pubkey = ByteArray(10),
+                                        created = "2012-12-12 12:12:12 UTC"
+                                    ),
+                                isLoading = false
+                            ),
+                            DeviceListItemUiState(
+                                device =
+                                    Device(
+                                        id = "ID4",
+                                        name = "Name4",
+                                        pubkey = ByteArray(10),
+                                        created = "2012-12-12 12:12:12 UTC"
+                                    ),
+                                isLoading = false
+                            ),
+                            DeviceListItemUiState(
+                                device =
+                                    Device(
+                                        id = "ID5",
+                                        name = "Name5",
+                                        pubkey = ByteArray(10),
+                                        created = "2012-12-12 12:12:12 UTC"
+                                    ),
+                                isLoading = true
+                            )
+                        ),
+                    isLoading = false
+                )
+        )
+    }
+}
+
+@Composable
+@Preview
+private fun PreviewDeviceListScreenNotTooManyDevices() {
     AppTheme {
         DeviceListScreen(
             state =
@@ -69,14 +137,30 @@ private fun PreviewDeviceListScreen() {
                                         id = "ID",
                                         name = "Name",
                                         pubkey = ByteArray(10),
-                                        created = "2002-12-12"
+                                        created = "2012-12-12 12:12:12 UTC"
                                     ),
                                 isLoading = false
                             )
                         ),
-                    isLoading = true
+                    isLoading = false
                 )
         )
+    }
+}
+
+@Composable
+@Preview
+private fun PreviewDeviceListScreenEmpty() {
+    AppTheme {
+        DeviceListScreen(state = DeviceListUiState(deviceUiItems = emptyList(), isLoading = false))
+    }
+}
+
+@Composable
+@Preview
+private fun PreviewDeviceListLoading() {
+    AppTheme {
+        DeviceListScreen(state = DeviceListUiState(deviceUiItems = emptyList(), isLoading = true))
     }
 }
 
@@ -146,21 +230,51 @@ fun DeviceListScreen(
                         )
                         .verticalScroll(scrollState)
                         .weight(1f)
+                        .fillMaxWidth(),
+                verticalArrangement =
+                    if (state.isLoading) {
+                        Arrangement.Center
+                    } else {
+                        Arrangement.Top
+                    }
             ) {
-                DeviceListHeader(state = state)
-
-                state.deviceUiItems.forEachIndexed { index, deviceUiState ->
-                    DeviceListItem(
-                        deviceUiState = deviceUiState,
-                    ) {
-                        navigateToRemoveDeviceConfirmationDialog(deviceUiState.device)
-                    }
-                    if (state.deviceUiItems.lastIndex != index) {
-                        Divider()
-                    }
+                if (state.isLoading) {
+                    DeviceListLoading()
+                } else {
+                    DeviceListContent(
+                        state = state,
+                        navigateToRemoveDeviceConfirmationDialog =
+                            navigateToRemoveDeviceConfirmationDialog
+                    )
                 }
             }
             DeviceListButtonPanel(state, onContinueWithLogin, onBackClick)
+        }
+    }
+}
+
+@Composable
+private fun ColumnScope.DeviceListLoading() {
+    MullvadCircularProgressIndicatorLarge(
+        modifier = Modifier.padding(Dimens.smallPadding).align(Alignment.CenterHorizontally)
+    )
+}
+
+@Composable
+private fun ColumnScope.DeviceListContent(
+    state: DeviceListUiState,
+    navigateToRemoveDeviceConfirmationDialog: (Device) -> Unit
+) {
+    DeviceListHeader(state = state)
+
+    state.deviceUiItems.forEachIndexed { index, deviceUiState ->
+        DeviceListItem(
+            deviceUiState = deviceUiState,
+        ) {
+            navigateToRemoveDeviceConfirmationDialog(deviceUiState.device)
+        }
+        if (state.deviceUiItems.lastIndex != index) {
+            Divider()
         }
     }
 }
@@ -267,6 +381,8 @@ private fun DeviceListItem(
                     Icon(
                         painter = painterResource(id = R.drawable.icon_close),
                         contentDescription = stringResource(id = R.string.remove_button),
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(size = Dimens.deleteIconSize)
                     )
                 }
             }
