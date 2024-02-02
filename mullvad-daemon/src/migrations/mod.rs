@@ -133,23 +133,9 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option
     let mut settings: serde_json::Value =
         serde_json::from_reader(&settings_bytes[..]).map_err(Error::Deserialize)?;
 
-    if !settings.is_object() {
-        return Err(Error::InvalidSettingsContent);
-    }
-
     let old_settings = settings.clone();
 
-    v1::migrate(&mut settings)?;
-    v2::migrate(&mut settings)?;
-    v3::migrate(&mut settings)?;
-    v4::migrate(&mut settings)?;
-
-    account_history::migrate_location(cache_dir, settings_dir).await;
-    account_history::migrate_formats(settings_dir, &mut settings).await?;
-
-    let migration_data = v5::migrate(&mut settings)?;
-    v6::migrate(&mut settings)?;
-    v7::migrate(&mut settings)?;
+    let migration_data = migrate_settings(Some((cache_dir, settings_dir)), &mut settings).await?;
 
     if settings == old_settings {
         // Nothing changed
@@ -171,6 +157,31 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option
     file.sync_data().await.map_err(Error::SyncSettings)?;
 
     log::debug!("Migrated settings. Wrote settings to {}", path.display());
+
+    Ok(migration_data)
+}
+
+async fn migrate_settings(
+    directories: Option<(&Path, &Path)>,
+    settings: &mut serde_json::Value,
+) -> Result<Option<MigrationData>> {
+    if !settings.is_object() {
+        return Err(Error::InvalidSettingsContent);
+    }
+
+    v1::migrate(settings)?;
+    v2::migrate(settings)?;
+    v3::migrate(settings)?;
+    v4::migrate(settings)?;
+
+    if let Some((cache_dir, settings_dir)) = directories {
+        account_history::migrate_location(cache_dir, settings_dir).await;
+        account_history::migrate_formats(settings_dir, settings).await?;
+    }
+
+    let migration_data = v5::migrate(settings)?;
+    v6::migrate(settings)?;
+    v7::migrate(settings)?;
 
     Ok(migration_data)
 }
@@ -381,5 +392,24 @@ mod windows {
 
     fn is_well_known_sid(sid: &SID, well_known_sid_type: WELL_KNOWN_SID_TYPE) -> bool {
         unsafe { IsWellKnownSid(sid as *const SID as *mut _, well_known_sid_type) == 1 }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use mullvad_types::settings::Settings;
+
+    use crate::migrations::migrate_settings;
+
+    /// Ensure that no migration logic runs for the default settings
+    #[tokio::test]
+    async fn test_settings_format_version() {
+        let settings = Settings::default();
+
+        let mut new_val: serde_json::Value = serde_json::to_value(settings).unwrap();
+        let old_val = new_val.clone();
+        migrate_settings(None, &mut new_val).await.unwrap();
+
+        assert_eq!(old_val, new_val);
     }
 }
