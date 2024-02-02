@@ -310,7 +310,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operationQueue.addOperation(operation)
     }
-    
+
     func setNewAccount() async throws -> StoredAccountData {
         try await setAccount(action: .new)!
     }

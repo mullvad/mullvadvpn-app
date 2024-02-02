@@ -137,7 +137,7 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
         contentView.isEditing = false
 
         contentView.state = .logout
-        
+
         Task {
             [weak self] in
             guard let self else { return }
