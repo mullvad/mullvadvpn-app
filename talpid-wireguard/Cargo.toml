@@ -37,6 +37,7 @@ duct = "0.13"
 byteorder = "1"
 internet-checksum = "0.2"
 socket2 = { version = "0.5.3", features = ["all"] }
+tokio-stream = { version = "0.1", features = ["io-util"] }
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.23"
@@ -48,7 +49,6 @@ netlink-packet-route = "0.13"
 netlink-packet-utils = "0.5.1"
 netlink-proto = "0.10"
 talpid-dbus = { path = "../talpid-dbus" }
-tokio-stream = { version = "0.1", features = ["io-util"] }
 
 [target.'cfg(windows)'.dependencies]
 bitflags = "1.2"
