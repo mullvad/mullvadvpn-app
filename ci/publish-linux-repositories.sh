@@ -14,15 +14,15 @@ source "$SCRIPT_DIR/buildserver-config.sh"
 while [ "$#" -gt 0 ]; do
     case "$1" in
         "--production")
-            repository_servers=("${PRODUCTION_LINUX_REPOSITORY_SERVERS[@]}")
+            repository_servers=("${PRODUCTION_UPLOAD_SERVERS[@]}")
             repository_server_url="$PRODUCTION_LINUX_REPOSITORY_PUBLIC_URL"
             ;;
         "--staging")
-            repository_servers=("${STAGING_LINUX_REPOSITORY_SERVERS[@]}")
+            repository_servers=("${STAGING_UPLOAD_SERVERS[@]}")
             repository_server_url="$STAGING_LINUX_REPOSITORY_PUBLIC_URL"
             ;;
         "--dev")
-            repository_servers=("${DEV_LINUX_REPOSITORY_SERVERS[@]}")
+            repository_servers=("${DEV_UPLOAD_SERVERS[@]}")
             repository_server_url="$DEV_LINUX_REPOSITORY_PUBLIC_URL"
             ;;
         "--deb")
