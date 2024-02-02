@@ -512,3 +512,99 @@ pub fn all_of_the_internet() -> Vec<ipnetwork::IpNetwork> {
         "::0/0".parse().expect("Failed to parse ipv6 network"),
     ]
 }
+
+/// Details about the hosts's connectivity.
+///
+/// Details information about the host's connectivity. Such details may be the
+/// presence of configured IPv4 and/or IPv6.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Connectivity {
+    #[cfg(not(target_os = "android"))]
+    Status {
+        /// Whether IPv4 connectivity seems to be available on the host.
+        ipv4: bool,
+        /// Whether IPv6 connectivity seems to be available on the host.
+        ipv6: bool,
+    },
+    #[cfg(target_os = "android")]
+    Status {
+        /// Whether IPv6 connectivity seems to be available on the host.
+        ipv6: bool,
+    },
+    /// On/offline status could not be verified, but we have no particular
+    /// reason to believe that the host is offline.
+    PresumeOnline,
+    /// Could not verify connectivity status of the host.
+    Unknown,
+    /// The host is suspended.
+    ///
+    /// If the host is suspended, there is a great likelihood that we should
+    /// consider the host to be offline.
+    #[cfg(windows)]
+    Suspended,
+}
+
+impl Connectivity {
+    /// If no IP4 nor IPv6 routes exist, we have no way of reaching the internet
+    /// so we consider ourselves offline.
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    pub fn is_offline(&self) -> bool {
+        matches!(
+            self,
+            Connectivity::Status {
+                ipv4: false,
+                ipv6: false
+            }
+        )
+    }
+
+    /// Update the known IPv4 connectivity status.
+    ///
+    /// * If `self` is of variant [`Connectivity::Status`], simply update its `ipv4` value.
+    /// * If `self` is of any other variant, replace `self` with a [`Connectivity::Status`]
+    /// where the `ipv4` value is equal to the `ipv4` argument of this function.
+    #[cfg(not(target_os = "android"))]
+    pub fn set_ipv4(&mut self, ipv4: bool) {
+        match self {
+            Connectivity::Status { ipv4: _, ipv6 } => {
+                *self = Connectivity::Status { ipv4, ipv6: *ipv6 }
+            }
+            _ => *self = Connectivity::Status { ipv4, ipv6: false },
+        }
+    }
+
+    /// Update the known IPv6 connectivity status.
+    ///
+    /// * If `self` is of variant [`Connectivity::Status`], simply update its `ipv6` value.
+    /// * If `self` is of any other variant, replace `self` with a [`Connectivity::Status`]
+    /// where the `ipv6` value is equal to the `ipv6` argument of this function.
+    #[cfg(not(target_os = "android"))]
+    pub fn set_ipv6(&mut self, ipv6: bool) {
+        match self {
+            Connectivity::Status { ipv4, ipv6: _ } => {
+                *self = Connectivity::Status { ipv4: *ipv4, ipv6 }
+            }
+            _ => *self = Connectivity::Status { ipv4: false, ipv6 },
+        }
+    }
+
+    /// If the host is suspended or if no IP4 nor IPv6 routes exist, we have no
+    /// way of reaching the internet so we consider ourselves offline.
+    #[cfg(target_os = "windows")]
+    pub fn is_offline(&self) -> bool {
+        matches!(
+            self,
+            Connectivity::Status {
+                ipv4: false,
+                ipv6: false
+            } | Connectivity::Suspended
+        )
+    }
+
+    /// If the host does not have configured IPv6 routes, we have no way of
+    /// reaching the internet so we consider ourselves offline.
+    #[cfg(target_os = "android")]
+    pub fn is_offline(&self) -> bool {
+        matches!(self, Connectivity::Status { ipv6: false })
+    }
+}
