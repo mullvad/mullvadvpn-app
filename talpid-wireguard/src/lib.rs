@@ -408,19 +408,17 @@ impl WireguardMonitor {
                         }
                     };
 
-                    #[cfg(windows)]
-                    if let Err(e) = talpid_tunnel::network_interface::set_mtu(
-                        &iface_name_clone,
-                        verified_mtu as u32,
-                        config.ipv6_gateway.is_some(),
-                    ) {
-                        log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
-                    };
-
-                    #[cfg(unix)]
                     if verified_mtu != config.mtu {
                         log::warn!("Lowering MTU from {} to {verified_mtu}", config.mtu);
-                        if let Err(e) = unix::set_mtu(&iface_name_clone, verified_mtu) {
+                        #[cfg(unix)]
+                        let res = unix::set_mtu(&iface_name_clone, verified_mtu);
+                        #[cfg(windows)]
+                        let res = talpid_tunnel::network_interface::set_mtu(
+                            &iface_name_clone,
+                            verified_mtu as u32,
+                            config.ipv6_gateway.is_some(),
+                        );
+                        if let Err(e) = res {
                             log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
                         };
                     } else {
