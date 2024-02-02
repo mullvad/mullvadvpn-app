@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/ios.yml
+      - ios/build-rust-library.sh
       - ios/.swiftformat
       - ios/**/*.swift
       - ios/**/*.xctestplan
