@@ -18,6 +18,7 @@ use std::{
     time::Duration,
 };
 use talpid_routing::{DefaultRouteEvent, RouteManagerHandle};
+use talpid_types::net::Connectivity;
 
 const SYNTHETIC_OFFLINE_DURATION: Duration = Duration::from_secs(1);
 
@@ -28,33 +29,21 @@ pub enum Error {
 }
 
 pub struct MonitorHandle {
-    state: Arc<Mutex<ConnectivityState>>,
-    _notify_tx: Arc<UnboundedSender<bool>>,
-}
-
-#[derive(Clone)]
-struct ConnectivityState {
-    v4_connectivity: bool,
-    v6_connectivity: bool,
-}
-
-impl ConnectivityState {
-    fn get_connectivity(&self) -> bool {
-        self.v4_connectivity || self.v6_connectivity
-    }
+    state: Arc<Mutex<Connectivity>>,
+    _notify_tx: Arc<UnboundedSender<Connectivity>>,
 }
 
 impl MonitorHandle {
     /// Return whether the host is offline
     #[allow(clippy::unused_async)]
-    pub async fn host_is_offline(&self) -> bool {
+    pub async fn host_is_offline(&self) -> Connectivity {
         let state = self.state.lock().unwrap();
-        !state.get_connectivity()
+        *state
     }
 }
 
 pub async fn spawn_monitor(
-    notify_tx: UnboundedSender<bool>,
+    notify_tx: UnboundedSender<Connectivity>,
     route_manager_handle: RouteManagerHandle,
 ) -> Result<MonitorHandle, Error> {
     let notify_tx = Arc::new(notify_tx);
@@ -62,7 +51,7 @@ pub async fn spawn_monitor(
     // note: begin observing before initializing the state
     let route_listener = route_manager_handle.default_route_listener().await?;
 
-    let (v4_connectivity, v6_connectivity) = match route_manager_handle.get_default_routes().await {
+    let (ipv4, ipv6) = match route_manager_handle.get_default_routes().await {
         Ok((v4_route, v6_route)) => (v4_route.is_some(), v6_route.is_some()),
         Err(error) => {
             log::warn!("Failed to initialize offline monitor: {error}");
@@ -72,11 +61,8 @@ pub async fn spawn_monitor(
         }
     };
 
-    let state = ConnectivityState {
-        v4_connectivity,
-        v6_connectivity,
-    };
-    let mut real_state = state.clone();
+    let state = Connectivity::Status { ipv4, ipv6 };
+    let mut real_state = state;
 
     let state = Arc::new(Mutex::new(state));
 
@@ -95,16 +81,17 @@ pub async fn spawn_monitor(
                     let Some(state) = weak_state.upgrade() else {
                         break;
                     };
-                    let mut state = state.lock().unwrap();
-                    *state = real_state.clone();
 
-                    if state.get_connectivity() {
+                    let mut state = state.lock().unwrap();
+                    if *state != real_state && !real_state.is_offline() {
                         log::info!("Connectivity changed: Connected");
                         let Some(tx) = weak_notify_tx.upgrade() else {
                             break;
                         };
-                        let _ = tx.unbounded_send(false);
+                        let _ = tx.unbounded_send(real_state);
                     }
+
+                    *state = real_state;
                 }
 
                 route_event = route_listener.next() => {
@@ -115,16 +102,16 @@ pub async fn spawn_monitor(
                     // Update real state
                     match event {
                         DefaultRouteEvent::AddedOrChangedV4 => {
-                            real_state.v4_connectivity = true;
+                            real_state.set_ipv4(true);
                         }
                         DefaultRouteEvent::AddedOrChangedV6 => {
-                            real_state.v6_connectivity = true;
+                            real_state.set_ipv6(true);
                         }
                         DefaultRouteEvent::RemovedV4 => {
-                            real_state.v4_connectivity = false;
+                            real_state.set_ipv4(false);
                         }
                         DefaultRouteEvent::RemovedV6 => {
-                            real_state.v6_connectivity = false;
+                            real_state.set_ipv6(false);
                         }
                     }
 
@@ -134,18 +121,19 @@ pub async fn spawn_monitor(
                         break;
                     };
                     let mut state = state.lock().unwrap();
-                    let previous_connectivity = state.get_connectivity();
-                    state.v4_connectivity = false;
-                    state.v6_connectivity = false;
+                    let previous_connectivity = *state;
+                    state.set_ipv4(false);
+                    state.set_ipv6(false);
 
-                    if previous_connectivity {
+                    if !previous_connectivity.is_offline() {
                         let Some(tx) = weak_notify_tx.upgrade() else {
                             break;
                         };
-                        let _ = tx.unbounded_send(true);
+                        let _ = tx.unbounded_send(*state);
                         log::info!("Connectivity changed: Offline");
                     }
-                    if real_state.get_connectivity() {
+
+                    if !real_state.is_offline() {
                         timeout = Box::pin(tokio::time::sleep(SYNTHETIC_OFFLINE_DURATION)).fuse();
                     }
                 }
