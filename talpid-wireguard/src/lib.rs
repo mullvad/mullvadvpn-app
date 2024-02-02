@@ -1004,7 +1004,12 @@ async fn auto_mtu_detection(
     use talpid_tunnel::{ICMP_HEADER_SIZE, MIN_IPV4_MTU};
     use tokio_stream::StreamExt;
 
-    const PING_TIMEOUT: Duration = Duration::from_secs(5);
+    /// Max time to wait for any ping, when this expires,
+    /// we give up and throw an `Error::MtuDetectionAllDropped`
+    const PING_TIMEOUT: Duration = Duration::from_secs(10);
+    /// Max time to wait after the first ping arrives. Every ping
+    /// after this timeout will be counted as dropped.
+    const PING_OFFSET_TIMEOUT: Duration = Duration::from_secs(2);
 
     let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
     #[cfg(any(target_os = "macos", target_os = "linux"))]
@@ -1015,6 +1020,8 @@ async fn auto_mtu_detection(
     let linspace = mtu_spacing(MIN_IPV4_MTU, current_mtu, step_size);
 
     let payload_buf = vec![0; current_mtu as usize];
+
+    let mut ping_stream = linspace
         .iter()
         .enumerate()
         .map(|(i, &mtu)| {
@@ -1031,31 +1038,35 @@ async fn auto_mtu_detection(
                     .await
             }
         })
-        .collect();
+        .collect::<FuturesUnordered<_>>()
+        .map_ok(|(packet, _rtt)| {
+            let surge_ping::IcmpPacket::V4(packet) = packet else {
+                panic!("ICMP ping response was not of IPv4 type");
+            };
+            let size = packet.get_size() as u16 + IPV4_HEADER_SIZE;
+            log::trace!("Got ICMP ping response of total size {size}");
+            debug_assert_eq!(size, linspace[packet.get_sequence().0 as usize]);
+            size
+        });
+
+    let first_ping_size = match ping_stream
+        .next()
+        .await
+        .expect("At least one pings should be sent")
+    {
+        Ok(size) => size,
+        // If the first ping we get back timed out, then all of them did
+        Err(SurgeError::Timeout { .. }) => return Err(Error::MtuDetectionAllDropped),
+        // Short circuit and return error on unexpected error types
+        Err(e) => return Err(Error::MtuDetectionPingError(e)),
+    };
 
     ping_stream
-        .map(|res| match res {
-            // Map successful pings to packet size
-            Ok((packet, _rtt)) => {
-                let surge_ping::IcmpPacket::V4(packet) = packet else {
-                    panic!("ICMP ping response was not of IPv4 type");
-                };
-                let size = packet.get_size() as u16 + IPV4_HEADER_SIZE;
-                log::trace!("Got ICMP ping response of total size {size}");
-                debug_assert_eq!(size, linspace[packet.get_sequence().0 as usize]);
-                Ok(Some(size))
-            }
-            // Filter out dropped pings
-            Err(SurgeError::Timeout { seq }) => {
-                log::info!("Ping of size {} dropped", linspace[seq.0 as usize]);
-                Ok(None)
-            }
-            // Short circuit and return error on unexpected error types
-            Err(e) => Err(Error::MtuDetectionPingError(e)),
-        })
-        .try_fold(None, |acc, mtu| future::ready(Ok(acc.max(mtu))))
-        .await?
-        .ok_or(Error::MtuDetectionAllDropped)
+        .timeout(PING_OFFSET_TIMEOUT) // Start a new, sorter, timeout
+        .map_while(|res| res.ok()) // Filter out remaining pings after this timeout
+        .try_fold(first_ping_size, |acc, mtu| future::ready(Ok(acc.max(mtu)))) // Get largest ping
+        .await
+        .map_err(Error::MtuDetectionPingError)
 }
 
 /// Creates a linear spacing of MTU values with the given step size. Always includes the given end
