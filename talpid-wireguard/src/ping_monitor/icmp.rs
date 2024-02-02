@@ -74,8 +74,6 @@ impl Pinger {
         sock.bind_device(Some(interface_name.as_bytes()))
             .map_err(Error::SocketOp)?;
 
-        // nix::sys::socket::setsockopt(fd, opt, val) // TODO: deleteme
-
         #[cfg(target_os = "macos")]
         Self::set_device_index(&sock, &interface_name)?;
 
