@@ -53,7 +53,7 @@ for arch in $ARCHS; do
         "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib "$RELFLAG" --target aarch64-apple-ios
         "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target aarch64-apple-ios
       else
-        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib "$RELFLAG" --target aarch64-apple-ios-sim
+        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target aarch64-apple-ios-sim
         "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target aarch64-apple-ios-sim
       fi
   esac
