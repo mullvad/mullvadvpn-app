@@ -26,6 +26,8 @@ use talpid_routing as routing;
 use talpid_routing::{self, RequiredRoute};
 #[cfg(not(windows))]
 use talpid_tunnel::tun_provider;
+#[cfg(not(target_os = "android"))]
+use talpid_tunnel::IPV4_HEADER_SIZE;
 use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
 
 use ipnetwork::IpNetwork;
@@ -41,8 +43,6 @@ use tokio::sync::Mutex as AsyncMutex;
 use tunnel_obfuscation::{
     create_obfuscator, Error as ObfuscationError, Settings as ObfuscationSettings, Udp2TcpSettings,
 };
-
-use talpid_tunnel::IPV4_HEADER_SIZE;
 
 /// WireGuard config data-types
 pub mod config;
