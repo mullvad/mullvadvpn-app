@@ -75,11 +75,11 @@ pub enum Error {
     SetupRoutingError(#[error(source)] talpid_routing::Error),
 
     /// Failed to set MTU
-    #[error(display = "Failed to detect MTU. Every ping within the valid range was dropped.")]
+    #[error(display = "Failed to detect MTU because every ping was dropped.")]
     MtuDetectionAllDropped,
 
     /// Failed to set MTU
-    #[error(display = "Failed to detect MTU")]
+    #[error(display = "Failed to detect MTU because of unexpected ping error.")]
     MtuDetectionPingError(#[error(source)] surge_ping::SurgeError),
 
     /// Tunnel timed out
@@ -1004,11 +1004,10 @@ async fn auto_mtu_detection(
     use talpid_tunnel::{ICMP_HEADER_SIZE, MIN_IPV4_MTU};
     use tokio_stream::StreamExt;
 
-    /// Max time to wait for any ping, when this expires,
-    /// we give up and throw an `Error::MtuDetectionAllDropped`
+    /// Max time to wait for any ping, when this expires, we give up and throw an error.
     const PING_TIMEOUT: Duration = Duration::from_secs(10);
-    /// Max time to wait after the first ping arrives. Every ping
-    /// after this timeout will be counted as dropped.
+    /// Max time to wait after the first ping arrives. Every ping after this timeout is considered
+    /// dropped, so we return the largest collected packet size.
     const PING_OFFSET_TIMEOUT: Duration = Duration::from_secs(2);
 
     let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
@@ -1063,7 +1062,7 @@ async fn auto_mtu_detection(
 
     ping_stream
         .timeout(PING_OFFSET_TIMEOUT) // Start a new, sorter, timeout
-        .map_while(|res| res.ok()) // Filter out remaining pings after this timeout
+        .map_while(|res| res.ok()) // Stop waiting for pings after this timeout
         .try_fold(first_ping_size, |acc, mtu| future::ready(Ok(acc.max(mtu)))) // Get largest ping
         .await
         .map_err(Error::MtuDetectionPingError)
