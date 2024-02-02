@@ -2,7 +2,8 @@
 set -eu
 shopt -s nullglob
 
-readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly SCRIPT_DIR
 readonly REPO_DIR="$SCRIPT_DIR/.."
 
 # In the CI environment we would like to import trusted public keys from a file,
@@ -76,7 +77,7 @@ for locked_path in $locked_down_paths; do
 
     # Check if important file has been removed.
     if [[ ! -e "$REPO_DIR/$locked_path" ]]; then
-        echo "$locked_path was removed. If this was intentional, remove it from `verify-locked-down-signatures.yml`."
+        echo "$locked_path was removed. If this was intentional, remove it from 'verify-locked-down-signatures.yml'"
         important_file_was_removed=1
     fi
 done

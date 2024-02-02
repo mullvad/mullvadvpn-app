@@ -3,7 +3,7 @@ set -e
 
 BASE_URL=https://api.crowdin.com/api/project/mullvad-app
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-ROOT_DIR=$( dirname $SCRIPT_DIR )
+ROOT_DIR=$( dirname "$SCRIPT_DIR" )
 LOCALE_DIR="$ROOT_DIR/locales"
 
 if [ $# -ne 1 ]; then
@@ -32,9 +32,9 @@ function download_translations {
     wget \
         --content-disposition \
         $BASE_URL/download/all.zip?key="$CROWDIN_API_KEY"
-    unzip -o all.zip -d $LOCALE_DIR
-    find $LOCALE_DIR -type d -exec chmod 755 {} \;
-    find $LOCALE_DIR -type f -exec chmod 644 {} \;
+    unzip -o all.zip -d "$LOCALE_DIR"
+    find "$LOCALE_DIR" -type d -exec chmod 755 {} \;
+    find "$LOCALE_DIR" -type f -exec chmod 644 {} \;
     rm all.zip
 }
 

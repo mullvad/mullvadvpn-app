@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # This takes the following positional arguments 
 # 1. tart VM name
 # 2. Script to execute in the VM
@@ -23,7 +24,7 @@ sleep 10
 
 # apparently, there's a difference between piping into zsh like this and doing
 # a <(echo $SCRIPT).
-cat "$SCRIPT" | ssh admin@$(tart ip "$VM_NAME") bash /dev/stdin
+cat "$SCRIPT" | ssh admin@"$(tart ip "$VM_NAME")" bash /dev/stdin
 script_status=$?
 
 kill $vm_pid

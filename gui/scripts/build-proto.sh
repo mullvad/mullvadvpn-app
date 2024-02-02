@@ -24,8 +24,8 @@ mkdir -p $TYPES_DESTINATION_DIR
 
 if [[ "$PLATFORM" == "Linux" && ("${ARCH,,}" == "arm64" || "${ARCH,,}" == "aarch64") ]]; then
     if [[ -n "${MANAGEMENT_INTERFACE_PROTO_BUILD_DIR}" ]]; then
-      cp $MANAGEMENT_INTERFACE_PROTO_BUILD_DIR/*.js $DESTINATION_DIR
-      cp $MANAGEMENT_INTERFACE_PROTO_BUILD_DIR/*.ts $TYPES_DESTINATION_DIR
+      cp "$MANAGEMENT_INTERFACE_PROTO_BUILD_DIR"/*.js $DESTINATION_DIR
+      cp "$MANAGEMENT_INTERFACE_PROTO_BUILD_DIR"/*.ts $TYPES_DESTINATION_DIR
     else
       >&2 echo "Building management interface proto files on aarch64 is not supported"
       >&2 echo "(see https://github.com/grpc/grpc-node/issues/1497)."
@@ -41,7 +41,7 @@ else
       $PROTO_DIR/$PROTO_FILENAME
 
   "$NODE_MODULES_DIR/grpc_tools_node_protoc" \
-      --plugin=protoc-gen-ts=$TS_PROTOC_PLUGIN \
+      --plugin=protoc-gen-ts="$TS_PROTOC_PLUGIN" \
       --ts_out=grpc_js:$TYPES_DESTINATION_DIR \
       --proto_path=$PROTO_DIR \
       $PROTO_DIR/$PROTO_FILENAME

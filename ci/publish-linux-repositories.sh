@@ -9,6 +9,7 @@ set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# shellcheck source=ci/buildserver-config.sh
 source "$SCRIPT_DIR/buildserver-config.sh"
 
 while [ "$#" -gt 0 ]; do
