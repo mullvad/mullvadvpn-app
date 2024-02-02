@@ -63,8 +63,8 @@ impl DisconnectingState {
                     let _ = complete_tx.send(());
                     AfterDisconnect::Nothing
                 }
-                Some(TunnelCommand::IsOffline(is_offline)) => {
-                    shared_values.is_offline = is_offline;
+                Some(TunnelCommand::Connectivity(connectivity)) => {
+                    shared_values.connectivity = connectivity;
                     AfterDisconnect::Nothing
                 }
                 Some(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
@@ -105,9 +105,9 @@ impl DisconnectingState {
                     let _ = complete_tx.send(());
                     AfterDisconnect::Block(reason)
                 }
-                Some(TunnelCommand::IsOffline(is_offline)) => {
-                    shared_values.is_offline = is_offline;
-                    if !is_offline && matches!(reason, ErrorStateCause::IsOffline) {
+                Some(TunnelCommand::Connectivity(connectivity)) => {
+                    shared_values.connectivity = connectivity;
+                    if !connectivity.is_offline() && matches!(reason, ErrorStateCause::IsOffline) {
                         AfterDisconnect::Reconnect(0)
                     } else {
                         AfterDisconnect::Block(reason)
@@ -152,9 +152,9 @@ impl DisconnectingState {
                     let _ = complete_tx.send(());
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
-                Some(TunnelCommand::IsOffline(is_offline)) => {
-                    shared_values.is_offline = is_offline;
-                    if is_offline {
+                Some(TunnelCommand::Connectivity(connectivity)) => {
+                    shared_values.connectivity = connectivity;
+                    if connectivity.is_offline() {
                         AfterDisconnect::Block(ErrorStateCause::IsOffline)
                     } else {
                         AfterDisconnect::Reconnect(retry_attempt)

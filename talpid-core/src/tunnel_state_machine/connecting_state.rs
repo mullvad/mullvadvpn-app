@@ -57,7 +57,7 @@ impl ConnectingState {
         shared_values: &mut SharedTunnelStateValues,
         retry_attempt: u32,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
-        if shared_values.is_offline {
+        if shared_values.connectivity.is_offline() {
             // FIXME: Temporary: Nudge route manager to update the default interface
             #[cfg(target_os = "macos")]
             if let Ok(handle) = shared_values.route_manager.handle() {
@@ -457,9 +457,9 @@ impl ConnectingState {
                 let _ = complete_tx.send(());
                 SameState(self)
             }
-            Some(TunnelCommand::IsOffline(is_offline)) => {
-                shared_values.is_offline = is_offline;
-                if is_offline {
+            Some(TunnelCommand::Connectivity(connectivity)) => {
+                shared_values.connectivity = connectivity;
+                if connectivity.is_offline() {
                     self.disconnect(
                         shared_values,
                         AfterDisconnect::Block(ErrorStateCause::IsOffline),
