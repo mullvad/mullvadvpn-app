@@ -298,9 +298,9 @@ impl ConnectedState {
                 let _ = complete_tx.send(());
                 SameState(self)
             }
-            Some(TunnelCommand::IsOffline(is_offline)) => {
-                shared_values.is_offline = is_offline;
-                if is_offline {
+            Some(TunnelCommand::IsOffline(status)) => {
+                shared_values.is_offline = status;
+                if status.is_offline() {
                     self.disconnect(
                         shared_values,
                         AfterDisconnect::Block(ErrorStateCause::IsOffline),
