@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +32,6 @@ private fun PreviewMullvadFilterChip() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MullvadFilterChip(text: String, onRemoveClick: () -> Unit) {
     FilterChip(
@@ -44,7 +42,9 @@ fun MullvadFilterChip(text: String, onRemoveClick: () -> Unit) {
         border =
             FilterChipDefaults.filterChipBorder(
                 borderColor = Color.Transparent,
-                disabledBorderColor = Color.Transparent
+                disabledBorderColor = Color.Transparent,
+                enabled = true,
+                selected = false
             ),
         selected = false,
         onClick = {},

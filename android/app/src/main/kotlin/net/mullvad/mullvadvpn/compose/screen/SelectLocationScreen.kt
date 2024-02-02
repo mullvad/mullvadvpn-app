@@ -181,8 +181,10 @@ fun SelectLocationScreen(
                                 uiState.relayListState.selectedRelay.location.location.country
                         }
 
-                    lazyListState.scrollToItem(index)
-                    lazyListState.animateScrollAndCentralizeItem(index)
+                    if (index >= 0) {
+                        lazyListState.scrollToItem(index)
+                        lazyListState.animateScrollAndCentralizeItem(index)
+                    }
                 }
             }
             LazyColumn(
