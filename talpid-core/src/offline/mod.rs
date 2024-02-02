@@ -4,6 +4,7 @@ use once_cell::sync::Lazy;
 use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
+use talpid_types::net::Connectivity;
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -33,35 +34,46 @@ pub use self::imp::Error;
 pub struct MonitorHandle(Option<imp::MonitorHandle>);
 
 impl MonitorHandle {
-    pub async fn host_is_offline(&self) -> bool {
+    pub async fn connectivity(&self) -> Connectivity {
         match self.0.as_ref() {
-            Some(monitor) => monitor.host_is_offline().await,
-            None => false,
+            Some(monitor) => monitor.connectivity().await,
+            None => Connectivity::PresumeOnline,
         }
     }
 }
 
+#[cfg(not(target_os = "android"))]
 pub async fn spawn_monitor(
-    sender: UnboundedSender<bool>,
-    #[cfg(not(target_os = "android"))] route_manager: RouteManagerHandle,
+    sender: UnboundedSender<Connectivity>,
+    route_manager: RouteManagerHandle,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
-    #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<MonitorHandle, Error> {
-    let monitor = if !*FORCE_DISABLE_OFFLINE_MONITOR {
+    let monitor = if *FORCE_DISABLE_OFFLINE_MONITOR {
+        None
+    } else {
         Some(
             imp::spawn_monitor(
                 sender,
-                #[cfg(not(target_os = "android"))]
                 route_manager,
                 #[cfg(target_os = "linux")]
                 fwmark,
-                #[cfg(target_os = "android")]
-                android_context,
             )
             .await?,
         )
-    } else {
+    };
+
+    Ok(MonitorHandle(monitor))
+}
+
+#[cfg(target_os = "android")]
+pub async fn spawn_monitor(
+    sender: UnboundedSender<Connectivity>,
+    android_context: AndroidContext,
+) -> Result<MonitorHandle, Error> {
+    let monitor = if *FORCE_DISABLE_OFFLINE_MONITOR {
         None
+    } else {
+        Some(imp::spawn_monitor(sender, android_context).await?)
     };
 
     Ok(MonitorHandle(monitor))

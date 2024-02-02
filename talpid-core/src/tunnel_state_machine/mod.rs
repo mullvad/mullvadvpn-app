@@ -42,7 +42,7 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_types::{android::AndroidContext, ErrorExt};
 use talpid_types::{
-    net::{AllowedEndpoint, TunnelParameters},
+    net::{AllowedEndpoint, Connectivity, TunnelParameters},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
 };
 
@@ -122,7 +122,7 @@ pub async fn spawn(
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
-    offline_state_listener: mpsc::UnboundedSender<bool>,
+    offline_state_listener: mpsc::UnboundedSender<Connectivity>,
     #[cfg(target_os = "windows")] volume_update_rx: mpsc::UnboundedReceiver<()>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
     #[cfg(target_os = "linux")] linux_ids: LinuxNetworkingIdentifiers,
@@ -199,7 +199,7 @@ pub enum TunnelCommand {
     /// Enable or disable the block_when_disconnected feature.
     BlockWhenDisconnected(bool, oneshot::Sender<()>),
     /// Notify the state machine of the connectivity of the device.
-    IsOffline(bool),
+    Connectivity(Connectivity),
     /// Open tunnel connection.
     Connect,
     /// Close tunnel connection.
@@ -241,7 +241,7 @@ struct TunnelStateMachine {
 struct TunnelStateMachineInitArgs<G: TunnelParametersGenerator> {
     settings: InitialTunnelState,
     command_tx: std::sync::Weak<mpsc::UnboundedSender<TunnelCommand>>,
-    offline_state_tx: mpsc::UnboundedSender<bool>,
+    offline_state_tx: mpsc::UnboundedSender<Connectivity>,
     tunnel_parameters_generator: G,
     tun_provider: TunProvider,
     log_dir: Option<PathBuf>,
@@ -319,13 +319,13 @@ impl TunnelStateMachine {
         let (offline_tx, mut offline_rx) = mpsc::unbounded();
         let initial_offline_state_tx = args.offline_state_tx.clone();
         tokio::spawn(async move {
-            while let Some(offline) = offline_rx.next().await {
+            while let Some(connectivity) = offline_rx.next().await {
                 if let Some(tx) = args.command_tx.upgrade() {
-                    let _ = tx.unbounded_send(TunnelCommand::IsOffline(offline));
+                    let _ = tx.unbounded_send(TunnelCommand::Connectivity(connectivity));
                 } else {
                     break;
                 }
-                let _ = args.offline_state_tx.unbounded_send(offline);
+                let _ = args.offline_state_tx.unbounded_send(connectivity);
             }
         });
         let offline_monitor = offline::spawn_monitor(
@@ -339,8 +339,8 @@ impl TunnelStateMachine {
         )
         .await
         .map_err(Error::OfflineMonitorError)?;
-        let is_offline = offline_monitor.host_is_offline().await;
-        let _ = initial_offline_state_tx.unbounded_send(is_offline);
+        let connectivity = offline_monitor.connectivity().await;
+        let _ = initial_offline_state_tx.unbounded_send(connectivity);
 
         #[cfg(windows)]
         split_tunnel
@@ -357,7 +357,7 @@ impl TunnelStateMachine {
             _offline_monitor: offline_monitor,
             allow_lan: args.settings.allow_lan,
             block_when_disconnected: args.settings.block_when_disconnected,
-            is_offline,
+            connectivity,
             dns_servers: args.settings.dns_servers,
             allowed_endpoint: args.settings.allowed_endpoint,
             tunnel_parameters_generator: Box::new(args.tunnel_parameters_generator),
@@ -441,7 +441,7 @@ struct SharedTunnelStateValues {
     /// Should network access be allowed when in the disconnected state.
     block_when_disconnected: bool,
     /// True when the computer is known to be offline.
-    is_offline: bool,
+    connectivity: Connectivity,
     /// DNS servers to use (overriding default).
     dns_servers: Option<Vec<IpAddr>>,
     /// Endpoint that should not be blocked by the firewall.
