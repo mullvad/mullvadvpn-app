@@ -10,7 +10,7 @@ use jnix::{
     JnixEnv,
 };
 use std::sync::{Arc, Weak};
-use talpid_types::{android::AndroidContext, ErrorExt};
+use talpid_types::{android::AndroidContext, net::Connectivity, ErrorExt};
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -101,15 +101,17 @@ impl MonitorHandle {
     }
 
     #[allow(clippy::unused_async)]
-    pub async fn host_is_offline(&self) -> bool {
+    pub async fn host_is_offline(&self) -> Connectivity {
         match self.get_is_connected() {
-            Ok(is_connected) => !is_connected,
+            Ok(is_connected) => Connectivity::Status {
+                ipv6: !is_connected,
+            },
             Err(error) => {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to check connectivity status")
                 );
-                false
+                Connectivity::Unknown
             }
         }
     }

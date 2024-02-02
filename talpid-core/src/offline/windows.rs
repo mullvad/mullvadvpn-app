@@ -1,5 +1,3 @@
-use talpid_routing::{get_best_default_route, CallbackHandle, EventType, RouteManagerHandle};
-
 use crate::window::{PowerManagementEvent, PowerManagementListener};
 use futures::channel::mpsc::UnboundedSender;
 use parking_lot::Mutex;
@@ -8,7 +6,8 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
-use talpid_types::ErrorExt;
+use talpid_routing::{get_best_default_route, CallbackHandle, EventType, RouteManagerHandle};
+use talpid_types::{net::Connectivity, ErrorExt};
 use talpid_windows::net::AddressFamily;
 
 #[derive(err_derive::Error, Debug)]
@@ -22,23 +21,21 @@ pub enum Error {
 pub struct BroadcastListener {
     system_state: Arc<Mutex<SystemState>>,
     _callback_handle: CallbackHandle,
-    _notify_tx: Arc<UnboundedSender<bool>>,
+    _notify_tx: Arc<UnboundedSender<Connectivity>>,
 }
 
 unsafe impl Send for BroadcastListener {}
 
 impl BroadcastListener {
     pub async fn start(
-        notify_tx: UnboundedSender<bool>,
+        notify_tx: UnboundedSender<Connectivity>,
         route_manager_handle: RouteManagerHandle,
         mut power_mgmt_rx: PowerManagementListener,
     ) -> Result<Self, Error> {
         let notify_tx = Arc::new(notify_tx);
-        let (v4_connectivity, v6_connectivity) = Self::check_initial_connectivity();
+        let (ipv4, ipv6) = Self::check_initial_connectivity();
         let system_state = Arc::new(Mutex::new(SystemState {
-            v4_connectivity,
-            v6_connectivity,
-            suspended: false,
+            connectivity: Connectivity::Status { ipv4, ipv6 },
             notify_tx: Arc::downgrade(&notify_tx),
         }));
 
@@ -139,9 +136,9 @@ impl BroadcastListener {
     }
 
     #[allow(clippy::unused_async)]
-    pub async fn host_is_offline(&self) -> bool {
+    pub async fn host_is_offline(&self) -> Connectivity {
         let state = self.system_state.lock();
-        state.is_offline_currently()
+        state.connectivity
     }
 }
 
@@ -153,10 +150,8 @@ enum StateChange {
 }
 
 struct SystemState {
-    v4_connectivity: bool,
-    v6_connectivity: bool,
-    suspended: bool,
-    notify_tx: Weak<UnboundedSender<bool>>,
+    connectivity: Connectivity,
+    notify_tx: Weak<UnboundedSender<Connectivity>>,
 }
 
 impl SystemState {
@@ -164,23 +159,21 @@ impl SystemState {
         let old_state = self.is_offline_currently();
         match change {
             StateChange::NetworkV4Connectivity(connectivity) => {
-                self.v4_connectivity = connectivity;
+                self.connectivity.set_ipv4(connectivity);
             }
-
             StateChange::NetworkV6Connectivity(connectivity) => {
-                self.v6_connectivity = connectivity;
+                self.connectivity.set_ipv6(connectivity);
             }
-
             StateChange::Suspended(suspended) => {
-                self.suspended = suspended;
+                self.connectivity.set_suspended(suspended);
             }
         };
 
-        let new_state = self.is_offline_currently();
+        let new_state = self.connectivity.is_offline();
         if old_state != new_state {
             log::info!("Connectivity changed: {}", is_offline_str(new_state));
             if let Some(notify_tx) = self.notify_tx.upgrade() {
-                if let Err(e) = notify_tx.unbounded_send(new_state) {
+                if let Err(e) = notify_tx.unbounded_send(self.connectivity) {
                     log::error!("Failed to send new offline state to daemon: {}", e);
                 }
             }
@@ -188,7 +181,7 @@ impl SystemState {
     }
 
     fn is_offline_currently(&self) -> bool {
-        (!self.v4_connectivity && !self.v6_connectivity) || self.suspended
+        self.connectivity.is_offline()
     }
 }
 
@@ -204,7 +197,7 @@ fn is_offline_str(offline: bool) -> &'static str {
 pub type MonitorHandle = BroadcastListener;
 
 pub async fn spawn_monitor(
-    sender: UnboundedSender<bool>,
+    sender: UnboundedSender<Connectivity>,
     route_manager_handle: RouteManagerHandle,
 ) -> Result<MonitorHandle, Error> {
     let power_mgmt_rx = crate::window::PowerManagementListener::new();
