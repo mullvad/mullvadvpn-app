@@ -989,11 +989,11 @@ impl WireguardMonitor {
     }
 }
 
-#[cfg(target_os = "linux")]
 /// Detects the maximum MTU that does not cause dropped packets.
 ///
 /// The detection works by sending evenly spread out range of pings between 576 and the given
 /// current tunnel MTU, and returning the maximum packet size that war returned within a timeout.
+#[cfg(target_os = "linux")]
 async fn auto_mtu_detection(
     gateway: std::net::Ipv4Addr,
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
@@ -1009,26 +1009,24 @@ async fn auto_mtu_detection(
     let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     let config_builder = config_builder.interface(&iface_name);
-    let config = config_builder.build();
-    let client = Client::new(&config).unwrap();
+    let client = Client::new(&config_builder.build()).unwrap();
 
     let step_size = 20;
-
     let linspace = mtu_spacing(MIN_IPV4_MTU, current_mtu, step_size);
-    let largest_payload = vec![0; current_mtu as usize];
 
-    let ping_stream: FuturesUnordered<_> = linspace
+    let payload_buf = vec![0; current_mtu as usize];
         .iter()
         .enumerate()
         .map(|(i, &mtu)| {
             let client = client.clone();
-            let payload = &largest_payload[0..(mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE) as usize];
+            let payload_size = (mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE) as usize;
+            let payload = &payload_buf[0..payload_size];
             async move {
                 log::trace!("Sending ICMP ping of total size {mtu}");
                 client
                     .pinger(IpAddr::V4(gateway), PingIdentifier(111)) //? Is a static identified ok, or should we randomize?
                     .await
-                    .timeout(PING_TIMEOUT) // TODO: choose a good timeout
+                    .timeout(PING_TIMEOUT)
                     .ping(PingSequence(i as u16), payload)
                     .await
             }
