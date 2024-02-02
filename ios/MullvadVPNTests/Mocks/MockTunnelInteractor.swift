@@ -14,7 +14,6 @@ import PacketTunnelCore
 struct MockTunnelInteractor: TunnelInteractor {
     var onUpdateTunnelStatus: ((TunnelStatus)->Void)?
     
-    
     var tunnel: (TunnelProtocol)?
     
     func getPersistentTunnels() -> [TunnelProtocol] {
@@ -26,7 +25,6 @@ struct MockTunnelInteractor: TunnelInteractor {
     }
     
     func setTunnel(_ tunnel: (TunnelProtocol)?, shouldRefreshTunnelState: Bool) {
-        
     }
     
     var tunnelStatus: TunnelStatus =
@@ -45,8 +43,7 @@ struct MockTunnelInteractor: TunnelInteractor {
     
     var deviceState: MullvadSettings.DeviceState
     
-    func setConfigurationLoaded() {
-    }
+    func setConfigurationLoaded() {}
     
     func setSettings(_ settings: MullvadSettings.LatestTunnelSettings, persist: Bool) {
     }
@@ -54,17 +51,13 @@ struct MockTunnelInteractor: TunnelInteractor {
     func setDeviceState(_ deviceState: MullvadSettings.DeviceState, persist: Bool) {
     }
     
-    func removeLastUsedAccount() {
-    }
+    func removeLastUsedAccount() {}
     
-    func handleRestError(_ error: Error) {
-    }
+    func handleRestError(_ error: Error) {}
     
-    func startTunnel() {
-    }
+    func startTunnel() {}
     
-    func prepareForVPNConfigurationDeletion() {
-    }
+    func prepareForVPNConfigurationDeletion() {}
     
     func selectRelay() throws -> PacketTunnelCore.SelectedRelay {
         fatalError()

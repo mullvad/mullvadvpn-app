@@ -17,14 +17,6 @@ final class StartTunnelOperationTests: XCTestCase {
     
     let testQueue = DispatchQueue(label: "StartTunnelOperationTests.testQueue")
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
     func testFailsIfNotLoggedIn() throws {
         let operationQueue = AsyncOperationQueue()
         let settings = LatestTunnelSettings()
@@ -45,6 +37,7 @@ final class StartTunnelOperationTests: XCTestCase {
     }
     
     func testSetsReconnectIfDisconnecting() {
+        let operationQueue = AsyncOperationQueue()
         let settings = LatestTunnelSettings()
         var interactor = MockTunnelInteractor(
             isConfigurationLoaded: true,
@@ -78,6 +71,7 @@ final class StartTunnelOperationTests: XCTestCase {
                 XCTAssertEqual(tunnelStatus.state, .disconnecting(.reconnect))
                 expectation.fulfill()
             }
+        operationQueue.addOperation(operation)
+        wait(for: [expectation], timeout: 10.0)
     }
-
 }
