@@ -52,7 +52,7 @@ final class AccountInteractor {
     var deviceState: DeviceState {
         tunnelManager.deviceState
     }
-    
+
     func logout() async {
         await tunnelManager.unsetAccount()
     }

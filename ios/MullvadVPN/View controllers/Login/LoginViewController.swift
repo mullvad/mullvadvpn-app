@@ -207,7 +207,6 @@ class LoginViewController: UIViewController, RootContainment {
             } catch {
                 self.endLogin(action: action, error: error)
             }
-
         }
     }
 

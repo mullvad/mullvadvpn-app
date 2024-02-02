@@ -310,7 +310,6 @@ final class TunnelManager: StorePaymentObserver {
 
         operationQueue.addOperation(operation)
     }
-
     
     func setNewAccount() async throws -> StoredAccountData {
         try await setAccount(action: .new)!
@@ -367,7 +366,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operationQueue.addOperation(operation)
     }
-    
+
     private func setAccount(action: SetAccountAction) async throws -> StoredAccountData? {
         try await withCheckedThrowingContinuation { continuation in
             setAccount(action: action) { result in
