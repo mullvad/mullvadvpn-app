@@ -35,7 +35,7 @@ object Versions {
     }
 
     object Compose {
-        const val destinations = "1.9.55"
+        const val destinations = "1.10.0"
         const val base = "1.6.0"
         const val constrainLayout = "1.0.1"
         const val foundation = base
