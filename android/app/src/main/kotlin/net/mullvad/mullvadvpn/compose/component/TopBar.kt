@@ -230,6 +230,7 @@ fun MullvadMediumTopBar(
         colors =
             TopAppBarDefaults.mediumTopAppBarColors(
                 containerColor = MaterialTheme.colorScheme.background,
+                scrolledContainerColor = MaterialTheme.colorScheme.background,
                 actionIconContentColor = MaterialTheme.colorScheme.onPrimary.copy(AlphaTopBar),
             ),
         actions = actions
