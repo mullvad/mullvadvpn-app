@@ -264,8 +264,8 @@ fun ConnectScreen(
                 onClick = onSwitchLocationClick,
                 showChevron = uiState.showLocation,
                 text =
-                    if (uiState.showLocation) {
-                        uiState.selectedLocation?.name ?: ""
+                    if (uiState.showLocation && uiState.selectedRelayItem != null) {
+                        uiState.selectedRelayItem.locationName
                     } else {
                         stringResource(id = R.string.switch_location)
                     }

@@ -8,10 +8,8 @@ import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
-import net.mullvad.mullvadvpn.relaylist.CustomRelayItemList
-import net.mullvad.mullvadvpn.relaylist.RelayCountry
+import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
-import net.mullvad.mullvadvpn.relaylist.SelectedLocation
 import net.mullvad.mullvadvpn.relaylist.findItemForGeographicLocationConstraint
 import net.mullvad.mullvadvpn.relaylist.toRelayCountries
 import net.mullvad.mullvadvpn.relaylist.toRelayItemLists
@@ -23,7 +21,7 @@ class RelayListUseCase(
     private val settingsRepository: SettingsRepository
 ) {
 
-    fun updateSelectedRelayLocation(value: GeographicLocationConstraint) {
+    fun updateSelectedRelayLocation(value: LocationConstraint) {
         relayListListener.updateSelectedRelayLocation(value)
     }
 
@@ -52,8 +50,7 @@ class RelayListUseCase(
             RelayList(customLists, relayCountries, selectedItem)
         }
 
-    fun selectedLocation(): Flow<SelectedLocation?> =
-        relayListWithSelection().map { it.selectedItem }
+    fun selectedRelayItem(): Flow<RelayItem?> = relayListWithSelection().map { it.selectedItem }
 
     fun fetchRelayList() {
         relayListListener.fetchRelayList()
@@ -61,33 +58,17 @@ class RelayListUseCase(
 
     private fun findSelectedRelayItem(
         relaySettings: RelaySettings?,
-        relayCountries: List<RelayCountry>,
-        customLists: List<CustomRelayItemList>
-    ): SelectedLocation? {
+        relayCountries: List<RelayItem.Country>,
+        customLists: List<RelayItem.CustomList>
+    ): RelayItem? {
         val locationConstraint = relaySettings?.relayConstraints()?.location
         return if (locationConstraint is Constraint.Only) {
             when (val location = locationConstraint.value) {
                 is LocationConstraint.CustomList -> {
-                    customLists
-                        .firstOrNull { it.id == location.listId }
-                        ?.let { customList ->
-                            SelectedLocation(
-                                id = customList.id,
-                                name = customList.name,
-                                geographicLocationConstraint = null
-                            )
-                        }
+                    customLists.firstOrNull { it.id == location.listId }
                 }
                 is LocationConstraint.Location -> {
-                    relayCountries
-                        .findItemForGeographicLocationConstraint(location.location)
-                        ?.let { relayItem ->
-                            SelectedLocation(
-                                id = relayItem.code,
-                                name = relayItem.locationName,
-                                geographicLocationConstraint = relayItem.location
-                            )
-                        }
+                    relayCountries.findItemForGeographicLocationConstraint(location.location)
                 }
             }
         } else {

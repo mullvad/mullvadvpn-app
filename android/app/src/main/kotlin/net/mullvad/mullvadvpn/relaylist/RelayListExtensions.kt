@@ -15,17 +15,17 @@ import net.mullvad.mullvadvpn.model.RelayList
 fun RelayList.toRelayCountries(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>
-): List<RelayCountry> {
+): List<RelayItem.Country> {
     val relayCountries =
         this.countries
             .map { country ->
-                val cities = mutableListOf<RelayCity>()
-                val relayCountry = RelayCountry(country.name, country.code, false, cities)
+                val cities = mutableListOf<RelayItem.City>()
+                val relayCountry = RelayItem.Country(country.name, country.code, false, cities)
 
                 for (city in country.cities) {
-                    val relays = mutableListOf<Relay>()
+                    val relays = mutableListOf<RelayItem.Relay>()
                     val relayCity =
-                        RelayCity(
+                        RelayItem.City(
                             name = city.name,
                             code = city.code,
                             location = GeographicLocationConstraint.City(country.code, city.code),
@@ -38,7 +38,7 @@ fun RelayList.toRelayCountries(
 
                     for (relay in validCityRelays) {
                         relays.add(
-                            Relay(
+                            RelayItem.Relay(
                                 name = relay.hostname,
                                 location =
                                     GeographicLocationConstraint.Hostname(
@@ -69,7 +69,7 @@ fun RelayList.toRelayCountries(
     return relayCountries.toList()
 }
 
-fun List<RelayCountry>.findItemForGeographicLocationConstraint(
+fun List<RelayItem.Country>.findItemForGeographicLocationConstraint(
     constraint: GeographicLocationConstraint
 ) =
     when (constraint) {
@@ -96,14 +96,14 @@ fun List<RelayCountry>.findItemForGeographicLocationConstraint(
  * parent country is added and expanded if needed and its children are added, but the city is not
  * expanded If a relay is matched, its parents are added and expanded and itself is also added.
  */
-fun List<RelayCountry>.filterOnSearchTerm(
+fun List<RelayItem.Country>.filterOnSearchTerm(
     searchTerm: String,
-    selectedItem: SelectedLocation?
-): List<RelayCountry> {
+    selectedItem: RelayItem?
+): List<RelayItem.Country> {
     return if (searchTerm.length >= MIN_SEARCH_LENGTH) {
-        val filteredCountries = mutableMapOf<String, RelayCountry>()
+        val filteredCountries = mutableMapOf<String, RelayItem.Country>()
         this.forEach { relayCountry ->
-            val cities = mutableListOf<RelayCity>()
+            val cities = mutableListOf<RelayItem.City>()
 
             // Try to match the search term with a country
             // If we match a country, add that country and all cities and relays in that country
@@ -116,7 +116,7 @@ fun List<RelayCountry>.filterOnSearchTerm(
 
             // Go through and try to match the search term with every city
             relayCountry.cities.forEach { relayCity ->
-                val relays = mutableListOf<Relay>()
+                val relays = mutableListOf<RelayItem.Relay>()
                 // If we match and we already added the country to the filtered list just expand the
                 // country.
                 // If the country is not currently in the filtered list, add it and expand it.
@@ -194,31 +194,31 @@ private fun List<DaemonRelay>.filterValidRelays(
         }
 
 /** Expand the parent(s), if any, for the current selected item */
-private fun List<RelayCountry>.expandItemForSelection(
-    selectedItem: SelectedLocation?
-): List<RelayCountry> {
+private fun List<RelayItem.Country>.expandItemForSelection(
+    selectedItem: RelayItem?
+): List<RelayItem.Country> {
     return selectedItem?.let {
-        when (val location = selectedItem.geographicLocationConstraint) {
-            is GeographicLocationConstraint.Country -> {
+        when (selectedItem) {
+            is RelayItem.Country -> {
                 this
             }
-            is GeographicLocationConstraint.City -> {
+            is RelayItem.City -> {
                 this.map { country ->
-                    if (country.code == location.countryCode) {
+                    if (country.code == selectedItem.location.countryCode) {
                         country.copy(expanded = true)
                     } else {
                         country
                     }
                 }
             }
-            is GeographicLocationConstraint.Hostname -> {
+            is RelayItem.Relay -> {
                 this.map { country ->
-                    if (country.code == location.countryCode) {
+                    if (country.code == selectedItem.location.countryCode) {
                         country.copy(
                             expanded = true,
                             cities =
                                 country.cities.map { city ->
-                                    if (city.code == location.cityCode) {
+                                    if (city.code == selectedItem.location.cityCode) {
                                         city.copy(expanded = true)
                                     } else {
                                         city
@@ -230,7 +230,7 @@ private fun List<RelayCountry>.expandItemForSelection(
                     }
                 }
             }
-            null -> this
+            is RelayItem.CustomList -> this
         }
     } ?: this
 }

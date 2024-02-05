@@ -76,7 +76,7 @@ class ConnectViewModel(
         _shared
             .flatMapLatest { serviceConnection ->
                 combine(
-                    relayListUseCase.selectedLocation(),
+                    relayListUseCase.selectedRelayItem(),
                     inAppNotificationController.notifications,
                     serviceConnection.connectionProxy.tunnelUiStateFlow(),
                     serviceConnection.connectionProxy.tunnelRealStateFlow(),
@@ -84,7 +84,7 @@ class ConnectViewModel(
                     accountRepository.accountExpiryState,
                     deviceRepository.deviceState.map { it.deviceName() }
                 ) {
-                    selectedLocation,
+                    selectedRelayItem,
                     notifications,
                     tunnelUiState,
                     tunnelRealState,
@@ -97,13 +97,12 @@ class ConnectViewModel(
                                 is TunnelState.Disconnected ->
                                     tunnelRealState.location() ?: lastKnownDisconnectedLocation
                                 is TunnelState.Connecting ->
-                                    tunnelRealState.location
-                                        ?: selectedLocation?.geographicLocationConstraint?.location
+                                    tunnelRealState.location ?: selectedRelayItem?.location()
                                 is TunnelState.Connected -> tunnelRealState.location
                                 is TunnelState.Disconnecting -> lastKnownDisconnectedLocation
                                 is TunnelState.Error -> null
                             },
-                        selectedLocation = selectedLocation,
+                        selectedRelayItem = selectedRelayItem,
                         tunnelUiState = tunnelUiState,
                         tunnelRealState = tunnelRealState,
                         inAddress =
