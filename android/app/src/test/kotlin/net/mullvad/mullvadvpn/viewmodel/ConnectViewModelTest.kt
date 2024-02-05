@@ -21,9 +21,8 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.relaylist.SelectedLocation
+import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
@@ -96,7 +95,7 @@ class ConnectViewModelTest {
         EventNotifier<TunnelState>(TunnelState.Disconnected())
 
     // Flows
-    private val selectedLocationFlow = MutableStateFlow<SelectedLocation?>(null)
+    private val selectedRelayItemFlow = MutableStateFlow<RelayItem?>(null)
 
     // Out Of Time Use Case
     private val outOfTimeUseCase: OutOfTimeUseCase = mockk()
@@ -131,7 +130,7 @@ class ConnectViewModelTest {
         every { mockAppVersionInfoCache.onUpdate = any() } answers {}
 
         // Flows
-        every { mockRelayListUseCase.selectedLocation() } returns selectedLocationFlow
+        every { mockRelayListUseCase.selectedRelayItem() } returns selectedRelayItemFlow
 
         every { outOfTimeUseCase.isOutOfTime() } returns outOfTimeViewFlow
         viewModel =
@@ -189,21 +188,16 @@ class ConnectViewModelTest {
 
     @Test
     fun testSelectedLocationUpdate() = runTest {
-        val selectedLocation =
-            SelectedLocation(
-                id = "MOCK-ID",
-                name = "MOCK-NAME",
-                geographicLocationConstraint =
-                    GeographicLocationConstraint.Country(countryCode = "MOCK-COUNTRY-CODE")
-            )
-        selectedLocationFlow.value = selectedLocation
+        val selectedRelayItem =
+            RelayItem.Country(name = "Name", code = "Code", expanded = false, cities = emptyList())
+        selectedRelayItemFlow.value = selectedRelayItem
 
         viewModel.uiState.test {
             assertEquals(ConnectUiState.INITIAL, awaitItem())
             serviceConnectionState.value =
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             val result = awaitItem()
-            assertEquals(selectedLocation, result.selectedLocation)
+            assertEquals(selectedRelayItem, result.selectedRelayItem)
         }
     }
 
