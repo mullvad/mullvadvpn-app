@@ -70,23 +70,23 @@ fun RelayList.toRelayCountries(
 }
 
 fun List<RelayCountry>.findItemForGeographicLocationConstraint(
-    location: GeographicLocationConstraint
+    constraint: GeographicLocationConstraint
 ) =
-    when (location) {
+    when (constraint) {
         is GeographicLocationConstraint.Country -> {
-            this.find { country -> country.code == location.countryCode }
+            this.find { country -> country.code == constraint.countryCode }
         }
         is GeographicLocationConstraint.City -> {
-            val country = this.find { country -> country.code == location.countryCode }
+            val country = this.find { country -> country.code == constraint.countryCode }
 
-            country?.cities?.find { city -> city.code == location.cityCode }
+            country?.cities?.find { city -> city.code == constraint.cityCode }
         }
         is GeographicLocationConstraint.Hostname -> {
-            val country = this.find { country -> country.code == location.countryCode }
+            val country = this.find { country -> country.code == constraint.countryCode }
 
-            val city = country?.cities?.find { city -> city.code == location.cityCode }
+            val city = country?.cities?.find { city -> city.code == constraint.cityCode }
 
-            city?.relays?.find { relay -> relay.name == location.hostname }
+            city?.relays?.find { relay -> relay.name == constraint.hostname }
         }
     }
 
@@ -230,7 +230,7 @@ private fun List<RelayCountry>.expandItemForSelection(
                     }
                 }
             }
-            else -> this
+            null -> this
         }
     } ?: this
 }

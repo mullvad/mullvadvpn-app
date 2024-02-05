@@ -12,7 +12,7 @@ class CustomListsRepository(private val messageHandler: MessageHandler) {
         val result = messageHandler.trySendRequest(Request.CreateCustomList(name))
 
         return if (result) {
-            messageHandler.events<Event.CreateCustomListResultEvent>().first().result
+            messageHandler.events<Event.CreateCustomListResult>().first().listId
         } else {
             null
         }
