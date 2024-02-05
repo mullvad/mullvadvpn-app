@@ -393,8 +393,6 @@ impl WireguardMonitor {
             if detect_mtu {
                 let iface_name_clone = iface_name.clone();
                 tokio::task::spawn(async move {
-                    // tokio::time::sleep(Duration::from_secs(10)).await; // TODO: Delete this
-                    // before merging
                     log::debug!("Starting MTU detection");
                     let verified_mtu = match auto_mtu_detection(
                         gateway,
