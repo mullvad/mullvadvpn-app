@@ -166,6 +166,12 @@ This can be achieved as follows:
     * Enable "Run task as soon as possible after a scheduled start is missed".
     * Enable "If the task fails, restart every: 1 minute".
 
+* In the guest, make sure that the time service is enabled and running
+
+    ```
+    schtasks /create /tn "Start Time Service" /tr "cmd.exe /c 'net start w32time & w32tm /resync'" /sc onlogon /rl HIGHEST
+    ```
+
 * In the guest, disable Windows Update.
 
     * Open `services.msc`.
