@@ -17,6 +17,14 @@ use talpid_wireguard;
 const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 
+/// Set the MTU to the lowest possible whilst still allowing for IPv6 to help with wireless
+/// carriers that do a lot of encapsulation.
+const DEFAULT_MTU: u16 = if cfg!(target_os = "android") {
+    1280
+} else {
+    1380
+};
+
 /// Results from operations in the tunnel module.
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -154,13 +162,25 @@ impl TunnelMonitor {
             + Clone
             + 'static,
     {
+        let default_mtu = DEFAULT_MTU;
+
         #[cfg(any(target_os = "linux", target_os = "windows"))]
-        args.runtime
-            .block_on(Self::assign_mtu(&args.route_manager, params));
-        let config = talpid_wireguard::config::Config::from_parameters(params)?;
+        // Detects the MTU of the device and sets the default tunnel MTU to that minus headers and
+        // the safety margin
+        let default_mtu = args
+            .runtime
+            .block_on(
+                args.route_manager
+                    .get_mtu_for_route(params.connection.peer.endpoint.ip()),
+            )
+            .map(|mtu| Self::clamp_mtu(params, mtu))
+            .unwrap_or(default_mtu);
+        let config = talpid_wireguard::config::Config::from_parameters(params, default_mtu)?;
         let monitor = talpid_wireguard::WireguardMonitor::start(
             config,
             params.options.quantum_resistant,
+            #[cfg(target_os = "linux")]
+            detect_mtu,
             log.as_deref(),
             args,
         )?;
@@ -169,58 +189,36 @@ impl TunnelMonitor {
         })
     }
 
-    /// Set the MTU in the tunnel parameters based on the inputted device MTU and some
-    /// calculations. `peer_mtu` is the detected device MTU.
+    /// Calculates and appropriate tunnel MTU based on the given peer MTU minus header sizes
     #[cfg(any(target_os = "linux", target_os = "windows"))]
-    fn set_mtu(params: &mut wireguard_types::TunnelParameters, peer_mtu: u16) {
+    fn clamp_mtu(params: &wireguard_types::TunnelParameters, peer_mtu: u16) -> u16 {
+        use talpid_tunnel::{
+            IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, MIN_IPV4_MTU, MIN_IPV6_MTU, WIREGUARD_HEADER_SIZE,
+        };
         // Some users experience fragmentation issues even when we take the interface MTU and
         // subtract the header sizes. This is likely due to some program that they use which does
         // not change the interface MTU but adds its own header onto the outgoing packets. For this
         // reason we subtract some extra bytes from our MTU in order to give other programs some
         // safety margin.
         const MTU_SAFETY_MARGIN: u16 = 60;
-        const IPV4_HEADER_SIZE: u16 = 20;
-        const IPV6_HEADER_SIZE: u16 = 40;
-        const WIREGUARD_HEADER_SIZE: u16 = 40;
+
         let total_header_size = WIREGUARD_HEADER_SIZE
             + match params.connection.peer.endpoint.is_ipv6() {
                 false => IPV4_HEADER_SIZE,
                 true => IPV6_HEADER_SIZE,
             };
+
         // The largest peer MTU that we allow
-        const MAX_PEER_MTU: u16 = 1500 - MTU_SAFETY_MARGIN;
-        // The minimum allowed MTU size for our tunnel in IPv6 is 1280 and 576 for IPv4
-        const MIN_IPV4_MTU: u16 = 576;
-        const MIN_IPV6_MTU: u16 = 1280;
+        let max_peer_mtu: u16 = 1500 - MTU_SAFETY_MARGIN - total_header_size;
+
         let min_mtu = match params.generic_options.enable_ipv6 {
             false => MIN_IPV4_MTU,
             true => MIN_IPV6_MTU,
         };
-        let tunnel_mtu = peer_mtu
-            .saturating_sub(total_header_size)
-            .clamp(min_mtu, MAX_PEER_MTU - total_header_size);
-        params.options.mtu = Some(tunnel_mtu);
-    }
 
-    /// Detects the MTU of the device, calculates what the virtual device MTU should be and sets
-    /// that in the tunnel parameters.
-    #[cfg(any(target_os = "linux", target_os = "windows"))]
-    async fn assign_mtu(
-        route_manager: &RouteManagerHandle,
-        params: &mut wireguard_types::TunnelParameters,
-    ) {
-        // Only calculate the mtu automatically if the user has not set any
-        if params.options.mtu.is_none() {
-            match route_manager
-                .get_mtu_for_route(params.connection.peer.endpoint.ip())
-                .await
-            {
-                Ok(mtu) => Self::set_mtu(params, mtu),
-                Err(e) => {
-                    log::error!("Could not get the MTU for route {}", e);
-                }
-            }
-        }
+        peer_mtu
+            .saturating_sub(total_header_size)
+            .clamp(min_mtu, max_peer_mtu)
     }
 
     #[cfg(not(target_os = "android"))]
