@@ -19,7 +19,7 @@ pub struct TunnelArgs<'a, L>
 where
     L: (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Clone + Sync + 'static,
 {
-    /// Toktio runtime handle.
+    /// Tokio runtime handle.
     pub runtime: tokio::runtime::Handle,
     /// Resource directory path.
     pub resource_dir: &'a Path,
