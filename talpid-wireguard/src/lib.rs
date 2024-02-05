@@ -1046,17 +1046,17 @@ async fn auto_mtu_detection(
             size
         });
 
-    let first_ping_size = match ping_stream
+    let first_ping_size = ping_stream
         .next()
         .await
         .expect("At least one pings should be sent")
-    {
-        Ok(size) => size,
-        // If the first ping we get back timed out, then all of them did
-        Err(SurgeError::Timeout { .. }) => return Err(Error::MtuDetectionAllDropped),
-        // Short circuit and return error on unexpected error types
-        Err(e) => return Err(Error::MtuDetectionPingError(e)),
-    };
+        // Short-circuit and return on error
+        .map_err(|e| match e {
+            // If the first ping we get back timed out, then all of them did
+            SurgeError::Timeout { .. } => Error::MtuDetectionAllDropped,
+            // Unexpected error type
+            e => Error::MtuDetectionPingError(e),
+        })?;
 
     ping_stream
         .timeout(PING_OFFSET_TIMEOUT) // Start a new, sorter, timeout
