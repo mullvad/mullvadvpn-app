@@ -50,7 +50,7 @@ mod connectivity_check;
 mod logging;
 mod ping_monitor;
 mod stats;
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 mod unix;
 #[cfg(wireguard_go)]
 mod wireguard_go;
@@ -411,7 +411,7 @@ impl WireguardMonitor {
 
                     if verified_mtu != config.mtu {
                         log::warn!("Lowering MTU from {} to {verified_mtu}", config.mtu);
-                        #[cfg(target_os = "linux")]
+                        #[cfg(any(target_os = "linux", target_os = "macos"))]
                         let res = unix::set_mtu(&iface_name_clone, verified_mtu);
                         #[cfg(windows)]
                         let res = talpid_tunnel::network_interface::set_mtu(
