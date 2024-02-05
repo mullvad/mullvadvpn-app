@@ -30,14 +30,6 @@ pub struct Config {
     pub obfuscator_config: Option<ObfuscatorConfig>,
 }
 
-/// Set the MTU to the lowest possible whilst still allowing for IPv6 to help with wireless
-/// carriers that do a lot of encapsulation.
-const DEFAULT_MTU: u16 = if cfg!(target_os = "android") {
-    1280
-} else {
-    1380
-};
-
 /// Configuration errors
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -52,12 +44,16 @@ pub enum Error {
 
 impl Config {
     /// Constructs a Config from parameters
-    pub fn from_parameters(params: &wireguard::TunnelParameters) -> Result<Config, Error> {
+    pub fn from_parameters(
+        params: &wireguard::TunnelParameters,
+        default_mtu: u16,
+    ) -> Result<Config, Error> {
         Self::new(
             &params.connection,
             &params.options,
             &params.generic_options,
             &params.obfuscation,
+            default_mtu,
         )
     }
 
@@ -67,9 +63,11 @@ impl Config {
         wg_options: &wireguard::TunnelOptions,
         generic_options: &GenericTunnelOptions,
         obfuscator_config: &Option<ObfuscatorConfig>,
+        default_mtu: u16,
     ) -> Result<Config, Error> {
         let mut tunnel = connection.tunnel.clone();
-        let mtu = wg_options.mtu.unwrap_or(DEFAULT_MTU);
+
+        let mtu = wg_options.mtu.unwrap_or(default_mtu);
 
         if tunnel.addresses.is_empty() {
             return Err(Error::InvalidTunnelIpError);
