@@ -2743,6 +2743,7 @@
 				584B26F3237434D00073B10E /* RelaySelectorTests.swift */,
 				A900E9B92ACC5D0600C95F67 /* RESTRequestExecutor+Stubs.swift */,
 				A9C342C42ACC42130045F00E /* ServerRelaysResponse+Stubs.swift */,
+				44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */,
 				5807E2C1243203D000F5FF30 /* StringTests.swift */,
 				A9A5F9A12ACB003D0083449F /* TunnelManagerTests.swift */,
 				A9E0317B2ACBFC7E0095D843 /* TunnelStore+Stubs.swift */,
@@ -2750,7 +2751,6 @@
 				F09D04BA2AE95396003D4F89 /* URLSessionStub.swift */,
 				58165EBD2A262CBB00688EAD /* WgKeyRotationTests.swift */,
 				F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */,
-				44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */,
 			);
 			path = MullvadVPNTests;
 			sourceTree = "<group>";
