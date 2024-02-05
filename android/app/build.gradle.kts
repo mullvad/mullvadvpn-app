@@ -1,8 +1,9 @@
-import Dependencies.Plugin.ksp
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import com.android.build.gradle.internal.lint.LintModelWriterTask
 import com.android.build.gradle.internal.tasks.factory.dependsOn
+import com.android.build.gradle.tasks.MergeSourceSetFolders
 import java.io.FileInputStream
-import java.util.*
+import java.util.Properties
 import org.gradle.configurationcache.extensions.capitalized
 
 plugins {
@@ -142,9 +143,9 @@ android {
             )
     }
 
-    tasks.withType<com.android.build.gradle.tasks.MergeSourceSetFolders> {
-        dependsOn(getTasksByName("copyExtraAssets", true))
-    }
+    tasks.withType<MergeSourceSetFolders> { dependsOn(getTasksByName("copyExtraAssets", true)) }
+
+    tasks.withType<LintModelWriterTask> { dependsOn(getTasksByName("copyExtraAssets", true)) }
 
     // Suppressing since we don't seem have much of an option than using this api. The impact should
     // also be limited to tests.
@@ -184,7 +185,8 @@ android {
 
         val enableInAppVersionNotifications =
             gradleLocalProperties(rootProject.projectDir)
-                .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS") ?: "true"
+                .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS")
+                ?: "true"
 
         buildConfigField(
             "boolean",
