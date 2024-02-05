@@ -1,6 +1,7 @@
 use byteorder::{NetworkEndian, WriteBytesExt};
 use rand::Rng;
 use socket2::{Domain, Protocol, Socket, Type};
+
 use std::{
     io::{self, Write},
     net::{Ipv4Addr, SocketAddr},
@@ -59,6 +60,7 @@ pub struct Pinger {
 }
 
 impl Pinger {
+    /// Creates a new `Pinger`.
     pub fn new(
         addr: Ipv4Addr,
         #[cfg(not(target_os = "windows"))] interface_name: String,
