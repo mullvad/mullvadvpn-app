@@ -105,7 +105,7 @@ jobs:
           name: relay-list
           path: build/relays.json
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 7
 
   build-native:
     name: Build native
@@ -177,7 +177,7 @@ jobs:
           name: native-libs
           path: android/app/build/extraJni
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 7
 
   build-app:
     name: Build app and run unit tests
@@ -291,7 +291,7 @@ jobs:
             android/test/mockapi/build/outputs/apk
             android/test/e2e/build/outputs/apk
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 7
 
   instrumented-tests:
     name: Run instrumented tests
@@ -328,7 +328,7 @@ jobs:
           name: ${{ matrix.test-type }}-instrumentation-report
           path: /tmp/mullvad-${{ matrix.test-type }}-instrumentation-report
           if-no-files-found: ignore
-          retention-days: 1
+          retention-days: 7
 
   instrumented-e2e-tests:
     name: Run instrumented e2e tests
