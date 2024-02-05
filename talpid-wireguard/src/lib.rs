@@ -415,7 +415,7 @@ impl WireguardMonitor {
                             log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
                         };
                     } else {
-                        log::info!("MTU {verified_mtu} verified to not drop packets");
+                        log::debug!("MTU {verified_mtu} verified to not drop packets");
                     }
                 });
             }
