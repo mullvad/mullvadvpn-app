@@ -8,6 +8,7 @@ import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.PlayPurchase
@@ -79,7 +80,7 @@ sealed class Request : Message.RequestMessage() {
     @Parcelize data class SetEnableSplitTunneling(val enable: Boolean) : Request()
 
     @Parcelize
-    data class SetRelayLocation(val relayLocation: GeographicLocationConstraint) : Request()
+    data class SetRelayLocation(val locationConstraint: LocationConstraint) : Request()
 
     @Parcelize data class SetWireGuardMtu(val mtu: Int?) : Request()
 
