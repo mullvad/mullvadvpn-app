@@ -270,6 +270,7 @@ impl WireguardMonitor {
     >(
         mut config: Config,
         psk_negotiation: bool,
+        #[cfg(target_os = "linux")] detect_mtu: bool,
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
@@ -388,7 +389,36 @@ impl WireguardMonitor {
                 )
                 .await?;
             }
+            #[cfg(target_os = "linux")]
+            if detect_mtu {
+                let iface_name_clone = iface_name.clone();
+                tokio::task::spawn(async move {
+                    log::debug!("Starting MTU detection");
+                    let verified_mtu = match auto_mtu_detection(
+                        gateway,
+                        #[cfg(any(target_os = "macos", target_os = "linux"))]
+                        iface_name_clone.clone(),
+                        config.mtu,
+                    )
+                    .await
+                    {
+                        Ok(mtu) => mtu,
+                        Err(e) => {
+                            log::error!("{}", e.display_chain_with_msg("Failed to detect MTU"));
+                            return;
+                        }
+                    };
 
+                    if verified_mtu != config.mtu {
+                        log::warn!("Lowering MTU from {} to {verified_mtu}", config.mtu);
+                        if let Err(e) = unix::set_mtu(&iface_name_clone, verified_mtu) {
+                            log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
+                        };
+                    } else {
+                        log::debug!("MTU {verified_mtu} verified to not drop packets");
+                    }
+                });
+            }
             let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
                 match connectivity_monitor.establish_connectivity(args.retry_attempt) {
                     Ok(true) => Ok(connectivity_monitor),
