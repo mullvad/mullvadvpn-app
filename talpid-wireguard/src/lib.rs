@@ -1059,7 +1059,7 @@ async fn auto_mtu_detection(
         })?;
 
     ping_stream
-        .timeout(PING_OFFSET_TIMEOUT) // Start a new, sorter, timeout
+        .timeout(PING_OFFSET_TIMEOUT) // Start a new, shorter, timeout
         .map_while(|res| res.ok()) // Stop waiting for pings after this timeout
         .try_fold(first_ping_size, |acc, mtu| future::ready(Ok(acc.max(mtu)))) // Get largest ping
         .await
