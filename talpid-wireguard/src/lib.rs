@@ -74,6 +74,14 @@ pub enum Error {
     #[error(display = "Failed to setup routing")]
     SetupRoutingError(#[error(source)] talpid_routing::Error),
 
+    /// Failed to set MTU
+    #[error(display = "Failed to detect MTU because every ping was dropped.")]
+    MtuDetectionAllDropped,
+
+    /// Failed to set MTU
+    #[error(display = "Failed to detect MTU because of unexpected ping error.")]
+    MtuDetectionPingError(#[error(source)] surge_ping::SurgeError),
+
     /// Tunnel timed out
     #[error(display = "Tunnel timed out")]
     TimeoutError,
@@ -947,6 +955,101 @@ impl WireguardMonitor {
             ipv6_gateway: config.ipv6_gateway,
         }
     }
+}
+
+/// Detects the maximum MTU that does not cause dropped packets.
+///
+/// The detection works by sending evenly spread out range of pings between 576 and the given
+/// current tunnel MTU, and returning the maximum packet size that was returned within a timeout.
+#[cfg(target_os = "linux")]
+async fn auto_mtu_detection(
+    gateway: std::net::Ipv4Addr,
+    #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
+    current_mtu: u16,
+) -> Result<u16> {
+    use futures::{future, stream::FuturesUnordered, TryStreamExt};
+    use surge_ping::{Client, Config, PingIdentifier, PingSequence, SurgeError};
+    use talpid_tunnel::{ICMP_HEADER_SIZE, MIN_IPV4_MTU};
+    use tokio_stream::StreamExt;
+
+    /// Max time to wait for any ping, when this expires, we give up and throw an error.
+    const PING_TIMEOUT: Duration = Duration::from_secs(10);
+    /// Max time to wait after the first ping arrives. Every ping after this timeout is considered
+    /// dropped, so we return the largest collected packet size.
+    const PING_OFFSET_TIMEOUT: Duration = Duration::from_secs(2);
+
+    let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
+    let config_builder = config_builder.interface(&iface_name);
+    let client = Client::new(&config_builder.build()).unwrap();
+
+    let step_size = 20;
+    let linspace = mtu_spacing(MIN_IPV4_MTU, current_mtu, step_size);
+
+    let payload_buf = vec![0; current_mtu as usize];
+
+    let mut ping_stream = linspace
+        .iter()
+        .enumerate()
+        .map(|(i, &mtu)| {
+            let client = client.clone();
+            let payload_size = (mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE) as usize;
+            let payload = &payload_buf[0..payload_size];
+            async move {
+                log::trace!("Sending ICMP ping of total size {mtu}");
+                client
+                    .pinger(IpAddr::V4(gateway), PingIdentifier(0))
+                    .await
+                    .timeout(PING_TIMEOUT)
+                    .ping(PingSequence(i as u16), payload)
+                    .await
+            }
+        })
+        .collect::<FuturesUnordered<_>>()
+        .map_ok(|(packet, _rtt)| {
+            let surge_ping::IcmpPacket::V4(packet) = packet else {
+                unreachable!("ICMP ping response was not of IPv4 type");
+            };
+            let size = packet.get_size() as u16 + IPV4_HEADER_SIZE;
+            log::trace!("Got ICMP ping response of total size {size}");
+            debug_assert_eq!(size, linspace[packet.get_sequence().0 as usize]);
+            size
+        });
+
+    let first_ping_size = ping_stream
+        .next()
+        .await
+        .expect("At least one pings should be sent")
+        // Short-circuit and return on error
+        .map_err(|e| match e {
+            // If the first ping we get back timed out, then all of them did
+            SurgeError::Timeout { .. } => Error::MtuDetectionAllDropped,
+            // Unexpected error type
+            e => Error::MtuDetectionPingError(e),
+        })?;
+
+    ping_stream
+        .timeout(PING_OFFSET_TIMEOUT) // Start a new, shorter, timeout
+        .map_while(|res| res.ok()) // Stop waiting for pings after this timeout
+        .try_fold(first_ping_size, |acc, mtu| future::ready(Ok(acc.max(mtu)))) // Get largest ping
+        .await
+        .map_err(Error::MtuDetectionPingError)
+}
+
+/// Creates a linear spacing of MTU values with the given step size. Always includes the given end
+/// points.
+#[cfg(target_os = "linux")]
+fn mtu_spacing(mtu_min: u16, mtu_max: u16, step_size: u16) -> Vec<u16> {
+    if mtu_min > mtu_max {
+        panic!("Invalid MTU detection range: `mtu_min`={mtu_min}, `mtu_max`={mtu_max}.");
+    }
+    let second_mtu = mtu_min.next_multiple_of(step_size);
+    let in_between = (second_mtu..mtu_max).step_by(step_size as usize);
+    let mut ret = Vec::with_capacity(((mtu_max - second_mtu).div_ceil(step_size) + 2) as usize);
+    ret.push(mtu_min);
+    ret.extend(in_between);
+    ret.push(mtu_max);
+    ret
 }
 
 #[derive(Debug)]
