@@ -20,7 +20,6 @@ import net.mullvad.mullvadvpn.model.RelayListCity
 import net.mullvad.mullvadvpn.model.RelayListCountry
 import net.mullvad.mullvadvpn.model.WireguardEndpointData
 import net.mullvad.mullvadvpn.model.WireguardRelayEndpointData
-import net.mullvad.mullvadvpn.relaylist.SelectedLocation
 import net.mullvad.mullvadvpn.relaylist.toRelayCountries
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -60,7 +59,7 @@ class SelectLocationScreenTest {
                             relayListState =
                                 RelayListState.RelayList(
                                     countries = DUMMY_RELAY_COUNTRIES,
-                                    selectedLocation = null
+                                    selectedItem = null
                                 ),
                             selectedOwnership = null,
                             selectedProvidersCount = 0,
@@ -100,17 +99,7 @@ class SelectLocationScreenTest {
                             relayListState =
                                 RelayListState.RelayList(
                                     countries = updatedDummyList,
-                                    selectedLocation =
-                                        SelectedLocation(
-                                            id = updatedDummyList[0].cities[0].relays[0].code,
-                                            name =
-                                                updatedDummyList[0]
-                                                    .cities[0]
-                                                    .relays[0]
-                                                    .locationName,
-                                            geographicLocationConstraint =
-                                                updatedDummyList[0].cities[0].relays[0].location
-                                        )
+                                    selectedItem = updatedDummyList[0].cities[0].relays[0]
                                 ),
                             selectedOwnership = null,
                             selectedProvidersCount = 0,
@@ -140,7 +129,7 @@ class SelectLocationScreenTest {
                             relayListState =
                                 RelayListState.RelayList(
                                     countries = emptyList(),
-                                    selectedLocation = null
+                                    selectedItem = null
                                 ),
                             selectedOwnership = null,
                             selectedProvidersCount = 0,
