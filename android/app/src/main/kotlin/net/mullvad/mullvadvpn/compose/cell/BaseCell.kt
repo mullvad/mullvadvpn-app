@@ -93,13 +93,14 @@ internal fun BaseCellTitle(
     title: String,
     style: TextStyle,
     modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.onPrimary,
     textAlign: TextAlign = TextAlign.Start
 ) {
     Text(
         text = title,
         textAlign = textAlign,
         style = style,
-        color = MaterialTheme.colorScheme.onPrimary,
+        color = color,
         overflow = TextOverflow.Ellipsis,
         maxLines = 1,
         modifier = modifier
