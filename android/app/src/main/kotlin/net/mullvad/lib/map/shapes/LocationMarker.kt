@@ -6,7 +6,7 @@ import java.nio.FloatBuffer
 import kotlin.math.cos
 import kotlin.math.sin
 import net.mullvad.lib.map.GLHelper
-import net.mullvad.lib.map.data.Coordinate
+import net.mullvad.lib.map.data.LatLng
 
 class LocationMarker(val color: FloatArray) {
 
@@ -107,18 +107,13 @@ class LocationMarker(val color: FloatArray) {
             )
     }
 
-    fun draw(
-        projectionMatrix: FloatArray,
-        viewMatrix: FloatArray,
-        coordinate: Coordinate,
-        size: Float
-    ) {
+    fun draw(projectionMatrix: FloatArray, viewMatrix: FloatArray, latLng: LatLng, size: Float) {
         val modelViewMatrix = viewMatrix.copyOf()
 
         GLES31.glUseProgram(shaderProgram)
 
-        Matrix.rotateM(modelViewMatrix, 0, coordinate.lon, 0f, 1f, 0f)
-        Matrix.rotateM(modelViewMatrix, 0, -coordinate.lat, 1f, 0f, 0f)
+        Matrix.rotateM(modelViewMatrix, 0, latLng.longitude, 0f, 1f, 0f)
+        Matrix.rotateM(modelViewMatrix, 0, -latLng.latitude, 1f, 0f, 0f)
 
         Matrix.scaleM(modelViewMatrix, 0, size, size, 1f)
         Matrix.translateM(modelViewMatrix, 0, 0f, 0f, 1.0001f)

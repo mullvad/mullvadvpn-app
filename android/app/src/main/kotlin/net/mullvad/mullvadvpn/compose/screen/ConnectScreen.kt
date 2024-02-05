@@ -16,7 +16,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,7 +40,10 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
 import net.mullvad.lib.map.MullvadMap
-import net.mullvad.lib.map.data.Coordinate
+import net.mullvad.lib.map.data.LatLng
+import net.mullvad.lib.map.data.Marker
+import net.mullvad.lib.map.data.MarkerType
+import net.mullvad.lib.map.data.gothenburgLatLng
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
@@ -70,10 +72,10 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
+import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
-import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import org.koin.androidx.compose.koinViewModel
 
 private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
@@ -192,16 +194,12 @@ fun ConnectScreen(
         deviceName = uiState.deviceName,
         timeLeft = uiState.daysLeftUntilExpiry
     ) {
-        var zoom by rememberSaveable { mutableFloatStateOf(1.10175f) }
         var bias by remember { mutableFloatStateOf(0.5f) }
-        var fov by remember { mutableFloatStateOf(70f) }
-        var mode by remember { mutableStateOf(false) }
         MullvadMap(
             modifier = Modifier.padding(top = it.calculateTopPadding()),
-            uiState.tunnelUiState,
+            uiState.location?.toLatLng() ?: gothenburgLatLng,
+            marker = uiState.tunnelRealState.toMarker(uiState.location),
             bias,
-            mode,
-            fov
         )
         ConstraintLayout(
             modifier = Modifier.padding(top = it.calculateTopPadding()).fillMaxSize()
@@ -222,7 +220,6 @@ fun ConnectScreen(
             horizontalAlignment = Alignment.Start,
             modifier =
                 Modifier.padding(it)
-                    // .background(color = MaterialTheme.colorScheme.primary)
                     .fillMaxHeight()
                     .drawVerticalScrollbar(
                         scrollState,
@@ -245,27 +242,11 @@ fun ConnectScreen(
                 onValueChange = { bias = it },
                 valueRange = 0f..1f,
             )
-            Slider(
-                modifier = Modifier.padding(16.dp),
-                value = zoom,
-                onValueChange = { zoom = it },
-                valueRange = 1f..10f,
-            )
-            Slider(
-                modifier = Modifier.padding(16.dp),
-                value = fov,
-                onValueChange = { fov = it },
-                valueRange = 1f..180f,
-            )
-            Switch(checked = mode, onCheckedChange = { mode = !mode })
-
-            Text(text = "Zoom: $zoom, Bias: $bias, Fov: $fov")
+            Text(text = "Bias: $bias")
             Spacer(modifier = Modifier.weight(1f))
             if (
                 uiState.tunnelRealState is TunnelState.Connecting ||
-                    (uiState.tunnelRealState is TunnelState.Disconnecting &&
-                        uiState.tunnelRealState.actionAfterDisconnect ==
-                            ActionAfterDisconnect.Reconnect)
+                    uiState.tunnelRealState is TunnelState.Disconnecting
             ) {
                 MullvadCircularProgressIndicatorLarge(
                     color = MaterialTheme.colorScheme.onPrimary,
@@ -341,3 +322,16 @@ fun ConnectScreen(
         }
     }
 }
+
+fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
+    if (location == null) return null
+    return when (this) {
+        is TunnelState.Connected -> Marker(location.toLatLng(), MarkerType.SECURE)
+        is TunnelState.Connecting -> null
+        is TunnelState.Disconnected -> Marker(location.toLatLng(), MarkerType.UNSECURE)
+        is TunnelState.Disconnecting -> null
+        is TunnelState.Error -> null
+    }
+}
+
+fun GeoIpLocation.toLatLng() = LatLng(latitude.toFloat(), longitude.toFloat())

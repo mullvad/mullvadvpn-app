@@ -1,35 +1,50 @@
 package net.mullvad.lib.map
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import net.mullvad.lib.map.data.Coordinate
-import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.lib.map.data.LatLng
+import net.mullvad.lib.map.data.MapViewState
+import net.mullvad.lib.map.data.Marker
 
 @Composable
 fun MullvadMap(
     modifier: Modifier,
-    tunnelState: TunnelState,
+    cameraLocation: LatLng,
+    marker: Marker?,
     percent: Float,
-    mode: Boolean,
-    fov: Float
 ) {
-    val animatedLat = animateFloatAsState(targetValue = tunnelState.location()?.latitude?.toFloat() ?: 0f, tween(durationMillis = 1000))
-    val animatedLon = animateFloatAsState(targetValue = tunnelState.location()?.longitude?.toFloat() ?: 0f, tween(durationMillis = 1000))
-    val disconnectedZoom = 1.35f
-    val connectedZoom = 1.25f
+    val animatedLat =
+        animateFloatAsState(
+            targetValue = cameraLocation.latitude,
+            tween(durationMillis = 1000),
+            label = "latitude"
+        )
+    val animatedLon =
+        animateFloatAsState(
+            targetValue = cameraLocation.longitude,
+            tween(durationMillis = 1000),
+            label = "longitude"
+        )
 
-    val zoom = animateFloatAsState(targetValue = if(tunnelState.isSecured()) connectedZoom else disconnectedZoom, tween(durationMillis = 1000))
+    val unsecureZoom = 1.35f
+    val secureZoom = 1.25f
 
-    MapGLShader(
-        modifier = modifier,
-        coordinate = Coordinate(animatedLat.value, animatedLon.value),
-        zoom = zoom.value,
-        percent = percent,
-        mode,
-        fov
-    )
+    val zoom =
+        animateFloatAsState(
+            targetValue = unsecureZoom, // if (tunnelState.isSecured()) connectedZoom else
+            // disconnectedZoom,,
+            tween(durationMillis = 1000),
+            label = "zoom"
+        )
+
+    val mapViewState =
+        MapViewState(
+            zoom = zoom.value,
+            cameraLatLng = LatLng(animatedLat.value, animatedLon.value),
+            locationMarker = marker,
+            percent = percent
+        )
+    MapGLShader(modifier = modifier, mapViewState = mapViewState)
 }
