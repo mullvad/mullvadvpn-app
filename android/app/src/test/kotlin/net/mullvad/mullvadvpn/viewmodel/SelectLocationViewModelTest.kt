@@ -20,15 +20,14 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Providers
-import net.mullvad.mullvadvpn.relaylist.CustomRelayItemList
 import net.mullvad.mullvadvpn.relaylist.Provider
-import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
-import net.mullvad.mullvadvpn.relaylist.SelectedLocation
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
+import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
@@ -63,6 +62,7 @@ class SelectLocationViewModelTest {
 
         mockkStatic(SERVICE_CONNECTION_MANAGER_EXTENSIONS)
         mockkStatic(RELAY_LIST_EXTENSIONS)
+        mockkStatic(RELAY_ITEM_EXTENSIONS)
         viewModel =
             SelectLocationViewModel(
                 mockServiceConnectionManager,
@@ -85,12 +85,11 @@ class SelectLocationViewModelTest {
     @Test
     fun testUpdateLocations() = runTest {
         // Arrange
-        val mockCountries = listOf<RelayCountry>(mockk(), mockk())
-        val mockCustomList = listOf<CustomRelayItemList>(mockk())
-        val selectedLocation: SelectedLocation = mockk()
-        every { mockCountries.filterOnSearchTerm(any(), selectedLocation) } returns mockCountries
-        relayListWithSelectionFlow.value =
-            RelayList(mockCustomList, mockCountries, selectedLocation)
+        val mockCountries = listOf<RelayItem.Country>(mockk(), mockk())
+        val mockCustomList = listOf<RelayItem.CustomList>(mockk())
+        val selectedItem: RelayItem = mockk()
+        every { mockCountries.filterOnSearchTerm(any(), selectedItem) } returns mockCountries
+        relayListWithSelectionFlow.value = RelayList(mockCustomList, mockCountries, selectedItem)
 
         // Act, Assert
         viewModel.uiState.test {
@@ -102,8 +101,8 @@ class SelectLocationViewModelTest {
                 (actualState.relayListState as RelayListState.RelayList).countries
             )
             assertEquals(
-                selectedLocation,
-                (actualState.relayListState as RelayListState.RelayList).selectedLocation
+                selectedItem,
+                (actualState.relayListState as RelayListState.RelayList).selectedItem
             )
         }
     }
@@ -111,12 +110,11 @@ class SelectLocationViewModelTest {
     @Test
     fun testUpdateLocationsNoSelectedRelay() = runTest {
         // Arrange
-        val mockCustomList = listOf<CustomRelayItemList>(mockk())
-        val mockCountries = listOf<RelayCountry>(mockk(), mockk())
-        val selectedLocation: SelectedLocation? = null
-        every { mockCountries.filterOnSearchTerm(any(), selectedLocation) } returns mockCountries
-        relayListWithSelectionFlow.value =
-            RelayList(mockCustomList, mockCountries, selectedLocation)
+        val mockCustomList = listOf<RelayItem.CustomList>(mockk())
+        val mockCountries = listOf<RelayItem.Country>(mockk(), mockk())
+        val selectedItem: RelayItem? = null
+        every { mockCountries.filterOnSearchTerm(any(), selectedItem) } returns mockCountries
+        relayListWithSelectionFlow.value = RelayList(mockCustomList, mockCountries, selectedItem)
 
         // Act, Assert
         viewModel.uiState.test {
@@ -128,8 +126,8 @@ class SelectLocationViewModelTest {
                 (actualState.relayListState as RelayListState.RelayList).countries
             )
             assertEquals(
-                selectedLocation,
-                (actualState.relayListState as RelayListState.RelayList).selectedLocation
+                selectedItem,
+                (actualState.relayListState as RelayListState.RelayList).selectedItem
             )
         }
     }
@@ -137,12 +135,15 @@ class SelectLocationViewModelTest {
     @Test
     fun testSelectRelayAndClose() = runTest {
         // Arrange
-        val mockRelayItem: RelayItem = mockk()
+        val mockRelayItem: RelayItem.Country = mockk()
         val mockLocation: GeographicLocationConstraint.Country = mockk(relaxed = true)
+        val mockLocationConstraint: LocationConstraint = mockk()
         val connectionProxyMock: ConnectionProxy = mockk(relaxUnitFun = true)
         every { mockRelayItem.location } returns mockLocation
         every { mockServiceConnectionManager.connectionProxy() } returns connectionProxyMock
-        every { mockRelayListUseCase.updateSelectedRelayLocation(mockLocation) } returns Unit
+        every { mockRelayListUseCase.updateSelectedRelayLocation(mockLocationConstraint) } returns
+            Unit
+        every { mockRelayItem.toLocationConstraint() } returns mockLocationConstraint
 
         // Act, Assert
         viewModel.uiSideEffect.test {
@@ -151,7 +152,7 @@ class SelectLocationViewModelTest {
             assertEquals(SelectLocationSideEffect.CloseScreen, awaitItem())
             verify {
                 connectionProxyMock.connect()
-                mockRelayListUseCase.updateSelectedRelayLocation(mockLocation)
+                mockRelayListUseCase.updateSelectedRelayLocation(mockLocationConstraint)
             }
         }
     }
@@ -159,15 +160,14 @@ class SelectLocationViewModelTest {
     @Test
     fun testFilterRelay() = runTest {
         // Arrange
-        val mockCustomList = listOf<CustomRelayItemList>(mockk())
-        val mockCountries = listOf<RelayCountry>(mockk(), mockk())
-        val selectedLocation: SelectedLocation? = null
-        val mockRelayList: List<RelayCountry> = mockk(relaxed = true)
+        val mockCustomList = listOf<RelayItem.CustomList>(mockk())
+        val mockCountries = listOf<RelayItem.Country>(mockk(), mockk())
+        val selectedItem: RelayItem? = null
+        val mockRelayList: List<RelayItem.Country> = mockk(relaxed = true)
         val mockSearchString = "SEARCH"
-        every { mockRelayList.filterOnSearchTerm(mockSearchString, selectedLocation) } returns
+        every { mockRelayList.filterOnSearchTerm(mockSearchString, selectedItem) } returns
             mockCountries
-        relayListWithSelectionFlow.value =
-            RelayList(mockCustomList, mockRelayList, selectedLocation)
+        relayListWithSelectionFlow.value = RelayList(mockCustomList, mockRelayList, selectedItem)
 
         // Act, Assert
         viewModel.uiState.test {
@@ -186,8 +186,8 @@ class SelectLocationViewModelTest {
                 (actualState.relayListState as RelayListState.RelayList).countries
             )
             assertEquals(
-                selectedLocation,
-                (actualState.relayListState as RelayListState.RelayList).selectedLocation
+                selectedItem,
+                (actualState.relayListState as RelayListState.RelayList).selectedItem
             )
         }
     }
@@ -195,15 +195,14 @@ class SelectLocationViewModelTest {
     @Test
     fun testFilterNotFound() = runTest {
         // Arrange
-        val mockCustomList = listOf<CustomRelayItemList>(mockk())
-        val mockCountries = emptyList<RelayCountry>()
-        val selectedLocation: SelectedLocation? = null
-        val mockRelayList: List<RelayCountry> = mockk(relaxed = true)
+        val mockCustomList = listOf<RelayItem.CustomList>(mockk())
+        val mockCountries = emptyList<RelayItem.Country>()
+        val selectedItem: RelayItem? = null
+        val mockRelayList: List<RelayItem.Country> = mockk(relaxed = true)
         val mockSearchString = "SEARCH"
-        every { mockRelayList.filterOnSearchTerm(mockSearchString, selectedLocation) } returns
+        every { mockRelayList.filterOnSearchTerm(mockSearchString, selectedItem) } returns
             mockCountries
-        relayListWithSelectionFlow.value =
-            RelayList(mockCustomList, mockRelayList, selectedLocation)
+        relayListWithSelectionFlow.value = RelayList(mockCustomList, mockRelayList, selectedItem)
 
         // Act, Assert
         viewModel.uiState.test {
@@ -261,5 +260,7 @@ class SelectLocationViewModelTest {
             "net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManagerExtensionsKt"
         private const val RELAY_LIST_EXTENSIONS =
             "net.mullvad.mullvadvpn.relaylist.RelayListExtensionsKt"
+        private const val RELAY_ITEM_EXTENSIONS =
+            "net.mullvad.mullvadvpn.relaylist.RelayItemExtensionsKt"
     }
 }
