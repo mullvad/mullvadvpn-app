@@ -42,6 +42,9 @@ use tunnel_obfuscation::{
     create_obfuscator, Error as ObfuscationError, Settings as ObfuscationSettings, Udp2TcpSettings,
 };
 
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
+
 /// WireGuard config data-types
 pub mod config;
 mod connectivity_check;
@@ -898,16 +901,11 @@ impl WireguardMonitor {
         } else {
             // Set route MTU by subtracting the WireGuard overhead from the tunnel MTU. Plus
             // some margin to make room for padding bytes.
-            // TODO: Move consts to shared location
-            const IPV4_HEADER_SIZE: u16 = 20;
-            const IPV6_HEADER_SIZE: u16 = 40;
-            const WIREGUARD_HEADER_SIZE: u16 = 40;
-            const PADDING_BYTES_MARGIN: u16 = 15;
-
             let ip_overhead = match route.prefix.is_ipv4() {
                 true => IPV4_HEADER_SIZE,
                 false => IPV6_HEADER_SIZE,
             };
+            const PADDING_BYTES_MARGIN: u16 = 15;
             let mtu = config.mtu - ip_overhead - WIREGUARD_HEADER_SIZE - PADDING_BYTES_MARGIN;
 
             route.mtu(mtu)
