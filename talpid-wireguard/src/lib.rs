@@ -1028,7 +1028,7 @@ async fn auto_mtu_detection(
             async move {
                 log::trace!("Sending ICMP ping of total size {mtu}");
                 client
-                    .pinger(IpAddr::V4(gateway), PingIdentifier(111)) //? Is a static identified ok, or should we randomize?
+                    .pinger(IpAddr::V4(gateway), PingIdentifier(0))
                     .await
                     .timeout(PING_TIMEOUT)
                     .ping(PingSequence(i as u16), payload)
