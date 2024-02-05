@@ -116,6 +116,7 @@ object Dependencies {
         const val dependencyCheck =
             "org.owasp:dependency-check-gradle:${Versions.Plugin.dependencyCheck}"
         const val dependencyCheckId = "org.owasp.dependencycheck"
+        const val detektId = "io.gitlab.arturbosch.detekt"
         const val gradleVersionsId = "com.github.ben-manes.versions"
         const val junit5 = "de.mannodermaus.android-junit5"
         const val kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"

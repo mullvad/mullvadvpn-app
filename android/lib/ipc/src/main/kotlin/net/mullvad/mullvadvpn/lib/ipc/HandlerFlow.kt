@@ -27,15 +27,12 @@ class HandlerFlow<T>(looper: Looper, private val extractor: (Message) -> T) :
 
         try {
             channel.trySendBlocking(extractedData)
-        } catch (exception: Exception) {
-            when (exception) {
-                is ClosedSendChannelException,
-                is CancellationException -> {
-                    Log.w("mullvad", "Received a message after HandlerFlow was closed", exception)
-                    removeCallbacksAndMessages(null)
-                }
-                else -> throw exception
-            }
+        } catch (exception: ClosedSendChannelException) {
+            Log.w("mullvad", "Received a message after HandlerFlow was closed", exception)
+            removeCallbacksAndMessages(null)
+        } catch (exception: CancellationException) {
+            Log.w("mullvad", "Received a message after HandlerFlow was cancelled", exception)
+            removeCallbacksAndMessages(null)
         }
     }
 }
