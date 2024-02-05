@@ -8,6 +8,7 @@ on:
       - main
     paths:
       - .github/workflows/ios.yml
+      - .github/workflows/ios-validate-build-schemas.yml
       - ios/.swiftformat
       - ios/**/*.swift
       - ios/**/*.xctestplan
