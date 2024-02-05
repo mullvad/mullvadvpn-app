@@ -1038,7 +1038,7 @@ async fn auto_mtu_detection(
         .collect::<FuturesUnordered<_>>()
         .map_ok(|(packet, _rtt)| {
             let surge_ping::IcmpPacket::V4(packet) = packet else {
-                panic!("ICMP ping response was not of IPv4 type");
+                unreachable!("ICMP ping response was not of IPv4 type");
             };
             let size = packet.get_size() as u16 + IPV4_HEADER_SIZE;
             log::trace!("Got ICMP ping response of total size {size}");
