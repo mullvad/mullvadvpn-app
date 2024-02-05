@@ -4,6 +4,7 @@ on:
   pull_request:
     types:
       - opened
+      - reopened
     branches:
       - main
     paths:
@@ -46,7 +47,7 @@ jobs:
         with:
           xcode-version: '15.0.1'
       - name: Configure Rust
-        run: rustup target add aarch64-apple-ios-sim
+        run: rustup target add aarch64-apple-ios-sim x86_64-apple-ios
 
       - name: Configure Xcode project
         run: |
