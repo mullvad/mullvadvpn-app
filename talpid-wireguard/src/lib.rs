@@ -269,7 +269,7 @@ impl WireguardMonitor {
     >(
         mut config: Config,
         psk_negotiation: bool,
-        #[cfg(any(target_os = "linux", windows))] detect_mtu: bool,
+        #[cfg(not(target_os = "android"))] detect_mtu: bool,
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
@@ -389,7 +389,7 @@ impl WireguardMonitor {
                 .await?;
             }
 
-            #[cfg(any(target_os = "linux", windows))]
+            #[cfg(not(target_os = "android"))]
             if detect_mtu {
                 let iface_name_clone = iface_name.clone();
                 tokio::task::spawn(async move {
