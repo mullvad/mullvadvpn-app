@@ -40,7 +40,7 @@ class CustomLists(
 
     private suspend fun createCustomList(name: String) {
         val result = daemon.await().createCustomList(name)
-        endpoint.sendEvent(Event.CreateCustomListResultEvent(result))
+        endpoint.sendEvent(Event.CreateCustomListResult(result))
     }
 
     fun onDestroy() {

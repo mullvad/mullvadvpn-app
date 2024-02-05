@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.relaylist
 import net.mullvad.mullvadvpn.model.CustomList
 
 fun CustomList.toRelayItemList(relayCountries: List<RelayCountry>): CustomRelayItemList =
-    // return this.items.map { RelayItem(it) }
     CustomRelayItemList(
         id = this.id,
         name = this.name,

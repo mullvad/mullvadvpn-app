@@ -26,7 +26,6 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
-import net.mullvad.mullvadvpn.usecase.CustomListsUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
@@ -110,7 +109,6 @@ val uiModule = module {
     single { RelayListUseCase(get(), get()) }
     single { OutOfTimeUseCase(get(), get()) }
     single { ConnectivityUseCase(get()) }
-    single { CustomListsUseCase(get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
 
