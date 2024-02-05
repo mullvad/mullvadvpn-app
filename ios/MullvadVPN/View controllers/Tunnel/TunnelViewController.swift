@@ -161,7 +161,11 @@ class TunnelViewController: UIViewController, RootContainment {
             let center = tunnelRelay.location.geoCoordinate
             mapViewController.setCenter(center, animated: animated) {
                 self.contentView.setAnimatingActivity(false)
-                self.mapViewController.addLocationMarker(coordinate: center)
+
+                // Connection can change during animation, so make sure we're still connected before adding marker.
+                if case .connected = self.tunnelState {
+                    self.mapViewController.addLocationMarker(coordinate: center)
+                }
             }
 
         case .pendingReconnect:
