@@ -13,14 +13,14 @@ import Network
 import WireGuardKitTypes
 
 
-final class StartTunnelOperationTests: XCTestCase {
+class StartTunnelOperationTests: XCTestCase {
     
     let testQueue = DispatchQueue(label: "StartTunnelOperationTests.testQueue")
 
     func testFailsIfNotLoggedIn() throws {
         let operationQueue = AsyncOperationQueue()
         let settings = LatestTunnelSettings()
-        let expectation = XCTestExpectation(description:"")
+        let exp = expectation(description:"Start tunnel operation failed")
         let operation = StartTunnelOperation(
             dispatchQueue: testQueue,
             interactor: MockTunnelInteractor(isConfigurationLoaded: true, settings: settings, deviceState: .loggedOut)) { result in
@@ -29,11 +29,11 @@ final class StartTunnelOperationTests: XCTestCase {
                     XCTFail("Operation returned \(result), not failure")
                     return
                 }
-                expectation.fulfill()
+                exp.fulfill()
             }
         
         operationQueue.addOperation(operation)
-        wait(for: [expectation], timeout: 10.0)
+        wait(for: [exp], timeout: 1.0)
     }
     
     func testSetsReconnectIfDisconnecting() {
@@ -63,7 +63,7 @@ final class StartTunnelOperationTests: XCTestCase {
         tunnelStatus.state = .disconnecting(.nothing)
         interactor.tunnelStatus = tunnelStatus
         interactor.onUpdateTunnelStatus = { status in tunnelStatus = status }
-        let expectation = XCTestExpectation(description:"")
+        let expectation = expectation(description:"Tunnel status set to reconnect")
 
         let operation = StartTunnelOperation(
             dispatchQueue: testQueue,
@@ -72,6 +72,6 @@ final class StartTunnelOperationTests: XCTestCase {
                 expectation.fulfill()
             }
         operationQueue.addOperation(operation)
-        wait(for: [expectation], timeout: 10.0)
+        wait(for: [expectation], timeout: 1.0)
     }
 }
