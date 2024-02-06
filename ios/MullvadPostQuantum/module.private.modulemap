@@ -1,0 +1,5 @@
+framework module TalpidTunnelConfigClientProxy {
+   header "talpid_tunnel_config_client.h"
+   link "libtalpid_tunnel_config_client_proxy"
+   export *
+}
