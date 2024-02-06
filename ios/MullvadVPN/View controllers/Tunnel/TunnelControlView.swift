@@ -27,7 +27,7 @@ private enum TunnelControlActionButton {
 }
 
 final class TunnelControlView: UIView {
-    private let secureLabel = makeBoldTextLabel(ofSize: 20)
+    private let secureLabel = makeBoldTextLabel(ofSize: 20, numberOfLines: 0)
     private let cityLabel = makeBoldTextLabel(ofSize: 34)
     private let countryLabel = makeBoldTextLabel(ofSize: 34)
 
@@ -420,11 +420,12 @@ final class TunnelControlView: UIView {
         )
     }
 
-    private class func makeBoldTextLabel(ofSize fontSize: CGFloat) -> UILabel {
+    private class func makeBoldTextLabel(ofSize fontSize: CGFloat, numberOfLines: Int = 1) -> UILabel {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.font = UIFont.boldSystemFont(ofSize: fontSize)
         textLabel.textColor = .white
+        textLabel.numberOfLines = numberOfLines
         return textLabel
     }
 
@@ -452,225 +453,6 @@ final class TunnelControlView: UIView {
 }
 
 private extension TunnelState {
-    var textColorForSecureLabel: UIColor {
-        switch self {
-        case .connecting, .reconnecting, .waitingForConnectivity(.noConnection):
-            .white
-
-        #if DEBUG
-        case .negotiatingKey:
-            .white
-        #endif
-
-        case .connected:
-            .successColor
-
-        case .disconnecting, .disconnected, .pendingReconnect, .waitingForConnectivity(.noNetwork), .error:
-            .dangerColor
-        }
-    }
-
-    var shouldEnableButtons: Bool {
-        if case .waitingForConnectivity(.noNetwork) = self {
-            return false
-        }
-
-        return true
-    }
-
-    var localizedTitleForSecureLabel: String {
-        switch self {
-        case .connecting, .reconnecting:
-            NSLocalizedString(
-                "TUNNEL_STATE_CONNECTING",
-                tableName: "Main",
-                value: "Creating secure connection",
-                comment: ""
-            )
-
-        #if DEBUG
-        case .negotiatingKey:
-            NSLocalizedString(
-                "TUNNEL_STATE_NEGOTIATING_KEY",
-                tableName: "Main",
-                value: "Negotiating key",
-                comment: ""
-            )
-        #endif
-
-        case .connected:
-            NSLocalizedString(
-                "TUNNEL_STATE_CONNECTED",
-                tableName: "Main",
-                value: "Secure connection",
-                comment: ""
-            )
-
-        case .disconnecting(.nothing):
-            NSLocalizedString(
-                "TUNNEL_STATE_DISCONNECTING",
-                tableName: "Main",
-                value: "Disconnecting",
-                comment: ""
-            )
-        case .disconnecting(.reconnect), .pendingReconnect:
-            NSLocalizedString(
-                "TUNNEL_STATE_PENDING_RECONNECT",
-                tableName: "Main",
-                value: "Reconnecting",
-                comment: ""
-            )
-
-        case .disconnected:
-            NSLocalizedString(
-                "TUNNEL_STATE_DISCONNECTED",
-                tableName: "Main",
-                value: "Unsecured connection",
-                comment: ""
-            )
-
-        case .waitingForConnectivity(.noConnection), .error:
-            NSLocalizedString(
-                "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY",
-                tableName: "Main",
-                value: "Blocked connection",
-                comment: ""
-            )
-
-        case .waitingForConnectivity(.noNetwork):
-            NSLocalizedString(
-                "TUNNEL_STATE_NO_NETWORK",
-                tableName: "Main",
-                value: "No network",
-                comment: ""
-            )
-        }
-    }
-
-    var localizedTitleForSelectLocationButton: String? {
-        switch self {
-        case .disconnecting(.reconnect), .pendingReconnect:
-            NSLocalizedString(
-                "SWITCH_LOCATION_BUTTON_TITLE",
-                tableName: "Main",
-                value: "Select location",
-                comment: ""
-            )
-
-        case .disconnected, .disconnecting(.nothing):
-            NSLocalizedString(
-                "SELECT_LOCATION_BUTTON_TITLE",
-                tableName: "Main",
-                value: "Select location",
-                comment: ""
-            )
-
-        case .connecting, .connected, .reconnecting, .waitingForConnectivity, .error:
-            NSLocalizedString(
-                "SWITCH_LOCATION_BUTTON_TITLE",
-                tableName: "Main",
-                value: "Switch location",
-                comment: ""
-            )
-
-        #if DEBUG
-        case .negotiatingKey:
-            NSLocalizedString(
-                "SWITCH_LOCATION_BUTTON_TITLE",
-                tableName: "Main",
-                value: "Switch location",
-                comment: ""
-            )
-        #endif
-        }
-    }
-
-    var localizedAccessibilityLabel: String {
-        switch self {
-        case .connecting:
-            NSLocalizedString(
-                "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL",
-                tableName: "Main",
-                value: "Creating secure connection",
-                comment: ""
-            )
-
-        #if DEBUG
-        case .negotiatingKey:
-            NSLocalizedString(
-                "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL",
-                tableName: "Main",
-                value: "Creating secure connection",
-                comment: ""
-            )
-        #endif
-
-        case let .connected(tunnelInfo):
-            String(
-                format: NSLocalizedString(
-                    "TUNNEL_STATE_CONNECTED_ACCESSIBILITY_LABEL",
-                    tableName: "Main",
-                    value: "Secure connection. Connected to %@, %@",
-                    comment: ""
-                ),
-                tunnelInfo.location.city,
-                tunnelInfo.location.country
-            )
-
-        case .disconnected:
-            NSLocalizedString(
-                "TUNNEL_STATE_DISCONNECTED_ACCESSIBILITY_LABEL",
-                tableName: "Main",
-                value: "Unsecured connection",
-                comment: ""
-            )
-
-        case let .reconnecting(tunnelInfo):
-            String(
-                format: NSLocalizedString(
-                    "TUNNEL_STATE_RECONNECTING_ACCESSIBILITY_LABEL",
-                    tableName: "Main",
-                    value: "Reconnecting to %@, %@",
-                    comment: ""
-                ),
-                tunnelInfo.location.city,
-                tunnelInfo.location.country
-            )
-
-        case .waitingForConnectivity(.noConnection), .error:
-            NSLocalizedString(
-                "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY_ACCESSIBILITY_LABEL",
-                tableName: "Main",
-                value: "Blocked connection",
-                comment: ""
-            )
-
-        case .waitingForConnectivity(.noNetwork):
-            NSLocalizedString(
-                "TUNNEL_STATE_NO_NETWORK_ACCESSIBILITY_LABEL",
-                tableName: "Main",
-                value: "No network",
-                comment: ""
-            )
-
-        case .disconnecting(.nothing):
-            NSLocalizedString(
-                "TUNNEL_STATE_DISCONNECTING_ACCESSIBILITY_LABEL",
-                tableName: "Main",
-                value: "Disconnecting",
-                comment: ""
-            )
-
-        case .disconnecting(.reconnect), .pendingReconnect:
-            NSLocalizedString(
-                "TUNNEL_STATE_PENDING_RECONNECT_ACCESSIBILITY_LABEL",
-                tableName: "Main",
-                value: "Reconnecting",
-                comment: ""
-            )
-        }
-    }
-
     func actionButtons(traitCollection: UITraitCollection) -> [TunnelControlActionButton] {
         switch (traitCollection.userInterfaceIdiom, traitCollection.horizontalSizeClass) {
         case (.phone, _), (.pad, .compact):
@@ -682,10 +464,8 @@ private extension TunnelState {
                  .waitingForConnectivity(.noConnection):
                 [.selectLocation, .cancel]
 
-            #if DEBUG
-            case .negotiatingKey:
+            case .negotiatingPostQuantumKey:
                 [.selectLocation, .cancel]
-            #endif
 
             case .connected, .reconnecting, .error:
                 [.selectLocation, .disconnect]
@@ -700,10 +480,8 @@ private extension TunnelState {
                  .waitingForConnectivity(.noConnection):
                 [.cancel]
 
-            #if DEBUG
-            case .negotiatingKey:
+            case .negotiatingPostQuantumKey:
                 [.cancel]
-            #endif
             case .connected, .reconnecting, .error:
                 [.disconnect]
             }

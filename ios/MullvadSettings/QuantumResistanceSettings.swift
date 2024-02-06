@@ -13,3 +13,10 @@ public enum TunnelQuantumResistance: Codable {
     case on
     case off
 }
+
+public extension TunnelQuantumResistance {
+    /// A single source of truth for whether the current state counts as on
+    var isEnabled: Bool {
+        self == .on
+    }
+}
