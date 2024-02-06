@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.uiautomator.By
 import net.mullvad.mullvadvpn.compose.test.LOGIN_INPUT_TEST_TAG
-import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
@@ -40,10 +39,11 @@ class AccountHistoryMockApiTest : MockApiTest() {
         device.findObjectWithTimeout(By.res(LOGIN_INPUT_TEST_TAG)).click()
 
         // Assert
-        assertNotNull(device.findObjectWithTimeout(By.text(validAccountToken.groupWithSpaces())))
+        val expectedResult = "1234 1234 1234 1234"
+        assertNotNull(device.findObjectWithTimeout(By.text(expectedResult)))
 
         // Try to login with the same account again
-        device.findObjectWithTimeout(By.text(validAccountToken.groupWithSpaces())).click()
+        device.findObjectWithTimeout(By.text(expectedResult)).click()
         app.ensureLoggedIn()
     }
 }

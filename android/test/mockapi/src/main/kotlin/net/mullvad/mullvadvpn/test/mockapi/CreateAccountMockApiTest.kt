@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
-import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
@@ -27,7 +26,8 @@ class CreateAccountMockApiTest : MockApiTest() {
         app.attemptCreateAccount()
 
         // Assert
-        app.ensureAccountCreated(createdAccountToken.groupWithSpaces())
+        val expectedResult = "1234 1234 1234 1234"
+        app.ensureAccountCreated(expectedResult)
     }
 
     @Test
