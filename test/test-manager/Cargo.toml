@@ -11,6 +11,7 @@ rust-version.workspace = true
 workspace = true
 
 [dependencies]
+fast-socks5 = "0.9.5"
 anyhow = { version = "1", features = ["backtrace"] }
 futures = { workspace = true }
 regex = "1"
