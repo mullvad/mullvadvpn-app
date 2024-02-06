@@ -17,6 +17,12 @@ public enum WireGuardObfuscationState: Codable {
     case off
 }
 
+public enum TunnelQuantumResistance: Codable {
+    case automatic
+    case on
+    case off
+}
+
 /// The port to select when using UDP-over-TCP obfuscation
 ///
 /// `.automatic` means an algorith will decide between using `port80` or `port5001`

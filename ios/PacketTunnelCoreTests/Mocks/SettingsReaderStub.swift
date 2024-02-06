@@ -29,7 +29,8 @@ extension SettingsReaderStub {
             interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
             relayConstraints: RelayConstraints(),
             dnsServers: .gateway,
-            obfuscation: WireGuardObfuscationSettings(state: .off, port: .automatic)
+            obfuscation: WireGuardObfuscationSettings(state: .off, port: .automatic),
+            tunnelQuantumResistance: .automatic
         )
 
         return SettingsReaderStub {

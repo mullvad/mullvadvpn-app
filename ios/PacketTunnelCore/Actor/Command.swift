@@ -10,6 +10,8 @@ import Foundation
 
 /// Describes action that actor can perform.
 enum Command {
+    case negotiatePostQuantumKey(StartOptions)
+
     /// Start tunnel.
     case start(StartOptions)
 
@@ -37,6 +39,8 @@ enum Command {
     /// Format command for log output.
     func logFormat() -> String {
         switch self {
+        case .negotiatePostQuantumKey:
+            return "PQ key exchange"
         case .start:
             return "start"
         case .stop:

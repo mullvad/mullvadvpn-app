@@ -16,6 +16,7 @@ import WireGuardKitTypes
 public protocol TunnelAdapterProtocol {
     /// Start tunnel adapter or update active configuration.
     func start(configuration: TunnelAdapterConfiguration) async throws
+    func startPostQuantumKeyExchange(configuration: TunnelAdapterConfiguration) async throws
 
     /// Stop tunnel adapter with the given configuration.
     func stop() async throws
