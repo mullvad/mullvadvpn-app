@@ -1,3 +1,4 @@
+mod access_methods;
 mod account;
 pub mod config;
 mod dns;
