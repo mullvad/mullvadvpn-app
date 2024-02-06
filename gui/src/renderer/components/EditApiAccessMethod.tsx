@@ -434,7 +434,13 @@ function EditShadowsocks(props: EditMethodProps<ShadowsocksAccessMethod>) {
       </SettingsRow>
 
       <SettingsRow label={messages.gettext('Cipher')}>
-        <SettingsSelect direction="up" defaultValue={cipher} onUpdate={setCipher} items={ciphers} />
+        <SettingsSelect
+          data-testid="ciphers"
+          direction="up"
+          defaultValue={cipher}
+          onUpdate={setCipher}
+          items={ciphers}
+        />
       </SettingsRow>
     </SettingsGroup>
   );
