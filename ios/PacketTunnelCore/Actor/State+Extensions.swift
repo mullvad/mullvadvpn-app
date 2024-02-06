@@ -23,7 +23,7 @@ extension State {
         case .initial:
             return .connecting
 
-        case .connecting:
+        case .connecting, .negotiatingPostQuantumKey:
             return .connecting
 
         case .connected, .reconnecting:
@@ -59,13 +59,15 @@ extension State {
         case let .error(blockedState):
             return "\(name): \(blockedState.reason)"
 
-        case .initial, .disconnecting, .disconnected:
+        case .initial, .disconnecting, .disconnected, .negotiatingPostQuantumKey:
             return name
         }
     }
 
     var name: String {
         switch self {
+        case .negotiatingPostQuantumKey:
+            "Negotiating Post Quantum Key"
         case .connected:
             "Connected"
         case .connecting:
@@ -89,6 +91,7 @@ extension State {
             let .connecting(connState),
             let .connected(connState),
             let .reconnecting(connState),
+            let .negotiatingPostQuantumKey(connState, _),
             let .disconnecting(connState): connState
         default: nil
         }
@@ -118,6 +121,7 @@ extension State {
         case .connected: .connected(newValue)
         case .reconnecting: .reconnecting(newValue)
         case .disconnecting: .disconnecting(newValue)
+        case let .negotiatingPostQuantumKey(_, privateKey): .negotiatingPostQuantumKey(newValue, privateKey)
         default: self
         }
     }
@@ -130,6 +134,7 @@ extension State {
         case let .connecting(connState),
              let .connected(connState),
              let .reconnecting(connState),
+             let .negotiatingPostQuantumKey(connState, _),
              let .disconnecting(connState):
             var associatedData: StateAssociatedData = connState
             modifier(&associatedData)

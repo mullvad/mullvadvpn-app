@@ -36,3 +36,9 @@ public struct SelectedRelay: Equatable, Codable {
         self.retryAttempts = retryAttempts
     }
 }
+
+extension SelectedRelay: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        "\(hostname) -> \(endpoint.ipv4Relay.description)"
+    }
+}
