@@ -6,20 +6,18 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
-import XCTest
 import MullvadSettings
-import Operations
 import Network
+import Operations
 import WireGuardKitTypes
-
+import XCTest
 
 class StartTunnelOperationTests: XCTestCase {
-    
-    //MARK: utility code for setting up tests
-    
+    // MARK: utility code for setting up tests
+
     let testQueue = DispatchQueue(label: "StartTunnelOperationTests.testQueue")
     let operationQueue = AsyncOperationQueue()
-    
+
     let loggedInDeviceState = DeviceState.loggedIn(
         StoredAccountData(
             identifier: "",
@@ -36,7 +34,7 @@ class StartTunnelOperationTests: XCTestCase {
             wgKeyData: StoredWgKeyData(creationDate: Date(), privateKey: PrivateKey())
         )
     )
-    
+
     func makeInteractor(deviceState: DeviceState, tunnelState: TunnelState? = nil) -> MockTunnelInteractor {
         var interactor = MockTunnelInteractor(
             isConfigurationLoaded: true,
@@ -48,54 +46,57 @@ class StartTunnelOperationTests: XCTestCase {
         }
         return interactor
     }
-    
-    //MARK: the tests
+
+    // MARK: the tests
 
     func testFailsIfNotLoggedIn() throws {
         let settings = LatestTunnelSettings()
-        let exp = expectation(description:"Start tunnel operation failed")
+        let exp = expectation(description: "Start tunnel operation failed")
         let operation = StartTunnelOperation(
             dispatchQueue: testQueue,
-            interactor: makeInteractor(deviceState: .loggedOut)) { result in
-                guard case .failure(_) = result else {
-                    XCTFail("Operation returned \(result), not failure")
-                    return
-                }
-                exp.fulfill()
+            interactor: makeInteractor(deviceState: .loggedOut)
+        ) { result in
+            guard case .failure = result else {
+                XCTFail("Operation returned \(result), not failure")
+                return
             }
-        
+            exp.fulfill()
+        }
+
         operationQueue.addOperation(operation)
         wait(for: [exp], timeout: 1.0)
     }
-    
+
     func testSetsReconnectIfDisconnecting() {
         let settings = LatestTunnelSettings()
         var interactor = makeInteractor(deviceState: loggedInDeviceState, tunnelState: .disconnecting(.nothing))
         var tunnelStatus = TunnelStatus()
         interactor.onUpdateTunnelStatus = { status in tunnelStatus = status }
-        let expectation = expectation(description:"Tunnel status set to reconnect")
+        let expectation = expectation(description: "Tunnel status set to reconnect")
 
         let operation = StartTunnelOperation(
             dispatchQueue: testQueue,
-            interactor: interactor) { result in
-                XCTAssertEqual(tunnelStatus.state, .disconnecting(.reconnect))
-                expectation.fulfill()
-            }
+            interactor: interactor
+        ) { result in
+            XCTAssertEqual(tunnelStatus.state, .disconnecting(.reconnect))
+            expectation.fulfill()
+        }
         operationQueue.addOperation(operation)
         wait(for: [expectation], timeout: 1.0)
     }
-    
+
     func testStartsTunnelIfDisconnected() {
         let settings = LatestTunnelSettings()
         var interactor = makeInteractor(deviceState: loggedInDeviceState, tunnelState: .disconnected)
-        let expectation = expectation(description:"Make tunnel provider and start tunnel")
+        let expectation = expectation(description: "Make tunnel provider and start tunnel")
         let operation = StartTunnelOperation(
             dispatchQueue: testQueue,
-            interactor: interactor) { result in
-                XCTAssertNotNil(interactor.tunnel)
-                XCTAssertNotNil(interactor.tunnel?.startDate)
-                expectation.fulfill()
-            }
+            interactor: interactor
+        ) { result in
+            XCTAssertNotNil(interactor.tunnel)
+            XCTAssertNotNil(interactor.tunnel?.startDate)
+            expectation.fulfill()
+        }
         operationQueue.addOperation(operation)
         wait(for: [expectation], timeout: 1.0)
     }
