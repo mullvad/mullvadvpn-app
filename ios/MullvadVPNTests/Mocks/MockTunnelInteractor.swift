@@ -11,24 +11,39 @@ import MullvadSettings
 import PacketTunnelCore
 
 // this is still very minimal, and will be fleshed out as needed. 
-struct MockTunnelInteractor: TunnelInteractor {
+class MockTunnelInteractor: TunnelInteractor {
+    var isConfigurationLoaded: Bool
+    
+    var settings: MullvadSettings.LatestTunnelSettings
+    
+    var deviceState: MullvadSettings.DeviceState
+    
     var onUpdateTunnelStatus: ((TunnelStatus)->Void)?
     
-    var tunnel: (TunnelProtocol)?
+    var tunnel: (any TunnelProtocol)?
     
-    func getPersistentTunnels() -> [TunnelProtocol] {
+    init(isConfigurationLoaded: Bool, settings: MullvadSettings.LatestTunnelSettings, deviceState: MullvadSettings.DeviceState, onUpdateTunnelStatus: ( (TunnelStatus) -> Void)? = nil) {
+        self.isConfigurationLoaded = isConfigurationLoaded
+        self.settings = settings
+        self.deviceState = deviceState
+        self.onUpdateTunnelStatus = onUpdateTunnelStatus
+        self.tunnel = nil
+        self.tunnelStatus = TunnelStatus()
+    }
+    
+    func getPersistentTunnels() -> [any TunnelProtocol] {
         return []
     }
     
-    func createNewTunnel() -> TunnelProtocol {
-        fatalError()
+    func createNewTunnel() -> any TunnelProtocol {
+        return MockTunnel(tunnelProvider: SimulatorTunnelProviderManager())
     }
     
-    func setTunnel(_ tunnel: (TunnelProtocol)?, shouldRefreshTunnelState: Bool) {
+    func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) {
+        self.tunnel = tunnel
     }
     
-    var tunnelStatus: TunnelStatus =
-        TunnelStatus()
+    var tunnelStatus: TunnelStatus
     
     func updateTunnelStatus(_ block: (inout TunnelStatus) -> Void) -> TunnelStatus {
         var tunnelStatus = self.tunnelStatus
@@ -36,12 +51,6 @@ struct MockTunnelInteractor: TunnelInteractor {
         onUpdateTunnelStatus?(tunnelStatus)
         return tunnelStatus
     }
-    
-    var isConfigurationLoaded: Bool
-    
-    var settings: MullvadSettings.LatestTunnelSettings
-    
-    var deviceState: MullvadSettings.DeviceState
     
     func setConfigurationLoaded() {}
     
@@ -59,7 +68,9 @@ struct MockTunnelInteractor: TunnelInteractor {
     
     func prepareForVPNConfigurationDeletion() {}
     
+    struct NotImplementedError: Error { }
+    
     func selectRelay() throws -> PacketTunnelCore.SelectedRelay {
-        fatalError()
+        throw NotImplementedError()
     }
 }
