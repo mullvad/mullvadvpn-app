@@ -26,7 +26,7 @@ protocol TunnelProtocol: AnyObject {
     var isOnDemandEnabled: Bool { get set }
     var startDate: Date? { get }
 
-    init(tunnelProvider: VPNTunnelProviderManagerProtocol)
+    init(tunnelProvider: TunnelManagerProtocol)
 
     func addObserver(_ observer: any TunnelStatusObserver)
     func removeObserver(_ observer: any TunnelStatusObserver)
