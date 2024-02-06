@@ -153,6 +153,7 @@ fn apply_jitter(duration: Duration, jitter: f64) -> Duration {
 #[cfg(test)]
 mod test {
     use super::*;
+    use proptest::prelude::*;
 
     #[test]
     fn test_constant_interval() {
@@ -220,13 +221,15 @@ mod test {
         assert_eq!(apply_jitter(second, 1.0), second);
     }
 
-    #[quickcheck_macros::quickcheck]
-    fn test_jitter(millis: u64, jitter: u64) {
-        let max_num = 2u64.checked_pow(f64::MANTISSA_DIGITS).unwrap();
-        let jitter = (jitter % max_num) as f64 / (max_num as f64);
-        let unjittered_duration = Duration::from_millis(millis);
-        let jittered_duration = apply_jitter(unjittered_duration, jitter);
-        assert!(jittered_duration <= unjittered_duration);
+    proptest! {
+        #[test]
+        fn test_jitter(millis: u64, jitter: u64) {
+            let max_num = 2u64.checked_pow(f64::MANTISSA_DIGITS).unwrap();
+            let jitter = (jitter % max_num) as f64 / (max_num as f64);
+            let unjittered_duration = Duration::from_millis(millis);
+            let jittered_duration = apply_jitter(unjittered_duration, jitter);
+            prop_assert!(jittered_duration <= unjittered_duration);
+        }
     }
 
     // NOTE: The test is disabled because the clock does not advance.
