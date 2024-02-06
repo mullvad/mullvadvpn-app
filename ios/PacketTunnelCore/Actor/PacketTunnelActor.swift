@@ -111,6 +111,8 @@ public actor PacketTunnelActor {
 
                 case let .networkReachability(defaultPath):
                     await handleDefaultPathChange(defaultPath)
+                case let .negotiatePostQuantumKey(StartOptions):
+                    await negotiatePostQuantumKeyExchange(StartOptions)
                 }
             }
         }
@@ -128,6 +130,7 @@ extension PacketTunnelActor {
      - Parameter options: start options produced by packet tunnel
      */
     private func start(options: StartOptions) async {
+        // TODO: Make sure that we are **Not** in the initial state anymore if PQ key exchange happened
         guard case .initial = state else { return }
 
         logger.debug("\(options.logFormat())")
@@ -145,6 +148,43 @@ extension PacketTunnelActor {
 
             await setErrorStateInternal(with: error)
         }
+    }
+
+    private func negotiatePostQuantumKeyExchange(_ options: StartOptions, nextRelay: NextRelay = .current) async {
+        // TODO: Should this be the same path as in a reconnection attempt ?
+        guard case .initial = state else { return }
+        do {
+            let settings: Settings = try settingsReader.read()
+            // `.automatic` is the same as `off` by default for now
+            if settings.tunnelQuantumResistance == .on {
+                // Generate the configuration for PQ key exchange
+                let postQuantumConfiguration = ConfigurationBuilder(
+                    privateKey: settings.privateKey,
+                    interfaceAddresses: settings.interfaceAddresses
+                )
+                let tunnelAdapterConfiguration = try postQuantumConfiguration.makeConfiguration()
+
+                // Start the adapter with the configuration
+                try await tunnelAdapter.startPostQuantumKeyExchange(configuration: tunnelAdapterConfiguration)
+
+                // Do the GRPC call from `talpid-tunnel-config-client`
+                if await negotiatePostQuantumKey() {
+                    commandChannel.send(.start(options))
+                } else {
+                    // TODO: Insert some kind of delay before retrying probably, or let the natural delay from the GRPC failure dictate how long to wait
+                    // TODO: Change the selected relay here, reuse the same logic as a normal connection
+                    await negotiatePostQuantumKeyExchange(options, nextRelay: .random)
+                }
+            }
+        } catch {
+            // TODO: probably enter error state here
+            // TODO: OR just bounce between relays until we manage to connect to a relay ?
+        }
+    }
+
+    func negotiatePostQuantumKey() async -> Bool {
+        // Do the GRPC call from `talpid-tunnel-config-client`
+        true
     }
 
     /// Stop the tunnel.

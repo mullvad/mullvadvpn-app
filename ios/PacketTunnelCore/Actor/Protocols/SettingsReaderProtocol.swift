@@ -40,18 +40,22 @@ public struct Settings {
     /// Obfuscation settings
     public var obfuscation: WireGuardObfuscationSettings
 
+    public var tunnelQuantumResistance: TunnelQuantumResistance
+
     public init(
         privateKey: PrivateKey,
         interfaceAddresses: [IPAddressRange],
         relayConstraints: RelayConstraints,
         dnsServers: SelectedDNSServers,
-        obfuscation: WireGuardObfuscationSettings
+        obfuscation: WireGuardObfuscationSettings,
+        tunnelQuantumResistance: TunnelQuantumResistance
     ) {
         self.privateKey = privateKey
         self.interfaceAddresses = interfaceAddresses
         self.relayConstraints = relayConstraints
         self.dnsServers = dnsServers
         self.obfuscation = obfuscation
+        self.tunnelQuantumResistance = tunnelQuantumResistance
     }
 }
 

@@ -11,6 +11,8 @@ import PacketTunnelCore
 
 /// Dummy tunnel adapter that does nothing and reports no errors.
 class TunnelAdapterDummy: TunnelAdapterProtocol {
+    func startPostQuantumKeyExchange(configuration: PacketTunnelCore.TunnelAdapterConfiguration) async throws {}
+
     func start(configuration: TunnelAdapterConfiguration) async throws {}
 
     func stop() async throws {}
