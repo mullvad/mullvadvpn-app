@@ -17,8 +17,10 @@ data class ConnectUiState(
     val inAppNotification: InAppNotification?,
     val deviceName: String?,
     val daysLeftUntilExpiry: Int?,
-    val isPlayBuild: Boolean
+    val isPlayBuild: Boolean,
+    val animateMap: Boolean
 ) {
+
     companion object {
         val INITIAL =
             ConnectUiState(
@@ -32,7 +34,8 @@ data class ConnectUiState(
                 inAppNotification = null,
                 deviceName = null,
                 daysLeftUntilExpiry = null,
-                isPlayBuild = false
+                isPlayBuild = false,
+                animateMap = true
             )
     }
 }

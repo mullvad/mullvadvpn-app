@@ -197,6 +197,7 @@ fun ConnectScreen(
         var bias by remember { mutableFloatStateOf(0.5f) }
         MullvadMap(
             modifier = Modifier.padding(top = it.calculateTopPadding()),
+            uiState.animateMap,
             uiState.location?.toLatLng() ?: gothenburgLatLng,
             marker = uiState.tunnelRealState.toMarker(uiState.location),
             bias,
