@@ -35,3 +35,35 @@ pub fn initialize_interfaces(luid: NET_LUID_LH, mtu: Option<u32>) -> io::Result<
 
     Ok(())
 }
+
+/// Sets MTU on the specified network interface for IPv4 and also IPv6 if set.
+pub fn set_mtu(iface_name: &str, mtu: u32, use_ipv6: bool) -> io::Result<()> {
+    let luid = talpid_windows::net::luid_from_alias(iface_name).map_err(|error| {
+        eprint!("Failed to obtain tunnel interface LUID: {}", error);
+        error
+    })?;
+
+    set_mtu_inner(luid, mtu, use_ipv6)
+}
+
+/// Sets MTU on the specified network interface (identified by `luid`).
+fn set_mtu_inner(luid: NET_LUID_LH, mtu: u32, use_ipv6: bool) -> io::Result<()> {
+    let ip_families: &[AddressFamily] = if use_ipv6 {
+        &[AddressFamily::Ipv4, AddressFamily::Ipv6]
+    } else {
+        &[AddressFamily::Ipv4]
+    };
+    for family in ip_families {
+        let mut row = match get_ip_interface_entry(*family, &luid) {
+            Ok(row) => row,
+            Err(error) if error.raw_os_error() == Some(ERROR_NOT_FOUND as i32) => continue,
+            Err(error) => return Err(error),
+        };
+
+        row.NlMtu = mtu;
+
+        set_ip_interface_entry(&mut row)?;
+    }
+
+    Ok(())
+}
