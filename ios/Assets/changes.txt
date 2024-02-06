@@ -1,2 +1,1 @@
 Add option to configure custom API access methods.
-Custom API access methods allows you to circumvent censorship by proxying API traffic.

@@ -23,8 +23,15 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add UDP-over-TCP WireGuard obfuscation.
+- Add IP Overrides
+
+## [2024.1 - 2024-01-06]
+### Added
 - Add custom API access methods.
+
+## [2023.8 - 2023-12-08]
+### Added
+- Add UDP-over-TCP WireGuard obfuscation.
 
 ## [2023.7 - 2023-11-23]
 ### Added
