@@ -3,9 +3,9 @@
 #![deny(missing_docs)]
 
 use self::config::Config;
-use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Future};
 #[cfg(windows)]
-use futures::{channel::mpsc, StreamExt};
+use futures::channel::mpsc;
+use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Future};
 #[cfg(target_os = "linux")]
 use once_cell::sync::Lazy;
 #[cfg(target_os = "android")]
@@ -26,6 +26,8 @@ use talpid_routing as routing;
 use talpid_routing::{self, RequiredRoute};
 #[cfg(not(windows))]
 use talpid_tunnel::tun_provider;
+#[cfg(not(target_os = "android"))]
+use talpid_tunnel::IPV4_HEADER_SIZE;
 use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
 
 use ipnetwork::IpNetwork;
@@ -41,9 +43,6 @@ use tokio::sync::Mutex as AsyncMutex;
 use tunnel_obfuscation::{
     create_obfuscator, Error as ObfuscationError, Settings as ObfuscationSettings, Udp2TcpSettings,
 };
-
-#[cfg(any(target_os = "linux", target_os = "macos"))]
-use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
 
 /// WireGuard config data-types
 pub mod config;
@@ -270,7 +269,7 @@ impl WireguardMonitor {
     >(
         mut config: Config,
         psk_negotiation: bool,
-        #[cfg(target_os = "linux")] detect_mtu: bool,
+        #[cfg(any(target_os = "linux", windows))] detect_mtu: bool,
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
@@ -389,7 +388,8 @@ impl WireguardMonitor {
                 )
                 .await?;
             }
-            #[cfg(target_os = "linux")]
+
+            #[cfg(any(target_os = "linux", windows))]
             if detect_mtu {
                 let iface_name_clone = iface_name.clone();
                 tokio::task::spawn(async move {
@@ -411,7 +411,15 @@ impl WireguardMonitor {
 
                     if verified_mtu != config.mtu {
                         log::warn!("Lowering MTU from {} to {verified_mtu}", config.mtu);
-                        if let Err(e) = unix::set_mtu(&iface_name_clone, verified_mtu) {
+                        #[cfg(target_os = "linux")]
+                        let res = unix::set_mtu(&iface_name_clone, verified_mtu);
+                        #[cfg(windows)]
+                        let res = talpid_tunnel::network_interface::set_mtu(
+                            &iface_name_clone,
+                            verified_mtu as u32,
+                            config.ipv6_gateway.is_some(),
+                        );
+                        if let Err(e) = res {
                             log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
                         };
                     } else {
@@ -664,6 +672,8 @@ impl WireguardMonitor {
         addresses: &[IpAddr],
         mut setup_done_rx: mpsc::Receiver<std::result::Result<(), BoxedError>>,
     ) -> std::result::Result<(), CloseMsg> {
+        use futures::StreamExt;
+
         setup_done_rx
             .next()
             .await
@@ -936,6 +946,8 @@ impl WireguardMonitor {
 
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     fn apply_route_mtu_for_multihop(route: RequiredRoute, config: &Config) -> RequiredRoute {
+        use talpid_tunnel::{IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
+
         if !config.is_multihop() {
             route
         } else {
@@ -991,7 +1003,7 @@ impl WireguardMonitor {
 ///
 /// The detection works by sending evenly spread out range of pings between 576 and the given
 /// current tunnel MTU, and returning the maximum packet size that was returned within a timeout.
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", windows))]
 async fn auto_mtu_detection(
     gateway: std::net::Ipv4Addr,
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
@@ -1068,7 +1080,7 @@ async fn auto_mtu_detection(
 
 /// Creates a linear spacing of MTU values with the given step size. Always includes the given end
 /// points.
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", windows))]
 fn mtu_spacing(mtu_min: u16, mtu_max: u16, step_size: u16) -> Vec<u16> {
     assert!(mtu_min < mtu_max);
     assert!(step_size < mtu_max);
@@ -1084,7 +1096,7 @@ fn mtu_spacing(mtu_min: u16, mtu_max: u16, step_size: u16) -> Vec<u16> {
     ret
 }
 
-#[cfg(all(test, target_os = "linux"))]
+#[cfg(all(test, any(target_os = "linux", windows)))]
 mod tests {
     use crate::mtu_spacing;
     use proptest::prelude::*;
