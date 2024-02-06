@@ -12,14 +12,12 @@ mod ui;
 
 use crate::mullvad_daemon::RpcClientProvider;
 use anyhow::Context;
-use helpers::reset_relay_settings;
 pub use test_metadata::TestMetadata;
 use test_rpc::ServiceClient;
 
 use futures::future::BoxFuture;
 
 use mullvad_management_interface::MullvadProxyClient;
-use once_cell::sync::OnceCell;
 use std::time::Duration;
 
 const PING_TIMEOUT: Duration = Duration::from_secs(3);
@@ -69,34 +67,18 @@ pub enum Error {
     Other(String),
 }
 
-static DEFAULT_SETTINGS: OnceCell<mullvad_types::settings::Settings> = OnceCell::new();
-
-/// Initializes `DEFAULT_SETTINGS`. This has only has an effect the first time it's called.
-pub async fn init_default_settings(mullvad_client: &mut MullvadProxyClient) {
-    if DEFAULT_SETTINGS.get().is_none() {
-        let settings = mullvad_client
-            .get_settings()
-            .await
-            .expect("Failed to obtain settings");
-        DEFAULT_SETTINGS.set(settings).unwrap();
-    }
-}
-
-/// Restore settings to `DEFAULT_SETTINGS`.
-///
-/// # Panics
-///
-/// `DEFAULT_SETTINGS` must be initialized using `init_default_settings` before any settings are
-/// modified, or this function panics.
+/// Restore settings to the defaults.
 pub async fn cleanup_after_test(mullvad_client: &mut MullvadProxyClient) -> anyhow::Result<()> {
     log::debug!("Cleaning up daemon in test cleanup");
 
-    let default_settings = DEFAULT_SETTINGS
-        .get()
-        .expect("default settings were not initialized");
+    helpers::disconnect_and_wait(mullvad_client).await?;
 
-    reset_relay_settings(mullvad_client).await?;
+    let default_settings = mullvad_types::settings::Settings::default();
 
+    mullvad_client
+        .set_relay_settings(default_settings.relay_settings)
+        .await
+        .context("Could not set relay settings")?;
     mullvad_client
         .set_auto_connect(default_settings.auto_connect)
         .await
