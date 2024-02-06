@@ -299,7 +299,7 @@ async fn main() -> Result<()> {
             if display {
                 instance.wait().await;
             }
-            socks.abort();
+            socks.close();
             result
         }
         Commands::FormatTestReports { reports } => {
