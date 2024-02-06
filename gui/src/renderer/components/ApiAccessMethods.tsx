@@ -231,7 +231,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
   }, [props.method.id, props.inUse, setApiAccessMethod, testApiAccessMethod, history.push]);
 
   return (
-    <Cell.Row>
+    <Cell.Row data-testid="access-method">
       <Cell.LabelContainer>
         <StyledNameLabel>{props.method.name}</StyledNameLabel>
         {testing && (
