@@ -14,7 +14,8 @@ enum ApplicationTarget: CaseIterable {
     /// Returns target bundle identifier.
     var bundleIdentifier: String {
         // "MainApplicationIdentifier" does not exist if running tests
-        let mainBundleIdentifier = Bundle.main.object(forInfoDictionaryKey: "MainApplicationIdentifier") as? String ?? "tests"
+        let mainBundleIdentifier = Bundle.main
+            .object(forInfoDictionaryKey: "MainApplicationIdentifier") as? String ?? "tests"
         switch self {
         case .mainApp:
             return mainBundleIdentifier
