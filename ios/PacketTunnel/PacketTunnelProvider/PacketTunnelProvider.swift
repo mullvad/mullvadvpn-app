@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadLogging
+import MullvadPostQuantum
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
@@ -25,6 +26,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var appMessageHandler: AppMessageHandler!
     private var stateObserverTask: AnyTask?
     private var deviceChecker: DeviceChecker!
+    private var adapter: WgAdapter!
+    private var relaySelector: RelaySelectorWrapper!
 
     override init() {
         Self.configureLogging()
@@ -48,7 +51,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             addressCache: addressCache
         )
 
-        let adapter = WgAdapter(packetTunnelProvider: self)
+        adapter = WgAdapter(packetTunnelProvider: self)
 
         let tunnelMonitor = TunnelMonitor(
             eventQueue: internalQueue,
@@ -65,6 +68,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let devicesProxy = proxyFactory.createDevicesProxy()
 
         deviceChecker = DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
+        relaySelector = RelaySelectorWrapper(relayCache: ipOverrideWrapper)
 
         actor = PacketTunnelActor(
             timings: PacketTunnelActorTimings(),
@@ -72,7 +76,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             tunnelMonitor: tunnelMonitor,
             defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self, eventQueue: internalQueue),
             blockedStateErrorMapper: BlockedStateErrorMapper(),
-            relaySelector: RelaySelectorWrapper(relayCache: ipOverrideWrapper),
+            relaySelector: relaySelector,
             settingsReader: SettingsReader(),
             protocolObfuscator: ProtocolObfuscator<UDPOverTCPObfuscator>()
         )
@@ -109,6 +113,77 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             }
         }
     }
+
+    // MARK: - Uncomment the next three functions to test Post Quantum Key exchange
+
+//    override func startTunnel(options: [String: NSObject]? = nil) async throws {
+//        let startOptions = parseStartOptions(options ?? [:])
+//
+//        startObservingActorState()
+//
+//        try await startPostQuantumKeyExchange()
+//    }
+//
+//    func selectGothenburgRelay() throws -> MullvadEndpoint {
+//        let constraints = RelayConstraints(
+//            locations: .only(UserSelectedRelays(locations: [.city("se", "got")]))
+//        )
+//        let relay = try relaySelector.selectRelay(with: constraints, connectionAttemptFailureCount: 0)
+//        return relay.endpoint
+//    }
+//
+//    var pqTCPConnection: NWTCPConnection?
+//
+//    func startPostQuantumKeyExchange() async throws {
+//        let settingsReader = SettingsReader()
+//        let settings: Settings = try settingsReader.read()
+//        let privateKey = settings.privateKey
+//        let postQuantumSharedKey = PrivateKey() // This will become the new private key of the device
+//
+//        let IPv4Gateway = IPv4Address("10.64.0.1")!
+//        let gothenburgRelay = try selectGothenburgRelay()
+//
+//        let configurationBuilder = ConfigurationBuilder(
+//            privateKey: settings.privateKey,
+//            interfaceAddresses: settings.interfaceAddresses,
+//            dns: settings.dnsServers,
+//            endpoint: gothenburgRelay,
+//            allowedIPs: [
+//                IPAddressRange(from: "10.64.0.1/8")!,
+//            ]
+//        )
+//
+//        try await adapter.start(configuration: configurationBuilder.makeConfiguration())
+//
+//        let negotiator = PostQuantumKeyNegotiatior()
+//        let gatewayEndpoint = NWHostEndpoint(hostname: "10.64.0.1", port: "1337")
+//
+//        pqTCPConnection = createTCPConnectionThroughTunnel(
+//            to: gatewayEndpoint,
+//            enableTLS: false,
+//            tlsParameters: nil,
+//            delegate: nil
+//        )
+//        guard let pqTCPConnection else { return }
+//
+//        // This will work as long as there is a detached, top-level task here.
+//        // It might be due to the async runtime environment for `override func startTunnel(options: [String: NSObject]? = nil) async throws`
+//        // There is a strong chance that the function's async availability was not properly declared by Apple.
+//        Task.detached {
+//            for await isViable in pqTCPConnection.viability where isViable == true {
+//                negotiator.negotiateKey(
+//                    gatewayIP: IPv4Gateway,
+//                    devicePublicKey: privateKey.publicKey,
+//                    presharedKey: postQuantumSharedKey.publicKey,
+//                    packetTunnel: self,
+//                    tcpConnection: self.pqTCPConnection!
+//                )
+//                break
+//            }
+//        }
+//    }
+
+    // MARK: - End testing Post Quantum key exchange
 
     override func stopTunnel(with reason: NEProviderStopReason) async {
         providerLogger.debug("stopTunnel: \(reason)")
@@ -279,7 +354,6 @@ extension PacketTunnelProvider {
 
 extension PacketTunnelProvider: PostQuantumKeyReceiving {
     func receivePostQuantumKey(_ key: PreSharedKey) {
-        // TODO: send the key to the actor
         actor.replacePreSharedKey(key)
     }
 }
