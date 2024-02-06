@@ -269,7 +269,7 @@ impl WireguardMonitor {
     >(
         mut config: Config,
         psk_negotiation: bool,
-        detect_mtu: bool,
+        #[cfg(not(target_os = "android"))] detect_mtu: bool,
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
@@ -389,6 +389,7 @@ impl WireguardMonitor {
                 .await?;
             }
 
+            #[cfg(not(target_os = "android"))]
             if detect_mtu {
                 let iface_name_clone = iface_name.clone();
                 tokio::task::spawn(async move {
@@ -1002,6 +1003,7 @@ impl WireguardMonitor {
 ///
 /// The detection works by sending evenly spread out range of pings between 576 and the given
 /// current tunnel MTU, and returning the maximum packet size that was returned within a timeout.
+#[cfg(not(target_os = "android"))]
 async fn auto_mtu_detection(
     gateway: std::net::Ipv4Addr,
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
@@ -1078,6 +1080,7 @@ async fn auto_mtu_detection(
 
 /// Creates a linear spacing of MTU values with the given step size. Always includes the given end
 /// points.
+#[cfg(not(target_os = "android"))]
 fn mtu_spacing(mtu_min: u16, mtu_max: u16, step_size: u16) -> Vec<u16> {
     assert!(mtu_min < mtu_max);
     assert!(step_size < mtu_max);
