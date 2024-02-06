@@ -30,11 +30,9 @@ class InitMutableBufferError: Error {
 
 class MullvadApi {
     private var clientContext: IosMullvadApiClient
-    init() throws {
+    init(apiAddress: String, hostname: String) throws {
         clientContext = IosMullvadApiClient(ptr: nil)
-        // TODO: read the API address and hostname from a config file
-        let apiAddress = "45.83.223.193:443"
-        let hostname = "api.mullvad.net"
+
         let result = mullvad_api_initialize_api_runtime(
             &clientContext,
             apiAddress,
