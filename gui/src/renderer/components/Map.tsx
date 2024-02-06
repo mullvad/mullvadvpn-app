@@ -33,6 +33,10 @@ export default function Map() {
     return hasLocationValue ? connection : defaultLocation;
   }, [hasLocationValue, connection.latitude, connection.longitude]);
 
+  if (window.env.e2e) {
+    return null;
+  }
+
   const connectionState = getConnectionState(hasLocationValue, connection.status.state);
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
