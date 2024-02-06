@@ -53,6 +53,8 @@ pub enum Error {
     InvalidUrl,
     #[error(display = "Timeout")]
     Timeout,
+    #[error(display = "TCP forward error")]
+    TcpForward,
 }
 
 /// Response from am.i.mullvad.net
@@ -147,6 +149,16 @@ mod service {
 
         /// Perform DNS resolution.
         async fn resolve_hostname(hostname: String) -> Result<Vec<SocketAddr>, Error>;
+
+        /// Start forwarding TCP bound to the given address. Return an ID that can be used with
+        /// `stop_tcp_forward`, and the address that the listening socket was actually bound to.
+        async fn start_tcp_forward(
+            bind_addr: SocketAddr,
+            via_addr: SocketAddr,
+        ) -> Result<(net::SockHandleId, SocketAddr), Error>;
+
+        /// Stop forwarding TCP that was previously started with `start_tcp_forward`.
+        async fn stop_tcp_forward(id: net::SockHandleId) -> Result<(), Error>;
 
         /// Restart the Mullvad VPN application.
         async fn restart_mullvad_daemon() -> Result<(), Error>;

@@ -213,6 +213,16 @@ impl ServiceClient {
             .await?
     }
 
+    /// Start forwarding TCP from a server listening on `bind_addr` to the given address, and return a handle that closes the
+    /// server when dropped
+    pub async fn start_tcp_forward(
+        &self,
+        bind_addr: SocketAddr,
+        via_addr: SocketAddr,
+    ) -> Result<crate::net::SockHandle, Error> {
+        crate::net::SockHandle::start_tcp_forward(self.client.clone(), bind_addr, via_addr).await
+    }
+
     /// Restarts the app.
     ///
     /// Shuts down a running app, making it disconnect from any current tunnel

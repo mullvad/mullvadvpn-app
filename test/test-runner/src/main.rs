@@ -10,6 +10,7 @@ use tarpc::context;
 use tarpc::server::Channel;
 use test_rpc::{
     mullvad_daemon::{ServiceStatus, SOCKET_PATH},
+    net::SockHandleId,
     package::Package,
     transport::GrpcForwarder,
     AppTrace, Service,
@@ -22,6 +23,7 @@ use tokio::{
 use tokio_util::codec::{Decoder, LengthDelimitedCodec};
 
 mod app;
+mod forward;
 mod logging;
 mod net;
 mod package;
@@ -165,6 +167,23 @@ impl Service for TestServer {
                 test_rpc::Error::DnsResolution
             })?
             .collect())
+    }
+
+    async fn start_tcp_forward(
+        self,
+        _: context::Context,
+        bind_addr: SocketAddr,
+        via_addr: SocketAddr,
+    ) -> Result<(SockHandleId, SocketAddr), test_rpc::Error> {
+        forward::start_server(bind_addr, via_addr).await
+    }
+
+    async fn stop_tcp_forward(
+        self,
+        _: context::Context,
+        id: SockHandleId,
+    ) -> Result<(), test_rpc::Error> {
+        forward::stop_server(id).await
     }
 
     async fn get_interface_ip(
