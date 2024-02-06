@@ -558,7 +558,7 @@ impl AccountsProxy {
 
     #[cfg(target_os = "android")]
     pub fn init_play_purchase(
-        &mut self,
+        &self,
         account: AccountToken,
     ) -> impl Future<Output = Result<PlayPurchasePaymentToken, rest::Error>> {
         #[derive(serde::Deserialize)]
@@ -584,7 +584,7 @@ impl AccountsProxy {
 
     #[cfg(target_os = "android")]
     pub fn verify_play_purchase(
-        &mut self,
+        &self,
         account: AccountToken,
         play_purchase: PlayPurchase,
     ) -> impl Future<Output = Result<(), rest::Error>> {
