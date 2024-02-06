@@ -21,11 +21,12 @@ protocol TunnelStatusObserver {
 }
 
 protocol TunnelProtocol: AnyObject {
+    associatedtype TunnelManagerProtocol: VPNTunnelProviderManagerProtocol
     var status: NEVPNStatus { get }
     var isOnDemandEnabled: Bool { get set }
     var startDate: Date? { get }
 
-    init(tunnelProvider: TunnelProviderManagerType)
+    init(tunnelProvider: VPNTunnelProviderManagerProtocol)
 
     func addObserver(_ observer: any TunnelStatusObserver)
     func removeObserver(_ observer: any TunnelStatusObserver)
