@@ -183,6 +183,7 @@ impl TunnelMonitor {
         let monitor = talpid_wireguard::WireguardMonitor::start(
             config,
             params.options.quantum_resistant,
+            #[cfg(not(target_os = "android"))]
             detect_mtu,
             log.as_deref(),
             args,
