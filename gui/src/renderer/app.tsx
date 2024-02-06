@@ -3,7 +3,7 @@ import { Router } from 'react-router';
 import { bindActionCreators } from 'redux';
 import { StyleSheetManager } from 'styled-components';
 
-import { hasExpired } from '../shared/account-expiry';
+import { closeToExpiry, hasExpired } from '../shared/account-expiry';
 import { ILinuxSplitTunnelingApplication, IWindowsApplication } from '../shared/application-types';
 import {
   AccessMethodSetting,
@@ -103,8 +103,10 @@ export default class AppRenderer {
   private deviceState?: DeviceState;
   private loginState: LoginState = 'none';
   private previousLoginState: LoginState = 'none';
-  private loginScheduler = new Scheduler();
   private connectedToDaemon = false;
+
+  private loginScheduler = new Scheduler();
+  private expiryScheduler = new Scheduler();
 
   constructor() {
     log.addOutput(new ConsoleOutput(LogLevel.debug));
@@ -669,14 +671,18 @@ export default class AppRenderer {
     this.resetNavigation();
   }
 
-  private resetNavigation() {
+  private resetNavigation(replaceRoot?: boolean) {
     if (this.history) {
       const pathname = this.history.location.pathname as RoutePath;
       const nextPath = this.getNavigationBase() as RoutePath;
 
       if (pathname !== nextPath) {
         const transition = this.getNavigationTransition(pathname, nextPath);
-        this.history.reset(nextPath, { transition });
+        if (replaceRoot) {
+          this.history.replaceRoot(nextPath, { transition });
+        } else {
+          this.history.reset(nextPath, { transition });
+        }
       }
     }
   }
@@ -933,23 +939,39 @@ export default class AppRenderer {
 
     const state = this.reduxStore.getState();
     const previousExpiry = state.account.expiry;
+
+    this.expiryScheduler.cancel();
+
+    if (expiry !== undefined) {
+      const expired = hasExpired(expiry);
+
+      // Set state to expired when expiry date passes.
+      if (!expired && closeToExpiry(expiry)) {
+        const delay = new Date(expiry).getTime() - Date.now() + 1;
+        this.expiryScheduler.schedule(() => this.handleExpiry(expiry, true), delay);
+      }
+
+      if (expiry !== previousExpiry) {
+        this.handleExpiry(expiry, expired);
+      }
+    } else {
+      this.handleExpiry(expiry);
+    }
+  }
+
+  private handleExpiry(expiry?: string, expired?: boolean) {
+    const state = this.reduxStore.getState();
     this.reduxActions.account.updateAccountExpiry(expiry);
 
-    const expired = expiry !== undefined && hasExpired(expiry);
     if (
-      this.history &&
-      state.account.status.type === 'ok' &&
       expiry !== undefined &&
-      expiry !== previousExpiry &&
+      state.account.status.type === 'ok' &&
       ((state.account.status.expiredState === undefined && expired) ||
         (state.account.status.expiredState === 'expired' && !expired)) &&
       // If the login navigation is already scheduled no navigation is needed
       !this.loginScheduler.isRunning
     ) {
-      const prevPath = this.history.location.pathname as RoutePath;
-      const nextPath = expired ? RoutePath.expired : RoutePath.timeAdded;
-      const transition = this.getNavigationTransition(prevPath, nextPath);
-      this.history.replaceRoot(nextPath, { transition });
+      this.resetNavigation(true);
     }
   }
 
