@@ -57,7 +57,11 @@ jobs:
 
     strategy:
       matrix:
-        rust: [stable, beta, nightly]
+        # FIXME: Temporarily disable nightly builds due to an issue with curve25519-dalek
+        # Once this has been fixed, enable nightly builds again:
+        # https://github.com/dalek-cryptography/curve25519-dalek/pull/619
+        #rust: [stable, beta, nightly]
+        rust: [stable, beta]
     continue-on-error: true
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
