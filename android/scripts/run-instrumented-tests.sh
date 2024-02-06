@@ -10,8 +10,10 @@ AUTO_FETCH_TEST_HELPER_APKS=${AUTO_FETCH_TEST_HELPER_APKS:-"false"}
 APK_BASE_DIR=${APK_BASE_DIR:-"$SCRIPT_DIR/.."}
 LOG_FAILURE_MESSAGE="FAILURES!!!"
 
-DEFAULT_ORCHESTRATOR_APK_PATH=/tmp/orchestrator.apk
-DEFAULT_TEST_SERVICES_APK_PATH=/tmp/test-services.apk
+TEMP_DIR=$(mktemp -d -t test-run-XXXX)
+
+DEFAULT_ORCHESTRATOR_APK_PATH=$TEMP_DIR/orchestrator.apk
+DEFAULT_TEST_SERVICES_APK_PATH=$TEMP_DIR/test-services.apk
 
 ORCHESTRATOR_URL=https://dl.google.com/android/maven2/androidx/test/orchestrator/1.4.2/orchestrator-1.4.2.apk
 TEST_SERVICES_URL=https://dl.google.com/android/maven2/androidx/test/services/test-services/1.4.2/test-services-1.4.2.apk
@@ -141,7 +143,7 @@ case "$TEST_TYPE" in
     ;;
 esac
 
-LOCAL_TMP_REPORT_PATH="/tmp/mullvad-$TEST_TYPE-instrumentation-report"
+LOCAL_TMP_REPORT_PATH="$TEMP_DIR/mullvad-$TEST_TYPE-instrumentation-report"
 INSTRUMENTATION_LOG_FILE_PATH="$LOCAL_TMP_REPORT_PATH/instrumentation-log.txt"
 LOGCAT_FILE_PATH="$LOCAL_TMP_REPORT_PATH/logcat.txt"
 LOCAL_SCREENSHOT_PATH="$LOCAL_TMP_REPORT_PATH/screenshots"
