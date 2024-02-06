@@ -14,188 +14,6 @@ import NetworkExtension
 
 /// Tunnel monitor.
 public final class TunnelMonitor: TunnelMonitorProtocol {
-    /// Connection state.
-    private enum ConnectionState {
-        /// Initialized and doing nothing.
-        case stopped
-
-        /// Preparing to start.
-        /// Intermediate state before receiving the first path update.
-        case pendingStart
-
-        /// Establishing connection.
-        case connecting
-
-        /// Connection is established.
-        case connected
-
-        /// Delegate is recovering connection.
-        /// Delegate has to call `start(probeAddress:)` to complete recovery and resume monitoring.
-        case recovering
-
-        /// Waiting for network connectivity.
-        case waitingConnectivity
-    }
-
-    /// Tunnel monitor state.
-    private struct State {
-        /// Current connection state.
-        var connectionState: ConnectionState = .stopped
-
-        /// Network counters.
-        var netStats = WgStats()
-
-        /// Ping stats.
-        var pingStats = PingStats()
-
-        /// Reference date used to determine if timeout has occurred.
-        var timeoutReference = Date()
-
-        /// Last seen change in rx counter.
-        var lastSeenRx: Date?
-
-        /// Last seen change in tx counter.
-        var lastSeenTx: Date?
-
-        /// Whether periodic heartbeat is suspended.
-        var isHeartbeatSuspended = false
-
-        /// Retry attempt.
-        var retryAttempt: UInt32 = 0
-
-        // Timings and timeouts.
-        let timings: TunnelMonitorTimings
-
-        func evaluateConnection(now: Date, pingTimeout: Duration) -> ConnectionEvaluation {
-            switch connectionState {
-            case .connecting:
-                return handleConnectingState(now: now, pingTimeout: pingTimeout)
-            case .connected:
-                return handleConnectedState(now: now, pingTimeout: pingTimeout)
-            default:
-                return .ok
-            }
-        }
-
-        func getPingTimeout() -> Duration {
-            switch connectionState {
-            case .connecting:
-                let multiplier = timings.establishTimeoutMultiplier.saturatingPow(retryAttempt)
-                let nextTimeout = timings.initialEstablishTimeout * Double(multiplier)
-
-                if nextTimeout.isFinite, nextTimeout < timings.maxEstablishTimeout {
-                    return nextTimeout
-                } else {
-                    return timings.maxEstablishTimeout
-                }
-
-            case .pendingStart, .connected, .waitingConnectivity, .stopped, .recovering:
-                return timings.pingTimeout
-            }
-        }
-
-        mutating func updateNetStats(newStats: WgStats, now: Date) {
-            if newStats.bytesReceived > netStats.bytesReceived {
-                lastSeenRx = now
-            }
-
-            if newStats.bytesSent > netStats.bytesSent {
-                lastSeenTx = now
-            }
-
-            netStats = newStats
-        }
-
-        mutating func updatePingStats(sendResult: PingerSendResult, now: Date) {
-            pingStats.requests.updateValue(now, forKey: sendResult.sequenceNumber)
-            pingStats.lastRequestDate = now
-        }
-
-        mutating func setPingReplyReceived(_ sequenceNumber: UInt16, now: Date) -> Date? {
-            guard let pingTimestamp = pingStats.requests.removeValue(forKey: sequenceNumber) else {
-                return nil
-            }
-
-            pingStats.lastReplyDate = now
-            timeoutReference = now
-
-            return pingTimestamp
-        }
-
-        private func handleConnectingState(now: Date, pingTimeout: Duration) -> ConnectionEvaluation {
-            if now.timeIntervalSince(timeoutReference) >= pingTimeout {
-                return .pingTimeout
-            }
-
-            guard let lastRequestDate = pingStats.lastRequestDate else {
-                return .sendInitialPing
-            }
-
-            if now.timeIntervalSince(lastRequestDate) >= timings.pingDelay {
-                return .sendNextPing
-            }
-
-            return .ok
-        }
-
-        private func handleConnectedState(now: Date, pingTimeout: Duration) -> ConnectionEvaluation {
-            if now.timeIntervalSince(timeoutReference) >= pingTimeout, !isHeartbeatSuspended {
-                return .pingTimeout
-            }
-
-            guard let lastRequestDate = pingStats.lastRequestDate else {
-                return .sendInitialPing
-            }
-
-            let timeSinceLastPing = now.timeIntervalSince(lastRequestDate)
-            if let lastReplyDate = pingStats.lastReplyDate,
-               lastRequestDate.timeIntervalSince(lastReplyDate) >= timings.heartbeatReplyTimeout,
-               timeSinceLastPing >= timings.pingDelay, !isHeartbeatSuspended {
-                return .retryHeartbeatPing
-            }
-
-            guard let lastSeenRx, let lastSeenTx else { return .ok }
-
-            let rxTimeElapsed = now.timeIntervalSince(lastSeenRx)
-            let txTimeElapsed = now.timeIntervalSince(lastSeenTx)
-
-            if timeSinceLastPing >= timings.heartbeatPingInterval {
-                // Send heartbeat if traffic is flowing.
-                if rxTimeElapsed <= timings.trafficFlowTimeout || txTimeElapsed <= timings.trafficFlowTimeout {
-                    return .sendHeartbeatPing
-                }
-
-                if !isHeartbeatSuspended {
-                    return .suspendHeartbeat
-                }
-            }
-
-            if timeSinceLastPing >= timings.pingDelay {
-                if txTimeElapsed >= timings.trafficTimeout || rxTimeElapsed >= timings.trafficTimeout {
-                    return .trafficTimeout
-                }
-
-                if lastSeenTx > lastSeenRx, rxTimeElapsed >= timings.inboundTrafficTimeout {
-                    return .inboundTrafficTimeout
-                }
-            }
-
-            return .ok
-        }
-    }
-
-    /// Ping statistics.
-    private struct PingStats {
-        /// Dictionary holding sequence and corresponding date when echo request took place.
-        var requests = [UInt16: Date]()
-
-        /// Timestamp when last echo request was sent.
-        var lastRequestDate: Date?
-
-        /// Timestamp when last echo reply was received.
-        var lastReplyDate: Date?
-    }
-
     private let tunnelDeviceInfo: TunnelDeviceInfoProtocol
 
     private let nslock = NSLock()
@@ -207,7 +25,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
     private var isObservingDefaultPath = false
     private var timer: DispatchSourceTimer?
 
-    private var state: State
+    private var state: TunnelMonitorState
     private var probeAddress: IPv4Address?
 
     private let logger = Logger(label: "TunnelMonitor")
@@ -236,7 +54,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         self.tunnelDeviceInfo = tunnelDeviceInfo
 
         self.timings = timings
-        state = State(timings: timings)
+        state = TunnelMonitorState(timings: timings)
 
         self.pinger = pinger
         self.pinger.onReply = { [weak self] reply in
@@ -547,18 +365,6 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         }
     }
 
-    private enum ConnectionEvaluation {
-        case ok
-        case sendInitialPing
-        case sendNextPing
-        case sendHeartbeatPing
-        case retryHeartbeatPing
-        case suspendHeartbeat
-        case inboundTrafficTimeout
-        case trafficTimeout
-        case pingTimeout
-    }
-
     private func getStats() -> WgStats? {
         do {
             return try tunnelDeviceInfo.getStats()
@@ -568,6 +374,4 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
             return nil
         }
     }
-
-    // swiftlint:disable:next file_length
 }
