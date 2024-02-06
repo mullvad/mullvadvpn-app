@@ -65,6 +65,24 @@ impl CustomProxy {
     }
 }
 
+impl From<Socks5Remote> for CustomProxy {
+    fn from(value: Socks5Remote) -> Self {
+        CustomProxy::Socks5Remote(value)
+    }
+}
+
+impl From<Socks5Local> for CustomProxy {
+    fn from(value: Socks5Local) -> Self {
+        CustomProxy::Socks5Local(value)
+    }
+}
+
+impl From<Shadowsocks> for CustomProxy {
+    fn from(value: Shadowsocks) -> Self {
+        CustomProxy::Shadowsocks(value)
+    }
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Shadowsocks {
     pub endpoint: SocketAddr,
