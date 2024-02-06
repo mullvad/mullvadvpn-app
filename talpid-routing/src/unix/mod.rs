@@ -16,7 +16,7 @@ use futures::stream::Stream;
 use std::net::IpAddr;
 
 #[allow(clippy::module_inception)]
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", target_os = "ios"))]
 #[path = "macos/mod.rs"]
 pub mod imp;
 
