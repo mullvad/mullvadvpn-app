@@ -8,7 +8,6 @@ use crate::{
 };
 use anyhow::{Context, Result};
 use futures::FutureExt;
-use mullvad_management_interface::MullvadProxyClient;
 use std::future::Future;
 use std::panic;
 use std::time::Duration;
@@ -84,14 +83,10 @@ pub async fn run(
     let logger = super::logging::Logger::get_or_init();
 
     for test in tests {
-        let mut mclient = test_context
+        let mclient = test_context
             .rpc_provider
             .as_type(test.mullvad_client_version)
             .await;
-
-        if let Some(client) = mclient.downcast_mut::<MullvadProxyClient>() {
-            crate::tests::init_default_settings(client).await;
-        }
 
         log::info!("Running {}", test.name);
 
