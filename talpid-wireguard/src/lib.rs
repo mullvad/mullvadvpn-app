@@ -1070,16 +1070,38 @@ async fn auto_mtu_detection(
 /// points.
 #[cfg(target_os = "linux")]
 fn mtu_spacing(mtu_min: u16, mtu_max: u16, step_size: u16) -> Vec<u16> {
-    if mtu_min > mtu_max {
-        panic!("Invalid MTU detection range: `mtu_min`={mtu_min}, `mtu_max`={mtu_max}.");
-    }
-    let second_mtu = mtu_min.next_multiple_of(step_size);
+    assert!(mtu_min < mtu_max);
+    assert!(step_size < mtu_max);
+    assert_ne!(step_size, 0);
+
+    let second_mtu = (mtu_min + 1).next_multiple_of(step_size);
     let in_between = (second_mtu..mtu_max).step_by(step_size as usize);
-    let mut ret = Vec::with_capacity(((mtu_max - second_mtu).div_ceil(step_size) + 2) as usize);
+
+    let mut ret = Vec::with_capacity(in_between.clone().count() + 2);
     ret.push(mtu_min);
     ret.extend(in_between);
     ret.push(mtu_max);
     ret
+}
+
+#[cfg(all(test, target_os = "linux"))]
+mod tests {
+    use crate::mtu_spacing;
+    use proptest::prelude::*;
+
+    proptest! {
+        #[test]
+        fn test_mtu_spacing(mtu_min in 0..800u16, mtu_max in 800..2000u16, step_size in 1..800u16)  {
+            let mtu_spacing = mtu_spacing(mtu_min, mtu_max, step_size);
+
+            prop_assert_eq!(mtu_spacing.iter().filter(|mtu| mtu == &&mtu_min).count(), 1);
+            prop_assert_eq!(mtu_spacing.iter().filter(|mtu| mtu == &&mtu_max).count(), 1);
+            prop_assert_eq!(mtu_spacing.capacity(), mtu_spacing.len());
+            let mut diffs = mtu_spacing.windows(2).map(|win| win[1]-win[0]);
+            prop_assert!(diffs.all(|diff| diff <= step_size));
+
+        }
+    }
 }
 
 #[derive(Debug)]
