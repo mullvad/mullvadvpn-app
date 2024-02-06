@@ -138,8 +138,7 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
 
         contentView.state = .logout
 
-        Task {
-            [weak self] in
+        Task { [weak self] in
             guard let self else { return }
             await interactor.logout()
             contentView.state = .initial
