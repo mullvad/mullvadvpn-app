@@ -94,6 +94,5 @@ features = [
 tonic-build = { workspace = true, default-features = false, features = ["transport", "prost"] }
 
 [dev-dependencies]
-quickcheck = { version = "1.0", default-features = false }
-quickcheck_macros = "1.0"
+proptest = "1.4"
 tokio = { workspace = true, features = [ "test-util" ] }
