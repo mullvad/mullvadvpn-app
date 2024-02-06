@@ -11,7 +11,6 @@ rust-version.workspace = true
 workspace = true
 
 [dependencies]
-fast-socks5 = "0.9.5"
 anyhow = { version = "1", features = ["backtrace"] }
 futures = { workspace = true }
 regex = "1"
@@ -43,6 +42,7 @@ pcap = { version = "0.10.1", features = ["capture-stream"] }
 pnet_packet = "0.31.0"
 
 test-rpc = { path = "../test-rpc" }
+socks-server = { path = "../socks-server" }
 
 env_logger = { workspace = true }
 

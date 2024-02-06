@@ -2890,6 +2890,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "socks-server"
+version = "0.0.0"
+dependencies = [
+ "err-derive",
+ "fast-socks5",
+ "futures",
+ "log",
+ "tokio",
+]
+
+[[package]]
 name = "spin"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3109,7 +3120,6 @@ dependencies = [
  "dirs",
  "env_logger",
  "err-derive",
- "fast-socks5",
  "futures",
  "inventory",
  "ipnetwork 0.20.0",
@@ -3126,6 +3136,7 @@ dependencies = [
  "regex",
  "serde",
  "serde_json",
+ "socks-server",
  "ssh2",
  "talpid-types",
  "tarpc",
