@@ -29,11 +29,27 @@ struct WgAdapter: TunnelAdapterProtocol {
         )
     }
 
+    // TODO: Should we know here whether the configuration is for PQ key exchange or not ?
     func start(configuration: TunnelAdapterConfiguration) async throws {
         let wgConfig = configuration.asWgConfig
         do {
             try await adapter.stop()
             try await adapter.start(tunnelConfiguration: wgConfig)
+        } catch WireGuardAdapterError.invalidState {
+            try await adapter.start(tunnelConfiguration: wgConfig)
+        }
+
+        let tunAddresses = wgConfig.interface.addresses.map { $0.address }
+        // TUN addresses can be empty when adapter is configured for blocked state.
+        if !tunAddresses.isEmpty {
+            logIfDeviceHasSameIP(than: tunAddresses)
+        }
+    }
+
+    func startPostQuantumKeyExchange(configuration: TunnelAdapterConfiguration) async throws {
+        let wgConfig = configuration.asWgPQConfig
+        do {
+            try await adapter.update(tunnelConfiguration: wgConfig)
         } catch WireGuardAdapterError.invalidState {
             try await adapter.start(tunnelConfiguration: wgConfig)
         }
@@ -113,6 +129,31 @@ private extension TunnelAdapterConfiguration {
             var peerConfig = PeerConfiguration(publicKey: peer.publicKey)
             peerConfig.endpoint = peer.endpoint.wgEndpoint
             peerConfig.allowedIPs = allowedIPs
+            peers.append(peerConfig)
+        }
+
+        return TunnelConfiguration(
+            name: nil,
+            interface: interfaceConfig,
+            peers: peers
+        )
+    }
+
+    var asWgPQConfig: TunnelConfiguration {
+        var interfaceConfig = InterfaceConfiguration(privateKey: privateKey)
+        interfaceConfig.addresses = interfaceAddresses
+        interfaceConfig.dns = dns.map { DNSServer(address: $0) }
+        interfaceConfig.listenPort = 0
+
+        var peers: [PeerConfiguration] = []
+        if let peer {
+            var peerConfig = PeerConfiguration(publicKey: peer.publicKey)
+            peerConfig.endpoint = peer.endpoint.wgEndpoint
+            // TODO: change this to 10.64.0.1/32
+            // TODO: What about the IPv6 address here ?
+            peerConfig.allowedIPs = [
+                IPAddressRange(from: "10.64.0.1/32")!,
+            ]
             peers.append(peerConfig)
         }
 
