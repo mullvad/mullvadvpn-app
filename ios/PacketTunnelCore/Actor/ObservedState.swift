@@ -14,6 +14,8 @@ import Network
 /// A serializable representation of internal state.
 public enum ObservedState: Equatable, Codable {
     case initial
+    // TODO: Handle this maybe ?
+//    case exchangingPostQuantumKey(ObservedConnectionState)
     case connecting(ObservedConnectionState)
     case reconnecting(ObservedConnectionState)
     #if DEBUG
