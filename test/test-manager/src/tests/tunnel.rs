@@ -11,8 +11,9 @@ use mullvad_types::relay_constraints::{
     Udp2TcpObfuscationSettings, WireguardConstraints,
 };
 use mullvad_types::wireguard;
+use std::net::SocketAddr;
 use talpid_types::net::{
-    proxy::{CustomProxy, Socks5Remote},
+    proxy::{CustomProxy, Socks5Local, Socks5Remote},
     TransportProtocol, TunnelType,
 };
 use test_macro::test_function;
@@ -598,6 +599,108 @@ pub async fn test_remote_socks_bridge(
                 crate::vm::network::NON_TUN_GATEWAY,
                 crate::vm::network::SOCKS5_PORT,
             )))),
+        })
+        .await
+        .expect("failed to update bridge settings");
+
+    set_relay_settings(
+        &mut mullvad_client,
+        RelaySettings::Normal(RelayConstraints {
+            tunnel_protocol: Constraint::Only(TunnelType::OpenVpn),
+            ..Default::default()
+        }),
+    )
+    .await
+    .expect("failed to update relay settings");
+
+    //
+    // Connect to VPN
+    //
+
+    connect_and_wait(&mut mullvad_client).await?;
+
+    let (entry, exit) = match mullvad_client.get_tunnel_state().await? {
+        mullvad_types::states::TunnelState::Connected { endpoint, .. } => {
+            (endpoint.proxy.unwrap().endpoint, endpoint.endpoint)
+        }
+        actual => {
+            panic!("unexpected tunnel state. Expected `TunnelState::Connected` but got {actual:?}")
+        }
+    };
+
+    log::info!(
+        "Selected entry bridge {entry_addr} & exit relay {exit_addr}",
+        entry_addr = entry.address,
+        exit_addr = exit.address
+    );
+
+    // Start recording outgoing packets. Their destination will be verified
+    // against the bridge's IP address later.
+    let monitor = start_packet_monitor(
+        move |packet| packet.destination.ip() == entry.address.ip(),
+        MonitorOptions::default(),
+    )
+    .await;
+
+    //
+    // Verify exit IP
+    //
+
+    log::info!("Verifying exit server");
+
+    assert!(
+        helpers::using_mullvad_exit(&rpc).await,
+        "expected Mullvad exit IP"
+    );
+
+    //
+    // Verify entry IP
+    //
+
+    log::info!("Verifying entry server");
+
+    let monitor_result = monitor.into_result().await.unwrap();
+    assert!(
+        !monitor_result.packets.is_empty(),
+        "detected no traffic to entry server",
+    );
+
+    Ok(())
+}
+
+/// Try to connect to an OpenVPN relay via a local, passwordless SOCKS5 server.
+/// * No outgoing traffic to the bridge/entry relay is observed from the SUT.
+/// * The conncheck reports an unexpected exit relay.
+#[test_function]
+pub async fn test_local_socks_bridge(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    let remote_addr = SocketAddr::from((
+        crate::vm::network::NON_TUN_GATEWAY,
+        crate::vm::network::SOCKS5_PORT,
+    ));
+    let socks_server = rpc
+        .start_tcp_forward("127.0.0.1:0".parse().unwrap(), remote_addr)
+        .await
+        .expect("failed to start TCP forward");
+
+    // FIXME: needs to connect before?
+
+    mullvad_client
+        .set_bridge_state(relay_constraints::BridgeState::On)
+        .await
+        .expect("failed to enable bridge mode");
+
+    mullvad_client
+        .set_bridge_settings(BridgeSettings {
+            bridge_type: BridgeType::Custom,
+            normal: BridgeConstraints::default(),
+            custom: Some(CustomProxy::Socks5Local(Socks5Local::new(
+                remote_addr,
+                socks_server.bind_addr().port(),
+            ))),
         })
         .await
         .expect("failed to update bridge settings");
