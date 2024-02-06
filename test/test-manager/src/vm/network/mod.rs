@@ -15,3 +15,6 @@ pub use platform::{
     CUSTOM_TUN_REMOTE_REAL_PORT, CUSTOM_TUN_REMOTE_TUN_ADDR, DUMMY_LAN_INTERFACE_IP,
     NON_TUN_GATEWAY,
 };
+
+/// Port on NON_TUN_GATEWAY that hosts a SOCKS5 server
+pub const SOCKS5_PORT: u16 = 54321;
