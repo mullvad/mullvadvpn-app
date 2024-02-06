@@ -14,7 +14,6 @@ use std::path::PathBuf;
 use anyhow::Context;
 use anyhow::Result;
 use clap::Parser;
-use futures::StreamExt;
 use std::net::SocketAddr;
 use tests::config::DEFAULT_MULLVAD_HOST;
 
@@ -250,33 +249,12 @@ async fn main() -> Result<()> {
                 .await
                 .context("Failed to run provisioning for VM")?;
 
-            let socks_server: fast_socks5::server::Socks5Server =
-                fast_socks5::server::Socks5Server::bind(SocketAddr::new(
-                    crate::vm::network::NON_TUN_GATEWAY.into(),
-                    crate::vm::network::SOCKS5_PORT,
-                ))
-                .await
-                .context("Failed to start SOCKS5 server")?;
-            let socks_server = tokio::spawn(async move {
-                let mut incoming = socks_server.incoming();
-
-                while let Some(new_client) = incoming.next().await {
-                    match new_client {
-                        Ok(socket) => {
-                            let fut = socket.upgrade_to_socks5();
-                            tokio::spawn(async move {
-                                match fut.await {
-                                    Ok(_socket) => log::info!("socks client disconnected"),
-                                    Err(error) => log::error!("socks client failed: {error}"),
-                                }
-                            });
-                        }
-                        Err(error) => {
-                            log::error!("failed to accept socks client: {error}");
-                        }
-                    }
-                }
-            });
+            // For convenience, spawn a SOCKS5 server that is reachable for tests that need it
+            let socks = socks_server::spawn(SocketAddr::new(
+                crate::vm::network::NON_TUN_GATEWAY.into(),
+                crate::vm::network::SOCKS5_PORT,
+            ))
+            .await?;
 
             let skip_wait = vm_config.provisioner != config::Provisioner::Noop;
 
@@ -321,7 +299,7 @@ async fn main() -> Result<()> {
             if display {
                 instance.wait().await;
             }
-            socks_server.abort();
+            socks.abort();
             result
         }
         Commands::FormatTestReports { reports } => {

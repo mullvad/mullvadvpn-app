@@ -11,6 +11,7 @@ members = [
     "test-manager",
     "test-runner",
     "test-rpc",
+    "socks-server",
 ]
 
 [workspace.lints.rust]
