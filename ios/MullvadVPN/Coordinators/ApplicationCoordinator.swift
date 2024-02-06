@@ -342,8 +342,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func logoutRevokedDevice() {
-        tunnelManager.unsetAccount { [weak self] in
-            self?.continueFlow(animated: true)
+        Task { [weak self] in
+            guard let self else { return }
+            await tunnelManager.unsetAccount()
+            continueFlow(animated: true)
         }
     }
 

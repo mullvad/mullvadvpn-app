@@ -62,14 +62,15 @@ class AccountDeletionViewController: UIViewController {
 
     private func submit(accountNumber: String) {
         contentView.state = .loading
-        interactor.delete(accountNumber: accountNumber) { [weak self] error in
+        Task { [weak self] in
             guard let self else { return }
-            guard let error else {
+            do {
+                try await interactor.delete(accountNumber: accountNumber)
                 self.contentView.state = .initial
                 self.delegate?.deleteAccountDidSucceed(controller: self)
-                return
+            } catch {
+                self.contentView.state = .failure(error)
             }
-            self.contentView.state = .failure(error)
         }
     }
 }

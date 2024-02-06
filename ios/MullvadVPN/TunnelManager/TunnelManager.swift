@@ -311,19 +311,12 @@ final class TunnelManager: StorePaymentObserver {
         operationQueue.addOperation(operation)
     }
 
-    func setNewAccount(completion: @escaping (Result<StoredAccountData, Error>) -> Void) {
-        setAccount(action: .new) { result in
-            completion(result.map { $0! })
-        }
+    func setNewAccount() async throws -> StoredAccountData {
+        try await setAccount(action: .new)!
     }
 
-    func setExistingAccount(
-        accountNumber: String,
-        completion: @escaping (Result<StoredAccountData, Error>) -> Void
-    ) {
-        setAccount(action: .existing(accountNumber)) { result in
-            completion(result.map { $0! })
-        }
+    func setExistingAccount(accountNumber: String) async throws -> StoredAccountData {
+        try await setAccount(action: .existing(accountNumber))!
     }
 
     private func setAccount(
@@ -374,10 +367,16 @@ final class TunnelManager: StorePaymentObserver {
         operationQueue.addOperation(operation)
     }
 
-    func unsetAccount(completionHandler: @escaping () -> Void) {
-        setAccount(action: .unset) { _ in
-            completionHandler()
+    private func setAccount(action: SetAccountAction) async throws -> StoredAccountData? {
+        try await withCheckedThrowingContinuation { continuation in
+            setAccount(action: action) { result in
+                continuation.resume(with: result)
+            }
         }
+    }
+
+    func unsetAccount() async {
+        _ = try? await setAccount(action: .unset)
     }
 
     func updateAccountData(_ completionHandler: ((Error?) -> Void)? = nil) {
@@ -435,13 +434,8 @@ final class TunnelManager: StorePaymentObserver {
         return operation
     }
 
-    func deleteAccount(
-        accountNumber: String,
-        completion: ((Error?) -> Void)? = nil
-    ) {
-        setAccount(action: .delete(accountNumber)) { result in
-            completion?(result.error)
-        }
+    func deleteAccount(accountNumber: String) async throws {
+        _ = try await setAccount(action: .delete(accountNumber))
     }
 
     func updateDeviceData(_ completionHandler: ((Error?) -> Void)? = nil) {
