@@ -12,13 +12,10 @@ import MullvadTypes
 extension ObservedState {
     public var relayConstraints: RelayConstraints? {
         switch self {
-        case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
+        case let .connecting(connState), let .connected(connState), let .reconnecting(connState),
+             let .negotiatingPostQuantumKey(connState, _):
             connState.relayConstraints
 
-        #if DEBUG
-        case let .negotiatingKey(connState):
-            connState.relayConstraints
-        #endif
         case let .error(blockedState):
             blockedState.relayConstraints
 
@@ -33,10 +30,8 @@ extension ObservedState {
             "Connected"
         case .connecting:
             "Connecting"
-        #if DEBUG
-        case .negotiatingKey:
-            "Negotiating key"
-        #endif
+        case .negotiatingPostQuantumKey:
+            "Negotiating Post Quantum Secure Key"
         case .reconnecting:
             "Reconnecting"
         case .disconnecting:
@@ -56,6 +51,7 @@ extension ObservedState {
             let .connecting(connectionState),
             let .reconnecting(connectionState),
             let .connected(connectionState),
+            let .negotiatingPostQuantumKey(connectionState, _),
             let .disconnecting(connectionState):
             connectionState
         default:
