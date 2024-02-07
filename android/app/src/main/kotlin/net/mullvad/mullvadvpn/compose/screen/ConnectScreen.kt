@@ -39,7 +39,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
-import net.mullvad.lib.map.MullvadMap
+import net.mullvad.lib.map.Map
 import net.mullvad.lib.map.data.LatLng
 import net.mullvad.lib.map.data.Marker
 import net.mullvad.lib.map.data.MarkerType
@@ -195,7 +195,7 @@ fun ConnectScreen(
         timeLeft = uiState.daysLeftUntilExpiry
     ) {
         var bias by remember { mutableFloatStateOf(0.5f) }
-        MullvadMap(
+        Map(
             modifier = Modifier.padding(top = it.calculateTopPadding()),
             uiState.animateMap,
             uiState.location?.toLatLng() ?: gothenburgLatLng,

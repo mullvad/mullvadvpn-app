@@ -23,7 +23,7 @@ const val completeAngle = 360f
 const val movementMultiplier = 1.5f
 
 @Composable
-fun MullvadMap(
+fun Map(
     modifier: Modifier,
     animate: Boolean,
     cameraLocation: LatLng,

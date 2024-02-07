@@ -1,14 +1,16 @@
 package net.mullvad.lib.map.shapes
 
-import android.opengl.GLES31
+import android.opengl.GLES20
 import android.opengl.Matrix
+import androidx.compose.ui.graphics.Color
 import java.nio.FloatBuffer
 import kotlin.math.cos
 import kotlin.math.sin
 import net.mullvad.lib.map.GLHelper
 import net.mullvad.lib.map.data.LatLng
+import net.mullvad.lib.map.toFloatArrayWithoutAlpha
 
-class LocationMarker(val color: FloatArray) {
+class LocationMarker(val color: Color) {
 
     private val vertexShaderCode =
         """
@@ -45,8 +47,8 @@ class LocationMarker(val color: FloatArray) {
                 32,
                 0.5f,
                 floatArrayOf(0.0f, 0.0f, 0.0f),
-                floatArrayOf(*color, 0.4f),
-                floatArrayOf(*color, 0.4f)
+                floatArrayOf(*color.toFloatArrayWithoutAlpha(), 0.4f),
+                floatArrayOf(*color.toFloatArrayWithoutAlpha(), 0.4f)
             ), // Semi-transparent outer
             circleFanVertices(
                 16,
@@ -66,8 +68,8 @@ class LocationMarker(val color: FloatArray) {
                 32,
                 0.15f,
                 floatArrayOf(0.0f, 0.0f, 0.00003f),
-                floatArrayOf(*color, 1f),
-                floatArrayOf(*color, 1f),
+                floatArrayOf(*color.toFloatArrayWithoutAlpha(), 1f),
+                floatArrayOf(*color.toFloatArrayWithoutAlpha(), 1f),
             ) // Center colored circle
         )
 
@@ -97,20 +99,20 @@ class LocationMarker(val color: FloatArray) {
 
         attribLocations =
             AttribLocations(
-                vertexPosition = GLES31.glGetAttribLocation(shaderProgram, "aVertexPosition"),
-                vertexColor = GLES31.glGetAttribLocation(shaderProgram, "aVertexColor")
+                vertexPosition = GLES20.glGetAttribLocation(shaderProgram, "aVertexPosition"),
+                vertexColor = GLES20.glGetAttribLocation(shaderProgram, "aVertexColor")
             )
         uniformLocation =
             UniformLocation(
-                projectionMatrix = GLES31.glGetUniformLocation(shaderProgram, "uProjectionMatrix"),
-                modelViewMatrix = GLES31.glGetUniformLocation(shaderProgram, "uModelViewMatrix")
+                projectionMatrix = GLES20.glGetUniformLocation(shaderProgram, "uProjectionMatrix"),
+                modelViewMatrix = GLES20.glGetUniformLocation(shaderProgram, "uModelViewMatrix")
             )
     }
 
     fun draw(projectionMatrix: FloatArray, viewMatrix: FloatArray, latLng: LatLng, size: Float) {
         val modelViewMatrix = viewMatrix.copyOf()
 
-        GLES31.glUseProgram(shaderProgram)
+        GLES20.glUseProgram(shaderProgram)
 
         Matrix.rotateM(modelViewMatrix, 0, latLng.longitude, 0f, 1f, 0f)
         Matrix.rotateM(modelViewMatrix, 0, -latLng.latitude, 1f, 0f, 0f)
@@ -118,35 +120,35 @@ class LocationMarker(val color: FloatArray) {
         Matrix.scaleM(modelViewMatrix, 0, size, size, 1f)
         Matrix.translateM(modelViewMatrix, 0, 0f, 0f, 1.0001f)
         //
-        GLES31.glBindBuffer(GLES31.GL_ARRAY_BUFFER, positionBuffer)
-        GLES31.glVertexAttribPointer(
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, positionBuffer)
+        GLES20.glVertexAttribPointer(
             attribLocations.vertexPosition,
             3,
-            GLES31.GL_FLOAT,
+            GLES20.GL_FLOAT,
             false,
             0,
             0,
         )
-        GLES31.glEnableVertexAttribArray(attribLocations.vertexPosition)
+        GLES20.glEnableVertexAttribArray(attribLocations.vertexPosition)
 
-        GLES31.glBindBuffer(GLES31.GL_ARRAY_BUFFER, colorBuffer)
-        GLES31.glVertexAttribPointer(
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, colorBuffer)
+        GLES20.glVertexAttribPointer(
             attribLocations.vertexColor,
             4,
-            GLES31.GL_FLOAT,
+            GLES20.GL_FLOAT,
             false,
             0,
             0,
         )
-        GLES31.glEnableVertexAttribArray(attribLocations.vertexColor)
+        GLES20.glEnableVertexAttribArray(attribLocations.vertexColor)
 
-        GLES31.glUniformMatrix4fv(uniformLocation.projectionMatrix, 1, false, projectionMatrix, 0)
-        GLES31.glUniformMatrix4fv(uniformLocation.modelViewMatrix, 1, false, modelViewMatrix, 0)
+        GLES20.glUniformMatrix4fv(uniformLocation.projectionMatrix, 1, false, projectionMatrix, 0)
+        GLES20.glUniformMatrix4fv(uniformLocation.modelViewMatrix, 1, false, modelViewMatrix, 0)
 
         var offset = 0
         for (ringSize in ringSizes) {
             val numVertices = ringSize / 3
-            GLES31.glDrawArrays(GLES31.GL_TRIANGLE_FAN, offset, numVertices * 3)
+            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, offset, numVertices * 3)
             offset += numVertices
         }
     }

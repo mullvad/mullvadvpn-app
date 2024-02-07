@@ -39,7 +39,9 @@ fun MapGLShader(modifier: Modifier = Modifier, mapViewState: MapViewState) {
         }
     }
 
-    AndroidView(modifier = modifier, factory = { MapGLSurfaceView(it) }) { glSurfaceView ->
+    // TODO how to handle mapConfig changes? Can we recreate the view? make them recomposable?
+    AndroidView(modifier = modifier, factory = { MapGLSurfaceView(it, mapConfig = MapConfig()) }) {
+        glSurfaceView ->
         view = glSurfaceView
         glSurfaceView.setData(mapViewState)
     }

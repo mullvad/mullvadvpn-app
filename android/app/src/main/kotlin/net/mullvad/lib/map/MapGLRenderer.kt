@@ -1,9 +1,10 @@
 package net.mullvad.lib.map
 
 import android.content.Context
-import android.opengl.GLES31
+import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import androidx.compose.ui.graphics.Color
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.tan
@@ -12,7 +13,7 @@ import net.mullvad.lib.map.data.MarkerType
 import net.mullvad.lib.map.shapes.Globe
 import net.mullvad.lib.map.shapes.LocationMarker
 
-class MapGLRenderer(val context: Context) : GLSurfaceView.Renderer {
+class MapGLRenderer(private val context: Context, private val mapConfig: MapConfig) : GLSurfaceView.Renderer {
     private lateinit var globe: Globe
     private lateinit var secureLocationMarker: LocationMarker
     private lateinit var unsecureLocationMarker: LocationMarker
@@ -25,23 +26,18 @@ class MapGLRenderer(val context: Context) : GLSurfaceView.Renderer {
         // initialize a triangle
         globe = Globe(context)
 
-        // The green color of the location marker when in the secured state
-        val locationMarkerSecureColor = floatArrayOf(0.267f, 0.678f, 0.302f)
-        // The red color of the location marker when in the unsecured state
-        val locationMarkerUnsecureColor = floatArrayOf(0.89f, 0.251f, 0.224f)
-
-        secureLocationMarker = LocationMarker(locationMarkerSecureColor)
-        unsecureLocationMarker = LocationMarker(locationMarkerUnsecureColor)
+        secureLocationMarker = LocationMarker(mapConfig.secureMarkerColor)
+        unsecureLocationMarker = LocationMarker(mapConfig.unsecureMarkerColor)
 
         initGLOptions()
     }
 
     private fun initGLOptions() {
-        GLES31.glEnable(GLES31.GL_CULL_FACE)
-        GLES31.glCullFace(GLES31.GL_BACK)
+        GLES20.glEnable(GLES20.GL_CULL_FACE)
+        GLES20.glCullFace(GLES20.GL_BACK)
 
-        GLES31.glEnable(GLES31.GL_BLEND)
-        GLES31.glBlendFunc(GLES31.GL_SRC_ALPHA, GLES31.GL_ONE_MINUS_SRC_ALPHA)
+        GLES20.glEnable(GLES20.GL_BLEND)
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
     }
 
     private val projectionMatrix = FloatArray(16).apply { Matrix.setIdentityM(this, 0) }
@@ -80,16 +76,16 @@ class MapGLRenderer(val context: Context) : GLSurfaceView.Renderer {
 
     private fun clear() {
         // Redraw background color
-        GLES31.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
-        GLES31.glClearDepthf(1.0f)
-        GLES31.glEnable(GLES31.GL_DEPTH_TEST)
-        GLES31.glDepthFunc(GLES31.GL_LEQUAL)
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
+        GLES20.glClearDepthf(1.0f)
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST)
+        GLES20.glDepthFunc(GLES20.GL_LEQUAL)
 
-        GLES31.glClear(GLES31.GL_COLOR_BUFFER_BIT or GLES31.GL_DEPTH_BUFFER_BIT)
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
-        GLES31.glViewport(0, 0, width, height)
+        GLES20.glViewport(0, 0, width, height)
 
         val ratio: Float = width.toFloat() / height.toFloat()
         Matrix.perspectiveM(projectionMatrix, 0, fov, ratio, 0.05f, 10f)
@@ -98,4 +94,12 @@ class MapGLRenderer(val context: Context) : GLSurfaceView.Renderer {
     fun setViewState(viewState: MapViewState) {
         this.viewState = viewState
     }
+}
+
+fun Color.toFloatArray(): FloatArray {
+    return floatArrayOf(red, green, blue, alpha)
+}
+
+fun Color.toFloatArrayWithoutAlpha(): FloatArray {
+    return floatArrayOf(red, green, blue)
 }

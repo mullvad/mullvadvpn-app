@@ -343,7 +343,6 @@ dependencies {
     implementation(Dependencies.Kotlin.reflect)
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
-    implementation("androidx.palette:palette-ktx:1.0.0")
 
     // UI tooling
     implementation(Dependencies.Compose.uiToolingPreview)

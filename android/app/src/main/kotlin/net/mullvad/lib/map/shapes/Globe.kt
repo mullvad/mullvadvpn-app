@@ -1,12 +1,18 @@
 package net.mullvad.lib.map.shapes
 
 import android.content.Context
-import android.opengl.GLES31
+import android.opengl.GLES20
 import android.opengl.Matrix
+import androidx.compose.ui.graphics.Color
 import java.nio.ByteBuffer
 import net.mullvad.lib.map.GLHelper
 import net.mullvad.mullvadvpn.R
 
+data class GlobeColors(
+    val landColor: Color,
+    val oceanColor: Color,
+    val contourColor: Color,
+)
 class Globe(context: Context) {
     private val vertexShaderCode =
         """
@@ -81,12 +87,12 @@ class Globe(context: Context) {
         shaderProgram = GLHelper.initShaderProgram(vertexShaderCode, fragmentShaderCode)
 
         attribLocations =
-            AttribLocations(GLES31.glGetAttribLocation(shaderProgram, "aVertexPosition"))
+            AttribLocations(GLES20.glGetAttribLocation(shaderProgram, "aVertexPosition"))
         uniformLocation =
             UniformLocation(
-                color = GLES31.glGetUniformLocation(shaderProgram, "uColor"),
-                projectionMatrix = GLES31.glGetUniformLocation(shaderProgram, "uProjectionMatrix"),
-                modelViewMatrix = GLES31.glGetUniformLocation(shaderProgram, "uModelViewMatrix")
+                color = GLES20.glGetUniformLocation(shaderProgram, "uColor"),
+                projectionMatrix = GLES20.glGetUniformLocation(shaderProgram, "uProjectionMatrix"),
+                modelViewMatrix = GLES20.glGetUniformLocation(shaderProgram, "uModelViewMatrix")
             )
     }
 
@@ -94,17 +100,17 @@ class Globe(context: Context) {
         val globeViewMatrix = viewMatrix.copyOf()
 
         // Add program to OpenGL ES environment
-        GLES31.glUseProgram(shaderProgram)
+        GLES20.glUseProgram(shaderProgram)
 
         // Set thickness of contour lines
-        GLES31.glLineWidth(3f)
+        GLES20.glLineWidth(3f)
         drawBufferElements(
             projectionMatrix,
             globeViewMatrix,
             landVertexBuffer,
             landContour,
             contourColor,
-            GLES31.GL_LINES
+            GLES20.GL_LINES
         )
 
         Matrix.scaleM(globeViewMatrix, 0, 0.9999f, 0.9999f, 0.9999f)
@@ -114,7 +120,7 @@ class Globe(context: Context) {
             landVertexBuffer,
             landIndices,
             landColor,
-            GLES31.GL_TRIANGLES,
+            GLES20.GL_TRIANGLES,
         )
 
         drawBufferElements(
@@ -123,7 +129,7 @@ class Globe(context: Context) {
             oceanVertexBuffer,
             oceanIndices,
             oceanColor,
-            GLES31.GL_TRIANGLES
+            GLES20.GL_TRIANGLES
         )
     }
 
@@ -135,22 +141,22 @@ class Globe(context: Context) {
         color: FloatArray,
         mode: Int,
     ) {
-        GLES31.glBindBuffer(GLES31.GL_ARRAY_BUFFER, positionBuffer)
-        GLES31.glVertexAttribPointer(
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, positionBuffer)
+        GLES20.glVertexAttribPointer(
             attribLocations.vertexPosition,
             3, // Num components
-            GLES31.GL_FLOAT,
+            GLES20.GL_FLOAT,
             false,
             0,
             0,
         )
-        GLES31.glEnableVertexAttribArray(attribLocations.vertexPosition)
+        GLES20.glEnableVertexAttribArray(attribLocations.vertexPosition)
 
-        GLES31.glBindBuffer(GLES31.GL_ELEMENT_ARRAY_BUFFER, indexBuffer.indexBuffer)
-        GLES31.glUniform4fv(uniformLocation.color, 1, color, 0)
-        GLES31.glUniformMatrix4fv(uniformLocation.projectionMatrix, 1, false, projectionMatrix, 0)
-        GLES31.glUniformMatrix4fv(uniformLocation.modelViewMatrix, 1, false, modelViewMatrix, 0)
-        GLES31.glDrawElements(mode, indexBuffer.length, GLES31.GL_UNSIGNED_INT, 0)
-        GLES31.glDisableVertexAttribArray(attribLocations.vertexPosition)
+        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBuffer.indexBuffer)
+        GLES20.glUniform4fv(uniformLocation.color, 1, color, 0)
+        GLES20.glUniformMatrix4fv(uniformLocation.projectionMatrix, 1, false, projectionMatrix, 0)
+        GLES20.glUniformMatrix4fv(uniformLocation.modelViewMatrix, 1, false, modelViewMatrix, 0)
+        GLES20.glDrawElements(mode, indexBuffer.length, GLES20.GL_UNSIGNED_INT, 0)
+        GLES20.glDisableVertexAttribArray(attribLocations.vertexPosition)
     }
 }
