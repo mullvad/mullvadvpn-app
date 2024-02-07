@@ -1003,7 +1003,7 @@ impl WireguardMonitor {
 ///
 /// The detection works by sending evenly spread out range of pings between 576 and the given
 /// current tunnel MTU, and returning the maximum packet size that was returned within a timeout.
-#[cfg(any(target_os = "linux", windows))]
+#[cfg(any(target_os = "linux", windows, target_os = "macos"))]
 async fn auto_mtu_detection(
     gateway: std::net::Ipv4Addr,
     #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
@@ -1080,7 +1080,7 @@ async fn auto_mtu_detection(
 
 /// Creates a linear spacing of MTU values with the given step size. Always includes the given end
 /// points.
-#[cfg(any(target_os = "linux", windows))]
+#[cfg(any(target_os = "linux", windows, target_os = "macos"))]
 fn mtu_spacing(mtu_min: u16, mtu_max: u16, step_size: u16) -> Vec<u16> {
     assert!(mtu_min < mtu_max);
     assert!(step_size < mtu_max);

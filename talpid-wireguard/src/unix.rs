@@ -32,7 +32,8 @@ pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
     };
     ifr.ifr_ifru.ifru_mtu = mtu as i32;
 
-    if unsafe { libc::ioctl(sock.as_raw_fd(), libc::SIOCSIFMTU, &ifr) } < 0 {
+    const SIOCSIFMTU: u64 = 0x80206934;
+    if unsafe { libc::ioctl(sock.as_raw_fd(), SIOCSIFMTU, &ifr) } < 0 {
         let e = std::io::Error::last_os_error();
         log::error!("{}", e.display_chain_with_msg("SIOCSIFMTU failed"));
         return Err(e);
