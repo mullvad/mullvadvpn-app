@@ -36,6 +36,7 @@ class AccountHistoryMockApiTest : MockApiTest() {
         app.ensureLoggedIn()
         app.clickAccountCog()
         app.clickActionButtonByText("Log out")
+        app.waitForLoginPrompt()
         device.findObjectWithTimeout(By.res(LOGIN_INPUT_TEST_TAG)).click()
 
         // Assert
