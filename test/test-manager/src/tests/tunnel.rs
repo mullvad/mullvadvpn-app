@@ -686,8 +686,6 @@ pub async fn test_local_socks_bridge(
         .await
         .expect("failed to start TCP forward");
 
-    // FIXME: needs to connect before?
-
     mullvad_client
         .set_bridge_state(relay_constraints::BridgeState::On)
         .await
