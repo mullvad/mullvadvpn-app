@@ -54,6 +54,7 @@ class ProblemReportReviewViewController: UIViewController {
             ofSize: UIFont.systemFontSize,
             weight: .regular
         )
+        textView.backgroundColor = .systemBackground
 
         view.addSubview(textView)
 
