@@ -20,6 +20,7 @@ import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.relaylist.Provider
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
+import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
@@ -40,7 +41,7 @@ class SelectLocationViewModel(
                 relayListFilterUseCase.availableProviders(),
                 relayListFilterUseCase.selectedProviders()
             ) {
-                (relayCountries, relayItem),
+                (customList, relayCountries, selectedItem),
                 searchTerm,
                 selectedOwnership,
                 allProviders,
@@ -54,7 +55,7 @@ class SelectLocationViewModel(
                         ?.size
 
                 val filteredRelayCountries =
-                    relayCountries.filterOnSearchTerm(searchTerm, relayItem)
+                    relayCountries.filterOnSearchTerm(searchTerm, selectedItem)
 
                 SelectLocationUiState.Data(
                     searchTerm = searchTerm,
@@ -64,7 +65,7 @@ class SelectLocationViewModel(
                         if (filteredRelayCountries.isNotEmpty()) {
                             RelayListState.RelayList(
                                 countries = filteredRelayCountries,
-                                selectedRelay = relayItem
+                                selectedItem = selectedItem
                             )
                         } else {
                             RelayListState.Empty
@@ -85,7 +86,8 @@ class SelectLocationViewModel(
     }
 
     fun selectRelay(relayItem: RelayItem) {
-        relayListUseCase.updateSelectedRelayLocation(relayItem.location)
+        val locationConstraint = relayItem.toLocationConstraint()
+        relayListUseCase.updateSelectedRelayLocation(locationConstraint)
         serviceConnectionManager.connectionProxy()?.connect()
         viewModelScope.launch { _uiSideEffect.send(SelectLocationSideEffect.CloseScreen) }
     }
