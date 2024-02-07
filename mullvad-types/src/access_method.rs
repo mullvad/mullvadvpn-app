@@ -77,18 +77,9 @@ impl Settings {
     /// Check that `self` contains atleast one enabled access methods. If not,
     /// the `Direct` access method is re-enabled.
     fn ensure_consistent_state(&mut self) {
-        if self.collect_enabled().is_empty() {
+        if self.iter().all(|access_method| access_method.disabled()) {
             self.direct.enable();
         }
-    }
-
-    // TODO(markus): This can surely be removed.
-    /// Retrieve all [`AccessMethodSetting`]s which are enabled.
-    pub fn collect_enabled(&self) -> Vec<AccessMethodSetting> {
-        self.iter()
-            .filter(|access_method| access_method.enabled)
-            .cloned()
-            .collect()
     }
 
     /// Iterate over references of built-in & custom access methods.
@@ -128,8 +119,7 @@ impl Settings {
         &self.mullvad_bridges
     }
 
-    // TODO(markus): This can probably be made private
-    pub fn create_direct() -> AccessMethodSetting {
+    fn create_direct() -> AccessMethodSetting {
         let method = BuiltInAccessMethod::Direct;
         AccessMethodSetting::new(method.canonical_name(), true, AccessMethod::from(method))
     }
