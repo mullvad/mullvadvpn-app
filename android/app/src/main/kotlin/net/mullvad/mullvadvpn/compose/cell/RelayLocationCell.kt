@@ -290,7 +290,8 @@ fun RelayLocationCell(
                         )
                     }
                 }
-                else -> {}
+                is RelayItem.Relay,
+                is RelayItem.CustomList -> {}
             }
         }
     }

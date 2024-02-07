@@ -175,7 +175,10 @@ fun SelectLocationScreen(
                     uiState.relayListState.selectedItem != null
             ) {
                 LaunchedEffect(uiState.relayListState.selectedItem) {
-                    val index = findIndexOfSelectedItemCountry(uiState.relayListState)
+                    val index =
+                        uiState.relayListState.indexOfSelectedRelayItem(
+                            uiState.relayListState.selectedItem
+                        )
 
                     if (index >= 0) {
                         lazyListState.scrollToItem(index)
@@ -275,15 +278,15 @@ private fun LazyListScope.relayList(
     }
 }
 
-private fun findIndexOfSelectedItemCountry(relayListState: RelayListState.RelayList): Int =
-    relayListState.countries.indexOfFirst { relayCountry ->
+private fun RelayListState.RelayList.indexOfSelectedRelayItem(selectedItem: RelayItem?): Int =
+    countries.indexOfFirst { relayCountry ->
         relayCountry.location.location.country ==
-            when (relayListState.selectedItem) {
-                is RelayItem.CustomList -> null
-                is RelayItem.Country -> relayListState.selectedItem.code
-                is RelayItem.City -> relayListState.selectedItem.location.countryCode
-                is RelayItem.Relay -> relayListState.selectedItem.location.countryCode
-                else -> null
+            when (selectedItem) {
+                is RelayItem.Country -> selectedItem.code
+                is RelayItem.City -> selectedItem.location.countryCode
+                is RelayItem.Relay -> selectedItem.location.countryCode
+                is RelayItem.CustomList,
+                null -> null
             }
     }
 
