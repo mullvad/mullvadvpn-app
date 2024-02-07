@@ -3,6 +3,11 @@ use std::{io, os::fd::AsRawFd};
 use socket2::Domain;
 use talpid_types::ErrorExt;
 
+#[cfg(target_os = "macos")]
+const SIOCSIFMTU: u64 = 0x80206934;
+#[cfg(target_os = "linux")]
+const SIOCSIFMTU: u64 = libc::SIOCSIFMTU;
+
 pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
     debug_assert_ne!(
         interface_name, "eth0",
@@ -32,7 +37,6 @@ pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
     };
     ifr.ifr_ifru.ifru_mtu = mtu as i32;
 
-    const SIOCSIFMTU: u64 = 0x80206934;
     if unsafe { libc::ioctl(sock.as_raw_fd(), SIOCSIFMTU, &ifr) } < 0 {
         let e = std::io::Error::last_os_error();
         log::error!("{}", e.display_chain_with_msg("SIOCSIFMTU failed"));
