@@ -35,7 +35,11 @@ impl BroadcastListener {
         let notify_tx = Arc::new(notify_tx);
         let (ipv4, ipv6) = Self::check_initial_connectivity();
         let system_state = Arc::new(Mutex::new(SystemState {
-            connectivity: Connectivity::Status { ipv4, ipv6 },
+            connectivity: ConnectivityInner {
+                ipv4,
+                ipv6,
+                suspended: false,
+            },
             notify_tx: Arc::downgrade(&notify_tx),
         }));
 
@@ -138,7 +142,7 @@ impl BroadcastListener {
     #[allow(clippy::unused_async)]
     pub async fn connectivity(&self) -> Connectivity {
         let state = self.system_state.lock();
-        state.connectivity
+        state.connectivity.into_connectivity()
     }
 }
 
@@ -150,7 +154,7 @@ enum StateChange {
 }
 
 struct SystemState {
-    connectivity: Connectivity,
+    connectivity: ConnectivityInner,
     notify_tx: Weak<UnboundedSender<Connectivity>>,
 }
 
@@ -159,13 +163,13 @@ impl SystemState {
         let old_state = self.is_offline_currently();
         match change {
             StateChange::NetworkV4Connectivity(connectivity) => {
-                self.connectivity.set_ipv4(connectivity);
+                self.connectivity.ipv4 = connectivity;
             }
             StateChange::NetworkV6Connectivity(connectivity) => {
-                self.connectivity.set_ipv6(connectivity);
+                self.connectivity.ipv6 = connectivity;
             }
             StateChange::Suspended(suspended) => {
-                self.connectivity.set_suspended(suspended);
+                self.connectivity.suspended = suspended;
             }
         };
 
@@ -173,7 +177,7 @@ impl SystemState {
         if old_state != new_state {
             log::info!("Connectivity changed: {}", is_offline_str(new_state));
             if let Some(notify_tx) = self.notify_tx.upgrade() {
-                if let Err(e) = notify_tx.unbounded_send(self.connectivity) {
+                if let Err(e) = notify_tx.unbounded_send(self.connectivity.into_connectivity()) {
                     log::error!("Failed to send new offline state to daemon: {}", e);
                 }
             }
@@ -207,4 +211,41 @@ pub async fn spawn_monitor(
 fn apply_system_state_change(state: Arc<Mutex<SystemState>>, change: StateChange) {
     let mut state = state.lock();
     state.apply_change(change);
+}
+
+#[derive(Clone, Copy, Debug)]
+struct ConnectivityInner {
+    /// Whether IPv4 connectivity seems to be available on the host.
+    ipv4: bool,
+    /// Whether IPv6 connectivity seems to be available on the host.
+    ipv6: bool,
+    /// The host is suspended.
+    suspended: bool,
+}
+
+impl ConnectivityInner {
+    /// Map [`ConnectivityInner`] to the public [`Connectivity`].
+    ///
+    /// # Note
+    ///
+    /// If the host is suspended, there is a great likelihood that we should
+    /// consider the host to be offline. We synthesize this by setting both
+    /// `ipv4` and `ipv6` availability to `false`.
+    fn into_connectivity(self) -> Connectivity {
+        if self.suspended {
+            Connectivity::Status {
+                ipv4: false,
+                ipv6: false,
+            }
+        } else {
+            Connectivity::Status {
+                ipv4: self.ipv4,
+                ipv6: self.ipv6,
+            }
+        }
+    }
+
+    fn is_offline(&self) -> bool {
+        self.into_connectivity().is_offline()
+    }
 }
