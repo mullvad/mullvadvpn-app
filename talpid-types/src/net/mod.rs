@@ -555,32 +555,6 @@ impl Connectivity {
         )
     }
 
-    /// Update the known IPv4 connectivity status.
-    ///
-    /// * If `self` is of variant [`Connectivity::Status`], simply update its `ipv4` value.
-    /// * If `self` is of any other variant, replace `self` with a [`Connectivity::Status`]
-    /// where the `ipv4` value is equal to the `ipv4` argument of this function.
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
-    pub fn set_ipv4(&mut self, ipv4: bool) {
-        *self = match self {
-            Connectivity::Status { ipv4: _, ipv6 } => Connectivity::Status { ipv4, ipv6: *ipv6 },
-            _ => Connectivity::Status { ipv4, ipv6: false },
-        }
-    }
-
-    /// Update the known IPv6 connectivity status.
-    ///
-    /// * If `self` is of variant [`Connectivity::Status`], simply update its `ipv6` value.
-    /// * If `self` is of any other variant, replace `self` with a [`Connectivity::Status`]
-    /// where the `ipv6` value is equal to the `ipv6` argument of this function.
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
-    pub fn set_ipv6(&mut self, ipv6: bool) {
-        *self = match self {
-            Connectivity::Status { ipv4, ipv6: _ } => Connectivity::Status { ipv4: *ipv4, ipv6 },
-            _ => Connectivity::Status { ipv4: false, ipv6 },
-        }
-    }
-
     /// If the host does not have configured IPv6 routes, we have no way of
     /// reaching the internet so we consider ourselves offline.
     #[cfg(target_os = "android")]
