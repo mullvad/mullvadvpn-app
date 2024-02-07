@@ -96,6 +96,7 @@ fun List<RelayItem.Country>.findItemForGeographicLocationConstraint(
  * parent country is added and expanded if needed and its children are added, but the city is not
  * expanded If a relay is matched, its parents are added and expanded and itself is also added.
  */
+@Suppress("NestedBlockDepth")
 fun List<RelayItem.Country>.filterOnSearchTerm(
     searchTerm: String,
     selectedItem: RelayItem?
