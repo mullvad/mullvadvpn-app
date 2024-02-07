@@ -84,7 +84,7 @@ class ConnectViewModel(
                     accountRepository.accountExpiryState,
                     deviceRepository.deviceState.map { it.deviceName() }
                 ) {
-                    relayLocation,
+                    selectedRelayItem,
                     notifications,
                     tunnelUiState,
                     tunnelRealState,
@@ -97,12 +97,12 @@ class ConnectViewModel(
                                 is TunnelState.Disconnected ->
                                     tunnelRealState.location() ?: lastKnownDisconnectedLocation
                                 is TunnelState.Connecting ->
-                                    tunnelRealState.location ?: relayLocation?.location?.location
+                                    tunnelRealState.location ?: selectedRelayItem?.location()
                                 is TunnelState.Connected -> tunnelRealState.location
                                 is TunnelState.Disconnecting -> lastKnownDisconnectedLocation
                                 is TunnelState.Error -> null
                             },
-                        relayLocation = relayLocation,
+                        selectedRelayItem = selectedRelayItem,
                         tunnelUiState = tunnelUiState,
                         tunnelRealState = tunnelRealState,
                         inAddress =
