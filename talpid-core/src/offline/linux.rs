@@ -28,7 +28,7 @@ const PUBLIC_INTERNET_ADDRESS_V6: IpAddr =
     IpAddr::V6(Ipv6Addr::new(0x2001, 0xdb8, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6));
 
 impl MonitorHandle {
-    pub async fn host_is_offline(&self) -> Connectivity {
+    pub async fn connectivity(&self) -> Connectivity {
         public_ip_unreachable(&self.route_manager, self.fwmark)
             .await
             .unwrap_or_else(|err| {

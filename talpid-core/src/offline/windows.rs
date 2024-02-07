@@ -136,7 +136,7 @@ impl BroadcastListener {
     }
 
     #[allow(clippy::unused_async)]
-    pub async fn host_is_offline(&self) -> Connectivity {
+    pub async fn connectivity(&self) -> Connectivity {
         let state = self.system_state.lock();
         state.connectivity
     }
