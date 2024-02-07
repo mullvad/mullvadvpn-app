@@ -12,6 +12,7 @@ public enum SettingsKey: String, CaseIterable {
     case settings = "Settings"
     case deviceState = "DeviceState"
     case apiAccessMethods = "ApiAccessMethods"
+    case ipOverrides = "IPOverrides"
     case lastUsedAccount = "LastUsedAccount"
     case shouldWipeSettings = "ShouldWipeSettings"
 }
