@@ -515,8 +515,8 @@ pub fn all_of_the_internet() -> Vec<ipnetwork::IpNetwork> {
 
 /// Details about the hosts's connectivity.
 ///
-/// Details information about the host's connectivity. Such details may be the
-/// presence of configured IPv4 and/or IPv6.
+/// Information about the host's connectivity, such as the preesence of
+/// configured IPv4 and/or IPv6.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Connectivity {
     #[cfg(not(target_os = "android"))]
