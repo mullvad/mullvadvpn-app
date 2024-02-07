@@ -2148,6 +2148,9 @@ msgstr ""
 msgid "Shows reminders when the account time is about to expire"
 msgstr ""
 
+msgid "Split tunneling is disabled."
+msgstr ""
+
 msgid "Submit"
 msgstr ""
 
