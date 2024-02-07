@@ -72,7 +72,7 @@ pub async fn spawn_monitor(
                                 "{}",
                                 err.display_chain_with_msg("Failed to infer offline state")
                             );
-                            Connectivity::Unknown
+                            Connectivity::PresumeOnline
                         });
                     if new_offline_state != is_offline {
                         is_offline = new_offline_state;
