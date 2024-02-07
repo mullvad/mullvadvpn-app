@@ -59,7 +59,7 @@ class SelectLocationScreenTest {
                             relayListState =
                                 RelayListState.RelayList(
                                     countries = DUMMY_RELAY_COUNTRIES,
-                                    selectedRelay = null
+                                    selectedItem = null
                                 ),
                             selectedOwnership = null,
                             selectedProvidersCount = 0,
@@ -99,7 +99,7 @@ class SelectLocationScreenTest {
                             relayListState =
                                 RelayListState.RelayList(
                                     countries = updatedDummyList,
-                                    selectedRelay = updatedDummyList[0].cities[0].relays[0]
+                                    selectedItem = updatedDummyList[0].cities[0].relays[0]
                                 ),
                             selectedOwnership = null,
                             selectedProvidersCount = 0,
@@ -129,7 +129,7 @@ class SelectLocationScreenTest {
                             relayListState =
                                 RelayListState.RelayList(
                                     countries = emptyList(),
-                                    selectedRelay = null
+                                    selectedItem = null
                                 ),
                             selectedOwnership = null,
                             selectedProvidersCount = 0,
