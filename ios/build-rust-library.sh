@@ -50,7 +50,7 @@ for arch in $ARCHS; do
     arm64)
       if [ $IS_SIMULATOR -eq 0 ]; then
         # Hardware iOS targets
-        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib "$RELFLAG" --target aarch64-apple-ios
+        "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target aarch64-apple-ios
         "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib --target aarch64-apple-ios
       else
         "$HOME"/.cargo/bin/cargo build -p "$FFI_TARGET" --lib $RELFLAG --target aarch64-apple-ios-sim
