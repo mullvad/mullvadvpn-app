@@ -98,9 +98,9 @@ async fn public_ip_unreachable(
             .map_err(Error::RouteManagerError)
             .map(|x| x.is_some())
     };
-    let conn_info = Connectivity::Status {
+    let connectivity = Connectivity::Status {
         ipv4: route_exists(PUBLIC_INTERNET_ADDRESS_V4).await?,
         ipv6: route_exists(PUBLIC_INTERNET_ADDRESS_V6).await?,
     };
-    Ok(conn_info)
+    Ok(connectivity)
 }
