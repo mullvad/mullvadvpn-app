@@ -73,34 +73,8 @@ pub async fn spawn_monitor(
     let monitor = if *FORCE_DISABLE_OFFLINE_MONITOR {
         None
     } else {
-        let tx = forward_map(sender, |b| Connectivity::Status { ipv6: b });
-        Some(imp::spawn_monitor(tx, android_context).await?)
+        Some(imp::spawn_monitor(sender, android_context).await?)
     };
 
     Ok(MonitorHandle(monitor))
-}
-
-/// Map one kind of [`UnboundedSender<A>`] into an [`UnboundedSender<B>`] via
-/// `f`.
-///
-/// This is accomplished by spawning a new [`tokio::task`] which listens on the
-/// receiving end of an unbounded mpsc channel of type `B`. Whenever it receives
-/// a new element of type `B`, it is mapped to an element of type `A` and
-/// instantly forwarded on the original channel `a_tx`.
-#[cfg(target_os = "android")]
-fn forward_map<A, B, F>(mut a_tx: UnboundedSender<A>, f: F) -> UnboundedSender<B>
-where
-    A: Send + 'static,
-    B: Send + 'static,
-    F: Fn(B) -> A + Send + 'static,
-{
-    use futures::{SinkExt, StreamExt};
-    let (b_tx, mut b_rx) = futures::channel::mpsc::unbounded::<B>();
-    tokio::spawn(async move {
-        while let Some(b) = b_rx.next().await {
-            let _ = a_tx.send(f(b)).await;
-        }
-    });
-
-    b_tx
 }
