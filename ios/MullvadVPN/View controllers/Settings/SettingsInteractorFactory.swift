@@ -11,9 +11,10 @@ import MullvadREST
 
 final class SettingsInteractorFactory {
     private let storePaymentManager: StorePaymentManager
-    private let tunnelManager: TunnelManager
     private let apiProxy: APIQuerying
     private let relayCacheTracker: RelayCacheTracker
+
+    let tunnelManager: TunnelManager
 
     init(
         storePaymentManager: StorePaymentManager,

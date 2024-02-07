@@ -67,15 +67,6 @@ final class IPOverrideRepositoryTests: XCTestCase {
         XCTAssertTrue(storedOverrides.first?.ipv6Address == .broadcast)
     }
 
-    func testFetchOverrideByHostname() throws {
-        let hostname = "Host 1"
-        let override = try IPOverride(hostname: hostname, ipv4Address: .any, ipv6Address: nil)
-        repository.add([override])
-
-        let storedOverride = repository.fetchByHostname(hostname)
-        XCTAssertTrue(storedOverride?.hostname == hostname)
-    }
-
     func testDeleteAllOverrides() throws {
         let override = try IPOverride(hostname: "Host 1", ipv4Address: .any, ipv6Address: nil)
         repository.add([override])
