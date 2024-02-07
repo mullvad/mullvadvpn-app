@@ -1,22 +1,22 @@
 {
   "configurations" : [
     {
-      "id" : "97A9D9C1-040F-4F36-8CFE-B600F97AB953",
-      "name" : "Test Scheme Action",
+      "id" : "3BCBAC52-59BD-45E8-BC9D-1AF65D1B15B7",
+      "name" : "Configuration 1",
       "options" : {
 
       }
     }
   ],
   "defaultOptions" : {
-    "targetForVariableExpansion" : {
-      "containerPath" : "container:MullvadVPN.xcodeproj",
-      "identifier" : "58CE5E5F224146200008646E",
-      "name" : "MullvadVPN"
-    }
+
   },
   "testTargets" : [
     {
+      "selectedTests" : [
+        "AccountTests\/testLogin()",
+        "AccountTests\/testLoginWithIncorrectAccountNumber()"
+      ],
       "target" : {
         "containerPath" : "container:MullvadVPN.xcodeproj",
         "identifier" : "852969242B4D9C1F007EAD4C",
