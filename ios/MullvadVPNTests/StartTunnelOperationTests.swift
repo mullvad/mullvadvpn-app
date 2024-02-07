@@ -36,7 +36,7 @@ class StartTunnelOperationTests: XCTestCase {
     )
 
     func makeInteractor(deviceState: DeviceState, tunnelState: TunnelState? = nil) -> MockTunnelInteractor {
-        var interactor = MockTunnelInteractor(
+        let interactor = MockTunnelInteractor(
             isConfigurationLoaded: true,
             settings: LatestTunnelSettings(),
             deviceState: deviceState
@@ -50,8 +50,7 @@ class StartTunnelOperationTests: XCTestCase {
     // MARK: the tests
 
     func testFailsIfNotLoggedIn() throws {
-        let settings = LatestTunnelSettings()
-        let exp = expectation(description: "Start tunnel operation failed")
+        let expectation = expectation(description: "Start tunnel operation failed")
         let operation = StartTunnelOperation(
             dispatchQueue: testQueue,
             interactor: makeInteractor(deviceState: .loggedOut)
@@ -60,16 +59,15 @@ class StartTunnelOperationTests: XCTestCase {
                 XCTFail("Operation returned \(result), not failure")
                 return
             }
-            exp.fulfill()
+            expectation.fulfill()
         }
 
         operationQueue.addOperation(operation)
-        wait(for: [exp], timeout: 1.0)
+        wait(for: [expectation], timeout: 1.0)
     }
 
     func testSetsReconnectIfDisconnecting() {
-        let settings = LatestTunnelSettings()
-        var interactor = makeInteractor(deviceState: loggedInDeviceState, tunnelState: .disconnecting(.nothing))
+        let interactor = makeInteractor(deviceState: loggedInDeviceState, tunnelState: .disconnecting(.nothing))
         var tunnelStatus = TunnelStatus()
         interactor.onUpdateTunnelStatus = { status in tunnelStatus = status }
         let expectation = expectation(description: "Tunnel status set to reconnect")
@@ -86,8 +84,7 @@ class StartTunnelOperationTests: XCTestCase {
     }
 
     func testStartsTunnelIfDisconnected() {
-        let settings = LatestTunnelSettings()
-        var interactor = makeInteractor(deviceState: loggedInDeviceState, tunnelState: .disconnected)
+        let interactor = makeInteractor(deviceState: loggedInDeviceState, tunnelState: .disconnected)
         let expectation = expectation(description: "Make tunnel provider and start tunnel")
         let operation = StartTunnelOperation(
             dispatchQueue: testQueue,
