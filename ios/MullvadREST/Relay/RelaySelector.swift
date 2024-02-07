@@ -150,24 +150,28 @@ public enum RelaySelector {
                 }
             }
 
-            switch constraints.location {
+            switch constraints.locations {
             case .any:
                 return true
             case let .only(relayConstraint):
-                switch relayConstraint {
-                case let .country(countryCode):
-                    return relayWithLocation.serverLocation.countryCode == countryCode &&
-                        relayWithLocation.relay.includeInCountry
+                for location in relayConstraint.locations {
+                    switch location {
+                    case let .country(countryCode):
+                        return relayWithLocation.serverLocation.countryCode == countryCode &&
+                            relayWithLocation.relay.includeInCountry
 
-                case let .city(countryCode, cityCode):
-                    return relayWithLocation.serverLocation.countryCode == countryCode &&
-                        relayWithLocation.serverLocation.cityCode == cityCode
+                    case let .city(countryCode, cityCode):
+                        return relayWithLocation.serverLocation.countryCode == countryCode &&
+                            relayWithLocation.serverLocation.cityCode == cityCode
 
-                case let .hostname(countryCode, cityCode, hostname):
-                    return relayWithLocation.serverLocation.countryCode == countryCode &&
-                        relayWithLocation.serverLocation.cityCode == cityCode &&
-                        relayWithLocation.relay.hostname == hostname
+                    case let .hostname(countryCode, cityCode, hostname):
+                        return relayWithLocation.serverLocation.countryCode == countryCode &&
+                            relayWithLocation.serverLocation.cityCode == cityCode &&
+                            relayWithLocation.relay.hostname == hostname
+                    }
                 }
+
+                return false
             }
         }.filter { relayWithLocation -> Bool in
             relayWithLocation.relay.active
