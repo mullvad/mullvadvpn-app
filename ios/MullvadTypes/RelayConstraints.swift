@@ -21,29 +21,29 @@ public class RelayConstraintsUpdater: ConstraintsPropagation {
 }
 
 public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible {
-    public var location: RelayConstraint<RelayLocation>
+    public var locations: RelayConstraint<RelayLocations>
 
     // Added in 2023.3
     public var port: RelayConstraint<UInt16>
     public var filter: RelayConstraint<RelayFilter>
 
     public var debugDescription: String {
-        "RelayConstraints { location: \(location), port: \(port) }"
+        "RelayConstraints { locations: \(locations), port: \(port) }"
     }
 
     public init(
-        location: RelayConstraint<RelayLocation> = .only(.country("se")),
+        locations: RelayConstraint<RelayLocations> = .only(RelayLocations(locations: [.country("se")])),
         port: RelayConstraint<UInt16> = .any,
         filter: RelayConstraint<RelayFilter> = .any
     ) {
-        self.location = location
+        self.locations = locations
         self.port = port
         self.filter = filter
     }
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        location = try container.decode(RelayConstraint<RelayLocation>.self, forKey: .location)
+        locations = try container.decode(RelayConstraint<RelayLocations>.self, forKey: .locations)
 
         // Added in 2023.3
         port = try container.decodeIfPresent(RelayConstraint<UInt16>.self, forKey: .port) ?? .any
