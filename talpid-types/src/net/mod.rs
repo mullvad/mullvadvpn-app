@@ -534,15 +534,6 @@ pub enum Connectivity {
     /// On/offline status could not be verified, but we have no particular
     /// reason to believe that the host is offline.
     PresumeOnline,
-    /// The host is suspended.
-    ///
-    /// If the host is suspended, there is a great likelihood that we should
-    /// consider the host to be offline.
-    #[cfg(windows)]
-    Suspended {
-        last_known_ipv4: bool,
-        last_known_ipv6: bool,
-    },
 }
 
 impl Connectivity {
@@ -553,7 +544,7 @@ impl Connectivity {
 
     /// If no IP4 nor IPv6 routes exist, we have no way of reaching the internet
     /// so we consider ourselves offline.
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[cfg(not(target_os = "android"))]
     pub fn is_offline(&self) -> bool {
         matches!(
             self,
@@ -588,82 +579,6 @@ impl Connectivity {
             Connectivity::Status { ipv4, ipv6: _ } => Connectivity::Status { ipv4: *ipv4, ipv6 },
             _ => Connectivity::Status { ipv4: false, ipv6 },
         }
-    }
-
-    /// Update the known IPv4 connectivity status.
-    ///
-    /// * If `self` is of variant [`Connectivity::Status`], simply update its `ipv4` value.
-    /// * If `self` is of variant [`Connectivity::Suspended`], create a [`Connectivity::Status`]
-    ///  using the last known `ipv6` value and the `ipv4` argument of this function.
-    /// * If `self` is of any other variant, replace `self` with a [`Connectivity::Status`]
-    /// where the `ipv4` value is equal to the `ipv4` argument of this function.
-    #[cfg(target_os = "windows")]
-    pub fn set_ipv4(&mut self, ipv4: bool) {
-        *self = match self {
-            Connectivity::Status { ipv4: _, ipv6 }
-            | Connectivity::Suspended {
-                last_known_ipv6: ipv6,
-                ..
-            } => Connectivity::Status { ipv4, ipv6: *ipv6 },
-            _ => Connectivity::Status { ipv4, ipv6: false },
-        }
-    }
-
-    /// Update the known IPv6 connectivity status.
-    ///
-    /// * If `self` is of variant [`Connectivity::Status`], simply update its `ipv6` value.
-    /// * If `self` is of variant [`Connectivity::Suspended`], create a [`Connectivity::Status`]
-    ///  using the last known `ipv4` value and the `ipv6` argument of this function.
-    /// * If `self` is of any other variant, replace `self` with a [`Connectivity::Status`]
-    /// where the `ipv6` value is equal to the `ipv6` argument of this function.
-    #[cfg(target_os = "windows")]
-    pub fn set_ipv6(&mut self, ipv6: bool) {
-        *self = match self {
-            Connectivity::Status { ipv4, ipv6: _ }
-            | Connectivity::Suspended {
-                last_known_ipv4: ipv4,
-                ..
-            } => Connectivity::Status { ipv4: *ipv4, ipv6 },
-            _ => Connectivity::Status { ipv4: false, ipv6 },
-        }
-    }
-
-    #[cfg(target_os = "windows")]
-    pub fn set_suspended(&mut self, suspend: bool) {
-        if suspend {
-            *self = match self {
-                Connectivity::Status { ipv4, ipv6 } => Connectivity::Suspended {
-                    last_known_ipv4: *ipv4,
-                    last_known_ipv6: *ipv6,
-                },
-                _ => Connectivity::Suspended {
-                    last_known_ipv4: false,
-                    last_known_ipv6: false,
-                },
-            }
-        } else if let Connectivity::Suspended {
-            last_known_ipv4,
-            last_known_ipv6,
-        } = self
-        {
-            *self = Connectivity::Status {
-                ipv4: *last_known_ipv4,
-                ipv6: *last_known_ipv6,
-            };
-        }
-    }
-
-    /// If the host is suspended or if no IP4 nor IPv6 routes exist, we have no
-    /// way of reaching the internet so we consider ourselves offline.
-    #[cfg(target_os = "windows")]
-    pub fn is_offline(&self) -> bool {
-        matches!(
-            self,
-            Connectivity::Status {
-                ipv4: false,
-                ipv6: false
-            } | Connectivity::Suspended { .. }
-        )
     }
 
     /// If the host does not have configured IPv6 routes, we have no way of
