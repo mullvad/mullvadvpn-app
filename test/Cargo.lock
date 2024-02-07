@@ -828,6 +828,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "fast-socks5"
+version = "0.9.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cbcc731f3c17a5053e07e6a2290918da75cd8b9b1217b419721f715674ac520c"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "log",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+]
+
+[[package]]
 name = "fastrand"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2876,6 +2890,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "socks-server"
+version = "0.0.0"
+dependencies = [
+ "err-derive",
+ "fast-socks5",
+ "futures",
+ "log",
+ "tokio",
+]
+
+[[package]]
 name = "spin"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3111,6 +3136,7 @@ dependencies = [
  "regex",
  "serde",
  "serde_json",
+ "socks-server",
  "ssh2",
  "talpid-types",
  "tarpc",

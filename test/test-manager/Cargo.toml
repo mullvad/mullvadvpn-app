@@ -42,6 +42,7 @@ pcap = { version = "0.10.1", features = ["capture-stream"] }
 pnet_packet = "0.31.0"
 
 test-rpc = { path = "../test-rpc" }
+socks-server = { path = "../socks-server" }
 
 env_logger = { workspace = true }
 
