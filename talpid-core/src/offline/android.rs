@@ -111,7 +111,7 @@ impl MonitorHandle {
                     "{}",
                     error.display_chain_with_msg("Failed to check connectivity status")
                 );
-                Connectivity::Unknown
+                Connectivity::PresumeOnline
             }
         }
     }

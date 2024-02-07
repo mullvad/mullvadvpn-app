@@ -37,7 +37,7 @@ impl MonitorHandle {
     pub async fn connectivity(&self) -> Connectivity {
         match self.0.as_ref() {
             Some(monitor) => monitor.connectivity().await,
-            None => Connectivity::Unknown,
+            None => Connectivity::PresumeOnline,
         }
     }
 }

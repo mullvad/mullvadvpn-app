@@ -534,8 +534,6 @@ pub enum Connectivity {
     /// On/offline status could not be verified, but we have no particular
     /// reason to believe that the host is offline.
     PresumeOnline,
-    /// Could not verify connectivity status of the host.
-    Unknown,
     /// The host is suspended.
     ///
     /// If the host is suspended, there is a great likelihood that we should
