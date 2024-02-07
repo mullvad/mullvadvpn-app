@@ -12,8 +12,6 @@ data class LatLng(val latitude: Float, val longitude: Float) {
                 ((longitude.toDouble() - other.longitude.toDouble()).absoluteValue).pow(2.0)
         )
 
-    fun scale(ratio: Float) = LatLng(latitude * ratio, longitude * ratio)
-
     operator fun plus(other: LatLng) =
         LatLng(latitude + other.latitude, longitude + other.longitude)
 

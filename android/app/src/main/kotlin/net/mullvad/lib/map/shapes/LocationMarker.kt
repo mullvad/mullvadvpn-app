@@ -3,10 +3,12 @@ package net.mullvad.lib.map.shapes
 import android.opengl.GLES20
 import android.opengl.Matrix
 import androidx.compose.ui.graphics.Color
+import net.mullvad.lib.map.COLOR_COMPONENT_SIZE
 import java.nio.FloatBuffer
 import kotlin.math.cos
 import kotlin.math.sin
 import net.mullvad.lib.map.GLHelper
+import net.mullvad.lib.map.VERTEX_COMPONENT_SIZE
 import net.mullvad.lib.map.data.LatLng
 import net.mullvad.lib.map.toFloatArrayWithoutAlpha
 
@@ -118,12 +120,14 @@ class LocationMarker(val color: Color) {
         Matrix.rotateM(modelViewMatrix, 0, -latLng.latitude, 1f, 0f, 0f)
 
         Matrix.scaleM(modelViewMatrix, 0, size, size, 1f)
-        Matrix.translateM(modelViewMatrix, 0, 0f, 0f, 1.0001f)
-        //
+
+        // Translate marker to put it above the globe
+        Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR)
+
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, positionBuffer)
         GLES20.glVertexAttribPointer(
             attribLocations.vertexPosition,
-            3,
+            VERTEX_COMPONENT_SIZE,
             GLES20.GL_FLOAT,
             false,
             0,
@@ -134,7 +138,7 @@ class LocationMarker(val color: Color) {
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, colorBuffer)
         GLES20.glVertexAttribPointer(
             attribLocations.vertexColor,
-            4,
+            COLOR_COMPONENT_SIZE,
             GLES20.GL_FLOAT,
             false,
             0,
@@ -147,9 +151,9 @@ class LocationMarker(val color: Color) {
 
         var offset = 0
         for (ringSize in ringSizes) {
-            val numVertices = ringSize / 3
-            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, offset, numVertices * 3)
-            offset += numVertices
+            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, offset, ringSize)
+            // Add number off vertices in the ring to the offset
+            offset += ringSize / VERTEX_COMPONENT_SIZE
         }
     }
 
@@ -178,5 +182,9 @@ class LocationMarker(val color: Color) {
             colors.addAll(ringColor.toTypedArray())
         }
         return positions.toList() to colors.toList()
+    }
+
+    companion object {
+        private const val MARKER_TRANSLATE_Z_FACTOR = 1.0001f
     }
 }

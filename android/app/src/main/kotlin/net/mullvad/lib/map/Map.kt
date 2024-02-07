@@ -1,5 +1,6 @@
 package net.mullvad.lib.map
 
+import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.keyframes
@@ -35,7 +36,7 @@ fun Map(
             animatedMapViewState(cameraLocation, marker, percent)
         } else {
             MapViewState(
-                zoom = secureZoom,
+                zoom = if (marker?.type == MarkerType.SECURE) secureZoom else unsecureZoom,
                 cameraLatLng = cameraLocation,
                 locationMarker = marker,
                 percent = percent
@@ -71,13 +72,20 @@ fun animatedMapViewState(
     LaunchedEffect(targetCameraLocation) {
         launch { latitudeAnimation.animateTo(targetCameraLocation.latitude, tween(duration)) }
         launch {
-            val shortestVector =
-                shortestVector(
+            // We resolve a vector showing us the shortest path to the target longitude, e.g going
+            // from 10 to 350 would result in -20 since we can wrap around the globe
+            val shortestPathVector =
+                shortestPathVector(
                     longitudeAnimation.value,
                     targetCameraLocation.longitude,
                     completeAngle
                 )
-            longitudeAnimation.animateTo(longitudeAnimation.value + shortestVector, tween(duration))
+
+            Log.d("mullvad", "AAA longitudeAnimationValue ${longitudeAnimation.value}")
+            longitudeAnimation.animateTo(
+                longitudeAnimation.value + shortestPathVector,
+                tween(duration)
+            )
         }
         launch {
             zoomOutMultiplier.animateTo(
@@ -114,7 +122,7 @@ fun animatedMapViewState(
     )
 }
 
-fun shortestVector(current: Float, newValue: Float, wrappingSize: Float): Float {
+fun shortestPathVector(current: Float, newValue: Float, wrappingSize: Float): Float {
     val diff = newValue - current
     val maxDistance = wrappingSize / 2
     return when {

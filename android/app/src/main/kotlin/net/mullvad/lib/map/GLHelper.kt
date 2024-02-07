@@ -1,8 +1,8 @@
 package net.mullvad.lib.map
 
 import android.opengl.GLES20
+import android.opengl.Matrix
 import android.util.Log
-import java.lang.IllegalStateException
 import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
@@ -11,13 +11,13 @@ object GLHelper {
 
     fun initShaderProgram(vsSource: String, fsSource: String): Int {
         val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vsSource)
-        require(vertexShader != -1) { "vertexShader == -1" }
+        require(vertexShader != -1) { "Failed to load vertexShader, result: -1" }
 
         val fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fsSource)
         require(fragmentShader != -1) { "fragmentShader == -1" }
 
         val program = GLES20.glCreateProgram()
-        check(program != 0) { "Could not create program"}
+        check(program != 0) { "Could not create program" }
 
         // add the vertex shader to program
         GLES20.glAttachShader(program, vertexShader)
@@ -57,7 +57,8 @@ object GLHelper {
             val infoLog = GLES20.glGetShaderInfoLog(shader)
             Log.e("mullvad", "Could not compile shader $type:$infoLog")
             GLES20.glDeleteShader(shader)
-            throw IllegalArgumentException("Could not compile shader with shaderCode: $shaderCode")
+
+            error("Could not compile shader with shaderCode: $shaderCode")
         }
 
         return shader
@@ -81,8 +82,6 @@ object GLHelper {
         return buffer[0]
     }
 
-    data class IndexBufferWithLength(val indexBuffer: Int, val length: Int)
-
     fun initIndexBuffer(dataBuffer: Buffer): IndexBufferWithLength {
 
         val buffer = IntArray(1)
@@ -98,3 +97,7 @@ object GLHelper {
         return IndexBufferWithLength(indexBuffer = buffer[0], length = dataBuffer.capacity() / 4)
     }
 }
+
+fun newIdentityMatrix(): FloatArray = FloatArray(MATRIX_SIZE).apply { Matrix.setIdentityM(this, 0) }
+
+

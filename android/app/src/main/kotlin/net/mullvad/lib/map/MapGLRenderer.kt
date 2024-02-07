@@ -13,13 +13,14 @@ import net.mullvad.lib.map.data.MarkerType
 import net.mullvad.lib.map.shapes.Globe
 import net.mullvad.lib.map.shapes.LocationMarker
 
-class MapGLRenderer(private val context: Context, private val mapConfig: MapConfig) : GLSurfaceView.Renderer {
-    private lateinit var globe: Globe
+class MapGLRenderer(private val context: Context, private val mapConfig: MapConfig) :
+    GLSurfaceView.Renderer {
     private lateinit var secureLocationMarker: LocationMarker
     private lateinit var unsecureLocationMarker: LocationMarker
 
+    private lateinit var globe: Globe
+
     private lateinit var viewState: MapViewState
-    private val fov = 70f
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // Set the background frame color
@@ -40,19 +41,18 @@ class MapGLRenderer(private val context: Context, private val mapConfig: MapConf
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
     }
 
-    private val projectionMatrix = FloatArray(16).apply { Matrix.setIdentityM(this, 0) }
+    private val projectionMatrix = newIdentityMatrix()
 
     override fun onDrawFrame(gl10: GL10) {
         // Clear function
         clear()
 
-        val viewMatrix = FloatArray(16)
-        Matrix.setIdentityM(viewMatrix, 0)
+        val viewMatrix = newIdentityMatrix()
 
         val percent = viewState.percent
 
         val z = viewState.zoom - 1f
-        val planeSize = tan(fov.toRadians() / 2f) * z * 2f
+        val planeSize = tan(FIELD_OF_VIEW.toRadians() / 2f) * z * 2f
         val offsetY = planeSize * (0.5f - percent)
         Matrix.translateM(viewMatrix, 0, 0f, offsetY, -viewState.zoom)
         Matrix.rotateM(viewMatrix, 0, viewState.cameraLatLng.latitude, 1f, 0f, 0f)
@@ -60,7 +60,7 @@ class MapGLRenderer(private val context: Context, private val mapConfig: MapConf
 
         val vP = projectionMatrix.copyOf()
 
-        globe.draw(vP.copyOf(), viewMatrix.copyOf())
+        globe.draw(vP.copyOf(), viewMatrix.copyOf(), mapConfig.globeColors)
 
         viewState.locationMarker?.let {
             when (it.type) {
@@ -88,11 +88,24 @@ class MapGLRenderer(private val context: Context, private val mapConfig: MapConf
         GLES20.glViewport(0, 0, width, height)
 
         val ratio: Float = width.toFloat() / height.toFloat()
-        Matrix.perspectiveM(projectionMatrix, 0, fov, ratio, 0.05f, 10f)
+        Matrix.perspectiveM(
+            projectionMatrix,
+            0,
+            FIELD_OF_VIEW,
+            ratio,
+            PERSPECTIVE_Z_NEAR,
+            PERSPECTIVE_Z_FAR
+        )
     }
 
     fun setViewState(viewState: MapViewState) {
         this.viewState = viewState
+    }
+
+    companion object {
+        private const val PERSPECTIVE_Z_NEAR = 0.05f
+        private const val PERSPECTIVE_Z_FAR = 10f
+        private const val FIELD_OF_VIEW = 70f
     }
 }
 

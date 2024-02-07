@@ -6,13 +6,21 @@ import android.opengl.Matrix
 import androidx.compose.ui.graphics.Color
 import java.nio.ByteBuffer
 import net.mullvad.lib.map.GLHelper
+import net.mullvad.lib.map.IndexBufferWithLength
+import net.mullvad.lib.map.VERTEX_COMPONENT_SIZE
+import net.mullvad.lib.map.toFloatArray
 import net.mullvad.mullvadvpn.R
 
 data class GlobeColors(
     val landColor: Color,
     val oceanColor: Color,
     val contourColor: Color,
-)
+) {
+    val landColorArray = landColor.toFloatArray()
+    val oceanColorArray = oceanColor.toFloatArray()
+    val contourColorArray = contourColor.toFloatArray()
+}
+
 class Globe(context: Context) {
     private val vertexShaderCode =
         """
@@ -42,18 +50,14 @@ class Globe(context: Context) {
     private val attribLocations: AttribLocations
     private val uniformLocation: UniformLocation
 
-    data class AttribLocations(val vertexPosition: Int)
+    private data class AttribLocations(val vertexPosition: Int)
+    private data class UniformLocation(val color: Int, val projectionMatrix: Int, val modelViewMatrix: Int)
 
-    data class UniformLocation(val color: Int, val projectionMatrix: Int, val modelViewMatrix: Int)
-
-    private val landColor: FloatArray = floatArrayOf(0.16f, 0.302f, 0.45f, 1.0f)
-    private val oceanColor: FloatArray = floatArrayOf(0.098f, 0.18f, 0.271f, 1.0f)
-    private val contourColor: FloatArray = floatArrayOf(0.098f, 0.18f, 0.271f, 1.0f)
-    private val landIndices: GLHelper.IndexBufferWithLength
-    private val landContour: GLHelper.IndexBufferWithLength
+    private val landIndices: IndexBufferWithLength
+    private val landContour: IndexBufferWithLength
     private val landVertexBuffer: Int
 
-    private val oceanIndices: GLHelper.IndexBufferWithLength
+    private val oceanIndices: IndexBufferWithLength
     private val oceanVertexBuffer: Int
 
     init {
@@ -96,30 +100,41 @@ class Globe(context: Context) {
             )
     }
 
-    fun draw(projectionMatrix: FloatArray, viewMatrix: FloatArray) {
+    fun draw(
+        projectionMatrix: FloatArray,
+        viewMatrix: FloatArray,
+        colors: GlobeColors,
+        contourWidth: Float = 3f
+    ) {
         val globeViewMatrix = viewMatrix.copyOf()
 
         // Add program to OpenGL ES environment
         GLES20.glUseProgram(shaderProgram)
 
         // Set thickness of contour lines
-        GLES20.glLineWidth(3f)
+        GLES20.glLineWidth(contourWidth)
         drawBufferElements(
             projectionMatrix,
             globeViewMatrix,
             landVertexBuffer,
             landContour,
-            contourColor,
+            colors.contourColorArray,
             GLES20.GL_LINES
         )
 
-        Matrix.scaleM(globeViewMatrix, 0, 0.9999f, 0.9999f, 0.9999f)
+        Matrix.scaleM(
+            globeViewMatrix,
+            0,
+            LAND_OCEAN_SCALE_FACTOR,
+            LAND_OCEAN_SCALE_FACTOR,
+            LAND_OCEAN_SCALE_FACTOR
+        )
         drawBufferElements(
             projectionMatrix,
             globeViewMatrix,
             landVertexBuffer,
             landIndices,
-            landColor,
+            colors.landColorArray,
             GLES20.GL_TRIANGLES,
         )
 
@@ -128,7 +143,7 @@ class Globe(context: Context) {
             globeViewMatrix,
             oceanVertexBuffer,
             oceanIndices,
-            oceanColor,
+            colors.oceanColorArray,
             GLES20.GL_TRIANGLES
         )
     }
@@ -137,14 +152,14 @@ class Globe(context: Context) {
         projectionMatrix: FloatArray,
         modelViewMatrix: FloatArray,
         positionBuffer: Int,
-        indexBuffer: GLHelper.IndexBufferWithLength,
+        indexBuffer: IndexBufferWithLength,
         color: FloatArray,
         mode: Int,
     ) {
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, positionBuffer)
         GLES20.glVertexAttribPointer(
             attribLocations.vertexPosition,
-            3, // Num components
+            VERTEX_COMPONENT_SIZE,
             GLES20.GL_FLOAT,
             false,
             0,
@@ -158,5 +173,9 @@ class Globe(context: Context) {
         GLES20.glUniformMatrix4fv(uniformLocation.modelViewMatrix, 1, false, modelViewMatrix, 0)
         GLES20.glDrawElements(mode, indexBuffer.length, GLES20.GL_UNSIGNED_INT, 0)
         GLES20.glDisableVertexAttribArray(attribLocations.vertexPosition)
+    }
+
+    companion object {
+        private const val LAND_OCEAN_SCALE_FACTOR = 0.999f
     }
 }
