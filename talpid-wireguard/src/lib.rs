@@ -12,10 +12,9 @@ use once_cell::sync::Lazy;
 use std::borrow::Cow;
 #[cfg(target_os = "linux")]
 use std::env;
-#[cfg(windows)]
-use std::io;
 use std::{
     convert::Infallible,
+    io,
     net::IpAddr,
     path::Path,
     pin::Pin,
@@ -80,6 +79,12 @@ pub enum Error {
     /// Failed to set MTU
     #[error(display = "Failed to detect MTU because of unexpected ping error.")]
     MtuDetectionPingError(#[error(source)] surge_ping::SurgeError),
+
+    /// Failed to set MTU
+    #[error(
+        display = "Failed to detect MTU because of an IO error when setting up the ping socket."
+    )]
+    MtuDetectionSetupSocket(#[error(source)] io::Error),
 
     /// Failed to set MTU
     #[cfg(target_os = "macos")]
@@ -1031,7 +1036,8 @@ async fn auto_mtu_detection(
     let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     let config_builder = config_builder.interface(&iface_name);
-    let client = Client::new(&config_builder.build()).unwrap();
+    let client = Client::new(&config_builder.build()).map_err(Error::MtuDetectionSetupSocket)?;
+
     // For macos, the default socket receive buffer size seems to be too small to handle the data we
     // are sending here. The consequence will be dropped packets causing the MTU detection to set a
     // low value. Here we manually increase this value, which fixes the problem.
