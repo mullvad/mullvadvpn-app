@@ -1810,6 +1810,7 @@
 		7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Sorting.swift"; sourceTree = "<group>"; };
 		7AF9BE942A40461100DBFEDB /* RelayFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterView.swift; sourceTree = "<group>"; };
 		7AF9BE962A41C71F00DBFEDB /* RelayFilterChipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterChipView.swift; sourceTree = "<group>"; };
+		85006A8E2B73EF67004AD8FB /* MullvadVPNUITestsSmoke.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = MullvadVPNUITestsSmoke.xctestplan; sourceTree = "<group>"; };
 		850201DA2B503D7700EF8C96 /* RelayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayTests.swift; sourceTree = "<group>"; };
 		850201DC2B503D8C00EF8C96 /* SelectLocationPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationPage.swift; sourceTree = "<group>"; };
 		850201DE2B5040A500EF8C96 /* TunnelControlPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlPage.swift; sourceTree = "<group>"; };
@@ -1817,7 +1818,7 @@
 		8518F6372B60157E009EB113 /* LoggedInWithoutTimeUITestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggedInWithoutTimeUITestCase.swift; sourceTree = "<group>"; };
 		852969252B4D9C1F007EAD4C /* MullvadVPNUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadVPNUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		852969272B4D9C1F007EAD4C /* AccountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTests.swift; sourceTree = "<group>"; };
-		852969302B4D9E70007EAD4C /* MullvadVPNUITests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = MullvadVPNUITests.xctestplan; sourceTree = "<group>"; };
+		852969302B4D9E70007EAD4C /* MullvadVPNUITestsAll.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = MullvadVPNUITestsAll.xctestplan; sourceTree = "<group>"; };
 		852969322B4E9232007EAD4C /* Page.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Page.swift; sourceTree = "<group>"; };
 		852969342B4E9270007EAD4C /* LoginPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPage.swift; sourceTree = "<group>"; };
 		852969372B4ED20E007EAD4C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -3443,7 +3444,8 @@
 		7A83C3FC2A55B39500DFB83A /* TestPlans */ = {
 			isa = PBXGroup;
 			children = (
-				852969302B4D9E70007EAD4C /* MullvadVPNUITests.xctestplan */,
+				852969302B4D9E70007EAD4C /* MullvadVPNUITestsAll.xctestplan */,
+				85006A8E2B73EF67004AD8FB /* MullvadVPNUITestsSmoke.xctestplan */,
 				7A83C3FE2A55B72E00DFB83A /* MullvadVPNApp.xctestplan */,
 				7A83C4002A55B81A00DFB83A /* MullvadVPNCI.xctestplan */,
 				7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */,
