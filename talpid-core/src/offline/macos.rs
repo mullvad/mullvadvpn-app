@@ -36,7 +36,7 @@ pub struct MonitorHandle {
 impl MonitorHandle {
     /// Return whether the host is offline
     #[allow(clippy::unused_async)]
-    pub async fn host_is_offline(&self) -> Connectivity {
+    pub async fn connectivity(&self) -> Connectivity {
         let state = self.state.lock().unwrap();
         *state
     }

@@ -101,7 +101,7 @@ impl MonitorHandle {
     }
 
     #[allow(clippy::unused_async)]
-    pub async fn host_is_offline(&self) -> Connectivity {
+    pub async fn connectivity(&self) -> Connectivity {
         match self.get_is_connected() {
             Ok(is_connected) => Connectivity::Status {
                 ipv6: !is_connected,
