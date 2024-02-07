@@ -81,6 +81,11 @@ pub enum Error {
     #[error(display = "Failed to detect MTU because of unexpected ping error.")]
     MtuDetectionPingError(#[error(source)] surge_ping::SurgeError),
 
+    /// Failed to set MTU
+    #[cfg(target_os = "macos")]
+    #[error(display = "Failed to set buffer size")]
+    MtuSetBufferSize(#[error(source)] nix::Error),
+
     /// Tunnel timed out
     #[error(display = "Tunnel timed out")]
     TimeoutError,
@@ -1027,6 +1032,15 @@ async fn auto_mtu_detection(
 
     let step_size = 20;
     let linspace = mtu_spacing(MIN_IPV4_MTU, current_mtu, step_size);
+
+    #[cfg(target_os = "macos")]
+    {
+        use nix::sys::socket::{setsockopt, sockopt};
+        let fd = client.get_socket().get_native_sock();
+        let buf_size = linspace.iter().map(|sz| usize::from(*sz)).sum();
+        setsockopt(fd, sockopt::SndBuf, &buf_size).map_err(Error::MtuSetBufferSize)?;
+        setsockopt(fd, sockopt::RcvBuf, &buf_size).map_err(Error::MtuSetBufferSize)?;
+    }
 
     let payload_buf = vec![0; current_mtu as usize];
 
