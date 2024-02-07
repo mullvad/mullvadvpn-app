@@ -23,4 +23,6 @@ Status get_system_local_appdata(uint16_t *buffer, uintptr_t *buffer_size);
 
 Status create_privileged_directory(const uint16_t* path);
 
+Status get_system_version(uint16_t *buffer, uintptr_t *buffer_size);
+
 } // extern "C"
