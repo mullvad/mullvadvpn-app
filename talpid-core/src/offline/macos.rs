@@ -126,7 +126,7 @@ pub async fn spawn_monitor(
                     state.set_ipv4(false);
                     state.set_ipv6(false);
 
-                    if !previous_connectivity.is_offline() {
+                    if previous_connectivity.is_online() {
                         let Some(tx) = weak_notify_tx.upgrade() else {
                             break;
                         };
@@ -134,7 +134,7 @@ pub async fn spawn_monitor(
                         log::info!("Connectivity changed: Offline");
                     }
 
-                    if !real_state.is_offline() {
+                    if real_state.is_online() {
                         timeout = Box::pin(tokio::time::sleep(SYNTHETIC_OFFLINE_DURATION)).fuse();
                     }
                 }
