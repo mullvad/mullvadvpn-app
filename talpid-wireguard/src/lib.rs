@@ -1025,14 +1025,17 @@ async fn auto_mtu_detection(
     /// dropped, so we return the largest collected packet size.
     const PING_OFFSET_TIMEOUT: Duration = Duration::from_secs(2);
 
+    let step_size = 20;
+    let linspace = mtu_spacing(MIN_IPV4_MTU, current_mtu, step_size);
+
     let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     let config_builder = config_builder.interface(&iface_name);
     let client = Client::new(&config_builder.build()).unwrap();
-
-    let step_size = 20;
-    let linspace = mtu_spacing(MIN_IPV4_MTU, current_mtu, step_size);
-
+    // For macos, the default socket receive buffer size seems to be too small to handle the data we
+    // are sending here. The consequence will be dropped packets causing the MTU detection to set a
+    // low value. Here we manually increase this value, which fixes the problem.
+    // TODO: Make sure this fix is not needed for any other target OS
     #[cfg(target_os = "macos")]
     {
         use nix::sys::socket::{setsockopt, sockopt};
