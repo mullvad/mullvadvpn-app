@@ -21,32 +21,59 @@ public class RelayConstraintsUpdater: ConstraintsPropagation {
 }
 
 public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible {
-    public var location: RelayConstraint<RelayLocation>
+    @available(*, deprecated, renamed: "locations")
+    private var location: RelayConstraint<RelayLocation> = .only(.country("se"))
 
     // Added in 2023.3
     public var port: RelayConstraint<UInt16>
     public var filter: RelayConstraint<RelayFilter>
 
+    // Added in 2024.1
+    public var locations: RelayConstraint<RelayLocations>
+
     public var debugDescription: String {
-        "RelayConstraints { location: \(location), port: \(port) }"
+        "RelayConstraints { locations: \(locations), port: \(port) }"
     }
 
     public init(
-        location: RelayConstraint<RelayLocation> = .only(.country("se")),
+        locations: RelayConstraint<RelayLocations> = .only(RelayLocations(locations: [.country("se")])),
         port: RelayConstraint<UInt16> = .any,
         filter: RelayConstraint<RelayFilter> = .any
     ) {
-        self.location = location
+        self.locations = locations
         self.port = port
         self.filter = filter
     }
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        location = try container.decode(RelayConstraint<RelayLocation>.self, forKey: .location)
 
         // Added in 2023.3
         port = try container.decodeIfPresent(RelayConstraint<UInt16>.self, forKey: .port) ?? .any
         filter = try container.decodeIfPresent(RelayConstraint<RelayFilter>.self, forKey: .filter) ?? .any
+
+        // Added in 2024.1
+        locations = try container.decodeIfPresent(RelayConstraint<RelayLocations>.self, forKey: .locations)
+            ?? Self.migrateLocations(decoder: decoder)
+            ?? .only(RelayLocations(locations: [.country("se")]))
+    }
+}
+
+extension RelayConstraints {
+    private static func migrateLocations(decoder: Decoder) -> RelayConstraint<RelayLocations>? {
+        let container = try? decoder.container(keyedBy: CodingKeys.self)
+
+        guard
+            let location = try? container?.decodeIfPresent(RelayConstraint<RelayLocation>.self, forKey: .location)
+        else {
+            return nil
+        }
+
+        switch location {
+        case .any:
+            return .any
+        case let .only(location):
+            return .only(RelayLocations(locations: [location]))
+        }
     }
 }
