@@ -20,30 +20,41 @@ public class RelayConstraintsUpdater: ConstraintsPropagation {
     }
 }
 
+public struct RelayLocationPersistent: Codable, Equatable {
+    public let locations: [RelayLocation]
+    public let customListId: UUID?
+
+    public init(locations: [RelayLocation], customListId: UUID?) {
+        self.locations = locations
+        self.customListId = customListId
+    }
+}
+
 public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible {
-    public var location: RelayConstraint<RelayLocation>
+    public var locations: RelayConstraint<RelayLocationPersistent>
 
     // Added in 2023.3
     public var port: RelayConstraint<UInt16>
     public var filter: RelayConstraint<RelayFilter>
 
     public var debugDescription: String {
-        "RelayConstraints { location: \(location), port: \(port) }"
+        "RelayConstraints { locations: \(locations), port: \(port) }"
     }
 
     public init(
-        location: RelayConstraint<RelayLocation> = .only(.country("se")),
+        locations: RelayConstraint<RelayLocationPersistent> =
+            .only(RelayLocationPersistent(locations: [.country("se")], customListId: nil)),
         port: RelayConstraint<UInt16> = .any,
         filter: RelayConstraint<RelayFilter> = .any
     ) {
-        self.location = location
+        self.locations = locations
         self.port = port
         self.filter = filter
     }
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        location = try container.decode(RelayConstraint<RelayLocation>.self, forKey: .location)
+        locations = try container.decode(RelayConstraint<RelayLocationPersistent>.self, forKey: .locations)
 
         // Added in 2023.3
         port = try container.decodeIfPresent(RelayConstraint<UInt16>.self, forKey: .port) ?? .any
