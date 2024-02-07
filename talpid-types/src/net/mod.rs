@@ -528,8 +528,8 @@ pub enum Connectivity {
     },
     #[cfg(target_os = "android")]
     Status {
-        /// Whether IPv6 connectivity seems to be available on the host.
-        ipv6: bool,
+        /// Whether _any_ connectivity seems to be available on the host.
+        connected: bool,
     },
     /// On/offline status could not be verified, but we have no particular
     /// reason to believe that the host is offline.
@@ -559,6 +559,6 @@ impl Connectivity {
     /// reaching the internet so we consider ourselves offline.
     #[cfg(target_os = "android")]
     pub fn is_offline(&self) -> bool {
-        matches!(self, Connectivity::Status { ipv6: false })
+        matches!(self, Connectivity::Status { connected: false })
     }
 }
