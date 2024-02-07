@@ -29,7 +29,7 @@ pub enum Error {
 }
 
 pub struct MonitorHandle {
-    state: Arc<Mutex<Connectivity>>,
+    state: Arc<Mutex<ConnectivityInner>>,
     _notify_tx: Arc<UnboundedSender<Connectivity>>,
 }
 
@@ -38,7 +38,28 @@ impl MonitorHandle {
     #[allow(clippy::unused_async)]
     pub async fn connectivity(&self) -> Connectivity {
         let state = self.state.lock().unwrap();
-        *state
+        state.into_connectivity()
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct ConnectivityInner {
+    /// Whether IPv4 connectivity seems to be available on the host.
+    ipv4: bool,
+    /// Whether IPv6 connectivity seems to be available on the host.
+    ipv6: bool,
+}
+
+impl ConnectivityInner {
+    fn into_connectivity(self) -> Connectivity {
+        Connectivity::Status {
+            ipv4: self.ipv4,
+            ipv6: self.ipv6,
+        }
+    }
+
+    fn is_online(&self) -> bool {
+        self.into_connectivity().is_online()
     }
 }
 
@@ -61,7 +82,7 @@ pub async fn spawn_monitor(
         }
     };
 
-    let state = Connectivity::Status { ipv4, ipv6 };
+    let state = ConnectivityInner { ipv4, ipv6 };
     let mut real_state = state;
 
     let state = Arc::new(Mutex::new(state));
@@ -89,7 +110,7 @@ pub async fn spawn_monitor(
                         let Some(tx) = weak_notify_tx.upgrade() else {
                             break;
                         };
-                        let _ = tx.unbounded_send(real_state);
+                        let _ = tx.unbounded_send(real_state.into_connectivity());
                     }
 
                     *state = real_state;
@@ -103,16 +124,16 @@ pub async fn spawn_monitor(
                     // Update real state
                     match event {
                         DefaultRouteEvent::AddedOrChangedV4 => {
-                            real_state.set_ipv4(true);
+                            real_state.ipv4 = true;
                         }
                         DefaultRouteEvent::AddedOrChangedV6 => {
-                            real_state.set_ipv6(true);
+                            real_state.ipv6 = true;
                         }
                         DefaultRouteEvent::RemovedV4 => {
-                            real_state.set_ipv4(false);
+                            real_state.ipv4 = false;
                         }
                         DefaultRouteEvent::RemovedV6 => {
-                            real_state.set_ipv6(false);
+                            real_state.ipv6 = false;
                         }
                     }
 
@@ -123,14 +144,14 @@ pub async fn spawn_monitor(
                     };
                     let mut state = state.lock().unwrap();
                     let previous_connectivity = *state;
-                    state.set_ipv4(false);
-                    state.set_ipv6(false);
+                    state.ipv4 = false;
+                    state.ipv6 = false;
 
                     if previous_connectivity.is_online() {
                         let Some(tx) = weak_notify_tx.upgrade() else {
                             break;
                         };
-                        let _ = tx.unbounded_send(*state);
+                        let _ = tx.unbounded_send(state.into_connectivity());
                         log::info!("Connectivity changed: Offline");
                     }
 
