@@ -100,95 +100,18 @@ std::wstring GetWindowsProductName()
 
 std::wstring GetWindowsVersion()
 {
-	common::fs::ScopedNativeFileSystem nativeFileSystem;
+	std::vector<uint16_t> productVersion(256);
+	size_t bufferSize = productVersion.size();
 
-	const auto systemDir = common::fs::GetKnownFolderPath(FOLDERID_System);
-	const auto systemModule = std::filesystem::path(systemDir).append(L"ntoskrnl.exe");
-
-	DWORD dummy;
-
-	const auto versionSize = GetFileVersionInfoSizeW(systemModule.c_str(), &dummy);
-
-	if (0 == versionSize)
+	// Simply call into rust function, which will use the correct
+	// syscall/Windows API to retrieve the Windows version.
+	auto result = get_system_version(productVersion.data(), &bufferSize);
+	if (Status::Ok != result)
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "GetFileVersionInfoSizeW");
+		THROW_ERROR("Failed to acquire Windows version");
 	}
 
-	std::vector<uint8_t> buf(versionSize);
-
-	auto status = GetFileVersionInfoW(systemModule.c_str(), 0, static_cast<DWORD>(buf.size()), &buf[0]);
-
-	if (FALSE == status)
-	{
-		THROW_WINDOWS_ERROR(GetLastError(), "GetFileVersionInfoW");
-	}
-
-	//
-	// Get the translation table.
-	// This is required to build the path to the value we're actually after.
-	//
-
-	struct LANGANDCODEPAGE
-	{
-		WORD wLanguage;
-		WORD wCodePage;
-	}
-	*translations = nullptr;
-
-	UINT translationsSize = 0;
-
-	status = VerQueryValueW(&buf[0], L"\\VarFileInfo\\Translation", reinterpret_cast<LPVOID *>(&translations), &translationsSize);
-
-	if (FALSE == status)
-	{
-		THROW_WINDOWS_ERROR(GetLastError(), "VerQueryValueW");
-	}
-
-	if (translationsSize < sizeof(LANGANDCODEPAGE))
-	{
-		THROW_ERROR("Invalid VERSION_INFO translation table");
-	}
-
-	//
-	// Use primary translation.
-	//
-
-	std::wstringstream ss;
-
-	ss << L"\\StringFileInfo\\"
-		<< std::setw(4) << std::setfill(L'0') << std::hex
-		<< translations[0].wLanguage
-		<< std::setw(4) << std::setfill(L'0') << std::hex
-		<< translations[0].wCodePage
-		<< L"\\ProductVersion";
-
-	const auto productVersionName = ss.str();
-
-	void *productVersion = nullptr;
-	UINT productVersionSize = 0;
-
-	status = VerQueryValueW(&buf[0], productVersionName.c_str(), &productVersion, &productVersionSize);
-
-	if (FALSE == status)
-	{
-		THROW_WINDOWS_ERROR(GetLastError(), "VerQueryValueW");
-	}
-
-	// Size returned is the length in characters.
-	std::wstring version(reinterpret_cast<const wchar_t *>(productVersion), productVersionSize);
-
-	// Chop off trailing terminators.
-	while ((false == version.empty()) && (*version.rbegin() == L'\0'))
-	{
-		version.resize(version.size() - 1);
-	}
-
-	if (version.empty())
-	{
-		THROW_ERROR("Invalid version information");
-	}
-
-	return version;
+	return std::wstring(reinterpret_cast<wchar_t *>(productVersion.data()));
 }
 
 //
