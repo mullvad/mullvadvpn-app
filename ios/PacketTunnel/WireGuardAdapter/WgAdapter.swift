@@ -32,7 +32,8 @@ struct WgAdapter: TunnelAdapterProtocol {
     func start(configuration: TunnelAdapterConfiguration) async throws {
         let wgConfig = configuration.asWgConfig
         do {
-            try await adapter.update(tunnelConfiguration: wgConfig)
+            try await adapter.stop()
+            try await adapter.start(tunnelConfiguration: wgConfig)
         } catch WireGuardAdapterError.invalidState {
             try await adapter.start(tunnelConfiguration: wgConfig)
         }
