@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "net.mullvad.mullvadvpn",
+  "variantName": "ossProdRelease",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 23100099,
+      "versionName": "2023.10-dev-66ce9b",
+      "outputFile": "app-oss-prod-release.apk"
+    }
+  ],
+  "elementType": "File"
+}
