@@ -548,6 +548,11 @@ pub enum Connectivity {
 }
 
 impl Connectivity {
+    /// Inverse of [`Connectivity::is_offline`].
+    pub fn is_online(&self) -> bool {
+        !self.is_offline()
+    }
+
     /// If no IP4 nor IPv6 routes exist, we have no way of reaching the internet
     /// so we consider ourselves offline.
     #[cfg(any(target_os = "linux", target_os = "macos"))]
