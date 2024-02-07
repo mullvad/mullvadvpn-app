@@ -1,0 +1,80 @@
+---
+name: iOS end-to-end tests
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+  workflow_dispatch:
+jobs:
+  test:
+    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
+    name: End to end tests
+    runs-on: [self-hosted, macOS, ios-test]
+    env:
+      IOS_DEVICE_PIN_CODE: ${{ secrets.IOS_DEVICE_PIN_CODE }}
+      TEST_DEVICE_IDENTIFIER_UUID: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
+      TEST_DEVICE_UDID: ${{ secrets.IOS_TEST_DEVICE_UDID }}
+      HAS_TIME_ACCOUNT_NUMBER: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER }}
+      NO_TIME_ACCOUNT_NUMBER: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Rust
+        run: rustup target install aarch64-apple-ios aarch64-apple-ios-sim
+
+      - name: Configure Xcode project
+        run: |
+          for file in *.xcconfig.template ; do cp $file ${file//.template/} ; done
+          sed -i "" \
+            "/MULLVAD_IOS_DEVICE_PIN_CODE =/ s/= .*/= $IOS_DEVICE_PIN_CODE/" \
+            UITests.xcconfig
+          sed -i "" \
+            "/MULLVAD_TEST_DEVICE_IDENTIFIER_UUID =/ s/= .*/= $TEST_DEVICE_IDENTIFIER_UUID/" \
+            UITests.xcconfig
+          sed -i "" \
+            "/MULLVAD_HAS_TIME_ACCOUNT_NUMBER =/ s/= .*/= $HAS_TIME_ACCOUNT_NUMBER/" \
+            UITests.xcconfig
+          sed -i "" \
+            "/MULLVAD_NO_TIME_ACCOUNT_NUMBER =/ s/= .*/= $NO_TIME_ACCOUNT_NUMBER/" \
+            UITests.xcconfig
+        working-directory: ios/Configurations
+
+      - name: Run end-to-end-tests
+        run: |
+          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+            -project MullvadVPN.xcodeproj \
+            -scheme MullvadVPNUITests \
+            -testPlan MullvadVPNUITestsSmoke \
+            -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
+            test 2>&1 | xcbeautify --report junit --report-path test-report
+        working-directory: ios/
+
+      - name: Comment PR on test failure
+        if: failure() && github.event_name != 'workflow_dispatch'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const issue_number = context.issue.number;
+            const run_id = context.runId;
+            const run_url = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${run_id}`;
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue_number,
+              body: `🚨 End to end tests failed. Please check the [failed workflow run](${run_url}).`
+            });
+
+      - name: Store test report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: ios/test-report/junit.xml
