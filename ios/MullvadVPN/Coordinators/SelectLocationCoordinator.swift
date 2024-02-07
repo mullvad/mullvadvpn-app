@@ -56,7 +56,10 @@ class SelectLocationCoordinator: Coordinator, Presentable, Presenting, RelayCach
             guard let self else { return }
 
             var relayConstraints = tunnelManager.settings.relayConstraints
-            relayConstraints.location = .only(relay)
+            relayConstraints.locations = .only(RelayLocations(
+                locations: [relay],
+                customListId: nil
+            ))
 
             tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
                 self.tunnelManager.startTunnel()
@@ -96,7 +99,8 @@ class SelectLocationCoordinator: Coordinator, Presentable, Presenting, RelayCach
             selectLocationViewController.setCachedRelays(cachedRelays, filter: relayFilter)
         }
 
-        selectLocationViewController.relayLocation = tunnelManager.settings.relayConstraints.location.value
+        selectLocationViewController.relayLocation =
+            tunnelManager.settings.relayConstraints.locations.value?.locations.first
 
         navigationController.pushViewController(selectLocationViewController, animated: false)
     }
