@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.map.shapes
+package net.mullvad.mullvadvpn.compose.map.internal.shapes
 
 import android.opengl.GLES20
 import android.opengl.Matrix
@@ -118,7 +118,7 @@ class LocationMarker(val color: Color) {
         GLES20.glUseProgram(shaderProgram)
 
         Matrix.rotateM(modelViewMatrix, 0, latLng.longitude.value, 0f, 1f, 0f)
-        Matrix.rotateM(modelViewMatrix, 0, -latLng.latitude.value, 1f, 0f, 0f)
+        Matrix.rotateM(modelViewMatrix, 0, latLng.latitude.value, -1f, 0f, 0f)
 
         Matrix.scaleM(modelViewMatrix, 0, size, size, 1f)
 

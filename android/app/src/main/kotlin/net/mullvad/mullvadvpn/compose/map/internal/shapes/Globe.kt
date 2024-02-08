@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.map.shapes
+package net.mullvad.mullvadvpn.compose.map.internal.shapes
 
 import android.content.res.Resources
 import android.opengl.GLES20

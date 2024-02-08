@@ -7,7 +7,6 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.launch
@@ -17,7 +16,6 @@ import net.mullvad.mullvadvpn.compose.map.data.Longitude
 import net.mullvad.mullvadvpn.compose.map.data.MapViewState
 import net.mullvad.mullvadvpn.compose.map.data.Marker
 import net.mullvad.mullvadvpn.compose.map.data.MarkerType
-import net.mullvad.mullvadvpn.compose.map.internal.COMPLETE_ANGLE
 import net.mullvad.mullvadvpn.compose.map.internal.MapGLShader
 import net.mullvad.mullvadvpn.compose.util.rememberPrevious
 
@@ -63,18 +61,6 @@ fun animatedMapViewState(
 
     val longitudeAnimation = remember { Animatable(targetCameraLocation.longitude.value) }
 
-    // Correct the value to be within -180 to 180
-    val longitudeAnimationCorrected =
-        remember(longitudeAnimation) {
-            derivedStateOf {
-                val value = longitudeAnimation.value.mod(COMPLETE_ANGLE)
-                if (value > COMPLETE_ANGLE / 2) {
-                    value - COMPLETE_ANGLE
-                } else {
-                    value
-                }
-            }
-        }
     val latitudeAnimation = remember { Animatable(targetCameraLocation.latitude.value) }
     val secureZoomAnimation = remember {
         Animatable(if (marker?.type == MarkerType.SECURE) SECURE_ZOOM else UNSECURE_ZOOM)
@@ -84,21 +70,22 @@ fun animatedMapViewState(
     LaunchedEffect(targetCameraLocation) {
         launch { latitudeAnimation.animateTo(targetCameraLocation.latitude.value, tween(duration)) }
         launch {
-            // Unwind longitudeAnimation (prevent us from winding up angle to infinity)
+            // Unwind longitudeAnimation into a Longitude
             val currentLongitude = Longitude.fromFloat(longitudeAnimation.value)
-            val previousVelocity = longitudeAnimation.velocity
-            longitudeAnimation.snapTo(currentLongitude.value)
 
-            // We resolve a vector showing us the shortest path to the target longitude, e.g going
-            // from 10 to 350 would result in -20 since we can wrap around the globe
+            // Resolve a vector showing us the shortest path to the target longitude, e.g going
+            // from 170 to -170 would result in 20 since we can wrap around the globe
             val shortestPathVector = currentLongitude.vectorTo(targetCameraLocation.longitude)
 
+            // Animate to the new camera location using the shortest path vector
             longitudeAnimation.animateTo(
                 longitudeAnimation.value + shortestPathVector.value,
                 tween(duration),
-                // Restore previous velocity before we unwound the longitude
-                initialVelocity = previousVelocity,
             )
+
+            // Current value animation value might be outside of range of a Longitude, so when the
+            // animation is done we unwind the animation to the correct value
+            longitudeAnimation.snapTo(targetCameraLocation.longitude.value)
         }
         launch {
             zoomOutMultiplier.animateTo(
@@ -125,7 +112,10 @@ fun animatedMapViewState(
     return MapViewState(
         zoom = secureZoomAnimation.value * zoomOutMultiplier.value * 0.9f,
         cameraLatLng =
-            LatLng(Latitude(latitudeAnimation.value), Longitude(longitudeAnimationCorrected.value)),
+            LatLng(
+                Latitude(latitudeAnimation.value),
+                Longitude.fromFloat(longitudeAnimation.value)
+            ),
         locationMarker = marker,
         percent = percent
     )

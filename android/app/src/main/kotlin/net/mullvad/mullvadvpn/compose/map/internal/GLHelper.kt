@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.map.internal
 import android.opengl.GLES20
 import android.opengl.Matrix
 import android.util.Log
+import androidx.compose.ui.graphics.Color
 import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
@@ -17,20 +18,20 @@ fun initShaderProgram(vsSource: String, fsSource: String): Int {
     val program = GLES20.glCreateProgram()
     check(program != 0) { "Could not create program" }
 
-    // add the vertex shader to program
+    // Add the vertex shader to program
     GLES20.glAttachShader(program, vertexShader)
 
-    // add the fragment shader to program
+    // Add the fragment shader to program
     GLES20.glAttachShader(program, fragmentShader)
 
-    // creates OpenGL ES program executables
+    // Creates OpenGL ES program executables
     GLES20.glLinkProgram(program)
 
     val linked = IntArray(1)
     GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linked, 0)
     if (linked[0] == GLES20.GL_FALSE) {
         val infoLog = GLES20.glGetProgramInfoLog(program)
-        Log.e("mullvad", "Could not link program: $infoLog")
+        Log.e("GLHelper", "Could not link program: $infoLog")
         GLES20.glDeleteProgram(program)
         error("Could not link program with vsSource: $vsSource and fsSource: $fsSource")
     }
@@ -39,13 +40,13 @@ fun initShaderProgram(vsSource: String, fsSource: String): Int {
 }
 
 private fun loadShader(type: Int, shaderCode: String): Int {
-    // create a vertex shader type (GLES20.GL_VERTEX_SHADER)
+    // Create a vertex shader type (GLES20.GL_VERTEX_SHADER)
     // or a fragment shader type (GLES20.GL_FRAGMENT_SHADER)
     val shader = GLES20.glCreateShader(type)
 
     require(shader != 0) { "Unable to create shader" }
 
-    // add the source code to the shader and compile it
+    // Add the source code to the shader and compile it
     GLES20.glShaderSource(shader, shaderCode)
     GLES20.glCompileShader(shader)
 
@@ -53,7 +54,7 @@ private fun loadShader(type: Int, shaderCode: String): Int {
     GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compiled, 0)
     if (compiled[0] == GLES20.GL_FALSE) {
         val infoLog = GLES20.glGetShaderInfoLog(shader)
-        Log.e("mullvad", "Could not compile shader $type:$infoLog")
+        Log.e("GLHelper", "Could not compile shader $type:$infoLog")
         GLES20.glDeleteShader(shader)
 
         error("Could not compile shader with shaderCode: $shaderCode")
@@ -95,3 +96,11 @@ fun initIndexBuffer(dataBuffer: Buffer): IndexBufferWithLength {
 }
 
 fun newIdentityMatrix(): FloatArray = FloatArray(MATRIX_SIZE).apply { Matrix.setIdentityM(this, 0) }
+
+fun Color.toFloatArray(): FloatArray {
+    return floatArrayOf(red, green, blue, alpha)
+}
+
+fun Color.toFloatArrayWithoutAlpha(): FloatArray {
+    return floatArrayOf(red, green, blue)
+}

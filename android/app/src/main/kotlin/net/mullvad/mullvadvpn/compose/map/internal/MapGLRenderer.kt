@@ -10,8 +10,8 @@ import javax.microedition.khronos.opengles.GL10
 import kotlin.math.tan
 import net.mullvad.mullvadvpn.compose.map.data.MapViewState
 import net.mullvad.mullvadvpn.compose.map.data.MarkerType
-import net.mullvad.mullvadvpn.compose.map.shapes.Globe
-import net.mullvad.mullvadvpn.compose.map.shapes.LocationMarker
+import net.mullvad.mullvadvpn.compose.map.internal.shapes.Globe
+import net.mullvad.mullvadvpn.compose.map.internal.shapes.LocationMarker
 
 class MapGLRenderer(private val resources: Resources, private val mapConfig: MapConfig) :
     GLSurfaceView.Renderer {
@@ -23,8 +23,6 @@ class MapGLRenderer(private val resources: Resources, private val mapConfig: Map
     private lateinit var viewState: MapViewState
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
-        // Set the background frame color
-        // initialize a triangle
         globe = Globe(resources)
 
         secureLocationMarker = LocationMarker(mapConfig.secureMarkerColor)
@@ -44,7 +42,7 @@ class MapGLRenderer(private val resources: Resources, private val mapConfig: Map
     private val projectionMatrix = newIdentityMatrix()
 
     override fun onDrawFrame(gl10: GL10) {
-        // Clear function
+        // Clear canvas
         clear()
 
         val viewMatrix = newIdentityMatrix()
@@ -58,16 +56,15 @@ class MapGLRenderer(private val resources: Resources, private val mapConfig: Map
         Matrix.rotateM(viewMatrix, 0, viewState.cameraLatLng.latitude.value, 1f, 0f, 0f)
         Matrix.rotateM(viewMatrix, 0, viewState.cameraLatLng.longitude.value, 0f, -1f, 0f)
 
-        val vP = projectionMatrix.copyOf()
 
-        globe.draw(vP.copyOf(), viewMatrix.copyOf(), mapConfig.globeColors)
+        globe.draw(projectionMatrix, viewMatrix, mapConfig.globeColors)
 
         viewState.locationMarker?.let {
             when (it.type) {
                 MarkerType.SECURE ->
-                    secureLocationMarker.draw(vP, viewMatrix.copyOf(), it.latLng, 0.02f)
+                    secureLocationMarker.draw(projectionMatrix, viewMatrix, it.latLng, 0.02f)
                 MarkerType.UNSECURE ->
-                    unsecureLocationMarker.draw(vP, viewMatrix.copyOf(), it.latLng, 0.02f)
+                    unsecureLocationMarker.draw(projectionMatrix, viewMatrix, it.latLng, 0.02f)
             }
         }
     }
@@ -109,10 +106,3 @@ class MapGLRenderer(private val resources: Resources, private val mapConfig: Map
     }
 }
 
-fun Color.toFloatArray(): FloatArray {
-    return floatArrayOf(red, green, blue, alpha)
-}
-
-fun Color.toFloatArrayWithoutAlpha(): FloatArray {
-    return floatArrayOf(red, green, blue)
-}

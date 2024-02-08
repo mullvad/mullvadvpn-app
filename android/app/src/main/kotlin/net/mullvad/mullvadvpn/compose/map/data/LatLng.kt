@@ -7,11 +7,11 @@ import net.mullvad.mullvadvpn.compose.map.internal.COMPLETE_ANGLE
 
 data class LatLng(val latitude: Latitude, val longitude: Longitude) {
 
-    fun distanceTo(other: LatLng): Double =
+    fun distanceTo(other: LatLng): Float =
         sqrt(
-            (latitude.distanceTo(other.latitude).absoluteValue).pow(2f) +
-                ((longitude.distanceTo(other.longitude).absoluteValue).pow(2f)
-        ).toDouble())
+            latitude.distanceTo(other.latitude).pow(2f) +
+                (longitude.distanceTo(other.longitude).pow(2f))
+        )
 
     operator fun plus(other: LatLng) =
         LatLng(latitude + other.latitude, longitude + other.longitude)
@@ -73,6 +73,12 @@ value class Longitude(val value: Float) {
         private const val MAX_LONGITUDE_VALUE: Float = COMPLETE_ANGLE / 2 // 180
         private val LONGITUDE_RANGE = MIN_LONGITUDE_VALUE..MAX_LONGITUDE_VALUE
 
+        /**
+         * Create a [Longitude] from a float value.
+         *
+         * This function will unwind a float to a valid longitude value. E.g 190 will be unwound to
+         * -170 and 360 will be unwound to 0.
+         */
         fun fromFloat(value: Float): Longitude {
             val unwoundValue = unwind(value)
             return Longitude(unwoundValue)
@@ -82,7 +88,6 @@ value class Longitude(val value: Float) {
             val unwound = value % COMPLETE_ANGLE
             return when {
                 unwound > MAX_LONGITUDE_VALUE -> unwound - COMPLETE_ANGLE
-                unwound < MIN_LONGITUDE_VALUE -> unwound + COMPLETE_ANGLE
                 else -> unwound
             }
         }
