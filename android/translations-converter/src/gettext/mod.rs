@@ -24,10 +24,7 @@ pub fn append_to_template(
     file_path: impl AsRef<Path>,
     entries: impl Iterator<Item = MsgEntry>,
 ) -> Result<(), io::Error> {
-    let file = OpenOptions::new()
-        .write(true)
-        .append(true)
-        .open(file_path)?;
+    let file = OpenOptions::new().append(true).open(file_path)?;
     let mut sorted_entries: Vec<_> = entries.collect();
     let mut writer = BufWriter::new(file);
 
