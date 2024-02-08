@@ -1967,6 +1967,7 @@ version = "0.0.0"
 dependencies = [
  "cbindgen",
  "mullvad-paths",
+ "talpid-platform-metadata",
 ]
 
 [[package]]

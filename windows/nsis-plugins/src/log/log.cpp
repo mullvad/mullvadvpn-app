@@ -90,142 +90,20 @@ std::vector<std::wstring> BlockToRows(const std::wstring &textBlock)
 	return common::string::Tokenize(textBlock, L"\r\n");
 }
 
-std::wstring GetWindowsProductName()
-{
-	auto regkey = common::registry::Registry::OpenKey(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-		false, common::registry::RegistryView::Force64);
-
-	return regkey->readString(L"ProductName");
-}
-
 std::wstring GetWindowsVersion()
 {
-	common::fs::ScopedNativeFileSystem nativeFileSystem;
+	std::vector<uint16_t> version(256);
+	size_t bufferSize = version.size();
 
-	const auto systemDir = common::fs::GetKnownFolderPath(FOLDERID_System);
-	const auto systemModule = std::filesystem::path(systemDir).append(L"ntoskrnl.exe");
-
-	DWORD dummy;
-
-	const auto versionSize = GetFileVersionInfoSizeW(systemModule.c_str(), &dummy);
-
-	if (0 == versionSize)
+	// Call into the mullvad-nsis function 'get_system_version', which will
+	// retrieve a formatted Windows version.
+	auto result = get_system_version(version.data(), &bufferSize);
+	if (Status::Ok != result)
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "GetFileVersionInfoSizeW");
+		THROW_ERROR("Failed to acquire Windows version");
 	}
 
-	std::vector<uint8_t> buf(versionSize);
-
-	auto status = GetFileVersionInfoW(systemModule.c_str(), 0, static_cast<DWORD>(buf.size()), &buf[0]);
-
-	if (FALSE == status)
-	{
-		THROW_WINDOWS_ERROR(GetLastError(), "GetFileVersionInfoW");
-	}
-
-	//
-	// Get the translation table.
-	// This is required to build the path to the value we're actually after.
-	//
-
-	struct LANGANDCODEPAGE
-	{
-		WORD wLanguage;
-		WORD wCodePage;
-	}
-	*translations = nullptr;
-
-	UINT translationsSize = 0;
-
-	status = VerQueryValueW(&buf[0], L"\\VarFileInfo\\Translation", reinterpret_cast<LPVOID *>(&translations), &translationsSize);
-
-	if (FALSE == status)
-	{
-		THROW_WINDOWS_ERROR(GetLastError(), "VerQueryValueW");
-	}
-
-	if (translationsSize < sizeof(LANGANDCODEPAGE))
-	{
-		THROW_ERROR("Invalid VERSION_INFO translation table");
-	}
-
-	//
-	// Use primary translation.
-	//
-
-	std::wstringstream ss;
-
-	ss << L"\\StringFileInfo\\"
-		<< std::setw(4) << std::setfill(L'0') << std::hex
-		<< translations[0].wLanguage
-		<< std::setw(4) << std::setfill(L'0') << std::hex
-		<< translations[0].wCodePage
-		<< L"\\ProductVersion";
-
-	const auto productVersionName = ss.str();
-
-	void *productVersion = nullptr;
-	UINT productVersionSize = 0;
-
-	status = VerQueryValueW(&buf[0], productVersionName.c_str(), &productVersion, &productVersionSize);
-
-	if (FALSE == status)
-	{
-		THROW_WINDOWS_ERROR(GetLastError(), "VerQueryValueW");
-	}
-
-	// Size returned is the length in characters.
-	std::wstring version(reinterpret_cast<const wchar_t *>(productVersion), productVersionSize);
-
-	// Chop off trailing terminators.
-	while ((false == version.empty()) && (*version.rbegin() == L'\0'))
-	{
-		version.resize(version.size() - 1);
-	}
-
-	if (version.empty())
-	{
-		THROW_ERROR("Invalid version information");
-	}
-
-	return version;
-}
-
-//
-// FixupWindows11ProductName()
-//
-// Patch product name based on Windows version.
-// The registry value that holds the product name seems to be deprecated in Win11.
-//
-std::wstring FixupWindows11ProductName(const std::wstring &productName, const std::wstring &version)
-{
-	const auto versionTokens = common::string::Tokenize(version, L".");
-
-	if (versionTokens.size() < 3)
-	{
-		return productName;
-	}
-
-	const auto major = common::string::LexicalCast<uint32_t>(versionTokens[0]);
-	const auto minor = common::string::LexicalCast<uint32_t>(versionTokens[1]);
-	const auto build = common::string::LexicalCast<uint32_t>(versionTokens[2]);
-
-	if (major != 10 || minor != 0 || build < 22000)
-	{
-		return productName;
-	}
-
-	auto productTokens = common::string::Tokenize(productName, L" ");
-
-	for (auto &token : productTokens)
-	{
-		if (0 == token.compare(L"10"))
-		{
-			token = L"11";
-		}
-	}
-
-	return common::string::Join(productTokens, L" ");
+	return std::wstring(reinterpret_cast<wchar_t *>(version.data()));
 }
 
 } // anonymous namespace
@@ -408,17 +286,9 @@ void __declspec(dllexport) NSISCALL LogWindowsVersion
 
 	try
 	{
-		const auto productName = GetWindowsProductName();
-		const auto version = GetWindowsVersion();
-
-		std::wstringstream ss;
-
-		ss	<< L"Windows version: "
-			<< FixupWindows11ProductName(productName, version)
-			<< L", "
-			<< version;
-
-		g_logger->log(ss.str());
+		std::wstringstream version;
+		version << L"Windows version: " << GetWindowsVersion();
+		g_logger->log(version.str());
 	}
 	catch (std::exception &err)
 	{
