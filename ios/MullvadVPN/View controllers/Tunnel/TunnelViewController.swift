@@ -11,6 +11,8 @@ import MullvadLogging
 import MullvadTypes
 import UIKit
 
+import SwiftUI
+
 class TunnelViewController: UIViewController, RootContainment {
     private let logger = Logger(label: "TunnelViewController")
     private let interactor: TunnelViewControllerInteractor

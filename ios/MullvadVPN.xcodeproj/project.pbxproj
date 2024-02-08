@@ -464,6 +464,8 @@
 		58FF9FF02B07C4D300E4C97D /* PersistentAccessMethod+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FEF2B07C4D300E4C97D /* PersistentAccessMethod+ViewModel.swift */; };
 		58FF9FF42B07C61B00E4C97D /* AccessMethodValidationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF9FF32B07C61B00E4C97D /* AccessMethodValidationError.swift */; };
 		7A02D4EB2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */; };
+		7A038FD82B75033200950251 /* CustomListSaveAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A038FD72B75033200950251 /* CustomListSaveAlert.swift */; };
+		7A038FDA2B7633A400950251 /* SUIAppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A038FD92B7633A400950251 /* SUIAppButton.swift */; };
 		7A09C98129D99215000C2CAC /* String+FuzzyMatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */; };
 		7A0B311E2B303A0D004B12E0 /* AccessbilityIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0B311D2B303A0D004B12E0 /* AccessbilityIdentifier.swift */; };
 		7A0B311F2B303A11004B12E0 /* AccessbilityIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0B311D2B303A0D004B12E0 /* AccessbilityIdentifier.swift */; };
@@ -1660,6 +1662,8 @@
 		58FF9FEF2B07C4D300E4C97D /* PersistentAccessMethod+ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistentAccessMethod+ViewModel.swift"; sourceTree = "<group>"; };
 		58FF9FF32B07C61B00E4C97D /* AccessMethodValidationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodValidationError.swift; sourceTree = "<group>"; };
 		7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MullvadVPNScreenshots.xctestplan; sourceTree = "<group>"; };
+		7A038FD72B75033200950251 /* CustomListSaveAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListSaveAlert.swift; sourceTree = "<group>"; };
+		7A038FD92B7633A400950251 /* SUIAppButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SUIAppButton.swift; sourceTree = "<group>"; };
 		7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+FuzzyMatch.swift"; sourceTree = "<group>"; };
 		7A0B311D2B303A0D004B12E0 /* AccessbilityIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessbilityIdentifier.swift; sourceTree = "<group>"; };
 		7A0C0F622A979C4A0058EFCE /* Coordinator+Router.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+Router.swift"; sourceTree = "<group>"; };
@@ -2282,6 +2286,7 @@
 		583FE01729C196F3006E85F9 /* SelectLocation */ = {
 			isa = PBXGroup;
 			children = (
+				7A038FD62B75031400950251 /* CustomLists */,
 				58435AC129CB2A350099C71B /* LocationCellFactory.swift */,
 				583DA21325FA4B5C00318683 /* LocationDataSource.swift */,
 				5888AD82227B11080051EB06 /* SelectLocationCell.swift */,
@@ -3304,6 +3309,15 @@
 				5827B0A72B0F49EF00CCBBA1 /* ProxyConfigurationInteractorProtocol.swift */,
 			);
 			path = Edit;
+			sourceTree = "<group>";
+		};
+		7A038FD62B75031400950251 /* CustomLists */ = {
+			isa = PBXGroup;
+			children = (
+				7A038FD72B75033200950251 /* CustomListSaveAlert.swift */,
+				7A038FD92B7633A400950251 /* SUIAppButton.swift */,
+			);
+			path = CustomLists;
 			sourceTree = "<group>";
 		};
 		7A2960F72A964A3500389B82 /* Alert */ = {
@@ -5023,6 +5037,7 @@
 				5827B0B02B0F4CCD00CCBBA1 /* ListAccessMethodViewControllerDelegate.swift in Sources */,
 				588D7EE02AF3A595005DF40A /* ListAccessMethodInteractor.swift in Sources */,
 				58607A4D2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift in Sources */,
+				7A038FDA2B7633A400950251 /* SUIAppButton.swift in Sources */,
 				58C8191829FAA2C400DEB1B4 /* NotificationConfiguration.swift in Sources */,
 				58FF9FE82B07650A00E4C97D /* ButtonCellContentConfiguration.swift in Sources */,
 				5827B0A82B0F49EF00CCBBA1 /* ProxyConfigurationInteractorProtocol.swift in Sources */,
@@ -5129,6 +5144,7 @@
 				58EFC76E2AFB3BDA00E9F4CB /* ListAccessMethodCoordinator.swift in Sources */,
 				5827B0B92B14A1C700CCBBA1 /* MethodTestingStatusCellContentConfiguration.swift in Sources */,
 				7A42DEC92A05164100B209BE /* SettingsInputCell.swift in Sources */,
+				7A038FD82B75033200950251 /* CustomListSaveAlert.swift in Sources */,
 				5803B4B22940A48700C23744 /* TunnelStore.swift in Sources */,
 				586A950F29012BEE007BAF2B /* AddressCacheTracker.swift in Sources */,
 				587B753D2666468F00DEF7E9 /* NotificationController.swift in Sources */,
