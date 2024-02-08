@@ -51,6 +51,10 @@ final class PreferencesInteractor {
 
         tunnelManager.updateSettings([.relayConstraints(relayConstraints)], completionHandler: completion)
     }
+
+    func setQuantumResistance(_ newSetting: TunnelQuantumResistance) {
+        tunnelManager.setQuantumResistance(newSetting)
+    }
 }
 
 extension PreferencesInteractor: RelayCacheTrackerObserver {
