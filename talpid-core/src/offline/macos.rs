@@ -105,7 +105,6 @@ pub async fn spawn_monitor(
 
                     let mut state = state.lock().unwrap();
                     if real_state.is_online() {
-                        assert_ne!(*state, real_state);
                         log::info!("Connectivity changed: Connected");
                         let Some(tx) = weak_notify_tx.upgrade() else {
                             break;
