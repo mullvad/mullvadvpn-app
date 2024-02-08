@@ -42,12 +42,17 @@ use tunnel_obfuscation::{
     create_obfuscator, Error as ObfuscationError, Settings as ObfuscationSettings, Udp2TcpSettings,
 };
 
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
+
 /// WireGuard config data-types
 pub mod config;
 mod connectivity_check;
 mod logging;
 mod ping_monitor;
 mod stats;
+#[cfg(target_os = "linux")]
+mod unix;
 #[cfg(wireguard_go)]
 mod wireguard_go;
 #[cfg(target_os = "linux")]
@@ -68,6 +73,14 @@ pub enum Error {
     /// Failed to set up routing.
     #[error(display = "Failed to setup routing")]
     SetupRoutingError(#[error(source)] talpid_routing::Error),
+
+    /// Failed to set MTU
+    #[error(display = "Failed to detect MTU because every ping was dropped.")]
+    MtuDetectionAllDropped,
+
+    /// Failed to set MTU
+    #[error(display = "Failed to detect MTU because of unexpected ping error.")]
+    MtuDetectionPingError(#[error(source)] surge_ping::SurgeError),
 
     /// Tunnel timed out
     #[error(display = "Tunnel timed out")]
@@ -257,6 +270,7 @@ impl WireguardMonitor {
     >(
         mut config: Config,
         psk_negotiation: bool,
+        #[cfg(target_os = "linux")] detect_mtu: bool,
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
@@ -375,7 +389,36 @@ impl WireguardMonitor {
                 )
                 .await?;
             }
+            #[cfg(target_os = "linux")]
+            if detect_mtu {
+                let iface_name_clone = iface_name.clone();
+                tokio::task::spawn(async move {
+                    log::debug!("Starting MTU detection");
+                    let verified_mtu = match auto_mtu_detection(
+                        gateway,
+                        #[cfg(any(target_os = "macos", target_os = "linux"))]
+                        iface_name_clone.clone(),
+                        config.mtu,
+                    )
+                    .await
+                    {
+                        Ok(mtu) => mtu,
+                        Err(e) => {
+                            log::error!("{}", e.display_chain_with_msg("Failed to detect MTU"));
+                            return;
+                        }
+                    };
 
+                    if verified_mtu != config.mtu {
+                        log::warn!("Lowering MTU from {} to {verified_mtu}", config.mtu);
+                        if let Err(e) = unix::set_mtu(&iface_name_clone, verified_mtu) {
+                            log::error!("{}", e.display_chain_with_msg("Failed to set MTU"))
+                        };
+                    } else {
+                        log::debug!("MTU {verified_mtu} verified to not drop packets");
+                    }
+                });
+            }
             let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
                 match connectivity_monitor.establish_connectivity(args.retry_attempt) {
                     Ok(true) => Ok(connectivity_monitor),
@@ -898,16 +941,11 @@ impl WireguardMonitor {
         } else {
             // Set route MTU by subtracting the WireGuard overhead from the tunnel MTU. Plus
             // some margin to make room for padding bytes.
-            // TODO: Move consts to shared location
-            const IPV4_HEADER_SIZE: u16 = 20;
-            const IPV6_HEADER_SIZE: u16 = 40;
-            const WIREGUARD_HEADER_SIZE: u16 = 40;
-            const PADDING_BYTES_MARGIN: u16 = 15;
-
             let ip_overhead = match route.prefix.is_ipv4() {
                 true => IPV4_HEADER_SIZE,
                 false => IPV6_HEADER_SIZE,
             };
+            const PADDING_BYTES_MARGIN: u16 = 15;
             let mtu = config.mtu - ip_overhead - WIREGUARD_HEADER_SIZE - PADDING_BYTES_MARGIN;
 
             route.mtu(mtu)
@@ -945,6 +983,123 @@ impl WireguardMonitor {
             ips: config.tunnel.addresses.clone(),
             ipv4_gateway: config.ipv4_gateway,
             ipv6_gateway: config.ipv6_gateway,
+        }
+    }
+}
+
+/// Detects the maximum MTU that does not cause dropped packets.
+///
+/// The detection works by sending evenly spread out range of pings between 576 and the given
+/// current tunnel MTU, and returning the maximum packet size that was returned within a timeout.
+#[cfg(target_os = "linux")]
+async fn auto_mtu_detection(
+    gateway: std::net::Ipv4Addr,
+    #[cfg(any(target_os = "macos", target_os = "linux"))] iface_name: String,
+    current_mtu: u16,
+) -> Result<u16> {
+    use futures::{future, stream::FuturesUnordered, TryStreamExt};
+    use surge_ping::{Client, Config, PingIdentifier, PingSequence, SurgeError};
+    use talpid_tunnel::{ICMP_HEADER_SIZE, MIN_IPV4_MTU};
+    use tokio_stream::StreamExt;
+
+    /// Max time to wait for any ping, when this expires, we give up and throw an error.
+    const PING_TIMEOUT: Duration = Duration::from_secs(10);
+    /// Max time to wait after the first ping arrives. Every ping after this timeout is considered
+    /// dropped, so we return the largest collected packet size.
+    const PING_OFFSET_TIMEOUT: Duration = Duration::from_secs(2);
+
+    let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
+    let config_builder = config_builder.interface(&iface_name);
+    let client = Client::new(&config_builder.build()).unwrap();
+
+    let step_size = 20;
+    let linspace = mtu_spacing(MIN_IPV4_MTU, current_mtu, step_size);
+
+    let payload_buf = vec![0; current_mtu as usize];
+
+    let mut ping_stream = linspace
+        .iter()
+        .enumerate()
+        .map(|(i, &mtu)| {
+            let client = client.clone();
+            let payload_size = (mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE) as usize;
+            let payload = &payload_buf[0..payload_size];
+            async move {
+                log::trace!("Sending ICMP ping of total size {mtu}");
+                client
+                    .pinger(IpAddr::V4(gateway), PingIdentifier(0))
+                    .await
+                    .timeout(PING_TIMEOUT)
+                    .ping(PingSequence(i as u16), payload)
+                    .await
+            }
+        })
+        .collect::<FuturesUnordered<_>>()
+        .map_ok(|(packet, _rtt)| {
+            let surge_ping::IcmpPacket::V4(packet) = packet else {
+                unreachable!("ICMP ping response was not of IPv4 type");
+            };
+            let size = packet.get_size() as u16 + IPV4_HEADER_SIZE;
+            log::trace!("Got ICMP ping response of total size {size}");
+            debug_assert_eq!(size, linspace[packet.get_sequence().0 as usize]);
+            size
+        });
+
+    let first_ping_size = ping_stream
+        .next()
+        .await
+        .expect("At least one pings should be sent")
+        // Short-circuit and return on error
+        .map_err(|e| match e {
+            // If the first ping we get back timed out, then all of them did
+            SurgeError::Timeout { .. } => Error::MtuDetectionAllDropped,
+            // Unexpected error type
+            e => Error::MtuDetectionPingError(e),
+        })?;
+
+    ping_stream
+        .timeout(PING_OFFSET_TIMEOUT) // Start a new, shorter, timeout
+        .map_while(|res| res.ok()) // Stop waiting for pings after this timeout
+        .try_fold(first_ping_size, |acc, mtu| future::ready(Ok(acc.max(mtu)))) // Get largest ping
+        .await
+        .map_err(Error::MtuDetectionPingError)
+}
+
+/// Creates a linear spacing of MTU values with the given step size. Always includes the given end
+/// points.
+#[cfg(target_os = "linux")]
+fn mtu_spacing(mtu_min: u16, mtu_max: u16, step_size: u16) -> Vec<u16> {
+    assert!(mtu_min < mtu_max);
+    assert!(step_size < mtu_max);
+    assert_ne!(step_size, 0);
+
+    let second_mtu = (mtu_min + 1).next_multiple_of(step_size);
+    let in_between = (second_mtu..mtu_max).step_by(step_size as usize);
+
+    let mut ret = Vec::with_capacity(in_between.clone().count() + 2);
+    ret.push(mtu_min);
+    ret.extend(in_between);
+    ret.push(mtu_max);
+    ret
+}
+
+#[cfg(all(test, target_os = "linux"))]
+mod tests {
+    use crate::mtu_spacing;
+    use proptest::prelude::*;
+
+    proptest! {
+        #[test]
+        fn test_mtu_spacing(mtu_min in 0..800u16, mtu_max in 800..2000u16, step_size in 1..800u16)  {
+            let mtu_spacing = mtu_spacing(mtu_min, mtu_max, step_size);
+
+            prop_assert_eq!(mtu_spacing.iter().filter(|mtu| mtu == &&mtu_min).count(), 1);
+            prop_assert_eq!(mtu_spacing.iter().filter(|mtu| mtu == &&mtu_max).count(), 1);
+            prop_assert_eq!(mtu_spacing.capacity(), mtu_spacing.len());
+            let mut diffs = mtu_spacing.windows(2).map(|win| win[1]-win[0]);
+            prop_assert!(diffs.all(|diff| diff <= step_size));
+
         }
     }
 }

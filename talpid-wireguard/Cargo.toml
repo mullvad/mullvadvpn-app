@@ -28,6 +28,7 @@ chrono = { workspace = true, features = ["clock"] }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 rand = "0.8.5"
+surge-ping = "0.8.0"
 
 [target.'cfg(target_os="android")'.dependencies]
 duct = "0.13"
@@ -78,3 +79,6 @@ features = [
     "Win32_UI_Shell",
     "Win32_UI_WindowsAndMessaging",
 ]
+
+[dev-dependencies]
+proptest = "1.4"

@@ -14,12 +14,25 @@ use talpid_routing::RouteManagerHandle;
 use talpid_types::net::AllowedTunnelTraffic;
 use tun_provider::TunProvider;
 
+/// Size of IPv4 header in bytes
+pub const IPV4_HEADER_SIZE: u16 = 20;
+/// Size of IPv6 header in bytes
+pub const IPV6_HEADER_SIZE: u16 = 40;
+/// Size of wireguard header in bytes
+pub const WIREGUARD_HEADER_SIZE: u16 = 40;
+/// Size of ICMP header in bytes
+pub const ICMP_HEADER_SIZE: u16 = 8;
+/// Smallest allowed MTU for IPv4 in bytes
+pub const MIN_IPV4_MTU: u16 = 576;
+/// Smallest allowed MTU for IPv6 in bytes
+pub const MIN_IPV6_MTU: u16 = 1280;
+
 /// Arguments for creating a tunnel.
 pub struct TunnelArgs<'a, L>
 where
     L: (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Clone + Sync + 'static,
 {
-    /// Toktio runtime handle.
+    /// Tokio runtime handle.
     pub runtime: tokio::runtime::Handle,
     /// Resource directory path.
     pub resource_dir: &'a Path,
