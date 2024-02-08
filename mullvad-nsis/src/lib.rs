@@ -86,29 +86,32 @@ pub unsafe extern "C" fn get_system_local_appdata(
     })
 }
 
-/// TODO(markus): Write doc comments.
-/// Something like:
-/// Writes the system's app data path into `buffer` when `Status::Ok` is returned.
-/// If `buffer` is `null`, or if the buffer is too small, `InsufficientBufferSize`
-/// is returned, and the required buffer size (in chars) is returned in `buffer_size`.
-/// On success, `buffer_size` is set to the length of the string, including
-/// the final null terminator.
+/// Writes the system's version data into `buffer` when `Status::Ok` is
+/// returned. If `buffer` is `null`, or if the buffer is too small,
+/// `InsufficientBufferSize` is returned, and the required buffer size (in
+/// chars) is returned in `buffer_size`. On success, `buffer_size` is set to the
+/// length of the string, including the final null terminator.
 #[no_mangle]
 pub unsafe extern "C" fn get_system_version(buffer: *mut u16, buffer_size: *mut usize) -> Status {
-    use talpid_platform_metadata::WindowsVersion;
+    use talpid_platform_metadata::version;
     catch_and_log_unwind(|| {
         if buffer_size.is_null() {
             return Status::InvalidArguments;
         }
 
-        let windows_build_number = WindowsVersion::new()
-            .map(|windows_version| windows_version.build_number())
-            .unwrap();
+        let build_number_string = OsString::from(version());
+        let build_number: Vec<u16> = build_number_string
+            .encode_wide()
+            .chain(iter::once(0u16))
+            .collect();
 
-        let build_number: OsString = format!("{windows_build_number}").into();
-        let result: Vec<u16> = build_number.encode_wide().chain(iter::once(0u16)).collect();
+        if *buffer_size < build_number.len() || buffer.is_null() {
+            return Status::InsufficientBufferSize;
+        }
 
-        ptr::copy_nonoverlapping(result.as_ptr(), buffer, result.len());
+        *buffer_size = build_number.len();
+
+        ptr::copy_nonoverlapping(build_number.as_ptr(), buffer, build_number.len());
         Status::Ok
     })
 }

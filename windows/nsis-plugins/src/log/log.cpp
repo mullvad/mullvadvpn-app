@@ -90,65 +90,20 @@ std::vector<std::wstring> BlockToRows(const std::wstring &textBlock)
 	return common::string::Tokenize(textBlock, L"\r\n");
 }
 
-std::wstring GetWindowsProductName()
-{
-	auto regkey = common::registry::Registry::OpenKey(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-		false, common::registry::RegistryView::Force64);
-
-	return regkey->readString(L"ProductName");
-}
-
 std::wstring GetWindowsVersion()
 {
-	std::vector<uint16_t> productVersion(256);
-	size_t bufferSize = productVersion.size();
+	std::vector<uint16_t> version(256);
+	size_t bufferSize = version.size();
 
-	// Simply call into rust function, which will use the correct
-	// syscall/Windows API to retrieve the Windows version.
-	auto result = get_system_version(productVersion.data(), &bufferSize);
+	// Call into the mullvad-nsis function 'get_system_version', which will
+	// retrieve a formatted Windows version.
+	auto result = get_system_version(version.data(), &bufferSize);
 	if (Status::Ok != result)
 	{
 		THROW_ERROR("Failed to acquire Windows version");
 	}
 
-	return std::wstring(reinterpret_cast<wchar_t *>(productVersion.data()));
-}
-
-//
-// FixupWindows11ProductName()
-//
-// Patch product name based on Windows version.
-// The registry value that holds the product name seems to be deprecated in Win11.
-//
-std::wstring FixupWindows11ProductName(const std::wstring &productName, const std::wstring &version)
-{
-	const auto versionTokens = common::string::Tokenize(version, L".");
-
-	if (versionTokens.size() < 3)
-	{
-		return productName;
-	}
-
-	const auto major = common::string::LexicalCast<uint32_t>(versionTokens[0]);
-	const auto minor = common::string::LexicalCast<uint32_t>(versionTokens[1]);
-	const auto build = common::string::LexicalCast<uint32_t>(versionTokens[2]);
-
-	if (major != 10 || minor != 0 || build < 22000)
-	{
-		return productName;
-	}
-
-	auto productTokens = common::string::Tokenize(productName, L" ");
-
-	for (auto &token : productTokens)
-	{
-		if (0 == token.compare(L"10"))
-		{
-			token = L"11";
-		}
-	}
-
-	return common::string::Join(productTokens, L" ");
+	return std::wstring(reinterpret_cast<wchar_t *>(version.data()));
 }
 
 } // anonymous namespace
@@ -331,17 +286,9 @@ void __declspec(dllexport) NSISCALL LogWindowsVersion
 
 	try
 	{
-		const auto productName = GetWindowsProductName();
-		const auto version = GetWindowsVersion();
-
-		std::wstringstream ss;
-
-		ss	<< L"Windows version: "
-			<< FixupWindows11ProductName(productName, version)
-			<< L", "
-			<< version;
-
-		g_logger->log(ss.str());
+		std::wstringstream version;
+		version << L"Windows version: " << GetWindowsVersion();
+		g_logger->log(version.str());
 	}
 	catch (std::exception &err)
 	{
