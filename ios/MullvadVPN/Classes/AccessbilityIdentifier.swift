@@ -84,6 +84,11 @@ public enum AccessibilityIdentifier: String {
     case dnsServer
     case dnsServerInfo
 
+    // Quantum resistance
+    case quantumResistanceAutomatic
+    case quantumResistanceOff
+    case quantumResistanceOn
+
     // Error
     case unknown
 }

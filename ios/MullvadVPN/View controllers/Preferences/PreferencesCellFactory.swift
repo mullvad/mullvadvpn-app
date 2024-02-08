@@ -155,6 +155,41 @@ final class PreferencesCellFactory: CellFactoryProtocol {
             )
             cell.accessibilityIdentifier = "\(item.accessibilityIdentifier.rawValue) (\(portString))"
             cell.applySubCellStyling()
+
+        case .quantumResistanceAutomatic:
+            guard let cell = cell as? SelectableSettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "QUANTUM_RESISTANCE_AUTOMATIC_LABEL",
+                tableName: "Preferences",
+                value: "Automatic",
+                comment: ""
+            )
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.applySubCellStyling()
+
+        case .quantumResistanceOn:
+            guard let cell = cell as? SelectableSettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "QUANTUM_RESISTANCE_ON_LABEL",
+                tableName: "Preferences",
+                value: "On",
+                comment: ""
+            )
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.applySubCellStyling()
+        case .quantumResistanceOff:
+            guard let cell = cell as? SelectableSettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "QUANTUM_RESISTANCE_OFF_LABEL",
+                tableName: "Preferences",
+                value: "Off",
+                comment: ""
+            )
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.applySubCellStyling()
         }
     }
 }

@@ -152,6 +152,16 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
                 comment: ""
             )
 
+        case .quantumResistance:
+            message = NSLocalizedString(
+                "PREFERENCES_QUANTUM_RESISTANCE_GENERAL",
+                tableName: "QuantumResistance",
+                value: """
+                Text on quantum resistance goes here.
+                """,
+                comment: ""
+            )
+
         default:
             assertionFailure("No matching InfoButtonItem")
         }
