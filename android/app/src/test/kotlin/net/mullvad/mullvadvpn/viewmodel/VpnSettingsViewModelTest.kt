@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.model.WireguardTunnelOptions
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
+import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -39,6 +40,7 @@ class VpnSettingsViewModelTest {
     private val mockResources: Resources = mockk()
     private val mockPortRangeUseCase: PortRangeUseCase = mockk()
     private val mockRelayListUseCase: RelayListUseCase = mockk()
+    private val mockSystemVpnSettingsUseCase: SystemVpnSettingsUseCase = mockk(relaxed = true)
 
     private val mockSettingsUpdate = MutableStateFlow<Settings?>(null)
     private val portRangeFlow = MutableStateFlow(emptyList<PortRange>())
@@ -56,6 +58,7 @@ class VpnSettingsViewModelTest {
                 resources = mockResources,
                 portRangeUseCase = mockPortRangeUseCase,
                 relayListUseCase = mockRelayListUseCase,
+                systemVpnSettingsUseCase = mockSystemVpnSettingsUseCase,
                 dispatcher = UnconfinedTestDispatcher()
             )
     }
@@ -146,4 +149,17 @@ class VpnSettingsViewModelTest {
             mockRelayListUseCase.updateSelectedWireguardConstraints(wireguardConstraints)
         }
     }
+
+    @Test
+    fun `given useCase systemVpnSettingsAvailable is true then uiState should be systemVpnSettingsAvailable=true`() =
+        runTest {
+            val systemVpnSettingsAvailable = true
+
+            every { mockSystemVpnSettingsUseCase.systemVpnSettingsAvailable() } returns
+                systemVpnSettingsAvailable
+
+            viewModel.uiState.test {
+                assertEquals(systemVpnSettingsAvailable, awaitItem().systemVpnSettingsAvailable)
+            }
+        }
 }
