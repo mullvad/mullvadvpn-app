@@ -6,6 +6,7 @@ import android.opengl.GLSurfaceView
 import androidx.compose.ui.graphics.Color
 import net.mullvad.mullvadvpn.compose.map.data.MapViewState
 import net.mullvad.mullvadvpn.compose.map.internal.shapes.GlobeColors
+import net.mullvad.mullvadvpn.compose.map.internal.shapes.LocationMarkerColors
 
 @SuppressLint("ViewConstructor")
 class MapGLSurfaceView(context: Context, mapConfig: MapConfig) : GLSurfaceView(context) {
@@ -36,6 +37,8 @@ data class MapConfig(
             oceanColor = Color(0.098f, 0.18f, 0.271f),
             contourColor = Color(0.098f, 0.18f, 0.271f)
         ),
-    val secureMarkerColor: Color = Color(0.267f, 0.678f, 0.302f),
-    val unsecureMarkerColor: Color = Color(0.89f, 0.251f, 0.224f)
+    val secureMarkerColor: LocationMarkerColors =
+        LocationMarkerColors(centerColor = Color(0.267f, 0.678f, 0.302f)),
+    val unsecureMarkerColor: LocationMarkerColors =
+        LocationMarkerColors(centerColor = Color(0.89f, 0.251f, 0.224f))
 )

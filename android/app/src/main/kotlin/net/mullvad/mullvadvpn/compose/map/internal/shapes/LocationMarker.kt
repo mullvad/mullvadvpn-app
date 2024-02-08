@@ -3,17 +3,24 @@ package net.mullvad.mullvadvpn.compose.map.internal.shapes
 import android.opengl.GLES20
 import android.opengl.Matrix
 import androidx.compose.ui.graphics.Color
-import net.mullvad.mullvadvpn.compose.map.internal.COLOR_COMPONENT_SIZE
 import java.nio.FloatBuffer
 import kotlin.math.cos
 import kotlin.math.sin
-import net.mullvad.mullvadvpn.compose.map.internal.VERTEX_COMPONENT_SIZE
 import net.mullvad.mullvadvpn.compose.map.data.LatLng
+import net.mullvad.mullvadvpn.compose.map.internal.COLOR_COMPONENT_SIZE
+import net.mullvad.mullvadvpn.compose.map.internal.VERTEX_COMPONENT_SIZE
 import net.mullvad.mullvadvpn.compose.map.internal.initArrayBuffer
 import net.mullvad.mullvadvpn.compose.map.internal.initShaderProgram
-import net.mullvad.mullvadvpn.compose.map.internal.toFloatArrayWithoutAlpha
+import net.mullvad.mullvadvpn.compose.map.internal.toFloatArray
 
-class LocationMarker(val color: Color) {
+data class LocationMarkerColors(
+    val centerColor: Color,
+    val ringBorderColor: Color = Color.White,
+    val shadowColor: Color = Color.Black.copy(alpha = 0.55f),
+    val perimeterColors: Color = centerColor.copy(alpha = 0.4f)
+)
+
+class LocationMarker(val colors: LocationMarkerColors) {
 
     private val vertexShaderCode =
         """
@@ -42,37 +49,35 @@ class LocationMarker(val color: Color) {
         """
             .trimIndent()
 
-    private val white = floatArrayOf(1.0f, 1.0f, 1.0f)
-    private val black = floatArrayOf(0.0f, 0.0f, 0.0f)
     private val rings =
         listOf(
             circleFanVertices(
                 32,
                 0.5f,
                 floatArrayOf(0.0f, 0.0f, 0.0f),
-                floatArrayOf(*color.toFloatArrayWithoutAlpha(), 0.4f),
-                floatArrayOf(*color.toFloatArrayWithoutAlpha(), 0.4f)
+                colors.perimeterColors,
+                colors.perimeterColors,
             ), // Semi-transparent outer
             circleFanVertices(
                 16,
                 0.28f,
                 floatArrayOf(0.0f, -0.05f, 0.00001f),
-                floatArrayOf(*black, 0.55f),
-                floatArrayOf(*black, 0.0f)
+                colors.shadowColor,
+                colors.shadowColor.copy(alpha = 0.0f),
             ), // shadow
             circleFanVertices(
                 32,
                 0.185f,
                 floatArrayOf(0.0f, 0.0f, 0.00002f),
-                floatArrayOf(*white, 1f),
-                floatArrayOf(*white, 1f)
+                colors.ringBorderColor,
+                colors.ringBorderColor,
             ), // white ring
             circleFanVertices(
                 32,
                 0.15f,
                 floatArrayOf(0.0f, 0.0f, 0.00003f),
-                floatArrayOf(*color.toFloatArrayWithoutAlpha(), 1f),
-                floatArrayOf(*color.toFloatArrayWithoutAlpha(), 1f),
+                colors.centerColor,
+                colors.centerColor,
             ) // Center colored circle
         )
 
@@ -89,14 +94,14 @@ class LocationMarker(val color: Color) {
     private val ringSizes: List<Int> = rings.map { (positions, _) -> positions.size }
 
     init {
-        val positionArrayBuffer = rings.flatMap { it.first }
-        val positionByteBuffer = FloatBuffer.wrap(positionArrayBuffer.toFloatArray())
+        val positionFloatArray = joinMultipleArrays(rings.map { it.vertices })
+        val positionFloatBuffer = FloatBuffer.wrap(positionFloatArray)
 
-        val colorArrayBuffer = rings.flatMap { it.second }
-        val colorByteBuffer = FloatBuffer.wrap(colorArrayBuffer.toFloatArray())
+        val colorFloatArray = joinMultipleArrays(rings.map { it.verticesColor })
+        val colorFloatBuffer = FloatBuffer.wrap(colorFloatArray)
 
-        positionBuffer = initArrayBuffer(positionByteBuffer)
-        colorBuffer = initArrayBuffer(colorByteBuffer)
+        positionBuffer = initArrayBuffer(positionFloatBuffer)
+        colorBuffer = initArrayBuffer(colorFloatBuffer)
 
         shaderProgram = initShaderProgram(vertexShaderCode, fragmentShaderCode)
 
@@ -164,28 +169,52 @@ class LocationMarker(val color: Color) {
     private fun circleFanVertices(
         numEdges: Int,
         radius: Float,
-        offset: FloatArray,
-        centerColor: FloatArray,
-        ringColor: FloatArray,
-    ): Pair<List<Float>, List<Float>> {
-        val positions = mutableListOf(*offset.toTypedArray())
-        val colors = mutableListOf(*centerColor.toTypedArray())
+        offset: FloatArray = floatArrayOf(0.0f, 0.0f, 0.0f),
+        centerColor: Color,
+        ringColor: Color,
+    ): Ring {
+        // Edges + center + first point
+        val points = numEdges + 2
 
-        for (i in 0..numEdges) {
+        val positions = FloatArray(points * VERTEX_COMPONENT_SIZE)
+        val positionsColor = FloatArray(points * COLOR_COMPONENT_SIZE)
 
-            val angle = (i.toFloat() / numEdges.toFloat()) * 2f * Math.PI
-            val x = offset[0] + radius * cos(angle).toFloat()
-            val y = offset[1] + radius * sin(angle).toFloat()
-            val z = offset[2]
-            positions.add(x)
-            positions.add(y)
-            positions.add(z)
-            colors.addAll(ringColor.toTypedArray())
+        // Start adding the center the center point
+        offset.forEachIndexed { index, value -> positions[index] = value }
+        centerColor.toFloatArray().forEachIndexed { index, value -> positionsColor[index] = value }
+
+        val ringColorArray = ringColor.toFloatArray()
+
+        for (i in 1 until points) {
+
+            val angle = (i.toFloat() / numEdges) * 2f * Math.PI
+            val posIndex = i * VERTEX_COMPONENT_SIZE
+            positions[posIndex] = offset[0] + radius * cos(angle).toFloat()
+            positions[posIndex + 1] = offset[1] + radius * sin(angle).toFloat()
+            positions[posIndex + 2] = offset[2]
+
+            val colorIndex = i * COLOR_COMPONENT_SIZE
+            ringColorArray.forEachIndexed { index, value ->
+                positionsColor[colorIndex + index] = value
+            }
         }
-        return positions.toList() to colors.toList()
+
+        return Ring(positions, positionsColor)
+    }
+
+    private fun joinMultipleArrays(arrays: List<FloatArray>): FloatArray {
+        val result = FloatArray(arrays.sumOf { it.size })
+        var offset = 0
+        for (array in arrays) {
+            array.copyInto(result, offset)
+            offset += array.size
+        }
+        return result
     }
 
     companion object {
         private const val MARKER_TRANSLATE_Z_FACTOR = 1.0001f
     }
 }
+
+data class Ring(val vertices: FloatArray, val verticesColor: FloatArray)

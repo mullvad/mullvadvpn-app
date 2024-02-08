@@ -57,14 +57,15 @@ class MapGLRenderer(private val resources: Resources, private val mapConfig: Map
         Matrix.rotateM(viewMatrix, 0, viewState.cameraLatLng.longitude.value, 0f, -1f, 0f)
 
 
-        globe.draw(projectionMatrix, viewMatrix, mapConfig.globeColors)
+        val vp = viewMatrix.copyOf()
+        globe.draw(projectionMatrix, vp, mapConfig.globeColors)
 
         viewState.locationMarker?.let {
             when (it.type) {
                 MarkerType.SECURE ->
-                    secureLocationMarker.draw(projectionMatrix, viewMatrix, it.latLng, 0.02f)
+                    secureLocationMarker.draw(projectionMatrix, vp, it.latLng, 0.02f)
                 MarkerType.UNSECURE ->
-                    unsecureLocationMarker.draw(projectionMatrix, viewMatrix, it.latLng, 0.02f)
+                    unsecureLocationMarker.draw(projectionMatrix, vp, it.latLng, 0.02f)
             }
         }
     }
