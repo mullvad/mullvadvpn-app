@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 env:
   # Pinning nightly just to avoid random breakage. It's fine to bump this at any time
-  RUST_NIGHTLY_TOOLCHAIN: nightly-2024-01-07
+  RUST_NIGHTLY_TOOLCHAIN: nightly-2024-02-06
 jobs:
   prepare-containers:
     runs-on: ubuntu-latest
