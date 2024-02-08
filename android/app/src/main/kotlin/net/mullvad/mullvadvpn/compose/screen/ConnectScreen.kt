@@ -39,11 +39,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
-import net.mullvad.mullvadvpn.compose.map.Map
-import net.mullvad.mullvadvpn.compose.map.data.LatLng
-import net.mullvad.mullvadvpn.compose.map.data.Marker
-import net.mullvad.mullvadvpn.compose.map.data.MarkerType
-import net.mullvad.mullvadvpn.compose.map.data.gothenburgLatLng
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
@@ -59,6 +54,13 @@ import net.mullvad.mullvadvpn.compose.destinations.DeviceRevokedDestination
 import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
 import net.mullvad.mullvadvpn.compose.destinations.SelectLocationDestination
 import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
+import net.mullvad.mullvadvpn.compose.map.Map
+import net.mullvad.mullvadvpn.compose.map.data.LatLng
+import net.mullvad.mullvadvpn.compose.map.data.Latitude
+import net.mullvad.mullvadvpn.compose.map.data.Longitude
+import net.mullvad.mullvadvpn.compose.map.data.Marker
+import net.mullvad.mullvadvpn.compose.map.data.MarkerType
+import net.mullvad.mullvadvpn.compose.map.data.gothenburgLatLng
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
@@ -335,4 +337,4 @@ fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
     }
 }
 
-fun GeoIpLocation.toLatLng() = LatLng(latitude.toFloat(), longitude.toFloat())
+fun GeoIpLocation.toLatLng() = LatLng(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))

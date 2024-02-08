@@ -12,6 +12,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.map.data.LatLng
+import net.mullvad.mullvadvpn.compose.map.data.Latitude
+import net.mullvad.mullvadvpn.compose.map.data.Longitude
 import net.mullvad.mullvadvpn.compose.map.data.MapViewState
 import net.mullvad.mullvadvpn.compose.map.data.Marker
 import net.mullvad.mullvadvpn.compose.map.data.MarkerType
@@ -59,7 +61,7 @@ fun animatedMapViewState(
         remember(targetCameraLocation) { targetCameraLocation.distanceTo(previousLocation).toInt() }
     val duration = distance.toAnimationDuration()
 
-    val longitudeAnimation = remember { Animatable(targetCameraLocation.longitude) }
+    val longitudeAnimation = remember { Animatable(targetCameraLocation.longitude.value) }
 
     // Correct the value to be within -180 to 180
     val longitudeAnimationCorrected =
@@ -73,30 +75,30 @@ fun animatedMapViewState(
                 }
             }
         }
-    val latitudeAnimation = remember { Animatable(targetCameraLocation.latitude) }
+    val latitudeAnimation = remember { Animatable(targetCameraLocation.latitude.value) }
     val secureZoomAnimation = remember {
         Animatable(if (marker?.type == MarkerType.SECURE) SECURE_ZOOM else UNSECURE_ZOOM)
     }
     val zoomOutMultiplier = remember { Animatable(1f) }
 
     LaunchedEffect(targetCameraLocation) {
-        launch { latitudeAnimation.animateTo(targetCameraLocation.latitude, tween(duration)) }
+        launch { latitudeAnimation.animateTo(targetCameraLocation.latitude.value, tween(duration)) }
         launch {
+            // Unwind longitudeAnimation (prevent us from winding up angle to infinity)
+            val currentLongitude = Longitude.fromFloat(longitudeAnimation.value)
+            val previousVelocity = longitudeAnimation.velocity
+            longitudeAnimation.snapTo(currentLongitude.value)
+
             // We resolve a vector showing us the shortest path to the target longitude, e.g going
             // from 10 to 350 would result in -20 since we can wrap around the globe
-            val shortestPathVector =
-                shortestPathVector(
-                    longitudeAnimation.value,
-                    targetCameraLocation.longitude,
-                    COMPLETE_ANGLE
-                )
+            val shortestPathVector = currentLongitude.vectorTo(targetCameraLocation.longitude)
 
             longitudeAnimation.animateTo(
-                longitudeAnimation.value + shortestPathVector,
-                tween(duration)
+                longitudeAnimation.value + shortestPathVector.value,
+                tween(duration),
+                // Restore previous velocity before we unwound the longitude
+                initialVelocity = previousVelocity,
             )
-            // Unwind longitudeAnimation (prevent us from winding up angle to infinity)
-            longitudeAnimation.snapTo(longitudeAnimation.value.mod(COMPLETE_ANGLE))
         }
         launch {
             zoomOutMultiplier.animateTo(
@@ -122,27 +124,18 @@ fun animatedMapViewState(
 
     return MapViewState(
         zoom = secureZoomAnimation.value * zoomOutMultiplier.value * 0.9f,
-        cameraLatLng = LatLng(latitudeAnimation.value, longitudeAnimationCorrected.value),
+        cameraLatLng =
+            LatLng(Latitude(latitudeAnimation.value), Longitude(longitudeAnimationCorrected.value)),
         locationMarker = marker,
         percent = percent
     )
 }
 
-fun shortestPathVector(current: Float, newValue: Float, wrappingSize: Float): Float {
-    val diff = newValue - current
-    val maxDistance = wrappingSize / 2
-    return when {
-        diff > maxDistance -> diff - wrappingSize
-        diff < -maxDistance -> diff + wrappingSize
-        else -> diff
-    }
-}
-
 fun MarkerType?.toZoom() =
     when (this) {
-        MarkerType.SECURE -> net.mullvad.mullvadvpn.compose.map.SECURE_ZOOM
+        MarkerType.SECURE -> SECURE_ZOOM
         MarkerType.UNSECURE,
-        null -> net.mullvad.mullvadvpn.compose.map.UNSECURE_ZOOM
+        null -> UNSECURE_ZOOM
     }
 
 fun Int.toAnimationDuration() =

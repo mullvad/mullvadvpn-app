@@ -55,8 +55,8 @@ class MapGLRenderer(private val resources: Resources, private val mapConfig: Map
         val planeSize = tan(FIELD_OF_VIEW.toRadians() / 2f) * z * 2f
         val offsetY = planeSize * (0.5f - percent)
         Matrix.translateM(viewMatrix, 0, 0f, offsetY, -viewState.zoom)
-        Matrix.rotateM(viewMatrix, 0, viewState.cameraLatLng.latitude, 1f, 0f, 0f)
-        Matrix.rotateM(viewMatrix, 0, viewState.cameraLatLng.longitude, 0f, -1f, 0f)
+        Matrix.rotateM(viewMatrix, 0, viewState.cameraLatLng.latitude.value, 1f, 0f, 0f)
+        Matrix.rotateM(viewMatrix, 0, viewState.cameraLatLng.longitude.value, 0f, -1f, 0f)
 
         val vP = projectionMatrix.copyOf()
 
