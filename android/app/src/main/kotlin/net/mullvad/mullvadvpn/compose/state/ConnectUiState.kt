@@ -8,7 +8,7 @@ import net.mullvad.talpid.net.TransportProtocol
 
 data class ConnectUiState(
     val location: GeoIpLocation?,
-    val relayLocation: RelayItem?,
+    val selectedRelayItem: RelayItem?,
     val tunnelUiState: TunnelState,
     val tunnelRealState: TunnelState,
     val inAddress: Triple<String, Int, TransportProtocol>?,
@@ -23,7 +23,7 @@ data class ConnectUiState(
         val INITIAL =
             ConnectUiState(
                 location = null,
-                relayLocation = null,
+                selectedRelayItem = null,
                 tunnelUiState = TunnelState.Disconnected(),
                 tunnelRealState = TunnelState.Disconnected(),
                 inAddress = null,

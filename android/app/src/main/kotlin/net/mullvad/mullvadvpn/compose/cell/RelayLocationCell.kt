@@ -38,11 +38,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.color.selected
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
-import net.mullvad.mullvadvpn.relaylist.Relay
-import net.mullvad.mullvadvpn.relaylist.RelayCity
-import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
-import net.mullvad.mullvadvpn.relaylist.RelayItemType
 
 @Composable
 @Preview
@@ -50,20 +46,20 @@ private fun PreviewRelayLocationCell() {
     AppTheme {
         Column(Modifier.background(color = MaterialTheme.colorScheme.background)) {
             val countryActive =
-                RelayCountry(
+                RelayItem.Country(
                     name = "Relay country Active",
                     code = "RC1",
                     expanded = false,
                     cities =
                         listOf(
-                            RelayCity(
+                            RelayItem.City(
                                 name = "Relay city 1",
                                 code = "RI1",
                                 expanded = false,
                                 location = GeographicLocationConstraint.City("RC1", "RI1"),
                                 relays =
                                     listOf(
-                                        Relay(
+                                        RelayItem.Relay(
                                             name = "Relay 1",
                                             active = true,
                                             locationName = "",
@@ -76,14 +72,14 @@ private fun PreviewRelayLocationCell() {
                                         )
                                     )
                             ),
-                            RelayCity(
+                            RelayItem.City(
                                 name = "Relay city 2",
                                 code = "RI2",
                                 expanded = true,
                                 location = GeographicLocationConstraint.City("RC1", "RI2"),
                                 relays =
                                     listOf(
-                                        Relay(
+                                        RelayItem.Relay(
                                             name = "Relay 2",
                                             active = true,
                                             locationName = "",
@@ -94,7 +90,7 @@ private fun PreviewRelayLocationCell() {
                                                     "NER"
                                                 )
                                         ),
-                                        Relay(
+                                        RelayItem.Relay(
                                             name = "Relay 3",
                                             active = true,
                                             locationName = "",
@@ -110,20 +106,20 @@ private fun PreviewRelayLocationCell() {
                         )
                 )
             val countryNotActive =
-                RelayCountry(
+                RelayItem.Country(
                     name = "Not Enabled Relay country",
                     code = "RC3",
                     expanded = true,
                     cities =
                         listOf(
-                            RelayCity(
+                            RelayItem.City(
                                 name = "Not Enabled city",
                                 code = "RI3",
                                 expanded = true,
                                 location = GeographicLocationConstraint.City("RC3", "RI3"),
                                 relays =
                                     listOf(
-                                        Relay(
+                                        RelayItem.Relay(
                                             name = "Not Enabled Relay",
                                             active = false,
                                             locationName = "",
@@ -158,10 +154,11 @@ fun RelayLocationCell(
     onSelectRelay: (item: RelayItem) -> Unit = {}
 ) {
     val startPadding =
-        when (relay.type) {
-            RelayItemType.Country -> Dimens.countryRowPadding
-            RelayItemType.City -> Dimens.cityRowPadding
-            RelayItemType.Relay -> Dimens.relayRowPadding
+        when (relay) {
+            is RelayItem.Country,
+            is RelayItem.CustomList -> Dimens.countryRowPadding
+            is RelayItem.City -> Dimens.cityRowPadding
+            is RelayItem.Relay -> Dimens.relayRowPadding
         }
     val selected = selectedItem?.code == relay.code
     val expanded =
@@ -169,12 +166,12 @@ fun RelayLocationCell(
     val backgroundColor =
         when {
             selected -> MaterialTheme.colorScheme.inversePrimary
-            relay.type == RelayItemType.Country -> MaterialTheme.colorScheme.primary
-            relay.type == RelayItemType.City ->
+            relay is RelayItem.Country -> MaterialTheme.colorScheme.primary
+            relay is RelayItem.City ->
                 MaterialTheme.colorScheme.primary
                     .copy(alpha = Alpha40)
                     .compositeOver(MaterialTheme.colorScheme.background)
-            relay.type == RelayItemType.Relay -> MaterialTheme.colorScheme.secondaryContainer
+            relay is RelayItem.Relay -> MaterialTheme.colorScheme.secondaryContainer
             else -> MaterialTheme.colorScheme.primary
         }
     Column(
@@ -273,7 +270,7 @@ fun RelayLocationCell(
         }
         if (expanded.value) {
             when (relay) {
-                is RelayCountry -> {
+                is RelayItem.Country -> {
                     relay.cities.forEach { relayCity ->
                         RelayLocationCell(
                             relay = relayCity,
@@ -283,7 +280,7 @@ fun RelayLocationCell(
                         )
                     }
                 }
-                is RelayCity -> {
+                is RelayItem.City -> {
                     relay.relays.forEach { relay ->
                         RelayLocationCell(
                             relay = relay,
@@ -293,6 +290,8 @@ fun RelayLocationCell(
                         )
                     }
                 }
+                is RelayItem.Relay,
+                is RelayItem.CustomList -> {}
             }
         }
     }

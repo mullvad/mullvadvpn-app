@@ -53,7 +53,6 @@ import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
@@ -69,8 +68,9 @@ private fun PreviewSelectLocationScreen() {
             selectedProvidersCount = 0,
             relayListState =
                 RelayListState.RelayList(
-                    countries = listOf(RelayCountry("Country 1", "Code 1", false, emptyList())),
-                    selectedRelay = null,
+                    countries =
+                        listOf(RelayItem.Country("Country 1", "Code 1", false, emptyList())),
+                    selectedItem = null,
                 )
         )
     AppTheme {
@@ -172,14 +172,10 @@ fun SelectLocationScreen(
             if (
                 uiState is SelectLocationUiState.Data &&
                     uiState.relayListState is RelayListState.RelayList &&
-                    uiState.relayListState.selectedRelay != null
+                    uiState.relayListState.selectedItem != null
             ) {
-                LaunchedEffect(uiState.relayListState.selectedRelay) {
-                    val index =
-                        uiState.relayListState.countries.indexOfFirst { relayCountry ->
-                            relayCountry.location.location.country ==
-                                uiState.relayListState.selectedRelay.location.location.country
-                        }
+                LaunchedEffect(uiState.relayListState.selectedItem) {
+                    val index = uiState.relayListState.indexOfSelectedRelayItem()
 
                     if (index >= 0) {
                         lazyListState.scrollToItem(index)
@@ -235,7 +231,7 @@ private fun LazyListScope.relayList(
                 val country = relayListState.countries[index]
                 RelayLocationCell(
                     relay = country,
-                    selectedItem = relayListState.selectedRelay,
+                    selectedItem = relayListState.selectedItem,
                     onSelectRelay = onSelectRelay,
                     modifier = Modifier.animateContentSize()
                 )
@@ -278,6 +274,18 @@ private fun LazyListScope.relayList(
         }
     }
 }
+
+private fun RelayListState.RelayList.indexOfSelectedRelayItem(): Int =
+    countries.indexOfFirst { relayCountry ->
+        relayCountry.location.location.country ==
+            when (selectedItem) {
+                is RelayItem.Country -> selectedItem.code
+                is RelayItem.City -> selectedItem.location.countryCode
+                is RelayItem.Relay -> selectedItem.location.countryCode
+                is RelayItem.CustomList,
+                null -> null
+            }
+    }
 
 suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
     val itemInfo = this.layoutInfo.visibleItemsInfo.firstOrNull { it.index == index }

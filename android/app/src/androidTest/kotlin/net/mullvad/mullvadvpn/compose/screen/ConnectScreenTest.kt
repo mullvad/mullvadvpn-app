@@ -78,7 +78,7 @@ class ConnectScreenTest {
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = null,
+                            selectedRelayItem = null,
                             tunnelUiState = TunnelState.Connecting(null, null),
                             tunnelRealState = TunnelState.Connecting(null, null),
                             inAddress = null,
@@ -112,7 +112,7 @@ class ConnectScreenTest {
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = null,
+                            selectedRelayItem = null,
                             tunnelUiState =
                                 TunnelState.Connecting(endpoint = mockTunnelEndpoint, null),
                             tunnelRealState =
@@ -147,7 +147,7 @@ class ConnectScreenTest {
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = null,
+                            selectedRelayItem = null,
                             tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
                             tunnelRealState = TunnelState.Connected(mockTunnelEndpoint, null),
                             inAddress = null,
@@ -179,7 +179,7 @@ class ConnectScreenTest {
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = null,
+                            selectedRelayItem = null,
                             tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
                             tunnelRealState = TunnelState.Connected(mockTunnelEndpoint, null),
                             inAddress = null,
@@ -204,15 +204,15 @@ class ConnectScreenTest {
     fun testDisconnectingState() {
         composeExtension.use {
             // Arrange
-            val mockRelayLocation: RelayItem = mockk(relaxed = true)
+            val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockRelayLocation.locationName } returns mockLocationName
+            every { mockSelectedLocation.locationName } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = mockRelayLocation,
+                            selectedRelayItem = mockSelectedLocation,
                             tunnelUiState =
                                 TunnelState.Disconnecting(ActionAfterDisconnect.Nothing),
                             tunnelRealState =
@@ -239,15 +239,15 @@ class ConnectScreenTest {
     fun testDisconnectedState() {
         composeExtension.use {
             // Arrange
-            val mockRelayLocation: RelayItem = mockk(relaxed = true)
+            val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockRelayLocation.locationName } returns mockLocationName
+            every { mockSelectedLocation.locationName } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = mockRelayLocation,
+                            selectedRelayItem = mockSelectedLocation,
                             tunnelUiState = TunnelState.Disconnected(),
                             tunnelRealState = TunnelState.Disconnected(),
                             inAddress = null,
@@ -272,15 +272,15 @@ class ConnectScreenTest {
     fun testErrorStateBlocked() {
         composeExtension.use {
             // Arrange
-            val mockRelayLocation: RelayItem = mockk(relaxed = true)
+            val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockRelayLocation.locationName } returns mockLocationName
+            every { mockSelectedLocation.locationName } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = mockRelayLocation,
+                            selectedRelayItem = mockSelectedLocation,
                             tunnelUiState =
                                 TunnelState.Error(
                                     ErrorState(ErrorStateCause.StartTunnelError, true)
@@ -315,15 +315,15 @@ class ConnectScreenTest {
     fun testErrorStateNotBlocked() {
         composeExtension.use {
             // Arrange
-            val mockRelayLocation: RelayItem = mockk(relaxed = true)
+            val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockRelayLocation.locationName } returns mockLocationName
+            every { mockSelectedLocation.locationName } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = mockRelayLocation,
+                            selectedRelayItem = mockSelectedLocation,
                             tunnelUiState =
                                 TunnelState.Error(
                                     ErrorState(ErrorStateCause.StartTunnelError, false)
@@ -364,7 +364,7 @@ class ConnectScreenTest {
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = null,
+                            selectedRelayItem = null,
                             tunnelUiState =
                                 TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect),
                             tunnelRealState =
@@ -393,15 +393,15 @@ class ConnectScreenTest {
     fun testDisconnectingBlockState() {
         composeExtension.use {
             // Arrange
-            val mockRelayLocation: RelayItem = mockk(relaxed = true)
+            val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockRelayLocation.locationName } returns mockLocationName
+            every { mockSelectedLocation.locationName } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = mockRelayLocation,
+                            selectedRelayItem = mockSelectedLocation,
                             tunnelUiState = TunnelState.Disconnecting(ActionAfterDisconnect.Block),
                             tunnelRealState =
                                 TunnelState.Disconnecting(ActionAfterDisconnect.Block),
@@ -428,16 +428,16 @@ class ConnectScreenTest {
     fun testClickSelectLocationButton() {
         composeExtension.use {
             // Arrange
-            val mockRelayLocation: RelayItem = mockk(relaxed = true)
+            val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockRelayLocation.locationName } returns mockLocationName
+            every { mockSelectedLocation.name } returns mockLocationName
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 ConnectScreen(
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = mockRelayLocation,
+                            selectedRelayItem = mockSelectedLocation,
                             tunnelUiState = TunnelState.Disconnected(),
                             tunnelRealState = TunnelState.Disconnected(),
                             inAddress = null,
@@ -471,7 +471,7 @@ class ConnectScreenTest {
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = null,
+                            selectedRelayItem = null,
                             tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
                             tunnelRealState = TunnelState.Connected(mockTunnelEndpoint, null),
                             inAddress = null,
@@ -505,7 +505,7 @@ class ConnectScreenTest {
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = null,
+                            selectedRelayItem = null,
                             tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
                             tunnelRealState = TunnelState.Connected(mockTunnelEndpoint, null),
                             inAddress = null,
@@ -538,7 +538,7 @@ class ConnectScreenTest {
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = null,
+                            selectedRelayItem = null,
                             tunnelUiState = TunnelState.Disconnected(),
                             tunnelRealState = TunnelState.Disconnected(),
                             inAddress = null,
@@ -571,7 +571,7 @@ class ConnectScreenTest {
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = null,
+                            selectedRelayItem = null,
                             tunnelUiState = TunnelState.Connecting(null, null),
                             tunnelRealState = TunnelState.Connecting(null, null),
                             inAddress = null,
@@ -612,7 +612,7 @@ class ConnectScreenTest {
                     uiState =
                         ConnectUiState(
                             location = mockLocation,
-                            relayLocation = null,
+                            selectedRelayItem = null,
                             tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
                             tunnelRealState = TunnelState.Connected(mockTunnelEndpoint, null),
                             inAddress = mockInAddress,
@@ -653,7 +653,7 @@ class ConnectScreenTest {
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = null,
+                            selectedRelayItem = null,
                             tunnelUiState = TunnelState.Connecting(null, null),
                             tunnelRealState = TunnelState.Connecting(null, null),
                             inAddress = null,
@@ -689,7 +689,7 @@ class ConnectScreenTest {
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = null,
+                            selectedRelayItem = null,
                             tunnelUiState = TunnelState.Connecting(null, null),
                             tunnelRealState = TunnelState.Connecting(null, null),
                             inAddress = null,
@@ -722,7 +722,7 @@ class ConnectScreenTest {
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = null,
+                            selectedRelayItem = null,
                             tunnelUiState = TunnelState.Connecting(null, null),
                             tunnelRealState = TunnelState.Connecting(null, null),
                             inAddress = null,
@@ -760,7 +760,7 @@ class ConnectScreenTest {
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = null,
+                            selectedRelayItem = null,
                             tunnelUiState = TunnelState.Connecting(null, null),
                             tunnelRealState = TunnelState.Connecting(null, null),
                             inAddress = null,
@@ -794,7 +794,7 @@ class ConnectScreenTest {
                     uiState =
                         ConnectUiState(
                             location = null,
-                            relayLocation = null,
+                            selectedRelayItem = null,
                             tunnelUiState = TunnelState.Connecting(null, null),
                             tunnelRealState = TunnelState.Connecting(null, null),
                             inAddress = null,

@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelaySettings
@@ -45,12 +44,7 @@ class RelayListListener(
                 .collect { request ->
                     val update =
                         getCurrentRelayConstraints()
-                            .copy(
-                                location =
-                                    Constraint.Only(
-                                        LocationConstraint.Location(request.relayLocation)
-                                    )
-                            )
+                            .copy(location = Constraint.Only(request.locationConstraint))
                     daemon.await().setRelaySettings(RelaySettings.Normal(update))
                 }
         }

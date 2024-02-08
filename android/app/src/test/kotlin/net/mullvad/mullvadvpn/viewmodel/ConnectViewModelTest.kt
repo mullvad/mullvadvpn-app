@@ -22,7 +22,6 @@ import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -96,7 +95,7 @@ class ConnectViewModelTest {
         EventNotifier<TunnelState>(TunnelState.Disconnected())
 
     // Flows
-    private val selectedRelayFlow = MutableStateFlow<RelayItem?>(null)
+    private val selectedRelayItemFlow = MutableStateFlow<RelayItem?>(null)
 
     // Out Of Time Use Case
     private val outOfTimeUseCase: OutOfTimeUseCase = mockk()
@@ -131,7 +130,7 @@ class ConnectViewModelTest {
         every { mockAppVersionInfoCache.onUpdate = any() } answers {}
 
         // Flows
-        every { mockRelayListUseCase.selectedRelayItem() } returns selectedRelayFlow
+        every { mockRelayListUseCase.selectedRelayItem() } returns selectedRelayItemFlow
 
         every { outOfTimeUseCase.isOutOfTime() } returns outOfTimeViewFlow
         viewModel =
@@ -188,17 +187,17 @@ class ConnectViewModelTest {
     }
 
     @Test
-    fun testRelayItemUpdate() = runTest {
-        val relayTestItem =
-            RelayCountry(name = "Name", code = "Code", expanded = false, cities = emptyList())
-        selectedRelayFlow.value = relayTestItem
+    fun testSelectedLocationUpdate() = runTest {
+        val selectedRelayItem =
+            RelayItem.Country(name = "Name", code = "Code", expanded = false, cities = emptyList())
+        selectedRelayItemFlow.value = selectedRelayItem
 
         viewModel.uiState.test {
             assertEquals(ConnectUiState.INITIAL, awaitItem())
             serviceConnectionState.value =
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             val result = awaitItem()
-            assertEquals(relayTestItem, result.relayLocation)
+            assertEquals(selectedRelayItem, result.selectedRelayItem)
         }
     }
 

@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 
 sealed interface SelectLocationUiState {
@@ -21,6 +20,6 @@ sealed interface SelectLocationUiState {
 sealed interface RelayListState {
     data object Empty : RelayListState
 
-    data class RelayList(val countries: List<RelayCountry>, val selectedRelay: RelayItem?) :
+    data class RelayList(val countries: List<RelayItem.Country>, val selectedItem: RelayItem?) :
         RelayListState
 }

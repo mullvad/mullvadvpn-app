@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
 import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.lib.ipc.events
 import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.RelayList
@@ -38,7 +38,7 @@ class RelayListListener(
                 defaultRelayList()
             )
 
-    fun updateSelectedRelayLocation(value: GeographicLocationConstraint) {
+    fun updateSelectedRelayLocation(value: LocationConstraint) {
         messageHandler.trySendRequest(Request.SetRelayLocation(value))
     }
 

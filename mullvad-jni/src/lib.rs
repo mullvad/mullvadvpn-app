@@ -24,6 +24,7 @@ use mullvad_daemon::{
 };
 use mullvad_types::{
     account::{AccountData, PlayPurchase, VoucherSubmission},
+    custom_list::CustomList,
     settings::DnsOptions,
 };
 use std::{
@@ -1333,6 +1334,75 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setQuan
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to update quantum resistant tunnel state")
+            );
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_createCustomList<'env>(
+    env: JNIEnv<'env>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    name: JString<'_>,
+) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
+        let name = String::from_java(&env, name);
+        match daemon_interface.create_custom_list(name) {
+            Ok(id) => id.into_java(&env).forget(),
+            Err(error) => {
+                log_request_error("create custom list", &error);
+                JObject::null()
+            }
+        }
+    } else {
+        JObject::null()
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_deleteCustomList(
+    env: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    id: JString<'_>,
+) {
+    let env = JnixEnv::from(env);
+
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
+        let id = mullvad_types::custom_list::Id::from_java(&env, id);
+        if let Err(error) = daemon_interface.delete_custom_list(id) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to delete custom list")
+            );
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateCustomList(
+    env: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    customList: JObject<'_>,
+) {
+    let env = JnixEnv::from(env);
+
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
+        let list = CustomList::from_java(&env, customList);
+        if let Err(error) = daemon_interface.update_custom_list(list) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to update custom list")
             );
         }
     }
