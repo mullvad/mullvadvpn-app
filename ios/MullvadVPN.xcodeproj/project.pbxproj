@@ -770,6 +770,10 @@
 		F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */; };
 		F04F95A12B21D24400431E08 /* shadowsocks.h in Headers */ = {isa = PBXBuildFile; fileRef = F04F95A02B21D24400431E08 /* shadowsocks.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		F04FBE612A8379EE009278D7 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04FBE602A8379EE009278D7 /* AppPreferences.swift */; };
+		F050AE572B7376C6003F4EDB /* CustomListRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE552B7376C5003F4EDB /* CustomListRepositoryProtocol.swift */; };
+		F050AE582B7376C6003F4EDB /* CustomListRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE562B7376C6003F4EDB /* CustomListRepository.swift */; };
+		F050AE5A2B7376F4003F4EDB /* CustomList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE592B7376F4003F4EDB /* CustomList.swift */; };
+		F050AE5C2B73797D003F4EDB /* CustomListRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE5B2B73797D003F4EDB /* CustomListRepositoryTests.swift */; };
 		F05F39942B21C6C6006E60A7 /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
 		F05F39972B21C735006E60A7 /* RelayCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820675A26E6576800655B05 /* RelayCache.swift */; };
 		F05F39982B21C73C006E60A7 /* CachedRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87626B024A600B8C587 /* CachedRelays.swift */; };
@@ -1857,6 +1861,10 @@
 		F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncreasedHitButton.swift; sourceTree = "<group>"; };
 		F04F95A02B21D24400431E08 /* shadowsocks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shadowsocks.h; sourceTree = "<group>"; };
 		F04FBE602A8379EE009278D7 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
+		F050AE552B7376C5003F4EDB /* CustomListRepositoryProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListRepositoryProtocol.swift; sourceTree = "<group>"; };
+		F050AE562B7376C6003F4EDB /* CustomListRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListRepository.swift; sourceTree = "<group>"; };
+		F050AE592B7376F4003F4EDB /* CustomList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomList.swift; sourceTree = "<group>"; };
+		F050AE5B2B73797D003F4EDB /* CustomListRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListRepositoryTests.swift; sourceTree = "<group>"; };
 		F06045E52B231EB700B2D37A /* URLSessionTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionTransport.swift; sourceTree = "<group>"; };
 		F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksTransport.swift; sourceTree = "<group>"; };
 		F06045EB2B2322A500B2D37A /* Jittered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Jittered.swift; sourceTree = "<group>"; };
@@ -2761,6 +2769,7 @@
 				A900E9BD2ACC654100C95F67 /* APIProxy+Stubs.swift */,
 				A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */,
 				5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */,
+				F050AE5B2B73797D003F4EDB /* CustomListRepositoryTests.swift */,
 				58915D622A25F8400066445B /* DeviceCheckOperationTests.swift */,
 				A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */,
 				58FBFBF0291630700020E046 /* DurationTests.swift */,
@@ -2830,6 +2839,9 @@
 				5827B0A02B0E064E00CCBBA1 /* AccessMethodRepository.swift */,
 				58EF875A2B16385400C098B2 /* AccessMethodRepositoryProtocol.swift */,
 				F0164EBB2B482E430020268D /* AppStorage.swift */,
+				F050AE592B7376F4003F4EDB /* CustomList.swift */,
+				F050AE562B7376C6003F4EDB /* CustomListRepository.swift */,
+				F050AE552B7376C5003F4EDB /* CustomListRepositoryProtocol.swift */,
 				A92ECC2B2A7803A50052F1B1 /* DeviceState.swift */,
 				580F8B8528197958002E0998 /* DNSSettings.swift */,
 				7A5869B22B5697AC00640D27 /* IPOverride.swift */,
@@ -4581,6 +4593,7 @@
 				F09D04B72AE941DA003D4F89 /* OutgoingConnectionProxyTests.swift in Sources */,
 				F09D04B92AE95111003D4F89 /* OutgoingConnectionProxy.swift in Sources */,
 				7A6000F92B6273A4001CF0D9 /* AccessMethodViewModel.swift in Sources */,
+				F050AE5C2B73797D003F4EDB /* CustomListRepositoryTests.swift in Sources */,
 				A9A5F9F62ACB05160083449F /* TunnelStatusNotificationProvider.swift in Sources */,
 				A9A5F9F72ACB05160083449F /* NotificationProviderProtocol.swift in Sources */,
 				A9A5F9F82ACB05160083449F /* NotificationProviderIdentifier.swift in Sources */,
@@ -4675,8 +4688,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F050AE582B7376C6003F4EDB /* CustomListRepository.swift in Sources */,
 				7A5869BD2B56EF7300640D27 /* IPOverride.swift in Sources */,
 				58B2FDEE2AA72098003EB5C6 /* ApplicationConfiguration.swift in Sources */,
+				F050AE572B7376C6003F4EDB /* CustomListRepositoryProtocol.swift in Sources */,
 				58B2FDE52AA71D5C003EB5C6 /* TunnelSettingsV2.swift in Sources */,
 				A97D30172AE6B5E90045C0E4 /* StoredWgKeyData.swift in Sources */,
 				F08827882B318F960020A383 /* PersistentAccessMethod.swift in Sources */,
@@ -4697,6 +4712,7 @@
 				F08827872B318C840020A383 /* ShadowsocksCipherOptions.swift in Sources */,
 				58B2FDE92AA71D5C003EB5C6 /* SettingsParser.swift in Sources */,
 				F08827892B3192110020A383 /* AccessMethodRepositoryProtocol.swift in Sources */,
+				F050AE5A2B7376F4003F4EDB /* CustomList.swift in Sources */,
 				58B2FDE22AA71D5C003EB5C6 /* StoredAccountData.swift in Sources */,
 				F0D7FF902B31E00B00E0FDE5 /* AccessMethodKind.swift in Sources */,
 				7A5869BC2B56EF3400640D27 /* IPOverrideRepository.swift in Sources */,
