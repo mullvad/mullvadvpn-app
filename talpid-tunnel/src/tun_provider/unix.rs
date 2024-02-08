@@ -107,9 +107,6 @@ pub trait NetworkInterface: Sized {
     /// Set host IPs for interface
     fn set_ip(&mut self, ip: IpAddr) -> Result<(), NetworkInterfaceError>;
 
-    /// Set MTU for interface
-    fn set_mtu(&mut self, mtu: u16) -> Result<(), NetworkInterfaceError>;
-
     /// Get name of interface
     fn get_name(&self) -> &str;
 }
@@ -197,12 +194,6 @@ impl NetworkInterface for TunnelDevice {
     fn set_up(&mut self, up: bool) -> Result<(), NetworkInterfaceError> {
         self.dev
             .enabled(up)
-            .map_err(NetworkInterfaceError::ToggleDevice)
-    }
-
-    fn set_mtu(&mut self, mtu: u16) -> Result<(), NetworkInterfaceError> {
-        self.dev
-            .set_mtu(i32::from(mtu))
             .map_err(NetworkInterfaceError::ToggleDevice)
     }
 
