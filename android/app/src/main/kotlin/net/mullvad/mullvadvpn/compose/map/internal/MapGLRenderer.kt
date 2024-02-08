@@ -1,6 +1,6 @@
-package net.mullvad.lib.map
+package net.mullvad.mullvadvpn.compose.map.internal
 
-import android.content.Context
+import android.content.res.Resources
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
@@ -8,12 +8,12 @@ import androidx.compose.ui.graphics.Color
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.tan
-import net.mullvad.lib.map.data.MapViewState
-import net.mullvad.lib.map.data.MarkerType
-import net.mullvad.lib.map.shapes.Globe
-import net.mullvad.lib.map.shapes.LocationMarker
+import net.mullvad.mullvadvpn.compose.map.data.MapViewState
+import net.mullvad.mullvadvpn.compose.map.data.MarkerType
+import net.mullvad.mullvadvpn.compose.map.shapes.Globe
+import net.mullvad.mullvadvpn.compose.map.shapes.LocationMarker
 
-class MapGLRenderer(private val context: Context, private val mapConfig: MapConfig) :
+class MapGLRenderer(private val resources: Resources, private val mapConfig: MapConfig) :
     GLSurfaceView.Renderer {
     private lateinit var secureLocationMarker: LocationMarker
     private lateinit var unsecureLocationMarker: LocationMarker
@@ -25,7 +25,7 @@ class MapGLRenderer(private val context: Context, private val mapConfig: MapConf
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         // Set the background frame color
         // initialize a triangle
-        globe = Globe(context)
+        globe = Globe(resources)
 
         secureLocationMarker = LocationMarker(mapConfig.secureMarkerColor)
         unsecureLocationMarker = LocationMarker(mapConfig.unsecureMarkerColor)
@@ -72,7 +72,7 @@ class MapGLRenderer(private val context: Context, private val mapConfig: MapConf
         }
     }
 
-    private fun Float.toRadians() = this * Math.PI.toFloat() / 180f
+    private fun Float.toRadians() = this * Math.PI.toFloat() / COMPLETE_ANGLE / 2
 
     private fun clear() {
         // Redraw background color

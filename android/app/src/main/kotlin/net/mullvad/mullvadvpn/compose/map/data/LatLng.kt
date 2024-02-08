@@ -1,4 +1,4 @@
-package net.mullvad.lib.map.data
+package net.mullvad.mullvadvpn.compose.map.data
 
 import kotlin.math.absoluteValue
 import kotlin.math.pow

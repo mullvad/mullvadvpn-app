@@ -39,11 +39,11 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
-import net.mullvad.lib.map.Map
-import net.mullvad.lib.map.data.LatLng
-import net.mullvad.lib.map.data.Marker
-import net.mullvad.lib.map.data.MarkerType
-import net.mullvad.lib.map.data.gothenburgLatLng
+import net.mullvad.mullvadvpn.compose.map.Map
+import net.mullvad.mullvadvpn.compose.map.data.LatLng
+import net.mullvad.mullvadvpn.compose.map.data.Marker
+import net.mullvad.mullvadvpn.compose.map.data.MarkerType
+import net.mullvad.mullvadvpn.compose.map.data.gothenburgLatLng
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton

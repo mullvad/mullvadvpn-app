@@ -1,14 +1,16 @@
-package net.mullvad.lib.map.shapes
+package net.mullvad.mullvadvpn.compose.map.shapes
 
-import android.content.Context
+import android.content.res.Resources
 import android.opengl.GLES20
 import android.opengl.Matrix
 import androidx.compose.ui.graphics.Color
 import java.nio.ByteBuffer
-import net.mullvad.lib.map.GLHelper
-import net.mullvad.lib.map.IndexBufferWithLength
-import net.mullvad.lib.map.VERTEX_COMPONENT_SIZE
-import net.mullvad.lib.map.toFloatArray
+import net.mullvad.mullvadvpn.compose.map.internal.IndexBufferWithLength
+import net.mullvad.mullvadvpn.compose.map.internal.VERTEX_COMPONENT_SIZE
+import net.mullvad.mullvadvpn.compose.map.internal.initArrayBuffer
+import net.mullvad.mullvadvpn.compose.map.internal.initIndexBuffer
+import net.mullvad.mullvadvpn.compose.map.internal.initShaderProgram
+import net.mullvad.mullvadvpn.compose.map.internal.toFloatArray
 import net.mullvad.mullvadvpn.R
 
 data class GlobeColors(
@@ -21,7 +23,7 @@ data class GlobeColors(
     val contourColorArray = contourColor.toFloatArray()
 }
 
-class Globe(context: Context) {
+class Globe(resources: Resources) {
     private val vertexShaderCode =
         """
     attribute vec3 aVertexPosition;
@@ -61,34 +63,34 @@ class Globe(context: Context) {
     private val oceanVertexBuffer: Int
 
     init {
-        val landPosStream = context.resources.openRawResource(R.raw.land_positions)
+        val landPosStream = resources.openRawResource(R.raw.land_positions)
         val landVertByteArray = landPosStream.use { it.readBytes() }
         val landVertByteBuffer = ByteBuffer.wrap(landVertByteArray)
-        landVertexBuffer = GLHelper.initArrayBuffer(landVertByteBuffer)
+        landVertexBuffer = initArrayBuffer(landVertByteBuffer)
 
         val landTriangleIndicesStream =
-            context.resources.openRawResource(R.raw.land_triangle_indices)
+            resources.openRawResource(R.raw.land_triangle_indices)
         val landTriangleIndicesByteArray = landTriangleIndicesStream.use { it.readBytes() }
         val landTriangleIndicesBuffer = ByteBuffer.wrap(landTriangleIndicesByteArray)
-        landIndices = GLHelper.initIndexBuffer(landTriangleIndicesBuffer)
+        landIndices = initIndexBuffer(landTriangleIndicesBuffer)
 
-        val landContourIndicesStream = context.resources.openRawResource(R.raw.land_contour_indices)
+        val landContourIndicesStream = resources.openRawResource(R.raw.land_contour_indices)
         val landContourIndicesByteArray = landContourIndicesStream.use { it.readBytes() }
         val landContourIndicesBuffer = ByteBuffer.wrap(landContourIndicesByteArray)
-        landContour = GLHelper.initIndexBuffer(landContourIndicesBuffer)
+        landContour = initIndexBuffer(landContourIndicesBuffer)
 
-        val oceanPosStream = context.resources.openRawResource(R.raw.ocean_positions)
+        val oceanPosStream = resources.openRawResource(R.raw.ocean_positions)
         val oceanVertByteArray = oceanPosStream.use { it.readBytes() }
         val oceanVertByteBuffer = ByteBuffer.wrap(oceanVertByteArray)
-        oceanVertexBuffer = GLHelper.initArrayBuffer(oceanVertByteBuffer)
+        oceanVertexBuffer = initArrayBuffer(oceanVertByteBuffer)
 
-        val oceanTriangleIndicesStream = context.resources.openRawResource(R.raw.ocean_indices)
+        val oceanTriangleIndicesStream = resources.openRawResource(R.raw.ocean_indices)
         val oceanTriangleIndicesByteArray = oceanTriangleIndicesStream.use { it.readBytes() }
         val oceanTriangleIndicesBuffer = ByteBuffer.wrap(oceanTriangleIndicesByteArray)
-        oceanIndices = GLHelper.initIndexBuffer(oceanTriangleIndicesBuffer)
+        oceanIndices = initIndexBuffer(oceanTriangleIndicesBuffer)
 
         // create empty OpenGL ES Program
-        shaderProgram = GLHelper.initShaderProgram(vertexShaderCode, fragmentShaderCode)
+        shaderProgram = initShaderProgram(vertexShaderCode, fragmentShaderCode)
 
         attribLocations =
             AttribLocations(GLES20.glGetAttribLocation(shaderProgram, "aVertexPosition"))

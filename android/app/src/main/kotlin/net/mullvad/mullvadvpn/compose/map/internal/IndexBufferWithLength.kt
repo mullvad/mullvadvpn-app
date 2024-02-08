@@ -1,3 +1,3 @@
-package net.mullvad.lib.map
+package net.mullvad.mullvadvpn.compose.map.internal
 
 data class IndexBufferWithLength(val indexBuffer: Int, val length: Int)

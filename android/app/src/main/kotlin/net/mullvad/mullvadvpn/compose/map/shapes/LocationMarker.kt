@@ -1,16 +1,17 @@
-package net.mullvad.lib.map.shapes
+package net.mullvad.mullvadvpn.compose.map.shapes
 
 import android.opengl.GLES20
 import android.opengl.Matrix
 import androidx.compose.ui.graphics.Color
-import net.mullvad.lib.map.COLOR_COMPONENT_SIZE
+import net.mullvad.mullvadvpn.compose.map.internal.COLOR_COMPONENT_SIZE
 import java.nio.FloatBuffer
 import kotlin.math.cos
 import kotlin.math.sin
-import net.mullvad.lib.map.GLHelper
-import net.mullvad.lib.map.VERTEX_COMPONENT_SIZE
-import net.mullvad.lib.map.data.LatLng
-import net.mullvad.lib.map.toFloatArrayWithoutAlpha
+import net.mullvad.mullvadvpn.compose.map.internal.VERTEX_COMPONENT_SIZE
+import net.mullvad.mullvadvpn.compose.map.data.LatLng
+import net.mullvad.mullvadvpn.compose.map.internal.initArrayBuffer
+import net.mullvad.mullvadvpn.compose.map.internal.initShaderProgram
+import net.mullvad.mullvadvpn.compose.map.internal.toFloatArrayWithoutAlpha
 
 class LocationMarker(val color: Color) {
 
@@ -94,10 +95,10 @@ class LocationMarker(val color: Color) {
         val colorArrayBuffer = rings.flatMap { it.second }
         val colorByteBuffer = FloatBuffer.wrap(colorArrayBuffer.toFloatArray())
 
-        positionBuffer = GLHelper.initArrayBuffer(positionByteBuffer)
-        colorBuffer = GLHelper.initArrayBuffer(colorByteBuffer)
+        positionBuffer = initArrayBuffer(positionByteBuffer)
+        colorBuffer = initArrayBuffer(colorByteBuffer)
 
-        shaderProgram = GLHelper.initShaderProgram(vertexShaderCode, fragmentShaderCode)
+        shaderProgram = initShaderProgram(vertexShaderCode, fragmentShaderCode)
 
         attribLocations =
             AttribLocations(
