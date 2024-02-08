@@ -536,6 +536,16 @@ final class TunnelManager: StorePaymentObserver {
         )
     }
 
+    func setQuantumResistance(_ newSetting: TunnelQuantumResistance) {
+        scheduleSettingsUpdate(
+            taskName: "Set quantum resistance",
+            modificationBlock: { settings in
+                settings.tunnelQuantumResistance = newSetting
+            },
+            completionHandler: nil
+        )
+    }
+
     func refreshRelayCacheTracker() throws {
         try relayCacheTracker.refreshCachedRelays()
     }
