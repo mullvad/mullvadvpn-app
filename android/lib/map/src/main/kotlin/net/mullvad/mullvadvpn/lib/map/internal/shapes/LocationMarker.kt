@@ -3,24 +3,18 @@ package net.mullvad.mullvadvpn.lib.map.internal.shapes
 import android.opengl.GLES20
 import android.opengl.Matrix
 import androidx.compose.ui.graphics.Color
-import java.nio.FloatBuffer
-import kotlin.math.cos
-import kotlin.math.sin
-import net.mullvad.mullvadvpn.model.LatLng
+import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.internal.COLOR_COMPONENT_SIZE
 import net.mullvad.mullvadvpn.lib.map.internal.VERTEX_COMPONENT_SIZE
 import net.mullvad.mullvadvpn.lib.map.internal.initArrayBuffer
 import net.mullvad.mullvadvpn.lib.map.internal.initShaderProgram
 import net.mullvad.mullvadvpn.lib.map.internal.toFloatArray
+import net.mullvad.mullvadvpn.model.LatLng
+import java.nio.FloatBuffer
+import kotlin.math.cos
+import kotlin.math.sin
 
-data class LocationMarkerColors(
-    val centerColor: Color,
-    val ringBorderColor: Color = Color.White,
-    val shadowColor: Color = Color.Black.copy(alpha = 0.55f),
-    val perimeterColors: Color = centerColor.copy(alpha = 0.4f)
-)
-
-class LocationMarker(val colors: LocationMarkerColors) {
+internal class LocationMarker(val colors: LocationMarkerColors) {
 
     private val vertexShaderCode =
         """
@@ -217,4 +211,4 @@ class LocationMarker(val colors: LocationMarkerColors) {
     }
 }
 
-data class Ring(val vertices: FloatArray, val verticesColor: FloatArray)
+private data class Ring(val vertices: FloatArray, val verticesColor: FloatArray)

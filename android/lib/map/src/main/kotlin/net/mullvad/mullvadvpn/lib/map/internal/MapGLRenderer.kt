@@ -4,17 +4,18 @@ import android.content.res.Resources
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import androidx.compose.ui.graphics.Color
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.tan
+import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
+import net.mullvad.mullvadvpn.lib.map.data.MapConfig
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
 import net.mullvad.mullvadvpn.lib.map.data.MarkerType
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.Globe
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.LocationMarker
 import net.mullvad.mullvadvpn.model.COMPLETE_ANGLE
 
-class MapGLRenderer(private val resources: Resources, private val mapConfig: MapConfig) :
+internal class MapGLRenderer(private val resources: Resources, private val mapConfig: MapConfig) :
     GLSurfaceView.Renderer {
     private lateinit var secureLocationMarker: LocationMarker
     private lateinit var unsecureLocationMarker: LocationMarker
@@ -48,15 +49,12 @@ class MapGLRenderer(private val resources: Resources, private val mapConfig: Map
 
         val viewMatrix = newIdentityMatrix()
 
-        val percent = viewState.percent
+        val yOffset = toOffsetY(viewState.cameraPosition)
 
-        val z = viewState.zoom - 1f
-        val planeSize = tan(FIELD_OF_VIEW.toRadians() / 2f) * z * 2f
-        val offsetY = planeSize * (0.5f - percent)
-        Matrix.translateM(viewMatrix, 0, 0f, offsetY, -viewState.zoom)
-        Matrix.rotateM(viewMatrix, 0, viewState.cameraLatLng.latitude.value, 1f, 0f, 0f)
-        Matrix.rotateM(viewMatrix, 0, viewState.cameraLatLng.longitude.value, 0f, -1f, 0f)
+        Matrix.translateM(viewMatrix, 0, 0f, yOffset, -viewState.cameraPosition.zoom)
 
+        Matrix.rotateM(viewMatrix, 0, viewState.cameraPosition.latLng.latitude.value, 1f, 0f, 0f)
+        Matrix.rotateM(viewMatrix, 0, viewState.cameraPosition.latLng.longitude.value, 0f, -1f, 0f)
 
         val vp = viewMatrix.copyOf()
         globe.draw(projectionMatrix, vp, mapConfig.globeColors)
@@ -72,6 +70,13 @@ class MapGLRenderer(private val resources: Resources, private val mapConfig: Map
     }
 
     private fun Float.toRadians() = this * Math.PI.toFloat() / (COMPLETE_ANGLE / 2)
+
+    private fun toOffsetY(cameraPosition: CameraPosition): Float {
+        val percent = cameraPosition.bias
+        val z = cameraPosition.zoom - 1f
+        val planeSize = tan(FIELD_OF_VIEW.toRadians() / 2f) * z * 2f
+        return planeSize * (0.5f - percent)
+    }
 
     private fun clear() {
         // Redraw background color
@@ -107,4 +112,3 @@ class MapGLRenderer(private val resources: Resources, private val mapConfig: Map
         private const val FIELD_OF_VIEW = 70f
     }
 }
-

@@ -6,14 +6,21 @@ import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
+import net.mullvad.mullvadvpn.lib.map.data.MapConfig
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
 import net.mullvad.mullvadvpn.lib.map.data.Marker
 import net.mullvad.mullvadvpn.lib.map.data.MarkerType
-import net.mullvad.mullvadvpn.lib.map.internal.MapGLShader
+import net.mullvad.mullvadvpn.lib.map.internal.MapGLSurfaceView
 import net.mullvad.mullvadvpn.model.LatLng
 import net.mullvad.mullvadvpn.model.Latitude
 import net.mullvad.mullvadvpn.model.Longitude
@@ -21,103 +28,56 @@ import net.mullvad.mullvadvpn.model.Longitude
 @Composable
 fun Map(
     modifier: Modifier,
-    animate: Boolean,
+    animateCameraMovement: Boolean,
     cameraLocation: LatLng,
     marker: Marker?,
     percent: Float,
 ) {
     val mapViewState =
-        if (animate) {
-            animatedMapViewState(cameraLocation, marker, percent)
+        if (animateCameraMovement) {
+            MapViewState(marker, animatedCameraPosition(cameraLocation, marker, percent))
         } else {
-            MapViewState(
-                zoom = marker?.type.toZoom(),
-                cameraLatLng = cameraLocation,
-                locationMarker = marker,
-                percent = percent
-            )
+            MapViewState(marker, CameraPosition(cameraLocation, marker?.type.toZoom(), percent))
         }
-    Log.d("MullvadMap", "CameraLocation: ${mapViewState.cameraLatLng}")
-    MapGLShader(modifier = modifier, mapViewState = mapViewState)
+    Map(modifier = modifier, mapViewState = mapViewState)
 }
 
+
 @Composable
-fun animatedMapViewState(
-    targetCameraLocation: LatLng,
-    marker: Marker?,
-    percent: Float,
-): MapViewState {
-    val tempPreviousLocation =
-        rememberPrevious(
-            current = targetCameraLocation,
-            shouldUpdate = { prev, curr -> prev != curr }
-        ) ?: targetCameraLocation
-    val previousLocation = remember(targetCameraLocation) { tempPreviousLocation }
+internal fun Map(modifier: Modifier = Modifier, mapViewState: MapViewState) {
 
-    val distance =
-        remember(targetCameraLocation) { targetCameraLocation.distanceTo(previousLocation).toInt() }
-    val duration = distance.toAnimationDuration()
+    var view: MapGLSurfaceView? = remember { null }
 
-    val longitudeAnimation = remember { Animatable(targetCameraLocation.longitude.value) }
+    val lifeCycleState = LocalLifecycleOwner.current.lifecycle
 
-    val latitudeAnimation = remember { Animatable(targetCameraLocation.latitude.value) }
-    val secureZoomAnimation = remember {
-        Animatable(if (marker?.type == MarkerType.SECURE) SECURE_ZOOM else UNSECURE_ZOOM)
-    }
-    val zoomOutMultiplier = remember { Animatable(1f) }
-
-    LaunchedEffect(targetCameraLocation) {
-        launch { latitudeAnimation.animateTo(targetCameraLocation.latitude.value, tween(duration)) }
-        launch {
-            // Unwind longitudeAnimation into a Longitude
-            val currentLongitude = Longitude.fromFloat(longitudeAnimation.value)
-
-            // Resolve a vector showing us the shortest path to the target longitude, e.g going
-            // from 170 to -170 would result in 20 since we can wrap around the globe
-            val shortestPathVector = currentLongitude.vectorTo(targetCameraLocation.longitude)
-
-            // Animate to the new camera location using the shortest path vector
-            longitudeAnimation.animateTo(
-                longitudeAnimation.value + shortestPathVector.value,
-                tween(duration),
-            )
-
-            // Current value animation value might be outside of range of a Longitude, so when the
-            // animation is done we unwind the animation to the correct value
-            longitudeAnimation.snapTo(targetCameraLocation.longitude.value)
+    DisposableEffect(key1 = lifeCycleState) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> {
+                    view?.onResume()
+                }
+                Lifecycle.Event.ON_PAUSE -> {
+                    view?.onPause()
+                }
+                else -> {}
+            }
         }
-        launch {
-            zoomOutMultiplier.animateTo(
-                targetValue = 1f,
-                animationSpec =
-                    keyframes {
-                        if (duration < SHORT_ANIMATION_MILLIS) {
-                            durationMillis = duration
-                            1f at duration using EaseInOut
-                        } else {
-                            durationMillis = duration
-                            1.25f at duration / 3 using EaseInOut
-                            1f at duration using EaseInOut
-                        }
-                    }
-            )
+        lifeCycleState.addObserver(observer)
+
+        onDispose {
+            Log.d("mullvad", "AAA View Disposed ${view.hashCode()}")
+            lifeCycleState.removeObserver(observer)
+            view?.onPause()
+            view = null
         }
     }
 
-    LaunchedEffect(marker?.type) {
-        launch { secureZoomAnimation.animateTo(targetValue = marker?.type.toZoom(), tween(2000)) }
+    // TODO how to handle mapConfig changes? Can we recreate the view? make them recomposable?
+    AndroidView(modifier = modifier, factory = { MapGLSurfaceView(it, mapConfig = MapConfig()) }) {
+        glSurfaceView ->
+        view = glSurfaceView
+        glSurfaceView.setData(mapViewState)
     }
-
-    return MapViewState(
-        zoom = secureZoomAnimation.value * zoomOutMultiplier.value * 0.9f,
-        cameraLatLng =
-            LatLng(
-                Latitude(latitudeAnimation.value),
-                Longitude.fromFloat(longitudeAnimation.value)
-            ),
-        locationMarker = marker,
-        percent = percent
-    )
 }
 
 fun MarkerType?.toZoom() =

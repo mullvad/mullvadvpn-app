@@ -8,7 +8,7 @@ import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 
-fun initShaderProgram(vsSource: String, fsSource: String): Int {
+internal fun initShaderProgram(vsSource: String, fsSource: String): Int {
     val vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vsSource)
     require(vertexShader != -1) { "Failed to load vertexShader, result: -1" }
 
@@ -63,9 +63,9 @@ private fun loadShader(type: Int, shaderCode: String): Int {
     return shader
 }
 
-fun initArrayBuffer(buffer: ByteBuffer) = initArrayBuffer(buffer, Byte.SIZE_BYTES)
+internal fun initArrayBuffer(buffer: ByteBuffer) = initArrayBuffer(buffer, Byte.SIZE_BYTES)
 
-fun initArrayBuffer(buffer: FloatBuffer) = initArrayBuffer(buffer, Float.SIZE_BYTES)
+internal fun initArrayBuffer(buffer: FloatBuffer) = initArrayBuffer(buffer, Float.SIZE_BYTES)
 
 private fun initArrayBuffer(dataBuffer: Buffer, unitSizeInBytes: Int = 1): Int {
     val buffer = IntArray(1)
@@ -81,7 +81,7 @@ private fun initArrayBuffer(dataBuffer: Buffer, unitSizeInBytes: Int = 1): Int {
     return buffer[0]
 }
 
-fun initIndexBuffer(dataBuffer: Buffer): IndexBufferWithLength {
+internal fun initIndexBuffer(dataBuffer: Buffer): IndexBufferWithLength {
     val buffer = IntArray(1)
     GLES20.glGenBuffers(1, buffer, 0)
 
@@ -95,12 +95,12 @@ fun initIndexBuffer(dataBuffer: Buffer): IndexBufferWithLength {
     return IndexBufferWithLength(indexBuffer = buffer[0], length = dataBuffer.capacity() / Float.SIZE_BYTES)
 }
 
-fun newIdentityMatrix(): FloatArray = FloatArray(MATRIX_SIZE).apply { Matrix.setIdentityM(this, 0) }
+internal fun newIdentityMatrix(): FloatArray = FloatArray(MATRIX_SIZE).apply { Matrix.setIdentityM(this, 0) }
 
-fun Color.toFloatArray(): FloatArray {
+internal fun Color.toFloatArray(): FloatArray {
     return floatArrayOf(red, green, blue, alpha)
 }
 
-fun Color.toFloatArrayWithoutAlpha(): FloatArray {
+internal fun Color.toFloatArrayWithoutAlpha(): FloatArray {
     return floatArrayOf(red, green, blue)
 }

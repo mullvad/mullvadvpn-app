@@ -3,25 +3,14 @@ package net.mullvad.mullvadvpn.lib.map.internal.shapes
 import android.content.res.Resources
 import android.opengl.GLES20
 import android.opengl.Matrix
-import androidx.compose.ui.graphics.Color
-import java.nio.ByteBuffer
+import net.mullvad.mullvadvpn.lib.map.R
+import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.internal.IndexBufferWithLength
 import net.mullvad.mullvadvpn.lib.map.internal.VERTEX_COMPONENT_SIZE
 import net.mullvad.mullvadvpn.lib.map.internal.initArrayBuffer
 import net.mullvad.mullvadvpn.lib.map.internal.initIndexBuffer
 import net.mullvad.mullvadvpn.lib.map.internal.initShaderProgram
-import net.mullvad.mullvadvpn.lib.map.internal.toFloatArray
-import net.mullvad.mullvadvpn.lib.map.R
-
-data class GlobeColors(
-    val landColor: Color,
-    val oceanColor: Color,
-    val contourColor: Color,
-) {
-    val landColorArray = landColor.toFloatArray()
-    val oceanColorArray = oceanColor.toFloatArray()
-    val contourColorArray = contourColor.toFloatArray()
-}
+import java.nio.ByteBuffer
 
 class Globe(resources: Resources) {
     private val vertexShaderCode =

@@ -9,40 +9,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import net.mullvad.mullvadvpn.lib.map.data.MapConfig
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
 
-@Composable
-fun MapGLShader(modifier: Modifier = Modifier, mapViewState: MapViewState) {
-    var view: MapGLSurfaceView? = remember { null }
-
-    val lifeCycleState = LocalLifecycleOwner.current.lifecycle
-
-    DisposableEffect(key1 = lifeCycleState) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> {
-                    view?.onResume()
-                }
-                Lifecycle.Event.ON_PAUSE -> {
-                    view?.onPause()
-                }
-                else -> {}
-            }
-        }
-        lifeCycleState.addObserver(observer)
-
-        onDispose {
-            Log.d("mullvad", "AAA View Disposed ${view.hashCode()}")
-            lifeCycleState.removeObserver(observer)
-            view?.onPause()
-            view = null
-        }
-    }
-
-    // TODO how to handle mapConfig changes? Can we recreate the view? make them recomposable?
-    AndroidView(modifier = modifier, factory = { MapGLSurfaceView(it, mapConfig = MapConfig()) }) {
-        glSurfaceView ->
-        view = glSurfaceView
-        glSurfaceView.setData(mapViewState)
-    }
-}
