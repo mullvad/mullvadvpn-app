@@ -18,6 +18,10 @@ yanked = "deny"
 notice = "deny"
 
 ignore = [
+    # Ignored audit issues. This list should be kept short, and effort should be
+    # put into removing items from the list.
+    # RUSTSEC-2023-0079 - KyberSlash in `pqc_kyber`.
+    "RUSTSEC-2023-0079"
 ]
 
 #severity-threshold =
