@@ -789,6 +789,13 @@
 		F050AE582B7376C6003F4EDB /* CustomListRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE562B7376C6003F4EDB /* CustomListRepository.swift */; };
 		F050AE5A2B7376F4003F4EDB /* CustomList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE592B7376F4003F4EDB /* CustomList.swift */; };
 		F050AE5C2B73797D003F4EDB /* CustomListRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE5B2B73797D003F4EDB /* CustomListRepositoryTests.swift */; };
+		F050AE4C2B70D5A7003F4EDB /* SelectLocationNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE4B2B70D5A7003F4EDB /* SelectLocationNode.swift */; };
+		F050AE4E2B70D7F8003F4EDB /* LocationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE4D2B70D7F8003F4EDB /* LocationCellViewModel.swift */; };
+		F050AE502B70DC4F003F4EDB /* SelectLocationNodeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE4F2B70DC4F003F4EDB /* SelectLocationNodeProtocol.swift */; };
+		F050AE522B70DFC0003F4EDB /* SelectLocationGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE512B70DFC0003F4EDB /* SelectLocationGroup.swift */; };
+		F050AE5E2B739A73003F4EDB /* LocationDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE5D2B739A73003F4EDB /* LocationDataSourceProtocol.swift */; };
+		F050AE602B73A41E003F4EDB /* AllLocationDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE5F2B73A41E003F4EDB /* AllLocationDataSource.swift */; };
+		F050AE622B74DBAC003F4EDB /* CustomListsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE612B74DBAC003F4EDB /* CustomListsDataSource.swift */; };
 		F05F39942B21C6C6006E60A7 /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
 		F05F39972B21C735006E60A7 /* RelayCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820675A26E6576800655B05 /* RelayCache.swift */; };
 		F05F39982B21C73C006E60A7 /* CachedRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87626B024A600B8C587 /* CachedRelays.swift */; };
@@ -1898,6 +1905,13 @@
 		F050AE562B7376C6003F4EDB /* CustomListRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListRepository.swift; sourceTree = "<group>"; };
 		F050AE592B7376F4003F4EDB /* CustomList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomList.swift; sourceTree = "<group>"; };
 		F050AE5B2B73797D003F4EDB /* CustomListRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListRepositoryTests.swift; sourceTree = "<group>"; };
+		F050AE4B2B70D5A7003F4EDB /* SelectLocationNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationNode.swift; sourceTree = "<group>"; };
+		F050AE4D2B70D7F8003F4EDB /* LocationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCellViewModel.swift; sourceTree = "<group>"; };
+		F050AE4F2B70DC4F003F4EDB /* SelectLocationNodeProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationNodeProtocol.swift; sourceTree = "<group>"; };
+		F050AE512B70DFC0003F4EDB /* SelectLocationGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationGroup.swift; sourceTree = "<group>"; };
+		F050AE5D2B739A73003F4EDB /* LocationDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDataSourceProtocol.swift; sourceTree = "<group>"; };
+		F050AE5F2B73A41E003F4EDB /* AllLocationDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllLocationDataSource.swift; sourceTree = "<group>"; };
+		F050AE612B74DBAC003F4EDB /* CustomListsDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListsDataSource.swift; sourceTree = "<group>"; };
 		F06045E52B231EB700B2D37A /* URLSessionTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionTransport.swift; sourceTree = "<group>"; };
 		F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksTransport.swift; sourceTree = "<group>"; };
 		F06045EB2B2322A500B2D37A /* Jittered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Jittered.swift; sourceTree = "<group>"; };
@@ -2324,9 +2338,16 @@
 		583FE01729C196F3006E85F9 /* SelectLocation */ = {
 			isa = PBXGroup;
 			children = (
+				F050AE5F2B73A41E003F4EDB /* AllLocationDataSource.swift */,
+				F050AE612B74DBAC003F4EDB /* CustomListsDataSource.swift */,
 				58435AC129CB2A350099C71B /* LocationCellFactory.swift */,
+				F050AE4D2B70D7F8003F4EDB /* LocationCellViewModel.swift */,
 				583DA21325FA4B5C00318683 /* LocationDataSource.swift */,
+				F050AE5D2B739A73003F4EDB /* LocationDataSourceProtocol.swift */,
 				5888AD82227B11080051EB06 /* SelectLocationCell.swift */,
+				F050AE512B70DFC0003F4EDB /* SelectLocationGroup.swift */,
+				F050AE4B2B70D5A7003F4EDB /* SelectLocationNode.swift */,
+				F050AE4F2B70DC4F003F4EDB /* SelectLocationNodeProtocol.swift */,
 				5888AD86227B17950051EB06 /* SelectLocationViewController.swift */,
 			);
 			path = SelectLocation;
@@ -4995,6 +5016,7 @@
 				58968FAE28743E2000B799DC /* TunnelInteractor.swift in Sources */,
 				7A1A26472A29CF0800B978AA /* RelayFilterDataSource.swift in Sources */,
 				5864AF0929C78850005B0CD9 /* PreferencesCellFactory.swift in Sources */,
+				F050AE4E2B70D7F8003F4EDB /* LocationCellViewModel.swift in Sources */,
 				58CEB30C2AFD586600E6E088 /* DynamicBackgroundConfiguration.swift in Sources */,
 				587B7536266528A200DEF7E9 /* NotificationManager.swift in Sources */,
 				5820EDA9288FE064006BF4E4 /* DeviceManagementInteractor.swift in Sources */,
@@ -5008,6 +5030,7 @@
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
 				F0E8E4C52A60499100ED26A3 /* AccountDeletionViewController.swift in Sources */,
 				7A9CCCC12A96302800DD6A34 /* AccountCoordinator.swift in Sources */,
+				F050AE502B70DC4F003F4EDB /* SelectLocationNodeProtocol.swift in Sources */,
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
 				5846227326E22A160035F7C2 /* StorePaymentObserver.swift in Sources */,
 				F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */,
@@ -5049,6 +5072,7 @@
 				7A9CCCBE2A96302800DD6A34 /* AccountDeletionCoordinator.swift in Sources */,
 				588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */,
 				58FF9FE02B075ABC00E4C97D /* EditAccessMethodViewController.swift in Sources */,
+				F050AE622B74DBAC003F4EDB /* CustomListsDataSource.swift in Sources */,
 				F0DA87472A9CB9A2006044F1 /* AccountExpiryRow.swift in Sources */,
 				585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */,
 				E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */,
@@ -5081,6 +5105,7 @@
 				063F026628FFE11C001FA09F /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
 				58DF28A52417CB4B00E836B0 /* StorePaymentManager.swift in Sources */,
 				583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */,
+				F050AE602B73A41E003F4EDB /* AllLocationDataSource.swift in Sources */,
 				587EB6742714520600123C75 /* PreferencesDataSourceDelegate.swift in Sources */,
 				582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */,
 				7AF9BE8E2A331C7B00DBFEDB /* RelayFilterViewModel.swift in Sources */,
@@ -5186,7 +5211,9 @@
 				584592612639B4A200EF967F /* TermsOfServiceContentView.swift in Sources */,
 				5875960A26F371FC00BF6711 /* Tunnel+Messaging.swift in Sources */,
 				586C0D912B03D8A400E7CDD7 /* AccessMethodHeaderFooterReuseIdentifier.swift in Sources */,
+				F050AE4C2B70D5A7003F4EDB /* SelectLocationNode.swift in Sources */,
 				7A2960F62A963F7500389B82 /* AlertCoordinator.swift in Sources */,
+				F050AE522B70DFC0003F4EDB /* SelectLocationGroup.swift in Sources */,
 				063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */,
 				A9C342C12ACC37E30045F00E /* TunnelStatusBlockObserver.swift in Sources */,
 				587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */,
@@ -5206,6 +5233,7 @@
 				5827B0BF2B14B37D00CCBBA1 /* Publisher+PreviousValue.swift in Sources */,
 				7A9CCCB62A96302800DD6A34 /* OutOfTimeCoordinator.swift in Sources */,
 				5827B0AA2B0F4C9100CCBBA1 /* EditAccessMethodViewControllerDelegate.swift in Sources */,
+				F050AE5E2B739A73003F4EDB /* LocationDataSourceProtocol.swift in Sources */,
 				7A5869A82B5140C200640D27 /* MethodSettingsValidationErrorContentView.swift in Sources */,
 				A99E5EE22B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift in Sources */,
 				7A5869A22B502EA800640D27 /* MethodSettingsSectionIdentifier.swift in Sources */,
