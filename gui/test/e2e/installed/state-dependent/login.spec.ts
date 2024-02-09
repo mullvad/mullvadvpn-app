@@ -49,12 +49,12 @@ test('App should create account', async () => {
   const title = page.locator('h1')
   const subtitle = page.getByTestId('subtitle');
 
-  await page.getByText('Create account').click();
+  expect(await util.waitForNavigation(async () => {
+    await page.getByText('Create account').click();
 
-  await expect(title).toHaveText('Account created');
-  await expect(subtitle).toHaveText('Logged in');
-
-  expect(await util.waitForNavigation()).toEqual(RoutePath.expired);
+    await expect(title).toHaveText('Account created');
+    await expect(subtitle).toHaveText('Logged in');
+  })).toEqual(RoutePath.expired);
 
   const outOfTimeTitle = page.getByTestId('title');
   await expect(outOfTimeTitle).toHaveText('Congrats!');
@@ -80,13 +80,14 @@ test('App should log in', async () => {
   await expect(title).toHaveText('Login');
   await expect(subtitle).toHaveText('Enter your account number');
 
-  await loginInput.type(process.env.ACCOUNT_NUMBER!);
-  await loginInput.press('Enter');
+  await loginInput.fill(process.env.ACCOUNT_NUMBER!);
 
-  await expect(title).toHaveText('Logged in');
-  await expect(subtitle).toHaveText('Valid account number');
+  expect(await util.waitForNavigation(async () => {
+    await loginInput.press('Enter');
 
-  expect(await util.waitForNavigation()).toEqual(RoutePath.main);
+    await expect(title).toHaveText('Logged in');
+    await expect(subtitle).toHaveText('Valid account number');
+  })).toEqual(RoutePath.main);
   await expectDisconnected(page);
 });
 
@@ -115,13 +116,11 @@ test('App should log in to expired account', async () => {
   await expect(title).toHaveText('Login');
   await expect(subtitle).toHaveText('Enter your account number');
 
-  await loginInput.type(accountNumber);
-  await loginInput.press('Enter');
+  await loginInput.fill(accountNumber);
 
-  await expect(title).toHaveText('Logged in');
-  await expect(subtitle).toHaveText('Valid account number');
-
-  expect(await util.waitForNavigation()).toEqual(RoutePath.expired);
+  expect(await util.waitForNavigation(async () => {
+    await loginInput.press('Enter');
+  })).toEqual(RoutePath.expired);
 
   const outOfTimeTitle = page.getByTestId('title');
   await expect(outOfTimeTitle).toHaveText('Out of time');
