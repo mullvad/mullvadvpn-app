@@ -181,9 +181,11 @@ impl TunnelState for ErrorState {
                 let _ = complete_tx.send(());
                 SameState(self)
             }
-            Some(TunnelCommand::IsOffline(is_offline)) => {
-                shared_values.is_offline = is_offline;
-                if !is_offline && matches!(self.block_reason, ErrorStateCause::IsOffline) {
+            Some(TunnelCommand::Connectivity(connectivity)) => {
+                shared_values.connectivity = connectivity;
+                if !connectivity.is_offline()
+                    && matches!(self.block_reason, ErrorStateCause::IsOffline)
+                {
                     Self::reset_dns(shared_values);
                     NewState(ConnectingState::enter(shared_values, 0))
                 } else {

@@ -4,13 +4,13 @@ use jnix::{
         self,
         objects::{GlobalRef, JObject, JValue},
         signature::{JavaType, Primitive},
-        sys::{jboolean, jlong, JNI_FALSE},
+        sys::{jboolean, jlong, JNI_TRUE},
         JNIEnv, JavaVM,
     },
     JnixEnv,
 };
 use std::sync::{Arc, Weak};
-use talpid_types::{android::AndroidContext, ErrorExt};
+use talpid_types::{android::AndroidContext, net::Connectivity, ErrorExt};
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -43,13 +43,13 @@ pub struct MonitorHandle {
     jvm: Arc<JavaVM>,
     class: GlobalRef,
     object: GlobalRef,
-    _sender: Arc<UnboundedSender<bool>>,
+    _sender: Arc<UnboundedSender<Connectivity>>,
 }
 
 impl MonitorHandle {
     pub fn new(
         android_context: AndroidContext,
-        sender: Arc<UnboundedSender<bool>>,
+        sender: Arc<UnboundedSender<Connectivity>>,
     ) -> Result<Self, Error> {
         let env = JnixEnv::from(
             android_context
@@ -101,30 +101,29 @@ impl MonitorHandle {
     }
 
     #[allow(clippy::unused_async)]
-    pub async fn host_is_offline(&self) -> bool {
-        match self.get_is_connected() {
-            Ok(is_connected) => !is_connected,
-            Err(error) => {
+    pub async fn connectivity(&self) -> Connectivity {
+        self.get_is_connected()
+            .map(|connected| Connectivity::Status { connected })
+            .unwrap_or_else(|error| {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to check connectivity status")
                 );
-                false
-            }
-        }
+                Connectivity::PresumeOnline
+            })
     }
 
     fn get_is_connected(&self) -> Result<bool, Error> {
-        let result = self.call_method(
+        let is_connected = self.call_method(
             "isConnected",
             "()Z",
             &[],
             JavaType::Primitive(Primitive::Boolean),
         )?;
 
-        match result {
-            JValue::Bool(JNI_FALSE) => Ok(false),
-            JValue::Bool(_) => Ok(true),
+        match is_connected {
+            JValue::Bool(JNI_TRUE) => Ok(true),
+            JValue::Bool(_) => Ok(false),
             value => Err(Error::InvalidMethodResult(
                 "ConnectivityListener",
                 "isConnected",
@@ -133,7 +132,7 @@ impl MonitorHandle {
         }
     }
 
-    fn set_sender(&self, sender: Weak<UnboundedSender<bool>>) -> Result<(), Error> {
+    fn set_sender(&self, sender: Weak<UnboundedSender<Connectivity>>) -> Result<(), Error> {
         let sender_ptr = Box::new(sender);
         let sender_address = Box::into_raw(sender_ptr) as jlong;
 
@@ -182,14 +181,16 @@ impl MonitorHandle {
 pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyConnectivityChange(
     _: JNIEnv<'_>,
     _: JObject<'_>,
-    is_connected: jboolean,
+    connected: jboolean,
     sender_address: jlong,
 ) {
+    let connected = JNI_TRUE == connected;
     let sender_ref = Box::leak(unsafe { get_sender_from_address(sender_address) });
-    let is_offline = is_connected == JNI_FALSE;
-
     if let Some(sender) = sender_ref.upgrade() {
-        if sender.unbounded_send(is_offline).is_err() {
+        if sender
+            .unbounded_send(Connectivity::Status { connected })
+            .is_err()
+        {
             log::warn!("Failed to send offline change event");
         }
     }
@@ -206,13 +207,13 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_destroySende
     let _ = unsafe { get_sender_from_address(sender_address) };
 }
 
-unsafe fn get_sender_from_address(address: jlong) -> Box<Weak<UnboundedSender<bool>>> {
-    Box::from_raw(address as *mut Weak<UnboundedSender<bool>>)
+unsafe fn get_sender_from_address(address: jlong) -> Box<Weak<UnboundedSender<Connectivity>>> {
+    Box::from_raw(address as *mut Weak<UnboundedSender<Connectivity>>)
 }
 
 #[allow(clippy::unused_async)]
 pub async fn spawn_monitor(
-    sender: UnboundedSender<bool>,
+    sender: UnboundedSender<Connectivity>,
     android_context: AndroidContext,
 ) -> Result<MonitorHandle, Error> {
     let sender = Arc::new(sender);

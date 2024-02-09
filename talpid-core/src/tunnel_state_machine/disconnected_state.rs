@@ -200,8 +200,8 @@ impl TunnelState for DisconnectedState {
                     SameState(self)
                 }
             }
-            Some(TunnelCommand::IsOffline(is_offline)) => {
-                shared_values.is_offline = is_offline;
+            Some(TunnelCommand::Connectivity(connectivity)) => {
+                shared_values.connectivity = connectivity;
                 SameState(self)
             }
             Some(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),

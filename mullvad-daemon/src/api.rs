@@ -21,7 +21,9 @@ use mullvad_types::access_method::{
 };
 use std::{net::SocketAddr, path::PathBuf};
 use talpid_core::mpsc::Sender;
-use talpid_types::net::{AllowedClients, AllowedEndpoint, Endpoint, TransportProtocol};
+use talpid_types::net::{
+    AllowedClients, AllowedEndpoint, Connectivity, Endpoint, TransportProtocol,
+};
 
 pub enum Message {
     Get(ResponseTx<ResolvedConnectionMode>),
@@ -527,18 +529,26 @@ pub fn allowed_clients(connection_mode: &ApiConnectionMode) -> AllowedClients {
     }
 }
 
+/// Forwards the received values from `offline_state_rx` to the [`ApiAvailabilityHandle`].
 pub(crate) fn forward_offline_state(
     api_availability: ApiAvailabilityHandle,
-    mut offline_state_rx: mpsc::UnboundedReceiver<bool>,
+    mut offline_state_rx: mpsc::UnboundedReceiver<Connectivity>,
 ) {
     tokio::spawn(async move {
-        let initial_state = offline_state_rx
+        let is_offline = offline_state_rx
             .next()
             .await
-            .expect("missing initial offline state");
-        api_availability.set_offline(initial_state);
-        while let Some(is_offline) = offline_state_rx.next().await {
-            api_availability.set_offline(is_offline);
+            .expect("missing initial offline state")
+            .is_offline();
+        log::info!(
+            "Initial offline state - {state}",
+            state = if is_offline { "offline" } else { "online" },
+        );
+        api_availability.set_offline(is_offline);
+
+        while let Some(state) = offline_state_rx.next().await {
+            log::info!("Detecting changes to offline state - {state:?}");
+            api_availability.set_offline(state.is_offline());
         }
     });
 }
