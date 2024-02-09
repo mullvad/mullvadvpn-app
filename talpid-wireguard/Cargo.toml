@@ -29,6 +29,7 @@ tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 rand = "0.8.5"
 surge-ping = "0.8.0"
+tokio-stream = { version = "0.1", features = ["io-util"] }
 
 [target.'cfg(target_os="android")'.dependencies]
 duct = "0.13"
@@ -37,7 +38,6 @@ duct = "0.13"
 byteorder = "1"
 internet-checksum = "0.2"
 socket2 = { version = "0.5.3", features = ["all"] }
-tokio-stream = { version = "0.1", features = ["io-util"] }
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.23"
