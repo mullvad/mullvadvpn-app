@@ -70,7 +70,7 @@ class MapGLRenderer(private val resources: Resources, private val mapConfig: Map
         }
     }
 
-    private fun Float.toRadians() = this * Math.PI.toFloat() / COMPLETE_ANGLE / 2
+    private fun Float.toRadians() = this * Math.PI.toFloat() / (COMPLETE_ANGLE / 2)
 
     private fun clear() {
         // Redraw background color
