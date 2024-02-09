@@ -75,7 +75,7 @@ class StartTunnelOperationTests: XCTestCase {
         let operation = StartTunnelOperation(
             dispatchQueue: testQueue,
             interactor: interactor
-        ) { result in
+        ) { _ in
             XCTAssertEqual(tunnelStatus.state, .disconnecting(.reconnect))
             expectation.fulfill()
         }
@@ -89,7 +89,7 @@ class StartTunnelOperationTests: XCTestCase {
         let operation = StartTunnelOperation(
             dispatchQueue: testQueue,
             interactor: interactor
-        ) { result in
+        ) { _ in
             XCTAssertNotNil(interactor.tunnel)
             XCTAssertNotNil(interactor.tunnel?.startDate)
             expectation.fulfill()
