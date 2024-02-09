@@ -54,7 +54,7 @@ pub async fn automatic_mtu_correction(
     if verified_mtu != current_tunnel_mtu {
         log::warn!("Lowering MTU from {} to {verified_mtu}", current_tunnel_mtu);
 
-        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        #[cfg(unix)]
         crate::unix::set_mtu(&iface_name, verified_mtu).map_err(Error::SetMtu)?;
         #[cfg(windows)]
         set_mtu_windows(verified_mtu, iface_name, ipv6).map_err(Error::SetMtu)?;
