@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.map.internal.shapes
 import android.content.res.Resources
 import android.opengl.GLES20
 import android.opengl.Matrix
+import java.nio.ByteBuffer
 import net.mullvad.mullvadvpn.lib.map.R
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.internal.IndexBufferWithLength
@@ -10,7 +11,6 @@ import net.mullvad.mullvadvpn.lib.map.internal.VERTEX_COMPONENT_SIZE
 import net.mullvad.mullvadvpn.lib.map.internal.initArrayBuffer
 import net.mullvad.mullvadvpn.lib.map.internal.initIndexBuffer
 import net.mullvad.mullvadvpn.lib.map.internal.initShaderProgram
-import java.nio.ByteBuffer
 
 class Globe(resources: Resources) {
     private val vertexShaderCode =
@@ -42,7 +42,12 @@ class Globe(resources: Resources) {
     private val uniformLocation: UniformLocation
 
     private data class AttribLocations(val vertexPosition: Int)
-    private data class UniformLocation(val color: Int, val projectionMatrix: Int, val modelViewMatrix: Int)
+
+    private data class UniformLocation(
+        val color: Int,
+        val projectionMatrix: Int,
+        val modelViewMatrix: Int
+    )
 
     private val landIndices: IndexBufferWithLength
     private val landContour: IndexBufferWithLength
@@ -57,8 +62,7 @@ class Globe(resources: Resources) {
         val landVertByteBuffer = ByteBuffer.wrap(landVertByteArray)
         landVertexBuffer = initArrayBuffer(landVertByteBuffer)
 
-        val landTriangleIndicesStream =
-            resources.openRawResource(R.raw.land_triangle_indices)
+        val landTriangleIndicesStream = resources.openRawResource(R.raw.land_triangle_indices)
         val landTriangleIndicesByteArray = landTriangleIndicesStream.use { it.readBytes() }
         val landTriangleIndicesBuffer = ByteBuffer.wrap(landTriangleIndicesByteArray)
         landIndices = initIndexBuffer(landTriangleIndicesBuffer)

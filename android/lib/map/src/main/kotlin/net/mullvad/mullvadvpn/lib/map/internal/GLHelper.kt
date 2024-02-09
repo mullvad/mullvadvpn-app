@@ -92,10 +92,14 @@ internal fun initIndexBuffer(dataBuffer: Buffer): IndexBufferWithLength {
         dataBuffer,
         GLES20.GL_STATIC_DRAW
     )
-    return IndexBufferWithLength(indexBuffer = buffer[0], length = dataBuffer.capacity() / Float.SIZE_BYTES)
+    return IndexBufferWithLength(
+        indexBuffer = buffer[0],
+        length = dataBuffer.capacity() / Float.SIZE_BYTES
+    )
 }
 
-internal fun newIdentityMatrix(): FloatArray = FloatArray(MATRIX_SIZE).apply { Matrix.setIdentityM(this, 0) }
+internal fun newIdentityMatrix(): FloatArray =
+    FloatArray(MATRIX_SIZE).apply { Matrix.setIdentityM(this, 0) }
 
 internal fun Color.toFloatArray(): FloatArray {
     return floatArrayOf(red, green, blue, alpha)

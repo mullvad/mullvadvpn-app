@@ -18,5 +18,4 @@ data class LatLng(val latitude: Latitude, val longitude: Longitude) {
         LatLng(latitude - other.latitude, longitude - other.longitude)
 }
 
-
 const val COMPLETE_ANGLE = 360f

@@ -1,20 +1,14 @@
 package net.mullvad.mullvadvpn.lib.map
 
 import android.util.Log
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.EaseInOut
-import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.MapConfig
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
@@ -22,8 +16,6 @@ import net.mullvad.mullvadvpn.lib.map.data.Marker
 import net.mullvad.mullvadvpn.lib.map.data.MarkerType
 import net.mullvad.mullvadvpn.lib.map.internal.MapGLSurfaceView
 import net.mullvad.mullvadvpn.model.LatLng
-import net.mullvad.mullvadvpn.model.Latitude
-import net.mullvad.mullvadvpn.model.Longitude
 
 @Composable
 fun Map(
@@ -41,7 +33,6 @@ fun Map(
         }
     Map(modifier = modifier, mapViewState = mapViewState)
 }
-
 
 @Composable
 internal fun Map(modifier: Modifier = Modifier, mapViewState: MapViewState) {

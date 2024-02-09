@@ -27,4 +27,3 @@ internal class MapGLSurfaceView(context: Context, mapConfig: MapConfig) : GLSurf
         requestRender()
     }
 }
-
