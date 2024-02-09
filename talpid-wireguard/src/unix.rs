@@ -5,7 +5,7 @@ use talpid_types::ErrorExt;
 
 #[cfg(target_os = "macos")]
 const SIOCSIFMTU: u64 = 0x80206934;
-#[cfg(target_os = "linux")]
+#[cfg(not(target_os = "macos"))]
 const SIOCSIFMTU: u64 = libc::SIOCSIFMTU;
 
 pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
