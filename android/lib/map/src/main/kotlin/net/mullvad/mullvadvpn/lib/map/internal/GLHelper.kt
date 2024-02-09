@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.map.internal
+package net.mullvad.mullvadvpn.lib.map.internal
 
 import android.opengl.GLES20
 import android.opengl.Matrix

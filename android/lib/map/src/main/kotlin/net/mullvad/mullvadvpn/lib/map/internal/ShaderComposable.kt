@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.map.internal
+package net.mullvad.mullvadvpn.lib.map.internal
 
 import android.util.Log
 import androidx.compose.runtime.Composable
@@ -9,7 +9,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import net.mullvad.mullvadvpn.compose.map.data.MapViewState
+import net.mullvad.mullvadvpn.lib.map.data.MapViewState
 
 @Composable
 fun MapGLShader(modifier: Modifier = Modifier, mapViewState: MapViewState) {

@@ -1,4 +1,6 @@
-package net.mullvad.mullvadvpn.compose.map.data
+package net.mullvad.mullvadvpn.lib.map.data
+
+import net.mullvad.mullvadvpn.model.LatLng
 
 data class Marker(val latLng: LatLng, val type: MarkerType, val size: Float = 0.02f)
 

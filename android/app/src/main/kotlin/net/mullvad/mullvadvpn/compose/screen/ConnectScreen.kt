@@ -54,13 +54,6 @@ import net.mullvad.mullvadvpn.compose.destinations.DeviceRevokedDestination
 import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
 import net.mullvad.mullvadvpn.compose.destinations.SelectLocationDestination
 import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
-import net.mullvad.mullvadvpn.compose.map.Map
-import net.mullvad.mullvadvpn.compose.map.data.LatLng
-import net.mullvad.mullvadvpn.compose.map.data.Latitude
-import net.mullvad.mullvadvpn.compose.map.data.Longitude
-import net.mullvad.mullvadvpn.compose.map.data.Marker
-import net.mullvad.mullvadvpn.compose.map.data.MarkerType
-import net.mullvad.mullvadvpn.compose.map.data.gothenburgLatLng
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
@@ -70,11 +63,15 @@ import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
+import net.mullvad.mullvadvpn.lib.map.Map
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.model.GeoIpLocation
+import net.mullvad.mullvadvpn.model.LatLng
+import net.mullvad.mullvadvpn.model.Latitude
+import net.mullvad.mullvadvpn.model.Longitude
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
@@ -326,15 +323,25 @@ fun ConnectScreen(
     }
 }
 
-fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
+fun TunnelState.toMarker(location: GeoIpLocation?): net.mullvad.mullvadvpn.lib.map.data.Marker? {
     if (location == null) return null
     return when (this) {
-        is TunnelState.Connected -> Marker(location.toLatLng(), MarkerType.SECURE)
+        is TunnelState.Connected ->
+            net.mullvad.mullvadvpn.lib.map.data.Marker(
+                location.toLatLng(),
+                net.mullvad.mullvadvpn.lib.map.data.MarkerType.SECURE
+            )
         is TunnelState.Connecting -> null
-        is TunnelState.Disconnected -> Marker(location.toLatLng(), MarkerType.UNSECURE)
+        is TunnelState.Disconnected ->
+            net.mullvad.mullvadvpn.lib.map.data.Marker(
+                location.toLatLng(),
+                net.mullvad.mullvadvpn.lib.map.data.MarkerType.UNSECURE
+            )
         is TunnelState.Disconnecting -> null
         is TunnelState.Error -> null
     }
 }
 
 fun GeoIpLocation.toLatLng() = LatLng(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))
+
+val gothenburgLatLng = LatLng(Latitude(57.7065f), Longitude(11.967f))

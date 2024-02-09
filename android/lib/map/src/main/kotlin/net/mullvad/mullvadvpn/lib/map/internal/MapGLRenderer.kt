@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.map.internal
+package net.mullvad.mullvadvpn.lib.map.internal
 
 import android.content.res.Resources
 import android.opengl.GLES20
@@ -8,10 +8,11 @@ import androidx.compose.ui.graphics.Color
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.tan
-import net.mullvad.mullvadvpn.compose.map.data.MapViewState
-import net.mullvad.mullvadvpn.compose.map.data.MarkerType
-import net.mullvad.mullvadvpn.compose.map.internal.shapes.Globe
-import net.mullvad.mullvadvpn.compose.map.internal.shapes.LocationMarker
+import net.mullvad.mullvadvpn.lib.map.data.MapViewState
+import net.mullvad.mullvadvpn.lib.map.data.MarkerType
+import net.mullvad.mullvadvpn.lib.map.internal.shapes.Globe
+import net.mullvad.mullvadvpn.lib.map.internal.shapes.LocationMarker
+import net.mullvad.mullvadvpn.model.COMPLETE_ANGLE
 
 class MapGLRenderer(private val resources: Resources, private val mapConfig: MapConfig) :
     GLSurfaceView.Renderer {

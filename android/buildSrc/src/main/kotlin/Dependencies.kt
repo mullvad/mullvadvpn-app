@@ -99,6 +99,7 @@ object Dependencies {
         const val commonTestLib = ":lib:common-test"
         const val billingLib = ":lib:billing"
         const val paymentLib = ":lib:payment"
+        const val mapLib = ":lib:map"
     }
 
     object Plugin {

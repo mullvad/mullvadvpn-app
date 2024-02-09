@@ -1,8 +1,5 @@
-include(
-    ":app",
-    ":service",
-    ":tile"
-)
+include(":app", ":service", ":tile")
+
 include(
     ":lib:common",
     ":lib:endpoint",
@@ -13,12 +10,8 @@ include(
     ":lib:theme",
     ":lib:common-test",
     ":lib:billing",
-    ":lib:payment"
+    ":lib:payment",
+    ":lib:map"
 )
-include(
-    ":test",
-    ":test:arch",
-    ":test:common",
-    ":test:e2e",
-    ":test:mockapi"
-)
+
+include(":test", ":test:arch", ":test:common", ":test:e2e", ":test:mockapi")

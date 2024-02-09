@@ -1,5 +1,6 @@
 plugins {
     id(Dependencies.Plugin.androidLibraryId)
+    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
     id(Dependencies.Plugin.kotlinAndroidId)
     id(Dependencies.Plugin.kotlinParcelizeId)
 }
@@ -8,7 +9,10 @@ android {
     namespace = "net.mullvad.mullvadvpn.model"
     compileSdk = Versions.Android.compileSdkVersion
 
-    defaultConfig { minSdk = Versions.Android.minSdkVersion }
+    defaultConfig {
+        minSdk = Versions.Android.minSdkVersion
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -30,4 +34,12 @@ dependencies {
     implementation(Dependencies.jodaTime)
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
+
+    // Test dependencies
+    testRuntimeOnly(Dependencies.junitEngine)
+
+    testImplementation(Dependencies.Kotlin.test)
+    testImplementation(Dependencies.junitApi)
+
+    testImplementation(project(Dependencies.Mullvad.commonTestLib))
 }

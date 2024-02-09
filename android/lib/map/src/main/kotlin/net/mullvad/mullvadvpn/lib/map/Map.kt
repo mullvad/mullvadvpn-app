@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.map
+package net.mullvad.mullvadvpn.lib.map
 
 import android.util.Log
 import androidx.compose.animation.core.Animatable
@@ -10,14 +10,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.map.data.LatLng
-import net.mullvad.mullvadvpn.compose.map.data.Latitude
-import net.mullvad.mullvadvpn.compose.map.data.Longitude
-import net.mullvad.mullvadvpn.compose.map.data.MapViewState
-import net.mullvad.mullvadvpn.compose.map.data.Marker
-import net.mullvad.mullvadvpn.compose.map.data.MarkerType
-import net.mullvad.mullvadvpn.compose.map.internal.MapGLShader
-import net.mullvad.mullvadvpn.compose.util.rememberPrevious
+import net.mullvad.mullvadvpn.lib.map.data.MapViewState
+import net.mullvad.mullvadvpn.lib.map.data.Marker
+import net.mullvad.mullvadvpn.lib.map.data.MarkerType
+import net.mullvad.mullvadvpn.lib.map.internal.MapGLShader
+import net.mullvad.mullvadvpn.model.LatLng
+import net.mullvad.mullvadvpn.model.Latitude
+import net.mullvad.mullvadvpn.model.Longitude
 
 @Composable
 fun Map(

@@ -1,12 +1,12 @@
-package net.mullvad.mullvadvpn.compose.map.internal
+package net.mullvad.mullvadvpn.lib.map.internal
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.opengl.GLSurfaceView
 import androidx.compose.ui.graphics.Color
-import net.mullvad.mullvadvpn.compose.map.data.MapViewState
-import net.mullvad.mullvadvpn.compose.map.internal.shapes.GlobeColors
-import net.mullvad.mullvadvpn.compose.map.internal.shapes.LocationMarkerColors
+import net.mullvad.mullvadvpn.lib.map.data.MapViewState
+import net.mullvad.mullvadvpn.lib.map.internal.shapes.GlobeColors
+import net.mullvad.mullvadvpn.lib.map.internal.shapes.LocationMarkerColors
 
 @SuppressLint("ViewConstructor")
 class MapGLSurfaceView(context: Context, mapConfig: MapConfig) : GLSurfaceView(context) {

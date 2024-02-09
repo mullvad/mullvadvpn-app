@@ -1,47 +1,6 @@
-package net.mullvad.mullvadvpn.compose.map.data
+package net.mullvad.mullvadvpn.model
 
 import kotlin.math.absoluteValue
-import kotlin.math.pow
-import kotlin.math.sqrt
-import net.mullvad.mullvadvpn.compose.map.internal.COMPLETE_ANGLE
-
-data class LatLng(val latitude: Latitude, val longitude: Longitude) {
-
-    fun distanceTo(other: LatLng): Float =
-        sqrt(
-            latitude.distanceTo(other.latitude).pow(2f) +
-                (longitude.distanceTo(other.longitude).pow(2f))
-        )
-
-    operator fun plus(other: LatLng) =
-        LatLng(latitude + other.latitude, longitude + other.longitude)
-
-    operator fun minus(other: LatLng) =
-        LatLng(latitude - other.latitude, longitude - other.longitude)
-}
-
-val gothenburgLatLng = LatLng(Latitude(57.7065f), Longitude(11.967f))
-
-@JvmInline
-value class Latitude(val value: Float) {
-    init {
-        require(value in LATITUDE_RANGE) {
-            "Latitude must be between $MIN_LATITUDE_VALUE and $MAX_LATITUDE_VALUE"
-        }
-    }
-
-    fun distanceTo(other: Latitude) = (other.value - value).absoluteValue
-
-    operator fun plus(other: Latitude) = Latitude(value + other.value)
-
-    operator fun minus(other: Latitude) = Latitude(value - other.value)
-
-    companion object {
-        private const val MIN_LATITUDE_VALUE: Float = -COMPLETE_ANGLE / 4 // -90
-        private const val MAX_LATITUDE_VALUE: Float = COMPLETE_ANGLE / 4 // 90
-        private val LATITUDE_RANGE = MIN_LATITUDE_VALUE..MAX_LATITUDE_VALUE
-    }
-}
 
 @JvmInline
 value class Longitude(val value: Float) {
@@ -64,9 +23,9 @@ value class Longitude(val value: Float) {
         return Longitude(vectorValue)
     }
 
-    operator fun plus(other: Longitude) = Longitude(value + other.value)
+    operator fun plus(other: Longitude) = fromFloat(value + other.value)
 
-    operator fun minus(other: Longitude) = Longitude(value - other.value)
+    operator fun minus(other: Longitude) = fromFloat(value - other.value)
 
     companion object {
         private const val MIN_LONGITUDE_VALUE: Float = -COMPLETE_ANGLE / 2 // -180
@@ -88,6 +47,7 @@ value class Longitude(val value: Float) {
             val unwound = value % COMPLETE_ANGLE
             return when {
                 unwound > MAX_LONGITUDE_VALUE -> unwound - COMPLETE_ANGLE
+                unwound < MIN_LONGITUDE_VALUE -> unwound + COMPLETE_ANGLE
                 else -> unwound
             }
         }

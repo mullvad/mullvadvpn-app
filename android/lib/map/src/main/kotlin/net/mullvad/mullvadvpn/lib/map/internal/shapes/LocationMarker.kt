@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.map.internal.shapes
+package net.mullvad.mullvadvpn.lib.map.internal.shapes
 
 import android.opengl.GLES20
 import android.opengl.Matrix
@@ -6,12 +6,12 @@ import androidx.compose.ui.graphics.Color
 import java.nio.FloatBuffer
 import kotlin.math.cos
 import kotlin.math.sin
-import net.mullvad.mullvadvpn.compose.map.data.LatLng
-import net.mullvad.mullvadvpn.compose.map.internal.COLOR_COMPONENT_SIZE
-import net.mullvad.mullvadvpn.compose.map.internal.VERTEX_COMPONENT_SIZE
-import net.mullvad.mullvadvpn.compose.map.internal.initArrayBuffer
-import net.mullvad.mullvadvpn.compose.map.internal.initShaderProgram
-import net.mullvad.mullvadvpn.compose.map.internal.toFloatArray
+import net.mullvad.mullvadvpn.model.LatLng
+import net.mullvad.mullvadvpn.lib.map.internal.COLOR_COMPONENT_SIZE
+import net.mullvad.mullvadvpn.lib.map.internal.VERTEX_COMPONENT_SIZE
+import net.mullvad.mullvadvpn.lib.map.internal.initArrayBuffer
+import net.mullvad.mullvadvpn.lib.map.internal.initShaderProgram
+import net.mullvad.mullvadvpn.lib.map.internal.toFloatArray
 
 data class LocationMarkerColors(
     val centerColor: Color,

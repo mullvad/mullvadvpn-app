@@ -1,4 +1,6 @@
-package net.mullvad.mullvadvpn.compose.map.data
+package net.mullvad.mullvadvpn.lib.map.data
+
+import net.mullvad.mullvadvpn.model.LatLng
 
 class MapViewState(
     val zoom: Float,
