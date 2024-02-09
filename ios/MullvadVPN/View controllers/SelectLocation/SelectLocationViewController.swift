@@ -114,12 +114,19 @@ final class SelectLocationViewController: UIViewController {
     // MARK: - Private
 
     private func setUpDataSource() {
-        dataSource = LocationDataSource(tableView: tableView)
+        dataSource = LocationDataSource(
+            tableView: tableView,
+            allLocations: AllLocationDataSource(),
+            customLists: CustomListsDataSource()
+        )
         dataSource?.didSelectRelayLocation = { [weak self] location in
             self?.didSelectRelay?(location)
         }
 
-        dataSource?.selectedRelayLocation = relayLocation
+        dataSource?.selectedRelayLocation = relayLocation.flatMap { LocationCellViewModel(
+            group: .allLocations,
+            location: $0
+        ) }
 
         if let cachedRelays {
             dataSource?.setRelays(cachedRelays.relays, filter: filter)
