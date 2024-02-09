@@ -4,9 +4,11 @@ use socket2::Domain;
 use talpid_types::ErrorExt;
 
 #[cfg(target_os = "macos")]
-const SIOCSIFMTU: u64 = 0x80206934;
-#[cfg(not(target_os = "macos"))]
-const SIOCSIFMTU: u64 = libc::SIOCSIFMTU;
+const SIOCSIFMTU: libc::c_ulong = 0x80206934;
+#[cfg(target_os = "linux")]
+const SIOCSIFMTU: libc::c_ulong = libc::SIOCSIFMTU;
+#[cfg(target_os = "android")]
+const SIOCSIFMTU: libc::c_int = libc::SIOCSIFMTU as libc::c_int;
 
 pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
     debug_assert_ne!(
