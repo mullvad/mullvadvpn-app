@@ -25,7 +25,7 @@ pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
 
     unsafe {
         std::ptr::copy_nonoverlapping(
-            interface_name.as_ptr() as *const i8,
+            interface_name.as_ptr() as *const libc::c_char,
             &mut ifr.ifr_name as *mut _,
             interface_name.len(),
         )
