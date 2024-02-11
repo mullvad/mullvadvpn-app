@@ -38,10 +38,10 @@
 		06799AFC28F98EE300ACD94E /* AddressCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114128F8413A0037AF9A /* AddressCache.swift */; };
 		0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* TransportMonitor.swift */; };
 		06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
-		44DD7D2D2B74E44A0005F67F /* QuantumResistanceSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D2C2B74E44A0005F67F /* QuantumResistanceSettings.swift */; };
 		44DD7D242B6CFFD70005F67F /* StartTunnelOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */; };
 		44DD7D272B6D18FB0005F67F /* MockTunnelInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */; };
 		44DD7D292B7113CA0005F67F /* MockTunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D282B7113CA0005F67F /* MockTunnel.swift */; };
+		44DD7D2D2B74E44A0005F67F /* QuantumResistanceSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D2C2B74E44A0005F67F /* QuantumResistanceSettings.swift */; };
 		5803B4B02940A47300C23744 /* TunnelConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5803B4AF2940A47300C23744 /* TunnelConfiguration.swift */; };
 		5803B4B22940A48700C23744 /* TunnelStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5803B4B12940A48700C23744 /* TunnelStore.swift */; };
 		5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
@@ -758,6 +758,23 @@
 		A9E0317F2ACC331C0095D843 /* TunnelStatusBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */; };
 		A9E034642ABB302000E59A5A /* UIEdgeInsets+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E034632ABB302000E59A5A /* UIEdgeInsets+Extensions.swift */; };
 		A9EC20F02A5D79ED0040D56E /* TunnelObfuscation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5840231F2A406BF5007B27AC /* TunnelObfuscation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AB252E672B782526001B3B3B /* PacketTunnel.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273C284888E5006B77A4 /* PacketTunnel.xcconfig */; };
+		AB252E682B78298D001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
+		AB252E692B78298F001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
+		AB252E6A2B78298F001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
+		AB252E6B2B782990001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
+		AB252E6C2B782991001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
+		AB252E6D2B782992001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
+		AB252E6E2B782993001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
+		AB252E6F2B782993001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
+		AB252E702B782994001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
+		AB252E712B782995001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
+		AB252E722B782995001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
+		AB252E732B782997001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
+		AB252E742B782997001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
+		AB252E752B78299A001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
+		AB252E762B78299A001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
+		AB252E772B78299C001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
@@ -1243,10 +1260,10 @@
 		06FAE67A28F83CA50033DD93 /* RESTDevicesProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTDevicesProxy.swift; sourceTree = "<group>"; };
 		06FAE67B28F83CA50033DD93 /* REST.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = REST.swift; sourceTree = "<group>"; };
 		06FAE67D28F83CA50033DD93 /* RESTTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTTransport.swift; sourceTree = "<group>"; };
-		44DD7D2C2B74E44A0005F67F /* QuantumResistanceSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuantumResistanceSettings.swift; sourceTree = "<group>"; };
 		44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartTunnelOperationTests.swift; sourceTree = "<group>"; };
 		44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnelInteractor.swift; sourceTree = "<group>"; };
 		44DD7D282B7113CA0005F67F /* MockTunnel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnel.swift; sourceTree = "<group>"; };
+		44DD7D2C2B74E44A0005F67F /* QuantumResistanceSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuantumResistanceSettings.swift; sourceTree = "<group>"; };
 		5802EBC42A8E44AC00E5CE4C /* AppRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoutes.swift; sourceTree = "<group>"; };
 		5802EBC62A8E457A00E5CE4C /* AppRouteProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouteProtocol.swift; sourceTree = "<group>"; };
 		5802EBC82A8E45BA00E5CE4C /* ApplicationRouterDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRouterDelegate.swift; sourceTree = "<group>"; };
@@ -1258,9 +1275,9 @@
 		5807E2C1243203D000F5FF30 /* StringTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringTests.swift; sourceTree = "<group>"; };
 		580810E42A30E13A00B74552 /* DeviceStateAccessorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceStateAccessorProtocol.swift; sourceTree = "<group>"; };
 		580810E72A30E15500B74552 /* DeviceCheckRemoteServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCheckRemoteServiceProtocol.swift; sourceTree = "<group>"; };
-		5808273928487E3E006B77A4 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
-		5808273B284888BC006B77A4 /* App.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = App.xcconfig; sourceTree = "<group>"; };
-		5808273C284888E5006B77A4 /* PacketTunnel.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = PacketTunnel.xcconfig; sourceTree = "<group>"; };
+		5808273928487E3E006B77A4 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Base.xcconfig; path = Configurations/Base.xcconfig; sourceTree = SOURCE_ROOT; };
+		5808273B284888BC006B77A4 /* App.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = App.xcconfig; path = Configurations/App.xcconfig; sourceTree = SOURCE_ROOT; };
+		5808273C284888E5006B77A4 /* PacketTunnel.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = PacketTunnel.xcconfig; path = Configurations/PacketTunnel.xcconfig; sourceTree = SOURCE_ROOT; };
 		580909D22876D09A0078138D /* RevokedDeviceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevokedDeviceViewController.swift; sourceTree = "<group>"; };
 		58092E532A8B832E00C3CC72 /* TunnelMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorTests.swift; sourceTree = "<group>"; };
 		580CBFB72848D503007878F0 /* OperationConditionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationConditionTests.swift; sourceTree = "<group>"; };
@@ -1603,7 +1620,7 @@
 		58E9C3852A4EF1CB00CFDEAC /* PacketTunnelActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelActor.swift; sourceTree = "<group>"; };
 		58EC06792A8D208D00BEB973 /* TunnelDeviceInfoStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelDeviceInfoStub.swift; sourceTree = "<group>"; };
 		58EC067B2A8D2A0B00BEB973 /* NetworkCounters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkCounters.swift; sourceTree = "<group>"; };
-		58ECD29123F178FD004298B6 /* Screenshots.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Screenshots.xcconfig; sourceTree = "<group>"; };
+		58ECD29123F178FD004298B6 /* Screenshots.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Screenshots.xcconfig; path = Configurations/Screenshots.xcconfig; sourceTree = SOURCE_ROOT; };
 		58ED3A132A7C199C0085CE65 /* StartOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartOptions.swift; sourceTree = "<group>"; };
 		58EE2E38272FF814003BFF93 /* SettingsDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsDataSource.swift; sourceTree = "<group>"; };
 		58EE2E39272FF814003BFF93 /* SettingsDataSourceDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsDataSourceDelegate.swift; sourceTree = "<group>"; };
@@ -1769,7 +1786,7 @@
 		852969322B4E9232007EAD4C /* Page.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Page.swift; sourceTree = "<group>"; };
 		852969342B4E9270007EAD4C /* LoginPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginPage.swift; sourceTree = "<group>"; };
 		852969372B4ED20E007EAD4C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		852969382B4ED818007EAD4C /* UITests.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = UITests.xcconfig; sourceTree = "<group>"; };
+		852969382B4ED818007EAD4C /* UITests.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = UITests.xcconfig; path = Configurations/UITests.xcconfig; sourceTree = SOURCE_ROOT; };
 		852969392B4F0238007EAD4C /* TermsOfServicePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfServicePage.swift; sourceTree = "<group>"; };
 		8529693B2B4F0257007EAD4C /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		85557B152B5ABBBE00795FE1 /* XCUIElementQuery+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCUIElementQuery+Extensions.swift"; sourceTree = "<group>"; };
@@ -1817,7 +1834,7 @@
 		A932D9F22B5EB61100999395 /* HeadRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadRequestTests.swift; sourceTree = "<group>"; };
 		A932D9F42B5EBB9D00999395 /* RESTTransportStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransportStub.swift; sourceTree = "<group>"; };
 		A935594B2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIAvailabilityTestRequest.swift; sourceTree = "<group>"; };
-		A935594D2B4E919F00D5D524 /* Api.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Api.xcconfig; sourceTree = "<group>"; };
+		A935594D2B4E919F00D5D524 /* Api.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Api.xcconfig; path = Configurations/Api.xcconfig; sourceTree = SOURCE_ROOT; };
 		A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTests.swift; sourceTree = "<group>"; };
 		A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorState.swift; sourceTree = "<group>"; };
 		A95EEE372B722DFC00A8A39B /* PingStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingStats.swift; sourceTree = "<group>"; };
@@ -4220,6 +4237,7 @@
 			files = (
 				062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */,
 				F05F39942B21C6C6006E60A7 /* relays.json in Resources */,
+				AB252E6F2B782993001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4227,6 +4245,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB252E732B782997001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4234,6 +4253,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB252E6E2B782993001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4241,6 +4261,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB252E6A2B78298F001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4248,6 +4269,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB252E742B782997001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4255,6 +4277,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB252E762B78299A001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4268,6 +4291,7 @@
 				7A02D4EB2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan in Resources */,
 				587DCCEF287D84A500CE821E /* countries.geo.json in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
+				AB252E682B78298D001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4275,6 +4299,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB252E672B782526001B3B3B /* PacketTunnel.xcconfig in Resources */,
+				AB252E692B78298F001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4282,6 +4308,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB252E6B2B782990001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4289,6 +4316,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB252E6D2B782992001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4296,6 +4324,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB252E712B782995001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4303,6 +4332,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB252E722B782995001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4310,6 +4340,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB252E702B782994001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4317,6 +4348,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB252E752B78299A001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4324,6 +4356,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB252E772B78299C001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4331,6 +4364,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB252E6C2B782991001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
