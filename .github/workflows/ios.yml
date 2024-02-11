@@ -14,6 +14,8 @@ jobs:
     name: Check formatting
     runs-on: macos-13
     steps:
+      # this should pin a version to guarantee consistent build results
+      # create separate shellscript file so that the commands can be linted with shellcheck
       - name: Install SwiftFormat
         run: |
           brew update
@@ -35,6 +37,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # this should pin a version to guarantee consistent build results
+      # create separate shellscript file so that the commands can be linted with shellcheck
       - name: Run swiftlint
         run: |
           brew install swiftlint
@@ -64,6 +68,8 @@ jobs:
         with:
           go-version: 1.19.5
 
+      # this should pin a version to guarantee consistent build results
+      # create separate shellscript file so that the commands can be linted with shellcheck
       - name: Set up yeetd to workaround XCode being slow in CI
         run: |
           wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
@@ -76,6 +82,7 @@ jobs:
       - name: Configure Rust
         run: rustup target add aarch64-apple-ios-sim
 
+      # create separate shellscript file so that the commands can be linted with shellcheck
       - name: Configure Xcode project
         run: |
           cp Base.xcconfig.template Base.xcconfig
@@ -85,11 +92,14 @@ jobs:
           cp Api.xcconfig.template Api.xcconfig
         working-directory: ios/Configurations
 
+      # this should pin a version to guarantee consistent build results
+      # create separate shellscript file so that the commands can be linted with shellcheck
       - name: Install xcbeautify
         run: |
           brew update
           brew install xcbeautify
 
+      # create separate shellscript file so that the commands can be linted with shellcheck
       - name: Run unit tests
         run: |
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \

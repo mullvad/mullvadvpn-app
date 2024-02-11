@@ -63,6 +63,9 @@ Line wrap the file at 100 chars.                                              Th
 - Improve the "Connecting to system service"-view with information about the situation and
   troubleshooting tips.
 
+#### IOS
+- Add Quantum Secure Tunnelling
+
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.
 

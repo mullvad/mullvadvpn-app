@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add UDP-over-TCP WireGuard obfuscation.
 - Add custom API access methods.
+- Add Quantum Secure Tunnelling
 
 ## [2023.7 - 2023-11-23]
 ### Added
