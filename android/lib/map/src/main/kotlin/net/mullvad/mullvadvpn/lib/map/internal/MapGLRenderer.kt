@@ -74,6 +74,7 @@ internal class MapGLRenderer(private val resources: Resources, private val mapCo
     private fun toOffsetY(cameraPosition: CameraPosition): Float {
         val percent = cameraPosition.bias
         val z = cameraPosition.zoom - 1f
+        // Calculate the size of the plane at the current z position
         val planeSize = tan(FIELD_OF_VIEW.toRadians() / 2f) * z * 2f
         return planeSize * (0.5f - percent)
     }
