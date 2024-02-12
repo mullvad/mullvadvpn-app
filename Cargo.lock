@@ -2019,7 +2019,7 @@ dependencies = [
  "parking_lot",
  "rand 0.8.5",
  "serde_json",
- "talpid-core",
+ "talpid-future",
  "talpid-types",
  "tokio",
 ]
@@ -3601,6 +3601,14 @@ dependencies = [
  "log",
  "once_cell",
  "tokio",
+]
+
+[[package]]
+name = "talpid-future"
+version = "0.0.0"
+dependencies = [
+ "rand 0.8.5",
+ "talpid-time",
 ]
 
 [[package]]

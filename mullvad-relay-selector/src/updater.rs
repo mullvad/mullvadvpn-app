@@ -12,7 +12,7 @@ use std::{
     sync::Arc,
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
-use talpid_core::future_retry::{retry_future, ExponentialBackoff, Jittered};
+use talpid_future::future_retry::{retry_future, ExponentialBackoff, Jittered};
 use talpid_types::ErrorExt;
 use tokio::fs::File;
 
