@@ -69,7 +69,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.mullvadvpn.model.LatLng
+import net.mullvad.mullvadvpn.model.LatLong
 import net.mullvad.mullvadvpn.model.Latitude
 import net.mullvad.mullvadvpn.model.Longitude
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -197,7 +197,7 @@ fun ConnectScreen(
         Map(
             modifier = Modifier.padding(top = it.calculateTopPadding()),
             uiState.animateMap,
-            uiState.location?.toLatLng() ?: gothenburgLatLng,
+            uiState.location?.toLatLong() ?: gothenburgLatLong,
             marker = uiState.tunnelRealState.toMarker(uiState.location),
             bias,
         )
@@ -328,13 +328,13 @@ fun TunnelState.toMarker(location: GeoIpLocation?): net.mullvad.mullvadvpn.lib.m
     return when (this) {
         is TunnelState.Connected ->
             net.mullvad.mullvadvpn.lib.map.data.Marker(
-                location.toLatLng(),
+                location.toLatLong(),
                 net.mullvad.mullvadvpn.lib.map.data.MarkerType.SECURE
             )
         is TunnelState.Connecting -> null
         is TunnelState.Disconnected ->
             net.mullvad.mullvadvpn.lib.map.data.Marker(
-                location.toLatLng(),
+                location.toLatLong(),
                 net.mullvad.mullvadvpn.lib.map.data.MarkerType.UNSECURE
             )
         is TunnelState.Disconnecting -> null
@@ -342,6 +342,6 @@ fun TunnelState.toMarker(location: GeoIpLocation?): net.mullvad.mullvadvpn.lib.m
     }
 }
 
-fun GeoIpLocation.toLatLng() = LatLng(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))
+fun GeoIpLocation.toLatLong() = LatLong(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))
 
-val gothenburgLatLng = LatLng(Latitude(57.7065f), Longitude(11.967f))
+val gothenburgLatLong = LatLong(Latitude(57.7065f), Longitude(11.967f))

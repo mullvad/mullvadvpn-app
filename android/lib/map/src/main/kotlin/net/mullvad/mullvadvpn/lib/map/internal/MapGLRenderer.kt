@@ -53,8 +53,8 @@ internal class MapGLRenderer(private val resources: Resources, private val mapCo
 
         Matrix.translateM(viewMatrix, 0, 0f, yOffset, -viewState.cameraPosition.zoom)
 
-        Matrix.rotateM(viewMatrix, 0, viewState.cameraPosition.latLng.latitude.value, 1f, 0f, 0f)
-        Matrix.rotateM(viewMatrix, 0, viewState.cameraPosition.latLng.longitude.value, 0f, -1f, 0f)
+        Matrix.rotateM(viewMatrix, 0, viewState.cameraPosition.latLong.latitude.value, 1f, 0f, 0f)
+        Matrix.rotateM(viewMatrix, 0, viewState.cameraPosition.latLong.longitude.value, 0f, -1f, 0f)
 
         val vp = viewMatrix.copyOf()
         globe.draw(projectionMatrix, vp, mapConfig.globeColors)
@@ -62,9 +62,9 @@ internal class MapGLRenderer(private val resources: Resources, private val mapCo
         viewState.locationMarker?.let {
             when (it.type) {
                 MarkerType.SECURE ->
-                    secureLocationMarker.draw(projectionMatrix, vp, it.latLng, 0.02f)
+                    secureLocationMarker.draw(projectionMatrix, vp, it.latLong, 0.02f)
                 MarkerType.UNSECURE ->
-                    unsecureLocationMarker.draw(projectionMatrix, vp, it.latLng, 0.02f)
+                    unsecureLocationMarker.draw(projectionMatrix, vp, it.latLong, 0.02f)
             }
         }
     }

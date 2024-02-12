@@ -11,13 +11,13 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.Marker
 import net.mullvad.mullvadvpn.lib.map.data.MarkerType
-import net.mullvad.mullvadvpn.model.LatLng
+import net.mullvad.mullvadvpn.model.LatLong
 import net.mullvad.mullvadvpn.model.Latitude
 import net.mullvad.mullvadvpn.model.Longitude
 
 @Composable
 fun animatedCameraPosition(
-    targetCameraLocation: LatLng,
+    targetCameraLocation: LatLong,
     marker: Marker?,
     percent: Float,
 ): CameraPosition {
@@ -84,8 +84,8 @@ fun animatedCameraPosition(
 
     return CameraPosition(
         zoom = secureZoomAnimation.value * zoomOutMultiplier.value * 0.9f,
-        latLng =
-            LatLng(
+        latLong =
+            LatLong(
                 Latitude(latitudeAnimation.value),
                 Longitude.fromFloat(longitudeAnimation.value)
             ),

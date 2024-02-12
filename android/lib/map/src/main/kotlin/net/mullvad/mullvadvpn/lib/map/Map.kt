@@ -15,13 +15,13 @@ import net.mullvad.mullvadvpn.lib.map.data.MapViewState
 import net.mullvad.mullvadvpn.lib.map.data.Marker
 import net.mullvad.mullvadvpn.lib.map.data.MarkerType
 import net.mullvad.mullvadvpn.lib.map.internal.MapGLSurfaceView
-import net.mullvad.mullvadvpn.model.LatLng
+import net.mullvad.mullvadvpn.model.LatLong
 
 @Composable
 fun Map(
     modifier: Modifier,
     animateCameraMovement: Boolean,
-    cameraLocation: LatLng,
+    cameraLocation: LatLong,
     marker: Marker?,
     percent: Float,
 ) {
@@ -56,7 +56,6 @@ internal fun Map(modifier: Modifier = Modifier, mapViewState: MapViewState) {
         lifeCycleState.addObserver(observer)
 
         onDispose {
-            Log.d("mullvad", "AAA View Disposed ${view.hashCode()}")
             lifeCycleState.removeObserver(observer)
             view?.onPause()
             view = null

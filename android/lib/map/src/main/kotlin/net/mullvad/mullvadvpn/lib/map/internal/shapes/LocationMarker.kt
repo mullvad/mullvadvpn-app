@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.lib.map.internal.VERTEX_COMPONENT_SIZE
 import net.mullvad.mullvadvpn.lib.map.internal.initArrayBuffer
 import net.mullvad.mullvadvpn.lib.map.internal.initShaderProgram
 import net.mullvad.mullvadvpn.lib.map.internal.toFloatArray
-import net.mullvad.mullvadvpn.model.LatLng
+import net.mullvad.mullvadvpn.model.LatLong
 
 internal class LocationMarker(val colors: LocationMarkerColors) {
 
@@ -111,13 +111,13 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
             )
     }
 
-    fun draw(projectionMatrix: FloatArray, viewMatrix: FloatArray, latLng: LatLng, size: Float) {
+    fun draw(projectionMatrix: FloatArray, viewMatrix: FloatArray, latLong: LatLong, size: Float) {
         val modelViewMatrix = viewMatrix.copyOf()
 
         GLES20.glUseProgram(shaderProgram)
 
-        Matrix.rotateM(modelViewMatrix, 0, latLng.longitude.value, 0f, 1f, 0f)
-        Matrix.rotateM(modelViewMatrix, 0, latLng.latitude.value, -1f, 0f, 0f)
+        Matrix.rotateM(modelViewMatrix, 0, latLong.longitude.value, 0f, 1f, 0f)
+        Matrix.rotateM(modelViewMatrix, 0, latLong.latitude.value, -1f, 0f, 0f)
 
         Matrix.scaleM(modelViewMatrix, 0, size, size, 1f)
 
