@@ -3565,7 +3565,6 @@ dependencies = [
  "once_cell",
  "parking_lot",
  "pfctl",
- "proptest",
  "rand 0.8.5",
  "resolv-conf",
  "subslice",
@@ -3600,6 +3599,16 @@ dependencies = [
  "libc",
  "log",
  "once_cell",
+ "tokio",
+]
+
+[[package]]
+name = "talpid-future"
+version = "0.0.0"
+dependencies = [
+ "proptest",
+ "rand 0.8.5",
+ "talpid-time",
  "tokio",
 ]
 
