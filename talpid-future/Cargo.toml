@@ -1,0 +1,19 @@
+[package]
+name = "talpid-future"
+description = "Utilities for working with futures"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rand = "0.8.5"
+talpid-time = { path = "../talpid-time" }
+
+[dev-dependencies]
+proptest = "1.4"
+tokio = { workspace = true, features = [ "test-util", "macros" ] }
