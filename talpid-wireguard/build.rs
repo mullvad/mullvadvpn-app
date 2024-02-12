@@ -20,20 +20,35 @@ fn main() {
     };
 
     println!("cargo:rustc-link-lib{link_type}=wg");
-
-    #[cfg(any(target_os = "linux", target_os = "macos", target_os = "android"))]
-    println!("cargo:rustc-cfg=wireguard_go");
+    if cfg!(target_os = "linux") || cfg!(target_os = "macos") || cfg!(target_os = "android") {
+        // Build wireguard-go if it does not already exist
+        let lib_path = std::path::Path::new(&"../build/lib").join(target_triplet());
+        if !lib_path.exists() {
+            build_wireguard_go();
+        }
+        println!("cargo:rustc-cfg=wireguard_go");
+    }
 }
 
 fn declare_libs_dir(base: &str) {
-    let target_triplet = env::var("TARGET").expect("TARGET is not set");
-    let lib_dir = manifest_dir().join(base).join(target_triplet);
+    let lib_dir = manifest_dir().join(base).join(target_triplet());
     println!("cargo:rerun-if-changed={}", lib_dir.display());
     println!("cargo:rustc-link-search={}", lib_dir.display());
+}
+
+fn target_triplet() -> String {
+    env::var("TARGET").expect("TARGET is not set")
 }
 
 fn manifest_dir() -> PathBuf {
     env::var("CARGO_MANIFEST_DIR")
         .map(PathBuf::from)
         .expect("CARGO_MANIFEST_DIR env var not set")
+}
+
+fn build_wireguard_go() -> std::process::Output {
+    std::process::Command::new("../wireguard/build-wireguard-go.sh")
+        .args(&[target_triplet()])
+        .output()
+        .unwrap()
 }
