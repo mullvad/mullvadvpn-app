@@ -2,20 +2,18 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.background
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,13 +27,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -193,40 +191,28 @@ fun ConnectScreen(
         deviceName = uiState.deviceName,
         timeLeft = uiState.daysLeftUntilExpiry
     ) {
-        var bias by remember { mutableFloatStateOf(0.5f) }
+        var progressIndicatorBias by remember { mutableFloatStateOf(0f) }
+
         Map(
             modifier = Modifier.padding(top = it.calculateTopPadding()),
             uiState.animateMap,
             uiState.location?.toLatLong() ?: gothenburgLatLong,
             marker = uiState.tunnelRealState.toMarker(uiState.location),
-            bias,
+            progressIndicatorBias,
         )
-        ConstraintLayout(
-            modifier = Modifier.padding(top = it.calculateTopPadding()).fillMaxSize()
-        ) {
-            val (divider) = createRefs()
-            Divider(
-                modifier =
-                    Modifier.background(Color.Cyan).constrainAs(divider) {
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        top.linkTo(parent.top)
-                        centerVerticallyTo(parent, bias)
-                    }
-            )
-        }
+
         Column(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.Start,
             modifier =
-                Modifier.padding(it)
+                Modifier.animateContentSize()
+                    .padding(top = it.calculateTopPadding())
                     .fillMaxHeight()
                     .drawVerticalScrollbar(
                         scrollState,
                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar)
                     )
                     .verticalScroll(scrollState)
-                    .padding(bottom = Dimens.screenVerticalMargin)
                     .testTag(SCROLLABLE_COLUMN_TEST_TAG)
         ) {
             NotificationBanner(
@@ -236,31 +222,34 @@ fun ConnectScreen(
                 onClickShowAccount = onManageAccountClick,
                 onClickDismissNewDevice = onDismissNewDeviceClick,
             )
-            Slider(
-                modifier = Modifier.padding(16.dp),
-                value = bias,
-                onValueChange = { bias = it },
-                valueRange = 0f..1f,
-            )
-            Text(text = "Bias: $bias")
+
             Spacer(modifier = Modifier.weight(1f))
-            if (
-                uiState.tunnelRealState is TunnelState.Connecting ||
-                    uiState.tunnelRealState is TunnelState.Disconnecting
-            ) {
-                MullvadCircularProgressIndicatorLarge(
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    modifier =
-                        Modifier.padding(
-                                start = Dimens.sideMargin,
-                                end = Dimens.sideMargin,
-                                top = Dimens.mediumPadding
+            MullvadCircularProgressIndicatorLarge(
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier =
+                    Modifier.animateContentSize()
+                        .padding(
+                            start = Dimens.sideMargin,
+                            end = Dimens.sideMargin,
+                            top = Dimens.mediumPadding
+                        )
+                        .alpha(
+                            if (
+                                uiState.tunnelRealState is TunnelState.Connecting ||
+                                    uiState.tunnelRealState is TunnelState.Disconnecting
                             )
-                            .align(Alignment.CenterHorizontally)
-                            .testTag(CIRCULAR_PROGRESS_INDICATOR)
-                )
-            }
-            Spacer(modifier = Modifier.height(Dimens.mediumPadding))
+                                1f
+                            else 0f
+                        )
+                        .align(Alignment.CenterHorizontally)
+                        .testTag(CIRCULAR_PROGRESS_INDICATOR)
+                        .onGloballyPositioned {
+                            val offsetY = it.positionInParent().y + it.size.height / 2
+                            progressIndicatorBias =
+                                offsetY / it.parentLayoutCoordinates?.size?.height?.toFloat()!!
+                        }
+            )
+            Spacer(modifier = Modifier.defaultMinSize(minHeight = Dimens.mediumPadding).weight(1f))
             ConnectionStatusText(
                 state = uiState.tunnelRealState,
                 modifier = Modifier.padding(horizontal = Dimens.sideMargin)
@@ -319,6 +308,9 @@ fun ConnectScreen(
                 connectClick = { handleThrottledAction(onConnectClick) },
                 reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG
             )
+            // We need to manually add this padding so we align size with the map
+            // component and marker with the progress indicator.
+            Spacer(modifier = Modifier.height(it.calculateBottomPadding()))
         }
     }
 }
@@ -342,6 +334,7 @@ fun TunnelState.toMarker(location: GeoIpLocation?): net.mullvad.mullvadvpn.lib.m
     }
 }
 
-fun GeoIpLocation.toLatLong() = LatLong(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))
+fun GeoIpLocation.toLatLong() =
+    LatLong(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))
 
 val gothenburgLatLong = LatLong(Latitude(57.7065f), Longitude(11.967f))

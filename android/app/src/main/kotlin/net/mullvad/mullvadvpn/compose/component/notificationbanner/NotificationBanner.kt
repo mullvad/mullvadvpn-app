@@ -95,24 +95,27 @@ fun NotificationBanner(
     onClickShowAccount: () -> Unit,
     onClickDismissNewDevice: () -> Unit
 ) {
-    // Fix for animating to invisible state
-    val previous = rememberPrevious(current = notification, shouldUpdate = { _, _ -> true })
-    AnimatedVisibility(
-        visible = notification != null,
-        enter = slideInVertically(initialOffsetY = { -it }),
-        exit = slideOutVertically(targetOffsetY = { -it }),
-        modifier = Modifier.animateContentSize()
-    ) {
-        val visibleNotification = notification ?: previous
-        if (visibleNotification != null)
-            Notification(
-                visibleNotification.toNotificationData(
-                    isPlayBuild = isPlayBuild,
-                    onClickUpdateVersion,
-                    onClickShowAccount,
-                    onClickDismissNewDevice
+
+    // Hack to make sure view expands and contracts when AnimatedVisiblity is used
+    Box(modifier = Modifier.animateContentSize()) {
+        // Fix for animating to invisible state
+        val previous = rememberPrevious(current = notification, shouldUpdate = { _, _ -> true })
+        AnimatedVisibility(
+            visible = notification != null,
+            enter = slideInVertically(initialOffsetY = { -it }),
+            exit = slideOutVertically(targetOffsetY = { -it }),
+        ) {
+            val visibleNotification = notification ?: previous
+            if (visibleNotification != null)
+                Notification(
+                    visibleNotification.toNotificationData(
+                        isPlayBuild = isPlayBuild,
+                        onClickUpdateVersion,
+                        onClickShowAccount,
+                        onClickDismissNewDevice
+                    )
                 )
-            )
+        }
     }
 }
 
