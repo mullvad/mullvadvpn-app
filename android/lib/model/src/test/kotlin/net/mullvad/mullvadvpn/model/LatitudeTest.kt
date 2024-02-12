@@ -1,11 +1,10 @@
 package net.mullvad.mullvadvpn.model
 
-import org.junit.jupiter.api.Assertions.assertDoesNotThrow
-
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import kotlin.math.absoluteValue
 import kotlin.test.assertEquals
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class LatitudeTest {
     @Test

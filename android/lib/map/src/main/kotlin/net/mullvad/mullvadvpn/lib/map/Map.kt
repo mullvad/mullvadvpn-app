@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.lib.map
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember

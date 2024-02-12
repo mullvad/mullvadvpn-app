@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.model
 
+import kotlin.math.sqrt
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import kotlin.math.sqrt
 
 class LatLongTest {
 

@@ -44,8 +44,10 @@ value class Latitude(val value: Float) {
 
             return when {
                 partiallyUnwound in MIN_LATITUDE_VALUE..MAX_LATITUDE_VALUE -> partiallyUnwound
-                partiallyUnwound > MAX_LATITUDE_VALUE -> MAX_LATITUDE_VALUE - (partiallyUnwound % MAX_LATITUDE_VALUE)
-                partiallyUnwound < MIN_LATITUDE_VALUE -> MIN_LATITUDE_VALUE - (partiallyUnwound % MIN_LATITUDE_VALUE)
+                partiallyUnwound > MAX_LATITUDE_VALUE ->
+                    MAX_LATITUDE_VALUE - (partiallyUnwound % MAX_LATITUDE_VALUE)
+                partiallyUnwound < MIN_LATITUDE_VALUE ->
+                    MIN_LATITUDE_VALUE - (partiallyUnwound % MIN_LATITUDE_VALUE)
                 else -> error("Unwound value $partiallyUnwound is not within valid latitude range")
             }
         }
