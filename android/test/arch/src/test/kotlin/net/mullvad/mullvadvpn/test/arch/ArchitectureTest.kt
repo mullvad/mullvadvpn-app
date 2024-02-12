@@ -5,7 +5,7 @@ import com.lemonappdev.konsist.api.architecture.KoArchitectureCreator.assertArch
 import com.lemonappdev.konsist.api.architecture.Layer
 import org.junit.jupiter.api.Test
 
-class ArchitectureTests {
+class ArchitectureTest {
 
     @Test
     fun `ensure model layer depends on nothing`() =

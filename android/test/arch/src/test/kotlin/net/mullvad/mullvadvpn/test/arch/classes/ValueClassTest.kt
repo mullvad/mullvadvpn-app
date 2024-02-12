@@ -5,7 +5,7 @@ import com.lemonappdev.konsist.api.ext.list.modifierprovider.withValueModifier
 import com.lemonappdev.konsist.api.verify.assertTrue
 import org.junit.jupiter.api.Test
 
-class ValueClassTests {
+class ValueClassTest {
     @Test
     fun `ensure value classes property is named value`() {
         Konsist.scopeFromProject().classes(includeNested = true).withValueModifier().assertTrue {
