@@ -1,0 +1,15 @@
+[package]
+name = "talpid-future"
+description = "Library for dealing with retries of futures"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rand = "0.8.5"
+talpid-time = { path = "../talpid-time" }
