@@ -1,3 +1,4 @@
+//! This library provides utility functions and types for retrying futures.
 use rand::{distributions::OpenClosed01, Rng};
 use std::{future::Future, ops::Deref, time::Duration};
 use talpid_time::sleep;
@@ -148,4 +149,106 @@ fn apply_jitter(duration: Duration, jitter: f64) -> Duration {
     let nanos = (duration.subsec_nanos() as f64) * jitter;
     let millis = (secs * 1000f64) + (nanos / 1000000f64);
     Duration::from_millis(millis as u64)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use proptest::prelude::*;
+
+    #[test]
+    fn test_constant_interval() {
+        let mut ivl = ConstantInterval::new(Duration::from_secs(2), Some(3));
+
+        assert_eq!(ivl.next(), Some(Duration::from_secs(2)));
+        assert_eq!(ivl.next(), Some(Duration::from_secs(2)));
+        assert_eq!(ivl.next(), Some(Duration::from_secs(2)));
+        assert_eq!(ivl.next(), None);
+    }
+
+    #[test]
+    fn test_constant_interval_no_max() {
+        let mut ivl = ConstantInterval::new(Duration::from_secs(2), None);
+        assert_eq!(ivl.next(), Some(Duration::from_secs(2)));
+    }
+
+    #[test]
+    fn test_exponential_backoff() {
+        let mut backoff = ExponentialBackoff::new(Duration::from_secs(2), 3);
+
+        assert_eq!(backoff.next(), Some(Duration::from_secs(2)));
+        assert_eq!(backoff.next(), Some(Duration::from_secs(6)));
+        assert_eq!(backoff.next(), Some(Duration::from_secs(18)));
+    }
+
+    #[test]
+    fn test_at_maximum_value() {
+        let max = Duration::MAX;
+        let mu = Duration::from_micros(1);
+        let mut backoff = ExponentialBackoff::new(max - mu, 2);
+
+        assert_eq!(backoff.next(), Some(max - mu));
+        assert_eq!(backoff.next(), Some(max));
+        assert_eq!(backoff.next(), Some(max));
+    }
+
+    #[test]
+    fn test_maximum_bound() {
+        let mut backoff = ExponentialBackoff::new(Duration::from_millis(2), 3)
+            .max_delay(Some(Duration::from_millis(7)));
+
+        assert_eq!(backoff.next(), Some(Duration::from_millis(2)));
+        assert_eq!(backoff.next(), Some(Duration::from_millis(6)));
+        assert_eq!(backoff.next(), Some(Duration::from_millis(7)));
+    }
+
+    #[test]
+    fn test_minimum_value() {
+        let zero = Duration::from_millis(0);
+        let mut backoff = ExponentialBackoff::new(zero, 10);
+
+        assert_eq!(backoff.next(), Some(zero));
+        assert_eq!(backoff.next(), Some(zero));
+
+        let mut backoff = ExponentialBackoff::new(Duration::from_millis(1), 0);
+
+        assert_eq!(backoff.next(), Some(Duration::from_millis(1)));
+        assert_eq!(backoff.next(), Some(zero));
+    }
+
+    #[test]
+    fn test_rounding() {
+        let second = Duration::from_secs(1);
+        assert_eq!(apply_jitter(second, 1.0), second);
+    }
+
+    proptest! {
+        #[test]
+        fn test_jitter(millis: u64, jitter: u64) {
+            let max_num = 2u64.checked_pow(f64::MANTISSA_DIGITS).unwrap();
+            let jitter = (jitter % max_num) as f64 / (max_num as f64);
+            let unjittered_duration = Duration::from_millis(millis);
+            let jittered_duration = apply_jitter(unjittered_duration, jitter);
+            prop_assert!(jittered_duration <= unjittered_duration);
+        }
+    }
+
+    // NOTE: The test is disabled because the clock does not advance.
+    #[ignore]
+    #[tokio::test]
+    async fn test_exponential_backoff_delay() {
+        let retry_interval_initial = Duration::from_secs(4);
+        let retry_interval_factor = 5;
+        let retry_interval_max = Duration::from_secs(24 * 60 * 60);
+        tokio::time::pause();
+
+        let _ = retry_future(
+            || async { 0 },
+            |_| true,
+            ExponentialBackoff::new(retry_interval_initial, retry_interval_factor)
+                .max_delay(Some(retry_interval_max))
+                .take(5),
+        )
+        .await;
+    }
 }
