@@ -4,7 +4,7 @@ import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.verify.assertEmpty
 import org.junit.jupiter.api.Test
 
-class JUnitTests {
+class JUnitTest {
 
     @Test
     fun `ensure only junit5 annotations are used for functions`() =

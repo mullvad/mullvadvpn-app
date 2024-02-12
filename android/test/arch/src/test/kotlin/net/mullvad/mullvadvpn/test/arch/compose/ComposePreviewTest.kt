@@ -6,7 +6,7 @@ import com.lemonappdev.konsist.api.ext.list.withAllAnnotationsOf
 import com.lemonappdev.konsist.api.verify.assert
 import org.junit.jupiter.api.Test
 
-class ComposePreviewTests {
+class ComposePreviewTest {
     @Test
     fun `ensure all preview functions are private`() =
         allPreviewFunctions().assert { it.hasPrivateModifier }

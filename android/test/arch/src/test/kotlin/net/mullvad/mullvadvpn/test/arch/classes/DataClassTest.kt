@@ -6,7 +6,7 @@ import com.lemonappdev.konsist.api.ext.list.properties
 import com.lemonappdev.konsist.api.verify.assertNot
 import org.junit.jupiter.api.Test
 
-class DataClassTests {
+class DataClassTest {
     @Test
     fun `ensure data classes only use immutable properties`() =
         Konsist.scopeFromProject()

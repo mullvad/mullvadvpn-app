@@ -6,7 +6,7 @@ import com.lemonappdev.konsist.api.verify.assert
 import com.lemonappdev.konsist.api.verify.assertNot
 import org.junit.jupiter.api.Test
 
-class GeneralTests {
+class GeneralTest {
     @Test
     fun `ensure package name must match file path`() =
         Konsist.scopeFromProject().packages.assert { it.hasMatchingPath }

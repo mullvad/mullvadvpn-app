@@ -4,7 +4,7 @@ import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.verify.assertTrue
 import org.junit.jupiter.api.Test
 
-class ClassTests {
+class ClassTest {
     @Test
     fun `ensure companion object is last declaration in the class`() =
         Konsist.scopeFromProject().classes(includeNested = true).assertTrue {
@@ -20,5 +20,7 @@ class ClassTests {
 
     @Test
     fun `ensure test classes have 'Test' suffix`() =
-        Konsist.scopeFromTest().classes().assertTrue { it.hasNameEndingWith("Test") }
+        Konsist.scopeFromTest().classes(includeNested = false).assertTrue {
+            it.hasNameEndingWith("Test")
+        }
 }

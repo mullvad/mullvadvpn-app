@@ -10,7 +10,7 @@ import com.lemonappdev.konsist.api.verify.assert
 import com.lemonappdev.konsist.api.verify.assertNot
 import org.junit.jupiter.api.Test
 
-class ViewModelTests {
+class ViewModelTest {
     @Test
     fun `ensure view models have view model suffix`() =
         allViewModels().assert { it.name.endsWith("ViewModel") }

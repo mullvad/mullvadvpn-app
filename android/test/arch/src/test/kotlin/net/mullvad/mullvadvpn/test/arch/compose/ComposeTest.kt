@@ -6,7 +6,7 @@ import com.lemonappdev.konsist.api.ext.list.withAllAnnotationsOf
 import com.lemonappdev.konsist.api.verify.assert
 import org.junit.jupiter.api.Test
 
-class ComposeTests {
+class ComposeTest {
     @Test
     fun `ensure all app composables are in the compose package`() =
         allAppComposeFunctions().assert { it.resideInPackage("net.mullvad.mullvadvpn.compose..") }
