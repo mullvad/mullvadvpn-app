@@ -47,27 +47,16 @@ macro_rules! assert_access_method_works {
 }
 
 async fn test_shadowsocks(mut mullvad_client: MullvadProxyClient) -> Result<(), Error> {
-    use mullvad_types::relay_list::RelayEndpointData;
+    use mullvad_relay_selector::{RelaySelector, SelectorConfig};
     // Set up all the parameters needed to create a custom Shadowsocks access method.
     //
-    // Since Mullvad host's Shadowsocks relays on their bridge servers, we can
-    // simply select a bridge server to derive all the needed parameters.
-    // mullvad_client
+    // Since Mullvad's bridge servers host Shadowsocks relays, we can simply
+    // select a bridge server to derive all the needed parameters.
     let relay_list = mullvad_client.get_relay_locations().await.unwrap();
-    let bridge = relay_list
-        .relays()
-        .find(|relay| matches!(relay.endpoint_data, RelayEndpointData::Bridge) && relay.active)
-        .expect("`test_shadowsocks` needs at least one shadowsocks relay to execute. Found non in relay list.");
-
-    let access_method: CustomProxy = relay_list
-        .bridge
-        .shadowsocks
-        .first()
-        .map(|shadowsocks| {
-            shadowsocks.to_proxy_settings(bridge.ipv4_addr_in.into())
-        })
-        .expect("`test_shadowsocks` needs at least one shadowsocks relay to execute. Found non in relay list.");
-
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list.clone());
+    let access_method = relay_selector
+        .get_bridge_forced()
+        .expect("`test_shadowsocks` needs at least one shadowsocks relay to execute. Found none in relay list.");
     assert_access_method_works!(mullvad_client, access_method);
 
     Ok(())
