@@ -57,12 +57,28 @@ pub async fn automatic_mtu_correction(
         #[cfg(any(target_os = "linux", target_os = "macos"))]
         crate::unix::set_mtu(&iface_name, verified_mtu).map_err(Error::SetMtu)?;
         #[cfg(windows)]
-        talpid_windows::net::luid_from_alias(iface_name)
-            .and_then(|luid| talpid_windows::net::set_mtu(luid, verified_mtu as u32, ipv6))
-            .map_err(Error::SetMtu)?;
+        set_mtu_windows(verified_mtu, iface_name, ipv6).map_err(Error::SetMtu)?;
     } else {
         log::debug!("MTU {verified_mtu} verified to not drop packets");
     };
+    Ok(())
+}
+
+#[cfg(windows)]
+fn set_mtu_windows(verified_mtu: u16, iface_name: String, ipv6: bool) -> io::Result<()> {
+    use talpid_windows::net::{set_mtu, AddressFamily};
+
+    let luid = talpid_windows::net::luid_from_alias(iface_name)?;
+    set_mtu(u32::from(verified_mtu), luid, AddressFamily::Ipv4)?;
+    if ipv6 {
+        let clamped_mtu = if verified_mtu < talpid_tunnel::MIN_IPV6_MTU {
+            log::warn!("Cannot set MTU to {verified_mtu} for IPv6, setting to the minimum value 1280 instead");
+            talpid_tunnel::MIN_IPV6_MTU
+        } else {
+            verified_mtu
+        };
+        set_mtu(u32::from(clamped_mtu), luid, AddressFamily::Ipv6)?;
+    }
     Ok(())
 }
 
