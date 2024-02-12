@@ -112,10 +112,7 @@ private extension TunnelAdapterConfiguration {
         if let peer {
             var peerConfig = PeerConfiguration(publicKey: peer.publicKey)
             peerConfig.endpoint = peer.endpoint.wgEndpoint
-            peerConfig.allowedIPs = [
-                IPAddressRange(from: "0.0.0.0/0")!,
-                IPAddressRange(from: "::/0")!,
-            ]
+            peerConfig.allowedIPs = allowedIPs
             peers.append(peerConfig)
         }
 
