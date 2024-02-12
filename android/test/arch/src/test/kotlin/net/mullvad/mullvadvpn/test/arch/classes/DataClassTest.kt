@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.test.arch.classes
 import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.ext.list.modifierprovider.withDataModifier
 import com.lemonappdev.konsist.api.ext.list.properties
-import com.lemonappdev.konsist.api.verify.assertNot
+import com.lemonappdev.konsist.api.verify.assertFalse
 import org.junit.jupiter.api.Test
 
 class DataClassTest {
@@ -13,5 +13,5 @@ class DataClassTest {
             .classes(includeNested = true)
             .withDataModifier()
             .properties(includeNested = false, includeLocal = false)
-            .assertNot { it.hasVarModifier }
+            .assertFalse { it.hasVarModifier }
 }
