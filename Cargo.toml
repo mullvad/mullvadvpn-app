@@ -36,7 +36,7 @@ members = [
     "talpid-windows",
     "talpid-wireguard",
     "mullvad-management-interface",
-    "tunnel-obfuscation",
+    "tunnel-obfuscation", "talpid-future",
 ]
 
 [workspace.lints.rust]

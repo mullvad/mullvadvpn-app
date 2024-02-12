@@ -21,7 +21,7 @@ rand = "0.8.5"
 serde_json = "1.0"
 tokio = { workspace = true, features =  ["fs", "io-util", "time"] }
 
-talpid-core = { path = "../talpid-core" }
+talpid-future = { path = "../talpid-future" }
 talpid-types = { path = "../talpid-types" }
 mullvad-api = { path = "../mullvad-api" }
 mullvad-types = { path = "../mullvad-types" }
