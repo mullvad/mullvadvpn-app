@@ -34,9 +34,10 @@ mullvad-api = { path = "../mullvad-api" }
 mullvad-fs = { path = "../mullvad-fs" }
 mullvad-version = { path = "../mullvad-version" }
 talpid-core = { path = "../talpid-core" }
-talpid-types = { path = "../talpid-types" }
+talpid-future = { path = "../talpid-future" }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 talpid-time = { path = "../talpid-time" }
+talpid-types = { path = "../talpid-types" }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 clap = { workspace = true }

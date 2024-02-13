@@ -7,10 +7,8 @@ use mullvad_api::{
 };
 use mullvad_types::location::{AmIMullvad, GeoIpLocation, LocationEventData};
 use once_cell::sync::Lazy;
-use talpid_core::{
-    future_retry::{retry_future, ExponentialBackoff, Jittered},
-    mpsc::Sender,
-};
+use talpid_core::mpsc::Sender;
+use talpid_future::retry::{retry_future, ExponentialBackoff, Jittered};
 use talpid_types::ErrorExt;
 
 use crate::{DaemonEventSender, InternalDaemonEvent};

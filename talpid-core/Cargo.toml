@@ -11,22 +11,21 @@ rust-version.workspace = true
 workspace = true
 
 [dependencies]
+chrono = { workspace = true, features = ["clock"] }
 err-derive = { workspace = true }
 futures = "0.3.15"
 ipnetwork = "0.16"
-once_cell = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
+once_cell = { workspace = true }
 parking_lot = "0.12.0"
-talpid-routing = { path = "../talpid-routing" }
-talpid-types = { path = "../talpid-types" }
-talpid-time = { path = "../talpid-time" }
-talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
-talpid-tunnel = { path = "../talpid-tunnel" }
-talpid-wireguard = { path = "../talpid-wireguard" }
-chrono = { workspace = true, features = ["clock"] }
-tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 rand = "0.8.5"
+talpid-routing = { path = "../talpid-routing" }
+talpid-tunnel = { path = "../talpid-tunnel" }
+talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
+talpid-types = { path = "../talpid-types" }
+talpid-wireguard = { path = "../talpid-wireguard" }
+tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 talpid-openvpn = { path = "../talpid-openvpn" }
@@ -47,13 +46,14 @@ duct = "0.13"
 
 
 [target.'cfg(target_os = "macos")'.dependencies]
-pfctl = "0.4.4"
-system-configuration = "0.5.1"
-trust-dns-server = { version = "0.23.0", features = ["resolver"] }
-trust-dns-proto = "0.23.0"
-subslice = "0.2"
 async-trait = "0.1"
 duct = "0.13"
+pfctl = "0.4.4"
+subslice = "0.2"
+system-configuration = "0.5.1"
+talpid-time = { path = "../talpid-time" }
+trust-dns-proto = "0.23.0"
+trust-dns-server = { version = "0.23.0", features = ["resolver"] }
 
 
 [target.'cfg(windows)'.dependencies]
