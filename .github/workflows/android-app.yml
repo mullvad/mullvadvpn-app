@@ -327,7 +327,9 @@ jobs:
           TEST_TYPE: ${{ matrix.test-type }}
           BILLING_FLAVOR: oss
           INFRA_FLAVOR: prod
+          REPORT_DIR: /tmp/${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
         run: |
+          mkdir -p $REPORT_DIR
           ./android/scripts/run-instrumented-tests.sh
 
       - name: Upload instrumentation report (${{ matrix.test-type }})
@@ -335,7 +337,7 @@ jobs:
         if: always()
         with:
           name: ${{ matrix.test-type }}-instrumentation-report
-          path: /tmp/mullvad-${{ matrix.test-type }}-instrumentation-report
+          path: /tmp/${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
           if-no-files-found: ignore
           retention-days: 7
 
