@@ -185,8 +185,7 @@ android {
 
         val enableInAppVersionNotifications =
             gradleLocalProperties(rootProject.projectDir)
-                .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS")
-                ?: "true"
+                .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS") ?: "true"
 
         buildConfigField(
             "boolean",
