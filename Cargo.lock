@@ -1890,6 +1890,7 @@ dependencies = [
  "simple-signal",
  "talpid-core",
  "talpid-dbus",
+ "talpid-future",
  "talpid-platform-metadata",
  "talpid-time",
  "talpid-types",
@@ -2021,7 +2022,7 @@ dependencies = [
  "parking_lot",
  "rand 0.8.5",
  "serde_json",
- "talpid-core",
+ "talpid-future",
  "talpid-types",
  "tokio",
 ]
@@ -2041,6 +2042,7 @@ dependencies = [
  "mullvad-version",
  "once_cell",
  "talpid-core",
+ "talpid-future",
  "talpid-types",
  "tokio",
 ]

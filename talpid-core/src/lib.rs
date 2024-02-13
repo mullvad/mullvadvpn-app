@@ -35,9 +35,6 @@ pub mod dns;
 /// State machine to handle tunnel configuration.
 pub mod tunnel_state_machine;
 
-/// Future utilities
-pub mod future_retry;
-
 /// Misc utilities for the Linux platform.
 #[cfg(target_os = "linux")]
 mod linux;

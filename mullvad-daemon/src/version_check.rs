@@ -15,7 +15,8 @@ use std::{
     str::FromStr,
     time::Duration,
 };
-use talpid_core::{future_retry::ConstantInterval, mpsc::Sender};
+use talpid_core::mpsc::Sender;
+use talpid_future::retry::{retry_future, ConstantInterval};
 use talpid_types::ErrorExt;
 use tokio::fs::{self, File};
 
@@ -193,7 +194,7 @@ impl VersionUpdater {
                 .map_err(Error::Download)
         };
 
-        Box::pin(talpid_core::future_retry::retry_future(
+        Box::pin(retry_future(
             download_future_factory,
             move |result| Self::should_retry_immediate(result, &api_handle),
             IMMEDIATE_RETRY_STRATEGY,
@@ -233,7 +234,7 @@ impl VersionUpdater {
             }
         };
 
-        Box::pin(talpid_core::future_retry::retry_future(
+        Box::pin(retry_future(
             download_future_factory,
             |result| result.is_err(),
             std::iter::repeat(UPDATE_INTERVAL_ERROR),
