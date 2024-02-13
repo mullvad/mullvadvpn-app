@@ -36,12 +36,8 @@ final class PreferencesInteractor {
             })
     }
 
-    func setDNSSettings(_ newDNSSettings: DNSSettings, completion: (() -> Void)? = nil) {
-        tunnelManager.setDNSSettings(newDNSSettings, completionHandler: completion)
-    }
-
-    func setObfuscationSettings(_ newSettings: WireGuardObfuscationSettings) {
-        tunnelManager.setObfuscationSettings(newSettings)
+    func updateSettings(_ changes: [TunnelSettingsUpdate], completion: (() -> Void)? = nil) {
+        tunnelManager.updateSettings(changes, completionHandler: completion)
     }
 
     func setPort(_ port: UInt16?, completion: (() -> Void)? = nil) {
@@ -53,11 +49,7 @@ final class PreferencesInteractor {
             relayConstraints.port = .any
         }
 
-        tunnelManager.setRelayConstraints(relayConstraints, completionHandler: completion)
-    }
-
-    func setQuantumResistance(_ newSetting: TunnelQuantumResistance) {
-        tunnelManager.setQuantumResistance(newSetting)
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)], completionHandler: completion)
     }
 }
 

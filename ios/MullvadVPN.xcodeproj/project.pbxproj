@@ -38,6 +38,8 @@
 		06799AFC28F98EE300ACD94E /* AddressCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114128F8413A0037AF9A /* AddressCache.swift */; };
 		0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* TransportMonitor.swift */; };
 		06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
+		449872E12B7BBC5400094DDC /* TunnelSettingsUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449872E02B7BBC5400094DDC /* TunnelSettingsUpdate.swift */; };
+		449872E42B7CB96300094DDC /* TunnelSettingsUpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449872E32B7CB96300094DDC /* TunnelSettingsUpdateTests.swift */; };
 		44DD7D242B6CFFD70005F67F /* StartTunnelOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */; };
 		44DD7D272B6D18FB0005F67F /* MockTunnelInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */; };
 		44DD7D292B7113CA0005F67F /* MockTunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D282B7113CA0005F67F /* MockTunnel.swift */; };
@@ -1250,6 +1252,8 @@
 		06FAE67A28F83CA50033DD93 /* RESTDevicesProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTDevicesProxy.swift; sourceTree = "<group>"; };
 		06FAE67B28F83CA50033DD93 /* REST.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = REST.swift; sourceTree = "<group>"; };
 		06FAE67D28F83CA50033DD93 /* RESTTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTTransport.swift; sourceTree = "<group>"; };
+		449872E02B7BBC5400094DDC /* TunnelSettingsUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsUpdate.swift; sourceTree = "<group>"; };
+		449872E32B7CB96300094DDC /* TunnelSettingsUpdateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsUpdateTests.swift; sourceTree = "<group>"; };
 		44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartTunnelOperationTests.swift; sourceTree = "<group>"; };
 		44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnelInteractor.swift; sourceTree = "<group>"; };
 		44DD7D282B7113CA0005F67F /* MockTunnel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnel.swift; sourceTree = "<group>"; };
@@ -2119,6 +2123,14 @@
 			path = MullvadREST;
 			sourceTree = "<group>";
 		};
+		449872E22B7CB91B00094DDC /* MullvadSettings */ = {
+			isa = PBXGroup;
+			children = (
+				449872E32B7CB96300094DDC /* TunnelSettingsUpdateTests.swift */,
+			);
+			path = MullvadSettings;
+			sourceTree = "<group>";
+		};
 		44DD7D252B6D18E90005F67F /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
@@ -2774,6 +2786,7 @@
 			isa = PBXGroup;
 			children = (
 				44DD7D252B6D18E90005F67F /* Mocks */,
+				449872E22B7CB91B00094DDC /* MullvadSettings */,
 				A900E9BF2ACC661900C95F67 /* AccessTokenManager+Stubs.swift */,
 				7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */,
 				A900E9B72ACC5C2B00C95F67 /* AccountsProxy+Stubs.swift */,
@@ -2873,6 +2886,7 @@
 				580F8B8228197881002E0998 /* TunnelSettingsV2.swift */,
 				A988DF282ADE880300D807EF /* TunnelSettingsV3.swift */,
 				A93181A02B727ED700E341D2 /* TunnelSettingsV4.swift */,
+				449872E02B7BBC5400094DDC /* TunnelSettingsUpdate.swift */,
 				A988DF252ADE86ED00D807EF /* WireGuardObfuscationSettings.swift */,
 			);
 			path = MullvadSettings;
@@ -4685,6 +4699,7 @@
 				A9A5FA262ACB05160083449F /* UpdateDeviceDataOperation.swift in Sources */,
 				A9A5FA272ACB05160083449F /* VPNConnectionProtocol.swift in Sources */,
 				A9A5FA282ACB05160083449F /* WgKeyRotation.swift in Sources */,
+				449872E42B7CB96300094DDC /* TunnelSettingsUpdateTests.swift in Sources */,
 				A9A5FA292ACB05160083449F /* AddressCacheTests.swift in Sources */,
 				A9B6AC182ADE8F4300F7802A /* MigrationManagerTests.swift in Sources */,
 				A9A5FA2A2ACB05160083449F /* CoordinatesTests.swift in Sources */,
@@ -4731,6 +4746,7 @@
 				58B2FDDE2AA71D5C003EB5C6 /* Migration.swift in Sources */,
 				F0D7FF8F2B31DF5900E0FDE5 /* AccessMethodRepository.swift in Sources */,
 				58B2FDE12AA71D5C003EB5C6 /* TunnelSettingsV1.swift in Sources */,
+				449872E12B7BBC5400094DDC /* TunnelSettingsUpdate.swift in Sources */,
 				58B2FDE72AA71D5C003EB5C6 /* SettingsStore.swift in Sources */,
 				44DD7D2D2B74E44A0005F67F /* QuantumResistanceSettings.swift in Sources */,
 				F08827872B318C840020A383 /* ShadowsocksCipherOptions.swift in Sources */,
