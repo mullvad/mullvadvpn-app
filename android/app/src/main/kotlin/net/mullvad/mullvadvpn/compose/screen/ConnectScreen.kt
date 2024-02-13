@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
@@ -182,19 +183,8 @@ fun ConnectScreen(
     }
 
     ScaffoldWithTopBarAndDeviceName(
-        topBarColor =
-            if (uiState.tunnelUiState.isSecured()) {
-                MaterialTheme.colorScheme.inversePrimary
-            } else {
-                MaterialTheme.colorScheme.error
-            },
-        iconTintColor =
-            if (uiState.tunnelUiState.isSecured()) {
-                    MaterialTheme.colorScheme.onPrimary
-                } else {
-                    MaterialTheme.colorScheme.onError
-                }
-                .copy(alpha = AlphaTopBar),
+        topBarColor = uiState.tunnelUiState.topBarColor(),
+        iconTintColor = uiState.tunnelUiState.iconTintColor(),
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
         deviceName = uiState.deviceName,
@@ -261,20 +251,14 @@ fun ConnectScreen(
                             end = Dimens.sideMargin,
                             top = Dimens.mediumPadding
                         )
-                        .alpha(
-                            if (
-                                uiState.tunnelRealState is TunnelState.Connecting ||
-                                    uiState.tunnelRealState is TunnelState.Disconnecting
-                            )
-                                1f
-                            else 0f
-                        )
+                        .alpha(if (uiState.showLoading) 1f else 0f)
                         .align(Alignment.CenterHorizontally)
                         .testTag(CIRCULAR_PROGRESS_INDICATOR)
                         .onGloballyPositioned {
                             val offsetY = it.positionInParent().y + it.size.height / 2
-                            progressIndicatorBias =
-                                offsetY / it.parentLayoutCoordinates?.size?.height?.toFloat()!!
+                            it.parentLayoutCoordinates?.let {
+                                progressIndicatorBias = offsetY / it.size.height.toFloat()
+                            }
                         }
             )
             Spacer(modifier = Modifier.defaultMinSize(minHeight = Dimens.mediumPadding).weight(1f))
@@ -297,9 +281,7 @@ fun ConnectScreen(
             var expanded by rememberSaveable { mutableStateOf(false) }
             LocationInfo(
                 onToggleTunnelInfo = { expanded = !expanded },
-                isVisible =
-                    uiState.tunnelRealState !is TunnelState.Disconnected &&
-                        uiState.location?.hostname != null,
+                isVisible = uiState.showLocationInfo,
                 isExpanded = expanded,
                 location = uiState.location,
                 inAddress = uiState.inAddress,
@@ -363,6 +345,19 @@ fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
         is TunnelState.Error -> null
     }
 }
+
+@Composable
+fun TunnelState.topBarColor(): Color =
+    if (isSecured()) MaterialTheme.colorScheme.inversePrimary else MaterialTheme.colorScheme.error
+
+@Composable
+fun TunnelState.iconTintColor(): Color =
+    if (isSecured()) {
+            MaterialTheme.colorScheme.onPrimary
+        } else {
+            MaterialTheme.colorScheme.onError
+        }
+        .copy(alpha = AlphaTopBar)
 
 fun GeoIpLocation.toLatLong() =
     LatLong(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))

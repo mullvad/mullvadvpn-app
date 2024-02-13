@@ -21,6 +21,11 @@ data class ConnectUiState(
     val animateMap: Boolean
 ) {
 
+    val showLocationInfo: Boolean =
+        tunnelRealState !is TunnelState.Disconnected && location?.hostname != null
+    val showLoading =
+        tunnelRealState is TunnelState.Connecting || tunnelRealState is TunnelState.Disconnecting
+
     companion object {
         val INITIAL =
             ConnectUiState(
