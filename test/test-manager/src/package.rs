@@ -69,7 +69,7 @@ async fn find_app(
         .join("mullvad-test")
         .join("packages");
     fs::create_dir_all(&packages_dir).await?;
-    let mut dir = fs::read_dir(packages_dir)
+    let mut dir = fs::read_dir(packages_dir.clone())
         .await
         .context("Failed to list packages")?;
 
@@ -130,8 +130,9 @@ async fn find_app(
     matches.into_iter().next().context(if e2e_bin {
         format!(
             "Could not find UI/e2e test for package: {app}.\n\
-         Expecting a binary named like `app-e2e-tests-{app}_ARCH` to exist in packages/\n\
-         Example ARCH: `amd64-unknown-linux-gnu`, `x86_64-unknown-linux-gnu`"
+         Expecting a binary named like `app-e2e-tests-{app}_ARCH` to exist in {package_dir}/\n\
+         Example ARCH: `amd64-unknown-linux-gnu`, `x86_64-unknown-linux-gnu`",
+            package_dir = packages_dir.display()
         )
     } else {
         format!("Could not find package for app: {app}")
