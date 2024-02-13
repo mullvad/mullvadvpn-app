@@ -129,7 +129,7 @@ class ConnectViewModel(
                         inAppNotification = notifications.firstOrNull(),
                         deviceName = deviceName,
                         daysLeftUntilExpiry = accountExpiry.date()?.daysFromNow(),
-                        isPlayBuild = isPlayBuild
+                        isPlayBuild = isPlayBuild,
                     )
                 }
             }
