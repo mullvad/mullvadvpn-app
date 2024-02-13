@@ -207,7 +207,7 @@ fun ConnectScreen(
                 targetValue =
                     if (uiState.tunnelRealState is TunnelState.Connected) SECURE_ZOOM
                     else UNSECURE_ZOOM,
-                animationSpec = tween(SECURE_ZOOM_ANIMATION_MILLIS)
+                animationSpec = tween(SECURE_ZOOM_ANIMATION_MILLIS), label = "baseZoom"
             )
 
         val markers =
