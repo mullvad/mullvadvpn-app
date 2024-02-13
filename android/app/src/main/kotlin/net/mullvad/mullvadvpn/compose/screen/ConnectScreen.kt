@@ -65,6 +65,7 @@ import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
 import net.mullvad.mullvadvpn.constant.UNSECURE_ZOOM
+import net.mullvad.mullvadvpn.constant.fallbackLatLong
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.map.AnimatedMap
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
@@ -207,7 +208,8 @@ fun ConnectScreen(
                 targetValue =
                     if (uiState.tunnelRealState is TunnelState.Connected) SECURE_ZOOM
                     else UNSECURE_ZOOM,
-                animationSpec = tween(SECURE_ZOOM_ANIMATION_MILLIS), label = "baseZoom"
+                animationSpec = tween(SECURE_ZOOM_ANIMATION_MILLIS),
+                label = "baseZoom"
             )
 
         val markers =
@@ -215,7 +217,7 @@ fun ConnectScreen(
 
         AnimatedMap(
             modifier = Modifier.padding(top = it.calculateTopPadding()),
-            cameraLocation = uiState.location?.toLatLong() ?: gothenburgLatLong,
+            cameraLocation = uiState.location?.toLatLong() ?: fallbackLatLong,
             cameraBaseZoom = baseZoom.value,
             cameraVerticalBias = progressIndicatorBias,
             markers = markers,
@@ -364,5 +366,3 @@ fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
 
 fun GeoIpLocation.toLatLong() =
     LatLong(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))
-
-val gothenburgLatLong = LatLong(Latitude(57.7065f), Longitude(11.967f))

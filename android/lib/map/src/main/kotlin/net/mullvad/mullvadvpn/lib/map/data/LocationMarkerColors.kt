@@ -7,6 +7,11 @@ import androidx.compose.ui.graphics.Color
 data class LocationMarkerColors(
     val centerColor: Color,
     val ringBorderColor: Color = Color.White,
-    val shadowColor: Color = Color.Black.copy(alpha = 0.55f),
-    val perimeterColors: Color = centerColor.copy(alpha = 0.4f)
-)
+    val shadowColor: Color = Color.Black.copy(alpha = DEFAULT_SHADOW_ALPHA),
+    val perimeterColors: Color = centerColor.copy(alpha = DEFAULT_PERIMETER_ALPHA)
+) {
+companion object {
+        const val DEFAULT_SHADOW_ALPHA = 0.55f
+        const val DEFAULT_PERIMETER_ALPHA = 0.4f
+    }
+}

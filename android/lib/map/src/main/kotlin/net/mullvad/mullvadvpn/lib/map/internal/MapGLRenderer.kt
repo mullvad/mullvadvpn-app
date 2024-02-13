@@ -4,7 +4,6 @@ import android.content.res.Resources
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
-import android.util.Log
 import androidx.collection.LruCache
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -30,7 +29,6 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
                 oldValue: LocationMarker,
                 newValue: LocationMarker?
             ) {
-                Log.d("MullvadMap", "Remove marker! $oldValue")
                 oldValue.onRemove()
             }
         }
@@ -66,22 +64,14 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
         Matrix.rotateM(viewMatrix, 0, viewState.cameraPosition.latLong.latitude.value, 1f, 0f, 0f)
         Matrix.rotateM(viewMatrix, 0, viewState.cameraPosition.latLong.longitude.value, 0f, -1f, 0f)
 
-        val vp = viewMatrix.copyOf()
-        globe.draw(projectionMatrix, vp, viewState.globeColors)
+        globe.draw(projectionMatrix, viewMatrix, viewState.globeColors)
 
-        Log.d("MullvadMap", "viewState.locationMarker.size: ${viewState.locationMarker.size}")
-        Log.d("MullvadMap", "MarkerCache: $markerCache")
         viewState.locationMarker.forEach {
             val marker =
                 markerCache[it.colors]
-                    ?: LocationMarker(it.colors).also {
-                        Log.d("MullvadMap", "Cache marker! ${it.colors}")
-                        markerCache.put(it.colors, it)
-                    }
-            //            val marker = LocationMarker(it.colors)
+                    ?: LocationMarker(it.colors).also { markerCache.put(it.colors, it) }
 
-            Log.d("MullvadMap", "Draw marker! $marker ${it.latLong} ${it.size}")
-            marker.draw(projectionMatrix.copyOf(), viewMatrix.copyOf(), it.latLong, it.size)
+            marker.draw(projectionMatrix, viewMatrix, it.latLong, it.size)
         }
     }
 
