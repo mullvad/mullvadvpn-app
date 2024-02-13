@@ -27,6 +27,7 @@ public struct TunnelAdapterConfiguration {
     public var interfaceAddresses: [IPAddressRange]
     public var dns: [IPAddress]
     public var peer: TunnelPeer?
+    public var allowedIPs: [IPAddressRange]
 }
 
 /// Struct describing a single peer.
