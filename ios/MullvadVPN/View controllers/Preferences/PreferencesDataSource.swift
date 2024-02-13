@@ -527,7 +527,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let title = NSLocalizedString(
             "QUANTUM_RESISTANCE_HEADER_LABEL",
             tableName: "Preferences",
-            value: "Quantum Resistance",
+            value: "Quantum-resistant tunnel",
             comment: ""
         )
 

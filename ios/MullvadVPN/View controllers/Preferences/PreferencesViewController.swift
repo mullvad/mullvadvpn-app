@@ -105,6 +105,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
             state: viewModel.obfuscationState,
             port: viewModel.obfuscationPort
         ))
+        interactor.setQuantumResistance(viewModel.quantumResistance)
     }
 
     func showInfo(for item: PreferencesInfoButtonItem) {
@@ -157,7 +158,9 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
                 "PREFERENCES_QUANTUM_RESISTANCE_GENERAL",
                 tableName: "QuantumResistance",
                 value: """
-                Text on quantum resistance goes here.
+                This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.
+                It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption.
+                This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.
                 """,
                 comment: ""
             )
