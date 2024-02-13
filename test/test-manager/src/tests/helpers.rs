@@ -14,6 +14,7 @@ use mullvad_types::{
 };
 use pnet_packet::ip::IpNextHeaderProtocols;
 use std::{
+    collections::HashMap,
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::Path,
     time::Duration,
@@ -395,6 +396,23 @@ pub fn unreachable_wireguard_tunnel() -> talpid_types::net::wireguard::Connectio
         #[cfg(target_os = "linux")]
         fwmark: None,
     }
+}
+
+pub fn get_app_env() -> HashMap<String, String> {
+    use mullvad_api::env;
+    use std::net::ToSocketAddrs;
+
+    let api_host = format!("api.{}", TEST_CONFIG.mullvad_host);
+    let api_addr = format!("{api_host}:443")
+        .to_socket_addrs()
+        .expect("failed to resolve API host")
+        .next()
+        .unwrap();
+
+    let api_host_env = (env::API_HOST_VAR.to_string(), api_host);
+    let api_addr_env = (env::API_ADDR_VAR.to_string(), api_addr.to_string());
+
+    [api_host_env, api_addr_env].into_iter().collect()
 }
 
 /// Return a filtered version of the daemon's relay list.

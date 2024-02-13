@@ -284,9 +284,15 @@ impl ServiceClient {
         Ok(())
     }
 
-    pub async fn set_daemon_environment(&self, env: HashMap<String, String>) -> Result<(), Error> {
+    pub async fn set_daemon_environment<Env, K, V>(&self, env: Env) -> Result<(), Error>
+    where
+        Env: IntoIterator<Item = (K, V)>,
+        K: Into<String>,
+        V: Into<String>,
+    {
         let mut ctx = tarpc::context::current();
         ctx.deadline = SystemTime::now().checked_add(LOG_LEVEL_TIMEOUT).unwrap();
+        let env = env.into_iter().map(|(k, v)| (k.into(), v.into())).collect();
         self.client.set_daemon_environment(ctx, env).await??;
 
         self.mullvad_daemon_wait_for_state(|state| state == ServiceStatus::Running)
