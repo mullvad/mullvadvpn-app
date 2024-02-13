@@ -369,9 +369,10 @@ impl Runtime {
     }
 
     /// Creates a new request service and returns a handle to it.
-    async fn new_request_service<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static>(
+    fn new_request_service<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static>(
         &self,
         sni_hostname: Option<String>,
+        initial_connection_mode: ApiConnectionMode,
         proxy_provider: T,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> rest::RequestServiceHandle {
@@ -379,28 +380,26 @@ impl Runtime {
             sni_hostname,
             self.api_availability.handle(),
             self.address_cache.clone(),
+            initial_connection_mode,
             proxy_provider,
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         )
-        .await
     }
 
     /// Returns a request factory initialized to create requests for the master API
-    pub async fn mullvad_rest_handle<
-        T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static,
-    >(
+    pub fn mullvad_rest_handle<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static>(
         &self,
+        initial_connection_mode: ApiConnectionMode,
         proxy_provider: T,
     ) -> rest::MullvadRestHandle {
-        let service = self
-            .new_request_service(
-                Some(API.host().to_string()),
-                proxy_provider,
-                #[cfg(target_os = "android")]
-                self.socket_bypass_tx.clone(),
-            )
-            .await;
+        let service = self.new_request_service(
+            Some(API.host().to_string()),
+            initial_connection_mode,
+            proxy_provider,
+            #[cfg(target_os = "android")]
+            self.socket_bypass_tx.clone(),
+        );
         let token_store = access::AccessTokenStore::new(service.clone());
         let factory = rest::RequestFactory::new(API.host(), Some(token_store));
 
@@ -413,14 +412,14 @@ impl Runtime {
     }
 
     /// Returns a new request service handle
-    pub async fn rest_handle(&self) -> rest::RequestServiceHandle {
+    pub fn rest_handle(&self) -> rest::RequestServiceHandle {
         self.new_request_service(
             None,
+            ApiConnectionMode::Direct,
             ApiConnectionMode::Direct.into_repeat(),
             #[cfg(target_os = "android")]
             None,
         )
-        .await
     }
 
     pub fn handle(&mut self) -> &mut tokio::runtime::Handle {

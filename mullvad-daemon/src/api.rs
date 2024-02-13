@@ -241,7 +241,8 @@ impl AccessModeSelector {
     ) -> Result<AccessModeSelectorHandle> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
-        let (index, next) = Self::get_next_inner(0, &access_method_settings);
+        // Always start looking from the position of `Direct`.
+        let (index, next) = Self::select_next_active(0, &access_method_settings);
         let initial_connection_mode =
             Self::resolve_inner(next, &relay_selector, &address_cache).await;
 
@@ -394,25 +395,28 @@ impl AccessModeSelector {
         if let Some(access_method) = self.set.take() {
             access_method
         } else {
-            let (index, next) = Self::get_next_inner(self.index, &self.access_method_settings);
-            self.index = index;
+            let (next_index, next) =
+                Self::select_next_active(self.index + 1, &self.access_method_settings);
+            self.index = next_index;
             next
         }
     }
 
-    fn get_next_inner(start: usize, access_methods: &Settings) -> (usize, AccessMethodSetting) {
-        let xs: Vec<_> = access_methods.iter().collect();
-        for offset in 1..=access_methods.cardinality() {
-            let index = (start + offset) % access_methods.cardinality();
-            if let Some(&candidate) = xs.get(index) {
-                if candidate.enabled {
-                    return (index, candidate.clone());
-                }
-            }
-        }
-        (0, access_methods.direct().clone())
+    /// Find the next access method to use.
+    ///
+    /// * `start`: From which point in `access_methods` to start the search.
+    /// * `access_methods`: The search space.
+    fn select_next_active(start: usize, access_methods: &Settings) -> (usize, AccessMethodSetting) {
+        access_methods
+            .iter()
+            .cloned()
+            .enumerate()
+            .cycle()
+            .skip(start)
+            .take(access_methods.cardinality())
+            .find(|(_index, access_method)| access_method.enabled())
+            .unwrap_or_else(|| (0, access_methods.direct().clone()))
     }
-
     fn on_update_access_methods(
         &mut self,
         tx: ResponseTx<()>,

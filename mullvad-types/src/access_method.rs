@@ -92,7 +92,7 @@ impl Settings {
     }
 
     /// Iterate over references of built-in & custom access methods.
-    pub fn iter(&self) -> impl Iterator<Item = &AccessMethodSetting> {
+    pub fn iter(&self) -> impl Iterator<Item = &AccessMethodSetting> + Clone {
         use std::iter::once;
         once(&self.direct)
             .chain(once(&self.mullvad_bridges))
