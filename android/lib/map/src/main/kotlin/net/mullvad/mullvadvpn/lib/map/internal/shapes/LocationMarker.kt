@@ -206,6 +206,11 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
         return result
     }
 
+    fun onRemove() {
+        GLES20.glDeleteBuffers(2, intArrayOf(positionBuffer, colorBuffer), 0)
+        GLES20.glDeleteProgram(shaderProgram)
+    }
+
     companion object {
         private const val MARKER_TRANSLATE_Z_FACTOR = 1.0001f
     }

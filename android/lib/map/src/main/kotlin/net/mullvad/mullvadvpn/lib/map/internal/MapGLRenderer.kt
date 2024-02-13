@@ -4,32 +4,42 @@ import android.content.res.Resources
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
+import android.util.Log
+import androidx.collection.LruCache
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.tan
 import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
-import net.mullvad.mullvadvpn.lib.map.data.MapConfig
+import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
-import net.mullvad.mullvadvpn.lib.map.data.MarkerType
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.Globe
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.LocationMarker
 import net.mullvad.mullvadvpn.model.COMPLETE_ANGLE
 
-internal class MapGLRenderer(private val resources: Resources, private val mapConfig: MapConfig) :
-    GLSurfaceView.Renderer {
-    private lateinit var secureLocationMarker: LocationMarker
-    private lateinit var unsecureLocationMarker: LocationMarker
+internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.Renderer {
 
     private lateinit var globe: Globe
+
+    // Due to location markers themselves containing colors we cache them to avoid recreating them
+    // for every draw call.
+    private val markerCache: LruCache<LocationMarkerColors, LocationMarker> =
+        object : LruCache<LocationMarkerColors, LocationMarker>(100) {
+            override fun entryRemoved(
+                evicted: Boolean,
+                key: LocationMarkerColors,
+                oldValue: LocationMarker,
+                newValue: LocationMarker?
+            ) {
+                Log.d("MullvadMap", "Remove marker! $oldValue")
+                oldValue.onRemove()
+            }
+        }
 
     private lateinit var viewState: MapViewState
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         globe = Globe(resources)
-
-        secureLocationMarker = LocationMarker(mapConfig.secureMarkerColor)
-        unsecureLocationMarker = LocationMarker(mapConfig.unsecureMarkerColor)
-
+        markerCache.evictAll()
         initGLOptions()
     }
 
@@ -57,15 +67,21 @@ internal class MapGLRenderer(private val resources: Resources, private val mapCo
         Matrix.rotateM(viewMatrix, 0, viewState.cameraPosition.latLong.longitude.value, 0f, -1f, 0f)
 
         val vp = viewMatrix.copyOf()
-        globe.draw(projectionMatrix, vp, mapConfig.globeColors)
+        globe.draw(projectionMatrix, vp, viewState.globeColors)
 
-        viewState.locationMarker?.let {
-            when (it.type) {
-                MarkerType.SECURE ->
-                    secureLocationMarker.draw(projectionMatrix, vp, it.latLong, 0.02f)
-                MarkerType.UNSECURE ->
-                    unsecureLocationMarker.draw(projectionMatrix, vp, it.latLong, 0.02f)
-            }
+        Log.d("MullvadMap", "viewState.locationMarker.size: ${viewState.locationMarker.size}")
+        Log.d("MullvadMap", "MarkerCache: $markerCache")
+        viewState.locationMarker.forEach {
+            val marker =
+                markerCache[it.colors]
+                    ?: LocationMarker(it.colors).also {
+                        Log.d("MullvadMap", "Cache marker! ${it.colors}")
+                        markerCache.put(it.colors, it)
+                    }
+            //            val marker = LocationMarker(it.colors)
+
+            Log.d("MullvadMap", "Draw marker! $marker ${it.latLong} ${it.size}")
+            marker.draw(projectionMatrix.copyOf(), viewMatrix.copyOf(), it.latLong, it.size)
         }
     }
 

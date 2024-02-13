@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.lib.map.data
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
+@Immutable
 data class LocationMarkerColors(
     val centerColor: Color,
     val ringBorderColor: Color = Color.White,

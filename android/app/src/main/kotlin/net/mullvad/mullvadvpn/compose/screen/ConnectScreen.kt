@@ -3,8 +3,9 @@ package net.mullvad.mullvadvpn.compose.screen
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -19,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -61,8 +63,14 @@ import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
+import net.mullvad.mullvadvpn.constant.SECURE_ZOOM
+import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
+import net.mullvad.mullvadvpn.constant.UNSECURE_ZOOM
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
-import net.mullvad.mullvadvpn.lib.map.Map
+import net.mullvad.mullvadvpn.lib.map.AnimatedMap
+import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
+import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
+import net.mullvad.mullvadvpn.lib.map.data.Marker
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -194,12 +202,29 @@ fun ConnectScreen(
     ) {
         var progressIndicatorBias by remember { mutableFloatStateOf(0f) }
 
-        Map(
+        // Distance to marker when secure/unsecure
+        val baseZoom =
+            animateFloatAsState(
+                targetValue =
+                    if (uiState.tunnelRealState is TunnelState.Connected) SECURE_ZOOM
+                    else UNSECURE_ZOOM,
+                animationSpec = tween(SECURE_ZOOM_ANIMATION_MILLIS)
+            )
+
+        val markers = uiState.tunnelRealState.toMarker(uiState.location)?.let { listOf(it) }
+            ?: emptyList()
+
+        AnimatedMap(
             modifier = Modifier.padding(top = it.calculateTopPadding()),
-            uiState.animateMap,
-            uiState.location?.toLatLong() ?: gothenburgLatLong,
-            marker = uiState.tunnelRealState.toMarker(uiState.location),
-            progressIndicatorBias,
+            cameraLocation = uiState.location?.toLatLong() ?: gothenburgLatLong,
+            cameraBaseZoom = baseZoom.value,
+            cameraVerticalBias = progressIndicatorBias,
+            markers = markers,
+            globeColors =
+                GlobeColors(
+                    landColor = MaterialTheme.colorScheme.primary,
+                    oceanColor = MaterialTheme.colorScheme.secondary,
+                )
         )
 
         NotificationBanner(
@@ -317,19 +342,21 @@ fun ConnectScreen(
     }
 }
 
-fun TunnelState.toMarker(location: GeoIpLocation?): net.mullvad.mullvadvpn.lib.map.data.Marker? {
+@Composable
+fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
     if (location == null) return null
     return when (this) {
         is TunnelState.Connected ->
-            net.mullvad.mullvadvpn.lib.map.data.Marker(
+            Marker(
                 location.toLatLong(),
-                net.mullvad.mullvadvpn.lib.map.data.MarkerType.SECURE
+                colors =
+                    LocationMarkerColors(centerColor = MaterialTheme.colorScheme.inversePrimary),
             )
         is TunnelState.Connecting -> null
         is TunnelState.Disconnected ->
-            net.mullvad.mullvadvpn.lib.map.data.Marker(
+            Marker(
                 location.toLatLong(),
-                net.mullvad.mullvadvpn.lib.map.data.MarkerType.UNSECURE
+                colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.error)
             )
         is TunnelState.Disconnecting -> null
         is TunnelState.Error -> null

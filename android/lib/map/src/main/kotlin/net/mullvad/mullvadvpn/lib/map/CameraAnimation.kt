@@ -9,24 +9,27 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
-import net.mullvad.mullvadvpn.lib.map.data.Marker
-import net.mullvad.mullvadvpn.lib.map.data.MarkerType
+import net.mullvad.mullvadvpn.lib.map.internal.DISTANCE_DURATION_SCALE_FACTOR
+import net.mullvad.mullvadvpn.lib.map.internal.FAR_ANIMATION_MAX_ZOOM_MULTIPLIER
+import net.mullvad.mullvadvpn.lib.map.internal.MAX_ANIMATION_MILLIS
+import net.mullvad.mullvadvpn.lib.map.internal.MAX_MULTIPLIER_PEAK_TIMING
+import net.mullvad.mullvadvpn.lib.map.internal.MIN_ANIMATION_MILLIS
+import net.mullvad.mullvadvpn.lib.map.internal.SHORT_ANIMATION_CUTOFF_MILLIS
 import net.mullvad.mullvadvpn.model.LatLong
 import net.mullvad.mullvadvpn.model.Latitude
 import net.mullvad.mullvadvpn.model.Longitude
 
 @Composable
 fun animatedCameraPosition(
+    baseZoom: Float,
     targetCameraLocation: LatLong,
-    marker: Marker?,
-    percent: Float,
+    cameraVerticalBias: Float,
 ): CameraPosition {
-    val tempPreviousLocation =
+    val previousLocation =
         rememberPrevious(
             current = targetCameraLocation,
             shouldUpdate = { prev, curr -> prev != curr }
         ) ?: targetCameraLocation
-    val previousLocation = remember(targetCameraLocation) { tempPreviousLocation }
 
     val distance =
         remember(targetCameraLocation) { targetCameraLocation.distanceTo(previousLocation).toInt() }
@@ -35,9 +38,6 @@ fun animatedCameraPosition(
     val longitudeAnimation = remember { Animatable(targetCameraLocation.longitude.value) }
 
     val latitudeAnimation = remember { Animatable(targetCameraLocation.latitude.value) }
-    val secureZoomAnimation = remember {
-        Animatable(if (marker?.type == MarkerType.SECURE) SECURE_ZOOM else UNSECURE_ZOOM)
-    }
     val zoomOutMultiplier = remember { Animatable(1f) }
 
     LaunchedEffect(targetCameraLocation) {
@@ -80,22 +80,16 @@ fun animatedCameraPosition(
         }
     }
 
-    LaunchedEffect(marker?.type) {
-        launch {
-            secureZoomAnimation.animateTo(
-                targetValue = marker?.type.toZoom(),
-                tween(SECURE_ZOOM_ANIMATION_MILLIS)
-            )
-        }
-    }
-
     return CameraPosition(
-        zoom = secureZoomAnimation.value * zoomOutMultiplier.value,
+        zoom = baseZoom * zoomOutMultiplier.value,
         latLong =
             LatLong(
                 Latitude(latitudeAnimation.value),
                 Longitude.fromFloat(longitudeAnimation.value)
             ),
-        bias = percent
+        bias = cameraVerticalBias
     )
 }
+
+private fun Int.toAnimationDuration() =
+    (this * DISTANCE_DURATION_SCALE_FACTOR).coerceIn(MIN_ANIMATION_MILLIS, MAX_ANIMATION_MILLIS)
