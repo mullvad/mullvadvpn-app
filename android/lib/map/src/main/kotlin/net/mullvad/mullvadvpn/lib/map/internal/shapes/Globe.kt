@@ -149,7 +149,7 @@ internal class Globe(resources: Resources) {
     }
 
     companion object {
-        private const val LAND_OCEAN_SCALE_FACTOR = 0.999f
+        private const val LAND_OCEAN_SCALE_FACTOR = 0.9999f
 
         // Vertex, and fragment shader code is taken from Mullvad Desktop 3dmap.ts
         private val vertexShaderCode =
