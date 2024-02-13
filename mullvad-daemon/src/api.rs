@@ -243,7 +243,13 @@ impl AccessModeSelector {
     ) -> Result<AccessModeSelectorHandle> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
-        let (index, next) = Self::get_next_inner(0, &access_method_settings);
+        let (index, next) = Self::get_next_inner(
+            // `get_next_inner` will skip the `start` position, which means that
+            // by starting from the back of the available access methods we
+            // effectively look for candidates starting from index 0.
+            access_method_settings.cardinality() - 1,
+            &access_method_settings,
+        );
         let initial_connection_mode =
             Self::resolve_inner(next, &relay_selector, &address_cache).await;
 
