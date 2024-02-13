@@ -125,7 +125,7 @@ test('App should edit access method', async () => {
   await inputs.nth(3).fill(process.env.SHADOWSOCKS_SERVER_PASSWORD!);
 
   await page.getByTestId('ciphers').click();
-  await page.getByRole('option', { name: process.env.SHADOWSOCKS_SERVER_CIPHER! }).click();
+  await page.getByRole('option', { name: process.env.SHADOWSOCKS_SERVER_CIPHER!, exact: true }).click();
 
   expect(
     await util.waitForNavigation(async () => await saveButton.click())
