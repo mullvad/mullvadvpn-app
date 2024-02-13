@@ -31,6 +31,7 @@ pub enum Error {
     #[error(display = "Failed to set buffer size")]
     MtuSetBufferSize(#[error(source)] nix::Error),
 }
+
 /// Verify that the current MTU doesn't cause dropped packets, otherwise lower it to the
 /// largest value which doesn't.
 ///
@@ -120,37 +121,63 @@ async fn detect_mtu(
         setsockopt(fd, sockopt::RcvBuf, &buf_size).map_err(Error::MtuSetBufferSize)?;
     }
 
+    // Shared buffer to reduce allocations
     let payload_buf = vec![0; current_mtu as usize];
 
-    let mut ping_stream = linspace
-        .iter()
-        .enumerate()
-        .map(|(i, &mtu)| {
-            let client = client.clone();
-            let payload_size = (mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE) as usize;
-            let payload = &payload_buf[0..payload_size];
-            async move {
-                log::trace!("Sending ICMP ping of total size {mtu}");
-                client
-                    .pinger(IpAddr::V4(gateway), PingIdentifier(0))
-                    .await
-                    .timeout(PING_TIMEOUT)
-                    .ping(PingSequence(i as u16), payload)
-                    .await
-            }
-        })
-        .collect::<FuturesUnordered<_>>()
-        .map_ok(|(packet, _rtt)| {
+    // Future that sends a ping, receives the result, and converts it into a packet size
+    let ping_fut = |mtu, sequence| {
+        let client = client.clone();
+        let payload_size = (mtu - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE) as usize;
+        let payload = &payload_buf[0..payload_size];
+        async move {
+            log::trace!("Sending ICMP ping of total size {mtu}");
+            let (packet, _duration) = client
+                .pinger(IpAddr::V4(gateway), PingIdentifier(0))
+                .await
+                .timeout(PING_TIMEOUT)
+                .ping(PingSequence(sequence as u16), payload)
+                .await?;
+
             let surge_ping::IcmpPacket::V4(packet) = packet else {
                 unreachable!("ICMP ping response was not of IPv4 type");
             };
-            let size = u16::try_from(packet.get_size()).expect("ICMP packet size should fit in 16")
+            let size = u16::try_from(packet.get_size())
+                .expect("ICMP packet size should fit in u16")
                 + IPV4_HEADER_SIZE;
             log::trace!("Got ICMP ping response of total size {size}");
-            debug_assert_eq!(size, linspace[packet.get_sequence().0 as usize]);
-            size
-        });
+            debug_assert_eq!(
+                size, mtu,
+                "Ping response should be of identical size to request"
+            );
+            Ok(size)
+        }
+    };
 
+    detect_mtu_inner(linspace, ping_fut, PING_OFFSET_TIMEOUT).await
+}
+
+async fn detect_mtu_inner<B, F>(
+    linspace: Vec<u16>,
+    mut ping_fut: F,
+    ping_offset_timeout: Duration,
+) -> Result<u16, Error>
+where
+    B: futures::Future<Output = Result<u16, SurgeError>>,
+    F: FnMut(u16, usize) -> B,
+{
+    let ping_stream = linspace
+        .iter()
+        .enumerate()
+        .map(|(i, &mtu)| ping_fut(mtu, i))
+        .collect::<FuturesUnordered<_>>();
+
+    detect_mtu_inner_inner(ping_stream, ping_offset_timeout).await
+}
+
+async fn detect_mtu_inner_inner<B: futures::Future<Output = Result<u16, SurgeError>>>(
+    mut ping_stream: FuturesUnordered<B>,
+    ping_offset_timeout: Duration,
+) -> Result<u16, Error> {
     let first_ping_size = ping_stream
         .next()
         .await
@@ -164,8 +191,8 @@ async fn detect_mtu(
         })?;
 
     ping_stream
-        .timeout(PING_OFFSET_TIMEOUT) // Start a new, shorter, timeout
-        .map_while(|res| res.ok()) // Stop waiting for pings after this timeout
+        .timeout(ping_offset_timeout) // Start the timeout after the first ping has arrived
+        .map_while(|res| res.ok()) // Stop waiting for more pings after this timeout
         .try_fold(first_ping_size, |acc, mtu| future::ready(Ok(acc.max(mtu)))) // Get largest ping
         .await
         .map_err(Error::MtuDetectionPing)
