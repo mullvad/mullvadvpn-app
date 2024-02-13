@@ -1,5 +1,7 @@
 use super::config::TEST_CONFIG;
-use super::helpers::{connect_and_wait, get_package_desc, wait_for_tunnel_state, Pinger};
+use super::helpers::{
+    connect_and_wait, get_app_env, get_package_desc, wait_for_tunnel_state, Pinger,
+};
 use super::{Error, TestContext};
 
 use mullvad_management_interface::MullvadProxyClient;
@@ -8,7 +10,7 @@ use test_macro::test_function;
 use test_rpc::meta::Os;
 use test_rpc::{mullvad_daemon::ServiceStatus, ServiceClient};
 
-use std::{collections::HashMap, net::ToSocketAddrs, time::Duration};
+use std::time::Duration;
 
 /// Install the last stable version of the app and verify that it is running.
 #[test_function(priority = -200)]
@@ -331,22 +333,6 @@ pub async fn test_installation_idempotency(
     );
 
     Ok(())
-}
-
-fn get_app_env() -> HashMap<String, String> {
-    let mut map = HashMap::new();
-
-    let api_host = format!("api.{}", TEST_CONFIG.mullvad_host);
-    let api_addr = format!("{api_host}:443")
-        .to_socket_addrs()
-        .expect("failed to resolve API host")
-        .next()
-        .unwrap();
-
-    map.insert("MULLVAD_API_HOST".to_string(), api_host);
-    map.insert("MULLVAD_API_ADDR".to_string(), api_addr.to_string());
-
-    map
 }
 
 async fn replace_openvpn_cert(rpc: &ServiceClient) -> Result<(), Error> {
