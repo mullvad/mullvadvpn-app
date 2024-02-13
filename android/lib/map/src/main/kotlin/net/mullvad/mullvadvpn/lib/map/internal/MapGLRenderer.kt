@@ -78,11 +78,16 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
     private fun Float.toRadians() = this * Math.PI.toFloat() / (COMPLETE_ANGLE / 2)
 
     private fun toOffsetY(cameraPosition: CameraPosition): Float {
-        val percent = cameraPosition.bias
+        val percent = cameraPosition.verticalBias
         val z = cameraPosition.zoom - 1f
         // Calculate the size of the plane at the current z position
-        val planeSize = tan(FIELD_OF_VIEW.toRadians() / 2f) * z * 2f
-        return planeSize * (0.5f - percent)
+        val planeSizeY = tan(FIELD_OF_VIEW.toRadians() / 2f) * z * 2f
+
+        // Calculate the start of the plane
+        val planeStartY = planeSizeY / 2f
+
+        // Return offset based on the bias
+        return planeStartY - planeSizeY * percent
     }
 
     private fun clear() {

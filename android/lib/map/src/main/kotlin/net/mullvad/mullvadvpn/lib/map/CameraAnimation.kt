@@ -87,7 +87,7 @@ fun animatedCameraPosition(
                 Latitude(latitudeAnimation.value),
                 Longitude.fromFloat(longitudeAnimation.value)
             ),
-        bias = cameraVerticalBias
+        verticalBias = cameraVerticalBias
     )
 }
 
