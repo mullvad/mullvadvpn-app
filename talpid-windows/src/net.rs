@@ -333,25 +333,12 @@ pub fn add_ip_address_for_interface(luid: NET_LUID_LH, address: IpAddr) -> Resul
 }
 
 /// Sets MTU on the specified network interface identified by `luid`.
-pub fn set_mtu(luid: NET_LUID_LH, mtu: u32, use_ipv6: bool) -> io::Result<()> {
-    let ip_families: &[AddressFamily] = if use_ipv6 {
-        &[AddressFamily::Ipv4, AddressFamily::Ipv6]
-    } else {
-        &[AddressFamily::Ipv4]
-    };
-    for family in ip_families {
-        let mut row = match get_ip_interface_entry(*family, &luid) {
-            Ok(row) => row,
-            Err(error) if error.raw_os_error() == Some(ERROR_NOT_FOUND as i32) => continue,
-            Err(error) => return Err(error),
-        };
+pub fn set_mtu(mtu: u32, luid: NET_LUID_LH, ip_family: AddressFamily) -> io::Result<()> {
+    let mut row = get_ip_interface_entry(ip_family, &luid)?;
 
-        row.NlMtu = mtu;
+    row.NlMtu = mtu;
 
-        set_ip_interface_entry(&mut row)?;
-    }
-
-    Ok(())
+    set_ip_interface_entry(&mut row)
 }
 
 /// Returns the unicast IP address table. If `family` is `None`, then addresses for all families are
