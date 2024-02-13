@@ -30,4 +30,5 @@ mullvad-api = { path = "../mullvad-api" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-version = { path = "../mullvad-version" }
 talpid-core = { path = "../talpid-core" }
+talpid-future = { path = "../talpid-future" }
 talpid-types = { path = "../talpid-types" }
