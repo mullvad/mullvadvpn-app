@@ -17,7 +17,7 @@ use mullvad_api::{
     rest::{self, MullvadRestHandle},
     AccountsProxy, DevicesProxy,
 };
-use talpid_core::future_retry::{retry_future, ConstantInterval, ExponentialBackoff, Jittered};
+use talpid_future::retry::{retry_future, ConstantInterval, ExponentialBackoff, Jittered};
 /// Retry strategy used for user-initiated actions that require immediate feedback
 const RETRY_ACTION_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(3));
 /// Retry strategy used for background tasks
