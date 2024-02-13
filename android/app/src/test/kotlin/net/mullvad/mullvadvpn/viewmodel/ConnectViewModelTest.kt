@@ -209,7 +209,9 @@ class ConnectViewModelTest {
                 ipv6 = mockk(relaxed = true),
                 country = "Sweden",
                 city = "Gothenburg",
-                hostname = "Host"
+                hostname = "Host",
+                latitude = 57.7065,
+                longitude = 11.967
             )
 
         // Act, Assert
