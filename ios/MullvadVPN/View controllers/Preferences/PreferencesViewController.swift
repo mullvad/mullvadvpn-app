@@ -101,11 +101,15 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     // MARK: - PreferencesDataSourceDelegate
 
     func didChangeViewModel(_ viewModel: PreferencesViewModel) {
-        interactor.setObfuscationSettings(WireGuardObfuscationSettings(
-            state: viewModel.obfuscationState,
-            port: viewModel.obfuscationPort
-        ))
-        interactor.setQuantumResistance(viewModel.quantumResistance)
+        interactor.updateSettings(
+            [
+                .obfuscation(WireGuardObfuscationSettings(
+                    state: viewModel.obfuscationState,
+                    port: viewModel.obfuscationPort
+                )),
+                .quantumResistance(viewModel.quantumResistance),
+            ]
+        )
     }
 
     func showInfo(for item: PreferencesInfoButtonItem) {

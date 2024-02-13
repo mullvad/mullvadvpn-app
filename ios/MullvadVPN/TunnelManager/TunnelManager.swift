@@ -503,6 +503,19 @@ final class TunnelManager: StorePaymentObserver {
         return operation
     }
 
+    func updateSettings(_ updates: [TunnelSettingsUpdate], completionHandler: (() -> Void)? = nil) {
+        let taskName = "Set " + updates.map(\.subjectName).joined(separator: ", ")
+        scheduleSettingsUpdate(
+            taskName: taskName,
+            modificationBlock: { settings in
+                for update in updates {
+                    update.apply(to: &settings)
+                }
+            },
+            completionHandler: completionHandler
+        )
+    }
+
     func setRelayConstraints(
         _ newConstraints: RelayConstraints,
         completionHandler: (() -> Void)? = nil
@@ -523,26 +536,6 @@ final class TunnelManager: StorePaymentObserver {
                 settings.dnsSettings = newDNSSettings
             },
             completionHandler: completionHandler
-        )
-    }
-
-    func setObfuscationSettings(_ newSettings: WireGuardObfuscationSettings) {
-        scheduleSettingsUpdate(
-            taskName: "Set obfuscation settings",
-            modificationBlock: { settings in
-                settings.wireGuardObfuscation = newSettings
-            },
-            completionHandler: nil
-        )
-    }
-
-    func setQuantumResistance(_ newSetting: TunnelQuantumResistance) {
-        scheduleSettingsUpdate(
-            taskName: "Set quantum resistance",
-            modificationBlock: { settings in
-                settings.tunnelQuantumResistance = newSetting
-            },
-            completionHandler: nil
         )
     }
 
