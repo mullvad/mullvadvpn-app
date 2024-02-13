@@ -12,4 +12,5 @@ enum PreferencesInfoButtonItem {
     case wireGuardPorts
     case wireGuardObfuscation
     case wireGuardObfuscationPort
+    case quantumResistance
 }
