@@ -89,33 +89,31 @@ private fun PreviewNotificationBanner() {
 
 @Composable
 fun NotificationBanner(
+    modifier: Modifier,
     notification: InAppNotification?,
     isPlayBuild: Boolean,
     onClickUpdateVersion: () -> Unit,
     onClickShowAccount: () -> Unit,
     onClickDismissNewDevice: () -> Unit
 ) {
-
-    // Hack to make sure view expands and contracts when AnimatedVisiblity is used
-    Box(modifier = Modifier.animateContentSize()) {
-        // Fix for animating to invisible state
-        val previous = rememberPrevious(current = notification, shouldUpdate = { _, _ -> true })
-        AnimatedVisibility(
-            visible = notification != null,
-            enter = slideInVertically(initialOffsetY = { -it }),
-            exit = slideOutVertically(targetOffsetY = { -it }),
-        ) {
-            val visibleNotification = notification ?: previous
-            if (visibleNotification != null)
-                Notification(
-                    visibleNotification.toNotificationData(
-                        isPlayBuild = isPlayBuild,
-                        onClickUpdateVersion,
-                        onClickShowAccount,
-                        onClickDismissNewDevice
-                    )
+    // Fix for animating to invisible state
+    val previous = rememberPrevious(current = notification, shouldUpdate = { _, _ -> true })
+    AnimatedVisibility(
+        modifier = modifier,
+        visible = notification != null,
+        enter = slideInVertically(initialOffsetY = { -it }),
+        exit = slideOutVertically(targetOffsetY = { -it }),
+    ) {
+        val visibleNotification = notification ?: previous
+        if (visibleNotification != null)
+            Notification(
+                visibleNotification.toNotificationData(
+                    isPlayBuild = isPlayBuild,
+                    onClickUpdateVersion,
+                    onClickShowAccount,
+                    onClickDismissNewDevice
                 )
-        }
+            )
     }
 }
 

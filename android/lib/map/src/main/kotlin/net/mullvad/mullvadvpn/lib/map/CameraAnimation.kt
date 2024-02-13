@@ -65,12 +65,14 @@ fun animatedCameraPosition(
                 targetValue = 1f,
                 animationSpec =
                     keyframes {
-                        if (duration < SHORT_ANIMATION_MILLIS) {
+                        if (duration < SHORT_ANIMATION_CUTOFF_MILLIS) {
                             durationMillis = duration
                             1f at duration using EaseInOut
                         } else {
                             durationMillis = duration
-                            1.25f at duration / 3 using EaseInOut
+                            FAR_ANIMATION_MAX_ZOOM_MULTIPLIER at
+                                (duration * MAX_MULTIPLIER_PEAK_TIMING).toInt() using
+                                EaseInOut
                             1f at duration using EaseInOut
                         }
                     }
@@ -79,11 +81,16 @@ fun animatedCameraPosition(
     }
 
     LaunchedEffect(marker?.type) {
-        launch { secureZoomAnimation.animateTo(targetValue = marker?.type.toZoom(), tween(2000)) }
+        launch {
+            secureZoomAnimation.animateTo(
+                targetValue = marker?.type.toZoom(),
+                tween(SECURE_ZOOM_ANIMATION_MILLIS)
+            )
+        }
     }
 
     return CameraPosition(
-        zoom = secureZoomAnimation.value * zoomOutMultiplier.value * 0.9f,
+        zoom = secureZoomAnimation.value * zoomOutMultiplier.value,
         latLong =
             LatLong(
                 Latitude(latitudeAnimation.value),

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -201,6 +202,15 @@ fun ConnectScreen(
             progressIndicatorBias,
         )
 
+        NotificationBanner(
+            modifier = Modifier.padding(top = it.calculateTopPadding()),
+            notification = uiState.inAppNotification,
+            isPlayBuild = uiState.isPlayBuild,
+            onClickUpdateVersion = onUpdateVersionClick,
+            onClickShowAccount = onManageAccountClick,
+            onClickDismissNewDevice = onDismissNewDeviceClick,
+        )
+
         Column(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.Start,
@@ -215,15 +225,7 @@ fun ConnectScreen(
                     .verticalScroll(scrollState)
                     .testTag(SCROLLABLE_COLUMN_TEST_TAG)
         ) {
-            NotificationBanner(
-                notification = uiState.inAppNotification,
-                isPlayBuild = uiState.isPlayBuild,
-                onClickUpdateVersion = onUpdateVersionClick,
-                onClickShowAccount = onManageAccountClick,
-                onClickDismissNewDevice = onDismissNewDeviceClick,
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.defaultMinSize(minHeight = Dimens.mediumPadding).weight(1f))
             MullvadCircularProgressIndicatorLarge(
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier =

@@ -28,8 +28,8 @@ value class Longitude(val value: Float) {
     operator fun minus(other: Longitude) = fromFloat(value - other.value)
 
     companion object {
-        private const val MIN_LONGITUDE_VALUE: Float = -COMPLETE_ANGLE / 2 // -180
-        private const val MAX_LONGITUDE_VALUE: Float = COMPLETE_ANGLE / 2 // 180
+        private const val MIN_LONGITUDE_VALUE: Float = -180f
+        private const val MAX_LONGITUDE_VALUE: Float = 180f
         private val LONGITUDE_RANGE = MIN_LONGITUDE_VALUE..MAX_LONGITUDE_VALUE
 
         /**

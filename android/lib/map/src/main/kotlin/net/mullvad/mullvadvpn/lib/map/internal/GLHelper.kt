@@ -98,13 +98,11 @@ internal fun initIndexBuffer(dataBuffer: Buffer): IndexBufferWithLength {
     )
 }
 
+internal class IndexBufferWithLength(val indexBuffer: Int, val length: Int)
+
 internal fun newIdentityMatrix(): FloatArray =
     FloatArray(MATRIX_SIZE).apply { Matrix.setIdentityM(this, 0) }
 
 internal fun Color.toFloatArray(): FloatArray {
     return floatArrayOf(red, green, blue, alpha)
-}
-
-internal fun Color.toFloatArrayWithoutAlpha(): FloatArray {
-    return floatArrayOf(red, green, blue)
 }

@@ -17,8 +17,8 @@ value class Latitude(val value: Float) {
     operator fun minus(other: Latitude) = fromFloat(value - other.value)
 
     companion object {
-        private const val MIN_LATITUDE_VALUE: Float = -COMPLETE_ANGLE / 4 // -90
-        private const val MAX_LATITUDE_VALUE: Float = COMPLETE_ANGLE / 4 // 90
+        private const val MIN_LATITUDE_VALUE: Float = -90f
+        private const val MAX_LATITUDE_VALUE: Float = 90f
         private val LATITUDE_RANGE = MIN_LATITUDE_VALUE..MAX_LATITUDE_VALUE
 
         /**
@@ -52,8 +52,4 @@ value class Latitude(val value: Float) {
             }
         }
     }
-}
-
-fun Float.toRadians(): Float {
-    return this * (Math.PI.toFloat() / 180f)
 }
