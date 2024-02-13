@@ -87,6 +87,8 @@ interface SettingsSelectProps<T extends string> {
   items: Array<SettingsSelectItem<T>>;
   onUpdate: (value: T) => void;
   direction?: 'down' | 'up';
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  'data-testid'?: string;
 }
 
 export function SettingsSelect<T extends string>(props: SettingsSelectProps<T>) {
@@ -142,7 +144,7 @@ export function SettingsSelect<T extends string>(props: SettingsSelectProps<T>) 
   return (
     <AriaInput>
       <StyledSelect onBlur={closeDropdown} onKeyDown={onKeyDown} role="listbox">
-        <StyledSelectedContainer onClick={toggleDropdown}>
+        <StyledSelectedContainer data-testid={props['data-testid']} onClick={toggleDropdown}>
           <StyledSelectedContainerInner>
             <StyledSelectedText>
               {props.items.find((item) => item.value === value)?.label ?? ''}
