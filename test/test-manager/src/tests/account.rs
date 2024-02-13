@@ -23,7 +23,7 @@ pub async fn test_login(
     // Instruct daemon to log in
     //
 
-    clear_devices(&new_device_client().await)
+    clear_devices(&new_device_client())
         .await
         .expect("failed to clear devices");
 
@@ -65,7 +65,7 @@ pub async fn test_too_many_devices(
 ) -> Result<(), Error> {
     log::info!("Using up all devices");
 
-    let device_client = new_device_client().await;
+    let device_client = new_device_client();
 
     const MAX_ATTEMPTS: usize = 15;
 
@@ -151,7 +151,7 @@ pub async fn test_revoked_device(
 
     log::debug!("Removing current device");
 
-    let device_client = new_device_client().await;
+    let device_client = new_device_client();
     retry_if_throttled(|| {
         device_client.remove(TEST_CONFIG.account_number.clone(), device_id.clone())
     })
@@ -217,9 +217,10 @@ pub async fn clear_devices(device_client: &DevicesProxy) -> Result<(), mullvad_a
     Ok(())
 }
 
-pub async fn new_device_client() -> DevicesProxy {
-    let api_endpoint = mullvad_api::ApiEndpoint::from_env_vars();
+pub fn new_device_client() -> DevicesProxy {
+    use mullvad_api::{proxy::ApiConnectionMode, ApiEndpoint, API};
 
+    let api_endpoint = ApiEndpoint::from_env_vars();
     let api_host = format!("api.{}", TEST_CONFIG.mullvad_host);
     let api_address = format!("{api_host}:443")
         .to_socket_addrs()
@@ -228,7 +229,7 @@ pub async fn new_device_client() -> DevicesProxy {
         .unwrap();
 
     // Override the API endpoint to use the one specified in the test config
-    let _ = mullvad_api::API.override_init(mullvad_api::ApiEndpoint {
+    let _ = API.override_init(ApiEndpoint {
         host: Some(api_host),
         address: Some(api_address),
         ..api_endpoint
@@ -236,9 +237,10 @@ pub async fn new_device_client() -> DevicesProxy {
 
     let api = mullvad_api::Runtime::new(tokio::runtime::Handle::current())
         .expect("failed to create api runtime");
-    let rest_handle = api
-        .mullvad_rest_handle(mullvad_api::proxy::ApiConnectionMode::Direct.into_repeat())
-        .await;
+    let rest_handle = api.mullvad_rest_handle(
+        ApiConnectionMode::Direct,
+        ApiConnectionMode::Direct.into_repeat(),
+    );
     DevicesProxy::new(rest_handle)
 }
 
