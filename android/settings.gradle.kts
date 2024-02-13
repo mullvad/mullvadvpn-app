@@ -13,7 +13,8 @@ include(
     ":lib:theme",
     ":lib:common-test",
     ":lib:billing",
-    ":lib:payment"
+    ":lib:payment",
+    ":lib:map"
 )
 include(
     ":test",
