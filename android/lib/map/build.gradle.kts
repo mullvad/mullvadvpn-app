@@ -5,9 +5,6 @@ plugins {
     id(Dependencies.Plugin.androidLibraryId)
 }
 
-val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
-val mapResourcesRaw = "$repoRootPath/android/lib/map/src/main/res/raw/"
-
 android {
     namespace = "net.mullvad.mullvadvpn.lib.map"
     compileSdk = Versions.Android.compileSdkVersion
@@ -34,18 +31,6 @@ android {
         abortOnError = true
         warningsAsErrors = true
     }
-
-    project.tasks.preBuild.dependsOn("copyMapData")
-}
-
-tasks.register("copyMapData", Copy::class) {
-    from("$repoRootPath/gui/assets/geo")
-    include("land_contour_indices.bin")
-    include("land_positions.bin")
-    include("land_triangle_indices.bin")
-    include("ocean_indices.bin")
-    include("ocean_positions.bin")
-    into(mapResourcesRaw)
 }
 
 dependencies {
