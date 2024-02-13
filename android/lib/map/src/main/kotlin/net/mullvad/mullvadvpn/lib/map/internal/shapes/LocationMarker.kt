@@ -16,33 +16,6 @@ import net.mullvad.mullvadvpn.model.LatLong
 
 internal class LocationMarker(val colors: LocationMarkerColors) {
 
-    private val vertexShaderCode =
-        """
-    attribute vec3 aVertexPosition;
-    attribute vec4 aVertexColor;
-
-    uniform mat4 uModelViewMatrix;
-    uniform mat4 uProjectionMatrix;
-
-    varying lowp vec4 vColor;
-
-    void main(void) {
-        gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aVertexPosition, 1.0);
-        vColor = aVertexColor;
-    }
-        """
-            .trimIndent()
-
-    private val fragmentShaderCode =
-        """
-    varying lowp vec4 vColor;
-
-    void main(void) {
-        gl_FragColor = vColor;
-    }
-        """
-            .trimIndent()
-
     private val rings =
         listOf(
             circleFanVertices(
@@ -79,9 +52,9 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
     private val attribLocations: AttribLocations
     private val uniformLocation: UniformLocation
 
-    data class AttribLocations(val vertexPosition: Int, val vertexColor: Int)
+    private data class AttribLocations(val vertexPosition: Int, val vertexColor: Int)
 
-    data class UniformLocation(val projectionMatrix: Int, val modelViewMatrix: Int)
+    private data class UniformLocation(val projectionMatrix: Int, val modelViewMatrix: Int)
 
     private val positionBuffer: Int
     private val colorBuffer: Int
@@ -213,6 +186,34 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
 
     companion object {
         private const val MARKER_TRANSLATE_Z_FACTOR = 1.0001f
+
+        // Vertex, and fragment shader code is taken from Mullvad Desktop 3dmap.ts
+        private val vertexShaderCode =
+            """
+    attribute vec3 aVertexPosition;
+    attribute vec4 aVertexColor;
+
+    uniform mat4 uModelViewMatrix;
+    uniform mat4 uProjectionMatrix;
+
+    varying lowp vec4 vColor;
+
+    void main(void) {
+        gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aVertexPosition, 1.0);
+        vColor = aVertexColor;
+    }
+        """
+                .trimIndent()
+
+        private val fragmentShaderCode =
+            """
+    varying lowp vec4 vColor;
+
+    void main(void) {
+        gl_FragColor = vColor;
+    }
+        """
+                .trimIndent()
     }
 }
 

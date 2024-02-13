@@ -12,29 +12,7 @@ import net.mullvad.mullvadvpn.lib.map.internal.initArrayBuffer
 import net.mullvad.mullvadvpn.lib.map.internal.initIndexBuffer
 import net.mullvad.mullvadvpn.lib.map.internal.initShaderProgram
 
-class Globe(resources: Resources) {
-    private val vertexShaderCode =
-        """
-    attribute vec3 aVertexPosition;
-    uniform vec4 uColor;
-    uniform mat4 uModelViewMatrix;
-    uniform mat4 uProjectionMatrix;
-    varying lowp vec4 vColor;
-    void main(void) {
-      gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aVertexPosition, 1.0);
-      vColor = uColor;
-    }
-        """
-            .trimIndent()
-
-    private val fragmentShaderCode =
-        """
-    varying lowp vec4 vColor;
-    void main(void) {
-      gl_FragColor = vColor;
-    }
-        """
-            .trimIndent()
+internal class Globe(resources: Resources) {
 
     private val shaderProgram: Int
 
@@ -172,5 +150,32 @@ class Globe(resources: Resources) {
 
     companion object {
         private const val LAND_OCEAN_SCALE_FACTOR = 0.999f
+
+        // Vertex, and fragment shader code is taken from Mullvad Desktop 3dmap.ts
+        private val vertexShaderCode =
+            """
+    attribute vec3 aVertexPosition;
+    
+    uniform vec4 uColor;
+    uniform mat4 uModelViewMatrix;
+    uniform mat4 uProjectionMatrix;
+    
+    varying lowp vec4 vColor;
+    
+    void main(void) {
+      gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aVertexPosition, 1.0);
+      vColor = uColor;
+    }
+        """
+                .trimIndent()
+        private val fragmentShaderCode =
+            """
+    varying lowp vec4 vColor;
+    
+    void main(void) {
+      gl_FragColor = vColor;
+    }
+        """
+                .trimIndent()
     }
 }

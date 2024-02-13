@@ -62,7 +62,7 @@ internal fun Map(modifier: Modifier = Modifier, mapViewState: MapViewState) {
                     view?.onResume()
                 }
                 Lifecycle.Event.ON_PAUSE -> {
-                   view?.onPause()
+                    view?.onPause()
                 }
                 else -> {}
             }

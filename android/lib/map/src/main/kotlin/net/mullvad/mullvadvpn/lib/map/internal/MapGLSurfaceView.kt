@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.lib.map.internal
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.opengl.GLSurfaceView
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState

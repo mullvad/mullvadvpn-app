@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -211,8 +210,8 @@ fun ConnectScreen(
                 animationSpec = tween(SECURE_ZOOM_ANIMATION_MILLIS)
             )
 
-        val markers = uiState.tunnelRealState.toMarker(uiState.location)?.let { listOf(it) }
-            ?: emptyList()
+        val markers =
+            uiState.tunnelRealState.toMarker(uiState.location)?.let { listOf(it) } ?: emptyList()
 
         AnimatedMap(
             modifier = Modifier.padding(top = it.calculateTopPadding()),
