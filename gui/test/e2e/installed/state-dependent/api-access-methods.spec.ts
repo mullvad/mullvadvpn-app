@@ -125,7 +125,7 @@ test('App should edit access method', async () => {
   await inputs.nth(3).fill(process.env.SHADOWSOCKS_SERVER_PASSWORD!);
 
   await page.getByTestId('ciphers').click();
-  await page.getByRole('option', { name: process.env.SHADOWSOCKS_SERVER_CIPHER! }).click();
+  await page.getByRole('option', { name: process.env.SHADOWSOCKS_SERVER_CIPHER!, exact: true }).click();
 
   expect(
     await util.waitForNavigation(async () => await saveButton.click())
@@ -140,20 +140,13 @@ test('App should edit access method', async () => {
 test('App should use valid method', async () => {
   const accessMethods = page.getByTestId('access-method');
 
-  const direct = accessMethods.first();
-  const bridges = accessMethods.nth(1);
-  const functioningTestMethod = accessMethods.last();
-
-  await expect(page.getByText(IN_USE_LABEL)).toHaveCount(1);
-  await expect(functioningTestMethod).not.toContainText(IN_USE_LABEL);
-  await expect(functioningTestMethod).toHaveText(FUNCTIONING_METHOD_NAME);
-
+  const functioningTestMethod = accessMethods.getByText(FUNCTIONING_METHOD_NAME);
   await functioningTestMethod.locator('button').last().click();
   await functioningTestMethod.getByText('Use').click();
-  await expect(direct).not.toContainText(IN_USE_LABEL);
-  await expect(bridges).not.toContainText(IN_USE_LABEL);
+
   await expect(functioningTestMethod).toContainText('API reachable');
   await expect(functioningTestMethod).toContainText(IN_USE_LABEL);
+  await expect(page.getByText(IN_USE_LABEL)).toHaveCount(1);
 });
 
 test('App should delete method', async () => {
