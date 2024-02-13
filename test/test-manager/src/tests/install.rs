@@ -49,7 +49,7 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
         return Err(Error::DaemonNotRunning);
     }
 
-    super::account::clear_devices(&super::account::new_device_client().await)
+    super::account::clear_devices(&super::account::new_device_client())
         .await
         .expect("failed to clear devices");
 
@@ -227,10 +227,9 @@ pub async fn test_uninstall_app(
     }
 
     // verify that device was removed
-    let devices =
-        super::account::list_devices_with_retries(&super::account::new_device_client().await)
-            .await
-            .expect("failed to list devices");
+    let devices = super::account::list_devices_with_retries(&super::account::new_device_client())
+        .await
+        .expect("failed to list devices");
 
     assert!(
         !devices.iter().any(|device| device.id == uninstalled_device),
