@@ -10,5 +10,7 @@ data class GeoIpLocation(
     val ipv6: InetAddress?,
     val country: String,
     val city: String?,
-    val hostname: String?
+    val latitude: Double,
+    val longitude: Double,
+    val hostname: String?,
 ) : Parcelable
