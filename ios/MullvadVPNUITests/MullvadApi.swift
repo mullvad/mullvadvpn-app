@@ -82,7 +82,6 @@ class MullvadApi {
             throw InitMutableBufferError()
         }
 
-        var dataLen = data.count
         var newAccountPtr: UnsafePointer<CChar>?
         let result = mullvad_api_create_account(
             clientContext,
