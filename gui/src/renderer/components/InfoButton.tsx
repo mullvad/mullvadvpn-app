@@ -18,6 +18,8 @@ const StyledInfoButton = styled.button({
 interface IInfoIconProps {
   className?: string;
   size?: number;
+  tintColor?: string;
+  tintHoverColor?: string;
 }
 
 export function InfoIcon(props: IInfoIconProps) {
@@ -25,21 +27,23 @@ export function InfoIcon(props: IInfoIconProps) {
     <ImageView
       source="icon-info"
       width={props.size ?? 18}
-      tintColor={colors.white}
-      tintHoverColor={colors.white80}
+      tintColor={props.tintColor ?? colors.white}
+      tintHoverColor={props.tintHoverColor ?? colors.white80}
       className={props.className}
     />
   );
 }
 
-interface IInfoButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
+export interface IInfoButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   message?: string | Array<string>;
   children?: React.ReactNode;
   size?: number;
+  tintColor?: string;
+  tintHoverColor?: string;
 }
 
 export default function InfoButton(props: IInfoButtonProps) {
-  const { message, children, size, ...otherProps } = props;
+  const { message, children, size, tintColor, tintHoverColor, ...otherProps } = props;
   const [isOpen, show, hide] = useBoolean(false);
 
   return (
@@ -48,7 +52,7 @@ export default function InfoButton(props: IInfoButtonProps) {
         onClick={show}
         aria-label={messages.pgettext('accessibility', 'More information')}
         {...otherProps}>
-        <InfoIcon size={size} />
+        <InfoIcon size={size} tintColor={tintColor} tintHoverColor={tintHoverColor} />
       </StyledInfoButton>
       <ModalAlert
         isOpen={isOpen}

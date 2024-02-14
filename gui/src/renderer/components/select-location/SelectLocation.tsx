@@ -18,6 +18,7 @@ import { BackAction } from '../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../Layout';
 import {
   NavigationBar,
+  NavigationBarButton,
   NavigationContainer,
   NavigationItems,
   NavigationScrollbars,
@@ -44,7 +45,6 @@ import {
   StyledClearFilterButton,
   StyledContent,
   StyledFilter,
-  StyledFilterIconButton,
   StyledFilterRow,
   StyledHeaderSubTitle,
   StyledNavigationBarAttachment,
@@ -137,9 +137,7 @@ export default function SelectLocation() {
                   }
                 </TitleBarItem>
 
-                <StyledFilterIconButton
-                  onClick={onViewFilter}
-                  aria-label={messages.gettext('Filter')}>
+                <NavigationBarButton onClick={onViewFilter} aria-label={messages.gettext('Filter')}>
                   <ImageView
                     source="icon-filter-round"
                     tintColor={colors.white40}
@@ -147,7 +145,7 @@ export default function SelectLocation() {
                     height={24}
                     width={24}
                   />
-                </StyledFilterIconButton>
+                </NavigationBarButton>
               </NavigationItems>
             </NavigationBar>
 

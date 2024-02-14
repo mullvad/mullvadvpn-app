@@ -6,6 +6,7 @@ import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { useCombinedRefs } from '../lib/utilityHooks';
 import CustomScrollbars, { CustomScrollbarsRef, IScrollEvent } from './CustomScrollbars';
+import InfoButton from './InfoButton';
 import { BackActionContext } from './KeyboardNavigation';
 import {
   StyledBackBarItemButton,
@@ -196,3 +197,21 @@ export function BackBarItem() {
     </StyledBackBarItemButton>
   );
 }
+
+const navigationRightHandSideButton: React.CSSProperties = {
+  justifySelf: 'end',
+  borderWidth: 0,
+  padding: 0,
+  margin: 0,
+  cursor: 'default',
+  backgroundColor: 'transparent',
+};
+
+export const NavigationBarButton = styled.button({ ...navigationRightHandSideButton });
+export const NavigationInfoButton = styled(InfoButton).attrs({
+  size: 24,
+  tintColor: colors.white40,
+  tintHoverColor: colors.white60,
+})({
+  ...navigationRightHandSideButton,
+});
