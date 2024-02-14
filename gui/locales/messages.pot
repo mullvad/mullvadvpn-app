@@ -145,6 +145,9 @@ msgstr ""
 msgid "Got it!"
 msgstr ""
 
+msgid "Import"
+msgstr ""
+
 msgid "IPv4"
 msgstr ""
 
@@ -1324,6 +1327,77 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr ""
 
+msgctxt "settings-import"
+msgid "Clear all overrides"
+msgstr ""
+
+msgctxt "settings-import"
+msgid "Clear all overrides?"
+msgstr ""
+
+msgctxt "settings-import"
+msgid "Clearing the imported overrides changes the server IPs, in the Select location view, back to default."
+msgstr ""
+
+msgctxt "settings-import"
+msgid "If you are having issues connecting to VPN servers, please contact support."
+msgstr ""
+
+msgctxt "settings-import"
+msgid "Import file"
+msgstr ""
+
+msgctxt "settings-import"
+msgid "Import files or text with new IP addresses for the servers in the Select location view."
+msgstr ""
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was successful, overrides are now active."
+msgstr ""
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was unsuccessful, please try again."
+msgstr ""
+
+msgctxt "settings-import"
+msgid "Import of text was successful, overrides are now active."
+msgstr ""
+
+msgctxt "settings-import"
+msgid "Import of text was unsuccessful, please try again."
+msgstr ""
+
+msgctxt "settings-import"
+msgid "IMPORT SUCCESSFUL"
+msgstr ""
+
+#. Title label in navigation bar
+msgctxt "settings-import"
+msgid "Import via text"
+msgstr ""
+
+msgctxt "settings-import"
+msgid "NO OVERRIDES IMPORTED"
+msgstr ""
+
+msgctxt "settings-import"
+msgid "On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked."
+msgstr ""
+
+msgctxt "settings-import"
+msgid "OVERRIDES ACTIVE"
+msgstr ""
+
+#. Title label in navigation bar. This is for a feature that lets
+#. users import server IP settings.
+msgctxt "settings-import"
+msgid "Server IP override"
+msgstr ""
+
+msgctxt "settings-import"
+msgid "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
+msgstr ""
+
 #. Navigation button to the 'API access methods' view
 msgctxt "settings-view"
 msgid "API access"
@@ -1766,6 +1840,10 @@ msgstr ""
 #. Label for settings that enables malware blocking.
 msgctxt "vpn-settings-view"
 msgid "Malware"
+msgstr ""
+
+msgctxt "vpn-settings-view"
+msgid "Server IP override"
 msgstr ""
 
 #. Label for settings that enables block of social media.
