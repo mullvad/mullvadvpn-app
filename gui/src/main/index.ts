@@ -822,6 +822,9 @@ class ApplicationMain
         await shell.openExternal(url);
       }
     });
+    IpcMainEventChannel.app.handleGetPathBaseName((filePath) =>
+      Promise.resolve(path.basename(filePath)),
+    );
 
     IpcMainEventChannel.navigation.handleSetHistory((history) => {
       this.navigationHistory = history;
