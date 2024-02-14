@@ -366,6 +366,9 @@ export default class AppRenderer {
     IpcRendererEventChannel.settings.testApiAccessMethodById(id);
   public testCustomApiAccessMethod = (method: CustomProxy) =>
     IpcRendererEventChannel.settings.testCustomApiAccessMethod(method);
+  public importSettingsFile = (path: string) => IpcRendererEventChannel.settings.importFile(path);
+  public importSettingsText = (text: string) => IpcRendererEventChannel.settings.importText(text);
+  public clearAllRelayOverrides = () => IpcRendererEventChannel.settings.clearAllRelayOverrides();
   public getMapData = () => IpcRendererEventChannel.map.getData();
   public setAnimateMap = (displayMap: boolean): void =>
     IpcRendererEventChannel.guiSettings.setAnimateMap(displayMap);
@@ -813,6 +816,7 @@ export default class AppRenderer {
     reduxSettings.updateObfuscationSettings(newSettings.obfuscationSettings);
     reduxSettings.updateCustomLists(newSettings.customLists);
     reduxSettings.updateApiAccessMethods(newSettings.apiAccessMethods);
+    reduxSettings.updateRelayOverrides(newSettings.relayOverrides);
 
     this.setReduxRelaySettings(newSettings.relaySettings);
     this.setBridgeSettings(newSettings.bridgeSettings);

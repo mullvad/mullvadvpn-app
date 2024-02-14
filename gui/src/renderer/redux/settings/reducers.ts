@@ -16,6 +16,7 @@ import {
   ProxySettings,
   RelayEndpointType,
   RelayLocation,
+  RelayOverride,
   RelayProtocol,
   TunnelProtocol,
 } from '../../../shared/daemon-rpc-types';
@@ -112,6 +113,7 @@ export interface ISettingsReduxState {
   customLists: CustomLists;
   apiAccessMethods: ApiAccessMethodSettings;
   currentApiAccessMethod?: AccessMethodSetting;
+  relayOverrides: Array<RelayOverride>;
 }
 
 const initialState: ISettingsReduxState = {
@@ -181,6 +183,7 @@ const initialState: ISettingsReduxState = {
   customLists: [],
   apiAccessMethods: getDefaultApiAccessMethods(),
   currentApiAccessMethod: undefined,
+  relayOverrides: [],
 };
 
 export default function (
@@ -321,6 +324,12 @@ export default function (
       return {
         ...state,
         currentApiAccessMethod: action.accessMethod,
+      };
+
+    case 'SET_RELAY_OVERRIDES':
+      return {
+        ...state,
+        relayOverrides: action.relayOverrides,
       };
 
     default:

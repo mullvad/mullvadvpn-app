@@ -697,6 +697,14 @@ export class DaemonRpc {
     return result.getValue();
   }
 
+  public async applyJsonSettings(settings: string): Promise<void> {
+    await this.callString(this.client.applyJsonSettings, settings);
+  }
+
+  public async clearAllRelayOverrides(): Promise<void> {
+    await this.callEmpty(this.client.clearAllRelayOverrides);
+  }
+
   private subscriptionId(): number {
     const current = this.nextSubscriptionId;
     this.nextSubscriptionId += 1;
@@ -1167,6 +1175,7 @@ function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefine
   const obfuscationSettings = convertFromObfuscationSettings(settingsObject.obfuscationSettings);
   const customLists = convertFromCustomListSettings(settings.getCustomLists());
   const apiAccessMethods = convertFromApiAccessMethodSettings(settings.getApiAccessMethods()!);
+  const relayOverrides = settingsObject.relayOverridesList;
   return {
     ...settings.toObject(),
     bridgeState,
@@ -1177,6 +1186,7 @@ function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefine
     obfuscationSettings,
     customLists,
     apiAccessMethods,
+    relayOverrides,
   };
 }
 
