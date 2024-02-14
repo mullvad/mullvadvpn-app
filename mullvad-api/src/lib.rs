@@ -35,6 +35,10 @@ mod access;
 mod address_cache;
 pub mod device;
 mod relay_list;
+
+#[cfg(target_os = "ios")]
+pub mod ffi;
+
 pub use address_cache::AddressCache;
 pub use device::DevicesProxy;
 pub use hyper::StatusCode;
@@ -307,6 +311,17 @@ impl Runtime {
         )
     }
 
+    // TODO: gate for ios only
+    pub fn with_static_addr(handle: tokio::runtime::Handle, address: SocketAddr) -> Self {
+        Runtime {
+            handle,
+            address_cache: AddressCache::with_static_addr(address),
+            api_availability: ApiAvailability::new(availability::State::default()),
+            #[cfg(target_os = "android")]
+            socket_bypass_tx,
+        }
+    }
+
     fn new_inner(
         handle: tokio::runtime::Handle,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
@@ -412,6 +427,27 @@ impl Runtime {
         )
     }
 
+    /// This is only to be used in test code
+    pub async fn static_mullvad_rest_handle(&self, hostname: String) -> rest::MullvadRestHandle {
+        let service = self
+            .new_request_service(
+                Some(hostname.clone()),
+                futures::stream::repeat(ApiConnectionMode::Direct),
+                #[cfg(target_os = "android")]
+                self.socket_bypass_tx.clone(),
+            )
+            .await;
+        let token_store = access::AccessTokenStore::new(service.clone());
+        let factory = rest::RequestFactory::new(hostname, Some(token_store));
+
+        rest::MullvadRestHandle::new(
+            service,
+            factory,
+            self.address_cache.clone(),
+            self.availability_handle(),
+        )
+    }
+
     /// Returns a new request service handle
     pub async fn rest_handle(&self) -> rest::RequestServiceHandle {
         self.new_request_service(
@@ -458,7 +494,7 @@ impl AccountsProxy {
         }
     }
 
-    pub fn create_account(&mut self) -> impl Future<Output = Result<AccountToken, rest::Error>> {
+    pub fn create_account(&self) -> impl Future<Output = Result<AccountToken, rest::Error>> {
         #[derive(serde::Deserialize)]
         struct AccountCreationResponse {
             number: AccountToken,
@@ -478,7 +514,7 @@ impl AccountsProxy {
     }
 
     pub fn submit_voucher(
-        &mut self,
+        &self,
         account: AccountToken,
         voucher_code: String,
     ) -> impl Future<Output = Result<VoucherSubmission, rest::Error>> {
@@ -497,6 +533,26 @@ impl AccountsProxy {
                 .account(account)?
                 .expected_status(&[StatusCode::OK]);
             service.request(request).await?.deserialize().await
+        }
+    }
+
+    #[cfg(target_os = "ios")]
+    pub fn delete_account(
+        &self,
+        account: AccountToken,
+    ) -> impl Future<Output = Result<(), rest::Error>> {
+        let service = self.handle.service.clone();
+        let factory = self.handle.factory.clone();
+
+        async move {
+            let request = factory
+                .delete(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"))?
+                .account(account.clone())?
+                .header("Mullvad-Account-Number", &account)?
+                .expected_status(&[StatusCode::NO_CONTENT]);
+
+            let _ = service.request(request).await?;
+            Ok(())
         }
     }
 

@@ -262,7 +262,7 @@ pub struct AccountService {
 
 impl AccountService {
     pub fn create_account(&self) -> impl Future<Output = Result<AccountToken, rest::Error>> {
-        let mut proxy = self.proxy.clone();
+        let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         retry_future(
             move || proxy.create_account(),
@@ -308,7 +308,7 @@ impl AccountService {
         account_token: AccountToken,
         voucher: String,
     ) -> Result<VoucherSubmission, Error> {
-        let mut proxy = self.proxy.clone();
+        let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         let result = retry_future(
             move || proxy.submit_voucher(account_token.clone(), voucher.clone()),

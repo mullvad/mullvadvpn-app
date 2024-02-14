@@ -1814,6 +1814,7 @@ dependencies = [
 name = "mullvad-api"
 version = "0.0.0"
 dependencies = [
+ "cbindgen",
  "chrono",
  "err-derive",
  "futures",
@@ -1834,6 +1835,7 @@ dependencies = [
  "tokio",
  "tokio-rustls",
  "tokio-socks",
+ "uuid",
 ]
 
 [[package]]

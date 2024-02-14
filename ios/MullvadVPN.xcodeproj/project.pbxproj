@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01EF6F2A2B6A473900125696 /* MullvadApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01EF6F292B6A473900125696 /* MullvadApi.swift */; };
+		01EF6F342B6A590700125696 /* libmullvad_api.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01EF6F332B6A590700125696 /* libmullvad_api.a */; };
 		062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 06799AB428F98CE700ACD94E /* le_root_cert.cer */; };
 		062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */; };
 		063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
@@ -585,7 +587,6 @@
 		850201DD2B503D8C00EF8C96 /* SelectLocationPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DC2B503D8C00EF8C96 /* SelectLocationPage.swift */; };
 		850201DF2B5040A500EF8C96 /* TunnelControlPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DE2B5040A500EF8C96 /* TunnelControlPage.swift */; };
 		850201E32B51A93C00EF8C96 /* SettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201E22B51A93C00EF8C96 /* SettingsPage.swift */; };
-		8518F6382B60157E009EB113 /* LoggedInWithoutTimeUITestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8518F6372B60157E009EB113 /* LoggedInWithoutTimeUITestCase.swift */; };
 		852969282B4D9C1F007EAD4C /* AccountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969272B4D9C1F007EAD4C /* AccountTests.swift */; };
 		852969332B4E9232007EAD4C /* Page.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969322B4E9232007EAD4C /* Page.swift */; };
 		852969352B4E9270007EAD4C /* LoginPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969342B4E9270007EAD4C /* LoginPage.swift */; };
@@ -761,6 +762,9 @@
 		A9C342C32ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C342C22ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift */; };
 		A9C342C52ACC42130045F00E /* ServerRelaysResponse+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C342C42ACC42130045F00E /* ServerRelaysResponse+Stubs.swift */; };
 		A9D99B9A2A1F7C3200DE27D3 /* RESTTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67D28F83CA50033DD93 /* RESTTransport.swift */; };
+		A9DF789B2B7D1DF10094E4AD /* mullvad-api.h in Headers */ = {isa = PBXBuildFile; fileRef = 01EF6F2D2B6A51B100125696 /* mullvad-api.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		A9DF789C2B7D1E410094E4AD /* BridgingHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = 01EF6F352B6A5AEF00125696 /* BridgingHeader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A9DF789D2B7D1E8B0094E4AD /* LoggedInWithTimeUITestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 859089692B61763B003AF5F5 /* LoggedInWithTimeUITestCase.swift */; };
 		A9E031782ACB09930095D843 /* UIApplication+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E031762ACB08950095D843 /* UIApplication+Extensions.swift */; };
 		A9E0317A2ACB0AE70095D843 /* UIApplication+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E031792ACB0AE70095D843 /* UIApplication+Stubs.swift */; };
 		A9E0317C2ACBFC7E0095D843 /* TunnelStore+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E0317B2ACBFC7E0095D843 /* TunnelStore+Stubs.swift */; };
@@ -1213,6 +1217,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		01EF6F292B6A473900125696 /* MullvadApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApi.swift; sourceTree = "<group>"; };
+		01EF6F2D2B6A51B100125696 /* mullvad-api.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "mullvad-api.h"; path = "../../mullvad-api/include/mullvad-api.h"; sourceTree = "<group>"; };
+		01EF6F2F2B6A588300125696 /* aarch64-apple-ios */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "aarch64-apple-ios"; path = "../target/aarch64-apple-ios"; sourceTree = "<group>"; };
+		01EF6F312B6A58F000125696 /* debug */ = {isa = PBXFileReference; lastKnownFileType = folder; name = debug; path = "../target/aarch64-apple-ios/debug"; sourceTree = "<group>"; };
+		01EF6F332B6A590700125696 /* libmullvad_api.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_api.a; path = "../target/aarch64-apple-ios/debug/libmullvad_api.a"; sourceTree = "<group>"; };
+		01EF6F352B6A5AEF00125696 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
 		01F1FF1D29F0627D007083C3 /* libshadowsocks_proxy.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libshadowsocks_proxy.a; path = ../target/debug/libshadowsocks_proxy.a; sourceTree = "<group>"; };
 		062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTDefaults.swift; sourceTree = "<group>"; };
 		063687AF28EB083800BE7161 /* ProxyURLRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyURLRequest.swift; sourceTree = "<group>"; };
@@ -2093,6 +2103,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01EF6F342B6A590700125696 /* libmullvad_api.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2597,6 +2608,9 @@
 		584F991F2902CBDD001F858D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				01EF6F332B6A590700125696 /* libmullvad_api.a */,
+				01EF6F312B6A58F000125696 /* debug */,
+				01EF6F2F2B6A588300125696 /* aarch64-apple-ios */,
 				584023282A407F5F007B27AC /* libtunnel_obfuscator_proxy.a */,
 				01F1FF1D29F0627D007083C3 /* libshadowsocks_proxy.a */,
 			);
@@ -3417,7 +3431,10 @@
 			children = (
 				852969272B4D9C1F007EAD4C /* AccountTests.swift */,
 				85557B112B594FC900795FE1 /* ConnectivityTests.swift */,
+				01EF6F352B6A5AEF00125696 /* BridgingHeader.h */,
 				852969372B4ED20E007EAD4C /* Info.plist */,
+				01EF6F2D2B6A51B100125696 /* mullvad-api.h */,
+				01EF6F292B6A473900125696 /* MullvadApi.swift */,
 				85557B0C2B591B0F00795FE1 /* Networking */,
 				852969312B4E9220007EAD4C /* Pages */,
 				850201DA2B503D7700EF8C96 /* RelayTests.swift */,
@@ -3649,6 +3666,15 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		01EF6F2C2B6A517900125696 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A9DF789C2B7D1E410094E4AD /* BridgingHeader.h in Headers */,
+				A9DF789B2B7D1DF10094E4AD /* mullvad-api.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		06799AB728F98E1D00ACD94E /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -4116,6 +4142,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8529692F2B4D9C1F007EAD4C /* Build configuration list for PBXNativeTarget "MullvadVPNUITests" */;
 			buildPhases = (
+				01EF6F2C2B6A517900125696 /* Headers */,
+				01EF6F2B2B6A512C00125696 /* ShellScript */,
 				852969212B4D9C1F007EAD4C /* Sources */,
 				852969222B4D9C1F007EAD4C /* Frameworks */,
 				852969232B4D9C1F007EAD4C /* Resources */,
@@ -4382,6 +4410,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		01EF6F2B2B6A512C00125696 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nCARGO_TARGET_DIR=${PROJECT_DIR}/../target bash ${PROJECT_DIR}/build-rust-library.sh mullvad-api\n";
+		};
 		580E3F212A9860F20061809D /* Run SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -5332,6 +5378,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9DF789D2B7D1E8B0094E4AD /* LoggedInWithTimeUITestCase.swift in Sources */,
 				85D2B0B12B6BD32400DF9DA7 /* BaseUITestCase.swift in Sources */,
 				8529693C2B4F0257007EAD4C /* Alert.swift in Sources */,
 				850201DD2B503D8C00EF8C96 /* SelectLocationPage.swift in Sources */,
@@ -5344,11 +5391,11 @@
 				85557B202B5FBBD700795FE1 /* AccountPage.swift in Sources */,
 				852969352B4E9270007EAD4C /* LoginPage.swift in Sources */,
 				850201E32B51A93C00EF8C96 /* SettingsPage.swift in Sources */,
-				8518F6382B60157E009EB113 /* LoggedInWithoutTimeUITestCase.swift in Sources */,
 				85557B102B59215F00795FE1 /* FirewallRule.swift in Sources */,
 				850201E32B51A93C00EF8C96 /* SettingsPage.swift in Sources */,
 				85557B0E2B591B2600795FE1 /* FirewallAPIClient.swift in Sources */,
 				852969282B4D9C1F007EAD4C /* AccountTests.swift in Sources */,
+				01EF6F2A2B6A473900125696 /* MullvadApi.swift in Sources */,
 				85557B162B5ABBBE00795FE1 /* XCUIElementQuery+Extensions.swift in Sources */,
 				855D9F5B2B63E56B00D7C64D /* ProblemReportPage.swift in Sources */,
 				8529693A2B4F0238007EAD4C /* TermsOfServicePage.swift in Sources */,
@@ -6705,11 +6752,15 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = CKG9MXH72F;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../mullvad-api/include";
 				INFOPLIST_FILE = MullvadVPNUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/debug";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/debug";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=x86_64]" = "$(PROJECT_DIR)/../target/x86_64-apple-ios/debug";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadVPNUITests";
@@ -6719,6 +6770,7 @@
 				SECURITY_GROUP_IDENTIFIER = group.net.mullvad.MullvadVPN;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/MullvadVPNUITests/BridgingHeader.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = MullvadVPN;
@@ -6730,17 +6782,22 @@
 			buildSettings = {
 				APPLICATION_IDENTIFIER = net.mullvad.MullvadVPN;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../mullvad-api/include";
 				INFOPLIST_FILE = MullvadVPNUITests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/release";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/release";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=x86_64]" = "$(PROJECT_DIR)/../target/x86_64-apple-ios/release";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadVPNUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SECURITY_GROUP_IDENTIFIER = group.net.mullvad.MullvadVPN;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/MullvadVPNUITests/BridgingHeader.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = MullvadVPN;
@@ -7323,14 +7380,24 @@
 		A93A1D062B59145C00F7796C /* Staging */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../mullvad-api/include";
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/debug";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/debug";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=x86_64]" = "$(PROJECT_DIR)/../target/x86_64-apple-ios/debug";
 				PRODUCT_NAME = MullvadVPNUITests;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/MullvadVPNUITests/BridgingHeader.h";
 			};
 			name = Staging;
 		};
 		A93A1D072B59145C00F7796C /* MockRelease */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../mullvad-api/include";
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/release";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/release";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=x86_64]" = "$(PROJECT_DIR)/../target/x86_64-apple-ios/release";
 				PRODUCT_NAME = MullvadVPNUITests;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_DIR)/MullvadVPNUITests/BridgingHeader.h";
 			};
 			name = MockRelease;
 		};
