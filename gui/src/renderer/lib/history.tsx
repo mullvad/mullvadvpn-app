@@ -139,6 +139,11 @@ export default class History {
     return nextIndex >= 0 && nextIndex < this.entries.length;
   }
 
+  public getPopTransition() {
+    const transition = this.entries[this.index].state.transition;
+    return oppositeTransition(transition);
+  }
+
   // This returns this object casted as History from the History module. The difference between this
   // one and the one in the history module is that this one has stricter types for the paths.
   // Instead of accepting any string it's limited to the paths we actually support. But this history
@@ -183,13 +188,13 @@ export default class History {
 
   private popImpl(n = 1): ITransitionSpecification | undefined {
     if (this.canGo(-n)) {
+      const transition = this.getPopTransition();
+
       this.lastAction = 'POP';
       this.index -= n;
-
-      const transition = this.entries[this.index + 1].state.transition;
       this.entries = this.entries.slice(0, this.index + 1);
 
-      return oppositeTransition(transition);
+      return transition;
     } else {
       return undefined;
     }
