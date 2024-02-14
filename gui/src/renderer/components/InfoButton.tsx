@@ -35,6 +35,7 @@ export function InfoIcon(props: IInfoIconProps) {
 interface IInfoButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   message?: string | Array<string>;
   children?: React.ReactNode;
+  title?: string;
   size?: number;
 }
 
@@ -52,6 +53,7 @@ export default function InfoButton(props: IInfoButtonProps) {
       </StyledInfoButton>
       <ModalAlert
         isOpen={isOpen}
+        title={props.title}
         message={props.message}
         type={ModalAlertType.info}
         buttons={[
