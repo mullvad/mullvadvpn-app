@@ -40,10 +40,6 @@ final class PreferencesInteractor {
         tunnelManager.updateSettings(changes, completionHandler: completion)
     }
 
-    func setDNSSettings(_ newDNSSettings: DNSSettings, completion: (() -> Void)? = nil) {
-        tunnelManager.setDNSSettings(newDNSSettings, completionHandler: completion)
-    }
-
     func setPort(_ port: UInt16?, completion: (() -> Void)? = nil) {
         var relayConstraints = tunnelManager.settings.relayConstraints
 
@@ -53,7 +49,7 @@ final class PreferencesInteractor {
             relayConstraints.port = .any
         }
 
-        tunnelManager.setRelayConstraints(relayConstraints, completionHandler: completion)
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)], completionHandler: completion)
     }
 }
 

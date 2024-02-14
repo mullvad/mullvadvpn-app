@@ -58,7 +58,7 @@ class SelectLocationCoordinator: Coordinator, Presentable, Presenting, RelayCach
             var relayConstraints = tunnelManager.settings.relayConstraints
             relayConstraints.location = .only(relay)
 
-            tunnelManager.setRelayConstraints(relayConstraints) {
+            tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
                 self.tunnelManager.startTunnel()
             }
 
@@ -80,7 +80,7 @@ class SelectLocationCoordinator: Coordinator, Presentable, Presenting, RelayCach
             var relayConstraints = tunnelManager.settings.relayConstraints
             relayConstraints.filter = .only(filter)
 
-            tunnelManager.setRelayConstraints(relayConstraints)
+            tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
         }
 
         selectLocationViewController.didFinish = { [weak self] in

@@ -516,29 +516,6 @@ final class TunnelManager: StorePaymentObserver {
         )
     }
 
-    func setRelayConstraints(
-        _ newConstraints: RelayConstraints,
-        completionHandler: (() -> Void)? = nil
-    ) {
-        scheduleSettingsUpdate(
-            taskName: "Set relay constraints",
-            modificationBlock: { settings in
-                settings.relayConstraints = newConstraints
-            },
-            completionHandler: completionHandler
-        )
-    }
-
-    func setDNSSettings(_ newDNSSettings: DNSSettings, completionHandler: (() -> Void)? = nil) {
-        scheduleSettingsUpdate(
-            taskName: "Set DNS settings",
-            modificationBlock: { settings in
-                settings.dnsSettings = newDNSSettings
-            },
-            completionHandler: completionHandler
-        )
-    }
-
     func refreshRelayCacheTracker() throws {
         try relayCacheTracker.refreshCachedRelays()
     }

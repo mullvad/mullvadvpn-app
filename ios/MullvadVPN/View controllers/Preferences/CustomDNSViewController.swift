@@ -95,7 +95,7 @@ class CustomDNSViewController: UITableViewController, PreferencesDataSourceDeleg
     // MARK: - PreferencesDataSourceDelegate
 
     func didChangeViewModel(_ viewModel: PreferencesViewModel) {
-        interactor.setDNSSettings(viewModel.asDNSSettings())
+        interactor.updateSettings([.dnsSettings(viewModel.asDNSSettings())])
     }
 
     func showInfo(for item: PreferencesInfoButtonItem) {

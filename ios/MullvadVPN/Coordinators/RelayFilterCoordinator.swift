@@ -58,7 +58,7 @@ class RelayFilterCoordinator: Coordinator, Presentable, RelayCacheTrackerObserve
             var relayConstraints = tunnelManager.settings.relayConstraints
             relayConstraints.filter = .only(filter)
 
-            tunnelManager.setRelayConstraints(relayConstraints)
+            tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
 
             didFinish?(self, filter)
         }
