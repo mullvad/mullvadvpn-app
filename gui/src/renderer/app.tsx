@@ -345,6 +345,7 @@ export default class AppRenderer {
   public viewLog = (path: string) => IpcRendererEventChannel.problemReport.viewLog(path);
   public quit = () => IpcRendererEventChannel.app.quit();
   public openUrl = (url: string) => IpcRendererEventChannel.app.openUrl(url);
+  public getPathBaseName = (path: string) => IpcRendererEventChannel.app.getPathBaseName(path);
   public showOpenDialog = (options: Electron.OpenDialogOptions) =>
     IpcRendererEventChannel.app.showOpenDialog(options);
   public createCustomList = (name: string) =>
