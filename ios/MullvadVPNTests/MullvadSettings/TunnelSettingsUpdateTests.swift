@@ -12,7 +12,6 @@ import Network
 import XCTest
 
 final class TunnelSettingsUpdateTests: XCTestCase {
-
     func testApplyDNSSettings() {
         // Given:
         var settings = LatestTunnelSettings()
