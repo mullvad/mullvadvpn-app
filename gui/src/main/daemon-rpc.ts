@@ -711,11 +711,14 @@ export class DaemonRpc {
     return Date.now() + CHANNEL_STATE_TIMEOUT;
   }
 
-  private callEmpty<R>(fn: CallFunctionArgument<Empty, R>): Promise<R> {
+  private callEmpty<R = Empty>(fn: CallFunctionArgument<Empty, R>): Promise<R> {
     return this.call<Empty, R>(fn, new Empty());
   }
 
-  private callString<R>(fn: CallFunctionArgument<StringValue, R>, value?: string): Promise<R> {
+  private callString<R = Empty>(
+    fn: CallFunctionArgument<StringValue, R>,
+    value?: string,
+  ): Promise<R> {
     const googleString = new StringValue();
 
     if (value !== undefined) {
