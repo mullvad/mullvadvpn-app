@@ -17,7 +17,7 @@ class Page {
         self.app = app
     }
 
-    public func waitForPageToBeShown() {
+    func waitForPageToBeShown() {
         if let pageAccessibilityIdentifier = self.pageAccessibilityIdentifier {
             XCTAssert(
                 self.app.otherElements[pageAccessibilityIdentifier]
@@ -26,7 +26,7 @@ class Page {
         }
     }
 
-    @discardableResult public func enterText(_ text: String) -> Self {
+    @discardableResult func enterText(_ text: String) -> Self {
         app.typeText(text)
         return self
     }
@@ -34,6 +34,11 @@ class Page {
     /// Fast swipe down action to dismiss a modal view. Will swipe on the middle of the screen.
     @discardableResult func swipeDownToDismissModal() -> Self {
         app.swipeDown(velocity: .fast)
+        return self
+    }
+
+    @discardableResult func tapKeyboardDoneButton() -> Self {
+        app.toolbars.buttons["Done"].tap()
         return self
     }
 }
