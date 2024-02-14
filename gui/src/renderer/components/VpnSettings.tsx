@@ -123,6 +123,10 @@ export default function VpnSettings() {
                 <Cell.Group>
                   <CustomDnsSettings />
                 </Cell.Group>
+
+                <Cell.Group>
+                  <IpOverrideButton />
+                </Cell.Group>
               </StyledContent>
             </NavigationScrollbars>
           </NavigationContainer>
@@ -776,6 +780,17 @@ function OpenVpnSettingsButton() {
           { openvpn: strings.openvpn },
         )}
       </Cell.Label>
+    </Cell.CellNavigationButton>
+  );
+}
+
+function IpOverrideButton() {
+  const history = useHistory();
+  const navigate = useCallback(() => history.push(RoutePath.settingsImport), [history]);
+
+  return (
+    <Cell.CellNavigationButton onClick={navigate}>
+      <Cell.Label>{messages.pgettext('vpn-settings-view', 'Server IP override')}</Cell.Label>
     </Cell.CellNavigationButton>
   );
 }
