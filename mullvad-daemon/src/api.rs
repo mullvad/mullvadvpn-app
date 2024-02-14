@@ -328,10 +328,7 @@ impl AccessModeSelector {
         #[cfg(feature = "api-override")]
         {
             use mullvad_api::API;
-            // If the API address has been explicitly overridden, it should
-            // always be used. This implies that a direct API connection mode is
-            // used.
-            if API.address.is_some() {
+            if API.force_direct {
                 log::debug!("API proxies are disabled");
                 let endpoint = resolve_allowed_endpoint(
                     &ApiConnectionMode::Direct,
@@ -350,8 +347,8 @@ impl AccessModeSelector {
             }
 
             log::debug!(
-                "The `api-override` feature is enabled, but the API address \
-                 was not overridden. Selecting API access methods as normal"
+                "The `api-override` feature is enabled, but a direct connection \
+                 is not enforced. Selecting API access methods as normal"
             );
         }
 
