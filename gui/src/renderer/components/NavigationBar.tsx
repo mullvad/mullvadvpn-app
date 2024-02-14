@@ -196,3 +196,12 @@ export function BackBarItem() {
     </StyledBackBarItemButton>
   );
 }
+
+export const NavigationBarButton = styled.button({
+  justifySelf: 'end',
+  borderWidth: 0,
+  padding: 0,
+  margin: 0,
+  cursor: 'default',
+  backgroundColor: 'transparent',
+});
