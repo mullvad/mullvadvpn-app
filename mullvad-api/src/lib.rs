@@ -124,6 +124,23 @@ pub struct ApiEndpoint {
     pub disable_address_cache: bool,
     #[cfg(feature = "api-override")]
     pub disable_tls: bool,
+    #[cfg(feature = "api-override")]
+    /// Whether bridges/proxies can be used to access the API or not. This is
+    /// useful primarily for testing purposes.
+    ///
+    /// * If `force_direct` is `true`, bridges and proxies will not be used to
+    /// reach the API.
+    /// * If `force_direct` is `false`, bridges and proxies can be used to reach the API.
+    ///
+    /// # Note
+    ///
+    /// By default, `force_direct` will be `true` if the `api-override` feature
+    /// is enabled. This is supposedely less error prone, as common targets such
+    /// as Devmole might be unreachable from behind a bridge server.
+    ///
+    /// To disable `force_direct`, set the environment variable
+    /// `MULLVAD_API_FORCE_DIRECT=false` before starting the daemon.
+    pub force_direct: bool,
 }
 
 impl ApiEndpoint {
@@ -133,6 +150,7 @@ impl ApiEndpoint {
 
     const API_HOST_VAR: &'static str = "MULLVAD_API_HOST";
     const API_ADDR_VAR: &'static str = "MULLVAD_API_ADDR";
+    const API_FORCE_DIRECT_VAR: &'static str = "MULLVAD_API_FORCE_DIRECT";
     const DISABLE_TLS_VAR: &'static str = "MULLVAD_API_DISABLE_TLS";
 
     /// Returns the endpoint to connect to the API over.
@@ -146,12 +164,16 @@ impl ApiEndpoint {
         let host_var = Self::read_var(ApiEndpoint::API_HOST_VAR);
         let address_var = Self::read_var(ApiEndpoint::API_ADDR_VAR);
         let disable_tls_var = Self::read_var(ApiEndpoint::DISABLE_TLS_VAR);
+        let force_direct = Self::read_var(ApiEndpoint::API_FORCE_DIRECT_VAR);
 
         let mut api = ApiEndpoint {
             host: None,
             address: None,
             disable_address_cache: true,
             disable_tls: false,
+            force_direct: force_direct
+                .map(|force_direct_env| force_direct_env.to_lowercase() != "false")
+                .unwrap_or(true),
         };
 
         match (host_var, address_var) {
@@ -222,16 +244,17 @@ impl ApiEndpoint {
     /// `MULLVAD_API_DISABLE_TLS` has invalid contents.
     #[cfg(not(feature = "api-override"))]
     pub fn from_env_vars() -> ApiEndpoint {
-        let host_var = Self::read_var(ApiEndpoint::API_HOST_VAR);
-        let address_var = Self::read_var(ApiEndpoint::API_ADDR_VAR);
-        let disable_tls_var = Self::read_var(ApiEndpoint::DISABLE_TLS_VAR);
+        let env_vars = [
+            ApiEndpoint::API_HOST_VAR,
+            ApiEndpoint::API_ADDR_VAR,
+            ApiEndpoint::DISABLE_TLS_VAR,
+            ApiEndpoint::API_FORCE_DIRECT_VAR,
+        ];
 
-        if host_var.is_some() || address_var.is_some() || disable_tls_var.is_some() {
+        if env_vars.map(Self::read_var).iter().any(Option::is_some) {
             log::warn!(
-                "These variables are ignored in production builds: {api_host}, {api_addr}, {disable_tls}",
-                api_host = ApiEndpoint::API_HOST_VAR,
-                api_addr = ApiEndpoint::API_ADDR_VAR,
-                disable_tls = ApiEndpoint::DISABLE_TLS_VAR
+                "These variables are ignored in production builds: {env_vars_pretty}",
+                env_vars_pretty = env_vars.join(", ")
             );
         }
 
