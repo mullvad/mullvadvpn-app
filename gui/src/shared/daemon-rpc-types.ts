@@ -435,6 +435,7 @@ export interface ISettings {
   obfuscationSettings: ObfuscationSettings;
   customLists: CustomLists;
   apiAccessMethods: ApiAccessMethodSettings;
+  relayOverrides: Array<RelayOverride>;
 }
 
 export type BridgeState = 'auto' | 'on' | 'off';
@@ -538,6 +539,12 @@ export type ApiAccessMethodSettings = {
   mullvadBridges: AccessMethodSetting;
   custom: Array<AccessMethodSetting>;
 };
+
+export interface RelayOverride {
+  hostname: string;
+  ipv4AddrIn?: string;
+  ipv6AddrIn?: string;
+}
 
 export function parseSocketAddress(socketAddrStr: string): ISocketAddress {
   const re = new RegExp(/(.+):(\d+)$/);

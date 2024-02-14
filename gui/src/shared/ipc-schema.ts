@@ -169,6 +169,8 @@ export const ipcSchema = {
   },
   settings: {
     '': notifyRenderer<ISettings>(),
+    importFile: invoke<string, void>(),
+    importText: invoke<string, void>(),
     apiAccessMethodSettingChange: notifyRenderer<AccessMethodSetting>(),
     setAllowLan: invoke<boolean, void>(),
     setShowBetaReleases: invoke<boolean, void>(),
@@ -188,6 +190,7 @@ export const ipcSchema = {
     setApiAccessMethod: invoke<string, void>(),
     testApiAccessMethodById: invoke<string, boolean>(),
     testCustomApiAccessMethod: invoke<CustomProxy, boolean>(),
+    clearAllRelayOverrides: invoke<void, void>(),
   },
   guiSettings: {
     '': notifyRenderer<IGuiSettingsState>(),
