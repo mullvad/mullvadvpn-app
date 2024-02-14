@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
   circumvent censorship by proxying API traffic.
 - Add confirmation dialog when deleting a custom list.
 - Add support for custom SOCKS5 OpenVPN bridges running locally.
+- Add ability to import server IP overrides in GUI.
 
 #### Android
 - Add support for all screen orientations.
