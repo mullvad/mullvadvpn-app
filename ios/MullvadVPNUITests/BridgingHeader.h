@@ -6,8 +6,5 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
-#ifndef BridgingHeader_h
-#define BridgingHeader_h
+#import <Foundation/Foundation.h>
 #include "mullvad-api.h"
-
-#endif /* BridgingHeader_h */
