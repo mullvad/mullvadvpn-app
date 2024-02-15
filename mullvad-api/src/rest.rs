@@ -130,11 +130,12 @@ pub(crate) struct RequestService<T: Stream<Item = ApiConnectionMode>> {
 
 impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestService<T> {
     /// Constructs a new request service.
-    pub async fn spawn(
+    pub fn spawn(
         sni_hostname: Option<String>,
         api_availability: ApiAvailabilityHandle,
         address_cache: AddressCache,
-        mut proxy_config_provider: T,
+        initial_connection_mode: ApiConnectionMode,
+        proxy_config_provider: T,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> RequestServiceHandle {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
@@ -144,9 +145,7 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestServic
             socket_bypass_tx.clone(),
         );
 
-        if let Some(config) = proxy_config_provider.next().await {
-            connector_handle.set_connection_mode(config);
-        }
+        connector_handle.set_connection_mode(initial_connection_mode);
 
         let (command_tx, command_rx) = mpsc::unbounded();
         let client = Client::builder().build(connector);
