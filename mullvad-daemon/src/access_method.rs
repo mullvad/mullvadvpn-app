@@ -228,9 +228,6 @@ where
     /// If settings were changed due to an update, notify all listeners.
     fn notify_on_change(&mut self, settings_changed: MadeChanges) -> &mut Self {
         if settings_changed {
-            self.event_listener
-                .notify_settings(self.settings.to_settings());
-
             let handle = self.access_mode_handler.clone();
             let new_access_methods = self.settings.api_access_methods.clone();
             tokio::spawn(async move {
