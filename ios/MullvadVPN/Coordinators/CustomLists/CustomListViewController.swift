@@ -86,6 +86,16 @@ class CustomListViewController: UIViewController {
     }
 
     private func configureNavigationItem() {
+<<<<<<< HEAD
+=======
+        navigationItem.title = NSLocalizedString(
+            "CUSTOM_LIST_NAVIGATION_EDIT_TITLE",
+            tableName: "CustomLists",
+            value: subject.value.name,
+            comment: ""
+        )
+
+>>>>>>> ba5bb4354 (Add UI for creating and editing a custom list)
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             systemItem: .cancel,
             primaryAction: UIAction(handler: { _ in
