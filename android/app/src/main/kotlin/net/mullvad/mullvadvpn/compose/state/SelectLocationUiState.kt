@@ -20,6 +20,9 @@ sealed interface SelectLocationUiState {
 sealed interface RelayListState {
     data object Empty : RelayListState
 
-    data class RelayList(val countries: List<RelayItem.Country>, val selectedItem: RelayItem?) :
-        RelayListState
+    data class RelayList(
+        val customLists: List<RelayItem.CustomList>,
+        val countries: List<RelayItem.Country>,
+        val selectedItem: RelayItem?
+    ) : RelayListState
 }
