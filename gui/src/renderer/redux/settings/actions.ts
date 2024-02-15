@@ -7,6 +7,7 @@ import {
   IDnsOptions,
   IWireguardEndpointData,
   ObfuscationSettings,
+  RelayOverride,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { BridgeSettingsRedux, IRelayLocationCountryRedux, RelaySettingsRedux } from './reducers';
@@ -116,6 +117,11 @@ export interface ISetCurrentApiAccessMethod {
   accessMethod: AccessMethodSetting;
 }
 
+export interface ISetRelayOverrides {
+  type: 'SET_RELAY_OVERRIDES';
+  relayOverrides: Array<RelayOverride>;
+}
+
 export type SettingsAction =
   | IUpdateGuiSettingsAction
   | IUpdateRelayAction
@@ -137,7 +143,8 @@ export type SettingsAction =
   | ISetObfuscationSettings
   | ISetCustomLists
   | ISetApiAccessMethods
-  | ISetCurrentApiAccessMethod;
+  | ISetCurrentApiAccessMethod
+  | ISetRelayOverrides;
 
 function updateGuiSettings(guiSettings: IGuiSettingsState): IUpdateGuiSettingsAction {
   return {
@@ -298,6 +305,13 @@ function updateCurrentApiAccessMethod(setting: AccessMethodSetting): ISetCurrent
   };
 }
 
+function updateRelayOverrides(relayOverrides: Array<RelayOverride>): ISetRelayOverrides {
+  return {
+    type: 'SET_RELAY_OVERRIDES',
+    relayOverrides,
+  };
+}
+
 export default {
   updateGuiSettings,
   updateRelay,
@@ -320,4 +334,5 @@ export default {
   updateCustomLists,
   updateApiAccessMethods,
   updateCurrentApiAccessMethod,
+  updateRelayOverrides,
 };

@@ -345,6 +345,7 @@ export default class AppRenderer {
   public viewLog = (path: string) => IpcRendererEventChannel.problemReport.viewLog(path);
   public quit = () => IpcRendererEventChannel.app.quit();
   public openUrl = (url: string) => IpcRendererEventChannel.app.openUrl(url);
+  public getPathBaseName = (path: string) => IpcRendererEventChannel.app.getPathBaseName(path);
   public showOpenDialog = (options: Electron.OpenDialogOptions) =>
     IpcRendererEventChannel.app.showOpenDialog(options);
   public createCustomList = (name: string) =>
@@ -365,6 +366,9 @@ export default class AppRenderer {
     IpcRendererEventChannel.settings.testApiAccessMethodById(id);
   public testCustomApiAccessMethod = (method: CustomProxy) =>
     IpcRendererEventChannel.settings.testCustomApiAccessMethod(method);
+  public importSettingsFile = (path: string) => IpcRendererEventChannel.settings.importFile(path);
+  public importSettingsText = (text: string) => IpcRendererEventChannel.settings.importText(text);
+  public clearAllRelayOverrides = () => IpcRendererEventChannel.settings.clearAllRelayOverrides();
   public getMapData = () => IpcRendererEventChannel.map.getData();
   public setAnimateMap = (displayMap: boolean): void =>
     IpcRendererEventChannel.guiSettings.setAnimateMap(displayMap);
@@ -812,6 +816,7 @@ export default class AppRenderer {
     reduxSettings.updateObfuscationSettings(newSettings.obfuscationSettings);
     reduxSettings.updateCustomLists(newSettings.customLists);
     reduxSettings.updateApiAccessMethods(newSettings.apiAccessMethods);
+    reduxSettings.updateRelayOverrides(newSettings.relayOverrides);
 
     this.setReduxRelaySettings(newSettings.relaySettings);
     this.setBridgeSettings(newSettings.bridgeSettings);

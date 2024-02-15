@@ -69,6 +69,7 @@ export default class UserInterface implements WindowControllerDelegate {
         ...options,
       });
       this.browsingFiles = false;
+      this.showWindow();
       return response;
     });
 

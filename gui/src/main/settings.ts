@@ -1,3 +1,5 @@
+import fs from 'fs/promises';
+
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
 import { ISettings } from '../shared/daemon-rpc-types';
 import { ICurrentAppVersionInfo } from '../shared/ipc-types';
@@ -90,6 +92,17 @@ export default class Settings implements Readonly<ISettings> {
       return this.daemonRpc.testCustomApiAccessMethod(method);
     });
 
+    IpcMainEventChannel.settings.handleClearAllRelayOverrides(() => {
+      return this.daemonRpc.clearAllRelayOverrides();
+    });
+    IpcMainEventChannel.settings.handleImportText((text) => {
+      return this.daemonRpc.applyJsonSettings(text);
+    });
+    IpcMainEventChannel.settings.handleImportFile(async (path) => {
+      const settings = await fs.readFile(path);
+      return this.daemonRpc.applyJsonSettings(settings.toString());
+    });
+
     IpcMainEventChannel.guiSettings.handleSetEnableSystemNotifications((flag: boolean) => {
       this.guiSettings.enableSystemNotifications = flag;
     });
@@ -159,6 +172,9 @@ export default class Settings implements Readonly<ISettings> {
   }
   public get apiAccessMethods() {
     return this.settingsValue.apiAccessMethods;
+  }
+  public get relayOverrides() {
+    return this.settingsValue.relayOverrides;
   }
 
   public get gui() {

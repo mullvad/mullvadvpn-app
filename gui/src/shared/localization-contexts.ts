@@ -31,6 +31,7 @@ export type LocalizationContexts =
   | 'split-tunneling-view'
   | 'split-tunneling-nav'
   | 'api-access-methods-view'
+  | 'settings-import'
   | 'support-view'
   | 'select-language-nav'
   | 'tray-icon-context-menu'

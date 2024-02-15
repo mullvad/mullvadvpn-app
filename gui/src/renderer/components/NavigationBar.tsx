@@ -1,11 +1,13 @@
 import React, { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import { useHistory } from '../lib/history';
+import { transitions, useHistory } from '../lib/history';
 import { useCombinedRefs } from '../lib/utilityHooks';
 import CustomScrollbars, { CustomScrollbarsRef, IScrollEvent } from './CustomScrollbars';
+import InfoButton from './InfoButton';
 import { BackActionContext } from './KeyboardNavigation';
 import {
   StyledBackBarItemButton,
@@ -185,7 +187,9 @@ export const TitleBarItem = React.memo(function TitleBarItemT(props: ITitleBarIt
 
 export function BackBarItem() {
   const history = useHistory();
-  const backIcon = useMemo(() => history.length > 2, []);
+  // Compare the transition name with dismiss to infer wheter or not the view will slide
+  // horizontally or vertically and then use matching button.
+  const backIcon = useMemo(() => history.getPopTransition().name !== transitions.dismiss.name, []);
   const { parentBackAction } = useContext(BackActionContext);
   const iconSource = backIcon ? 'icon-back' : 'icon-close-down';
   const ariaLabel = backIcon ? messages.gettext('Back') : messages.gettext('Close');
@@ -196,3 +200,21 @@ export function BackBarItem() {
     </StyledBackBarItemButton>
   );
 }
+
+const navigationRightHandSideButton: React.CSSProperties = {
+  justifySelf: 'end',
+  borderWidth: 0,
+  padding: 0,
+  margin: 0,
+  cursor: 'default',
+  backgroundColor: 'transparent',
+};
+
+export const NavigationBarButton = styled.button({ ...navigationRightHandSideButton });
+export const NavigationInfoButton = styled(InfoButton).attrs({
+  size: 24,
+  tintColor: colors.white40,
+  tintHoverColor: colors.white60,
+})({
+  ...navigationRightHandSideButton,
+});

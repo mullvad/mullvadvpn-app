@@ -697,6 +697,14 @@ export class DaemonRpc {
     return result.getValue();
   }
 
+  public async applyJsonSettings(settings: string): Promise<void> {
+    await this.callString(this.client.applyJsonSettings, settings);
+  }
+
+  public async clearAllRelayOverrides(): Promise<void> {
+    await this.callEmpty(this.client.clearAllRelayOverrides);
+  }
+
   private subscriptionId(): number {
     const current = this.nextSubscriptionId;
     this.nextSubscriptionId += 1;
@@ -711,11 +719,14 @@ export class DaemonRpc {
     return Date.now() + CHANNEL_STATE_TIMEOUT;
   }
 
-  private callEmpty<R>(fn: CallFunctionArgument<Empty, R>): Promise<R> {
+  private callEmpty<R = Empty>(fn: CallFunctionArgument<Empty, R>): Promise<R> {
     return this.call<Empty, R>(fn, new Empty());
   }
 
-  private callString<R>(fn: CallFunctionArgument<StringValue, R>, value?: string): Promise<R> {
+  private callString<R = Empty>(
+    fn: CallFunctionArgument<StringValue, R>,
+    value?: string,
+  ): Promise<R> {
     const googleString = new StringValue();
 
     if (value !== undefined) {
@@ -1164,6 +1175,7 @@ function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefine
   const obfuscationSettings = convertFromObfuscationSettings(settingsObject.obfuscationSettings);
   const customLists = convertFromCustomListSettings(settings.getCustomLists());
   const apiAccessMethods = convertFromApiAccessMethodSettings(settings.getApiAccessMethods()!);
+  const relayOverrides = settingsObject.relayOverridesList;
   return {
     ...settings.toObject(),
     bridgeState,
@@ -1174,6 +1186,7 @@ function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefine
     obfuscationSettings,
     customLists,
     apiAccessMethods,
+    relayOverrides,
   };
 }
 

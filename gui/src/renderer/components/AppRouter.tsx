@@ -26,6 +26,8 @@ import OpenVpnSettings from './OpenVpnSettings';
 import ProblemReport from './ProblemReport';
 import SelectLanguage from './SelectLanguage';
 import Settings from './Settings';
+import SettingsImport from './SettingsImport';
+import SettingsTextImport from './SettingsTextImport';
 import SplitTunnelingSettings from './SplitTunnelingSettings';
 import Support from './Support';
 import TooManyDevices from './TooManyDevices';
@@ -83,6 +85,8 @@ export default function AppRouter() {
             <Route exact path={RoutePath.openVpnSettings} component={OpenVpnSettings} />
             <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
             <Route exact path={RoutePath.apiAccessMethods} component={ApiAccessMethods} />
+            <Route exact path={RoutePath.settingsImport} component={SettingsImport} />
+            <Route exact path={RoutePath.settingsTextImport} component={SettingsTextImport} />
             <Route exact path={RoutePath.editApiAccessMethods} component={EditApiAccessMethod} />
             <Route exact path={RoutePath.support} component={Support} />
             <Route exact path={RoutePath.problemReport} component={ProblemReport} />
