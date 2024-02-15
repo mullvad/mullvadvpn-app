@@ -41,7 +41,7 @@
 		44DD7D242B6CFFD70005F67F /* StartTunnelOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */; };
 		44DD7D272B6D18FB0005F67F /* MockTunnelInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */; };
 		44DD7D292B7113CA0005F67F /* MockTunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D282B7113CA0005F67F /* MockTunnel.swift */; };
-		44DD7D2D2B74E44A0005F67F /* QuantumResistanceSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D2C2B74E44A0005F67F /* QuantumResistanceSettings.swift */; };
+		44DD7D2D2B74E44A0005F67F /* WireGuardTunnelQuantumResistanceSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D2C2B74E44A0005F67F /* WireGuardTunnelQuantumResistanceSettings.swift */; };
 		5803B4B02940A47300C23744 /* TunnelConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5803B4AF2940A47300C23744 /* TunnelConfiguration.swift */; };
 		5803B4B22940A48700C23744 /* TunnelStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5803B4B12940A48700C23744 /* TunnelStore.swift */; };
 		5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5807E2BF2432038B00F5FF30 /* String+Split.swift */; };
@@ -583,7 +583,6 @@
 		850201DD2B503D8C00EF8C96 /* SelectLocationPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DC2B503D8C00EF8C96 /* SelectLocationPage.swift */; };
 		850201DF2B5040A500EF8C96 /* TunnelControlPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DE2B5040A500EF8C96 /* TunnelControlPage.swift */; };
 		850201E32B51A93C00EF8C96 /* SettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201E22B51A93C00EF8C96 /* SettingsPage.swift */; };
-		8518F6382B60157E009EB113 /* LoggedInWithoutTimeUITestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8518F6372B60157E009EB113 /* LoggedInWithoutTimeUITestCase.swift */; };
 		852969282B4D9C1F007EAD4C /* AccountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969272B4D9C1F007EAD4C /* AccountTests.swift */; };
 		852969332B4E9232007EAD4C /* Page.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969322B4E9232007EAD4C /* Page.swift */; };
 		852969352B4E9270007EAD4C /* LoginPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969342B4E9270007EAD4C /* LoginPage.swift */; };
@@ -758,23 +757,6 @@
 		A9E0317F2ACC331C0095D843 /* TunnelStatusBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */; };
 		A9E034642ABB302000E59A5A /* UIEdgeInsets+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E034632ABB302000E59A5A /* UIEdgeInsets+Extensions.swift */; };
 		A9EC20F02A5D79ED0040D56E /* TunnelObfuscation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5840231F2A406BF5007B27AC /* TunnelObfuscation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		AB252E672B782526001B3B3B /* PacketTunnel.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273C284888E5006B77A4 /* PacketTunnel.xcconfig */; };
-		AB252E682B78298D001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
-		AB252E692B78298F001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
-		AB252E6A2B78298F001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
-		AB252E6B2B782990001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
-		AB252E6C2B782991001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
-		AB252E6D2B782992001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
-		AB252E6E2B782993001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
-		AB252E6F2B782993001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
-		AB252E702B782994001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
-		AB252E712B782995001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
-		AB252E722B782995001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
-		AB252E732B782997001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
-		AB252E742B782997001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
-		AB252E752B78299A001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
-		AB252E762B78299A001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
-		AB252E772B78299C001B3B3B /* Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 5808273928487E3E006B77A4 /* Base.xcconfig */; };
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
@@ -1263,7 +1245,7 @@
 		44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartTunnelOperationTests.swift; sourceTree = "<group>"; };
 		44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnelInteractor.swift; sourceTree = "<group>"; };
 		44DD7D282B7113CA0005F67F /* MockTunnel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnel.swift; sourceTree = "<group>"; };
-		44DD7D2C2B74E44A0005F67F /* QuantumResistanceSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuantumResistanceSettings.swift; sourceTree = "<group>"; };
+		44DD7D2C2B74E44A0005F67F /* WireGuardTunnelQuantumResistanceSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardTunnelQuantumResistanceSettings.swift; sourceTree = "<group>"; };
 		5802EBC42A8E44AC00E5CE4C /* AppRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoutes.swift; sourceTree = "<group>"; };
 		5802EBC62A8E457A00E5CE4C /* AppRouteProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouteProtocol.swift; sourceTree = "<group>"; };
 		5802EBC82A8E45BA00E5CE4C /* ApplicationRouterDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationRouterDelegate.swift; sourceTree = "<group>"; };
@@ -2860,7 +2842,7 @@
 				A9D96B192A8247C100A5C673 /* MigrationManager.swift */,
 				58B2FDD52AA71D2A003EB5C6 /* MullvadSettings.h */,
 				586C0D962B04E0AC00E7CDD7 /* PersistentAccessMethod.swift */,
-				44DD7D2C2B74E44A0005F67F /* QuantumResistanceSettings.swift */,
+				44DD7D2C2B74E44A0005F67F /* WireGuardTunnelQuantumResistanceSettings.swift */,
 				58FF2C02281BDE02009EF542 /* SettingsManager.swift */,
 				06410E03292D0F7100AFC18C /* SettingsParser.swift */,
 				06410E06292D108E00AFC18C /* SettingsStore.swift */,
@@ -4110,7 +4092,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1510;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1520;
 				ORGANIZATIONNAME = "Mullvad VPN AB";
 				TargetAttributes = {
 					06799ABB28F98E1D00ACD94E = {
@@ -4237,7 +4219,6 @@
 			files = (
 				062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */,
 				F05F39942B21C6C6006E60A7 /* relays.json in Resources */,
-				AB252E6F2B782993001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4245,7 +4226,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB252E732B782997001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4253,7 +4233,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB252E6E2B782993001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4261,7 +4240,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB252E6A2B78298F001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4269,7 +4247,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB252E742B782997001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4277,7 +4254,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB252E762B78299A001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4291,7 +4267,6 @@
 				7A02D4EB2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan in Resources */,
 				587DCCEF287D84A500CE821E /* countries.geo.json in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
-				AB252E682B78298D001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4299,8 +4274,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB252E672B782526001B3B3B /* PacketTunnel.xcconfig in Resources */,
-				AB252E692B78298F001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4308,7 +4281,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB252E6B2B782990001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4316,7 +4288,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB252E6D2B782992001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4324,7 +4295,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB252E712B782995001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4332,7 +4302,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB252E722B782995001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4340,7 +4309,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB252E702B782994001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4348,7 +4316,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB252E752B78299A001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4356,7 +4323,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB252E772B78299C001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4364,7 +4330,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB252E6C2B782991001B3B3B /* Base.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4735,7 +4700,7 @@
 				F0D7FF8F2B31DF5900E0FDE5 /* AccessMethodRepository.swift in Sources */,
 				58B2FDE12AA71D5C003EB5C6 /* TunnelSettingsV1.swift in Sources */,
 				58B2FDE72AA71D5C003EB5C6 /* SettingsStore.swift in Sources */,
-				44DD7D2D2B74E44A0005F67F /* QuantumResistanceSettings.swift in Sources */,
+				44DD7D2D2B74E44A0005F67F /* WireGuardTunnelQuantumResistanceSettings.swift in Sources */,
 				F08827872B318C840020A383 /* ShadowsocksCipherOptions.swift in Sources */,
 				58B2FDE92AA71D5C003EB5C6 /* SettingsParser.swift in Sources */,
 				F08827892B3192110020A383 /* AccessMethodRepositoryProtocol.swift in Sources */,
@@ -5328,7 +5293,6 @@
 				852969352B4E9270007EAD4C /* LoginPage.swift in Sources */,
 				8590896E2B61763B003AF5F5 /* BaseUITestCase.swift in Sources */,
 				850201E32B51A93C00EF8C96 /* SettingsPage.swift in Sources */,
-				8518F6382B60157E009EB113 /* LoggedInWithoutTimeUITestCase.swift in Sources */,
 				852969282B4D9C1F007EAD4C /* AccountTests.swift in Sources */,
 				85557B162B5ABBBE00795FE1 /* XCUIElementQuery+Extensions.swift in Sources */,
 				8529693A2B4F0238007EAD4C /* TermsOfServicePage.swift in Sources */,
@@ -5563,7 +5527,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MullvadREST/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Mullvad VPN AB. All rights reserved.";
@@ -5603,7 +5567,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MullvadREST/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Mullvad VPN AB. All rights reserved.";
@@ -5644,7 +5608,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TunnelObfuscation/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Mullvad VPN AB. All rights reserved.";
@@ -5685,7 +5649,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TunnelObfuscation/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Mullvad VPN AB. All rights reserved.";
@@ -5833,6 +5797,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -5871,6 +5836,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -6585,6 +6551,7 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
@@ -6950,7 +6917,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MullvadREST/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Mullvad VPN AB. All rights reserved.";
@@ -7082,7 +7049,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TunnelObfuscation/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Mullvad VPN AB. All rights reserved.";
@@ -7198,6 +7165,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -7526,7 +7494,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MullvadREST/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Mullvad VPN AB. All rights reserved.";
@@ -7658,7 +7626,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 4;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TunnelObfuscation/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2023 Mullvad VPN AB. All rights reserved.";
@@ -7773,6 +7741,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -7812,6 +7781,7 @@
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
