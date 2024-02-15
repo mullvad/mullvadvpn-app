@@ -24,17 +24,19 @@ import InfoButton from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
-import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
+import {
+  NavigationBar,
+  NavigationContainer,
+  NavigationInfoButton,
+  NavigationItems,
+  TitleBarItem,
+} from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import { StyledContent, StyledNavigationScrollbars, StyledSettingsContent } from './SettingsStyles';
 import { SmallButton, SmallButtonColor, SmallButtonGroup } from './SmallButton';
 
 const StyledContextMenuButton = styled(Cell.Icon)({
   marginRight: '8px',
-});
-
-const StyledTitleInfoButton = styled(InfoButton)({
-  marginLeft: '12px',
 });
 
 const StyledMethodInfoButton = styled(InfoButton)({
@@ -90,31 +92,29 @@ export default function ApiAccessMethods() {
                     messages.pgettext('navigation-bar', 'API access')
                   }
                 </TitleBarItem>
+                <NavigationInfoButton
+                  message={[
+                    messages.pgettext(
+                      'api-access-methods-view',
+                      'The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations.',
+                    ),
+                    messages.pgettext(
+                      'api-access-methods-view',
+                      'On some networks, where various types of censorship are being used, the API servers might not be directly reachable.',
+                    ),
+                    messages.pgettext(
+                      'api-access-methods-view',
+                      'This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods.',
+                    ),
+                  ]}
+                />
               </NavigationItems>
             </NavigationBar>
 
             <StyledNavigationScrollbars fillContainer>
               <StyledContent>
                 <SettingsHeader>
-                  <HeaderTitle>
-                    {messages.pgettext('navigation-bar', 'API access')}
-                    <StyledTitleInfoButton
-                      message={[
-                        messages.pgettext(
-                          'api-access-methods-view',
-                          'The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations.',
-                        ),
-                        messages.pgettext(
-                          'api-access-methods-view',
-                          'On some networks, where various types of censorship are being used, the API servers might not be directly reachable.',
-                        ),
-                        messages.pgettext(
-                          'api-access-methods-view',
-                          'This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods.',
-                        ),
-                      ]}
-                    />
-                  </HeaderTitle>
+                  <HeaderTitle>{messages.pgettext('navigation-bar', 'API access')}</HeaderTitle>
                   <HeaderSubTitle>
                     {messages.pgettext(
                       'api-access-methods-view',
