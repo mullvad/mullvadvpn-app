@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
+import net.mullvad.mullvadvpn.usecase.CustomListUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
@@ -42,9 +43,13 @@ import net.mullvad.mullvadvpn.util.IChangelogDataProvider
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
+import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
+import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewModel
+import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogViewModel
+import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import net.mullvad.mullvadvpn.viewmodel.FilterViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
@@ -111,6 +116,7 @@ val uiModule = module {
     single { OutOfTimeUseCase(get(), get()) }
     single { ConnectivityUseCase(get()) }
     single { SystemVpnSettingsUseCase(androidContext()) }
+    single { CustomListUseCase(get(), get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
 
@@ -160,6 +166,10 @@ val uiModule = module {
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get()) }
+    viewModel { CreateCustomListDialogViewModel(get()) }
+    viewModel { parameters -> CustomListLocationsViewModel(parameters.get(), get(), get()) }
+    viewModel { parameters -> EditCustomListViewModel(parameters.get(), get(), get()) }
+    viewModel { parameters -> EditCustomListNameDialogViewModel(parameters.get(), get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { NoDaemonViewModel(get()) }
