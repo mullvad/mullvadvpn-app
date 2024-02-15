@@ -310,8 +310,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test-type: [app, mockapi]
+        test-type: [app] # Temporarily disabled: mockapi
     steps:
+      - name: Set report path variable
+        id: determine-report-path
+        env:
+          UNIQUE_RUN_ID: ${{ matrix.test-type }}-${{ github.run_id }}-${{ github.run_attempt }}
+        run: echo "report_path=/tmp/$UNIQUE_RUN_ID" >> $GITHUB_OUTPUT
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -327,7 +333,9 @@ jobs:
           TEST_TYPE: ${{ matrix.test-type }}
           BILLING_FLAVOR: oss
           INFRA_FLAVOR: prod
+          REPORT_DIR: ${{ steps.determine-report-path.outputs.report_path }}
         run: |
+          mkdir -p $REPORT_DIR
           ./android/scripts/run-instrumented-tests.sh
 
       - name: Upload instrumentation report (${{ matrix.test-type }})
@@ -335,7 +343,7 @@ jobs:
         if: always()
         with:
           name: ${{ matrix.test-type }}-instrumentation-report
-          path: /tmp/mullvad-${{ matrix.test-type }}-instrumentation-report
+          path: ${{ steps.determine-report-path.outputs.report_path }}
           if-no-files-found: ignore
           retention-days: 7
 

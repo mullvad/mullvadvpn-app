@@ -84,10 +84,18 @@ export function ContextMenuContainer(props: React.PropsWithChildren) {
   );
 }
 
+const StyledTrigger = styled.button({
+  borderWidth: 0,
+  padding: 0,
+  margin: 0,
+  cursor: 'default',
+  backgroundColor: 'transparent',
+});
+
 export function ContextMenuTrigger(props: React.PropsWithChildren) {
   const { toggleVisibility } = useContext(menuContext);
 
-  return <div onClick={toggleVisibility}>{props.children}</div>;
+  return <StyledTrigger onClick={toggleVisibility}>{props.children}</StyledTrigger>;
 }
 
 interface StyledMenuProps {

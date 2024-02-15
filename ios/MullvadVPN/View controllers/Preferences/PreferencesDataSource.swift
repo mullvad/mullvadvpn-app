@@ -126,8 +126,6 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 return .wireGuardObfuscationPort
             case .wireGuardTunnelQuantumResistanceAutomatic, .wireGuardTunnelQuantumResistanceOn, .wireGuardTunnelQuantumResistanceOff:
                 return .wireGuardTunnelQuantumResistance
-            }
-        }
     }
 
     private(set) var viewModel = PreferencesViewModel() { didSet {
@@ -151,17 +149,18 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
         let obfuscationPortItem: Item = .wireGuardObfuscationPort(viewModel.obfuscationPort.portValue)
 
-        let tunnelQuantumResistanceState: Item = switch viewModel.tunnelQuantumResistanceState {
+        let tunnelQuantumResistanceItem: Item = switch viewModel.tunnelQuantumResistanceState {
         case .automatic: .wireGuardTunnelQuantumResistanceAutomatic
         case .off: .wireGuardTunnelQuantumResistanceOff
         case .on: .wireGuardTunnelQuantumResistanceOn
         }
 
         return [
-            indexPath(for: wireGuardPortItem),
-            indexPath(for: obfuscationStateItem),
-            indexPath(for: obfuscationPortItem),
-        ].compactMap { $0 }
+            wireGuardPortItem,
+            obfuscationStateItem,
+            obfuscationPortItem,
+            tunnelQuantumResistanceItem,
+        ].compactMap { indexPath(for: $0) }
     }
 
     init(tableView: UITableView) {
@@ -265,6 +264,15 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case let .wireGuardObfuscationPort(port):
             selectObfuscationPort(port)
             delegate?.didChangeViewModel(viewModel)
+        case .tunnelQuantumResistanceAutomatic:
+            selectTunnelQuantumResistance(.automatic)
+            delegate?.didChangeViewModel(viewModel)
+        case .tunnelQuantumResistanceOn:
+            selectTunnelQuantumResistance(.on)
+            delegate?.didChangeViewModel(viewModel)
+        case .tunnelQuantumResistanceOff:
+            selectTunnelQuantumResistance(.off)
+            delegate?.didChangeViewModel(viewModel)
         default:
             break
         }
@@ -302,6 +310,11 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case .wireGuardObfuscationPort:
             configureObfuscationPortHeader(view)
             return view
+        case .tunnelQuantumResistance:
+            configureTunnelQuantumResistanceHeader(view)
+            return view
+        #endif
+
         default:
             return nil
         }
@@ -484,6 +497,34 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
+    private func configureTunnelQuantumResistanceHeader(_ header: SettingsHeaderView) {
+        let title = NSLocalizedString(
+            "TUNNEL_QUANTUM_RESISTANCE_HEADER_LABEL",
+            tableName: "Preferences",
+            value: "Quantum-resistant tunnel",
+            comment: ""
+        )
+
+        header.titleLabel.text = title
+        header.accessibilityCustomActionName = title
+        header.didCollapseHandler = { [weak self] header in
+            guard let self else { return }
+
+            var snapshot = snapshot()
+            if header.isExpanded {
+                snapshot.deleteItems(Item.tunnelQuantumResistance)
+            } else {
+                snapshot.appendItems(Item.tunnelQuantumResistance, toSection: .tunnelQuantumResistance)
+            }
+            header.isExpanded.toggle()
+            applySnapshot(snapshot, animated: true)
+        }
+
+        header.infoButtonHandler = { [weak self] in
+            self.map { $0.delegate?.showInfo(for: .tunnelQuantumResistance) }
+        }
+    }
+
     private func selectRow(at indexPath: IndexPath?, animated: Bool = false) {
         tableView?.selectRow(at: indexPath, animated: animated, scrollPosition: .none)
     }
@@ -529,6 +570,10 @@ extension PreferencesDataSource: PreferencesCellEventHandler {
     func selectObfuscationPort(_ port: UInt16) {
         let selectedPort = WireGuardObfuscationPort(rawValue: port)!
         viewModel.setWireGuardObfuscationPort(selectedPort)
+    }
+
+    func selectQuantumResistance(_ state: TunnelQuantumResistance) {
+        viewModel.setQuantumResistance(state)
     }
 }
 

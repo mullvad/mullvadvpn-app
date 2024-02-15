@@ -16,7 +16,7 @@ futures = "0.3.15"
 hex = "0.4"
 ipnetwork = "0.16"
 once_cell = { workspace = true }
-libc = "0.2"
+libc = "0.2.150"
 log = { workspace = true }
 parking_lot = "0.12.0"
 talpid-routing = { path = "../talpid-routing" }

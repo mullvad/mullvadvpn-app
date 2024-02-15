@@ -114,7 +114,8 @@ extension PacketTunnelActor {
         do {
             let configurationBuilder = ConfigurationBuilder(
                 privateKey: PrivateKey(),
-                interfaceAddresses: []
+                interfaceAddresses: [],
+                allowedIPs: []
             )
             var config = try configurationBuilder.makeConfiguration()
             config.dns = [IPv4Address.loopback]

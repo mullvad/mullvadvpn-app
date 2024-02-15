@@ -26,13 +26,15 @@ struct ConfigurationBuilder {
     var interfaceAddresses: [IPAddressRange]
     var dns: SelectedDNSServers?
     var endpoint: MullvadEndpoint?
+    var allowedIPs: [IPAddressRange]
 
     func makeConfiguration() throws -> TunnelAdapterConfiguration {
         return TunnelAdapterConfiguration(
             privateKey: privateKey,
             interfaceAddresses: interfaceAddresses,
             dns: dnsServers,
-            peer: try peer
+            peer: try peer,
+            allowedIPs: allowedIPs
         )
     }
 

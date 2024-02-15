@@ -62,6 +62,7 @@ Line wrap the file at 100 chars.                                              Th
 - Update Electron from 26.3.0 to 28.1.3.
 - Improve the "Connecting to system service"-view with information about the situation and
   troubleshooting tips.
+- Update support email address to new email address, support@mullvadvpn.net.
 
 #### IOS
 - Add Quantum Secure Tunnelling

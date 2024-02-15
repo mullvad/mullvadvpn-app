@@ -10,17 +10,13 @@ AUTO_FETCH_TEST_HELPER_APKS=${AUTO_FETCH_TEST_HELPER_APKS:-"false"}
 APK_BASE_DIR=${APK_BASE_DIR:-"$SCRIPT_DIR/.."}
 LOG_FAILURE_MESSAGE="FAILURES!!!"
 
-TEMP_DIR=$(mktemp -d -t test-run-XXXX)
-
-DEFAULT_ORCHESTRATOR_APK_PATH=$TEMP_DIR/orchestrator.apk
-DEFAULT_TEST_SERVICES_APK_PATH=$TEMP_DIR/test-services.apk
-
 ORCHESTRATOR_URL=https://dl.google.com/android/maven2/androidx/test/orchestrator/1.4.2/orchestrator-1.4.2.apk
 TEST_SERVICES_URL=https://dl.google.com/android/maven2/androidx/test/services/test-services/1.4.2/test-services-1.4.2.apk
 
 PARTNER_AUTH="${PARTNER_AUTH:-}"
 VALID_TEST_ACCOUNT_TOKEN="${VALID_TEST_ACCOUNT_TOKEN:-}"
 INVALID_TEST_ACCOUNT_TOKEN="${INVALID_TEST_ACCOUNT_TOKEN:-}"
+REPORT_DIR="${REPORT_DIR:-}"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -74,6 +70,7 @@ if [[ -z ${BILLING_FLAVOR-} ]]; then
 fi
 
 echo "### Configuration ###"
+echo "Report dir: $REPORT_DIR"
 echo "Test type: $TEST_TYPE"
 echo "Infra flavor: $INFRA_FLAVOR"
 echo "Billing flavor: $BILLING_FLAVOR"
@@ -143,25 +140,30 @@ case "$TEST_TYPE" in
     ;;
 esac
 
-LOCAL_TMP_REPORT_PATH="$TEMP_DIR/mullvad-$TEST_TYPE-instrumentation-report"
-INSTRUMENTATION_LOG_FILE_PATH="$LOCAL_TMP_REPORT_PATH/instrumentation-log.txt"
-LOGCAT_FILE_PATH="$LOCAL_TMP_REPORT_PATH/logcat.txt"
-LOCAL_SCREENSHOT_PATH="$LOCAL_TMP_REPORT_PATH/screenshots"
+if [[ -z $REPORT_DIR || ! -d $REPORT_DIR ]]; then
+    echo ""
+    echo "Error: The variable REPORT_DIR must be set and the directory must exist."
+    exit 1
+fi
+
+INSTRUMENTATION_LOG_FILE_PATH="$REPORT_DIR/instrumentation-log.txt"
+LOGCAT_FILE_PATH="$REPORT_DIR/logcat.txt"
+LOCAL_SCREENSHOT_PATH="$REPORT_DIR/screenshots"
 DEVICE_SCREENSHOT_PATH="/sdcard/Pictures/mullvad-$TEST_TYPE"
 
 echo ""
 echo "### Ensure clean report structure ###"
-rm -rf "$LOCAL_TMP_REPORT_PATH" || echo "No report path"
+rm -rf "${REPORT_DIR:?}/*"
 adb logcat --clear
 adb shell rm -rf "$DEVICE_SCREENSHOT_PATH"
-mkdir "$LOCAL_TMP_REPORT_PATH"
 echo ""
 
 if [[ "${USE_ORCHESTRATOR-}" == "true" ]]; then
     if [[ "${AUTO_FETCH_TEST_HELPER_APKS-}" == "true" ]]; then
         echo "### Fetching orchestrator and test services apks ###"
-        ORCHESTRATOR_APK_PATH=$DEFAULT_ORCHESTRATOR_APK_PATH
-        TEST_SERVICES_APK_PATH=$DEFAULT_TEST_SERVICES_APK_PATH
+        TEMP_DOWNLOAD_DIR=$(mktemp -d)
+        ORCHESTRATOR_APK_PATH=$TEMP_DOWNLOAD_DIR/orchestrator.apk
+        TEST_SERVICES_APK_PATH=$TEMP_DOWNLOAD_DIR/test-services.apk
         curl -sL "$ORCHESTRATOR_URL" -o "$ORCHESTRATOR_APK_PATH"
         curl -sL "$TEST_SERVICES_URL" -o "$TEST_SERVICES_APK_PATH"
         echo ""
@@ -235,4 +237,6 @@ else
     echo "No failures!"
 fi
 
-rm -rf "$TEMP_DIR"
+if [[ -n ${TEMP_DOWNLOAD_DIR-} ]]; then
+    rm -rf "$TEMP_DOWNLOAD_DIR"
+fi

@@ -164,9 +164,9 @@ impl TunnelMonitor {
     {
         let default_mtu = DEFAULT_MTU;
 
-        #[cfg(any(target_os = "linux", target_os = "windows"))]
         // Detects the MTU of the device and sets the default tunnel MTU to that minus headers and
         // the safety margin
+        #[cfg(any(target_os = "linux", target_os = "windows"))]
         let default_mtu = args
             .runtime
             .block_on(
@@ -176,14 +176,14 @@ impl TunnelMonitor {
             .map(|mtu| Self::clamp_mtu(params, mtu))
             .unwrap_or(default_mtu);
 
-        #[cfg(any(target_os = "linux", windows))]
+        #[cfg(not(target_os = "android"))]
         let detect_mtu = params.options.mtu.is_none();
 
         let config = talpid_wireguard::config::Config::from_parameters(params, default_mtu)?;
         let monitor = talpid_wireguard::WireguardMonitor::start(
             config,
             params.options.quantum_resistant,
-            #[cfg(any(target_os = "linux", windows))]
+            #[cfg(not(target_os = "android"))]
             detect_mtu,
             log.as_deref(),
             args,

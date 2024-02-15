@@ -250,7 +250,11 @@ extension PacketTunnelActor {
             privateKey: activeKey,
             interfaceAddresses: settings.interfaceAddresses,
             dns: settings.dnsServers,
-            endpoint: connectionState.connectedEndpoint
+            endpoint: connectionState.connectedEndpoint,
+            allowedIPs: [
+                IPAddressRange(from: "0.0.0.0/0")!,
+                IPAddressRange(from: "::/0")!,
+            ]
         )
 
         /*

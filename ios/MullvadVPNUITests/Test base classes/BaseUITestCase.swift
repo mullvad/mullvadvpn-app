@@ -15,17 +15,15 @@ class BaseUITestCase: XCTestCase {
 
     // swiftlint:disable force_cast
     let displayName = Bundle(for: BaseUITestCase.self)
-        .infoDictionary?["MullvadDisplayName"] as! String
+        .infoDictionary?["DisplayName"] as! String
     let noTimeAccountNumber = Bundle(for: BaseUITestCase.self)
-        .infoDictionary?["MullvadNoTimeAccountNumber"] as! String
+        .infoDictionary?["NoTimeAccountNumber"] as! String
     let hasTimeAccountNumber = Bundle(for: BaseUITestCase.self)
-        .infoDictionary?["MullvadHasTimeAccountNumber"] as! String
+        .infoDictionary?["HasTimeAccountNumber"] as! String
     let fiveWireGuardKeysAccountNumber = Bundle(for: BaseUITestCase.self)
-        .infoDictionary?["MullvadFiveWireGuardKeysAccountNumber"] as! String
+        .infoDictionary?["FiveWireGuardKeysAccountNumber"] as! String
     let iOSDevicePinCode = Bundle(for: BaseUITestCase.self)
-        .infoDictionary?["MullvadIOSDevicePinCode"] as! String
-    let adServingDomain = Bundle(for: BaseUITestCase.self)
-        .infoDictionary?["MullvadAdServingDomain"] as! String
+        .infoDictionary?["IOSDevicePinCode"] as! String
     // swiftlint:enable force_cast
 
     /// Handle iOS add VPN configuration permission alert - allow and enter device PIN code

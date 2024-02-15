@@ -2,14 +2,15 @@ package net.mullvad.mullvadvpn.test.arch
 
 import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.ext.list.properties
-import com.lemonappdev.konsist.api.verify.assert
+import com.lemonappdev.konsist.api.verify.assertFalse
 import com.lemonappdev.konsist.api.verify.assertNot
+import com.lemonappdev.konsist.api.verify.assertTrue
 import org.junit.jupiter.api.Test
 
-class GeneralTests {
+class GeneralTest {
     @Test
     fun `ensure package name must match file path`() =
-        Konsist.scopeFromProject().packages.assert { it.hasMatchingPath }
+        Konsist.scopeFromProject().packages.assertTrue { it.hasMatchingPath }
 
     @Test
     fun `ensure no field should have 'm' prefix`() =
@@ -20,5 +21,5 @@ class GeneralTests {
 
     @Test
     fun `ensure no empty files allowed`() =
-        Konsist.scopeFromProject().files.assertNot { it.text.isEmpty() }
+        Konsist.scopeFromProject().files.assertFalse { it.text.isEmpty() }
 }

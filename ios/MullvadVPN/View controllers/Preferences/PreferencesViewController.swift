@@ -101,12 +101,18 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     // MARK: - PreferencesDataSourceDelegate
 
     func didChangeViewModel(_ viewModel: PreferencesViewModel) {
-        interactor.setObfuscationSettings(WireGuardObfuscationSettings(
-            state: viewModel.obfuscationState,
-            port: viewModel.obfuscationPort
-        ))
+        interactor.updateSettings(
+            [
+                .obfuscation(WireGuardObfuscationSettings(
+                    state: viewModel.obfuscationState,
+                    port: viewModel.obfuscationPort
+                )),
+                .quantumResistance(viewModel.quantumResistance),
+            ]
+        )
     }
 
+    // swiftlint:disable:next function_body_length
     func showInfo(for item: PreferencesInfoButtonItem) {
         var message = ""
 
@@ -164,6 +170,19 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
                 quantum safe algorithm and mixing the result into WireGuard’s\
                 regular encryption. This extra step uses approximately 500 kiB\
                 of traffic every time a new tunnel is established.
+                """,
+                comment: ""
+            )
+
+        case .quantumResistance:
+            message = NSLocalizedString(
+                "PREFERENCES_QUANTUM_RESISTANCE_GENERAL",
+                tableName: "QuantumResistance",
+                value: """
+                This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.
+                It does this by performing an extra key exchange using a quantum safe algorithm and mixing \
+                the result into WireGuard’s regular encryption.
+                This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.
                 """,
                 comment: ""
             )

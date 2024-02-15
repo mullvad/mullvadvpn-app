@@ -99,6 +99,8 @@ struct PreferencesViewModel: Equatable {
     private(set) var obfuscationPort: WireGuardObfuscationPort
     private(set) var tunnelQuantumResistanceState: WireGuardTunnelQuantumResistanceState
 
+    private(set) var quantumResistance: TunnelQuantumResistance
+
     static let defaultWireGuardPorts: [UInt16] = [51820, 53]
 
     mutating func setBlockAdvertising(_ newValue: Bool) {
@@ -149,8 +151,13 @@ struct PreferencesViewModel: Equatable {
         obfuscationPort = newPort
     }
 
+<<<<<<< HEAD
     mutating func setWireGuardTunnelQuantumResistanceState(_ newState: WireGuardTunnelQuantumResistanceState) {
         tunnelQuantumResistanceState = newState
+=======
+    mutating func setQuantumResistance(_ newState: TunnelQuantumResistance) {
+        quantumResistance = newState
+>>>>>>> fb4b924ffe86f92793e087debbb86a87e91a79fc
     }
 
     /// Precondition for enabling Custom DNS.
@@ -198,7 +205,12 @@ struct PreferencesViewModel: Equatable {
 
         obfuscationState = tunnelSettings.wireGuardObfuscation.state
         obfuscationPort = tunnelSettings.wireGuardObfuscation.port
+<<<<<<< HEAD
         tunnelQuantumResistanceState = tunnelSettings.wireGuardTunnelQuantumResistance.state
+=======
+
+        quantumResistance = tunnelSettings.tunnelQuantumResistance
+>>>>>>> fb4b924ffe86f92793e087debbb86a87e91a79fc
     }
 
     /// Produce merged view model keeping entry `identifier` for matching DNS entries.
