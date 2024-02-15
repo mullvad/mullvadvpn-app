@@ -21,6 +21,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case wireGuardCustomPort
         case wireGuardObfuscation
         case wireGuardObfuscationPort
+        case wireGuardTunnelQuantumResistance
         var reusableViewClass: AnyClass {
             switch self {
             case .dnsSettings:
@@ -32,6 +33,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             case .wireGuardObfuscation:
                 return SelectableSettingsCell.self
             case .wireGuardObfuscationPort:
+                return SelectableSettingsCell.self
+            case .wireGuardTunnelQuantumResistance:
                 return SelectableSettingsCell.self
             }
         }
@@ -50,6 +53,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case wireGuardPorts
         case wireGuardObfuscation
         case wireGuardObfuscationPort
+        case wireGuardTunnelQuantumResistance
     }
 
     enum Item: Hashable {
@@ -60,6 +64,9 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case wireGuardObfuscationOn
         case wireGuardObfuscationOff
         case wireGuardObfuscationPort(_ port: UInt16)
+        case wireGuardTunnelQuantumResistanceAutomatic
+        case wireGuardTunnelQuantumResistanceOn
+        case wireGuardTunnelQuantumResistanceOff
 
         static var wireGuardPorts: [Item] {
             let defaultPorts = PreferencesViewModel.defaultWireGuardPorts.map {
@@ -74,6 +81,10 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
         static var wireGuardObfuscationPort: [Item] {
             [.wireGuardObfuscationPort(0), wireGuardObfuscationPort(80), wireGuardObfuscationPort(5001)]
+        }
+
+        static var wireGuardTunnelQuantumResistance: [Item] {
+            [.wireGuardTunnelQuantumResistanceAutomatic, .wireGuardTunnelQuantumResistanceOn, .wireGuardTunnelQuantumResistanceOff]
         }
 
         var accessibilityIdentifier: AccessibilityIdentifier {
@@ -92,6 +103,12 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 return .wireGuardObfuscationOff
             case .wireGuardObfuscationPort:
                 return .wireGuardObfuscationAutomatic
+            case .wireGuardTunnelQuantumResistanceAutomatic:
+                return .wireGuardTunnelQuantumResistanceAutomatic
+            case .wireGuardTunnelQuantumResistanceOn:
+                return .wireGuardTunnelQuantumResistanceOn
+            case .wireGuardTunnelQuantumResistanceOff:
+                return .wireGuardTunnelQuantumResistanceOff
             }
         }
 
@@ -107,6 +124,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 return .wireGuardObfuscation
             case .wireGuardObfuscationPort:
                 return .wireGuardObfuscationPort
+            case .wireGuardTunnelQuantumResistanceAutomatic, .wireGuardTunnelQuantumResistanceOn, .wireGuardTunnelQuantumResistanceOff:
+                return .wireGuardTunnelQuantumResistance
             }
         }
     }
@@ -131,6 +150,12 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
 
         let obfuscationPortItem: Item = .wireGuardObfuscationPort(viewModel.obfuscationPort.portValue)
+
+        let tunnelQuantumResistanceState: Item = switch viewModel.tunnelQuantumResistanceState {
+        case .automatic: .wireGuardTunnelQuantumResistanceAutomatic
+        case .off: .wireGuardTunnelQuantumResistanceOff
+        case .on: .wireGuardTunnelQuantumResistanceOn
+        }
 
         return [
             indexPath(for: wireGuardPortItem),

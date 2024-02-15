@@ -34,7 +34,7 @@ public struct TunnelSettingsV3: Codable, Equatable, TunnelSettings {
             relayConstraints: relayConstraints,
             dnsSettings: dnsSettings,
             wireGuardObfuscation: wireGuardObfuscation,
-            tunnelQuantumResistance: .automatic
+            wireGuardTunnelQuantumResistance: WireGuardTunnelQuantumResistanceSettings()
         )
     }
 }

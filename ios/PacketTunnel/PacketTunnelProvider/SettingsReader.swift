@@ -21,7 +21,9 @@ struct SettingsReader: SettingsReaderProtocol {
             interfaceAddresses: [deviceData.ipv4Address, deviceData.ipv6Address],
             relayConstraints: settings.relayConstraints,
             dnsServers: settings.dnsSettings.selectedDNSServers,
-            obfuscation: settings.wireGuardObfuscation
+            obfuscation: settings.wireGuardObfuscation,
+            tunnelQuantumResistance: settings.tunnelQuantumResistance
+            
         )
     }
 }

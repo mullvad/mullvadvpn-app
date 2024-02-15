@@ -151,6 +151,22 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
                 value: "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.",
                 comment: ""
             )
+            
+        case .wireGuardTunnelQuantumResistance:
+            message = NSLocalizedString(
+                "PREFERENCES_WIRE_GUARD_TUNNEL_QUANTUM_RESISTANCE",
+                tableName: "WireGuardTunnelQuantumResistance",
+                value: """
+                This feature makes the WireGuard tunnel resistant to \
+                potential attacks from quantum computers.\
+                \
+                It does this by performing an extra key exchange using a \
+                quantum safe algorithm and mixing the result into WireGuard’s\
+                regular encryption. This extra step uses approximately 500 kiB\
+                of traffic every time a new tunnel is established.
+                """,
+                comment: ""
+            )
 
         default:
             assertionFailure("No matching InfoButtonItem")

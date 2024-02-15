@@ -8,8 +8,17 @@
 
 import Foundation
 
-public enum TunnelQuantumResistance: Codable {
+public enum WireGuardTunnelQuantumResistanceState: Codable {
     case automatic
     case on
     case off
 }
+
+public struct WireGuardTunnelQuantumResistanceSettings: Codable, Equatable {
+    public let state: WireGuardTunnelQuantumResistanceState
+
+    public init(state: WireGuardTunnelQuantumResistanceState = .automatic) {
+        self.state = state
+    }
+}
+

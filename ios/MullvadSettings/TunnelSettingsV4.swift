@@ -20,18 +20,18 @@ public struct TunnelSettingsV4: Codable, Equatable, TunnelSettings {
     public var wireGuardObfuscation: WireGuardObfuscationSettings
 
     /// Whether Post Quantum exchanges are enabled.
-    public var tunnelQuantumResistance: TunnelQuantumResistance
+    public var wireGuardTunnelQuantumResistance: WireGuardTunnelQuantumResistanceSettings
 
     public init(
         relayConstraints: RelayConstraints = RelayConstraints(),
         dnsSettings: DNSSettings = DNSSettings(),
         wireGuardObfuscation: WireGuardObfuscationSettings = WireGuardObfuscationSettings(),
-        tunnelQuantumResistance: TunnelQuantumResistance = .automatic
+        wireGuardTunnelQuantumResistance: WireGuardTunnelQuantumResistanceSettings = WireGuardTunnelQuantumResistanceSettings()
     ) {
         self.relayConstraints = relayConstraints
         self.dnsSettings = dnsSettings
         self.wireGuardObfuscation = wireGuardObfuscation
-        self.tunnelQuantumResistance = tunnelQuantumResistance
+        self.wireGuardTunnelQuantumResistance = wireGuardTunnelQuantumResistance
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {

@@ -43,6 +43,10 @@ final class PreferencesInteractor {
     func setObfuscationSettings(_ newSettings: WireGuardObfuscationSettings) {
         tunnelManager.setObfuscationSettings(newSettings)
     }
+    
+    func setTunnelQuantumResistance(_ newTQRSettings: WireGuardTunnelQuantumResistanceSettings) {
+        tunnelManager.setTunnelQuantumResistance(newTQRSettings)
+    }
 
     func setPort(_ port: UInt16?, completion: (() -> Void)? = nil) {
         var relayConstraints = tunnelManager.settings.relayConstraints

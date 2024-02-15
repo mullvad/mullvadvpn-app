@@ -66,11 +66,16 @@ public enum AccessibilityIdentifier: String {
 
     // DNS settings
     case dnsSettings
+    
+    // WireGuard settings
     case wireGuardCustomPort
     case wireGuardObfuscationAutomatic
     case wireGuardObfuscationOff
     case wireGuardObfuscationOn
     case wireGuardPort
+    case wireGuardTunnelQuantumResistanceAutomatic
+    case wireGuardTunnelQuantumResistanceOn
+    case wireGuardTunnelQuantumResistanceOff
 
     // Custom DNS
     case blockAdvertising
