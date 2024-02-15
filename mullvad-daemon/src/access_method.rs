@@ -85,7 +85,14 @@ where
         &mut self,
         access_method: access_method::Id,
     ) -> Result<(), Error> {
-        // Set `access_method` as the next access method to use
+        self.settings
+            .update(|settings| {
+                settings.api_access_methods.update(
+                    |setting| setting.get_id() == access_method,
+                    |setting| setting.enable(),
+                );
+            })
+            .await?;
         self.access_mode_handler
             .use_access_method(access_method)
             .await?;
@@ -111,15 +118,15 @@ where
         &mut self,
         access_method_update: AccessMethodSetting,
     ) -> Result<(), Error> {
-        let settings_update = |settings: &mut Settings| {
-            let target = access_method_update.get_id();
-            settings.api_access_methods.update(
-                |access_method| access_method.get_id() == target,
-                |_| access_method_update,
-            );
-        };
-
-        self.settings.update(settings_update).await?;
+        self.settings
+            .update(|settings: &mut Settings| {
+                let target = access_method_update.get_id();
+                settings.api_access_methods.update(
+                    |access_method| access_method.get_id() == target,
+                    |method| *method = access_method_update,
+                );
+            })
+            .await?;
 
         Ok(())
     }

@@ -348,8 +348,7 @@ impl AccessModeSelector {
         self.reply(tx, ())
     }
 
-    /// Set and announce the specified access method as the current one. This activates the method
-    /// if it's disabled.
+    /// Set and announce the specified access method as the current one.
     async fn use_access_method(&mut self, id: Id) {
         #[cfg(feature = "api-override")]
         {
@@ -368,14 +367,8 @@ impl AccessModeSelector {
             return;
         };
 
-        let mut new_method = method.to_owned();
-        new_method.enable();
-
-        self.access_method_settings
-            .update_index(index, |method| *method = new_method.clone());
-
         self.index = index;
-        self.set_current(new_method).await;
+        self.set_current(method.to_owned()).await;
     }
 
     async fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
