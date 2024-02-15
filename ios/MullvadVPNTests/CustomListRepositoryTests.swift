@@ -30,8 +30,9 @@ class CustomListRepositoryTests: XCTestCase {
 
     func testFailedAddingDuplicateCustomList() throws {
         let name = "Netflix"
-        let item = try XCTUnwrap(repository.create(name))
-        XCTAssertThrowsError(try repository.create(item.name)) { error in
+        let item = try XCTUnwrap(repository.create(name, locations: []))
+
+        XCTAssertThrowsError(try repository.create(item.name, locations: [])) { error in
             XCTAssertEqual(error as? CustomRelayListError, CustomRelayListError.duplicateName)
         }
     }
@@ -39,11 +40,10 @@ class CustomListRepositoryTests: XCTestCase {
     func testAddingCustomList() throws {
         let name = "Netflix"
 
-        var item = try XCTUnwrap(repository.create(name))
-        item.list.append(.country("SE"))
-        item.list.append(.city("SE", "Gothenburg"))
-
-        repository.update(item)
+        let item = try XCTUnwrap(repository.create(name, locations: [
+            .country("SE"),
+            .city("SE", "Gothenburg"),
+        ]))
 
         let storedItem = repository.fetch(by: item.id)
         XCTAssertEqual(storedItem, item)
@@ -52,10 +52,10 @@ class CustomListRepositoryTests: XCTestCase {
     func testDeletingCustomList() throws {
         let name = "Netflix"
 
-        var item = try XCTUnwrap(repository.create(name))
-        item.list.append(.country("SE"))
-        item.list.append(.city("SE", "Gothenburg"))
-        repository.update(item)
+        let item = try XCTUnwrap(repository.create(name, locations: [
+            .country("SE"),
+            .city("SE", "Gothenburg"),
+        ]))
 
         let storedItem = repository.fetch(by: item.id)
         repository.delete(id: try XCTUnwrap(storedItem?.id))
@@ -64,15 +64,15 @@ class CustomListRepositoryTests: XCTestCase {
     }
 
     func testFetchingAllCustomList() throws {
-        var streaming = try XCTUnwrap(repository.create("Netflix"))
-        streaming.list.append(.country("FR"))
-        streaming.list.append(.city("SE", "Gothenburg"))
-        repository.update(streaming)
+        _ = try XCTUnwrap(repository.create("Netflix", locations: [
+            .country("FR"),
+            .city("SE", "Gothenburg"),
+        ]))
 
-        var gaming = try XCTUnwrap(repository.create("PS5"))
-        gaming.list.append(.country("DE"))
-        gaming.list.append(.city("SE", "Gothenburg"))
-        repository.update(streaming)
+        _ = try XCTUnwrap(repository.create("PS5", locations: [
+            .country("DE"),
+            .city("SE", "Gothenburg"),
+        ]))
 
         XCTAssertEqual(repository.fetchAll().count, 2)
     }
