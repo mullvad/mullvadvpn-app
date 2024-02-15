@@ -178,7 +178,7 @@ impl ApiEndpoint {
             disable_tls: false,
             force_direct: force_direct
                 .map(|force_direct_env| force_direct_env.to_lowercase() != "0")
-                .unwrap_or(true),
+                .unwrap_or(false),
         };
 
         match (host_var, address_var) {
