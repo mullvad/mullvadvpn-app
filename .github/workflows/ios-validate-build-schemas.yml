@@ -56,6 +56,7 @@ jobs:
           cp PacketTunnel.xcconfig.template PacketTunnel.xcconfig
           cp Screenshots.xcconfig.template Screenshots.xcconfig
           cp Api.xcconfig.template Api.xcconfig
+          cp UITests.xcconfig.template UITests.xcconfig
         working-directory: ios/Configurations
 
       - name: Install xcbeautify
@@ -63,7 +64,7 @@ jobs:
           brew update
           brew install xcbeautify
 
-      - name: Run build validation for Staging and MockRelease configurations
+      - name: Run build validation for Staging and MockRelease configurations as well as the MullvadVPNUITests target
         run: |
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
             -project MullvadVPN.xcodeproj \
@@ -76,6 +77,13 @@ jobs:
             -project MullvadVPN.xcodeproj \
             -scheme MullvadVPN \
             -configuration Staging \
+            -destination "platform=iOS Simulator,name=iPhone 15" \
+            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+            build
+          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+            -project MullvadVPN.xcodeproj \
+            -scheme MullvadVPNUITests \
+            -configuration Debug \
             -destination "platform=iOS Simulator,name=iPhone 15" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             build
