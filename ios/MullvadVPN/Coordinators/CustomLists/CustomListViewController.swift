@@ -158,26 +158,40 @@ class CustomListViewController: UIViewController {
     }
 
     private func onDelete() {
-        // TODO: Show error dialog.
-        delegate?.customListDidDelete()
-    }
-
-    private func showSaveErrorAlert() {
-        let presentation = AlertPresentation(
-            id: "api-custom-lists-save-list-alert",
-            icon: .alert,
-            message: NSLocalizedString(
-                "CUSTOM_LISTS_SAVE_ERROR_PROMPT",
-                tableName: "APIAccess",
-                value: "List name is already taken.",
+        let message = NSMutableAttributedString(
+            markdownString: NSLocalizedString(
+                "CUSTOM_LISTS_DELETE_PROMPT",
+                tableName: "CustomLists",
+                value: "Do you want to delete the list **\(subject.value.name)**?",
                 comment: ""
             ),
+            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
+        )
+
+        let presentation = AlertPresentation(
+            id: "api-custom-lists-delete-list-alert",
+            icon: .alert,
+            attributedMessage: message,
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "CUSTOM_LISTS_OK_BUTTON",
-                        tableName: "APIAccess",
-                        value: "Got it!",
+                        "CUSTOM_LISTS_DELETE_BUTTON",
+                        tableName: "CustomLists",
+                        value: "Delete list",
+                        comment: ""
+                    ),
+                    style: .destructive,
+                    handler: {
+                        self.interactor.deleteCustomList(id: self.subject.value.id)
+                        self.dismiss(animated: true)
+                        self.delegate?.customListDidDelete()
+                    }
+                ),
+                AlertAction(
+                    title: NSLocalizedString(
+                        "CUSTOM_LISTS_CANCEL_BUTTON",
+                        tableName: "CustomLists",
+                        value: "Cancel",
                         comment: ""
                     ),
                     style: .default

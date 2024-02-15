@@ -14,6 +14,7 @@ import UIKit
 class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
     let navigationController: UINavigationController
     let customListInteractor: CustomListInteractorProtocol
+    let customList: CustomList
 
     var presentedViewController: UIViewController {
         navigationController
@@ -23,18 +24,20 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
 
     init(
         navigationController: UINavigationController,
-        customListInteractor: CustomListInteractorProtocol
+        customListInteractor: CustomListInteractorProtocol,
+        customList: CustomList
     ) {
         self.navigationController = navigationController
         self.customListInteractor = customListInteractor
+        self.customList = customList
     }
 
     func start() {
         let subject = CurrentValueSubject<CustomListViewModel, Never>(
             CustomListViewModel(
-                id: UUID(),
-                name: "A list",
-                locations: [],
+                id: customList.id,
+                name: customList.name,
+                locations: customList.locations,
                 tableSections: [.name, .editLocations, .deleteList]
             )
         )

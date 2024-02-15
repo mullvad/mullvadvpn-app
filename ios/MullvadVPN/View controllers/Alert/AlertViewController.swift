@@ -231,8 +231,8 @@ class AlertViewController: UIViewController {
         style.lineBreakMode = .byWordWrapping
 
         label.attributedText = NSAttributedString(
-            markdownString: message,
-            options: MarkdownStylingOptions(font: font, paragraphStyle: style)
+            string: message,
+            attributes: [.paragraphStyle: style]
         )
         label.font = font
         label.textColor = .white.withAlphaComponent(0.8)
