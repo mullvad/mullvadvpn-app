@@ -316,7 +316,7 @@ impl AccessModeSelector {
             log::trace!("Processing {cmd} command");
             let execution = match cmd {
                 Message::Get(tx) => self.on_get_access_method(tx),
-                Message::Use(tx, id) => self.on_set_access_method(tx, id).await,
+                Message::Use(tx, id) => self.on_use_access_method(tx, id).await,
                 Message::Rotate(tx) => self.on_next_connection_mode(tx).await,
                 Message::Update(tx, values) => self.on_update_access_methods(tx, values).await,
                 Message::Resolve(tx, setting) => self.on_resolve_access_method(tx, setting).await,
@@ -343,13 +343,14 @@ impl AccessModeSelector {
         self.reply(tx, self.current.clone())
     }
 
-    async fn on_set_access_method(&mut self, tx: ResponseTx<()>, id: Id) -> Result<()> {
-        self.set_access_method(id).await;
+    async fn on_use_access_method(&mut self, tx: ResponseTx<()>, id: Id) -> Result<()> {
+        self.use_access_method(id).await;
         self.reply(tx, ())
     }
 
-    /// Set and announce the specified access method as the current one.
-    async fn set_access_method(&mut self, id: Id) {
+    /// Set and announce the specified access method as the current one. This activates the method
+    /// if it's disabled.
+    async fn use_access_method(&mut self, id: Id) {
         #[cfg(feature = "api-override")]
         {
             if mullvad_api::API.force_direct {
