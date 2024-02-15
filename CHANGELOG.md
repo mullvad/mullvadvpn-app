@@ -37,6 +37,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Add support for all screen orientations.
 - Add toggle for enabling or disabling split tunneling.
+- Replace auto connect with auto connect and lockdown mode guide on platforms that has
+  system vpn settings.
 
 ### Fixed
 - Fix connectivity issues that would occur when using quantum-resistant tunnels with an incorrectly
