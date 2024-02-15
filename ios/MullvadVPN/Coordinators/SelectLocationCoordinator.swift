@@ -7,6 +7,7 @@
 //
 
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import Routing
 import UIKit
@@ -68,7 +69,11 @@ class SelectLocationCoordinator: Coordinator, Presentable, Presenting, RelayCach
         selectLocationViewController.navigateToFilter = { [weak self] in
             guard let self else { return }
 
-            let coordinator = makeRelayFilterCoordinator(forModalPresentation: true)
+//            let coordinator = makeRelayFilterCoordinator(forModalPresentation: true)
+            let coordinator = AddCustomListCoordinator(
+                navigationController: CustomNavigationController(),
+                customListInteractor: CustomListInteractor(repository: CustomListRepository())
+            )
             coordinator.start()
 
             presentChild(coordinator, animated: true)
