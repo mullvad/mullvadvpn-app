@@ -78,10 +78,6 @@ class MullvadApi {
     }
 
     func createAccount() throws -> String {
-        guard let data = NSMutableData(length: 128) else {
-            throw InitMutableBufferError()
-        }
-
         var newAccountPtr: UnsafePointer<CChar>?
         let result = mullvad_api_create_account(
             clientContext,
