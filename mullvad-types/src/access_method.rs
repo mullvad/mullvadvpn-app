@@ -74,6 +74,17 @@ impl Settings {
         updated
     }
 
+    /// Update an existing [`AccessMethodSetting`] chosen at the given `index`.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if `index` is out of bounds.
+    pub fn update_index(&mut self, index: usize, f: impl FnOnce(&mut AccessMethodSetting)) {
+        let iter = self.iter_mut().nth(index).unwrap();
+        f(iter);
+        self.ensure_consistent_state();
+    }
+
     /// Check that `self` contains atleast one enabled access methods. If not,
     /// the `Direct` access method is re-enabled.
     fn ensure_consistent_state(&mut self) {

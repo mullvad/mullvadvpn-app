@@ -368,8 +368,14 @@ impl AccessModeSelector {
             return;
         };
 
+        let mut new_method = method.to_owned();
+        new_method.enable();
+
+        self.access_method_settings
+            .update_index(index, |method| *method = new_method.clone());
+
         self.index = index;
-        self.set_current(method.to_owned()).await;
+        self.set_current(new_method).await;
     }
 
     async fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
