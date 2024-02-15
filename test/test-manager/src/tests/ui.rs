@@ -139,7 +139,7 @@ pub async fn test_ui_login(_: TestContext, rpc: ServiceClient) -> Result<(), Err
     Ok(())
 }
 
-#[test_function]
+#[test_function(priority = 1000, must_succeed = true)]
 async fn test_custom_access_methods_gui(
     _: TestContext,
     rpc: ServiceClient,
