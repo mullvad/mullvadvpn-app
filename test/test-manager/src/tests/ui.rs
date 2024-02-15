@@ -138,3 +138,19 @@ pub async fn test_ui_login(_: TestContext, rpc: ServiceClient) -> Result<(), Err
 
     Ok(())
 }
+
+/// Test settings import / IP overrides in the GUI
+///
+/// # Note
+/// This test expects the daemon to be logged in
+#[test_function]
+pub async fn test_import_settings_ui(_: TestContext, rpc: ServiceClient) -> Result<(), Error> {
+    let env = std::iter::empty::<(&str, &str)>();
+    let ui_result = run_test_env(&rpc, &["settings-import.spec"], env)
+        .await
+        .unwrap();
+
+    assert!(ui_result.success());
+
+    Ok(())
+}
