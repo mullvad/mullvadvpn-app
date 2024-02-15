@@ -125,6 +125,7 @@ pub(crate) struct RequestService<T: ConnectionModeProvider> {
     connector_handle: HttpsConnectorWithSniHandle,
     client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
     connection_mode_provider: T,
+    connection_mode_generation: usize,
     api_availability: ApiAvailabilityHandle,
 }
 
@@ -157,6 +158,7 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
             connector_handle,
             client,
             connection_mode_provider,
+            connection_mode_generation: 0,
             api_availability,
         };
         let handle = RequestServiceHandle { tx: command_tx };
@@ -193,8 +195,12 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
             RequestCommand::Reset => {
                 self.connector_handle.reset();
             }
-            RequestCommand::NextApiConfig => {
-                self.connection_mode_provider.rotate().await;
+            RequestCommand::NextApiConfig(generation) => {
+                if generation == self.connection_mode_generation {
+                    self.connection_mode_generation =
+                        self.connection_mode_generation.wrapping_add(1);
+                    self.connection_mode_provider.rotate().await;
+                }
             }
         }
     }
@@ -209,6 +215,8 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
         let api_availability = self.api_availability.clone();
         let request_future = request.into_future(self.client.clone(), api_availability.clone());
 
+        let connection_mode_generation = self.connection_mode_generation;
+
         tokio::spawn(async move {
             let response = request_future.await.map_err(|error| error.map_aborted());
 
@@ -217,7 +225,9 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
                 if err.is_network_error() && !api_availability.get_state().is_offline() {
                     log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
                     if let Some(tx) = tx {
-                        let _ = tx.unbounded_send(RequestCommand::NextApiConfig);
+                        let _ = tx.unbounded_send(RequestCommand::NextApiConfig(
+                            connection_mode_generation,
+                        ));
                     }
                 }
             }
@@ -256,7 +266,7 @@ pub(crate) enum RequestCommand {
         oneshot::Sender<std::result::Result<Response, Error>>,
     ),
     Reset,
-    NextApiConfig,
+    NextApiConfig(usize),
 }
 
 /// A REST request that is sent to the RequestService to be executed.
