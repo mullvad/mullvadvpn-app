@@ -59,9 +59,6 @@ where
     }
 
     /// Remove a [`AccessMethodSetting`] from the daemon's saved settings.
-    ///
-    /// If the [`AccessMethodSetting`] which is currently in use happens to be
-    /// removed, the daemon should force a rotation of the active API endpoint.
     pub async fn remove_access_method(
         &mut self,
         access_method: access_method::Id,
@@ -115,25 +112,7 @@ where
     /// Updates a [`AccessMethodSetting`] by replacing the existing entry with
     /// the argument `access_method_update`.  if an entry with a matching
     /// [`access_method::Id`] is found.
-    ///
-    /// If the currently active [`AccessMethodSetting`] is updated, the daemon
-    /// will automatically use this updated [`AccessMethodSetting`] when
-    /// performing subsequent API calls.
     pub async fn update_access_method(
-        &mut self,
-        access_method_update: AccessMethodSetting,
-    ) -> Result<(), Error> {
-        self.update_access_method_inner(access_method_update.clone())
-            .await
-    }
-
-    /// Updates a [`AccessMethodSetting`] by replacing the existing entry with
-    /// the argument `access_method_update`.  if an entry with a matching
-    /// [`access_method::Id`] is found.
-    ///
-    /// This inner function does not perform any kind of check to see if the
-    /// existing, in-use setting needs to be re-set.
-    async fn update_access_method_inner(
         &mut self,
         access_method_update: AccessMethodSetting,
     ) -> Result<(), Error> {
