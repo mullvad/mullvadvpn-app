@@ -18,7 +18,7 @@ jobs:
 
       - name: Read volta info
         id: volta
-        uses: zoexx/github-action-json-file-properties@release
+        uses: zoexx/github-action-json-file-properties@1.0.6
         with:
           file_path: 'gui/package.json'
           prop_path: 'volta'
