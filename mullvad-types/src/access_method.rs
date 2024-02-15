@@ -241,6 +241,13 @@ impl AccessMethodSetting {
         self.as_custom().is_none()
     }
 
+    pub fn is_direct(&self) -> bool {
+        matches!(
+            self.access_method,
+            AccessMethod::BuiltIn(BuiltInAccessMethod::Direct)
+        )
+    }
+
     /// Set an API access method to be enabled.
     pub fn enable(&mut self) {
         self.enabled = true;

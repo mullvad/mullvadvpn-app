@@ -259,11 +259,26 @@ impl AccessModeSelector {
     pub(crate) async fn spawn(
         cache_dir: PathBuf,
         relay_selector: RelaySelector,
-        access_method_settings: Settings,
+        #[cfg_attr(not(feature = "api-override"), allow(unused_mut))]
+        mut access_method_settings: Settings,
         access_method_event_sender: DaemonEventSender<(AccessMethodEvent, oneshot::Sender<()>)>,
         address_cache: AddressCache,
     ) -> Result<(AccessModeSelectorHandle, AccessModeConnectionModeProvider)> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
+
+        #[cfg(feature = "api-override")]
+        {
+            if mullvad_api::API.force_direct {
+                access_method_settings.update(
+                    |setting| setting.is_direct(),
+                    |setting| {
+                        let mut new_setting = setting.clone();
+                        new_setting.enable();
+                        new_setting
+                    },
+                );
+            }
+        }
 
         // Always start looking from the position of `Direct`.
         let (index, next) = Self::find_next_active(0, &access_method_settings);
@@ -336,6 +351,14 @@ impl AccessModeSelector {
 
     /// Set and announce the specified access method as the current one.
     async fn set_access_method(&mut self, id: Id) {
+        #[cfg(feature = "api-override")]
+        {
+            if mullvad_api::API.force_direct {
+                log::debug!("API proxies are disabled");
+                return;
+            }
+        }
+
         let Some((index, method)) = self
             .access_method_settings
             .iter()
@@ -355,25 +378,10 @@ impl AccessModeSelector {
     }
 
     async fn next_connection_mode(&mut self) -> Result<ApiConnectionMode> {
-        // FIXME: just do nothing on override
         #[cfg(feature = "api-override")]
         {
-            use mullvad_api::API;
-            if API.force_direct {
+            if mullvad_api::API.force_direct {
                 log::debug!("API proxies are disabled");
-                let endpoint = resolve_allowed_endpoint(
-                    &ApiConnectionMode::Direct,
-                    // Note that the address cache *should* be initialized with
-                    // the overridden API endpoint, so we can simply fetch the
-                    // endpoint address from it.
-                    self.address_cache.get_address().await,
-                );
-                let daemon_sender = self.access_method_event_sender.clone();
-                tokio::spawn(async move {
-                    let _ = AccessMethodEvent::Allow { endpoint }
-                        .send(daemon_sender)
-                        .await;
-                });
                 return Ok(ApiConnectionMode::Direct);
             }
 
