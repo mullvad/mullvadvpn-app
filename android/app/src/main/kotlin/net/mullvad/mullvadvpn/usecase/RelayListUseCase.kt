@@ -44,12 +44,17 @@ class RelayListUseCase(
                 findSelectedRelayItem(
                     relaySettings = settings?.relaySettings,
                     relayCountries = relayCountries,
-                    customLists = customLists
+                    customLists = customLists,
                 )
             RelayList(customLists, relayCountries, selectedItem)
         }
 
     fun selectedRelayItem(): Flow<RelayItem?> = relayListWithSelection().map { it.selectedItem }
+
+    fun relayList(): Flow<List<RelayItem.Country>> = relayListWithSelection().map { it.country }
+
+    fun customLists(): Flow<List<RelayItem.CustomList>> =
+        relayListWithSelection().map { it.customLists }
 
     fun fetchRelayList() {
         relayListListener.fetchRelayList()
