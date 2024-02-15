@@ -11,9 +11,14 @@ import MullvadSettings
 import Routing
 import UIKit
 
-class EditCustomListCoordinator: Coordinator, Presentable {
+class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
     let navigationController: UINavigationController
     let customListInteractor: CustomListInteractorProtocol
+    let subject: CurrentValueSubject<CustomListViewModel, Never>
+
+    lazy var alertPresenter: AlertPresenter = {
+        AlertPresenter(context: self)
+    }()
 
     var presentedViewController: UIViewController {
         navigationController
@@ -27,10 +32,8 @@ class EditCustomListCoordinator: Coordinator, Presentable {
     ) {
         self.navigationController = navigationController
         self.customListInteractor = customListInteractor
-    }
 
-    func start() {
-        let subject = CurrentValueSubject<CustomListViewModel, Never>(
+        subject = CurrentValueSubject<CustomListViewModel, Never>(
             CustomListViewModel(
                 id: UUID(),
                 name: "A list",
@@ -38,7 +41,9 @@ class EditCustomListCoordinator: Coordinator, Presentable {
                 tableSections: [.name, .editLocations, .deleteList]
             )
         )
+    }
 
+    func start() {
         let controller = CustomListViewController(interactor: customListInteractor, subject: subject)
         controller.delegate = self
 
@@ -59,7 +64,43 @@ extension EditCustomListCoordinator: CustomListViewControllerDelegate {
     }
 
     func customListDidDelete() {
-        didFinish?()
+        let presentation = AlertPresentation(
+            id: "api-custom-lists-delete-list-alert",
+            icon: .alert,
+            message: NSLocalizedString(
+                "CUSTOM_LISTS_DELETE_PROMPT",
+                tableName: "APIAccess",
+                value: "Delete \(subject.value.name)?",
+                comment: ""
+            ),
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "CUSTOM_LISTS_DELETE_BUTTON",
+                        tableName: "APIAccess",
+                        value: "Delete",
+                        comment: ""
+                    ),
+                    style: .destructive,
+                    handler: {
+                        self.customListInteractor.deleteCustomList(id: self.subject.value.id)
+                        self.dismiss(animated: true)
+                        self.didFinish?()
+                    }
+                ),
+                AlertAction(
+                    title: NSLocalizedString(
+                        "CUSTOM_LISTS_CANCEL_BUTTON",
+                        tableName: "APIAccess",
+                        value: "Cancel",
+                        comment: ""
+                    ),
+                    style: .default
+                )
+            ]
+        )
+
+        alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
     func showLocations() {

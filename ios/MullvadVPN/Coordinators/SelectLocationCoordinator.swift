@@ -70,7 +70,7 @@ class SelectLocationCoordinator: Coordinator, Presentable, Presenting, RelayCach
             guard let self else { return }
 
 //            let coordinator = makeRelayFilterCoordinator(forModalPresentation: true)
-            let coordinator = AddCustomListCoordinator(
+            let coordinator = EditCustomListCoordinator(
                 navigationController: CustomNavigationController(),
                 customListInteractor: CustomListInteractor(repository: CustomListRepository())
             )
