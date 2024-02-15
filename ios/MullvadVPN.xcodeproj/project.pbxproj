@@ -518,6 +518,15 @@
 		7A6000F92B6273A4001CF0D9 /* AccessMethodViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D7B2B03BDD100E7CDD7 /* AccessMethodViewModel.swift */; };
 		7A6000FC2B628DF6001CF0D9 /* ListCellContentConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6000FB2B628DF6001CF0D9 /* ListCellContentConfiguration.swift */; };
 		7A6000FE2B628E9F001CF0D9 /* ListCellContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6000FD2B628E9F001CF0D9 /* ListCellContentView.swift */; };
+		7A6389DB2B7E3BD6008E77E1 /* CustomListCellConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389D22B7E3BD6008E77E1 /* CustomListCellConfiguration.swift */; };
+		7A6389DC2B7E3BD6008E77E1 /* CustomListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389D32B7E3BD6008E77E1 /* CustomListViewModel.swift */; };
+		7A6389DD2B7E3BD6008E77E1 /* CustomListDataSourceConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389D42B7E3BD6008E77E1 /* CustomListDataSourceConfiguration.swift */; };
+		7A6389DE2B7E3BD6008E77E1 /* CustomListItemIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389D52B7E3BD6008E77E1 /* CustomListItemIdentifier.swift */; };
+		7A6389DF2B7E3BD6008E77E1 /* AddCustomListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389D72B7E3BD6008E77E1 /* AddCustomListCoordinator.swift */; };
+		7A6389E12B7E3BD6008E77E1 /* CustomListSectionIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389D92B7E3BD6008E77E1 /* CustomListSectionIdentifier.swift */; };
+		7A6389E22B7E3BD6008E77E1 /* CustomListInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389DA2B7E3BD6008E77E1 /* CustomListInteractor.swift */; };
+		7A6389E52B7E4247008E77E1 /* EditCustomListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389E42B7E4247008E77E1 /* EditCustomListCoordinator.swift */; };
+		7A6389E72B7E42BE008E77E1 /* CustomListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389E62B7E42BE008E77E1 /* CustomListViewController.swift */; };
 		7A6B4F592AB8412E00123853 /* TunnelMonitorTimings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */; };
 		7A6F2FA52AFA3CB2006D0856 /* AccountExpiryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */; };
 		7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */; };
@@ -1727,6 +1736,15 @@
 		7A6000F52B60092F001CF0D9 /* AccessMethodViewModelEditing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodViewModelEditing.swift; sourceTree = "<group>"; };
 		7A6000FB2B628DF6001CF0D9 /* ListCellContentConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCellContentConfiguration.swift; sourceTree = "<group>"; };
 		7A6000FD2B628E9F001CF0D9 /* ListCellContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCellContentView.swift; sourceTree = "<group>"; };
+		7A6389D22B7E3BD6008E77E1 /* CustomListCellConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListCellConfiguration.swift; sourceTree = "<group>"; };
+		7A6389D32B7E3BD6008E77E1 /* CustomListViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListViewModel.swift; sourceTree = "<group>"; };
+		7A6389D42B7E3BD6008E77E1 /* CustomListDataSourceConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListDataSourceConfiguration.swift; sourceTree = "<group>"; };
+		7A6389D52B7E3BD6008E77E1 /* CustomListItemIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListItemIdentifier.swift; sourceTree = "<group>"; };
+		7A6389D72B7E3BD6008E77E1 /* AddCustomListCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCustomListCoordinator.swift; sourceTree = "<group>"; };
+		7A6389D92B7E3BD6008E77E1 /* CustomListSectionIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListSectionIdentifier.swift; sourceTree = "<group>"; };
+		7A6389DA2B7E3BD6008E77E1 /* CustomListInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListInteractor.swift; sourceTree = "<group>"; };
+		7A6389E42B7E4247008E77E1 /* EditCustomListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCustomListCoordinator.swift; sourceTree = "<group>"; };
+		7A6389E62B7E42BE008E77E1 /* CustomListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListViewController.swift; sourceTree = "<group>"; };
 		7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorTimings.swift; sourceTree = "<group>"; };
 		7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryTests.swift; sourceTree = "<group>"; };
 		7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiry.swift; sourceTree = "<group>"; };
@@ -3003,6 +3021,8 @@
 		58CAF9F22983D32200BE19F7 /* Coordinators */ = {
 			isa = PBXGroup;
 			children = (
+				7A6389D12B7E3BD6008E77E1 /* CustomLists */,
+				58EFC76F2AFB3FA800E9F4CB /* Settings */,
 				7A9CCCAF2A96302800DD6A34 /* AccountCoordinator.swift */,
 				7A9CCCAC2A96302800DD6A34 /* AccountDeletionCoordinator.swift */,
 				7A9CCCA32A96302700DD6A34 /* AddCreditSucceededCoordinator.swift */,
@@ -3018,7 +3038,6 @@
 				7A9CCCA52A96302700DD6A34 /* RevokedCoordinator.swift */,
 				7A9CCCB02A96302800DD6A34 /* SafariCoordinator.swift */,
 				7A9CCCA72A96302700DD6A34 /* SelectLocationCoordinator.swift */,
-				58EFC76F2AFB3FA800E9F4CB /* Settings */,
 				7A9CCCA62A96302700DD6A34 /* SetupAccountCompletedCoordinator.swift */,
 				7A9CCCA22A96302700DD6A34 /* TermsOfServiceCoordinator.swift */,
 				7A9CCCB22A96302800DD6A34 /* TunnelCoordinator.swift */,
@@ -3379,6 +3398,22 @@
 				7A5869B82B56E7F000640D27 /* IPOverrideViewControllerDelegate.swift */,
 			);
 			path = IPOverride;
+			sourceTree = "<group>";
+		};
+		7A6389D12B7E3BD6008E77E1 /* CustomLists */ = {
+			isa = PBXGroup;
+			children = (
+				7A6389D72B7E3BD6008E77E1 /* AddCustomListCoordinator.swift */,
+				7A6389D22B7E3BD6008E77E1 /* CustomListCellConfiguration.swift */,
+				7A6389D42B7E3BD6008E77E1 /* CustomListDataSourceConfiguration.swift */,
+				7A6389DA2B7E3BD6008E77E1 /* CustomListInteractor.swift */,
+				7A6389D52B7E3BD6008E77E1 /* CustomListItemIdentifier.swift */,
+				7A6389D92B7E3BD6008E77E1 /* CustomListSectionIdentifier.swift */,
+				7A6389E62B7E42BE008E77E1 /* CustomListViewController.swift */,
+				7A6389D32B7E3BD6008E77E1 /* CustomListViewModel.swift */,
+				7A6389E42B7E4247008E77E1 /* EditCustomListCoordinator.swift */,
+			);
+			path = CustomLists;
 			sourceTree = "<group>";
 		};
 		7A83C3FC2A55B39500DFB83A /* TestPlans */ = {
@@ -4908,6 +4943,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7A6389DC2B7E3BD6008E77E1 /* CustomListViewModel.swift in Sources */,
 				7A9CCCC42A96302800DD6A34 /* TunnelCoordinator.swift in Sources */,
 				5827B0A42B0F38FD00CCBBA1 /* EditAccessMethodInteractorProtocol.swift in Sources */,
 				586C0D852B03D31E00E7CDD7 /* SocksSectionHandler.swift in Sources */,
@@ -5071,6 +5107,7 @@
 				58E25F812837BBBB002CFB2C /* SceneDelegate.swift in Sources */,
 				7A1A26492A29D48A00B978AA /* RelayFilterCellFactory.swift in Sources */,
 				5867771629097C5B006F721F /* ProductState.swift in Sources */,
+				7A6389DE2B7E3BD6008E77E1 /* CustomListItemIdentifier.swift in Sources */,
 				58C76A082A33850E00100D75 /* ApplicationTarget.swift in Sources */,
 				58CEB3042AFD36CE00E6E088 /* SwitchCellContentView.swift in Sources */,
 				F07BF2622A26279100042943 /* RedeemVoucherOperation.swift in Sources */,
@@ -5086,8 +5123,11 @@
 				7AF9BE8E2A331C7B00DBFEDB /* RelayFilterViewModel.swift in Sources */,
 				58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */,
 				5864AF0829C78849005B0CD9 /* CellFactoryProtocol.swift in Sources */,
+				7A6389E22B7E3BD6008E77E1 /* CustomListInteractor.swift in Sources */,
 				F07CFF2029F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift in Sources */,
+				7A6389E12B7E3BD6008E77E1 /* CustomListSectionIdentifier.swift in Sources */,
 				58CEB2F32AFD0BA100E6E088 /* TextCellContentView.swift in Sources */,
+				7A6389E72B7E42BE008E77E1 /* CustomListViewController.swift in Sources */,
 				586C0D7C2B03BDD100E7CDD7 /* AccessMethodViewModel.swift in Sources */,
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
 				7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */,
@@ -5107,6 +5147,7 @@
 				5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */,
 				58B26E242943520C00D5980C /* NotificationProviderProtocol.swift in Sources */,
 				5877F94E2A0A59AA0052D9E9 /* NotificationResponse.swift in Sources */,
+				7A6389E52B7E4247008E77E1 /* EditCustomListCoordinator.swift in Sources */,
 				58677712290976FB006F721F /* SettingsInteractor.swift in Sources */,
 				58EF875D2B1638BF00C098B2 /* ProxyConfigurationTesterProtocol.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
@@ -5167,6 +5208,7 @@
 				581DA2752A1E283E0046ED47 /* WgKeyRotation.swift in Sources */,
 				5827B0BB2B14A28300CCBBA1 /* MethodTestingStatusCellContentView.swift in Sources */,
 				7A83C4022A57FAA800DFB83A /* SettingsDNSInfoCell.swift in Sources */,
+				7A6389DF2B7E3BD6008E77E1 /* AddCustomListCoordinator.swift in Sources */,
 				586C0D952B03D92100E7CDD7 /* SocksItemIdentifier.swift in Sources */,
 				F0C6A8432AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift in Sources */,
 				7AF10EB42ADE85BC00C090B9 /* RelayFilterCoordinator.swift in Sources */,
@@ -5203,6 +5245,7 @@
 				584D26C4270C855B004EA533 /* PreferencesDataSource.swift in Sources */,
 				F0D8825B2B04F53600D3EF9A /* OutgoingConnectionData.swift in Sources */,
 				7A6F2FAF2AFE36E7006D0856 /* PreferencesInfoButtonItem.swift in Sources */,
+				7A6389DD2B7E3BD6008E77E1 /* CustomListDataSourceConfiguration.swift in Sources */,
 				5827B0BF2B14B37D00CCBBA1 /* Publisher+PreviousValue.swift in Sources */,
 				7A9CCCB62A96302800DD6A34 /* OutOfTimeCoordinator.swift in Sources */,
 				5827B0AA2B0F4C9100CCBBA1 /* EditAccessMethodViewControllerDelegate.swift in Sources */,
@@ -5221,6 +5264,7 @@
 				7A21DACF2A30AA3700A787A9 /* UITextField+Appearance.swift in Sources */,
 				585B1FF02AB09F97008AD470 /* VPNConnectionProtocol.swift in Sources */,
 				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
+				7A6389DB2B7E3BD6008E77E1 /* CustomListCellConfiguration.swift in Sources */,
 				F09A297C2A9F8A9B00EA3B6F /* VoucherTextField.swift in Sources */,
 				7A5869B72B56B41500640D27 /* IPOverrideTextViewController.swift in Sources */,
 				58ACF64B26553C3F00ACE4B7 /* SettingsSwitchCell.swift in Sources */,
