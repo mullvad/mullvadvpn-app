@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Add support for all screen orientations.
+- Add enable split tunneling toggle.
 
 ### Fixed
 - Fix connectivity issues that would occur when using quantum-resistant tunnels with an incorrectly
