@@ -188,18 +188,13 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
     async fn process_command(&mut self, command: RequestCommand) {
         match command {
             RequestCommand::NewRequest(request, completion_tx) => {
-                // TODO: while we're requesting a new connection mode, just pile them up
                 self.handle_new_request(request, completion_tx);
             }
             RequestCommand::Reset => {
                 self.connector_handle.reset();
             }
             RequestCommand::NextApiConfig => {
-                // TODO: maybe needs not to interrupt handling of reqs
                 self.connection_mode_provider.rotate().await;
-                /*if let Some(connection_mode) = self.connection_mode_provider.next().await {
-                    self.connector_handle.set_connection_mode(connection_mode);
-                }*/
             }
         }
     }
