@@ -62,11 +62,11 @@ impl Settings {
     pub fn update(
         &mut self,
         predicate: impl Fn(&AccessMethodSetting) -> bool,
-        f: impl FnOnce(&AccessMethodSetting) -> AccessMethodSetting,
+        f: impl FnOnce(&mut AccessMethodSetting),
     ) -> bool {
         let mut updated = false;
         if let Some(access_method) = self.iter_mut().find(|setting| predicate(setting)) {
-            *access_method = f(access_method);
+            f(access_method);
             updated = true;
         }
         self.ensure_consistent_state();
@@ -239,6 +239,13 @@ impl AccessMethodSetting {
 
     pub fn is_builtin(&self) -> bool {
         self.as_custom().is_none()
+    }
+
+    pub fn is_direct(&self) -> bool {
+        matches!(
+            self.access_method,
+            AccessMethod::BuiltIn(BuiltInAccessMethod::Direct)
+        )
     }
 
     /// Set an API access method to be enabled.

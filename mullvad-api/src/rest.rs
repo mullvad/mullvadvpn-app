@@ -5,12 +5,11 @@ use crate::{
     address_cache::AddressCache,
     availability::ApiAvailabilityHandle,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
-    proxy::ApiConnectionMode,
+    proxy::ConnectionModeProvider,
 };
 use futures::{
     channel::{mpsc, oneshot},
     stream::StreamExt,
-    Stream,
 };
 use hyper::{
     client::{connect::Connect, Client},
@@ -120,23 +119,22 @@ impl Error {
 
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
-pub(crate) struct RequestService<T: Stream<Item = ApiConnectionMode>> {
+pub(crate) struct RequestService<T: ConnectionModeProvider> {
     command_tx: Weak<mpsc::UnboundedSender<RequestCommand>>,
     command_rx: mpsc::UnboundedReceiver<RequestCommand>,
     connector_handle: HttpsConnectorWithSniHandle,
     client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
-    proxy_config_provider: T,
+    connection_mode_provider: T,
     api_availability: ApiAvailabilityHandle,
 }
 
-impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestService<T> {
+impl<T: ConnectionModeProvider + 'static> RequestService<T> {
     /// Constructs a new request service.
     pub fn spawn(
         sni_hostname: Option<String>,
         api_availability: ApiAvailabilityHandle,
         address_cache: AddressCache,
-        initial_connection_mode: ApiConnectionMode,
-        proxy_config_provider: T,
+        connection_mode_provider: T,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> RequestServiceHandle {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
@@ -146,7 +144,7 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestServic
             socket_bypass_tx.clone(),
         );
 
-        connector_handle.set_connection_mode(initial_connection_mode);
+        connector_handle.set_connection_mode(connection_mode_provider.initial());
 
         let (command_tx, command_rx) = mpsc::unbounded();
         let client = Client::builder().build(connector);
@@ -158,12 +156,33 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestServic
             command_rx,
             connector_handle,
             client,
-            proxy_config_provider,
+            connection_mode_provider,
             api_availability,
         };
         let handle = RequestServiceHandle { tx: command_tx };
         tokio::spawn(service.into_future());
         handle
+    }
+
+    async fn into_future(mut self) {
+        loop {
+            tokio::select! {
+                new_mode = self.connection_mode_provider.receive() => {
+                    let Some(new_mode) = new_mode else {
+                        break;
+                    };
+                    self.connector_handle.set_connection_mode(new_mode);
+                }
+                command = self.command_rx.next() => {
+                    let Some(command) = command else {
+                        break;
+                    };
+
+                    self.process_command(command).await;
+                }
+            }
+        }
+        self.connector_handle.reset();
     }
 
     async fn process_command(&mut self, command: RequestCommand) {
@@ -174,11 +193,8 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestServic
             RequestCommand::Reset => {
                 self.connector_handle.reset();
             }
-            RequestCommand::NextApiConfig(completion_tx) => {
-                if let Some(connection_mode) = self.proxy_config_provider.next().await {
-                    self.connector_handle.set_connection_mode(connection_mode);
-                }
-                let _ = completion_tx.send(Ok(()));
+            RequestCommand::NextApiConfig => {
+                self.connection_mode_provider.rotate().await;
             }
         }
     }
@@ -201,21 +217,13 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestServic
                 if err.is_network_error() && !api_availability.get_state().is_offline() {
                     log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
                     if let Some(tx) = tx {
-                        let (completion_tx, _completion_rx) = oneshot::channel();
-                        let _ = tx.unbounded_send(RequestCommand::NextApiConfig(completion_tx));
+                        let _ = tx.unbounded_send(RequestCommand::NextApiConfig);
                     }
                 }
             }
 
             let _ = completion_tx.send(response);
         });
-    }
-
-    async fn into_future(mut self) {
-        while let Some(command) = self.command_rx.next().await {
-            self.process_command(command).await;
-        }
-        self.connector_handle.reset();
     }
 }
 
@@ -239,15 +247,6 @@ impl RequestServiceHandle {
             .map_err(|_| Error::RestServiceDown)?;
         completion_rx.await.map_err(|_| Error::RestServiceDown)?
     }
-
-    /// Forcibly update the connection mode.
-    pub async fn next_api_endpoint(&self) -> Result<()> {
-        let (completion_tx, completion_rx) = oneshot::channel();
-        self.tx
-            .unbounded_send(RequestCommand::NextApiConfig(completion_tx))
-            .map_err(|_| Error::RestServiceDown)?;
-        completion_rx.await.map_err(|_| Error::RestServiceDown)?
-    }
 }
 
 #[derive(Debug)]
@@ -257,7 +256,7 @@ pub(crate) enum RequestCommand {
         oneshot::Sender<std::result::Result<Response, Error>>,
     ),
     Reset,
-    NextApiConfig(oneshot::Sender<std::result::Result<(), Error>>),
+    NextApiConfig,
 }
 
 /// A REST request that is sent to the RequestService to be executed.

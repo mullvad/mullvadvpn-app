@@ -630,7 +630,7 @@ pub struct Daemon<L: EventListener> {
     account_history: account_history::AccountHistory,
     device_checker: device::TunnelStateChangeHandler,
     account_manager: device::AccountManagerHandle,
-    connection_modes_handler: api::AccessModeSelectorHandle,
+    access_mode_handler: api::AccessModeSelectorHandle,
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
@@ -707,7 +707,7 @@ where
                 .set_config(new_selector_config(settings));
         });
 
-        let connection_modes_handler = api::AccessModeSelector::spawn(
+        let (access_mode_handler, access_mode_provider) = api::AccessModeSelector::spawn(
             cache_dir.clone(),
             relay_selector.clone(),
             settings.api_access_methods.clone(),
@@ -717,15 +717,16 @@ where
         .await
         .map_err(Error::ApiConnectionModeError)?;
 
-        let initial_connection_mode = connection_modes_handler
-            .get_current()
-            .await
-            .map_err(Error::ApiConnectionModeError)?;
+        let api_handle = api_runtime.mullvad_rest_handle(access_mode_provider);
 
-        let api_handle = api_runtime.mullvad_rest_handle(
-            initial_connection_mode.connection_mode,
-            Box::pin(connection_modes_handler.clone().into_stream()),
-        );
+        let access_method_handle = access_mode_handler.clone();
+        settings.register_change_listener(move |settings| {
+            let handle = access_method_handle.clone();
+            let new_access_methods = settings.api_access_methods.clone();
+            tokio::spawn(async move {
+                let _ = handle.update_access_methods(new_access_methods).await;
+            });
+        });
 
         let migration_complete = if let Some(migration_data) = migration_data {
             migrations::migrate_device(
@@ -801,7 +802,11 @@ where
                 allow_lan: settings.allow_lan,
                 block_when_disconnected: settings.block_when_disconnected,
                 dns_servers: dns::addresses_from_options(&settings.tunnel_options.dns_options),
-                allowed_endpoint: initial_connection_mode.endpoint,
+                allowed_endpoint: access_mode_handler
+                    .get_current()
+                    .await
+                    .map_err(Error::ApiConnectionModeError)?
+                    .endpoint,
                 reset_firewall: *target_state != TargetState::Secured,
                 #[cfg(windows)]
                 exclude_paths,
@@ -874,7 +879,7 @@ where
             account_history,
             device_checker: device::TunnelStateChangeHandler::new(account_manager.clone()),
             account_manager,
-            connection_modes_handler,
+            access_mode_handler,
             api_runtime,
             api_handle,
             version_updater_handle,
@@ -2117,9 +2122,12 @@ where
         {
             Ok(settings_changes) => {
                 if settings_changes {
-                    if let Err(error) = self.api_handle.service().next_api_endpoint().await {
-                        log::error!("Failed to rotate API endpoint: {}", error);
-                    }
+                    let access_mode_handler = self.access_mode_handler.clone();
+                    tokio::spawn(async move {
+                        if let Err(error) = access_mode_handler.rotate().await {
+                            log::error!("Failed to rotate API endpoint: {error}");
+                        }
+                    });
                     self.reconnect_tunnel();
                 };
                 Self::oneshot_send(tx, Ok(()), "set_bridge_settings");
@@ -2466,7 +2474,7 @@ where
     }
 
     fn on_get_current_api_access_method(&mut self, tx: ResponseTx<AccessMethodSetting, Error>) {
-        let handle = self.connection_modes_handler.clone();
+        let handle = self.access_mode_handler.clone();
         tokio::spawn(async move {
             let result = handle
                 .get_current()
@@ -2493,7 +2501,7 @@ where
         };
 
         let daemon_event_sender = self.tx.to_specialized_sender();
-        let access_method_selector = self.connection_modes_handler.clone();
+        let access_method_selector = self.access_mode_handler.clone();
         tokio::spawn(async move {
             let result = Self::test_access_method(
                 proxy_endpoint,
@@ -2524,7 +2532,7 @@ where
             }
         };
 
-        let test_subject = match self.connection_modes_handler.resolve(access_method).await {
+        let test_subject = match self.access_mode_handler.resolve(access_method).await {
             Ok(test_subject) => test_subject,
             Err(err) => {
                 reply(Err(Error::ApiConnectionModeError(err)));
@@ -2534,7 +2542,7 @@ where
 
         let api_proxy = self.create_limited_api_proxy(test_subject.connection_mode);
         let daemon_event_sender = self.tx.to_specialized_sender();
-        let access_method_selector = self.connection_modes_handler.clone();
+        let access_method_selector = self.access_mode_handler.clone();
 
         tokio::spawn(async move {
             let result = Self::test_access_method(

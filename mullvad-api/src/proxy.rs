@@ -1,4 +1,3 @@
-use futures::Stream;
 use hyper::client::connect::Connected;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -17,6 +16,41 @@ use tokio::{
 };
 
 const CURRENT_CONFIG_FILENAME: &str = "api-endpoint.json";
+
+pub trait ConnectionModeProvider: Send {
+    /// Initial connection mode
+    fn initial(&self) -> ApiConnectionMode;
+
+    /// Request a new connection mode from the provider
+    fn rotate(&self) -> impl std::future::Future<Output = ()> + Send;
+
+    /// Receive changes to the connection mode, announced by the provider
+    fn receive(&mut self) -> impl std::future::Future<Output = Option<ApiConnectionMode>> + Send;
+}
+
+pub struct StaticConnectionModeProvider {
+    mode: ApiConnectionMode,
+}
+
+impl StaticConnectionModeProvider {
+    pub fn new(mode: ApiConnectionMode) -> Self {
+        Self { mode }
+    }
+}
+
+impl ConnectionModeProvider for StaticConnectionModeProvider {
+    fn initial(&self) -> ApiConnectionMode {
+        self.mode.clone()
+    }
+
+    fn rotate(&self) -> impl std::future::Future<Output = ()> + Send {
+        futures::future::ready(())
+    }
+
+    fn receive(&mut self) -> impl std::future::Future<Output = Option<ApiConnectionMode>> + Send {
+        futures::future::pending()
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub enum ApiConnectionMode {
@@ -153,10 +187,8 @@ impl ApiConnectionMode {
         *self != ApiConnectionMode::Direct
     }
 
-    /// Convenience function that returns a stream that repeats
-    /// this config forever.
-    pub fn into_repeat(self) -> impl Stream<Item = ApiConnectionMode> {
-        futures::stream::repeat(self)
+    pub fn into_provider(self) -> StaticConnectionModeProvider {
+        StaticConnectionModeProvider::new(self)
     }
 }
 
