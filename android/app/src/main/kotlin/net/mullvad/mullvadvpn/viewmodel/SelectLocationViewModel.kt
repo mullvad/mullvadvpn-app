@@ -39,9 +39,9 @@ class SelectLocationViewModel(
                 _searchTerm,
                 relayListFilterUseCase.selectedOwnership(),
                 relayListFilterUseCase.availableProviders(),
-                relayListFilterUseCase.selectedProviders()
+                relayListFilterUseCase.selectedProviders(),
             ) {
-                (customList, relayCountries, selectedItem),
+                (customLists, relayCountries, selectedItem),
                 searchTerm,
                 selectedOwnership,
                 allProviders,
@@ -50,7 +50,7 @@ class SelectLocationViewModel(
                 val selectedProvidersCount =
                     filterSelectedProvidersByOwnership(
                             selectedConstraintProviders.toSelectedProviders(allProviders),
-                            selectedOwnershipItem
+                            selectedOwnershipItem,
                         )
                         ?.size
 
@@ -64,8 +64,9 @@ class SelectLocationViewModel(
                     relayListState =
                         if (filteredRelayCountries.isNotEmpty()) {
                             RelayListState.RelayList(
+                                customLists = customLists,
                                 countries = filteredRelayCountries,
-                                selectedItem = selectedItem
+                                selectedItem = selectedItem,
                             )
                         } else {
                             RelayListState.Empty
@@ -75,7 +76,7 @@ class SelectLocationViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                SelectLocationUiState.Loading
+                SelectLocationUiState.Loading,
             )
 
     private val _uiSideEffect = Channel<SelectLocationSideEffect>(1, BufferOverflow.DROP_OLDEST)
@@ -112,7 +113,7 @@ class SelectLocationViewModel(
         viewModelScope.launch {
             relayListFilterUseCase.updateOwnershipAndProviderFilter(
                 Constraint.Any(),
-                relayListFilterUseCase.selectedProviders().first()
+                relayListFilterUseCase.selectedProviders().first(),
             )
         }
     }
@@ -121,7 +122,7 @@ class SelectLocationViewModel(
         viewModelScope.launch {
             relayListFilterUseCase.updateOwnershipAndProviderFilter(
                 relayListFilterUseCase.selectedOwnership().first(),
-                Constraint.Any()
+                Constraint.Any(),
             )
         }
     }
