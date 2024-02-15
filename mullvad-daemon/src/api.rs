@@ -28,7 +28,7 @@ use talpid_types::net::{
 pub enum Message {
     Get(ResponseTx<ResolvedConnectionMode>),
     Use(ResponseTx<()>, Id),
-    Next(ResponseTx<ApiConnectionMode>),
+    Rotate(ResponseTx<ApiConnectionMode>),
     Update(ResponseTx<()>, Settings),
     Resolve(ResponseTx<ResolvedConnectionMode>, AccessMethodSetting),
 }
@@ -114,7 +114,7 @@ impl std::fmt::Display for Message {
         match self {
             Message::Get(_) => f.write_str("Get"),
             Message::Use(..) => f.write_str("Set"),
-            Message::Next(_) => f.write_str("Next"),
+            Message::Rotate(_) => f.write_str("Rotate"),
             Message::Update(..) => f.write_str("Update"),
             Message::Resolve(..) => f.write_str("Resolve"),
         }
@@ -186,9 +186,8 @@ impl AccessModeSelectorHandle {
             })
     }
 
-    // TODO: rename to `rotate`?
-    pub async fn next(&self) -> Result<ApiConnectionMode> {
-        self.send_command(Message::Next).await.map_err(|err| {
+    pub async fn rotate(&self) -> Result<ApiConnectionMode> {
+        self.send_command(Message::Rotate).await.map_err(|err| {
             log::debug!("Failed while getting the next access method");
             err
         })
@@ -228,7 +227,7 @@ impl ConnectionModeProvider for AccessModeConnectionModeProvider {
     fn rotate(&self) -> impl std::future::Future<Output = ()> + Send {
         let handle = self.handle.clone();
         async move {
-            handle.next().await.ok();
+            handle.rotate().await.ok();
         }
     }
 }
@@ -318,7 +317,7 @@ impl AccessModeSelector {
             let execution = match cmd {
                 Message::Get(tx) => self.on_get_access_method(tx),
                 Message::Use(tx, id) => self.on_set_access_method(tx, id).await,
-                Message::Next(tx) => self.on_next_connection_mode(tx).await,
+                Message::Rotate(tx) => self.on_next_connection_mode(tx).await,
                 Message::Update(tx, values) => self.on_update_access_methods(tx, values).await,
                 Message::Resolve(tx, setting) => self.on_resolve_access_method(tx, setting).await,
             };

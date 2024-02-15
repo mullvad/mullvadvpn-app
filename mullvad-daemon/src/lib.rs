@@ -2115,7 +2115,7 @@ where
                 if settings_changes {
                     let access_mode_handler = self.access_mode_handler.clone();
                     tokio::spawn(async move {
-                        if let Err(error) = access_mode_handler.next().await {
+                        if let Err(error) = access_mode_handler.rotate().await {
                             log::error!("Failed to rotate API endpoint: {error}");
                         }
                     });
