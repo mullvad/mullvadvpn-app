@@ -143,9 +143,7 @@ pub struct GeoIpLocation {
     pub ipv6: Option<Ipv6Addr>,
     pub country: String,
     pub city: Option<String>,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub latitude: f64,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub longitude: f64,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub mullvad_exit_ip: bool,

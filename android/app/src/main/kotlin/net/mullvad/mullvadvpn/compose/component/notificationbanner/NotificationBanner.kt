@@ -89,6 +89,7 @@ private fun PreviewNotificationBanner() {
 
 @Composable
 fun NotificationBanner(
+    modifier: Modifier,
     notification: InAppNotification?,
     isPlayBuild: Boolean,
     onClickUpdateVersion: () -> Unit,
@@ -101,7 +102,7 @@ fun NotificationBanner(
         visible = notification != null,
         enter = slideInVertically(initialOffsetY = { -it }),
         exit = slideOutVertically(targetOffsetY = { -it }),
-        modifier = Modifier.animateContentSize()
+        modifier = modifier
     ) {
         val visibleNotification = notification ?: previous
         if (visibleNotification != null)

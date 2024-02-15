@@ -9,20 +9,20 @@ sealed class GeographicLocationConstraint : Parcelable {
     @Parcelize
     data class Country(val countryCode: String) : GeographicLocationConstraint() {
         override val location: GeoIpLocation
-            get() = GeoIpLocation(null, null, countryCode, null, null)
+            get() = GeoIpLocation(null, null, countryCode, null, 0.0, 0.0, null)
     }
 
     @Parcelize
     data class City(val countryCode: String, val cityCode: String) :
         GeographicLocationConstraint() {
         override val location: GeoIpLocation
-            get() = GeoIpLocation(null, null, countryCode, cityCode, null)
+            get() = GeoIpLocation(null, null, countryCode, cityCode, 0.0, 0.0, null)
     }
 
     @Parcelize
     data class Hostname(val countryCode: String, val cityCode: String, val hostname: String) :
         GeographicLocationConstraint() {
         override val location: GeoIpLocation
-            get() = GeoIpLocation(null, null, countryCode, cityCode, hostname)
+            get() = GeoIpLocation(null, null, countryCode, cityCode, 0.0, 0.0, hostname)
     }
 }
