@@ -3,7 +3,10 @@ use crate::{
     settings::{self, MadeChanges},
     Daemon, EventListener,
 };
-use mullvad_api::{proxy::ApiConnectionMode, rest, ApiProxy};
+use mullvad_api::{
+    proxy::{ApiConnectionMode, StaticConnectionModeProvider},
+    rest, ApiProxy,
+};
 use mullvad_types::{
     access_method::{self, AccessMethod, AccessMethodSetting},
     settings::Settings,
@@ -78,17 +81,6 @@ where
             .map_err(Error::Settings)?;
 
         self.notify_on_change(did_change);
-        // If the currently active access method is removed, a new access
-        // method should be selected.
-        //
-        // Notice the ordering here: It is important that the current method is
-        // removed before we pick a new access method. The `remove` function
-        // will ensure that atleast one access method is enabled after the
-        // removal. If the currently active access method is removed, some other
-        // method is enabled before we pick the next access method to use.
-        if self.is_in_use(access_method.clone()).await? {
-            self.force_api_endpoint_rotation().await?;
-        }
 
         Ok(())
     }
@@ -110,19 +102,11 @@ where
         &mut self,
         access_method: access_method::Id,
     ) -> Result<(), Error> {
-        let mut access_method = self.get_api_access_method(access_method)?;
-        // Toggle the enabled status if needed
-        if !access_method.enabled() {
-            access_method.enable();
-            self.update_access_method_inner(access_method.clone())
-                .await?
-        }
         // Set `access_method` as the next access method to use
-        self.connection_modes_handler
+        self.access_mode_handler
             .set_access_method(access_method)
             .await?;
-        // Force a rotation of Access Methods
-        self.force_api_endpoint_rotation().await
+        Ok(())
     }
 
     pub fn get_api_access_method(
@@ -149,22 +133,7 @@ where
         access_method_update: AccessMethodSetting,
     ) -> Result<(), Error> {
         self.update_access_method_inner(access_method_update.clone())
-            .await?;
-
-        if self.is_in_use(access_method_update.get_id()).await? {
-            if access_method_update.disabled() {
-                // If the currently active access method is updated & disabled
-                // we should select the next access method
-                self.force_api_endpoint_rotation().await?;
-            } else {
-                // If the currently active access method is just updated, we
-                // need to re-set it after updating the settings
-                self.use_api_access_method(access_method_update.get_id())
-                    .await?;
-            }
-        }
-
-        Ok(())
+            .await
     }
 
     /// Updates a [`AccessMethodSetting`] by replacing the existing entry with
@@ -194,34 +163,14 @@ where
         Ok(())
     }
 
-    /// Check if some access method is the same as the currently active one.
-    ///
-    /// This can be useful for invalidating stale states.
-    async fn is_in_use(&self, access_method: access_method::Id) -> Result<bool, Error> {
-        Ok(access_method == self.get_current_access_method().await?.get_id())
-    }
-
     /// Return the [`AccessMethodSetting`] which is currently used to access the
     /// Mullvad API.
     pub async fn get_current_access_method(&self) -> Result<AccessMethodSetting, Error> {
-        self.connection_modes_handler
+        self.access_mode_handler
             .get_current()
             .await
             .map(|current| current.setting)
             .map_err(Error::ApiService)
-    }
-
-    /// Change which [`AccessMethodSetting`] which will be used as the Mullvad
-    /// API endpoint.
-    async fn force_api_endpoint_rotation(&self) -> Result<(), Error> {
-        self.api_handle
-            .service()
-            .next_api_endpoint()
-            .await
-            .map_err(|error| {
-                log::error!("Failed to rotate API endpoint: {}", error);
-                Error::RotationFailed
-            })
     }
 
     /// Test if the API is reachable via `proxy`.
@@ -259,11 +208,11 @@ where
     }
 
     /// Create an [`ApiProxy`] which will perform all REST requests against one
-    /// specific endpoint `proxy_provider`.
-    pub fn create_limited_api_proxy(&mut self, proxy_provider: ApiConnectionMode) -> ApiProxy {
+    /// specific endpoint `connection_mode`.
+    pub fn create_limited_api_proxy(&mut self, connection_mode: ApiConnectionMode) -> ApiProxy {
         let rest_handle = self
             .api_runtime
-            .mullvad_rest_handle(proxy_provider, futures::stream::empty());
+            .mullvad_rest_handle(StaticConnectionModeProvider::new(connection_mode));
         ApiProxy::new(rest_handle)
     }
 
@@ -282,7 +231,7 @@ where
             self.event_listener
                 .notify_settings(self.settings.to_settings());
 
-            let handle = self.connection_modes_handler.clone();
+            let handle = self.access_mode_handler.clone();
             let new_access_methods = self.settings.api_access_methods.clone();
             tokio::spawn(async move {
                 let _ = handle.update_access_methods(new_access_methods).await;

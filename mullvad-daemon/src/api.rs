@@ -8,16 +8,16 @@ use crate::DaemonCommand;
 use crate::DaemonEventSender;
 use futures::{
     channel::{mpsc, oneshot},
-    Stream, StreamExt,
+    StreamExt,
 };
 use mullvad_api::{
     availability::ApiAvailabilityHandle,
-    proxy::{ApiConnectionMode, ProxyConfig},
+    proxy::{ApiConnectionMode, ConnectionModeProvider, ProxyConfig},
     AddressCache,
 };
 use mullvad_relay_selector::RelaySelector;
 use mullvad_types::access_method::{
-    AccessMethod, AccessMethodSetting, BuiltInAccessMethod, Settings,
+    AccessMethod, AccessMethodSetting, BuiltInAccessMethod, Id, Settings,
 };
 use std::{net::SocketAddr, path::PathBuf};
 use talpid_core::mpsc::Sender;
@@ -27,7 +27,7 @@ use talpid_types::net::{
 
 pub enum Message {
     Get(ResponseTx<ResolvedConnectionMode>),
-    Set(ResponseTx<()>, AccessMethodSetting),
+    Set(ResponseTx<()>, Id),
     Next(ResponseTx<ApiConnectionMode>),
     Update(ResponseTx<()>, Settings),
     Resolve(ResponseTx<ResolvedConnectionMode>, AccessMethodSetting),
@@ -159,7 +159,7 @@ impl AccessModeSelectorHandle {
         })
     }
 
-    pub async fn set_access_method(&self, value: AccessMethodSetting) -> Result<()> {
+    pub async fn set_access_method(&self, value: Id) -> Result<()> {
         self.send_command(|tx| Message::Set(tx, value))
             .await
             .map_err(|err| {
@@ -186,27 +186,50 @@ impl AccessModeSelectorHandle {
             })
     }
 
+    // TODO: rename to `rotate`?
     pub async fn next(&self) -> Result<ApiConnectionMode> {
         self.send_command(Message::Next).await.map_err(|err| {
             log::debug!("Failed while getting the next access method");
             err
         })
     }
+}
 
-    /// Convert this handle to a [`Stream`] of [`ApiConnectionMode`] from the
-    /// associated [`AccessModeSelector`].
-    ///
-    /// Calling `next` on this stream will poll for the next access method,
-    /// which will be lazily produced (on-demand rather than speculatively).
-    pub fn into_stream(self) -> impl Stream<Item = ApiConnectionMode> {
-        futures::stream::unfold(self, |handle| async move {
-            match handle.next().await {
-                Ok(connection_mode) => Some((connection_mode, handle)),
-                // End this stream in case of failure in `next`. `next` should
-                // not fail if the actor is in a good state.
-                Err(_) => None,
-            }
+pub struct AccessModeConnectionModeProvider {
+    initial: ApiConnectionMode,
+    handle: AccessModeSelectorHandle,
+    change_rx: mpsc::UnboundedReceiver<ApiConnectionMode>,
+}
+
+impl AccessModeConnectionModeProvider {
+    async fn new(
+        handle: AccessModeSelectorHandle,
+        initial_connection_mode: ApiConnectionMode,
+        change_rx: mpsc::UnboundedReceiver<ApiConnectionMode>,
+    ) -> Result<Self> {
+        Ok(Self {
+            initial: initial_connection_mode,
+            handle,
+            change_rx,
         })
+    }
+}
+
+impl ConnectionModeProvider for AccessModeConnectionModeProvider {
+    fn initial(&self) -> ApiConnectionMode {
+        self.initial.clone()
+    }
+
+    fn receive(&mut self) -> impl std::future::Future<Output = Option<ApiConnectionMode>> + Send {
+        let mode = self.change_rx.next();
+        async move { mode.await }
+    }
+
+    fn rotate(&self) -> impl std::future::Future<Output = ()> + Send {
+        let handle = self.handle.clone();
+        async move {
+            handle.next().await.ok();
+        }
     }
 }
 
@@ -226,11 +249,10 @@ pub struct AccessModeSelector {
     access_method_settings: Settings,
     address_cache: AddressCache,
     access_method_event_sender: DaemonEventSender<(AccessMethodEvent, oneshot::Sender<()>)>,
+    connection_mode_provider_sender: mpsc::UnboundedSender<ApiConnectionMode>,
     current: ResolvedConnectionMode,
     /// `index` is used to keep track of the [`AccessMethodSetting`] to use.
     index: usize,
-    /// `set` is used to set the next [`AccessMethodSetting`] to use.
-    set: Option<AccessMethodSetting>,
 }
 
 impl AccessModeSelector {
@@ -240,13 +262,17 @@ impl AccessModeSelector {
         access_method_settings: Settings,
         access_method_event_sender: DaemonEventSender<(AccessMethodEvent, oneshot::Sender<()>)>,
         address_cache: AddressCache,
-    ) -> Result<AccessModeSelectorHandle> {
+    ) -> Result<(AccessModeSelectorHandle, AccessModeConnectionModeProvider)> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
         // Always start looking from the position of `Direct`.
-        let (index, next) = Self::select_next_active(0, &access_method_settings);
+        let (index, next) = Self::find_next_active(0, &access_method_settings);
         let initial_connection_mode =
             Self::resolve_inner(next, &relay_selector, &address_cache).await;
+
+        let (change_tx, change_rx) = mpsc::unbounded();
+
+        let api_connection_mode = initial_connection_mode.connection_mode.clone();
 
         let selector = AccessModeSelector {
             cmd_rx,
@@ -255,14 +281,20 @@ impl AccessModeSelector {
             access_method_settings,
             address_cache,
             access_method_event_sender,
+            connection_mode_provider_sender: change_tx,
             current: initial_connection_mode,
             index,
-            set: None,
         };
 
         tokio::spawn(selector.into_future());
 
-        Ok(AccessModeSelectorHandle { cmd_tx })
+        let handle = AccessModeSelectorHandle { cmd_tx };
+
+        let connection_mode_provider =
+            AccessModeConnectionModeProvider::new(handle.clone(), api_connection_mode, change_rx)
+                .await?;
+
+        Ok((handle, connection_mode_provider))
     }
 
     async fn into_future(mut self) {
@@ -270,9 +302,9 @@ impl AccessModeSelector {
             log::trace!("Processing {cmd} command");
             let execution = match cmd {
                 Message::Get(tx) => self.on_get_access_method(tx),
-                Message::Set(tx, value) => self.on_set_access_method(tx, value),
+                Message::Set(tx, id) => self.on_set_access_method(tx, id).await,
                 Message::Next(tx) => self.on_next_connection_mode(tx).await,
-                Message::Update(tx, values) => self.on_update_access_methods(tx, values),
+                Message::Update(tx, values) => self.on_update_access_methods(tx, values).await,
                 Message::Resolve(tx, setting) => self.on_resolve_access_method(tx, setting).await,
             };
             match execution {
@@ -297,26 +329,24 @@ impl AccessModeSelector {
         self.reply(tx, self.current.clone())
     }
 
-    fn on_set_access_method(
-        &mut self,
-        tx: ResponseTx<()>,
-        value: AccessMethodSetting,
-    ) -> Result<()> {
-        self.set_access_method(value);
+    async fn on_set_access_method(&mut self, tx: ResponseTx<()>, id: Id) -> Result<()> {
+        self.set_access_method(id).await;
         self.reply(tx, ())
     }
 
-    /// Set the next access method to be returned by the [`Stream`] produced by
-    /// calling `into_stream`.
-    fn set_access_method(&mut self, value: AccessMethodSetting) {
-        if let Some(index) = self
+    /// Set and announce the specified access method as the current one.
+    async fn set_access_method(&mut self, id: Id) {
+        let Some((index, method)) = self
             .access_method_settings
             .iter()
-            .position(|access_method| access_method.get_id() == value.get_id())
-        {
-            self.index = index;
-            self.set = Some(value);
-        }
+            .enumerate()
+            .find(|(_, access_method)| access_method.get_id() == id)
+        else {
+            return;
+        };
+
+        self.index = index;
+        self.set_current(method.to_owned()).await;
     }
 
     async fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
@@ -325,6 +355,7 @@ impl AccessModeSelector {
     }
 
     async fn next_connection_mode(&mut self) -> Result<ApiConnectionMode> {
+        // FIXME: just do nothing on override
         #[cfg(feature = "api-override")]
         {
             use mullvad_api::API;
@@ -352,12 +383,16 @@ impl AccessModeSelector {
             );
         }
 
-        let access_method = self.get_next();
-        log::info!(
-            "A new API access method has been selected: {name}",
-            name = access_method.name
-        );
+        let (next_index, next) =
+            Self::find_next_active(self.index + 1, &self.access_method_settings);
+        self.index = next_index;
+        self.set_current(next).await;
+        Ok(self.current.connection_mode.clone())
+    }
+
+    async fn set_current(&mut self, access_method: AccessMethodSetting) {
         let resolved = self.resolve(access_method).await;
+
         // Note: If the daemon is busy waiting for a call to this function
         // to complete while we wait for the daemon to fully handle this
         // `NewAccessMethodEvent`, then we find ourselves in a deadlock.
@@ -386,26 +421,24 @@ impl AccessModeSelector {
             }
         });
 
-        self.current = resolved;
-        Ok(self.current.connection_mode.clone())
-    }
+        // Notify REST client
+        let _ = self
+            .connection_mode_provider_sender
+            .unbounded_send(resolved.connection_mode.clone());
 
-    fn get_next(&mut self) -> AccessMethodSetting {
-        if let Some(access_method) = self.set.take() {
-            access_method
-        } else {
-            let (next_index, next) =
-                Self::select_next_active(self.index + 1, &self.access_method_settings);
-            self.index = next_index;
-            next
-        }
+        self.current = resolved;
+
+        log::info!(
+            "A new API access method has been selected: {name}",
+            name = self.current.setting.name
+        );
     }
 
     /// Find the next access method to use.
     ///
     /// * `start`: From which point in `access_methods` to start the search.
     /// * `access_methods`: The search space.
-    fn select_next_active(start: usize, access_methods: &Settings) -> (usize, AccessMethodSetting) {
+    fn find_next_active(start: usize, access_methods: &Settings) -> (usize, AccessMethodSetting) {
         access_methods
             .iter()
             .cloned()
@@ -416,26 +449,42 @@ impl AccessModeSelector {
             .find(|(_index, access_method)| access_method.enabled())
             .unwrap_or_else(|| (0, access_methods.direct().clone()))
     }
-    fn on_update_access_methods(
+
+    async fn on_update_access_methods(
         &mut self,
         tx: ResponseTx<()>,
         access_methods: Settings,
     ) -> Result<()> {
-        self.update_access_methods(access_methods);
+        self.update_access_methods(access_methods).await?;
         self.reply(tx, ())
     }
 
-    fn update_access_methods(&mut self, access_methods: Settings) {
-        let removed_active = !access_methods
-            .iter()
-            .any(|access_method| access_method.get_id() == self.current.setting.get_id());
-        if removed_active {
-            // A new access mehtod will suddenly have the same index as the one
-            // we are removing, but we want it to still be a candidate. A minor
-            // hack to achieve this is to simply decrement the current index.
-            self.index = self.index.saturating_sub(1);
-        }
+    async fn update_access_methods(&mut self, access_methods: Settings) -> Result<()> {
         self.access_method_settings = access_methods;
+
+        let new_current = self
+            .access_method_settings
+            .iter()
+            .enumerate()
+            .find(|(_, access_method)| access_method.get_id() == self.current.setting.get_id());
+
+        match new_current {
+            Some((index, new_current)) => {
+                // If the current method was modified, announce changes
+                self.index = index;
+                if self.current.setting != *new_current {
+                    self.set_current(new_current.to_owned()).await;
+                }
+            }
+            None => {
+                // Current method was removed: A new access mehtod will suddenly have the same index as the one
+                // we are removing, but we want it to still be a candidate. A minor
+                // hack to achieve this is to simply decrement the current index.
+                self.index = self.index.saturating_sub(1);
+                self.next_connection_mode().await?;
+            }
+        }
+        Ok(())
     }
 
     pub async fn on_resolve_access_method(

@@ -1,6 +1,5 @@
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
-use futures::Stream;
 use hyper::Method;
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
@@ -8,7 +7,7 @@ use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     version::AppVersion,
 };
-use proxy::ApiConnectionMode;
+use proxy::{ApiConnectionMode, ConnectionModeProvider, StaticConnectionModeProvider};
 use std::{
     cell::Cell,
     collections::BTreeMap,
@@ -407,34 +406,30 @@ impl Runtime {
     }
 
     /// Creates a new request service and returns a handle to it.
-    fn new_request_service<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static>(
+    fn new_request_service<T: ConnectionModeProvider + 'static>(
         &self,
         sni_hostname: Option<String>,
-        initial_connection_mode: ApiConnectionMode,
-        proxy_provider: T,
+        connection_mode_provider: T,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> rest::RequestServiceHandle {
         rest::RequestService::spawn(
             sni_hostname,
             self.api_availability.handle(),
             self.address_cache.clone(),
-            initial_connection_mode,
-            proxy_provider,
+            connection_mode_provider,
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         )
     }
 
     /// Returns a request factory initialized to create requests for the master API
-    pub fn mullvad_rest_handle<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static>(
+    pub fn mullvad_rest_handle<T: ConnectionModeProvider + 'static>(
         &self,
-        initial_connection_mode: ApiConnectionMode,
-        proxy_provider: T,
+        connection_mode_provider: T,
     ) -> rest::MullvadRestHandle {
         let service = self.new_request_service(
             Some(API.host().to_string()),
-            initial_connection_mode,
-            proxy_provider,
+            connection_mode_provider,
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
         );
@@ -453,8 +448,7 @@ impl Runtime {
     pub fn static_mullvad_rest_handle(&self, hostname: String) -> rest::MullvadRestHandle {
         let service = self.new_request_service(
             Some(hostname.clone()),
-            ApiConnectionMode::Direct,
-            futures::stream::repeat(ApiConnectionMode::Direct),
+            StaticConnectionModeProvider::new(ApiConnectionMode::Direct),
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
         );
@@ -473,8 +467,7 @@ impl Runtime {
     pub fn rest_handle(&self) -> rest::RequestServiceHandle {
         self.new_request_service(
             None,
-            ApiConnectionMode::Direct,
-            ApiConnectionMode::Direct.into_repeat(),
+            StaticConnectionModeProvider::new(ApiConnectionMode::Direct),
             #[cfg(target_os = "android")]
             None,
         )
