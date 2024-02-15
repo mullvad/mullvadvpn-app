@@ -29,12 +29,12 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
         self.customListInteractor = customListInteractor
     }
 
-    func start() {
+    func start(customList: CustomList) {
         let subject = CurrentValueSubject<CustomListViewModel, Never>(
             CustomListViewModel(
-                id: UUID(),
-                name: "A list",
-                locations: [],
+                id: customList.id,
+                name: customList.name,
+                locations: customList.locations,
                 tableSections: [.name, .editLocations, .deleteList]
             )
         )

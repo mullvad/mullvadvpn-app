@@ -158,26 +158,39 @@ class CustomListViewController: UIViewController {
     }
 
     private func onDelete() {
-        // TODO: Show error dialog.
-        delegate?.customListDidDelete()
+        showDeleteAlert()
     }
 
-    private func showSaveErrorAlert() {
+    private func showDeleteAlert() {
         let presentation = AlertPresentation(
-            id: "api-custom-lists-save-list-alert",
+            id: "api-custom-lists-delete-list-alert",
             icon: .alert,
             message: NSLocalizedString(
-                "CUSTOM_LISTS_SAVE_ERROR_PROMPT",
+                "CUSTOM_LISTS_DELETE_PROMPT",
                 tableName: "APIAccess",
-                value: "List name is already taken.",
+                value: "Delete \(subject.value.name)?",
                 comment: ""
             ),
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "CUSTOM_LISTS_OK_BUTTON",
+                        "CUSTOM_LISTS_DELETE_BUTTON",
                         tableName: "APIAccess",
-                        value: "Got it!",
+                        value: "Delete",
+                        comment: ""
+                    ),
+                    style: .destructive,
+                    handler: {
+                        self.interactor.deleteCustomList(id: self.subject.value.id)
+                        self.dismiss(animated: true)
+                        self.delegate?.customListDidDelete()
+                    }
+                ),
+                AlertAction(
+                    title: NSLocalizedString(
+                        "CUSTOM_LISTS_CANCEL_BUTTON",
+                        tableName: "APIAccess",
+                        value: "Cancel",
                         comment: ""
                     ),
                     style: .default
