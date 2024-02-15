@@ -260,14 +260,10 @@ where
 
     /// Create an [`ApiProxy`] which will perform all REST requests against one
     /// specific endpoint `proxy_provider`.
-    pub async fn create_limited_api_proxy(
-        &mut self,
-        proxy_provider: ApiConnectionMode,
-    ) -> ApiProxy {
+    pub fn create_limited_api_proxy(&mut self, proxy_provider: ApiConnectionMode) -> ApiProxy {
         let rest_handle = self
             .api_runtime
-            .mullvad_rest_handle(proxy_provider.into_repeat())
-            .await;
+            .mullvad_rest_handle(proxy_provider, futures::stream::empty());
         ApiProxy::new(rest_handle)
     }
 

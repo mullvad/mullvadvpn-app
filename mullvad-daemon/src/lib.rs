@@ -717,9 +717,15 @@ where
         .await
         .map_err(Error::ApiConnectionModeError)?;
 
-        let api_handle = api_runtime
-            .mullvad_rest_handle(Box::pin(connection_modes_handler.clone().into_stream()))
-            .await;
+        let initial_connection_mode = connection_modes_handler
+            .get_current()
+            .await
+            .map_err(Error::ApiConnectionModeError)?;
+
+        let api_handle = api_runtime.mullvad_rest_handle(
+            initial_connection_mode.connection_mode,
+            Box::pin(connection_modes_handler.clone().into_stream()),
+        );
 
         let migration_complete = if let Some(migration_data) = migration_data {
             migrations::migrate_device(
@@ -787,11 +793,6 @@ where
             let _ = param_gen_tx.unbounded_send(settings.tunnel_options.to_owned());
         });
 
-        let initial_api_endpoint = connection_modes_handler
-            .get_current()
-            .await
-            .map_err(Error::ApiConnectionModeError)?
-            .endpoint;
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         #[cfg(target_os = "windows")]
         let (volume_update_tx, volume_update_rx) = mpsc::unbounded();
@@ -800,7 +801,7 @@ where
                 allow_lan: settings.allow_lan,
                 block_when_disconnected: settings.block_when_disconnected,
                 dns_servers: dns::addresses_from_options(&settings.tunnel_options.dns_options),
-                allowed_endpoint: initial_api_endpoint,
+                allowed_endpoint: initial_connection_mode.endpoint,
                 reset_firewall: *target_state != TargetState::Secured,
                 #[cfg(windows)]
                 exclude_paths,
@@ -851,7 +852,7 @@ where
         relay_list_updater.update().await;
 
         let location_handler = GeoIpHandler::new(
-            api_runtime.rest_handle().await,
+            api_runtime.rest_handle(),
             internal_event_tx.clone().to_specialized_sender(),
         );
 
@@ -1248,9 +1249,7 @@ where
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
             TestApiAccessMethodById(tx, method) => self.on_test_api_access_method(tx, method).await,
-            TestCustomApiAccessMethod(tx, proxy) => {
-                self.on_test_proxy_as_access_method(tx, proxy).await
-            }
+            TestCustomApiAccessMethod(tx, proxy) => self.on_test_proxy_as_access_method(tx, proxy),
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2478,7 +2477,7 @@ where
         });
     }
 
-    async fn on_test_proxy_as_access_method(
+    fn on_test_proxy_as_access_method(
         &mut self,
         tx: ResponseTx<bool, Error>,
         proxy: talpid_types::net::proxy::CustomProxy,
@@ -2487,7 +2486,7 @@ where
         use talpid_types::net::AllowedEndpoint;
 
         let connection_mode = ApiConnectionMode::Proxied(ProxyConfig::from(proxy.clone()));
-        let api_proxy = self.create_limited_api_proxy(connection_mode.clone()).await;
+        let api_proxy = self.create_limited_api_proxy(connection_mode.clone());
         let proxy_endpoint = AllowedEndpoint {
             endpoint: proxy.get_remote_endpoint().endpoint,
             clients: api::allowed_clients(&connection_mode),
@@ -2533,9 +2532,7 @@ where
             }
         };
 
-        let api_proxy = self
-            .create_limited_api_proxy(test_subject.connection_mode)
-            .await;
+        let api_proxy = self.create_limited_api_proxy(test_subject.connection_mode);
         let daemon_event_sender = self.tx.to_specialized_sender();
         let access_method_selector = self.connection_modes_handler.clone();
 
