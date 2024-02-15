@@ -41,8 +41,18 @@ private fun PreviewTunnelingCell() {
             modifier =
                 Modifier.background(color = MaterialTheme.colorScheme.background).padding(20.dp)
         ) {
-            SplitTunnelingCell(title = "Mullvad VPN", packageName = "", isSelected = false)
-            SplitTunnelingCell(title = "Mullvad VPN", packageName = "", isSelected = true)
+            SplitTunnelingCell(
+                title = "Mullvad VPN",
+                packageName = "",
+                isSelected = false,
+                enabled = true
+            )
+            SplitTunnelingCell(
+                title = "Mullvad VPN",
+                packageName = "",
+                isSelected = true,
+                enabled = true
+            )
         }
     }
 }
@@ -52,6 +62,7 @@ fun SplitTunnelingCell(
     title: String,
     packageName: String?,
     isSelected: Boolean,
+    enabled: Boolean,
     modifier: Modifier = Modifier,
     backgroundColor: Color =
         MaterialTheme.colorScheme.primary
@@ -110,6 +121,7 @@ fun SplitTunnelingCell(
         },
         onCellClicked = onCellClicked,
         background = backgroundColor,
-        modifier = modifier
+        modifier = modifier,
+        isRowEnabled = enabled
     )
 }
