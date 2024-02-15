@@ -104,7 +104,7 @@ where
     ) -> Result<(), Error> {
         // Set `access_method` as the next access method to use
         self.access_mode_handler
-            .set_access_method(access_method)
+            .use_access_method(access_method)
             .await?;
         Ok(())
     }

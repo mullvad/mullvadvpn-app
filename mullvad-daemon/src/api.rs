@@ -27,7 +27,7 @@ use talpid_types::net::{
 
 pub enum Message {
     Get(ResponseTx<ResolvedConnectionMode>),
-    Set(ResponseTx<()>, Id),
+    Use(ResponseTx<()>, Id),
     Next(ResponseTx<ApiConnectionMode>),
     Update(ResponseTx<()>, Settings),
     Resolve(ResponseTx<ResolvedConnectionMode>, AccessMethodSetting),
@@ -113,7 +113,7 @@ impl std::fmt::Display for Message {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Message::Get(_) => f.write_str("Get"),
-            Message::Set(..) => f.write_str("Set"),
+            Message::Use(..) => f.write_str("Set"),
             Message::Next(_) => f.write_str("Next"),
             Message::Update(..) => f.write_str("Update"),
             Message::Resolve(..) => f.write_str("Resolve"),
@@ -159,8 +159,8 @@ impl AccessModeSelectorHandle {
         })
     }
 
-    pub async fn set_access_method(&self, value: Id) -> Result<()> {
-        self.send_command(|tx| Message::Set(tx, value))
+    pub async fn use_access_method(&self, value: Id) -> Result<()> {
+        self.send_command(|tx| Message::Use(tx, value))
             .await
             .map_err(|err| {
                 log::debug!("Failed to set new access method!");
@@ -317,7 +317,7 @@ impl AccessModeSelector {
             log::trace!("Processing {cmd} command");
             let execution = match cmd {
                 Message::Get(tx) => self.on_get_access_method(tx),
-                Message::Set(tx, id) => self.on_set_access_method(tx, id).await,
+                Message::Use(tx, id) => self.on_set_access_method(tx, id).await,
                 Message::Next(tx) => self.on_next_connection_mode(tx).await,
                 Message::Update(tx, values) => self.on_update_access_methods(tx, values).await,
                 Message::Resolve(tx, setting) => self.on_resolve_access_method(tx, setting).await,
