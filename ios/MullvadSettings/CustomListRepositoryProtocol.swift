@@ -28,8 +28,9 @@ public protocol CustomListRepositoryProtocol {
 
     /// Create a custom list  by unique name.
     /// - Parameter name: a custom list name.
+    /// - Parameter locations: locations in a custom list.
     /// - Returns: a persistent custom list model upon success, otherwise  throws `Error`.
-    func create(_ name: String) throws -> CustomList
+    func create(_ name: String, locations: [RelayLocation]) throws -> CustomList
 
     /// Fetch all  custom list.
     /// - Returns: all custom list model .

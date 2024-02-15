@@ -41,14 +41,12 @@ public struct CustomListRepository: CustomListRepositoryProtocol {
 
     public init() {}
 
-    public func create(_ name: String) throws -> CustomList {
-        var lists = fetchAll()
+    public func create(_ name: String, locations: [RelayLocation]) throws -> CustomList {
+        let lists = fetchAll()
         if lists.contains(where: { $0.name == name }) {
             throw CustomRelayListError.duplicateName
         } else {
-            let item = CustomList(id: UUID(), name: name)
-            lists.append(item)
-            try write(lists)
+            let item = CustomList(id: UUID(), name: name, locations: locations)
             return item
         }
     }
