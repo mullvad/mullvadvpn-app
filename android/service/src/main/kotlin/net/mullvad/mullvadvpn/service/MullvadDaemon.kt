@@ -190,7 +190,7 @@ class MullvadDaemon(
         setQuantumResistantTunnel(daemonInterfaceAddress, quantumResistant)
     }
 
-    fun createCustomList(name: String): String {
+    fun createCustomList(name: String): String? {
         return createCustomList(daemonInterfaceAddress, name)
     }
 
@@ -311,7 +311,7 @@ class MullvadDaemon(
 
     // Used by JNI
 
-    private external fun createCustomList(daemonInterfaceAddress: Long, name: String): String
+    private external fun createCustomList(daemonInterfaceAddress: Long, name: String): String?
 
     private external fun deleteCustomList(daemonInterfaceAddress: Long, id: String)
 
