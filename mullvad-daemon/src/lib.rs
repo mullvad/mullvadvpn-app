@@ -719,6 +719,15 @@ where
 
         let api_handle = api_runtime.mullvad_rest_handle(access_mode_provider);
 
+        let access_method_handle = access_mode_handler.clone();
+        settings.register_change_listener(move |settings| {
+            let handle = access_method_handle.clone();
+            let new_access_methods = settings.api_access_methods.clone();
+            tokio::spawn(async move {
+                let _ = handle.update_access_methods(new_access_methods).await;
+            });
+        });
+
         let migration_complete = if let Some(migration_data) = migration_data {
             migrations::migrate_device(
                 migration_data,

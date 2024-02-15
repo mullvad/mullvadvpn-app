@@ -1,8 +1,4 @@
-use crate::{
-    api,
-    settings::{self, MadeChanges},
-    Daemon, EventListener,
-};
+use crate::{api, settings, Daemon, EventListener};
 use mullvad_api::{
     proxy::{ApiConnectionMode, StaticConnectionModeProvider},
     rest, ApiProxy,
@@ -58,7 +54,6 @@ where
         self.settings
             .update(|settings| settings.api_access_methods.append(access_method_setting))
             .await
-            .map(|did_change| self.notify_on_change(did_change))
             .map(|_| id)
             .map_err(Error::Settings)
     }
@@ -71,17 +66,13 @@ where
         &mut self,
         access_method: access_method::Id,
     ) -> Result<(), Error> {
-        let did_change = self
-            .settings
+        self.settings
             .try_update(|settings| -> Result<(), Error> {
                 settings.api_access_methods.remove(&access_method)?;
                 Ok(())
             })
             .await
             .map_err(Error::Settings)?;
-
-        self.notify_on_change(did_change);
-
         Ok(())
     }
 
@@ -157,7 +148,6 @@ where
         self.settings
             .update(settings_update)
             .await
-            .map(|did_change| self.notify_on_change(did_change))
             .map_err(Error::Settings)?;
 
         Ok(())
@@ -223,17 +213,5 @@ where
     /// * Returns `Err(..)` if the API could not be reached
     async fn perform_api_request(api_proxy: ApiProxy) -> Result<bool, Error> {
         api_proxy.api_addrs_available().await.map_err(Error::Rest)
-    }
-
-    /// If settings were changed due to an update, notify all listeners.
-    fn notify_on_change(&mut self, settings_changed: MadeChanges) -> &mut Self {
-        if settings_changed {
-            let handle = self.access_mode_handler.clone();
-            let new_access_methods = self.settings.api_access_methods.clone();
-            tokio::spawn(async move {
-                let _ = handle.update_access_methods(new_access_methods).await;
-            });
-        };
-        self
     }
 }
