@@ -16,9 +16,6 @@ pub enum Error {
     /// Can not find access method
     #[error(display = "Cannot find custom access method {}", _0)]
     NoSuchMethod(access_method::Id),
-    /// Access method could not be rotate
-    #[error(display = "Access method could not be rotated")]
-    RotationFailed,
     /// Some error occured in the daemon's state of handling
     /// [`AccessMethodSetting`]s & [`ApiConnectionMode`]s
     #[error(display = "Error occured when handling connection settings & details")]
@@ -53,9 +50,8 @@ where
         let id = access_method_setting.get_id();
         self.settings
             .update(|settings| settings.api_access_methods.append(access_method_setting))
-            .await
-            .map(|_| id)
-            .map_err(Error::Settings)
+            .await?;
+        Ok(id)
     }
 
     /// Remove a [`AccessMethodSetting`] from the daemon's saved settings.
@@ -68,8 +64,7 @@ where
                 settings.api_access_methods.remove(&access_method)?;
                 Ok(())
             })
-            .await
-            .map_err(Error::Settings)?;
+            .await?;
         Ok(())
     }
 
@@ -124,10 +119,7 @@ where
             );
         };
 
-        self.settings
-            .update(settings_update)
-            .await
-            .map_err(Error::Settings)?;
+        self.settings.update(settings_update).await?;
 
         Ok(())
     }
@@ -135,11 +127,8 @@ where
     /// Return the [`AccessMethodSetting`] which is currently used to access the
     /// Mullvad API.
     pub async fn get_current_access_method(&self) -> Result<AccessMethodSetting, Error> {
-        self.access_mode_handler
-            .get_current()
-            .await
-            .map(|current| current.setting)
-            .map_err(Error::ApiService)
+        let current = self.access_mode_handler.get_current().await?;
+        Ok(current.setting)
     }
 
     /// Test if the API is reachable via `proxy`.
@@ -191,6 +180,6 @@ where
     /// * Returns `Ok(false)` if the API returned an unexpected result
     /// * Returns `Err(..)` if the API could not be reached
     async fn perform_api_request(api_proxy: ApiProxy) -> Result<bool, Error> {
-        api_proxy.api_addrs_available().await.map_err(Error::Rest)
+        Ok(api_proxy.api_addrs_available().await?)
     }
 }
