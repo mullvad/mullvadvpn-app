@@ -84,6 +84,7 @@ enum UIMetrics {
         static let apiAccessLayoutMargins = NSDirectionalEdgeInsets(top: 20, leading: 16, bottom: 20, trailing: 16)
         static let apiAccessInsetLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
         static let apiAccessCellHeight: CGFloat = 44
+        static let customListsCellHeight: CGFloat = 44
         static let apiAccessSwitchCellTrailingMargin: CGFloat = apiAccessInsetLayoutMargins.trailing - 4
         static let apiAccessPickerListContentInsetTop: CGFloat = 16
     }
