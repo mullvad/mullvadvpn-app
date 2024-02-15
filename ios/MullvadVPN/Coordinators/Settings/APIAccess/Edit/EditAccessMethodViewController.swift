@@ -333,7 +333,7 @@ class EditAccessMethodViewController: UITableViewController {
             id: "api-access-methods-delete-method-alert",
             icon: .alert,
             message: NSLocalizedString(
-                "METHOD_SETTINGS_SAVE_PROMPT",
+                "METHOD_SETTINGS_DELETE_PROMPT",
                 tableName: "APIAccess",
                 value: "Delete \(methodName)?",
                 comment: ""
