@@ -1890,6 +1890,7 @@ dependencies = [
  "simple-signal",
  "talpid-core",
  "talpid-dbus",
+ "talpid-future",
  "talpid-platform-metadata",
  "talpid-time",
  "talpid-types",
@@ -2021,7 +2022,7 @@ dependencies = [
  "parking_lot",
  "rand 0.8.5",
  "serde_json",
- "talpid-core",
+ "talpid-future",
  "talpid-types",
  "tokio",
 ]
@@ -2041,6 +2042,7 @@ dependencies = [
  "mullvad-version",
  "once_cell",
  "talpid-core",
+ "talpid-future",
  "talpid-types",
  "tokio",
 ]
@@ -3567,7 +3569,6 @@ dependencies = [
  "once_cell",
  "parking_lot",
  "pfctl",
- "proptest",
  "rand 0.8.5",
  "resolv-conf",
  "subslice",
@@ -3602,6 +3603,16 @@ dependencies = [
  "libc",
  "log",
  "once_cell",
+ "tokio",
+]
+
+[[package]]
+name = "talpid-future"
+version = "0.0.0"
+dependencies = [
+ "proptest",
+ "rand 0.8.5",
+ "talpid-time",
  "tokio",
 ]
 
