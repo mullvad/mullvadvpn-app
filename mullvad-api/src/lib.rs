@@ -311,14 +311,12 @@ impl Runtime {
         )
     }
 
-    // TODO: gate for ios only
+    #[cfg(target_os = "ios")]
     pub fn with_static_addr(handle: tokio::runtime::Handle, address: SocketAddr) -> Self {
         Runtime {
             handle,
             address_cache: AddressCache::with_static_addr(address),
             api_availability: ApiAvailability::new(availability::State::default()),
-            #[cfg(target_os = "android")]
-            socket_bypass_tx,
         }
     }
 
