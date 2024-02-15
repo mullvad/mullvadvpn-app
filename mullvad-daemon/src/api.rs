@@ -480,7 +480,11 @@ impl AccessModeSelector {
                 // If the current method was modified, announce changes
                 self.index = index;
                 if self.current.setting != *new_current {
-                    self.set_current(new_current.to_owned()).await;
+                    if new_current.enabled() {
+                        self.set_current(new_current.to_owned()).await;
+                    } else {
+                        self.next_connection_mode().await?;
+                    }
                 }
             }
             None => {
