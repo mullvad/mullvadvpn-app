@@ -48,7 +48,8 @@ pub enum Error {
 /// Constructs a [`MullvadWireguardEndpoint`] with details for how to connect to a Wireguard relay.
 ///
 /// # Returns
-/// - A configured endpoint for Wireguard relay, encapsulating either a single-hop or multi-hop connection.
+/// - A configured endpoint for Wireguard relay, encapsulating either a single-hop or multi-hop
+///   connection.
 /// - Returns [`Option::None`] if the desired port is not in a valid port range (see
 /// [`WireguardRelayQuery::port`]) or relay addresses cannot be resolved.
 pub fn wireguard_endpoint(
@@ -198,8 +199,8 @@ const fn get_public_key(relay: &Relay) -> Result<&PublicKey, Error> {
 /// - `port_ranges`: A slice of tuples, each representing a range of valid port numbers.
 ///
 /// # Returns
-/// - `Option<u16>`: A randomly selected port number within the given ranges, or `None` if
-///   the input is empty or the total number of available ports is zero.
+/// - `Option<u16>`: A randomly selected port number within the given ranges, or `None` if the input
+///   is empty or the total number of available ports is zero.
 fn select_random_port(port_ranges: &[(u16, u16)]) -> Result<u16, Error> {
     use rand::Rng;
     let get_port_amount = |range: &(u16, u16)| -> u64 { (1 + range.1 - range.0) as u64 };

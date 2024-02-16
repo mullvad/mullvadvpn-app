@@ -201,10 +201,11 @@ fn default_relay_selector() -> RelaySelector {
 }
 
 /// This is not an actual test. Rather, it serves as a reminder that if [`RETRY_ORDER`] is modified,
-/// the programmer should be made aware to update all external documents which rely on the retry order
-/// to be correct.
+/// the programmer should be made aware to update all external documents which rely on the retry
+/// order to be correct.
 ///
-/// When all necessary changes have been made, feel free to update this test to mirror the new [`RETRY_ORDER`].
+/// When all necessary changes have been made, feel free to update this test to mirror the new
+/// [`RETRY_ORDER`].
 #[test]
 fn assert_retry_order() {
     use talpid_types::net::{IpVersion, TransportProtocol};
@@ -341,8 +342,8 @@ fn prefer_wireguard_when_auto() {
     }
 }
 
-/// If a Wireguard relay is only specified by it's hostname (and not tunnel type), the relay selector should
-/// still return a relay of the correct tunnel type (Wireguard).
+/// If a Wireguard relay is only specified by it's hostname (and not tunnel type), the relay
+/// selector should still return a relay of the correct tunnel type (Wireguard).
 #[test]
 fn test_prefer_wireguard_if_location_supports_it() {
     let relay_selector = default_relay_selector();
@@ -361,8 +362,8 @@ fn test_prefer_wireguard_if_location_supports_it() {
     }
 }
 
-/// If an OpenVPN relay is only specified by it's hostname (and not tunnel type), the relay selector should
-/// still return a relay of the correct tunnel type (OpenVPN).
+/// If an OpenVPN relay is only specified by it's hostname (and not tunnel type), the relay selector
+/// should still return a relay of the correct tunnel type (OpenVPN).
 #[test]
 fn test_prefer_openvpn_if_location_supports_it() {
     let relay_selector = default_relay_selector();
@@ -381,9 +382,10 @@ fn test_prefer_openvpn_if_location_supports_it() {
     }
 }
 
-/// Assert that the relay selector does *not* return a multihop configuration where the exit and entry relay are
-/// the same, even if the constraints would allow for it. Also verify that the relay selector is smart enough to
-/// pick either the entry or exit relay first depending on which one ends up yielding a valid configuration.
+/// Assert that the relay selector does *not* return a multihop configuration where the exit and
+/// entry relay are the same, even if the constraints would allow for it. Also verify that the relay
+/// selector is smart enough to pick either the entry or exit relay first depending on which one
+/// ends up yielding a valid configuration.
 #[test]
 fn test_wireguard_entry() {
     // Define a relay list containing exactly two Wireguard relays in Gothenburg.
@@ -555,7 +557,8 @@ fn test_wireguard_entry_hostname_collision() {
 
 /// Test that the relay selector:
 /// * returns an OpenVPN relay given a constraint of a valid transport protocol + port combo
-/// * does *not* return an OpenVPN relay given a constraint of an *invalid* transport protocol + port combo
+/// * does *not* return an OpenVPN relay given a constraint of an *invalid* transport protocol +
+///   port combo
 #[test]
 fn test_openvpn_constraints() {
     let relay_selector = default_relay_selector();
@@ -644,7 +647,8 @@ fn test_openvpn_constraints() {
     }
 }
 
-/// Construct a query for multihop configuration and assert that the relay selector picks an accompanying entry relay.
+/// Construct a query for multihop configuration and assert that the relay selector picks an
+/// accompanying entry relay.
 #[test]
 fn test_selecting_wireguard_location_will_consider_multihop() {
     let relay_selector = default_relay_selector();
@@ -678,8 +682,9 @@ fn test_selecting_any_relay_will_consider_multihop() {
     }
 }
 
-/// Construct a query for a Wireguard configuration where UDP2TCP obfuscation is selected and multihop is explicitly
-/// turned off. Assert that the relay selector always return an obfuscator configuration.
+/// Construct a query for a Wireguard configuration where UDP2TCP obfuscation is selected and
+/// multihop is explicitly turned off. Assert that the relay selector always return an obfuscator
+/// configuration.
 #[test]
 fn test_selecting_wireguard_endpoint_with_udp2tcp_obfuscation() {
     let relay_selector = default_relay_selector();
@@ -704,12 +709,14 @@ fn test_selecting_wireguard_endpoint_with_udp2tcp_obfuscation() {
     }
 }
 
-/// Construct a query for a Wireguard configuration where UDP2TCP obfuscation is set to "Auto" and multihop is
-/// explicitly turned off. Assert that the relay selector does *not* return an obfuscator config.
+/// Construct a query for a Wireguard configuration where UDP2TCP obfuscation is set to "Auto" and
+/// multihop is explicitly turned off. Assert that the relay selector does *not* return an
+/// obfuscator config.
 ///
 /// # Note
-/// This is a highly specific test which details how the relay selector should behave at the time of writing this test.
-/// The cost (in latency primarily) of using obfuscation is deemed to be too high to enable it as an auto-configuration.
+/// This is a highly specific test which details how the relay selector should behave at the time of
+/// writing this test. The cost (in latency primarily) of using obfuscation is deemed to be too high
+/// to enable it as an auto-configuration.
 #[test]
 fn test_selecting_wireguard_endpoint_with_auto_obfuscation() {
     let relay_selector = default_relay_selector();
