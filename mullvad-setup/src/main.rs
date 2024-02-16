@@ -2,11 +2,7 @@ use clap::Parser;
 use once_cell::sync::Lazy;
 use std::{path::PathBuf, process, str::FromStr, time::Duration};
 
-use mullvad_api::{
-    self,
-    proxy::{ApiConnectionMode, StaticConnectionModeProvider},
-    DEVICE_NOT_FOUND,
-};
+use mullvad_api::{self, proxy::ApiConnectionMode, DEVICE_NOT_FOUND};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::version::ParsedAppVersion;
 use talpid_core::firewall::{self, Firewall};
@@ -164,7 +160,7 @@ async fn remove_device() -> Result<(), Error> {
 
         let connection_mode = ApiConnectionMode::try_from_cache(&cache_path).await;
         let proxy = mullvad_api::DevicesProxy::new(
-            api_runtime.mullvad_rest_handle(StaticConnectionModeProvider::new(connection_mode)),
+            api_runtime.mullvad_rest_handle(connection_mode.into_provider()),
         );
 
         let device_removal = retry_future(

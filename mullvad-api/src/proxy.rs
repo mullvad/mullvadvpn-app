@@ -186,6 +186,10 @@ impl ApiConnectionMode {
     pub fn is_proxy(&self) -> bool {
         *self != ApiConnectionMode::Direct
     }
+
+    pub fn into_provider(self) -> StaticConnectionModeProvider {
+        StaticConnectionModeProvider::new(self)
+    }
 }
 
 /// Implements `hyper::client::connect::Connection` by wrapping a type.

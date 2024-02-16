@@ -238,8 +238,7 @@ pub fn new_device_client() -> DevicesProxy {
     let api = mullvad_api::Runtime::new(tokio::runtime::Handle::current())
         .expect("failed to create api runtime");
     let rest_handle = api.mullvad_rest_handle(
-        ApiConnectionMode::Direct,
-        ApiConnectionMode::Direct.into_repeat(),
+        ApiConnectionMode::Direct.into_provider(),
     );
     DevicesProxy::new(rest_handle)
 }

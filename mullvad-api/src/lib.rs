@@ -7,7 +7,7 @@ use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     version::AppVersion,
 };
-use proxy::{ApiConnectionMode, ConnectionModeProvider, StaticConnectionModeProvider};
+use proxy::{ApiConnectionMode, ConnectionModeProvider};
 use std::{
     cell::Cell,
     collections::BTreeMap,
@@ -448,7 +448,7 @@ impl Runtime {
     pub fn static_mullvad_rest_handle(&self, hostname: String) -> rest::MullvadRestHandle {
         let service = self.new_request_service(
             Some(hostname.clone()),
-            StaticConnectionModeProvider::new(ApiConnectionMode::Direct),
+            ApiConnectionMode::Direct.into_provider(),
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
         );
@@ -467,7 +467,7 @@ impl Runtime {
     pub fn rest_handle(&self) -> rest::RequestServiceHandle {
         self.new_request_service(
             None,
-            StaticConnectionModeProvider::new(ApiConnectionMode::Direct),
+            ApiConnectionMode::Direct.into_provider(),
             #[cfg(target_os = "android")]
             None,
         )

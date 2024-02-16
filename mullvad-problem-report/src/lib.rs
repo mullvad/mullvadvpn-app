@@ -1,4 +1,4 @@
-use mullvad_api::proxy::{ApiConnectionMode, StaticConnectionModeProvider};
+use mullvad_api::proxy::ApiConnectionMode;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::{
@@ -301,7 +301,7 @@ async fn send_problem_report_inner(
 
     let connection_mode = ApiConnectionMode::try_from_cache(cache_dir).await;
     let api_client = mullvad_api::ProblemReportProxy::new(
-        api_runtime.mullvad_rest_handle(StaticConnectionModeProvider::new(connection_mode)),
+        api_runtime.mullvad_rest_handle(connection_mode.into_provider()),
     );
 
     for _attempt in 0..MAX_SEND_ATTEMPTS {

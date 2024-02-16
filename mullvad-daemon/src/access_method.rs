@@ -1,8 +1,5 @@
 use crate::{api, settings, Daemon, EventListener};
-use mullvad_api::{
-    proxy::{ApiConnectionMode, StaticConnectionModeProvider},
-    rest, ApiProxy,
-};
+use mullvad_api::{proxy::ApiConnectionMode, rest, ApiProxy};
 use mullvad_types::{
     access_method::{self, AccessMethod, AccessMethodSetting},
     settings::Settings,
@@ -177,7 +174,7 @@ where
     pub fn create_limited_api_proxy(&mut self, connection_mode: ApiConnectionMode) -> ApiProxy {
         let rest_handle = self
             .api_runtime
-            .mullvad_rest_handle(StaticConnectionModeProvider::new(connection_mode));
+            .mullvad_rest_handle(connection_mode.into_provider());
         ApiProxy::new(rest_handle)
     }
 
