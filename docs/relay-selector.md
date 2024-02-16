@@ -16,15 +16,15 @@
 # Relay selector
 
 The relay selector's main purpose is to pick a single Mullvad relay from a list of relays taking
-into account certain user-configurable criteria.  Relays can be filtered by their _location_
+into account certain user-configurable criteria. Relays can be filtered by their _location_
 (country, city, hostname), by the protocols and ports they support (transport protocol, tunnel
-protocol, port), and by other constraints.  The constraints are user specified and stored in the
+protocol, port), and by other constraints. The constraints are user specified and stored in the
 settings. The default value for location constraints restricts relay selection to relays from Sweden.
 The default protocol constraints default to _Auto_, which implies specific behavior.
 
 Generally, the filtering process consists of going through each relay in our relay list and
 removing relay and endpoint combinations that do not match the constraints outlined above. The
-filtering process produces a list of relays that only contain matching endpoints.  Of all the relays
+filtering process produces a list of relays that only contain matching endpoints. Of all the relays
 that match the constraints, one is selected and a random matching endpoint is selected from that
 relay.
 
@@ -49,40 +49,27 @@ Endpoints may be filtered by:
 Whilst all user selected constraints are always honored, when the user hasn't selected any specific
 constraints, following default ones will take effect:
 
-- If no tunnel protocol is specified, the first three connection attempts will use WireGuard. All
-  remaining attempts will use OpenVPN. If no specific constraints are set:
-  - The first two attempts will connect to a Wireguard server, first on a random port, and then port
-    53.
-  - The third attempt will connect to a Wireguard server on port 80 with _udp2tcp_.
-  - Remaining attempts will connect to OpenVPN servers, first over UDP on two random ports, and then
-    over TCP on port 443. Remaining attempts alternate between TCP and UDP on random ports.
+- The first three connection attempts will use Wireguard.
+  - The first attempt will connect to a Wireguard relay on a random port.
+  - The second attempt will connect to a Wireguard relay on port 443
+  - The third attempt will connect to a Wireguard relay over IPv6 (if IPv6 is configured on the host)
+- The fourth-to-seventh attempt will alternate between Wireguard and OpenVPN
+  - The fifth attempt will connect to an OpenVPN relay over TCP on port 443
+  - The sixth attempt will connect to a Wireguard relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
+  - The seventh attempt will connect to a Wireguard relay over IPv6 on a random port using UDP2TCP obfuscation (if IPv6 is configured on the host)
+  - The eighth attempt will connect to an OpenVPN relay over a bridge
 
-- If the tunnel protocol is specified as WireGuard and obfuscation mode is set to _Auto_:
-  - First two attempts will be used without _udp2tcp_, using a random port on first attempt, and
-    port 53 on second attempt.
-  - Next two attempts will use _udp2tcp_ on ports 80 and 5001 respectively.
-  - The above steps repeat ad infinitum.
+If no tunnel has been established after exhausting this list of attempts, the relay selector will
+loop back to the first default constraint and continue its search from there.
 
-  If obfuscation is turned on, connections will alternate between port 80 and port 5001 using
-  _udp2tcp_ all of the time.
-
-  If obfuscation is turned _off_, WireGuard connections will first alternate between using
-  a random port and port 53, e.g. first attempt using port 22151, second 53, third
-  26107, fourth attempt using port 53, and so on.
-
-  If the user has specified a specific port for either _udp2tcp_ or WireGuard, it will override the
-  port selection, but it will not change the connection type described above (WireGuard or WireGuard
-  over _udp2tcp_).
-
-- If no OpenVPN tunnel constraints are specified, then the first two attempts at selecting a tunnel
-  will try to select UDP endpoints on any port, and the third and fourth attempts will filter for
-  TCP endpoints on port 443. Any subsequent filtering attempts will alternate between TCP and UDP on
-  any port.
+Any default constraint that is incompatible with user specified constraints will simply not be
+considered. Conversely, all default constraints which do not conflict with user specified constraints
+will be used in the search for a working tunnel endpoint on repeated connection failures.
 
 ## Selecting tunnel endpoint between filtered relays
 
 To select a single relay from the set of filtered relays, the relay selector uses a roulette wheel
-selection algorithm using the weights that are assigned to each relay.  The higher the weight is
+selection algorithm using the weights that are assigned to each relay. The higher the weight is
 relatively to other relays, the higher the likelihood that a given relay will be picked. Once a
 relay is picked, then a random endpoint that matches the constraints from the relay is picked.
 
