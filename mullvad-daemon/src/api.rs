@@ -201,7 +201,7 @@ pub struct AccessModeConnectionModeProvider {
 }
 
 impl AccessModeConnectionModeProvider {
-    async fn new(
+    fn new(
         handle: AccessModeSelectorHandle,
         initial_connection_mode: ApiConnectionMode,
         change_rx: mpsc::UnboundedReceiver<ApiConnectionMode>,
@@ -305,8 +305,7 @@ impl AccessModeSelector {
         let handle = AccessModeSelectorHandle { cmd_tx };
 
         let connection_mode_provider =
-            AccessModeConnectionModeProvider::new(handle.clone(), api_connection_mode, change_rx)
-                .await?;
+            AccessModeConnectionModeProvider::new(handle.clone(), api_connection_mode, change_rx)?;
 
         Ok((handle, connection_mode_provider))
     }
