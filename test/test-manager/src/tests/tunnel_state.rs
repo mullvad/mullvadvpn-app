@@ -12,9 +12,9 @@ use crate::{
 
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
+    constraints::Constraint,
     relay_constraints::{
-        Constraint, GeographicLocationConstraint, LocationConstraint, RelayConstraints,
-        RelaySettings,
+        GeographicLocationConstraint, LocationConstraint, RelayConstraints, RelaySettings,
     },
     relay_list::{Relay, RelayEndpointData},
     states::TunnelState,
@@ -291,8 +291,8 @@ pub async fn test_error_state(
     log::info!("Enter error state");
 
     let relay_settings = RelaySettings::Normal(RelayConstraints {
-        location: Constraint::Only(LocationConstraint::Location(
-            GeographicLocationConstraint::Country("xx".to_string()),
+        location: Constraint::Only(LocationConstraint::from(
+            GeographicLocationConstraint::country("xx"),
         )),
         ..Default::default()
     });

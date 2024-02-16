@@ -1,6 +1,9 @@
 use anyhow::Result;
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::relay_constraints::{Constraint, RelayConstraints, RelaySettings};
+use mullvad_types::{
+    constraints::Constraint,
+    relay_constraints::{RelayConstraints, RelaySettings},
+};
 
 #[derive(clap::Subcommand, Debug)]
 pub enum DebugCommands {

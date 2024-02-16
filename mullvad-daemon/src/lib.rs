@@ -1105,7 +1105,7 @@ where
                     // Note that `Constraint::Any` corresponds to just IPv4
                     matches!(
                         relay_constraints.wireguard_constraints.ip_version,
-                        mullvad_types::relay_constraints::Constraint::Only(IpVersion::V6)
+                        mullvad_types::constraints::Constraint::Only(IpVersion::V6)
                     )
                 } else {
                     false

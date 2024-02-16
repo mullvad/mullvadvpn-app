@@ -15,5 +15,5 @@ rand = "0.8.5"
 talpid-time = { path = "../talpid-time" }
 
 [dev-dependencies]
-proptest = "1.4"
+proptest = { workspace = true }
 tokio = { workspace = true, features = [ "test-util", "macros" ] }

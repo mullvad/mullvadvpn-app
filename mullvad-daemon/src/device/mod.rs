@@ -1348,12 +1348,10 @@ impl TunnelStateChangeHandler {
 #[cfg(test)]
 mod test {
     use super::{Error, TunnelStateChangeHandler, WG_DEVICE_CHECK_THRESHOLD};
-    use mullvad_relay_selector::RelaySelector;
     use std::sync::{
         atomic::{AtomicBool, Ordering},
         Arc,
     };
-    use talpid_types::net::TunnelType;
 
     const TIMEOUT_ERROR: Error = Error::OtherRestError(mullvad_api::rest::Error::TimeoutError);
 
@@ -1437,24 +1435,26 @@ mod test {
         );
     }
 
-    /// Test whether the relay selector selects wireguard often enough, given no special
-    /// constraints, to verify that the device is valid
-    #[test]
-    fn test_validates_by_default() {
-        for attempt in 0.. {
-            let should_validate =
-                TunnelStateChangeHandler::should_check_validity_on_attempt(attempt);
-            let (_, _, tunnel_type) =
-                RelaySelector::preferred_tunnel_constraints(attempt.try_into().unwrap());
-            assert_eq!(
-                tunnel_type,
-                TunnelType::Wireguard,
-                "failed on attempt {attempt}"
-            );
-            if should_validate {
-                // Now that we've triggered a device check, we can give up
-                break;
-            }
-        }
-    }
+    // TODO(markus): `preferred_tunnel_constraints` is slated for removal - consider writing a new test which
+    // does not depend on relay selector internals.
+    // /// Test whether the relay selector selects wireguard often enough, given no special
+    // /// constraints, to verify that the device is valid
+    // #[test]
+    // fn test_validates_by_default() {
+    //     for attempt in 0.. {
+    //         let should_validate =
+    //             TunnelStateChangeHandler::should_check_validity_on_attempt(attempt);
+    //         let (_, _, tunnel_type) =
+    //             RelaySelector::preferred_tunnel_constraints(attempt.try_into().unwrap());
+    //         assert_eq!(
+    //             tunnel_type,
+    //             TunnelType::Wireguard,
+    //             "failed on attempt {attempt}"
+    //         );
+    //         if should_validate {
+    //             // Now that we've triggered a device check, we can give up
+    //             break;
+    //         }
+    //     }
+    // }
 }

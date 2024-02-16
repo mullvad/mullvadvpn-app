@@ -1,9 +1,8 @@
 use crate::{new_selector_config, Daemon, Error, EventListener};
 use mullvad_types::{
+    constraints::Constraint,
     custom_list::{CustomList, Id},
-    relay_constraints::{
-        BridgeState, Constraint, LocationConstraint, RelaySettings, ResolvedBridgeSettings,
-    },
+    relay_constraints::{BridgeState, LocationConstraint, RelaySettings, ResolvedBridgeSettings},
 };
 use talpid_types::net::TunnelType;
 
@@ -133,7 +132,7 @@ where
             {
                 match endpoint.tunnel_type {
                     TunnelType::Wireguard => {
-                        if relay_settings.wireguard_constraints.use_multihop {
+                        if relay_settings.wireguard_constraints.multihop() {
                             if let Constraint::Only(LocationConstraint::CustomList { list_id }) =
                                 &relay_settings.wireguard_constraints.entry_location
                             {
