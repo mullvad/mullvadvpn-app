@@ -1,7 +1,6 @@
 use crate::types::{conversions::net::try_tunnel_type_from_i32, proto, FromProtobufTypeError};
 use mullvad_types::{
-    custom_list::Id,
-    relay_constraints::{Constraint, GeographicLocationConstraint},
+    constraints::Constraint, custom_list::Id, relay_constraints::GeographicLocationConstraint,
 };
 use std::str::FromStr;
 use talpid_types::net::proxy::CustomProxy;
@@ -254,7 +253,7 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                             .ip_version
                             .option()
                             .map(|ipv| i32::from(proto::IpVersion::from(ipv))),
-                        use_multihop: constraints.wireguard_constraints.use_multihop,
+                        use_multihop: constraints.wireguard_constraints.multihop(),
                         entry_location: constraints
                             .wireguard_constraints
                             .entry_location

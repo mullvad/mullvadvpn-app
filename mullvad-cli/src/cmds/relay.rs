@@ -3,10 +3,11 @@ use clap::Subcommand;
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
+    constraints::{Constraint, Match},
     location::{CountryCode, Location},
     relay_constraints::{
-        Constraint, GeographicLocationConstraint, LocationConstraint, LocationConstraintFormatter,
-        Match, OpenVpnConstraints, Ownership, Provider, Providers, RelayConstraints, RelayOverride,
+        GeographicLocationConstraint, LocationConstraint, LocationConstraintFormatter,
+        OpenVpnConstraints, Ownership, Provider, Providers, RelayConstraints, RelayOverride,
         RelaySettings, TransportPort, WireguardConstraints,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
@@ -318,7 +319,7 @@ impl Relay {
 
                 print_option!(
                     "Multihop state",
-                    if constraints.wireguard_constraints.use_multihop {
+                    if constraints.wireguard_constraints.multihop() {
                         "enabled"
                     } else {
                         "disabled"
@@ -679,7 +680,7 @@ impl Relay {
             wireguard_constraints.ip_version = ipv;
         }
         if let Some(use_multihop) = use_multihop {
-            wireguard_constraints.use_multihop = *use_multihop;
+            wireguard_constraints.use_multihop(*use_multihop);
         }
         match entry_location {
             Some(EntryArgs::Location(location_args)) => {
