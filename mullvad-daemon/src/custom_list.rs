@@ -1,9 +1,8 @@
 use crate::{new_selector_config, Daemon, Error, EventListener};
 use mullvad_types::{
+    constraints::Constraint,
     custom_list::{CustomList, Id},
-    relay_constraints::{
-        BridgeState, Constraint, LocationConstraint, RelaySettings, ResolvedBridgeSettings,
-    },
+    relay_constraints::{BridgeState, LocationConstraint, RelaySettings, ResolvedBridgeSettings},
 };
 use talpid_types::net::TunnelType;
 
