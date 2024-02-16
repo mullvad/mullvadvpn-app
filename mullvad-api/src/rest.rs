@@ -30,10 +30,6 @@ pub use hyper::StatusCode;
 
 const USER_AGENT: &str = "mullvad-app";
 
-const API_IP_CHECK_INITIAL: Duration = Duration::from_secs(15 * 60);
-const API_IP_CHECK_INTERVAL: Duration = Duration::from_secs(24 * 60 * 60);
-const API_IP_CHECK_ERROR_INTERVAL: Duration = Duration::from_secs(15 * 60);
-
 pub type Result<T> = std::result::Result<T, Error>;
 const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
 
@@ -616,68 +612,13 @@ impl MullvadRestHandle {
     pub(crate) fn new(
         service: RequestServiceHandle,
         factory: RequestFactory,
-        address_cache: AddressCache,
         availability: ApiAvailabilityHandle,
     ) -> Self {
-        let handle = Self {
+        Self {
             service,
             factory,
             availability,
-        };
-        #[cfg(feature = "api-override")]
-        {
-            if crate::API.disable_address_cache {
-                return handle;
-            }
         }
-        handle.spawn_api_address_fetcher(address_cache);
-        handle
-    }
-
-    fn spawn_api_address_fetcher(&self, address_cache: AddressCache) {
-        let handle = self.clone();
-        let availability = self.availability.clone();
-
-        tokio::spawn(async move {
-            let api_proxy = crate::ApiProxy::new(handle);
-            let mut next_delay = API_IP_CHECK_INITIAL;
-
-            loop {
-                talpid_time::sleep(next_delay).await;
-
-                if let Err(error) = availability.wait_background().await {
-                    log::error!("Failed while waiting for API: {}", error);
-                    continue;
-                }
-                match api_proxy.clone().get_api_addrs().await {
-                    Ok(new_addrs) => {
-                        if let Some(addr) = new_addrs.first() {
-                            log::debug!(
-                                "Fetched new API address {:?}. Fetching again in {} hours",
-                                addr,
-                                API_IP_CHECK_INTERVAL.as_secs() / (60 * 60)
-                            );
-                            if let Err(err) = address_cache.set_address(*addr).await {
-                                log::error!("Failed to save newly updated API address: {}", err);
-                            }
-                        } else {
-                            log::error!("API returned no API addresses");
-                        }
-
-                        next_delay = API_IP_CHECK_INTERVAL;
-                    }
-                    Err(err) => {
-                        log::error!(
-                            "Failed to fetch new API addresses: {}. Retrying in {} seconds",
-                            err,
-                            API_IP_CHECK_ERROR_INTERVAL.as_secs()
-                        );
-
-                        next_delay = API_IP_CHECK_ERROR_INTERVAL;
-                    }
-                }
-            }
-        });
     }
 
     pub fn service(&self) -> RequestServiceHandle {

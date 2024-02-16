@@ -307,7 +307,7 @@ impl ApiEndpoint {
 /// A type that helps with the creation of API connections.
 pub struct Runtime {
     handle: tokio::runtime::Handle,
-    pub address_cache: AddressCache,
+    address_cache: AddressCache,
     api_availability: availability::ApiAvailability,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
@@ -436,12 +436,7 @@ impl Runtime {
         let token_store = access::AccessTokenStore::new(service.clone());
         let factory = rest::RequestFactory::new(API.host(), Some(token_store));
 
-        rest::MullvadRestHandle::new(
-            service,
-            factory,
-            self.address_cache.clone(),
-            self.availability_handle(),
-        )
+        rest::MullvadRestHandle::new(service, factory, self.availability_handle())
     }
 
     /// This is only to be used in test code
@@ -455,12 +450,7 @@ impl Runtime {
         let token_store = access::AccessTokenStore::new(service.clone());
         let factory = rest::RequestFactory::new(hostname, Some(token_store));
 
-        rest::MullvadRestHandle::new(
-            service,
-            factory,
-            self.address_cache.clone(),
-            self.availability_handle(),
-        )
+        rest::MullvadRestHandle::new(service, factory, self.availability_handle())
     }
 
     /// Returns a new request service handle
@@ -479,6 +469,10 @@ impl Runtime {
 
     pub fn availability_handle(&self) -> ApiAvailabilityHandle {
         self.api_availability.handle()
+    }
+
+    pub fn address_cache(&self) -> &AddressCache {
+        &self.address_cache
     }
 }
 
