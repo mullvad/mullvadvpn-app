@@ -4,15 +4,16 @@
 use chrono::{DateTime, Local};
 use ipnetwork::IpNetwork;
 use mullvad_types::{
+    constraints::{Constraint, Match, Set},
     custom_list::CustomListsSettings,
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
     location::{Coordinates, Location},
     relay_constraints::{
-        BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint,
-        Match, MissingCustomBridgeSettings, ObfuscationSettings, OpenVpnConstraints, Ownership,
-        Providers, RelayConstraints, RelayConstraintsFormatter, RelayOverride, RelaySettings,
-        ResolvedBridgeSettings, ResolvedLocationConstraint, SelectedObfuscation, Set,
-        TransportPort, Udp2TcpObfuscationSettings,
+        BridgeSettings, BridgeState, InternalBridgeConstraints, LocationConstraint,
+        MissingCustomBridgeSettings, ObfuscationSettings, OpenVpnConstraints, Ownership, Providers,
+        RelayConstraints, RelayConstraintsFormatter, RelayOverride, RelaySettings,
+        ResolvedBridgeSettings, ResolvedLocationConstraint, SelectedObfuscation, TransportPort,
+        Udp2TcpObfuscationSettings,
     },
     relay_list::{BridgeEndpointData, Relay, RelayEndpointData, RelayList},
     settings::Settings,

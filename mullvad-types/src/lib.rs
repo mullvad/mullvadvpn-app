@@ -1,6 +1,7 @@
 pub mod access_method;
 pub mod account;
 pub mod auth_failed;
+pub mod constraints;
 pub mod custom_list;
 pub mod device;
 pub mod endpoint;

@@ -2,9 +2,10 @@ use anyhow::{bail, Result};
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
+    constraints::Constraint,
     relay_constraints::{
-        BridgeConstraintsFormatter, BridgeState, BridgeType, Constraint, LocationConstraint,
-        Ownership, Provider, Providers,
+        BridgeConstraintsFormatter, BridgeState, BridgeType, LocationConstraint, Ownership,
+        Provider, Providers,
     },
     relay_list::RelayEndpointData,
 };
