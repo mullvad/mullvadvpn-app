@@ -8,14 +8,17 @@ use std::{
 
 use tokio::sync::Mutex;
 
-use mullvad_relay_selector::{RelaySelector, SelectedBridge, SelectedObfuscator, SelectedRelay};
+use mullvad_relay_selector::{GetRelay, RelaySelector, SelectedBridge, WireguardConfig};
 use mullvad_types::{
-    endpoint::MullvadEndpoint, location::GeoIpLocation, relay_list::Relay, settings::TunnelOptions,
+    endpoint::MullvadWireguardEndpoint, location::GeoIpLocation, relay_list::Relay,
+    settings::TunnelOptions,
 };
 use once_cell::sync::Lazy;
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 use talpid_types::{
-    net::{wireguard, TunnelParameters},
+    net::{
+        obfuscation::ObfuscatorConfig, proxy::CustomProxy, wireguard, Endpoint, TunnelParameters,
+    },
     tunnel::ParameterGenerationError,
     ErrorExt,
 };
@@ -139,124 +142,140 @@ impl ParametersGenerator {
 
 impl InnerParametersGenerator {
     async fn generate(&mut self, retry_attempt: u32) -> Result<TunnelParameters, Error> {
-        let _data = self.device().await?;
-        match self.relay_selector.get_relay(retry_attempt) {
-            Ok((SelectedRelay::Custom(custom_relay), _bridge, _obfsucator)) => {
-                self.last_generated_relays = None;
-                custom_relay
-                    // TODO: generate proxy settings for custom tunnels
-                    .to_tunnel_parameters(self.tunnel_options.clone(), None)
-                    .map_err(|e| {
-                        log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
-                        Error::ResolveCustomHostname
-                    })
-            }
-            Ok((SelectedRelay::Normal(constraints), bridge, obfuscator)) => {
-                self.create_tunnel_parameters(
-                    &constraints.exit_relay,
-                    &constraints.entry_relay,
-                    constraints.endpoint,
-                    bridge,
-                    obfuscator,
-                )
-                .await
-            }
-            Err(mullvad_relay_selector::Error::NoBridge) => Err(Error::NoBridgeAvailable),
-            Err(_error) => Err(Error::NoRelayAvailable),
-        }
-    }
-
-    #[cfg_attr(target_os = "android", allow(unused_variables))]
-    async fn create_tunnel_parameters(
-        &mut self,
-        relay: &Relay,
-        entry_relay: &Option<Relay>,
-        endpoint: MullvadEndpoint,
-        bridge: Option<SelectedBridge>,
-        obfuscator: Option<SelectedObfuscator>,
-    ) -> Result<TunnelParameters, Error> {
         let data = self.device().await?;
-        match endpoint {
-            #[cfg(not(target_os = "android"))]
-            MullvadEndpoint::OpenVpn(endpoint) => {
-                let (bridge_settings, bridge_relay) = match bridge {
-                    Some(SelectedBridge::Normal(bridge)) => {
-                        (Some(bridge.settings), Some(bridge.relay))
-                    }
-                    Some(SelectedBridge::Custom(settings)) => (Some(settings), None),
-                    None => (None, None),
-                };
+        let selected_relay = self
+            .relay_selector
+            .get_relay(retry_attempt as usize)
+            .map_err(|err| match err {
+                mullvad_relay_selector::Error::NoBridge => Error::NoBridgeAvailable,
+                _ => Error::NoRelayAvailable,
+            })?;
 
-                self.last_generated_relays = Some(LastSelectedRelays::OpenVpn {
-                    relay: relay.clone(),
-                    bridge: bridge_relay,
-                });
-
-                Ok(openvpn::TunnelParameters {
-                    config: openvpn::ConnectionConfig::new(
-                        endpoint,
-                        data.account_token,
-                        "-".to_string(),
-                    ),
-                    options: self.tunnel_options.openvpn.clone(),
-                    generic_options: self.tunnel_options.generic.clone(),
-                    proxy: bridge_settings,
-                    #[cfg(target_os = "linux")]
-                    fwmark: mullvad_types::TUNNEL_FWMARK,
-                }
-                .into())
-            }
-            #[cfg(target_os = "android")]
-            MullvadEndpoint::OpenVpn(endpoint) => {
-                unreachable!("OpenVPN is not supported on Android");
-            }
-            MullvadEndpoint::Wireguard(endpoint) => {
-                let tunnel_ipv4 = data.device.wg_data.addresses.ipv4_address.ip();
-                let tunnel_ipv6 = data.device.wg_data.addresses.ipv6_address.ip();
-                let tunnel = wireguard::TunnelConfig {
-                    private_key: data.device.wg_data.private_key,
-                    addresses: vec![IpAddr::from(tunnel_ipv4), IpAddr::from(tunnel_ipv6)],
-                };
-                // FIXME: Used for debugging purposes during the migration to same IP. Remove when
-                // the migration is over.
-                if tunnel_ipv4 == *SAME_IP_V4 || tunnel_ipv6 == *SAME_IP_V6 {
-                    log::debug!("Same IP is being used");
-                } else {
-                    log::debug!("Same IP is NOT being used");
-                }
-
+        match selected_relay {
+            GetRelay::Wireguard {
+                endpoint,
+                obfuscator,
+                inner,
+            } => {
                 let (obfuscator_relay, obfuscator_config) = match obfuscator {
                     Some(obfuscator) => (Some(obfuscator.relay), Some(obfuscator.config)),
                     None => (None, None),
                 };
 
+                let (wg_entry, wg_exit) = match inner {
+                    WireguardConfig::Singlehop { exit } => (None, exit),
+                    WireguardConfig::Multihop { exit, entry } => (Some(entry), exit),
+                };
                 self.last_generated_relays = Some(LastSelectedRelays::WireGuard {
-                    wg_entry: entry_relay.clone(),
-                    wg_exit: relay.clone(),
+                    wg_entry,
+                    wg_exit,
                     obfuscator: obfuscator_relay,
                 });
 
-                Ok(wireguard::TunnelParameters {
-                    connection: wireguard::ConnectionConfig {
-                        tunnel,
-                        peer: endpoint.peer,
-                        exit_peer: endpoint.exit_peer,
-                        ipv4_gateway: endpoint.ipv4_gateway,
-                        ipv6_gateway: Some(endpoint.ipv6_gateway),
-                        #[cfg(target_os = "linux")]
-                        fwmark: Some(mullvad_types::TUNNEL_FWMARK),
-                    },
-                    options: self
-                        .tunnel_options
-                        .wireguard
-                        .clone()
-                        .into_talpid_tunnel_options(),
-                    generic_options: self.tunnel_options.generic.clone(),
-                    obfuscation: obfuscator_config,
-                }
-                .into())
+                Ok(self.create_wireguard_tunnel_parameters(
+                    endpoint.unwrap_wireguard().clone(),
+                    data,
+                    obfuscator_config,
+                ))
+            }
+
+            GetRelay::OpenVpn {
+                endpoint,
+                exit,
+                bridge,
+            } => {
+                let bridge_settings = match bridge {
+                    Some(SelectedBridge::Normal { ref settings, .. }) => Some(settings.clone()),
+                    Some(SelectedBridge::Custom(ref settings)) => Some(settings.clone()),
+                    None => None,
+                };
+                let bridge_relay = match bridge {
+                    Some(SelectedBridge::Normal { relay, .. }) => Some(relay),
+                    _ => None,
+                };
+
+                // TODO(markus): Can this be done 'generically'?
+                self.last_generated_relays = Some(LastSelectedRelays::OpenVpn {
+                    relay: exit.clone(),
+                    bridge: bridge_relay,
+                });
+
+                // TODO(markus): Remodel `GetRelay` to not require this unwrap.
+                Ok(self.create_openvpn_tunnel_parameters(
+                    *endpoint.unwrap_openvpn(),
+                    data,
+                    bridge_settings,
+                ))
+            }
+            GetRelay::Custom(custom_relay) => {
+                self.last_generated_relays = None;
+                custom_relay
+                     // TODO: generate proxy settings for custom tunnels
+                     .to_tunnel_parameters(self.tunnel_options.clone(), None)
+                     .map_err(|e| {
+                         log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
+                         Error::ResolveCustomHostname
+                     })
             }
         }
+    }
+
+    fn create_openvpn_tunnel_parameters(
+        &self,
+        endpoint: Endpoint,
+        data: PrivateAccountAndDevice,
+        bridge_settings: Option<CustomProxy>,
+    ) -> TunnelParameters {
+        openvpn::TunnelParameters {
+            config: openvpn::ConnectionConfig::new(endpoint, data.account_token, "-".to_string()),
+            options: self.tunnel_options.openvpn.clone(),
+            generic_options: self.tunnel_options.generic.clone(),
+            proxy: bridge_settings,
+            #[cfg(target_os = "linux")]
+            fwmark: mullvad_types::TUNNEL_FWMARK,
+        }
+        .into()
+    }
+
+    fn create_wireguard_tunnel_parameters(
+        &self,
+        endpoint: MullvadWireguardEndpoint,
+        data: PrivateAccountAndDevice,
+        obfuscator_config: Option<ObfuscatorConfig>,
+    ) -> TunnelParameters {
+        let tunnel_ipv4 = data.device.wg_data.addresses.ipv4_address.ip();
+        let tunnel_ipv6 = data.device.wg_data.addresses.ipv6_address.ip();
+        let tunnel = wireguard::TunnelConfig {
+            private_key: data.device.wg_data.private_key,
+            addresses: vec![IpAddr::from(tunnel_ipv4), IpAddr::from(tunnel_ipv6)],
+        };
+        // FIXME: Used for debugging purposes during the migration to same IP. Remove when
+        // the migration is over.
+        if tunnel_ipv4 == *SAME_IP_V4 || tunnel_ipv6 == *SAME_IP_V6 {
+            log::debug!("Same IP is being used");
+        } else {
+            log::debug!("Same IP is NOT being used");
+        }
+
+        wireguard::TunnelParameters {
+            connection: wireguard::ConnectionConfig {
+                tunnel,
+                peer: endpoint.peer,
+                exit_peer: endpoint.exit_peer,
+                ipv4_gateway: endpoint.ipv4_gateway,
+                ipv6_gateway: Some(endpoint.ipv6_gateway),
+                #[cfg(target_os = "linux")]
+                fwmark: Some(mullvad_types::TUNNEL_FWMARK),
+            },
+            options: self
+                .tunnel_options
+                .wireguard
+                .clone()
+                .into_talpid_tunnel_options(),
+            generic_options: self.tunnel_options.generic.clone(),
+            obfuscation: obfuscator_config,
+        }
+        .into()
     }
 
     async fn device(&self) -> Result<PrivateAccountAndDevice, Error> {

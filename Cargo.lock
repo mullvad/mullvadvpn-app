@@ -1537,6 +1537,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "itertools"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569"
+dependencies = [
+ "either",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1853,7 +1862,7 @@ dependencies = [
  "clap",
  "clap_complete",
  "futures",
- "itertools",
+ "itertools 0.10.5",
  "mullvad-management-interface",
  "mullvad-types",
  "mullvad-version",
@@ -2019,9 +2028,11 @@ version = "0.0.0"
 dependencies = [
  "chrono",
  "ipnetwork",
+ "itertools 0.12.1",
  "log",
  "mullvad-types",
  "once_cell",
+ "proptest",
  "rand 0.8.5",
  "serde_json",
  "talpid-types",
@@ -2058,6 +2069,7 @@ dependencies = [
  "jnix",
  "log",
  "once_cell",
+ "proptest",
  "regex",
  "serde",
  "talpid-types",
@@ -2736,7 +2748,7 @@ checksum = "30d3e647e9eb04ddfef78dfee2d5b3fefdf94821c84b710a3d8ebc89ede8b164"
 dependencies = [
  "bytes",
  "heck",
- "itertools",
+ "itertools 0.10.5",
  "log",
  "multimap",
  "once_cell",
@@ -2757,7 +2769,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56075c27b20ae524d00f247b8a4dc333e5784f889fe63099f8e626bc8d73486c"
 dependencies = [
  "anyhow",
- "itertools",
+ "itertools 0.10.5",
  "proc-macro2",
  "quote",
  "syn 2.0.51",
