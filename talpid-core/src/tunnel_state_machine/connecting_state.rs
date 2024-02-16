@@ -69,7 +69,7 @@ impl ConnectingState {
         match shared_values.runtime.block_on(
             shared_values
                 .tunnel_parameters_generator
-                .generate(retry_attempt),
+                .generate(retry_attempt, shared_values.connectivity.has_ipv6()),
         ) {
             Err(err) => {
                 ErrorState::enter(shared_values, ErrorStateCause::TunnelParameterError(err))
