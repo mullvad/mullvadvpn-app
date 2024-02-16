@@ -29,13 +29,4 @@ impl MullvadEndpoint {
             ),
         }
     }
-
-    pub fn unwrap_wireguard(&self) -> &MullvadWireguardEndpoint {
-        match self {
-            Self::Wireguard(endpoint) => endpoint,
-            other => {
-                panic!("Expected WireGuard enum variant but got {other:?}");
-            }
-        }
-    }
 }
