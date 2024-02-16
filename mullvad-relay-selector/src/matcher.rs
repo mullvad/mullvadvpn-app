@@ -1,9 +1,10 @@
 use crate::CustomListsSettings;
 use mullvad_types::{
+    constraints::{Constraint, Match},
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
     relay_constraints::{
-        Constraint, Match, OpenVpnConstraints, Ownership, Providers, RelayConstraints,
-        ResolvedLocationConstraint, WireguardConstraints,
+        OpenVpnConstraints, Ownership, Providers, RelayConstraints, ResolvedLocationConstraint,
+        WireguardConstraints,
     },
     relay_list::{
         OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData, WireguardEndpointData,

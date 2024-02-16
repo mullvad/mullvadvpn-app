@@ -3,8 +3,7 @@ use anyhow::{anyhow, bail, Result};
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
-    relay_constraints::{Constraint, GeographicLocationConstraint},
-    relay_list::RelayList,
+    constraints::Constraint, relay_constraints::GeographicLocationConstraint, relay_list::RelayList,
 };
 
 #[derive(Subcommand, Debug)]
