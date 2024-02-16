@@ -1,5 +1,5 @@
 use super::{Error, Result};
-use mullvad_types::{relay_constraints::Constraint, settings::SettingsVersion};
+use mullvad_types::{constraints::Constraint, settings::SettingsVersion};
 use serde::{Deserialize, Serialize};
 
 // ======================================================

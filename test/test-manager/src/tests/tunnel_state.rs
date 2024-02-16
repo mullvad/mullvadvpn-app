@@ -11,7 +11,8 @@ use mullvad_types::relay_constraints::GeographicLocationConstraint;
 use mullvad_types::relay_list::{Relay, RelayEndpointData};
 use mullvad_types::CustomTunnelEndpoint;
 use mullvad_types::{
-    relay_constraints::{Constraint, LocationConstraint, RelayConstraints, RelaySettings},
+    constraints::Constraint,
+    relay_constraints::{LocationConstraint, RelayConstraints, RelaySettings},
     states::TunnelState,
 };
 use std::net::{IpAddr, SocketAddr};

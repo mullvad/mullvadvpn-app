@@ -5,9 +5,10 @@ use crate::network_monitor::{
 use futures::StreamExt;
 use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
 use mullvad_types::{
+    constraints::Constraint,
     location::Location,
     relay_constraints::{
-        BridgeSettings, Constraint, GeographicLocationConstraint, LocationConstraint, RelaySettings,
+        BridgeSettings, GeographicLocationConstraint, LocationConstraint, RelaySettings,
     },
     relay_list::{Relay, RelayList},
     states::TunnelState,

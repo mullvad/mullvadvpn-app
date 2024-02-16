@@ -1,7 +1,6 @@
 use crate::types::{conversions::net::try_tunnel_type_from_i32, proto, FromProtobufTypeError};
 use mullvad_types::{
-    custom_list::Id,
-    relay_constraints::{Constraint, GeographicLocationConstraint},
+    constraints::Constraint, custom_list::Id, relay_constraints::GeographicLocationConstraint,
 };
 use std::str::FromStr;
 use talpid_types::net::proxy::CustomProxy;
