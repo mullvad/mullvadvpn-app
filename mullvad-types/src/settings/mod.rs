@@ -1,8 +1,9 @@
 use crate::{
     access_method,
+    constraints::Constraint,
     custom_list::CustomListsSettings,
     relay_constraints::{
-        BridgeSettings, BridgeState, Constraint, GeographicLocationConstraint, LocationConstraint,
+        BridgeSettings, BridgeState, GeographicLocationConstraint, LocationConstraint,
         ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings,
         RelaySettingsFormatter, SelectedObfuscation, WireguardConstraints,
     },

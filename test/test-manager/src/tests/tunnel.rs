@@ -5,12 +5,15 @@ use super::{config::TEST_CONFIG, Error, TestContext};
 use crate::network_monitor::{start_packet_monitor, MonitorOptions};
 
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::relay_constraints::{
-    self, BridgeConstraints, BridgeSettings, BridgeType, Constraint, OpenVpnConstraints,
-    RelayConstraints, RelaySettings, SelectedObfuscation, TransportPort,
-    Udp2TcpObfuscationSettings, WireguardConstraints,
+use mullvad_types::{
+    constraints::Constraint,
+    relay_constraints::{
+        self, BridgeConstraints, BridgeSettings, BridgeType, OpenVpnConstraints, RelayConstraints,
+        RelaySettings, SelectedObfuscation, TransportPort, Udp2TcpObfuscationSettings,
+        WireguardConstraints,
+    },
+    wireguard,
 };
-use mullvad_types::wireguard;
 use std::net::SocketAddr;
 use talpid_types::net::{
     proxy::{CustomProxy, Socks5Local, Socks5Remote},
