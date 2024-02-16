@@ -555,6 +555,22 @@ impl Connectivity {
         )
     }
 
+    /// Whether IPv6 connectivity seems to be available on the host.
+    ///
+    /// If IPv6 status is unknown, `false` is returned.
+    #[cfg(not(target_os = "android"))]
+    pub fn has_ipv6(&self) -> bool {
+        matches!(self, Connectivity::Status { ipv6: true, .. })
+    }
+
+    /// Whether IPv6 connectivity seems to be available on the host.
+    ///
+    /// If IPv6 status is unknown, `false` is returned.
+    #[cfg(target_os = "android")]
+    pub fn has_ipv6(&self) -> bool {
+        self.is_online()
+    }
+
     /// If the host does not have configured IPv6 routes, we have no way of
     /// reaching the internet so we consider ourselves offline.
     #[cfg(target_os = "android")]
