@@ -220,8 +220,7 @@ impl ConnectionModeProvider for AccessModeConnectionModeProvider {
     }
 
     fn receive(&mut self) -> impl std::future::Future<Output = Option<ApiConnectionMode>> + Send {
-        let mode = self.change_rx.next();
-        async move { mode.await }
+        self.change_rx.next()
     }
 
     fn rotate(&self) -> impl std::future::Future<Output = ()> + Send {
