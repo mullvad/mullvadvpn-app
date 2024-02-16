@@ -106,6 +106,57 @@ pub struct Relay {
     pub location: Option<Location>,
 }
 
+impl PartialEq for Relay {
+    /// Hostnames are assumed to be unique per relay, i.e. a relay can be uniquely identified by its hostname.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use mullvad_types::{relay_list::Relay, relay_list::{RelayEndpointData, WireguardRelayEndpointData}};
+    /// # use talpid_types::net::wireguard::PublicKey;
+    ///
+    /// let relay = Relay {
+    ///     hostname: "se9-wireguard".to_string(),
+    ///     ipv4_addr_in: "185.213.154.68".parse().unwrap(),
+    ///     # ipv6_addr_in: None,
+    ///     # include_in_country: true,
+    ///     # active: true,
+    ///     # owned: true,
+    ///     # provider: "provider0".to_string(),
+    ///     # weight: 1,
+    ///     # endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
+    ///     #   public_key: PublicKey::from_base64(
+    ///     #       "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+    ///     #   )
+    ///     #   .unwrap(),
+    ///     # }),
+    ///     # location: None,
+    /// };
+    ///
+    /// let mut different_relay = relay.clone();
+    /// // Modify the relay's IPv4 address - should not matter for the equality check
+    /// different_relay.ipv4_addr_in = "1.3.3.7".parse().unwrap();
+    /// assert_eq!(relay, different_relay);
+    ///
+    /// // What matter's for the equality check is the hostname of the relay
+    /// different_relay.hostname = "dk-cph-wg-001".to_string();
+    /// assert_ne!(relay, different_relay);
+    /// ```
+    fn eq(&self, other: &Self) -> bool {
+        self.hostname == other.hostname
+    }
+}
+
+/// Hostnames are assumed to be unique per relay, i.e. a relay can be uniquely identified by its hostname.
+impl Eq for Relay {}
+
+/// Hostnames are assumed to be unique per relay, i.e. a relay can be uniquely identified by its hostname.
+impl std::hash::Hash for Relay {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.hostname.hash(state)
+    }
+}
+
 /// Specifies the type of a relay or relay-specific endpoint data.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]

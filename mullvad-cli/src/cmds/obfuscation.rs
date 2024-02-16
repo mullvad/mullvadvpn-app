@@ -1,8 +1,9 @@
 use anyhow::Result;
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::relay_constraints::{
-    Constraint, ObfuscationSettings, SelectedObfuscation, Udp2TcpObfuscationSettings,
+use mullvad_types::{
+    constraints::Constraint,
+    relay_constraints::{ObfuscationSettings, SelectedObfuscation, Udp2TcpObfuscationSettings},
 };
 
 #[derive(Subcommand, Debug)]
