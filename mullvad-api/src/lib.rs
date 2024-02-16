@@ -146,8 +146,8 @@ pub struct ApiEndpoint {
     /// # Note
     ///
     /// By default, `force_direct` will be `true` if the `api-override` feature
-    /// is enabled. This is supposedely less error prone, as common targets such
-    /// as Devmole might be unreachable from behind a bridge server.
+    /// is enabled and overrides are in use. This is supposedly less error prone, as
+    /// common targets such as Devmole might be unreachable from behind a bridge server.
     ///
     /// To disable `force_direct`, set the environment variable
     /// `MULLVAD_API_FORCE_DIRECT=0` before starting the daemon.
@@ -170,16 +170,15 @@ impl ApiEndpoint {
         let host_var = Self::read_var(env::API_HOST_VAR);
         let address_var = Self::read_var(env::API_ADDR_VAR);
         let disable_tls_var = Self::read_var(env::DISABLE_TLS_VAR);
-        let force_direct = Self::read_var(env::API_FORCE_DIRECT_VAR);
+        let force_direct =
+            Self::read_var(env::API_FORCE_DIRECT_VAR).map(|force_direct| force_direct != "0");
 
         let mut api = ApiEndpoint {
             host: None,
             address: None,
             disable_address_cache: true,
             disable_tls: false,
-            force_direct: force_direct
-                .map(|force_direct_env| force_direct_env.to_lowercase() != "0")
-                .unwrap_or(false),
+            force_direct: false,
         };
 
         match (host_var, address_var) {
@@ -222,21 +221,27 @@ impl ApiEndpoint {
                     api_addr = env::API_ADDR_VAR,
                 );
             }
+            // By default, force_direct is false if the API host/addr is not overridden
+            api.force_direct = force_direct.unwrap_or(false);
         } else {
             api.disable_tls = disable_tls_var
                 .as_ref()
                 .map(|disable_tls| disable_tls != "0")
                 .unwrap_or(api.disable_tls);
 
+            // By default, force_direct is true if the API host/addr is overridden
+            api.force_direct = force_direct.unwrap_or(true);
+
             log::debug!(
-                "Overriding API. Using {host} at {scheme}{addr}",
+                "Overriding API. Using {host} at {scheme}{addr} (force direct={direct})",
                 host = api.host(),
                 addr = api.address(),
                 scheme = if api.disable_tls {
                     "http://"
                 } else {
                     "https://"
-                }
+                },
+                direct = api.force_direct,
             );
         }
         api
