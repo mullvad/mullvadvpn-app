@@ -1,18 +1,20 @@
 //! This module provides a flexible way to specify 'queries' for relays.
 //!
 //! A query is a set of constraints that the [`crate::RelaySelector`] will use when filtering out
-//! potential relays that the daemon should connect to. It supports filtering relays by geographic location,
-//! provider, ownership, and tunnel protocol, along with protocol-specific settings for WireGuard and OpenVPN.
+//! potential relays that the daemon should connect to. It supports filtering relays by geographic
+//! location, provider, ownership, and tunnel protocol, along with protocol-specific settings for
+//! WireGuard and OpenVPN.
 //!
 //! The main components of this module include:
 //!
-//! - [`RelayQuery`]: The core struct for specifying a query to select relay servers. It
-//!   aggregates constraints on location, providers, ownership, tunnel protocol, and
-//!   protocol-specific constraints for WireGuard and OpenVPN.
+//! - [`RelayQuery`]: The core struct for specifying a query to select relay servers. It aggregates
+//!   constraints on location, providers, ownership, tunnel protocol, and protocol-specific
+//!   constraints for WireGuard and OpenVPN.
 //! - [`WireguardRelayQuery`] and [`OpenVpnRelayQuery`]: Structs that define protocol-specific
 //!   constraints for selecting WireGuard and OpenVPN relays, respectively.
-//! - [`Intersection`]: A trait implemented by the different query types that support intersection logic,
-//!   which allows for combining two queries into a single query that represents the common constraints of both.
+//! - [`Intersection`]: A trait implemented by the different query types that support intersection
+//!   logic, which allows for combining two queries into a single query that represents the common
+//!   constraints of both.
 //! - [Builder patterns][builder]: The module also provides builder patterns for creating instances
 //!   of `RelayQuery`, `WireguardRelayQuery`, and `OpenVpnRelayQuery` with a fluent API.
 //!
@@ -218,7 +220,8 @@ impl From<RelayQuery> for RelayConstraints {
     }
 }
 
-/// A query for a relay with Wireguard-specific properties, such as `multihop` and [wireguard obfuscation][`SelectedObfuscation`].
+/// A query for a relay with Wireguard-specific properties, such as `multihop` and [wireguard
+/// obfuscation][`SelectedObfuscation`].
 ///
 /// This struct may look a lot like [`WireguardConstraints`], and that is the point!
 /// This struct is meant to be that type in the "universe of relay queries". The difference
