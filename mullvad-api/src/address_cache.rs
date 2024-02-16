@@ -1,3 +1,5 @@
+//! This module keeps track of the last known good API IP address and reads and stores it on disk.
+
 use super::API;
 use std::{io, net::SocketAddr, path::Path, sync::Arc};
 use tokio::{
