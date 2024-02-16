@@ -13,7 +13,7 @@ workspace = true
 [dependencies]
 err-derive = { workspace = true }
 futures = "0.3.15"
-ipnetwork = "0.16"
+ipnetwork = "0.20"
 log = { workspace = true }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "net", "io-util", "time"] }
 

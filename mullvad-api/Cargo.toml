@@ -21,7 +21,7 @@ err-derive = { workspace = true }
 futures = "0.3"
 http = "0.2"
 hyper = { version = "0.14", features = ["client", "stream", "http1", "tcp" ] }
-ipnetwork = "0.16"
+ipnetwork = "0.20"
 log = { workspace = true }
 serde = "1"
 serde_json = "1.0"

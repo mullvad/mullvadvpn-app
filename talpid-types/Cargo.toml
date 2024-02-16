@@ -12,7 +12,7 @@ workspace = true
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
-ipnetwork = "0.16"
+ipnetwork = "0.20"
 base64 = "0.13"
 x25519-dalek = { version = "2.0.1", features = ["static_secrets", "zeroize", "getrandom"] }
 err-derive = { workspace = true }

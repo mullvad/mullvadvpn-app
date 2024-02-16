@@ -14,7 +14,7 @@ workspace = true
 chrono = { workspace = true }
 err-derive = { workspace = true }
 futures = "0.3"
-ipnetwork = "0.16"
+ipnetwork = "0.20"
 log = { workspace = true }
 parking_lot = "0.12.0"
 rand = "0.8.5"

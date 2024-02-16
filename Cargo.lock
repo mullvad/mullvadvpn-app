@@ -1502,6 +1502,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ipnetwork"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bf466541e9d546596ee94f9f69590f89473455f88372423e0008fc1a7daf100e"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "iprange"
 version = "0.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1820,7 +1829,7 @@ dependencies = [
  "futures",
  "http",
  "hyper",
- "ipnetwork",
+ "ipnetwork 0.20.0",
  "libc",
  "log",
  "mullvad-fs",
@@ -1928,7 +1937,7 @@ version = "0.0.0"
 dependencies = [
  "err-derive",
  "futures",
- "ipnetwork",
+ "ipnetwork 0.20.0",
  "jnix",
  "log",
  "log-panics",
@@ -2014,7 +2023,7 @@ dependencies = [
  "chrono",
  "err-derive",
  "futures",
- "ipnetwork",
+ "ipnetwork 0.20.0",
  "log",
  "mullvad-api",
  "mullvad-types",
@@ -2054,7 +2063,7 @@ dependencies = [
  "chrono",
  "clap",
  "err-derive",
- "ipnetwork",
+ "ipnetwork 0.20.0",
  "jnix",
  "log",
  "once_cell",
@@ -2477,7 +2486,7 @@ dependencies = [
  "errno 0.2.8",
  "error-chain",
  "ioctl-sys",
- "ipnetwork",
+ "ipnetwork 0.16.0",
  "libc",
 ]
 
@@ -3558,7 +3567,7 @@ dependencies = [
  "err-derive",
  "futures",
  "inotify 0.10.2",
- "ipnetwork",
+ "ipnetwork 0.20.0",
  "jnix",
  "libc",
  "log",
@@ -3679,7 +3688,7 @@ dependencies = [
  "bitflags 1.3.2",
  "err-derive",
  "futures",
- "ipnetwork",
+ "ipnetwork 0.20.0",
  "libc",
  "log",
  "netlink-packet-route",
@@ -3711,7 +3720,7 @@ dependencies = [
  "duct",
  "err-derive",
  "futures",
- "ipnetwork",
+ "ipnetwork 0.20.0",
  "jnix",
  "log",
  "nix 0.23.2",
@@ -3748,7 +3757,7 @@ version = "0.0.0"
 dependencies = [
  "base64 0.13.1",
  "err-derive",
- "ipnetwork",
+ "ipnetwork 0.20.0",
  "jnix",
  "serde",
  "x25519-dalek",
@@ -3778,7 +3787,7 @@ dependencies = [
  "futures",
  "hex",
  "internet-checksum",
- "ipnetwork",
+ "ipnetwork 0.20.0",
  "libc",
  "log",
  "netlink-packet-core",

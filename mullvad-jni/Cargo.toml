@@ -20,7 +20,7 @@ crate_type = ["cdylib"]
 [target.'cfg(target_os = "android")'.dependencies]
 err-derive = { workspace = true }
 futures = "0.3"
-ipnetwork = "0.16"
+ipnetwork = "0.20"
 jnix = { version = "0.5.1", features = ["derive"] }
 log = { workspace = true }
 log-panics = "2"
