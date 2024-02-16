@@ -10,7 +10,7 @@ const API_IP_CHECK_ERROR_INTERVAL: Duration = Duration::from_secs(15 * 60);
 pub async fn run_api_address_fetcher(address_cache: AddressCache, handle: MullvadRestHandle) {
     #[cfg(feature = "api-override")]
     if API.disable_address_cache {
-        return futures::future::pending().await;
+        return;
     }
 
     let availability = handle.availability.clone();
