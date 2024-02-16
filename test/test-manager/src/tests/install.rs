@@ -5,7 +5,7 @@ use super::helpers::{
 use super::{Error, TestContext};
 
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::relay_constraints;
+use mullvad_types::{constraints::Constraint, relay_constraints};
 use test_macro::test_function;
 use test_rpc::meta::Os;
 use test_rpc::{mullvad_daemon::ServiceStatus, ServiceClient};
@@ -142,7 +142,7 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
     let relay_location_was_preserved = match &settings.relay_settings {
         relay_constraints::RelaySettings::Normal(relay_constraints::RelayConstraints {
             location:
-                relay_constraints::Constraint::Only(relay_constraints::LocationConstraint::Location(
+                Constraint::Only(relay_constraints::LocationConstraint::Location(
                     relay_constraints::GeographicLocationConstraint::Country(country),
                 )),
             ..
