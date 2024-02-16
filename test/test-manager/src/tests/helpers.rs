@@ -182,7 +182,23 @@ pub async fn ping_with_timeout(
     dest: IpAddr,
     interface: Option<String>,
 ) -> Result<(), Error> {
-    timeout(PING_TIMEOUT, rpc.send_ping(interface, dest))
+    const DEFAULT_PING_SIZE: usize = 64;
+    timeout(
+        PING_TIMEOUT,
+        rpc.send_ping(dest, interface, DEFAULT_PING_SIZE),
+    )
+    .await
+    .map_err(|_| Error::PingTimeout)?
+    .map_err(Error::Rpc)
+}
+
+pub async fn ping_sized_with_timeout(
+    rpc: &ServiceClient,
+    dest: IpAddr,
+    interface: Option<String>,
+    size: usize,
+) -> Result<(), Error> {
+    timeout(PING_TIMEOUT, rpc.send_ping(dest, interface, size))
         .await
         .map_err(|_| Error::PingTimeout)?
         .map_err(Error::Rpc)

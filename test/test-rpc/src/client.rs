@@ -178,11 +178,12 @@ impl ServiceClient {
     /// Send ICMP
     pub async fn send_ping(
         &self,
-        interface: Option<String>,
         destination: IpAddr,
+        interface: Option<String>,
+        size: usize,
     ) -> Result<(), Error> {
         self.client
-            .send_ping(tarpc::context::current(), interface, destination)
+            .send_ping(tarpc::context::current(), destination, interface, size)
             .await?
     }
 

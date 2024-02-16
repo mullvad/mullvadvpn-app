@@ -6,7 +6,6 @@ use std::{
     net::{IpAddr, SocketAddr},
     process::Output,
 };
-use tokio::process::Command;
 
 pub async fn send_tcp(
     bind_interface: Option<String>,
@@ -139,66 +138,34 @@ pub async fn send_udp(
 }
 
 pub async fn send_ping(
-    interface: Option<&str>,
     destination: IpAddr,
-) -> Result<(), test_rpc::Error> {
-    #[cfg(target_os = "windows")]
-    let mut source_ip = None;
-    #[cfg(target_os = "windows")]
-    if let Some(interface) = interface {
-        let family = match destination {
-            IpAddr::V4(_) => talpid_windows::net::AddressFamily::Ipv4,
-            IpAddr::V6(_) => talpid_windows::net::AddressFamily::Ipv6,
-        };
-        source_ip = get_interface_ip_for_family(interface, family)
-            .map_err(|_error| test_rpc::Error::Syscall)?;
-        if source_ip.is_none() {
-            log::error!("Failed to obtain interface IP");
-            return Err(test_rpc::Error::Ping);
-        }
-    }
+    interface: Option<&str>,
+    size: usize,
+) -> Result<(), surge_ping::SurgeError> {
+    use surge_ping::{Client, Config, PingIdentifier, PingSequence};
+    // let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
+    let config_builder = Config::builder();
+    let config_builder = if let Some(iface_name) = interface {
+        config_builder.interface(iface_name)
+    } else {
+        config_builder
+    };
+    // Can we import these from talpid-tunnel?
+    const IPV4_HEADER_SIZE: usize = 20;
+    const ICMP_HEADER_SIZE: usize = 8;
+    let payload_size = (size - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE) as usize;
+    let payload: &[u8] = &vec![0; payload_size];
+    let kind = match destination {
+        IpAddr::V4(_) => surge_ping::ICMP::V4,
+        IpAddr::V6(_) => surge_ping::ICMP::V6,
+    };
+    let config_builder = config_builder.kind(kind);
+    let mut pinger = Client::new(&config_builder.build())?
+        .pinger(destination, PingIdentifier(rand::random()))
+        .await;
+    pinger.ping(PingSequence(0), payload).await?;
 
-    let mut cmd = Command::new("ping");
-    cmd.arg(destination.to_string());
-
-    #[cfg(target_os = "windows")]
-    cmd.args(["-n", "1"]);
-
-    #[cfg(not(target_os = "windows"))]
-    cmd.args(["-c", "1"]);
-
-    match interface {
-        Some(interface) => {
-            log::info!("Pinging {destination} on interface {interface}");
-
-            #[cfg(target_os = "windows")]
-            if let Some(source_ip) = source_ip {
-                cmd.args(["-S", &source_ip.to_string()]);
-            }
-
-            #[cfg(target_os = "linux")]
-            cmd.args(["-I", interface]);
-
-            #[cfg(target_os = "macos")]
-            cmd.args(["-b", interface]);
-        }
-        None => log::info!("Pinging {destination}"),
-    }
-
-    cmd.kill_on_drop(true);
-
-    cmd.spawn()
-        .map_err(|error| {
-            log::error!("Failed to spawn ping process: {error}");
-            test_rpc::Error::Ping
-        })?
-        .wait_with_output()
-        .await
-        .map_err(|error| {
-            log::error!("Failed to wait on ping: {error}");
-            test_rpc::Error::Ping
-        })
-        .and_then(|output| result_from_output("ping", output, test_rpc::Error::Ping))
+    Ok(())
 }
 
 #[cfg(unix)]
