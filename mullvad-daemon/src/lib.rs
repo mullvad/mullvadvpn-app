@@ -56,7 +56,7 @@ use mullvad_types::{
     version::{AppVersion, AppVersionInfo},
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
-use relay_list::updater::{self, RelayListUpdater, RelayListUpdaterHandle};
+use relay_list::{RelayListUpdater, RelayListUpdaterHandle, RELAYS_FILENAME};
 use settings::SettingsPersister;
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
@@ -698,8 +698,8 @@ where
         let initial_selector_config = new_selector_config(&settings);
         let relay_selector = RelaySelector::new(
             initial_selector_config,
-            resource_dir.join(updater::RELAYS_FILENAME),
-            cache_dir.join(updater::RELAYS_FILENAME),
+            resource_dir.join(RELAYS_FILENAME),
+            cache_dir.join(RELAYS_FILENAME),
         );
 
         let settings_relay_selector = relay_selector.clone();
@@ -1105,7 +1105,7 @@ where
                     // Note that `Constraint::Any` corresponds to just IPv4
                     matches!(
                         relay_constraints.wireguard_constraints.ip_version,
-                        mullvad_types::relay_constraints::Constraint::Only(IpVersion::V6)
+                        mullvad_types::constraints::Constraint::Only(IpVersion::V6)
                     )
                 } else {
                     false
