@@ -1348,12 +1348,10 @@ impl TunnelStateChangeHandler {
 #[cfg(test)]
 mod test {
     use super::{Error, TunnelStateChangeHandler, WG_DEVICE_CHECK_THRESHOLD};
-    use mullvad_relay_selector::RelaySelector;
     use std::sync::{
         atomic::{AtomicBool, Ordering},
         Arc,
     };
-    use talpid_types::net::TunnelType;
 
     const TIMEOUT_ERROR: Error = Error::OtherRestError(mullvad_api::rest::Error::TimeoutError);
 
@@ -1437,24 +1435,18 @@ mod test {
         );
     }
 
-    /// Test whether the relay selector selects wireguard often enough, given no special
-    /// constraints, to verify that the device is valid
+    /// Test whether the relay selector selects wireguard often enough, given no special constraints.
+    /// A Wireguard relay must be used to verify that the device is valid.
     #[test]
     fn test_validates_by_default() {
-        for attempt in 0.. {
-            let should_validate =
-                TunnelStateChangeHandler::should_check_validity_on_attempt(attempt);
-            let (_, _, tunnel_type) =
-                RelaySelector::preferred_tunnel_constraints(attempt.try_into().unwrap());
-            assert_eq!(
-                tunnel_type,
-                TunnelType::Wireguard,
-                "failed on attempt {attempt}"
-            );
-            if should_validate {
-                // Now that we've triggered a device check, we can give up
-                break;
-            }
+        use mullvad_relay_selector::{RelaySelector, SelectorConfig};
+        use talpid_types::net::TunnelType;
+        // No special relay constraints / user settings are assumed
+        let config = SelectorConfig::default();
+        // It ought to be enough that the first 3 connection attempts will yield a Wireguard relay
+        for attempt in 0..3 {
+            let typ = RelaySelector::would_return(attempt, &config).unwrap();
+            assert_eq!(typ, TunnelType::Wireguard);
         }
     }
 }
