@@ -38,7 +38,7 @@ pub enum Error {
     #[error(display = "Failed to send TCP segment")]
     SendTcp,
     #[error(display = "Failed to send ping")]
-    Ping,
+    Ping(String),
     #[error(display = "Failed to get or set registry value")]
     Registry(String),
     #[error(display = "Failed to change the service")]
@@ -136,7 +136,11 @@ mod service {
         ) -> Result<(), Error>;
 
         /// Send ICMP
-        async fn send_ping(interface: Option<String>, destination: IpAddr) -> Result<(), Error>;
+        async fn send_ping(
+            destination: IpAddr,
+            interface: Option<String>,
+            size: usize,
+        ) -> Result<(), Error>;
 
         /// Fetch the current location.
         async fn geoip_lookup(mullvad_host: String) -> Result<AmIMullvad, Error>;
@@ -175,7 +179,8 @@ mod service {
             verbosity_level: mullvad_daemon::Verbosity,
         ) -> Result<(), Error>;
 
-        /// Set environment variables for the daemon service. This will restart the daemon system service.
+        /// Set environment variables for the daemon service. This will restart the daemon system
+        /// service.
         async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), Error>;
 
         /// Copy a file from `src` to `dest` on the test runner.
