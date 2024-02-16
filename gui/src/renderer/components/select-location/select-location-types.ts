@@ -11,6 +11,7 @@ import {
   IRelayLocationCountryRedux,
   IRelayLocationRelayRedux,
 } from '../../redux/settings/reducers';
+import { SpecialLocationRowInnerProps } from './SpecialLocationList';
 
 export enum LocationType {
   entry = 0,
@@ -21,11 +22,8 @@ export type RelayList = GeographicalRelayList | Array<CustomListSpecification>;
 export type GeographicalRelayList = Array<CountrySpecification>;
 
 export enum SpecialBridgeLocationType {
-  closestToExit = 0,
-}
-
-export enum SpecialLocationIcon {
-  geoLocation = 'icon-nearest',
+  closestToExit,
+  custom,
 }
 
 export interface LocationVisibility {
@@ -40,9 +38,8 @@ interface CommonLocationSpecification {
 }
 
 export interface SpecialLocation<T> extends CommonLocationSpecification {
-  icon?: SpecialLocationIcon;
-  info?: string;
   value: T;
+  component: React.ComponentType<SpecialLocationRowInnerProps<T>>;
 }
 
 type GeographicalLocationSpecification =

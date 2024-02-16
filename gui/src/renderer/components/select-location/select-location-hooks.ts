@@ -114,6 +114,7 @@ export function useOnSelectBridgeLocation() {
 
   const onSelectSpecial = useCallback((location: SpecialBridgeLocationType) => {
     switch (location) {
+      default: // TODO
       case SpecialBridgeLocationType.closestToExit: {
         const bridgeUpdate = new BridgeSettingsBuilder().location.any().build();
         return setLocation(bridgeUpdate);
