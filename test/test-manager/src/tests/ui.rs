@@ -220,3 +220,14 @@ async fn test_custom_access_methods_gui(
 
     Ok(())
 }
+
+/// Test settings import / IP overrides in the GUI
+///
+/// # Note
+/// This test expects the daemon to be logged in
+#[test_function]
+pub async fn test_import_settings_ui(_: TestContext, rpc: ServiceClient) -> Result<(), Error> {
+    let ui_result = run_test(&rpc, &["settings-import.spec"]).await?;
+    assert!(ui_result.success());
+    Ok(())
+}
