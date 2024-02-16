@@ -6,12 +6,16 @@ use crate::network_monitor::{start_packet_monitor, MonitorOptions};
 use crate::tests::helpers::login_with_retries;
 
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::relay_constraints::{
-    self, BridgeConstraints, BridgeSettings, BridgeType, Constraint, OpenVpnConstraints,
-    RelayConstraints, RelaySettings, SelectedObfuscation, TransportPort,
-    Udp2TcpObfuscationSettings, WireguardConstraints,
+use mullvad_relay_selector::query::builder::RelayQueryBuilder;
+use mullvad_types::{
+    constraints::Constraint,
+    relay_constraints::{
+        self, BridgeConstraints, BridgeSettings, BridgeType, OpenVpnConstraints, RelayConstraints,
+        RelaySettings, SelectedObfuscation, TransportPort, Udp2TcpObfuscationSettings,
+        WireguardConstraints,
+    },
+    wireguard,
 };
-use mullvad_types::wireguard;
 use std::net::SocketAddr;
 use talpid_types::net::{
     proxy::{CustomProxy, Socks5Local, Socks5Remote},
@@ -295,19 +299,17 @@ pub async fn test_multihop(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    let wireguard_constraints = WireguardConstraints {
-        use_multihop: true,
-        ..Default::default()
-    };
+    let relay_constraints = RelayQueryBuilder::new()
+        .wireguard()
+        .multihop()
+        .into_constraint();
 
-    let relay_settings = RelaySettings::Normal(RelayConstraints {
-        wireguard_constraints,
-        ..Default::default()
-    });
-
-    set_relay_settings(&mut mullvad_client, relay_settings)
-        .await
-        .expect("failed to update relay settings");
+    set_relay_settings(
+        &mut mullvad_client,
+        RelaySettings::Normal(relay_constraints),
+    )
+    .await
+    .expect("failed to update relay settings");
 
     //
     // Connect
@@ -556,15 +558,13 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
         .await
         .expect("Failed to enable obfuscation");
 
+    let relay_constraints = RelayQueryBuilder::new()
+        .wireguard()
+        .multihop()
+        .into_constraint();
+
     mullvad_client
-        .set_relay_settings(relay_constraints::RelaySettings::Normal(RelayConstraints {
-            wireguard_constraints: WireguardConstraints {
-                use_multihop: true,
-                ..Default::default()
-            },
-            tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-            ..Default::default()
-        }))
+        .set_relay_settings(RelaySettings::Normal(relay_constraints))
         .await
         .expect("Failed to update relay settings");
 

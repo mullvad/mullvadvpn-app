@@ -68,6 +68,8 @@ chrono = { version = "0.4.26", default-features = false}
 clap = { version = "4.4.18", features = ["cargo", "derive"] }
 once_cell = "1.13"
 
+# Test dependencies
+proptest = "1.4"
 
 [profile.release]
 opt-level = 3
