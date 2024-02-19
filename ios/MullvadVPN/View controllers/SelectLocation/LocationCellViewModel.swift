@@ -9,6 +9,6 @@
 import MullvadTypes
 
 struct LocationCellViewModel: Hashable {
-    let group: SelectLocationGroup
+    let group: SelectLocationSection
     let location: RelayLocation
 }
