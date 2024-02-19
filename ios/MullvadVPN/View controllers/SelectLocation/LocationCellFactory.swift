@@ -10,7 +10,7 @@ import MullvadTypes
 import UIKit
 
 protocol LocationCellEventHandler {
-    func collapseCell(for item: LocationCellViewModel)
+    func toggleCell(for item: LocationCellViewModel)
     func node(for item: LocationCellViewModel) -> SelectLocationNode?
 }
 
@@ -48,7 +48,7 @@ final class LocationCellFactory: CellFactoryProtocol {
         cell.showsCollapseControl = node.isCollapsible
         cell.isExpanded = node.showsChildren
         cell.didCollapseHandler = { [weak self] _ in
-            self?.delegate?.collapseCell(for: item)
+            self?.delegate?.toggleCell(for: item)
         }
     }
 }
