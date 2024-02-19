@@ -3,6 +3,7 @@
 mod access_method;
 pub mod account_history;
 mod api;
+mod api_address_updater;
 #[cfg(not(target_os = "android"))]
 mod cleanup;
 mod custom_list;
@@ -712,12 +713,18 @@ where
             relay_selector.clone(),
             settings.api_access_methods.clone(),
             internal_event_tx.to_specialized_sender(),
-            api_runtime.address_cache.clone().clone(),
+            api_runtime.address_cache().clone(),
         )
         .await
         .map_err(Error::ApiConnectionModeError)?;
 
         let api_handle = api_runtime.mullvad_rest_handle(access_mode_provider);
+
+        // Continually update the API IP
+        tokio::spawn(api_address_updater::run_api_address_fetcher(
+            api_runtime.address_cache().clone(),
+            api_handle.clone(),
+        ));
 
         let access_method_handle = access_mode_handler.clone();
         settings.register_change_listener(move |settings| {

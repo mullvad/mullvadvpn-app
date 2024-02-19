@@ -42,6 +42,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix connectivity issues that would occur when using quantum-resistant tunnels with an incorrectly
   configured MTU.
 - Fix custom list name validation by not allowing empty names.
+- Continual excessive attempts to update the API IP were made after testing access methods.
+- Fix pointless API access method rotations for concurrent requests.
 
 #### Linux
 - Fix Bash shell completions for subcommands in the CLI.
