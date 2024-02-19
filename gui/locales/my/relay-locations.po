@@ -152,6 +152,10 @@ msgstr "ဒိန်းမတ်"
 msgid "Denver, CO"
 msgstr "ဒန်ဗာ၊ ကော်လိုရာဒို"
 
+#. US DET
+msgid "Detroit, MI"
+msgstr ""
+
 #. AE DXB
 msgid "Dubai"
 msgstr "ဒူဘိုင်း"
@@ -571,4 +575,3 @@ msgstr "ဇက်ဂ်ရက်ဘ်"
 #. CH ZRH
 msgid "Zurich"
 msgstr "ဇူးရစ်ချ်"
-

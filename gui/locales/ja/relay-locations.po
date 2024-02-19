@@ -152,6 +152,10 @@ msgstr "デンマーク"
 msgid "Denver, CO"
 msgstr "デンバー、CO"
 
+#. US DET
+msgid "Detroit, MI"
+msgstr "デトロイト, MI"
+
 #. AE DXB
 msgid "Dubai"
 msgstr "ドバイ"
@@ -571,4 +575,3 @@ msgstr "ザグレブ"
 #. CH ZRH
 msgid "Zurich"
 msgstr "チューリッヒ"
-
