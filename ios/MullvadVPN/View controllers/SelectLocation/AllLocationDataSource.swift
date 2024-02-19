@@ -15,52 +15,50 @@ class AllLocationDataSource: LocationDataSourceProtocol {
     private var locationList = [RelayLocation]()
 
     func search(by text: String) -> [RelayLocation] {
-        if text.isEmpty {
+        guard !text.isEmpty else {
             return locationList
-        } else {
-            var filteredLocations: [RelayLocation] = []
-            locationList.forEach { location in
-                guard let countryNode = nodeByLocation[location] else { return }
-                countryNode.showsChildren = false
+        }
 
-                if text.isEmpty || countryNode.displayName.fuzzyMatch(text) {
-                    filteredLocations.append(countryNode.location)
-                }
+        var filteredLocations: [RelayLocation] = []
+        locationList.forEach { location in
+            guard let countryNode = nodeByLocation[location] else { return }
+            countryNode.showsChildren = false
 
-                for cityNode in countryNode.children {
-                    cityNode.showsChildren = false
+            if countryNode.displayName.fuzzyMatch(text) {
+                filteredLocations.append(countryNode.location)
+            }
 
-                    let relaysContainSearchString = cityNode.children
-                        .contains(where: { $0.displayName.fuzzyMatch(text) })
+            for cityNode in countryNode.children {
+                cityNode.showsChildren = false
 
-                    if cityNode.displayName.fuzzyMatch(text) || relaysContainSearchString {
-                        if !filteredLocations.contains(where: { $0 == countryNode.location }) {
-                            filteredLocations.append(countryNode.location)
-                        }
+                let relaysContainSearchString = cityNode.children
+                    .contains(where: { $0.displayName.fuzzyMatch(text) })
 
-                        filteredLocations.append(cityNode.location)
-                        countryNode.showsChildren = true
+                if cityNode.displayName.fuzzyMatch(text) || relaysContainSearchString {
+                    if !filteredLocations.contains(countryNode.location) {
+                        filteredLocations.append(countryNode.location)
+                    }
 
-                        if relaysContainSearchString {
-                            cityNode.children.map { $0.location }.forEach {
-                                filteredLocations.append($0)
-                            }
-                            cityNode.showsChildren = true
-                        }
+                    filteredLocations.append(cityNode.location)
+                    countryNode.showsChildren = true
+
+                    if relaysContainSearchString {
+                        filteredLocations.append(contentsOf: cityNode.children.map { $0.location })
+                        cityNode.showsChildren = true
                     }
                 }
             }
-
-            return filteredLocations
         }
+
+        return filteredLocations
     }
 
     func reload(
-        _ response: MullvadREST.REST.ServerRelaysResponse,
-        relays: [MullvadREST.REST.ServerRelay]
+        _ response: REST.ServerRelaysResponse,
+        relays: [REST.ServerRelay]
     ) -> [RelayLocation] {
         nodeByLocation.removeAll()
-        let rootNode = self.makeRootNode(name: SelectLocationGroup.allLocations.description)
+        let rootNode = self.makeRootNode(name: SelectLocationSection.allLocations.description)
 
         for relay in relays {
             guard case let .city(countryCode, cityCode) = RelayLocation(dashSeparatedString: relay.location),

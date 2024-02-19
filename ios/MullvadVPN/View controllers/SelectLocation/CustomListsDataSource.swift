@@ -15,12 +15,12 @@ class CustomListsDataSource: LocationDataSourceProtocol {
     private var locationList = [RelayLocation]()
 
     func search(by text: String) -> [RelayLocation] {
-        return []
+        []
     }
 
     func reload(
-        _ response: MullvadREST.REST.ServerRelaysResponse,
-        relays: [MullvadREST.REST.ServerRelay]
+        _ response: REST.ServerRelaysResponse,
+        relays: [REST.ServerRelay]
     ) -> [RelayLocation] {
         locationList
     }
