@@ -29,18 +29,18 @@ extension LocationDataSourceProtocol {
 
     func createNode(
         root: SelectLocationNode,
-        ascendantOrSelf: RelayLocation,
+        ancestorOrSelf: RelayLocation,
         serverLocation: REST.ServerLocation,
         relay: REST.ServerRelay,
         wasShowingChildren: Bool
     ) -> SelectLocationNode {
         let node: SelectLocationNode
 
-        switch ascendantOrSelf {
+        switch ancestorOrSelf {
         case .country:
             node = SelectLocationNode(
                 nodeType: .country,
-                location: ascendantOrSelf,
+                location: ancestorOrSelf,
                 displayName: serverLocation.country,
                 showsChildren: wasShowingChildren
             )
@@ -48,7 +48,7 @@ extension LocationDataSourceProtocol {
         case let .city(countryCode, _):
             node = SelectLocationNode(
                 nodeType: .city,
-                location: ascendantOrSelf,
+                location: ancestorOrSelf,
                 displayName: serverLocation.city,
                 showsChildren: wasShowingChildren
             )
@@ -57,7 +57,7 @@ extension LocationDataSourceProtocol {
         case let .hostname(countryCode, cityCode, _):
             node = SelectLocationNode(
                 nodeType: .relay,
-                location: ascendantOrSelf,
+                location: ancestorOrSelf,
                 displayName: relay.hostname,
                 isActive: relay.active
             )
