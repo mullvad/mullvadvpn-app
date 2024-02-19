@@ -23,6 +23,20 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+#### Android
+- Add support for all screen orientations.
+
+### Changed
+#### Android
+- Migrate to Compose Navigation which also improves screen transition animations.
+
+### Security
+#### Android
+- Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
+
+
+## [2024.1-beta2] - 2024-02-19
+### Added
 - Add account UUID to verbose 'mullvad account get -v' output.
 - Respect OS prefer-reduced-motion setting.
 - Add CLI command for exporting settings patches: `mullvad export-settings`. Currently, it generates
@@ -32,9 +46,6 @@ Line wrap the file at 100 chars.                                              Th
   circumvent censorship by proxying API traffic.
 - Add confirmation dialog when deleting a custom list.
 - Add support for custom SOCKS5 OpenVPN bridges running locally.
-
-#### Android
-- Add support for all screen orientations.
 
 ### Fixed
 - Fix connectivity issues that would occur when using quantum-resistant tunnels with an incorrectly
@@ -64,9 +75,6 @@ Line wrap the file at 100 chars.                                              Th
   troubleshooting tips.
 - Update support email address to new email address, support@mullvadvpn.net.
 
-#### Android
-- Migrate to Compose Navigation which also improves screen transition animations.
-
 #### Linux
 - Enable quantum resistant tunnels by default (when set to `auto`). On other platforms, `auto` still
   always means the same thing as `off`.
@@ -74,10 +82,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Add information to error notification about an error that is often caused by an incompatibility
   with VMWare.
-
-### Security
-#### Android
-- Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
 
 
 ## [android/2023.10] - 2023-12-14
