@@ -1,11 +1,31 @@
 //! Constrain yourself.
 
 mod constraint;
-mod set;
 
 // Re-export bits & pieces from `constraints.rs` as needed
 pub use constraint::Constraint;
-pub use set::Set;
+
+/// A limited variant of Sets.
+pub trait Set<T> {
+    fn is_subset(&self, other: &T) -> bool;
+}
+
+pub trait Match<T> {
+    fn matches(&self, other: &T) -> bool;
+}
+
+/// Any type that wish to implement `Intersection` should make sure that the
+/// following properties are upheld:
+///
+/// - idempotency (if there is an identity element)
+/// - commutativity
+/// - associativity
+pub trait Intersection {
+    fn intersection(self, other: Self) -> Option<Self>
+    where
+        Self: PartialEq,
+        Self: Sized;
+}
 
 impl<T: Match<U>, U> Match<U> for Constraint<T> {
     fn matches(&self, other: &U) -> bool {
@@ -28,6 +48,7 @@ impl<T: Set<U>, U> Set<Constraint<U>> for Constraint<T> {
     }
 }
 
-pub trait Match<T> {
-    fn matches(&self, other: &T) -> bool;
+#[cfg(test)]
+pub mod proptest {
+    pub use super::constraint::proptest::{any, constraint, only};
 }
