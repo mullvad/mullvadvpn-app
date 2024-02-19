@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add automatic MTU detection for desktop platforms. This currently only uses information about
+  dropped packets and does not take fragmentation into account.
 - Add ability to import server IP overrides in GUI.
 
 #### Android
