@@ -64,7 +64,8 @@ jobs:
           RUSTFLAGS: --deny warnings
         run: |
           source env.sh
-          time cargo clippy --locked --all-targets
+          time cargo clippy --locked --all-targets --benches --tests
+          time cargo clippy --locked --all-targets --all-features --benches --tests
 
   clippy-check-android:
     name: Clippy linting, Android
@@ -86,4 +87,5 @@ jobs:
         env:
           RUSTFLAGS: --deny warnings
         run: |
-          cargo clippy --locked --target x86_64-linux-android --package mullvad-jni
+          cargo clippy --locked --target x86_64-linux-android --package mullvad-jni --benches --tests
+          cargo clippy --locked --target x86_64-linux-android --package mullvad-jni --all-features --benches --tests
