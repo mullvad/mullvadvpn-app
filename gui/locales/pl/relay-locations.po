@@ -152,6 +152,10 @@ msgstr "Dania"
 msgid "Denver, CO"
 msgstr "Denver, CO"
 
+#. US DET
+msgid "Detroit, MI"
+msgstr "Detroit, MI"
+
 #. AE DXB
 msgid "Dubai"
 msgstr "Dubaj"
@@ -571,4 +575,3 @@ msgstr "Zagrzeb"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zurych"
-

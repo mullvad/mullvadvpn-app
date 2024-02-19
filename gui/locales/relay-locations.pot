@@ -142,6 +142,10 @@ msgstr ""
 msgid "Denver, CO"
 msgstr ""
 
+#. US DET
+msgid "Detroit, MI"
+msgstr ""
+
 #. AE DXB
 msgid "Dubai"
 msgstr ""
