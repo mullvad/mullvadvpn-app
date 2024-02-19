@@ -3,16 +3,11 @@ use crate::logging;
 use futures::channel::oneshot;
 use std::path;
 #[cfg(not(target_os = "android"))]
-use talpid_openvpn;
-#[cfg(not(target_os = "android"))]
 use talpid_routing::RouteManagerHandle;
 pub use talpid_tunnel::{TunnelArgs, TunnelEvent, TunnelMetadata};
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::openvpn as openvpn_types;
 use talpid_types::net::{wireguard as wireguard_types, TunnelParameters};
-
-/// A module for all WireGuard related tunnel management.
-use talpid_wireguard;
 
 const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";

@@ -394,15 +394,13 @@ mod test {
     use crate::{
         config::Config,
         stats::{self, Stats},
-        TunnelError,
     };
     use std::{
         pin::Pin,
         sync::{
             atomic::{AtomicBool, Ordering},
-            Arc, Mutex,
+            Arc,
         },
-        time::{Duration, Instant},
     };
 
     /// Test if a newly created ConnState won't have timed out or consider itself connected

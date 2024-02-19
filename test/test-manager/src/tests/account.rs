@@ -1,7 +1,7 @@
 use super::config::TEST_CONFIG;
 use super::{helpers, ui, Error, TestContext};
 use mullvad_api::DevicesProxy;
-use mullvad_management_interface::{self, client::DaemonEvent, MullvadProxyClient};
+use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
 use mullvad_types::device::{Device, DeviceState};
 use mullvad_types::states::TunnelState;
 use std::net::ToSocketAddrs;

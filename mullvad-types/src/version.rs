@@ -3,10 +3,7 @@ use jnix::IntoJava;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::{
-    cmp::{Ord, Ordering, PartialOrd},
-    str::FromStr,
-};
+use std::{cmp::Ordering, str::FromStr};
 
 static STABLE_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(\d{4})\.(\d+)$").unwrap());
 static BETA_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(\d{4})\.(\d+)-beta(\d+)$").unwrap());
