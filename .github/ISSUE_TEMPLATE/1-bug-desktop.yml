@@ -17,7 +17,7 @@ body:
         please contact support instead of filing a bug report. Go to
         `Settings (cogwheel) -> Support -> Report a problem`.
         That way the support team gets redacted logs from your app and can help you out better.
-        You can also just email them at support@mullvad.net.
+        You can also just email them at support@mullvadvpn.net.
       options:
         - label: I know this is an issue with the app, and contacting Mullvad support is not relevant.
           required: true

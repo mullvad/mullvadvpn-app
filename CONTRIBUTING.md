@@ -10,7 +10,7 @@ The Mullvad VPN app is open sourced for many reasons, but primarily we want to
 
 If you find a bug in the app's code, please report it on GitHub in the issue tracker. Please send
 all other problems or questions (those not directly related to the app's development) to
-[support@mullvad.net](mailto:support@mullvad.net). This includes connection issues, questions
+[support@mullvadvpn.net](mailto:support@mullvadvpn.net). This includes connection issues, questions
 regarding your account, and problems with the Mullvad VPN infrastructure or servers.
 
 
