@@ -5,7 +5,7 @@ mod set;
 
 // Re-export bits & pieces from `constraints.rs` as needed
 pub use constraint::Constraint;
-pub use set::Set;
+pub use set::{Intersection, Set};
 
 impl<T: Match<U>, U> Match<U> for Constraint<T> {
     fn matches(&self, other: &U) -> bool {
@@ -30,4 +30,9 @@ impl<T: Set<U>, U> Set<Constraint<U>> for Constraint<T> {
 
 pub trait Match<T> {
     fn matches(&self, other: &T) -> bool;
+}
+
+#[cfg(test)]
+pub mod test {
+    pub use super::constraint::test::{any, constraint, only};
 }
