@@ -1,11 +1,11 @@
 //! General constraints.
 
-use std::fmt;
-use std::str::FromStr;
-
+use crate::constraints::set::Intersection;
 #[cfg(target_os = "android")]
 use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Serialize};
+use std::fmt;
+use std::str::FromStr;
 
 /// Limits the set of [`crate::relay_list::Relay`]s that a `RelaySelector` may select.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
@@ -89,25 +89,23 @@ impl<T: PartialEq> Constraint<T> {
             Constraint::Only(ref value) => value == other,
         }
     }
-    /// Experimental, but might be useful
-    /// TODO(markus): Write good tests (proptest?)
-    /// TODO(markus): Write a good doc comment, explaining the relation to mathematical sets.
-    /// TODO(markus): Remove TODOs
-    pub fn intersection(self, other: Constraint<T>) -> Option<Constraint<T>> {
-        // TODO(markus): Blasphemy.
+}
+
+impl<T: PartialEq> Intersection for Constraint<T> {
+    /// Define the intersection between two arbitrary [`Constraint`]s. This
+    /// operation may be compared to the set operation with the same name. In
+    /// contrast to the general set intersection, this function represents a
+    /// very specific case where [`Constraint::Any`] is equivalent to the set
+    /// universe and [`Constraint::Only`] represents a singleton set. Notable is
+    /// that the representation of any empty set is [`Option::None`].
+    fn intersection(self, other: Constraint<T>) -> Option<Constraint<T>> {
         use Constraint::*;
         match (self, other) {
             (Any, Any) => Some(Any),
-            (Any, Only(right)) => Some(Only(right)),
-            (Only(left), Any) => Some(Only(left)),
-            (Only(left), Only(right)) => {
-                if left == right {
-                    // Pick any of `left` or `right`.
-                    Some(Only(left))
-                } else {
-                    None
-                }
-            }
+            (Only(t), Any) | (Any, Only(t)) => Some(Only(t)),
+            // Pick any of `left` or `right` if they are the same.
+            (Only(left), Only(right)) if left == right => Some(Only(left)),
+            _ => None,
         }
     }
 }
@@ -178,5 +176,97 @@ where
             return Ok(Constraint::Any);
         }
         self.0.parse_ref(cmd, arg, value).map(Constraint::Only)
+    }
+}
+
+#[cfg(test)]
+pub(super) mod proptest {
+    use super::Constraint;
+    use proptest::prelude::*;
+
+    // Define proptest combinators for `Contraint`.
+    pub fn constraint<T>(
+        base_strategy: impl Strategy<Value = T> + 'static,
+    ) -> impl Strategy<Value = Constraint<T>>
+    where
+        T: core::fmt::Debug + std::clone::Clone + 'static,
+    {
+        prop_oneof![any(), only(base_strategy),]
+    }
+
+    pub fn only<T>(
+        base_strategy: impl Strategy<Value = T> + 'static,
+    ) -> impl Strategy<Value = Constraint<T>>
+    where
+        T: core::fmt::Debug + std::clone::Clone + 'static,
+    {
+        base_strategy.prop_map(Constraint::Only)
+    }
+
+    pub fn any<T>() -> impl Strategy<Value = Constraint<T>>
+    where
+        T: core::fmt::Debug + std::clone::Clone + 'static,
+    {
+        Just(Constraint::Any)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::{
+        proptest::{constraint, only},
+        Constraint,
+    };
+    use crate::constraints::Intersection;
+    use proptest::prelude::*;
+
+    proptest! {
+        #[test]
+        fn identity(x in only(proptest::arbitrary::any::<bool>())) {
+            // Identity laws
+            //  x ∩ identity = x
+            //  identity ∩ x = x
+
+            // The identity element
+            let identity = Constraint::Any;
+            prop_assert_eq!(x.intersection(identity), x.into());
+            prop_assert_eq!(identity.intersection(x), x.into());
+        }
+
+        #[test]
+        fn idempotency (x in constraint(proptest::arbitrary::any::<bool>())) {
+            // Idempotency law
+            //  x ∩ x = x
+            prop_assert_eq!(x.intersection(x), x.into()) // lift x to the return type of `intersection`
+        }
+
+        #[test]
+        fn commutativity(x in constraint(proptest::arbitrary::any::<bool>()),
+                         y in constraint(proptest::arbitrary::any::<bool>())) {
+            // Commutativity law
+            //  x ∩ y = y ∩ x
+            prop_assert_eq!(x.intersection(y), y.intersection(x))
+        }
+
+        #[test]
+        fn associativity(x in constraint(proptest::arbitrary::any::<bool>()),
+                         y in constraint(proptest::arbitrary::any::<bool>()),
+                         z in constraint(proptest::arbitrary::any::<bool>()))
+        {
+            // Associativity law
+            //  (x ∩ y) ∩ z = x ∩ (y ∩ z)
+            let left: Option<_> = {
+                x.intersection(y).and_then(|xy| xy.intersection(z))
+            };
+            let right: Option<_> = {
+                // It is fine to rewrite the order of the application from
+                //  x ∩ (y ∩ z)
+                // to
+                //  (y ∩ z) ∩ x
+                // due to the commutative property of intersection
+                (y.intersection(z)).and_then(|yz| yz.intersection(x))
+            };
+            prop_assert_eq!(left, right);
+        }
     }
 }
