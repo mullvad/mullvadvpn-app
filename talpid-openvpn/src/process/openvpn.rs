@@ -1,5 +1,4 @@
 use futures::channel::oneshot;
-use shell_escape;
 use std::{
     ffi::{OsStr, OsString},
     fmt, io,

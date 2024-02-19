@@ -3,7 +3,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     sync::Arc,
 };
-use talpid_routing::{self, RouteManagerHandle};
+use talpid_routing::RouteManagerHandle;
 use talpid_types::{net::Connectivity, ErrorExt};
 
 pub type Result<T> = std::result::Result<T, Error>;

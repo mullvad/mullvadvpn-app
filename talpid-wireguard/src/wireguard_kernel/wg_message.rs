@@ -61,7 +61,6 @@ mod constants {
 }
 
 use constants::*;
-pub use constants::{WG_CMD_GET_DEVICE, WG_CMD_SET_DEVICE};
 
 type PrivateKey = [u8; 32];
 type PublicKey = [u8; 32];

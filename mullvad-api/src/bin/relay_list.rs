@@ -2,7 +2,7 @@
 //! Used by the installer artifact packer to bundle the latest available
 //! relay list at the time of creating the installer.
 
-use mullvad_api::{self, proxy::ApiConnectionMode, rest::Error as RestError, RelayListProxy};
+use mullvad_api::{proxy::ApiConnectionMode, rest::Error as RestError, RelayListProxy};
 use std::process;
 use talpid_types::ErrorExt;
 

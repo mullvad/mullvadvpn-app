@@ -1330,12 +1330,9 @@ impl NormalSelectedRelay {
 mod test {
     use super::*;
     use mullvad_types::{
-        custom_list::CustomListsSettings,
-        relay_constraints::{
-            GeographicLocationConstraint, RelayConstraints, RelaySettings, WireguardConstraints,
-        },
+        relay_constraints::{GeographicLocationConstraint, WireguardConstraints},
         relay_list::{
-            OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayListCity, RelayListCountry,
+            OpenVpnEndpoint, OpenVpnEndpointData, RelayListCity, RelayListCountry,
             ShadowsocksEndpointData, WireguardEndpointData, WireguardRelayEndpointData,
         },
     };

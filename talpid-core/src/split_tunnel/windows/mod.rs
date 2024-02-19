@@ -8,7 +8,6 @@ use crate::{tunnel::TunnelMetadata, tunnel_state_machine::TunnelCommand};
 use futures::channel::{mpsc, oneshot};
 use std::{
     collections::HashMap,
-    convert::TryFrom,
     ffi::{OsStr, OsString},
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},

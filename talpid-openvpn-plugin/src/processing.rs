@@ -3,10 +3,7 @@ use parity_tokio_ipc::Endpoint as IpcEndpoint;
 use std::collections::HashMap;
 use tower::service_fn;
 
-use tonic::{
-    self,
-    transport::{Endpoint, Uri},
-};
+use tonic::transport::{Endpoint, Uri};
 
 use tokio::runtime::{self, Runtime};
 

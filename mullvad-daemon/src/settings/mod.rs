@@ -476,7 +476,6 @@ impl<'a> SettingsSummary<'a> {
 mod test {
     use super::*;
     use mullvad_types::settings::SettingsVersion;
-    use serde_json;
 
     #[test]
     #[should_panic]
