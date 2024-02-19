@@ -2058,6 +2058,7 @@ dependencies = [
  "jnix",
  "log",
  "once_cell",
+ "proptest",
  "regex",
  "serde",
  "talpid-types",
