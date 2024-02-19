@@ -20,6 +20,7 @@ data class VpnSettingsViewModelState(
     val selectedWireguardPort: Constraint<Port>,
     val customWireguardPort: Constraint<Port>?,
     val availablePortRanges: List<PortRange>,
+    val systemVpnSettingsAvailable: Boolean,
 ) {
     fun toUiState(): VpnSettingsUiState =
         VpnSettingsUiState(
@@ -34,6 +35,7 @@ data class VpnSettingsViewModelState(
             selectedWireguardPort,
             customWireguardPort,
             availablePortRanges,
+            systemVpnSettingsAvailable
         )
 
     companion object {
@@ -51,7 +53,8 @@ data class VpnSettingsViewModelState(
                 quantumResistant = QuantumResistantState.Off,
                 selectedWireguardPort = Constraint.Any(),
                 customWireguardPort = null,
-                availablePortRanges = emptyList()
+                availablePortRanges = emptyList(),
+                systemVpnSettingsAvailable = false
             )
     }
 }

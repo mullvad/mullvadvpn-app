@@ -34,6 +34,7 @@ import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
+import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
@@ -109,6 +110,7 @@ val uiModule = module {
     single { RelayListUseCase(get(), get()) }
     single { OutOfTimeUseCase(get(), get()) }
     single { ConnectivityUseCase(get()) }
+    single { SystemVpnSettingsUseCase(androidContext()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
 
@@ -151,7 +153,7 @@ val uiModule = module {
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
-    viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
+    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }

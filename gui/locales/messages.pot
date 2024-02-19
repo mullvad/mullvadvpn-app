@@ -2007,6 +2007,15 @@ msgstr ""
 msgid "%s was added to your account."
 msgstr ""
 
+msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
+msgstr ""
+
+msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
+msgstr ""
+
+msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>."
+msgstr ""
+
 msgid "30 days was added to your account."
 msgstr ""
 
@@ -2044,6 +2053,15 @@ msgid "Always-on VPN might be enabled for another app"
 msgstr ""
 
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
+msgstr ""
+
+msgid "Auto-connect & Lockdown mode"
+msgstr ""
+
+msgid "Auto-connect & \\nLockdown mode"
+msgstr ""
+
+msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr ""
 
 msgid "Blocking internet (device offline)"
@@ -2085,6 +2103,9 @@ msgstr ""
 msgid "Excluded applications"
 msgstr ""
 
+msgid "Go to VPN settings"
+msgstr ""
+
 msgid "Going to login will unblock the internet on this device."
 msgstr ""
 
@@ -2098,6 +2119,9 @@ msgid "If the split tunneling feature is used, then the app queries your system 
 msgstr ""
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
+msgstr ""
+
+msgid "Makes sure the device is always on the VPN tunnel."
 msgstr ""
 
 msgid "Manage account"
@@ -2154,7 +2178,16 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
+msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
+msgstr ""
+
+msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
+msgstr ""
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
+msgstr ""
+
+msgid "There is no VPN settings on your device"
 msgstr ""
 
 msgid "This address has already been entered."

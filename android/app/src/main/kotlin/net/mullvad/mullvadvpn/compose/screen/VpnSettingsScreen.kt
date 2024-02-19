@@ -46,11 +46,13 @@ import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.InformationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuSubtitle
+import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NormalSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.destinations.AutoConnectAndLockdownModeDestination
 import net.mullvad.mullvadvpn.compose.destinations.ContentBlockersInfoDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.CustomDnsInfoDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.DnsDialogDestination
@@ -188,6 +190,9 @@ fun VpnSettings(
         navigateToContentBlockersInfo = {
             navigator.navigate(ContentBlockersInfoDialogDestination) { launchSingleTop = true }
         },
+        navigateToAutoConnectScreen = {
+            navigator.navigate(AutoConnectAndLockdownModeDestination) { launchSingleTop = true }
+        },
         navigateToCustomDnsInfo = {
             navigator.navigate(CustomDnsInfoDialogDestination) { launchSingleTop = true }
         },
@@ -245,12 +250,14 @@ fun VpnSettings(
     )
 }
 
+@Suppress("LongMethod")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun VpnSettingsScreen(
     uiState: VpnSettingsUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     navigateToContentBlockersInfo: () -> Unit = {},
+    navigateToAutoConnectScreen: () -> Unit = {},
     navigateToCustomDnsInfo: () -> Unit = {},
     navigateToMalwareInfo: () -> Unit = {},
     navigateToObfuscationInfo: () -> Unit = {},
@@ -288,17 +295,34 @@ fun VpnSettingsScreen(
             modifier = modifier.testTag(LAZY_LIST_TEST_TAG).animateContentSize(),
             state = lazyListState
         ) {
-            item {
-                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-                HeaderSwitchComposeCell(
-                    title = stringResource(R.string.auto_connect),
-                    isToggled = uiState.isAutoConnectEnabled,
-                    isEnabled = true,
-                    onCellClicked = { newValue -> onToggleAutoConnect(newValue) }
-                )
-            }
-            item {
-                SwitchComposeSubtitleCell(text = stringResource(id = R.string.auto_connect_footer))
+            if (uiState.systemVpnSettingsAvailable) {
+                item {
+                    Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                    NavigationComposeCell(
+                        title = stringResource(id = R.string.auto_connect_and_lockdown_mode),
+                        onClick = { navigateToAutoConnectScreen() },
+                    )
+                }
+                item {
+                    SwitchComposeSubtitleCell(
+                        text = stringResource(id = R.string.auto_connect_and_lockdown_mode_footer)
+                    )
+                }
+            } else {
+                item {
+                    Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                    HeaderSwitchComposeCell(
+                        title = stringResource(R.string.auto_connect),
+                        isToggled = uiState.isAutoConnectEnabled,
+                        isEnabled = true,
+                        onCellClicked = { newValue -> onToggleAutoConnect(newValue) }
+                    )
+                }
+                item {
+                    SwitchComposeSubtitleCell(
+                        text = stringResource(id = R.string.auto_connect_footer)
+                    )
+                }
             }
             item {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
