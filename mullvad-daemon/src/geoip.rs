@@ -1,10 +1,7 @@
 use std::time::Duration;
 
 use futures::join;
-use mullvad_api::{
-    self,
-    rest::{Error, RequestServiceHandle},
-};
+use mullvad_api::rest::{Error, RequestServiceHandle};
 use mullvad_types::location::{AmIMullvad, GeoIpLocation, LocationEventData};
 use once_cell::sync::Lazy;
 use talpid_core::mpsc::Sender;

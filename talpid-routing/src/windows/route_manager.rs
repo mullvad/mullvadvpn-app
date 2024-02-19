@@ -38,7 +38,6 @@ use windows_sys::Win32::{
 };
 
 type Network = IpNetwork;
-type NodeAddress = SOCKADDR_INET;
 
 /// Callback handle for the default route changed callback. Produced by the RouteManager.
 pub struct CallbackHandle {
@@ -81,12 +80,6 @@ impl PartialEq for RegisteredRoute {
             && (self.next_hop == other.next_hop)
             && (self.network == other.network)
     }
-}
-
-#[derive(Clone)]
-pub struct Node {
-    pub device_name: Option<widestring::U16CString>,
-    pub gateway: Option<NodeAddress>,
 }
 
 #[derive(Clone)]

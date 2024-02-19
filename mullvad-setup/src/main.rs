@@ -2,7 +2,7 @@ use clap::Parser;
 use once_cell::sync::Lazy;
 use std::{path::PathBuf, process, str::FromStr, time::Duration};
 
-use mullvad_api::{self, proxy::ApiConnectionMode, DEVICE_NOT_FOUND};
+use mullvad_api::{proxy::ApiConnectionMode, DEVICE_NOT_FOUND};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::version::ParsedAppVersion;
 use talpid_core::firewall::{self, Firewall};

@@ -18,7 +18,7 @@ use std::{
     time::Duration,
 };
 #[cfg(target_os = "linux")]
-use talpid_routing::{self, RequiredRoute};
+use talpid_routing::RequiredRoute;
 use talpid_tunnel::TunnelEvent;
 use talpid_types::{
     net::{openvpn, proxy::CustomProxy},
@@ -780,7 +780,6 @@ mod event_server {
     use talpid_types::{net::proxy::CustomProxy, ErrorExt};
     use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
     use tonic::{
-        self,
         transport::{server::Connected, Server},
         Request, Response,
     };
@@ -1090,10 +1089,7 @@ mod event_server {
 mod tests {
     use super::*;
     use crate::mktemp::TempFile;
-    use std::{
-        path::{Path, PathBuf},
-        sync::{Arc, Mutex},
-    };
+    use std::sync::{Arc, Mutex};
 
     #[cfg(windows)]
     #[derive(Debug)]

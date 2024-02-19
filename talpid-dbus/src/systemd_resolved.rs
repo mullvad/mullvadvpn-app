@@ -1,5 +1,4 @@
 use dbus::{
-    self,
     arg::{self, RefArg},
     blocking::{
         stdintf::org_freedesktop_dbus::{Properties, PropertiesPropertiesChanged},

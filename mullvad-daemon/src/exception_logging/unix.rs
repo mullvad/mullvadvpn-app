@@ -4,7 +4,6 @@ use libc::siginfo_t;
 use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, Signal};
 
 use std::{
-    convert::TryFrom,
     ffi::{c_int, c_void},
     sync::Once,
 };

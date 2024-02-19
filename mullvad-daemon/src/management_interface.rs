@@ -8,7 +8,6 @@ use mullvad_management_interface::{
     types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, Status,
 };
-use mullvad_paths;
 #[cfg(not(target_os = "android"))]
 use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
@@ -25,7 +24,6 @@ use mullvad_types::{
 #[cfg(windows)]
 use std::path::PathBuf;
 use std::{
-    convert::{TryFrom, TryInto},
     str::FromStr,
     sync::{Arc, Mutex},
     time::Duration,

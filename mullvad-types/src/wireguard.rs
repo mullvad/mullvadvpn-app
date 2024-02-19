@@ -3,7 +3,7 @@ use chrono::{offset::Utc, DateTime};
 #[cfg(target_os = "android")]
 use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Deserializer, Serialize};
-use std::{convert::TryFrom, fmt, str::FromStr, time::Duration};
+use std::{fmt, str::FromStr, time::Duration};
 use talpid_types::net::wireguard;
 
 pub const MIN_ROTATION_INTERVAL: Duration = Duration::from_secs(1 * 24 * 60 * 60);
