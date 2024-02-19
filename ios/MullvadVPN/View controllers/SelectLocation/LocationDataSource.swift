@@ -11,11 +11,11 @@ import MullvadREST
 import MullvadTypes
 import UIKit
 
-final class LocationDataSource: UITableViewDiffableDataSource<SelectLocationGroup, LocationCellViewModel> {
+final class LocationDataSource: UITableViewDiffableDataSource<SelectLocationSection, LocationCellViewModel> {
     private var currentSearchString = ""
     private let tableView: UITableView
     private let locationCellFactory: LocationCellFactory
-    private var datasources: [LocationDataSourceProtocol] = []
+    private var dataSources: [LocationDataSourceProtocol] = []
 
     var selectedRelayLocation: LocationCellViewModel?
     var didSelectRelayLocation: ((RelayLocation) -> Void)?
@@ -26,12 +26,12 @@ final class LocationDataSource: UITableViewDiffableDataSource<SelectLocationGrou
         customLists: LocationDataSourceProtocol
     ) {
         self.tableView = tableView
-        self.datasources.append(customLists)
-        self.datasources.append(allLocations)
+        self.dataSources.append(customLists)
+        self.dataSources.append(allLocations)
 
         let locationCellFactory = LocationCellFactory(
             tableView: tableView,
-            reuseIdentifier: SelectLocationGroup.Cell.locationCell.reuseIdentifier
+            reuseIdentifier: SelectLocationSection.Cell.locationCell.reuseIdentifier
         )
         self.locationCellFactory = locationCellFactory
 
@@ -51,11 +51,11 @@ final class LocationDataSource: UITableViewDiffableDataSource<SelectLocationGrou
             return RelaySelector.relayMatchesFilter(relay, filter: filter)
         }
         var list: [[LocationCellViewModel]] = []
-        for section in 0 ..< datasources.count {
+        for section in 0 ..< dataSources.count {
             list.append(
-                datasources[section]
+                dataSources[section]
                     .reload(response, relays: relays)
-                    .map { LocationCellViewModel(group: SelectLocationGroup.allCases[section], location: $0) }
+                    .map { LocationCellViewModel(group: SelectLocationSection.allCases[section], location: $0) }
             )
         }
         filterRelays(by: currentSearchString)
@@ -63,27 +63,27 @@ final class LocationDataSource: UITableViewDiffableDataSource<SelectLocationGrou
 
     func indexPathForSelectedRelay() -> IndexPath? {
         selectedRelayLocation.flatMap {
-            return indexPath(for: $0)
+            indexPath(for: $0)
         }
     }
 
     func filterRelays(by searchString: String) {
         currentSearchString = searchString
-        var list: [[LocationCellViewModel]] = []
-        for section in 0 ..< SelectLocationGroup.allCases.count {
-            list.append(
-                datasources[section]
-                    .search(by: searchString)
-                    .map { LocationCellViewModel(group: SelectLocationGroup.allCases[section], location: $0) }
-            )
+
+        let list = SelectLocationSection.allCases.enumerated().map { (section, group) in
+            dataSources[section]
+                .search(by: searchString)
+                .map { LocationCellViewModel(group: group, location: $0) }
         }
+
         updateDataSnapshot(with: list, reloadExisting: !searchString.isEmpty)
+
         if searchString.isEmpty {
-            self.setSelectedRelayLocation(self.selectedRelayLocation, animated: false, completion: {
+            setSelectedRelayLocation(selectedRelayLocation, animated: false, completion: {
                 self.scrollToSelectedRelay()
             })
         } else {
-            self.scrollToTop(animated: false)
+            scrollToTop(animated: false)
         }
     }
 
@@ -93,32 +93,28 @@ final class LocationDataSource: UITableViewDiffableDataSource<SelectLocationGrou
         animated: Bool = false,
         completion: (() -> Void)? = nil
     ) {
-        var snapshot = NSDiffableDataSourceSnapshot<SelectLocationGroup, LocationCellViewModel>()
+        var snapshot = NSDiffableDataSourceSnapshot<SelectLocationSection, LocationCellViewModel>()
 
-        let sections = Array(SelectLocationGroup.allCases)
+        let sections = SelectLocationSection.allCases
         snapshot.appendSections(sections)
         for (index, section) in sections.enumerated() {
             snapshot.appendItems(list[index], toSection: section)
         }
 
         if reloadExisting {
-            snapshot.reloadSections(SelectLocationGroup.allCases)
+            snapshot.reloadSections(SelectLocationSection.allCases)
         }
 
         apply(snapshot, animatingDifferences: animated, completion: completion)
     }
 
     private func registerClasses() {
-        SelectLocationGroup.allCases.forEach {
+        SelectLocationSection.allCases.forEach {
             tableView.register(
                 $0.cell.reusableViewClass,
                 forCellReuseIdentifier: $0.cell.reuseIdentifier
             )
         }
-    }
-
-    private func item(for indexPath: IndexPath) -> LocationCellViewModel? {
-        itemIdentifier(for: indexPath)
     }
 
     private func setSelectedRelayLocation(
@@ -135,7 +131,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<SelectLocationGrou
                     completion?()
                     return
                 }
-                let selectedLocationTree = item.location.ascendants + [item.location]
+                let selectedLocationTree = item.location.ancestors + [item.location]
 
                 guard let first = selectedLocationTree.first else { return }
                 let topLocation = LocationCellViewModel(group: group, location: first)
@@ -153,11 +149,12 @@ final class LocationDataSource: UITableViewDiffableDataSource<SelectLocationGrou
                     topNode.flatRelayLocationList().map { LocationCellViewModel(group: group, location: $0) },
                     at: indexPath.row + 1
                 )
-                var list: [[LocationCellViewModel]] = Array(repeating: [], count: datasources.count)
+
+                var list: [[LocationCellViewModel]] = Array(repeating: [], count: dataSources.count)
                 for index in 0 ..< list.count {
                     list[index] = (index == indexPath.section)
                         ? locationList
-                        : snapshot().itemIdentifiers(inSection: SelectLocationGroup.allCases[index])
+                        : snapshot().itemIdentifiers(inSection: SelectLocationSection.allCases[index])
                 }
 
                 updateDataSnapshot(
@@ -172,11 +169,11 @@ final class LocationDataSource: UITableViewDiffableDataSource<SelectLocationGrou
 
 extension LocationDataSource: UITableViewDelegate {
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        item(for: indexPath).flatMap { node(for: $0) }?.isActive ?? false
+        itemIdentifier(for: indexPath).flatMap { node(for: $0) }?.isActive ?? false
     }
 
     func tableView(_ tableView: UITableView, indentationLevelForRowAt indexPath: IndexPath) -> Int {
-        item(for: indexPath).flatMap { node(for: $0) }?.indentationLevel ?? 0
+        itemIdentifier(for: indexPath).flatMap { node(for: $0) }?.indentationLevel ?? 0
     }
 
     func tableView(
@@ -184,18 +181,20 @@ extension LocationDataSource: UITableViewDelegate {
         willDisplay cell: UITableViewCell,
         forRowAt indexPath: IndexPath
     ) {
-        if let item = item(for: indexPath),
+        if let item = itemIdentifier(for: indexPath),
            item == selectedRelayLocation {
             cell.setSelected(true, animated: false)
         }
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        item(for: indexPath)
+        itemIdentifier(for: indexPath)
             .flatMap { item in
                 guard item.location != selectedRelayLocation?.location else { return }
                 didSelectRelayLocation?(item.location)
+
                 setSelectedRelayLocation(item, animated: false)
+
                 indexPathForSelectedRelay().flatMap {
                     let cell = tableView.cellForRow(at: $0)
                     cell?.setSelected(false, animated: false)
@@ -205,43 +204,48 @@ extension LocationDataSource: UITableViewDelegate {
 }
 
 extension LocationDataSource: LocationCellEventHandler {
-    func collapseCell(for item: LocationCellViewModel) {
+    func toggleCell(for item: LocationCellViewModel) {
         indexPath(for: item).flatMap { indexPath in
-            guard let node = self.node(for: item),
-                  let cell = tableView.cellForRow(at: indexPath) else { return }
+            guard let node = node(for: item), let cell = tableView.cellForRow(at: indexPath) else { return }
+
             let isExpanded = node.showsChildren
-            let group = SelectLocationGroup.allCases[indexPath.section]
+            let group = SelectLocationSection.allCases[indexPath.section]
+
             node.showsChildren = !isExpanded
             locationCellFactory.configureCell(
                 cell,
                 item: LocationCellViewModel(group: group, location: node.location),
                 indexPath: indexPath
             )
+
             var locationList = snapshot().itemIdentifiers(inSection: group)
             let locationsToEdit = node.flatRelayLocationList().map { LocationCellViewModel(group: group, location: $0) }
+
             if !isExpanded {
                 locationList.addLocations(locationsToEdit, at: indexPath.row + 1)
             } else {
                 locationsToEdit.forEach { self.node(for: $0)?.showsChildren = false }
                 locationList.removeLocations(locationsToEdit)
             }
-            var list: [[LocationCellViewModel]] = Array(repeating: [], count: datasources.count)
+
+            var list: [[LocationCellViewModel]] = Array(repeating: [], count: dataSources.count)
             for index in 0 ..< list.count {
                 list[index] = (index == indexPath.section)
                     ? locationList
-                    : snapshot().itemIdentifiers(inSection: SelectLocationGroup.allCases[index])
+                    : snapshot().itemIdentifiers(inSection: SelectLocationSection.allCases[index])
             }
-            self.updateDataSnapshot(with: list, completion: {
+
+            updateDataSnapshot(with: list, completion: {
                 self.scroll(to: item, animated: true)
             })
         }
     }
 
     func node(for item: LocationCellViewModel) -> SelectLocationNode? {
-        guard let sectionIndex = SelectLocationGroup.allCases.firstIndex(of: item.group) else {
+        guard let sectionIndex = SelectLocationSection.allCases.firstIndex(of: item.group) else {
             return nil
         }
-        return datasources[sectionIndex].nodeByLocation[item.location]
+        return dataSources[sectionIndex].nodeByLocation[item.location]
     }
 }
 
@@ -256,7 +260,7 @@ extension LocationDataSource {
         } else {
             node.children.last.flatMap { last in
                 if let lastInsertedIndexPath = self.indexPath(for: LocationCellViewModel(
-                    group: SelectLocationGroup.allCases[indexPath.section],
+                    group: SelectLocationSection.allCases[indexPath.section],
                     location: last.location
                 )),
                     let lastVisibleIndexPath = visibleIndexPaths.last,
