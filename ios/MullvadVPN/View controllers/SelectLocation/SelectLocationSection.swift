@@ -7,7 +7,7 @@
 //
 
 import Foundation
-enum SelectLocationGroup: Hashable, CustomStringConvertible, CaseIterable {
+enum SelectLocationSection: Hashable, CustomStringConvertible, CaseIterable {
     case customLists
     case allLocations
 
@@ -32,7 +32,7 @@ enum SelectLocationGroup: Hashable, CustomStringConvertible, CaseIterable {
         Cell.locationCell
     }
 
-    static var allCases: [SelectLocationGroup] {
+    static var allCases: [SelectLocationSection] {
         #if DEBUG
         return [.customLists, .allLocations]
         #else
@@ -41,7 +41,7 @@ enum SelectLocationGroup: Hashable, CustomStringConvertible, CaseIterable {
     }
 }
 
-extension SelectLocationGroup {
+extension SelectLocationSection {
     enum Cell: String, CaseIterable {
         case locationCell
 
