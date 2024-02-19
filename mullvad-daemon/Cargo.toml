@@ -91,6 +91,6 @@ features = [
 [package.metadata.winres]
 ProductName = "Mullvad VPN"
 CompanyName = "Mullvad VPN AB"
-LegalCopyright = "(c) 2023 Mullvad VPN AB"
+LegalCopyright = "(c) 2024 Mullvad VPN AB"
 InternalName = "mullvad-daemon"
 OriginalFilename = "mullvad-daemon.exe"
