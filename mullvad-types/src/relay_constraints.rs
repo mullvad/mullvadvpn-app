@@ -1204,3 +1204,204 @@ pub mod builder {
         }
     }
 }
+
+#[cfg(test)]
+pub mod proptest {
+    //! Define [`proptest`] generators for different kind of constraints.
+    use super::{LocationConstraint, Ownership, Providers};
+    use crate::constraints::test::constraint;
+    use crate::relay_constraints::{
+        GeographicLocationConstraint, OpenVpnConstraints, RelayConstraints, TransportPort,
+        WireguardConstraints,
+    };
+
+    use proptest::{prelude::*, string::string_regex};
+    use talpid_types::net::{IpVersion, TransportProtocol, TunnelType};
+
+    /// Generate an arbitrary [`LocationConstraint`].
+    ///
+    /// # Note
+    /// Does not generate the [`LocationConstraint::CustomList`] variant.
+    pub fn location() -> impl Strategy<Value = LocationConstraint> {
+        geo_location().prop_map(LocationConstraint::Location)
+    }
+
+    /// Generate an arbitrary [`GeographicLocationConstraint`].
+    pub fn geo_location() -> impl Strategy<Value = GeographicLocationConstraint> {
+        let country = country();
+        let city = city();
+        let hostname = hostname();
+        prop_oneof![
+            country
+                .clone()
+                .prop_map(GeographicLocationConstraint::Country),
+            (country.clone(), city.clone())
+                .prop_map(|(country, city)| GeographicLocationConstraint::City(country, city)),
+            (country, city, hostname).prop_map(|(country, city, hostname)| {
+                GeographicLocationConstraint::Hostname(country, city, hostname)
+            }),
+        ]
+    }
+
+    /// Generate an arbitrary country.
+    pub fn country() -> BoxedStrategy<String> {
+        string_regex("(Sweden|Norway|Finland|Denmark|Iceland)")
+            .unwrap()
+            .boxed()
+    }
+
+    /// Generate an arbitrary city.
+    pub fn city() -> BoxedStrategy<String> {
+        string_regex("(Stockholm|Oslo|Helsinki|Copenhagen|Reykjavik)")
+            .unwrap()
+            .boxed()
+    }
+
+    /// Generate an arbitrary relay hostname.
+    pub fn hostname() -> BoxedStrategy<String> {
+        string_regex("(se-got-wg|no-osl-wg|fi-hel-wg|dk-cop-wg|is-rey-wg)")
+            .unwrap()
+            .boxed()
+    }
+
+    /// Generate arbitrary [`Providers`].
+    ///
+    /// # Note
+    /// Only generates a small subset of Mullvad's server providers.
+    pub fn providers() -> impl Strategy<Value = Providers> {
+        use std::collections::HashSet;
+        use std::iter::once;
+        string_regex("(31173|DataPacket|M247)")
+            .unwrap()
+            .prop_map(once)
+            .prop_map(HashSet::from_iter)
+            .prop_map(|providers| Providers { providers })
+    }
+
+    /// Generate an arbitrary ownership, either [`Ownership::MullvadOwned`] or [`Ownership::Rented`].
+    pub fn ownership() -> impl Strategy<Value = Ownership> {
+        prop_oneof![Just(Ownership::MullvadOwned), Just(Ownership::Rented)]
+    }
+
+    /// Generate an arbitrary tunnel protocol, either [`TunnelType::Wireguard`] or [`TunnelType::OpenVpn`].
+    pub fn tunnel_protocol() -> impl Strategy<Value = TunnelType> {
+        prop_oneof![Just(TunnelType::Wireguard), Just(TunnelType::OpenVpn)]
+    }
+
+    /// Generate an arbitrary port number.
+    pub fn port() -> impl Strategy<Value = u16> {
+        any::<u16>()
+    }
+
+    /// Generate an arbitrary transport protocol, either [`TransportProtocol::Udp`] or [`TransportProtocol::Tcp`].
+    pub fn transport_protocol() -> impl Strategy<Value = TransportProtocol> {
+        prop_oneof![Just(TransportProtocol::Udp), Just(TransportProtocol::Tcp)]
+    }
+
+    // Generate Wireguard constraints
+
+    /// Generate an arbitrary IP version, either [`IpVersion::V4`] or [`IpVersion::V6`].
+    pub fn ip_version() -> impl Strategy<Value = IpVersion> {
+        prop_oneof![Just(IpVersion::V4), Just(IpVersion::V6)]
+    }
+
+    /// Generate an arbitrary [`WireguardConstraints`].
+    pub fn wireguard_constraints() -> impl Strategy<Value = WireguardConstraints> {
+        (
+            constraint(port()),
+            constraint(ip_version()),
+            any::<bool>(),
+            constraint(location()),
+        )
+            .prop_map(|(port, ip_version, use_multihop, entry_location)| {
+                WireguardConstraints {
+                    port,
+                    ip_version,
+                    use_multihop,
+                    entry_location,
+                }
+            })
+    }
+
+    // Generate OpenVPN constraints
+    pub fn transport_port() -> impl Strategy<Value = TransportPort> {
+        (transport_protocol(), constraint(port()))
+            .prop_map(|(protocol, port)| TransportPort { protocol, port })
+    }
+
+    /// Generate an arbitrary [`OpenVpnConstraints`].
+    pub fn openvpn_constraints() -> impl Strategy<Value = OpenVpnConstraints> {
+        constraint(transport_port()).prop_map(|port| OpenVpnConstraints { port })
+    }
+
+    prop_compose! {
+        pub fn relay_constraint
+            ()
+            (location in constraint(location()),
+            providers in constraint(providers()),
+            ownership in constraint(ownership()),
+            tunnel_protocol in constraint(tunnel_protocol()),
+            wireguard_constraints in wireguard_constraints(),
+            openvpn_constraints in openvpn_constraints())
+             -> RelayConstraints {
+            RelayConstraints {
+                location,
+                providers,
+                ownership,
+                tunnel_protocol,
+                wireguard_constraints,
+                openvpn_constraints,
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::proptest::*;
+    use crate::constraints::Intersection;
+    use proptest::prelude::*;
+
+    use crate::relay_constraints::builder;
+
+    proptest! {
+        /// Prove that `builder::any` produces the neutral element of
+        /// [`RelaySelector`] under [`RelayConstraints::intersection`].
+        /// I.e., if `builder::any` is combined with any other
+        /// [`RelayConstraints`] `X`, the result is always `X`.
+        #[test]
+        fn test_identity(relay_constraints in relay_constraint()) {
+            // The identity element
+            let identity = builder::any().build();
+            prop_assert_eq!(identity.clone().intersection(relay_constraints.clone()), relay_constraints.clone().into());
+            prop_assert_eq!(relay_constraints.clone().intersection(identity), relay_constraints.into());
+        }
+
+        #[test]
+        fn idempotency (x in relay_constraint()) {
+            prop_assert_eq!(x.clone().intersection(x.clone()), x.into()) // lift x to the return type of `intersection`
+        }
+
+        #[test]
+        fn commutativity(x in relay_constraint(),
+                         y in relay_constraint()) {
+            prop_assert_eq!(x.clone().intersection(y.clone()), y.intersection(x))
+        }
+
+        #[test]
+        fn associativity(x in relay_constraint(),
+                         y in relay_constraint(),
+                         z in relay_constraint())
+        {
+            let left: Option<_> = {
+                x.clone().intersection(y.clone()).and_then(|xy| xy.intersection(z.clone()))
+            };
+            let right: Option<_> = {
+                // It is fine to rewrite the order of the application from
+                // due to the commutative property of intersection
+                (y.intersection(z)).and_then(|yz| yz.intersection(x))
+            };
+            prop_assert_eq!(left, right);
+        }
+    }
+}
