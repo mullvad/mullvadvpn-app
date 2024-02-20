@@ -49,14 +49,14 @@ final class LoginCoordinator: Coordinator, Presenting, DeviceManagementViewContr
             self?.didFinishLogin(action: action, error: error) ?? .nothing
         }
 
+        loginController.didCreateAccount = didCreateAccount
+
         preferredAccountNumberPublisher?
             .compactMap { $0 }
             .sink(receiveValue: { preferredAccountNumber in
                 interactor.suggestPreferredAccountNumber?(preferredAccountNumber)
             })
             .store(in: &subscriptions)
-
-        interactor.didCreateAccount = self.didCreateAccount
 
         navigationController.pushViewController(loginController, animated: animated)
 

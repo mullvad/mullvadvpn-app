@@ -98,6 +98,7 @@ class LoginViewController: UIViewController, RootContainment {
     private let interactor: LoginInteractor
 
     var didFinishLogin: ((LoginAction, Error?) -> EndLoginAction)?
+    var didCreateAccount: (() -> Void)?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
@@ -199,6 +200,7 @@ class LoginViewController: UIViewController, RootContainment {
                 switch action {
                 case .createAccount:
                     self.contentView.accountInputGroup.setAccount(try await interactor.createAccount())
+                    self.didCreateAccount?()
 
                 case let .useExistingAccount(accountNumber):
                     try await interactor.setAccount(accountNumber: accountNumber)
