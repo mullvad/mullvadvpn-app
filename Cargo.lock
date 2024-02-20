@@ -2022,17 +2022,13 @@ version = "0.0.0"
 dependencies = [
  "chrono",
  "err-derive",
- "futures",
  "ipnetwork 0.20.0",
  "log",
- "mullvad-api",
  "mullvad-types",
  "once_cell",
  "rand 0.8.5",
  "serde_json",
- "talpid-future",
  "talpid-types",
- "tokio",
 ]
 
 [[package]]
