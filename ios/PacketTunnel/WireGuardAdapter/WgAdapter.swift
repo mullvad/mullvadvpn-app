@@ -47,7 +47,7 @@ struct WgAdapter: TunnelAdapterProtocol {
     }
 
     func startPostQuantumKeyExchange(configuration: TunnelAdapterConfiguration) async throws {
-        let wgConfig = configuration.asWgPQConfig
+        let wgConfig = configuration.asWgConfig
         do {
             try await adapter.update(tunnelConfiguration: wgConfig)
         } catch WireGuardAdapterError.invalidState {
@@ -129,31 +129,6 @@ private extension TunnelAdapterConfiguration {
             var peerConfig = PeerConfiguration(publicKey: peer.publicKey)
             peerConfig.endpoint = peer.endpoint.wgEndpoint
             peerConfig.allowedIPs = allowedIPs
-            peers.append(peerConfig)
-        }
-
-        return TunnelConfiguration(
-            name: nil,
-            interface: interfaceConfig,
-            peers: peers
-        )
-    }
-
-    var asWgPQConfig: TunnelConfiguration {
-        var interfaceConfig = InterfaceConfiguration(privateKey: privateKey)
-        interfaceConfig.addresses = interfaceAddresses
-        interfaceConfig.dns = dns.map { DNSServer(address: $0) }
-        interfaceConfig.listenPort = 0
-
-        var peers: [PeerConfiguration] = []
-        if let peer {
-            var peerConfig = PeerConfiguration(publicKey: peer.publicKey)
-            peerConfig.endpoint = peer.endpoint.wgEndpoint
-            // TODO: change this to 10.64.0.1/32
-            // TODO: What about the IPv6 address here ?
-            peerConfig.allowedIPs = [
-                IPAddressRange(from: "10.64.0.1/32")!,
-            ]
             peers.append(peerConfig)
         }
 
