@@ -2019,7 +2019,6 @@ dependencies = [
  "mullvad-api",
  "mullvad-types",
  "once_cell",
- "parking_lot",
  "rand 0.8.5",
  "serde_json",
  "talpid-future",
