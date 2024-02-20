@@ -160,7 +160,9 @@ extension PacketTunnelActor {
                 // Generate the configuration for PQ key exchange
                 let postQuantumConfiguration = ConfigurationBuilder(
                     privateKey: settings.privateKey,
-                    interfaceAddresses: settings.interfaceAddresses
+                    interfaceAddresses: settings.interfaceAddresses, allowedIPs: [
+                        IPAddressRange(from: "10.64.0.1/32")!,
+                    ]
                 )
                 let tunnelAdapterConfiguration = try postQuantumConfiguration.makeConfiguration()
 

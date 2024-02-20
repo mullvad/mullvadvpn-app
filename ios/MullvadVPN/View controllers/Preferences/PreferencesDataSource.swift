@@ -166,12 +166,6 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
         #endif
 
-        let quantumResistanceItem: Item = switch viewModel.quantumResistance {
-        case .automatic: .quantumResistanceAutomatic
-        case .off: .quantumResistanceOff
-        case .on: .quantumResistanceOn
-        }
-
         let obfuscationPortItem: Item = .wireGuardObfuscationPort(viewModel.obfuscationPort.portValue)
 
         #if DEBUG
