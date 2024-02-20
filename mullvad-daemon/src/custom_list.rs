@@ -54,8 +54,6 @@ where
             .map_err(Error::SettingsError);
 
         if let Ok(true) = settings_changed {
-            self.event_listener
-                .notify_settings(self.settings.to_settings());
             self.relay_selector
                 .set_config(new_selector_config(&self.settings));
 
@@ -100,8 +98,6 @@ where
             .map_err(Error::SettingsError);
 
         if let Ok(true) = settings_changed {
-            self.event_listener
-                .notify_settings(self.settings.to_settings());
             self.relay_selector
                 .set_config(new_selector_config(&self.settings));
 
