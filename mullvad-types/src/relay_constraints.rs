@@ -2,7 +2,7 @@
 //! updated as well.
 
 use crate::{
-    constraints::{Constraint, Match, Set},
+    constraints::{Constraint, Intersection, Match, Set},
     custom_list::{CustomListsSettings, Id},
     location::{CityCode, CountryCode, Hostname},
     relay_list::Relay,
@@ -206,6 +206,28 @@ pub struct RelayConstraints {
     pub wireguard_constraints: WireguardConstraints,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub openvpn_constraints: OpenVpnConstraints,
+}
+
+// TODO(markus): Document why `Intersection` is implemented for `RelayConstraints`.
+impl Intersection for RelayConstraints {
+    fn intersection(self, other: Self) -> Option<Self>
+    where
+        Self: PartialEq,
+        Self: Sized,
+    {
+        Some(RelayConstraints {
+            location: self.location.intersection(other.location)?,
+            providers: self.providers.intersection(other.providers)?,
+            ownership: self.ownership.intersection(other.ownership)?,
+            tunnel_protocol: self.tunnel_protocol.intersection(other.tunnel_protocol)?,
+            wireguard_constraints: self
+                .wireguard_constraints
+                .intersection(other.wireguard_constraints)?,
+            openvpn_constraints: self
+                .openvpn_constraints
+                .intersection(other.openvpn_constraints)?,
+        })
+    }
 }
 
 pub struct RelayConstraintsFormatter<'a> {
@@ -555,6 +577,19 @@ pub struct OpenVpnConstraints {
     pub port: Constraint<TransportPort>,
 }
 
+// TODO(markus): Document why `Intersection` is implemented for `OpenVpnConstraints`.
+impl Intersection for OpenVpnConstraints {
+    fn intersection(self, other: Self) -> Option<Self>
+    where
+        Self: PartialEq,
+        Self: Sized,
+    {
+        Some(OpenVpnConstraints {
+            port: self.port.intersection(other.port)?,
+        })
+    }
+}
+
 impl fmt::Display for OpenVpnConstraints {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self.port {
@@ -587,6 +622,32 @@ pub struct WireguardConstraints {
     pub use_multihop: bool,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub entry_location: Constraint<LocationConstraint>,
+}
+
+// TODO(markus): Document why `Intersection` is implemented for `WireguardConstraints`.
+impl Intersection for WireguardConstraints {
+    fn intersection(self, other: Self) -> Option<Self>
+    where
+        Self: PartialEq,
+        Self: Sized,
+    {
+        // Since `Intersection` is not defined on `bool`, this becomes a bit ad-hoc.
+        // Let's define intersection on `bool` as
+        // true  ∩ true  = Some(true)
+        // false ∩ false = Some(false)
+        // otherwise     = None
+        let use_multihop = if self.use_multihop == other.use_multihop {
+            Some(self.use_multihop)
+        } else {
+            None
+        };
+        Some(WireguardConstraints {
+            port: self.port.intersection(other.port)?,
+            ip_version: self.ip_version.intersection(other.ip_version)?,
+            use_multihop: use_multihop?,
+            entry_location: self.entry_location.intersection(other.entry_location)?,
+        })
+    }
 }
 
 pub struct WireguardConstraintsFormatter<'a> {
