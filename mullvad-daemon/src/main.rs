@@ -23,17 +23,23 @@ const EARLY_BOOT_LOG_FILENAME: &str = "early-boot-fw.log";
 
 fn main() {
     let config = cli::get_config();
+
+    let runtime = new_runtime_builder().build().unwrap_or_else(|error| {
+        eprintln!("{}", error.display_chain());
+        std::process::exit(1);
+    });
+
+    if runtime.block_on(rpc_uniqueness_check::is_another_instance_running()) {
+        eprintln!("Another instance of the daemon is already running");
+        std::process::exit(1)
+    }
+
     let log_dir = init_daemon_logging(config).unwrap_or_else(|error| {
         eprintln!("{error}");
         std::process::exit(1)
     });
 
     log::trace!("Using configuration: {:?}", config);
-
-    let runtime = new_runtime_builder().build().unwrap_or_else(|error| {
-        eprintln!("{}", error.display_chain());
-        std::process::exit(1);
-    });
 
     let exit_code = match runtime.block_on(run_platform(config, log_dir)) {
         Ok(_) => 0,
@@ -144,10 +150,6 @@ async fn run_platform(_config: &cli::Config, log_dir: Option<PathBuf>) -> Result
 }
 
 async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
-    if rpc_uniqueness_check::is_another_instance_running().await {
-        return Err("Another instance of the daemon is already running".to_owned());
-    }
-
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     if let Err(err) = tokio::fs::remove_file(mullvad_paths::get_rpc_socket_path()).await {
         if err.kind() != std::io::ErrorKind::NotFound {
