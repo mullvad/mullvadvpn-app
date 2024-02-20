@@ -196,8 +196,10 @@ impl FfiClient {
     }
 
     fn rest_handle(&self) -> MullvadRestHandle {
-        self.api_runtime
-            .static_mullvad_rest_handle(self.api_hostname.clone())
+        self.tokio_handle().block_on(async {
+            self.api_runtime
+                .static_mullvad_rest_handle(self.api_hostname.clone())
+        })
     }
 
     fn device_proxy(&self) -> DevicesProxy {
