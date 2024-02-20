@@ -24,22 +24,13 @@ where
         let new_list = CustomList::new(name);
         let id = new_list.id;
 
-        let settings_changed = self
-            .settings
+        self.settings
             .update(|settings| {
                 settings.custom_lists.add(new_list);
             })
             .await
-            .map_err(Error::SettingsError);
+            .map_err(Error::SettingsError)?;
 
-        if let Ok(true) = settings_changed {
-            self.event_listener
-                .notify_settings(self.settings.to_settings());
-            self.relay_selector
-                .set_config(new_selector_config(&self.settings));
-        }
-
-        settings_changed?;
         Ok(id)
     }
 
@@ -63,8 +54,6 @@ where
             .map_err(Error::SettingsError);
 
         if let Ok(true) = settings_changed {
-            self.event_listener
-                .notify_settings(self.settings.to_settings());
             self.relay_selector
                 .set_config(new_selector_config(&self.settings));
 
@@ -109,8 +98,6 @@ where
             .map_err(Error::SettingsError);
 
         if let Ok(true) = settings_changed {
-            self.event_listener
-                .notify_settings(self.settings.to_settings());
             self.relay_selector
                 .set_config(new_selector_config(&self.settings));
 
