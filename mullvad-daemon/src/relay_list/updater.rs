@@ -1,19 +1,19 @@
-use super::{Error, ParsedRelays};
 use futures::{
     channel::mpsc,
     future::{Fuse, FusedFuture},
     Future, FutureExt, SinkExt, StreamExt,
 };
-use mullvad_api::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle, RelayListProxy};
-use mullvad_types::relay_list::RelayList;
 use std::{
     path::{Path, PathBuf},
-    sync::{Arc, Mutex},
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
+use tokio::fs::File;
+
+use mullvad_api::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle, RelayListProxy};
+use mullvad_relay_selector::{Error, RelaySelector};
+use mullvad_types::relay_list::RelayList;
 use talpid_future::retry::{retry_future, ExponentialBackoff, Jittered};
 use talpid_types::ErrorExt;
-use tokio::fs::File;
 
 /// How often the updater should wake up to check the cache of the in-memory cache of relays.
 /// This check is very cheap. The only reason to not have it very often is because if downloading
@@ -26,6 +26,9 @@ const DOWNLOAD_RETRY_STRATEGY: Jittered<ExponentialBackoff> = Jittered::jitter(
     ExponentialBackoff::new(Duration::from_secs(16), 8)
         .max_delay(Some(Duration::from_secs(2 * 60 * 60))),
 );
+
+/// Where the relay list is cached on disk.
+pub(crate) const RELAYS_FILENAME: &str = "relays.json";
 
 #[derive(Clone)]
 pub struct RelayListUpdaterHandle {
@@ -51,7 +54,7 @@ impl RelayListUpdaterHandle {
 pub struct RelayListUpdater {
     api_client: RelayListProxy,
     cache_path: PathBuf,
-    parsed_relays: Arc<Mutex<ParsedRelays>>,
+    relay_selector: RelaySelector,
     on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
     last_check: SystemTime,
     api_availability: ApiAvailabilityHandle,
@@ -59,7 +62,7 @@ pub struct RelayListUpdater {
 
 impl RelayListUpdater {
     pub fn spawn(
-        selector: super::RelaySelector,
+        selector: RelaySelector,
         api_handle: MullvadRestHandle,
         cache_dir: &Path,
         on_update: impl Fn(&RelayList) + Send + 'static,
@@ -69,8 +72,8 @@ impl RelayListUpdater {
         let api_client = RelayListProxy::new(api_handle);
         let updater = RelayListUpdater {
             api_client,
-            cache_path: cache_dir.join(super::RELAYS_FILENAME),
-            parsed_relays: selector.parsed_relays,
+            cache_path: cache_dir.join(RELAYS_FILENAME),
+            relay_selector: selector,
             on_update: Box::new(on_update),
             last_check: UNIX_EPOCH,
             api_availability,
@@ -90,7 +93,7 @@ impl RelayListUpdater {
             futures::select! {
                 _check_update = next_check => {
                     if download_future.is_terminated() && self.should_update() {
-                        let tag = self.parsed_relays.lock().unwrap().parsed_list.etag.clone();
+                        let tag = self.relay_selector.etag();
                         download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), tag).fuse());
                         self.last_check = SystemTime::now();
                     }
@@ -103,7 +106,7 @@ impl RelayListUpdater {
                 cmd = cmd_rx.next() => {
                     match cmd {
                         Some(()) => {
-                            let tag = self.parsed_relays.lock().unwrap().parsed_list.etag.clone();
+                            let tag = self.relay_selector.etag();
                             download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), tag).fuse());
                             self.last_check = SystemTime::now();
                         },
@@ -138,10 +141,7 @@ impl RelayListUpdater {
 
     /// Returns true if the current parsed_relays is older than UPDATE_INTERVAL
     fn should_update(&mut self) -> bool {
-        let last_check = std::cmp::max(
-            self.parsed_relays.lock().unwrap().last_updated(),
-            self.last_check,
-        );
+        let last_check = std::cmp::max(self.relay_selector.last_updated(), self.last_check);
         match SystemTime::now().duration_since(last_check) {
             Ok(duration) => duration >= UPDATE_INTERVAL,
             // If the clock is skewed we have no idea by how much or when the last update
@@ -180,9 +180,8 @@ impl RelayListUpdater {
             );
         }
 
-        let mut parsed_relays = self.parsed_relays.lock().unwrap();
-        parsed_relays.update(new_relay_list);
-        (self.on_update)(&parsed_relays.original_list);
+        self.relay_selector.set_relays(new_relay_list.clone());
+        (self.on_update)(&new_relay_list);
         Ok(())
     }
 

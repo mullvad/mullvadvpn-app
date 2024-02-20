@@ -17,6 +17,7 @@ mod macos;
 #[cfg(not(target_os = "android"))]
 pub mod management_interface;
 mod migrations;
+mod relay_list;
 #[cfg(not(target_os = "android"))]
 pub mod rpc_uniqueness_check;
 pub mod runtime;
@@ -36,10 +37,7 @@ use futures::{
     StreamExt,
 };
 use geoip::GeoIpHandler;
-use mullvad_relay_selector::{
-    updater::{RelayListUpdater, RelayListUpdaterHandle},
-    RelaySelector, SelectorConfig,
-};
+use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
@@ -58,6 +56,7 @@ use mullvad_types::{
     version::{AppVersion, AppVersionInfo},
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
+use relay_list::updater::{self, RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
@@ -698,7 +697,11 @@ where
         let app_version_info = version_check::load_cache(&cache_dir).await;
 
         let initial_selector_config = new_selector_config(&settings);
-        let relay_selector = RelaySelector::new(initial_selector_config, &resource_dir, &cache_dir);
+        let relay_selector = RelaySelector::new(
+            initial_selector_config,
+            resource_dir.join(updater::RELAYS_FILENAME),
+            cache_dir.join(updater::RELAYS_FILENAME),
+        );
 
         let settings_relay_selector = relay_selector.clone();
         settings.register_change_listener(move |settings| {
@@ -1569,7 +1572,7 @@ where
     }
 
     fn on_get_relay_locations(&mut self, tx: oneshot::Sender<RelayList>) {
-        Self::oneshot_send(tx, self.relay_selector.get_locations(), "relay locations");
+        Self::oneshot_send(tx, self.relay_selector.get_relays(), "relay locations");
     }
 
     async fn on_update_relay_locations(&mut self) {
