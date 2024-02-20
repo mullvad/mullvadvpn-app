@@ -43,7 +43,7 @@ jobs:
         env:
           RUSTFLAGS: --deny warnings
         run: |
-          time cargo clippy --locked --all-targets
+          time cargo clippy --locked --all-targets --no-default-features
           time cargo clippy --locked --all-targets --all-features
 
   clippy-check-test-windows:
@@ -71,5 +71,5 @@ jobs:
           RUSTFLAGS: --deny warnings
         run: |
           # Exclude checking test-manager on Windows, since it is not a supported compilation target.
-          time cargo clippy  --all-targets --workspace --exclude test-manager --locked
+          time cargo clippy  --all-targets --workspace --exclude test-manager --locked --no-default-features
           time cargo clippy  --all-targets --workspace --exclude test-manager --locked --all-features
