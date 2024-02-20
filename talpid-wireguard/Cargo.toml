@@ -81,4 +81,4 @@ features = [
 ]
 
 [dev-dependencies]
-proptest = "1.4"
+proptest = { workspace = true }

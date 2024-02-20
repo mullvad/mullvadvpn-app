@@ -28,4 +28,4 @@ clap = { workspace = true , optional = true }
 jnix = { version = "0.5.1", features = ["derive"] }
 
 [dev-dependencies]
-proptest = "1.4"
+proptest = { workspace = true }
