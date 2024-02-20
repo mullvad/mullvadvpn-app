@@ -1789,17 +1789,12 @@ version = "0.0.0"
 dependencies = [
  "chrono",
  "err-derive",
- "futures",
  "ipnetwork 0.16.0",
  "log",
- "mullvad-api",
  "mullvad-types",
- "parking_lot 0.12.1",
  "rand 0.8.5",
  "serde_json",
- "talpid-future",
  "talpid-types",
- "tokio",
 ]
 
 [[package]]
@@ -3044,14 +3039,6 @@ dependencies = [
  "log",
  "once_cell",
  "tokio",
-]
-
-[[package]]
-name = "talpid-future"
-version = "0.0.0"
-dependencies = [
- "rand 0.8.5",
- "talpid-time",
 ]
 
 [[package]]
