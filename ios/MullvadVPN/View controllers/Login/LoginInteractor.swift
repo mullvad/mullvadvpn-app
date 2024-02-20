@@ -26,7 +26,10 @@ final class LoginInteractor {
     }
 
     func createAccount() async throws -> String {
-        try await tunnelManager.setNewAccount().number
+        let accountNumber = try await tunnelManager.setNewAccount().number
+        didCreateAccount?()
+
+        return accountNumber
     }
 
     func getLastUsedAccount() -> String? {
