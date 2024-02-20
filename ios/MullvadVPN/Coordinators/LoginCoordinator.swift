@@ -56,7 +56,7 @@ final class LoginCoordinator: Coordinator, Presenting, DeviceManagementViewContr
             })
             .store(in: &subscriptions)
 
-        interactor.didCreateAccount = self.didCreateAccount
+        interactor.didCreateAccount = didCreateAccount
 
         navigationController.pushViewController(loginController, animated: animated)
 
