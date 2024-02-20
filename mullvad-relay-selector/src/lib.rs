@@ -18,14 +18,13 @@ use mullvad_types::{
     settings::Settings,
     CustomTunnelEndpoint,
 };
-use parking_lot::{Mutex, MutexGuard};
 use rand::{seq::SliceRandom, Rng};
 use std::{
     collections::HashMap,
     io,
     net::{IpAddr, SocketAddr},
     path::Path,
-    sync::Arc,
+    sync::{Arc, Mutex, MutexGuard},
     time::{self, SystemTime},
 };
 use talpid_types::{
@@ -39,10 +38,8 @@ use talpid_types::{
 use matcher::{BridgeMatcher, EndpointMatcher, OpenVpnMatcher, RelayMatcher, WireguardMatcher};
 
 mod matcher;
-pub mod updater;
 
 const DATE_TIME_FORMAT_STR: &str = "%Y-%m-%d %H:%M:%S%.3f";
-const RELAYS_FILENAME: &str = "relays.json";
 
 const WIREGUARD_EXIT_PORT: Constraint<u16> = Constraint::Only(51820);
 const WIREGUARD_EXIT_IP_VERSION: Constraint<IpVersion> = Constraint::Only(IpVersion::V4);
@@ -109,6 +106,10 @@ impl ParsedRelays {
         self.last_updated
     }
 
+    pub fn etag(&self) -> Option<String> {
+        self.parsed_list.etag.clone()
+    }
+
     fn set_overrides(&mut self, new_overrides: &[RelayOverride]) {
         self.parsed_list = Self::parse_relay_list(&self.original_list, new_overrides);
         self.overrides = new_overrides.to_vec();
@@ -124,15 +125,15 @@ impl ParsedRelays {
     }
 
     /// Try to read the relays from disk, preferring the newer ones.
-    fn from_dir(
-        cache_path: &Path,
-        resource_path: &Path,
+    fn from_file(
+        cache_path: impl AsRef<Path>,
+        resource_path: impl AsRef<Path>,
         overrides: &[RelayOverride],
     ) -> Result<Self, Error> {
         // prefer the resource path's relay list if the cached one doesn't exist or was modified
         // before the resource one was created.
-        let cached_relays = Self::from_file(cache_path, overrides);
-        let bundled_relays = match Self::from_file(resource_path, overrides) {
+        let cached_relays = Self::from_file_inner(cache_path, overrides);
+        let bundled_relays = match Self::from_file_inner(resource_path, overrides) {
             Ok(bundled_relays) => bundled_relays,
             Err(e) => {
                 log::error!("Failed to load bundled relays: {}", e);
@@ -151,7 +152,7 @@ impl ParsedRelays {
         }
     }
 
-    fn from_file(path: impl AsRef<Path>, overrides: &[RelayOverride]) -> Result<Self, Error> {
+    fn from_file_inner(path: impl AsRef<Path>, overrides: &[RelayOverride]) -> Result<Self, Error> {
         log::debug!("Reading relays from {}", path.as_ref().display());
         let (last_modified, file) =
             Self::open_file(path.as_ref()).map_err(Error::OpenRelayCache)?;
@@ -254,11 +255,13 @@ pub struct RelaySelector {
 
 impl RelaySelector {
     /// Returns a new `RelaySelector` backed by relays cached on disk.
-    pub fn new(config: SelectorConfig, resource_dir: &Path, cache_dir: &Path) -> Self {
-        let cache_path = cache_dir.join(RELAYS_FILENAME);
-        let resource_path = resource_dir.join(RELAYS_FILENAME);
+    pub fn new(
+        config: SelectorConfig,
+        resource_path: impl AsRef<Path>,
+        cache_path: impl AsRef<Path>,
+    ) -> Self {
         let unsynchronized_parsed_relays =
-            ParsedRelays::from_dir(&cache_path, &resource_path, &config.relay_overrides)
+            ParsedRelays::from_file(&cache_path, &resource_path, &config.relay_overrides)
                 .unwrap_or_else(|error| {
                     log::error!(
                         "{}",
@@ -291,15 +294,34 @@ impl RelaySelector {
     }
 
     pub fn set_config(&mut self, config: SelectorConfig) {
-        let mut parsed_relays = self.parsed_relays.lock();
-        parsed_relays.set_overrides(&config.relay_overrides);
-        *self.config.lock() = config;
+        self.set_overrides(&config.relay_overrides);
+        let mut config_mutex = self.config.lock().unwrap();
+        *config_mutex = config;
+    }
+
+    pub fn set_relays(&self, relays: RelayList) {
+        let mut parsed_relays = self.parsed_relays.lock().unwrap();
+        parsed_relays.update(relays);
+    }
+
+    fn set_overrides(&mut self, relay_overrides: &[RelayOverride]) {
+        let mut parsed_relays = self.parsed_relays.lock().unwrap();
+        parsed_relays.set_overrides(relay_overrides);
     }
 
     /// Returns all countries and cities. The cities in the object returned does not have any
     /// relays in them.
-    pub fn get_locations(&mut self) -> RelayList {
-        self.parsed_relays.lock().original_list.clone()
+    pub fn get_relays(&mut self) -> RelayList {
+        let parsed_relays = self.parsed_relays.lock().unwrap();
+        parsed_relays.original_list.clone()
+    }
+
+    pub fn etag(&self) -> Option<String> {
+        self.parsed_relays.lock().unwrap().etag()
+    }
+
+    pub fn last_updated(&self) -> SystemTime {
+        self.parsed_relays.lock().unwrap().last_updated()
     }
 
     /// Returns a random relay and relay endpoint matching the current constraints.
@@ -314,17 +336,17 @@ impl RelaySelector {
         ),
         Error,
     > {
-        let config = self.config.lock();
-        match &config.relay_settings {
+        let config_mutex = self.config.lock().unwrap();
+        match &config_mutex.relay_settings {
             RelaySettings::CustomTunnelEndpoint(custom_relay) => {
                 Ok((SelectedRelay::Custom(custom_relay.clone()), None, None))
             }
             RelaySettings::Normal(constraints) => {
                 let relay = self.get_tunnel_endpoint(
                     constraints,
-                    config.bridge_state,
+                    config_mutex.bridge_state,
                     retry_attempt,
-                    &config.custom_lists,
+                    &config_mutex.custom_lists,
                 )?;
                 let bridge = match relay.endpoint {
                     MullvadEndpoint::OpenVpn(endpoint)
@@ -335,7 +357,12 @@ impl RelaySelector {
                             .location
                             .as_ref()
                             .expect("Relay has no location set");
-                        self.get_bridge_for(&config, location, retry_attempt, &config.custom_lists)?
+                        self.get_bridge_for(
+                            &config_mutex,
+                            location,
+                            retry_attempt,
+                            &config_mutex.custom_lists,
+                        )?
                     }
                     _ => None,
                 };
@@ -344,7 +371,7 @@ impl RelaySelector {
                         let obfuscator_relay =
                             relay.entry_relay.as_ref().unwrap_or(&relay.exit_relay);
                         self.get_obfuscator_inner(
-                            &config,
+                            &config_mutex,
                             obfuscator_relay,
                             endpoint,
                             retry_attempt,
@@ -405,7 +432,7 @@ impl RelaySelector {
         }
 
         let (openvpn_data, wireguard_data) = {
-            let relays = self.parsed_relays.lock();
+            let relays = self.parsed_relays.lock().unwrap();
             (
                 relays.parsed_list.openvpn.clone(),
                 relays.parsed_list.wireguard.clone(),
@@ -419,12 +446,14 @@ impl RelaySelector {
             custom_lists,
         );
 
-        let parsed_relays = self.parsed_relays.lock();
-        let mut matching_locations: Vec<Location> = matcher
-            .filter_matching_relay_list(parsed_relays.relays())
-            .into_iter()
-            .filter_map(|relay| relay.location)
-            .collect();
+        let mut matching_locations: Vec<Location> = {
+            let parsed_relays = self.parsed_relays.lock().unwrap();
+            matcher
+                .filter_matching_relay_list(parsed_relays.relays())
+                .into_iter()
+                .filter_map(|relay| relay.location)
+                .collect()
+        };
         matching_locations.dedup_by(|a, b| a.has_same_city(b));
 
         if matching_locations.is_empty() {
@@ -450,10 +479,10 @@ impl RelaySelector {
             ),
             providers: relay_constraints.providers.clone(),
             ownership: relay_constraints.ownership,
-            endpoint_matcher: OpenVpnMatcher::new(
-                relay_constraints.openvpn_constraints,
-                self.parsed_relays.lock().parsed_list.openvpn.clone(),
-            ),
+            endpoint_matcher: OpenVpnMatcher::new(relay_constraints.openvpn_constraints, {
+                let parsed_relays = self.parsed_relays.lock().unwrap();
+                parsed_relays.parsed_list.openvpn.clone()
+            }),
         };
 
         if relay_matcher.endpoint_matcher.constraints.port.is_any()
@@ -560,7 +589,10 @@ impl RelaySelector {
         retry_attempt: u32,
         custom_lists: &CustomListsSettings,
     ) -> Result<NormalSelectedRelay, Error> {
-        let wg_endpoint_data = self.parsed_relays.lock().parsed_list.wireguard.clone();
+        let wg_endpoint_data = {
+            let parsed_relays = self.parsed_relays.lock().unwrap();
+            parsed_relays.parsed_list.wireguard.clone()
+        };
 
         // NOTE: If not using multihop then `location` is set as the only location constraint.
         // If using multihop then location is the exit constraint and
@@ -626,7 +658,7 @@ impl RelaySelector {
         custom_lists: &CustomListsSettings,
     ) -> Result<NormalSelectedRelay, Error> {
         let (openvpn_data, wireguard_data) = {
-            let relays = self.parsed_relays.lock();
+            let relays = self.parsed_relays.lock().unwrap();
             (
                 relays.parsed_list.openvpn.clone(),
                 relays.parsed_list.wireguard.clone(),
@@ -840,10 +872,13 @@ impl RelaySelector {
         &self,
         matcher: &RelayMatcher<WireguardMatcher>,
     ) -> Result<(Relay, MullvadWireguardEndpoint), Error> {
-        let matching_relays: Vec<Relay> = matcher
-            .filter_matching_relay_list(self.parsed_relays.lock().relays())
-            .into_iter()
-            .collect();
+        let matching_relays: Vec<Relay> = {
+            let parsed_relays = self.parsed_relays.lock().unwrap();
+            matcher
+                .filter_matching_relay_list(parsed_relays.relays())
+                .into_iter()
+                .collect()
+        };
 
         let relay = self
             .pick_random_relay(&matching_relays)
@@ -917,16 +952,24 @@ impl RelaySelector {
     /// Returns a non-custom bridge based on the relay and bridge constraints, ignoring the bridge
     /// state.
     pub fn get_bridge_forced(&self) -> Option<CustomProxy> {
-        let config = self.config.lock();
+        let config = self.config.lock().unwrap();
+        // let relay_settings = {
+        //     let config = self.config.lock().unwrap();
+        //     config.relay_settings.clone()
+        // };
 
         let near_location = match &config.relay_settings {
             RelaySettings::Normal(settings) => {
-                self.get_relay_midpoint(settings, &config.custom_lists)
+                let custom_lists = {
+                    // let config = self.config.lock().unwrap();
+                    config.custom_lists.clone()
+                };
+                self.get_relay_midpoint(settings, &custom_lists)
             }
             _ => None,
         };
-
-        let constraints = match config.bridge_settings.resolve() {
+        let bridge_settings = &config.bridge_settings;
+        let constraints = match bridge_settings.resolve() {
             Ok(ResolvedBridgeSettings::Normal(settings)) => InternalBridgeConstraints {
                 location: settings.location.clone(),
                 providers: settings.providers.clone(),
@@ -941,7 +984,8 @@ impl RelaySelector {
             },
         };
 
-        self.get_proxy_settings(&constraints, near_location, &config.custom_lists)
+        let custom_lists = &config.custom_lists;
+        self.get_proxy_settings(&constraints, near_location, custom_lists)
             .map(|(settings, _relay)| settings)
     }
 
@@ -970,8 +1014,11 @@ impl RelaySelector {
             ownership: constraints.ownership,
             endpoint_matcher: BridgeMatcher(()),
         };
-        let matching_relays: Vec<Relay> =
-            matcher.filter_matching_relay_list(self.parsed_relays.lock().relays());
+
+        let matching_relays: Vec<Relay> = {
+            let parsed_relays = self.parsed_relays.lock().unwrap();
+            matcher.filter_matching_relay_list(parsed_relays.relays())
+        };
 
         if matching_relays.is_empty() {
             return None;
@@ -1021,7 +1068,9 @@ impl RelaySelector {
             self.pick_random_relay(&matching_relays).cloned()
         };
         relay.and_then(|relay| {
-            self.pick_random_bridge(&self.parsed_relays.lock().parsed_list.bridge, &relay)
+            let parsed_relays = self.parsed_relays.lock().unwrap();
+            let bridge = &parsed_relays.parsed_list.bridge;
+            self.pick_random_bridge(bridge, &relay)
                 .map(|bridge| (bridge, relay.clone()))
         })
     }
@@ -1084,12 +1133,15 @@ impl RelaySelector {
         endpoint: &MullvadWireguardEndpoint,
         retry_attempt: u32,
     ) -> Option<SelectedObfuscator> {
-        let udp2tcp_ports = &self
-            .parsed_relays
-            .lock()
-            .parsed_list
-            .wireguard
-            .udp2tcp_ports;
+        let udp2tcp_ports = {
+            &self
+                .parsed_relays
+                .lock()
+                .unwrap()
+                .parsed_list
+                .wireguard
+                .udp2tcp_ports
+        };
         let udp2tcp_endpoint = if obfuscation_settings.port.is_only() {
             udp2tcp_ports
                 .iter()
@@ -1115,18 +1167,22 @@ impl RelaySelector {
         providers: &Constraint<Providers>,
         ownership: Constraint<Ownership>,
     ) -> (Constraint<u16>, TransportProtocol, TunnelType) {
-        let parsed_relays = self.parsed_relays.lock();
-        let mut active_location_relays = parsed_relays.relays().filter(|relay| {
-            relay.active
-                && location.matches_with_opts(relay, true)
-                && providers.matches(relay)
-                && ownership.matches(relay)
-        });
-        let location_supports_wg = active_location_relays
-            .clone()
-            .any(|relay| matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_)));
-        let location_supports_openvpn = active_location_relays
-            .any(|relay| matches!(relay.endpoint_data, RelayEndpointData::Openvpn));
+        let (location_supports_wg, location_supports_openvpn) = {
+            let parsed_relays = self.parsed_relays.lock().unwrap();
+            let mut active_location_relays = parsed_relays.relays().filter(|relay| {
+                relay.active
+                    && location.matches_with_opts(relay, true)
+                    && providers.matches(relay)
+                    && ownership.matches(relay)
+            });
+            let location_supports_wg = active_location_relays
+                .clone()
+                .any(|relay| matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_)));
+            let location_supports_openvpn = active_location_relays
+                .any(|relay| matches!(relay.endpoint_data, RelayEndpointData::Openvpn));
+
+            (location_supports_wg, location_supports_openvpn)
+        };
         match (location_supports_wg, location_supports_openvpn) {
             (true, true) | (false, false) => Self::preferred_tunnel_constraints(retry_attempt),
             (true, false) => {
@@ -1191,10 +1247,13 @@ impl RelaySelector {
         &self,
         matcher: &RelayMatcher<T>,
     ) -> Result<NormalSelectedRelay, Error> {
-        let matching_relays: Vec<Relay> = matcher
-            .filter_matching_relay_list(self.parsed_relays.lock().relays())
-            .into_iter()
-            .collect();
+        let matching_relays: Vec<Relay> = {
+            let parsed_relays = self.parsed_relays.lock().unwrap();
+            matcher
+                .filter_matching_relay_list(parsed_relays.relays())
+                .into_iter()
+                .collect()
+        };
 
         self.pick_random_relay(&matching_relays)
             .and_then(|selected_relay| {
@@ -1264,9 +1323,15 @@ impl RelaySelector {
     }
 
     fn wireguard_exit_matcher(&self) -> WireguardMatcher {
-        let mut tunnel = WireguardMatcher::from_endpoint(
-            self.parsed_relays.lock().parsed_list.wireguard.clone(),
-        );
+        let wg = {
+            self.parsed_relays
+                .lock()
+                .unwrap()
+                .parsed_list
+                .wireguard
+                .clone()
+        };
+        let mut tunnel = WireguardMatcher::from_endpoint(wg);
         tunnel.ip_version = WIREGUARD_EXIT_IP_VERSION;
         tunnel.port = WIREGUARD_EXIT_PORT;
         tunnel
@@ -1347,7 +1412,7 @@ mod test {
             endpoint: &MullvadWireguardEndpoint,
             retry_attempt: u32,
         ) -> Result<Option<SelectedObfuscator>, Error> {
-            self.get_obfuscator_inner(&self.config.lock(), relay, endpoint, retry_attempt)
+            self.get_obfuscator_inner(&self.config.lock().unwrap(), relay, endpoint, retry_attempt)
         }
     }
 
@@ -1974,10 +2039,12 @@ mod test {
         assert!(result.entry_relay.is_none());
         assert!(matches!(result.endpoint, MullvadEndpoint::Wireguard { .. }));
 
-        relay_selector.config.lock().obfuscation_settings = ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Udp2Tcp,
-            ..ObfuscationSettings::default()
-        };
+        {
+            relay_selector.config.lock().unwrap().obfuscation_settings = ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Udp2Tcp,
+                ..ObfuscationSettings::default()
+            };
+        }
 
         let obfs_config = relay_selector
             .get_obfuscator(&result.exit_relay, result.endpoint.unwrap_wireguard(), 0)
@@ -2003,10 +2070,12 @@ mod test {
         assert!(result.entry_relay.is_none());
         assert!(matches!(result.endpoint, MullvadEndpoint::Wireguard { .. }));
 
-        relay_selector.config.lock().obfuscation_settings = ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Auto,
-            ..ObfuscationSettings::default()
-        };
+        {
+            relay_selector.config.lock().unwrap().obfuscation_settings = ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Auto,
+                ..ObfuscationSettings::default()
+            };
+        }
 
         assert!(relay_selector
             .get_obfuscator(&result.exit_relay, result.endpoint.unwrap_wireguard(), 0,)
@@ -2030,10 +2099,12 @@ mod test {
 
         const TCP2UDP_PORTS: [u16; 3] = [80, 443, 5001];
 
-        relay_selector.config.lock().obfuscation_settings = ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Udp2Tcp,
-            ..ObfuscationSettings::default()
-        };
+        {
+            relay_selector.config.lock().unwrap().obfuscation_settings = ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Udp2Tcp,
+                ..ObfuscationSettings::default()
+            };
+        }
 
         for attempt in 0..1000 {
             let result = relay_selector
@@ -2123,7 +2194,7 @@ mod test {
             Constraint::Only(TunnelType::OpenVpn),
         ] {
             {
-                let mut config = relay_selector.config.lock();
+                let mut config = relay_selector.config.lock().unwrap();
                 config.relay_settings = RelaySettings::Normal(RelayConstraints {
                     tunnel_protocol,
                     location: Constraint::Only(LocationConstraint::from(
@@ -2194,7 +2265,7 @@ mod test {
         let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
         {
-            let mut config = relay_selector.config.lock();
+            let mut config = relay_selector.config.lock().unwrap();
             config.bridge_state = BridgeState::Auto;
         }
 
@@ -2207,7 +2278,7 @@ mod test {
 
         // Verify that bridges are ignored when tunnel protocol is WireGuard
         {
-            let mut config = relay_selector.config.lock();
+            let mut config = relay_selector.config.lock().unwrap();
             config.relay_settings = RelaySettings::Normal(RelayConstraints {
                 tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
                 ..RelayConstraints::default()
