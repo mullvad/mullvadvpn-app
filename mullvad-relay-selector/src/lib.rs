@@ -38,10 +38,8 @@ use talpid_types::{
 use matcher::{BridgeMatcher, EndpointMatcher, OpenVpnMatcher, RelayMatcher, WireguardMatcher};
 
 mod matcher;
-pub mod updater;
 
 const DATE_TIME_FORMAT_STR: &str = "%Y-%m-%d %H:%M:%S%.3f";
-const RELAYS_FILENAME: &str = "relays.json";
 
 const WIREGUARD_EXIT_PORT: Constraint<u16> = Constraint::Only(51820);
 const WIREGUARD_EXIT_IP_VERSION: Constraint<IpVersion> = Constraint::Only(IpVersion::V4);
@@ -108,6 +106,10 @@ impl ParsedRelays {
         self.last_updated
     }
 
+    pub fn etag(&self) -> Option<String> {
+        self.parsed_list.etag.clone()
+    }
+
     fn set_overrides(&mut self, new_overrides: &[RelayOverride]) {
         self.parsed_list = Self::parse_relay_list(&self.original_list, new_overrides);
         self.overrides = new_overrides.to_vec();
@@ -123,15 +125,15 @@ impl ParsedRelays {
     }
 
     /// Try to read the relays from disk, preferring the newer ones.
-    fn from_dir(
-        cache_path: &Path,
-        resource_path: &Path,
+    fn from_file(
+        cache_path: impl AsRef<Path>,
+        resource_path: impl AsRef<Path>,
         overrides: &[RelayOverride],
     ) -> Result<Self, Error> {
         // prefer the resource path's relay list if the cached one doesn't exist or was modified
         // before the resource one was created.
-        let cached_relays = Self::from_file(cache_path, overrides);
-        let bundled_relays = match Self::from_file(resource_path, overrides) {
+        let cached_relays = Self::from_file_inner(cache_path, overrides);
+        let bundled_relays = match Self::from_file_inner(resource_path, overrides) {
             Ok(bundled_relays) => bundled_relays,
             Err(e) => {
                 log::error!("Failed to load bundled relays: {}", e);
@@ -150,7 +152,7 @@ impl ParsedRelays {
         }
     }
 
-    fn from_file(path: impl AsRef<Path>, overrides: &[RelayOverride]) -> Result<Self, Error> {
+    fn from_file_inner(path: impl AsRef<Path>, overrides: &[RelayOverride]) -> Result<Self, Error> {
         log::debug!("Reading relays from {}", path.as_ref().display());
         let (last_modified, file) =
             Self::open_file(path.as_ref()).map_err(Error::OpenRelayCache)?;
@@ -253,11 +255,13 @@ pub struct RelaySelector {
 
 impl RelaySelector {
     /// Returns a new `RelaySelector` backed by relays cached on disk.
-    pub fn new(config: SelectorConfig, resource_dir: &Path, cache_dir: &Path) -> Self {
-        let cache_path = cache_dir.join(RELAYS_FILENAME);
-        let resource_path = resource_dir.join(RELAYS_FILENAME);
+    pub fn new(
+        config: SelectorConfig,
+        resource_path: impl AsRef<Path>,
+        cache_path: impl AsRef<Path>,
+    ) -> Self {
         let unsynchronized_parsed_relays =
-            ParsedRelays::from_dir(&cache_path, &resource_path, &config.relay_overrides)
+            ParsedRelays::from_file(&cache_path, &resource_path, &config.relay_overrides)
                 .unwrap_or_else(|error| {
                     log::error!(
                         "{}",
@@ -310,6 +314,14 @@ impl RelaySelector {
     pub fn get_relays(&mut self) -> RelayList {
         let parsed_relays = self.parsed_relays.lock().unwrap();
         parsed_relays.original_list.clone()
+    }
+
+    pub fn etag(&self) -> Option<String> {
+        self.parsed_relays.lock().unwrap().etag()
+    }
+
+    pub fn last_updated(&self) -> SystemTime {
+        self.parsed_relays.lock().unwrap().last_updated()
     }
 
     /// Returns a random relay and relay endpoint matching the current constraints.
