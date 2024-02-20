@@ -72,4 +72,4 @@ jobs:
         run: |
           # Exclude checking test-manager on Windows, since it is not a supported compilation target.
           time cargo clippy  --all-targets --workspace --exclude test-manager --locked
-          time cargo clippy  --all-targets --all-features --workspace --exclude test-manager --locked
+          time cargo clippy  --all-targets --workspace --exclude test-manager --locked --all-features
