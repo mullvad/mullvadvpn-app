@@ -73,10 +73,10 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         backgroundView = UIView()
-        backgroundView?.backgroundColor = UIColor.Cell.backgroundColor
+        backgroundView?.backgroundColor = UIColor.Cell.Background.normal
 
         selectedBackgroundView = UIView()
-        selectedBackgroundView?.backgroundColor = UIColor.Cell.selectedAltBackgroundColor
+        selectedBackgroundView?.backgroundColor = UIColor.Cell.Background.selectedAlt
 
         separatorInset = .zero
         backgroundColor = .clear
@@ -150,7 +150,7 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
 
     func applySubCellStyling() {
         contentView.layoutMargins.left += UIMetrics.TableView.cellIndentationWidth
-        backgroundView?.backgroundColor = UIColor.SubCell.backgroundColor
+        backgroundView?.backgroundColor = UIColor.Cell.Background.indentationLevelOne
     }
 
     func setLeftView(_ view: UIView, spacing: CGFloat) {

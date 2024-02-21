@@ -75,7 +75,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
         )
 
         contentView.directionalLayoutMargins = UIMetrics.SettingsCell.layoutMargins
-        contentView.backgroundColor = UIColor.Cell.backgroundColor
+        contentView.backgroundColor = UIColor.Cell.Background.normal
 
         let buttonAreaWidth = UIMetrics.contentLayoutMargins.leading + UIMetrics
             .contentLayoutMargins.trailing + buttonWidth

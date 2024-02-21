@@ -86,13 +86,18 @@ extension UIColor {
 
     // Cells
     enum Cell {
-        static let backgroundColor = primaryColor
-        static let disabledBackgroundColor = backgroundColor.darkened(by: 0.3)!
+        enum Background {
+            static let indentationLevelZero = primaryColor
+            static let indentationLevelOne = UIColor(red: 0.15, green: 0.23, blue: 0.33, alpha: 1.0)
+            static let indentationLevelTwo = UIColor(red: 0.13, green: 0.20, blue: 0.30, alpha: 1.0)
+            static let indentationLevelThree = UIColor(red: 0.11, green: 0.17, blue: 0.27, alpha: 1.0)
 
-        static let selectedBackgroundColor = successColor
-        static let disabledSelectedBackgroundColor = selectedBackgroundColor.darkened(by: 0.3)!
-
-        static let selectedAltBackgroundColor = backgroundColor.darkened(by: 0.2)!
+            static let normal = indentationLevelZero
+            static let disabled = normal.darkened(by: 0.3)!
+            static let selected = successColor
+            static let disabledSelected = selected.darkened(by: 0.3)!
+            static let selectedAlt = normal.darkened(by: 0.2)!
+        }
 
         static let titleTextColor = UIColor.white
         static let detailTextColor = UIColor(white: 1.0, alpha: 0.8)
@@ -109,13 +114,7 @@ extension UIColor {
         static let footerTextColor = UIColor(white: 1.0, alpha: 0.6)
     }
 
-    enum SubCell {
-        static let backgroundColor = UIColor(red: 0.15, green: 0.23, blue: 0.33, alpha: 1.0)
-    }
-
-    enum SubSubCell {
-        static let backgroundColor = UIColor(red: 0.13, green: 0.20, blue: 0.30, alpha: 1.0)
-    }
+    enum SettingsCellBackground {}
 
     enum HeaderBar {
         static let defaultBackgroundColor = primaryColor
