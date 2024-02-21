@@ -61,7 +61,8 @@ final class TunnelManager: StorePaymentObserver {
     private var networkMonitor: NWPathMonitor?
 
     private var privateKeyRotationTimer: DispatchSourceTimer?
-    private var isRunningPeriodicPrivateKeyRotation = false
+    public private(set) var isRunningPeriodicPrivateKeyRotation = false
+    public private(set) var nextKeyRotationDate: Date?
 
     private var tunnelStatusPollTimer: DispatchSourceTimer?
     private var isPolling = false
@@ -111,7 +112,7 @@ final class TunnelManager: StorePaymentObserver {
         nslock.lock()
         defer { nslock.unlock() }
 
-        guard !isRunningPeriodicPrivateKeyRotation else { return }
+        guard !isRunningPeriodicPrivateKeyRotation, deviceState.isLoggedIn else { return }
 
         logger.debug("Start periodic private key rotation.")
 
@@ -131,6 +132,14 @@ final class TunnelManager: StorePaymentObserver {
         updatePrivateKeyRotationTimer()
     }
 
+    func startOrStopPeriodicPrivateKeyRotation() {
+        if deviceState.isLoggedIn {
+            startPeriodicPrivateKeyRotation()
+        } else {
+            stopPeriodicPrivateKeyRotation()
+        }
+    }
+
     func getNextKeyRotationDate() -> Date? {
         nslock.lock()
         defer { nslock.unlock() }
@@ -144,9 +153,11 @@ final class TunnelManager: StorePaymentObserver {
 
         privateKeyRotationTimer?.cancel()
         privateKeyRotationTimer = nil
+        nextKeyRotationDate = nil
 
         guard isRunningPeriodicPrivateKeyRotation,
               let scheduleDate = getNextKeyRotationDate() else { return }
+        nextKeyRotationDate = scheduleDate
 
         let timer = DispatchSource.makeTimerSource(queue: .main)
 
@@ -334,7 +345,8 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.completionQueue = .main
         operation.completionHandler = { [weak self] result in
-            self?.updatePrivateKeyRotationTimer()
+            guard let self else { return }
+            startOrStopPeriodicPrivateKeyRotation()
 
             completionHandler(result)
         }
