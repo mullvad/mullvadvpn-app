@@ -1,15 +1,14 @@
 //
-//  MethodSettingsValidationErrorContentView.swift
+//  SettingsFieldValidationErrorContentView.swift
 //  MullvadVPN
 //
-//  Created by Jon Petersson on 2024-01-12.
+//  Created by Jon Petersson on 2024-02-16.
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
 import UIKit
 
-/// Content view presenting the access method validation errors.
-class MethodSettingsValidationErrorContentView: UIView, UIContentView {
+class SettingsFieldValidationErrorContentView: UIView, UIContentView {
     let contentView = UIStackView()
 
     var icon: UIImageView {
@@ -24,7 +23,7 @@ class MethodSettingsValidationErrorContentView: UIView, UIContentView {
             actualConfiguration
         }
         set {
-            guard let newConfiguration = newValue as? MethodSettingsValidationErrorContentConfiguration else { return }
+            guard let newConfiguration = newValue as? SettingsFieldValidationErrorConfiguration else { return }
 
             let previousConfiguration = actualConfiguration
             actualConfiguration = newConfiguration
@@ -33,13 +32,13 @@ class MethodSettingsValidationErrorContentView: UIView, UIContentView {
         }
     }
 
-    private var actualConfiguration: MethodSettingsValidationErrorContentConfiguration
+    private var actualConfiguration: SettingsFieldValidationErrorConfiguration
 
     func supports(_ configuration: UIContentConfiguration) -> Bool {
-        configuration is MethodSettingsValidationErrorContentConfiguration
+        configuration is SettingsFieldValidationErrorConfiguration
     }
 
-    init(configuration: MethodSettingsValidationErrorContentConfiguration) {
+    init(configuration: SettingsFieldValidationErrorConfiguration) {
         actualConfiguration = configuration
 
         super.init(frame: CGRect(x: 0, y: 0, width: 100, height: 44))
@@ -61,7 +60,7 @@ class MethodSettingsValidationErrorContentView: UIView, UIContentView {
         }
     }
 
-    private func configureSubviews(previousConfiguration: MethodSettingsValidationErrorContentConfiguration? = nil) {
+    private func configureSubviews(previousConfiguration: SettingsFieldValidationErrorConfiguration? = nil) {
         guard actualConfiguration != previousConfiguration else { return }
 
         configureLayoutMargins()
@@ -70,7 +69,7 @@ class MethodSettingsValidationErrorContentView: UIView, UIContentView {
             view.removeFromSuperview()
         }
 
-        actualConfiguration.fieldErrors.forEach { error in
+        actualConfiguration.errors.forEach { error in
             let label = UILabel()
             label.text = error.errorDescription
             label.numberOfLines = 0

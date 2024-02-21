@@ -94,3 +94,9 @@ struct AccessMethodFieldValidationError: LocalizedError, Equatable {
         }
     }
 }
+
+extension Collection<AccessMethodFieldValidationError> {
+    var settingsFieldValidationErrors: [SettingsFieldValidationError] {
+        map { SettingsFieldValidationError(errorDescription: $0.errorDescription) }
+    }
+}

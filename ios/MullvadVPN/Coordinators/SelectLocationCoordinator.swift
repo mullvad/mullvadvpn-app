@@ -11,6 +11,8 @@ import MullvadTypes
 import Routing
 import UIKit
 
+import MullvadSettings
+
 class SelectLocationCoordinator: Coordinator, Presentable, Presenting, RelayCacheTrackerObserver {
     private let tunnelManager: TunnelManager
     private let relayCacheTracker: RelayCacheTracker

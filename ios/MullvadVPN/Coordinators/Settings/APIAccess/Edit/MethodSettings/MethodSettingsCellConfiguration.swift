@@ -134,8 +134,8 @@ class MethodSettingsCellConfiguration {
         itemIdentifier: MethodSettingsItemIdentifier,
         contentValidationErrors: [AccessMethodFieldValidationError]
     ) {
-        var contentConfiguration = MethodSettingsValidationErrorContentConfiguration()
-        contentConfiguration.fieldErrors = contentValidationErrors
+        var contentConfiguration = SettingsFieldValidationErrorConfiguration()
+        contentConfiguration.errors = contentValidationErrors.settingsFieldValidationErrors
 
         cell.contentConfiguration = contentConfiguration
     }
