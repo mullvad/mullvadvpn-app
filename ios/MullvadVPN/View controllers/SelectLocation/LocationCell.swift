@@ -1,5 +1,5 @@
 //
-//  SelectLocationCell.swift
+//  LocationCell.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 02/05/2019.
@@ -11,8 +11,8 @@ import UIKit
 private let kCollapseButtonWidth: CGFloat = 24
 private let kRelayIndicatorSize: CGFloat = 16
 
-class SelectLocationCell: UITableViewCell {
-    typealias CollapseHandler = (SelectLocationCell) -> Void
+class LocationCell: UITableViewCell {
+    typealias CollapseHandler = (LocationCell) -> Void
 
     let locationLabel = UILabel()
     let statusIndicator: UIView = {
@@ -72,7 +72,7 @@ class SelectLocationCell: UITableViewCell {
     private func setLayoutMargins() {
         let indentation = CGFloat(indentationLevel) * indentationWidth
 
-        var contentMargins = UIMetrics.selectLocationCellLayoutMargins
+        var contentMargins = UIMetrics.locationCellLayoutMargins
         contentMargins.leading += indentation
 
         contentView.directionalLayoutMargins = contentMargins
@@ -98,10 +98,10 @@ class SelectLocationCell: UITableViewCell {
         contentView.backgroundColor = .clear
 
         backgroundView = UIView()
-        backgroundView?.backgroundColor = UIColor.Cell.backgroundColor
+        backgroundView?.backgroundColor = UIColor.Cell.Background.normal
 
         selectedBackgroundView = UIView()
-        selectedBackgroundView?.backgroundColor = UIColor.Cell.selectedBackgroundColor
+        selectedBackgroundView?.backgroundColor = UIColor.Cell.Background.selected
 
         locationLabel.font = UIFont.systemFont(ofSize: 17)
         locationLabel.textColor = .white
@@ -184,19 +184,21 @@ class SelectLocationCell: UITableViewCell {
     private func backgroundColorForIdentationLevel() -> UIColor {
         switch indentationLevel {
         case 1:
-            return UIColor.SubCell.backgroundColor
+            return UIColor.Cell.Background.indentationLevelOne
         case 2:
-            return UIColor.SubSubCell.backgroundColor
+            return UIColor.Cell.Background.indentationLevelTwo
+        case 3:
+            return UIColor.Cell.Background.indentationLevelThree
         default:
-            return UIColor.Cell.backgroundColor
+            return UIColor.Cell.Background.normal
         }
     }
 
     private func selectedBackgroundColorForIndentationLevel() -> UIColor {
         if isDisabled {
-            return UIColor.Cell.disabledSelectedBackgroundColor
+            return UIColor.Cell.Background.disabledSelected
         } else {
-            return UIColor.Cell.selectedBackgroundColor
+            return UIColor.Cell.Background.selected
         }
     }
 

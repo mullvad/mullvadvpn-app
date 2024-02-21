@@ -9,6 +9,17 @@
 import MullvadTypes
 
 struct LocationCellViewModel: Hashable {
-    let group: SelectLocationSection
-    let location: RelayLocation
+    let section: LocationSection
+    let node: LocationNode
+    var indentationLevel = 0
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(section)
+        hasher.combine(node)
+    }
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.node == rhs.node &&
+            lhs.section == rhs.section
+    }
 }
