@@ -571,7 +571,7 @@ async fn redirect_packets_for_pktap_stream(
                             }
                         }
                         RoutingDecision::Drop => {
-                            log::warn!("Dropped packet from pid {}", packet.header.pth_pid);
+                            log::trace!("Dropped packet from pid {}", packet.header.pth_pid);
                         }
                     }
                 }
