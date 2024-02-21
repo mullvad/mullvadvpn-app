@@ -597,7 +597,7 @@ impl RelaySelector {
         // NOTE: If not using multihop then `location` is set as the only location constraint.
         // If using multihop then location is the exit constraint and
         // `wireguard_constraints.entry_location` is set as the entry location constraint.
-        if !relay_constraints.wireguard_constraints.use_multihop {
+        if !relay_constraints.wireguard_constraints.multihop() {
             let relay_matcher = RelayMatcher {
                 locations: ResolvedLocationConstraint::from_constraint(
                     relay_constraints.location.clone(),
@@ -688,7 +688,7 @@ impl RelaySelector {
         .into_wireguard_matcher();
 
         // Pick the entry relay first if its location constraint is a subset of the exit location.
-        if relay_constraints.wireguard_constraints.use_multihop {
+        if relay_constraints.wireguard_constraints.multihop() {
             matcher.endpoint_matcher.wireguard = self.wireguard_exit_matcher();
             if entry_matcher.locations.is_subset(&matcher.locations) {
                 if let Ok((entry_relay, entry_endpoint)) = self.get_entry_endpoint(&entry_matcher) {
@@ -704,7 +704,7 @@ impl RelaySelector {
         // Pick the entry relay last if its location constraint is NOT a subset of the exit
         // location.
         if matches!(selected_relay.endpoint, MullvadEndpoint::Wireguard(..))
-            && relay_constraints.wireguard_constraints.use_multihop
+            && relay_constraints.wireguard_constraints.multihop()
         {
             if !entry_matcher.locations.is_subset(&matcher.locations) {
                 entry_matcher.endpoint_matcher.peer = Some(selected_relay.exit_relay.clone());
@@ -1640,7 +1640,7 @@ mod test {
             ..RelayConstraints::default()
         };
 
-        relay_constraints.wireguard_constraints.use_multihop = true;
+        relay_constraints.wireguard_constraints.use_multihop(true);
         relay_constraints.wireguard_constraints.entry_location =
             Constraint::Only(LocationConstraint::from(location1));
 
@@ -1690,7 +1690,7 @@ mod test {
             ..RelayConstraints::default()
         };
 
-        relay_constraints.wireguard_constraints.use_multihop = true;
+        relay_constraints.wireguard_constraints.use_multihop(true);
         relay_constraints.wireguard_constraints.entry_location =
             Constraint::Only(location_specific.clone());
 
@@ -1966,7 +1966,7 @@ mod test {
     fn test_selecting_any_relay_will_consider_multihop() {
         let relay_constraints = RelayConstraints {
             wireguard_constraints: WireguardConstraints {
-                use_multihop: true,
+                use_multihop: Constraint::Only(true),
                 ..WireguardConstraints::default()
             },
             // This has to be explicit otherwise Android will chose WireGuard when default
@@ -1991,7 +1991,7 @@ mod test {
         providers: Constraint::Any,
         ownership: Constraint::Any,
         wireguard_constraints: WireguardConstraints {
-            use_multihop: true,
+            use_multihop: Constraint::Only(true),
             port: Constraint::Any,
             ip_version: Constraint::Any,
             entry_location: Constraint::Any,
@@ -2007,7 +2007,7 @@ mod test {
         providers: Constraint::Any,
         ownership: Constraint::Any,
         wireguard_constraints: WireguardConstraints {
-            use_multihop: false,
+            use_multihop: Constraint::Only(false),
             port: Constraint::Any,
             ip_version: Constraint::Any,
             entry_location: Constraint::Any,

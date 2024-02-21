@@ -376,16 +376,13 @@ impl<'a> Display for SettingsSummary<'a> {
             write!(f, ", wg ip version: {ip_version}")?;
         }
 
-        let multihop = matches!(
-            relay_settings,
+        let multihop = match relay_settings {
             RelaySettings::Normal(RelayConstraints {
-                wireguard_constraints: WireguardConstraints {
-                    use_multihop: true,
-                    ..
-                },
+                wireguard_constraints,
                 ..
-            })
-        );
+            }) => wireguard_constraints.multihop(),
+            _ => false,
+        };
 
         write!(
             f,
