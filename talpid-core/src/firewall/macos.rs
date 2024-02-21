@@ -2,7 +2,7 @@ use super::{FirewallArguments, FirewallPolicy};
 use ipnetwork::IpNetwork;
 use pfctl::{DropAction, FilterRuleAction, Uid};
 use std::{
-    env,
+    env, io,
     net::{IpAddr, Ipv4Addr},
 };
 use subslice::SubsliceExt;
@@ -131,6 +131,10 @@ impl Firewall {
 
                 if let Some(tunnel) = tunnel {
                     if let Some(redirect_interface) = redirect_interface {
+                        if enable_forwarding().is_err() {
+                            log::error!("Failed to enable forwarding");
+                        }
+
                         if !allowed_tunnel_traffic.all() {
                             log::warn!("Split tunneling does not respect the 'allowed tunnel traffic' setting");
                         }
@@ -179,6 +183,10 @@ impl Firewall {
                 }
 
                 if let Some(redirect_interface) = redirect_interface {
+                    if enable_forwarding().is_err() {
+                        log::error!("Failed to enable forwarding");
+                    }
+
                     rules.extend(self.get_allow_established_tunnel_rules(
                         &tunnel.interface,
                         &AllowedTunnelTraffic::All,
@@ -733,4 +741,19 @@ enum RuleLogging {
     Pass,
     Drop,
     All,
+}
+
+fn enable_forwarding() -> io::Result<()> {
+    log::trace!("Enabling forwarding");
+
+    let mut cmd = std::process::Command::new("sysctl");
+    cmd.arg("net.inet.ip.forwarding=1");
+    let output = cmd.output()?;
+    if !output.status.success() {
+        return Err(io::Error::new(
+            io::ErrorKind::Other,
+            "failed to enable forwarding",
+        ));
+    }
+    Ok(())
 }
