@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -329,11 +330,10 @@ private fun LazyListScope.customLists(
         )
     }
     items(
-        count = relayListState.customLists.size,
-        key = { index -> relayListState.customLists[index].hashCode() },
+        items = relayListState.customLists,
+        key = { item -> item.hashCode() },
         contentType = { ContentType.ITEM },
-    ) { index ->
-        val customList = relayListState.customLists[index]
+    ) { customList ->
         NormalRelayLocationCell(
             relay = customList,
             // Do not show selection for locations in custom lists
@@ -401,7 +401,7 @@ private fun EditListsBottomSheet(
     onCustomListClicked: (RelayItem.CustomList) -> Unit,
     closeBottomSheet: () -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
     if (

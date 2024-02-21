@@ -95,7 +95,7 @@ fun EditCustomList(
         onLocationsClicked = {
             navigator.navigate(CustomListLocationsDestination(customListKey = it, newList = false))
         },
-        onBackClick = { navigator.navigateUp() }
+        onBackClick = navigator::navigateUp
     )
 }
 

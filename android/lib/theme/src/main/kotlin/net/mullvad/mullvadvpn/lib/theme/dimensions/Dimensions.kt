@@ -16,6 +16,7 @@ data class Dimensions(
     val cellEndPadding: Dp = 16.dp,
     val cellFooterTopPadding: Dp = 6.dp,
     val cellHeight: Dp = 56.dp,
+    val cellHeightTwoRows: Dp = 72.dp,
     val cellLabelVerticalPadding: Dp = 14.dp,
     val cellStartPadding: Dp = 22.dp,
     val cellTopPadding: Dp = 6.dp,

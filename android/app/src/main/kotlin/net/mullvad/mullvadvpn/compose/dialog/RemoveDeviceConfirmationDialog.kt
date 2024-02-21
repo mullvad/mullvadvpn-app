@@ -42,7 +42,7 @@ private fun PreviewRemoveDeviceConfirmationDialog() {
 @Composable
 fun RemoveDeviceConfirmationDialog(navigator: ResultBackNavigator<String>, device: Device) {
     AlertDialog(
-        onDismissRequest = { navigator.navigateBack() },
+        onDismissRequest = navigator::navigateBack,
         icon = {
             Icon(
                 modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
