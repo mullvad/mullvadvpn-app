@@ -173,7 +173,7 @@ extension UIMetrics {
     static let contentInsets = UIEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
 
     /// Common layout margins for location cell presentation
-    static let selectLocationCellLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 28, bottom: 16, trailing: 12)
+    static let locationCellLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 28, bottom: 16, trailing: 12)
 
     /// Layout margins used by content heading displayed below the large navigation title.
     static let contentHeadingLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 24, bottom: 24, trailing: 24)

@@ -117,6 +117,10 @@ extension UIColor {
         static let backgroundColor = UIColor(red: 0.13, green: 0.20, blue: 0.30, alpha: 1.0)
     }
 
+    enum SubSubSubCell {
+        static let backgroundColor = UIColor(red: 0.11, green: 0.17, blue: 0.27, alpha: 1.0)
+    }
+
     enum HeaderBar {
         static let defaultBackgroundColor = primaryColor
         static let unsecuredBackgroundColor = dangerColor
