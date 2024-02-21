@@ -47,19 +47,16 @@ import org.koin.core.parameter.parametersOf
 @Composable
 @Preview
 fun PreviewCustomListsScreen() {
-    AppTheme {
-        CustomListLocationsScreen(
-            newList = true,
-            uiState = CustomListLocationsUiState.Content.Data()
-        )
-    }
+    AppTheme { CustomListLocationsScreen(uiState = CustomListLocationsUiState.Content.Data()) }
 }
 
 @Composable
 @Destination(style = SlideInFromRightTransition::class)
 fun CustomListLocations(navigator: DestinationsNavigator, customListKey: String, newList: Boolean) {
     val customListsViewModel =
-        koinViewModel<CustomListLocationsViewModel>(parameters = { parametersOf(customListKey) })
+        koinViewModel<CustomListLocationsViewModel>(
+            parameters = { parametersOf(customListKey, newList) }
+        )
 
     LaunchedEffect(Unit) {
         customListsViewModel.uiSideEffect.collect { sideEffect ->
@@ -71,22 +68,18 @@ fun CustomListLocations(navigator: DestinationsNavigator, customListKey: String,
 
     val state by customListsViewModel.uiState.collectAsState()
     CustomListLocationsScreen(
-        newList = newList,
         uiState = state,
         onSaveClick = customListsViewModel::save,
-        onSelectLocationClick = customListsViewModel::selectLocation,
-        onDeselectLocationClick = customListsViewModel::deselectLocation,
+        onRelaySelectionClick = customListsViewModel::onRelaySelectionClick,
         onBackClick = navigator::navigateUp
     )
 }
 
 @Composable
 fun CustomListLocationsScreen(
-    newList: Boolean,
     uiState: CustomListLocationsUiState,
     onSaveClick: () -> Unit = {},
-    onSelectLocationClick: (RelayItem) -> Unit = {},
-    onDeselectLocationClick: (RelayItem) -> Unit = {},
+    onRelaySelectionClick: (RelayItem, selected: Boolean) -> Unit = { _, _ -> },
     onBackClick: () -> Unit = {}
 ) {
     val backgroundColor = MaterialTheme.colorScheme.background
@@ -95,7 +88,7 @@ fun CustomListLocationsScreen(
         modifier = Modifier.background(backgroundColor).systemBarsPadding().fillMaxSize(),
         topBar = {
             CustomListLocationsTopBar(
-                newList = newList,
+                uiState = uiState,
                 onBackClick = onBackClick,
                 onSaveClick = onSaveClick
             )
@@ -110,11 +103,7 @@ fun CustomListLocationsScreen(
                         empty(searchTerm = uiState.searchTerm)
                     }
                     is CustomListLocationsUiState.Content.Data -> {
-                        content(
-                            uiState = uiState,
-                            onRelaySelected = onSelectLocationClick,
-                            onRelayDeselected = onDeselectLocationClick
-                        )
+                        content(uiState = uiState, onRelaySelectedChanged = onRelaySelectionClick)
                     }
                 }
             }
@@ -124,7 +113,7 @@ fun CustomListLocationsScreen(
 
 @Composable
 private fun CustomListLocationsTopBar(
-    newList: Boolean,
+    uiState: CustomListLocationsUiState,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
@@ -139,7 +128,7 @@ private fun CustomListLocationsTopBar(
         Text(
             text =
                 stringResource(
-                    if (newList) {
+                    if (uiState.newList) {
                         R.string.add_locations
                     } else {
                         R.string.edit_locations
@@ -177,8 +166,7 @@ private fun LazyListScope.empty(searchTerm: String) {
 
 private fun LazyListScope.content(
     uiState: CustomListLocationsUiState.Content.Data,
-    onRelaySelected: (RelayItem) -> Unit,
-    onRelayDeselected: (RelayItem) -> Unit
+    onRelaySelectedChanged: (RelayItem, selected: Boolean) -> Unit,
 ) {
     items(
         count = uiState.availableLocations.size,
@@ -189,8 +177,7 @@ private fun LazyListScope.content(
         CheckableRelayLocationCell(
             relay = country,
             modifier = Modifier.animateContentSize(),
-            onRelaySelected = onRelaySelected,
-            onRelayDeselected = onRelayDeselected,
+            onRelayCheckedChange = onRelaySelectedChanged,
             selectedRelays = uiState.selectedLocations,
         )
     }
