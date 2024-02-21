@@ -10,22 +10,26 @@ import MullvadTypes
 import UIKit
 
 protocol LocationCellEventHandler {
-    func collapseCell(for item: RelayLocation)
+    func toggleCell(for item: LocationCellViewModel)
+    func node(for item: LocationCellViewModel) -> SelectLocationNode?
 }
 
 final class LocationCellFactory: CellFactoryProtocol {
-    var nodeByLocation = [RelayLocation: LocationDataSource.Node]()
     var delegate: LocationCellEventHandler?
     let tableView: UITableView
+    let reuseIdentifier: String
 
-    init(tableView: UITableView, nodeByLocation: [RelayLocation: LocationDataSource.Node]) {
+    init(
+        tableView: UITableView,
+        reuseIdentifier: String
+    ) {
         self.tableView = tableView
-        self.nodeByLocation = nodeByLocation
+        self.reuseIdentifier = reuseIdentifier
     }
 
-    func makeCell(for item: RelayLocation, indexPath: IndexPath) -> UITableViewCell {
+    func makeCell(for item: LocationCellViewModel, indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(
-            withIdentifier: LocationDataSource.CellReuseIdentifiers.locationCell.rawValue,
+            withIdentifier: reuseIdentifier,
             for: indexPath
         )
 
@@ -34,9 +38,9 @@ final class LocationCellFactory: CellFactoryProtocol {
         return cell
     }
 
-    func configureCell(_ cell: UITableViewCell, item: RelayLocation, indexPath: IndexPath) {
+    func configureCell(_ cell: UITableViewCell, item: LocationCellViewModel, indexPath: IndexPath) {
         guard let cell = cell as? SelectLocationCell,
-              let node = nodeByLocation[item] else { return }
+              let node = delegate?.node(for: item) else { return }
 
         cell.accessibilityIdentifier = node.location.stringRepresentation
         cell.isDisabled = !node.isActive
@@ -44,7 +48,7 @@ final class LocationCellFactory: CellFactoryProtocol {
         cell.showsCollapseControl = node.isCollapsible
         cell.isExpanded = node.showsChildren
         cell.didCollapseHandler = { [weak self] _ in
-            self?.delegate?.collapseCell(for: item)
+            self?.delegate?.toggleCell(for: item)
         }
     }
 }

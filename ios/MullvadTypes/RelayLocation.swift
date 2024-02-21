@@ -63,7 +63,7 @@ public enum RelayLocation: Codable, Hashable, CustomDebugStringConvertible {
     }
 
     /// A list of `RelayLocation` items preceding the given one in the relay tree
-    public var ascendants: [RelayLocation] {
+    public var ancestors: [RelayLocation] {
         switch self {
         case let .hostname(country, city, _):
             return [.country(country), .city(country, city)]
