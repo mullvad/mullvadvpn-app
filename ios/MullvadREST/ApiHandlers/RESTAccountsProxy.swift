@@ -145,3 +145,17 @@ extension REST {
         public let number: String
     }
 }
+
+extension REST.NewAccountData {
+    public static func mockValue() -> REST.NewAccountData {
+        return REST.NewAccountData(
+            id: UUID().uuidString,
+            expiry: Date().addingTimeInterval(3600),
+            maxPorts: 2,
+            canAddPorts: false,
+            maxDevices: 5,
+            canAddDevices: false,
+            number: "1234567890123456"
+        )
+    }
+}

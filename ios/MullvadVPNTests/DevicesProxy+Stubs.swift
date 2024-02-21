@@ -12,6 +12,7 @@ import Foundation
 @testable import WireGuardKitTypes
 
 struct DevicesProxyStub: DeviceHandling {
+    let mockDevice = Device.mock(publicKey: PrivateKey().publicKey)
     func getDevice(
         accountNumber: String,
         identifier: String,
@@ -35,7 +36,8 @@ struct DevicesProxyStub: DeviceHandling {
         retryStrategy: REST.RetryStrategy,
         completion: @escaping ProxyCompletionHandler<Device>
     ) -> Cancellable {
-        AnyCancellable()
+        completion(.success(mockDevice))
+        return AnyCancellable()
     }
 
     func deleteDevice(
@@ -44,7 +46,8 @@ struct DevicesProxyStub: DeviceHandling {
         retryStrategy: REST.RetryStrategy,
         completion: @escaping ProxyCompletionHandler<Bool>
     ) -> Cancellable {
-        AnyCancellable()
+        completion(.success(true))
+        return AnyCancellable()
     }
 
     func rotateDeviceKey(
