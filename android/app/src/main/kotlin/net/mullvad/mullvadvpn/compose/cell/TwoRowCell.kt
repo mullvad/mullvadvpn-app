@@ -8,8 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Preview
 @Composable
@@ -45,6 +45,6 @@ fun TwoRowCell(
         },
         onCellClicked = onCellClicked,
         background = background,
-        minHeight = 72.dp
+        minHeight = Dimens.cellHeightTwoRows
     )
 }
