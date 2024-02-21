@@ -11,11 +11,15 @@ import Foundation
 @testable import MullvadTypes
 
 struct AccountsProxyStub: RESTAccountHandling {
+    var createAccountResult: Result<REST.NewAccountData, Error>?
     func createAccount(
         retryStrategy: REST.RetryStrategy,
         completion: @escaping MullvadREST.ProxyCompletionHandler<REST.NewAccountData>
     ) -> Cancellable {
-        AnyCancellable()
+        if let createAccountResult = createAccountResult {
+            completion(createAccountResult)
+        }
+        return AnyCancellable()
     }
 
     func getAccountData(accountNumber: String) -> any RESTRequestExecutor<Account> {

@@ -61,7 +61,8 @@ final class TunnelManager: StorePaymentObserver {
     private var networkMonitor: NWPathMonitor?
 
     private var privateKeyRotationTimer: DispatchSourceTimer?
-    private var isRunningPeriodicPrivateKeyRotation = false
+    public private(set) var isRunningPeriodicPrivateKeyRotation = false
+    public private(set) var nextKeyRotationDate: Date? = nil
 
     private var tunnelStatusPollTimer: DispatchSourceTimer?
     private var isPolling = false
@@ -144,9 +145,11 @@ final class TunnelManager: StorePaymentObserver {
 
         privateKeyRotationTimer?.cancel()
         privateKeyRotationTimer = nil
+        nextKeyRotationDate = nil
 
         guard isRunningPeriodicPrivateKeyRotation,
               let scheduleDate = getNextKeyRotationDate() else { return }
+        nextKeyRotationDate = scheduleDate
 
         let timer = DispatchSource.makeTimerSource(queue: .main)
 
