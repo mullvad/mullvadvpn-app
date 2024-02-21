@@ -319,7 +319,7 @@ impl Relay {
 
                 print_option!(
                     "Multihop state",
-                    if constraints.wireguard_constraints.use_multihop {
+                    if constraints.wireguard_constraints.multihop() {
                         "enabled"
                     } else {
                         "disabled"
@@ -680,7 +680,7 @@ impl Relay {
             wireguard_constraints.ip_version = ipv;
         }
         if let Some(use_multihop) = use_multihop {
-            wireguard_constraints.use_multihop = *use_multihop;
+            wireguard_constraints.use_multihop(*use_multihop);
         }
         match entry_location {
             Some(EntryArgs::Location(location_args)) => {
