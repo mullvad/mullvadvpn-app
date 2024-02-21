@@ -1,8 +1,6 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -11,7 +9,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,7 +20,6 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogViewModel
@@ -93,16 +89,16 @@ fun EditCustomListNameDialog(
                         if (uiState.error != null) {
                             Text(
                                 text =
-                                stringResource(
-                                    id =
-                                    if (
-                                        uiState.error == CustomListsError.CustomListExists
-                                    ) {
-                                        R.string.custom_list_error_list_exists
-                                    } else {
-                                        R.string.error_occurred
-                                    }
-                                ),
+                                    stringResource(
+                                        id =
+                                            if (
+                                                uiState.error == CustomListsError.CustomListExists
+                                            ) {
+                                                R.string.custom_list_error_list_exists
+                                            } else {
+                                                R.string.error_occurred
+                                            }
+                                    ),
                                 color = MaterialTheme.colorScheme.error,
                                 style = MaterialTheme.typography.bodySmall
                             )
@@ -117,7 +113,8 @@ fun EditCustomListNameDialog(
         confirmButton = {
             PrimaryButton(
                 text = stringResource(id = R.string.save),
-                onClick = { updateName(input.value) }
+                onClick = { updateName(input.value) },
+                isEnabled = input.value.isNotBlank()
             )
         },
         dismissButton = {
