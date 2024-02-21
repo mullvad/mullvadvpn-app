@@ -132,7 +132,7 @@ where
             {
                 match endpoint.tunnel_type {
                     TunnelType::Wireguard => {
-                        if relay_settings.wireguard_constraints.use_multihop {
+                        if relay_settings.wireguard_constraints.multihop() {
                             if let Constraint::Only(LocationConstraint::CustomList { list_id }) =
                                 &relay_settings.wireguard_constraints.entry_location
                             {
