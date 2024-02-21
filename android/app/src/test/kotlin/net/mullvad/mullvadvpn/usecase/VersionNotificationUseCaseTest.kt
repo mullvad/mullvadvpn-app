@@ -69,44 +69,50 @@ class VersionNotificationUseCaseTest {
     }
 
     @Test
-    fun `ensure notifications are empty by default`() = runTest {
+    fun `notifications should be empty by default`() = runTest {
         // Arrange, Act, Assert
         versionNotificationUseCase.notifications().test { assertTrue { awaitItem().isEmpty() } }
     }
 
     @Test
-    fun `ensure UpdateAvailable notification is created`() = runTest {
-        versionNotificationUseCase.notifications().test {
-            // Arrange, Act
-            val upgradeVersionInfo =
-                VersionInfo("1.0", "1.1", isOutdated = true, isSupported = true)
-            serviceConnectionState.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-            awaitItem()
-            versionInfo.value = upgradeVersionInfo
+    fun `given a new version is available use case should emit UpdateAvailable with new version`() =
+        runTest {
+            versionNotificationUseCase.notifications().test {
+                // Arrange, Act
+                val upgradeVersionInfo =
+                    VersionInfo("1.0", "1.1", isOutdated = true, isSupported = true)
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                awaitItem()
+                versionInfo.value = upgradeVersionInfo
 
-            // Assert
-            assertEquals(awaitItem(), listOf(InAppNotification.UpdateAvailable(upgradeVersionInfo)))
+                // Assert
+                assertEquals(
+                    awaitItem(),
+                    listOf(InAppNotification.UpdateAvailable(upgradeVersionInfo))
+                )
+            }
         }
-    }
 
     @Test
-    fun `ensure UnsupportedVersion notification is created`() = runTest {
-        versionNotificationUseCase.notifications().test {
-            // Arrange, Act
-            val upgradeVersionInfo = VersionInfo("1.0", "", isOutdated = false, isSupported = false)
-            serviceConnectionState.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-            awaitItem()
-            versionInfo.value = upgradeVersionInfo
+    fun `given an unsupported version use case should emit UnsupportedVersion notification`() =
+        runTest {
+            versionNotificationUseCase.notifications().test {
+                // Arrange, Act
+                val upgradeVersionInfo =
+                    VersionInfo("1.0", "", isOutdated = false, isSupported = false)
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                awaitItem()
+                versionInfo.value = upgradeVersionInfo
 
-            // Assert
-            assertEquals(
-                awaitItem(),
-                listOf(InAppNotification.UnsupportedVersion(upgradeVersionInfo))
-            )
+                // Assert
+                assertEquals(
+                    awaitItem(),
+                    listOf(InAppNotification.UnsupportedVersion(upgradeVersionInfo))
+                )
+            }
         }
-    }
 
     companion object {
         private const val CACHE_EXTENSION_CLASS = "net.mullvad.mullvadvpn.util.CacheExtensionsKt"

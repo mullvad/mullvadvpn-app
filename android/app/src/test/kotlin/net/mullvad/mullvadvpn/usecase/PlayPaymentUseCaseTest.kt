@@ -21,40 +21,42 @@ class PlayPaymentUseCaseTest {
     private val playPaymentUseCase = PlayPaymentUseCase(mockPaymentRepository)
 
     @Test
-    fun testUpdatePaymentAvailability() = runTest {
-        // Arrange
-        val productsUnavailable = PaymentAvailability.ProductsUnavailable
-        val paymentRepositoryQueryPaymentAvailabilityFlow = flow { emit(productsUnavailable) }
-        every { mockPaymentRepository.queryPaymentAvailability() } returns
-            paymentRepositoryQueryPaymentAvailabilityFlow
+    fun `given invocation of queryPaymentAvailability paymentAvailability should emit updated paymentAvailability`() =
+        runTest {
+            // Arrange
+            val productsUnavailable = PaymentAvailability.ProductsUnavailable
+            val paymentRepositoryQueryPaymentAvailabilityFlow = flow { emit(productsUnavailable) }
+            every { mockPaymentRepository.queryPaymentAvailability() } returns
+                paymentRepositoryQueryPaymentAvailabilityFlow
 
-        // Act, Assert
-        playPaymentUseCase.paymentAvailability.test {
-            assertNull(awaitItem())
-            playPaymentUseCase.queryPaymentAvailability()
-            assertEquals(productsUnavailable, awaitItem())
+            // Act, Assert
+            playPaymentUseCase.paymentAvailability.test {
+                assertNull(awaitItem())
+                playPaymentUseCase.queryPaymentAvailability()
+                assertEquals(productsUnavailable, awaitItem())
+            }
         }
-    }
 
     @Test
-    fun testUpdatePurchaseResult() = runTest {
-        // Arrange
-        val fetchingProducts = PurchaseResult.FetchingProducts
-        val productId = ProductId("productId")
-        val paymentRepositoryPurchaseResultFlow = flow { emit(fetchingProducts) }
-        every { mockPaymentRepository.purchaseProduct(any(), any()) } returns
-            paymentRepositoryPurchaseResultFlow
+    fun `given invocation of purchaseProduct purchaseResult should emit FetchingProducts`() =
+        runTest {
+            // Arrange
+            val fetchingProducts = PurchaseResult.FetchingProducts
+            val productId = ProductId("productId")
+            val paymentRepositoryPurchaseResultFlow = flow { emit(fetchingProducts) }
+            every { mockPaymentRepository.purchaseProduct(any(), any()) } returns
+                paymentRepositoryPurchaseResultFlow
 
-        // Act, Assert
-        playPaymentUseCase.purchaseResult.test {
-            assertNull(awaitItem())
-            playPaymentUseCase.purchaseProduct(productId, mockk())
-            assertEquals(fetchingProducts, awaitItem())
+            // Act, Assert
+            playPaymentUseCase.purchaseResult.test {
+                assertNull(awaitItem())
+                playPaymentUseCase.purchaseProduct(productId, mockk())
+                assertEquals(fetchingProducts, awaitItem())
+            }
         }
-    }
 
     @Test
-    fun testPurchaseProduct() = runTest {
+    fun `purchaseProduct should invoke purchaseProduct on repository`() = runTest {
         // Arrange
         val productId = ProductId("productId")
 
@@ -66,16 +68,17 @@ class PlayPaymentUseCaseTest {
     }
 
     @Test
-    fun testQueryPaymentAvailability() = runTest {
-        // Act
-        playPaymentUseCase.queryPaymentAvailability()
+    fun `queryPaymentAvailability should invoke queryPaymentAvailability on repository`() =
+        runTest {
+            // Act
+            playPaymentUseCase.queryPaymentAvailability()
 
-        // Assert
-        coVerify { mockPaymentRepository.queryPaymentAvailability() }
-    }
+            // Assert
+            coVerify { mockPaymentRepository.queryPaymentAvailability() }
+        }
 
     @Test
-    fun testResetPurchaseResult() = runTest {
+    fun `given invocation of resetPurchaseResult purchaseResult should emit null`() = runTest {
         // Arrange
         val completedSuccess = PurchaseResult.Completed.Success
         val productId = ProductId("productId")
@@ -94,7 +97,7 @@ class PlayPaymentUseCaseTest {
     }
 
     @Test
-    fun testVerifyPurchases() = runTest {
+    fun `verifyPurchases should invoke verifyPurchases on repository`() = runTest {
         // Act
         playPaymentUseCase.verifyPurchases()
 

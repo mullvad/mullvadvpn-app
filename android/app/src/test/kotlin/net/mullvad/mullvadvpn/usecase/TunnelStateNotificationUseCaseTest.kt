@@ -55,28 +55,29 @@ class TunnelStateNotificationUseCaseTest {
     }
 
     @Test
-    fun `ensure notifications are empty by default`() = runTest {
+    fun `notifications should be empty by default`() = runTest {
         // Arrange, Act, Assert
         tunnelStateNotificationUseCase.notifications().test { assertTrue { awaitItem().isEmpty() } }
     }
 
     @Test
-    fun `ensure TunnelState with error will produce TunnelStateError notification`() = runTest {
-        tunnelStateNotificationUseCase.notifications().test {
-            // Arrange, Act
-            assertEquals(emptyList(), awaitItem())
-            serviceConnectionState.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-            val errorState: ErrorState = mockk()
-            eventNotifierTunnelUiState.notify(TunnelState.Error(errorState))
+    fun `given TunnelState with error use case should emit TunnelStateError notification`() =
+        runTest {
+            tunnelStateNotificationUseCase.notifications().test {
+                // Arrange, Act
+                assertEquals(emptyList(), awaitItem())
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                val errorState: ErrorState = mockk()
+                eventNotifierTunnelUiState.notify(TunnelState.Error(errorState))
 
-            // Assert
-            assertEquals(listOf(InAppNotification.TunnelStateError(errorState)), awaitItem())
+                // Assert
+                assertEquals(listOf(InAppNotification.TunnelStateError(errorState)), awaitItem())
+            }
         }
-    }
 
     @Test
-    fun `ensure disconnecting TunnelState with blocking will produce TunnelStateBlocked notification`() =
+    fun `given TunnelState Disconnecting with blocking use case should emit TunnelStateBlocked notification`() =
         runTest {
             tunnelStateNotificationUseCase.notifications().test {
                 // Arrange, Act

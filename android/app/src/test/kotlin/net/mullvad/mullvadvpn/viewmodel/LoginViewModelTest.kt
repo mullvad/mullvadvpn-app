@@ -66,33 +66,34 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testIsInternetAvailableWithoutInternet() = runTest {
-        turbineScope {
-            // Arrange
-            every { connectivityUseCase.isInternetAvailable() } returns false
-            val uiStates = loginViewModel.uiState.testIn(backgroundScope)
+    fun `given no internet and login should result in uiState with NoInternetConnection`() =
+        runTest {
+            turbineScope {
+                // Arrange
+                every { connectivityUseCase.isInternetAvailable() } returns false
+                val uiStates = loginViewModel.uiState.testIn(backgroundScope)
 
-            // Act
-            loginViewModel.login("")
+                // Act
+                loginViewModel.login("")
 
-            // Discard default item
-            uiStates.awaitItem()
+                // Discard default item
+                uiStates.awaitItem()
 
-            // Assert
-            assertEquals(
-                Idle(loginError = LoginError.NoInternetConnection),
-                uiStates.awaitItem().loginState
-            )
+                // Assert
+                assertEquals(
+                    Idle(loginError = LoginError.NoInternetConnection),
+                    uiStates.awaitItem().loginState
+                )
+            }
         }
-    }
 
     @Test
-    fun testDefaultState() = runTest {
+    fun `uiState should by default emit initial state`() = runTest {
         loginViewModel.uiState.test { assertEquals(LoginUiState.INITIAL, awaitItem()) }
     }
 
     @Test
-    fun testCreateAccount() = runTest {
+    fun `given successful createAccount side effect of NavigateToWelcome`() = runTest {
         turbineScope {
             // Arrange
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
@@ -109,7 +110,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testLoginWithValidAccount() = runTest {
+    fun `given login returns Ok uiSideEffect should emit NavigateToConnect`() = runTest {
         turbineScope {
             // Arrange
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
@@ -128,7 +129,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testLoginWithInvalidAccount() = runTest {
+    fun `given login returns InvalidAccount loginState should be InvalidCredentials`() = runTest {
         loginViewModel.uiState.test {
             // Arrange
             coEvery { mockedAccountRepository.login(any()) } returns LoginResult.InvalidAccount
@@ -142,34 +143,36 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testLoginWithTooManyDevicesError() = runTest {
-        turbineScope {
-            // Arrange
-            val uiStates = loginViewModel.uiState.testIn(backgroundScope)
-            val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
-            coEvery {
-                mockedDeviceRepository.refreshAndAwaitDeviceListWithTimeout(
-                    any(),
-                    any(),
-                    any(),
-                    any()
-                )
-            } returns DeviceListEvent.Available(DUMMY_ACCOUNT_TOKEN, listOf())
-            coEvery { mockedAccountRepository.login(any()) } returns LoginResult.MaxDevicesReached
+    fun `given login returns MaxDevicesReached uiSideEffect should emit TooManyDevices`() =
+        runTest {
+            turbineScope {
+                // Arrange
+                val uiStates = loginViewModel.uiState.testIn(backgroundScope)
+                val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
+                coEvery {
+                    mockedDeviceRepository.refreshAndAwaitDeviceListWithTimeout(
+                        any(),
+                        any(),
+                        any(),
+                        any()
+                    )
+                } returns DeviceListEvent.Available(DUMMY_ACCOUNT_TOKEN, listOf())
+                coEvery { mockedAccountRepository.login(any()) } returns
+                    LoginResult.MaxDevicesReached
 
-            // Act, Assert
-            uiStates.skipDefaultItem()
-            loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
-            assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
-            assertEquals(
-                LoginUiSideEffect.TooManyDevices(AccountToken(DUMMY_ACCOUNT_TOKEN)),
-                sideEffects.awaitItem()
-            )
+                // Act, Assert
+                uiStates.skipDefaultItem()
+                loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
+                assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
+                assertEquals(
+                    LoginUiSideEffect.TooManyDevices(AccountToken(DUMMY_ACCOUNT_TOKEN)),
+                    sideEffects.awaitItem()
+                )
+            }
         }
-    }
 
     @Test
-    fun testLoginWithRpcError() = runTest {
+    fun `given login returns RpcError loginState should be Error`() = runTest {
         loginViewModel.uiState.test {
             // Arrange
             coEvery { mockedAccountRepository.login(any()) } returns LoginResult.RpcError
@@ -186,7 +189,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testLoginWithUnknownError() = runTest {
+    fun `given login returns OtherError loginState should be error`() = runTest {
         loginViewModel.uiState.test {
             // Arrange
             coEvery { mockedAccountRepository.login(any()) } returns LoginResult.OtherError
@@ -203,20 +206,21 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testAccountHistory() = runTest {
-        loginViewModel.uiState.test {
-            // Act, Assert
-            skipDefaultItem()
-            accountHistoryTestEvents.emit(AccountHistory.Available(DUMMY_ACCOUNT_TOKEN))
-            assertEquals(
-                LoginUiState.INITIAL.copy(lastUsedAccount = AccountToken(DUMMY_ACCOUNT_TOKEN)),
-                awaitItem()
-            )
+    fun `given new accountHistory emission uiState include lastUsedAccount matching accountHistory`() =
+        runTest {
+            loginViewModel.uiState.test {
+                // Act, Assert
+                skipDefaultItem()
+                accountHistoryTestEvents.emit(AccountHistory.Available(DUMMY_ACCOUNT_TOKEN))
+                assertEquals(
+                    LoginUiState.INITIAL.copy(lastUsedAccount = AccountToken(DUMMY_ACCOUNT_TOKEN)),
+                    awaitItem()
+                )
+            }
         }
-    }
 
     @Test
-    fun testClearingAccountHistory() = runTest {
+    fun `clearAccountHistory should invoke clearAccountHistory on AccountRepository`() = runTest {
         // Act, Assert
         loginViewModel.clearAccountHistory()
         verify { mockedAccountRepository.clearAccountHistory() }

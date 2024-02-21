@@ -86,37 +86,38 @@ class SplitTunnelingViewModelTest {
     }
 
     @Test
-    fun test_apps_list_delivered() = runTest {
-        val appExcluded = AppData("test.excluded", 0, "testName1")
-        val appNotExcluded = AppData("test.not.excluded", 0, "testName2")
-        every { mockedSplitTunneling.excludedAppsChange = captureLambda() } answers
-            {
-                lambda<(Set<String>) -> Unit>().invoke(setOf(appExcluded.packageName))
-            }
-        every { mockedSplitTunneling.enabledChange = captureLambda() } answers
-            {
-                lambda<(Boolean) -> Unit>().invoke(true)
-            }
+    fun `given includedApps and excludedApps returns sets uiState should include the lists`() =
+        runTest {
+            val appExcluded = AppData("test.excluded", 0, "testName1")
+            val appNotExcluded = AppData("test.not.excluded", 0, "testName2")
+            every { mockedSplitTunneling.excludedAppsChange = captureLambda() } answers
+                {
+                    lambda<(Set<String>) -> Unit>().invoke(setOf(appExcluded.packageName))
+                }
+            every { mockedSplitTunneling.enabledChange = captureLambda() } answers
+                {
+                    lambda<(Boolean) -> Unit>().invoke(true)
+                }
 
-        initTestSubject(listOf(appExcluded, appNotExcluded))
+            initTestSubject(listOf(appExcluded, appNotExcluded))
 
-        val expectedState =
-            SplitTunnelingUiState.ShowAppList(
-                enabled = true,
-                excludedApps = listOf(appExcluded),
-                includedApps = listOf(appNotExcluded),
-                showSystemApps = false
-            )
+            val expectedState =
+                SplitTunnelingUiState.ShowAppList(
+                    enabled = true,
+                    excludedApps = listOf(appExcluded),
+                    includedApps = listOf(appNotExcluded),
+                    showSystemApps = false
+                )
 
-        testSubject.uiState.test {
-            val actualState = awaitItem()
-            assertEquals(expectedState, actualState)
-            verifyAll {
-                mockedSplitTunneling.enabledChange = any()
-                mockedSplitTunneling.excludedAppsChange = any()
+            testSubject.uiState.test {
+                val actualState = awaitItem()
+                assertEquals(expectedState, actualState)
+                verifyAll {
+                    mockedSplitTunneling.enabledChange = any()
+                    mockedSplitTunneling.excludedAppsChange = any()
+                }
             }
         }
-    }
 
     @Test
     fun test_include_app() = runTest {
@@ -165,51 +166,52 @@ class SplitTunnelingViewModelTest {
     }
 
     @Test
-    fun test_add_app_to_excluded() = runTest {
-        var excludedAppsCallback = slot<(Set<String>) -> Unit>()
-        val app = AppData("test", 0, "testName")
-        every { mockedSplitTunneling.excludeApp(app.packageName) } just runs
-        every { mockedSplitTunneling.excludedAppsChange = captureLambda() } answers
-            {
-                excludedAppsCallback = lambda()
-                excludedAppsCallback.invoke(emptySet())
-            }
-        every { mockedSplitTunneling.enabledChange = captureLambda() } answers
-            {
-                lambda<(Boolean) -> Unit>().invoke(true)
-            }
+    fun `given invocation of onExcludeApp with app uiState should emit update with app in excludedApps`() =
+        runTest {
+            var excludedAppsCallback = slot<(Set<String>) -> Unit>()
+            val app = AppData("test", 0, "testName")
+            every { mockedSplitTunneling.excludeApp(app.packageName) } just runs
+            every { mockedSplitTunneling.excludedAppsChange = captureLambda() } answers
+                {
+                    excludedAppsCallback = lambda()
+                    excludedAppsCallback.invoke(emptySet())
+                }
+            every { mockedSplitTunneling.enabledChange = captureLambda() } answers
+                {
+                    lambda<(Boolean) -> Unit>().invoke(true)
+                }
 
-        initTestSubject(listOf(app))
+            initTestSubject(listOf(app))
 
-        val expectedStateBeforeAction =
-            SplitTunnelingUiState.ShowAppList(
-                enabled = true,
-                excludedApps = emptyList(),
-                includedApps = listOf(app),
-                showSystemApps = false
-            )
+            val expectedStateBeforeAction =
+                SplitTunnelingUiState.ShowAppList(
+                    enabled = true,
+                    excludedApps = emptyList(),
+                    includedApps = listOf(app),
+                    showSystemApps = false
+                )
 
-        val expectedStateAfterAction =
-            SplitTunnelingUiState.ShowAppList(
-                enabled = true,
-                excludedApps = listOf(app),
-                includedApps = emptyList(),
-                showSystemApps = false
-            )
+            val expectedStateAfterAction =
+                SplitTunnelingUiState.ShowAppList(
+                    enabled = true,
+                    excludedApps = listOf(app),
+                    includedApps = emptyList(),
+                    showSystemApps = false
+                )
 
-        testSubject.uiState.test {
-            assertEquals(expectedStateBeforeAction, awaitItem())
-            testSubject.onExcludeAppClick(app.packageName)
-            excludedAppsCallback.invoke(setOf(app.packageName))
-            assertEquals(expectedStateAfterAction, awaitItem())
+            testSubject.uiState.test {
+                assertEquals(expectedStateBeforeAction, awaitItem())
+                testSubject.onExcludeAppClick(app.packageName)
+                excludedAppsCallback.invoke(setOf(app.packageName))
+                assertEquals(expectedStateAfterAction, awaitItem())
 
-            verifyAll {
-                mockedSplitTunneling.enabledChange = any()
-                mockedSplitTunneling.excludedAppsChange = any()
-                mockedSplitTunneling.excludeApp(app.packageName)
+                verifyAll {
+                    mockedSplitTunneling.enabledChange = any()
+                    mockedSplitTunneling.excludedAppsChange = any()
+                    mockedSplitTunneling.excludeApp(app.packageName)
+                }
             }
         }
-    }
 
     @Test
     fun test_disabled_state() = runTest {

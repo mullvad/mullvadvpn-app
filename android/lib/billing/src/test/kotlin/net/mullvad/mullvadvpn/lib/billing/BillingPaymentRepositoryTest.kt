@@ -40,7 +40,7 @@ class BillingPaymentRepositoryTest {
     private lateinit var paymentRepository: BillingPaymentRepository
 
     @BeforeEach
-    fun setUp() {
+    fun setup() {
         mockkStatic(PRODUCT_DETAILS_TO_PAYMENT_PRODUCT_EXT)
 
         every { mockBillingRepository.purchaseEvents } returns purchaseEventFlow
@@ -53,68 +53,71 @@ class BillingPaymentRepositoryTest {
     }
 
     @Test
-    fun testQueryAvailablePaymentProductsAvailable() = runTest {
-        // Arrange
-        val expectedProduct: PaymentProduct = mockk()
-        val mockProduct: ProductDetails = mockk()
-        val mockResult: ProductDetailsResult = mockk()
-        coEvery { mockBillingRepository.queryPurchases() } returns mockk(relaxed = true)
-        coEvery { mockBillingRepository.queryProducts(any()) } returns mockResult
-        every { mockProduct.toPaymentProduct(any()) } returns expectedProduct
-        every { mockResult.billingResult.responseCode } returns BillingResponseCode.OK
-        every { mockResult.productDetailsList } returns listOf(mockProduct)
+    fun `given billingResult OK queryPaymentAvailability should return available products`() =
+        runTest {
+            // Arrange
+            val expectedProduct: PaymentProduct = mockk()
+            val mockProduct: ProductDetails = mockk()
+            val mockResult: ProductDetailsResult = mockk()
+            coEvery { mockBillingRepository.queryPurchases() } returns mockk(relaxed = true)
+            coEvery { mockBillingRepository.queryProducts(any()) } returns mockResult
+            every { mockProduct.toPaymentProduct(any()) } returns expectedProduct
+            every { mockResult.billingResult.responseCode } returns BillingResponseCode.OK
+            every { mockResult.productDetailsList } returns listOf(mockProduct)
 
-        // Act, Assert
-        paymentRepository.queryPaymentAvailability().test {
-            // Loading
-            awaitItem()
-            val result = awaitItem()
-            assertIs<PaymentAvailability.ProductsAvailable>(result)
-            assertEquals(expectedProduct, result.products.first())
-            awaitComplete()
+            // Act, Assert
+            paymentRepository.queryPaymentAvailability().test {
+                // Loading
+                awaitItem()
+                val result = awaitItem()
+                assertIs<PaymentAvailability.ProductsAvailable>(result)
+                assertEquals(expectedProduct, result.products.first())
+                awaitComplete()
+            }
         }
-    }
 
     @Test
-    fun testQueryAvailablePaymentProductsUnavailable() = runTest {
-        // Arrange
-        val mockResult: ProductDetailsResult = mockk()
-        every { mockResult.billingResult.responseCode } returns BillingResponseCode.OK
-        every { mockResult.productDetailsList } returns emptyList()
-        coEvery { mockBillingRepository.queryPurchases() } returns mockk(relaxed = true)
-        coEvery { mockBillingRepository.queryProducts(any()) } returns mockResult
+    fun `given billingResult OK but no products queryPaymentAvailability should return NoProductsFound`() =
+        runTest {
+            // Arrange
+            val mockResult: ProductDetailsResult = mockk()
+            every { mockResult.billingResult.responseCode } returns BillingResponseCode.OK
+            every { mockResult.productDetailsList } returns emptyList()
+            coEvery { mockBillingRepository.queryPurchases() } returns mockk(relaxed = true)
+            coEvery { mockBillingRepository.queryProducts(any()) } returns mockResult
 
-        // Act, Assert
-        paymentRepository.queryPaymentAvailability().test {
-            // Loading
-            awaitItem()
-            val result = awaitItem()
-            assertIs<PaymentAvailability.NoProductsFounds>(result)
-            awaitComplete()
+            // Act, Assert
+            paymentRepository.queryPaymentAvailability().test {
+                // Loading
+                awaitItem()
+                val result = awaitItem()
+                assertIs<PaymentAvailability.NoProductsFound>(result)
+                awaitComplete()
+            }
         }
-    }
 
     @Test
-    fun testQueryAvailablePaymentBillingUnavailableError() = runTest {
-        // Arrange
-        val mockResult: ProductDetailsResult = mockk()
-        every { mockResult.billingResult.responseCode } returns
-            BillingResponseCode.BILLING_UNAVAILABLE
-        coEvery { mockBillingRepository.queryPurchases() } returns mockk(relaxed = true)
-        coEvery { mockBillingRepository.queryProducts(any()) } returns mockResult
+    fun `given billingResult is unavailable queryPaymentAvailability should return BillingUnavailable`() =
+        runTest {
+            // Arrange
+            val mockResult: ProductDetailsResult = mockk()
+            every { mockResult.billingResult.responseCode } returns
+                BillingResponseCode.BILLING_UNAVAILABLE
+            coEvery { mockBillingRepository.queryPurchases() } returns mockk(relaxed = true)
+            coEvery { mockBillingRepository.queryProducts(any()) } returns mockResult
 
-        // Act, Assert
-        paymentRepository.queryPaymentAvailability().test {
-            // Loading
-            awaitItem()
-            val result = awaitItem()
-            assertIs<PaymentAvailability.Error.BillingUnavailable>(result)
-            awaitComplete()
+            // Act, Assert
+            paymentRepository.queryPaymentAvailability().test {
+                // Loading
+                awaitItem()
+                val result = awaitItem()
+                assertIs<PaymentAvailability.Error.BillingUnavailable>(result)
+                awaitComplete()
+            }
         }
-    }
 
     @Test
-    fun testPurchaseBillingProductStartPurchaseFetchProductsError() = runTest {
+    fun `purchaseProduct should return FetchProductsError on billing unavailable`() = runTest {
         // Arrange
         val mockProductId = ProductId("MOCK")
         val mockProductDetailsResult = mockk<ProductDetailsResult>()
@@ -134,85 +137,91 @@ class BillingPaymentRepositoryTest {
     }
 
     @Test
-    fun testPurchaseBillingProductStartPurchaseNoProductsFoundError() = runTest {
-        // Arrange
-        val mockProductId = ProductId("MOCK")
-        val mockProductDetailsResult = mockk<ProductDetailsResult>()
-        every { mockProductDetailsResult.billingResult.responseCode } returns BillingResponseCode.OK
-        every { mockProductDetailsResult.productDetailsList } returns emptyList()
-        coEvery { mockBillingRepository.queryProducts(listOf(mockProductId.value)) } returns
-            mockProductDetailsResult
+    fun `purchaseProduct should return NoProductFound when billingRepository does not find any products`() =
+        runTest {
+            // Arrange
+            val mockProductId = ProductId("MOCK")
+            val mockProductDetailsResult = mockk<ProductDetailsResult>()
+            every { mockProductDetailsResult.billingResult.responseCode } returns
+                BillingResponseCode.OK
+            every { mockProductDetailsResult.productDetailsList } returns emptyList()
+            coEvery { mockBillingRepository.queryProducts(listOf(mockProductId.value)) } returns
+                mockProductDetailsResult
 
-        // Act, Assert
-        paymentRepository.purchaseProduct(mockProductId, mockk()).test {
-            assertIs<PurchaseResult.FetchingProducts>(awaitItem())
-            val result = awaitItem()
-            assertIs<PurchaseResult.Error.NoProductFound>(result)
-            awaitComplete()
+            // Act, Assert
+            paymentRepository.purchaseProduct(mockProductId, mockk()).test {
+                assertIs<PurchaseResult.FetchingProducts>(awaitItem())
+                val result = awaitItem()
+                assertIs<PurchaseResult.Error.NoProductFound>(result)
+                awaitComplete()
+            }
         }
-    }
 
     @Test
-    fun testPurchaseBillingProductStartPurchaseTransactionIdError() = runTest {
-        // Arrange
-        val mockProductId = ProductId("MOCK")
-        val mockProductDetailsResult = mockk<ProductDetailsResult>()
-        val mockProductDetails: ProductDetails = mockk()
-        every { mockProductDetails.productId } returns mockProductId.value
-        every { mockProductDetailsResult.billingResult.responseCode } returns BillingResponseCode.OK
-        every { mockProductDetailsResult.productDetailsList } returns listOf(mockProductDetails)
-        coEvery { mockBillingRepository.queryProducts(listOf(mockProductId.value)) } returns
-            mockProductDetailsResult
-        coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-            PlayPurchaseInitResult.Error(PlayPurchaseInitError.OtherError)
+    fun `purchaseProduct should return TransactionIdError on PlayPurchaseInitError from PlayPurchaseRepository`() =
+        runTest {
+            // Arrange
+            val mockProductId = ProductId("MOCK")
+            val mockProductDetailsResult = mockk<ProductDetailsResult>()
+            val mockProductDetails: ProductDetails = mockk()
+            every { mockProductDetails.productId } returns mockProductId.value
+            every { mockProductDetailsResult.billingResult.responseCode } returns
+                BillingResponseCode.OK
+            every { mockProductDetailsResult.productDetailsList } returns listOf(mockProductDetails)
+            coEvery { mockBillingRepository.queryProducts(listOf(mockProductId.value)) } returns
+                mockProductDetailsResult
+            coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
+                PlayPurchaseInitResult.Error(PlayPurchaseInitError.OtherError)
 
-        // Act, Assert
-        paymentRepository.purchaseProduct(mockProductId, mockk()).test {
-            assertIs<PurchaseResult.FetchingProducts>(awaitItem())
-            assertIs<PurchaseResult.FetchingObfuscationId>(awaitItem())
-            val result = awaitItem()
-            assertIs<PurchaseResult.Error.TransactionIdError>(result)
-            awaitComplete()
+            // Act, Assert
+            paymentRepository.purchaseProduct(mockProductId, mockk()).test {
+                assertIs<PurchaseResult.FetchingProducts>(awaitItem())
+                assertIs<PurchaseResult.FetchingObfuscationId>(awaitItem())
+                val result = awaitItem()
+                assertIs<PurchaseResult.Error.TransactionIdError>(result)
+                awaitComplete()
+            }
         }
-    }
 
     @Test
-    fun testPurchaseBillingProductStartPurchaseFlowBillingError() = runTest {
-        // Arrange
-        val mockProductId = ProductId("MOCK")
-        val mockProductDetailsResult = mockk<ProductDetailsResult>()
-        val mockProductDetails: ProductDetails = mockk()
-        every { mockProductDetails.productId } returns mockProductId.value
-        every { mockProductDetailsResult.billingResult.responseCode } returns BillingResponseCode.OK
-        every { mockProductDetailsResult.productDetailsList } returns listOf(mockProductDetails)
-        coEvery { mockBillingRepository.queryProducts(listOf(mockProductId.value)) } returns
-            mockProductDetailsResult
-        val mockBillingResult: BillingResult = mockk()
-        every { mockBillingResult.responseCode } returns BillingResponseCode.BILLING_UNAVAILABLE
-        every { mockBillingResult.debugMessage } returns "Mock error"
-        coEvery {
-            mockBillingRepository.startPurchaseFlow(
-                productDetails = any(),
-                obfuscatedId = any(),
-                activityProvider = any()
-            )
-        } returns mockBillingResult
-        coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-            PlayPurchaseInitResult.Ok("MOCK")
+    fun `purchaseProduct should return BillingError on billing unavailable from startPurchaseFlow`() =
+        runTest {
+            // Arrange
+            val mockProductId = ProductId("MOCK")
+            val mockProductDetailsResult = mockk<ProductDetailsResult>()
+            val mockProductDetails: ProductDetails = mockk()
+            every { mockProductDetails.productId } returns mockProductId.value
+            every { mockProductDetailsResult.billingResult.responseCode } returns
+                BillingResponseCode.OK
+            every { mockProductDetailsResult.productDetailsList } returns listOf(mockProductDetails)
+            coEvery { mockBillingRepository.queryProducts(listOf(mockProductId.value)) } returns
+                mockProductDetailsResult
+            val mockBillingResult: BillingResult = mockk()
+            every { mockBillingResult.responseCode } returns BillingResponseCode.BILLING_UNAVAILABLE
+            every { mockBillingResult.debugMessage } returns "Mock error"
+            coEvery {
+                mockBillingRepository.startPurchaseFlow(
+                    productDetails = any(),
+                    obfuscatedId = any(),
+                    activityProvider = any()
+                )
+            } returns mockBillingResult
+            coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
+                PlayPurchaseInitResult.Ok("MOCK")
 
-        // Act, Assert
-        paymentRepository.purchaseProduct(mockProductId, mockk()).test {
-            // Purchase started
-            assertIs<PurchaseResult.FetchingProducts>(awaitItem())
-            assertIs<PurchaseResult.FetchingObfuscationId>(awaitItem())
-            val result = awaitItem()
-            assertIs<PurchaseResult.Error.BillingError>(result)
-            awaitComplete()
+            // Act, Assert
+            paymentRepository.purchaseProduct(mockProductId, mockk()).test {
+                // Purchase started
+                assertIs<PurchaseResult.FetchingProducts>(awaitItem())
+                assertIs<PurchaseResult.FetchingObfuscationId>(awaitItem())
+                val result = awaitItem()
+                assertIs<PurchaseResult.Error.BillingError>(result)
+                awaitComplete()
+            }
         }
-    }
 
     @Test
-    fun testPurchaseBillingProductPurchaseCanceled() = runTest {
+    fun `cancel during purchaseProduct should return in cancelled event`() = runTest {
         // Arrange
         val mockProductId = ProductId("MOCK")
         val mockProductDetailsResult = mockk<ProductDetailsResult>()
@@ -248,50 +257,52 @@ class BillingPaymentRepositoryTest {
     }
 
     @Test
-    fun testPurchaseBillingProductVerificationError() = runTest {
-        // Arrange
-        val mockProductId = ProductId("MOCK")
-        val mockProductDetailsResult = mockk<ProductDetailsResult>()
-        val mockProductDetails: ProductDetails = mockk()
-        every { mockProductDetails.productId } returns mockProductId.value
-        every { mockProductDetailsResult.billingResult.responseCode } returns BillingResponseCode.OK
-        every { mockProductDetailsResult.productDetailsList } returns listOf(mockProductDetails)
-        coEvery { mockBillingRepository.queryProducts(listOf(mockProductId.value)) } returns
-            mockProductDetailsResult
-        val mockPurchaseToken = "TOKEN"
-        val mockBillingPurchase: Purchase = mockk()
-        val mockBillingResult: BillingResult = mockk()
-        every { mockBillingPurchase.purchaseState } returns Purchase.PurchaseState.PURCHASED
-        every { mockBillingResult.responseCode } returns BillingResponseCode.OK
-        every { mockBillingPurchase.products } returns listOf(mockProductId.value)
-        every { mockBillingPurchase.purchaseToken } returns mockPurchaseToken
-        coEvery {
-            mockBillingRepository.startPurchaseFlow(
-                productDetails = any(),
-                obfuscatedId = any(),
-                activityProvider = any()
-            )
-        } returns mockBillingResult
-        coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-            PlayPurchaseInitResult.Ok("MOCK-ID")
-        coEvery { mockPlayPurchaseRepository.verifyPlayPurchase(any()) } returns
-            PlayPurchaseVerifyResult.Error(PlayPurchaseVerifyError.OtherError)
+    fun `purchaseProduct should emit VerificationError on verify error from playPurchase`() =
+        runTest {
+            // Arrange
+            val mockProductId = ProductId("MOCK")
+            val mockProductDetailsResult = mockk<ProductDetailsResult>()
+            val mockProductDetails: ProductDetails = mockk()
+            every { mockProductDetails.productId } returns mockProductId.value
+            every { mockProductDetailsResult.billingResult.responseCode } returns
+                BillingResponseCode.OK
+            every { mockProductDetailsResult.productDetailsList } returns listOf(mockProductDetails)
+            coEvery { mockBillingRepository.queryProducts(listOf(mockProductId.value)) } returns
+                mockProductDetailsResult
+            val mockPurchaseToken = "TOKEN"
+            val mockBillingPurchase: Purchase = mockk()
+            val mockBillingResult: BillingResult = mockk()
+            every { mockBillingPurchase.purchaseState } returns Purchase.PurchaseState.PURCHASED
+            every { mockBillingResult.responseCode } returns BillingResponseCode.OK
+            every { mockBillingPurchase.products } returns listOf(mockProductId.value)
+            every { mockBillingPurchase.purchaseToken } returns mockPurchaseToken
+            coEvery {
+                mockBillingRepository.startPurchaseFlow(
+                    productDetails = any(),
+                    obfuscatedId = any(),
+                    activityProvider = any()
+                )
+            } returns mockBillingResult
+            coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
+                PlayPurchaseInitResult.Ok("MOCK-ID")
+            coEvery { mockPlayPurchaseRepository.verifyPlayPurchase(any()) } returns
+                PlayPurchaseVerifyResult.Error(PlayPurchaseVerifyError.OtherError)
 
-        // Act, Assert
-        paymentRepository.purchaseProduct(mockProductId, mockk()).test {
-            assertIs<PurchaseResult.FetchingProducts>(awaitItem())
-            assertIs<PurchaseResult.FetchingObfuscationId>(awaitItem())
-            assertIs<PurchaseResult.BillingFlowStarted>(awaitItem())
-            purchaseEventFlow.tryEmit(PurchaseEvent.Completed(listOf(mockBillingPurchase)))
-            assertIs<PurchaseResult.VerificationStarted>(awaitItem())
-            val result = awaitItem()
-            assertIs<PurchaseResult.Error.VerificationError>(result)
-            awaitComplete()
+            // Act, Assert
+            paymentRepository.purchaseProduct(mockProductId, mockk()).test {
+                assertIs<PurchaseResult.FetchingProducts>(awaitItem())
+                assertIs<PurchaseResult.FetchingObfuscationId>(awaitItem())
+                assertIs<PurchaseResult.BillingFlowStarted>(awaitItem())
+                purchaseEventFlow.tryEmit(PurchaseEvent.Completed(listOf(mockBillingPurchase)))
+                assertIs<PurchaseResult.VerificationStarted>(awaitItem())
+                val result = awaitItem()
+                assertIs<PurchaseResult.Error.VerificationError>(result)
+                awaitComplete()
+            }
         }
-    }
 
     @Test
-    fun testPurchaseBillingProductPurchaseCompleted() = runTest {
+    fun `purchaseProduct success should emit all events leading up to success`() = runTest {
         // Arrange
         val mockProductId = ProductId("MOCK")
         val mockProductDetailsResult = mockk<ProductDetailsResult>()
@@ -334,41 +345,43 @@ class BillingPaymentRepositoryTest {
     }
 
     @Test
-    fun testPurchaseBillingProductPurchasePending() = runTest {
-        // Arrange
-        val mockProductId = ProductId("MOCK")
-        val mockProductDetailsResult = mockk<ProductDetailsResult>()
-        val mockProductDetails: ProductDetails = mockk()
-        every { mockProductDetails.productId } returns mockProductId.value
-        every { mockProductDetailsResult.billingResult.responseCode } returns BillingResponseCode.OK
-        every { mockProductDetailsResult.productDetailsList } returns listOf(mockProductDetails)
-        coEvery { mockBillingRepository.queryProducts(listOf(mockProductId.value)) } returns
-            mockProductDetailsResult
-        val mockBillingPurchase: Purchase = mockk()
-        val mockBillingResult: BillingResult = mockk()
-        every { mockBillingPurchase.purchaseState } returns Purchase.PurchaseState.PENDING
-        every { mockBillingResult.responseCode } returns BillingResponseCode.OK
-        coEvery {
-            mockBillingRepository.startPurchaseFlow(
-                productDetails = any(),
-                obfuscatedId = any(),
-                activityProvider = any()
-            )
-        } returns mockBillingResult
-        coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-            PlayPurchaseInitResult.Ok("MOCK")
+    fun `purchaseProduct where purchase gets stuck in pending should complete with pending`() =
+        runTest {
+            // Arrange
+            val mockProductId = ProductId("MOCK")
+            val mockProductDetailsResult = mockk<ProductDetailsResult>()
+            val mockProductDetails: ProductDetails = mockk()
+            every { mockProductDetails.productId } returns mockProductId.value
+            every { mockProductDetailsResult.billingResult.responseCode } returns
+                BillingResponseCode.OK
+            every { mockProductDetailsResult.productDetailsList } returns listOf(mockProductDetails)
+            coEvery { mockBillingRepository.queryProducts(listOf(mockProductId.value)) } returns
+                mockProductDetailsResult
+            val mockBillingPurchase: Purchase = mockk()
+            val mockBillingResult: BillingResult = mockk()
+            every { mockBillingPurchase.purchaseState } returns Purchase.PurchaseState.PENDING
+            every { mockBillingResult.responseCode } returns BillingResponseCode.OK
+            coEvery {
+                mockBillingRepository.startPurchaseFlow(
+                    productDetails = any(),
+                    obfuscatedId = any(),
+                    activityProvider = any()
+                )
+            } returns mockBillingResult
+            coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
+                PlayPurchaseInitResult.Ok("MOCK")
 
-        // Act, Assert
-        paymentRepository.purchaseProduct(mockProductId, mockk()).test {
-            assertIs<PurchaseResult.FetchingProducts>(awaitItem())
-            assertIs<PurchaseResult.FetchingObfuscationId>(awaitItem())
-            assertIs<PurchaseResult.BillingFlowStarted>(awaitItem())
-            purchaseEventFlow.tryEmit(PurchaseEvent.Completed(listOf(mockBillingPurchase)))
-            val result = awaitItem()
-            assertIs<PurchaseResult.Completed.Pending>(result)
-            awaitComplete()
+            // Act, Assert
+            paymentRepository.purchaseProduct(mockProductId, mockk()).test {
+                assertIs<PurchaseResult.FetchingProducts>(awaitItem())
+                assertIs<PurchaseResult.FetchingObfuscationId>(awaitItem())
+                assertIs<PurchaseResult.BillingFlowStarted>(awaitItem())
+                purchaseEventFlow.tryEmit(PurchaseEvent.Completed(listOf(mockBillingPurchase)))
+                val result = awaitItem()
+                assertIs<PurchaseResult.Completed.Pending>(result)
+                awaitComplete()
+            }
         }
-    }
 
     companion object {
         private const val PRODUCT_DETAILS_TO_PAYMENT_PRODUCT_EXT =

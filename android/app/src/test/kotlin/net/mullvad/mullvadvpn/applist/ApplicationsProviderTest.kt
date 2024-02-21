@@ -23,7 +23,7 @@ class ApplicationsProviderTest {
     }
 
     @Test
-    fun test_get_apps() {
+    fun `fetch all apps should work`() {
         val launchWithInternetPackageName = "launch_with_internet_package_name"
         val launchWithoutInternetPackageName = "launch_without_internet_package_name"
         val nonLaunchWithInternetPackageName = "non_launch_with_internet_package_name"
