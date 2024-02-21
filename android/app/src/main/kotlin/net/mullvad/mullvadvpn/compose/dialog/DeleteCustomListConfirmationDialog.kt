@@ -38,7 +38,7 @@ private fun PreviewRemoveDeviceConfirmationDialog() {
 @Composable
 fun DeleteCustomListConfirmationDialog(navigator: ResultBackNavigator<Boolean>, name: String) {
     AlertDialog(
-        onDismissRequest = { navigator.navigateBack() },
+        onDismissRequest = navigator::navigateBack,
         icon = {
             Icon(
                 modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
