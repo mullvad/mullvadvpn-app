@@ -10,15 +10,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.Chevron
+import net.mullvad.mullvadvpn.compose.component.MullvadCheckbox
 import net.mullvad.mullvadvpn.compose.component.VerticalDivider
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -311,46 +309,20 @@ fun NormalRelayLocationCell(
 fun CheckableRelayLocationCell(
     relay: RelayItem,
     modifier: Modifier = Modifier,
-    onRelaySelected: (item: RelayItem) -> Unit = {},
-    onRelayDeselected: (item: RelayItem) -> Unit = {},
+    onRelayCheckedChange: (item: RelayItem, isChecked: Boolean) -> Unit = { _, _ -> },
     selectedRelays: Set<RelayItem> = emptySet(),
 ) {
     RelayLocationCell(
         relay = relay,
         leadingContent = { relayItem ->
             val checked = selectedRelays.contains(relayItem)
-            Box(
-                modifier =
-                    Modifier.size(Dimens.checkBoxSize)
-                        .background(Color.White, MaterialTheme.shapes.small)
-            ) {
-                Checkbox(
-                    modifier = Modifier.fillMaxSize(),
-                    checked = checked,
-                    onCheckedChange = { isChecked ->
-                        if (isChecked) {
-                            onRelaySelected(relayItem)
-                        } else {
-                            onRelayDeselected(relayItem)
-                        }
-                    },
-                    colors =
-                        CheckboxDefaults.colors(
-                            checkedColor = Color.Transparent,
-                            uncheckedColor = Color.Transparent,
-                            checkmarkColor = MaterialTheme.colorScheme.selected
-                        ),
-                )
-            }
+            MullvadCheckbox(
+                checked = checked,
+                onCheckedChange = { isChecked -> onRelayCheckedChange(relayItem, isChecked) }
+            )
         },
         modifier = modifier,
-        onClick = {
-            if (selectedRelays.contains(it)) {
-                onRelayDeselected(it)
-            } else {
-                onRelaySelected(it)
-            }
-        },
+        onClick = { onRelayCheckedChange(it, !selectedRelays.contains(it)) },
         depth = 0
     )
 }
@@ -402,15 +374,7 @@ private fun RelayLocationCell(
                     )
         ) {
             Row(
-                modifier =
-                    Modifier.weight(1f)
-                        .then(
-                            if (relay.active) {
-                                Modifier.clickable { onClick(relay) }
-                            } else {
-                                Modifier
-                            }
-                        )
+                modifier = Modifier.weight(1f).clickable(enabled = relay.active) { onClick(relay) }
             ) {
                 Box(
                     modifier =

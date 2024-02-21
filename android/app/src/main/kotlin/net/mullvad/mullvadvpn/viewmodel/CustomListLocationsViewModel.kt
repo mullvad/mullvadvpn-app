@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,6 +19,7 @@ import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 
 class CustomListLocationsViewModel(
     private val customListId: String,
+    private val newList: Boolean,
     relayListUseCase: RelayListUseCase,
     private val customListUseCase: CustomListUseCase
 ) : ViewModel() {
@@ -40,11 +40,16 @@ class CustomListLocationsViewModel(
                 val filteredRelayCountries = relayCountries.filterOnSearchTerm(searchTerm, null)
 
                 when {
-                    selectedLocations == null -> CustomListLocationsUiState.Loading
+                    selectedLocations == null ->
+                        CustomListLocationsUiState.Loading(newList = newList)
                     filteredRelayCountries.isEmpty() ->
-                        CustomListLocationsUiState.Content.Empty(searchTerm)
+                        CustomListLocationsUiState.Content.Empty(
+                            newList = newList,
+                            searchTerm = searchTerm
+                        )
                     else ->
                         CustomListLocationsUiState.Content.Data(
+                            newList = newList,
                             searchTerm = searchTerm,
                             availableLocations = filteredRelayCountries,
                             selectedLocations = selectedLocations,
@@ -54,7 +59,7 @@ class CustomListLocationsViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                CustomListLocationsUiState.Loading,
+                CustomListLocationsUiState.Loading(newList = newList)
             )
 
     init {
@@ -70,7 +75,27 @@ class CustomListLocationsViewModel(
         }
     }
 
-    fun selectLocation(relayItem: RelayItem) {
+    fun save() {
+        viewModelScope.launch {
+            _selectedLocations.value?.let { selectedLocations ->
+                customListUseCase.updateCustomListLocations(
+                    id = customListId,
+                    locations = selectedLocations.calculateLocationsToSave()
+                )
+                _uiSideEffect.tryEmit(CustomListLocationsSideEffect.CloseScreen)
+            }
+        }
+    }
+
+    fun onRelaySelectionClick(relayItem: RelayItem, selected: Boolean) {
+        if (selected) {
+            selectLocation(relayItem)
+        } else {
+            deselectLocation(relayItem)
+        }
+    }
+
+    private fun selectLocation(relayItem: RelayItem) {
         viewModelScope.launch {
             _selectedLocations.update {
                 val newSelectedLocations = it?.toMutableSet() ?: mutableSetOf()
@@ -95,7 +120,7 @@ class CustomListLocationsViewModel(
         }
     }
 
-    fun deselectLocation(relayItem: RelayItem) {
+    private fun deselectLocation(relayItem: RelayItem) {
         viewModelScope.launch {
             _selectedLocations.update {
                 val newSelectedLocations = it?.toMutableSet() ?: mutableSetOf()
@@ -121,18 +146,6 @@ class CustomListLocationsViewModel(
         }
     }
 
-    fun save() {
-        viewModelScope.launch {
-            _selectedLocations.value?.let { selectedLocations ->
-                customListUseCase.updateCustomListLocations(
-                    id = customListId,
-                    locations = selectedLocations.calculateLocationsToSave()
-                )
-                _uiSideEffect.tryEmit(CustomListLocationsSideEffect.CloseScreen)
-            }
-        }
-    }
-
     private fun availableLocations(): List<RelayItem.Country> =
         (uiState.value as? CustomListLocationsUiState.Content.Data)?.availableLocations
             ?: emptyList()
@@ -152,7 +165,6 @@ class CustomListLocationsViewModel(
                     availableLocations
                         .flatMap { country -> country.cities }
                         .find { it.code == relayItem.location.cityCode }
-                Log.d("LOLZ", "city: $city code=${relayItem.location.cityCode}")
                 if (city != null && updateSelectionList.containsAll(city.relays)) {
                     updateSelectionList.add(city)
                     val country = availableLocations.find { it.code == city.location.countryCode }
@@ -173,7 +185,6 @@ class CustomListLocationsViewModel(
     private fun Set<RelayItem>.deselectParents(relayItem: RelayItem): Set<RelayItem> {
         val availableLocations = availableLocations()
         val updateSelectionList = this.toMutableSet()
-        Log.d("LOLZ", "availableLocations: $availableLocations")
         when (relayItem) {
             is RelayItem.City -> {
                 availableLocations
