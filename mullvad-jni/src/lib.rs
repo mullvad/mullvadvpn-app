@@ -246,6 +246,51 @@ impl From<daemon_interface::Error> for PlayPurchaseVerifyError {
     }
 }
 
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
+pub enum CreateCustomListResult {
+    Ok(mullvad_types::custom_list::Id),
+    Error(CustomListsError),
+}
+
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
+pub enum UpdateCustomListResult {
+    Ok,
+    Error(CustomListsError),
+}
+
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
+pub enum CustomListsError {
+    CustomListExists,
+    OtherError
+}
+
+impl From<Result<mullvad_types::custom_list::Id, daemon_interface::Error>> for CreateCustomListResult {
+    fn from(result: Result<mullvad_types::custom_list::Id, daemon_interface::Error>) -> Self {
+        match result {
+            Ok(id) => CreateCustomListResult::Ok(id),
+            Err(error) => CreateCustomListResult::Error(error.into()),
+        }
+    }
+}
+
+impl From<Result<(), daemon_interface::Error>> for UpdateCustomListResult {
+    fn from(result: Result<(), daemon_interface::Error>) -> Self {
+        match result {
+            Ok(()) => UpdateCustomListResult::Ok,
+            Err(error) => UpdateCustomListResult::Error(error.into()),
+        }
+    }
+}
+
+impl From<daemon_interface::Error> for CustomListsError {
+    fn from(_error: daemon_interface::Error) -> Self {
+        CustomListsError::CustomListExists
+    }
+}
+
 #[no_mangle]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initialize(
@@ -1351,15 +1396,15 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_createC
     // SAFETY: The address points to an instance valid for the duration of this function call
     if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         let name = String::from_java(&env, name);
-        match daemon_interface.create_custom_list(name) {
-            Ok(id) => id.into_java(&env).forget(),
-            Err(error) => {
-                log_request_error("create custom list", &error);
-                JObject::null()
-            }
+        let raw_result = daemon_interface.create_custom_list(name);
+
+        if let Err(ref error) = &raw_result {
+            log_request_error("Failed to create custom list", error);
         }
+
+        CreateCustomListResult::from(raw_result).into_java(&env).forget()
     } else {
-        JObject::null()
+        CreateCustomListResult::Error(CustomListsError::OtherError).into_java(&env).forget()
     }
 }
 
@@ -1387,23 +1432,26 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_deleteC
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateCustomList(
-    env: JNIEnv<'_>,
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateCustomList<'env>(
+    env: JNIEnv<'env>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
     customList: JObject<'_>,
-) {
+) -> JObject<'env> {
     let env = JnixEnv::from(env);
 
     // SAFETY: The address points to an instance valid for the duration of this function call
     if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
         let list = CustomList::from_java(&env, customList);
-        if let Err(error) = daemon_interface.update_custom_list(list) {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to update custom list")
-            );
+        let raw_result = daemon_interface.update_custom_list(list);
+
+        if let Err(ref error) = &raw_result {
+            log_request_error("Failed to update custom list", error);
         }
+
+        UpdateCustomListResult::from(raw_result).into_java(&env).forget()
+    } else {
+        UpdateCustomListResult::Error(CustomListsError::OtherError).into_java(&env).forget()
     }
 }
 
