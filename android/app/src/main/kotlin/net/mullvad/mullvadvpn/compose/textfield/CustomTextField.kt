@@ -35,7 +35,8 @@ fun CustomTextField(
     maxCharLength: Int = Int.MAX_VALUE,
     isValidValue: Boolean,
     isDigitsOnlyAllowed: Boolean,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    supportingText: @Composable (() -> Unit)? = null,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -76,6 +77,7 @@ fun CustomTextField(
         visualTransformation = visualTransformation,
         colors = mullvadDarkTextFieldColors(),
         isError = !isValidValue,
-        modifier = modifier.clip(MaterialTheme.shapes.small).fillMaxWidth()
+        modifier = modifier.clip(MaterialTheme.shapes.small).fillMaxWidth(),
+        supportingText = supportingText
     )
 }
