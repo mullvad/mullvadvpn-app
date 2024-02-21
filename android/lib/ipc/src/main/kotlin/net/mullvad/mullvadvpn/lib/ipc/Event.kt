@@ -5,6 +5,7 @@ import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
+import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.LoginResult
@@ -14,6 +15,7 @@ import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RemoveDeviceResult
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.model.UpdateCustomListResult
 
 // Events that can be sent from the service
 sealed class Event : Message.EventMessage() {
@@ -65,7 +67,9 @@ sealed class Event : Message.EventMessage() {
 
     @Parcelize object VpnPermissionRequest : Event()
 
-    @Parcelize data class CreateCustomListResult(val listId: String?) : Event()
+    @Parcelize data class CreateCustomListResultEvent(val result: CreateCustomListResult) : Event()
+
+    @Parcelize data class UpdateCustomListResultEvent(val result: UpdateCustomListResult) : Event()
 
     companion object {
         private const val MESSAGE_KEY = "event"
