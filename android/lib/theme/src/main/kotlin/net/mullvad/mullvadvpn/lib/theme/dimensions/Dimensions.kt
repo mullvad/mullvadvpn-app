@@ -36,7 +36,6 @@ data class Dimensions(
     val customPortBoxMinWidth: Dp = 80.dp,
     val deleteIconSize: Dp = 24.dp,
     val dialogIconHeight: Dp = 44.dp,
-    val dialogIconSize: Dp = 48.dp,
     val expandableCellChevronSize: Dp = 30.dp,
     val filterTittlePadding: Dp = 4.dp,
     val iconFailSuccessTopMargin: Dp = 30.dp,
