@@ -12,57 +12,44 @@ import MullvadTypes
 import UIKit
 
 protocol LocationDataSourceProtocol {
-    var nodeByLocation: [RelayLocation: SelectLocationNode] { get }
-
-    func search(by text: String) -> [RelayLocation]
-
-    func reload(
-        _ response: REST.ServerRelaysResponse,
-        relays: [REST.ServerRelay]
-    ) -> [RelayLocation]
+    var nodes: [LocationNode] { get }
+    var searchableNodes: [LocationNode] { get }
 }
 
 extension LocationDataSourceProtocol {
-    func makeRootNode(name: String) -> SelectLocationNode {
-        SelectLocationNode(nodeType: .root, location: .country("#root"), displayName: name)
-    }
-
-    func createNode(
-        root: SelectLocationNode,
-        ancestorOrSelf: RelayLocation,
-        serverLocation: REST.ServerLocation,
-        relay: REST.ServerRelay,
-        wasShowingChildren: Bool
-    ) -> SelectLocationNode {
-        let node: SelectLocationNode
-
-        switch ancestorOrSelf {
-        case .country:
-            node = SelectLocationNode(
-                nodeType: .country,
-                location: ancestorOrSelf,
-                displayName: serverLocation.country,
-                showsChildren: wasShowingChildren
-            )
-            root.addChild(node)
-        case let .city(countryCode, _):
-            node = SelectLocationNode(
-                nodeType: .city,
-                location: ancestorOrSelf,
-                displayName: serverLocation.city,
-                showsChildren: wasShowingChildren
-            )
-            nodeByLocation[.country(countryCode)]!.addChild(node)
-
-        case let .hostname(countryCode, cityCode, _):
-            node = SelectLocationNode(
-                nodeType: .relay,
-                location: ancestorOrSelf,
-                displayName: relay.hostname,
-                isActive: relay.active
-            )
-            nodeByLocation[.city(countryCode, cityCode)]!.addChild(node)
+    func search(by text: String) -> [LocationNode] {
+        guard !text.isEmpty else {
+            return nodes
         }
-        return node
+
+        var filteredNodes: [LocationNode] = []
+        searchableNodes.forEach { countryNode in
+            countryNode.showsChildren = false
+
+            if countryNode.nodeName.fuzzyMatch(text) {
+                filteredNodes.append(countryNode)
+            }
+
+            countryNode.children.forEach { cityNode in
+                cityNode.showsChildren = false
+
+                let relaysContainSearchString = cityNode.children
+                    .contains(where: { $0.nodeName.fuzzyMatch(text) })
+
+                if cityNode.nodeName.fuzzyMatch(text) || relaysContainSearchString {
+                    if !filteredNodes.contains(countryNode) {
+                        filteredNodes.append(countryNode)
+                    }
+
+                    countryNode.showsChildren = true
+
+                    if relaysContainSearchString {
+                        cityNode.showsChildren = true
+                    }
+                }
+            }
+        }
+
+        return filteredNodes
     }
 }

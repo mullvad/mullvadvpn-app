@@ -1,5 +1,5 @@
 //
-//  SelectLocationSectionGroup.swift
+//  LocationSection.swift
 //  MullvadVPN
 //
 //  Created by Mojgan on 2024-02-05.
@@ -7,7 +7,7 @@
 //
 
 import Foundation
-enum SelectLocationSection: Hashable, CustomStringConvertible, CaseIterable {
+enum LocationSection: Int, Hashable, CustomStringConvertible, CaseIterable {
     case customLists
     case allLocations
 
@@ -29,10 +29,10 @@ enum SelectLocationSection: Hashable, CustomStringConvertible, CaseIterable {
     }
 
     var cell: Cell {
-        Cell.locationCell
+        .locationCell
     }
 
-    static var allCases: [SelectLocationSection] {
+    static var allCases: [LocationSection] {
         #if DEBUG
         return [.customLists, .allLocations]
         #else
@@ -41,14 +41,14 @@ enum SelectLocationSection: Hashable, CustomStringConvertible, CaseIterable {
     }
 }
 
-extension SelectLocationSection {
+extension LocationSection {
     enum Cell: String, CaseIterable {
         case locationCell
 
         var reusableViewClass: AnyClass {
             switch self {
             case .locationCell:
-                return SelectLocationCell.self
+                return LocationCell.self
             }
         }
 

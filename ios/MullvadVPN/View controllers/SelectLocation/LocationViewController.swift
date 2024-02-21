@@ -1,5 +1,5 @@
 //
-//  SelectLocationViewController.swift
+//  LocationViewController.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 02/05/2019.
@@ -8,10 +8,11 @@
 
 import MullvadLogging
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import UIKit
 
-final class SelectLocationViewController: UIViewController {
+final class LocationViewController: UIViewController {
     private let searchBar = UISearchBar()
     private let tableView = UITableView()
     private let topContentView = UIStackView()
@@ -19,7 +20,7 @@ final class SelectLocationViewController: UIViewController {
     private var dataSource: LocationDataSource?
     private var cachedRelays: CachedRelays?
     private var filter = RelayFilter()
-    var relayLocation: RelayLocation?
+    var relayLocations: RelayLocations?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
@@ -30,7 +31,7 @@ final class SelectLocationViewController: UIViewController {
     }
 
     var navigateToFilter: (() -> Void)?
-    var didSelectRelay: ((RelayLocation) -> Void)?
+    var didSelectRelays: (([RelayLocation], UUID?) -> Void)?
     var didUpdateFilter: ((RelayFilter) -> Void)?
     var didFinish: (() -> Void)?
 
@@ -85,15 +86,15 @@ final class SelectLocationViewController: UIViewController {
         tableView.flashScrollIndicators()
     }
 
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-
-        coordinator.animate(alongsideTransition: nil) { _ in
-            guard let indexPath = self.dataSource?.indexPathForSelectedRelay() else { return }
-
-            self.tableView.scrollToRow(at: indexPath, at: .middle, animated: false)
-        }
-    }
+//    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+//        super.viewWillTransition(to: size, with: coordinator)
+//
+//        coordinator.animate(alongsideTransition: nil) { _ in
+//            guard let indexPath = self.dataSource?.indexPathForSelectedRelay() else { return }
+//
+//            self.tableView.scrollToRow(at: indexPath, at: .middle, animated: false)
+//        }
+//    }
 
     // MARK: - Public
 
@@ -108,7 +109,7 @@ final class SelectLocationViewController: UIViewController {
             filterView.setFilter(filter)
         }
 
-        dataSource?.setRelays(cachedRelays.relays, filter: filter)
+        dataSource?.setRelays(cachedRelays.relays, selectedLocations: relayLocations, filter: filter)
     }
 
     // MARK: - Private
@@ -117,19 +118,15 @@ final class SelectLocationViewController: UIViewController {
         dataSource = LocationDataSource(
             tableView: tableView,
             allLocations: AllLocationDataSource(),
-            customLists: CustomListsDataSource()
+            customLists: CustomListsDataSource(repository: CustomListRepository())
         )
-        dataSource?.didSelectRelayLocation = { [weak self] location in
-            self?.didSelectRelay?(location)
+
+        dataSource?.didSelectRelayLocations = { [weak self] locations, customListId in
+            self?.didSelectRelays?(locations, customListId)
         }
 
-        dataSource?.selectedRelayLocation = relayLocation.flatMap { LocationCellViewModel(
-            group: .allLocations,
-            location: $0
-        ) }
-
         if let cachedRelays {
-            dataSource?.setRelays(cachedRelays.relays, filter: filter)
+            dataSource?.setRelays(cachedRelays.relays, selectedLocations: relayLocations, filter: filter)
         }
     }
 
@@ -181,7 +178,7 @@ final class SelectLocationViewController: UIViewController {
     }
 }
 
-extension SelectLocationViewController: UISearchBarDelegate {
+extension LocationViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         dataSource?.filterRelays(by: searchText)
     }

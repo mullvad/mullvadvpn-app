@@ -65,7 +65,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }()
 
     private var splitTunnelCoordinator: TunnelCoordinator?
-    private var splitLocationCoordinator: SelectLocationCoordinator?
+    private var splitLocationCoordinator: LocationCoordinator?
 
     private let tunnelManager: TunnelManager
     private let storePaymentManager: StorePaymentManager
@@ -703,11 +703,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func makeSelectLocationCoordinator(forModalPresentation isModalPresentation: Bool)
-        -> SelectLocationCoordinator {
+        -> LocationCoordinator {
         let navigationController = CustomNavigationController()
         navigationController.isNavigationBarHidden = !isModalPresentation
 
-        let selectLocationCoordinator = SelectLocationCoordinator(
+        let selectLocationCoordinator = LocationCoordinator(
             navigationController: navigationController,
             tunnelManager: tunnelManager,
             relayCacheTracker: relayCacheTracker
