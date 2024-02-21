@@ -11,7 +11,6 @@ import UIKit
 
 protocol LocationCellEventHandler {
     func toggleCell(for item: LocationCellViewModel)
-    func node(for item: LocationCellViewModel) -> SelectLocationNode?
 }
 
 final class LocationCellFactory: CellFactoryProtocol {
@@ -39,14 +38,12 @@ final class LocationCellFactory: CellFactoryProtocol {
     }
 
     func configureCell(_ cell: UITableViewCell, item: LocationCellViewModel, indexPath: IndexPath) {
-        guard let cell = cell as? SelectLocationCell,
-              let node = delegate?.node(for: item) else { return }
+        guard let cell = cell as? LocationCell else { return }
 
-        cell.accessibilityIdentifier = node.location.stringRepresentation
-        cell.isDisabled = !node.isActive
-        cell.locationLabel.text = node.displayName
-        cell.showsCollapseControl = node.isCollapsible
-        cell.isExpanded = node.showsChildren
+        cell.accessibilityIdentifier = item.node.name
+        cell.locationLabel.text = item.node.name
+        cell.showsCollapseControl = !item.node.children.isEmpty
+        cell.isExpanded = item.node.showsChildren
         cell.didCollapseHandler = { [weak self] _ in
             self?.delegate?.toggleCell(for: item)
         }

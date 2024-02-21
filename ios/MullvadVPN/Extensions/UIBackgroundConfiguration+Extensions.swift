@@ -21,7 +21,7 @@ extension UIBackgroundConfiguration {
     /// - Returns: a background configuration
     static func mullvadListPlainCell() -> UIBackgroundConfiguration {
         var config = listPlainCell()
-        config.backgroundColor = UIColor.Cell.backgroundColor
+        config.backgroundColor = UIColor.Cell.Background.normal
         return config
     }
 
@@ -29,7 +29,7 @@ extension UIBackgroundConfiguration {
     /// - Returns: a background configuration
     static func mullvadListGroupedCell() -> UIBackgroundConfiguration {
         var config = listGroupedCell()
-        config.backgroundColor = UIColor.Cell.backgroundColor
+        config.backgroundColor = UIColor.Cell.Background.normal
         return config
     }
 
@@ -58,20 +58,20 @@ extension UICellConfigurationState {
         switch selectionType {
         case .dimmed:
             if isSelected || isHighlighted {
-                UIColor.Cell.selectedAltBackgroundColor
+                UIColor.Cell.Background.selectedAlt
             } else if isDisabled {
-                UIColor.Cell.disabledBackgroundColor
+                UIColor.Cell.Background.disabled
             } else {
-                UIColor.Cell.backgroundColor
+                UIColor.Cell.Background.normal
             }
 
         case .green:
             if isSelected || isHighlighted {
-                UIColor.Cell.selectedBackgroundColor
+                UIColor.Cell.Background.selected
             } else if isDisabled {
-                UIColor.Cell.disabledBackgroundColor
+                UIColor.Cell.Background.disabled
             } else {
-                UIColor.Cell.backgroundColor
+                UIColor.Cell.Background.normal
             }
         }
     }
