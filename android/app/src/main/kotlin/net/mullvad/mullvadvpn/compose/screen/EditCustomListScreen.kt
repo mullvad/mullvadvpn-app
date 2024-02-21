@@ -22,6 +22,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
@@ -29,6 +31,7 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.compose.destinations.CustomListLocationsDestination
+import net.mullvad.mullvadvpn.compose.destinations.DeleteCustomListConfirmationDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.EditCustomListNameDestination
 import net.mullvad.mullvadvpn.compose.state.EditCustomListState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -51,7 +54,12 @@ fun PreviewEditCustomListScreen() {
 
 @Composable
 @Destination(style = SlideInFromRightTransition::class)
-fun EditCustomList(navigator: DestinationsNavigator, customListId: String) {
+fun EditCustomList(
+    navigator: DestinationsNavigator,
+    customListId: String,
+    confirmDeleteListResultRecipient:
+        ResultRecipient<DeleteCustomListConfirmationDialogDestination, Boolean>
+) {
     val viewModel =
         koinViewModel<EditCustomListViewModel>(parameters = { parametersOf(customListId) })
 
@@ -63,10 +71,26 @@ fun EditCustomList(navigator: DestinationsNavigator, customListId: String) {
         }
     }
 
+    confirmDeleteListResultRecipient.onNavResult {
+        when (it) {
+            NavResult.Canceled -> {
+                // Do nothing
+            }
+            is NavResult.Value ->
+                if (it.value) {
+                    viewModel.deleteList()
+                }
+        }
+    }
+
     val uiState by viewModel.uiState.collectAsState()
     EditCustomListScreen(
         uiState = uiState,
-        onDeleteList = { viewModel.deleteList() },
+        onDeleteList = { name ->
+            navigator.navigate(DeleteCustomListConfirmationDialogDestination(name)) {
+                launchSingleTop = true
+            }
+        },
         onNameClicked = { id, name -> navigator.navigate(EditCustomListNameDestination(id, name)) },
         onLocationsClicked = {
             navigator.navigate(CustomListLocationsDestination(customListKey = it, newList = false))
@@ -78,7 +102,7 @@ fun EditCustomList(navigator: DestinationsNavigator, customListId: String) {
 @Composable
 fun EditCustomListScreen(
     uiState: EditCustomListState,
-    onDeleteList: () -> Unit = {},
+    onDeleteList: (name: String) -> Unit = {},
     onNameClicked: (id: String, name: String) -> Unit = { _, _ -> },
     onLocationsClicked: (String) -> Unit = {},
     onBackClick: () -> Unit = {}
@@ -91,7 +115,7 @@ fun EditCustomListScreen(
     ScaffoldWithMediumTopBar(
         appBarTitle = title,
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-        actions = { Actions(onDeleteList = onDeleteList) },
+        actions = { Actions(onDeleteList = { onDeleteList(title) }) },
     ) { modifier: Modifier ->
         SpacedColumn(modifier = modifier, alignment = Alignment.Top) {
             when (uiState) {

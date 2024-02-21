@@ -295,4 +295,7 @@
     <string name="locations">Locations</string>
     <string name="number_of_locations">%d locations</string>
     <string name="edit_locations">Edit locations</string>
+    <string name="delete_custom_list_confirmation_description">
+        <![CDATA[Do you want to delete the list <b>%s</b>?]]>
+    </string>
 </resources>
