@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.model.AppVersionInfo
+import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceEvent
@@ -24,6 +25,7 @@ import net.mullvad.mullvadvpn.model.RemoveDeviceEvent
 import net.mullvad.mullvadvpn.model.RemoveDeviceResult
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.model.UpdateCustomListResult
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 import net.mullvad.talpid.util.EventNotifier
 
@@ -190,7 +192,7 @@ class MullvadDaemon(
         setQuantumResistantTunnel(daemonInterfaceAddress, quantumResistant)
     }
 
-    fun createCustomList(name: String): String? {
+    fun createCustomList(name: String): CreateCustomListResult {
         return createCustomList(daemonInterfaceAddress, name)
     }
 
@@ -198,8 +200,8 @@ class MullvadDaemon(
         deleteCustomList(daemonInterfaceAddress, id)
     }
 
-    fun updateCustomList(customList: CustomList) {
-        updateCustomList(daemonInterfaceAddress, customList)
+    fun updateCustomList(customList: CustomList): UpdateCustomListResult {
+        return updateCustomList(daemonInterfaceAddress, customList)
     }
 
     fun onDestroy() {
@@ -311,11 +313,17 @@ class MullvadDaemon(
 
     // Used by JNI
 
-    private external fun createCustomList(daemonInterfaceAddress: Long, name: String): String?
+    private external fun createCustomList(
+        daemonInterfaceAddress: Long,
+        name: String
+    ): CreateCustomListResult
 
     private external fun deleteCustomList(daemonInterfaceAddress: Long, id: String)
 
-    private external fun updateCustomList(daemonInterfaceAddress: Long, customList: CustomList)
+    private external fun updateCustomList(
+        daemonInterfaceAddress: Long,
+        customList: CustomList
+    ): UpdateCustomListResult
 
     @Suppress("unused")
     private fun notifyAppVersionInfoEvent(appVersionInfo: AppVersionInfo) {

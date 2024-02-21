@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -19,9 +20,11 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -30,7 +33,7 @@ import org.koin.core.parameter.parametersOf
 @Preview
 @Composable
 fun PreviewEditCustomListNameDialog() {
-    AppTheme { EditCustomListNameDialog("Custom List Name") }
+    AppTheme { EditCustomListNameDialog("Custom List Name", UpdateCustomListUiState()) }
 }
 
 @Composable
@@ -38,24 +41,22 @@ fun PreviewEditCustomListNameDialog() {
 fun EditCustomListName(navigator: DestinationsNavigator, customListId: String, name: String) {
     val vm: EditCustomListNameDialogViewModel =
         koinViewModel(parameters = { parametersOf(customListId) })
-    val showError = remember { mutableStateOf(false) }
     LaunchedEffect(key1 = Unit) {
         vm.uiSideEffect.collect { sideEffect ->
             when (sideEffect) {
                 is EditCustomListNameDialogSideEffect.CloseScreen -> {
                     navigator.navigateUp()
                 }
-                EditCustomListNameDialogSideEffect.UpdateNameError -> {
-                    showError.value = true
-                }
             }
         }
     }
+
+    val uiState = vm.uiState.collectAsState().value
     EditCustomListNameDialog(
         name = name,
-        showError = showError.value,
+        uiState = uiState,
         updateName = vm::updateCustomListName,
-        onInputChanged = { showError.value = false },
+        onInputChanged = vm::clearError,
         onDismiss = navigator::navigateUp
     )
 }
@@ -63,7 +64,7 @@ fun EditCustomListName(navigator: DestinationsNavigator, customListId: String, n
 @Composable
 fun EditCustomListNameDialog(
     name: String,
-    showError: Boolean = false,
+    uiState: UpdateCustomListUiState,
     updateName: (String) -> Unit = {},
     onInputChanged: () -> Unit = {},
     onDismiss: () -> Unit = {}
@@ -87,16 +88,27 @@ fun EditCustomListNameDialog(
                     keyboardType = KeyboardType.Text,
                     placeholderText = "",
                     isValidValue = input.value.isNotBlank(),
-                    isDigitsOnlyAllowed = false
+                    isDigitsOnlyAllowed = false,
+                    supportingText = {
+                        if (uiState.error != null) {
+                            Text(
+                                text =
+                                stringResource(
+                                    id =
+                                    if (
+                                        uiState.error == CustomListsError.CustomListExists
+                                    ) {
+                                        R.string.custom_list_error_list_exists
+                                    } else {
+                                        R.string.error_occurred
+                                    }
+                                ),
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
                 )
-                if (showError) {
-                    Spacer(modifier = Modifier.height(Dimens.smallPadding))
-                    Text(
-                        text = stringResource(id = R.string.error_occurred),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
             }
         },
         containerColor = MaterialTheme.colorScheme.background,
