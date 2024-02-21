@@ -202,8 +202,8 @@
 		588395602A9DEEA1008B63F6 /* WgAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5883955F2A9DEEA1008B63F6 /* WgAdapter.swift */; };
 		588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */; };
 		588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */; };
-		5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD82227B11080051EB06 /* SelectLocationCell.swift */; };
-		5888AD87227B17950051EB06 /* SelectLocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD86227B17950051EB06 /* SelectLocationViewController.swift */; };
+		5888AD83227B11080051EB06 /* LocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD82227B11080051EB06 /* LocationCell.swift */; };
+		5888AD87227B17950051EB06 /* LocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD86227B17950051EB06 /* LocationViewController.swift */; };
 		588D7ED62AF3903F005DF40A /* ListAccessMethodViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588D7ED52AF3903F005DF40A /* ListAccessMethodViewController.swift */; };
 		588D7EDC2AF3A55E005DF40A /* ListAccessMethodInteractorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588D7EDB2AF3A55E005DF40A /* ListAccessMethodInteractorProtocol.swift */; };
 		588D7EDE2AF3A585005DF40A /* ListAccessMethodItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588D7EDD2AF3A585005DF40A /* ListAccessMethodItem.swift */; };
@@ -528,6 +528,7 @@
 		7A6389E92B7F8FE2008E77E1 /* CustomListValidationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389E82B7F8FE2008E77E1 /* CustomListValidationError.swift */; };
 		7A6389EB2B7FAD7A008E77E1 /* SettingsFieldValidationErrorContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389EA2B7FAD7A008E77E1 /* SettingsFieldValidationErrorContentView.swift */; };
 		7A6389ED2B7FADA1008E77E1 /* SettingsFieldValidationErrorConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389EC2B7FADA1008E77E1 /* SettingsFieldValidationErrorConfiguration.swift */; };
+		7A6389F82B864CDF008E77E1 /* LocationNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389F72B864CDF008E77E1 /* LocationNode.swift */; };
 		7A6B4F592AB8412E00123853 /* TunnelMonitorTimings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */; };
 		7A6F2FA52AFA3CB2006D0856 /* AccountExpiryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */; };
 		7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */; };
@@ -554,7 +555,7 @@
 		7A9CCCB62A96302800DD6A34 /* OutOfTimeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA42A96302700DD6A34 /* OutOfTimeCoordinator.swift */; };
 		7A9CCCB72A96302800DD6A34 /* RevokedCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA52A96302700DD6A34 /* RevokedCoordinator.swift */; };
 		7A9CCCB82A96302800DD6A34 /* SetupAccountCompletedCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA62A96302700DD6A34 /* SetupAccountCompletedCoordinator.swift */; };
-		7A9CCCB92A96302800DD6A34 /* SelectLocationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA72A96302700DD6A34 /* SelectLocationCoordinator.swift */; };
+		7A9CCCB92A96302800DD6A34 /* LocationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA72A96302700DD6A34 /* LocationCoordinator.swift */; };
 		7A9CCCBA2A96302800DD6A34 /* CreateAccountVoucherCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA82A96302700DD6A34 /* CreateAccountVoucherCoordinator.swift */; };
 		7A9CCCBB2A96302800DD6A34 /* InAppPurchaseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA92A96302700DD6A34 /* InAppPurchaseCoordinator.swift */; };
 		7A9CCCBC2A96302800DD6A34 /* ChangeLogCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCAA2A96302700DD6A34 /* ChangeLogCoordinator.swift */; };
@@ -797,10 +798,8 @@
 		F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */; };
 		F04F95A12B21D24400431E08 /* shadowsocks.h in Headers */ = {isa = PBXBuildFile; fileRef = F04F95A02B21D24400431E08 /* shadowsocks.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		F04FBE612A8379EE009278D7 /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04FBE602A8379EE009278D7 /* AppPreferences.swift */; };
-		F050AE4C2B70D5A7003F4EDB /* SelectLocationNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE4B2B70D5A7003F4EDB /* SelectLocationNode.swift */; };
 		F050AE4E2B70D7F8003F4EDB /* LocationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE4D2B70D7F8003F4EDB /* LocationCellViewModel.swift */; };
-		F050AE502B70DC4F003F4EDB /* SelectLocationNodeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE4F2B70DC4F003F4EDB /* SelectLocationNodeProtocol.swift */; };
-		F050AE522B70DFC0003F4EDB /* SelectLocationSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE512B70DFC0003F4EDB /* SelectLocationSection.swift */; };
+		F050AE522B70DFC0003F4EDB /* LocationSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE512B70DFC0003F4EDB /* LocationSection.swift */; };
 		F050AE572B7376C6003F4EDB /* CustomListRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE552B7376C5003F4EDB /* CustomListRepositoryProtocol.swift */; };
 		F050AE582B7376C6003F4EDB /* CustomListRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE562B7376C6003F4EDB /* CustomListRepository.swift */; };
 		F050AE5A2B7376F4003F4EDB /* CustomList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE592B7376F4003F4EDB /* CustomList.swift */; };
@@ -1499,8 +1498,8 @@
 		5883955F2A9DEEA1008B63F6 /* WgAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgAdapter.swift; sourceTree = "<group>"; };
 		588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadTunnelConfigurationOperation.swift; sourceTree = "<group>"; };
 		588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetAccountOperation.swift; sourceTree = "<group>"; };
-		5888AD82227B11080051EB06 /* SelectLocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationCell.swift; sourceTree = "<group>"; };
-		5888AD86227B17950051EB06 /* SelectLocationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationViewController.swift; sourceTree = "<group>"; };
+		5888AD82227B11080051EB06 /* LocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCell.swift; sourceTree = "<group>"; };
+		5888AD86227B17950051EB06 /* LocationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationViewController.swift; sourceTree = "<group>"; };
 		588D7ED52AF3903F005DF40A /* ListAccessMethodViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessMethodViewController.swift; sourceTree = "<group>"; };
 		588D7ED72AF3A533005DF40A /* AccessMethodKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodKind.swift; sourceTree = "<group>"; };
 		588D7EDB2AF3A55E005DF40A /* ListAccessMethodInteractorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessMethodInteractorProtocol.swift; sourceTree = "<group>"; };
@@ -1756,6 +1755,7 @@
 		7A6389E82B7F8FE2008E77E1 /* CustomListValidationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListValidationError.swift; sourceTree = "<group>"; };
 		7A6389EA2B7FAD7A008E77E1 /* SettingsFieldValidationErrorContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFieldValidationErrorContentView.swift; sourceTree = "<group>"; };
 		7A6389EC2B7FADA1008E77E1 /* SettingsFieldValidationErrorConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFieldValidationErrorConfiguration.swift; sourceTree = "<group>"; };
+		7A6389F72B864CDF008E77E1 /* LocationNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationNode.swift; sourceTree = "<group>"; };
 		7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorTimings.swift; sourceTree = "<group>"; };
 		7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryTests.swift; sourceTree = "<group>"; };
 		7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiry.swift; sourceTree = "<group>"; };
@@ -1779,7 +1779,7 @@
 		7A9CCCA42A96302700DD6A34 /* OutOfTimeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCA52A96302700DD6A34 /* RevokedCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RevokedCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCA62A96302700DD6A34 /* SetupAccountCompletedCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetupAccountCompletedCoordinator.swift; sourceTree = "<group>"; };
-		7A9CCCA72A96302700DD6A34 /* SelectLocationCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectLocationCoordinator.swift; sourceTree = "<group>"; };
+		7A9CCCA72A96302700DD6A34 /* LocationCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCA82A96302700DD6A34 /* CreateAccountVoucherCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateAccountVoucherCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCA92A96302700DD6A34 /* InAppPurchaseCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InAppPurchaseCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCAA2A96302700DD6A34 /* ChangeLogCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChangeLogCoordinator.swift; sourceTree = "<group>"; };
@@ -1926,10 +1926,8 @@
 		F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncreasedHitButton.swift; sourceTree = "<group>"; };
 		F04F95A02B21D24400431E08 /* shadowsocks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shadowsocks.h; sourceTree = "<group>"; };
 		F04FBE602A8379EE009278D7 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
-		F050AE4B2B70D5A7003F4EDB /* SelectLocationNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationNode.swift; sourceTree = "<group>"; };
 		F050AE4D2B70D7F8003F4EDB /* LocationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCellViewModel.swift; sourceTree = "<group>"; };
-		F050AE4F2B70DC4F003F4EDB /* SelectLocationNodeProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationNodeProtocol.swift; sourceTree = "<group>"; };
-		F050AE512B70DFC0003F4EDB /* SelectLocationSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationSection.swift; sourceTree = "<group>"; };
+		F050AE512B70DFC0003F4EDB /* LocationSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSection.swift; sourceTree = "<group>"; };
 		F050AE552B7376C5003F4EDB /* CustomListRepositoryProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListRepositoryProtocol.swift; sourceTree = "<group>"; };
 		F050AE562B7376C6003F4EDB /* CustomListRepository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListRepository.swift; sourceTree = "<group>"; };
 		F050AE592B7376F4003F4EDB /* CustomList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomList.swift; sourceTree = "<group>"; };
@@ -2362,16 +2360,14 @@
 			isa = PBXGroup;
 			children = (
 				F050AE5F2B73A41E003F4EDB /* AllLocationDataSource.swift */,
-				F050AE612B74DBAC003F4EDB /* CustomListsDataSource.swift */,
+				5888AD82227B11080051EB06 /* LocationCell.swift */,
 				58435AC129CB2A350099C71B /* LocationCellFactory.swift */,
 				F050AE4D2B70D7F8003F4EDB /* LocationCellViewModel.swift */,
 				583DA21325FA4B5C00318683 /* LocationDataSource.swift */,
 				F050AE5D2B739A73003F4EDB /* LocationDataSourceProtocol.swift */,
-				5888AD82227B11080051EB06 /* SelectLocationCell.swift */,
-				F050AE512B70DFC0003F4EDB /* SelectLocationSection.swift */,
-				F050AE4B2B70D5A7003F4EDB /* SelectLocationNode.swift */,
-				F050AE4F2B70DC4F003F4EDB /* SelectLocationNodeProtocol.swift */,
-				5888AD86227B17950051EB06 /* SelectLocationViewController.swift */,
+				7A6389F72B864CDF008E77E1 /* LocationNode.swift */,
+				F050AE512B70DFC0003F4EDB /* LocationSection.swift */,
+				5888AD86227B17950051EB06 /* LocationViewController.swift */,
 			);
 			path = SelectLocation;
 			sourceTree = "<group>";
@@ -3057,13 +3053,13 @@
 				7A9CCCAA2A96302700DD6A34 /* ChangeLogCoordinator.swift */,
 				7A9CCCA82A96302700DD6A34 /* CreateAccountVoucherCoordinator.swift */,
 				7A9CCCA92A96302700DD6A34 /* InAppPurchaseCoordinator.swift */,
+				7A9CCCA72A96302700DD6A34 /* LocationCoordinator.swift */,
 				7A9CCCAB2A96302800DD6A34 /* LoginCoordinator.swift */,
 				7A9CCCA42A96302700DD6A34 /* OutOfTimeCoordinator.swift */,
 				7A9CCCAE2A96302800DD6A34 /* ProfileVoucherCoordinator.swift */,
 				7AF10EB32ADE85BC00C090B9 /* RelayFilterCoordinator.swift */,
 				7A9CCCA52A96302700DD6A34 /* RevokedCoordinator.swift */,
 				7A9CCCB02A96302800DD6A34 /* SafariCoordinator.swift */,
-				7A9CCCA72A96302700DD6A34 /* SelectLocationCoordinator.swift */,
 				7A9CCCA62A96302700DD6A34 /* SetupAccountCompletedCoordinator.swift */,
 				7A9CCCA22A96302700DD6A34 /* TermsOfServiceCoordinator.swift */,
 				7A9CCCB22A96302800DD6A34 /* TunnelCoordinator.swift */,
@@ -3436,6 +3432,7 @@
 				7A6389D42B7E3BD6008E77E1 /* CustomListDataSourceConfiguration.swift */,
 				7A6389DA2B7E3BD6008E77E1 /* CustomListInteractor.swift */,
 				7A6389D52B7E3BD6008E77E1 /* CustomListItemIdentifier.swift */,
+				F050AE612B74DBAC003F4EDB /* CustomListsDataSource.swift */,
 				7A6389D92B7E3BD6008E77E1 /* CustomListSectionIdentifier.swift */,
 				7A6389E82B7F8FE2008E77E1 /* CustomListValidationError.swift */,
 				7A6389E62B7E42BE008E77E1 /* CustomListViewController.swift */,
@@ -5000,6 +4997,7 @@
 				F0C2AEFD2A0BB5CC00986207 /* NotificationProviderIdentifier.swift in Sources */,
 				7A58699B2B482FE200640D27 /* UITableViewCell+Disable.swift in Sources */,
 				7A9CCCB72A96302800DD6A34 /* RevokedCoordinator.swift in Sources */,
+				7A6389F82B864CDF008E77E1 /* LocationNode.swift in Sources */,
 				587D96742886D87C00CD8F1C /* DeviceManagementContentView.swift in Sources */,
 				7A11DD0B2A9495D400098CD8 /* AppRoutes.swift in Sources */,
 				5827B0902B0CAA0500CCBBA1 /* EditAccessMethodCoordinator.swift in Sources */,
@@ -5068,7 +5066,7 @@
 				58CEB30C2AFD586600E6E088 /* DynamicBackgroundConfiguration.swift in Sources */,
 				587B7536266528A200DEF7E9 /* NotificationManager.swift in Sources */,
 				5820EDA9288FE064006BF4E4 /* DeviceManagementInteractor.swift in Sources */,
-				7A9CCCB92A96302800DD6A34 /* SelectLocationCoordinator.swift in Sources */,
+				7A9CCCB92A96302800DD6A34 /* LocationCoordinator.swift in Sources */,
 				58FB865A26EA214400F188BC /* RelayCacheTrackerObserver.swift in Sources */,
 				581DFAEC2B1770C1005D6D1C /* AccessMethodViewModel+NavigationItem.swift in Sources */,
 				58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */,
@@ -5078,7 +5076,6 @@
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
 				F0E8E4C52A60499100ED26A3 /* AccountDeletionViewController.swift in Sources */,
 				7A9CCCC12A96302800DD6A34 /* AccountCoordinator.swift in Sources */,
-				F050AE502B70DC4F003F4EDB /* SelectLocationNodeProtocol.swift in Sources */,
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
 				5846227326E22A160035F7C2 /* StorePaymentObserver.swift in Sources */,
 				F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */,
@@ -5104,7 +5101,7 @@
 				58907D9524D17B4E00CFC3F5 /* DisconnectSplitButton.swift in Sources */,
 				58EE2E3B272FF814003BFF93 /* SettingsDataSourceDelegate.swift in Sources */,
 				5823FA5426CE49F700283BF8 /* TunnelObserver.swift in Sources */,
-				5888AD87227B17950051EB06 /* SelectLocationViewController.swift in Sources */,
+				5888AD87227B17950051EB06 /* LocationViewController.swift in Sources */,
 				58293FB3251241B4005D0BB5 /* CustomTextView.swift in Sources */,
 				586A950E290125F3007BAF2B /* ProductsRequestOperation.swift in Sources */,
 				7AF9BE902A39F26000DBFEDB /* Collection+Sorting.swift in Sources */,
@@ -5174,7 +5171,7 @@
 				7A1A26452A29CEF700B978AA /* RelayFilterViewController.swift in Sources */,
 				5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */,
 				587EB66A270EFACB00123C75 /* CharacterSet+IPAddress.swift in Sources */,
-				5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */,
+				5888AD83227B11080051EB06 /* LocationCell.swift in Sources */,
 				5891BF1C25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift in Sources */,
 				5878A26F2907E7E00096FC88 /* ProblemReportInteractor.swift in Sources */,
 				7AB4CCBB2B691BBB006037F5 /* IPOverrideInteractor.swift in Sources */,
@@ -5267,9 +5264,8 @@
 				584592612639B4A200EF967F /* TermsOfServiceContentView.swift in Sources */,
 				5875960A26F371FC00BF6711 /* Tunnel+Messaging.swift in Sources */,
 				586C0D912B03D8A400E7CDD7 /* AccessMethodHeaderFooterReuseIdentifier.swift in Sources */,
-				F050AE4C2B70D5A7003F4EDB /* SelectLocationNode.swift in Sources */,
 				7A2960F62A963F7500389B82 /* AlertCoordinator.swift in Sources */,
-				F050AE522B70DFC0003F4EDB /* SelectLocationSection.swift in Sources */,
+				F050AE522B70DFC0003F4EDB /* LocationSection.swift in Sources */,
 				063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */,
 				A9C342C12ACC37E30045F00E /* TunnelStatusBlockObserver.swift in Sources */,
 				587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */,

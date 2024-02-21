@@ -1,5 +1,5 @@
 //
-//  SelectLocationCell.swift
+//  LocationCell.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 02/05/2019.
@@ -11,8 +11,8 @@ import UIKit
 private let kCollapseButtonWidth: CGFloat = 24
 private let kRelayIndicatorSize: CGFloat = 16
 
-class SelectLocationCell: UITableViewCell {
-    typealias CollapseHandler = (SelectLocationCell) -> Void
+class LocationCell: UITableViewCell {
+    typealias CollapseHandler = (LocationCell) -> Void
 
     let locationLabel = UILabel()
     let statusIndicator: UIView = {
@@ -72,7 +72,7 @@ class SelectLocationCell: UITableViewCell {
     private func setLayoutMargins() {
         let indentation = CGFloat(indentationLevel) * indentationWidth
 
-        var contentMargins = UIMetrics.selectLocationCellLayoutMargins
+        var contentMargins = UIMetrics.locationCellLayoutMargins
         contentMargins.leading += indentation
 
         contentView.directionalLayoutMargins = contentMargins
@@ -187,6 +187,8 @@ class SelectLocationCell: UITableViewCell {
             return UIColor.SubCell.backgroundColor
         case 2:
             return UIColor.SubSubCell.backgroundColor
+        case 3:
+            return UIColor.SubSubSubCell.backgroundColor
         default:
             return UIColor.Cell.backgroundColor
         }
