@@ -298,4 +298,5 @@
     <string name="delete_custom_list_confirmation_description">
         <![CDATA[Do you want to delete the list <b>%s</b>?]]>
     </string>
+    <string name="custom_list_error_list_exists">Name is already taken.</string>
 </resources>
