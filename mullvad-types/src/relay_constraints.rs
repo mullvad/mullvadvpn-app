@@ -217,7 +217,7 @@ impl RelayConstraints {
             providers: Constraint::Any,
             ownership: Constraint::Any,
             tunnel_protocol: Constraint::Any,
-            wireguard_constraints: WireguardConstraints::new(),
+            wireguard_constraints: WireguardConstraints::any(),
             openvpn_constraints: OpenVpnConstraints::new(),
         }
     }
@@ -641,7 +641,7 @@ impl fmt::Display for OpenVpnConstraints {
 }
 
 /// [`Constraint`]s applicable to WireGuard relays.
-#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[serde(rename_all = "snake_case", default)]
@@ -654,19 +654,118 @@ pub struct WireguardConstraints {
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub ip_version: Constraint<IpVersion>,
     #[cfg_attr(target_os = "android", jnix(skip))]
-    pub use_multihop: bool,
+    /// If multihop should be used. This value *should not* be accessed
+    /// directly.
+    ///
+    /// Please,
+    /// - Set the value via [`WireguardConstraints::use_multihop`]
+    /// - Get the value via [`WireguardConstraints::multihop`]
+    // TODO: This member should be made private to force callers to use
+    // [`WireguardConstraints::use_multihop`] &
+    // [`WireguardConstraints::multihop`] for setting and getting the
+    // `use_multihop` value. This needs some refactoring work elsewhere, which
+    // is why it is left for a future contributor to work on.
+    #[serde(
+        serialize_with = "multihop::serialize",
+        deserialize_with = "multihop::deserialize"
+    )]
+    pub use_multihop: Constraint<bool>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub entry_location: Constraint<LocationConstraint>,
 }
 
+mod multihop {
+    //! TODO: The following module can be removed if `use_multihop` is every
+    //! (re)moved from `WireguardConstraints` and/or changes type definition
+    //! and/or if it okay to change the corresponding represention in the daemon
+    //! Settings.
+    use super::*;
+    use serde::{de::Visitor, Deserializer, Serializer};
+    // Implement custom serialization for Constraint<bool>
+    pub fn serialize<S>(value: &Constraint<bool>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match value {
+            Constraint::Any => serializer.serialize_bool(false),
+            Constraint::Only(val) => serializer.serialize_bool(*val),
+        }
+    }
+
+    // Implement custom deserialization for Constraint<bool>
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Constraint<bool>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct ConstraintVisitor;
+
+        impl<'de> Visitor<'de> for ConstraintVisitor {
+            type Value = Constraint<bool>;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+                formatter.write_str("a boolean")
+            }
+
+            fn visit_bool<E>(self, value: bool) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                Ok(Constraint::Only(value))
+            }
+        }
+
+        deserializer.deserialize_bool(ConstraintVisitor)
+    }
+}
+
 impl WireguardConstraints {
-    /// Create a new [`WireguardConstraints`] with no opinionated defaults. This
-    /// should be the const equivalent to [`Default::default`].
-    pub const fn new() -> WireguardConstraints {
+    /// Create a new [`WireguardConstraints`] with no opinionated defaults.
+    ///
+    /// # Note
+    ///
+    /// If you are looking to initialize user [`WireguardConstraints`], please
+    /// use [`WireguardConstraints::default`] instead, as this will ensure that
+    /// multihop may never be turned on accidentaly.
+    ///
+    /// This function is to be seen as the identity of [`WireguardConstraints`]
+    /// together with [`Intersection`]. It is useful for merging two
+    /// [`WireguardConstraints`] in a way that always respects user-defined
+    /// settings.
+    pub const fn any() -> WireguardConstraints {
         WireguardConstraints {
             port: Constraint::Any,
             ip_version: Constraint::Any,
-            use_multihop: false,
+            use_multihop: Constraint::Any,
+            entry_location: Constraint::Any,
+        }
+    }
+
+    /// Enable or disable multihop.
+    pub fn use_multihop(&mut self, multihop: bool) {
+        self.use_multihop = Constraint::Only(multihop)
+    }
+
+    /// Check if multihop is enabled.
+    ///
+    /// # Note
+    ///
+    /// Since multihop is never assumed to be the default, and probably never
+    /// will, anything but [`Constraint::Only(true)`] should be treated as
+    /// multihop being disabled.
+    pub fn multihop(&self) -> bool {
+        assert_ne!(self.use_multihop, Constraint::Any);
+        matches!(self.use_multihop, Constraint::Only(true))
+    }
+}
+
+// TODO: `Default` can be derived if `use_multihop` is every (re)moved from
+// `WireguardConstraints`.
+impl Default for WireguardConstraints {
+    fn default() -> Self {
+        WireguardConstraints {
+            port: Constraint::Any,
+            ip_version: Constraint::Any,
+            use_multihop: Constraint::Only(false),
             entry_location: Constraint::Any,
         }
     }
@@ -678,20 +777,10 @@ impl Intersection for WireguardConstraints {
         Self: PartialEq,
         Self: Sized,
     {
-        // Since `Intersection` is not defined on `bool`, this becomes a bit ad-hoc.
-        // Let's define intersection on `bool` as
-        // true  ∩ true  = Some(true)
-        // false ∩ false = Some(false)
-        // otherwise     = None
-        let use_multihop = if self.use_multihop == other.use_multihop {
-            Some(self.use_multihop)
-        } else {
-            None
-        };
         Some(WireguardConstraints {
             port: self.port.intersection(other.port)?,
             ip_version: self.ip_version.intersection(other.ip_version)?,
-            use_multihop: use_multihop?,
+            use_multihop: self.use_multihop.intersection(other.use_multihop)?,
             entry_location: self.entry_location.intersection(other.entry_location)?,
         })
     }
@@ -711,7 +800,7 @@ impl<'a> fmt::Display for WireguardConstraintsFormatter<'a> {
         if let Constraint::Only(ip_version) = self.constraints.ip_version {
             write!(f, ", {},", ip_version)?;
         }
-        if self.constraints.use_multihop {
+        if self.constraints.multihop() {
             let location = self.constraints.entry_location.as_ref().map(|location| {
                 LocationConstraintFormatter {
                     constraint: location,
@@ -1117,7 +1206,7 @@ pub mod builder {
         impl RelayConstraintBuilder<Wireguard<Any>> {
             /// Enable multihop
             pub fn multihop(mut self) -> RelayConstraintBuilder<Wireguard<bool>> {
-                self.constraints.wireguard_constraints.use_multihop = true;
+                self.constraints.wireguard_constraints.use_multihop = Constraint::Only(true);
                 // Update the type state
                 RelayConstraintBuilder {
                     constraints: self.constraints,
@@ -1310,7 +1399,7 @@ pub mod proptest {
         (
             constraint(port()),
             constraint(ip_version()),
-            any::<bool>(),
+            constraint(any::<bool>()),
             constraint(location()),
         )
             .prop_map(|(port, ip_version, use_multihop, entry_location)| {
