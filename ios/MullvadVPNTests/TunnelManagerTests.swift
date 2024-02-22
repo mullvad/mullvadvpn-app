@@ -59,10 +59,8 @@ final class TunnelManagerTests: XCTestCase {
             apiProxy: apiProxy,
             accessTokenManager: accessTokenManager
         )
-        tunnelManager.startPeriodicPrivateKeyRotation()
-        let previousTimer = tunnelManager.nextKeyRotationDate
         _ = try await tunnelManager.setNewAccount()
-        XCTAssertNotEqual(previousTimer, tunnelManager.nextKeyRotationDate)
+        XCTAssertEqual(tunnelManager.isRunningPeriodicPrivateKeyRotation, true)
     }
 
     func testLogOutStopsKeyRotations() async throws {
@@ -83,9 +81,8 @@ final class TunnelManagerTests: XCTestCase {
             apiProxy: apiProxy,
             accessTokenManager: accessTokenManager
         )
-        tunnelManager.startPeriodicPrivateKeyRotation()
+        _ = try await tunnelManager.setNewAccount()
         await tunnelManager.unsetAccount()
-        // This currently fails, as isRunningPeriodicPrivateKeyRotation is not changed.
         XCTAssertEqual(tunnelManager.isRunningPeriodicPrivateKeyRotation, false)
     }
 }

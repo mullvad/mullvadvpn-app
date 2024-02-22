@@ -35,6 +35,14 @@ enum SetAccountAction {
         case .delete: "Delete account"
         }
     }
+
+    // true if this action results in an account being set if successful
+    var isConstructive: Bool {
+        switch self {
+        case .unset, .delete: false
+        default: true
+        }
+    }
 }
 
 class SetAccountOperation: ResultOperation<StoredAccountData?> {
