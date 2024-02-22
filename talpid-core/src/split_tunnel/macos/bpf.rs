@@ -4,7 +4,7 @@ use libc::{
     BIOCSHDRCMPLT, BIOCSSEESENT, BPF_ALIGNMENT, EBUSY, F_GETFL, F_SETFL, O_NONBLOCK,
 };
 use std::{
-    ffi::{c_int, c_uint, CStr},
+    ffi::{c_int, c_uint},
     fs::File,
     io::{self, Read, Write},
     mem,
@@ -263,11 +263,6 @@ pub struct BpfStream {
 }
 
 impl BpfStream {
-    pub fn from_bpf(bpf: Bpf) -> Result<Self, Error> {
-        bpf.set_nonblocking(true)?;
-        Self::from_file(bpf.file)
-    }
-
     pub fn from_read_half(reader: ReadHalf) -> Result<Self, Error> {
         Self::from_file(reader.0)
     }

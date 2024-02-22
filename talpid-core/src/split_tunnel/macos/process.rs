@@ -32,9 +32,7 @@ pub enum Error {
     FindProcessPath(#[error(source)] io::Error, u32),
 }
 
-pub struct ProcessMonitor {
-    states: ProcessStates,
-}
+pub struct ProcessMonitor(());
 
 #[derive(Debug)]
 pub struct ProcessMonitorHandle {
@@ -45,9 +43,6 @@ pub struct ProcessMonitorHandle {
 
 impl ProcessMonitor {
     pub async fn spawn() -> Result<ProcessMonitorHandle, Error> {
-        // TODO: need handle that can add excluded procs, etc.
-        // TODO: probably do need mutex
-
         let states = ProcessStates::new()?;
 
         let excluded_paths = vec![];
@@ -82,8 +77,6 @@ impl ProcessMonitor {
                 let mut inner = states_clone.inner.lock().unwrap();
                 inner.handle_message(val);
             }
-
-            // TODO: signal complete shutdown here?
         });
 
         Ok(ProcessMonitorHandle {
@@ -173,7 +166,7 @@ impl ProcessStates {
     pub fn exclude_paths(&self, paths: Vec<PathBuf>) {
         let mut inner = self.inner.lock().unwrap();
 
-        for (pid, info) in &mut inner.processes {
+        for (_pid, info) in &mut inner.processes {
             // Remove no-longer excluded paths from exclusion list
             let mut new_exclude_paths: Vec<_> = info
                 .excluded_by_paths
@@ -391,7 +384,6 @@ struct ESAuditToken {
 
 #[derive(Debug, Deserialize)]
 struct ESProcess {
-    ppid: u32,
     audit_token: ESAuditToken,
     executable: ESExecutable,
 }

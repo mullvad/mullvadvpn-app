@@ -113,13 +113,13 @@ pub enum RoutingDecision {
 
 /// Interface name, addresses, and gateway
 #[derive(Debug, Clone)]
-pub struct DefaultInterface {
+struct DefaultInterface {
     /// Interface name
-    pub name: String,
+    name: String,
     /// MAC/Hardware address of the gateway
-    pub v4_addrs: Option<DefaultInterfaceAddrs<Ipv4Addr>>,
+    v4_addrs: Option<DefaultInterfaceAddrs<Ipv4Addr>>,
     /// MAC/Hardware address of the gateway
-    pub v6_addrs: Option<DefaultInterfaceAddrs<Ipv6Addr>>,
+    v6_addrs: Option<DefaultInterfaceAddrs<Ipv6Addr>>,
 }
 
 /// Interface name, addresses, and gateway
@@ -461,7 +461,6 @@ async fn redirect_packets_for_pktap_stream(
     };
 
     let vpn_v4 = vpn_interface.as_ref().and_then(|iface| iface.v4_address);
-    let def_v4 = default_interface.v4_addrs.as_ref().unwrap().source_ip;
 
     let ingress_task: tokio::task::JoinHandle<(
         tokio::io::ReadHalf<tun::AsyncDevice>,
@@ -598,17 +597,17 @@ async fn handle_incoming_data(
     vpn_v4: Option<Ipv4Addr>,
 ) {
     let Some(mut frame) = MutableEthernetPacket::new(payload) else {
-        log::debug!("default: Discarding non-Ethernet frame");
+        log::trace!("discarding non-Ethernet frame");
         return;
     };
 
     if frame.get_ethertype() != EtherTypes::Ipv4 {
-        log::debug!("discarding non-ipv4");
+        log::trace!("discarding non-IPv4 frame");
         return;
     }
 
     let Some(mut ip) = MutableIpv4Packet::new(frame.payload_mut()) else {
-        log::debug!("default: Discarding non-IPv4 packet");
+        log::trace!("discarding non-IPv4 packet");
         return;
     };
 

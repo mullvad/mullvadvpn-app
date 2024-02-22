@@ -1,5 +1,3 @@
-// TODO: add by paths
-
 use anyhow::Result;
 use std::path::PathBuf;
 
