@@ -38,6 +38,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Continual excessive attempts to update the API IP were made after testing access methods.
 - Fix pointless API access method rotations for concurrent requests.
+- Fix daemon rotating logs on startup even if another daemon is already running.
 
 ### Security
 #### Android
