@@ -60,6 +60,14 @@ final class TunnelManager: StorePaymentObserver {
     private let observerList = ObserverList<TunnelObserver>()
     private var networkMonitor: NWPathMonitor?
 
+    private var hasAccount = false {
+        didSet(previous) {
+            if hasAccount != previous {
+                startOrStopPeriodicPrivateKeyRotation()
+            }
+        }
+    }
+
     private var privateKeyRotationTimer: DispatchSourceTimer?
     public private(set) var isRunningPeriodicPrivateKeyRotation = false
     public private(set) var nextKeyRotationDate: Date? = nil
@@ -112,7 +120,7 @@ final class TunnelManager: StorePaymentObserver {
         nslock.lock()
         defer { nslock.unlock() }
 
-        guard !isRunningPeriodicPrivateKeyRotation else { return }
+        guard !isRunningPeriodicPrivateKeyRotation, hasAccount else { return }
 
         logger.debug("Start periodic private key rotation.")
 
@@ -130,6 +138,14 @@ final class TunnelManager: StorePaymentObserver {
 
         isRunningPeriodicPrivateKeyRotation = false
         updatePrivateKeyRotationTimer()
+    }
+
+    func startOrStopPeriodicPrivateKeyRotation() {
+        if hasAccount {
+            startPeriodicPrivateKeyRotation()
+        } else {
+            stopPeriodicPrivateKeyRotation()
+        }
     }
 
     func getNextKeyRotationDate() -> Date? {
@@ -337,6 +353,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.completionQueue = .main
         operation.completionHandler = { [weak self] result in
+            self?.hasAccount = action.isConstructive
             self?.updatePrivateKeyRotationTimer()
 
             completionHandler(result)

@@ -54,7 +54,8 @@ struct DevicesProxyStub: DeviceHandling {
         retryStrategy: REST.RetryStrategy,
         completion: @escaping ProxyCompletionHandler<Bool>
     ) -> Cancellable {
-        AnyCancellable()
+        completion(.success(true))
+        return AnyCancellable()
     }
 
     func rotateDeviceKey(
