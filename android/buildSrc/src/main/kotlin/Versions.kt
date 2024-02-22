@@ -4,8 +4,8 @@ object Versions {
     const val junit = "5.10.0"
     const val jvmTarget = "17"
     const val konsist = "0.13.0"
-    const val kotlin = "1.9.20"
-    const val kotlinCompilerExtensionVersion = "1.5.4"
+    const val kotlin = "1.9.22"
+    const val kotlinCompilerExtensionVersion = "1.5.10"
     const val kotlinx = "1.7.3"
     const val leakCanary = "2.12"
     const val mockk = "1.13.8"
@@ -35,11 +35,11 @@ object Versions {
     }
 
     object Compose {
-        const val destinations = "1.10.0"
-        const val base = "1.6.0"
+        const val destinations = "1.10.1"
+        const val base = "1.6.2"
         const val constrainLayout = "1.0.1"
         const val foundation = base
-        const val material3 = "1.2.0-rc01"
+        const val material3 = "1.2.0"
     }
 
     object Plugin {
@@ -56,7 +56,7 @@ object Versions {
         const val ktfmt = "0.16.0"
         // Ksp version is linked with kotlin version, find matching release here:
         // https://github.com/google/ksp/releases
-        const val ksp = "${kotlin}-1.0.14"
+        const val ksp = "${kotlin}-1.0.17"
     }
 
     object Koin {
