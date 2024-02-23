@@ -40,10 +40,10 @@ internal object ColorLightTokens {
     val Surface = PaletteTokens.DarkBlue100
     val SurfaceBright = PaletteTokens.DarkBlue100
     val SurfaceContainer = PaletteTokens.DarkBlue900
-    val SurfaceContainerHigh = PaletteTokens.DarkBlue100
-    val SurfaceContainerHighest = PaletteTokens.DarkBlue100
-    val SurfaceContainerLow = PaletteTokens.DarkBlue100
-    val SurfaceContainerLowest = PaletteTokens.DarkBlue100
+    val SurfaceContainerHighest = OpacityTokens.WhiteOnBlue20
+    val SurfaceContainerHigh = OpacityTokens.WhiteOnBlue40
+    val SurfaceContainerLow = OpacityTokens.WhiteOnBlue50
+    val SurfaceContainerLowest = OpacityTokens.WhiteOnBlue60
     val SurfaceDim = PaletteTokens.DarkBlue200
     val SurfaceTint = Primary
     val SurfaceVariant = PaletteTokens.DarkBlue100
@@ -68,7 +68,7 @@ internal object ColorDarkTokens {
     val OnPrimaryFixed = PaletteTokens.Blue50 // Approximated
     val OnPrimaryFixedVariant = PaletteTokens.Blue50 // Approximated
     val OnSecondary = PaletteTokens.White
-    val OnSecondaryContainer = Color(0xFF002204) // Replace
+    val OnSecondaryContainer = PaletteTokens.White
     val OnSecondaryFixed = PaletteTokens.Green50 // Approximated
     val OnSecondaryFixedVariant = PaletteTokens.Green50 // Approximated
     val OnSurface = PaletteTokens.White
@@ -79,7 +79,7 @@ internal object ColorDarkTokens {
     val OnTertiaryFixed = PaletteTokens.Yellow50 // Approximated
     val OnTertiaryFixedVariant = PaletteTokens.Yellow50 // Approximated
     val Outline = Color(0xFF8D9199) // Replace
-    val OutlineVariant = Color(0xFF43474E) // Replace
+    val OutlineVariant = PaletteTokens.DarkBlue500
     val Primary = PaletteTokens.Blue500
     val PrimaryContainer = Color(0xFF1C344E) // Sub-container
     val PrimaryFixed = PaletteTokens.Blue100 // Approximated
@@ -92,16 +92,15 @@ internal object ColorDarkTokens {
     val Surface = PaletteTokens.DarkBlue500
     val SurfaceBright = PaletteTokens.DarkBlue700 // Approximated
     val SurfaceContainer = PaletteTokens.DarkBlue100 // Approximated
-    val SurfaceContainerHigh = PaletteTokens.DarkBlue200 // Approximated
-    val SurfaceContainerHighest = PaletteTokens.DarkBlue300 // Approximated
-    val SurfaceContainerLow = PaletteTokens.DarkBlue50 // Approximated
-    val SurfaceContainerLowest = PaletteTokens.Black // Approximated
+    val SurfaceContainerHighest = OpacityTokens.BlueOnDarkBlue100
+    val SurfaceContainerHigh = OpacityTokens.BlueOnDarkBlue60
+    val SurfaceContainerLow = OpacityTokens.BlueOnDarkBlue40
+    val SurfaceContainerLowest = OpacityTokens.BlueOnDarkBlue20
     val SurfaceDim = PaletteTokens.Black // Approximated
     val SurfaceTint = Primary
     val SurfaceVariant = Color(0xFFA3ACB5) // Subtext
-    val Tertiary = Color(0xFF99454F) // Disconnect button
-    val TertiaryContainer =
-        Color(0xff304358) // MullvadWhite Alpha 10 composite over MullvadDarkBlue
+    val Tertiary = PaletteTokens.Green500
+    val TertiaryContainer = OpacityTokens.WhiteOnDarkBlue10
     val TertiaryFixed = PaletteTokens.Yellow600 // Approximated
     val TertiaryFixedDim = PaletteTokens.Yellow500 // Approximated
 }
