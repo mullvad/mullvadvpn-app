@@ -1,12 +1,15 @@
 use std::{ops::Range, sync::Arc};
 
-use super::app::AppActions;
+use super::{app::AppActions, router::Route};
 use crate::interactive::component::{Component, Frame};
 
 use crossterm::event::{Event, KeyCode, KeyEvent};
-use mullvad_management_interface::{
-    types::{self, Relay as RelayListRelay, RelayListCity, RelayListCountry},
-    ManagementServiceClient,
+use mullvad_management_interface::MullvadProxyClient;
+use mullvad_types::{
+    relay_constraints::{
+        Constraint, GeographicLocationConstraint, LocationConstraint, RelaySettings,
+    },
+    relay_list::{Relay, RelayListCity, RelayListCountry},
 };
 use parking_lot::Mutex;
 use tui::{
@@ -64,20 +67,23 @@ struct SelectLocation {
     actions: AppActions,
     locations: Vec<Location>,
     index: usize,
-    rpc: ManagementServiceClient,
+    rpc: MullvadProxyClient,
+    navigate: flume::Sender<Route>,
 }
 
 impl SelectLocation {
     pub fn new(
         actions: AppActions,
-        rpc: ManagementServiceClient,
+        rpc: MullvadProxyClient,
         locations: Vec<Location>,
+        navigate: flume::Sender<Route>,
     ) -> Self {
         Self {
             actions,
             locations,
             index: 0,
             rpc,
+            navigate,
         }
     }
 
@@ -205,36 +211,29 @@ impl SelectLocation {
             .clone();
 
         let relay_location = match location {
-            LocationCode(country, None, None) => types::RelayLocation {
-                country,
-                ..Default::default()
-            },
-            LocationCode(country, Some(city), None) => types::RelayLocation {
-                country,
-                city,
-                ..Default::default()
-            },
-            LocationCode(country, Some(city), Some(hostname)) => types::RelayLocation {
-                country,
-                city,
-                hostname,
-            },
+            LocationCode(country, None, None) => GeographicLocationConstraint::Country(country),
+            LocationCode(country, Some(city), None) => {
+                GeographicLocationConstraint::City(country, city)
+            }
+            LocationCode(country, Some(city), Some(hostname)) => {
+                GeographicLocationConstraint::Hostname(country, city, hostname)
+            }
             _ => panic!(),
         };
 
         let mut rpc = self.rpc.clone();
         tokio::spawn(async move {
-            let update = types::RelaySettingsUpdate {
-                r#type: Some(types::relay_settings_update::Type::Normal(
-                    types::NormalRelaySettingsUpdate {
-                        location: Some(relay_location),
-                        ..Default::default()
-                    },
-                )),
-            };
-
-            rpc.update_relay_settings(update).await.unwrap();
+            let relay_settings = rpc.get_settings().await.unwrap().get_relay_settings();
+            if let RelaySettings::Normal(mut constraints) = relay_settings {
+                constraints.location =
+                    Constraint::Only(LocationConstraint::Location(relay_location));
+                rpc.set_relay_settings(RelaySettings::Normal(constraints))
+                    .await
+                    .unwrap();
+            }
         });
+
+        let _ = self.navigate.send(Route::MainView);
     }
 }
 
@@ -276,23 +275,27 @@ pub struct SelectLocationContainer {
 }
 
 impl SelectLocationContainer {
-    pub fn new(actions: AppActions, mut rpc: ManagementServiceClient) -> Self {
+    pub fn new(
+        actions: AppActions,
+        mut rpc: MullvadProxyClient,
+        navigate: flume::Sender<Route>,
+    ) -> Self {
         let child = Arc::new(Mutex::new(None));
 
         let async_child = child.clone();
         tokio::spawn(async move {
-            let countries = rpc
-                .get_relay_locations(())
-                .await
-                .unwrap()
-                .into_inner()
-                .countries;
+            let countries = rpc.get_relay_locations().await.unwrap().countries;
 
             let locations: Vec<Location> =
                 countries.into_iter().map(Self::convert_country).collect();
             {
                 let mut child = async_child.lock();
-                *child = Some(SelectLocation::new(actions.clone(), rpc, locations));
+                *child = Some(SelectLocation::new(
+                    actions.clone(),
+                    rpc,
+                    locations,
+                    navigate,
+                ));
             }
 
             actions.redraw_async().await;
@@ -329,7 +332,7 @@ impl SelectLocationContainer {
         }
     }
 
-    fn convert_relay(relay: RelayListRelay, country_code: String, city_code: String) -> Location {
+    fn convert_relay(relay: Relay, country_code: String, city_code: String) -> Location {
         Location {
             name: relay.hostname.clone(),
             location: LocationCode(country_code, Some(city_code), Some(relay.hostname)),

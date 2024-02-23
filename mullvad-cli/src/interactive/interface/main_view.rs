@@ -7,7 +7,7 @@ use super::{
 use crate::interactive::component::{Component, Frame};
 
 use crossterm::event::{Event, KeyCode};
-use mullvad_management_interface::ManagementServiceClient;
+use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{location::GeoIpLocation, states::TunnelState};
 use parking_lot::Mutex;
 use tui::{
@@ -28,13 +28,16 @@ pub struct MainView {
 impl MainView {
     pub fn new(
         actions: AppActions,
-        rpc: ManagementServiceClient,
+        rpc: MullvadProxyClient,
         tunnel_state_broadcast: TunnelStateBroadcast,
     ) -> Self {
         let (tunnel_state, mut receiver) = tunnel_state_broadcast.receiver();
-        let state = Arc::new(Mutex::new(
-            tunnel_state.unwrap_or(TunnelState::Disconnected),
-        ));
+        let state = Arc::new(Mutex::new(tunnel_state.unwrap_or(
+            TunnelState::Disconnected {
+                location: None,
+                locked_down: false,
+            },
+        )));
 
         let actions2 = actions.clone();
         let state2 = state.clone();
@@ -126,7 +129,7 @@ impl MainView {
 
     fn state_color(state: &TunnelState) -> Color {
         match state {
-            TunnelState::Disconnected => Color::Red,
+            TunnelState::Disconnected { .. } => Color::Red,
             TunnelState::Connecting { .. } => Color::Green,
             TunnelState::Connected { .. } => Color::Green,
             TunnelState::Disconnecting(_) => Color::Green,
@@ -142,7 +145,7 @@ impl MainView {
 
     fn status_label(state: &TunnelState) -> String {
         match state {
-            TunnelState::Disconnected => String::from("UNSECURE CONNECTION"),
+            TunnelState::Disconnected { .. } => String::from("UNSECURE CONNECTION"),
             TunnelState::Connecting { .. } => String::from("CREATING SECURE CONNECTION"),
             TunnelState::Connected { .. } => String::from("SECURE CONNECTION"),
             TunnelState::Disconnecting(_) => String::from(""),
@@ -152,7 +155,7 @@ impl MainView {
 
     fn status_label_color(state: &TunnelState) -> Color {
         match state {
-            TunnelState::Disconnected => Color::Red,
+            TunnelState::Disconnected { .. } => Color::Red,
             TunnelState::Connecting { .. } => Color::White,
             TunnelState::Connected { .. } => Color::Green,
             TunnelState::Disconnecting(_) => Color::White,

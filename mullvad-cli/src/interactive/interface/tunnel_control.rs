@@ -4,7 +4,7 @@ use super::{app::AppActions, tunnel_state_provider::TunnelStateBroadcast};
 use crate::interactive::component::{Component, Frame};
 
 use crossterm::event::{Event, KeyCode, KeyEvent};
-use mullvad_management_interface::ManagementServiceClient;
+use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::states::TunnelState;
 use parking_lot::Mutex;
 use tui::{
@@ -16,19 +16,22 @@ use tui::{
 #[derive(Clone)]
 pub struct TunnelControl {
     state: Arc<Mutex<TunnelState>>,
-    rpc: ManagementServiceClient,
+    rpc: MullvadProxyClient,
 }
 
 impl TunnelControl {
     pub fn new(
         actions: AppActions,
-        rpc: ManagementServiceClient,
+        rpc: MullvadProxyClient,
         tunnel_state_broadcast: TunnelStateBroadcast,
     ) -> Self {
         let (tunnel_state, mut receiver) = tunnel_state_broadcast.receiver();
-        let state = Arc::new(Mutex::new(
-            tunnel_state.unwrap_or(TunnelState::Disconnected),
-        ));
+        let state = Arc::new(Mutex::new(tunnel_state.unwrap_or(
+            TunnelState::Disconnected {
+                location: None,
+                locked_down: false,
+            },
+        )));
 
         let state2 = state.clone();
         tokio::spawn(async move {
@@ -47,14 +50,14 @@ impl TunnelControl {
 
     fn button_color(state: &TunnelState) -> Color {
         match state {
-            TunnelState::Disconnected => Color::Green,
+            TunnelState::Disconnected { .. } => Color::Green,
             _ => Color::Red,
         }
     }
 
     fn button_label(state: &TunnelState) -> String {
         match state {
-            TunnelState::Disconnected => String::from("Secure my connection (enter)"),
+            TunnelState::Disconnected { .. } => String::from("Secure my connection (enter)"),
             TunnelState::Connecting { .. } => String::from("Cancel (c)"),
             TunnelState::Connected { .. } => String::from("      Disconnect (d)"),
             TunnelState::Disconnecting(_) => String::from("Cancel (c)"),
@@ -118,14 +121,14 @@ impl Component for TunnelControl {
         tokio::spawn(async move {
             if let Event::Key(KeyEvent { code, .. }) = event {
                 if code == KeyCode::Enter {
-                    let _ = rpc.connect_tunnel(()).await;
+                    let _ = rpc.connect_tunnel().await;
                 } else if let KeyCode::Char(character) = code {
                     match character {
                         'c' | 'd' => {
-                            let _ = rpc.disconnect_tunnel(()).await;
+                            let _ = rpc.disconnect_tunnel().await;
                         }
                         'r' => {
-                            let _ = rpc.reconnect_tunnel(()).await;
+                            let _ = rpc.reconnect_tunnel().await;
                         }
                         _ => (),
                     }

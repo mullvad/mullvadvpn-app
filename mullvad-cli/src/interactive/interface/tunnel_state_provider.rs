@@ -6,9 +6,8 @@ use crate::{
 };
 
 use crossterm::event::Event;
-use mullvad_management_interface::{
-    types::daemon_event::Event as EventType, ManagementServiceClient,
-};
+use futures::StreamExt;
+use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
 use mullvad_types::states::TunnelState;
 use parking_lot::Mutex;
 use tui::layout::Rect;
@@ -21,7 +20,7 @@ pub struct TunnelStateProvider<T: Component> {
 impl<T: Component> TunnelStateProvider<T> {
     pub fn new(
         child_factory: impl FnOnce(TunnelStateBroadcast) -> T,
-        rpc: ManagementServiceClient,
+        rpc: MullvadProxyClient,
     ) -> Self {
         let (state_sender, state_receiver) = tokio::sync::mpsc::unbounded_channel();
         let broadcast = TunnelStateBroadcast::new(state_receiver);
@@ -35,16 +34,15 @@ impl<T: Component> TunnelStateProvider<T> {
     }
 
     pub async fn listen_tunnel_state(
-        mut rpc: ManagementServiceClient,
+        mut rpc: MullvadProxyClient,
         sender: tokio::sync::mpsc::UnboundedSender<TunnelState>,
     ) -> Result<()> {
-        let state = rpc.get_tunnel_state(()).await?.into_inner();
+        let state = rpc.get_tunnel_state().await?;
         let tunnel_state = TunnelState::try_from(state).unwrap();
         let _ = sender.send(tunnel_state);
 
-        let mut events = rpc.events_listen(()).await?.into_inner();
-        while let Some(event) = events.message().await? {
-            if let Some(EventType::TunnelState(state)) = event.event {
+        while let Some(event) = rpc.events_listen().await?.next().await {
+            if let DaemonEvent::TunnelState(state) = event? {
                 if let Ok(tunnel_state) = TunnelState::try_from(state) {
                     let _ = sender.send(tunnel_state);
                 }
