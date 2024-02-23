@@ -53,7 +53,7 @@ fun ExpandableComposeCell(
     val bodyViewModifier = Modifier
 
     BaseCell(
-        title = {
+        headlineContent = {
             BaseCellTitle(
                 title = title,
                 style = MaterialTheme.typography.titleMedium,

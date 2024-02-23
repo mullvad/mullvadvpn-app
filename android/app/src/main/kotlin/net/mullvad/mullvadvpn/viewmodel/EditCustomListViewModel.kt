@@ -10,13 +10,13 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.EditCustomListState
-import net.mullvad.mullvadvpn.usecase.CustomListUseCase
+import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 
 class EditCustomListViewModel(
     private val customListId: String,
     relayListUseCase: RelayListUseCase,
-    private val customListUseCase: CustomListUseCase
+    private val customListsRepository: CustomListsRepository
 ) : ViewModel() {
 
     private val _uiSideEffect = Channel<EditCustomListSideEffect>(1, BufferOverflow.DROP_OLDEST)
@@ -40,7 +40,7 @@ class EditCustomListViewModel(
 
     fun deleteList() {
         viewModelScope.launch {
-            customListUseCase.deleteCustomList(customListId)
+            customListsRepository.deleteCustomList(customListId)
             _uiSideEffect.send(EditCustomListSideEffect.CloseScreen)
         }
     }
