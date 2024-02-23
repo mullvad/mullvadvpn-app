@@ -84,7 +84,7 @@ internal class Globe(resources: Resources) {
             landVertexBuffer,
             landContour,
             colors.contourColorArray,
-            GLES20.GL_LINES
+            GLES20.GL_LINE_STRIP
         )
 
         // Scale the globe to avoid z-fighting
@@ -153,7 +153,7 @@ internal class Globe(resources: Resources) {
     )
 
     companion object {
-        private const val LAND_OCEAN_SCALE_FACTOR = 0.9999f
+        private const val LAND_OCEAN_SCALE_FACTOR = 0.99999f
 
         // Vertex, and fragment shader code is taken from Mullvad Desktop 3dmap.ts
         private val vertexShaderCode =
