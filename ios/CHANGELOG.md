@@ -22,9 +22,18 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+## [2024.2 - 2024-02-26]
+### Added
+- Add IP Overrides
+
+## [2024.1 - 2024-01-06]
+### Added
+- Add custom API access methods.
+
+## [2023.8 - 2023-12-08]
 ### Added
 - Add UDP-over-TCP WireGuard obfuscation.
-- Add custom API access methods.
 
 ## [2023.7 - 2023-11-23]
 ### Added
