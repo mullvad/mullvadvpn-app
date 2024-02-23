@@ -119,7 +119,7 @@ private fun SwitchComposeCell(
 ) {
     BaseCell(
         modifier = modifier,
-        title = titleView,
+        headlineContent = titleView,
         isRowEnabled = isEnabled,
         bodyView = {
             SwitchCellView(

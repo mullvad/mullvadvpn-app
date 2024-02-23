@@ -28,7 +28,7 @@ fun MtuComposeCell(
     val titleModifier = Modifier
 
     BaseCell(
-        title = { MtuTitle(modifier = titleModifier.weight(1f, true)) },
+        headlineContent = { MtuTitle(modifier = titleModifier.weight(1f, true)) },
         bodyView = { MtuBodyView(mtuValue = mtuValue, modifier = titleModifier) },
         onCellClicked = { onEditMtu.invoke() }
     )

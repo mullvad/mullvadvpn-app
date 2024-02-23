@@ -26,7 +26,6 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
-import net.mullvad.mullvadvpn.usecase.CustomListUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
@@ -105,7 +104,7 @@ val uiModule = module {
     }
     single { SettingsRepository(get()) }
     single { MullvadProblemReport(get()) }
-    single { CustomListsRepository(get()) }
+    single { CustomListsRepository(get(), get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }
@@ -116,7 +115,6 @@ val uiModule = module {
     single { OutOfTimeUseCase(get(), get()) }
     single { ConnectivityUseCase(get()) }
     single { SystemVpnSettingsUseCase(androidContext()) }
-    single { CustomListUseCase(get(), get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
 

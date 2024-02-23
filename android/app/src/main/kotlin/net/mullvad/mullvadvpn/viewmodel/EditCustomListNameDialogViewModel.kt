@@ -13,11 +13,11 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
 import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.model.UpdateCustomListResult
-import net.mullvad.mullvadvpn.usecase.CustomListUseCase
+import net.mullvad.mullvadvpn.repository.CustomListsRepository
 
 class EditCustomListNameDialogViewModel(
     private val id: String,
-    private val customListUseCase: CustomListUseCase
+    private val customListsRepository: CustomListsRepository
 ) : ViewModel() {
 
     private val _uiSideEffect =
@@ -33,7 +33,7 @@ class EditCustomListNameDialogViewModel(
 
     fun updateCustomListName(name: String) {
         viewModelScope.launch {
-            when (val result = customListUseCase.updateCustomListName(id, name)) {
+            when (val result = customListsRepository.updateCustomListName(id, name)) {
                 UpdateCustomListResult.Ok -> {
                     _uiSideEffect.send(EditCustomListNameDialogSideEffect.CloseScreen)
                 }
