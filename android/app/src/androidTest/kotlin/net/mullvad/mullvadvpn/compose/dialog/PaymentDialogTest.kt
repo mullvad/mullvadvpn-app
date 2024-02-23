@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.compose.dialog
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
-import de.mannodermaus.junit5.compose.createComposeExtension
+import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
@@ -15,7 +15,7 @@ class PaymentDialogTest {
     @OptIn(ExperimentalTestApi::class)
     @JvmField
     @RegisterExtension
-    val composeExtension = createComposeExtension()
+    val composeExtension = createEdgeToEdgeComposeExtension()
 
     @Test
     fun testShowPurchaseCompleteDialog() =
