@@ -143,8 +143,7 @@ fun ScaffoldWithMediumTopBar(
                 title = appBarTitle,
                 navigationIcon = navigationIcon,
                 actions,
-                scrollBehavior = scrollBehavior,
-                containerColor = toolbarColor
+                scrollBehavior = scrollBehavior
             )
         },
         snackbarHost = {

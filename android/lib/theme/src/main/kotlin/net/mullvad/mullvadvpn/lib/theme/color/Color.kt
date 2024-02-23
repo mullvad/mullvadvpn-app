@@ -28,10 +28,10 @@ val ColorScheme.onVariant: Color
     @Composable get() = MaterialTheme.colorScheme.onSecondary
 
 val ColorScheme.selected: Color
-    @Composable get() = MaterialTheme.colorScheme.secondaryContainer
+    @Composable get() = MaterialTheme.colorScheme.tertiary
 
 val ColorScheme.onSelected: Color
-    @Composable get() = MaterialTheme.colorScheme.onSecondaryContainer
+    @Composable get() = MaterialTheme.colorScheme.onTertiary
 
 val menuItemColors: MenuItemColors
     @Composable
