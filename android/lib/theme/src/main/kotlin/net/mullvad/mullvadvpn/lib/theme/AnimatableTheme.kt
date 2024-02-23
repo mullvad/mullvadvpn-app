@@ -6,12 +6,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import net.mullvad.mullvadvpn.lib.theme.color.ColorLightTokens
 
 private val animationSpec: AnimationSpec<Color> = tween(durationMillis = 1000)
 
 @Composable
 private fun animateColor(targetValue: Color, finishedListener: ((Color) -> Unit)? = null) =
-    animateColorAsState(targetValue = targetValue, animationSpec = animationSpec).value
+    animateColorAsState(targetValue = targetValue, animationSpec = animationSpec, label = "").value
 
 @Composable
 fun ColorScheme.switch(): ColorScheme =
@@ -44,5 +45,12 @@ fun ColorScheme.switch(): ColorScheme =
         onErrorContainer = animateColor(onErrorContainer),
         outline = animateColor(outline),
         outlineVariant = animateColor(outlineVariant),
-        scrim = animateColor(scrim)
+        scrim = animateColor(scrim),
+        surfaceBright = animateColor(surfaceBright),
+        surfaceContainer = animateColor(surfaceContainer),
+        surfaceContainerHigh = animateColor(surfaceContainerHigh),
+        surfaceContainerHighest = animateColor(surfaceContainerHighest),
+        surfaceContainerLow = animateColor(surfaceContainerLow),
+        surfaceContainerLowest = animateColor(surfaceContainerLowest),
+        surfaceDim = animateColor(surfaceDim),
     )

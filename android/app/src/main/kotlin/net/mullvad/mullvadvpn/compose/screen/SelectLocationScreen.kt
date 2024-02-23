@@ -305,7 +305,6 @@ fun SelectLocationScreen(
             }
 
             SearchTextField(
-                backgroundColor = MaterialTheme.colorScheme.onSurface.copy(alpha = Alpha10),
                 modifier =
                     Modifier.fillMaxWidth()
                         .height(Dimens.searchFieldHeight)
