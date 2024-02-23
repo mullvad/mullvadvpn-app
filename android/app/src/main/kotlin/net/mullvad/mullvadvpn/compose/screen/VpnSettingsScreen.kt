@@ -450,7 +450,7 @@ fun VpnSettingsScreen(
                 itemWithDivider {
                     BaseCell(
                         onCellClicked = { navigateToDns(null, null) },
-                        title = {
+                        headlineContent = {
                             Text(
                                 text = stringResource(id = R.string.add_a_server),
                                 color = Color.White,

@@ -347,12 +347,11 @@ private fun RelayLocationCell(
         rememberSaveable(key = relay.expanded.toString()) { mutableStateOf(relay.expanded) }
     Column(
         modifier =
-            modifier.then(
-                Modifier.fillMaxWidth()
-                    .padding(top = Dimens.listItemDivider)
-                    .wrapContentHeight()
-                    .fillMaxWidth()
-            )
+            modifier
+                .fillMaxWidth()
+                .padding(top = Dimens.listItemDivider)
+                .wrapContentHeight()
+                .fillMaxWidth()
     ) {
         Row(
             modifier =
