@@ -17,7 +17,7 @@ fun CustomListCell(
     background: Color = MaterialTheme.colorScheme.primary,
 ) {
     BaseCell(
-        title = {
+        headlineContent = {
             BaseCellTitle(
                 title = customList.name,
                 style = textStyle,
