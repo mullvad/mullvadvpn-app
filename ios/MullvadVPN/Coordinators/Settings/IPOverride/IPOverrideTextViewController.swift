@@ -63,6 +63,7 @@ class IPOverrideTextViewController: UIViewController {
         textView.delegate = self
         textView.spellCheckingType = .no
         textView.autocorrectionType = .no
+        textView.textColor = UIColor.label
         textView.font = UIFont.monospacedSystemFont(
             ofSize: UIFont.systemFont(ofSize: 14).pointSize,
             weight: .regular
