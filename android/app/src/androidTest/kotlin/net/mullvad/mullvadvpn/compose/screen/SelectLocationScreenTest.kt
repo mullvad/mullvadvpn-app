@@ -4,10 +4,10 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextInput
-import de.mannodermaus.junit5.compose.createComposeExtension
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
+import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.RelayListState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 
 @OptIn(ExperimentalTestApi::class)
 class SelectLocationScreenTest {
-    @JvmField @RegisterExtension val composeExtension = createComposeExtension()
+    @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
     @BeforeEach
     fun setup() {
