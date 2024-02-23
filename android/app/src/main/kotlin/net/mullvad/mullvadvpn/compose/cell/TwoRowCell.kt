@@ -27,7 +27,7 @@ fun TwoRowCell(
     background: Color = MaterialTheme.colorScheme.primary
 ) {
     BaseCell(
-        title = {
+        headlineContent = {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),

@@ -48,7 +48,7 @@ fun DropdownMenuCell(
 ) {
     var showMenu by remember { mutableStateOf(false) }
     BaseCell(
-        title = {
+        headlineContent = {
             BaseCellTitle(
                 title = text,
                 style = textStyle,

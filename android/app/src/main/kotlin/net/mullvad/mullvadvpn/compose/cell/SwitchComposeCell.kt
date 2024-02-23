@@ -120,7 +120,7 @@ private fun SwitchComposeCell(
 ) {
     BaseCell(
         modifier = modifier.focusProperties { canFocus = false },
-        title = titleView,
+        headlineContent = titleView,
         isRowEnabled = isEnabled,
         bodyView = {
             SwitchCellView(
