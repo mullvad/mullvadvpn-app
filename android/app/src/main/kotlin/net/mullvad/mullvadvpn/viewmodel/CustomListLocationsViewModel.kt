@@ -14,14 +14,14 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
-import net.mullvad.mullvadvpn.usecase.CustomListUseCase
+import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 
 class CustomListLocationsViewModel(
     private val customListId: String,
     private val newList: Boolean,
     relayListUseCase: RelayListUseCase,
-    private val customListUseCase: CustomListUseCase
+    private val customListsRepository: CustomListsRepository
 ) : ViewModel() {
     private var customListName: String = ""
 
@@ -78,7 +78,7 @@ class CustomListLocationsViewModel(
     fun save() {
         viewModelScope.launch {
             _selectedLocations.value?.let { selectedLocations ->
-                customListUseCase.updateCustomListLocations(
+                customListsRepository.updateCustomListLocations(
                     id = customListId,
                     locations = selectedLocations.calculateLocationsToSave()
                 )
