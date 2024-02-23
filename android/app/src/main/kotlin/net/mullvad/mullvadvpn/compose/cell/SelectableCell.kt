@@ -56,7 +56,7 @@ fun SelectableCell(
 ) {
     BaseCell(
         onCellClicked = onCellClicked,
-        title = { BaseCellTitle(title = title, style = titleStyle) },
+        headlineContent = { BaseCellTitle(title = title, style = titleStyle) },
         background =
             if (isSelected) {
                 selectedColor

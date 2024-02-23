@@ -89,7 +89,7 @@ fun SplitTunnelingCell(
                     Modifier.align(Alignment.CenterVertically).size(size = Dimens.listIconSize)
             )
         },
-        title = {
+        headlineContent = {
             Text(
                 text = title,
                 style = MaterialTheme.typography.listItemText,
