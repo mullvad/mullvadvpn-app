@@ -57,7 +57,7 @@ fun CopyAnimatedIconButton(onClick: () -> Unit) {
         defaultIcon = painterResource(id = R.drawable.icon_copy),
         secondaryIcon = painterResource(id = R.drawable.icon_tick),
         defaultIconTint = MaterialTheme.colorScheme.onSurface,
-        secondaryIconTint = MaterialTheme.colorScheme.inversePrimary,
+        secondaryIconTint = MaterialTheme.colorScheme.tertiary,
         isToggleButton = false,
         contentDescription = stringResource(id = R.string.copy_account_number),
         onClick = onClick

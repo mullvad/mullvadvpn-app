@@ -23,15 +23,21 @@ const val AlphaInvisible = 0f
 
 // Custom colors, they only link to normal material 3 colors for now
 val ColorScheme.variant: Color
-    @Composable get() = MaterialTheme.colorScheme.secondary
+    @Composable get() = MaterialTheme.colorScheme.tertiary
 val ColorScheme.onVariant: Color
-    @Composable get() = MaterialTheme.colorScheme.onSecondary
+    @Composable get() = MaterialTheme.colorScheme.onTertiary
 
 val ColorScheme.selected: Color
     @Composable get() = MaterialTheme.colorScheme.tertiary
 
 val ColorScheme.onSelected: Color
     @Composable get() = MaterialTheme.colorScheme.onTertiary
+
+val ColorScheme.warning: Color
+    @Composable get() = PaletteTokens.Yellow500
+
+val ColorScheme.bodyText: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
 val menuItemColors: MenuItemColors
     @Composable
