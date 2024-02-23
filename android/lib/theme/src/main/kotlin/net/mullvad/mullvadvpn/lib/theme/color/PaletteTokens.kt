@@ -63,6 +63,18 @@ internal object PaletteTokens {
     val Green800 = Color(0xFF255F2A)
     val Green900 = Color(0xFF1D4920)
 
+    // Alert Blue
+    val AlertBlue50 = Color(0xFFE8E9EB)
+    val AlertBlue100 = Color(0xFFB8BCC1)
+    val AlertBlue200 = Color(0xFF959BA3)
+    val AlertBlue300 = Color(0xFF656E7A)
+    val AlertBlue400 = Color(0xFF475160)
+    val AlertBlue500 = Color(0xFF192638) // Base color
+    val AlertBlue600 = Color(0xFF172333)
+    val AlertBlue700 = Color(0xFF121B28)
+    val AlertBlue800 = Color(0xFF0E151F)
+    val AlertBlue900 = Color(0xFF0B1018)
+
     // White
     val White = Color(0xFFFFFFFF)
 

@@ -62,7 +62,7 @@ internal fun BaseCell(
     bodyView: @Composable ColumnScope.() -> Unit = {},
     isRowEnabled: Boolean = true,
     onCellClicked: () -> Unit = {},
-    background: Color = MaterialTheme.colorScheme.primary,
+    background: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
     startPadding: Dp = Dimens.cellStartPadding,
     endPadding: Dp = Dimens.cellEndPadding,
     minHeight: Dp = Dimens.cellHeight,
