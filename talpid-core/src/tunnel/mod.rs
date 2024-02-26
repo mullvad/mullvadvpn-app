@@ -24,35 +24,35 @@ const DEFAULT_MTU: u16 = if cfg!(target_os = "android") {
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can occur in the [`TunnelMonitor`].
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Tunnel can't have IPv6 enabled because the system has disabled IPv6 support.
-    #[error(display = "Can't enable IPv6 on tunnel interface because IPv6 is disabled")]
+    #[error("Can't enable IPv6 on tunnel interface because IPv6 is disabled")]
     EnableIpv6Error,
 
     /// Running on an operating system which is not supported yet.
-    #[error(display = "Tunnel type not supported on this operating system")]
+    #[error("Tunnel type not supported on this operating system")]
     UnsupportedPlatform,
 
     /// Failed to rotate tunnel log file
-    #[error(display = "Failed to rotate tunnel log file")]
-    RotateLogError(#[error(source)] crate::logging::RotateLogError),
+    #[error("Failed to rotate tunnel log file")]
+    RotateLogError(#[from] crate::logging::RotateLogError),
 
     /// Failure to build Wireguard configuration.
-    #[error(display = "Failed to configure Wireguard with the given parameters")]
-    WireguardConfigError(#[error(source)] talpid_wireguard::config::Error),
+    #[error("Failed to configure Wireguard with the given parameters")]
+    WireguardConfigError(#[from] talpid_wireguard::config::Error),
 
     /// There was an error listening for events from the OpenVPN tunnel
     #[cfg(not(target_os = "android"))]
-    #[error(display = "Failed while listening for events from the OpenVPN tunnel")]
-    OpenVpnTunnelMonitoringError(#[error(source)] talpid_openvpn::Error),
+    #[error("Failed while listening for events from the OpenVPN tunnel")]
+    OpenVpnTunnelMonitoringError(#[from] talpid_openvpn::Error),
 
     /// There was an error listening for events from the Wireguard tunnel
-    #[error(display = "Failed while listening for events from the Wireguard tunnel")]
-    WireguardTunnelMonitoringError(#[error(source)] talpid_wireguard::Error),
+    #[error("Failed while listening for events from the Wireguard tunnel")]
+    WireguardTunnelMonitoringError(#[from] talpid_wireguard::Error),
 
     /// Could not detect and assign the correct mtu
-    #[error(display = "Could not detect and assign a correct MTU for the Wireguard tunnel")]
+    #[error("Could not detect and assign a correct MTU for the Wireguard tunnel")]
     AssignMtuError,
 }
 

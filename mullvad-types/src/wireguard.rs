@@ -51,8 +51,8 @@ impl FromStr for QuantumResistantState {
 
 /// Returned when `QuantumResistantState::from_str` fails to convert a string into a
 /// [`QuantumResistantState`] object.
-#[derive(err_derive::Error, Debug, Clone, PartialEq, Eq)]
-#[error(display = "Not a valid state")]
+#[derive(thiserror::Error, Debug, Clone, PartialEq, Eq)]
+#[error("Not a valid state")]
 pub struct QuantumResistantStateParseError;
 
 /// Contains account specific wireguard data

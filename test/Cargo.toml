@@ -37,7 +37,7 @@ prost-types = "0.12.0"
 tarpc = { version = "0.30", features = ["tokio1", "serde-transport", "serde1"] }
 # Logging
 env_logger = "0.10.0"
-err-derive = "0.3.1"
+thiserror = "1.0.57"
 log = "0.4"
 colored = "2.0.0"
 # Proxy protocols

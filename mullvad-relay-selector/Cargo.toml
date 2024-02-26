@@ -12,7 +12,7 @@ workspace = true
 
 [dependencies]
 chrono = { workspace = true }
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 ipnetwork = "0.16"
 log = { workspace = true }
 rand = "0.8.5"

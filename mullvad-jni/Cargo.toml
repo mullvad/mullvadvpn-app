@@ -18,7 +18,7 @@ api-override = ["mullvad-api/api-override"]
 crate_type = ["cdylib"]
 
 [target.'cfg(target_os = "android")'.dependencies]
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 futures = "0.3"
 ipnetwork = "0.16"
 jnix = { version = "0.5.1", features = ["derive"] }

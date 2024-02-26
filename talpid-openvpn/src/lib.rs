@@ -56,73 +56,72 @@ const ADAPTER_GUID: GUID = GUID {
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen when using the OpenVPN tunnel.
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to initialize the tokio runtime.
-    #[error(display = "Failed to initialize the tokio runtime")]
-    RuntimeError(#[error(source)] io::Error),
+    #[error("Failed to initialize the tokio runtime")]
+    RuntimeError(#[source] io::Error),
 
     /// Unable to start, wait for or kill the OpenVPN process.
-    #[error(display = "Error in OpenVPN process management: {}", _0)]
-    ChildProcessError(&'static str, #[error(source)] io::Error),
+    #[error("Error in OpenVPN process management: {0}")]
+    ChildProcessError(&'static str, #[source] io::Error),
 
     /// Unable to start the IPC server.
-    #[error(display = "Unable to start the event dispatcher IPC server")]
-    EventDispatcherError(#[error(source)] event_server::Error),
+    #[error("Unable to start the event dispatcher IPC server")]
+    EventDispatcherError(#[source] event_server::Error),
 
     /// The OpenVPN event dispatcher exited unexpectedly
-    #[error(display = "The OpenVPN event dispatcher exited unexpectedly")]
+    #[error("The OpenVPN event dispatcher exited unexpectedly")]
     EventDispatcherExited,
 
     /// cannot load wintun.dll
     #[cfg(windows)]
-    #[error(display = "Failed to load wintun.dll")]
-    WintunDllError(#[error(source)] io::Error),
+    #[error("Failed to load wintun.dll")]
+    WintunDllError(#[source] io::Error),
 
     /// cannot create a wintun interface
     #[cfg(windows)]
-    #[error(display = "Failed to create Wintun adapter")]
-    WintunCreateAdapterError(#[error(source)] io::Error),
+    #[error("Failed to create Wintun adapter")]
+    WintunCreateAdapterError(#[source] io::Error),
 
     /// OpenVPN process died unexpectedly
-    #[error(display = "OpenVPN process died unexpectedly")]
+    #[error("OpenVPN process died unexpectedly")]
     ChildProcessDied,
 
     /// Failed before OpenVPN started
-    #[error(display = "Failed to start OpenVPN")]
+    #[error("Failed to start OpenVPN")]
     StartProcessError,
 
     /// The OpenVPN binary was not found.
-    #[error(display = "No OpenVPN binary found at {}", _0)]
+    #[error("No OpenVPN binary found at {0}")]
     OpenVpnNotFound(String),
 
     /// The OpenVPN plugin was not found.
-    #[error(display = "No OpenVPN plugin found at {}", _0)]
+    #[error("No OpenVPN plugin found at {0}")]
     PluginNotFound(String),
 
     /// Error while writing credentials to temporary file.
-    #[error(display = "Error while writing credentials to temporary file")]
-    CredentialsWriteError(#[error(source)] io::Error),
+    #[error("Error while writing credentials to temporary file")]
+    CredentialsWriteError(#[source] io::Error),
 
     /// Failures related to the proxy service.
-    #[error(display = "Proxy service failed")]
-    ProxyError(#[error(source)] proxy::Error),
+    #[error("Proxy service failed")]
+    ProxyError(#[source] proxy::Error),
 
     /// The map is missing 'dev'
     #[cfg(target_os = "linux")]
-    #[error(display = "Failed to obtain tunnel interface name")]
+    #[error("Failed to obtain tunnel interface name")]
     MissingTunnelInterface,
 
     /// The map has no 'route_n' entries
     #[cfg(target_os = "linux")]
-    #[error(display = "Failed to obtain OpenVPN server")]
+    #[error("Failed to obtain OpenVPN server")]
     MissingRemoteHost,
 
     /// Cannot parse the remote_n in the provided map
     #[cfg(target_os = "linux")]
-    #[error(display = "Cannot parse remote host string")]
-    ParseRemoteHost(#[error(source)] std::net::AddrParseError),
+    #[error("Cannot parse remote host string")]
+    ParseRemoteHost(#[source] std::net::AddrParseError),
 }
 
 impl Error {
@@ -793,15 +792,15 @@ mod event_server {
         EventDetails,
     };
 
-    #[derive(err_derive::Error, Debug)]
+    #[derive(thiserror::Error, Debug)]
     pub enum Error {
         /// Failure to set up the IPC server.
-        #[error(display = "Failed to create pipe or Unix socket")]
-        StartServer(#[error(source)] std::io::Error),
+        #[error("Failed to create pipe or Unix socket")]
+        StartServer(#[from] std::io::Error),
 
         /// An error occurred while the server was running.
-        #[error(display = "Tonic error")]
-        TonicError(#[error(source)] tonic::transport::Error),
+        #[error("Tonic error")]
+        TonicError(#[from] tonic::transport::Error),
     }
 
     /// Implements a gRPC service used to process events sent to by OpenVPN.

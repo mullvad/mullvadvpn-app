@@ -31,27 +31,26 @@ const BURST_BUFFER_PERIOD: Duration = Duration::from_millis(200);
 const BURST_LONGEST_BUFFER_PERIOD: Duration = Duration::from_secs(2);
 
 /// Errors that can happen in the macOS routing integration.
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Encountered an error when interacting with the routing socket
-    #[error(display = "Error occurred when interfacing with the routing table")]
-    RoutingTable(#[error(source)] watch::Error),
+    #[error("Error occurred when interfacing with the routing table")]
+    RoutingTable(#[source] watch::Error),
 
     /// Failed to remove route
-    #[error(display = "Error occurred when deleting a route")]
-    DeleteRoute(#[error(source)] watch::Error),
+    #[error("Error occurred when deleting a route")]
+    DeleteRoute(#[source] watch::Error),
 
     /// Failed to add route
-    #[error(display = "Error occurred when adding a route")]
-    AddRoute(#[error(source)] watch::Error),
+    #[error("Error occurred when adding a route")]
+    AddRoute(#[source] watch::Error),
 
     /// Failed to fetch link addresses
-    #[error(display = "Failed to fetch link addresses")]
-    FetchLinkAddresses(#[error(source)] std::io::Error),
+    #[error("Failed to fetch link addresses")]
+    FetchLinkAddresses(#[source] std::io::Error),
 
     /// Received message isn't valid
-    #[error(display = "Invalid data")]
+    #[error("Invalid data")]
     InvalidData(data::Error),
 }
 

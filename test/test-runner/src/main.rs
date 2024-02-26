@@ -325,9 +325,9 @@ fn get_pipe_status() -> ServiceStatus {
 /// Keep this constant in sync with `test-manager/src/run_tests.rs`
 const BAUD: u32 = if cfg!(target_os = "macos") { 0 } else { 115200 };
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Unknown RPC")]
+    #[error("Unknown RPC")]
     UnknownRpc,
 }
 

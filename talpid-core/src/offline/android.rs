@@ -12,30 +12,21 @@ use jnix::{
 use std::sync::{Arc, Weak};
 use talpid_types::{android::AndroidContext, net::Connectivity, ErrorExt};
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to attach Java VM to tunnel thread")]
-    AttachJvmToThread(#[error(source)] jni::errors::Error),
+    #[error("Failed to attach Java VM to tunnel thread")]
+    AttachJvmToThread(#[source] jni::errors::Error),
 
-    #[error(display = "Failed to call Java method {}.{}", _0, _1)]
-    CallMethod(
-        &'static str,
-        &'static str,
-        #[error(source)] jni::errors::Error,
-    ),
+    #[error("Failed to call Java method {0}.{1}")]
+    CallMethod(&'static str, &'static str, #[source] jni::errors::Error),
 
-    #[error(display = "Failed to create global reference to Java object")]
-    CreateGlobalRef(#[error(source)] jni::errors::Error),
+    #[error("Failed to create global reference to Java object")]
+    CreateGlobalRef(#[source] jni::errors::Error),
 
-    #[error(display = "Failed to find {}.{} method", _0, _1)]
-    FindMethod(
-        &'static str,
-        &'static str,
-        #[error(source)] jni::errors::Error,
-    ),
+    #[error("Failed to find {0}.{1} method")]
+    FindMethod(&'static str, &'static str, #[source] jni::errors::Error),
 
-    #[error(display = "Received an invalid result from {}.{}: {}", _0, _1, _2)]
+    #[error("Received an invalid result from {0}.{1}: {2}")]
     InvalidMethodResult(&'static str, &'static str, String),
 }
 

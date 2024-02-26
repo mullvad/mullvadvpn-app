@@ -9,20 +9,19 @@ use std::{
 use tun::{platform, Configuration, Device};
 
 /// Errors that can occur while setting up a tunnel device.
-#[derive(Debug, err_derive::Error)]
-#[error(no_from)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
     /// Failure to create a tunnel device.
-    #[error(display = "Failed to create a tunnel device")]
-    CreateTunnelDevice(#[cause] NetworkInterfaceError),
+    #[error("Failed to create a tunnel device")]
+    CreateTunnelDevice(#[source] NetworkInterfaceError),
 
     /// Failure to set a tunnel device IP address.
-    #[error(display = "Failed to set tunnel IP address: {}", _0)]
-    SetIpAddr(IpAddr, #[cause] NetworkInterfaceError),
+    #[error("Failed to set tunnel IP address: {0}")]
+    SetIpAddr(IpAddr, #[source] NetworkInterfaceError),
 
     /// Failure to set the tunnel device as up.
-    #[error(display = "Failed to set the tunnel device as up")]
-    SetUp(#[cause] NetworkInterfaceError),
+    #[error("Failed to set the tunnel device as up")]
+    SetUp(#[source] NetworkInterfaceError),
 }
 
 /// Factory of tunnel devices on Unix systems.
@@ -75,28 +74,27 @@ impl Deref for UnixTun {
 }
 
 /// Errors that can happen when working with *nix tunnel interfaces.
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum NetworkInterfaceError {
     /// Failed to set IP address
-    #[error(display = "Failed to set IPv4 address")]
-    SetIpv4(#[error(source)] tun::Error),
+    #[error("Failed to set IPv4 address")]
+    SetIpv4(#[source] tun::Error),
 
     /// Failed to set IP address
-    #[error(display = "Failed to set IPv6 address")]
-    SetIpv6(#[error(source)] io::Error),
+    #[error("Failed to set IPv6 address")]
+    SetIpv6(#[source] io::Error),
 
     /// Unable to open a tunnel device
-    #[error(display = "Unable to open a tunnel device")]
-    CreateDevice(#[error(source)] tun::Error),
+    #[error("Unable to open a tunnel device")]
+    CreateDevice(#[source] tun::Error),
 
     /// Failed to apply async flags to tunnel device
-    #[error(display = "Failed to apply async flags to tunnel device")]
-    SetDeviceAsync(#[error(source)] nix::Error),
+    #[error("Failed to apply async flags to tunnel device")]
+    SetDeviceAsync(#[source] nix::Error),
 
     /// Failed to enable/disable link device
-    #[error(display = "Failed to enable/disable link device")]
-    ToggleDevice(#[error(source)] tun::Error),
+    #[error("Failed to enable/disable link device")]
+    ToggleDevice(#[source] tun::Error),
 }
 
 /// A trait for managing link devices

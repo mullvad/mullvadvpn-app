@@ -3,14 +3,13 @@ use std::{sync::Arc, time::Duration};
 
 type Result<T> = std::result::Result<T, Error>;
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to create a DBus connection")]
-    ConnectError(#[error(source)] dbus::Error),
+    #[error("Failed to create a DBus connection")]
+    ConnectError(#[source] dbus::Error),
 
-    #[error(display = "Failed to read SystemState property")]
-    ReadSystemStateError(#[error(source)] dbus::Error),
+    #[error("Failed to read SystemState property")]
+    ReadSystemStateError(#[source] dbus::Error),
 }
 
 const SYSTEMD_BUS: &str = "org.freedesktop.systemd1";

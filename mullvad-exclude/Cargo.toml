@@ -12,5 +12,5 @@ workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
 nix = "0.23"
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 talpid-types = { path = "../talpid-types" }

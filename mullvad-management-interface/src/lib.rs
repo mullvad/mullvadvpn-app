@@ -29,85 +29,84 @@ static MULLVAD_MANAGEMENT_SOCKET_GROUP: Lazy<Option<String>> =
 pub const CUSTOM_LIST_LIST_NOT_FOUND_DETAILS: &[u8] = b"custom_list_list_not_found";
 pub const CUSTOM_LIST_LIST_EXISTS_DETAILS: &[u8] = b"custom_list_list_exists";
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Management RPC server or client error")]
-    GrpcTransportError(#[error(source)] tonic::transport::Error),
+    #[error("Management RPC server or client error")]
+    GrpcTransportError(#[source] tonic::transport::Error),
 
-    #[error(display = "Failed to start IPC pipe/socket")]
-    StartServerError(#[error(source)] io::Error),
+    #[error("Failed to start IPC pipe/socket")]
+    StartServerError(#[source] io::Error),
 
-    #[error(display = "Failed to initialize pipe/socket security attributes")]
-    SecurityAttributes(#[error(source)] io::Error),
+    #[error("Failed to initialize pipe/socket security attributes")]
+    SecurityAttributes(#[source] io::Error),
 
-    #[error(display = "Unable to set permissions for IPC endpoint")]
-    PermissionsError(#[error(source)] io::Error),
+    #[error("Unable to set permissions for IPC endpoint")]
+    PermissionsError(#[source] io::Error),
 
     #[cfg(unix)]
-    #[error(display = "Group not found")]
+    #[error("Group not found")]
     NoGidError,
 
     #[cfg(unix)]
-    #[error(display = "Failed to obtain group ID")]
-    ObtainGidError(#[error(source)] nix::Error),
+    #[error("Failed to obtain group ID")]
+    ObtainGidError(#[source] nix::Error),
 
     #[cfg(unix)]
-    #[error(display = "Failed to set group ID")]
-    SetGidError(#[error(source)] nix::Error),
+    #[error("Failed to set group ID")]
+    SetGidError(#[source] nix::Error),
 
-    #[error(display = "gRPC call returned error")]
-    Rpc(#[error(source)] tonic::Status),
+    #[error("gRPC call returned error")]
+    Rpc(#[source] tonic::Status),
 
-    #[error(display = "Failed to parse gRPC response")]
-    InvalidResponse(#[error(source)] types::FromProtobufTypeError),
+    #[error("Failed to parse gRPC response")]
+    InvalidResponse(#[source] types::FromProtobufTypeError),
 
-    #[error(display = "Duration is too large")]
+    #[error("Duration is too large")]
     DurationTooLarge,
 
-    #[error(display = "Unexpected non-UTF8 string")]
+    #[error("Unexpected non-UTF8 string")]
     PathMustBeUtf8,
 
-    #[error(display = "Missing daemon event")]
+    #[error("Missing daemon event")]
     MissingDaemonEvent,
 
-    #[error(display = "This voucher code is invalid")]
+    #[error("This voucher code is invalid")]
     InvalidVoucher,
 
-    #[error(display = "This voucher code has already been used")]
+    #[error("This voucher code has already been used")]
     UsedVoucher,
 
-    #[error(display = "There are too many devices on the account. One must be revoked to log in")]
+    #[error("There are too many devices on the account. One must be revoked to log in")]
     TooManyDevices,
 
-    #[error(display = "You are already logged in. Log out to create a new account")]
+    #[error("You are already logged in. Log out to create a new account")]
     AlreadyLoggedIn,
 
-    #[error(display = "The account does not exist")]
+    #[error("The account does not exist")]
     InvalidAccount,
 
-    #[error(display = "There is no such device")]
+    #[error("There is no such device")]
     DeviceNotFound,
 
-    #[error(display = "Location data is unavailable")]
+    #[error("Location data is unavailable")]
     NoLocationData,
 
-    #[error(display = "A custom list with that name already exists")]
+    #[error("A custom list with that name already exists")]
     CustomListExists,
 
-    #[error(display = "A custom list with that name does not exist")]
+    #[error("A custom list with that name does not exist")]
     CustomListListNotFound,
 
-    #[error(display = "Location already exists in the custom list")]
+    #[error("Location already exists in the custom list")]
     LocationExistsInCustomList,
 
-    #[error(display = "Location was not found in the custom list")]
+    #[error("Location was not found in the custom list")]
     LocationNotFoundInCustomlist,
 
-    #[error(display = "Could not retrieve API access methods from settings")]
+    #[error("Could not retrieve API access methods from settings")]
     ApiAccessMethodSettingsNotFound,
 
-    #[error(display = "An access method with that id does not exist")]
+    #[error("An access method with that id does not exist")]
     ApiAccessMethodNotFound,
 }
 

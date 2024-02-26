@@ -19,44 +19,43 @@ const DRIVER_FILENAME: &str = "mullvad-split-tunnel.sys";
 
 const WAIT_STATUS_TIMEOUT: Duration = Duration::from_secs(8);
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to open service control manager
-    #[error(display = "Failed to connect to service control manager")]
-    OpenServiceControlManager(#[error(source)] windows_service::Error),
+    #[error("Failed to connect to service control manager")]
+    OpenServiceControlManager(#[source] windows_service::Error),
 
     /// Failed to create a service handle
-    #[error(display = "Failed to open service")]
-    OpenServiceHandle(#[error(source)] windows_service::Error),
+    #[error("Failed to open service")]
+    OpenServiceHandle(#[source] windows_service::Error),
 
     /// Failed to start split tunnel service
-    #[error(display = "Failed to start split tunnel device driver service")]
-    StartService(#[error(source)] windows_service::Error),
+    #[error("Failed to start split tunnel device driver service")]
+    StartService(#[source] windows_service::Error),
 
     /// Failed to check service status
-    #[error(display = "Failed to query service status")]
-    QueryServiceStatus(#[error(source)] windows_service::Error),
+    #[error("Failed to query service status")]
+    QueryServiceStatus(#[source] windows_service::Error),
 
     /// Failed to open service config
-    #[error(display = "Failed to retrieve service config")]
-    QueryServiceConfig(#[error(source)] windows_service::Error),
+    #[error("Failed to retrieve service config")]
+    QueryServiceConfig(#[source] windows_service::Error),
 
     /// Failed to install ST service
-    #[error(display = "Failed to install split tunnel driver")]
-    InstallService(#[error(source)] windows_service::Error),
+    #[error("Failed to install split tunnel driver")]
+    InstallService(#[source] windows_service::Error),
 
     /// Failed to start ST service
-    #[error(display = "Timed out waiting on service to start")]
+    #[error("Timed out waiting on service to start")]
     StartTimeout,
 
     /// Failed to connect to existing driver
-    #[error(display = "Failed to open service handle")]
-    OpenHandle(#[error(source)] super::driver::DeviceHandleError),
+    #[error("Failed to open service handle")]
+    OpenHandle(#[source] super::driver::DeviceHandleError),
 
     /// Failed to reset existing driver
-    #[error(display = "Failed to reset driver state")]
-    ResetDriver(#[error(source)] io::Error),
+    #[error("Failed to reset driver state")]
+    ResetDriver(#[source] io::Error),
 }
 
 pub fn install_driver_if_required(resource_dir: &Path) -> Result<(), Error> {
