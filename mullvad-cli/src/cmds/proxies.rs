@@ -5,10 +5,10 @@ use talpid_types::net::{
     Endpoint, TransportProtocol,
 };
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "{}", _0)]
-    InvalidAuth(#[error(source)] talpid_types::net::proxy::Error),
+    #[error("{0}")]
+    InvalidAuth(#[from] talpid_types::net::proxy::Error),
 }
 
 #[derive(Args, Debug, Clone)]

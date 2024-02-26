@@ -17,17 +17,16 @@ use mullvad_types::{
 use std::{sync::mpsc, thread};
 use talpid_types::ErrorExt;
 
-#[derive(Debug, err_derive::Error)]
-#[error(no_from)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error(display = "Failed to create global reference to MullvadDaemon Java object")]
-    CreateGlobalReference(#[error(source)] jnix::jni::errors::Error),
+    #[error("Failed to create global reference to MullvadDaemon Java object")]
+    CreateGlobalReference(#[source] jnix::jni::errors::Error),
 
-    #[error(display = "Failed to find {} method", _0)]
-    FindMethod(&'static str, #[error(source)] jnix::jni::errors::Error),
+    #[error("Failed to find {0} method")]
+    FindMethod(&'static str, #[source] jnix::jni::errors::Error),
 
-    #[error(display = "Failed to retrieve Java VM instance")]
-    GetJvmInstance(#[error(source)] jnix::jni::errors::Error),
+    #[error("Failed to retrieve Java VM instance")]
+    GetJvmInstance(#[source] jnix::jni::errors::Error),
 }
 
 enum Event {

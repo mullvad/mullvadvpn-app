@@ -107,8 +107,8 @@ impl log::Log for Logger {
     fn flush(&self) {}
 }
 
-#[derive(Debug, err_derive::Error)]
-#[error(display = "Test panic: {}", _0)]
+#[derive(Debug, thiserror::Error)]
+#[error("Test panic: {0}")]
 pub struct PanicMessage(String);
 
 pub struct TestOutput {

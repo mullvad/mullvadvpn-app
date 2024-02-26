@@ -34,38 +34,38 @@ pub type Result<T> = std::result::Result<T, Error>;
 const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
 
 /// Describes all the ways a REST request can fail
-#[derive(err_derive::Error, Debug, Clone)]
+#[derive(thiserror::Error, Debug, Clone)]
 pub enum Error {
-    #[error(display = "REST client service is down")]
+    #[error("REST client service is down")]
     RestServiceDown,
 
-    #[error(display = "Request cancelled")]
+    #[error("Request cancelled")]
     Aborted,
 
-    #[error(display = "Hyper error")]
-    HyperError(#[error(source)] Arc<hyper::Error>),
+    #[error("Hyper error")]
+    HyperError(#[from] Arc<hyper::Error>),
 
-    #[error(display = "Invalid header value")]
+    #[error("Invalid header value")]
     InvalidHeaderError,
 
-    #[error(display = "HTTP error")]
-    HttpError(#[error(source)] Arc<http::Error>),
+    #[error("HTTP error")]
+    HttpError(#[from] Arc<http::Error>),
 
-    #[error(display = "Request timed out")]
+    #[error("Request timed out")]
     TimeoutError,
 
-    #[error(display = "Failed to deserialize data")]
-    DeserializeError(#[error(source)] Arc<serde_json::Error>),
+    #[error("Failed to deserialize data")]
+    DeserializeError(#[from] Arc<serde_json::Error>),
 
     /// Unexpected response code
-    #[error(display = "Unexpected response status code {} - {}", _0, _1)]
+    #[error("Unexpected response status code {} - {}", _0, _1)]
     ApiError(StatusCode, String),
 
     /// The string given was not a valid URI.
-    #[error(display = "Not a valid URI")]
+    #[error("Not a valid URI")]
     InvalidUri,
 
-    #[error(display = "Set account token on factory with no access token store")]
+    #[error("Set account token on factory with no access token store")]
     NoAccessTokenStore,
 }
 

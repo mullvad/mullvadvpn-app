@@ -49,40 +49,40 @@ use talpid_types::{
 const TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(5);
 
 /// Errors that can happen when setting up or using the state machine.
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Unable to spawn offline state monitor
-    #[error(display = "Unable to spawn offline state monitor")]
-    OfflineMonitorError(#[error(source)] crate::offline::Error),
+    #[error("Unable to spawn offline state monitor")]
+    OfflineMonitorError(#[from] crate::offline::Error),
 
     /// Unable to set up split tunneling
     #[cfg(target_os = "windows")]
-    #[error(display = "Failed to initialize split tunneling")]
-    InitSplitTunneling(#[error(source)] split_tunnel::Error),
+    #[error("Failed to initialize split tunneling")]
+    InitSplitTunneling(#[from] split_tunnel::Error),
 
     /// Failed to initialize the system firewall integration.
-    #[error(display = "Failed to initialize the system firewall integration")]
-    InitFirewallError(#[error(source)] crate::firewall::Error),
+    #[error("Failed to initialize the system firewall integration")]
+    InitFirewallError(#[from] crate::firewall::Error),
 
     /// Failed to initialize the system DNS manager and monitor.
-    #[error(display = "Failed to initialize the system DNS manager and monitor")]
-    InitDnsMonitorError(#[error(source)] crate::dns::Error),
+    #[error("Failed to initialize the system DNS manager and monitor")]
+    InitDnsMonitorError(#[from] crate::dns::Error),
 
     /// Failed to initialize the route manager.
-    #[error(display = "Failed to initialize the route manager")]
-    InitRouteManagerError(#[error(source)] talpid_routing::Error),
+    #[error("Failed to initialize the route manager")]
+    InitRouteManagerError(#[from] talpid_routing::Error),
 
     /// Failed to initialize filtering resolver
     #[cfg(target_os = "macos")]
-    #[error(display = "Failed to initialize filtering resolver")]
-    InitFilteringResolver(#[error(source)] crate::resolver::Error),
+    #[error("Failed to initialize filtering resolver")]
+    InitFilteringResolver(#[from] crate::resolver::Error),
 
     /// Failed to initialize tunnel state machine event loop executor
-    #[error(display = "Failed to initialize tunnel state machine event loop executor")]
-    ReactorError(#[error(source)] io::Error),
+    #[error("Failed to initialize tunnel state machine event loop executor")]
+    ReactorError(#[from] io::Error),
 
     /// Failed to send state change event to listener
-    #[error(display = "Failed to send state change event to listener")]
+    #[error("Failed to send state change event to listener")]
     SendStateChange,
 }
 

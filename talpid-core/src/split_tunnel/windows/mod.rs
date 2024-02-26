@@ -31,75 +31,74 @@ const DRIVER_EVENT_BUFFER_SIZE: usize = 2048;
 const RESERVED_IP_V4: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 123);
 
 /// Errors that may occur in [`SplitTunnel`].
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to install or start driver service
-    #[error(display = "Failed to start driver service")]
-    ServiceError(#[error(source)] service::Error),
+    #[error("Failed to start driver service")]
+    ServiceError(#[source] service::Error),
 
     /// Failed to initialize the driver
-    #[error(display = "Failed to initialize driver")]
-    InitializationError(#[error(source)] driver::DeviceHandleError),
+    #[error("Failed to initialize driver")]
+    InitializationError(#[source] driver::DeviceHandleError),
 
     /// Failed to reset the driver
-    #[error(display = "Failed to reset driver")]
-    ResetError(#[error(source)] io::Error),
+    #[error("Failed to reset driver")]
+    ResetError(#[source] io::Error),
 
     /// Failed to set paths to excluded applications
-    #[error(display = "Failed to set list of excluded applications")]
-    SetConfiguration(#[error(source)] io::Error),
+    #[error("Failed to set list of excluded applications")]
+    SetConfiguration(#[source] io::Error),
 
     /// Failed to obtain the current driver state
-    #[error(display = "Failed to obtain the driver state")]
-    GetState(#[error(source)] io::Error),
+    #[error("Failed to obtain the driver state")]
+    GetState(#[source] io::Error),
 
     /// Failed to register interface IP addresses
-    #[error(display = "Failed to register IP addresses for exclusions")]
-    RegisterIps(#[error(source)] io::Error),
+    #[error("Failed to register IP addresses for exclusions")]
+    RegisterIps(#[source] io::Error),
 
     /// Failed to clear interface IP addresses
-    #[error(display = "Failed to clear registered IP addresses")]
-    ClearIps(#[error(source)] io::Error),
+    #[error("Failed to clear registered IP addresses")]
+    ClearIps(#[source] io::Error),
 
     /// Failed to set up the driver event loop
-    #[error(display = "Failed to set up the driver event loop")]
-    EventThreadError(#[error(source)] io::Error),
+    #[error("Failed to set up the driver event loop")]
+    EventThreadError(#[source] io::Error),
 
     /// Failed to obtain default route
-    #[error(display = "Failed to obtain the default route")]
-    ObtainDefaultRoute(#[error(source)] talpid_routing::Error),
+    #[error("Failed to obtain the default route")]
+    ObtainDefaultRoute(#[source] talpid_routing::Error),
 
     /// Failed to obtain an IP address given a network interface LUID
-    #[error(display = "Failed to obtain IP address for interface LUID")]
-    LuidToIp(#[error(source)] talpid_windows::net::Error),
+    #[error("Failed to obtain IP address for interface LUID")]
+    LuidToIp(#[source] talpid_windows::net::Error),
 
     /// Failed to set up callback for monitoring default route changes
-    #[error(display = "Failed to register default route change callback")]
+    #[error("Failed to register default route change callback")]
     RegisterRouteChangeCallback,
 
     /// Unexpected IP parsing error
-    #[error(display = "Failed to parse IP address")]
+    #[error("Failed to parse IP address")]
     IpParseError,
 
     /// The request handling thread is stuck
-    #[error(display = "The ST request thread is stuck")]
+    #[error("The ST request thread is stuck")]
     RequestThreadStuck,
 
     /// The request handling thread is down
-    #[error(display = "The split tunnel monitor is down")]
+    #[error("The split tunnel monitor is down")]
     SplitTunnelDown,
 
     /// Failed to start the NTFS reparse point monitor
-    #[error(display = "Failed to start path monitor")]
-    StartPathMonitor(#[error(source)] io::Error),
+    #[error("Failed to start path monitor")]
+    StartPathMonitor(#[source] io::Error),
 
     /// A previous path update has not yet completed
-    #[error(display = "A previous update is not yet complete")]
+    #[error("A previous update is not yet complete")]
     AlreadySettingPaths,
 
     /// Resetting in the engaged state risks leaking into the tunnel
-    #[error(display = "Failed to reset driver because it is engaged")]
+    #[error("Failed to reset driver because it is engaged")]
     CannotResetEngaged,
 }
 

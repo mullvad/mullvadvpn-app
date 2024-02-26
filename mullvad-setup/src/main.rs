@@ -31,40 +31,39 @@ impl From<Error> for ExitStatus {
     }
 }
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to connect to RPC client")]
-    RpcConnectionError(#[error(source)] mullvad_management_interface::Error),
+    #[error("Failed to connect to RPC client")]
+    RpcConnectionError(#[source] mullvad_management_interface::Error),
 
-    #[error(display = "RPC call failed")]
-    DaemonRpcError(#[error(source)] mullvad_management_interface::Error),
+    #[error("RPC call failed")]
+    DaemonRpcError(#[source] mullvad_management_interface::Error),
 
-    #[error(display = "This command cannot be run if the daemon is active")]
+    #[error("This command cannot be run if the daemon is active")]
     DaemonIsRunning,
 
-    #[error(display = "Firewall error")]
-    FirewallError(#[error(source)] firewall::Error),
+    #[error("Firewall error")]
+    FirewallError(#[source] firewall::Error),
 
-    #[error(display = "Failed to initialize mullvad RPC runtime")]
-    RpcInitializationError(#[error(source)] mullvad_api::Error),
+    #[error("Failed to initialize mullvad RPC runtime")]
+    RpcInitializationError(#[source] mullvad_api::Error),
 
-    #[error(display = "Failed to remove device from account")]
-    RemoveDeviceError(#[error(source)] mullvad_api::rest::Error),
+    #[error("Failed to remove device from account")]
+    RemoveDeviceError(#[source] mullvad_api::rest::Error),
 
-    #[error(display = "Failed to obtain settings directory path")]
-    SettingsPathError(#[error(source)] mullvad_paths::Error),
+    #[error("Failed to obtain settings directory path")]
+    SettingsPathError(#[source] mullvad_paths::Error),
 
-    #[error(display = "Failed to obtain cache directory path")]
-    CachePathError(#[error(source)] mullvad_paths::Error),
+    #[error("Failed to obtain cache directory path")]
+    CachePathError(#[source] mullvad_paths::Error),
 
-    #[error(display = "Failed to read the device cache")]
-    ReadDeviceCacheError(#[error(source)] mullvad_daemon::device::Error),
+    #[error("Failed to read the device cache")]
+    ReadDeviceCacheError(#[source] mullvad_daemon::device::Error),
 
-    #[error(display = "Failed to write the device cache")]
-    WriteDeviceCacheError(#[error(source)] mullvad_daemon::device::Error),
+    #[error("Failed to write the device cache")]
+    WriteDeviceCacheError(#[source] mullvad_daemon::device::Error),
 
-    #[error(display = "Cannot parse the version string")]
+    #[error("Cannot parse the version string")]
     ParseVersionStringError,
 }
 

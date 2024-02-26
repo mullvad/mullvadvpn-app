@@ -8,11 +8,10 @@ use talpid_types::{net::Connectivity, ErrorExt};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "The route manager returned an error")]
-    RouteManagerError(#[error(source)] talpid_routing::Error),
+    #[error("The route manager returned an error")]
+    RouteManagerError(#[source] talpid_routing::Error),
 }
 
 pub struct MonitorHandle {

@@ -11,22 +11,22 @@ const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to watch /etc/resolv.conf for changes")]
-    WatchResolvConf(#[error(source)] std::io::Error),
+    #[error("Failed to watch /etc/resolv.conf for changes")]
+    WatchResolvConf(#[source] std::io::Error),
 
-    #[error(display = "Failed to write to {}", _0)]
-    WriteResolvConf(&'static str, #[error(source)] io::Error),
+    #[error("Failed to write to {0}")]
+    WriteResolvConf(&'static str, #[source] io::Error),
 
-    #[error(display = "Failed to read from {}", _0)]
-    ReadResolvConf(&'static str, #[error(source)] io::Error),
+    #[error("Failed to read from {0}")]
+    ReadResolvConf(&'static str, #[source] io::Error),
 
-    #[error(display = "resolv.conf at {} could not be parsed", _0)]
-    Parse(&'static str, #[error(source)] resolv_conf::ParseError),
+    #[error("resolv.conf at {} could not be parsed", _0)]
+    Parse(&'static str, #[source] resolv_conf::ParseError),
 
-    #[error(display = "Failed to remove stale resolv.conf backup at {}", _0)]
-    RemoveBackup(&'static str, #[error(source)] io::Error),
+    #[error("Failed to remove stale resolv.conf backup at {0}")]
+    RemoveBackup(&'static str, #[source] io::Error),
 }
 
 pub struct StaticResolvConf {

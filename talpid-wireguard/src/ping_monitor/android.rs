@@ -1,14 +1,14 @@
 use std::{io, net::Ipv4Addr};
 
 /// Pinger errors
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to run `ping` process
-    #[error(display = "Failed to run ping command")]
-    PingError(#[error(source)] io::Error),
+    #[error("Failed to run ping command")]
+    PingError(#[from] io::Error),
 
     /// ICMP timed out
-    #[error(display = "Ping timed out")]
+    #[error("Ping timed out")]
     TimeoutError,
 }
 

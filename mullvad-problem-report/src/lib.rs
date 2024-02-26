@@ -44,63 +44,62 @@ macro_rules! write_line {
 
 /// These are critical errors that can happen when using the tool, that stops
 /// it from working. Meaning it will print the error and exit.
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to write the problem report to {}", path)]
+    #[error("Failed to write the problem report to {path}")]
     WriteReportError {
         path: String,
-        #[error(source)]
+        #[source]
         source: io::Error,
     },
 
-    #[error(display = "Failed to read the problem report at {}", path)]
+    #[error("Failed to read the problem report at {path}")]
     ReadProblemReportError {
         path: String,
-        #[error(source)]
+        #[source]
         source: io::Error,
     },
 
-    #[error(display = "Unable to create REST client")]
-    CreateRpcClientError(#[error(source)] mullvad_api::Error),
+    #[error("Unable to create REST client")]
+    CreateRpcClientError(#[source] mullvad_api::Error),
 
-    #[error(display = "Failed to send problem report")]
-    SendProblemReportError(#[error(source)] mullvad_api::rest::Error),
+    #[error("Failed to send problem report")]
+    SendProblemReportError(#[source] mullvad_api::rest::Error),
 
-    #[error(display = "Failed to send problem report {} times", MAX_SEND_ATTEMPTS)]
+    #[error("Failed to send problem report {} times", MAX_SEND_ATTEMPTS)]
     SendFailedTooManyTimes,
 
-    #[error(display = "Unable to spawn Tokio runtime")]
-    CreateRuntime(#[error(source)] io::Error),
+    #[error("Unable to spawn Tokio runtime")]
+    CreateRuntime(#[source] io::Error),
 
-    #[error(display = "Unable to find cache directory")]
-    ObtainCacheDirectory(#[error(source)] mullvad_paths::Error),
+    #[error("Unable to find cache directory")]
+    ObtainCacheDirectory(#[source] mullvad_paths::Error),
 }
 
 /// These are errors that can happen during problem report collection.
 /// They are not critical, but they will be added inside the problem report,
 /// instead of whatever content was supposed to be there.
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum LogError {
-    #[error(display = "Unable to get log directory")]
-    GetLogDir(#[error(source)] mullvad_paths::Error),
+    #[error("Unable to get log directory")]
+    GetLogDir(#[source] mullvad_paths::Error),
 
-    #[error(display = "Failed to list the files in the log directory: {}", path)]
+    #[error("Failed to list the files in the log directory: {path}")]
     ListLogDir {
         path: String,
-        #[error(source)]
+        #[source]
         source: io::Error,
     },
 
-    #[error(display = "Error reading the contents of log file: {}", path)]
+    #[error("Error reading the contents of log file: {path}")]
     ReadLogError { path: String },
 
     #[cfg(any(target_os = "linux", target_os = "macos"))]
-    #[error(display = "No home directory for current user")]
+    #[error("No home directory for current user")]
     NoHomeDir,
 
     #[cfg(target_os = "windows")]
-    #[error(display = "Missing %LOCALAPPDATA% environment variable")]
+    #[error("Missing %LOCALAPPDATA% environment variable")]
     NoLocalAppDataDir,
 }
 

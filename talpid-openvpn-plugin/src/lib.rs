@@ -5,28 +5,27 @@ use talpid_types::ErrorExt;
 mod processing;
 use crate::processing::EventProcessor;
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "No core server id given as first argument")]
+    #[error("No core server id given as first argument")]
     MissingCoreServerId,
 
-    #[error(display = "Failed to send an event to daemon over the IPC channel")]
-    SendEvent(#[error(source)] tonic::Status),
+    #[error("Failed to send an event to daemon over the IPC channel")]
+    SendEvent(#[source] tonic::Status),
 
-    #[error(display = "Unable to start Tokio runtime")]
-    CreateRuntime(#[error(source)] io::Error),
+    #[error("Unable to start Tokio runtime")]
+    CreateRuntime(#[source] io::Error),
 
-    #[error(display = "Unable to create IPC transport")]
-    CreateTransport(#[error(source)] tonic::transport::Error),
+    #[error("Unable to create IPC transport")]
+    CreateTransport(#[source] tonic::transport::Error),
 
-    #[error(display = "Unable to parse environment variables from OpenVPN")]
-    ParseEnvFailed(#[error(source)] std::str::Utf8Error),
+    #[error("Unable to parse environment variables from OpenVPN")]
+    ParseEnvFailed(#[source] std::str::Utf8Error),
 
-    #[error(display = "Unable to parse arguments from OpenVPN")]
-    ParseArgsFailed(#[error(source)] std::str::Utf8Error),
+    #[error("Unable to parse arguments from OpenVPN")]
+    ParseArgsFailed(#[source] std::str::Utf8Error),
 
-    #[error(display = "Unhandled event type: {:?}", _0)]
+    #[error("Unhandled event type: {:?}", _0)]
     UnhandledEvent(openvpn_plugin::EventType),
 }
 

@@ -20,26 +20,25 @@ pub mod patch;
 
 const SETTINGS_FILE: &str = "settings.json";
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Unable to read settings file {}", _0)]
-    ReadError(String, #[error(source)] io::Error),
+    #[error("Unable to read settings file {0}")]
+    ReadError(String, #[source] io::Error),
 
-    #[error(display = "Unable to parse settings file")]
-    ParseError(#[error(source)] serde_json::Error),
+    #[error("Unable to parse settings file")]
+    ParseError(#[source] serde_json::Error),
 
-    #[error(display = "Unable to remove settings file {}", _0)]
+    #[error("Unable to remove settings file {0}")]
     #[cfg(not(target_os = "android"))]
-    DeleteError(String, #[error(source)] io::Error),
+    DeleteError(String, #[source] io::Error),
 
-    #[error(display = "Unable to serialize settings to JSON")]
-    SerializeError(#[error(source)] serde_json::Error),
+    #[error("Unable to serialize settings to JSON")]
+    SerializeError(#[source] serde_json::Error),
 
-    #[error(display = "Unable to write settings to {}", _0)]
-    WriteError(String, #[error(source)] io::Error),
+    #[error("Unable to write settings to {0}")]
+    WriteError(String, #[source] io::Error),
 
-    #[error(display = "Failed to apply settings update")]
+    #[error("Failed to apply settings update")]
     UpdateFailed(Box<dyn std::error::Error + Send + Sync>),
 }
 
@@ -274,9 +273,9 @@ impl SettingsPersister {
     /// to inspect the error closer.
     ///
     /// ```ignore
-    /// #[derive(Debug, err_derive::Error)]
+    /// #[derive(Debug, thiserror::Error)]
     /// pub enum MyError {
-    ///   #[error(display = "Failed for this reason: {:?}", _0)]
+    ///   #[error("Failed for this reason: {:?}", _0)]
     ///   Failed(String),
     /// }
     ///

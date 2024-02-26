@@ -97,16 +97,16 @@ pub struct ResolvedConnectionMode {
 
 /// Describes all the ways the daemon service which handles access methods can
 /// fail.
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "No access methods were provided.")]
+    #[error("No access methods were provided.")]
     NoAccessMethods,
-    #[error(display = "AccessModeSelector is not receiving any messages.")]
-    SendFailed(#[error(source)] mpsc::TrySendError<Message>),
-    #[error(display = "AccessModeSelector is not receiving any messages.")]
+    #[error("AccessModeSelector is not receiving any messages.")]
+    SendFailed(#[from] mpsc::TrySendError<Message>),
+    #[error("AccessModeSelector is not receiving any messages.")]
     OneshotSendFailed,
-    #[error(display = "AccessModeSelector is not responding.")]
-    NotRunning(#[error(source)] oneshot::Canceled),
+    #[error("AccessModeSelector is not responding.")]
+    NotRunning(#[from] oneshot::Canceled),
 }
 
 impl std::fmt::Display for Message {

@@ -60,34 +60,33 @@ impl From<AppVersionInfo> for CachedAppVersionInfo {
     }
 }
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to open app version cache file for reading")]
-    ReadVersionCache(#[error(source)] io::Error),
+    #[error("Failed to open app version cache file for reading")]
+    ReadVersionCache(#[source] io::Error),
 
-    #[error(display = "Failed to open app version cache file for writing")]
-    WriteVersionCache(#[error(source)] io::Error),
+    #[error("Failed to open app version cache file for writing")]
+    WriteVersionCache(#[source] io::Error),
 
-    #[error(display = "Failure in serialization of the version info")]
-    Serialize(#[error(source)] serde_json::Error),
+    #[error("Failure in serialization of the version info")]
+    Serialize(#[source] serde_json::Error),
 
-    #[error(display = "Failure in deserialization of the version info")]
-    Deserialize(#[error(source)] serde_json::Error),
+    #[error("Failure in deserialization of the version info")]
+    Deserialize(#[source] serde_json::Error),
 
-    #[error(display = "Failed to check the latest app version")]
-    Download(#[error(source)] mullvad_api::rest::Error),
+    #[error("Failed to check the latest app version")]
+    Download(#[source] mullvad_api::rest::Error),
 
-    #[error(display = "API availability check failed")]
-    ApiCheck(#[error(source)] mullvad_api::availability::Error),
+    #[error("API availability check failed")]
+    ApiCheck(#[source] mullvad_api::availability::Error),
 
-    #[error(display = "Clearing version check cache due to a version mismatch")]
+    #[error("Clearing version check cache due to a version mismatch")]
     CacheVersionMismatch,
 
-    #[error(display = "Version updater is down")]
+    #[error("Version updater is down")]
     VersionUpdaterDown,
 
-    #[error(display = "Version cache update was aborted")]
+    #[error("Version cache update was aborted")]
     UpdateAborted,
 }
 

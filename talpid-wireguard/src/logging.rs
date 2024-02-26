@@ -7,11 +7,11 @@ static LOG_MUTEX: Lazy<Mutex<HashMap<u32, fs::File>>> = Lazy::new(|| Mutex::new(
 static mut LOG_CONTEXT_NEXT_ORDINAL: u32 = 0;
 
 /// Errors encountered when initializing logging
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to move or create a log file.
-    #[error(display = "Failed to setup a logging file")]
-    PrepareLogFileError(#[error(source)] std::io::Error),
+    #[error("Failed to setup a logging file")]
+    PrepareLogFileError(#[from] std::io::Error),
 }
 
 pub fn initialize_logging(log_path: Option<&Path>) -> Result<u32, Error> {

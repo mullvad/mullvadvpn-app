@@ -4,10 +4,10 @@ use std::{fmt, net::SocketAddr};
 
 use super::TransportProtocol;
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Validation of SOCKS5 username or password failed.
-    #[error(display = "Invalid SOCKS5 authentication credentials: {}", _0)]
+    #[error("Invalid SOCKS5 authentication credentials: {0}")]
     InvalidSocksAuthValues(&'static str),
 }
 

@@ -318,14 +318,13 @@ fn accepted_controls_by_state(state: ServiceState) -> ServiceControlAccept {
     }
 }
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum InstallError {
-    #[error(display = "Unable to connect to service manager")]
-    ConnectServiceManager(#[error(source)] windows_service::Error),
+    #[error("Unable to connect to service manager")]
+    ConnectServiceManager(#[source] windows_service::Error),
 
-    #[error(display = "Unable to create a service")]
-    CreateService(#[error(source)] windows_service::Error),
+    #[error("Unable to create a service")]
+    CreateService(#[source] windows_service::Error),
 }
 
 pub fn install_service() -> Result<(), InstallError> {

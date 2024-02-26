@@ -31,14 +31,14 @@ pub struct Config {
 }
 
 /// Configuration errors
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Supplied parameters don't contain a valid tunnel IP
-    #[error(display = "No valid tunnel IP")]
+    #[error("No valid tunnel IP")]
     InvalidTunnelIpError,
 
     /// Peer has no valid IPs
-    #[error(display = "Supplied peer has no valid IPs")]
+    #[error("Supplied peer has no valid IPs")]
     InvalidPeerIpError,
 }
 

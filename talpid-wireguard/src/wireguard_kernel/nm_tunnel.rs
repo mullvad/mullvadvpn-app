@@ -12,13 +12,13 @@ use talpid_dbus::{
     },
 };
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Error while communicating over Dbus")]
-    Dbus(#[error(source)] dbus::Error),
+    #[error("Error while communicating over Dbus")]
+    Dbus(#[from] dbus::Error),
 
-    #[error(display = "NetworkManager error")]
-    NetworkManager(#[error(source)] NetworkManagerError),
+    #[error("NetworkManager error")]
+    NetworkManager(#[from] NetworkManagerError),
 }
 
 pub struct NetworkManagerTunnel {
@@ -222,12 +222,12 @@ fn iface_index(name: &str) -> std::result::Result<libc::c_uint, IfaceIndexLookup
 }
 
 /// Failure to lookup an interfaces index by its name.
-#[derive(Debug, err_derive::Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum IfaceIndexLookupError {
     /// The interface name is invalid -  contains null bytes or is too long.
-    #[error(display = "Invalid network interface name: {}", _0)]
-    InvalidInterfaceName(String, #[error(source)] std::ffi::NulError),
+    #[error("Invalid network interface name: {0}")]
+    InvalidInterfaceName(String, #[source] std::ffi::NulError),
     /// Interface wasn't found by its name.
-    #[error(display = "Failed to get index for interface {}", _0)]
-    InterfaceLookupError(String, #[error(source)] std::io::Error),
+    #[error("Failed to get index for interface {0}")]
+    InterfaceLookupError(String, #[source] std::io::Error),
 }

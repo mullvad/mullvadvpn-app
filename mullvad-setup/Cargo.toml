@@ -17,7 +17,7 @@ path = "src/main.rs"
 [dependencies]
 clap = { workspace = true }
 env_logger = { workspace = true }
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 once_cell = { workspace = true }
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }
