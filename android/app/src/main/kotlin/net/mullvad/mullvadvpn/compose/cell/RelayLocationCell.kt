@@ -256,6 +256,7 @@ fun NormalRelayLocationCell(
     modifier: Modifier = Modifier,
     activeColor: Color = MaterialTheme.colorScheme.selected,
     inactiveColor: Color = MaterialTheme.colorScheme.error,
+    disabledColor: Color = MaterialTheme.colorScheme.onSecondary,
     selectedItem: RelayItem? = null,
     onSelectRelay: (item: RelayItem) -> Unit = {}
 ) {
@@ -271,6 +272,8 @@ fun NormalRelayLocationCell(
                             color =
                                 when {
                                     selected -> Color.Transparent
+                                    relayItem is RelayItem.CustomList && !relayItem.hasChildren ->
+                                        disabledColor
                                     relayItem.active -> activeColor
                                     else -> inactiveColor
                                 },
