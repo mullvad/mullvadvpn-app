@@ -10,8 +10,6 @@ import XCTest
 
 class AccountTests: LoggedOutUITestCase {
     override func setUpWithError() throws {
-        continueAfterFailure = false
-
         try super.setUpWithError()
     }
 

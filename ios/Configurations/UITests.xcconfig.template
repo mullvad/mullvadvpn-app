@@ -7,8 +7,10 @@ IOS_DEVICE_PIN_CODE =
 TEST_DEVICE_IDENTIFIER_UUID = 
 
 // Mullvad accounts used by UI tests
-NO_TIME_ACCOUNT_NUMBER = 
-HAS_TIME_ACCOUNT_NUMBER = 
+NO_TIME_ACCOUNT_NUMBER[config=Debug] = 
+NO_TIME_ACCOUNT_NUMBER[config=Staging] = 
+HAS_TIME_ACCOUNT_NUMBER[config=Debug] = 
+HAS_TIME_ACCOUNT_NUMBER[config=Staging] = 
 FIVE_WIREGUARD_KEYS_ACCOUNT_NUMBER = 
 
 // Ad serving domain used when testing ad blocking. Note that we are assuming there's an HTTP server running on the host.
