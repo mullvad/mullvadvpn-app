@@ -2,9 +2,11 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,6 +37,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
+import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -69,6 +72,7 @@ fun CustomListLocations(navigator: DestinationsNavigator, customListKey: String,
     val state by customListsViewModel.uiState.collectAsState()
     CustomListLocationsScreen(
         uiState = state,
+        onSearchTermInput = customListsViewModel::onSearchTermInput,
         onSaveClick = customListsViewModel::save,
         onRelaySelectionClick = customListsViewModel::onRelaySelectionClick,
         onBackClick = navigator::navigateUp
@@ -78,6 +82,7 @@ fun CustomListLocations(navigator: DestinationsNavigator, customListKey: String,
 @Composable
 fun CustomListLocationsScreen(
     uiState: CustomListLocationsUiState,
+    onSearchTermInput: (String) -> Unit = {},
     onSaveClick: () -> Unit = {},
     onRelaySelectionClick: (RelayItem, selected: Boolean) -> Unit = { _, _ -> },
     onBackClick: () -> Unit = {}
@@ -89,12 +94,19 @@ fun CustomListLocationsScreen(
         topBar = {
             CustomListLocationsTopBar(
                 uiState = uiState,
+                onSearchTermInput = onSearchTermInput,
                 onBackClick = onBackClick,
                 onSaveClick = onSaveClick
             )
         },
         content = { contentPadding ->
-            LazyColumn(modifier = Modifier.padding(contentPadding).fillMaxSize()) {
+            LazyColumn(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier =
+                    Modifier.padding(contentPadding)
+                        .padding(top = Dimens.verticalSpace)
+                        .fillMaxSize()
+            ) {
                 when (uiState) {
                     is CustomListLocationsUiState.Loading -> {
                         loading()
@@ -114,40 +126,49 @@ fun CustomListLocationsScreen(
 @Composable
 private fun CustomListLocationsTopBar(
     uiState: CustomListLocationsUiState,
+    onSearchTermInput: (String) -> Unit,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = onBackClick) {
-            Icon(
-                painter = painterResource(id = R.drawable.icon_back),
-                contentDescription = null,
-                tint = Color.Unspecified,
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_back),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                )
+            }
+            Text(
+                text =
+                    stringResource(
+                        if (uiState.newList) {
+                            R.string.add_locations
+                        } else {
+                            R.string.edit_locations
+                        }
+                    ),
+                modifier = Modifier.weight(1f).padding(end = Dimens.titleIconSize),
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onPrimary
             )
+            TextButton(onClick = onSaveClick) {
+                Text(
+                    text = stringResource(R.string.save),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
-        Text(
-            text =
-                stringResource(
-                    if (uiState.newList) {
-                        R.string.add_locations
-                    } else {
-                        R.string.edit_locations
-                    }
-                ),
-            modifier = Modifier.weight(1f).padding(end = Dimens.titleIconSize),
-            textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onPrimary
-        )
-        IconButton(onClick = {}) {
-            Icon(
-                painter = painterResource(id = R.drawable.icons_search),
-                contentDescription = null,
-                tint = Color.Unspecified,
-            )
-        }
-        TextButton(onClick = onSaveClick) {
-            Text(text = stringResource(R.string.save), color = MaterialTheme.colorScheme.onPrimary)
+        SearchTextField(
+            modifier =
+                Modifier.fillMaxWidth()
+                    .height(Dimens.searchFieldHeight)
+                    .padding(horizontal = Dimens.searchFieldHorizontalPadding),
+            backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+            textColor = MaterialTheme.colorScheme.onTertiaryContainer,
+        ) { searchString ->
+            onSearchTermInput.invoke(searchString)
         }
     }
 }

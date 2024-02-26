@@ -62,16 +62,16 @@ fun DeleteCustomListConfirmationDialog(navigator: ResultBackNavigator<Boolean>, 
             )
         },
         dismissButton = {
-            NegativeButton(
-                onClick = { navigator.navigateBack(result = true) },
-                text = stringResource(id = R.string.delete_list)
-            )
-        },
-        confirmButton = {
             PrimaryButton(
                 modifier = Modifier.focusRequester(FocusRequester()),
                 onClick = { navigator.navigateBack(result = false) },
                 text = stringResource(id = R.string.cancel)
+            )
+        },
+        confirmButton = {
+            NegativeButton(
+                onClick = { navigator.navigateBack(result = true) },
+                text = stringResource(id = R.string.delete_list)
             )
         },
         containerColor = MaterialTheme.colorScheme.background

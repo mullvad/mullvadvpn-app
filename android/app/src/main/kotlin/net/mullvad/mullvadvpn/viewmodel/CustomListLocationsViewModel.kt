@@ -95,6 +95,10 @@ class CustomListLocationsViewModel(
         }
     }
 
+    fun onSearchTermInput(searchTerm: String) {
+        viewModelScope.launch { _searchTerm.emit(searchTerm) }
+    }
+
     private fun selectLocation(relayItem: RelayItem) {
         viewModelScope.launch {
             _selectedLocations.update {
