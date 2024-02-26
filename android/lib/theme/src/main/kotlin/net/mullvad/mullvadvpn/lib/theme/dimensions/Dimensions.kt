@@ -37,6 +37,8 @@ data class Dimensions(
     val customPortBoxMinWidth: Dp = 80.dp,
     val deleteIconSize: Dp = 24.dp,
     val dialogIconHeight: Dp = 44.dp,
+    val dropdownMenuVerticalPadding: Dp = 8.dp, // Used to remove padding from dropdown menu
+    val dropdownMenuBorder: Dp = 1.dp,
     val expandableCellChevronSize: Dp = 30.dp,
     val filterTittlePadding: Dp = 4.dp,
     val iconFailSuccessTopMargin: Dp = 30.dp,

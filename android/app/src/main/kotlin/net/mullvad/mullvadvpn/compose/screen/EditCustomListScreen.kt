@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -26,6 +27,7 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
+import net.mullvad.mullvadvpn.compose.cell.crop
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
@@ -36,6 +38,7 @@ import net.mullvad.mullvadvpn.compose.destinations.EditCustomListNameDestination
 import net.mullvad.mullvadvpn.compose.state.EditCustomListState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListSideEffect
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -154,7 +157,14 @@ private fun Actions(onDeleteList: () -> Unit) {
             DropdownMenu(
                 expanded = true,
                 onDismissRequest = { showMenu = false },
-                modifier = Modifier.background(MaterialTheme.colorScheme.background)
+                modifier =
+                    Modifier.background(MaterialTheme.colorScheme.background)
+                        .border(
+                            width = Dimens.dropdownMenuBorder,
+                            color = MaterialTheme.colorScheme.primary,
+                            MaterialTheme.shapes.extraSmall
+                        )
+                        .crop(vertical = Dimens.dropdownMenuVerticalPadding)
             ) {
                 DropdownMenuItem(
                     text = { Text(text = stringResource(id = R.string.delete_list)) },

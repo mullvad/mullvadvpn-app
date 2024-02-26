@@ -299,4 +299,5 @@
         <![CDATA[Do you want to delete the list <b>%s</b>?]]>
     </string>
     <string name="custom_list_error_list_exists">Name is already taken.</string>
+    <string name="update_list_name">Update list name</string>
 </resources>
