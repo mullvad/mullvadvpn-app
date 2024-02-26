@@ -139,7 +139,7 @@ jobs:
             | xargs sha1sum \
             | sha1sum \
             | cut -d" " -f1)"
-          echo "::set-output name=hash::$hash"
+          echo "hash=$hash" >> "$GITHUB_OUTPUT"
 
       - name: Cache Windows libraries
         uses: actions/cache@v2
