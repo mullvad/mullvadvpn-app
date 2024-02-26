@@ -50,6 +50,7 @@ class BaseUITestCase: XCTestCase {
 
     /// Test level setup
     override func setUp() {
+        continueAfterFailure = false
         app.launch()
     }
 
