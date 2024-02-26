@@ -154,12 +154,12 @@ class ConnectViewModelTest {
     }
 
     @Test
-    fun testInitialState() = runTest {
+    fun `uiState should emit initial state by default`() = runTest {
         viewModel.uiState.test { assertEquals(ConnectUiState.INITIAL, awaitItem()) }
     }
 
     @Test
-    fun testTunnelRealStateUpdate() = runTest {
+    fun `given change in tunnelRealState uiState should emit new tunnelRealState`() = runTest {
         val tunnelRealStateTestItem = TunnelState.Connected(mockk(relaxed = true), null)
 
         viewModel.uiState.test {
@@ -173,7 +173,7 @@ class ConnectViewModelTest {
     }
 
     @Test
-    fun testTunnelUiStateUpdate() = runTest {
+    fun `given change in tunnelUiState uiState should emit new tunnelUiState`() = runTest {
         val tunnelUiStateTestItem = TunnelState.Connected(mockk(), mockk())
 
         viewModel.uiState.test {
@@ -187,22 +187,28 @@ class ConnectViewModelTest {
     }
 
     @Test
-    fun testSelectedLocationUpdate() = runTest {
-        val selectedRelayItem =
-            RelayItem.Country(name = "Name", code = "Code", expanded = false, cities = emptyList())
-        selectedRelayItemFlow.value = selectedRelayItem
+    fun `given RelayListUseCase returns new selectedRelayItem uiState should emit new selectedRelayItem`() =
+        runTest {
+            val selectedRelayItem =
+                RelayItem.Country(
+                    name = "Name",
+                    code = "Code",
+                    expanded = false,
+                    cities = emptyList()
+                )
+            selectedRelayItemFlow.value = selectedRelayItem
 
-        viewModel.uiState.test {
-            assertEquals(ConnectUiState.INITIAL, awaitItem())
-            serviceConnectionState.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-            val result = awaitItem()
-            assertEquals(selectedRelayItem, result.selectedRelayItem)
+            viewModel.uiState.test {
+                assertEquals(ConnectUiState.INITIAL, awaitItem())
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                val result = awaitItem()
+                assertEquals(selectedRelayItem, result.selectedRelayItem)
+            }
         }
-    }
 
     @Test
-    fun testLocationUpdate() = runTest {
+    fun `given new location in tunnel state uiState should emit new location`() = runTest {
         val locationTestItem =
             GeoIpLocation(
                 ipv4 = mockk(relaxed = true),
@@ -231,7 +237,7 @@ class ConnectViewModelTest {
     }
 
     @Test
-    fun testLocationUpdateNullLocation() =
+    fun `default uiState should include no location`() =
         // Arrange
         runTest {
             val locationTestItem = null
@@ -248,7 +254,7 @@ class ConnectViewModelTest {
         }
 
     @Test
-    fun testOnDisconnectClick() = runTest {
+    fun `onDisconnectClick should invoke disconnect on ConnectionProxy`() = runTest {
         val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
         every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
         viewModel.onDisconnectClick()
@@ -256,7 +262,7 @@ class ConnectViewModelTest {
     }
 
     @Test
-    fun testOnReconnectClick() = runTest {
+    fun `onReconnectClick should invoke reconnect on ConnectionProxy`() = runTest {
         val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
         every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
         viewModel.onReconnectClick()
@@ -264,7 +270,7 @@ class ConnectViewModelTest {
     }
 
     @Test
-    fun testOnConnectClick() = runTest {
+    fun `onConnectClick should invoke connect on ConnectionProxy`() = runTest {
         val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
         every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
         viewModel.onConnectClick()
@@ -272,7 +278,7 @@ class ConnectViewModelTest {
     }
 
     @Test
-    fun testOnCancelClick() = runTest {
+    fun `onCancelClick should invoke disconnect on ConnectionProxy`() = runTest {
         val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
         every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
         viewModel.onCancelClick()
@@ -280,43 +286,46 @@ class ConnectViewModelTest {
     }
 
     @Test
-    fun testErrorNotificationState() = runTest {
-        // Arrange
-        val mockErrorState: ErrorState = mockk()
-        val expectedConnectNotificationState = InAppNotification.TunnelStateError(mockErrorState)
-        val tunnelUiState = TunnelState.Error(mockErrorState)
-        notifications.value = listOf(expectedConnectNotificationState)
+    fun `given InAppNotificationController returns TunnelStateError notification uiState should emit notification`() =
+        runTest {
+            // Arrange
+            val mockErrorState: ErrorState = mockk()
+            val expectedConnectNotificationState =
+                InAppNotification.TunnelStateError(mockErrorState)
+            val tunnelUiState = TunnelState.Error(mockErrorState)
+            notifications.value = listOf(expectedConnectNotificationState)
 
-        // Act, Assert
-        viewModel.uiState.test {
-            assertEquals(ConnectUiState.INITIAL, awaitItem())
-            serviceConnectionState.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-            eventNotifierTunnelUiState.notify(tunnelUiState)
-            val result = awaitItem()
-            assertEquals(expectedConnectNotificationState, result.inAppNotification)
+            // Act, Assert
+            viewModel.uiState.test {
+                assertEquals(ConnectUiState.INITIAL, awaitItem())
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                eventNotifierTunnelUiState.notify(tunnelUiState)
+                val result = awaitItem()
+                assertEquals(expectedConnectNotificationState, result.inAppNotification)
+            }
         }
-    }
 
     @Test
-    fun testOnShowAccountClick() = runTest {
-        // Arrange
-        val mockToken = "4444 5555 6666 7777"
-        val mockAuthTokenCache: AuthTokenCache = mockk(relaxed = true)
-        every { mockServiceConnectionManager.authTokenCache() } returns mockAuthTokenCache
-        coEvery { mockAuthTokenCache.fetchAuthToken() } returns mockToken
+    fun `onShowAccountClick call should result in uiSideEffect emitting OpenAccountManagementPageInBrowser`() =
+        runTest {
+            // Arrange
+            val mockToken = "4444 5555 6666 7777"
+            val mockAuthTokenCache: AuthTokenCache = mockk(relaxed = true)
+            every { mockServiceConnectionManager.authTokenCache() } returns mockAuthTokenCache
+            coEvery { mockAuthTokenCache.fetchAuthToken() } returns mockToken
 
-        // Act, Assert
-        viewModel.uiSideEffect.test {
-            viewModel.onManageAccountClick()
-            val action = awaitItem()
-            assertIs<ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser>(action)
-            assertEquals(mockToken, action.token)
+            // Act, Assert
+            viewModel.uiSideEffect.test {
+                viewModel.onManageAccountClick()
+                val action = awaitItem()
+                assertIs<ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser>(action)
+                assertEquals(mockToken, action.token)
+            }
         }
-    }
 
     @Test
-    fun testOutOfTimeUiSideEffect() = runTest {
+    fun `given OutOfTimeUseCase returns true uiSideEffect should emit OutOfTime`() = runTest {
         // Arrange
         val deferred = async { viewModel.uiSideEffect.first() }
 

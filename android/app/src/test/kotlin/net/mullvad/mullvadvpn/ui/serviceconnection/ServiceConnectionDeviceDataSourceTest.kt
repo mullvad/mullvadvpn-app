@@ -47,7 +47,7 @@ class ServiceConnectionDeviceDataSourceTest {
     }
 
     @Test
-    fun test_get_devices_list() {
+    fun `get device should work`() {
         // Arrange
         every { connection.send(any()) } just Runs
         every { mockedDispatchingHandler.registerHandler(any<KClass<Event>>(), any()) } just Runs
@@ -58,7 +58,7 @@ class ServiceConnectionDeviceDataSourceTest {
     }
 
     @Test
-    fun test_catch_exception_on_devices_list() {
+    fun `get device should catch DeadObjectException`() {
         // Arrange
         every { connection.send(any()) } throws DeadObjectException()
         every { mockedDispatchingHandler.registerHandler(any<KClass<Event>>(), any()) } just Runs

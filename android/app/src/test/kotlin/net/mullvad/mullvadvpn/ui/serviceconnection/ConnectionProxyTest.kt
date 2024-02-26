@@ -50,7 +50,7 @@ class ConnectionProxyTest {
     }
 
     @Test
-    fun test_initialize_connection_proxy() {
+    fun `initialize connection proxy should work`() {
         // Arrange
         val eventType = slot<KClass<Event.TunnelStateChange>>()
         every { mockedDispatchingHandler.registerHandler(capture(eventType), any()) } just Runs
@@ -60,7 +60,7 @@ class ConnectionProxyTest {
     }
 
     @Test
-    fun test_tunnel_normal_connect_disconnect() {
+    fun `normal connect and disconnect should not crash`() {
         // Arrange
         every { connection.send(any()) } just Runs
         every { mockedDispatchingHandler.registerHandler(any<KClass<Event>>(), any()) } just Runs
@@ -71,7 +71,7 @@ class ConnectionProxyTest {
     }
 
     @Test
-    fun test_tunnel_handle_crash_on_connect() {
+    fun `connect should catch DeadObjectException`() {
         // Arrange
         every { connection.send(any()) } throws DeadObjectException()
         every { mockedDispatchingHandler.registerHandler(any<KClass<Event>>(), any()) } just Runs

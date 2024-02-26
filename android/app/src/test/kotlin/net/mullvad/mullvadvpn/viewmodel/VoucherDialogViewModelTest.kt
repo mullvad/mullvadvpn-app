@@ -42,7 +42,7 @@ class VoucherDialogViewModelTest {
     private lateinit var viewModel: VoucherDialogViewModel
 
     @BeforeEach
-    fun setUp() {
+    fun setup() {
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
 
         viewModel =
@@ -58,7 +58,7 @@ class VoucherDialogViewModelTest {
     }
 
     @Test
-    fun testSubmitVoucher() = runTest {
+    fun `onRedeem should invoke submit on VoucherRedeemer with same voucher`() = runTest {
         val voucher = DUMMY_INVALID_VOUCHER
         val dummyStringResource = DUMMY_STRING_RESOURCE
 
@@ -69,7 +69,7 @@ class VoucherDialogViewModelTest {
             VoucherSubmissionResult.Ok(mockVoucherSubmission)
 
         // Act
-        assertIs<VoucherDialogState.Default>(viewModel.uiState.value.voucherViewModelState)
+        assertIs<VoucherDialogState.Default>(viewModel.uiState.value.voucherState)
         viewModel.onRedeem(voucher)
 
         // Assert
@@ -77,7 +77,7 @@ class VoucherDialogViewModelTest {
     }
 
     @Test
-    fun testInsertInvalidVoucher() = runTest {
+    fun `on onRedeem call with invalid voucher uiState should emit Error`() = runTest {
         val voucher = DUMMY_INVALID_VOUCHER
         val dummyStringResource = DUMMY_STRING_RESOURCE
 
@@ -94,13 +94,13 @@ class VoucherDialogViewModelTest {
             serviceConnectionState.value =
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             viewModel.onRedeem(voucher)
-            assertTrue { awaitItem().voucherViewModelState is VoucherDialogState.Verifying }
-            assertTrue { awaitItem().voucherViewModelState is VoucherDialogState.Error }
+            assertTrue { awaitItem().voucherState is VoucherDialogState.Verifying }
+            assertTrue { awaitItem().voucherState is VoucherDialogState.Error }
         }
     }
 
     @Test
-    fun testInsertValidVoucher() = runTest {
+    fun `on onRedeem with valid voucher uiState should emit Success`() = runTest {
         val voucher = DUMMY_VALID_VOUCHER
         val dummyStringResource = DUMMY_STRING_RESOURCE
 
@@ -117,13 +117,13 @@ class VoucherDialogViewModelTest {
             serviceConnectionState.value =
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             viewModel.onRedeem(voucher)
-            assertTrue { awaitItem().voucherViewModelState is VoucherDialogState.Verifying }
-            assertTrue { awaitItem().voucherViewModelState is VoucherDialogState.Success }
+            assertTrue { awaitItem().voucherState is VoucherDialogState.Verifying }
+            assertTrue { awaitItem().voucherState is VoucherDialogState.Success }
         }
     }
 
     @Test
-    fun testResetStateAfterChangingInput() = runTest {
+    fun `given voucherState is Error onVoucherInputChange should clear Error`() = runTest {
         val voucher = DUMMY_INVALID_VOUCHER
         val dummyStringResource = DUMMY_STRING_RESOURCE
 
@@ -140,10 +140,10 @@ class VoucherDialogViewModelTest {
             serviceConnectionState.value =
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             viewModel.onRedeem(voucher)
-            assertTrue { awaitItem().voucherViewModelState is VoucherDialogState.Verifying }
-            assertTrue { awaitItem().voucherViewModelState is VoucherDialogState.Error }
+            assertTrue { awaitItem().voucherState is VoucherDialogState.Verifying }
+            assertTrue { awaitItem().voucherState is VoucherDialogState.Error }
             viewModel.onVoucherInputChange(DUMMY_VALID_VOUCHER)
-            assertTrue { awaitItem().voucherViewModelState is VoucherDialogState.Default }
+            assertTrue { awaitItem().voucherState is VoucherDialogState.Default }
         }
     }
 

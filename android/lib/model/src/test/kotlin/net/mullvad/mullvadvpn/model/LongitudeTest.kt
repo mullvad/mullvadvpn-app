@@ -119,7 +119,7 @@ class LongitudeTest {
     }
 
     @Test
-    fun `distanceTo with two positive longitudes`() {
+    fun `distanceTo with two positive longitudes should return distance`() {
         val longFloat1 = 80f
         val longitude1 = Longitude(longFloat1)
         val longFloat2 = 30f
@@ -129,7 +129,7 @@ class LongitudeTest {
     }
 
     @Test
-    fun `distanceTo with two negative longitudes`() {
+    fun `distanceTo with two negative longitudes should return distance`() {
         val longFloat1 = -80f
         val longitude1 = Longitude(longFloat1)
         val longFloat2 = -30f
@@ -141,7 +141,7 @@ class LongitudeTest {
     }
 
     @Test
-    fun `distanceTo with wrapping value as shortest path`() {
+    fun `distanceTo with wrapping value should return shortest path as distance`() {
         val longFloat1 = -170f
         val longitude1 = Longitude(longFloat1)
         val longFloat2 = 170f

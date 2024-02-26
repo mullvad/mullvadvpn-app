@@ -69,7 +69,7 @@ class WelcomeViewModelTest {
     private lateinit var viewModel: WelcomeViewModel
 
     @BeforeEach
-    fun setUp() {
+    fun setup() {
         mockkStatic(SERVICE_CONNECTION_MANAGER_EXTENSIONS)
         mockkStatic(PURCHASE_RESULT_EXTENSIONS_CLASS)
 
@@ -108,7 +108,7 @@ class WelcomeViewModelTest {
     }
 
     @Test
-    fun testSitePaymentClick() = runTest {
+    fun `on onSitePaymentClick call uiSideEffect should emit OpenAccountView`() = runTest {
         // Arrange
         val mockToken = "4444 5555 6666 7777"
         val mockAuthTokenCache: AuthTokenCache = mockk(relaxed = true)
@@ -125,9 +125,9 @@ class WelcomeViewModelTest {
     }
 
     @Test
-    fun testUpdateTunnelState() = runTest {
+    fun `on new TunnelState uiState should include new TunnelState`() = runTest {
         // Arrange
-        val tunnelUiStateTestItem = TunnelState.Connected(mockk(), mockk())
+        val tunnelUiStateTestItem: TunnelState = mockk()
 
         // Act, Assert
         viewModel.uiState.test {
@@ -141,105 +141,110 @@ class WelcomeViewModelTest {
     }
 
     @Test
-    fun testUpdateAccountNumber() = runTest {
-        // Arrange
-        val expectedAccountNumber = "4444555566667777"
-        val device: Device = mockk()
-        every { device.displayName() } returns ""
+    fun `when DeviceRepository returns LoggedIn uiState should include new accountNumber`() =
+        runTest {
+            // Arrange
+            val expectedAccountNumber = "4444555566667777"
+            val device: Device = mockk()
+            every { device.displayName() } returns ""
 
-        // Act, Assert
-        viewModel.uiState.test {
-            assertEquals(WelcomeUiState(), awaitItem())
-            paymentAvailabilityFlow.value = null
-            deviceStateFlow.value =
-                DeviceState.LoggedIn(
-                    accountAndDevice =
-                        AccountAndDevice(account_token = expectedAccountNumber, device = device)
-                )
+            // Act, Assert
+            viewModel.uiState.test {
+                assertEquals(WelcomeUiState(), awaitItem())
+                paymentAvailabilityFlow.value = null
+                deviceStateFlow.value =
+                    DeviceState.LoggedIn(
+                        accountAndDevice =
+                            AccountAndDevice(account_token = expectedAccountNumber, device = device)
+                    )
+                serviceConnectionStateFlow.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                assertEquals(expectedAccountNumber, awaitItem().accountNumber)
+            }
+        }
+
+    @Test
+    fun `when OutOfTimeUseCase return false uiSideEffect should emit OpenConnectScreen`() =
+        runTest {
+            // Arrange
+            val mockExpiryDate: DateTime = mockk()
+            every { mockExpiryDate.isAfter(any<ReadableInstant>()) } returns true
+
+            // Act, Assert
+            viewModel.uiSideEffect.test {
+                outOfTimeFlow.value = false
+                val action = awaitItem()
+                assertIs<WelcomeViewModel.UiSideEffect.OpenConnectScreen>(action)
+            }
+        }
+
+    @Test
+    fun `when paymentAvailability emits ProductsUnavailable uiState should include state NoPayment`() =
+        runTest {
+            // Arrange
+            val productsUnavailable = PaymentAvailability.ProductsUnavailable
+
+            // Act, Assert
+            viewModel.uiState.test {
+                // Default item
+                awaitItem()
+                paymentAvailabilityFlow.tryEmit(productsUnavailable)
+                serviceConnectionStateFlow.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                val result = awaitItem().billingPaymentState
+                assertIs<PaymentState.NoPayment>(result)
+            }
+        }
+
+    @Test
+    fun `when paymentAvailability emits ErrorOther uiState should include state ErrorGeneric`() =
+        runTest {
+            // Arrange
+            val paymentOtherError = PaymentAvailability.Error.Other(mockk())
+            paymentAvailabilityFlow.tryEmit(paymentOtherError)
             serviceConnectionStateFlow.value =
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-            assertEquals(expectedAccountNumber, awaitItem().accountNumber)
+
+            // Act, Assert
+            viewModel.uiState.test {
+                val result = awaitItem().billingPaymentState
+                assertIs<PaymentState.Error.Generic>(result)
+            }
         }
-    }
 
     @Test
-    fun testOpenConnectScreen() = runTest {
-        // Arrange
-        val mockExpiryDate: DateTime = mockk()
-        every { mockExpiryDate.isAfter(any<ReadableInstant>()) } returns true
-
-        // Act, Assert
-        viewModel.uiSideEffect.test {
-            outOfTimeFlow.value = false
-            val action = awaitItem()
-            assertIs<WelcomeViewModel.UiSideEffect.OpenConnectScreen>(action)
-        }
-    }
-
-    @Test
-    fun testBillingProductsUnavailableState() = runTest {
-        // Arrange
-        val productsUnavailable = PaymentAvailability.ProductsUnavailable
-
-        // Act, Assert
-        viewModel.uiState.test {
-            // Default item
-            awaitItem()
-            paymentAvailabilityFlow.tryEmit(productsUnavailable)
+    fun `when paymentAvailability emits ErrorBillingUnavailable uiState should include state ErrorBilling`() =
+        runTest { // Arrange
+            val paymentBillingError = PaymentAvailability.Error.BillingUnavailable
+            paymentAvailabilityFlow.value = paymentBillingError
             serviceConnectionStateFlow.value =
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-            val result = awaitItem().billingPaymentState
-            assertIs<PaymentState.NoPayment>(result)
+
+            // Act, Assert
+            viewModel.uiState.test {
+                val result = awaitItem().billingPaymentState
+                assertIs<PaymentState.Error.Billing>(result)
+            }
         }
-    }
 
     @Test
-    fun testBillingProductsGenericErrorState() = runTest {
-        // Arrange
-        val paymentOtherError = PaymentAvailability.Error.Other(mockk())
-        paymentAvailabilityFlow.tryEmit(paymentOtherError)
-        serviceConnectionStateFlow.value =
-            ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+    fun `when paymentAvailability emits ProductsAvailable uiState should include state Available with products`() =
+        runTest {
+            // Arrange
+            val mockProduct: PaymentProduct = mockk()
+            val expectedProductList = listOf(mockProduct)
+            val productsAvailable = PaymentAvailability.ProductsAvailable(listOf(mockProduct))
+            paymentAvailabilityFlow.value = productsAvailable
+            serviceConnectionStateFlow.value =
+                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
 
-        // Act, Assert
-        viewModel.uiState.test {
-            val result = awaitItem().billingPaymentState
-            assertIs<PaymentState.Error.Generic>(result)
+            // Act, Assert
+            viewModel.uiState.test {
+                val result = awaitItem().billingPaymentState
+                assertIs<PaymentState.PaymentAvailable>(result)
+                assertLists(expectedProductList, result.products)
+            }
         }
-    }
-
-    @Test
-    fun testBillingProductsBillingErrorState() = runTest {
-        // Arrange
-        val paymentBillingError = PaymentAvailability.Error.BillingUnavailable
-        paymentAvailabilityFlow.value = paymentBillingError
-        serviceConnectionStateFlow.value =
-            ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-
-        // Act, Assert
-        viewModel.uiState.test {
-            val result = awaitItem().billingPaymentState
-            assertIs<PaymentState.Error.Billing>(result)
-        }
-    }
-
-    @Test
-    fun testBillingProductsPaymentAvailableState() = runTest {
-        // Arrange
-        val mockProduct: PaymentProduct = mockk()
-        val expectedProductList = listOf(mockProduct)
-        val productsAvailable = PaymentAvailability.ProductsAvailable(listOf(mockProduct))
-        paymentAvailabilityFlow.value = productsAvailable
-        serviceConnectionStateFlow.value =
-            ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-
-        // Act, Assert
-        viewModel.uiState.test {
-            val result = awaitItem().billingPaymentState
-            assertIs<PaymentState.PaymentAvailable>(result)
-            assertLists(expectedProductList, result.products)
-        }
-    }
 
     companion object {
         private const val SERVICE_CONNECTION_MANAGER_EXTENSIONS =

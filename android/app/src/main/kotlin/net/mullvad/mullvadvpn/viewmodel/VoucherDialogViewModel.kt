@@ -49,7 +49,7 @@ class VoucherDialogViewModel(
         _shared
             .flatMapLatest {
                 combine(vmState, voucherInput) { state, input ->
-                    VoucherDialogUiState(voucherInput = input, voucherViewModelState = state)
+                    VoucherDialogUiState(voucherInput = input, voucherState = state)
                 }
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), VoucherDialogUiState.INITIAL)

@@ -48,25 +48,26 @@ class NewDeviceUseNotificationCaseTest {
     }
 
     @Test
-    fun `ensure empty by default`() = runTest {
+    fun `notifications should be empty by default`() = runTest {
         // Arrange, Act, Assert
         newDeviceNotificationUseCase.notifications().test { assertTrue { awaitItem().isEmpty() } }
     }
 
     @Test
-    fun `ensure NewDevice notification is created and contains device name`() = runTest {
-        newDeviceNotificationUseCase.notifications().test {
-            // Arrange, Act
-            awaitItem()
-            newDeviceNotificationUseCase.newDeviceCreated()
+    fun `when newDeviceCreated is called notifications should emit NewDevice notification containing device name`() =
+        runTest {
+            newDeviceNotificationUseCase.notifications().test {
+                // Arrange, Act
+                awaitItem()
+                newDeviceNotificationUseCase.newDeviceCreated()
 
-            // Assert
-            assertEquals(awaitItem(), listOf(InAppNotification.NewDevice(deviceName)))
+                // Assert
+                assertEquals(awaitItem(), listOf(InAppNotification.NewDevice(deviceName)))
+            }
         }
-    }
 
     @Test
-    fun `ensure NewDevice notification is cleared`() = runTest {
+    fun `clearNewDeviceCreatedNotification should clear notifications`() = runTest {
         newDeviceNotificationUseCase.notifications().test {
             // Arrange, Act
             awaitItem()
