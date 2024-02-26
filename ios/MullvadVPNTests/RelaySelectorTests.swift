@@ -18,7 +18,9 @@ class RelaySelectorTests: XCTestCase {
     let sampleRelays = ServerRelaysResponseStubs.sampleRelays
 
     func testCountryConstraint() throws {
-        let constraints = RelayConstraints(location: .only(.country("es")))
+        let constraints = RelayConstraints(
+            locations: .only(RelayLocations(locations: [.country("es")]))
+        )
 
         let result = try RelaySelector.evaluate(
             relays: sampleRelays,
@@ -30,7 +32,10 @@ class RelaySelectorTests: XCTestCase {
     }
 
     func testCityConstraint() throws {
-        let constraints = RelayConstraints(location: .only(.city("se", "got")))
+        let constraints = RelayConstraints(
+            locations: .only(RelayLocations(locations: [.city("se", "got")]))
+        )
+
         let result = try RelaySelector.evaluate(
             relays: sampleRelays,
             constraints: constraints,
@@ -41,7 +46,9 @@ class RelaySelectorTests: XCTestCase {
     }
 
     func testHostnameConstraint() throws {
-        let constraints = RelayConstraints(location: .only(.hostname("se", "sto", "se6-wireguard")))
+        let constraints = RelayConstraints(
+            locations: .only(RelayLocations(locations: [.hostname("se", "sto", "se6-wireguard")]))
+        )
 
         let result = try RelaySelector.evaluate(
             relays: sampleRelays,
@@ -53,7 +60,10 @@ class RelaySelectorTests: XCTestCase {
     }
 
     func testSpecificPortConstraint() throws {
-        let constraints = RelayConstraints(location: .only(.hostname("se", "sto", "se6-wireguard")), port: .only(1))
+        let constraints = RelayConstraints(
+            locations: .only(RelayLocations(locations: [.hostname("se", "sto", "se6-wireguard")])),
+            port: .only(1)
+        )
 
         let result = try RelaySelector.evaluate(
             relays: sampleRelays,
@@ -65,7 +75,9 @@ class RelaySelectorTests: XCTestCase {
     }
 
     func testRandomPortSelectionWithFailedAttempts() throws {
-        let constraints = RelayConstraints(location: .only(.hostname("se", "sto", "se6-wireguard")))
+        let constraints = RelayConstraints(
+            locations: .only(RelayLocations(locations: [.hostname("se", "sto", "se6-wireguard")]))
+        )
         let allPorts = portRanges.flatMap { $0 }
 
         var result = try RelaySelector.evaluate(
@@ -89,7 +101,9 @@ class RelaySelectorTests: XCTestCase {
     }
 
     func testClosestShadowsocksRelay() throws {
-        let constraints = RelayConstraints(location: .only(.city("se", "sto")))
+        let constraints = RelayConstraints(
+            locations: .only(RelayLocations(locations: [.city("se", "sto")]))
+        )
 
         let selectedRelay = RelaySelector.closestShadowsocksRelayConstrained(by: constraints, in: sampleRelays)
 
@@ -97,7 +111,9 @@ class RelaySelectorTests: XCTestCase {
     }
 
     func testClosestShadowsocksRelayIsRandomWhenNoContraintsAreSatisfied() throws {
-        let constraints = RelayConstraints(location: .only(.country("INVALID COUNTRY")))
+        let constraints = RelayConstraints(
+            locations: .only(RelayLocations(locations: [.country("INVALID COUNTRY")]))
+        )
 
         let selectedRelay = try XCTUnwrap(RelaySelector.closestShadowsocksRelayConstrained(
             by: constraints,
@@ -109,8 +125,9 @@ class RelaySelectorTests: XCTestCase {
 
     func testRelayFilterConstraintWithOwnedOwnership() throws {
         let filter = RelayFilter(ownership: .owned, providers: .any)
+
         let constraints = RelayConstraints(
-            location: .only(.hostname("se", "sto", "se6-wireguard")),
+            locations: .only(RelayLocations(locations: [.hostname("se", "sto", "se6-wireguard")])),
             filter: .only(filter)
         )
 
@@ -125,8 +142,9 @@ class RelaySelectorTests: XCTestCase {
 
     func testRelayFilterConstraintWithRentedOwnership() throws {
         let filter = RelayFilter(ownership: .rented, providers: .any)
+
         let constraints = RelayConstraints(
-            location: .only(.hostname("se", "sto", "se6-wireguard")),
+            locations: .only(RelayLocations(locations: [.hostname("se", "sto", "se6-wireguard")])),
             filter: .only(filter)
         )
 
@@ -141,10 +159,10 @@ class RelaySelectorTests: XCTestCase {
 
     func testRelayFilterConstraintWithCorrectProvider() throws {
         let provider = "31173"
-
         let filter = RelayFilter(ownership: .any, providers: .only([provider]))
+
         let constraints = RelayConstraints(
-            location: .only(.hostname("se", "sto", "se6-wireguard")),
+            locations: .only(RelayLocations(locations: [.hostname("se", "sto", "se6-wireguard")])),
             filter: .only(filter)
         )
 
@@ -159,10 +177,10 @@ class RelaySelectorTests: XCTestCase {
 
     func testRelayFilterConstraintWithIncorrectProvider() throws {
         let provider = "DataPacket"
-
         let filter = RelayFilter(ownership: .any, providers: .only([provider]))
+
         let constraints = RelayConstraints(
-            location: .only(.hostname("se", "sto", "se6-wireguard")),
+            locations: .only(RelayLocations(locations: [.hostname("se", "sto", "se6-wireguard")])),
             filter: .only(filter)
         )
 
