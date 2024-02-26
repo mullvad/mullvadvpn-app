@@ -119,14 +119,14 @@ fun RedeemVoucherDialog(
 ) {
     AlertDialog(
         title = {
-            if (uiState.voucherViewModelState !is VoucherDialogState.Success)
+            if (uiState.voucherState !is VoucherDialogState.Success)
                 Text(
                     text = stringResource(id = R.string.enter_voucher_code),
                 )
         },
         confirmButton = {
             Column {
-                if (uiState.voucherViewModelState !is VoucherDialogState.Success) {
+                if (uiState.voucherState !is VoucherDialogState.Success) {
                     VariantButton(
                         text = stringResource(id = R.string.redeem),
                         onClick = { onRedeem(uiState.voucherInput) },
@@ -138,13 +138,11 @@ fun RedeemVoucherDialog(
                     text =
                         stringResource(
                             id =
-                                if (uiState.voucherViewModelState is VoucherDialogState.Success)
+                                if (uiState.voucherState is VoucherDialogState.Success)
                                     R.string.got_it
                                 else R.string.cancel
                         ),
-                    onClick = {
-                        onDismiss(uiState.voucherViewModelState is VoucherDialogState.Success)
-                    }
+                    onClick = { onDismiss(uiState.voucherState is VoucherDialogState.Success) }
                 )
             }
         },
@@ -153,11 +151,9 @@ fun RedeemVoucherDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (uiState.voucherViewModelState is VoucherDialogState.Success) {
+                if (uiState.voucherState is VoucherDialogState.Success) {
                     val days: Int =
-                        (uiState.voucherViewModelState.addedTime /
-                                DateTimeConstants.SECONDS_PER_DAY)
-                            .toInt()
+                        (uiState.voucherState.addedTime / DateTimeConstants.SECONDS_PER_DAY).toInt()
                     val message =
                         stringResource(
                             R.string.added_to_your_account,
@@ -190,9 +186,7 @@ fun RedeemVoucherDialog(
         },
         containerColor = MaterialTheme.colorScheme.background,
         titleContentColor = MaterialTheme.colorScheme.onBackground,
-        onDismissRequest = {
-            onDismiss(uiState.voucherViewModelState is VoucherDialogState.Success)
-        },
+        onDismissRequest = { onDismiss(uiState.voucherState is VoucherDialogState.Success) },
         properties =
             DialogProperties(
                 securePolicy =
@@ -257,7 +251,7 @@ private fun EnterVoucherBody(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.height(Dimens.listIconSize).fillMaxWidth()
     ) {
-        if (uiState.voucherViewModelState is VoucherDialogState.Verifying) {
+        if (uiState.voucherState is VoucherDialogState.Verifying) {
             MullvadCircularProgressIndicatorSmall()
             Text(
                 text = stringResource(id = R.string.verifying_voucher),
@@ -265,9 +259,9 @@ private fun EnterVoucherBody(
                 color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.bodySmall
             )
-        } else if (uiState.voucherViewModelState is VoucherDialogState.Error) {
+        } else if (uiState.voucherState is VoucherDialogState.Error) {
             Text(
-                text = uiState.voucherViewModelState.errorMessage,
+                text = uiState.voucherState.errorMessage,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall
             )

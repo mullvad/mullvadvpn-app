@@ -48,7 +48,7 @@ class VpnSettingsViewModelTest {
     private lateinit var viewModel: VpnSettingsViewModel
 
     @BeforeEach
-    fun setUp() {
+    fun setup() {
         every { mockSettingsRepository.settingsUpdates } returns mockSettingsUpdate
         every { mockPortRangeUseCase.portRanges() } returns portRangeFlow
 
@@ -70,18 +70,20 @@ class VpnSettingsViewModelTest {
     }
 
     @Test
-    fun test_select_quantum_resistant_state_select() = runTest {
-        val quantumResistantState = QuantumResistantState.On
-        every { mockSettingsRepository.setWireguardQuantumResistant(quantumResistantState) } returns
-            Unit
-        viewModel.onSelectQuantumResistanceSetting(quantumResistantState)
-        verify(exactly = 1) {
-            mockSettingsRepository.setWireguardQuantumResistant(quantumResistantState)
+    fun `onSelectQuantumResistanceSetting should invoke setWireguardQuantumResistant on SettingsRepository`() =
+        runTest {
+            val quantumResistantState = QuantumResistantState.On
+            every {
+                mockSettingsRepository.setWireguardQuantumResistant(quantumResistantState)
+            } returns Unit
+            viewModel.onSelectQuantumResistanceSetting(quantumResistantState)
+            verify(exactly = 1) {
+                mockSettingsRepository.setWireguardQuantumResistant(quantumResistantState)
+            }
         }
-    }
 
     @Test
-    fun test_update_quantum_resistant_default_state() = runTest {
+    fun `quantumResistant should be Off in uiState in initial state`() = runTest {
         // Arrange
         val expectedResistantState = QuantumResistantState.Off
 
@@ -92,66 +94,69 @@ class VpnSettingsViewModelTest {
     }
 
     @Test
-    fun test_update_quantum_resistant_update_state() = runTest {
-        val defaultResistantState = QuantumResistantState.Off
-        val expectedResistantState = QuantumResistantState.On
-        val mockSettings: Settings = mockk(relaxed = true)
-        val mockTunnelOptions: TunnelOptions = mockk(relaxed = true)
-        val mockWireguardTunnelOptions: WireguardTunnelOptions = mockk(relaxed = true)
+    fun `when SettingsRepository emits quantumResistant On uiState should emit quantumResistant On`() =
+        runTest {
+            val defaultResistantState = QuantumResistantState.Off
+            val expectedResistantState = QuantumResistantState.On
+            val mockSettings: Settings = mockk(relaxed = true)
+            val mockTunnelOptions: TunnelOptions = mockk(relaxed = true)
+            val mockWireguardTunnelOptions: WireguardTunnelOptions = mockk(relaxed = true)
 
-        every { mockSettings.tunnelOptions } returns mockTunnelOptions
-        every { mockTunnelOptions.wireguard } returns mockWireguardTunnelOptions
-        every { mockWireguardTunnelOptions.quantumResistant } returns expectedResistantState
-        every { mockSettings.relaySettings } returns mockk<RelaySettings.Normal>(relaxed = true)
+            every { mockSettings.tunnelOptions } returns mockTunnelOptions
+            every { mockTunnelOptions.wireguard } returns mockWireguardTunnelOptions
+            every { mockWireguardTunnelOptions.quantumResistant } returns expectedResistantState
+            every { mockSettings.relaySettings } returns mockk<RelaySettings.Normal>(relaxed = true)
 
-        viewModel.uiState.test {
-            assertEquals(defaultResistantState, awaitItem().quantumResistant)
-            mockSettingsUpdate.value = mockSettings
-            assertEquals(expectedResistantState, awaitItem().quantumResistant)
+            viewModel.uiState.test {
+                assertEquals(defaultResistantState, awaitItem().quantumResistant)
+                mockSettingsUpdate.value = mockSettings
+                assertEquals(expectedResistantState, awaitItem().quantumResistant)
+            }
         }
-    }
 
     @Test
-    fun test_update_wireguard_port_state() = runTest {
-        // Arrange
-        val expectedPort: Constraint<Port> = Constraint.Only(Port(99))
-        val mockSettings: Settings = mockk(relaxed = true)
-        val mockRelaySettings: RelaySettings.Normal = mockk()
-        val mockRelayConstraints: RelayConstraints = mockk()
-        val mockWireguardConstraints: WireguardConstraints = mockk()
+    fun `when SettingsRepository emits Constraint Only then uiState should emit custom and selectedWireguardPort with port of Constraint`() =
+        runTest {
+            // Arrange
+            val expectedPort: Constraint<Port> = Constraint.Only(Port(99))
+            val mockSettings: Settings = mockk(relaxed = true)
+            val mockRelaySettings: RelaySettings.Normal = mockk()
+            val mockRelayConstraints: RelayConstraints = mockk()
+            val mockWireguardConstraints: WireguardConstraints = mockk()
 
-        every { mockSettings.relaySettings } returns mockRelaySettings
-        every { mockRelaySettings.relayConstraints } returns mockRelayConstraints
-        every { mockRelayConstraints.wireguardConstraints } returns mockWireguardConstraints
-        every { mockWireguardConstraints.port } returns expectedPort
+            every { mockSettings.relaySettings } returns mockRelaySettings
+            every { mockRelaySettings.relayConstraints } returns mockRelayConstraints
+            every { mockRelayConstraints.wireguardConstraints } returns mockWireguardConstraints
+            every { mockWireguardConstraints.port } returns expectedPort
 
-        // Act, Assert
-        viewModel.uiState.test {
-            assertIs<Constraint.Any<Port>>(awaitItem().selectedWireguardPort)
-            mockSettingsUpdate.value = mockSettings
-            assertEquals(expectedPort, awaitItem().customWireguardPort)
-            assertEquals(expectedPort, awaitItem().selectedWireguardPort)
+            // Act, Assert
+            viewModel.uiState.test {
+                assertIs<Constraint.Any<Port>>(awaitItem().selectedWireguardPort)
+                mockSettingsUpdate.value = mockSettings
+                assertEquals(expectedPort, awaitItem().customWireguardPort)
+                assertEquals(expectedPort, awaitItem().selectedWireguardPort)
+            }
         }
-    }
 
     @Test
-    fun test_select_wireguard_port() = runTest {
-        // Arrange
-        val wireguardPort: Constraint<Port> = Constraint.Only(Port(99))
-        val wireguardConstraints = WireguardConstraints(port = wireguardPort)
-        every { mockRelayListUseCase.updateSelectedWireguardConstraints(any()) } returns Unit
+    fun `onWireguardPortSelected should invoke updateSelectedWireguardConstraint with Constraint Only with same port`() =
+        runTest {
+            // Arrange
+            val wireguardPort: Constraint<Port> = Constraint.Only(Port(99))
+            val wireguardConstraints = WireguardConstraints(port = wireguardPort)
+            every { mockRelayListUseCase.updateSelectedWireguardConstraints(any()) } returns Unit
 
-        // Act
-        viewModel.onWireguardPortSelected(wireguardPort)
+            // Act
+            viewModel.onWireguardPortSelected(wireguardPort)
 
-        // Assert
-        verify(exactly = 1) {
-            mockRelayListUseCase.updateSelectedWireguardConstraints(wireguardConstraints)
+            // Assert
+            verify(exactly = 1) {
+                mockRelayListUseCase.updateSelectedWireguardConstraints(wireguardConstraints)
+            }
         }
-    }
 
     @Test
-    fun `given useCase systemVpnSettingsAvailable is true then uiState should be systemVpnSettingsAvailable=true`() =
+    fun `when useCase systemVpnSettingsAvailable is true then uiState should be systemVpnSettingsAvailable=true`() =
         runTest {
             val systemVpnSettingsAvailable = true
 

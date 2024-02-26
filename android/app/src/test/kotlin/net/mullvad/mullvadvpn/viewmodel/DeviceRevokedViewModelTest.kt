@@ -61,7 +61,7 @@ class DeviceRevokedViewModelTest {
     }
 
     @Test
-    fun testUiStateWhenServiceNotConnected() = runTest {
+    fun `when service connection is Disconnected then uiState should be UNKNOWN`() = runTest {
         // Arrange, Act, Assert
         viewModel.uiState.test {
             serviceConnectionState.value = ServiceConnectionState.Disconnected
@@ -70,7 +70,7 @@ class DeviceRevokedViewModelTest {
     }
 
     @Test
-    fun testUiStateWhenServiceConnectedButNotReady() = runTest {
+    fun `when service connection is ConnectedNotReady then uiState should be UNKNOWN`() = runTest {
         // Arrange, Act, Assert
         viewModel.uiState.test {
             serviceConnectionState.value = ServiceConnectionState.ConnectedNotReady(mockk())
@@ -79,7 +79,7 @@ class DeviceRevokedViewModelTest {
     }
 
     @Test
-    fun testUiStateWhenServiceConnectedAndReady() = runTest {
+    fun `when service connection is ConnectedReady uiState should be SECURED`() = runTest {
         // Arrange
         val mockedContainer =
             mockk<ServiceConnectionContainer>().apply {
@@ -104,7 +104,7 @@ class DeviceRevokedViewModelTest {
     }
 
     @Test
-    fun testGoToLoginWhenDisconnected() {
+    fun `onGoToLoginClicked should invoke logout on AccountRepository`() {
         // Arrange
         val mockedContainer =
             mockk<ServiceConnectionContainer>().also {
@@ -122,7 +122,7 @@ class DeviceRevokedViewModelTest {
     }
 
     @Test
-    fun testGoToLoginWhenConnected() {
+    fun `onGoToLoginClicked should invoke disconnect before logout when connected`() {
         // Arrange
         val mockedContainer =
             mockk<ServiceConnectionContainer>().also {

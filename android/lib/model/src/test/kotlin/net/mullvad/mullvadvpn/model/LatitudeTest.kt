@@ -140,7 +140,7 @@ class LatitudeTest {
     }
 
     @Test
-    fun `distanceTo with two positive latitudes`() {
+    fun `distanceTo with two positive latitudes should return distance`() {
         val latFloat1 = 80f
         val latitude1 = Latitude(latFloat1)
         val latFloat2 = 30f
@@ -150,7 +150,7 @@ class LatitudeTest {
     }
 
     @Test
-    fun `distanceTo with two negative latitudes`() {
+    fun `distanceTo with two negative latitudes should return distance`() {
         val latFloat1 = -80f
         val latitude1 = Latitude(latFloat1)
         val latFloat2 = -30f
