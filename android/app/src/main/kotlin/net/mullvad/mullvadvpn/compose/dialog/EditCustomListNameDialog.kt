@@ -88,13 +88,13 @@ fun EditCustomListNameDialog(
                         onInputChanged()
                     },
                     onSubmit = {
-                        if (it.isNotEmpty()) {
+                        if (it.isNotBlank()) {
                             updateName(it)
                         }
                     },
                     keyboardType = KeyboardType.Text,
                     placeholderText = "",
-                    isValidValue = input.value.isNotBlank(),
+                    isValidValue = uiState.error == null,
                     isDigitsOnlyAllowed = false,
                     supportingText = {
                         if (uiState.error != null) {
