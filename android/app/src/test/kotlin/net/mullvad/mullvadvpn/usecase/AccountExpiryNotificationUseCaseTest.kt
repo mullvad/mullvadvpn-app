@@ -41,7 +41,7 @@ class AccountExpiryNotificationUseCaseTest {
     }
 
     @Test
-    fun `ensure notifications are empty by default`() = runTest {
+    fun `notifications should be empty by default`() = runTest {
         // Arrange, Act, Assert
         accountExpiryNotificationUseCase.notifications().test {
             assertTrue { awaitItem().isEmpty() }
@@ -49,7 +49,7 @@ class AccountExpiryNotificationUseCaseTest {
     }
 
     @Test
-    fun `ensure account expiry within 3 days generates notification`() = runTest {
+    fun `account that expires within 3 days should emit a notification`() = runTest {
         // Arrange, Act, Assert
         accountExpiryNotificationUseCase.notifications().test {
             assertTrue { awaitItem().isEmpty() }
@@ -64,7 +64,7 @@ class AccountExpiryNotificationUseCaseTest {
     }
 
     @Test
-    fun `ensure an expire of 4 days in the future does not produce a notification`() = runTest {
+    fun `account that expires in 4 days should not emit a notification`() = runTest {
         // Arrange, Act, Assert
         accountExpiryNotificationUseCase.notifications().test {
             assertTrue { awaitItem().isEmpty() }

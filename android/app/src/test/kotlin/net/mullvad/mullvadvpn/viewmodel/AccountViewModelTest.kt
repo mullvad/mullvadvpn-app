@@ -63,7 +63,7 @@ class AccountViewModelTest {
     private lateinit var viewModel: AccountViewModel
 
     @BeforeEach
-    fun setUp() {
+    fun setup() {
         mockkStatic(CACHE_EXTENSION_CLASS)
         mockkStatic(PURCHASE_RESULT_EXTENSIONS_CLASS)
         every { mockServiceConnectionManager.authTokenCache() } returns mockAuthTokenCache
@@ -88,7 +88,7 @@ class AccountViewModelTest {
     }
 
     @Test
-    fun testAccountLoggedInState() = runTest {
+    fun `given device state LoggedIn uiState should contain accountNumber`() = runTest {
         // Act, Assert
         viewModel.uiState.test {
             awaitItem() // Default state
@@ -99,7 +99,7 @@ class AccountViewModelTest {
     }
 
     @Test
-    fun testOnLogoutClick() {
+    fun `onLogoutClick should invoke logout on AccountRepository`() {
         // Act
         viewModel.onLogoutClick()
 
@@ -108,20 +108,21 @@ class AccountViewModelTest {
     }
 
     @Test
-    fun testBillingProductsUnavailableState() = runTest {
-        // Arrange in setup
+    fun `when paymentAvailability emits ProductsUnavailable uiState should be NoPayment`() =
+        runTest {
+            // Arrange in setup
 
-        // Act, Assert
-        viewModel.uiState.test {
-            awaitItem() // Default state
-            paymentAvailability.tryEmit(PaymentAvailability.ProductsUnavailable)
-            val result = awaitItem().billingPaymentState
-            assertIs<PaymentState.NoPayment>(result)
+            // Act, Assert
+            viewModel.uiState.test {
+                awaitItem() // Default state
+                paymentAvailability.tryEmit(PaymentAvailability.ProductsUnavailable)
+                val result = awaitItem().billingPaymentState
+                assertIs<PaymentState.NoPayment>(result)
+            }
         }
-    }
 
     @Test
-    fun testBillingProductsGenericErrorState() = runTest {
+    fun `when paymentAvailability emits ErrorOther uiState should be ErrorGeneric`() = runTest {
         // Act, Assert
         viewModel.uiState.test {
             awaitItem() // Default state
@@ -132,34 +133,38 @@ class AccountViewModelTest {
     }
 
     @Test
-    fun testBillingProductsBillingErrorState() = runTest {
-        // Act, Assert
-        viewModel.uiState.test {
-            awaitItem() // Default state
-            paymentAvailability.tryEmit(PaymentAvailability.Error.BillingUnavailable)
-            val result = awaitItem().billingPaymentState
-            assertIs<PaymentState.Error.Billing>(result)
+    fun `when paymentAvailability emits ErrorBillingUnavailable uiState should be ErrorBilling`() =
+        runTest {
+            // Act, Assert
+            viewModel.uiState.test {
+                awaitItem() // Default state
+                paymentAvailability.tryEmit(PaymentAvailability.Error.BillingUnavailable)
+                val result = awaitItem().billingPaymentState
+                assertIs<PaymentState.Error.Billing>(result)
+            }
         }
-    }
 
     @Test
-    fun testBillingProductsPaymentAvailableState() = runTest {
-        // Arrange
-        val mockProduct: PaymentProduct = mockk()
-        val expectedProductList = listOf(mockProduct)
+    fun `when paymentAvailability emits ProductsAvailable uiState should be Available with products`() =
+        runTest {
+            // Arrange
+            val mockProduct: PaymentProduct = mockk()
+            val expectedProductList = listOf(mockProduct)
 
-        // Act, Assert
-        viewModel.uiState.test {
-            awaitItem() // Default state
-            paymentAvailability.tryEmit(PaymentAvailability.ProductsAvailable(listOf(mockProduct)))
-            val result = awaitItem().billingPaymentState
-            assertIs<PaymentState.PaymentAvailable>(result)
-            assertLists(expectedProductList, result.products)
+            // Act, Assert
+            viewModel.uiState.test {
+                awaitItem() // Default state
+                paymentAvailability.tryEmit(
+                    PaymentAvailability.ProductsAvailable(listOf(mockProduct))
+                )
+                val result = awaitItem().billingPaymentState
+                assertIs<PaymentState.PaymentAvailable>(result)
+                assertLists(expectedProductList, result.products)
+            }
         }
-    }
 
     @Test
-    fun testStartBillingPayment() {
+    fun `startBillingPayment should invoke purchaseProduct on PaymentUseCase`() {
         // Arrange
         val mockProductId = ProductId("MOCK")
         val mockActivityProvider = mockk<() -> Activity>()
@@ -172,7 +177,7 @@ class AccountViewModelTest {
     }
 
     @Test
-    fun testOnClosePurchaseResultDialogSuccessful() {
+    fun `onClosePurchaseResultDialog with success should invoke fetchAccountExpiry on AccountRepository`() {
         // Arrange
 
         // Act
@@ -180,11 +185,21 @@ class AccountViewModelTest {
 
         // Assert
         verify { mockAccountRepository.fetchAccountExpiry() }
+    }
+
+    @Test
+    fun `onClosePurchaseResultDialog with success should invoke resetPurchaseResult on PaymentUseCase`() {
+        // Arrange
+
+        // Act
+        viewModel.onClosePurchaseResultDialog(success = true)
+
+        // Assert
         coVerify { mockPaymentUseCase.resetPurchaseResult() }
     }
 
     @Test
-    fun testOnClosePurchaseResultDialogNotSuccessful() {
+    fun `onClosePurchaseResultDialog with success false should invoke queryPaymentAvailability on PaymentUseCase`() {
         // Arrange
 
         // Act
@@ -192,6 +207,16 @@ class AccountViewModelTest {
 
         // Assert
         coVerify { mockPaymentUseCase.queryPaymentAvailability() }
+    }
+
+    @Test
+    fun `onClosePurchaseResultDialog with success false should invoke resetPurchaseResult on PaymentUseCase`() {
+        // Arrange
+
+        // Act
+        viewModel.onClosePurchaseResultDialog(success = false)
+
+        // Assert
         coVerify { mockPaymentUseCase.resetPurchaseResult() }
     }
 

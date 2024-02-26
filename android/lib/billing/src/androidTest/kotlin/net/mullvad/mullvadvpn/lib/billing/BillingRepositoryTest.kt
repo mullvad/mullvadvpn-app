@@ -52,7 +52,7 @@ class BillingRepositoryTest {
         CapturingSlot()
 
     @BeforeEach
-    fun setUp() {
+    fun setup() {
         mockkStatic(BILLING_CLIENT_CLASS)
         mockkStatic(BILLING_CLIENT_KOTLIN_CLASS)
         mockkStatic(BILLING_FLOW_PARAMS)
