@@ -33,7 +33,7 @@ pub enum Error {
     #[error("Failed to create Java VM handle clone")]
     CloneJavaVm(#[source] jnix::jni::errors::Error),
 
-    #[error("Failed to find TalpidVpnService.{} method", _0)]
+    #[error("Failed to find TalpidVpnService.{0} method")]
     FindMethod(&'static str, #[source] jnix::jni::errors::Error),
 
     #[error("Attempt to configure the tunnel with an invalid DNS server address(es): {0:?}")]

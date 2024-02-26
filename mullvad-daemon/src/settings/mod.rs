@@ -275,7 +275,7 @@ impl SettingsPersister {
     /// ```ignore
     /// #[derive(Debug, thiserror::Error)]
     /// pub enum MyError {
-    ///   #[error("Failed for this reason: {:?}", _0)]
+    ///   #[error("Failed for this reason: {0:?}")]
     ///   Failed(String),
     /// }
     ///

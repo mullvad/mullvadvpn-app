@@ -80,7 +80,7 @@ pub enum Error {
     #[error("NetworkManager is too old: {0}.{1}")]
     NMTooOld(u32, u32),
 
-    #[error("NetworkManager is too new to manage DNS: {0}.{0}")]
+    #[error("NetworkManager is too new to manage DNS: {0}.{1}")]
     NMTooNewFroDns(u32, u32),
 
     #[error("Failed to parse NetworkManager version string: {0}")]

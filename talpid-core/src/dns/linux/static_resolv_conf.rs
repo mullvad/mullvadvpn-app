@@ -22,7 +22,7 @@ pub enum Error {
     #[error("Failed to read from {0}")]
     ReadResolvConf(&'static str, #[source] io::Error),
 
-    #[error("resolv.conf at {} could not be parsed", _0)]
+    #[error("resolv.conf at {0} could not be parsed")]
     Parse(&'static str, #[source] resolv_conf::ParseError),
 
     #[error("Failed to remove stale resolv.conf backup at {0}")]
