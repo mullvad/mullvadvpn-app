@@ -8,13 +8,13 @@ use std::{
     path::{Path, PathBuf},
 };
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to read config")]
+    #[error("Failed to read config")]
     Read(io::Error),
-    #[error(display = "Failed to parse config")]
+    #[error("Failed to parse config")]
     InvalidConfig(serde_json::Error),
-    #[error(display = "Failed to write config")]
+    #[error("Failed to write config")]
     Write(io::Error),
 }
 

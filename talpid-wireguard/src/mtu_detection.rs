@@ -5,31 +5,28 @@ use surge_ping::{Client, Config, PingIdentifier, PingSequence, SurgeError};
 use talpid_tunnel::{ICMP_HEADER_SIZE, IPV4_HEADER_SIZE, MIN_IPV4_MTU};
 use tokio_stream::StreamExt;
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to set MTU on the active tunnel
-    #[error(display = "Failed to set MTU on the active tunnel")]
-    SetMtu(#[error(source)] io::Error),
+    #[error("Failed to set MTU on the active tunnel")]
+    SetMtu(#[source] io::Error),
 
     /// Failed to set MTU
-    #[error(display = "Failed to detect MTU because every ping was dropped.")]
+    #[error("Failed to detect MTU because every ping was dropped.")]
     MtuDetectionAllDropped,
 
     /// Failed to set MTU
-    #[error(display = "Failed to detect MTU because of unexpected ping error.")]
-    MtuDetectionPing(#[error(source)] surge_ping::SurgeError),
+    #[error("Failed to detect MTU because of unexpected ping error.")]
+    MtuDetectionPing(#[source] surge_ping::SurgeError),
 
     /// Failed to set MTU
-    #[error(
-        display = "Failed to detect MTU because of an IO error when setting up the ping socket."
-    )]
-    MtuDetectionSetupSocket(#[error(source)] io::Error),
+    #[error("Failed to detect MTU because of an IO error when setting up the ping socket.")]
+    MtuDetectionSetupSocket(#[source] io::Error),
 
     /// Failed to set MTU
     #[cfg(target_os = "macos")]
-    #[error(display = "Failed to set buffer size")]
-    MtuSetBufferSize(#[error(source)] nix::Error),
+    #[error("Failed to set buffer size")]
+    MtuSetBufferSize(#[source] nix::Error),
 }
 /// Verify that the current MTU doesn't cause dropped packets, otherwise lower it to the
 /// largest value which doesn't.

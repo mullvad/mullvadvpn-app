@@ -5,21 +5,20 @@ use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt},
 };
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to open log file {:?}", _1)]
-    Open(#[error(source)] io::Error, std::path::PathBuf),
-    #[error(display = "Failed to write to log file")]
-    Write(#[error(source)] io::Error),
-    #[error(display = "Failed to read from log file")]
-    Read(#[error(source)] io::Error),
-    #[error(display = "Failed to parse log file")]
+    #[error("Failed to open log file {1:?}")]
+    Open(#[source] io::Error, std::path::PathBuf),
+    #[error("Failed to write to log file")]
+    Write(#[source] io::Error),
+    #[error("Failed to read from log file")]
+    Read(#[source] io::Error),
+    #[error("Failed to parse log file")]
     Parse,
-    #[error(display = "Failed to serialize value")]
-    Serialize(#[error(source)] serde_json::Error),
-    #[error(display = "Failed to deserialize value")]
-    Deserialize(#[error(source)] serde_json::Error),
+    #[error("Failed to serialize value")]
+    Serialize(#[source] serde_json::Error),
+    #[error("Failed to deserialize value")]
+    Deserialize(#[source] serde_json::Error),
 }
 
 #[derive(Clone, Copy)]

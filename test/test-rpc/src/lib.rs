@@ -13,47 +13,47 @@ pub mod net;
 pub mod package;
 pub mod transport;
 
-#[derive(err_derive::Error, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(thiserror::Error, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Error {
-    #[error(display = "Test runner RPC failed")]
-    Tarpc(#[error(source)] tarpc::client::RpcError),
-    #[error(display = "Syscall failed")]
+    #[error("Test runner RPC failed")]
+    Tarpc(#[from] tarpc::client::RpcError),
+    #[error("Syscall failed")]
     Syscall,
-    #[error(display = "Interface not found")]
+    #[error("Interface not found")]
     InterfaceNotFound,
-    #[error(display = "HTTP request failed")]
+    #[error("HTTP request failed")]
     HttpRequest(String),
-    #[error(display = "Failed to deserialize HTTP body")]
+    #[error("Failed to deserialize HTTP body")]
     DeserializeBody,
-    #[error(display = "DNS resolution failed")]
+    #[error("DNS resolution failed")]
     DnsResolution,
-    #[error(display = "Test runner RPC timed out")]
+    #[error("Test runner RPC timed out")]
     TestRunnerTimeout,
-    #[error(display = "Package error")]
-    Package(#[error(source)] package::Error),
-    #[error(display = "Logger error")]
-    Logger(#[error(source)] logging::Error),
-    #[error(display = "Failed to send UDP datagram")]
+    #[error("Package error")]
+    Package(#[from] package::Error),
+    #[error("Logger error")]
+    Logger(#[from] logging::Error),
+    #[error("Failed to send UDP datagram")]
     SendUdp,
-    #[error(display = "Failed to send TCP segment")]
+    #[error("Failed to send TCP segment")]
     SendTcp,
-    #[error(display = "Failed to send ping")]
+    #[error("Failed to send ping")]
     Ping,
-    #[error(display = "Failed to get or set registry value")]
+    #[error("Failed to get or set registry value")]
     Registry(String),
-    #[error(display = "Failed to change the service")]
+    #[error("Failed to change the service")]
     Service(String),
-    #[error(display = "Could not read from or write to the file system")]
+    #[error("Could not read from or write to the file system")]
     FileSystem(String),
-    #[error(display = "Could not serialize or deserialize file")]
+    #[error("Could not serialize or deserialize file")]
     FileSerialization(String),
-    #[error(display = "User must be logged in but is not")]
+    #[error("User must be logged in but is not")]
     UserNotLoggedIn(String),
-    #[error(display = "Invalid URL")]
+    #[error("Invalid URL")]
     InvalidUrl,
-    #[error(display = "Timeout")]
+    #[error("Timeout")]
     Timeout,
-    #[error(display = "TCP forward error")]
+    #[error("TCP forward error")]
     TcpForward,
 }
 

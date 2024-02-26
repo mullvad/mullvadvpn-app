@@ -7,29 +7,29 @@ use crate::windows::create_dir_recursive;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to create directory {}", _0)]
-    CreateDirFailed(String, #[error(source)] io::Error),
+    #[error("Failed to create directory {0}")]
+    CreateDirFailed(String, #[source] io::Error),
 
-    #[error(display = "Failed to set directory permissions on {}", _0)]
-    SetDirPermissionFailed(String, #[error(source)] io::Error),
+    #[error("Failed to set directory permissions on {0}")]
+    SetDirPermissionFailed(String, #[source] io::Error),
 
     #[cfg(any(windows, target_os = "macos"))]
-    #[error(display = "Not able to find requested directory")]
+    #[error("Not able to find requested directory")]
     FindDirError,
 
     #[cfg(windows)]
-    #[error(display = "Missing %ALLUSERSPROFILE% environment variable")]
+    #[error("Missing %ALLUSERSPROFILE% environment variable")]
     NoProgramDataDir,
 
     #[cfg(windows)]
-    #[error(display = "Failed to create security attributes")]
-    GetSecurityAttributes(#[error(source)] io::Error),
+    #[error("Failed to create security attributes")]
+    GetSecurityAttributes(#[source] io::Error),
 
     #[cfg(all(windows, feature = "deduce-system-service"))]
-    #[error(display = "Failed to deduce system service directory")]
-    FailedToFindSystemServiceDir(#[error(source)] io::Error),
+    #[error("Failed to deduce system service directory")]
+    FailedToFindSystemServiceDir(#[source] io::Error),
 }
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]

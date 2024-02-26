@@ -526,35 +526,29 @@ fn collect_variants(
 }
 
 /// Parsing errors.
-#[derive(Clone, Debug, Eq, PartialEq, err_derive::Error)]
+#[derive(Clone, Debug, Eq, PartialEq, thiserror::Error)]
 pub enum Error {
     /// An unexpected line was read while parsing.
-    #[error(display = "Unexpected line parsing gettext messages: {}", _0)]
+    #[error("Unexpected line parsing gettext messages: {0}")]
     UnexpectedLine(String),
 
     /// Input uses an unrecognized plural forumal.
-    #[error(
-        display = "Input uses an unrecognized formula for the plural form: {}",
-        _0
-    )]
+    #[error("Input uses an unrecognized formula for the plural form: {0}")]
     UnrecognizedPluralFormula(String),
 
     /// Input ended with an incomplete entry.
-    #[error(
-        display = "Input ended with an incomplete gettext entry with ID: {}",
-        _0
-    )]
+    #[error("Input ended with an incomplete gettext entry with ID: {0}")]
     IncompleteEntry(MsgString),
 
     /// Plural entry definition is missing a plural variant.
-    #[error(display = "Plural entry is missing a plural variant: {}", _0)]
+    #[error("Plural entry is missing a plural variant: {0}")]
     IncompletePluralEntry(MsgString),
 
     /// Plural variant is invalid.
-    #[error(display = "Plural variant line is invalid: {}", _0)]
+    #[error("Plural variant line is invalid: {0}")]
     InvalidPluralVariant(String),
 
     /// Plural variant index was not parsable.
-    #[error(display = "Plural variant line contains an invalid index: {}", _0)]
+    #[error("Plural variant line contains an invalid index: {0}")]
     InvalidPluralIndex(String),
 }

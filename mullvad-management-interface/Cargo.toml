@@ -12,7 +12,7 @@ workspace = true
 
 [dependencies]
 chrono = { workspace = true }
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-paths = { path = "../mullvad-paths" }
 talpid-types = { path = "../talpid-types" }

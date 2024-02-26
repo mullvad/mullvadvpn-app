@@ -54,16 +54,15 @@ pub(crate) async fn start_resolver() -> Result<ResolverHandle, Error> {
 }
 
 /// Resolver errors
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to bind UDP socket
-    #[error(display = "Failed to bind UDP socket")]
-    UdpBindError(#[error(source)] io::Error),
+    #[error("Failed to bind UDP socket")]
+    UdpBindError(#[source] io::Error),
 
     /// Failed to get local address of a bound UDP socket
-    #[error(display = "Failed to get local address of a bound UDP socket")]
-    GetSocketAddrError(#[error(source)] io::Error),
+    #[error("Failed to get local address of a bound UDP socket")]
+    GetSocketAddrError(#[source] io::Error),
 }
 
 /// A filtering resolver. Listens on a specified port for DNS queries and responds queries for

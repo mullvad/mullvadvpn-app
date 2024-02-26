@@ -12,41 +12,40 @@ use std::{
 const SEND_RETRY_ATTEMPTS: u32 = 10;
 
 /// Pinger errors
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to open raw socket
-    #[error(display = "Failed to open ICMP socket")]
-    Open(#[error(source)] io::Error),
+    #[error("Failed to open ICMP socket")]
+    Open(#[source] io::Error),
 
     /// Failed to read from raw socket
-    #[error(display = "Failed to read ICMP socket")]
-    Read(#[error(source)] io::Error),
+    #[error("Failed to read ICMP socket")]
+    Read(#[source] io::Error),
 
     /// Failed to set socket options
-    #[error(display = "Failed to set socket options")]
-    SocketOp(#[error(source)] io::Error),
+    #[error("Failed to set socket options")]
+    SocketOp(#[source] io::Error),
 
     /// Failed to write to raw socket
-    #[error(display = "Failed to write to socket")]
-    Write(#[error(source)] io::Error),
+    #[error("Failed to write to socket")]
+    Write(#[source] io::Error),
 
     /// Failed to get device index
     #[cfg(target_os = "macos")]
-    #[error(display = "Failed to obtain device index")]
+    #[error("Failed to obtain device index")]
     DeviceIdx(nix::errno::Errno),
 
     /// Failed to bind socket to device by index
     #[cfg(target_os = "macos")]
-    #[error(display = "Failed to bind socket to device by index")]
+    #[error("Failed to bind socket to device by index")]
     BindSocketByDevice(io::Error),
 
     /// ICMP buffer too small
-    #[error(display = "ICMP message buffer too small")]
+    #[error("ICMP message buffer too small")]
     BufferTooSmall,
 
     /// Interface name contains null bytes
-    #[error(display = "Interface name contains a null byte")]
+    #[error("Interface name contains a null byte")]
     InterfaceNameContainsNull,
 }
 

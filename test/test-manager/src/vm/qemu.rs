@@ -25,29 +25,29 @@ const STDERR_LOG_LEVEL: log::Level = log::Level::Error;
 const STDOUT_LOG_LEVEL: log::Level = log::Level::Debug;
 const OBTAIN_IP_TIMEOUT: Duration = Duration::from_secs(60);
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to set up network")]
+    #[error("Failed to set up network")]
     Network(network::linux::Error),
-    #[error(display = "Failed to start QEMU")]
+    #[error("Failed to start QEMU")]
     StartQemu(io::Error),
-    #[error(display = "QEMU exited unexpectedly")]
+    #[error("QEMU exited unexpectedly")]
     QemuFailed(Option<ExitStatus>),
-    #[error(display = "Could not find pty")]
+    #[error("Could not find pty")]
     NoPty,
-    #[error(display = "Could not find IP address of guest")]
+    #[error("Could not find IP address of guest")]
     NoIpAddr,
-    #[error(display = "Failed to copy OVMF vars")]
+    #[error("Failed to copy OVMF vars")]
     CopyOvmfVars(io::Error),
-    #[error(display = "Failed to wrap OVMF vars copy in tempfile object")]
+    #[error("Failed to wrap OVMF vars copy in tempfile object")]
     WrapOvmfVars,
-    #[error(display = "Failed to start swtpm")]
+    #[error("Failed to start swtpm")]
     StartTpmEmulator(io::Error),
-    #[error(display = "swtpm failed")]
+    #[error("swtpm failed")]
     TpmEmulator(io::Error),
-    #[error(display = "Timed out waiting for swtpm socket")]
+    #[error("Timed out waiting for swtpm socket")]
     TpmSocketTimeout,
-    #[error(display = "Failed to create temp dir")]
+    #[error("Failed to create temp dir")]
     MkTempDir(io::Error),
 }
 

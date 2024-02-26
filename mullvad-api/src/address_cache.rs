@@ -8,20 +8,19 @@ use tokio::{
     sync::Mutex,
 };
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to open the address cache file")]
-    Open(#[error(source)] io::Error),
+    #[error("Failed to open the address cache file")]
+    Open(#[source] io::Error),
 
-    #[error(display = "Failed to read the address cache file")]
-    Read(#[error(source)] io::Error),
+    #[error("Failed to read the address cache file")]
+    Read(#[source] io::Error),
 
-    #[error(display = "Failed to parse the address cache file")]
+    #[error("Failed to parse the address cache file")]
     Parse,
 
-    #[error(display = "Failed to update the address cache file")]
-    Write(#[error(source)] io::Error),
+    #[error("Failed to update the address cache file")]
+    Write(#[source] io::Error),
 }
 
 #[derive(Clone)]

@@ -13,19 +13,18 @@ static DNSAPI_HANDLE: OnceLock<DnsApi> = OnceLock::new();
 const MAX_CONCURRENT_FLUSHES: usize = 5;
 
 /// Errors that can happen when configuring DNS on Windows.
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to flush the DNS cache.
-    #[error(display = "Call to flush DNS cache failed")]
+    #[error("Call to flush DNS cache failed")]
     FlushCache,
 
     /// Too many flush attempts in progress.
-    #[error(display = "Too many flush attempts in progress")]
+    #[error("Too many flush attempts in progress")]
     TooManyFlushAttempts,
 
     /// Flushing the DNS cache timed out.
-    #[error(display = "Timeout while flushing DNS cache")]
+    #[error("Timeout while flushing DNS cache")]
     Timeout,
 }
 

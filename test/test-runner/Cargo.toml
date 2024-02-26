@@ -15,7 +15,7 @@ futures = { workspace = true }
 tarpc = { workspace = true }
 tokio = { workspace = true }
 tokio-serial = { workspace = true }
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 log = { workspace = true }
 once_cell = { workspace = true }
 parity-tokio-ipc = "0.9"

@@ -28,30 +28,30 @@ use crate::tunnel_state_machine::TunnelCommand;
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen when setting/monitoring DNS on macOS.
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Error while setting DNS servers
-    #[error(display = "Error while setting DNS servers")]
+    #[error("Error while setting DNS servers")]
     SettingDnsFailed,
 
     /// Failed to initialize dynamic store
-    #[error(display = "Failed to initialize dynamic store")]
+    #[error("Failed to initialize dynamic store")]
     DynamicStoreInitError,
 
     /// Failed to parse IP address from config string
-    #[error(display = "Failed to parse an IP address from a config string")]
+    #[error("Failed to parse an IP address from a config string")]
     AddrParseError(String, String, AddrParseError),
 
     /// Failed to obtain name for interface
-    #[error(display = "Failed to obtain interface name")]
+    #[error("Failed to obtain interface name")]
     GetInterfaceNameError,
 
     /// Failed to load interface config
-    #[error(display = "Failed to load interface config at path {}", _0)]
+    #[error("Failed to load interface config at path {0}")]
     LoadInterfaceConfigError(String),
 
     /// Failed to load DNS config
-    #[error(display = "Failed to load DNS config at path {}", _0)]
+    #[error("Failed to load DNS config at path {0}")]
     LoadDnsConfigError(String),
 }
 

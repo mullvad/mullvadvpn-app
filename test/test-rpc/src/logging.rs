@@ -4,11 +4,11 @@ use std::fmt;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(err_derive::Error, Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
+#[derive(thiserror::Error, Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub enum Error {
-    #[error(display = "Could not get standard output from runner")]
+    #[error("Could not get standard output from runner")]
     StandardOutput,
-    #[error(display = "Could not get mullvad app logs from runner")]
+    #[error("Could not get mullvad app logs from runner")]
     Logs(String),
 }
 

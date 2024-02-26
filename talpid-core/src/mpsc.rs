@@ -1,8 +1,8 @@
 /// Error type for `Sender` trait.
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// The underlying channel is closed.
-    #[error(display = "Channel is closed")]
+    #[error("Channel is closed")]
     ChannelClosed,
 }
 
