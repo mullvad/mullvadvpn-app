@@ -113,6 +113,7 @@ impl PidManager {
         let mut file = fs::OpenOptions::new()
             .write(true)
             .create(true)
+            .truncate(false)
             .open(exclusions_path)
             .map_err(Error::AddCGroupPid)?;
 
@@ -172,6 +173,7 @@ impl PidManager {
         fs::OpenOptions::new()
             .write(true)
             .create(true)
+            .truncate(false)
             .open(self.net_cls_path.join("cgroup.procs"))
     }
 }
