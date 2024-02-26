@@ -93,10 +93,14 @@ fun CreateCustomListDialog(
                         name.value = it
                         onInputChanged()
                     },
-                    onSubmit = createCustomList,
+                    onSubmit = {
+                        if (it.isNotBlank()) {
+                            createCustomList(it)
+                        }
+                    },
                     keyboardType = KeyboardType.Text,
                     placeholderText = "",
-                    isValidValue = name.value.isNotBlank(),
+                    isValidValue = uiState.error == null,
                     isDigitsOnlyAllowed = false,
                     supportingText = {
                         if (uiState.error != null) {
