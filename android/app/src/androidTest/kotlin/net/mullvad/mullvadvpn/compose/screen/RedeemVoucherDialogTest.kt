@@ -5,10 +5,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import de.mannodermaus.junit5.compose.createComposeExtension
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
+import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.dialog.RedeemVoucherDialog
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 
 @OptIn(ExperimentalTestApi::class)
 class RedeemVoucherDialogTest {
-    @JvmField @RegisterExtension val composeExtension = createComposeExtension()
+    @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
     @BeforeEach
     fun setup() {

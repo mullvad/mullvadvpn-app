@@ -8,10 +8,10 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import de.mannodermaus.junit5.compose.createComposeExtension
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
+import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -21,7 +21,7 @@ class MtuDialogTest {
     @OptIn(ExperimentalTestApi::class)
     @JvmField
     @RegisterExtension
-    val composeExtension = createComposeExtension()
+    val composeExtension = createEdgeToEdgeComposeExtension()
 
     @BeforeEach
     fun setup() {

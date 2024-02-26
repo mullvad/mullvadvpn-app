@@ -4,11 +4,11 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import de.mannodermaus.junit5.compose.createComposeExtension
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 
 @OptIn(ExperimentalTestApi::class)
 class OutOfTimeScreenTest {
-    @JvmField @RegisterExtension val composeExtension = createComposeExtension()
+    @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
     @BeforeEach
     fun setup() {

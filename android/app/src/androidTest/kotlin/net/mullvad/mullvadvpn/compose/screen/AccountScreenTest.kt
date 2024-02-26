@@ -5,13 +5,13 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import de.mannodermaus.junit5.compose.createComposeExtension
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.test.PLAY_PAYMENT_INFO_ICON_TEST_TAG
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 @ExperimentalTestApi
 @OptIn(ExperimentalMaterial3Api::class)
 class AccountScreenTest {
-    @JvmField @RegisterExtension val composeExtension = createComposeExtension()
+    @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
     @BeforeEach
     fun setup() {
