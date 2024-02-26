@@ -26,10 +26,6 @@ pub enum Error {
     #[cfg(windows)]
     #[error("Failed to create security attributes")]
     GetSecurityAttributes(#[source] io::Error),
-
-    #[cfg(all(windows, feature = "deduce-system-service"))]
-    #[error("Failed to deduce system service directory")]
-    FailedToFindSystemServiceDir(#[source] io::Error),
 }
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
