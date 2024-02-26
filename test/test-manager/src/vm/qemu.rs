@@ -28,9 +28,9 @@ const OBTAIN_IP_TIMEOUT: Duration = Duration::from_secs(60);
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Failed to set up network")]
-    Network(network::linux::Error),
+    Network(#[source] network::linux::Error),
     #[error("Failed to start QEMU")]
-    StartQemu(io::Error),
+    StartQemu(#[source] io::Error),
     #[error("QEMU exited unexpectedly")]
     QemuFailed(Option<ExitStatus>),
     #[error("Could not find pty")]
@@ -38,17 +38,17 @@ pub enum Error {
     #[error("Could not find IP address of guest")]
     NoIpAddr,
     #[error("Failed to copy OVMF vars")]
-    CopyOvmfVars(io::Error),
+    CopyOvmfVars(#[source] io::Error),
     #[error("Failed to wrap OVMF vars copy in tempfile object")]
     WrapOvmfVars,
     #[error("Failed to start swtpm")]
-    StartTpmEmulator(io::Error),
+    StartTpmEmulator(#[source] io::Error),
     #[error("swtpm failed")]
-    TpmEmulator(io::Error),
+    TpmEmulator(#[source] io::Error),
     #[error("Timed out waiting for swtpm socket")]
     TpmSocketTimeout,
     #[error("Failed to create temp dir")]
-    MkTempDir(io::Error),
+    MkTempDir(#[source] io::Error),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
