@@ -9,19 +9,19 @@ mod netsh;
 mod tcpip;
 
 /// Errors that can happen when configuring DNS on Windows.
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to set DNS config using the iphlpapi module.
-    #[error(display = "Error in iphlpapi module")]
-    Iphlpapi(#[error(source)] iphlpapi::Error),
+    #[error("Error in iphlpapi module")]
+    Iphlpapi(#[from] iphlpapi::Error),
 
     /// Failed to set DNS config using the netsh module.
-    #[error(display = "Error in netsh module")]
-    Netsh(#[error(source)] netsh::Error),
+    #[error("Error in netsh module")]
+    Netsh(#[from] netsh::Error),
 
     /// Failed to set DNS config using the tcpip module.
-    #[error(display = "Error in tcpip module")]
-    Tcpip(#[error(source)] tcpip::Error),
+    #[error("Error in tcpip module")]
+    Tcpip(#[from] tcpip::Error),
 }
 
 pub struct DnsMonitor {

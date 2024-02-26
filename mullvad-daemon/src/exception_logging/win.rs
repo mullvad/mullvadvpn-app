@@ -60,13 +60,12 @@ extern "system" {
     ) -> BOOL;
 }
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 enum MinidumpError {
-    #[error(display = "Failed to create mini dump file")]
-    CreateFileError(#[error(source)] io::Error),
-    #[error(display = "Failed to produce mini dump and write it to disk")]
-    GenerateError(#[error(source)] io::Error),
+    #[error("Failed to create mini dump file")]
+    CreateFileError(#[source] io::Error),
+    #[error("Failed to produce mini dump and write it to disk")]
+    GenerateError(#[source] io::Error),
 }
 
 fn generate_minidump(

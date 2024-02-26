@@ -55,42 +55,41 @@ mod v7;
 
 const SETTINGS_FILE: &str = "settings.json";
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to read the settings")]
-    Read(#[error(source)] io::Error),
+    #[error("Failed to read the settings")]
+    Read(#[source] io::Error),
 
-    #[error(display = "Failed to deserialize settings")]
-    Deserialize(#[error(source)] serde_json::Error),
+    #[error("Failed to deserialize settings")]
+    Deserialize(#[source] serde_json::Error),
 
-    #[error(display = "Unexpected settings format")]
+    #[error("Unexpected settings format")]
     InvalidSettingsContent,
 
-    #[error(display = "Unable to serialize settings to JSON")]
-    Serialize(#[error(source)] serde_json::Error),
+    #[error("Unable to serialize settings to JSON")]
+    Serialize(#[source] serde_json::Error),
 
-    #[error(display = "Unable to open settings for writing")]
-    Open(#[error(source)] io::Error),
+    #[error("Unable to open settings for writing")]
+    Open(#[source] io::Error),
 
-    #[error(display = "Unable to write new settings")]
-    Write(#[error(source)] io::Error),
+    #[error("Unable to write new settings")]
+    Write(#[source] io::Error),
 
-    #[error(display = "Unable to sync settings to disk")]
-    SyncSettings(#[error(source)] io::Error),
+    #[error("Unable to sync settings to disk")]
+    SyncSettings(#[source] io::Error),
 
-    #[error(display = "Failed to read the account history")]
-    ReadHistory(#[error(source)] io::Error),
+    #[error("Failed to read the account history")]
+    ReadHistory(#[source] io::Error),
 
-    #[error(display = "Failed to write new account history")]
-    WriteHistory(#[error(source)] io::Error),
+    #[error("Failed to write new account history")]
+    WriteHistory(#[source] io::Error),
 
-    #[error(display = "Failed to parse account history")]
+    #[error("Failed to parse account history")]
     ParseHistory,
 
     #[cfg(windows)]
-    #[error(display = "Failed to restore Windows update backup")]
-    WinMigration(#[error(source)] windows::Error),
+    #[error("Failed to restore Windows update backup")]
+    WinMigration(#[source] windows::Error),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -226,20 +225,19 @@ mod windows {
         ("account-history.json", false),
     ];
 
-    #[derive(err_derive::Error, Debug)]
-    #[error(no_from)]
+    #[derive(thiserror::Error, Debug)]
     pub enum Error {
-        #[error(display = "Unable to find local appdata directory")]
+        #[error("Unable to find local appdata directory")]
         FindAppData,
 
-        #[error(display = "Could not acquire security descriptor of backup directory")]
-        SecurityInformation(#[error(source)] io::Error),
+        #[error("Could not acquire security descriptor of backup directory")]
+        SecurityInformation(#[source] io::Error),
 
-        #[error(display = "Backup directory is not owned by SYSTEM or Built-in Administrators")]
+        #[error("Backup directory is not owned by SYSTEM or Built-in Administrators")]
         WrongOwner,
 
-        #[error(display = "Failed to copy files during migration")]
-        Io(#[error(source)] io::Error),
+        #[error("Failed to copy files during migration")]
+        Io(#[source] io::Error),
     }
 
     /// Attempts to restore the Mullvad settings from `C:\windows.old` after an update of Windows.

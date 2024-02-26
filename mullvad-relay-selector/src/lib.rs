@@ -52,32 +52,31 @@ const MIN_BRIDGE_COUNT: usize = 5;
 /// Max distance of bridges to consider for selection (km).
 const MAX_BRIDGE_DISTANCE: f64 = 1500f64;
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to open relay cache file")]
-    OpenRelayCache(#[error(source)] io::Error),
+    #[error("Failed to open relay cache file")]
+    OpenRelayCache(#[source] io::Error),
 
-    #[error(display = "Failed to write relay cache file to disk")]
-    WriteRelayCache(#[error(source)] io::Error),
+    #[error("Failed to write relay cache file to disk")]
+    WriteRelayCache(#[source] io::Error),
 
-    #[error(display = "No relays matching current constraints")]
+    #[error("No relays matching current constraints")]
     NoRelay,
 
-    #[error(display = "No bridges matching current constraints")]
+    #[error("No bridges matching current constraints")]
     NoBridge,
 
-    #[error(display = "No obfuscators matching current constraints")]
+    #[error("No obfuscators matching current constraints")]
     NoObfuscator,
 
-    #[error(display = "Failure in serialization of the relay list")]
-    Serialize(#[error(source)] serde_json::Error),
+    #[error("Failure in serialization of the relay list")]
+    Serialize(#[source] serde_json::Error),
 
-    #[error(display = "Downloader already shut down")]
+    #[error("Downloader already shut down")]
     DownloaderShutDown,
 
-    #[error(display = "Invalid bridge settings")]
-    InvalidBridgeSettings(#[error(source)] MissingCustomBridgeSettings),
+    #[error("Invalid bridge settings")]
+    InvalidBridgeSettings(#[source] MissingCustomBridgeSettings),
 }
 
 struct ParsedRelays {

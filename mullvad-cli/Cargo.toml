@@ -18,7 +18,7 @@ path = "src/main.rs"
 anyhow = "1.0"
 chrono = { workspace = true }
 clap = { workspace = true }
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 futures = "0.3"
 itertools = "0.10"
 natord = "1.0.9"

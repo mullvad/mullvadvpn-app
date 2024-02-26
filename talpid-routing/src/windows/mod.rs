@@ -19,75 +19,75 @@ mod get_best_default_route;
 mod route_manager;
 
 /// Windows routing errors.
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// The sender was dropped unexpectedly -- possible panic
-    #[error(display = "The channel sender was dropped")]
+    #[error("The channel sender was dropped")]
     ManagerChannelDown,
     /// Failure to initialize route manager
-    #[error(display = "Failed to start route manager")]
+    #[error("Failed to start route manager")]
     FailedToStartManager,
     /// Attempt to use route manager that has been dropped
-    #[error(display = "Cannot send message to route manager since it is down")]
+    #[error("Cannot send message to route manager since it is down")]
     RouteManagerDown,
     /// Low level error caused by a failure to add to route table
-    #[error(display = "Could not add route to route table")]
+    #[error("Could not add route to route table")]
     AddToRouteTable(io::Error),
     /// Low level error caused by failure to delete route from route table
-    #[error(display = "Failed to delete applied routes")]
+    #[error("Failed to delete applied routes")]
     DeleteFromRouteTable(io::Error),
     /// GetIpForwardTable2 windows API call failed
-    #[error(display = "Failed to retrieve the routing table")]
+    #[error("Failed to retrieve the routing table")]
     GetIpForwardTableFailed(io::Error),
     /// GetIfEntry2 windows API call failed
-    #[error(display = "Failed to retrieve network interface entry")]
+    #[error("Failed to retrieve network interface entry")]
     GetIfEntryFailed(io::Error),
     /// Low level error caused by failing to register the route callback
-    #[error(display = "Attempt to register notify route change callback failed")]
+    #[error("Attempt to register notify route change callback failed")]
     RegisterNotifyRouteCallback(io::Error),
     /// Low level error caused by failing to register the ip interface callback
-    #[error(display = "Attempt to register notify ip interface change callback failed")]
+    #[error("Attempt to register notify ip interface change callback failed")]
     RegisterNotifyIpInterfaceCallback(io::Error),
     /// Low level error caused by failing to register the unicast ip address callback
-    #[error(display = "Attempt to register notify unicast ip address change callback failed")]
+    #[error("Attempt to register notify unicast ip address change callback failed")]
     RegisterNotifyUnicastIpAddressCallback(io::Error),
     /// Low level error caused by windows Adapters API
-    #[error(display = "Windows adapter error")]
+    #[error("Windows adapter error")]
     Adapter(io::Error),
     /// High level error caused by a failure to clear the routes in the route manager.
     /// Contains the lower error
-    #[error(display = "Failed to clear applied routes")]
+    #[error("Failed to clear applied routes")]
     ClearRoutesFailed(Box<Error>),
     /// High level error caused by a failure to add routes in the route manager.
     /// Contains the lower error
-    #[error(display = "Failed to add routes")]
+    #[error("Failed to add routes")]
     AddRoutesFailed(Box<Error>),
     /// Something went wrong when getting the mtu of the interface
-    #[error(display = "Could not get the mtu of the interface")]
+    #[error("Could not get the mtu of the interface")]
     GetMtu,
     /// The SI family was of an unexpected value
-    #[error(display = "The SI family was of an unexpected value")]
+    #[error("The SI family was of an unexpected value")]
     InvalidSiFamily,
     /// Device name not found
-    #[error(display = "The device name was not found")]
+    #[error("The device name was not found")]
     DeviceNameNotFound,
     /// No default route
-    #[error(display = "No default route found")]
+    #[error("No default route found")]
     NoDefaultRoute,
     /// Conversion error between types
-    #[error(display = "Conversion error")]
+    #[error("Conversion error")]
     Conversion,
     /// Could not find device gateway
-    #[error(display = "Could not find device gateway")]
+    #[error("Could not find device gateway")]
     DeviceGatewayNotFound,
     /// Could not get default route
-    #[error(display = "Could not get default route")]
+    #[error("Could not get default route")]
     GetDefaultRoute,
     /// Could not find device by name
-    #[error(display = "Could not find device by name")]
+    #[error("Could not find device by name")]
     GetDeviceByName,
     /// Could not find device by gateway
-    #[error(display = "Could not find device by gateway")]
+    #[error("Could not find device by gateway")]
     GetDeviceByGateway,
 }
 

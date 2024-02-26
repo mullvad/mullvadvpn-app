@@ -217,26 +217,25 @@ type ClientTransports = (
     CompletionHandle,
 );
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 enum ForwardError {
-    #[error(display = "Failed to deserialize JSON data")]
-    DeserializeFailed(#[error(source)] serde_json::Error),
+    #[error("Failed to deserialize JSON data")]
+    DeserializeFailed(#[source] serde_json::Error),
 
-    #[error(display = "Failed to serialize JSON data")]
-    SerializeFailed(#[error(source)] serde_json::Error),
+    #[error("Failed to serialize JSON data")]
+    SerializeFailed(#[source] serde_json::Error),
 
-    #[error(display = "Serial connection error")]
-    SerialConnection(#[error(source)] io::Error),
+    #[error("Serial connection error")]
+    SerialConnection(#[source] io::Error),
 
-    #[error(display = "Test runner channel error")]
-    TestRunnerChannel(#[error(source)] tarpc::transport::channel::ChannelError),
+    #[error("Test runner channel error")]
+    TestRunnerChannel(#[source] tarpc::transport::channel::ChannelError),
 
-    #[error(display = "Daemon channel error")]
-    DaemonChannel(#[error(source)] io::Error),
+    #[error("Daemon channel error")]
+    DaemonChannel(#[source] io::Error),
 
-    #[error(display = "Handshake error")]
-    HandshakeError(#[error(source)] io::Error),
+    #[error("Handshake error")]
+    HandshakeError(#[source] io::Error),
 }
 
 async fn forward_messages<

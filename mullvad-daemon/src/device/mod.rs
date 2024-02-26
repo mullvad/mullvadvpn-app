@@ -48,31 +48,31 @@ const LOGOUT_TIMEOUT: Duration = Duration::from_secs(2);
 /// a WireGuard tunnel.
 const WG_DEVICE_CHECK_THRESHOLD: usize = 3;
 
-#[derive(err_derive::Error, Debug, Clone)]
+#[derive(thiserror::Error, Debug, Clone)]
 pub enum Error {
-    #[error(display = "The account already has a maximum number of devices")]
+    #[error("The account already has a maximum number of devices")]
     MaxDevicesReached,
-    #[error(display = "No device is set")]
+    #[error("No device is set")]
     NoDevice,
-    #[error(display = "Device not found")]
+    #[error("Device not found")]
     InvalidDevice,
-    #[error(display = "Invalid account")]
+    #[error("Invalid account")]
     InvalidAccount,
-    #[error(display = "Invalid voucher code")]
+    #[error("Invalid voucher code")]
     InvalidVoucher,
-    #[error(display = "The voucher has already been used")]
+    #[error("The voucher has already been used")]
     UsedVoucher,
-    #[error(display = "Failed to read or write device cache")]
-    DeviceIoError(#[error(source)] Arc<io::Error>),
-    #[error(display = "Failed parse device cache")]
-    ParseDeviceCache(#[error(source)] Arc<serde_json::Error>),
-    #[error(display = "Unexpected HTTP request error")]
-    OtherRestError(#[error(source)] rest::Error),
-    #[error(display = "The device update task is not running")]
+    #[error("Failed to read or write device cache")]
+    DeviceIoError(#[from] Arc<io::Error>),
+    #[error("Failed parse device cache")]
+    ParseDeviceCache(#[from] Arc<serde_json::Error>),
+    #[error("Unexpected HTTP request error")]
+    OtherRestError(#[from] rest::Error),
+    #[error("The device update task is not running")]
     Cancelled,
-    #[error(display = "Account changed during operation")]
+    #[error("Account changed during operation")]
     AccountChange,
-    #[error(display = "The account manager is down")]
+    #[error("The account manager is down")]
     AccountManagerDown,
 }
 

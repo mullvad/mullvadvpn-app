@@ -103,13 +103,13 @@ impl From<MsgString> for MsgValue {
     }
 }
 
-#[derive(Debug, err_derive::Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
     /// Parser error while parsing file
-    #[error(display = "Failed to parse input file")]
-    Parse(#[error(source)] super::parser::Error),
+    #[error("Failed to parse input file")]
+    Parse(#[from] super::parser::Error),
 
     /// IO error while reading input file.
-    #[error(display = "Failed to read from the input file")]
-    Io(#[error(source)] std::io::Error),
+    #[error("Failed to read from the input file")]
+    Io(#[from] std::io::Error),
 }

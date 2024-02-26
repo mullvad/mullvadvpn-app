@@ -17,7 +17,7 @@ api-override = []
 [dependencies]
 libc = "0.2"
 chrono = { workspace = true }
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 futures = "0.3"
 http = "0.2"
 hyper = { version = "0.14", features = ["client", "stream", "http1", "tcp" ] }

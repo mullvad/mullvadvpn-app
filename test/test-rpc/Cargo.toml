@@ -19,7 +19,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 once_cell = { workspace = true }
 bytes = { workspace = true }
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 log = { workspace = true }
 colored = { workspace = true }
 async-trait = { workspace = true }

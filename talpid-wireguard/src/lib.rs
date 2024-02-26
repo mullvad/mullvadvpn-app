@@ -67,46 +67,45 @@ type Result<T> = std::result::Result<T, Error>;
 type EventCallback = Box<dyn (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Sync + 'static>;
 
 /// Errors that can happen in the Wireguard tunnel monitor.
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to set up routing.
-    #[error(display = "Failed to setup routing")]
-    SetupRoutingError(#[error(source)] talpid_routing::Error),
+    #[error("Failed to setup routing")]
+    SetupRoutingError(#[source] talpid_routing::Error),
 
     /// Tunnel timed out
-    #[error(display = "Tunnel timed out")]
+    #[error("Tunnel timed out")]
     TimeoutError,
 
     /// An interaction with a tunnel failed
-    #[error(display = "Tunnel failed")]
-    TunnelError(#[error(source)] TunnelError),
+    #[error("Tunnel failed")]
+    TunnelError(#[source] TunnelError),
 
     /// Failed to create tunnel obfuscator
-    #[error(display = "Failed to create tunnel obfuscator")]
-    CreateObfuscatorError(#[error(source)] ObfuscationError),
+    #[error("Failed to create tunnel obfuscator")]
+    CreateObfuscatorError(#[source] ObfuscationError),
 
     /// Failed to run tunnel obfuscator
-    #[error(display = "Tunnel obfuscator failed")]
-    ObfuscatorError(#[error(source)] ObfuscationError),
+    #[error("Tunnel obfuscator failed")]
+    ObfuscatorError(#[source] ObfuscationError),
 
     /// Failed to set up connectivity monitor
-    #[error(display = "Connectivity monitor failed")]
-    ConnectivityMonitorError(#[error(source)] connectivity_check::Error),
+    #[error("Connectivity monitor failed")]
+    ConnectivityMonitorError(#[source] connectivity_check::Error),
 
     /// Failed to negotiate PQ PSK
-    #[error(display = "Failed to negotiate PQ PSK")]
-    PskNegotiationError(#[error(source)] talpid_tunnel_config_client::Error),
+    #[error("Failed to negotiate PQ PSK")]
+    PskNegotiationError(#[source] talpid_tunnel_config_client::Error),
 
     /// Failed to set up IP interfaces.
     #[cfg(windows)]
-    #[error(display = "Failed to set up IP interfaces")]
+    #[error("Failed to set up IP interfaces")]
     IpInterfacesError,
 
     /// Failed to set IP addresses on WireGuard interface
     #[cfg(target_os = "windows")]
-    #[error(display = "Failed to set IP addresses on WireGuard interface")]
-    SetIpAddressesError(#[error(source)] talpid_windows::net::Error),
+    #[error("Failed to set IP addresses on WireGuard interface")]
+    SetIpAddressesError(#[source] talpid_windows::net::Error),
 }
 
 impl Error {
@@ -998,14 +997,13 @@ pub(crate) trait Tunnel: Send {
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum TunnelError {
     /// A recoverable error occurred while starting the wireguard tunnel
     ///
     /// This is an error returned by the implementation that indicates that trying to establish the
     /// tunnel again should work normally. The error encountered is known to be sporadic.
-    #[error(display = "Recoverable error while starting wireguard tunnel")]
+    #[error("Recoverable error while starting wireguard tunnel")]
     RecoverableStartWireguardError,
 
     /// An unrecoverable error occurred while starting the wireguard tunnel
@@ -1013,65 +1011,65 @@ pub enum TunnelError {
     /// This is an error returned by the implementation that indicates that trying to establish the
     /// tunnel again will likely fail with the same error. An error was encountered during tunnel
     /// configuration which can't be dealt with gracefully.
-    #[error(display = "Failed to start wireguard tunnel")]
+    #[error("Failed to start wireguard tunnel")]
     FatalStartWireguardError,
 
     /// Failed to tear down wireguard tunnel.
-    #[error(display = "Failed to stop wireguard tunnel. Status: {}", status)]
+    #[error("Failed to stop wireguard tunnel. Status: {status}")]
     StopWireguardError {
         /// Returned error code
         status: i32,
     },
 
     /// Error whilst trying to parse the WireGuard config to read the stats
-    #[error(display = "Reading tunnel stats failed")]
-    StatsError(#[error(source)] BoxedError),
+    #[error("Reading tunnel stats failed")]
+    StatsError(#[source] BoxedError),
 
     /// Error whilst trying to retrieve config of a WireGuard tunnel
-    #[error(display = "Failed to get config of WireGuard tunnel")]
+    #[error("Failed to get config of WireGuard tunnel")]
     GetConfigError,
 
     /// Failed to set WireGuard tunnel config on device
-    #[error(display = "Failed to set config of WireGuard tunnel")]
+    #[error("Failed to set config of WireGuard tunnel")]
     SetConfigError,
 
     /// Failed to duplicate tunnel file descriptor for wireguard-go
     #[cfg(any(target_os = "linux", target_os = "macos", target_os = "android"))]
-    #[error(display = "Failed to duplicate tunnel file descriptor for wireguard-go")]
-    FdDuplicationError(#[error(source)] nix::Error),
+    #[error("Failed to duplicate tunnel file descriptor for wireguard-go")]
+    FdDuplicationError(#[source] nix::Error),
 
     /// Failed to setup a tunnel device.
     #[cfg(not(windows))]
-    #[error(display = "Failed to create tunnel device")]
-    SetupTunnelDevice(#[error(source)] tun_provider::Error),
+    #[error("Failed to create tunnel device")]
+    SetupTunnelDevice(#[source] tun_provider::Error),
 
     /// Failed to set up a tunnel device
     #[cfg(windows)]
-    #[error(display = "Failed to create tunnel device")]
-    SetupTunnelDevice(#[error(source)] io::Error),
+    #[error("Failed to create tunnel device")]
+    SetupTunnelDevice(#[source] io::Error),
 
     /// Failed to setup a tunnel device.
     #[cfg(windows)]
-    #[error(display = "Failed to config IP interfaces on tunnel device")]
-    SetupIpInterfaces(#[error(source)] io::Error),
+    #[error("Failed to config IP interfaces on tunnel device")]
+    SetupIpInterfaces(#[source] io::Error),
 
     /// Failed to configure Wireguard sockets to bypass the tunnel.
     #[cfg(target_os = "android")]
-    #[error(display = "Failed to configure Wireguard sockets to bypass the tunnel")]
-    BypassError(#[error(source)] tun_provider::Error),
+    #[error("Failed to configure Wireguard sockets to bypass the tunnel")]
+    BypassError(#[source] tun_provider::Error),
 
     /// Invalid tunnel interface name.
-    #[error(display = "Invalid tunnel interface name")]
-    InterfaceNameError(#[error(source)] std::ffi::NulError),
+    #[error("Invalid tunnel interface name")]
+    InterfaceNameError(#[source] std::ffi::NulError),
 
     /// Failed to convert adapter alias to UTF-8.
     #[cfg(target_os = "windows")]
-    #[error(display = "Failed to convert adapter alias")]
+    #[error("Failed to convert adapter alias")]
     InvalidAlias,
 
     /// Failure to set up logging
-    #[error(display = "Failed to set up logging")]
-    LoggingError(#[error(source)] logging::Error),
+    #[error("Failed to set up logging")]
+    LoggingError(#[source] logging::Error),
 }
 
 #[cfg(target_os = "linux")]

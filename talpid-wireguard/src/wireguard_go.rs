@@ -320,13 +320,13 @@ extern "C" {
 mod stats {
     use super::{Stats, StatsMap};
 
-    #[derive(err_derive::Error, Debug, PartialEq)]
+    #[derive(thiserror::Error, Debug, PartialEq)]
     pub enum Error {
-        #[error(display = "Failed to parse peer pubkey from string \"{}\"", _0)]
-        PubKeyParse(String, #[error(source)] hex::FromHexError),
+        #[error("Failed to parse peer pubkey from string \"{0}\"")]
+        PubKeyParse(String, #[source] hex::FromHexError),
 
-        #[error(display = "Failed to parse integer from string \"{}\"", _0)]
-        IntParse(String, #[error(source)] std::num::ParseIntError),
+        #[error("Failed to parse integer from string \"{0}\"")]
+        IntParse(String, #[source] std::num::ParseIntError),
     }
 
     impl Stats {

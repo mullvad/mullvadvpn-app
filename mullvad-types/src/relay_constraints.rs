@@ -647,8 +647,8 @@ impl FromStr for Ownership {
 
 /// Returned when `Ownership::from_str` fails to convert a string into a
 /// [`Ownership`] object.
-#[derive(err_derive::Error, Debug, Clone, PartialEq, Eq)]
-#[error(display = "Not a valid ownership setting")]
+#[derive(thiserror::Error, Debug, Clone, PartialEq, Eq)]
+#[error("Not a valid ownership setting")]
 pub struct OwnershipParseError;
 
 /// Limits the set of [`crate::relay_list::Relay`]s used by a `RelaySelector` based on
@@ -851,8 +851,8 @@ impl fmt::Display for BridgeType {
     }
 }
 
-#[derive(err_derive::Error, Debug)]
-#[error(display = "Missing custom bridge settings")]
+#[derive(thiserror::Error, Debug)]
+#[error("Missing custom bridge settings")]
 pub struct MissingCustomBridgeSettings(());
 
 /// Specifies a specific endpoint or [`BridgeConstraints`] to use when `mullvad-daemon` selects a
