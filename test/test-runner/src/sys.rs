@@ -178,6 +178,7 @@ ExecStart=/usr/bin/mullvad-daemon --disable-stdout-timestamps {verbosity}"#
 
     let mut file = tokio::fs::OpenOptions::new()
         .create(true)
+        .truncate(false)
         .write(true)
         .open(override_path)
         .await
@@ -409,6 +410,7 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
 
     let mut file = tokio::fs::OpenOptions::new()
         .create(true)
+        .truncate(false)
         .write(true)
         .open(override_path)
         .await
