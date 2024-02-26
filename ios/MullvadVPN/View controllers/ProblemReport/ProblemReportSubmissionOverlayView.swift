@@ -174,6 +174,8 @@ class ProblemReportSubmissionOverlayView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
+        accessibilityIdentifier = AccessibilityIdentifier.problemReportSubmittedView
+
         addSubviews()
         transitionToState(state)
 

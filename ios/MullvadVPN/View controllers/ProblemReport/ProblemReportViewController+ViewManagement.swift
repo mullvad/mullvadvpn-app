@@ -96,6 +96,7 @@ extension ProblemReportViewController {
 
     func makeSendButton() -> AppButton {
         let button = AppButton(style: .success)
+        button.accessibilityIdentifier = AccessibilityIdentifier.problemReportSendButton
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(Self.persistentViewModel.sendLogsButtonTitle, for: .normal)
         button.addTarget(self, action: #selector(handleSendButtonTap), for: .touchUpInside)
