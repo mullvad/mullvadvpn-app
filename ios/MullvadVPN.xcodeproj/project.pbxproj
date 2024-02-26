@@ -42,6 +42,7 @@
 		06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		449872E12B7BBC5400094DDC /* TunnelSettingsUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449872E02B7BBC5400094DDC /* TunnelSettingsUpdate.swift */; };
 		449872E42B7CB96300094DDC /* TunnelSettingsUpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449872E32B7CB96300094DDC /* TunnelSettingsUpdateTests.swift */; };
+		449872E82B8CC3DF00094DDC /* MobiusCore in Frameworks */ = {isa = PBXBuildFile; productRef = 449872E72B8CC3DF00094DDC /* MobiusCore */; };
 		44DD7D242B6CFFD70005F67F /* StartTunnelOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */; };
 		44DD7D272B6D18FB0005F67F /* MockTunnelInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */; };
 		44DD7D292B7113CA0005F67F /* MockTunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D282B7113CA0005F67F /* MockTunnel.swift */; };
@@ -2065,6 +2066,7 @@
 				58D223E6294C8F120029F5F8 /* MullvadTypes.framework in Frameworks */,
 				7ABCA5B32A9349F20044A708 /* Routing.framework in Frameworks */,
 				58D223CC294C8BCB0029F5F8 /* Operations.framework in Frameworks */,
+				449872E82B8CC3DF00094DDC /* MobiusCore in Frameworks */,
 				06799AD128F98E1D00ACD94E /* MullvadREST.framework in Frameworks */,
 				58B2FDD92AA71D2A003EB5C6 /* MullvadSettings.framework in Frameworks */,
 			);
@@ -4036,6 +4038,7 @@
 			name = MullvadVPN;
 			packageProductDependencies = (
 				58F0974D2A20C31100DA2DAD /* WireGuardKitTypes */,
+				449872E72B8CC3DF00094DDC /* MobiusCore */,
 			);
 			productName = MullvadVPN;
 			productReference = 58CE5E60224146200008646E /* MullvadVPN.app */;
@@ -4329,6 +4332,7 @@
 			packageReferences = (
 				585834F624D2BC1F00A8AF56 /* XCRemoteSwiftPackageReference "swift-log" */,
 				58F097482A20C30000DA2DAD /* XCRemoteSwiftPackageReference "wireguard-apple" */,
+				449872E62B8CC3DF00094DDC /* XCRemoteSwiftPackageReference "Mobius" */,
 			);
 			productRefGroup = 58CE5E61224146200008646E /* Products */;
 			projectDirPath = "";
@@ -8276,6 +8280,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		449872E62B8CC3DF00094DDC /* XCRemoteSwiftPackageReference "Mobius" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/spotify/Mobius.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.2;
+			};
+		};
 		585834F624D2BC1F00A8AF56 /* XCRemoteSwiftPackageReference "swift-log" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-log.git";
@@ -8295,6 +8307,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		449872E72B8CC3DF00094DDC /* MobiusCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 449872E62B8CC3DF00094DDC /* XCRemoteSwiftPackageReference "Mobius" */;
+			productName = MobiusCore;
+		};
 		586A0DD02A20E371006C731C /* WireGuardKitTypes */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 58F097482A20C30000DA2DAD /* XCRemoteSwiftPackageReference "wireguard-apple" */;

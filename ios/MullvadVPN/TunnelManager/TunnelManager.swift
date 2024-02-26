@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MobiusCore
 import MullvadLogging
 import MullvadREST
 import MullvadSettings
@@ -17,6 +18,7 @@ import PacketTunnelCore
 import StoreKit
 import UIKit
 import WireGuardKitTypes
+
 
 /// Interval used for periodic polling of tunnel relay status when tunnel is establishing
 /// connection.
@@ -76,6 +78,36 @@ final class TunnelManager: StorePaymentObserver {
     /// Last processed device check.
     private var lastPacketTunnelKeyRotation: Date?
 
+    /// Experimental Mobius types
+    struct Model {
+        var isRunningPeriodicPrivateKeyRotation = false
+    }
+
+    enum Event {
+        case applicationBecameActive
+    }
+
+    enum Effect {
+        case updatePrivateKeyRotationTimer
+        case startNetworkMonitor
+        case startTunnel
+        case stopTunnel
+        case reconnectTunnel(selectNewRelay: Bool)
+        case refreshDeviceState
+        case refreshTunnelStatus
+    }
+
+    private func update(model: Model, event: Event) -> Next<Model, Effect> {
+        switch event {
+        case .applicationBecameActive:
+            return .dispatchEffects([.refreshTunnelStatus, .refreshDeviceState])
+        }
+//        .noChange // TODO
+    }
+
+    var effectHandler: EffectRouter<Effect, Event>! = nil
+    var mobiusLoop: MobiusLoop<Model, Event, Effect>! = nil
+
     // MARK: - Initialization
 
     init(
@@ -96,6 +128,12 @@ final class TunnelManager: StorePaymentObserver {
         self.operationQueue.name = "TunnelManager.operationQueue"
         self.operationQueue.underlyingQueue = internalQueue
         self.accessTokenManager = accessTokenManager
+
+        effectHandler = EffectRouter<Effect, Event>()
+            .routeCase(Effect.refreshTunnelStatus).to { self.refreshTunnelStatus() }
+            .routeCase(Effect.refreshDeviceState).to { self.refreshDeviceState() }
+
+        mobiusLoop = Mobius.loop(update: self.update, effectHandler: effectHandler.asConnectable).start(from: .init())
 
         NotificationCenter.default.addObserver(
             self,
@@ -759,8 +797,9 @@ final class TunnelManager: StorePaymentObserver {
         #if DEBUG
         logger.debug("Refresh device state and tunnel status due to application becoming active.")
         #endif
-        refreshTunnelStatus()
-        refreshDeviceState()
+        mobiusLoop.dispatchEvent(.applicationBecameActive)
+//        refreshTunnelStatus()
+//        refreshDeviceState()
     }
 
     private func didUpdateNetworkPath(_ path: Network.NWPath) {
