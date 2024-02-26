@@ -16,6 +16,7 @@ members = [
 
 [workspace.lints.rust]
 rust_2018_idioms = "deny"
+non_local_definitions = "allow" # TODO: Remove after fixing warnings generated from `err-derive`
 
 [workspace.lints.clippy]
 unused_async = "deny"
