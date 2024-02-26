@@ -18,33 +18,32 @@
 use super::SettingsPersister;
 use mullvad_types::settings::Settings;
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Missing expected JSON object
-    #[error(display = "Incorrect or missing value: {}", _0)]
+    #[error("Incorrect or missing value: {0}")]
     InvalidOrMissingValue(&'static str),
     /// Unknown or prohibited key
-    #[error(display = "Invalid or prohibited key: {}", _0)]
+    #[error("Invalid or prohibited key: {0}")]
     UnknownOrProhibitedKey(String),
     /// Failed to parse patch json
-    #[error(display = "Failed to parse settings patch")]
-    ParsePatch(#[error(source)] serde_json::Error),
+    #[error("Failed to parse settings patch")]
+    ParsePatch(#[source] serde_json::Error),
     /// Failed to deserialize patched settings
-    #[error(display = "Failed to deserialize patched settings")]
-    DeserializePatched(#[error(source)] serde_json::Error),
+    #[error("Failed to deserialize patched settings")]
+    DeserializePatched(#[source] serde_json::Error),
     /// Failed to serialize settings
-    #[error(display = "Failed to serialize current settings")]
-    SerializeSettings(#[error(source)] serde_json::Error),
+    #[error("Failed to serialize current settings")]
+    SerializeSettings(#[source] serde_json::Error),
     /// Failed to serialize field
-    #[error(display = "Failed to serialize value")]
-    SerializeValue(#[error(source)] serde_json::Error),
+    #[error("Failed to serialize value")]
+    SerializeValue(#[source] serde_json::Error),
     /// Recursion limit reached
-    #[error(display = "Maximum JSON object depth reached")]
+    #[error("Maximum JSON object depth reached")]
     RecursionLimit,
     /// Settings error
-    #[error(display = "Settings error")]
-    Settings(#[error(source)] super::Error),
+    #[error("Settings error")]
+    Settings(#[source] super::Error),
 }
 
 /// Converts an [Error] to a management interface status

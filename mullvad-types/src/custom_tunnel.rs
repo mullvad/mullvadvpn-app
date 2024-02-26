@@ -8,12 +8,12 @@ use std::{
 };
 use talpid_types::net::{openvpn, proxy::CustomProxy, wireguard, Endpoint, TunnelParameters};
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Invalid host/domain: {}", _0)]
-    InvalidHost(String, #[error(source)] io::Error),
+    #[error("Invalid host/domain: {0}")]
+    InvalidHost(String, #[source] io::Error),
 
-    #[error(display = "Host has no IPv4 address: {}", _0)]
+    #[error("Host has no IPv4 address: {0}")]
     HostHasNoIpv4(String),
 }
 

@@ -41,66 +41,65 @@ const DAD_CHECK_TIMEOUT: Duration = Duration::from_secs(5);
 const DAD_CHECK_INTERVAL: Duration = Duration::from_millis(100);
 
 /// Errors returned by some functions in this module.
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Error returned from `ConvertInterfaceAliasToLuid`
     #[cfg(windows)]
-    #[error(display = "Cannot find LUID for virtual adapter")]
-    NoDeviceLuid(#[error(source)] io::Error),
+    #[error("Cannot find LUID for virtual adapter")]
+    NoDeviceLuid(#[source] io::Error),
 
     /// Error returned from `GetUnicastIpAddressTable`/`GetUnicastIpAddressEntry`
     #[cfg(windows)]
-    #[error(display = "Failed to obtain unicast IP address table")]
-    ObtainUnicastAddress(#[error(source)] io::Error),
+    #[error("Failed to obtain unicast IP address table")]
+    ObtainUnicastAddress(#[source] io::Error),
 
     /// `GetUnicastIpAddressTable` contained no addresses for the interface
     #[cfg(windows)]
-    #[error(display = "Found no addresses for the given adapter")]
+    #[error("Found no addresses for the given adapter")]
     NoUnicastAddress,
 
     /// Error returned from `CreateUnicastIpAddressEntry`
     #[cfg(windows)]
-    #[error(display = "Failed to create unicast IP address")]
-    CreateUnicastEntry(#[error(source)] io::Error),
+    #[error("Failed to create unicast IP address")]
+    CreateUnicastEntry(#[source] io::Error),
 
     /// Unexpected DAD state returned for a unicast address
     #[cfg(windows)]
-    #[error(display = "Unexpected DAD state")]
-    DadStateError(#[error(source)] DadStateError),
+    #[error("Unexpected DAD state")]
+    DadStateError(#[source] DadStateError),
 
     /// DAD check failed.
     #[cfg(windows)]
-    #[error(display = "Timed out waiting on tunnel device")]
+    #[error("Timed out waiting on tunnel device")]
     DeviceReadyTimeout,
 
     /// Unicast DAD check fail.
     #[cfg(windows)]
-    #[error(display = "Unicast channel sender was unexpectedly dropped")]
+    #[error("Unicast channel sender was unexpectedly dropped")]
     UnicastSenderDropped,
 
     /// Unknown address family
-    #[error(display = "Unknown address family: {}", _0)]
+    #[error("Unknown address family: {0}")]
     UnknownAddressFamily(u16),
 }
 
 /// Handles cases where there DAD state is neither tentative nor preferred.
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum DadStateError {
     /// Invalid DAD state.
-    #[error(display = "Invalid DAD state")]
+    #[error("Invalid DAD state")]
     Invalid,
 
     /// Duplicate unicast address.
-    #[error(display = "A duplicate IP address was detected")]
+    #[error("A duplicate IP address was detected")]
     Duplicate,
 
     /// Deprecated unicast address.
-    #[error(display = "The IP address has been deprecated")]
+    #[error("The IP address has been deprecated")]
     Deprecated,
 
     /// Unknown DAD state constant.
-    #[error(display = "Unknown DAD state: {}", _0)]
+    #[error("Unknown DAD state: {0}")]
     Unknown(i32),
 }
 

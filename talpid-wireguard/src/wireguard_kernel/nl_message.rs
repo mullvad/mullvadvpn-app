@@ -10,9 +10,9 @@ use netlink_packet_utils::{
 };
 use std::{ffi::CString, io::Write, mem};
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Family name too long")]
+    #[error("Family name too long")]
     FamilyNameTooLong,
 }
 

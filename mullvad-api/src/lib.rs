@@ -314,16 +314,16 @@ pub struct Runtime {
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
 }
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to construct a rest client")]
-    RestError(#[error(source)] rest::Error),
+    #[error("Failed to construct a rest client")]
+    RestError(#[from] rest::Error),
 
-    #[error(display = "Failed to load address cache")]
-    AddressCacheError(#[error(source)] address_cache::Error),
+    #[error("Failed to load address cache")]
+    AddressCacheError(#[from] address_cache::Error),
 
-    #[error(display = "API availability check failed")]
-    ApiCheckError(#[error(source)] availability::Error),
+    #[error("API availability check failed")]
+    ApiCheckError(#[from] availability::Error),
 }
 
 impl Runtime {

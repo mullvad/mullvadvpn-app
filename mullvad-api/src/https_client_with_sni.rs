@@ -222,9 +222,9 @@ struct SocksConfig {
     authentication: Option<proxy::SocksAuth>,
 }
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 enum ProxyConfigError {
-    #[error(display = "Unrecognized cipher selected: {}", _0)]
+    #[error("Unrecognized cipher selected: {0}")]
     InvalidCipher(String),
 }
 

@@ -22,10 +22,10 @@ use talpid_types::net::Connectivity;
 
 const SYNTHETIC_OFFLINE_DURATION: Duration = Duration::from_secs(1);
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to initialize route monitor")]
-    StartMonitorError(#[error(source)] talpid_routing::Error),
+    #[error("Failed to initialize route monitor")]
+    StartMonitorError(#[from] talpid_routing::Error),
 }
 
 pub struct MonitorHandle {

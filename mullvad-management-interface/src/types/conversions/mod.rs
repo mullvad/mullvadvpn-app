@@ -16,9 +16,9 @@ mod states;
 mod version;
 mod wireguard;
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum FromProtobufTypeError {
-    #[error(display = "Invalid argument for type conversion: {}", _0)]
+    #[error("Invalid argument for type conversion: {0}")]
     InvalidArgument(&'static str),
 }
 

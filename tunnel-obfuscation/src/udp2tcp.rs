@@ -14,20 +14,19 @@ pub struct Udp2TcpSettings {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to create obfuscator
-    #[error(display = "Failed to create obfuscator")]
-    CreateObfuscator(#[error(source)] udp2tcp::Error),
+    #[error("Failed to create obfuscator")]
+    CreateObfuscator(#[source] udp2tcp::Error),
 
     /// Failed to determine UDP socket details
-    #[error(display = "Failed to determine UDP socket details")]
-    GetUdpSocketDetails(#[error(source)] std::io::Error),
+    #[error("Failed to determine UDP socket details")]
+    GetUdpSocketDetails(#[source] std::io::Error),
 
     /// Failed to run obfuscator
-    #[error(display = "Failed to run obfuscator")]
-    RunObfuscator(#[error(source)] udp2tcp::Error),
+    #[error("Failed to run obfuscator")]
+    RunObfuscator(#[source] udp2tcp::Error),
 }
 
 struct Udp2Tcp {

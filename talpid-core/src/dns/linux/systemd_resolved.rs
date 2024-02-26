@@ -8,13 +8,13 @@ pub(crate) use talpid_dbus::systemd_resolved::Error as SystemdDbusError;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "systemd-resolved operation failed")]
-    SystemdResolvedError(#[error(source)] SystemdDbusError),
+    #[error("systemd-resolved operation failed")]
+    SystemdResolvedError(#[from] SystemdDbusError),
 
-    #[error(display = "Failed to resolve interface index with error {}", _0)]
-    InterfaceNameError(#[error(source)] IfaceIndexLookupError),
+    #[error("Failed to resolve interface index with error {0}")]
+    InterfaceNameError(#[from] IfaceIndexLookupError),
 }
 
 pub struct SystemdResolved {

@@ -12,50 +12,49 @@ use std::{fs, io, net::IpAddr, path::Path, sync::Arc, time::Duration};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to initialize a connection to D-Bus")]
-    ConnectDBus(#[error(source)] dbus::Error),
+    #[error("Failed to initialize a connection to D-Bus")]
+    ConnectDBus(#[source] dbus::Error),
 
-    #[error(display = "Failed to read /etc/resolv.conf: _0")]
-    ReadResolvConfError(#[error(source)] io::Error),
+    #[error("Failed to read /etc/resolv.conf: {0}")]
+    ReadResolvConfError(#[source] io::Error),
 
-    #[error(display = "/etc/resolv.conf contents do not match systemd-resolved resolv.conf")]
+    #[error("/etc/resolv.conf contents do not match systemd-resolved resolv.conf")]
     ResolvConfDiffers,
 
-    #[error(display = "/etc/resolv.conf is not a symlink to Systemd resolved")]
+    #[error("/etc/resolv.conf is not a symlink to Systemd resolved")]
     NotSymlinkedToResolvConf,
 
-    #[error(display = "Static stub file does not point to localhost")]
+    #[error("Static stub file does not point to localhost")]
     StaticStubNotPointingToLocalhost,
 
-    #[error(display = "Systemd resolved not detected")]
-    NoSystemdResolved(#[error(source)] dbus::Error),
+    #[error("Systemd resolved not detected")]
+    NoSystemdResolved(#[source] dbus::Error),
 
-    #[error(display = "Failed to find link interface in resolved manager")]
-    GetLinkError(#[error(source)] Box<Error>),
+    #[error("Failed to find link interface in resolved manager")]
+    GetLinkError(#[source] Box<Error>),
 
-    #[error(display = "Failed to configure DNS domains")]
-    SetDomainsError(#[error(source)] dbus::Error),
+    #[error("Failed to configure DNS domains")]
+    SetDomainsError(#[source] dbus::Error),
 
-    #[error(display = "Failed to revert DNS settings of interface: {}", _0)]
-    RevertDnsError(String, #[error(source)] dbus::Error),
+    #[error("Failed to revert DNS settings of interface: {0}")]
+    RevertDnsError(String, #[source] dbus::Error),
 
-    #[error(display = "Failed to replace DNS settings")]
+    #[error("Failed to replace DNS settings")]
     ReplaceDnsError,
 
-    #[error(display = "Failed to perform RPC call on D-Bus")]
-    DBusRpcError(#[error(source)] dbus::Error),
+    #[error("Failed to perform RPC call on D-Bus")]
+    DBusRpcError(#[source] dbus::Error),
 
-    #[error(display = "Failed to add a match to listen for DNS config updates")]
-    DnsUpdateMatchError(#[error(source)] dbus::Error),
+    #[error("Failed to add a match to listen for DNS config updates")]
+    DnsUpdateMatchError(#[source] dbus::Error),
 
-    #[error(display = "Failed to remove a match for DNS config updates")]
-    DnsUpdateRemoveMatchError(#[error(source)] dbus::Error),
+    #[error("Failed to remove a match for DNS config updates")]
+    DnsUpdateRemoveMatchError(#[source] dbus::Error),
 
-    #[error(display = "Async D-Bus task failed")]
-    AsyncTaskError(#[error(source)] tokio::task::JoinError),
+    #[error("Async D-Bus task failed")]
+    AsyncTaskError(#[source] tokio::task::JoinError),
 }
 
 static RESOLVED_STUB_PATHS: Lazy<Vec<&'static Path>> = Lazy::new(|| {

@@ -48,23 +48,22 @@ static LOAD_CLASSES: Once = Once::new();
 static LOG_START: Once = Once::new();
 static mut LOG_INIT_RESULT: Option<Result<(), String>> = None;
 
-#[derive(Debug, err_derive::Error)]
-#[error(no_from)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error(display = "Failed to create global reference to Java object")]
-    CreateGlobalReference(#[error(cause)] jnix::jni::errors::Error),
+    #[error("Failed to create global reference to Java object")]
+    CreateGlobalReference(#[source] jnix::jni::errors::Error),
 
-    #[error(display = "Failed to get Java VM instance")]
-    GetJvmInstance(#[error(cause)] jnix::jni::errors::Error),
+    #[error("Failed to get Java VM instance")]
+    GetJvmInstance(#[source] jnix::jni::errors::Error),
 
-    #[error(display = "Failed to initialize the mullvad daemon")]
-    InitializeDaemon(#[error(source)] mullvad_daemon::Error),
+    #[error("Failed to initialize the mullvad daemon")]
+    InitializeDaemon(#[source] mullvad_daemon::Error),
 
-    #[error(display = "Failed to spawn the tokio runtime")]
-    InitializeTokioRuntime(#[error(source)] io::Error),
+    #[error("Failed to spawn the tokio runtime")]
+    InitializeTokioRuntime(#[source] io::Error),
 
-    #[error(display = "Failed to spawn the JNI event listener")]
-    SpawnJniEventListener(#[error(source)] jni_event_listener::Error),
+    #[error("Failed to spawn the JNI event listener")]
+    SpawnJniEventListener(#[source] jni_event_listener::Error),
 }
 
 #[derive(IntoJava)]

@@ -11,7 +11,7 @@ rust-version.workspace = true
 workspace = true
 
 [dependencies]
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 htmlize = { version = "1.0.2", features = ["unescape"] }
 once_cell = { workspace = true }
 regex = "1"

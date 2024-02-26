@@ -30,59 +30,58 @@ pub use netlink_tunnel::NetlinkTunnel;
 pub mod nm_tunnel;
 pub use nm_tunnel::NetworkManagerTunnel;
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to decode netlink message")]
-    Decode(#[error(source)] DecodeError),
+    #[error("Failed to decode netlink message")]
+    Decode(#[source] DecodeError),
 
-    #[error(display = "Failed to execute netlink control request")]
-    NetlinkControlMessage(#[error(source)] nl_message::Error),
+    #[error("Failed to execute netlink control request")]
+    NetlinkControlMessage(#[source] nl_message::Error),
 
-    #[error(display = "Failed to open netlink socket")]
-    NetlinkSocket(#[error(source)] std::io::Error),
+    #[error("Failed to open netlink socket")]
+    NetlinkSocket(#[source] std::io::Error),
 
-    #[error(display = "Failed to send netlink control request")]
-    NetlinkRequest(#[error(source)] netlink_proto::Error<NetlinkControlMessage>),
+    #[error("Failed to send netlink control request")]
+    NetlinkRequest(#[source] netlink_proto::Error<NetlinkControlMessage>),
 
-    #[error(display = "WireGuard netlink interface unavailable. Is the kernel module loaded?")]
+    #[error("WireGuard netlink interface unavailable. Is the kernel module loaded?")]
     WireguardNetlinkInterfaceUnavailable,
 
-    #[error(display = "Unknown WireGuard command _0")]
+    #[error("Unknown WireGuard command: {0}")]
     UnnkownWireguardCommmand(u8),
 
-    #[error(display = "Received no response")]
+    #[error("Received no response")]
     NoResponse,
 
-    #[error(display = "Received truncated message")]
+    #[error("Received truncated message")]
     Truncated,
 
-    #[error(display = "WireGuard device does not exist")]
+    #[error("WireGuard device does not exist")]
     NoDevice,
 
-    #[error(display = "Failed to get config: _0")]
+    #[error("Failed to get config: {0}")]
     WgGetConf(netlink_packet_core::error::ErrorMessage),
 
-    #[error(display = "Failed to apply config: _0")]
+    #[error("Failed to apply config: {0}")]
     WgSetConf(netlink_packet_core::error::ErrorMessage),
 
-    #[error(display = "Interface name too long")]
+    #[error("Interface name too long")]
     InterfaceName,
 
-    #[error(display = "Send request error")]
-    SendRequest(#[error(source)] NetlinkError<DeviceMessage>),
+    #[error("Send request error")]
+    SendRequest(#[source] NetlinkError<DeviceMessage>),
 
-    #[error(display = "Create device error")]
-    NetlinkCreateDevice(#[error(source)] rtnetlink::Error),
+    #[error("Create device error")]
+    NetlinkCreateDevice(#[source] rtnetlink::Error),
 
-    #[error(display = "Add IP to device error")]
+    #[error("Add IP to device error")]
     NetlinkSetIp(rtnetlink::Error),
 
-    #[error(display = "Failed to delete device")]
-    DeleteDevice(#[error(source)] rtnetlink::Error),
+    #[error("Failed to delete device")]
+    DeleteDevice(#[source] rtnetlink::Error),
 
-    #[error(display = "NetworkManager error")]
-    NetworkManager(#[error(source)] nm_tunnel::Error),
+    #[error("NetworkManager error")]
+    NetworkManager(#[source] nm_tunnel::Error),
 }
 
 pub(crate) const MULLVAD_INTERFACE_NAME: &str = "wg0-mullvad";

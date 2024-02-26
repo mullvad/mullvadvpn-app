@@ -14,7 +14,7 @@ workspace = true
 crate-type = ["cdylib"]
 
 [dependencies]
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 log = { workspace = true }
 env_logger = { workspace = true }
 parity-tokio-ipc = "0.9"

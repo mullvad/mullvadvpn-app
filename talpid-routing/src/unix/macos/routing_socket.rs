@@ -20,17 +20,17 @@ use super::data::{rt_msghdr_short, MessageType, RouteMessage};
 
 use tokio::io::{unix::AsyncFd, AsyncWrite, AsyncWriteExt};
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to open routing socket")]
+    #[error("Failed to open routing socket")]
     OpenSocket(io::Error),
-    #[error(display = "Failed to write to routing socket")]
+    #[error("Failed to write to routing socket")]
     Write(io::Error),
-    #[error(display = "Failed to read from routing socket")]
+    #[error("Failed to read from routing socket")]
     Read(io::Error),
-    #[error(display = "Received a message that's too small")]
+    #[error("Received a message that's too small")]
     MessageTooSmall(usize),
-    #[error(display = "Failed to receive response to route message")]
+    #[error("Failed to receive response to route message")]
     ResponseTimeout,
 }
 

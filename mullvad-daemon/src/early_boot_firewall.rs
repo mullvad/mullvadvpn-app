@@ -1,16 +1,16 @@
 use mullvad_daemon::settings::{self, SettingsPersister};
 use talpid_core::firewall::{self, Firewall, FirewallPolicy};
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to initialize firewall")]
-    Firewall(#[error(source)] firewall::Error),
+    #[error("Failed to initialize firewall")]
+    Firewall(#[from] firewall::Error),
 
-    #[error(display = "Failed to get settings path")]
-    Path(#[error(source)] mullvad_paths::Error),
+    #[error("Failed to get settings path")]
+    Path(#[from] mullvad_paths::Error),
 
-    #[error(display = "Failed to get settings")]
-    Settings(#[error(source)] settings::Error),
+    #[error("Failed to get settings")]
+    Settings(#[from] settings::Error),
 }
 
 pub async fn initialize_firewall() -> Result<(), Error> {

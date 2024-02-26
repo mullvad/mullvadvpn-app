@@ -10,24 +10,23 @@ use winreg::{
 };
 
 /// Errors that can happen when configuring DNS on Windows.
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failure to obtain an interface LUID given an alias.
-    #[error(display = "Failed to obtain LUID for the interface alias")]
-    ObtainInterfaceLuid(#[error(source)] io::Error),
+    #[error("Failed to obtain LUID for the interface alias")]
+    ObtainInterfaceLuid(#[source] io::Error),
 
     /// Failure to obtain an interface GUID.
-    #[error(display = "Failed to obtain GUID for the interface")]
-    ObtainInterfaceGuid(#[error(source)] io::Error),
+    #[error("Failed to obtain GUID for the interface")]
+    ObtainInterfaceGuid(#[source] io::Error),
 
     /// Failure to flush DNS cache.
-    #[error(display = "Failed to flush DNS resolver cache")]
-    FlushResolverCache(#[error(source)] super::dnsapi::Error),
+    #[error("Failed to flush DNS resolver cache")]
+    FlushResolverCache(#[source] super::dnsapi::Error),
 
     /// Failed to update DNS servers for interface.
-    #[error(display = "Failed to update interface DNS servers")]
-    SetResolvers(#[error(source)] io::Error),
+    #[error("Failed to update interface DNS servers")]
+    SetResolvers(#[source] io::Error),
 }
 
 pub struct DnsMonitor {

@@ -12,6 +12,6 @@ workspace = true
 
 [dependencies]
 async-trait = "0.1"
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros", "net", "io-util"] }
 udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "87936ac29b68b902565955f138ab02294bcc8593" }
