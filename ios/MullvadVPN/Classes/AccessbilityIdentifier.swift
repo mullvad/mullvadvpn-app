@@ -60,6 +60,7 @@ public enum AccessibilityIdentifier: String {
     case settingsTableView
     case tunnelControlView
     case problemReportView
+    case problemReportSubmittedView
 
     // Other UI elements
     case connectionPanelInAddressRow

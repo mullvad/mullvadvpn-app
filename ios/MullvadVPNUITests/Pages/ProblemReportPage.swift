@@ -40,7 +40,7 @@ class ProblemReportPage: Page {
     }
 
     @discardableResult func tapSendButton() -> Self {
-        app.otherElements[AccessibilityIdentifier.problemReportSendButton]
+        app.buttons[AccessibilityIdentifier.problemReportSendButton]
             .tap()
 
         return self
