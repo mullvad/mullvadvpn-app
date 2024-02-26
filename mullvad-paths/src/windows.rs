@@ -127,7 +127,7 @@ fn create_dir_with_permissions_recursive(path: &Path) -> Result<()> {
         }
     }
 
-    std::fs::create_dir(path)?;
+    std::fs::create_dir(path).map_err(|e| Error::CreateDirFailed(path.display().to_string(), e))?;
     set_security_permissions(path)
 }
 
