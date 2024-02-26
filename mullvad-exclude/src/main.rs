@@ -94,6 +94,7 @@ fn run() -> Result<Infallible, Error> {
     let file = fs::OpenOptions::new()
         .write(true)
         .create(true)
+        .truncate(false)
         .open(procs_path)
         .map_err(Error::AddProcToCGroup)?;
 
