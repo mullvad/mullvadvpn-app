@@ -55,13 +55,13 @@ class TunnelStateNotificationUseCaseTest {
     }
 
     @Test
-    fun `ensure notifications are empty by default`() = runTest {
+    fun `initial state should be empty`() = runTest {
         // Arrange, Act, Assert
         tunnelStateNotificationUseCase.notifications().test { assertTrue { awaitItem().isEmpty() } }
     }
 
     @Test
-    fun `ensure TunnelState with error will produce TunnelStateError notification`() = runTest {
+    fun `when TunnelState is error use case should emit TunnelStateError notification`() = runTest {
         tunnelStateNotificationUseCase.notifications().test {
             // Arrange, Act
             assertEquals(emptyList(), awaitItem())
@@ -76,7 +76,7 @@ class TunnelStateNotificationUseCaseTest {
     }
 
     @Test
-    fun `ensure disconnecting TunnelState with blocking will produce TunnelStateBlocked notification`() =
+    fun `when TunnelState is Disconnecting with blocking use case should emit TunnelStateBlocked notification`() =
         runTest {
             tunnelStateNotificationUseCase.notifications().test {
                 // Arrange, Act

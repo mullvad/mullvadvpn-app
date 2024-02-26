@@ -71,59 +71,63 @@ class FilterViewModelTest {
     }
 
     @Test
-    fun testSetSelectedOwnership() = runTest {
-        // Arrange
-        val mockOwnership = Ownership.Rented
-        // Assert
-        viewModel.uiState.test {
-            assertEquals(awaitItem().selectedOwnership, Ownership.MullvadOwned)
-            viewModel.setSelectedOwnership(mockOwnership)
-            assertEquals(mockOwnership, awaitItem().selectedOwnership)
+    fun `setSelectedOwnership with Rented should emit uiState where selectedOwnership is Rented`() =
+        runTest {
+            // Arrange
+            val mockOwnership = Ownership.Rented
+            // Assert
+            viewModel.uiState.test {
+                assertEquals(awaitItem().selectedOwnership, Ownership.MullvadOwned)
+                viewModel.setSelectedOwnership(mockOwnership)
+                assertEquals(mockOwnership, awaitItem().selectedOwnership)
+            }
         }
-    }
 
     @Test
-    fun testSetSelectedProvider() = runTest {
-        // Arrange
-        val mockSelectedProvidersList = Provider("ptisp", false)
-        // Assert
-        viewModel.uiState.test {
-            assertLists(awaitItem().selectedProviders, mockSelectedProviders)
-            viewModel.setSelectedProvider(true, mockSelectedProvidersList)
-            assertLists(
-                listOf(mockSelectedProvidersList) + mockSelectedProviders,
-                awaitItem().selectedProviders
-            )
+    fun `setSelectionProvider should emit uiState where selectedProviders include the selected provider`() =
+        runTest {
+            // Arrange
+            val mockSelectedProvidersList = Provider("ptisp", false)
+            // Assert
+            viewModel.uiState.test {
+                assertLists(awaitItem().selectedProviders, mockSelectedProviders)
+                viewModel.setSelectedProvider(true, mockSelectedProvidersList)
+                assertLists(
+                    listOf(mockSelectedProvidersList) + mockSelectedProviders,
+                    awaitItem().selectedProviders
+                )
+            }
         }
-    }
 
     @Test
-    fun testSetAllProviders() = runTest {
-        // Arrange
-        val mockProvidersList = dummyListOfAllProviders
-        // Act
-        viewModel.setAllProviders(true)
-        // Assert
-        viewModel.uiState.test {
-            val state = awaitItem()
-            assertEquals(mockProvidersList, state.selectedProviders)
+    fun `setAllProvider with true should emit uiState with selectedProviders includes all providers`() =
+        runTest {
+            // Arrange
+            val mockProvidersList = dummyListOfAllProviders
+            // Act
+            viewModel.setAllProviders(true)
+            // Assert
+            viewModel.uiState.test {
+                val state = awaitItem()
+                assertEquals(mockProvidersList, state.selectedProviders)
+            }
         }
-    }
 
     @Test
-    fun testOnApplyButtonClicked() = runTest {
-        // Arrange
-        val mockOwnership = Ownership.MullvadOwned.toOwnershipConstraint()
-        val mockSelectedProviders =
-            mockSelectedProviders.toConstraintProviders(dummyListOfAllProviders)
-        // Act
-        viewModel.onApplyButtonClicked()
-        // Assert
-        coVerify {
-            mockRelayListFilterUseCase.updateOwnershipAndProviderFilter(
-                mockOwnership,
-                mockSelectedProviders
-            )
+    fun `onApplyButtonClicked should invoke updateOwnershipAndProviderFilter on RelayListFilterUseCase`() =
+        runTest {
+            // Arrange
+            val mockOwnership = Ownership.MullvadOwned.toOwnershipConstraint()
+            val mockSelectedProviders =
+                mockSelectedProviders.toConstraintProviders(dummyListOfAllProviders)
+            // Act
+            viewModel.onApplyButtonClicked()
+            // Assert
+            coVerify {
+                mockRelayListFilterUseCase.updateOwnershipAndProviderFilter(
+                    mockOwnership,
+                    mockSelectedProviders
+                )
+            }
         }
-    }
 }

@@ -66,7 +66,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testIsInternetAvailableWithoutInternet() = runTest {
+    fun `given no internet when logging in then show no internet error`() = runTest {
         turbineScope {
             // Arrange
             every { connectivityUseCase.isInternetAvailable() } returns false
@@ -87,12 +87,12 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testDefaultState() = runTest {
+    fun `initial state should be initial`() = runTest {
         loginViewModel.uiState.test { assertEquals(LoginUiState.INITIAL, awaitItem()) }
     }
 
     @Test
-    fun testCreateAccount() = runTest {
+    fun `createAccount call should result in NavigateToWelcome side effect`() = runTest {
         turbineScope {
             // Arrange
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
@@ -109,7 +109,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testLoginWithValidAccount() = runTest {
+    fun `given valid account when logging in then navigate to connect view`() = runTest {
         turbineScope {
             // Arrange
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
@@ -128,7 +128,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testLoginWithInvalidAccount() = runTest {
+    fun `given invalid account when logging in then show invalid credentials`() = runTest {
         loginViewModel.uiState.test {
             // Arrange
             coEvery { mockedAccountRepository.login(any()) } returns LoginResult.InvalidAccount
@@ -142,34 +142,36 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testLoginWithTooManyDevicesError() = runTest {
-        turbineScope {
-            // Arrange
-            val uiStates = loginViewModel.uiState.testIn(backgroundScope)
-            val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
-            coEvery {
-                mockedDeviceRepository.refreshAndAwaitDeviceListWithTimeout(
-                    any(),
-                    any(),
-                    any(),
-                    any()
-                )
-            } returns DeviceListEvent.Available(DUMMY_ACCOUNT_TOKEN, listOf())
-            coEvery { mockedAccountRepository.login(any()) } returns LoginResult.MaxDevicesReached
+    fun `given account with max devices reached when logging devices reached then navigate to too many devices`() =
+        runTest {
+            turbineScope {
+                // Arrange
+                val uiStates = loginViewModel.uiState.testIn(backgroundScope)
+                val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
+                coEvery {
+                    mockedDeviceRepository.refreshAndAwaitDeviceListWithTimeout(
+                        any(),
+                        any(),
+                        any(),
+                        any()
+                    )
+                } returns DeviceListEvent.Available(DUMMY_ACCOUNT_TOKEN, listOf())
+                coEvery { mockedAccountRepository.login(any()) } returns
+                    LoginResult.MaxDevicesReached
 
-            // Act, Assert
-            uiStates.skipDefaultItem()
-            loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
-            assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
-            assertEquals(
-                LoginUiSideEffect.TooManyDevices(AccountToken(DUMMY_ACCOUNT_TOKEN)),
-                sideEffects.awaitItem()
-            )
+                // Act, Assert
+                uiStates.skipDefaultItem()
+                loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
+                assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
+                assertEquals(
+                    LoginUiSideEffect.TooManyDevices(AccountToken(DUMMY_ACCOUNT_TOKEN)),
+                    sideEffects.awaitItem()
+                )
+            }
         }
-    }
 
     @Test
-    fun testLoginWithRpcError() = runTest {
+    fun `given RpcError when logging in then show unknown error with message`() = runTest {
         loginViewModel.uiState.test {
             // Arrange
             coEvery { mockedAccountRepository.login(any()) } returns LoginResult.RpcError
@@ -186,7 +188,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testLoginWithUnknownError() = runTest {
+    fun `given OtherError when logging in then show unknown error with message`() = runTest {
         loginViewModel.uiState.test {
             // Arrange
             coEvery { mockedAccountRepository.login(any()) } returns LoginResult.OtherError
@@ -203,20 +205,21 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun testAccountHistory() = runTest {
-        loginViewModel.uiState.test {
-            // Act, Assert
-            skipDefaultItem()
-            accountHistoryTestEvents.emit(AccountHistory.Available(DUMMY_ACCOUNT_TOKEN))
-            assertEquals(
-                LoginUiState.INITIAL.copy(lastUsedAccount = AccountToken(DUMMY_ACCOUNT_TOKEN)),
-                awaitItem()
-            )
+    fun `on new accountHistory emission uiState should include lastUsedAccount matching accountHistory`() =
+        runTest {
+            loginViewModel.uiState.test {
+                // Act, Assert
+                skipDefaultItem()
+                accountHistoryTestEvents.emit(AccountHistory.Available(DUMMY_ACCOUNT_TOKEN))
+                assertEquals(
+                    LoginUiState.INITIAL.copy(lastUsedAccount = AccountToken(DUMMY_ACCOUNT_TOKEN)),
+                    awaitItem()
+                )
+            }
         }
-    }
 
     @Test
-    fun testClearingAccountHistory() = runTest {
+    fun `clearAccountHistory should invoke clearAccountHistory on AccountRepository`() = runTest {
         // Act, Assert
         loginViewModel.clearAccountHistory()
         verify { mockedAccountRepository.clearAccountHistory() }
