@@ -159,14 +159,13 @@ async fn detect_mtu(
         })
         .collect::<FuturesUnordered<_>>();
 
-    max_ping_size(ping_stream, PING_OFFSET_TIMEOUT).await
+    max_ping_size(ping_stream).await
 }
 
-/// Consumes a stream of pings, and returns the largest packet size within a given timeout from the
-/// first ping response. Short circuits on errors.
+/// Consumes a stream of pings, and returns the largest packet size within [`PING_OFFSET_TIMEOUT`]
+/// from the first ping response. Short circuits on errors.
 async fn max_ping_size(
     mut ping_stream: FuturesUnordered<impl Future<Output = Result<u16, SurgeError>>>,
-    ping_offset_timeout: Duration,
 ) -> Result<u16, Error> {
     let first_ping_size = ping_stream
         .next()
@@ -181,7 +180,7 @@ async fn max_ping_size(
         })?;
 
     ping_stream
-        .timeout(ping_offset_timeout) // Start the timeout after the first ping has arrived
+        .timeout(PING_OFFSET_TIMEOUT) // Start the timeout after the first ping has arrived
         .map_while(|res| res.ok()) // Stop waiting for more pings after this timeout
         .try_fold(first_ping_size, |acc, mtu| future::ready(Ok(acc.max(mtu)))) // Get largest ping
         .await
@@ -207,11 +206,6 @@ fn mtu_spacing(mtu_min: u16, mtu_max: u16, step_size: u16) -> Vec<u16> {
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        marker::{Send, Unpin},
-        pin::Pin,
-    };
-
     use super::*;
     use proptest::prelude::*;
 
@@ -232,125 +226,151 @@ mod tests {
         }
     }
 
-    fn ready_ping<T: Send + 'static>(x: T) -> Pin<Box<dyn Future<Output = T>>> {
-        Box::pin(future::ready(x))
-    }
+    /// Tests for the timeout behavior described by [`PING_OFFSET_TIMEOUT`] and [`PING_TIMEOUT`].
+    ///
+    /// Note that time is mocked using [`tokio::time::pause`]. When all current tasks are sleeping,
+    /// the clock will auto advance until the next one wakes up,
+    /// see <https://docs.rs/tokio/latest/tokio/time/fn.pause.html#auto-advance> for details.
+    mod timeout {
+        use super::*;
+        use rand::{distributions::Uniform, thread_rng};
+        use std::pin::Pin;
+        use tokio::test;
 
-    fn ok_ping<T: Send + 'static, E: Send + 'static>(
-        x: T,
-    ) -> Pin<Box<dyn Future<Output = Result<T, E>>>> {
-        ready_ping(Ok(x))
-    }
+        // Convenience functions for creating dynamic ping futures, required by `FuturesUnordered`
+        // to manipulate the outcome and delay of mocked pings individually
 
-    fn err_ping<T: Send + 'static, E: Send + 'static>(
-        e: E,
-    ) -> Pin<Box<dyn Future<Output = Result<T, E>>>> {
-        ready_ping(Err(e))
-    }
+        /// Ping response that is available immediately
+        fn ready_ping<T: Send + 'static>(x: T) -> Pin<Box<dyn Future<Output = T>>> {
+            Box::pin(future::ready(x))
+        }
 
-    fn delayed_ping<T: Send + 'static + Unpin>(
-        x: T,
-        duration: Duration,
-    ) -> Pin<Box<dyn Future<Output = T>>> {
-        Box::pin(async move {
-            tokio::time::sleep(duration).await;
-            x
-        })
-    }
+        /// Ping response that is available immediately and wraps result in Ok()
+        fn ok_ping<T: Send + 'static, E: Send + 'static>(
+            t: T,
+        ) -> Pin<Box<dyn Future<Output = Result<T, E>>>> {
+            ready_ping(Ok(t))
+        }
 
-    /// The largest ping size should be chosen if all of them return, regardless of return order.
-    #[tokio::test]
-    async fn all_pings_ok() {
-        let pings = (0..=100).rev().map(ok_ping).collect();
-        let max = max_ping_size(pings, Duration::from_millis(10))
-            .await
-            .unwrap();
-        assert_eq!(max, 100);
-    }
+        /// Ping response that is available immediately and  wraps result in Err()
+        fn err_ping<T: Send + 'static, E: Send + 'static>(
+            e: E,
+        ) -> Pin<Box<dyn Future<Output = Result<T, E>>>> {
+            ready_ping(Err(e))
+        }
 
-    /// If one ping times out, all the following are considered timed out too. The largest response
-    /// before that point is chosen.
-    #[tokio::test]
-    async fn ping_timeout() {
-        let mut pings = FuturesUnordered::new();
-        let early_pings = (0..=50).map(ok_ping);
-        pings.extend(early_pings);
-        let late_pings = (51..=100).map(|p| delayed_ping(Ok(p), Duration::from_millis(10)));
-        pings.extend(late_pings);
+        /// Ping response that is delayed
+        fn delayed_ping<R: Send + 'static + Unpin>(
+            ret: R,
+            duration: Duration,
+        ) -> Pin<Box<dyn Future<Output = R>>> {
+            Box::pin(async move {
+                tokio::time::sleep(duration).await;
+                ret
+            })
+        }
 
-        let max = max_ping_size(pings, Duration::from_millis(5))
-            .await
-            .unwrap();
-        assert_eq!(max, 50);
-    }
+        /// The largest ping size should be chosen if all of them return, regardless of return
+        /// order.
+        #[test(start_paused = true)]
+        async fn all_pings_ok() {
+            let mut rng = thread_rng();
+            // Random delay for each ping, but within PING_OFFSET_TIMEOUT of the first
+            let uniform = Uniform::new(Duration::ZERO, PING_OFFSET_TIMEOUT);
+            let pings = (0..=100)
+                .map(|p| delayed_ping(Ok(p), rng.sample(uniform)))
+                .collect();
+            let max = max_ping_size(pings).await.unwrap();
+            assert_eq!(max, 100);
+        }
 
-    /// The [`PING_OFFSET_TIMEOUT`] is counted from the return of the first ping, not from the
-    /// function call.
-    #[tokio::test]
-    async fn delay_first_ping() {
-        let pings = (0..=100)
-            .map(|p| delayed_ping(Ok(p), Duration::from_millis(10)))
-            .collect();
-        let max = max_ping_size(pings, Duration::from_millis(5))
-            .await
-            .unwrap();
-        assert_eq!(max, 100);
-    }
+        /// If pings arrive later than [`PING_OFFSET_TIMEOUT`] after the first ping, they should be
+        /// filtered out. The largest response before that point is chosen.
+        #[test(start_paused = true)]
+        async fn ping_timeout() {
+            let mut pings = FuturesUnordered::new();
+            let ok_pings = (0..=50).map(ok_ping);
+            pings.extend(ok_pings);
+            let dropped_pings = (51..=100)
+                .map(|p| delayed_ping(Ok(p), PING_OFFSET_TIMEOUT + Duration::from_secs(1)));
+            pings.extend(dropped_pings);
 
-    /// If an unknown error type occurs, the MTU detection is aborted and that error is propagated,
-    /// even if some ping response came back ok.
-    #[tokio::test]
-    async fn unknown_error() {
-        let pings = FuturesUnordered::new();
-        pings.push(ok_ping(0));
-        pings.push(err_ping(SurgeError::NetworkError));
-        pings.push(ok_ping(10));
+            let max = max_ping_size(pings).await.unwrap();
+            assert_eq!(max, 50);
+        }
 
-        let e = max_ping_size(pings, Duration::from_millis(10))
-            .await
-            .unwrap_err();
-        assert!(matches!(
-            e,
-            Error::MtuDetectionUnexpected(SurgeError::NetworkError)
-        ));
-    }
+        /// The [`PING_OFFSET_TIMEOUT`] is counted from the return of the first ping, not from the
+        /// function call. Test that if all pings arrive after PING_OFFSET_TIMEOUT, but close to
+        /// each other in time, the largest return value is chosen as normal.
+        #[test(start_paused = true)]
+        async fn delay_first_ping() {
+            let mut rng = thread_rng();
+            // Random delay for each ping, but within PING_OFFSET_TIMEOUT of the first and no sooner
+            // than 5s
+            let uniform = Uniform::new(
+                Duration::from_secs(5),
+                Duration::from_secs(5) + PING_OFFSET_TIMEOUT,
+            );
+            let pings = (0..=100)
+                .map(|p| delayed_ping(Ok(p), rng.sample(uniform)))
+                .collect();
+            let max = max_ping_size(pings).await.unwrap();
+            assert_eq!(max, 100);
+        }
 
-    /// An error of type [`SurgeError::Timeout`] signals that the total [`PING_TIMEOUT`] has been
-    /// reached. If this happens to the first ping we consider alls pings timed out.
-    #[tokio::test]
-    async fn all_dropped() {
-        let pings = FuturesUnordered::new();
-        pings.push(err_ping(SurgeError::Timeout {
-            seq: PingSequence(0),
-        }));
-        pings.push(delayed_ping(Ok(10), Duration::from_millis(10)));
+        /// If an unknown error type occurs, the MTU detection is aborted and that error is
+        /// propagated, even if some ping response came back ok.
+        #[test(start_paused = true)]
+        async fn unknown_error() {
+            let pings = FuturesUnordered::new();
+            pings.push(ok_ping(0));
+            pings.push(ok_ping(100));
+            pings.push(err_ping(SurgeError::NetworkError));
 
-        let e = max_ping_size(pings, Duration::from_millis(10))
-            .await
-            .unwrap_err();
-        assert!(matches!(e, Error::MtuDetectionAllDropped));
-    }
+            let e = max_ping_size(pings).await.unwrap_err();
+            assert!(matches!(
+                e,
+                Error::MtuDetectionUnexpected(SurgeError::NetworkError)
+            ));
+        }
 
-    /// In the rare case that [`PING_TIMEOUT`] triggers before [`PING_OFFSET_TIMEOUT`], even though
-    /// some of the ping responses have come back, we still consider it abnormal and choose to
-    /// return an error instead of trusting result.
-    #[tokio::test]
-    async fn max_timeout_error() {
-        let pings = FuturesUnordered::new();
-        pings.push(delayed_ping(Ok(0), Duration::from_millis(9)));
-        pings.push(delayed_ping(
-            Err(SurgeError::Timeout {
-                seq: PingSequence(0),
-            }),
-            Duration::from_millis(10),
-        ));
+        /// An error of type [`SurgeError::Timeout`] signals that the total [`PING_TIMEOUT`] has
+        /// been reached. If this happens to the first ping we consider alls pings timed
+        /// out.
+        #[test(start_paused = true)]
+        async fn all_dropped() {
+            let pings = FuturesUnordered::new();
+            pings.push(delayed_ping(
+                Err(SurgeError::Timeout {
+                    seq: PingSequence(0),
+                }),
+                PING_TIMEOUT,
+            ));
+            pings.push(delayed_ping(Ok(100), PING_TIMEOUT + Duration::from_secs(1)));
 
-        let e = max_ping_size(pings, Duration::from_millis(5))
-            .await
-            .unwrap_err();
-        assert!(matches!(
-            e,
-            Error::MtuDetectionUnexpected(SurgeError::Timeout { seq: _ })
-        ));
+            let e = max_ping_size(pings).await.unwrap_err();
+            assert!(matches!(e, Error::MtuDetectionAllDropped));
+        }
+
+        /// In the rare case that [`PING_TIMEOUT`] triggers before [`PING_OFFSET_TIMEOUT`], even
+        /// though some of the ping responses have come back, we still consider it abnormal
+        /// and choose to return an error instead of trusting result.
+        #[test(start_paused = true)]
+        async fn max_timeout_error() {
+            let pings = FuturesUnordered::new();
+            pings.push(delayed_ping(Ok(0), PING_TIMEOUT - Duration::from_secs(1)));
+            pings.push(delayed_ping(
+                Err(SurgeError::Timeout {
+                    seq: PingSequence(0),
+                }),
+                PING_TIMEOUT,
+            ));
+
+            let e = max_ping_size(pings).await.unwrap_err();
+            assert!(matches!(
+                e,
+                Error::MtuDetectionUnexpected(SurgeError::Timeout { seq: _ })
+            ));
+        }
     }
 }
