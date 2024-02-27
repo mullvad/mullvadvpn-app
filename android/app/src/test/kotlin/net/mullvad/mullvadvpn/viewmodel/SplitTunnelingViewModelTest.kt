@@ -53,7 +53,7 @@ class SplitTunnelingViewModelTest {
     }
 
     @Test
-    fun test_has_progress_on_start() = runTest {
+    fun `initial state should be loading`() = runTest {
         initTestSubject(emptyList())
         val actualState: SplitTunnelingUiState = testSubject.uiState.value
 
@@ -65,7 +65,7 @@ class SplitTunnelingViewModelTest {
     }
 
     @Test
-    fun test_empty_app_list() = runTest {
+    fun `empty app list should work`() = runTest {
         every { mockedSplitTunneling.excludedAppsChange = captureLambda() } answers
             {
                 lambda<(Set<String>) -> Unit>().invoke(emptySet())
@@ -86,7 +86,7 @@ class SplitTunnelingViewModelTest {
     }
 
     @Test
-    fun test_apps_list_delivered() = runTest {
+    fun `includedApps and excludedApps should both be included in uiState`() = runTest {
         val appExcluded = AppData("test.excluded", 0, "testName1")
         val appNotExcluded = AppData("test.not.excluded", 0, "testName2")
         every { mockedSplitTunneling.excludedAppsChange = captureLambda() } answers
@@ -119,7 +119,7 @@ class SplitTunnelingViewModelTest {
     }
 
     @Test
-    fun test_include_app() = runTest {
+    fun `include app should work`() = runTest {
         var excludedAppsCallback = slot<(Set<String>) -> Unit>()
         val app = AppData("test", 0, "testName")
         every { mockedSplitTunneling.includeApp(app.packageName) } just runs
@@ -165,7 +165,7 @@ class SplitTunnelingViewModelTest {
     }
 
     @Test
-    fun test_add_app_to_excluded() = runTest {
+    fun `onExcludeApp should result in new uiState with app excluded`() = runTest {
         var excludedAppsCallback = slot<(Set<String>) -> Unit>()
         val app = AppData("test", 0, "testName")
         every { mockedSplitTunneling.excludeApp(app.packageName) } just runs
@@ -212,7 +212,7 @@ class SplitTunnelingViewModelTest {
     }
 
     @Test
-    fun test_disabled_state() = runTest {
+    fun `when split tunneling is disabled uiState should be disabled`() = runTest {
         every { mockedSplitTunneling.excludedAppsChange = captureLambda() } answers
             {
                 lambda<(Set<String>) -> Unit>().invoke(emptySet())

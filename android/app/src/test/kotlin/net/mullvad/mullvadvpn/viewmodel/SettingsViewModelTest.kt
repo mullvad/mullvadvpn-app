@@ -47,7 +47,7 @@ class SettingsViewModelTest {
     private lateinit var viewModel: SettingsViewModel
 
     @BeforeEach
-    fun setUp() {
+    fun setup() {
         mockkStatic(CACHE_EXTENSION_CLASS)
         val deviceState = MutableStateFlow<DeviceState>(DeviceState.LoggedOut)
         mockAppVersionInfoCache =
@@ -75,72 +75,75 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun test_device_state_default_state() = runTest {
+    fun `uiState should return isLoggedIn false by default`() = runTest {
         // Act, Assert
         viewModel.uiState.test { assertEquals(false, awaitItem().isLoggedIn) }
     }
 
     @Test
-    fun test_device_state_supported_version_state() = runTest {
-        // Arrange
-        val versionInfoTestItem =
-            VersionInfo(
-                currentVersion = "1.0",
-                upgradeVersion = "1.0",
-                isOutdated = false,
-                isSupported = true
-            )
-        every { mockAppVersionInfoCache.version } returns "1.0"
-        every { mockAppVersionInfoCache.isSupported } returns true
-        every { mockAppVersionInfoCache.isOutdated } returns false
+    fun `when AppVersionInfoCache returns isOutdated false uiState should return isUpdateAvailable false`() =
+        runTest {
+            // Arrange
+            val versionInfoTestItem =
+                VersionInfo(
+                    currentVersion = "1.0",
+                    upgradeVersion = "1.0",
+                    isOutdated = false,
+                    isSupported = true
+                )
+            every { mockAppVersionInfoCache.version } returns "1.0"
+            every { mockAppVersionInfoCache.isSupported } returns true
+            every { mockAppVersionInfoCache.isOutdated } returns false
 
-        // Act, Assert
-        viewModel.uiState.test {
-            awaitItem() // Wait for initial value
+            // Act, Assert
+            viewModel.uiState.test {
+                awaitItem() // Wait for initial value
 
-            serviceConnectionState.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-            versionInfo.value = versionInfoTestItem
-            val result = awaitItem()
-            assertEquals(false, result.isUpdateAvailable)
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                versionInfo.value = versionInfoTestItem
+                val result = awaitItem()
+                assertEquals(false, result.isUpdateAvailable)
+            }
         }
-    }
 
     @Test
-    fun test_device_state_unsupported_version_state() = runTest {
-        // Arrange
-        every { mockAppVersionInfoCache.isSupported } returns false
-        every { mockAppVersionInfoCache.isOutdated } returns false
-        every { mockAppVersionInfoCache.version } returns ""
+    fun `when AppVersionInfoCache returns isSupported false uiState should return isUpdateAvailable true`() =
+        runTest {
+            // Arrange
+            every { mockAppVersionInfoCache.isSupported } returns false
+            every { mockAppVersionInfoCache.isOutdated } returns false
+            every { mockAppVersionInfoCache.version } returns ""
 
-        // Act, Assert
-        viewModel.uiState.test {
-            awaitItem()
+            // Act, Assert
+            viewModel.uiState.test {
+                awaitItem()
 
-            serviceConnectionState.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-            val result = awaitItem()
-            assertEquals(true, result.isUpdateAvailable)
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                val result = awaitItem()
+                assertEquals(true, result.isUpdateAvailable)
+            }
         }
-    }
 
     @Test
-    fun test_device_state_outdated_version_state() = runTest {
-        // Arrange
-        every { mockAppVersionInfoCache.isSupported } returns true
-        every { mockAppVersionInfoCache.isOutdated } returns true
-        every { mockAppVersionInfoCache.version } returns ""
+    fun `when AppVersionInfoCache returns isOutdated true uiState should return isUpdateAvailable true`() =
+        runTest {
+            // Arrange
+            every { mockAppVersionInfoCache.isSupported } returns true
+            every { mockAppVersionInfoCache.isOutdated } returns true
+            every { mockAppVersionInfoCache.version } returns ""
 
-        // Act, Assert
-        viewModel.uiState.test {
-            awaitItem()
+            // Act, Assert
+            viewModel.uiState.test {
+                awaitItem()
 
-            serviceConnectionState.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-            val result = awaitItem()
-            assertEquals(true, result.isUpdateAvailable)
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                val result = awaitItem()
+                assertEquals(true, result.isUpdateAvailable)
+            }
         }
-    }
 
     companion object {
         private const val CACHE_EXTENSION_CLASS = "net.mullvad.mullvadvpn.util.CacheExtensionsKt"

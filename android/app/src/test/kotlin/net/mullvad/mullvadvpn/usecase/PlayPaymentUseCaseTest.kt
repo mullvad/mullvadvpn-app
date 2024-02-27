@@ -21,7 +21,7 @@ class PlayPaymentUseCaseTest {
     private val playPaymentUseCase = PlayPaymentUseCase(mockPaymentRepository)
 
     @Test
-    fun testUpdatePaymentAvailability() = runTest {
+    fun `queryPaymentAvailability call should result in updated paymentAvailability`() = runTest {
         // Arrange
         val productsUnavailable = PaymentAvailability.ProductsUnavailable
         val paymentRepositoryQueryPaymentAvailabilityFlow = flow { emit(productsUnavailable) }
@@ -37,7 +37,7 @@ class PlayPaymentUseCaseTest {
     }
 
     @Test
-    fun testUpdatePurchaseResult() = runTest {
+    fun `purchaseProduct call should result in updated purchaseResult`() = runTest {
         // Arrange
         val fetchingProducts = PurchaseResult.FetchingProducts
         val productId = ProductId("productId")
@@ -54,7 +54,7 @@ class PlayPaymentUseCaseTest {
     }
 
     @Test
-    fun testPurchaseProduct() = runTest {
+    fun `purchaseProduct call should invoke purchaseProduct on repository`() = runTest {
         // Arrange
         val productId = ProductId("productId")
 
@@ -66,16 +66,17 @@ class PlayPaymentUseCaseTest {
     }
 
     @Test
-    fun testQueryPaymentAvailability() = runTest {
-        // Act
-        playPaymentUseCase.queryPaymentAvailability()
+    fun `queryPaymentAvailability should invoke queryPaymentAvailability on repository`() =
+        runTest {
+            // Act
+            playPaymentUseCase.queryPaymentAvailability()
 
-        // Assert
-        coVerify { mockPaymentRepository.queryPaymentAvailability() }
-    }
+            // Assert
+            coVerify { mockPaymentRepository.queryPaymentAvailability() }
+        }
 
     @Test
-    fun testResetPurchaseResult() = runTest {
+    fun `resetPurchaseResult call should result in purchaseResult null`() = runTest {
         // Arrange
         val completedSuccess = PurchaseResult.Completed.Success
         val productId = ProductId("productId")
@@ -94,7 +95,7 @@ class PlayPaymentUseCaseTest {
     }
 
     @Test
-    fun testVerifyPurchases() = runTest {
+    fun `verifyPurchases call should invoke verifyPurchases on repository`() = runTest {
         // Act
         playPaymentUseCase.verifyPurchases()
 

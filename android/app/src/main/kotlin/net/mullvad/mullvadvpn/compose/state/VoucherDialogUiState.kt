@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.compose.state
 
 data class VoucherDialogUiState(
     val voucherInput: String = "",
-    val voucherViewModelState: VoucherDialogState = VoucherDialogState.Default
+    val voucherState: VoucherDialogState = VoucherDialogState.Default
 ) {
     companion object {
         val INITIAL = VoucherDialogUiState()

@@ -36,14 +36,14 @@ class OutOfTimeUseCaseTest {
     }
 
     @Test
-    fun `No events should result in no expiry`() = runTest {
+    fun `no events should result in no expiry`() = runTest {
         // Arrange
         // Act, Assert
         outOfTimeUseCase.isOutOfTime().test { assertEquals(null, awaitItem()) }
     }
 
     @Test
-    fun `Tunnel is blocking because out of time should emit true`() = runTest {
+    fun `tunnel is blocking because out of time should emit true`() = runTest {
         // Arrange
         // Act, Assert
         val errorStateCause = ErrorStateCause.AuthFailed("[EXPIRED_ACCOUNT]")
@@ -58,7 +58,7 @@ class OutOfTimeUseCaseTest {
     }
 
     @Test
-    fun `Tunnel is connected should emit false`() = runTest {
+    fun `tunnel is connected should emit false`() = runTest {
         // Arrange
         val expiredAccountExpiry = AccountExpiry.Available(DateTime.now().plusDays(1))
         val tunnelStateChanges =
@@ -86,7 +86,7 @@ class OutOfTimeUseCaseTest {
     }
 
     @Test
-    fun `Account expiry that has expired should emit true`() = runTest {
+    fun `account expiry that has expired should emit true`() = runTest {
         // Arrange
         val expiredAccountExpiry = AccountExpiry.Available(DateTime.now().minusDays(1))
         // Act, Assert
@@ -98,7 +98,7 @@ class OutOfTimeUseCaseTest {
     }
 
     @Test
-    fun `Account expiry that has not expired should emit false`() = runTest {
+    fun `account expiry that has not expired should emit false`() = runTest {
         // Arrange
         val expiredAccountExpiry = AccountExpiry.Available(DateTime.now().plusDays(1))
 
@@ -111,7 +111,7 @@ class OutOfTimeUseCaseTest {
     }
 
     @Test
-    fun `Account that expires without new expiry event`() = runTest {
+    fun `account that expires without new expiry event should emit true`() = runTest {
         // Arrange
         val expiredAccountExpiry = AccountExpiry.Available(DateTime.now().plusSeconds(62))
 

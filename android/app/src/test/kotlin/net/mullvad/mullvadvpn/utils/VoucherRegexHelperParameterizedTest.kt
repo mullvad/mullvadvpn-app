@@ -14,7 +14,7 @@ private const val IS_UNACCEPTED_FORMAT = false
 @ExtendWith(TestCoroutineRule::class)
 class VoucherRegexHelperParameterizedTest {
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "Voucher format {1} should be valid: {0}")
     @MethodSource("data")
     fun testVoucherFormat(isValid: Boolean, voucher: String) {
         assertEquals(VoucherRegexHelper.validate(voucher), isValid)

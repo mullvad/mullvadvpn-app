@@ -8,8 +8,9 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.just
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
-import kotlin.test.assertNotNull
+import kotlin.test.assertEquals
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import org.junit.jupiter.api.AfterEach
@@ -38,7 +39,7 @@ class ChangelogViewModelTest {
     }
 
     @Test
-    fun testUpToDateVersionCodeShouldNotEmitChangelog() = runTest {
+    fun `given up to date version code uiSideEffect should not emit`() = runTest {
         // Arrange
         every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns
             buildVersionCode
@@ -49,18 +50,26 @@ class ChangelogViewModelTest {
     }
 
     @Test
-    fun testNotUpToDateVersionCodeShouldEmitChangelog() = runTest {
+    fun `given old version code uiSideEffect should emit ChangeLog`() = runTest {
         // Arrange
-        every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns -1
-        every { mockedChangelogRepository.getLastVersionChanges() } returns listOf("bla", "bla")
+        val version = -1
+        val changes = listOf("first change", "second change")
+        every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns
+            version
+        every { mockedChangelogRepository.getLastVersionChanges() } returns changes
 
         viewModel = ChangelogViewModel(mockedChangelogRepository, buildVersionCode, false)
         // Given a new version with a change log we should return it
-        viewModel.uiSideEffect.test { assertNotNull(awaitItem()) }
+        viewModel.uiSideEffect.test {
+            assertEquals(
+                awaitItem(),
+                Changelog(version = BuildConfig.VERSION_NAME, changes = changes)
+            )
+        }
     }
 
     @Test
-    fun testEmptyChangelogShouldNotEmitChangelog() = runTest {
+    fun `given old version code and empty change log uiSideEffect should not emit`() = runTest {
         // Arrange
         every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns -1
         every { mockedChangelogRepository.getLastVersionChanges() } returns emptyList()

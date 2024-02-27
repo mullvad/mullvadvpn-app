@@ -32,7 +32,7 @@ class ReportProblemViewModelTest {
     private lateinit var viewModel: ReportProblemViewModel
 
     @BeforeEach
-    fun setUp() {
+    fun setup() {
         MockKAnnotations.init(this)
         coEvery { mockMullvadProblemReport.collectLogs() } returns true
         coEvery { mockProblemReportRepository.problemReport } returns problemReportFlow
@@ -45,129 +45,135 @@ class ReportProblemViewModelTest {
     }
 
     @Test
-    fun sendReportFailedToCollectLogs() = runTest {
-        // Arrange
-        coEvery { mockMullvadProblemReport.sendReport(any()) } returns
-            SendProblemReportResult.Error.CollectLog
-        val email = "my@email.com"
+    fun `when sendReport returns CollectLog error then uiState should emit sendingState with CollectLog error`() =
+        runTest {
+            // Arrange
+            coEvery { mockMullvadProblemReport.sendReport(any()) } returns
+                SendProblemReportResult.Error.CollectLog
+            val email = "my@email.com"
 
-        // Act, Assert
-        viewModel.uiState.test {
-            assertEquals(null, awaitItem().sendingState)
-            viewModel.sendReport(email, "My description")
-            assertEquals(SendingReportUiState.Sending, awaitItem().sendingState)
-            assertEquals(
-                SendingReportUiState.Error(SendProblemReportResult.Error.CollectLog),
-                awaitItem().sendingState
-            )
-        }
-    }
-
-    @Test
-    fun sendReportFailedToSendReport() = runTest {
-        // Arrange
-        coEvery { mockMullvadProblemReport.sendReport(any()) } returns
-            SendProblemReportResult.Error.SendReport
-        val email = "my@email.com"
-
-        // Act, Assert
-        viewModel.uiState.test {
-            assertEquals(null, awaitItem().sendingState)
-            viewModel.sendReport(email, "My description")
-            assertEquals(SendingReportUiState.Sending, awaitItem().sendingState)
-            assertEquals(
-                SendingReportUiState.Error(SendProblemReportResult.Error.SendReport),
-                awaitItem().sendingState
-            )
-        }
-    }
-
-    @Test
-    fun sendReportWithoutEmailSuccessfully() = runTest {
-        // Arrange
-        coEvery { mockMullvadProblemReport.sendReport(any()) } returns
-            SendProblemReportResult.Success
-        val email = ""
-        val description = "My description"
-
-        coEvery { mockProblemReportRepository.setDescription(any()) } answers
-            {
-                problemReportFlow.value = problemReportFlow.value.copy(description = arg(0))
+            // Act, Assert
+            viewModel.uiState.test {
+                assertEquals(null, awaitItem().sendingState)
+                viewModel.sendReport(email, "My description")
+                assertEquals(SendingReportUiState.Sending, awaitItem().sendingState)
+                assertEquals(
+                    SendingReportUiState.Error(SendProblemReportResult.Error.CollectLog),
+                    awaitItem().sendingState
+                )
             }
-
-        // Act, Assert
-        viewModel.uiState.test {
-            assertEquals(ReportProblemUiState(), awaitItem())
-            viewModel.updateDescription(description)
-            assertEquals(ReportProblemUiState(description = description), awaitItem())
-
-            viewModel.sendReport(email, description, true)
-            assertEquals(
-                ReportProblemUiState(SendingReportUiState.Sending, email, description),
-                awaitItem()
-            )
-            assertEquals(
-                ReportProblemUiState(
-                    SendingReportUiState.Success(null),
-                    "",
-                    "",
-                ),
-                awaitItem()
-            )
         }
-    }
 
     @Test
-    fun sendReportSuccessfully() = runTest {
-        // Arrange
-        coEvery { mockMullvadProblemReport.collectLogs() } returns true
-        coEvery { mockMullvadProblemReport.sendReport(any()) } returns
-            SendProblemReportResult.Success
-        val email = "my@email.com"
-        val description = "My description"
+    fun `when sendReport returns SendReport error then uiState should emit sendingState with SendReport error`() =
+        runTest {
+            // Arrange
+            coEvery { mockMullvadProblemReport.sendReport(any()) } returns
+                SendProblemReportResult.Error.SendReport
+            val email = "my@email.com"
 
-        // This might look a bit weird, and is not optimal. An alternative would be to use the real
-        // ProblemReportRepository, but that would complicate the other tests. This is a compromise.
-        coEvery { mockProblemReportRepository.setEmail(any()) } answers
-            {
-                problemReportFlow.value = problemReportFlow.value.copy(email = arg(0))
+            // Act, Assert
+            viewModel.uiState.test {
+                assertEquals(null, awaitItem().sendingState)
+                viewModel.sendReport(email, "My description")
+                assertEquals(SendingReportUiState.Sending, awaitItem().sendingState)
+                assertEquals(
+                    SendingReportUiState.Error(SendProblemReportResult.Error.SendReport),
+                    awaitItem().sendingState
+                )
             }
-        coEvery { mockProblemReportRepository.setDescription(any()) } answers
-            {
-                problemReportFlow.value = problemReportFlow.value.copy(description = arg(0))
-            }
-
-        // Act, Assert
-        viewModel.uiState.test {
-            assertEquals(awaitItem(), ReportProblemUiState(null, "", ""))
-            viewModel.updateEmail(email)
-            awaitItem()
-            viewModel.updateDescription(description)
-            awaitItem()
-
-            viewModel.sendReport(email, description)
-
-            assertEquals(
-                ReportProblemUiState(
-                    SendingReportUiState.Sending,
-                    email,
-                    description,
-                ),
-                awaitItem()
-            )
-            assertEquals(
-                ReportProblemUiState(
-                    SendingReportUiState.Success(email),
-                    "",
-                    "",
-                ),
-                awaitItem()
-            )
         }
-    }
 
     @Test
-    fun testUpdateEmail() = runTest {
+    fun `when sendReport with no email returns Success then uiState should emit sendingState with Success`() =
+        runTest {
+            // Arrange
+            coEvery { mockMullvadProblemReport.sendReport(any()) } returns
+                SendProblemReportResult.Success
+            val email = ""
+            val description = "My description"
+
+            coEvery { mockProblemReportRepository.setDescription(any()) } answers
+                {
+                    problemReportFlow.value = problemReportFlow.value.copy(description = arg(0))
+                }
+
+            // Act, Assert
+            viewModel.uiState.test {
+                assertEquals(ReportProblemUiState(), awaitItem())
+                viewModel.updateDescription(description)
+                assertEquals(ReportProblemUiState(description = description), awaitItem())
+
+                viewModel.sendReport(email, description, true)
+                assertEquals(
+                    ReportProblemUiState(SendingReportUiState.Sending, email, description),
+                    awaitItem()
+                )
+                assertEquals(
+                    ReportProblemUiState(
+                        SendingReportUiState.Success(null),
+                        "",
+                        "",
+                    ),
+                    awaitItem()
+                )
+            }
+        }
+
+    @Test
+    fun `when sendReport with email returns Success then uiState should emit sendingState with Success`() =
+        runTest {
+            // Arrange
+            coEvery { mockMullvadProblemReport.collectLogs() } returns true
+            coEvery { mockMullvadProblemReport.sendReport(any()) } returns
+                SendProblemReportResult.Success
+            val email = "my@email.com"
+            val description = "My description"
+
+            // This might look a bit weird, and is not optimal. An alternative would be to use the
+            // real
+            // ProblemReportRepository, but that would complicate the other tests. This is a
+            // compromise.
+            coEvery { mockProblemReportRepository.setEmail(any()) } answers
+                {
+                    problemReportFlow.value = problemReportFlow.value.copy(email = arg(0))
+                }
+            coEvery { mockProblemReportRepository.setDescription(any()) } answers
+                {
+                    problemReportFlow.value = problemReportFlow.value.copy(description = arg(0))
+                }
+
+            // Act, Assert
+            viewModel.uiState.test {
+                assertEquals(awaitItem(), ReportProblemUiState(null, "", ""))
+                viewModel.updateEmail(email)
+                awaitItem()
+                viewModel.updateDescription(description)
+                awaitItem()
+
+                viewModel.sendReport(email, description)
+
+                assertEquals(
+                    ReportProblemUiState(
+                        SendingReportUiState.Sending,
+                        email,
+                        description,
+                    ),
+                    awaitItem()
+                )
+                assertEquals(
+                    ReportProblemUiState(
+                        SendingReportUiState.Success(email),
+                        "",
+                        "",
+                    ),
+                    awaitItem()
+                )
+            }
+        }
+
+    @Test
+    fun `updateEmail should invoke setEmail on ProblemReportRepository`() = runTest {
         // Arrange
         val email = "my@email.com"
 
@@ -179,7 +185,7 @@ class ReportProblemViewModelTest {
     }
 
     @Test
-    fun testUpdateDescription() = runTest {
+    fun `updateDescription should invoke updateDescription on ProblemReportRepository`() = runTest {
         // Arrange
         val description = "My description"
 
