@@ -31,7 +31,7 @@ object Versions {
         const val testMonitor = "1.6.1"
         const val testOrchestrator = "1.4.2"
         const val testRunner = "1.5.2"
-        const val uiautomator = "2.2.0"
+        const val uiautomator = "2.3.0"
     }
 
     object Compose {
