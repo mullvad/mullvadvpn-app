@@ -174,14 +174,14 @@ class Globe {
       this.landVertexBuffer,
       this.landContourIndexBuffer,
       contourColor,
-      this.gl.LINES,
+      this.gl.LINE_STRIP,
     );
 
     // We scale down to render the land triangles behind/under the country contour lines.
     mat4.scale(
       globeViewMatrix, // destination matrix
       globeViewMatrix, // matrix to scale
-      [0.9999, 0.9999, 0.9999], // amount to scale
+      [0.99999, 0.99999, 0.99999], // amount to scale
     );
 
     // Draw land triangles.
