@@ -13,8 +13,11 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:TestPlans/MullvadVPNUITests.xctestplan"
+            reference = "container:TestPlans/MullvadVPNUITestsAll.xctestplan"
             default = "YES">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:TestPlans/MullvadVPNUITestsSmoke.xctestplan">
          </TestPlanReference>
       </TestPlans>
       <Testables>
