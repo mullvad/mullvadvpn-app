@@ -6,12 +6,12 @@ use async_trait::async_trait;
 use std::{fmt, io};
 use talpid_types::net::proxy::CustomProxy;
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Monitor exited unexpectedly: {}", _0)]
+    #[error("Monitor exited unexpectedly: {0}")]
     UnexpectedExit(String),
 
-    #[error(display = "I/O error")]
+    #[error("I/O error")]
     Io(io::Error),
 }
 

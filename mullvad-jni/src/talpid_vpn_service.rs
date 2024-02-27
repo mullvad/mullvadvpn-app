@@ -21,15 +21,15 @@ use std::{
 use talpid_tunnel::tun_provider::TunConfig;
 use talpid_types::ErrorExt;
 
-#[derive(Debug, err_derive::Error)]
+#[derive(Debug, thiserror::Error)]
 enum Error {
-    #[error(display = "Failed to verify the tunnel device")]
-    VerifyTunDevice(#[error(source)] SendRandomDataError),
+    #[error("Failed to verify the tunnel device")]
+    VerifyTunDevice(#[from] SendRandomDataError),
 
-    #[error(display = "Failed to select() on tunnel device")]
-    Select(#[error(source)] nix::Error),
+    #[error("Failed to select() on tunnel device")]
+    Select(#[from] nix::Error),
 
-    #[error(display = "Timed out while waiting for tunnel device to receive data")]
+    #[error("Timed out while waiting for tunnel device to receive data")]
     TunnelDeviceTimeout,
 }
 
@@ -82,14 +82,13 @@ fn wait_for_tunnel_up(tun_fd: RawFd, is_ipv6_enabled: bool) -> Result<(), Error>
     Err(Error::TunnelDeviceTimeout)
 }
 
-#[derive(Debug, err_derive::Error)]
-#[error(no_from)]
+#[derive(Debug, thiserror::Error)]
 enum SendRandomDataError {
-    #[error(display = "Failed to bind an UDP socket")]
-    BindUdpSocket(#[error(source)] io::Error),
+    #[error("Failed to bind an UDP socket")]
+    BindUdpSocket(#[source] io::Error),
 
-    #[error(display = "Failed to send random data through UDP socket")]
-    SendToUdpSocket(#[error(source)] io::Error),
+    #[error("Failed to send random data through UDP socket")]
+    SendToUdpSocket(#[source] io::Error),
 }
 
 fn try_sending_random_udp(is_ipv6_enabled: bool) -> Result<(), SendRandomDataError> {

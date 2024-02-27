@@ -37,18 +37,18 @@ static SAME_IP_V6: Lazy<IpAddr> = Lazy::new(|| {
         .into()
 });
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Not logged in on a valid device")]
+    #[error("Not logged in on a valid device")]
     NoAuthDetails,
 
-    #[error(display = "No relay available")]
+    #[error("No relay available")]
     NoRelayAvailable,
 
-    #[error(display = "No bridge available")]
+    #[error("No bridge available")]
     NoBridgeAvailable,
 
-    #[error(display = "Failed to resolve hostname for custom relay")]
+    #[error("Failed to resolve hostname for custom relay")]
     ResolveCustomHostname,
 }
 

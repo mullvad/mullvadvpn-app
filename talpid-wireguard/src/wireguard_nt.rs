@@ -106,59 +106,58 @@ type WireGuardSetAdapterLoggingFn =
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to load WireGuardNT
-    #[error(display = "Failed to load mullvad-wireguard.dll")]
-    LoadDll(#[error(source)] io::Error),
+    #[error("Failed to load mullvad-wireguard.dll")]
+    LoadDll(#[source] io::Error),
 
     /// Failed to create tunnel interface
-    #[error(display = "Failed to create WireGuard device")]
-    CreateTunnelDevice(#[error(source)] io::Error),
+    #[error("Failed to create WireGuard device")]
+    CreateTunnelDevice(#[source] io::Error),
 
     /// Failed to obtain tunnel interface alias
-    #[error(display = "Failed to obtain interface name")]
-    ObtainAlias(#[error(source)] io::Error),
+    #[error("Failed to obtain interface name")]
+    ObtainAlias(#[source] io::Error),
 
     /// Failed to get WireGuard tunnel config for device
-    #[error(display = "Failed to get tunnel WireGuard config")]
-    GetWireGuardConfig(#[error(source)] io::Error),
+    #[error("Failed to get tunnel WireGuard config")]
+    GetWireGuardConfig(#[source] io::Error),
 
     /// Failed to set WireGuard tunnel config on device
-    #[error(display = "Failed to set tunnel WireGuard config")]
-    SetWireGuardConfig(#[error(source)] io::Error),
+    #[error("Failed to set tunnel WireGuard config")]
+    SetWireGuardConfig(#[source] io::Error),
 
     /// Error listening to tunnel IP interfaces
-    #[error(display = "Failed to wait on tunnel IP interfaces")]
-    IpInterfaces(#[error(source)] io::Error),
+    #[error("Failed to wait on tunnel IP interfaces")]
+    IpInterfaces(#[source] io::Error),
 
     /// Failed to set MTU and metric on tunnel device
-    #[error(display = "Failed to set tunnel interface MTU")]
-    SetTunnelMtu(#[error(source)] io::Error),
+    #[error("Failed to set tunnel interface MTU")]
+    SetTunnelMtu(#[source] io::Error),
 
     /// Failed to set the tunnel state to up
-    #[error(display = "Failed to enable the tunnel adapter")]
-    EnableTunnel(#[error(source)] io::Error),
+    #[error("Failed to enable the tunnel adapter")]
+    EnableTunnel(#[source] io::Error),
 
     /// Unknown address family
-    #[error(display = "Unknown address family: {}", _0)]
+    #[error("Unknown address family: {0}")]
     UnknownAddressFamily(u16),
 
     /// Failure to set up logging
-    #[error(display = "Failed to set up logging")]
-    InitLogging(#[error(source)] logging::Error),
+    #[error("Failed to set up logging")]
+    InitLogging(#[source] logging::Error),
 
     /// Invalid allowed IP
-    #[error(display = "Invalid CIDR prefix")]
+    #[error("Invalid CIDR prefix")]
     InvalidAllowedIpCidr,
 
     /// Allowed IP contains non-zero host bits
-    #[error(display = "Allowed IP contains non-zero host bits")]
+    #[error("Allowed IP contains non-zero host bits")]
     InvalidAllowedIpBits,
 
     /// Failed to parse data returned by the driver
-    #[error(display = "Failed to parse data returned by wireguard-nt")]
+    #[error("Failed to parse data returned by wireguard-nt")]
     InvalidConfigData,
 }
 

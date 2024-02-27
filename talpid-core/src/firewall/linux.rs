@@ -22,36 +22,32 @@ const PROC_SYS_NET_IPV4_CONF_SRC_VALID_MARK: &str = "/proc/sys/net/ipv4/conf/all
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen when interacting with Linux netfilter.
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Unable to open netlink socket to netfilter.
-    #[error(display = "Unable to open netlink socket to netfilter")]
-    NetlinkOpenError(#[error(source)] io::Error),
+    #[error("Unable to open netlink socket to netfilter")]
+    NetlinkOpenError(#[source] io::Error),
 
     /// Unable to send netlink command to netfilter.
-    #[error(display = "Unable to send netlink command to netfilter")]
-    NetlinkSendError(#[error(source)] io::Error),
+    #[error("Unable to send netlink command to netfilter")]
+    NetlinkSendError(#[source] io::Error),
 
     /// Error while reading from netlink socket.
-    #[error(display = "Error while reading from netlink socket")]
-    NetlinkRecvError(#[error(source)] io::Error),
+    #[error("Error while reading from netlink socket")]
+    NetlinkRecvError(#[source] io::Error),
 
     /// Error while processing an incoming netlink message.
-    #[error(display = "Error while processing an incoming netlink message")]
-    ProcessNetlinkError(#[error(source)] io::Error),
+    #[error("Error while processing an incoming netlink message")]
+    ProcessNetlinkError(#[source] io::Error),
 
     /// Failed to verify that our tables are set. Probably means that
     /// it's the host that does not support nftables properly.
-    #[error(display = "Failed to set firewall rules")]
+    #[error("Failed to set firewall rules")]
     NetfilterTableNotSetError,
 
     /// Unable to translate network interface name into index.
-    #[error(
-        display = "Unable to translate network interface name \"{}\" into index",
-        _0
-    )]
-    LookupIfaceIndexError(String, #[error(source)] crate::linux::IfaceIndexLookupError),
+    #[error("Unable to translate network interface name \"{0}\" into index")]
+    LookupIfaceIndexError(String, #[source] crate::linux::IfaceIndexLookupError),
 }
 
 /// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be

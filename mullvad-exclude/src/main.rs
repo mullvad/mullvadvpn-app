@@ -20,31 +20,30 @@ use talpid_types::cgroup::{find_net_cls_mount, SPLIT_TUNNEL_CGROUP_NAME};
 const PROGRAM_NAME: &str = "mullvad-exclude";
 
 #[cfg(target_os = "linux")]
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 enum Error {
-    #[error(display = "Invalid arguments")]
+    #[error("Invalid arguments")]
     InvalidArguments,
 
-    #[error(display = "Cannot set the cgroup")]
-    AddProcToCGroup(#[error(source)] io::Error),
+    #[error("Cannot set the cgroup")]
+    AddProcToCGroup(#[source] io::Error),
 
-    #[error(display = "Failed to drop root user privileges for the process")]
-    DropRootUid(#[error(source)] nix::Error),
+    #[error("Failed to drop root user privileges for the process")]
+    DropRootUid(#[source] nix::Error),
 
-    #[error(display = "Failed to drop root group privileges for the process")]
-    DropRootGid(#[error(source)] nix::Error),
+    #[error("Failed to drop root group privileges for the process")]
+    DropRootGid(#[source] nix::Error),
 
-    #[error(display = "Failed to launch the process")]
-    Exec(#[error(source)] nix::Error),
+    #[error("Failed to launch the process")]
+    Exec(#[source] nix::Error),
 
-    #[error(display = "An argument contains interior nul bytes")]
-    ArgumentNul(#[error(source)] NulError),
+    #[error("An argument contains interior nul bytes")]
+    ArgumentNul(#[source] NulError),
 
-    #[error(display = "Failed to find net_cls controller")]
-    FindNetClsController(#[error(source)] io::Error),
+    #[error("Failed to find net_cls controller")]
+    FindNetClsController(#[source] io::Error),
 
-    #[error(display = "No net_cls controller")]
+    #[error("No net_cls controller")]
     NoNetClsController,
 }
 

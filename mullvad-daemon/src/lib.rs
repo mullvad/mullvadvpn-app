@@ -94,108 +94,107 @@ const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
 
 pub type ResponseTx<T, E> = oneshot::Sender<Result<T, E>>;
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to send command to daemon because it is not running")]
+    #[error("Failed to send command to daemon because it is not running")]
     DaemonUnavailable,
 
-    #[error(display = "Unable to initialize network event loop")]
-    InitIoEventLoop(#[error(source)] io::Error),
+    #[error("Unable to initialize network event loop")]
+    InitIoEventLoop(#[source] io::Error),
 
-    #[error(display = "Unable to create RPC client")]
-    InitRpcFactory(#[error(source)] mullvad_api::Error),
+    #[error("Unable to create RPC client")]
+    InitRpcFactory(#[source] mullvad_api::Error),
 
-    #[error(display = "REST request failed")]
-    RestError(#[error(source)] mullvad_api::rest::Error),
+    #[error("REST request failed")]
+    RestError(#[source] mullvad_api::rest::Error),
 
-    #[error(display = "API availability check failed")]
-    ApiCheckError(#[error(source)] mullvad_api::availability::Error),
+    #[error("API availability check failed")]
+    ApiCheckError(#[source] mullvad_api::availability::Error),
 
-    #[error(display = "Unable to load account history")]
-    LoadAccountHistory(#[error(source)] account_history::Error),
+    #[error("Unable to load account history")]
+    LoadAccountHistory(#[source] account_history::Error),
 
-    #[error(display = "Failed to start account manager")]
-    LoadAccountManager(#[error(source)] device::Error),
+    #[error("Failed to start account manager")]
+    LoadAccountManager(#[source] device::Error),
 
-    #[error(display = "Failed to log in to account")]
-    LoginError(#[error(source)] device::Error),
+    #[error("Failed to log in to account")]
+    LoginError(#[source] device::Error),
 
-    #[error(display = "Failed to log out of account")]
-    LogoutError(#[error(source)] device::Error),
+    #[error("Failed to log out of account")]
+    LogoutError(#[source] device::Error),
 
-    #[error(display = "Failed to rotate WireGuard key")]
-    KeyRotationError(#[error(source)] device::Error),
+    #[error("Failed to rotate WireGuard key")]
+    KeyRotationError(#[source] device::Error),
 
-    #[error(display = "Failed to list devices")]
-    ListDevicesError(#[error(source)] device::Error),
+    #[error("Failed to list devices")]
+    ListDevicesError(#[source] device::Error),
 
-    #[error(display = "Failed to remove device")]
-    RemoveDeviceError(#[error(source)] device::Error),
+    #[error("Failed to remove device")]
+    RemoveDeviceError(#[source] device::Error),
 
-    #[error(display = "Failed to update device")]
-    UpdateDeviceError(#[error(source)] device::Error),
+    #[error("Failed to update device")]
+    UpdateDeviceError(#[source] device::Error),
 
-    #[error(display = "Failed to submit voucher")]
-    VoucherSubmission(#[error(source)] device::Error),
+    #[error("Failed to submit voucher")]
+    VoucherSubmission(#[source] device::Error),
 
     #[cfg(target_os = "linux")]
-    #[error(display = "Unable to initialize split tunneling")]
-    InitSplitTunneling(#[error(source)] split_tunnel::Error),
+    #[error("Unable to initialize split tunneling")]
+    InitSplitTunneling(#[source] split_tunnel::Error),
 
     #[cfg(windows)]
-    #[error(display = "Split tunneling error")]
-    SplitTunnelError(#[error(source)] split_tunnel::Error),
+    #[error("Split tunneling error")]
+    SplitTunnelError(#[source] split_tunnel::Error),
 
-    #[error(display = "An account is already set")]
+    #[error("An account is already set")]
     AlreadyLoggedIn,
 
-    #[error(display = "No account token is set")]
+    #[error("No account token is set")]
     NoAccountToken,
 
-    #[error(display = "No account history available for the token")]
+    #[error("No account history available for the token")]
     NoAccountTokenHistory,
 
-    #[error(display = "Settings error")]
-    SettingsError(#[error(source)] settings::Error),
+    #[error("Settings error")]
+    SettingsError(#[source] settings::Error),
 
-    #[error(display = "Account history error")]
-    AccountHistory(#[error(source)] account_history::Error),
+    #[error("Account history error")]
+    AccountHistory(#[source] account_history::Error),
 
     #[cfg(not(target_os = "android"))]
-    #[error(display = "Factory reset partially failed: {}", _0)]
+    #[error("Factory reset partially failed: {0}")]
     FactoryResetError(&'static str),
 
-    #[error(display = "Tunnel state machine error")]
-    TunnelError(#[error(source)] tunnel_state_machine::Error),
+    #[error("Tunnel state machine error")]
+    TunnelError(#[source] tunnel_state_machine::Error),
 
     /// Custom list already exists
-    #[error(display = "A list with that name already exists")]
+    #[error("A list with that name already exists")]
     CustomListExists,
 
     /// Custom list does not exist
-    #[error(display = "A list with that name does not exist")]
+    #[error("A list with that name does not exist")]
     CustomListNotFound,
 
-    #[error(display = "Access method error")]
-    AccessMethodError(#[error(source)] access_method::Error),
+    #[error("Access method error")]
+    AccessMethodError(#[source] access_method::Error),
 
-    #[error(display = "API connection mode error")]
-    ApiConnectionModeError(#[error(source)] api::Error),
-    #[error(display = "No custom bridge has been specified")]
+    #[error("API connection mode error")]
+    ApiConnectionModeError(#[source] api::Error),
+    #[error("No custom bridge has been specified")]
     NoCustomProxySaved,
 
     #[cfg(target_os = "macos")]
-    #[error(display = "Failed to set exclusion group")]
-    GroupIdError(#[error(source)] io::Error),
+    #[error("Failed to set exclusion group")]
+    GroupIdError(#[source] io::Error),
 
     #[cfg(target_os = "android")]
-    #[error(display = "Failed to initialize play purchase")]
-    InitPlayPurchase(#[error(source)] device::Error),
+    #[error("Failed to initialize play purchase")]
+    InitPlayPurchase(#[source] device::Error),
 
     #[cfg(target_os = "android")]
-    #[error(display = "Failed to verify play purchase")]
-    VerifyPlayPurchase(#[error(source)] device::Error),
+    #[error("Failed to verify play purchase")]
+    VerifyPlayPurchase(#[source] device::Error),
 }
 
 /// Enum representing commands that can be sent to the daemon.

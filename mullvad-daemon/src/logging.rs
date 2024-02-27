@@ -5,21 +5,21 @@ use fern::{
 use std::{fmt, io, path::PathBuf};
 use talpid_core::logging::rotate_log;
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Unable to open log file for writing
-    #[error(display = "Unable to open log file for writing: {}", path)]
+    #[error("Unable to open log file for writing: {path}")]
     WriteFile {
         path: String,
-        #[error(source)]
+        #[source]
         source: io::Error,
     },
 
-    #[error(display = "Unable to rotate daemon log file")]
-    RotateLog(#[error(source)] talpid_core::logging::RotateLogError),
+    #[error("Unable to rotate daemon log file")]
+    RotateLog(#[from] talpid_core::logging::RotateLogError),
 
-    #[error(display = "Unable to set logger")]
-    SetLoggerError(#[error(source)] log::SetLoggerError),
+    #[error("Unable to set logger")]
+    SetLoggerError(#[from] log::SetLoggerError),
 }
 
 pub const WARNING_SILENCED_CRATES: &[&str] = &["netlink_proto"];

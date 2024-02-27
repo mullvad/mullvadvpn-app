@@ -10,12 +10,12 @@ use talpid_routing::{get_best_default_route, CallbackHandle, EventType, RouteMan
 use talpid_types::{net::Connectivity, ErrorExt};
 use talpid_windows::net::AddressFamily;
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Unable to create listener thread")]
-    ThreadCreationError(#[error(source)] io::Error),
-    #[error(display = "Failed to start connectivity monitor")]
-    ConnectivityMonitorError(#[error(source)] talpid_routing::Error),
+    #[error("Unable to create listener thread")]
+    ThreadCreationError(#[from] io::Error),
+    #[error("Failed to start connectivity monitor")]
+    ConnectivityMonitorError(#[from] talpid_routing::Error),
 }
 
 pub struct BroadcastListener {

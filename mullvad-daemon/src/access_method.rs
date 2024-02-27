@@ -5,27 +5,27 @@ use mullvad_types::{
     settings::Settings,
 };
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Can not add access method
-    #[error(display = "Cannot add custom access method")]
+    #[error("Cannot add custom access method")]
     Add,
     /// Can not find access method
-    #[error(display = "Cannot find custom access method {}", _0)]
+    #[error("Cannot find custom access method {0}")]
     NoSuchMethod(access_method::Id),
     /// Some error occured in the daemon's state of handling
     /// [`AccessMethodSetting`]s & [`ApiConnectionMode`]s
-    #[error(display = "Error occured when handling connection settings & details")]
-    ApiService(#[error(source)] api::Error),
+    #[error("Error occured when handling connection settings & details")]
+    ApiService(#[from] api::Error),
     /// A REST request failed
-    #[error(display = "Reset request failed")]
-    Rest(#[error(source)] rest::Error),
+    #[error("Reset request failed")]
+    Rest(#[from] rest::Error),
     /// Something went wrong in the [`access_method`](mod@access_method) module.
-    #[error(display = "Access method error")]
-    AccessMethod(#[error(source)] access_method::Error),
+    #[error("Access method error")]
+    AccessMethod(#[from] access_method::Error),
     /// Access methods settings error
-    #[error(display = "Settings error")]
-    Settings(#[error(source)] settings::Error),
+    #[error("Settings error")]
+    Settings(#[from] settings::Error),
 }
 
 impl<L> Daemon<L>

@@ -2,8 +2,8 @@ use crate::imp::RouteManagerCommand;
 use futures::{channel::mpsc, stream::StreamExt};
 
 /// Stub error type for routing errors on Android.
-#[derive(Debug, err_derive::Error)]
-#[error(display = "Failed to send shutdown result")]
+#[derive(Debug, thiserror::Error)]
+#[error("Failed to send shutdown result")]
 pub struct Error;
 
 /// Stub route manager for Android

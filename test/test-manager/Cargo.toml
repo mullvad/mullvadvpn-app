@@ -18,7 +18,7 @@ chrono = { workspace = true }
 tarpc = { workspace = true }
 tokio = { workspace = true }
 tokio-serial = { workspace = true }
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 bytes = { workspace = true }
 test_macro = { path = "./test_macro" }
 ipnetwork = "0.20"

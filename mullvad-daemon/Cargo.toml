@@ -16,7 +16,7 @@ api-override = ["mullvad-api/api-override"]
 
 [dependencies]
 chrono = { workspace = true }
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 fern = { version = "0.6", features = ["colored"] }
 futures = "0.3"
 once_cell = { workspace = true }

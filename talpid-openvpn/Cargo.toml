@@ -12,7 +12,7 @@ workspace = true
 
 [dependencies]
 async-trait = "0.1"
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 futures = "0.3.15"
 once_cell = { workspace = true }
 log = { workspace = true }

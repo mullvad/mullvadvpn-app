@@ -13,26 +13,25 @@ use mullvad_types::{
     wireguard::QuantumResistantState,
 };
 
-#[derive(Debug, err_derive::Error)]
-#[error(no_from)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error(display = "Can't send command to daemon because it is not running")]
-    NoDaemon(#[error(source)] mullvad_daemon::Error),
+    #[error("Can't send command to daemon because it is not running")]
+    NoDaemon(#[source] mullvad_daemon::Error),
 
-    #[error(display = "No response received from daemon")]
+    #[error("No response received from daemon")]
     NoResponse,
 
-    #[error(display = "Attempt to use daemon command sender before it was configured")]
+    #[error("Attempt to use daemon command sender before it was configured")]
     NoSender,
 
-    #[error(display = "Error performing RPC with the remote API")]
-    Api(#[error(source)] mullvad_api::rest::Error),
+    #[error("Error performing RPC with the remote API")]
+    Api(#[source] mullvad_api::rest::Error),
 
-    #[error(display = "Failed to update settings")]
+    #[error("Failed to update settings")]
     UpdateSettings,
 
-    #[error(display = "Daemon returned an error")]
-    Other(#[error(source)] mullvad_daemon::Error),
+    #[error("Daemon returned an error")]
+    Other(#[source] mullvad_daemon::Error),
 }
 
 impl From<mullvad_daemon::Error> for Error {
