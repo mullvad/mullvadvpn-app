@@ -32,6 +32,16 @@ struct InitMutableBufferError: Error {
     let description = "Failed to allocate memory for mutable buffer"
 }
 
+struct Device {
+    let name: String
+    let id: UUID
+
+    init(device_struct: MullvadApiDevice) {
+        name = String(cString: device_struct.name_ptr)
+        id = UUID(uuid: device_struct.id)
+    }
+}
+
 class MullvadApi {
     private var clientContext = MullvadApiClient()
 
@@ -108,16 +118,6 @@ class MullvadApi {
 
     deinit {
         mullvad_api_client_drop(clientContext)
-    }
-
-    struct Device {
-        let name: String
-        let id: UUID
-
-        init(device_struct: MullvadApiDevice) {
-            name = String(cString: device_struct.name_ptr)
-            id = UUID(uuid: device_struct.id)
-        }
     }
 
     class DeviceIterator {

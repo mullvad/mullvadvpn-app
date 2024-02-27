@@ -99,4 +99,12 @@ class MullvadAPIWrapper {
             throw MullvadAPIError.requestError
         }
     }
+
+    func getDevices(_ account: String) throws -> [Device] {
+        do {
+            return try mullvadAPI.listDevices(forAccount: account)
+        } catch {
+            throw MullvadAPIError.requestError
+        }
+    }
 }
