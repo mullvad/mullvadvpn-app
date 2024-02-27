@@ -52,6 +52,7 @@ mod v4;
 mod v5;
 mod v6;
 mod v7;
+mod v8;
 
 const SETTINGS_FILE: &str = "settings.json";
 
@@ -181,6 +182,7 @@ async fn migrate_settings(
     let migration_data = v5::migrate(settings)?;
     v6::migrate(settings)?;
     v7::migrate(settings)?;
+    v8::migrate(settings)?;
 
     Ok(migration_data)
 }
