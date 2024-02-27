@@ -886,8 +886,8 @@ impl BridgeSettings {
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 pub enum SelectedObfuscation {
-    Auto,
     #[default]
+    Auto,
     Off,
     #[cfg_attr(feature = "clap", clap(name = "udp2tcp"))]
     Udp2Tcp,

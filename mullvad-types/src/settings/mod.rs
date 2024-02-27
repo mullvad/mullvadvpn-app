@@ -21,7 +21,7 @@ mod dns;
 /// latest version that exists in `SettingsVersion`.
 /// This should be bumped when a new version is introduced along with a migration
 /// being added to `mullvad-daemon`.
-pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V8;
+pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V9;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Clone, Copy)]
 #[repr(u32)]
@@ -33,6 +33,7 @@ pub enum SettingsVersion {
     V6 = 6,
     V7 = 7,
     V8 = 8,
+    V9 = 9,
 }
 
 impl<'de> Deserialize<'de> for SettingsVersion {
@@ -48,6 +49,7 @@ impl<'de> Deserialize<'de> for SettingsVersion {
             v if v == SettingsVersion::V6 as u32 => Ok(SettingsVersion::V6),
             v if v == SettingsVersion::V7 as u32 => Ok(SettingsVersion::V7),
             v if v == SettingsVersion::V8 as u32 => Ok(SettingsVersion::V8),
+            v if v == SettingsVersion::V9 as u32 => Ok(SettingsVersion::V9),
             v => Err(serde::de::Error::custom(format!(
                 "{v} is not a valid SettingsVersion"
             ))),
@@ -131,7 +133,7 @@ impl Default for Settings {
             }),
             bridge_settings: BridgeSettings::default(),
             obfuscation_settings: ObfuscationSettings {
-                selected_obfuscation: SelectedObfuscation::Off,
+                selected_obfuscation: SelectedObfuscation::Auto,
                 ..Default::default()
             },
             bridge_state: BridgeState::Auto,
