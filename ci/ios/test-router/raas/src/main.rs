@@ -1,4 +1,5 @@
 mod block_list;
+mod capture;
 mod web;
 
 #[tokio::main]
