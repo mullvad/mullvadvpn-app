@@ -16,18 +16,15 @@ pub enum QuantumResistantState {
 
 // ======================================================
 
-/// This is an open ended migration. There is no v7 yet!
-/// The migrations performed by this function are still backwards compatible.
-/// The JSON coming out of this migration can be read by any v6 compatible daemon.
-///
-/// When further migrations are needed, add them here and if they are not backwards
-/// compatible then create v7 and "close" this migration for further modification.
+/// This is an closed migration.
 ///
 /// The `use_pq_safe_psk` tunnel option is replaced by `quantum_resistant`, which
 /// is optional. `false` is mapped to `None`. `true` is mapped to `Some(true)`.
 ///
 /// Migrate WireGuard over TCP port setting away from Only(443) (to auto),
 /// since it's no longer a valid port.
+///
+/// `TODO: add something about wrap_location here`
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {
         return Ok(());
