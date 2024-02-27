@@ -3,30 +3,29 @@
 use std::path::Path;
 use tokio::{fs, io};
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to get path")]
-    Path(#[error(source)] mullvad_paths::Error),
+    #[error("Failed to get path")]
+    Path(#[source] mullvad_paths::Error),
 
-    #[error(display = "Failed to remove directory {}", _0)]
-    RemoveDir(String, #[error(source)] io::Error),
+    #[error("Failed to remove directory {0}")]
+    RemoveDir(String, #[source] io::Error),
 
     #[cfg(not(target_os = "windows"))]
-    #[error(display = "Failed to create directory {}", _0)]
-    CreateDir(String, #[error(source)] io::Error),
+    #[error("Failed to create directory {0}")]
+    CreateDir(String, #[source] io::Error),
 
     #[cfg(target_os = "windows")]
-    #[error(display = "Failed to get file type info")]
-    FileType(#[error(source)] io::Error),
+    #[error("Failed to get file type info")]
+    FileType(#[source] io::Error),
 
     #[cfg(target_os = "windows")]
-    #[error(display = "Failed to get dir entry")]
-    FileEntry(#[error(source)] io::Error),
+    #[error("Failed to get dir entry")]
+    FileEntry(#[source] io::Error),
 
     #[cfg(target_os = "windows")]
-    #[error(display = "Failed to read dir entries")]
-    ReadDir(#[error(source)] io::Error),
+    #[error("Failed to read dir entries")]
+    ReadDir(#[source] io::Error),
 }
 
 pub async fn clear_directories() -> Result<(), Error> {

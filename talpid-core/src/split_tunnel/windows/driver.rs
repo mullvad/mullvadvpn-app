@@ -81,8 +81,8 @@ pub enum DriverState {
     Terminating = 5,
 }
 
-#[derive(err_derive::Error, Debug)]
-#[error(display = "Unknown driver state: {}", _0)]
+#[derive(thiserror::Error, Debug)]
+#[error("Unknown driver state: {0}")]
 pub struct UnknownDriverState(u64);
 
 impl TryFrom<u64> for DriverState {
@@ -117,8 +117,8 @@ pub enum EventId {
     ErrorMessage,
 }
 
-#[derive(err_derive::Error, Debug)]
-#[error(display = "Unknown event id: {}", _0)]
+#[derive(thiserror::Error, Debug)]
+#[error("Unknown event id: {0}")]
 pub struct UnknownEventId(u32);
 
 impl TryFrom<u32> for EventId {
@@ -170,42 +170,45 @@ pub struct DeviceHandle {
 unsafe impl Sync for DeviceHandle {}
 unsafe impl Send for DeviceHandle {}
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum DeviceHandleError {
     /// Failed to connect because there's no such device
-    #[error(display = "Failed to connect to driver, no such device. \
-            The driver is probably not loaded")]
+    #[error(
+        "Failed to connect to driver, no such device. \
+            The driver is probably not loaded"
+    )]
     ConnectionFailed,
 
     /// Failed to connect because the connection was denied
-    #[error(display = "Failed to connect to driver, connection denied. \
-            The exclusive connection is probably hogged")]
+    #[error(
+        "Failed to connect to driver, connection denied. \
+            The exclusive connection is probably hogged"
+    )]
     ConnectionDenied,
 
     /// Failed to connect to driver
-    #[error(display = "Failed to connect to driver")]
-    ConnectionError(#[error(source)] io::Error),
+    #[error("Failed to connect to driver")]
+    ConnectionError(#[source] io::Error),
 
     /// Failed to inquire about driver state
-    #[error(display = "Failed to inquire about driver state")]
-    GetStateError(#[error(source)] io::Error),
+    #[error("Failed to inquire about driver state")]
+    GetStateError(#[source] io::Error),
 
     /// Failed to initialize driver
-    #[error(display = "Failed to initialize driver")]
-    InitializationError(#[error(source)] io::Error),
+    #[error("Failed to initialize driver")]
+    InitializationError(#[source] io::Error),
 
     /// Failed to register process tree with driver
-    #[error(display = "Failed to register process tree with driver")]
-    RegisterProcessesError(#[error(source)] io::Error),
+    #[error("Failed to register process tree with driver")]
+    RegisterProcessesError(#[source] io::Error),
 
     /// Failed to clear configuration in driver
-    #[error(display = "Failed to clear configuration in driver")]
-    ClearConfigError(#[error(source)] io::Error),
+    #[error("Failed to clear configuration in driver")]
+    ClearConfigError(#[source] io::Error),
 
     /// Failed to reset driver state to "started"
-    #[error(display = "Failed to reset driver state")]
-    ResetError(#[error(source)] io::Error),
+    #[error("Failed to reset driver state")]
+    ResetError(#[source] io::Error),
 }
 
 impl DeviceHandle {

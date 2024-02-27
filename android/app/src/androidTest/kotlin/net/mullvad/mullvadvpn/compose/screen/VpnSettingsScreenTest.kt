@@ -7,10 +7,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
-import de.mannodermaus.junit5.compose.createComposeExtension
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
+import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
@@ -32,7 +32,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 
 @OptIn(ExperimentalTestApi::class)
 class VpnSettingsScreenTest {
-    @JvmField @RegisterExtension val composeExtension = createComposeExtension()
+    @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
     @BeforeEach
     fun setup() {

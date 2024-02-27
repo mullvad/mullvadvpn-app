@@ -2,11 +2,10 @@ use futures::StreamExt;
 use std::io;
 use std::net::SocketAddr;
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to start SOCKS5 server")]
-    StartSocksServer(#[error(source)] io::Error),
+    #[error("Failed to start SOCKS5 server")]
+    StartSocksServer(#[source] io::Error),
 }
 
 pub struct Handle {

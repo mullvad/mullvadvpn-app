@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithText
-import de.mannodermaus.junit5.compose.createComposeExtension
+import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewState
 import org.junit.jupiter.api.Test
@@ -15,7 +15,7 @@ class DnsDialogTest {
     @OptIn(ExperimentalTestApi::class)
     @JvmField
     @RegisterExtension
-    val composeExtension = createComposeExtension()
+    val composeExtension = createEdgeToEdgeComposeExtension()
 
     private val defaultState =
         DnsDialogViewState(

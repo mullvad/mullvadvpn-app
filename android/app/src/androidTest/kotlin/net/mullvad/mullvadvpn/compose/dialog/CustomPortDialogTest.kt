@@ -5,8 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextInput
-import de.mannodermaus.junit5.compose.createComposeExtension
 import io.mockk.MockKAnnotations
+import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.test.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.model.PortRange
@@ -19,7 +19,7 @@ class CustomPortDialogTest {
     @OptIn(ExperimentalTestApi::class)
     @JvmField
     @RegisterExtension
-    val composeExtension = createComposeExtension()
+    val composeExtension = createEdgeToEdgeComposeExtension()
 
     @BeforeEach
     fun setup() {

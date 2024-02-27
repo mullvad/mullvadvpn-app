@@ -33,22 +33,22 @@ mod imp;
 pub use imp::Error as PlatformError;
 
 /// Errors that can be encountered whilst initializing RouteManager
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Route manager thread may have panicked
-    #[error(display = "The channel sender was dropped")]
+    #[error("The channel sender was dropped")]
     ManagerChannelDown,
     /// Platform specific error occurred
-    #[error(display = "Internal route manager error")]
-    PlatformError(#[error(source)] imp::Error),
+    #[error("Internal route manager error")]
+    PlatformError(#[from] imp::Error),
     /// Failed to spawn route manager future
-    #[error(display = "Failed to spawn route manager on the provided executor")]
+    #[error("Failed to spawn route manager on the provided executor")]
     FailedToSpawnManager,
     /// Failed to spawn route manager runtime
-    #[error(display = "Failed to spawn route manager runtime")]
-    FailedToSpawnRuntime(#[error(source)] io::Error),
+    #[error("Failed to spawn route manager runtime")]
+    FailedToSpawnRuntime(#[from] io::Error),
     /// Attempt to use route manager that has been dropped
-    #[error(display = "Cannot send message to route manager since it is down")]
+    #[error("Cannot send message to route manager since it is down")]
     RouteManagerDown,
 }
 

@@ -12,32 +12,31 @@ use widestring::WideCString;
 use windows_sys::Win32::Globalization::{MultiByteToWideChar, CP_ACP};
 
 /// Errors that can happen when configuring the Windows firewall.
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failure to initialize windows firewall module
-    #[error(display = "Failed to initialize windows firewall module")]
+    #[error("Failed to initialize windows firewall module")]
     Initialization,
 
     /// Failure to deinitialize windows firewall module
-    #[error(display = "Failed to deinitialize windows firewall module")]
+    #[error("Failed to deinitialize windows firewall module")]
     Deinitialization,
 
     /// Failure to apply a firewall _connecting_ policy
-    #[error(display = "Failed to apply connecting firewall policy")]
-    ApplyingConnectingPolicy(#[error(source)] FirewallPolicyError),
+    #[error("Failed to apply connecting firewall policy")]
+    ApplyingConnectingPolicy(#[source] FirewallPolicyError),
 
     /// Failure to apply a firewall _connected_ policy
-    #[error(display = "Failed to apply connected firewall policy")]
-    ApplyingConnectedPolicy(#[error(source)] FirewallPolicyError),
+    #[error("Failed to apply connected firewall policy")]
+    ApplyingConnectedPolicy(#[source] FirewallPolicyError),
 
     /// Failure to apply firewall _blocked_ policy
-    #[error(display = "Failed to apply blocked firewall policy")]
-    ApplyingBlockedPolicy(#[error(source)] FirewallPolicyError),
+    #[error("Failed to apply blocked firewall policy")]
+    ApplyingBlockedPolicy(#[source] FirewallPolicyError),
 
     /// Failure to reset firewall policies
-    #[error(display = "Failed to reset firewall policies")]
-    ResettingPolicy(#[error(source)] FirewallPolicyError),
+    #[error("Failed to reset firewall policies")]
+    ResettingPolicy(#[source] FirewallPolicyError),
 }
 
 /// Timeout for acquiring the WFP transaction lock

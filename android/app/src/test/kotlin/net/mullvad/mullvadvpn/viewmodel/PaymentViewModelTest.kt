@@ -27,7 +27,7 @@ class PaymentViewModelTest {
     private lateinit var viewModel: PaymentViewModel
 
     @BeforeEach
-    fun setUp() {
+    fun setup() {
         coEvery { mockPaymentUseCase.purchaseResult } returns purchaseResult
 
         viewModel = PaymentViewModel(paymentUseCase = mockPaymentUseCase)
@@ -39,24 +39,25 @@ class PaymentViewModelTest {
     }
 
     @Test
-    fun testBillingUserCancelled() = runTest {
-        // Arrange
-        val result = PurchaseResult.Completed.Cancelled
-        purchaseResult.value = result
-
-        // Act, Assert
-        viewModel.uiState.test {
-            assertEquals(PaymentDialogData(), awaitItem().paymentDialogData)
+    fun `given PaymentUseCase purchaseResult emits cancelled uiSideEffect should emit PaymentCancelled`() =
+        runTest {
+            // Arrange
+            val result = PurchaseResult.Completed.Cancelled
             purchaseResult.value = result
-        }
 
-        viewModel.uiSideEffect.test {
-            assertEquals(PaymentUiSideEffect.PaymentCancelled, awaitItem())
+            // Act, Assert
+            viewModel.uiState.test {
+                assertEquals(PaymentDialogData(), awaitItem().paymentDialogData)
+                purchaseResult.value = result
+            }
+
+            viewModel.uiSideEffect.test {
+                assertEquals(PaymentUiSideEffect.PaymentCancelled, awaitItem())
+            }
         }
-    }
 
     @Test
-    fun testBillingPurchaseSuccess() = runTest {
+    fun `purchaseResult emitting Success should result in success dialog state`() = runTest {
         // Arrange
         val result = PurchaseResult.Completed.Success
 

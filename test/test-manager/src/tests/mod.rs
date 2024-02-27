@@ -37,34 +37,34 @@ pub type TestWrapperFunction = Box<
     ) -> BoxFuture<'static, Result<(), Error>>,
 >;
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "RPC call failed")]
-    Rpc(#[source] test_rpc::Error),
+    #[error("RPC call failed")]
+    Rpc(#[from] test_rpc::Error),
 
-    #[error(display = "Timeout waiting for ping")]
+    #[error("Timeout waiting for ping")]
     PingTimeout,
 
-    #[error(display = "geoip lookup failed")]
+    #[error("geoip lookup failed")]
     GeoipLookup(test_rpc::Error),
 
-    #[error(display = "Found running daemon unexpectedly")]
+    #[error("Found running daemon unexpectedly")]
     DaemonRunning,
 
-    #[error(display = "Daemon unexpectedly not running")]
+    #[error("Daemon unexpectedly not running")]
     DaemonNotRunning,
 
-    #[error(display = "The daemon returned an error: {}", _0)]
+    #[error("The daemon returned an error: {0}")]
     Daemon(String),
 
-    #[error(display = "The daemon ended up in the error state")]
+    #[error("The daemon ended up in the error state")]
     UnexpectedErrorState(talpid_types::tunnel::ErrorState),
 
-    #[error(display = "The gRPC client ran into an error: {}", _0)]
-    ManagementInterface(#[source] mullvad_management_interface::Error),
+    #[error("The gRPC client ran into an error: {0}")]
+    ManagementInterface(#[from] mullvad_management_interface::Error),
 
     #[cfg(target_os = "macos")]
-    #[error(display = "An error occurred: {}", _0)]
+    #[error("An error occurred: {0}")]
     Other(String),
 }
 

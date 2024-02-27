@@ -12,8 +12,8 @@ use std::{
 };
 use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 
-#[derive(err_derive::Error, Debug)]
-#[error(display = "Stream is closed")]
+#[derive(thiserror::Error, Debug)]
+#[error("Stream is closed")]
 pub struct Aborted(());
 
 #[derive(Clone, Debug)]

@@ -31,12 +31,11 @@ use std::{
 use talpid_types::ErrorExt;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     // Unable to start the management interface server
-    #[error(display = "Unable to start management interface server")]
-    SetupError(#[error(source)] mullvad_management_interface::Error),
+    #[error("Unable to start management interface server")]
+    SetupError(#[source] mullvad_management_interface::Error),
 }
 
 struct ManagementServiceImpl {

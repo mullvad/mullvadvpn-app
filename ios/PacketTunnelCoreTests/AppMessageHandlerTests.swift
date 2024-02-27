@@ -77,7 +77,9 @@ final class AppMessageHandlerTests: XCTestCase {
         let actor = PacketTunnelActorStub(reconnectExpectation: reconnectExpectation)
         let appMessageHandler = createAppMessageHandler(actor: actor)
 
-        let relayConstraints = RelayConstraints(location: .only(.hostname("se", "sto", "se6-wireguard")))
+        let relayConstraints = RelayConstraints(
+            locations: .only(RelayLocations(locations: [.hostname("se", "sto", "se6-wireguard")]))
+        )
         let selectorResult = try XCTUnwrap(try? RelaySelector.evaluate(
             relays: ServerRelaysResponseStubs.sampleRelays,
             constraints: relayConstraints,

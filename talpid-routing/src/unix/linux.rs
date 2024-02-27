@@ -85,47 +85,46 @@ fn no_fwmark_rule_v6(fwmark: u32, table: u32) -> RuleMessage {
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen in the Linux routing integration
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to open a netlink connection")]
-    Connect(#[error(source)] io::Error),
+    #[error("Failed to open a netlink connection")]
+    Connect(#[source] io::Error),
 
-    #[error(display = "Failed to bind netlink socket")]
-    Bind(#[error(source)] io::Error),
+    #[error("Failed to bind netlink socket")]
+    Bind(#[source] io::Error),
 
-    #[error(display = "Netlink error")]
-    Netlink(#[error(source)] rtnetlink::Error),
+    #[error("Netlink error")]
+    Netlink(#[source] rtnetlink::Error),
 
-    #[error(display = "Route without a valid node")]
+    #[error("Route without a valid node")]
     InvalidRoute,
 
-    #[error(display = "Invalid length of byte buffer for IP address")]
+    #[error("Invalid length of byte buffer for IP address")]
     InvalidIpBytes,
 
-    #[error(display = "Invalid network prefix")]
-    InvalidNetworkPrefix(#[error(source)] ipnetwork::IpNetworkError),
+    #[error("Invalid network prefix")]
+    InvalidNetworkPrefix(#[source] ipnetwork::IpNetworkError),
 
-    #[error(display = "Unknown device index: {}", _0)]
+    #[error("Unknown device index: {0}")]
     UnknownDeviceIndex(u32),
 
-    #[error(display = "Failed to get a route for the given IP address")]
-    GetRoute(#[error(source)] rtnetlink::Error),
+    #[error("Failed to get a route for the given IP address")]
+    GetRoute(#[source] rtnetlink::Error),
 
-    #[error(display = "No netlink response for route query")]
+    #[error("No netlink response for route query")]
     NoRoute,
 
-    #[error(display = "Route node was malformed")]
+    #[error("Route node was malformed")]
     InvalidRouteNode,
 
-    #[error(display = "No link found")]
+    #[error("No link found")]
     LinkNotFound,
 
     /// Unable to create routing table for tagged connections and packets.
-    #[error(display = "Cannot find a free routing table ID")]
+    #[error("Cannot find a free routing table ID")]
     NoFreeRoutingTableId,
 
-    #[error(display = "Shutting down route manager")]
+    #[error("Shutting down route manager")]
     Shutdown,
 }
 

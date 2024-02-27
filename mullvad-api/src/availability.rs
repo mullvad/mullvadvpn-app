@@ -11,11 +11,11 @@ const CHANNEL_CAPACITY: usize = 100;
 /// called for this long.
 const INACTIVITY_TIME: Duration = Duration::from_secs(3 * 24 * 60 * 60);
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// The [`ApiAvailability`] instance was dropped, or the receiver lagged behind.
-    #[error(display = "API availability instance was dropped")]
-    Interrupted(#[error(source)] broadcast::error::RecvError),
+    #[error("API availability instance was dropped")]
+    Interrupted(#[from] broadcast::error::RecvError),
 }
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Default)]

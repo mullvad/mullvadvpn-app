@@ -36,15 +36,15 @@ const MAX_ESTABLISH_TIMEOUT: Duration = PING_TIMEOUT;
 const SECONDS_PER_PING: Duration = Duration::from_secs(3);
 
 /// Connectivity monitor errors
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to read tunnel's configuration
-    #[error(display = "Failed to read tunnel's configuration")]
+    #[error("Failed to read tunnel's configuration")]
     ConfigReadError(TunnelError),
 
     /// Failed to send ping
-    #[error(display = "Ping monitor failed")]
-    PingError(#[error(source)] crate::ping_monitor::Error),
+    #[error("Ping monitor failed")]
+    PingError(#[from] crate::ping_monitor::Error),
 }
 
 /// Verifies if a connection to a tunnel is working.

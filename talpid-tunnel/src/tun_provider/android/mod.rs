@@ -19,41 +19,33 @@ use std::{
 use talpid_types::{android::AndroidContext, ErrorExt};
 
 /// Errors that occur while setting up VpnService tunnel.
-#[derive(Debug, err_derive::Error)]
-#[error(no_from)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error(display = "Failed to attach Java VM to tunnel thread")]
-    AttachJvmToThread(#[error(source)] jnix::jni::errors::Error),
+    #[error("Failed to attach Java VM to tunnel thread")]
+    AttachJvmToThread(#[source] jnix::jni::errors::Error),
 
-    #[error(display = "Failed to allow socket to bypass tunnel")]
+    #[error("Failed to allow socket to bypass tunnel")]
     Bypass,
 
-    #[error(display = "Failed to call Java method TalpidVpnService.{}", _0)]
-    CallMethod(&'static str, #[error(source)] jnix::jni::errors::Error),
+    #[error("Failed to call Java method TalpidVpnService.{0}")]
+    CallMethod(&'static str, #[source] jnix::jni::errors::Error),
 
-    #[error(display = "Failed to create Java VM handle clone")]
-    CloneJavaVm(#[error(source)] jnix::jni::errors::Error),
+    #[error("Failed to create Java VM handle clone")]
+    CloneJavaVm(#[source] jnix::jni::errors::Error),
 
-    #[error(display = "Failed to find TalpidVpnService.{} method", _0)]
-    FindMethod(&'static str, #[error(source)] jnix::jni::errors::Error),
+    #[error("Failed to find TalpidVpnService.{0} method")]
+    FindMethod(&'static str, #[source] jnix::jni::errors::Error),
 
-    #[error(
-        display = "Attempt to configure the tunnel with an invalid DNS server address(es): {:?}",
-        _0
-    )]
+    #[error("Attempt to configure the tunnel with an invalid DNS server address(es): {0:?}")]
     InvalidDnsServers(Vec<IpAddr>),
 
-    #[error(
-        display = "Received an invalid result from TalpidVpnService.{}: {}",
-        _0,
-        _1
-    )]
+    #[error("Received an invalid result from TalpidVpnService.{0}: {1}")]
     InvalidMethodResult(&'static str, String),
 
-    #[error(display = "Failed to create tunnel device")]
+    #[error("Failed to create tunnel device")]
     TunnelDeviceError,
 
-    #[error(display = "Permission denied when trying to create tunnel")]
+    #[error("Permission denied when trying to create tunnel")]
     PermissionDenied,
 }
 

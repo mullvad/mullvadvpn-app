@@ -10,20 +10,19 @@ use tokio::{
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Unable to open or read account history file")]
-    Read(#[error(source)] io::Error),
+    #[error("Unable to open or read account history file")]
+    Read(#[source] io::Error),
 
-    #[error(display = "Failed to serialize account history")]
-    Serialize(#[error(source)] serde_json::Error),
+    #[error("Failed to serialize account history")]
+    Serialize(#[source] serde_json::Error),
 
-    #[error(display = "Unable to write account history file")]
-    Write(#[error(source)] io::Error),
+    #[error("Unable to write account history file")]
+    Write(#[source] io::Error),
 
-    #[error(display = "Write task panicked or was cancelled")]
-    WriteCancelled(#[error(source)] tokio::task::JoinError),
+    #[error("Write task panicked or was cancelled")]
+    WriteCancelled(#[source] tokio::task::JoinError),
 }
 
 static ACCOUNT_HISTORY_FILE: &str = "account-history.json";

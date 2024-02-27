@@ -185,7 +185,7 @@ checksum = "16e62a023e7c117e27523144c5d2459f4397fcc3cab0085af8e2224f643a0193"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -196,7 +196,7 @@ checksum = "bc00ceb34980c03614e35a3a4e218276a0a824e911d07651cd0d858a51e8c0f0"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -490,7 +490,7 @@ dependencies = [
  "heck",
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -659,7 +659,7 @@ checksum = "83fdaf97f4804dcebfa5862639bc9ce4121e82140bec2a987ac5140294865b5b"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -884,7 +884,7 @@ dependencies = [
  "heck",
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -1098,7 +1098,7 @@ checksum = "89ca545a94061b6365f2c7355b4b32bd20df3ff95f02da9329b34ccc3bd6ee72"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -1816,7 +1816,6 @@ version = "0.0.0"
 dependencies = [
  "cbindgen",
  "chrono",
- "err-derive",
  "futures",
  "http",
  "hyper",
@@ -1832,6 +1831,7 @@ dependencies = [
  "shadowsocks",
  "talpid-time",
  "talpid-types",
+ "thiserror",
  "tokio",
  "tokio-rustls",
  "tokio-socks",
@@ -1846,7 +1846,6 @@ dependencies = [
  "chrono",
  "clap",
  "clap_complete",
- "err-derive",
  "futures",
  "itertools",
  "mullvad-management-interface",
@@ -1854,6 +1853,7 @@ dependencies = [
  "mullvad-version",
  "natord",
  "talpid-types",
+ "thiserror",
  "tokio",
  "windows-sys 0.48.0",
  "winres",
@@ -1868,7 +1868,6 @@ dependencies = [
  "clap",
  "ctrlc",
  "dirs",
- "err-derive",
  "fern",
  "futures",
  "libc",
@@ -1895,6 +1894,7 @@ dependencies = [
  "talpid-time",
  "talpid-types",
  "talpid-windows",
+ "thiserror",
  "tokio",
  "tokio-stream",
  "winapi",
@@ -1907,9 +1907,9 @@ dependencies = [
 name = "mullvad-exclude"
 version = "0.0.0"
 dependencies = [
- "err-derive",
  "nix 0.23.2",
  "talpid-types",
+ "thiserror",
 ]
 
 [[package]]
@@ -1926,7 +1926,6 @@ dependencies = [
 name = "mullvad-jni"
 version = "0.0.0"
 dependencies = [
- "err-derive",
  "futures",
  "ipnetwork",
  "jnix",
@@ -1940,6 +1939,7 @@ dependencies = [
  "rand 0.8.5",
  "talpid-tunnel",
  "talpid-types",
+ "thiserror",
 ]
 
 [[package]]
@@ -1947,7 +1947,6 @@ name = "mullvad-management-interface"
 version = "0.0.0"
 dependencies = [
  "chrono",
- "err-derive",
  "futures",
  "log",
  "mullvad-paths",
@@ -1958,6 +1957,7 @@ dependencies = [
  "prost",
  "prost-types",
  "talpid-types",
+ "thiserror",
  "tokio",
  "tonic",
  "tonic-build",
@@ -1977,9 +1977,9 @@ dependencies = [
 name = "mullvad-paths"
 version = "0.0.0"
 dependencies = [
- "err-derive",
  "log",
  "once_cell",
+ "thiserror",
  "widestring",
  "windows-sys 0.48.0",
 ]
@@ -1992,7 +1992,6 @@ dependencies = [
  "dirs",
  "duct",
  "env_logger 0.10.0",
- "err-derive",
  "log",
  "mullvad-api",
  "mullvad-paths",
@@ -2001,6 +2000,7 @@ dependencies = [
  "regex",
  "talpid-platform-metadata",
  "talpid-types",
+ "thiserror",
  "tokio",
  "uuid",
  "windows-sys 0.48.0",
@@ -2012,7 +2012,6 @@ name = "mullvad-relay-selector"
 version = "0.0.0"
 dependencies = [
  "chrono",
- "err-derive",
  "ipnetwork",
  "log",
  "mullvad-types",
@@ -2020,6 +2019,7 @@ dependencies = [
  "rand 0.8.5",
  "serde_json",
  "talpid-types",
+ "thiserror",
 ]
 
 [[package]]
@@ -2028,7 +2028,6 @@ version = "0.0.0"
 dependencies = [
  "clap",
  "env_logger 0.10.0",
- "err-derive",
  "mullvad-api",
  "mullvad-daemon",
  "mullvad-management-interface",
@@ -2039,6 +2038,7 @@ dependencies = [
  "talpid-core",
  "talpid-future",
  "talpid-types",
+ "thiserror",
  "tokio",
 ]
 
@@ -2048,7 +2048,6 @@ version = "0.0.0"
 dependencies = [
  "chrono",
  "clap",
- "err-derive",
  "ipnetwork",
  "jnix",
  "log",
@@ -2056,6 +2055,7 @@ dependencies = [
  "regex",
  "serde",
  "talpid-types",
+ "thiserror",
  "uuid",
 ]
 
@@ -2438,7 +2438,7 @@ dependencies = [
  "pest_meta",
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -2531,7 +2531,7 @@ checksum = "4359fd9c9171ec6e8c62926d6faaf553a8dc3f64e1507e76da7911b4f6a04405"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -2656,7 +2656,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ae005bd773ab59b4725093fd7df83fd7892f7d8eafb48dbd7de6e024e4215f9d"
 dependencies = [
  "proc-macro2",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -2685,9 +2685,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.66"
+version = "1.0.78"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18fb31db3f9bddb2ea821cde30a9f70117e3f119938b5ee630b7403aa6e2ead9"
+checksum = "e2422ad645d89c99f8f3e6b88a9fdeca7fabeac836b1002371c4367c8f984aae"
 dependencies = [
  "unicode-ident",
 ]
@@ -2739,7 +2739,7 @@ dependencies = [
  "prost",
  "prost-types",
  "regex",
- "syn 2.0.31",
+ "syn 2.0.51",
  "tempfile",
  "which",
 ]
@@ -2754,7 +2754,7 @@ dependencies = [
  "itertools",
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -2784,9 +2784,9 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.33"
+version = "1.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5267fca4496028628a95160fc423a33e8b2e6af8a5302579e322e4b520293cae"
+checksum = "291ec9ab5efd934aaf503a6466c5d5251535d108ee747472c3977cc5acc868ef"
 dependencies = [
  "proc-macro2",
 ]
@@ -3154,7 +3154,7 @@ checksum = "4eca7ac642d82aa35b60049a6eccb4be6be75e599bd2e9adb5f875a737654af2"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -3494,9 +3494,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.31"
+version = "2.0.51"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "718fa2415bcb8d8bd775917a1bf12a7931b6dfa890753378538118181e0cb398"
+checksum = "6ab617d94515e94ae53b8406c628598680aa0c9587474ecbe58188f7b345d66c"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3550,7 +3550,6 @@ dependencies = [
  "bitflags 1.3.2",
  "chrono",
  "duct",
- "err-derive",
  "futures",
  "inotify 0.10.2",
  "ipnetwork",
@@ -3577,6 +3576,7 @@ dependencies = [
  "talpid-types",
  "talpid-windows",
  "talpid-wireguard",
+ "thiserror",
  "tokio",
  "tonic-build",
  "triggered",
@@ -3594,10 +3594,10 @@ name = "talpid-dbus"
 version = "0.0.0"
 dependencies = [
  "dbus",
- "err-derive",
  "libc",
  "log",
  "once_cell",
+ "thiserror",
  "tokio",
 ]
 
@@ -3616,7 +3616,6 @@ name = "talpid-openvpn"
 version = "0.0.0"
 dependencies = [
  "async-trait",
- "err-derive",
  "futures",
  "log",
  "once_cell",
@@ -3628,6 +3627,7 @@ dependencies = [
  "talpid-tunnel",
  "talpid-types",
  "talpid-windows",
+ "thiserror",
  "tokio",
  "tonic",
  "tonic-build",
@@ -3643,13 +3643,13 @@ name = "talpid-openvpn-plugin"
 version = "0.0.0"
 dependencies = [
  "env_logger 0.10.0",
- "err-derive",
  "log",
  "mullvad-version",
  "openvpn-plugin",
  "parity-tokio-ipc",
  "prost",
  "talpid-types",
+ "thiserror",
  "tokio",
  "tonic",
  "tonic-build",
@@ -3672,7 +3672,6 @@ name = "talpid-routing"
 version = "0.0.0"
 dependencies = [
  "bitflags 1.3.2",
- "err-derive",
  "futures",
  "ipnetwork",
  "libc",
@@ -3685,6 +3684,7 @@ dependencies = [
  "system-configuration",
  "talpid-types",
  "talpid-windows",
+ "thiserror",
  "tokio",
  "widestring",
  "windows-sys 0.48.0",
@@ -3704,7 +3704,6 @@ version = "0.0.0"
 dependencies = [
  "cfg-if",
  "duct",
- "err-derive",
  "futures",
  "ipnetwork",
  "jnix",
@@ -3713,6 +3712,7 @@ dependencies = [
  "talpid-routing",
  "talpid-types",
  "talpid-windows",
+ "thiserror",
  "tokio",
  "tun",
  "windows-sys 0.48.0",
@@ -3742,10 +3742,10 @@ name = "talpid-types"
 version = "0.0.0"
 dependencies = [
  "base64 0.13.1",
- "err-derive",
  "ipnetwork",
  "jnix",
  "serde",
+ "thiserror",
  "x25519-dalek",
  "zeroize",
 ]
@@ -3754,10 +3754,10 @@ dependencies = [
 name = "talpid-windows"
 version = "0.0.0"
 dependencies = [
- "err-derive",
  "futures",
  "socket2 0.5.3",
  "talpid-types",
+ "thiserror",
  "windows-sys 0.48.0",
 ]
 
@@ -3769,7 +3769,6 @@ dependencies = [
  "byteorder",
  "chrono",
  "duct",
- "err-derive",
  "futures",
  "hex",
  "internet-checksum",
@@ -3794,6 +3793,7 @@ dependencies = [
  "talpid-tunnel-config-client",
  "talpid-types",
  "talpid-windows",
+ "thiserror",
  "tokio",
  "tokio-stream",
  "tunnel-obfuscation",
@@ -3826,22 +3826,22 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.48"
+version = "1.0.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d6d7a740b8a666a7e828dd00da9c0dc290dff53154ea77ac109281de90589b7"
+checksum = "1e45bcbe8ed29775f228095caf2cd67af7a4ccf756ebff23a306bf3e8b47b24b"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.48"
+version = "1.0.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "49922ecae66cc8a249b77e68d1d0623c1b2c514f0060c27cdc68bd62a1219d35"
+checksum = "a953cb265bef375dae3de6663da4d3804eee9682ea80d8e2542529b73c531c81"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -3913,7 +3913,7 @@ checksum = "630bdcf245f78637c13ec01ffae6187cca34625e8c63150d424b59e55af2675e"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -4060,7 +4060,7 @@ dependencies = [
  "proc-macro2",
  "prost-build",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -4116,7 +4116,7 @@ checksum = "5f4f31f56159e98206da9efd823404b79b6ef3143b4a7ab76e67b1751b25a4ab"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -4132,12 +4132,12 @@ dependencies = [
 name = "translations-converter"
 version = "0.0.0"
 dependencies = [
- "err-derive",
  "htmlize",
  "once_cell",
  "quick-xml",
  "regex",
  "serde",
+ "thiserror",
 ]
 
 [[package]]
@@ -4239,7 +4239,7 @@ name = "tunnel-obfuscation"
 version = "0.0.0"
 dependencies = [
  "async-trait",
- "err-derive",
+ "thiserror",
  "tokio",
  "udp-over-tcp",
 ]
@@ -4424,7 +4424,7 @@ dependencies = [
  "once_cell",
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
  "wasm-bindgen-shared",
 ]
 
@@ -4446,7 +4446,7 @@ checksum = "54681b18a46765f095758388f2d0cf16eb8d4169b639ab575a8f5693af210c7b"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
  "wasm-bindgen-backend",
  "wasm-bindgen-shared",
 ]
@@ -4801,5 +4801,5 @@ checksum = "ce36e65b0d2999d2aafac989fb249189a141aee1f53c612c1f37d72631959f69"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.31",
+ "syn 2.0.51",
 ]

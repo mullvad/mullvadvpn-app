@@ -155,11 +155,11 @@ impl<'de> Deserialize<'de> for PrivateKey {
 pub struct PublicKey(x25519_dalek::PublicKey);
 
 /// Error returned if an input represents an invalid key
-#[derive(Debug, err_derive::Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum InvalidKey {
-    #[error(display = "Invalid key: {}", _0)]
-    Format(#[error(source)] base64::DecodeError),
-    #[error(display = "Invalid key length: {}", _0)]
+    #[error("Invalid key: {0}")]
+    Format(#[from] base64::DecodeError),
+    #[error("Invalid key length: {0}")]
     Length(usize),
 }
 

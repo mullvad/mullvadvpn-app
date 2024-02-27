@@ -161,8 +161,8 @@ impl FromStr for TunnelType {
 
 /// Returned when `TunnelType::from_str` fails to convert a string into a
 /// [`TunnelType`] object.
-#[derive(err_derive::Error, Debug, Clone, PartialEq, Eq)]
-#[error(display = "Not a valid tunnel protocol")]
+#[derive(thiserror::Error, Debug, Clone, PartialEq, Eq)]
+#[error("Not a valid tunnel protocol")]
 pub struct TunnelTypeParseError;
 
 /// A tunnel endpoint is broadcast during the connecting and connected states of the tunnel state
@@ -450,8 +450,8 @@ impl FromStr for IpVersion {
 
 /// Returned when `IpVersion::from_str` fails to convert a string into a
 /// [`IpVersion`] object.
-#[derive(err_derive::Error, Debug, Clone, PartialEq, Eq)]
-#[error(display = "Not a valid IP protocol")]
+#[derive(thiserror::Error, Debug, Clone, PartialEq, Eq)]
+#[error("Not a valid IP protocol")]
 pub struct IpVersionParseError;
 
 /// Representation of a transport protocol, either UDP or TCP.
@@ -491,8 +491,8 @@ impl fmt::Display for TransportProtocol {
 
 /// Returned when `TransportProtocol::from_str` fails to convert a string into a
 /// [`TransportProtocol`] object.
-#[derive(err_derive::Error, Debug, Clone, PartialEq, Eq)]
-#[error(display = "Not a valid transport protocol")]
+#[derive(thiserror::Error, Debug, Clone, PartialEq, Eq)]
+#[error("Not a valid transport protocol")]
 pub struct TransportProtocolParseError;
 
 /// Holds optional settings that can apply to different kinds of tunnels

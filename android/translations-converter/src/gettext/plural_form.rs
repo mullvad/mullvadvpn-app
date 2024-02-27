@@ -44,6 +44,6 @@ impl FromStr for PluralForm {
 /// Failed to create [`PluralForm`] from specified plural formula.
 ///
 /// The formula could be an invalid formula, or support for it hasn't been added yet.
-#[derive(Clone, Debug, err_derive::Error)]
-#[error(display = "Unsupported plural formula: {}", _0)]
+#[derive(Clone, Debug, thiserror::Error)]
+#[error("Unsupported plural formula: {0}")]
 pub struct UnsupportedPluralFormulaError(String);

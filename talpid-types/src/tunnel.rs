@@ -120,22 +120,22 @@ impl ErrorStateCause {
 }
 
 /// Errors that can occur when generating tunnel parameters.
-#[derive(err_derive::Error, Debug, Serialize, Clone, Deserialize)]
+#[derive(thiserror::Error, Debug, Serialize, Clone, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
 pub enum ParameterGenerationError {
     /// Failure to select a matching tunnel relay
-    #[error(display = "Failure to select a matching tunnel relay")]
+    #[error("Failure to select a matching tunnel relay")]
     NoMatchingRelay,
     /// Failure to select a matching bridge relay
-    #[error(display = "Failure to select a matching bridge relay")]
+    #[error("Failure to select a matching bridge relay")]
     NoMatchingBridgeRelay,
     /// Returned when tunnel parameters can't be generated because wireguard key is not available.
-    #[error(display = "No wireguard key available")]
+    #[error("No wireguard key available")]
     NoWireguardKey,
     /// Failure to resolve the hostname of a custom tunnel configuration
-    #[error(display = "Can't resolve hostname for custom tunnel host")]
+    #[error("Can't resolve hostname for custom tunnel host")]
     CustomTunnelHostResultionError,
 }
 
@@ -148,18 +148,18 @@ pub struct BlockingApplication {
 }
 
 /// Errors that can occur when setting the firewall policy.
-#[derive(err_derive::Error, Debug, Serialize, Clone, Deserialize)]
+#[derive(thiserror::Error, Debug, Serialize, Clone, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "reason", content = "details")]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
 pub enum FirewallPolicyError {
     /// General firewall failure
-    #[error(display = "Failed to set firewall policy")]
+    #[error("Failed to set firewall policy")]
     Generic,
     /// An application prevented the firewall policy from being set
     #[cfg(windows)]
-    #[error(display = "An application prevented the firewall policy from being set")]
+    #[error("An application prevented the firewall policy from being set")]
     Locked(Option<BlockingApplication>),
 }
 

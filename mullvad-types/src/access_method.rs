@@ -140,10 +140,10 @@ impl Default for Settings {
     }
 }
 
-#[derive(err_derive::Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Built-in access methods can not be removed
-    #[error(display = "Cannot remove built-in access method {}", attempted)]
+    #[error("Cannot remove built-in access method {}", attempted)]
     RemoveBuiltin { attempted: BuiltInAccessMethod },
 }
 

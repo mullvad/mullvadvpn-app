@@ -153,10 +153,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         }
 
         snapshot.appendItems([.apiAccess], toSection: .main)
-
-        #if DEBUG
         snapshot.appendItems([.ipOverride], toSection: .main)
-        #endif
 
         snapshot.appendSections([.version, .problemReport])
         snapshot.appendItems([.version], toSection: .version)

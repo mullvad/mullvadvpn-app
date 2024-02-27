@@ -66,35 +66,34 @@ pub const NON_TUN_GATEWAY: Ipv4Addr = Ipv4Addr::new(172, 29, 1, 1);
 /// Name of the wireguard interface on the host
 pub const CUSTOM_TUN_INTERFACE_NAME: &str = "wg-relay0";
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to start 'ip'")]
+    #[error("Failed to start 'ip'")]
     IpStart(io::Error),
-    #[error(display = "'ip' command failed: {}", _0)]
+    #[error("'ip' command failed: {0}")]
     IpFailed(i32),
-    #[error(display = "Failed to start 'sysctl'")]
+    #[error("Failed to start 'sysctl'")]
     SysctlStart(io::Error),
-    #[error(display = "'sysctl' failed: {}", _0)]
+    #[error("'sysctl' failed: {0}")]
     SysctlFailed(i32),
-    #[error(display = "Failed to start 'nft'")]
+    #[error("Failed to start 'nft'")]
     NftStart(io::Error),
-    #[error(display = "Failed to wait for 'nft'")]
+    #[error("Failed to wait for 'nft'")]
     NftRun(io::Error),
-    #[error(display = "'nft' command failed: {}", _0)]
+    #[error("'nft' command failed: {0}")]
     NftFailed(i32),
-    #[error(display = "Failed to create wg config")]
-    CreateWireguardConfig(#[error(source)] async_tempfile::Error),
-    #[error(display = "Failed to write wg config")]
-    WriteWireguardConfig(#[error(source)] io::Error),
-    #[error(display = "Failed to start 'wg'")]
+    #[error("Failed to create wg config")]
+    CreateWireguardConfig(#[source] async_tempfile::Error),
+    #[error("Failed to write wg config")]
+    WriteWireguardConfig(#[source] io::Error),
+    #[error("Failed to start 'wg'")]
     WgStart(io::Error),
-    #[error(display = "'wg' failed: {}", _0)]
+    #[error("'wg' failed: {0}")]
     WgFailed(i32),
-    #[error(display = "Failed to start 'dnsmasq'")]
+    #[error("Failed to start 'dnsmasq'")]
     DnsmasqStart(io::Error),
-    #[error(display = "Failed to create dnsmasq tempfile")]
-    CreateDnsmasqFile(#[error(source)] async_tempfile::Error),
+    #[error("Failed to create dnsmasq tempfile")]
+    CreateDnsmasqFile(#[source] async_tempfile::Error),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;

@@ -11,7 +11,7 @@ rust-version.workspace = true
 workspace = true
 
 [dependencies]
-err-derive = { workspace = true }
+thiserror = { workspace = true }
 futures = "0.3.15"
 hex = "0.4"
 ipnetwork = "0.16"
@@ -82,3 +82,4 @@ features = [
 
 [dev-dependencies]
 proptest = "1.4"
+tokio = { workspace = true, features = ["time", "test-util"] }

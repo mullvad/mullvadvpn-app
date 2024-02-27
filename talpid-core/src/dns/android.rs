@@ -1,8 +1,8 @@
 use std::net::IpAddr;
 
 /// Stub error type for DNS errors on Android.
-#[derive(Debug, err_derive::Error)]
-#[error(display = "Unknown Android DNS error")]
+#[derive(Debug, thiserror::Error)]
+#[error("Unknown Android DNS error")]
 pub struct Error;
 
 pub struct DnsMonitor;

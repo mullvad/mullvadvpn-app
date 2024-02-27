@@ -6,14 +6,13 @@ pub use udp2tcp::Udp2TcpSettings;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to create Udp2Tcp obfuscator")]
-    CreateUdp2TcpObfuscator(#[error(source)] udp2tcp::Error),
+    #[error("Failed to create Udp2Tcp obfuscator")]
+    CreateUdp2TcpObfuscator(#[source] udp2tcp::Error),
 
-    #[error(display = "Failed to run Udp2Tcp obfuscator")]
-    RunUdp2TcpObfuscator(#[error(source)] udp2tcp::Error),
+    #[error("Failed to run Udp2Tcp obfuscator")]
+    RunUdp2TcpObfuscator(#[source] udp2tcp::Error),
 }
 
 #[async_trait]
