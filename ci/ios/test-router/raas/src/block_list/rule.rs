@@ -2,10 +2,7 @@ use crate::web::routes::TransportProtocol;
 use mnl::mnl_sys::libc;
 use nftnl::{expr, nft_expr, Chain, Rule};
 
-use std::{
-    collections::{BTreeSet}, iter,
-    net::{IpAddr},
-};
+use std::{collections::BTreeSet, iter, net::IpAddr};
 
 #[derive(Clone)]
 pub struct BlockRule {

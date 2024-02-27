@@ -39,7 +39,7 @@ impl TransportProtocol {
 }
 
 pub async fn add_rule(
-    State(fw): State<super::Firewall>,
+    State(state): State<super::State>,
     Json(rule): Json<NewRule>,
 ) -> impl IntoResponse {
     let result = tokio::task::spawn_blocking(move || -> anyhow::Result<()> {
@@ -49,7 +49,7 @@ pub async fn add_rule(
             dst: rule.to,
             protocols: rule.protocols.unwrap_or_default(),
         };
-        let Ok(mut fw) = fw.block_list.lock() else {
+        let Ok(mut fw) = state.block_list.lock() else {
             return Err(anyhow::anyhow!("Firewall thread panicked"));
         };
 
@@ -70,10 +70,10 @@ pub async fn add_rule(
 
 pub async fn delete_rules(
     Path(label): Path<Uuid>,
-    State(fw): State<super::Firewall>,
+    State(state): State<super::State>,
 ) -> impl IntoResponse {
     let result = tokio::task::spawn_blocking(move || -> anyhow::Result<()> {
-        let Ok(mut fw) = fw.block_list.lock() else {
+        let Ok(mut fw) = state.block_list.lock() else {
             return Err(anyhow::anyhow!("Firewall thread panicked"));
         };
 
