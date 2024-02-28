@@ -7,6 +7,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -17,7 +18,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.text.HtmlCompat
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
@@ -27,18 +27,47 @@ import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationSideEffect
+import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationViewModel
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
 private fun PreviewRemoveDeviceConfirmationDialog() {
-    AppTheme { DeleteCustomListConfirmationDialog(EmptyResultBackNavigator(), "My Custom List") }
+    AppTheme { DeleteCustomListConfirmationDialog("My Custom List") }
 }
 
-@Destination(style = DestinationStyle.Dialog::class)
 @Composable
-fun DeleteCustomListConfirmationDialog(navigator: ResultBackNavigator<Boolean>, name: String) {
+@Destination(style = DestinationStyle.Dialog::class)
+fun DeleteCustomList(navigator: ResultBackNavigator<Boolean>, id: String, name: String) {
+    val viewModel: DeleteCustomListConfirmationViewModel =
+        koinViewModel(parameters = { parametersOf(id) })
+
+    LaunchedEffect(Unit) {
+        viewModel.uiSideEffect.collect {
+            when (it) {
+                is DeleteCustomListConfirmationSideEffect.CloseDialog ->
+                    navigator.navigateBack(result = true)
+            }
+        }
+    }
+
+    DeleteCustomListConfirmationDialog(
+        name = name,
+        onDelete = viewModel::deleteCustomList,
+        onBack = { navigator.navigateBack(result = false) }
+    )
+}
+
+@Composable
+fun DeleteCustomListConfirmationDialog(
+    name: String,
+    onDelete: () -> Unit = {},
+    onBack: () -> Unit = {}
+) {
     AlertDialog(
-        onDismissRequest = navigator::navigateBack,
+        onDismissRequest = onBack,
         icon = {
             Icon(
                 modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
@@ -64,15 +93,12 @@ fun DeleteCustomListConfirmationDialog(navigator: ResultBackNavigator<Boolean>, 
         dismissButton = {
             PrimaryButton(
                 modifier = Modifier.focusRequester(FocusRequester()),
-                onClick = { navigator.navigateBack(result = false) },
+                onClick = onBack,
                 text = stringResource(id = R.string.cancel)
             )
         },
         confirmButton = {
-            NegativeButton(
-                onClick = { navigator.navigateBack(result = true) },
-                text = stringResource(id = R.string.delete_list)
-            )
+            NegativeButton(onClick = onDelete, text = stringResource(id = R.string.delete_list))
         },
         containerColor = MaterialTheme.colorScheme.background
     )
