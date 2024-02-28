@@ -33,6 +33,7 @@ import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
 import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
 import net.mullvad.mullvadvpn.compose.destinations.PrivacyDisclaimerDestination
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
