@@ -44,6 +44,8 @@ import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
+import net.mullvad.mullvadvpn.viewmodel.CustomListsViewModel
+import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewModel
@@ -170,6 +172,8 @@ val uiModule = module {
     }
     viewModel { parameters -> EditCustomListViewModel(parameters.get(), get(), get()) }
     viewModel { parameters -> EditCustomListNameDialogViewModel(parameters.get(), get()) }
+    viewModel { CustomListsViewModel(get()) }
+    viewModel { parameters -> DeleteCustomListConfirmationViewModel(parameters.get(), get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { NoDaemonViewModel(get()) }

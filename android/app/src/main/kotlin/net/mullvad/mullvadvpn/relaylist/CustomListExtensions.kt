@@ -19,9 +19,9 @@ fun List<CustomList>.toRelayItemLists(
     relayCountries: List<RelayItem.Country>
 ): List<RelayItem.CustomList> = this.map { it.toRelayItemCustomList(relayCountries) }
 
-fun RelayItem.CustomList.toCustomList(): CustomList =
-    CustomList(
-        id = id,
-        name = name,
-        locations = locations.toGeographicLocationConstraints(),
-    )
+fun List<RelayItem.CustomList>.filterOnSearchTerm(searchTerm: String) =
+    if (searchTerm.length >= MIN_SEARCH_LENGTH) {
+        this.filter { it.name.contains(searchTerm, ignoreCase = true) }
+    } else {
+        this
+    }
