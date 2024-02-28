@@ -132,7 +132,7 @@ class ConnectViewModelTest {
         // Flows
         every { mockRelayListUseCase.selectedRelayItem() } returns selectedRelayItemFlow
 
-        every { outOfTimeUseCase.isOutOfTime() } returns outOfTimeViewFlow
+        every { outOfTimeUseCase.isOutOfTime } returns outOfTimeViewFlow
         viewModel =
             ConnectViewModel(
                 serviceConnectionManager = mockServiceConnectionManager,
