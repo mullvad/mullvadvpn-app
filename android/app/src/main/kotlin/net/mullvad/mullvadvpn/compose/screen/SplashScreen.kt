@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.window.SplashScreen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
@@ -54,36 +52,30 @@ private fun PreviewLoadingScreen() {
 fun Splash(navigator: DestinationsNavigator) {
     val viewModel: SplashViewModel = koinViewModel()
 
-    LaunchedEffect(Unit) {
-        viewModel.uiSideEffect.collect {
-            when (it) {
-                SplashUiSideEffect.NavigateToConnect -> {
-                    navigator.navigate(ConnectDestination) {
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
+    // We use CollectSideEffectWithLifecycle to re-evaluate the splash decision if the user
+    // navigates away from the app to the resume before we leave the splash screen
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
+        when (it) {
+            SplashUiSideEffect.NavigateToConnect ->
+                navigator.navigate(ConnectDestination) {
+                    popUpTo(NavGraphs.root) { inclusive = true }
                 }
-                SplashUiSideEffect.NavigateToLogin -> {
-                    navigator.navigate(LoginDestination()) {
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
+            SplashUiSideEffect.NavigateToLogin ->
+                navigator.navigate(LoginDestination()) {
+                    popUpTo(NavGraphs.root) { inclusive = true }
                 }
-                SplashUiSideEffect.NavigateToPrivacyDisclaimer -> {
-                    navigator.navigate(PrivacyDisclaimerDestination) { popUpTo(NavGraphs.root) {} }
+            SplashUiSideEffect.NavigateToPrivacyDisclaimer ->
+                navigator.navigate(PrivacyDisclaimerDestination) { popUpTo(NavGraphs.root) {} }
+            SplashUiSideEffect.NavigateToRevoked ->
+                navigator.navigate(DeviceRevokedDestination) {
+                    popUpTo(NavGraphs.root) { inclusive = true }
                 }
-                SplashUiSideEffect.NavigateToRevoked -> {
-                    navigator.navigate(DeviceRevokedDestination) {
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
+            SplashUiSideEffect.NavigateToOutOfTime ->
+                navigator.navigate(OutOfTimeDestination) {
+                    popUpTo(NavGraphs.root) { inclusive = true }
                 }
-                SplashUiSideEffect.NavigateToOutOfTime ->
-                    navigator.navigate(OutOfTimeDestination) {
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
-            }
         }
     }
-
-    LaunchedEffect(Unit) { viewModel.start() }
 
     SplashScreen()
 }
