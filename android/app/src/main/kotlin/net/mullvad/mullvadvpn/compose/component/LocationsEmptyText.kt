@@ -15,10 +15,11 @@ import androidx.core.text.HtmlCompat
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.relaylist.MIN_SEARCH_LENGTH
 
 @Composable
 fun LocationsEmptyText(searchTerm: String) {
-    if (searchTerm.isNotEmpty()) {
+    if (searchTerm.length >= MIN_SEARCH_LENGTH) {
         val firstRow =
             HtmlCompat.fromHtml(
                     textResource(

@@ -235,5 +235,3 @@ private fun List<RelayItem.Country>.expandItemForSelection(
         }
     } ?: this
 }
-
-private const val MIN_SEARCH_LENGTH = 2
