@@ -14,6 +14,7 @@ use pnet::{
         ethernet::{EtherTypes, MutableEthernetPacket},
         ip::IpNextHeaderProtocols,
         ipv4::MutableIpv4Packet,
+        ipv6::MutableIpv6Packet,
         tcp::MutableTcpPacket,
         udp::MutableUdpPacket,
         MutablePacket, Packet,
@@ -436,7 +437,7 @@ async fn redirect_packets_for_pktap_stream(
     mut pktap_stream: PktapStream,
     default_interface: DefaultInterface,
     vpn_interface: Option<VpnInterface>,
-    classify: Box<dyn Fn(&PktapPacket) -> RoutingDecision + Send + 'static>,
+    mut classify: Box<dyn Fn(&PktapPacket) -> RoutingDecision + Send + 'static>,
 ) -> Result<RedirectHandle, Error> {
     let default_dev = bpf::Bpf::open().map_err(Error::CreateDefaultBpf)?;
     let buffer_size = default_dev
@@ -478,6 +479,7 @@ async fn redirect_packets_for_pktap_stream(
     };
 
     let vpn_v4 = vpn_interface.as_ref().and_then(|iface| iface.v4_address);
+    let vpn_v6 = vpn_interface.as_ref().and_then(|iface| iface.v6_address);
 
     let ingress_task: tokio::task::JoinHandle<(
         tokio::io::ReadHalf<tun::AsyncDevice>,
@@ -518,7 +520,7 @@ async fn redirect_packets_for_pktap_stream(
                         let bpf_payload = &mut read_data[header.bh_hdrlen as usize
                             ..(header.bh_hdrlen as usize + header.bh_caplen as usize)];
 
-                        handle_incoming_data(&mut tun_writer, bpf_payload, vpn_v4).await;
+                        handle_incoming_data(&mut tun_writer, bpf_payload, vpn_v4, vpn_v6).await;
 
                         if new_offset < read_data.len() {
                             let read_len = read_data.len();
@@ -542,17 +544,9 @@ async fn redirect_packets_for_pktap_stream(
     });
 
     let default_interface_clone = default_interface.clone();
+    let vpn_interface_clone = vpn_interface.clone();
 
     let classify_task = tokio::spawn(async move {
-        let dest_mac = MacAddr::from(
-            default_interface
-                .v4_addrs
-                .as_ref()
-                .unwrap()
-                .gateway_address
-                .into_bytes(),
-        );
-
         loop {
             tokio::select! {
                 packet = pktap_stream.next() => {
@@ -561,35 +555,13 @@ async fn redirect_packets_for_pktap_stream(
                         Error::PktapStreamStopped
                     })??;
 
-                    match classify(&packet) {
-                        RoutingDecision::DefaultInterface => {
-                            packet.frame.set_destination(dest_mac);
-                            let mut ip = MutableIpv4Packet::new(packet.frame.payload_mut()).unwrap();
+                    let vpn_device = match (vpn_interface.as_ref(), vpn_dev.as_mut()) {
+                        (Some(interface), Some(device)) => Some((interface, device)),
+                        (None, None) => None,
+                        _ => unreachable!("missing tun interface or addresses"),
+                    };
 
-                            fix_ip_checksums(
-                                &mut ip,
-                                Some(default_interface.v4_addrs.as_ref().unwrap().source_ip),
-                                None,
-                            );
-                            if let Err(error) = default_write.write(packet.frame.packet()) {
-                                log::error!("Failed to forward to non-tun device: {error}");
-                            }
-                        }
-                        RoutingDecision::VpnTunnel => {
-                            let Some(mut ip) = MutableIpv4Packet::new(packet.frame.payload_mut()) else {
-                                continue;
-                            };
-                            if let Some(ref mut vpn_dev) = vpn_dev {
-                                fix_ip_checksums(&mut ip, vpn_v4, None);
-                                if let Err(error) = vpn_dev.write(packet.frame.payload()) {
-                                    log::error!("Failed to forward to tun device: {error}");
-                                }
-                            }
-                        }
-                        RoutingDecision::Drop => {
-                            log::trace!("Dropped packet from pid {}", packet.header.pth_pid);
-                        }
-                    }
+                    classify = classify_and_send(classify, &mut packet, &default_interface, &mut default_write, vpn_device).await;
                 }
                 Ok(()) | Err(_) = egress_abort_rx.recv() => {
                     log::debug!("stopping packet processing");
@@ -604,55 +576,187 @@ async fn redirect_packets_for_pktap_stream(
         ingress_task,
         classify_task,
         default_interface: default_interface_clone,
-        vpn_interface,
+        vpn_interface: vpn_interface_clone,
     })
+}
+
+async fn classify_and_send(
+    classify: Box<dyn Fn(&PktapPacket) -> RoutingDecision + Send + 'static>,
+    packet: &mut PktapPacket,
+    default_interface: &DefaultInterface,
+    default_write: &mut bpf::WriteHalf,
+    vpn_interface: Option<(&VpnInterface, &mut bpf::Bpf)>,
+) -> Box<dyn Fn(&PktapPacket) -> RoutingDecision + Send + 'static> {
+    match classify(&packet) {
+        RoutingDecision::DefaultInterface => match packet.frame.get_ethertype() {
+            EtherTypes::Ipv4 => {
+                let Some(ref addrs) = default_interface.v4_addrs else {
+                    log::trace!("dropping IPv4 packet since there's no default route");
+                    return classify;
+                };
+                let gateway_address = MacAddr::from(addrs.gateway_address.into_bytes());
+                packet.frame.set_destination(gateway_address);
+                let Some(mut ip) = MutableIpv4Packet::new(packet.frame.payload_mut()) else {
+                    log::error!("dropping invalid IPv4 packet");
+                    return classify;
+                };
+                fix_ipv4_checksums(&mut ip, Some(addrs.source_ip), None);
+                if let Err(error) = default_write.write(packet.frame.packet()) {
+                    log::error!("Failed to forward to default device: {error}");
+                }
+            }
+            EtherTypes::Ipv6 => {
+                let Some(ref addrs) = default_interface.v6_addrs else {
+                    log::trace!("dropping IPv6 packet since there's no default route");
+                    return classify;
+                };
+                let gateway_address = MacAddr::from(addrs.gateway_address.into_bytes());
+                packet.frame.set_destination(gateway_address);
+                let Some(mut ip) = MutableIpv6Packet::new(packet.frame.payload_mut()) else {
+                    log::error!("dropping invalid IPv6 packet");
+                    return classify;
+                };
+                fix_ipv6_checksums(&mut ip, Some(addrs.source_ip), None);
+                if let Err(error) = default_write.write(packet.frame.packet()) {
+                    log::error!("Failed to forward to default device: {error}");
+                }
+            }
+            other => log::error!("unknown ethertype: {other}"),
+        },
+        RoutingDecision::VpnTunnel => {
+            let Some((vpn_interface, vpn_write)) = vpn_interface else {
+                log::trace!("dropping IP packet since there's no tun route");
+                return classify;
+            };
+
+            match packet.frame.get_ethertype() {
+                EtherTypes::Ipv4 => {
+                    let Some(addr) = vpn_interface.v4_address else {
+                        log::trace!("dropping IPv4 packet since there's no tun route");
+                        return classify;
+                    };
+                    let Some(mut ip) = MutableIpv4Packet::new(packet.frame.payload_mut()) else {
+                        log::error!("dropping invalid IPv4 packet");
+                        return classify;
+                    };
+                    fix_ipv4_checksums(&mut ip, Some(addr), None);
+                    if let Err(error) = vpn_write.write(packet.frame.payload()) {
+                        log::error!("Failed to forward to tun device: {error}");
+                    }
+                }
+                EtherTypes::Ipv6 => {
+                    let Some(addr) = vpn_interface.v6_address else {
+                        log::trace!("dropping IPv6 packet since there's no tun route");
+                        return classify;
+                    };
+                    let Some(mut ip) = MutableIpv6Packet::new(packet.frame.payload_mut()) else {
+                        log::error!("dropping invalid IPv6 packet");
+                        return classify;
+                    };
+                    fix_ipv6_checksums(&mut ip, Some(addr), None);
+                    if let Err(error) = vpn_write.write(packet.frame.payload()) {
+                        log::error!("Failed to forward to tun device: {error}");
+                    }
+                }
+                other => log::error!("unknown ethertype: {other}"),
+            }
+        }
+        RoutingDecision::Drop => {
+            log::trace!("Dropped packet from pid {}", packet.header.pth_pid);
+        }
+    }
+    classify
 }
 
 async fn handle_incoming_data(
     tun_writer: &mut tokio::io::WriteHalf<tun::AsyncDevice>,
     payload: &mut [u8],
     vpn_v4: Option<Ipv4Addr>,
+    vpn_v6: Option<Ipv6Addr>,
 ) {
     let Some(mut frame) = MutableEthernetPacket::new(payload) else {
         log::trace!("discarding non-Ethernet frame");
         return;
     };
 
-    if frame.get_ethertype() != EtherTypes::Ipv4 {
-        log::trace!("discarding non-IPv4 frame");
-        return;
+    match frame.get_ethertype() {
+        EtherTypes::Ipv4 => {
+            let Some(vpn_addr) = vpn_v4 else {
+                log::trace!("discarding incoming IPv4 packet: no tun V4 addr");
+                return;
+            };
+            let Some(ip) = MutableIpv4Packet::new(frame.payload_mut()) else {
+                log::trace!("discarding non-IPv4 packet");
+                return;
+            };
+            handle_incoming_data_v4(tun_writer, ip, vpn_addr).await;
+        }
+        EtherTypes::Ipv6 => {
+            let Some(vpn_addr) = vpn_v6 else {
+                log::trace!("discarding incoming IPv6 packet: no tun V6 addr");
+                return;
+            };
+            let Some(ip) = MutableIpv6Packet::new(frame.payload_mut()) else {
+                log::trace!("discarding non-IPv6 packet");
+                return;
+            };
+            handle_incoming_data_v6(tun_writer, ip, vpn_addr).await;
+        }
+        ethertype => {
+            log::trace!("discarding non-IP frame: {ethertype}");
+        }
     }
+}
 
-    let Some(mut ip) = MutableIpv4Packet::new(frame.payload_mut()) else {
-        log::trace!("discarding non-IPv4 packet");
-        return;
-    };
-
-    let dest = Some(ip.get_destination());
-    if dest == vpn_v4 {
+async fn handle_incoming_data_v4(
+    tun_writer: &mut tokio::io::WriteHalf<tun::AsyncDevice>,
+    mut ip: MutableIpv4Packet<'_>,
+    vpn_addr: Ipv4Addr,
+) {
+    if ip.get_destination() == vpn_addr {
         // Drop attempt to send packets to tun IP on the real interface
         return;
     }
 
-    fix_ip_checksums(&mut ip, None, vpn_v4);
+    fix_ipv4_checksums(&mut ip, None, Some(vpn_addr));
 
-    const BSD_LB_HEADER: &[u8] = &[0, 0, 0, AF_INET as u8];
+    const BSD_LB_HEADER: &[u8] = &(AF_INET as u32).to_be_bytes();
     if let Err(error) = tun_writer
         .write_vectored(&[IoSlice::new(BSD_LB_HEADER), IoSlice::new(ip.packet())])
         .await
     {
-        log::error!("Failed to redirect incoming packet: {error}");
+        log::error!("Failed to redirect incoming IPv4 packet: {error}");
+    }
+}
+
+async fn handle_incoming_data_v6(
+    tun_writer: &mut tokio::io::WriteHalf<tun::AsyncDevice>,
+    mut ip: MutableIpv6Packet<'_>,
+    vpn_addr: Ipv6Addr,
+) {
+    if ip.get_destination() == vpn_addr {
+        // Drop attempt to send packets to tun IP on the real interface
+        return;
+    }
+
+    fix_ipv6_checksums(&mut ip, None, Some(vpn_addr));
+
+    const BSD_LB_HEADER: &[u8] = &(AF_INET6 as u32).to_be_bytes();
+    if let Err(error) = tun_writer
+        .write_vectored(&[IoSlice::new(BSD_LB_HEADER), IoSlice::new(ip.packet())])
+        .await
+    {
+        log::error!("Failed to redirect incoming IPv6 packet: {error}");
     }
 }
 
 // Recalculate L3 and L4 checksums. Silently fail on error
-fn fix_ip_checksums(
+fn fix_ipv4_checksums(
     ip: &mut MutableIpv4Packet<'_>,
     new_source: Option<Ipv4Addr>,
     new_destination: Option<Ipv4Addr>,
 ) {
     // Update source and update checksums
-
     if let Some(source_ip) = new_source {
         ip.set_source(source_ip);
     }
@@ -688,6 +792,48 @@ fn fix_ip_checksums(
     }
 
     ip.set_checksum(pnet::packet::ipv4::checksum(&ip.to_immutable()));
+}
+
+// Recalculate L3 and L4 checksums. Silently fail on error
+fn fix_ipv6_checksums(
+    ip: &mut MutableIpv6Packet<'_>,
+    new_source: Option<Ipv6Addr>,
+    new_destination: Option<Ipv6Addr>,
+) {
+    // Update source and update checksums
+    if let Some(source_ip) = new_source {
+        ip.set_source(source_ip);
+    }
+    if let Some(dest_ip) = new_destination {
+        ip.set_destination(dest_ip);
+    }
+
+    let source_ip = ip.get_source();
+    let destination_ip = ip.get_destination();
+
+    match ip.get_next_header() {
+        IpNextHeaderProtocols::Tcp => {
+            if let Some(mut tcp) = MutableTcpPacket::new(ip.payload_mut()) {
+                use pnet::packet::tcp::ipv6_checksum;
+                tcp.set_checksum(ipv6_checksum(
+                    &tcp.to_immutable(),
+                    &source_ip,
+                    &destination_ip,
+                ));
+            }
+        }
+        IpNextHeaderProtocols::Udp => {
+            if let Some(mut udp) = MutableUdpPacket::new(ip.payload_mut()) {
+                use pnet::packet::udp::ipv6_checksum;
+                udp.set_checksum(ipv6_checksum(
+                    &udp.to_immutable(),
+                    &source_ip,
+                    &destination_ip,
+                ));
+            }
+        }
+        _ => (),
+    }
 }
 
 /// This returns a stream of outbound packets on a utun tunnel.
@@ -759,9 +905,8 @@ impl PacketCodec for PktapCodec {
             return None;
         }
 
-        // TODO: Wasteful. We could use a ring buffer for concurrency handling or just
-        // a share single buffer if handling one frame at a time (assuming no concurrency is needed)
-        // Allocating the frame here is purely done for efficiency reasons.
+        // TODO: Wasteful. Could share single buffer if handling one frame at a time (assuming no
+        // concurrency is needed). Allocating the frame here is purely done for efficiency reasons.
         let mut frame = MutableEthernetPacket::owned(vec![0u8; 14 + data.len() - 4]).unwrap();
 
         let raw_family = i32::from_ne_bytes(data[0..4].try_into().unwrap());
