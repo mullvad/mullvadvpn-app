@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.state.RelayListState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.state.toNullableOwnership
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
@@ -57,20 +56,15 @@ class SelectLocationViewModel(
                 val filteredRelayCountries =
                     relayCountries.filterOnSearchTerm(searchTerm, selectedItem)
 
-                SelectLocationUiState.Data(
+                val filteredCustomLists = customLists.filterOnSearchTerm(searchTerm)
+
+                SelectLocationUiState.Content(
                     searchTerm = searchTerm,
                     selectedOwnership = selectedOwnershipItem,
                     selectedProvidersCount = selectedProvidersCount,
-                    relayListState =
-                        if (filteredRelayCountries.isNotEmpty()) {
-                            RelayListState.RelayList(
-                                customLists = customLists,
-                                countries = filteredRelayCountries,
-                                selectedItem = selectedItem,
-                            )
-                        } else {
-                            RelayListState.Empty
-                        },
+                    customLists = filteredCustomLists,
+                    countries = filteredRelayCountries,
+                    selectedItem = selectedItem,
                 )
             }
             .stateIn(

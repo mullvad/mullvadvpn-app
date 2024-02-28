@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.EditCustomListState
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
@@ -37,13 +36,6 @@ class EditCustomListViewModel(
                     }
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), EditCustomListState.Loading)
-
-    fun deleteList() {
-        viewModelScope.launch {
-            customListsRepository.deleteCustomList(customListId)
-            _uiSideEffect.send(EditCustomListSideEffect.CloseScreen)
-        }
-    }
 }
 
 sealed interface EditCustomListSideEffect {

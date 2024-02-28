@@ -300,4 +300,8 @@
     </string>
     <string name="custom_list_error_list_exists">Name is already taken.</string>
     <string name="update_list_name">Update list name</string>
+    <string name="no_custom_lists_available">No custom lists available</string>
+    <string name="to_create_a_custom_list">To create a custom list press the \"︙\"</string>
+    <string name="new_list">New list</string>
+    <string name="to_add_locations_to_a_list">To add locations to a list, press the \"︙\" or long press on a country, city, or server.</string>
 </resources>
