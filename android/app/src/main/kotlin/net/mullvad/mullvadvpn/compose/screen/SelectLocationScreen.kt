@@ -99,7 +99,7 @@ fun SelectLocation(navigator: DestinationsNavigator) {
         onSelectRelay = vm::selectRelay,
         onSearchTermInput = vm::onSearchTermInput,
         onBackClick = navigator::navigateUp,
-        onFilterClick = { navigator.navigate(FilterScreenDestination) },
+        onFilterClick = { navigator.navigate(FilterScreenDestination, true) },
         removeOwnershipFilter = vm::removeOwnerFilter,
         removeProviderFilter = vm::removeProviderFilter
     )

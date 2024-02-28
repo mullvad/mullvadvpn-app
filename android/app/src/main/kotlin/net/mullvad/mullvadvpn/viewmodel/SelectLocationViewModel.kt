@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -82,7 +81,7 @@ class SelectLocationViewModel(
                 SelectLocationUiState.Loading
             )
 
-    private val _uiSideEffect = Channel<SelectLocationSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    private val _uiSideEffect = Channel<SelectLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     init {
@@ -93,7 +92,7 @@ class SelectLocationViewModel(
         val locationConstraint = relayItem.toLocationConstraint()
         relayListUseCase.updateSelectedRelayLocation(locationConstraint)
         serviceConnectionManager.connectionProxy()?.connect()
-        viewModelScope.launch { _uiSideEffect.send(SelectLocationSideEffect.CloseScreen) }
+        _uiSideEffect.trySend(SelectLocationSideEffect.CloseScreen)
     }
 
     fun onSearchTermInput(searchTerm: String) {
