@@ -35,7 +35,7 @@ class BaseUITestCase: XCTestCase {
             alertAllowButton.tap()
         }
 
-        if iOSDevicePinCode.isEmpty == false {
+        if !iOSDevicePinCode.isEmpty {
             _ = springboard.buttons["1"].waitForExistence(timeout: Self.defaultTimeout)
             springboard.typeText(iOSDevicePinCode)
         }

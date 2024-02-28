@@ -10,7 +10,7 @@ import Foundation
 import XCTest
 
 enum MullvadAPIError: Error {
-    case incorrectConfigurationFormat
+    case invalidEndpointFormatError
     case requestError
 }
 
@@ -28,17 +28,13 @@ class MullvadAPIWrapper {
 
     init() throws {
         let apiAddress = try Self.getAPIIPAddress() + ":" + Self.getAPIPort()
-        let hostname = Self.getAPIHostname()
+        let hostname = Self.hostName
         mullvadAPI = try MullvadApi(apiAddress: apiAddress, hostname: hostname)
-    }
-
-    public static func getAPIHostname() -> String {
-        return hostName
     }
 
     public static func getAPIIPAddress() throws -> String {
         guard let ipAddress = endpoint.components(separatedBy: ":").first else {
-            throw MullvadAPIError.incorrectConfigurationFormat
+            throw MullvadAPIError.invalidEndpointFormatError
         }
 
         return ipAddress
@@ -46,7 +42,7 @@ class MullvadAPIWrapper {
 
     public static func getAPIPort() throws -> String {
         guard let port = endpoint.components(separatedBy: ":").last else {
-            throw MullvadAPIError.incorrectConfigurationFormat
+            throw MullvadAPIError.invalidEndpointFormatError
         }
 
         return port
