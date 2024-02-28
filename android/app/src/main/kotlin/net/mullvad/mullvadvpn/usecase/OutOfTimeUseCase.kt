@@ -1,12 +1,18 @@
 package net.mullvad.mullvadvpn.usecase
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
 import net.mullvad.mullvadvpn.lib.ipc.events
@@ -16,21 +22,19 @@ import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 
-const val accountRefreshIntervalMillis = 60L * 1000L // 1 minute
-const val bufferTimeMillis = 60L * 1000L // 1 minute
-
 class OutOfTimeUseCase(
     private val repository: AccountRepository,
-    private val messageHandler: MessageHandler
+    private val messageHandler: MessageHandler,
+    scope: CoroutineScope
 ) {
 
-    fun isOutOfTime(): Flow<Boolean?> =
+    val isOutOfTime: StateFlow<Boolean?> =
         combine(pastAccountExpiry(), isTunnelBlockedBecauseOutOfTime()) {
                 accountExpiryHasPast,
                 tunnelOutOfTime ->
                 reduce(accountExpiryHasPast, tunnelOutOfTime)
             }
-            .distinctUntilChanged()
+            .stateIn(scope, SharingStarted.Eagerly, null)
 
     private fun reduce(vararg outOfTimeProperty: Boolean?): Boolean? =
         when {
@@ -42,7 +46,7 @@ class OutOfTimeUseCase(
             else -> null
         }
 
-    private fun isTunnelBlockedBecauseOutOfTime() =
+    private fun isTunnelBlockedBecauseOutOfTime(): Flow<Boolean> =
         messageHandler
             .events<Event.TunnelStateChange>()
             .map { it.tunnelState.isTunnelErrorStateDueToExpiredAccount() }
@@ -54,23 +58,22 @@ class OutOfTimeUseCase(
     }
 
     private fun pastAccountExpiry(): Flow<Boolean?> =
-        combine(
-            repository.accountExpiryState.map {
+        repository.accountExpiryState
+            .flatMapLatest {
                 if (it is AccountExpiry.Available) {
-                    it.date()
+                    flow {
+                        val millisUntilExpiry = it.expiryDateTime.millis - DateTime.now().millis
+                        if (millisUntilExpiry > 0) {
+                            emit(false)
+                            delay(millisUntilExpiry)
+                            emit(true)
+                        } else {
+                            emit(true)
+                        }
+                    }
                 } else {
-                    null
+                    flowOf<Boolean?>(null)
                 }
-            },
-            timeFlow()
-        ) { expiryDate, time ->
-            expiryDate?.isBefore(time.plus(bufferTimeMillis))
-        }
-
-    private fun timeFlow() = flow {
-        while (true) {
-            emit(DateTime.now())
-            delay(accountRefreshIntervalMillis)
-        }
-    }
+            }
+            .distinctUntilChanged()
 }
