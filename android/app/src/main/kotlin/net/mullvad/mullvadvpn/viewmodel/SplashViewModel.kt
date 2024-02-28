@@ -3,45 +3,33 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_TIMEOUT_MS
-import net.mullvad.mullvadvpn.lib.ipc.Event
-import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
-import net.mullvad.mullvadvpn.lib.ipc.events
 import net.mullvad.mullvadvpn.model.AccountAndDevice
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
+import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 
 class SplashViewModel(
     private val privacyDisclaimerRepository: PrivacyDisclaimerRepository,
     private val deviceRepository: DeviceRepository,
-    private val messageHandler: MessageHandler,
+    private val accountRepository: AccountRepository,
 ) : ViewModel() {
 
-    private val _uiSideEffect = Channel<SplashUiSideEffect>(1, BufferOverflow.DROP_OLDEST)
-    val uiSideEffect = _uiSideEffect.receiveAsFlow()
-
-    fun start() {
-        viewModelScope.launch {
-            if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
-                _uiSideEffect.send(getStartDestination())
-            } else {
-                _uiSideEffect.send(SplashUiSideEffect.NavigateToPrivacyDisclaimer)
-            }
-        }
-    }
+    val uiSideEffect = flow { emit(getStartDestination()) }
 
     private suspend fun getStartDestination(): SplashUiSideEffect {
+        if (!privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
+            return SplashUiSideEffect.NavigateToPrivacyDisclaimer
+        }
+
         val deviceState =
             deviceRepository.deviceState
                 .map {
@@ -68,7 +56,7 @@ class SplashViewModel(
     private suspend fun getLoggedInStartDestination(): SplashUiSideEffect {
         val expiry =
             viewModelScope.async {
-                messageHandler.events<Event.AccountExpiryEvent>().map { it.expiry }.first()
+                accountRepository.accountExpiryState.first { it !is AccountExpiry.Missing }
             }
 
         val accountExpiry = select {
