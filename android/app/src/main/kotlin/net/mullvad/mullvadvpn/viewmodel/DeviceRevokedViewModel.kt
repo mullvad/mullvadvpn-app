@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
@@ -46,7 +45,7 @@ class DeviceRevokedViewModel(
                 initialValue = DeviceRevokedUiState.UNKNOWN
             )
 
-    private val _uiSideEffect = Channel<DeviceRevokedSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    private val _uiSideEffect = Channel<DeviceRevokedSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     fun onGoToLoginClicked() {

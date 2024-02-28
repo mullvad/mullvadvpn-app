@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -81,7 +80,7 @@ class DnsDialogViewModel(
                 createViewState(_ipAddressInput.value, vmState.value)
             )
 
-    private val _uiSideEffect = Channel<DnsDialogSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    private val _uiSideEffect = Channel<DnsDialogSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private fun createViewState(ipAddress: String, vmState: DnsDialogViewModelState) =
