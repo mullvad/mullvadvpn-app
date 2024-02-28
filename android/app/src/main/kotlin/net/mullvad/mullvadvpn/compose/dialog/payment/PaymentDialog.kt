@@ -20,6 +20,7 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
@@ -125,12 +126,10 @@ fun Payment(productId: ProductId, resultBackNavigator: ResultBackNavigator<Boole
     val vm = koinViewModel<PaymentViewModel>()
     val uiState = vm.uiState.collectAsState().value
 
-    LaunchedEffect(Unit) {
-        vm.uiSideEffect.collect {
-            when (it) {
-                is PaymentUiSideEffect.PaymentCancelled ->
-                    resultBackNavigator.navigateBack(result = false)
-            }
+    LaunchedEffectCollect(vm.uiSideEffect) {
+        when (it) {
+            is PaymentUiSideEffect.PaymentCancelled ->
+                resultBackNavigator.navigateBack(result = false)
         }
     }
 

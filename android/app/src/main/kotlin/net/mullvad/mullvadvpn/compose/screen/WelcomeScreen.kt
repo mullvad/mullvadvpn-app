@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -50,6 +49,7 @@ import net.mullvad.mullvadvpn.compose.destinations.VerificationPendingDialogDest
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
@@ -126,18 +126,15 @@ fun Welcome(
     }
 
     val context = LocalContext.current
-    LaunchedEffect(Unit) {
-        vm.uiSideEffect.collect { uiSideEffect ->
-            when (uiSideEffect) {
-                is WelcomeViewModel.UiSideEffect.OpenAccountView ->
-                    context.openAccountPageInBrowser(uiSideEffect.token)
-                WelcomeViewModel.UiSideEffect.OpenConnectScreen -> {
-                    navigator.navigate(ConnectDestination) {
-                        launchSingleTop = true
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
+    LaunchedEffectCollect(vm.uiSideEffect) { uiSideEffect ->
+        when (uiSideEffect) {
+            is WelcomeViewModel.UiSideEffect.OpenAccountView ->
+                context.openAccountPageInBrowser(uiSideEffect.token)
+            WelcomeViewModel.UiSideEffect.OpenConnectScreen ->
+                navigator.navigate(ConnectDestination) {
+                    launchSingleTop = true
+                    popUpTo(NavGraphs.root) { inclusive = true }
                 }
-            }
         }
     }
 

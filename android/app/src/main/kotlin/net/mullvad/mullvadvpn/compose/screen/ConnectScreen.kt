@@ -84,7 +84,6 @@ import net.mullvad.mullvadvpn.model.LatLong
 import net.mullvad.mullvadvpn.model.Latitude
 import net.mullvad.mullvadvpn.model.Longitude
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import org.koin.androidx.compose.koinViewModel

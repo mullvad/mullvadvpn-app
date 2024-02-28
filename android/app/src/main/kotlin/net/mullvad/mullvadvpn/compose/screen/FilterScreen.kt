@@ -17,7 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +38,7 @@ import net.mullvad.mullvadvpn.compose.cell.ExpandableComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.state.RelayFilterState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.Ownership
@@ -72,11 +72,9 @@ fun FilterScreen(navigator: DestinationsNavigator) {
     val viewModel = koinViewModel<FilterViewModel>()
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.uiSideEffect.collect {
-            when (it) {
-                FilterScreenSideEffect.CloseScreen -> navigator.navigateUp()
-            }
+    LaunchedEffectCollect(viewModel.uiSideEffect) {
+        when (it) {
+            FilterScreenSideEffect.CloseScreen -> navigator.navigateUp()
         }
     }
     FilterScreen(
