@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -19,8 +18,7 @@ class PrivacyDisclaimerViewModel(
     private val _uiState = MutableStateFlow(PrivacyDisclaimerViewState(false))
     val uiState = _uiState
 
-    private val _uiSideEffect =
-        Channel<PrivacyDisclaimerUiSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    private val _uiSideEffect = Channel<PrivacyDisclaimerUiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     fun setPrivacyDisclosureAccepted() {

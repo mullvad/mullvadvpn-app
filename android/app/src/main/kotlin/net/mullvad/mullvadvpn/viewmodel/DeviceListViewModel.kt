@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -36,7 +35,7 @@ class DeviceListViewModel(
 ) : ViewModel() {
     private val _loadingDevices = MutableStateFlow<List<DeviceId>>(emptyList())
 
-    private val _uiSideEffect = Channel<DeviceListSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    private val _uiSideEffect = Channel<DeviceListSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private var cachedDeviceList: List<Device>? = null
