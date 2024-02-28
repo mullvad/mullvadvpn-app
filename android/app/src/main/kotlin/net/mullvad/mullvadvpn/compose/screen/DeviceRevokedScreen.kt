@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -32,6 +31,7 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
 import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedSideEffect
@@ -51,16 +51,13 @@ fun DeviceRevoked(navigator: DestinationsNavigator) {
 
     val state by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.uiSideEffect.collect { sideEffect ->
-            when (sideEffect) {
-                DeviceRevokedSideEffect.NavigateToLogin -> {
-                    navigator.navigate(LoginDestination()) {
-                        launchSingleTop = true
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
+    LaunchedEffectCollect(viewModel.uiSideEffect) { sideEffect ->
+        when (sideEffect) {
+            DeviceRevokedSideEffect.NavigateToLogin ->
+                navigator.navigate(LoginDestination()) {
+                    launchSingleTop = true
+                    popUpTo(NavGraphs.root) { inclusive = true }
                 }
-            }
         }
     }
 

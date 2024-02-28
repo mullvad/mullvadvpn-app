@@ -13,7 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +44,7 @@ import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.test.OUT_OF_TIME_SCREEN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -134,18 +134,15 @@ fun OutOfTime(
     }
 
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
-    LaunchedEffect(Unit) {
-        vm.uiSideEffect.collect { uiSideEffect ->
-            when (uiSideEffect) {
-                is OutOfTimeViewModel.UiSideEffect.OpenAccountView ->
-                    openAccountPage(uiSideEffect.token)
-                OutOfTimeViewModel.UiSideEffect.OpenConnectScreen -> {
-                    navigator.navigate(ConnectDestination) {
-                        launchSingleTop = true
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
+    LaunchedEffectCollect(vm.uiSideEffect) { uiSideEffect ->
+        when (uiSideEffect) {
+            is OutOfTimeViewModel.UiSideEffect.OpenAccountView ->
+                openAccountPage(uiSideEffect.token)
+            OutOfTimeViewModel.UiSideEffect.OpenConnectScreen ->
+                navigator.navigate(ConnectDestination) {
+                    launchSingleTop = true
+                    popUpTo(NavGraphs.root) { inclusive = true }
                 }
-            }
         }
     }
 

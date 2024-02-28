@@ -14,7 +14,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,6 +75,7 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBE
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -159,17 +159,15 @@ fun VpnSettings(
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(Unit) {
-        vm.uiSideEffect.collect {
-            when (it) {
-                is VpnSettingsSideEffect.ShowToast ->
-                    launch {
-                        snackbarHostState.currentSnackbarData?.dismiss()
-                        snackbarHostState.showSnackbar(message = it.message)
-                    }
-                VpnSettingsSideEffect.NavigateToDnsDialog ->
-                    navigator.navigate(DnsDialogDestination(null, null)) { launchSingleTop = true }
-            }
+    LaunchedEffectCollect(vm.uiSideEffect) {
+        when (it) {
+            is VpnSettingsSideEffect.ShowToast ->
+                launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar(message = it.message)
+                }
+            VpnSettingsSideEffect.NavigateToDnsDialog ->
+                navigator.navigate(DnsDialogDestination(null, null)) { launchSingleTop = true }
         }
     }
 
