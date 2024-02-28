@@ -49,7 +49,7 @@ import org.koin.core.parameter.parametersOf
 
 @Composable
 @Preview
-fun PreviewCustomListsScreen() {
+fun PreviewCustomListLocationScreen() {
     AppTheme { CustomListLocationsScreen(uiState = CustomListLocationsUiState.Content.Data()) }
 }
 
