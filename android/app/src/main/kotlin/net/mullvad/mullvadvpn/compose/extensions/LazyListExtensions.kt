@@ -2,8 +2,10 @@ package net.mullvad.mullvadvpn.compose.extensions
 
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 
 inline fun LazyListScope.itemWithDivider(
@@ -25,4 +27,15 @@ inline fun <T> LazyListScope.itemsIndexedWithDivider(
     itemsIndexed(items = items, key = key, contentType = contentType) { index, item ->
         itemContent(index, item)
         Divider()
+    }
+
+inline fun <T> LazyListScope.itemsWithDivider(
+    items: List<T>,
+    noinline key: ((item: T) -> Any)? = null,
+    noinline contentType: (item: T) -> Any? = { null },
+    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
+) =
+    items(items = items, key = key, contentType = contentType) { item ->
+        itemContent(item)
+        HorizontalDivider()
     }
