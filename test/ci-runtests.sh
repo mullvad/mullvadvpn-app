@@ -196,7 +196,7 @@ function run_tests_for_os {
 
     RUST_LOG=debug cargo run --bin test-manager \
         run-tests \
-        --account "${ACCOUNT_TOKEN}" \
+        --account "${ACCOUNT_TOKEN:?Error: ACCOUNT_TOKEN not set}" \
         --current-app "${cur_filename}" \
         --previous-app "${prev_filename}" \
         --test-report "$SCRIPT_DIR/.ci-logs/${os}_report" \
