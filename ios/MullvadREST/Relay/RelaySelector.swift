@@ -154,24 +154,23 @@ public enum RelaySelector {
             case .any:
                 return true
             case let .only(relayConstraint):
-                for location in relayConstraint.locations {
+                // At least one location must match the relay under test.
+                return relayConstraint.locations.contains { location in
                     switch location {
                     case let .country(countryCode):
-                        return relayWithLocation.serverLocation.countryCode == countryCode &&
+                        relayWithLocation.serverLocation.countryCode == countryCode &&
                             relayWithLocation.relay.includeInCountry
 
                     case let .city(countryCode, cityCode):
-                        return relayWithLocation.serverLocation.countryCode == countryCode &&
+                        relayWithLocation.serverLocation.countryCode == countryCode &&
                             relayWithLocation.serverLocation.cityCode == cityCode
 
                     case let .hostname(countryCode, cityCode, hostname):
-                        return relayWithLocation.serverLocation.countryCode == countryCode &&
+                        relayWithLocation.serverLocation.countryCode == countryCode &&
                             relayWithLocation.serverLocation.cityCode == cityCode &&
                             relayWithLocation.relay.hostname == hostname
                     }
                 }
-
-                return false
             }
         }.filter { relayWithLocation -> Bool in
             relayWithLocation.relay.active
