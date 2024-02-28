@@ -22,13 +22,15 @@ inline fun <T> LaunchedEffectCollect(
 @Composable
 inline fun <T> CollectSideEffectWithLifecycle(
     sideEffect: Flow<T>,
-    key: Any = Unit,
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
+    key: Any? = Unit,
     crossinline collector: suspend CoroutineScope.(T) -> Unit
 ) {
-    val lifecycle = LocalLifecycleOwner.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(lifecycle, key) {
-        sideEffect.flowWithLifecycle(lifecycle.lifecycle, minActiveState).collect { collector(it) }
+    LaunchedEffect(lifecycleOwner, key) {
+        sideEffect.flowWithLifecycle(lifecycleOwner.lifecycle, minActiveState).collect {
+            collector(it)
+        }
     }
 }

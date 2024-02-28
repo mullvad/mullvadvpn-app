@@ -18,7 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -37,6 +36,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.Lifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -109,27 +109,28 @@ fun Connect(navigator: DestinationsNavigator) {
     val state by connectViewModel.uiState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
-    LaunchedEffect(key1 = Unit) {
-        connectViewModel.uiSideEffect.collect { uiSideEffect ->
-            when (uiSideEffect) {
-                is ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser -> {
-                    context.openAccountPageInBrowser(uiSideEffect.token)
-                }
-                is ConnectViewModel.UiSideEffect.OutOfTime -> {
-                    navigator.navigate(OutOfTimeDestination) {
-                        launchSingleTop = true
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
-                }
-                ConnectViewModel.UiSideEffect.RevokedDevice -> {
-                    navigator.navigate(DeviceRevokedDestination) {
-                        launchSingleTop = true
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
-                }
+
+    CollectSideEffectWithLifecycle(
+        connectViewModel.uiSideEffect,
+        minActiveState = Lifecycle.State.RESUMED
+    ) { sideEffect ->
+        when (sideEffect) {
+            is ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser -> {
+                context.openAccountPageInBrowser(sideEffect.token)
             }
+            is ConnectViewModel.UiSideEffect.OutOfTime ->
+                navigator.navigate(OutOfTimeDestination, true) {
+                    launchSingleTop = true
+                    popUpTo(NavGraphs.root) { inclusive = true }
+                }
+            ConnectViewModel.UiSideEffect.RevokedDevice ->
+                navigator.navigate(DeviceRevokedDestination, true) {
+                    launchSingleTop = true
+                    popUpTo(NavGraphs.root) { inclusive = true }
+                }
         }
     }
+
     ConnectScreen(
         state = state,
         onDisconnectClick = connectViewModel::onDisconnectClick,
@@ -137,7 +138,7 @@ fun Connect(navigator: DestinationsNavigator) {
         onConnectClick = connectViewModel::onConnectClick,
         onCancelClick = connectViewModel::onCancelClick,
         onSwitchLocationClick = {
-            navigator.navigate(SelectLocationDestination) { launchSingleTop = true }
+            navigator.navigate(SelectLocationDestination, true) { launchSingleTop = true }
         },
         onUpdateVersionClick = {
             val intent =
@@ -153,8 +154,12 @@ fun Connect(navigator: DestinationsNavigator) {
             context.startActivity(intent)
         },
         onManageAccountClick = connectViewModel::onManageAccountClick,
-        onSettingsClick = { navigator.navigate(SettingsDestination) { launchSingleTop = true } },
-        onAccountClick = { navigator.navigate(AccountDestination) { launchSingleTop = true } },
+        onSettingsClick = {
+            navigator.navigate(SettingsDestination, true) { launchSingleTop = true }
+        },
+        onAccountClick = {
+            navigator.navigate(AccountDestination, true) { launchSingleTop = true }
+        },
         onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
     )
 }

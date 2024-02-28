@@ -79,6 +79,7 @@ import net.mullvad.mullvadvpn.compose.util.accountTokenVisualTransformation
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
+import net.mullvad.mullvadvpn.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -130,32 +131,27 @@ fun Login(
         }
     }
 
-    LaunchedEffect(Unit) {
-        vm.uiSideEffect.collect {
-            when (it) {
-                LoginUiSideEffect.NavigateToWelcome -> {
-                    navigator.navigate(WelcomeDestination) {
-                        launchSingleTop = true
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) {
+        when (it) {
+            LoginUiSideEffect.NavigateToWelcome ->
+                navigator.navigate(WelcomeDestination) {
+                    launchSingleTop = true
+                    popUpTo(NavGraphs.root) { inclusive = true }
                 }
-                is LoginUiSideEffect.NavigateToConnect -> {
-                    navigator.navigate(ConnectDestination) {
-                        launchSingleTop = true
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
+            is LoginUiSideEffect.NavigateToConnect ->
+                navigator.navigate(ConnectDestination) {
+                    launchSingleTop = true
+                    popUpTo(NavGraphs.root) { inclusive = true }
                 }
-                is LoginUiSideEffect.TooManyDevices -> {
-                    navigator.navigate(DeviceListDestination(it.accountToken.value)) {
-                        launchSingleTop = true
-                    }
+            is LoginUiSideEffect.TooManyDevices ->
+                navigator.navigate(DeviceListDestination(it.accountToken.value)) {
+                    launchSingleTop = true
                 }
-                LoginUiSideEffect.NavigateToOutOfTime ->
-                    navigator.navigate(OutOfTimeDestination) {
-                        launchSingleTop = true
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
-            }
+            LoginUiSideEffect.NavigateToOutOfTime ->
+                navigator.navigate(OutOfTimeDestination) {
+                    launchSingleTop = true
+                    popUpTo(NavGraphs.root) { inclusive = true }
+                }
         }
     }
     LoginScreen(

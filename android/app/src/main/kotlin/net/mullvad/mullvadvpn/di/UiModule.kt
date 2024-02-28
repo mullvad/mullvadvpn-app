@@ -108,7 +108,7 @@ val uiModule = module {
     single { NewDeviceNotificationUseCase(get()) }
     single { PortRangeUseCase(get()) }
     single { RelayListUseCase(get(), get()) }
-    single { OutOfTimeUseCase(get(), get()) }
+    single { OutOfTimeUseCase(get(), get(), MainScope()) }
     single { ConnectivityUseCase(get()) }
     single { SystemVpnSettingsUseCase(androidContext()) }
 
