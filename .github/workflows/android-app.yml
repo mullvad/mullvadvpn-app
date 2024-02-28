@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Use custom container image if specified
         if: ${{ github.event.inputs.override_container_image != '' }}
@@ -89,7 +89,7 @@ jobs:
 
       - name: Checkout repository
         if: steps.cache-relay-list.outputs.cache-hit != 'true'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Generate
         if: steps.cache-relay-list.outputs.cache-hit != 'true'
@@ -135,7 +135,7 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Calculate native lib cache hash
         id: native-lib-cache-hash
@@ -192,7 +192,7 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v3
         with:
@@ -319,7 +319,7 @@ jobs:
         run: echo "report_path=/tmp/$UNIQUE_RUN_ID" >> $GITHUB_OUTPUT
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v3
         with:
@@ -355,7 +355,7 @@ jobs:
     needs: [build-app]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v3
         with:
@@ -392,7 +392,7 @@ jobs:
         arg-spec-file: [mockapi-oss.yml, e2e-play-stagemole.yml]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v3
         with:
