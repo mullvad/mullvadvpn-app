@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,7 +58,7 @@ class LoginViewModel(
     private val _loginState = MutableStateFlow(LoginUiState.INITIAL.loginState)
     private val _loginInput = MutableStateFlow(LoginUiState.INITIAL.accountNumberInput)
 
-    private val _uiSideEffect = Channel<LoginUiSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    private val _uiSideEffect = Channel<LoginUiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private val _uiState =
@@ -102,6 +101,7 @@ class LoginViewModel(
                 // If timed out will go to the else branch
                 when (val result = loginDeferred.awaitWithTimeoutOrNull(LOGIN_TIMEOUT_MILLIS)) {
                     LoginResult.Ok -> {
+                        newDeviceNotificationUseCase.newDeviceCreated()
                         launch {
                             val isOutOfTimeDeferred = async {
                                 accountRepository.accountExpiryState
@@ -117,7 +117,6 @@ class LoginViewModel(
                                 _uiSideEffect.send(LoginUiSideEffect.NavigateToConnect)
                             }
                         }
-                        newDeviceNotificationUseCase.newDeviceCreated()
                         Success
                     }
                     LoginResult.InvalidAccount -> Idle(LoginError.InvalidCredentials)

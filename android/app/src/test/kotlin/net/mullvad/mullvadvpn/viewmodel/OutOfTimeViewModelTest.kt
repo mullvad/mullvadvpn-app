@@ -89,7 +89,7 @@ class OutOfTimeViewModelTest {
 
         coEvery { mockPaymentUseCase.paymentAvailability } returns paymentAvailabilityFlow
 
-        coEvery { mockOutOfTimeUseCase.isOutOfTime() } returns outOfTimeFlow
+        coEvery { mockOutOfTimeUseCase.isOutOfTime } returns outOfTimeFlow
 
         viewModel =
             OutOfTimeViewModel(
