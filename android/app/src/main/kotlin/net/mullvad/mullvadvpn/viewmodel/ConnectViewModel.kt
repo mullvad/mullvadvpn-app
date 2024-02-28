@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
@@ -13,10 +12,10 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
@@ -58,8 +57,10 @@ class ConnectViewModel(
     private val paymentUseCase: PaymentUseCase,
     private val isPlayBuild: Boolean
 ) : ViewModel() {
-    private val _uiSideEffect = Channel<UiSideEffect>(1, BufferOverflow.DROP_OLDEST)
-    val uiSideEffect = _uiSideEffect.receiveAsFlow()
+    private val _uiSideEffect = Channel<UiSideEffect>()
+
+    val uiSideEffect =
+        merge(_uiSideEffect.receiveAsFlow(), outOfTimeEffect(), revokedDeviceEffect())
 
     private val _shared: SharedFlow<ServiceConnectionContainer> =
         serviceConnectionManager.connectionState
@@ -137,17 +138,6 @@ class ConnectViewModel(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ConnectUiState.INITIAL)
 
     init {
-        viewModelScope.launch {
-            // When we get isOutOfTime true we will navigate to OutOfTime view.
-            outOfTimeUseCase.isOutOfTime().first { it == true }
-            _uiSideEffect.send(UiSideEffect.OutOfTime)
-        }
-
-        viewModelScope.launch {
-            // When we get a revoked DeviceState we navigate to the RevokedDevice screen.
-            deviceRepository.deviceState.filterIsInstance<DeviceState.Revoked>().first()
-            _uiSideEffect.send(UiSideEffect.RevokedDevice)
-        }
 
         viewModelScope.launch {
             paymentUseCase.verifyPurchases { accountRepository.fetchAccountExpiry() }
@@ -185,7 +175,7 @@ class ConnectViewModel(
 
     fun onManageAccountClick() {
         viewModelScope.launch {
-            _uiSideEffect.send(
+            _uiSideEffect.trySend(
                 UiSideEffect.OpenAccountManagementPageInBrowser(
                     serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
                 )
@@ -196,6 +186,14 @@ class ConnectViewModel(
     fun dismissNewDeviceNotification() {
         newDeviceNotificationUseCase.clearNewDeviceCreatedNotification()
     }
+
+    private fun outOfTimeEffect() =
+        outOfTimeUseCase.isOutOfTime.filter { it == true }.map { UiSideEffect.OutOfTime }
+
+    private fun revokedDeviceEffect() =
+        deviceRepository.deviceState.filterIsInstance<DeviceState.Revoked>().map {
+            UiSideEffect.RevokedDevice
+        }
 
     sealed interface UiSideEffect {
         data class OpenAccountManagementPageInBrowser(val token: String) : UiSideEffect

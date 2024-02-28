@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -26,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -50,6 +50,7 @@ import net.mullvad.mullvadvpn.compose.destinations.VerificationPendingDialogDest
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
@@ -126,18 +127,17 @@ fun Welcome(
     }
 
     val context = LocalContext.current
-    LaunchedEffect(Unit) {
-        vm.uiSideEffect.collect { uiSideEffect ->
-            when (uiSideEffect) {
-                is WelcomeViewModel.UiSideEffect.OpenAccountView ->
-                    context.openAccountPageInBrowser(uiSideEffect.token)
-                WelcomeViewModel.UiSideEffect.OpenConnectScreen -> {
-                    navigator.navigate(ConnectDestination) {
-                        launchSingleTop = true
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
+
+    CollectSideEffectWithLifecycle(sideEffect = vm.uiSideEffect, Lifecycle.State.RESUMED) {
+        uiSideEffect ->
+        when (uiSideEffect) {
+            is WelcomeViewModel.UiSideEffect.OpenAccountView ->
+                context.openAccountPageInBrowser(uiSideEffect.token)
+            WelcomeViewModel.UiSideEffect.OpenConnectScreen ->
+                navigator.navigate(ConnectDestination) {
+                    launchSingleTop = true
+                    popUpTo(NavGraphs.root) { inclusive = true }
                 }
-            }
         }
     }
 
