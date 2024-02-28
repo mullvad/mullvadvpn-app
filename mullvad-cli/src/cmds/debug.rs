@@ -32,6 +32,9 @@ impl DebugCommands {
                 );
                 rpc.set_relay_settings(RelaySettings::Normal(constraints))
                     .await?;
+
+                rpc.connect_tunnel().await?;
+
                 eprintln!("WARNING: ENTERED BLOCKED MODE");
                 Ok(())
             }
