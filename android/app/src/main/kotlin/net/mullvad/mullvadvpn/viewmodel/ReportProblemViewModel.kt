@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,7 +55,7 @@ class ReportProblemViewModel(
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ReportProblemUiState())
 
-    private val _uiSideEffect = Channel<ReportProblemSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    private val _uiSideEffect = Channel<ReportProblemSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     fun sendReport(email: String, description: String, skipEmptyEmailCheck: Boolean = false) {

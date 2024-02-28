@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,7 +23,7 @@ import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 class FilterViewModel(
     private val relayListFilterUseCase: RelayListFilterUseCase,
 ) : ViewModel() {
-    private val _uiSideEffect = Channel<FilterScreenSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    private val _uiSideEffect = Channel<FilterScreenSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private val selectedOwnership = MutableStateFlow<Ownership?>(null)
