@@ -10,7 +10,6 @@ import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_2
 import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
 import net.mullvad.mullvadvpn.util.toExpiryDateString
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class AccountExpiryMockApiTest : MockApiTest() {
@@ -50,10 +49,6 @@ class AccountExpiryMockApiTest : MockApiTest() {
     }
 
     @Test
-    @Disabled(
-        "Disabled since we have a bug in the app that makes it unstable. " +
-            "We can restore it after the bug has been fixed"
-    )
     fun testAccountTimeExpiredWhileUsingTheAppShouldShowOutOfTimeScreen() {
         // Arrange
         val validAccountToken = "1234123412341234"
