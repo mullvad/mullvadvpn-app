@@ -10,7 +10,7 @@ pkill -9 -x "mullvad-gui" || true
 is_number_re='^[0-9]+$'
 # Check if we're running during an upgrade step on Fedora
 # https://fedoraproject.org/wiki/Packaging:Scriptlets#Syntax
-if [[ "$1" =~ $is_number_re ]] && [ $1 -gt 0 ]; then
+if [[ "$1" =~ $is_number_re ]] && [ "$1" -gt 0 ]; then
     exit 0;
 fi
 

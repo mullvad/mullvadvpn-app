@@ -38,4 +38,5 @@ WIREGUARD_KIT_GO_PATH="$RESOLVED_SOURCE_PACKAGES_PATH/checkouts/wireguard-apple/
 echo "WireGuardKitGo path resolved to $WIREGUARD_KIT_GO_PATH"
 
 # Run make
+# shellcheck disable=SC2086
 /usr/bin/make -C "$WIREGUARD_KIT_GO_PATH" $ACTION
