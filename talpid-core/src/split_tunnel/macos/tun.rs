@@ -22,7 +22,7 @@ use pnet::{
 };
 use std::{
     ffi::CStr,
-    io::{IoSlice, Write},
+    io::{self, IoSlice, Write},
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ptr::NonNull,
 };
@@ -33,9 +33,9 @@ use tokio::{
 };
 use tun::Device;
 
-/// IPv4 address used by the ST redirector/sniffer
-// TODO: Do not hardcode this
+/// IP address used by the ST utun
 const ST_IFACE_IPV4: Ipv4Addr = Ipv4Addr::new(10, 123, 123, 123);
+const ST_IFACE_IPV6: Ipv6Addr = Ipv6Addr::new(0xfd, 0x12, 0x12, 0x12, 0xfe, 0xfe, 0xfe, 0xfe);
 
 /// Errors related to split tunneling.
 #[derive(thiserror::Error, Debug)]
@@ -43,6 +43,9 @@ pub enum Error {
     /// Failed to create split tunnel utun
     #[error("Failed to create split tunnel interface")]
     CreateSplitTunnelInterface(#[source] tun::Error),
+    /// Failed to set IPv6 address on tunnel interface
+    #[error("Failed to set IPv6 address on tunnel interface")]
+    AddIpv6Address(#[source] io::Error),
     /// Failed to begin capture on split tunnel utun
     #[error("Failed to begin capture on split tunnel utun")]
     CaptureSplitTunnelDevice(#[source] pcap::Error),
@@ -273,6 +276,21 @@ pub async fn create_split_tunnel(
     let tun_device =
         tun::create_as_async(&tun_config).map_err(Error::CreateSplitTunnelInterface)?;
     let tun_name = tun_device.get_ref().name().to_owned();
+
+    // Add IPv6 address
+    // TODO: Only add IPv6 address if there's either a tun or a non-tun IPv6 route
+    // FIXME: Solve cleanly rather than using subcmd
+    let output = tokio::process::Command::new("ifconfig")
+        .args([&tun_name, "inet6", &ST_IFACE_IPV6.to_string(), "alias"])
+        .output()
+        .await
+        .map_err(Error::AddIpv6Address)?;
+    if !output.status.success() {
+        return Err(Error::AddIpv6Address(io::Error::new(
+            io::ErrorKind::Other,
+            "ifconfig failed",
+        )));
+    }
 
     let redir_handle =
         redirect_packets(tun_device, default_interface, vpn_interface, classify).await?;
