@@ -236,8 +236,8 @@ android {
         createDistBundle.dependsOn("bundle$capitalizedVariantName")
     }
 
-    project.tasks.preBuild.dependsOn("ensureJniDirectoryExist")
-    project.tasks.preBuild.dependsOn("ensureValidVersionCode")
+    project.tasks.assemble.dependsOn("ensureJniDirectoryExist")
+    project.tasks.assemble.dependsOn("ensureValidVersionCode")
 }
 
 androidComponents {
