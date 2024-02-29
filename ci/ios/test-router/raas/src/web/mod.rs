@@ -25,7 +25,7 @@ pub fn router(block_list: BlockList) -> Router {
 }
 
 #[derive(Clone)]
-pub(crate) struct State {
+pub struct State {
     block_list: Arc<Mutex<BlockList>>,
     capture: Arc<tokio::sync::Mutex<Capture>>,
 }
