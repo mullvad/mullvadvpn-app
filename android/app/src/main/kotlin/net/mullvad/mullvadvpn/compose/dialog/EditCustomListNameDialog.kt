@@ -18,10 +18,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.communication.EditCustomListNameDialogRequest
+import net.mullvad.mullvadvpn.compose.communication.EditCustomListNameDialogResult
 import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -34,19 +36,22 @@ import org.koin.core.parameter.parametersOf
 @Preview
 @Composable
 fun PreviewEditCustomListNameDialog() {
-    AppTheme { EditCustomListNameDialog("Custom List Name", UpdateCustomListUiState()) }
+    AppTheme { EditCustomListNameDialog(UpdateCustomListUiState()) }
 }
 
 @Composable
 @Destination(style = DestinationStyle.Dialog::class)
-fun EditCustomListName(navigator: DestinationsNavigator, customListId: String, name: String) {
+fun EditCustomListName(
+    backNavigator: ResultBackNavigator<EditCustomListNameDialogResult>,
+    request: EditCustomListNameDialogRequest
+) {
     val vm: EditCustomListNameDialogViewModel =
-        koinViewModel(parameters = { parametersOf(customListId) })
-    LaunchedEffect(key1 = Unit) {
+        koinViewModel(parameters = { parametersOf(request.customListId, request.name) })
+    LaunchedEffect(Unit) {
         vm.uiSideEffect.collect { sideEffect ->
             when (sideEffect) {
-                is EditCustomListNameDialogSideEffect.CloseScreen -> {
-                    navigator.navigateUp()
+                is EditCustomListNameDialogSideEffect.ReturnResult -> {
+                    backNavigator.navigateBack(result = sideEffect.result)
                 }
             }
         }
@@ -54,17 +59,15 @@ fun EditCustomListName(navigator: DestinationsNavigator, customListId: String, n
 
     val uiState = vm.uiState.collectAsState().value
     EditCustomListNameDialog(
-        name = name,
         uiState = uiState,
         updateName = vm::updateCustomListName,
         onInputChanged = vm::clearError,
-        onDismiss = navigator::navigateUp
+        onDismiss = backNavigator::navigateBack
     )
 }
 
 @Composable
 fun EditCustomListNameDialog(
-    name: String,
     uiState: UpdateCustomListUiState,
     updateName: (String) -> Unit = {},
     onInputChanged: () -> Unit = {},
@@ -72,7 +75,7 @@ fun EditCustomListNameDialog(
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val input = remember { mutableStateOf(name) }
+    val input = remember { mutableStateOf(uiState.name) }
     AlertDialog(
         title = {
             Text(

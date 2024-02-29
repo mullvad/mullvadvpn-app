@@ -18,10 +18,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.Request
+import net.mullvad.mullvadvpn.compose.communication.Result
+import net.mullvad.mullvadvpn.compose.destinations.CustomListLocationsDestination
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -29,6 +34,7 @@ import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -48,13 +54,35 @@ fun PreviewCreateCustomListDialogError() {
 
 @Composable
 @Destination(style = DestinationStyle.Dialog::class)
-fun CreateCustomList(backNavigator: ResultBackNavigator<String>) {
-    val vm: CreateCustomListDialogViewModel = koinViewModel()
+fun CreateCustomList(
+    navigator: DestinationsNavigator,
+    backNavigator: ResultBackNavigator<Result<CustomListAction.Delete>>,
+    request: Request<CustomListAction.Create>
+) {
+    val vm: CreateCustomListDialogViewModel =
+        koinViewModel(parameters = { parametersOf(request.action.locations) })
     LaunchedEffect(key1 = Unit) {
         vm.uiSideEffect.collect { sideEffect ->
             when (sideEffect) {
-                is CreateCustomListDialogSideEffect.NavigateToCustomListScreen -> {
-                    backNavigator.navigateBack(sideEffect.customListId)
+                is CreateCustomListDialogSideEffect.NavigateToCustomListLocationsScreen -> {
+                    navigator.popBackStack()
+                    navigator.navigate(
+                        CustomListLocationsDestination(
+                            request =
+                                Request(
+                                    action =
+                                        CustomListAction.UpdateLocations(
+                                            customListId = sideEffect.customListId,
+                                            newList = true
+                                        )
+                                )
+                        )
+                    ) {
+                        launchSingleTop = true
+                    }
+                }
+                is CreateCustomListDialogSideEffect.ReturnWithResult -> {
+                    backNavigator.navigateBack(result = sideEffect.result)
                 }
             }
         }

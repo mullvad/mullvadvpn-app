@@ -1,41 +1,51 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
+import net.mullvad.mullvadvpn.compose.communication.CreateCustomListDialogRequest
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.destinations.CreateCustomListDestination
-import net.mullvad.mullvadvpn.compose.destinations.CustomListLocationsDestination
 import net.mullvad.mullvadvpn.compose.destinations.EditCustomListDestination
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
+import net.mullvad.mullvadvpn.compose.extensions.showSnackbar
 import net.mullvad.mullvadvpn.compose.state.CustomListsUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.shape.fabShape
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.CustomListsViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -43,28 +53,41 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 fun PreviewCustomListsScreen() {
-    AppTheme { CustomListsScreen(CustomListsUiState.Content()) }
+    AppTheme { CustomListsScreen(CustomListsUiState.Content(), SnackbarHostState()) }
 }
 
 @Composable
 @Destination(style = SlideInFromRightTransition::class)
 fun CustomLists(
     navigator: DestinationsNavigator,
-    createCustomListResultRecipient: ResultRecipient<CreateCustomListDestination, String>
+    editCustomListResultRecipient: ResultRecipient<EditCustomListDestination, String>
 ) {
     val viewModel = koinViewModel<CustomListsViewModel>()
     val uiState by viewModel.uiState.collectAsState()
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    createCustomListResultRecipient.onNavResult(
+    editCustomListResultRecipient.onNavResult(
         listener = { result ->
             when (result) {
                 NavResult.Canceled -> {
                     /* Do nothing */
                 }
                 is NavResult.Value -> {
-                    navigator.navigate(
-                        CustomListLocationsDestination(customListKey = result.value, newList = true)
-                    )
+                    scope.launch {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar(
+                            message =
+                                context.getString(
+                                    R.string.delete_custom_list_message,
+                                    result.value
+                                ),
+                            actionLabel = context.getString(R.string.undo),
+                            duration = SnackbarDuration.Long,
+                            onAction = { viewModel.undoDeleteCustomList() }
+                        )
+                    }
                 }
             }
         }
@@ -72,9 +95,18 @@ fun CustomLists(
 
     CustomListsScreen(
         uiState = uiState,
-        addCustomList = { navigator.navigate(CreateCustomListDestination()) },
+        snackbarHostState = snackbarHostState,
+        addCustomList = {
+            navigator.navigate(
+                CreateCustomListDestination(CreateCustomListDialogRequest.FromScratch)
+            ) {
+                launchSingleTop = true
+            }
+        },
         openCustomList = { customList ->
-            navigator.navigate(EditCustomListDestination(customListId = customList.id))
+            navigator.navigate(EditCustomListDestination(customListId = customList.id)) {
+                launchSingleTop = true
+            }
         },
         onBackClick = navigator::navigateUp
     )
@@ -83,6 +115,7 @@ fun CustomLists(
 @Composable
 fun CustomListsScreen(
     uiState: CustomListsUiState,
+    snackbarHostState: SnackbarHostState,
     addCustomList: () -> Unit = {},
     openCustomList: (RelayItem.CustomList) -> Unit = {},
     onBackClick: () -> Unit = {}
@@ -91,15 +124,21 @@ fun CustomListsScreen(
         appBarTitle = stringResource(id = R.string.edit_custom_lists),
         navigationIcon = { NavigateBackIconButton(onBackClick) },
         floatingActionButton = {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = addCustomList,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = MaterialTheme.shapes.small
+                shape = MaterialTheme.shapes.fabShape
             ) {
-                Icon(Icons.Filled.Add, stringResource(id = R.string.create_new_list))
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = stringResource(id = R.string.new_list)
+                )
+                Spacer(modifier = Modifier.width(Dimens.mediumPadding))
+                Text(stringResource(id = R.string.new_list))
             }
-        }
+        },
+        snackbarHostState = snackbarHostState
     ) { modifier: Modifier, lazyListState: LazyListState ->
         LazyColumn(
             modifier = modifier,

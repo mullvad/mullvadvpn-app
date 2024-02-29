@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.compose.communication.CustomListLocationScreenResult
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
@@ -29,6 +30,7 @@ class CustomListLocationsViewModel(
         MutableSharedFlow<CustomListLocationsSideEffect>(replay = 1, extraBufferCapacity = 1)
     val uiSideEffect: SharedFlow<CustomListLocationsSideEffect> = _uiSideEffect
 
+    private val _initialLocations = MutableStateFlow<Set<RelayItem>>(emptySet())
     private val _selectedLocations = MutableStateFlow<Set<RelayItem>?>(null)
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
 
@@ -53,6 +55,9 @@ class CustomListLocationsViewModel(
                             searchTerm = searchTerm,
                             availableLocations = filteredRelayCountries,
                             selectedLocations = selectedLocations,
+                            saveEnabled =
+                                selectedLocations.isNotEmpty() &&
+                                    selectedLocations != _initialLocations.value
                         )
                 }
             }
@@ -72,6 +77,7 @@ class CustomListLocationsViewModel(
                     ?.apply { customListName = name }
                     ?.locations
                     ?.selectChildren()
+                    .apply { _initialLocations.value = this ?: emptySet() }
         }
     }
 
@@ -82,7 +88,13 @@ class CustomListLocationsViewModel(
                     id = customListId,
                     locations = selectedLocations.calculateLocationsToSave()
                 )
-                _uiSideEffect.tryEmit(CustomListLocationsSideEffect.CloseScreen)
+                _uiSideEffect.tryEmit(
+                    CustomListLocationsSideEffect.ReturnWithResult(
+                        CustomListLocationScreenResult(
+                            previousLocationCodes = _initialLocations.value.map { it.code },
+                        )
+                    )
+                )
             }
         }
     }
@@ -260,5 +272,6 @@ class CustomListLocationsViewModel(
 }
 
 sealed interface CustomListLocationsSideEffect {
-    data object CloseScreen : CustomListLocationsSideEffect
+    data class ReturnWithResult(val result: CustomListLocationScreenResult) :
+        CustomListLocationsSideEffect
 }

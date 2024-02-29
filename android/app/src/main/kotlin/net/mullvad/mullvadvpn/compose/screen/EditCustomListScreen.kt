@@ -9,7 +9,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,9 +22,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
+import net.mullvad.mullvadvpn.compose.communication.CustomListLocationScreenRequest
+import net.mullvad.mullvadvpn.compose.communication.EditCustomListNameDialogRequest
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
@@ -36,7 +38,8 @@ import net.mullvad.mullvadvpn.compose.destinations.EditCustomListNameDestination
 import net.mullvad.mullvadvpn.compose.state.EditCustomListState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.viewmodel.EditCustomListSideEffect
+import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -47,7 +50,23 @@ fun PreviewEditCustomListScreen() {
     AppTheme {
         EditCustomListScreen(
             uiState =
-                EditCustomListState.Content(id = "id", name = "Custom list", numberOfLocations = 3)
+                EditCustomListState.Content(
+                    id = "id",
+                    name = "Custom list",
+                    locations =
+                        listOf(
+                            RelayItem.Relay(
+                                "Relay",
+                                "Relay",
+                                true,
+                                GeographicLocationConstraint.Hostname(
+                                    "hostname",
+                                    "hostname",
+                                    "hostname"
+                                )
+                            )
+                        )
+                )
         )
     }
 }
@@ -56,19 +75,12 @@ fun PreviewEditCustomListScreen() {
 @Destination(style = SlideInFromRightTransition::class)
 fun EditCustomList(
     navigator: DestinationsNavigator,
+    backNavigator: ResultBackNavigator<String>,
     customListId: String,
-    confirmDeleteListResultRecipient: ResultRecipient<DeleteCustomListDestination, Boolean>
+    confirmDeleteListResultRecipient: ResultRecipient<DeleteCustomListDestination, String>
 ) {
     val viewModel =
         koinViewModel<EditCustomListViewModel>(parameters = { parametersOf(customListId) })
-
-    LaunchedEffect(Unit) {
-        viewModel.uiSideEffect.collect {
-            when (it) {
-                is EditCustomListSideEffect.CloseScreen -> navigator.navigateUp()
-            }
-        }
-    }
 
     confirmDeleteListResultRecipient.onNavResult {
         when (it) {
@@ -76,8 +88,8 @@ fun EditCustomList(
                 // Do nothing
             }
             is NavResult.Value ->
-                if (it.value) {
-                    navigator.navigateUp()
+                if (it.value.isNotEmpty()) {
+                    backNavigator.navigateBack(result = it.value)
                 }
         }
     }
@@ -90,11 +102,25 @@ fun EditCustomList(
                 launchSingleTop = true
             }
         },
-        onNameClicked = { id, name -> navigator.navigate(EditCustomListNameDestination(id, name)) },
-        onLocationsClicked = {
-            navigator.navigate(CustomListLocationsDestination(customListKey = it, newList = false))
+        onNameClicked = { id, name ->
+            navigator.navigate(
+                EditCustomListNameDestination(
+                    EditCustomListNameDialogRequest(customListId = id, name = name)
+                )
+            ) {
+                launchSingleTop = true
+            }
         },
-        onBackClick = navigator::navigateUp
+        onLocationsClicked = {
+            navigator.navigate(
+                CustomListLocationsDestination(
+                    request = CustomListLocationScreenRequest(customListKey = it, newList = false)
+                )
+            ) {
+                launchSingleTop = true
+            }
+        },
+        onBackClick = { backNavigator.navigateBack() }
     )
 }
 
@@ -112,7 +138,7 @@ fun EditCustomListScreen(
             is EditCustomListState.Content -> uiState.name
         }
     ScaffoldWithMediumTopBar(
-        appBarTitle = title,
+        appBarTitle = stringResource(id = R.string.edit_list),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         actions = { Actions(onDeleteList = { onDeleteList(title) }) },
     ) { modifier: Modifier ->
@@ -134,7 +160,7 @@ fun EditCustomListScreen(
                         subtitleText =
                             stringResource(
                                 id = R.string.number_of_locations,
-                                uiState.numberOfLocations
+                                uiState.locations.size
                             ),
                         onCellClicked = { onLocationsClicked(uiState.id) }
                     )

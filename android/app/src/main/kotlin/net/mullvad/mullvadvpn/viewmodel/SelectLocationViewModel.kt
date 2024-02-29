@@ -20,6 +20,7 @@ import net.mullvad.mullvadvpn.relaylist.Provider
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
+import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
@@ -28,7 +29,8 @@ import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 class SelectLocationViewModel(
     private val serviceConnectionManager: ServiceConnectionManager,
     private val relayListUseCase: RelayListUseCase,
-    private val relayListFilterUseCase: RelayListFilterUseCase
+    private val relayListFilterUseCase: RelayListFilterUseCase,
+    private val customListsRepository: CustomListsRepository
 ) : ViewModel() {
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
 
@@ -62,7 +64,8 @@ class SelectLocationViewModel(
                     searchTerm = searchTerm,
                     selectedOwnership = selectedOwnershipItem,
                     selectedProvidersCount = selectedProvidersCount,
-                    customLists = filteredCustomLists,
+                    filteredCustomLists = filteredCustomLists,
+                    customLists = customLists,
                     countries = filteredRelayCountries,
                     selectedItem = selectedItem,
                 )
@@ -121,6 +124,43 @@ class SelectLocationViewModel(
         }
     }
 
+    fun addLocationToList(item: RelayItem, customList: RelayItem.CustomList) {
+        viewModelScope.launch {
+            val newLocations = customList.locations + item
+            customListsRepository.updateCustomListLocations(
+                id = customList.id,
+                locations = newLocations
+            )
+            _uiSideEffect.send(
+                SelectLocationSideEffect.LocationAddedToCustomList(
+                    item,
+                    customList.copy(locations = newLocations)
+                )
+            )
+        }
+    }
+
+    fun removeLocationFromList(item: RelayItem, customList: RelayItem.CustomList) {
+        viewModelScope.launch {
+            customListsRepository.updateCustomListLocations(
+                customList.id,
+                customList.locations - item
+            )
+        }
+    }
+
+    fun deleteCustomList(customListId: String) {
+        customListsRepository.deleteCustomList(customListId)
+    }
+
+    fun updateCustomListName(customListId: String, name: String) {
+        viewModelScope.launch { customListsRepository.updateCustomListName(customListId, name) }
+    }
+
+    fun undoDeleteCustomList() {
+        viewModelScope.launch { customListsRepository.undoDeleteLatest() }
+    }
+
     companion object {
         private const val EMPTY_SEARCH_TERM = ""
     }
@@ -128,4 +168,9 @@ class SelectLocationViewModel(
 
 sealed interface SelectLocationSideEffect {
     data object CloseScreen : SelectLocationSideEffect
+
+    data class LocationAddedToCustomList(
+        val item: RelayItem,
+        val customList: RelayItem.CustomList
+    ) : SelectLocationSideEffect
 }
