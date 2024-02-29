@@ -12,6 +12,6 @@ jobs:
         uses: ludeeus/action-shellcheck@2.0.0
         with:
           ignore_paths: >-
-            android/gradlew
+            ./android/gradlew
         env:
           SHELLCHECK_OPTS: --external-sources
