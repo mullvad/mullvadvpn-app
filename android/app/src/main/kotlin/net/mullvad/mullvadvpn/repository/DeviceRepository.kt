@@ -38,11 +38,7 @@ class DeviceRepository(
                     flowOf(DeviceState.Unknown)
                 }
             }
-            .stateIn(
-                CoroutineScope(dispatcher),
-                SharingStarted.WhileSubscribed(),
-                DeviceState.Initial
-            )
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, DeviceState.Initial)
 
     private val deviceListEvents =
         serviceConnectionManager.connectionState.flatMapLatest { state ->
