@@ -189,6 +189,25 @@ fun MullvadTopBar(
     )
 }
 
+@Composable
+fun MullvadSmallTopBar(
+    title: String,
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {}
+) {
+    TopAppBar(
+        title = { Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        navigationIcon = navigationIcon,
+        colors =
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                scrolledContainerColor = MaterialTheme.colorScheme.background,
+                actionIconContentColor = MaterialTheme.colorScheme.onPrimary.copy(AlphaTopBar),
+            ),
+        actions = actions
+    )
+}
+
 @Preview
 @Composable
 private fun PreviewMediumTopBar() {
