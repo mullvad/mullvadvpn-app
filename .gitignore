@@ -42,3 +42,4 @@
 *.bak
 android/.idea
 .vscode/
+test/.container/
