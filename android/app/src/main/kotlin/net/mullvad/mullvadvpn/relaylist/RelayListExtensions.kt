@@ -235,3 +235,28 @@ private fun List<RelayItem.Country>.expandItemForSelection(
         }
     } ?: this
 }
+
+fun RelayList.getGeographicLocationConstraintByCode(code: String): GeographicLocationConstraint? {
+    countries.forEach { country ->
+        val countryCode = country.code
+        if (country.code == code) {
+            return GeographicLocationConstraint.Country(countryCode)
+        }
+        country.cities.forEach { city ->
+            val cityCode = city.code
+            if (city.code == code) {
+                return GeographicLocationConstraint.City(countryCode, city.code)
+            }
+            city.relays.forEach { relay ->
+                if (relay.hostname == code) {
+                    return GeographicLocationConstraint.Hostname(
+                        countryCode,
+                        cityCode,
+                        relay.hostname
+                    )
+                }
+            }
+        }
+    }
+    return null
+}

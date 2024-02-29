@@ -1,20 +1,16 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -23,19 +19,24 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.CheckableRelayLocationCell
+import net.mullvad.mullvadvpn.compose.communication.CustomListLocationScreenRequest
+import net.mullvad.mullvadvpn.compose.communication.CustomListLocationScreenResult
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
+import net.mullvad.mullvadvpn.compose.destinations.DiscardChangesDialogDestination
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -55,16 +56,35 @@ fun PreviewCustomListLocationScreen() {
 
 @Composable
 @Destination(style = SlideInFromRightTransition::class)
-fun CustomListLocations(navigator: DestinationsNavigator, customListKey: String, newList: Boolean) {
+fun CustomListLocations(
+    navigator: DestinationsNavigator,
+    backNavigator: ResultBackNavigator<CustomListLocationScreenResult>,
+    request: CustomListLocationScreenRequest,
+    discardChangesResultRecipient: ResultRecipient<DiscardChangesDialogDestination, Boolean>
+) {
     val customListsViewModel =
         koinViewModel<CustomListLocationsViewModel>(
-            parameters = { parametersOf(customListKey, newList) }
+            parameters = { parametersOf(request.customListKey, request.newList) }
         )
+
+    discardChangesResultRecipient.onNavResult(
+        listener = {
+            when (it) {
+                NavResult.Canceled -> {}
+                is NavResult.Value -> {
+                    if (it.value) {
+                        backNavigator.navigateBack()
+                    }
+                }
+            }
+        }
+    )
 
     LaunchedEffect(Unit) {
         customListsViewModel.uiSideEffect.collect { sideEffect ->
             when (sideEffect) {
-                is CustomListLocationsSideEffect.CloseScreen -> navigator.navigateUp()
+                is CustomListLocationsSideEffect.ReturnWithResult ->
+                    backNavigator.navigateBack(result = sideEffect.result)
             }
         }
     }
@@ -75,10 +95,17 @@ fun CustomListLocations(navigator: DestinationsNavigator, customListKey: String,
         onSearchTermInput = customListsViewModel::onSearchTermInput,
         onSaveClick = customListsViewModel::save,
         onRelaySelectionClick = customListsViewModel::onRelaySelectionClick,
-        onBackClick = navigator::navigateUp
+        onBackClick = {
+            if (state.saveEnabled.not()) {
+                backNavigator.navigateBack()
+            } else {
+                navigator.navigate(DiscardChangesDialogDestination) {}
+            }
+        }
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CustomListLocationsScreen(
     uiState: CustomListLocationsUiState,
@@ -89,87 +116,69 @@ fun CustomListLocationsScreen(
 ) {
     val backgroundColor = MaterialTheme.colorScheme.background
 
-    Scaffold(
-        modifier = Modifier.background(backgroundColor).systemBarsPadding().fillMaxSize(),
-        topBar = {
-            CustomListLocationsTopBar(
-                uiState = uiState,
-                onSearchTermInput = onSearchTermInput,
-                onBackClick = onBackClick,
-                onSaveClick = onSaveClick
-            )
-        },
-        content = { contentPadding ->
-            LazyColumn(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier =
-                    Modifier.padding(contentPadding)
-                        .padding(top = Dimens.verticalSpace)
-                        .fillMaxSize()
-            ) {
-                when (uiState) {
-                    is CustomListLocationsUiState.Loading -> {
-                        loading()
-                    }
-                    is CustomListLocationsUiState.Content.Empty -> {
-                        empty(searchTerm = uiState.searchTerm)
-                    }
-                    is CustomListLocationsUiState.Content.Data -> {
-                        content(uiState = uiState, onRelaySelectedChanged = onRelaySelectionClick)
+    ScaffoldWithSmallTopBar(
+        appBarTitle =
+            stringResource(
+                if (uiState.newList) {
+                    R.string.add_locations
+                } else {
+                    R.string.edit_locations
+                }
+            ),
+        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
+        actions = { Actions(isSaveEnabled = uiState.saveEnabled, onSaveClick = onSaveClick) }
+    ) { modifier, lazyListState ->
+        LazyColumn(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier,
+            state = lazyListState,
+        ) {
+            stickyHeader {
+                Box(
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .background(backgroundColor)
+                            .padding(bottom = Dimens.verticalSpace)
+                ) {
+                    SearchTextField(
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .height(Dimens.searchFieldHeight)
+                                .padding(horizontal = Dimens.searchFieldHorizontalPadding),
+                        backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        textColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                    ) { searchString ->
+                        onSearchTermInput.invoke(searchString)
                     }
                 }
             }
+            when (uiState) {
+                is CustomListLocationsUiState.Loading -> {
+                    loading()
+                }
+                is CustomListLocationsUiState.Content.Empty -> {
+                    empty(searchTerm = uiState.searchTerm)
+                }
+                is CustomListLocationsUiState.Content.Data -> {
+                    content(uiState = uiState, onRelaySelectedChanged = onRelaySelectionClick)
+                }
+            }
         }
-    )
+    }
 }
 
 @Composable
-private fun CustomListLocationsTopBar(
-    uiState: CustomListLocationsUiState,
-    onSearchTermInput: (String) -> Unit,
-    onBackClick: () -> Unit,
-    onSaveClick: () -> Unit
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    painter = painterResource(id = R.drawable.icon_back),
-                    contentDescription = null,
-                    tint = Color.Unspecified,
-                )
-            }
-            Text(
-                text =
-                    stringResource(
-                        if (uiState.newList) {
-                            R.string.add_locations
-                        } else {
-                            R.string.edit_locations
-                        }
-                    ),
-                modifier = Modifier.weight(1f).padding(end = Dimens.titleIconSize),
-                textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-            TextButton(onClick = onSaveClick) {
-                Text(
-                    text = stringResource(R.string.save),
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-        }
-        SearchTextField(
-            modifier =
-                Modifier.fillMaxWidth()
-                    .height(Dimens.searchFieldHeight)
-                    .padding(horizontal = Dimens.searchFieldHorizontalPadding),
-            backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
-            textColor = MaterialTheme.colorScheme.onTertiaryContainer,
-        ) { searchString ->
-            onSearchTermInput.invoke(searchString)
-        }
+private fun Actions(isSaveEnabled: Boolean, onSaveClick: () -> Unit) {
+    TextButton(
+        onClick = onSaveClick,
+        enabled = isSaveEnabled,
+        colors =
+            ButtonDefaults.textButtonColors()
+                .copy(contentColor = MaterialTheme.colorScheme.onPrimary)
+    ) {
+        Text(
+            text = stringResource(R.string.save),
+        )
     }
 }
 

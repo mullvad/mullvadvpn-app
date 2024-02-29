@@ -25,3 +25,14 @@ fun List<RelayItem>.toGeographicLocationConstraints(): ArrayList<GeographicLocat
     ArrayList(
         this.map { it.toGeographicLocationConstraint() },
     )
+
+fun RelayItem.allChildren(): List<RelayItem> {
+    return when (this) {
+        is RelayItem.Country -> cities + cities.flatMap { it.relays }
+        is RelayItem.City -> relays
+        is RelayItem.CustomList -> locations
+        else -> emptyList()
+    }
+}
+
+fun RelayItem.toLocation() = Location(code, name)

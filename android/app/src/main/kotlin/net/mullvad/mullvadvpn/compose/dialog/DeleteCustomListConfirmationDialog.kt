@@ -14,17 +14,13 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.text.HtmlCompat
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
-import net.mullvad.mullvadvpn.compose.component.textResource
-import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationSideEffect
@@ -40,7 +36,7 @@ private fun PreviewRemoveDeviceConfirmationDialog() {
 
 @Composable
 @Destination(style = DestinationStyle.Dialog::class)
-fun DeleteCustomList(navigator: ResultBackNavigator<Boolean>, id: String, name: String) {
+fun DeleteCustomList(navigator: ResultBackNavigator<String>, id: String, name: String) {
     val viewModel: DeleteCustomListConfirmationViewModel =
         koinViewModel(parameters = { parametersOf(id) })
 
@@ -48,7 +44,7 @@ fun DeleteCustomList(navigator: ResultBackNavigator<Boolean>, id: String, name: 
         viewModel.uiSideEffect.collect {
             when (it) {
                 is DeleteCustomListConfirmationSideEffect.CloseDialog ->
-                    navigator.navigateBack(result = true)
+                    navigator.navigateBack(result = name)
             }
         }
     }
@@ -56,7 +52,7 @@ fun DeleteCustomList(navigator: ResultBackNavigator<Boolean>, id: String, name: 
     DeleteCustomListConfirmationDialog(
         name = name,
         onDelete = viewModel::deleteCustomList,
-        onBack = { navigator.navigateBack(result = false) }
+        onBack = { navigator.navigateBack() }
     )
 }
 
@@ -76,18 +72,10 @@ fun DeleteCustomListConfirmationDialog(
                 tint = Color.Unspecified
             )
         },
-        text = {
-            val htmlFormattedDialogText =
-                HtmlCompat.fromHtml(
-                    textResource(id = R.string.delete_custom_list_confirmation_description, name),
-                    HtmlCompat.FROM_HTML_MODE_COMPACT
-                )
-            val annotatedText = htmlFormattedDialogText.toAnnotatedString(FontWeight.Bold)
-
+        title = {
             Text(
-                text = annotatedText,
-                color = MaterialTheme.colorScheme.onBackground,
-                style = MaterialTheme.typography.bodySmall,
+                text =
+                    stringResource(id = R.string.delete_custom_list_confirmation_description, name)
             )
         },
         dismissButton = {
@@ -98,7 +86,7 @@ fun DeleteCustomListConfirmationDialog(
             )
         },
         confirmButton = {
-            NegativeButton(onClick = onDelete, text = stringResource(id = R.string.delete_list))
+            NegativeButton(onClick = onDelete, text = stringResource(id = R.string.delete))
         },
         containerColor = MaterialTheme.colorScheme.background
     )
