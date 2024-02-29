@@ -153,7 +153,7 @@ pub async fn send_ping(
     // Can we import these from talpid-tunnel?
     const IPV4_HEADER_SIZE: usize = 20;
     const ICMP_HEADER_SIZE: usize = 8;
-    let payload_size = (size - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE) as usize;
+    let payload_size = size - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE;
     let payload: &[u8] = &vec![0; payload_size];
     let kind = match destination {
         IpAddr::V4(_) => surge_ping::ICMP::V4,

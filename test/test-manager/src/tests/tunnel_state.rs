@@ -1,23 +1,116 @@
-use super::helpers::{
-    self, connect_and_wait, send_guest_probes, set_relay_settings, unreachable_wireguard_tunnel,
-    wait_for_tunnel_state,
+use super::{
+    helpers::{
+        self, connect_and_wait, send_guest_probes, set_relay_settings,
+        unreachable_wireguard_tunnel, wait_for_tunnel_state,
+    },
+    ui, Error, TestContext,
 };
-use super::{ui, Error, TestContext};
 use crate::assert_tunnel_state;
+// use crate::tests::helpers::{disconnect_and_wait, ping_sized_with_timeout};
 use crate::vm::network::DUMMY_LAN_INTERFACE_IP;
 
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::relay_constraints::GeographicLocationConstraint;
-use mullvad_types::relay_list::{Relay, RelayEndpointData};
-use mullvad_types::CustomTunnelEndpoint;
 use mullvad_types::{
-    relay_constraints::{Constraint, LocationConstraint, RelayConstraints, RelaySettings},
+    relay_constraints::{
+        Constraint, GeographicLocationConstraint, LocationConstraint, RelayConstraints,
+        RelaySettings,
+    },
+    relay_list::{Relay, RelayEndpointData},
     states::TunnelState,
+    CustomTunnelEndpoint,
 };
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
+
+#[test_function]
+pub async fn test_nft(
+    _: TestContext,
+    _rpc: ServiceClient,
+    _mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    // Plan:
+    // Assert that we are in the disconnected state
+    // Send ping or maximum size (1380?) to some external destination or the test manager
+    // Connect
+    // Send ping to the same destination and verify that it still works.
+    // Disconnect
+    // Apply firewall rule that drops pings data larger than, say 1000 bytes
+    // Verify that (only) pings over 1000 - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE are dropped
+    // Connect
+    // Verify that pings over 1000 - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE are not dropped
+    // Potentially disable the mtu detection by manually setting the mtu, then verify that it
+    // stopped working
+
+    // let large_ping_size = 1400;
+    // let small_ping_size = 500;
+    // let max_packet_size = 1200;
+    //
+    // log::info!("Verify tunnel state: disconnected");
+    // assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
+    //
+    // let non_tunnel_interface = rpc
+    //     .get_default_interface()
+    //     .await
+    //     .expect("failed to obtain non-tun interface");
+    // let inet_destination = "1.3.3.7:1337".parse().unwrap();
+    // ping_sized_with_timeout(
+    //     &rpc,
+    //     inet_destination,
+    //     Some(non_tunnel_interface.clone()),
+    //     large_ping_size,
+    // )
+    // .await?;
+    // connect_and_wait(&mut mullvad_client).await?;
+    // ping_sized_with_timeout(
+    //     &rpc,
+    //     inet_destination,
+    //     Some(non_tunnel_interface.clone()),
+    //     large_ping_size,
+    // )
+    // .await?;
+    // disconnect_and_wait(&mut mullvad_client).await?;
+
+    const RULES: &str = "table inet DropPings {
+        chain output {
+            type filter hook output priority 0; policy accept;
+            ip length > 1000 drop;
+          }
+    }";
+    use std::process::Stdio;
+    use tokio::{io::AsyncWriteExt, process::Command};
+    {
+        let mut handle = Command::new("nft")
+            .args(["-f", "-"])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::null())
+            .spawn()
+            .unwrap();
+        handle
+            .stdin
+            .take()
+            .expect("Command should have a handle to stdin")
+            .write_all(RULES.as_bytes())
+            .await
+            .unwrap();
+        let exit_status = handle.wait().await.unwrap();
+        assert_eq!(exit_status.code(), Some(0));
+    }
+    {
+        let output = Command::new("nft")
+            .args(["list", "ruleset"])
+            .output()
+            .await
+            .unwrap();
+
+        println!("{}", String::from_utf8(output.stdout).unwrap());
+
+        let exit_status = output.status;
+        assert_eq!(exit_status.code(), Some(0));
+    }
+    Ok(())
+}
 
 /// Verify that outgoing TCP, UDP, and ICMP packets can be observed
 /// in the disconnected state. The purpose is mostly to rule prevent
@@ -51,7 +144,6 @@ pub async fn test_disconnected_state(
         "did not see (all) outgoing packets to destination: {detected_probes:?}",
     );
 
-    //
     // Test UI view
     //
 
@@ -118,7 +210,6 @@ pub async fn test_connecting_state(
         new_state
     );
 
-    //
     // Leak test
     //
 
@@ -197,7 +288,6 @@ pub async fn test_error_state(
     let _ = connect_and_wait(&mut mullvad_client).await;
     assert_tunnel_state!(&mut mullvad_client, TunnelState::Error { .. });
 
-    //
     // Leak test
     //
 
@@ -235,12 +325,11 @@ pub async fn test_error_state(
 }
 
 /// Connect to a single relay and verify that:
-/// * Traffic can be sent and received in the tunnel.
-///   This is done by pinging a single public IP address
-///   and failing if there is no response.
+/// * Traffic can be sent and received in the tunnel. This is done by pinging a single public IP
+///   address and failing if there is no response.
 /// * The correct relay is used.
-/// * Leaks outside the tunnel are blocked. Refer to the
-///   `test_connecting_state` documentation for details.
+/// * Leaks outside the tunnel are blocked. Refer to the `test_connecting_state` documentation for
+///   details.
 #[test_function]
 pub async fn test_connected_state(
     _: TestContext,
@@ -249,7 +338,6 @@ pub async fn test_connected_state(
 ) -> Result<(), Error> {
     let inet_destination = "1.1.1.1:1337".parse().unwrap();
 
-    //
     // Set relay to use
     //
 
@@ -273,13 +361,11 @@ pub async fn test_connected_state(
         .await
         .expect("failed to update relay settings");
 
-    //
     // Connect
     //
 
     connect_and_wait(&mut mullvad_client).await?;
 
-    //
     // Verify that endpoint was selected
     //
 
@@ -307,7 +393,6 @@ pub async fn test_connected_state(
         actual => panic!("unexpected tunnel state: {:?}", actual),
     }
 
-    //
     // Ping outside of tunnel while connected
     //
 

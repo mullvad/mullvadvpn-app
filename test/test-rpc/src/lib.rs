@@ -38,7 +38,7 @@ pub enum Error {
     #[error("Failed to send TCP segment")]
     SendTcp,
     #[error("Failed to send ping")]
-    Ping,
+    Ping(String),
     #[error("Failed to get or set registry value")]
     Registry(String),
     #[error("Failed to change the service")]
