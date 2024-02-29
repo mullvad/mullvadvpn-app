@@ -20,8 +20,8 @@ jobs:
       IOS_DEVICE_PIN_CODE: ${{ secrets.IOS_DEVICE_PIN_CODE }}
       TEST_DEVICE_IDENTIFIER_UUID: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
       TEST_DEVICE_UDID: ${{ secrets.IOS_TEST_DEVICE_UDID }}
-      HAS_TIME_ACCOUNT_NUMBER: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER }}
-      NO_TIME_ACCOUNT_NUMBER: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER }}
+      HAS_TIME_ACCOUNT_NUMBER: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
+      NO_TIME_ACCOUNT_NUMBER: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
