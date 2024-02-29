@@ -255,3 +255,34 @@ fun ScaffoldWithLargeTopBarAndButton(
         }
     )
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScaffoldWithSmallTopBar(
+    appBarTitle: String,
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState(),
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    scrollbarColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
+    content: @Composable (modifier: Modifier, lazyListState: LazyListState) -> Unit
+) {
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            MullvadSmallTopBar(
+                title = appBarTitle,
+                navigationIcon = navigationIcon,
+                actions = actions
+            )
+        },
+        content = {
+            content(
+                Modifier.fillMaxSize()
+                    .padding(it)
+                    .drawVerticalScrollbar(state = lazyListState, color = scrollbarColor),
+                lazyListState
+            )
+        }
+    )
+}

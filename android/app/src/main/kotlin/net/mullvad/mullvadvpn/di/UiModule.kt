@@ -106,7 +106,7 @@ val uiModule = module {
     }
     single { SettingsRepository(get()) }
     single { MullvadProblemReport(get()) }
-    single { CustomListsRepository(get(), get()) }
+    single { CustomListsRepository(get(), get(), get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }
@@ -155,7 +155,7 @@ val uiModule = module {
     }
     viewModel { LoginViewModel(get(), get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get()) }
-    viewModel { SelectLocationViewModel(get(), get(), get()) }
+    viewModel { SelectLocationViewModel(get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
@@ -166,13 +166,17 @@ val uiModule = module {
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get()) }
-    viewModel { CreateCustomListDialogViewModel(get()) }
+    viewModel { parameters ->
+        CreateCustomListDialogViewModel(parameters.get(), parameters.get(), get())
+    }
     viewModel { parameters ->
         CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get())
     }
-    viewModel { parameters -> EditCustomListViewModel(parameters.get(), get(), get()) }
-    viewModel { parameters -> EditCustomListNameDialogViewModel(parameters.get(), get()) }
-    viewModel { CustomListsViewModel(get()) }
+    viewModel { parameters -> EditCustomListViewModel(parameters.get(), get()) }
+    viewModel { parameters ->
+        EditCustomListNameDialogViewModel(parameters.get(), parameters.get(), get())
+    }
+    viewModel { CustomListsViewModel(get(), get()) }
     viewModel { parameters -> DeleteCustomListConfirmationViewModel(parameters.get(), get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity

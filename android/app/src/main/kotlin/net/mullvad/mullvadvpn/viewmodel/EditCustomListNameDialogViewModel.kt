@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.compose.communication.EditCustomListNameDialogResult
 import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
 import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.model.UpdateCustomListResult
@@ -17,6 +18,7 @@ import net.mullvad.mullvadvpn.repository.CustomListsRepository
 
 class EditCustomListNameDialogViewModel(
     private val id: String,
+    private val initialName: String,
     private val customListsRepository: CustomListsRepository
 ) : ViewModel() {
 
@@ -28,14 +30,27 @@ class EditCustomListNameDialogViewModel(
 
     val uiState =
         _error
-            .map { UpdateCustomListUiState(it) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), UpdateCustomListUiState())
+            .map { UpdateCustomListUiState(name = initialName, error = it) }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(),
+                UpdateCustomListUiState(name = initialName)
+            )
 
     fun updateCustomListName(name: String) {
         viewModelScope.launch {
             when (val result = customListsRepository.updateCustomListName(id, name)) {
                 UpdateCustomListResult.Ok -> {
-                    _uiSideEffect.send(EditCustomListNameDialogSideEffect.CloseScreen)
+                    _uiSideEffect.send(
+                        EditCustomListNameDialogSideEffect.ReturnResult(
+                            result =
+                                EditCustomListNameDialogResult(
+                                    customListId = id,
+                                    newName = name,
+                                    oldName = initialName
+                                )
+                        )
+                    )
                 }
                 is UpdateCustomListResult.Error -> {
                     _error.emit(result.error)
@@ -50,5 +65,6 @@ class EditCustomListNameDialogViewModel(
 }
 
 sealed interface EditCustomListNameDialogSideEffect {
-    data object CloseScreen : EditCustomListNameDialogSideEffect
+    data class ReturnResult(val result: EditCustomListNameDialogResult) :
+        EditCustomListNameDialogSideEffect
 }

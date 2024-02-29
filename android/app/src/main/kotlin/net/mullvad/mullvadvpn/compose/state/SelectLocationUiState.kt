@@ -12,6 +12,7 @@ sealed interface SelectLocationUiState {
         val searchTerm: String,
         val selectedOwnership: Ownership?,
         val selectedProvidersCount: Int?,
+        val filteredCustomLists: List<RelayItem.CustomList>,
         val customLists: List<RelayItem.CustomList>,
         val countries: List<RelayItem.Country>,
         val selectedItem: RelayItem?
