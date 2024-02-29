@@ -51,8 +51,7 @@ for arch in ${ARCHITECTURES:-armv7 aarch64 x86_64 i686}; do
 
     # Create the directories with RWX permissions for all users so that the build server can clean
     # the directories afterwards
-    mkdir -p "$(dirname "$STRIPPED_LIB_PATH")"
-    chmod 777 "$(dirname "$STRIPPED_LIB_PATH")"
+    (umask ugo=rwx; mkdir -p "$(dirname "$STRIPPED_LIB_PATH")")
 
     $ANDROID_STRIP_TOOL --strip-unneeded --strip-debug -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
 
