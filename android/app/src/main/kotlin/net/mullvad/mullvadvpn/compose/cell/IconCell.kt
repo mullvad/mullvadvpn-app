@@ -24,7 +24,7 @@ fun PreviewIconCell() {
 
 @Composable
 fun IconCell(
-    iconId: Int,
+    iconId: Int?,
     contentDescription: String? = null,
     title: String,
     titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
@@ -36,12 +36,14 @@ fun IconCell(
     BaseCell(
         headlineContent = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painter = painterResource(id = iconId),
-                    contentDescription = contentDescription,
-                    tint = titleColor
-                )
-                Spacer(modifier = Modifier.width(Dimens.mediumPadding))
+                iconId?.let {
+                    Icon(
+                        painter = painterResource(id = iconId),
+                        contentDescription = contentDescription,
+                        tint = titleColor
+                    )
+                    Spacer(modifier = Modifier.width(Dimens.mediumPadding))
+                }
                 BaseCellTitle(title = title, style = titleStyle, color = titleColor)
             }
         },

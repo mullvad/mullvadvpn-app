@@ -1,9 +1,11 @@
 package net.mullvad.mullvadvpn.compose.cell
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -258,7 +260,8 @@ fun NormalRelayLocationCell(
     inactiveColor: Color = MaterialTheme.colorScheme.error,
     disabledColor: Color = MaterialTheme.colorScheme.onSecondary,
     selectedItem: RelayItem? = null,
-    onSelectRelay: (item: RelayItem) -> Unit = {}
+    onSelectRelay: (item: RelayItem) -> Unit = {},
+    onLongClick: (item: RelayItem) -> Unit = {}
 ) {
     RelayLocationCell(
         relay = relay,
@@ -304,6 +307,7 @@ fun NormalRelayLocationCell(
             }
         },
         onClick = onSelectRelay,
+        onLongClick = onLongClick,
         depth = 0
     )
 }
@@ -326,10 +330,12 @@ fun CheckableRelayLocationCell(
         },
         modifier = modifier,
         onClick = { onRelayCheckedChange(it, !selectedRelays.contains(it)) },
+        onLongClick = {},
         depth = 0
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun RelayLocationCell(
     relay: RelayItem,
@@ -337,6 +343,7 @@ private fun RelayLocationCell(
     modifier: Modifier = Modifier,
     specialBackgroundColor: @Composable (relayItem: RelayItem) -> Color? = { null },
     onClick: (item: RelayItem) -> Unit,
+    onLongClick: (item: RelayItem) -> Unit,
     depth: Int
 ) {
     val startPadding =
@@ -376,7 +383,13 @@ private fun RelayLocationCell(
                     )
         ) {
             Row(
-                modifier = Modifier.weight(1f).clickable(enabled = relay.active) { onClick(relay) }
+                modifier =
+                    Modifier.weight(1f)
+                        .combinedClickable(
+                            enabled = relay.active,
+                            onClick = { onClick(relay) },
+                            onLongClick = { onLongClick(relay) },
+                        )
             ) {
                 Box(
                     modifier =
@@ -428,7 +441,8 @@ private fun RelayLocationCell(
                             modifier = Modifier.animateContentSize(),
                             leadingContent = leadingContent,
                             specialBackgroundColor = specialBackgroundColor,
-                            depth = depth + 1
+                            onLongClick = onLongClick,
+                            depth = depth + 1,
                         )
                     }
                 }
@@ -440,6 +454,7 @@ private fun RelayLocationCell(
                             modifier = Modifier.animateContentSize(),
                             leadingContent = leadingContent,
                             specialBackgroundColor = specialBackgroundColor,
+                            onLongClick = onLongClick,
                             depth = depth + 1
                         )
                     }
@@ -452,6 +467,7 @@ private fun RelayLocationCell(
                             modifier = Modifier.animateContentSize(),
                             leadingContent = leadingContent,
                             specialBackgroundColor = specialBackgroundColor,
+                            onLongClick = onLongClick,
                             depth = depth + 1
                         )
                     }
