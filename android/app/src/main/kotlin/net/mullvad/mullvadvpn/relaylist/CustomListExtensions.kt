@@ -25,3 +25,7 @@ fun List<RelayItem.CustomList>.filterOnSearchTerm(searchTerm: String) =
     } else {
         this
     }
+
+fun RelayItem.CustomList.canAddLocation(location: RelayItem) =
+    this.locations.none { it.code == location.code } &&
+        this.locations.flatMap { it.allChildren() }.none { it.code == location.code }

@@ -10,12 +10,16 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.Result
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomListsError
+import net.mullvad.mullvadvpn.model.UpdateCustomListResult
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 
 class CreateCustomListDialogViewModel(
+    private val action: CustomListAction.Create,
     private val customListsRepository: CustomListsRepository,
 ) : ViewModel() {
 
@@ -34,11 +38,45 @@ class CreateCustomListDialogViewModel(
         viewModelScope.launch {
             when (val result = customListsRepository.createCustomList(name)) {
                 is CreateCustomListResult.Ok -> {
-                    _uiSideEffect.send(
-                        CreateCustomListDialogSideEffect.NavigateToCustomListScreen(result.id)
-                    )
+                    // We want to create the custom list with a location
+                    if (action.locations.isNotEmpty()) {
+                        addCustomListToLocation(result.id, name, action.locations.first().code)
+                    } else {
+                        // We want to create the custom list without a location
+                        _uiSideEffect.send(
+                            CreateCustomListDialogSideEffect.NavigateToCustomListLocationsScreen(
+                                result.id
+                            )
+                        )
+                    }
                 }
                 is CreateCustomListResult.Error -> {
+                    _error.emit(result.error)
+                }
+            }
+        }
+    }
+
+    private fun addCustomListToLocation(customListId: String, name: String, locationCode: String) {
+        viewModelScope.launch {
+            when (
+                val result =
+                    customListsRepository.updateCustomListLocationsFromCodes(
+                        customListId,
+                        listOf(locationCode)
+                    )
+            ) {
+                is UpdateCustomListResult.Ok -> {
+                    _uiSideEffect.send(
+                        CreateCustomListDialogSideEffect.ReturnWithResult(
+                            Result(
+                                reverseAction = action.not(customListId),
+                                messageParams = listOf(name)
+                            )
+                        )
+                    )
+                }
+                is UpdateCustomListResult.Error -> {
                     _error.emit(result.error)
                 }
             }
@@ -52,6 +90,9 @@ class CreateCustomListDialogViewModel(
 
 sealed interface CreateCustomListDialogSideEffect {
 
-    data class NavigateToCustomListScreen(val customListId: String) :
+    data class NavigateToCustomListLocationsScreen(val customListId: String) :
+        CreateCustomListDialogSideEffect
+
+    data class ReturnWithResult(val result: Result<CustomListAction.Delete>) :
         CreateCustomListDialogSideEffect
 }
