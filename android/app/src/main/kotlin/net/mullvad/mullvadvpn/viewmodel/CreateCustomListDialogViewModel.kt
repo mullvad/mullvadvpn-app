@@ -13,14 +13,13 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
-import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomListsError
-import net.mullvad.mullvadvpn.model.UpdateCustomListResult
-import net.mullvad.mullvadvpn.repository.CustomListsRepository
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListsException
 
 class CreateCustomListDialogViewModel(
-    private val action: CustomListAction.Create,
-    private val customListsRepository: CustomListsRepository,
+    private val locationCode: String,
+    private val customListActionUseCase: CustomListActionUseCase,
 ) : ViewModel() {
 
     private val _uiSideEffect =
@@ -36,59 +35,38 @@ class CreateCustomListDialogViewModel(
 
     fun createCustomList(name: String) {
         viewModelScope.launch {
-            when (val result = customListsRepository.createCustomList(name)) {
-                is CreateCustomListResult.Ok -> {
-                    // We want to create the custom list with a location
-                    if (action.locations.isNotEmpty()) {
-                        addCustomListToLocation(
-                            result.id,
-                            name,
-                            action.locations.first(),
-                            action.locationNames.first()
-                        )
-                    } else {
-                        // We want to create the custom list without a location
-                        _uiSideEffect.send(
-                            CreateCustomListDialogSideEffect.NavigateToCustomListLocationsScreen(
-                                result.id
-                            )
-                        )
-                    }
-                }
-                is CreateCustomListResult.Error -> {
-                    _error.emit(result.error)
-                }
-            }
-        }
-    }
-
-    private suspend fun addCustomListToLocation(
-        customListId: String,
-        name: String,
-        locationCode: String,
-        locationName: String
-    ) {
-        when (
-            val result =
-                customListsRepository.updateCustomListLocationsFromCodes(
-                    customListId,
-                    listOf(locationCode)
-                )
-        ) {
-            is UpdateCustomListResult.Ok -> {
-                _uiSideEffect.send(
-                    CreateCustomListDialogSideEffect.ReturnWithResult(
-                        CustomListResult.ListCreated(
-                            locationName = locationName,
-                            customListName = name,
-                            reverseAction = action.not(customListId)
-                        )
+            customListActionUseCase
+                .performAction(
+                    CustomListAction.Create(
+                        name,
+                        if (locationCode.isNotEmpty()) {
+                            listOf(locationCode)
+                        } else {
+                            emptyList()
+                        }
                     )
                 )
-            }
-            is UpdateCustomListResult.Error -> {
-                _error.emit(result.error)
-            }
+                .fold(
+                    onSuccess = { result ->
+                        if (result.locationName != null) {
+                            _uiSideEffect.send(
+                                CreateCustomListDialogSideEffect.ReturnWithResult(result)
+                            )
+                        } else {
+                            _uiSideEffect.send(
+                                CreateCustomListDialogSideEffect
+                                    .NavigateToCustomListLocationsScreen(result.id)
+                            )
+                        }
+                    },
+                    onFailure = { error ->
+                        if (error is CustomListsException) {
+                            _error.emit(error.error)
+                        } else {
+                            _error.emit(CustomListsError.OtherError)
+                        }
+                    }
+                )
         }
     }
 
@@ -102,6 +80,6 @@ sealed interface CreateCustomListDialogSideEffect {
     data class NavigateToCustomListLocationsScreen(val customListId: String) :
         CreateCustomListDialogSideEffect
 
-    data class ReturnWithResult(val result: CustomListResult.ListCreated) :
+    data class ReturnWithResult(val result: CustomListResult.Created) :
         CreateCustomListDialogSideEffect
 }

@@ -12,27 +12,27 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.state.toNullableOwnership
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
 import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.relaylist.Provider
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
-import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 
 class SelectLocationViewModel(
     private val serviceConnectionManager: ServiceConnectionManager,
     private val relayListUseCase: RelayListUseCase,
     private val relayListFilterUseCase: RelayListFilterUseCase,
-    private val customListsRepository: CustomListsRepository
+    private val customListActionUseCase: CustomListActionUseCase
 ) : ViewModel() {
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
 
@@ -128,60 +128,19 @@ class SelectLocationViewModel(
 
     fun addLocationToList(item: RelayItem, customList: RelayItem.CustomList) {
         viewModelScope.launch {
-            val newLocations = customList.locations + item
-            customListsRepository.updateCustomListLocations(
-                id = customList.id,
-                locations = newLocations
-            )
-            _uiSideEffect.send(
-                SelectLocationSideEffect.LocationAddedToCustomList(
-                    item,
-                    customList.copy(locations = newLocations)
+            val newLocations = (customList.locations + item).map { it.code }
+            val result =
+                customListActionUseCase.performAction(
+                    CustomListAction.UpdateLocations(customList.id, newLocations)
                 )
-            )
-        }
-    }
-
-    fun removeLocationFromList(item: RelayItem, customList: RelayItem.CustomList) {
-        viewModelScope.launch {
-            customListsRepository.updateCustomListLocations(
-                customList.id,
-                customList.locations - item
+            _uiSideEffect.send(
+                SelectLocationSideEffect.LocationAddedToCustomList(result.getOrThrow())
             )
         }
     }
 
     fun performAction(action: CustomListAction) {
-        when (action) {
-            is CustomListAction.Create -> createCustomList(action.name, action.locations)
-            is CustomListAction.Delete -> deleteCustomList(action.customListId)
-            is CustomListAction.Rename -> renameCustomList(action.customListId, action.name)
-            is CustomListAction.UpdateLocations ->
-                updateLocations(action.customListId, action.locations)
-        }
-    }
-
-    private fun createCustomList(name: String, locations: List<String>) {
-        viewModelScope.launch {
-            val result = customListsRepository.createCustomList(name)
-            if (result is CreateCustomListResult.Ok) {
-                customListsRepository.updateCustomListLocationsFromCodes(result.id, locations)
-            }
-        }
-    }
-
-    private fun deleteCustomList(id: String) {
-        customListsRepository.deleteCustomList(id)
-    }
-
-    private fun renameCustomList(id: String, name: String) {
-        viewModelScope.launch { customListsRepository.updateCustomListName(id, name) }
-    }
-
-    private fun updateLocations(id: String, locations: List<String>) {
-        viewModelScope.launch {
-            customListsRepository.updateCustomListLocationsFromCodes(id, locations)
-        }
+        viewModelScope.launch { customListActionUseCase.performAction(action) }
     }
 
     companion object {
@@ -192,8 +151,6 @@ class SelectLocationViewModel(
 sealed interface SelectLocationSideEffect {
     data object CloseScreen : SelectLocationSideEffect
 
-    data class LocationAddedToCustomList(
-        val item: RelayItem,
-        val customList: RelayItem.CustomList
-    ) : SelectLocationSideEffect
+    data class LocationAddedToCustomList(val result: CustomListResult.LocationsChanged) :
+        SelectLocationSideEffect
 }
