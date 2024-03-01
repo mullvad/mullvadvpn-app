@@ -15,6 +15,7 @@
     <string name="added_to_your_account">Tilillesi lisättiin %1$s käyttöaikaa.</string>
     <string name="agree_and_continue">Hyväksy ja jatka</string>
     <string name="all_applications">Kaikki sovellukset</string>
+    <string name="all_locations">Kaikki sijainnit</string>
     <string name="all_providers">Kaikki palveluntarjoajat</string>
     <string name="allow_lan_footer">Sallii jakamisen, tulostuksen ym. saman verkon muille laitteille.</string>
     <string name="always_on_vpn_error_notification_content">Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä sovellukselle &lt;b&gt;%1$s&lt;/b&gt; ennen Mullvad VPN:n käyttämistä.</string>
@@ -59,6 +60,8 @@
     <string name="custom_dns_disable_mode_subtitle">Ota tämä asetus käyttöön poistamalla kaikki &lt;b&gt;%1$s&lt;/b&gt; käytöstä yllä.</string>
     <string name="custom_dns_footer">Ota käyttöön lisätäksesi vähintään yhden DNS-palvelimen.</string>
     <string name="custom_dns_hint">Anna IP-osoite</string>
+    <string name="custom_list_error_list_exists">Nimi on jo olemassa.</string>
+    <string name="custom_lists">Mukautetut luettelot</string>
     <string name="custom_port_dialog_placeholder">Anna portti</string>
     <string name="custom_port_dialog_remove">Poista mukautettu portti</string>
     <string name="custom_port_dialog_submit">Määritä portti</string>
@@ -183,6 +186,7 @@
     <string name="rented_only">Vain vuokratut</string>
     <string name="report_a_problem">Raportoi ongelma</string>
     <string name="reset_to_default_button">Palauta oletusarvo</string>
+    <string name="save">Tallenna</string>
     <string name="search_placeholder">Hae...</string>
     <string name="secure_connection">SUOJATTU YHTEYS</string>
     <string name="secured">Suojattu</string>

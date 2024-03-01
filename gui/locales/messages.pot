@@ -2004,6 +2004,15 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr ""
 
+msgid "%d locations"
+msgstr ""
+
+msgid "%s (added)"
+msgstr ""
+
+msgid "%s was added to \"%s\""
+msgstr ""
+
 msgid "%s was added to your account."
 msgstr ""
 
@@ -2028,6 +2037,9 @@ msgstr ""
 msgid "Account time reminders"
 msgstr ""
 
+msgid "Add %s to list"
+msgstr ""
+
 msgid "Add 30 days time"
 msgstr ""
 
@@ -2035,6 +2047,9 @@ msgid "Add 30 days time (%s)"
 msgstr ""
 
 msgid "Add DNS server"
+msgstr ""
+
+msgid "Add locations"
 msgstr ""
 
 msgid "Agree and continue"
@@ -2082,6 +2097,12 @@ msgstr ""
 msgid "Copied to clipboard"
 msgstr ""
 
+msgid "Create"
+msgstr ""
+
+msgid "Create new list"
+msgstr ""
+
 msgid "Critical error (your attention is required)"
 msgstr ""
 
@@ -2091,7 +2112,31 @@ msgstr ""
 msgid "DNS settings might not go into effect immediately"
 msgstr ""
 
+msgid "Delete \"%s\"?"
+msgstr ""
+
 msgid "Disable all <b>%s</b> above to activate this setting."
+msgstr ""
+
+msgid "Discard"
+msgstr ""
+
+msgid "Discard changes?"
+msgstr ""
+
+msgid "Edit custom lists"
+msgstr ""
+
+msgid "Edit list"
+msgstr ""
+
+msgid "Edit lists"
+msgstr ""
+
+msgid "Edit locations"
+msgstr ""
+
+msgid "Edit name"
 msgstr ""
 
 msgid "Enable"
@@ -2121,6 +2166,15 @@ msgstr ""
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr ""
 
+msgid "List name"
+msgstr ""
+
+msgid "Locations"
+msgstr ""
+
+msgid "Locations were changed for \"%s\""
+msgstr ""
+
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr ""
 
@@ -2133,7 +2187,19 @@ msgstr ""
 msgid "Mullvad services unavailable"
 msgstr ""
 
+msgid "Name was changed to %s"
+msgstr ""
+
+msgid "New list"
+msgstr ""
+
+msgid "No custom lists available"
+msgstr ""
+
 msgid "No internet connection"
+msgstr ""
+
+msgid "No locations found"
 msgstr ""
 
 msgid "Preferences"
@@ -2193,6 +2259,12 @@ msgstr ""
 msgid "This address has already been entered."
 msgstr ""
 
+msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
+msgstr ""
+
+msgid "To create a custom list press the \"︙\""
+msgstr ""
+
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr ""
 
@@ -2205,6 +2277,9 @@ msgstr ""
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr ""
 
+msgid "Undo"
+msgstr ""
+
 msgid "Unsecured"
 msgstr ""
 
@@ -2212,6 +2287,9 @@ msgid "Update DNS server"
 msgstr ""
 
 msgid "Update available, download to remain safe."
+msgstr ""
+
+msgid "Update list name"
 msgstr ""
 
 msgid "VPN permission error"
@@ -2269,6 +2347,9 @@ msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr ""
 
 msgid "You are running an unsupported app version."
+msgstr ""
+
+msgid "\"%s\" was deleted"
 msgstr ""
 
 msgid "less than a minute ago"
