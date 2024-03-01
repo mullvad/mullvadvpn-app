@@ -209,6 +209,7 @@ jobs:
     container:
       image: ${{ needs.prepare.outputs.container_image }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - gradle-task: |
