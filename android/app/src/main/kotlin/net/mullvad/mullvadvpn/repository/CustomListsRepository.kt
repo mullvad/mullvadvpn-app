@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.repository
 
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
 import net.mullvad.mullvadvpn.lib.ipc.Event
@@ -23,9 +21,6 @@ class CustomListsRepository(
     private val settingsRepository: SettingsRepository,
     private val relayListListener: RelayListListener
 ) {
-    private val latestDeletedCustomList: Channel<CustomList> =
-        Channel(capacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-
     suspend fun createCustomList(name: String): CreateCustomListResult {
         val result = messageHandler.trySendRequest(Request.CreateCustomList(name))
 
@@ -37,10 +32,7 @@ class CustomListsRepository(
     }
 
     fun deleteCustomList(id: String) {
-        val customList = getCustomListById(id)
-        if (messageHandler.trySendRequest(Request.DeleteCustomList(id))) {
-            customList?.let { latestDeletedCustomList.trySend(it) }
-        }
+        messageHandler.trySendRequest(Request.DeleteCustomList(id))
     }
 
     private suspend fun updateCustomList(customList: CustomList): UpdateCustomListResult {
@@ -79,15 +71,6 @@ class CustomListsRepository(
             ?: UpdateCustomListResult.Error(CustomListsError.OtherError)
     }
 
-    suspend fun undoDeleteLatest() {
-        latestDeletedCustomList.tryReceive().getOrNull()?.let { deletedCustomList ->
-            val result = createCustomList(deletedCustomList.name)
-            if (result is CreateCustomListResult.Ok) {
-                updateCustomList(deletedCustomList.copy(id = result.id))
-            }
-        }
-    }
-
     private suspend fun updateCustomListLocations(
         id: String,
         locations: ArrayList<GeographicLocationConstraint>
@@ -96,7 +79,7 @@ class CustomListsRepository(
             ?: UpdateCustomListResult.Error(CustomListsError.OtherError)
     }
 
-    private fun getCustomListById(id: String): CustomList? =
+    fun getCustomListById(id: String): CustomList? =
         settingsRepository.settingsUpdates.value?.customLists?.customLists?.find { it.id == id }
 
     private fun getGeographicLocationConstraintByCode(code: String): GeographicLocationConstraint? =

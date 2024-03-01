@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.Result
+import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomListsError
@@ -40,7 +40,12 @@ class CreateCustomListDialogViewModel(
                 is CreateCustomListResult.Ok -> {
                     // We want to create the custom list with a location
                     if (action.locations.isNotEmpty()) {
-                        addCustomListToLocation(result.id, name, action.locations.first().code)
+                        addCustomListToLocation(
+                            result.id,
+                            name,
+                            action.locations.first(),
+                            action.locationNames.first()
+                        )
                     } else {
                         // We want to create the custom list without a location
                         _uiSideEffect.send(
@@ -57,7 +62,12 @@ class CreateCustomListDialogViewModel(
         }
     }
 
-    private fun addCustomListToLocation(customListId: String, name: String, locationCode: String) {
+    private fun addCustomListToLocation(
+        customListId: String,
+        name: String,
+        locationCode: String,
+        locationName: String
+    ) {
         viewModelScope.launch {
             when (
                 val result =
@@ -69,9 +79,10 @@ class CreateCustomListDialogViewModel(
                 is UpdateCustomListResult.Ok -> {
                     _uiSideEffect.send(
                         CreateCustomListDialogSideEffect.ReturnWithResult(
-                            Result(
-                                reverseAction = action.not(customListId),
-                                messageParams = listOf(name)
+                            CustomListResult.ListCreated(
+                                locationName = locationName,
+                                customListName = name,
+                                reverseAction = action.not(customListId)
                             )
                         )
                     )
@@ -93,6 +104,6 @@ sealed interface CreateCustomListDialogSideEffect {
     data class NavigateToCustomListLocationsScreen(val customListId: String) :
         CreateCustomListDialogSideEffect
 
-    data class ReturnWithResult(val result: Result<CustomListAction.Delete>) :
+    data class ReturnWithResult(val result: CustomListResult.ListCreated) :
         CreateCustomListDialogSideEffect
 }
