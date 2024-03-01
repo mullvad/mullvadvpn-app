@@ -58,9 +58,7 @@ fun CreateCustomList(
     locationCode: String = ""
 ) {
     val vm: CreateCustomListDialogViewModel =
-        koinViewModel(
-            parameters = { parametersOf(locationCode) }
-        )
+        koinViewModel(parameters = { parametersOf(locationCode) })
     LaunchedEffect(key1 = Unit) {
         vm.uiSideEffect.collect { sideEffect ->
             when (sideEffect) {

@@ -3,11 +3,11 @@ package net.mullvad.mullvadvpn.compose.communication
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
-sealed interface
-CustomListAction : Parcelable {
+sealed interface CustomListAction : Parcelable {
 
     @Parcelize
-    data class Rename(val customListId: String, val name: String, val newName: String) : CustomListAction {
+    data class Rename(val customListId: String, val name: String, val newName: String) :
+        CustomListAction {
         fun not() = this.copy(name = newName, newName = name)
     }
 
@@ -17,10 +17,8 @@ CustomListAction : Parcelable {
     }
 
     @Parcelize
-    data class Create(
-        val name: String = "",
-        val locations: List<String> = emptyList()
-    ) : CustomListAction, Parcelable {
+    data class Create(val name: String = "", val locations: List<String> = emptyList()) :
+        CustomListAction, Parcelable {
         fun not(customListId: String) = Delete(customListId)
     }
 
