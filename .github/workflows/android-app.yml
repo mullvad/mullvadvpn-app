@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Use custom container image if specified
         if: ${{ github.event.inputs.override_container_image != '' }}
@@ -58,9 +58,33 @@ jobs:
         if: ${{ github.event.inputs.override_container_image == '' }}
         run: |
           echo "inner_container_image=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
-
     outputs:
       container_image: ${{ env.inner_container_image }}
+
+  generate-debug-keystore:
+    name: Generate debug keystore
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate keystore
+        run: >-
+          keytool -genkey
+          -keystore debug.keystore
+          -storepass android
+          -alias androiddebugkey
+          -keypass android
+          -keyalg RSA
+          -keysize 2048
+          -validity 10000
+          -dname "CN=Android Debug,O=Android,C=US"
+
+      - name: Upload keystore
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-keystore
+          path: debug.keystore
+          if-no-files-found: error
+          retention-days: 7
 
   generate-relay-list:
     name: Generate relay list
@@ -77,11 +101,10 @@ jobs:
       - name: Get date
         id: get-date
         shell: bash
-        run: |
-          echo "date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_OUTPUT
+        run: echo "date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_OUTPUT
 
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-relay-list
         with:
           path: build/relays.json
@@ -89,7 +112,7 @@ jobs:
 
       - name: Checkout repository
         if: steps.cache-relay-list.outputs.cache-hit != 'true'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Generate
         if: steps.cache-relay-list.outputs.cache-hit != 'true'
@@ -100,7 +123,7 @@ jobs:
           cargo run --bin relay_list > build/relays.json
 
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: relay-list
           path: build/relays.json
@@ -135,7 +158,7 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Calculate native lib cache hash
         id: native-lib-cache-hash
@@ -149,7 +172,7 @@ jobs:
           echo "native_lib_hash=$non_android_hash" >> $GITHUB_OUTPUT
 
       - name: Cache native libraries
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-native-libs
         env:
           cache_hash: ${{ steps.native-lib-cache-hash.outputs.native_lib_hash }}
@@ -172,16 +195,54 @@ jobs:
           $NDK_TOOLCHAIN_STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
 
       - name: Upload native libs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: native-libs
+          name: native-libs-${{ matrix.arch }}
           path: android/app/build/extraJni
           if-no-files-found: error
           retention-days: 7
 
+  run-lint-and-tests:
+    name: Run lint and test tasks
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare.outputs.container_image }}
+    strategy:
+      matrix:
+        include:
+          - gradle-task: |
+              testDebugUnitTest -x :test:arch:testDebugUnitTest
+              :app:testOssProdDebugUnitTest
+              :service:testOssProdDebugUnitTest
+              :lib:billing:testDebugUnitTest
+          - gradle-task: :test:arch:test --rerun-tasks
+          - gradle-task: detekt
+          - gradle-task: lint
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run gradle task
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          job-id: jdk17
+          arguments: ${{ matrix.gradle-task }}
+          gradle-version: wrapper
+          build-root-directory: android
+          execution-only-caches: false
+          # Disable if logs are hard to follow.
+          concurrent: true
+          read-only: ${{ github.ref != 'refs/heads/main' }}
+
   build-app:
-    name: Build app and run unit tests
-    needs: [prepare, build-native, generate-relay-list]
+    name: Build app
+    needs: [prepare, generate-debug-keystore]
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare.outputs.container_image }}
@@ -192,14 +253,47 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: native-libs
-          path: android/app/build/extraJni
+          name: debug-keystore
+          path: /root/.android
 
-      - uses: actions/download-artifact@v3
+      - name: Compile app
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          job-id: jdk17
+          arguments: compileOssProdDebugKotlin
+          gradle-version: wrapper
+          build-root-directory: android
+          execution-only-caches: false
+          # Disable if logs are hard to follow.
+          concurrent: true
+          read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Wait for other jobs (native, relay list)
+        uses: kachick/wait-other-jobs@v2.0.3
+        with:
+          wait-list: |
+            [
+              {
+                "workflowFile": "android-app.yml",
+                "jobName": "build-native"
+              },
+              {
+                "workflowFile": "android-app.yml",
+                "jobName": "generate-relay-list"
+              }
+            ]
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: native-libs-*
+          path: android/app/build/extraJni
+          merge-multiple: true
+
+      - uses: actions/download-artifact@v4
         with:
           name: relay-list
           path: build
@@ -211,6 +305,10 @@ jobs:
           arguments: assembleOssProdDebug
           gradle-version: wrapper
           build-root-directory: android
+          execution-only-caches: true
+          # Disable if logs are hard to follow.
+          concurrent: true
+          read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Build stagemole app
         uses: burrunan/gradle-cache-action@v1
@@ -220,85 +318,70 @@ jobs:
           arguments: assemblePlayStagemoleDebug
           gradle-version: wrapper
           build-root-directory: android
-
-      - name: Run unit tests
-        uses: burrunan/gradle-cache-action@v1
-        with:
-          job-id: jdk17
-          arguments: |
-            testDebugUnitTest -x :test:arch:testDebugUnitTest
-            :app:testOssProdDebugUnitTest
-            :service:testOssProdDebugUnitTest
-            :lib:billing:testDebugUnitTest
-          gradle-version: wrapper
-          build-root-directory: android
           execution-only-caches: true
-
-      - name: Run arch tests
-        uses: burrunan/gradle-cache-action@v1
-        with:
-          job-id: jdk17
-          arguments: :test:arch:test --rerun-tasks
-          gradle-version: wrapper
-          build-root-directory: android
-          execution-only-caches: true
-
-      - name: Run detekt
-        uses: burrunan/gradle-cache-action@v1
-        with:
-          job-id: jdk17
-          arguments: detekt
-          gradle-version: wrapper
-          build-root-directory: android
-          execution-only-caches: true
-
-      # Running the AGP lint here rather than in the separate lint workflow
-      # (android-kotlin-format-check.yml) since it's easier to make use of the running container,
-      # cache and previously ran tasks.
-      - name: Run AGP lint
-        uses: burrunan/gradle-cache-action@v1
-        with:
-          job-id: jdk17
-          arguments: lint
-          gradle-version: wrapper
-          build-root-directory: android
-          execution-only-caches: true
-
-      - name: Assemble instrumented test apk (app)
-        uses: burrunan/gradle-cache-action@v1
-        with:
-          job-id: jdk17
-          arguments: assembleOssProdAndroidTest
-          gradle-version: wrapper
-          build-root-directory: android
-          execution-only-caches: true
-
-      - name: Assemble instrumented test apk (mockapi)
-        uses: burrunan/gradle-cache-action@v1
-        with:
-          job-id: jdk17
-          arguments: :test:mockapi:assemble
-          gradle-version: wrapper
-          build-root-directory: android
-          execution-only-caches: true
-
-      - name: Assemble instrumented test apk (e2e)
-        uses: burrunan/gradle-cache-action@v1
-        with:
-          job-id: jdk17
-          arguments: :test:e2e:assemble
-          gradle-version: wrapper
-          build-root-directory: android
-          execution-only-caches: true
+          # Disable if logs are hard to follow.
+          concurrent: true
+          read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Upload apks
+        # Using v3 due to v4 being very slow for this artifact.
         uses: actions/upload-artifact@v3
         with:
           name: apks
-          path: |
-            android/app/build/outputs/apk
-            android/test/mockapi/build/outputs/apk
-            android/test/e2e/build/outputs/apk
+          path: android/app/build/outputs/apk
+          if-no-files-found: error
+          retention-days: 7
+
+  build-instrumented-tests:
+    name: Build instrumented test packages
+    needs: [prepare, generate-debug-keystore]
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare.outputs.container_image }}
+    strategy:
+      matrix:
+        include:
+          - test-type: app
+            assemble-command: assembleOssProdAndroidTest
+            artifact-path: android/app/build/outputs/apk
+          - test-type: mockapi
+            assemble-command: :test:mockapi:assemble
+            artifact-path: android/test/mockapi/build/outputs/apk
+          - test-type: e2e
+            assemble-command: :test:e2e:assemble
+            artifact-path: android/test/e2e/build/outputs/apk
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: debug-keystore
+          path: /root/.android
+
+      - name: Assemble instrumented test apk
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          job-id: jdk17
+          arguments: ${{ matrix.assemble-command }}
+          gradle-version: wrapper
+          build-root-directory: android
+          execution-only-caches: false
+          # Disable if logs are hard to follow.
+          concurrent: true
+          read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Upload apks
+        # Using v3 due to v4 being very slow for this artifact.
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.test-type }}-instrumentation-apks
+          path: ${{ matrix.artifact-path }}
           if-no-files-found: error
           retention-days: 7
 
@@ -306,25 +389,39 @@ jobs:
     name: Run instrumented tests
     runs-on: [self-hosted, android-device]
     timeout-minutes: 30
-    needs: [build-app]
+    needs: [build-app, build-instrumented-tests]
     strategy:
       fail-fast: false
       matrix:
-        test-type: [app] # Temporarily disabled: mockapi
+        include:
+          - test-type: app
+            path: android/app/build/outputs/apk
+          #  Disabled due to flakiness.
+          #- test-type: mockapi
+          #  path: android/test/mockapi/build/outputs/apk
     steps:
-      - name: Set report path variable
-        id: determine-report-path
+      - name: Prepare report dir
+        id: prepare-report-dir
         env:
-          UNIQUE_RUN_ID: ${{ matrix.test-type }}-${{ github.run_id }}-${{ github.run_attempt }}
-        run: echo "report_path=/tmp/$UNIQUE_RUN_ID" >> $GITHUB_OUTPUT
+          INNER_REPORT_DIR: /tmp/${{ matrix.test-type }}-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir -p $INNER_REPORT_DIR
+          echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
+      # Using v3 due to v4 being very slow for this artifact.
       - uses: actions/download-artifact@v3
         with:
           name: apks
-          path: android
+          path: android/app/build/outputs/apk
+
+      # Using v3 due to v4 being very slow for this artifact.
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.test-type }}-instrumentation-apks
+          path: ${{ matrix.path }}
 
       - name: Run instrumented test script
         shell: bash -ieo pipefail {0}
@@ -333,17 +430,15 @@ jobs:
           TEST_TYPE: ${{ matrix.test-type }}
           BILLING_FLAVOR: oss
           INFRA_FLAVOR: prod
-          REPORT_DIR: ${{ steps.determine-report-path.outputs.report_path }}
-        run: |
-          mkdir -p $REPORT_DIR
-          ./android/scripts/run-instrumented-tests.sh
+          REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
+        run: ./android/scripts/run-instrumented-tests.sh
 
       - name: Upload instrumentation report (${{ matrix.test-type }})
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: ${{ matrix.test-type }}-instrumentation-report
-          path: ${{ steps.determine-report-path.outputs.report_path }}
+          path: ${{ steps.prepare-report-dir.outputs.report_dir }}
           if-no-files-found: ignore
           retention-days: 7
 
@@ -352,15 +447,30 @@ jobs:
     runs-on: [self-hosted, android-device]
     if: github.event_name == 'schedule' || github.event.inputs.run_e2e_tests == 'true'
     timeout-minutes: 30
-    needs: [build-app]
+    needs: [build-app, build-instrumented-tests]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Prepare report dir
+        id: prepare-report-dir
+        env:
+          INNER_REPORT_DIR: /tmp/${{ matrix.test-type }}-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir -p $INNER_REPORT_DIR
+          echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Using v3 due to v4 being very slow for this artifact.
       - uses: actions/download-artifact@v3
         with:
           name: apks
-          path: android
+          path: android/app/build/outputs/apk
+
+      # Using v3 due to v4 being very slow for this artifact.
+      - uses: actions/download-artifact@v3
+        with:
+          name: e2e-instrumentation-apks
+          path: android/test/e2e/build/outputs/apk
 
       - name: Run instrumented test script
         shell: bash -ieo pipefail {0}
@@ -371,15 +481,15 @@ jobs:
           INFRA_FLAVOR: prod
           VALID_TEST_ACCOUNT_TOKEN: ${{ secrets.ANDROID_PROD_TEST_ACCOUNT }}
           INVALID_TEST_ACCOUNT_TOKEN: '0000000000000000'
-        run: |
-          ./android/scripts/run-instrumented-tests.sh
+          REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
+        run: ./android/scripts/run-instrumented-tests.sh
 
   firebase-tests:
     name: Run firebase tests
     if: github.event_name == 'schedule' || github.event.inputs.run_firebase_tests == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: [build-app]
+    needs: [build-app, build-instrumented-tests]
     env:
       FIREBASE_ENVIRONMENT_VARIABLES: "\
         clearPackageData=true,\
@@ -389,15 +499,28 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arg-spec-file: [mockapi-oss.yml, e2e-play-stagemole.yml]
+        include:
+          - test-type: mockapi
+            arg-spec-file: mockapi-oss.yml
+            path: android/test/mockapi/build/outputs/apk
+          - test-type: e2e
+            arg-spec-file: e2e-play-stagemole.yml
+            path: android/test/e2e/build/outputs/apk
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
+      # Using v3 due to v4 being very slow for this artifact.
       - uses: actions/download-artifact@v3
         with:
           name: apks
-          path: android
+          path: android/app/build/outputs/apk
+
+      # Using v3 due to v4 being very slow for this artifact.
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.test-type }}-instrumentation-apks
+          path: ${{ matrix.path }}
 
       - name: Run tests on Firebase Test Lab
         uses: asadmansr/Firebase-Test-Lab-Action@v1.0
