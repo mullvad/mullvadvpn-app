@@ -83,11 +83,15 @@ class CustomListsRepository(
     private suspend fun awaitCustomListById(id: String): CustomList? =
         settingsRepository.settingsUpdates
             .mapNotNull { settings -> settings?.customLists?.customLists?.find { it.id == id } }
-            .firstOrNullWithTimeout(700000L)
+            .firstOrNullWithTimeout(GET_CUSTOM_LIST_TIMEOUT_MS)
 
     fun getCustomListById(id: String): CustomList? =
         settingsRepository.settingsUpdates.value?.customLists?.customLists?.find { it.id == id }
 
     private fun getGeographicLocationConstraintByCode(code: String): GeographicLocationConstraint? =
         relayListListener.relayListEvents.value.getGeographicLocationConstraintByCode(code)
+
+    companion object {
+        private const val GET_CUSTOM_LIST_TIMEOUT_MS = 5000L
+    }
 }
