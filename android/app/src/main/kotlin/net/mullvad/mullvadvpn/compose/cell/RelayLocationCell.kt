@@ -27,16 +27,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ChevronView
 import net.mullvad.mullvadvpn.compose.component.MullvadCheckbox
 import net.mullvad.mullvadvpn.compose.component.VerticalDivider
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.Alpha40
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
@@ -328,6 +327,7 @@ fun CheckableRelayLocationCell(
                 onCheckedChange = { isChecked -> onRelayCheckedChange(relayItem, isChecked) }
             )
         },
+        leadingContentStartPadding = Dimens.cellStartPaddingInteractive,
         modifier = modifier,
         onClick = { onRelayCheckedChange(it, !selectedRelays.contains(it)) },
         onLongClick = {},
@@ -341,18 +341,14 @@ private fun RelayLocationCell(
     relay: RelayItem,
     leadingContent: @Composable BoxScope.(relay: RelayItem) -> Unit,
     modifier: Modifier = Modifier,
+    leadingContentStartPadding: Dp = Dimens.cellStartPadding,
+    leadingContentStarPaddingModifier: Dp = Dimens.mediumPadding,
     specialBackgroundColor: @Composable (relayItem: RelayItem) -> Color? = { null },
     onClick: (item: RelayItem) -> Unit,
     onLongClick: (item: RelayItem) -> Unit,
     depth: Int
 ) {
-    val startPadding =
-        when (depth) {
-            0 -> Dimens.countryRowPadding
-            1 -> Dimens.cityRowPadding
-            2 -> Dimens.relayRowPadding
-            else -> Dimens.relayRowPaddingExtra
-        }
+    val startPadding = leadingContentStartPadding + leadingContentStarPaddingModifier * depth
     val expanded =
         rememberSaveable(key = relay.expanded.toString()) { mutableStateOf(relay.expanded) }
     Column(
@@ -371,14 +367,12 @@ private fun RelayLocationCell(
                     .fillMaxWidth()
                     .background(
                         specialBackgroundColor.invoke(relay)
-                            ?: when (relay) {
-                                is RelayItem.Country -> MaterialTheme.colorScheme.primary
-                                is RelayItem.City ->
-                                    MaterialTheme.colorScheme.primary
-                                        .copy(alpha = Alpha40)
-                                        .compositeOver(MaterialTheme.colorScheme.background)
-                                is RelayItem.Relay -> MaterialTheme.colorScheme.secondaryContainer
-                                else -> MaterialTheme.colorScheme.primary
+                            ?: when (depth) {
+                                0 -> MaterialTheme.colorScheme.surfaceContainerHighest
+                                1 -> MaterialTheme.colorScheme.surfaceContainerHigh
+                                2 -> MaterialTheme.colorScheme.surfaceContainerLow
+                                3 -> MaterialTheme.colorScheme.surfaceContainerLowest
+                                else -> MaterialTheme.colorScheme.surfaceContainerLowest
                             }
                     )
         ) {

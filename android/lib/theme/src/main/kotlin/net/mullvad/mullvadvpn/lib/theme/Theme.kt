@@ -28,6 +28,11 @@ import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_onSurfaceVariant
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_onTertiaryContainer
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_primary
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_secondaryContainer
+import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceContainer
+import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceContainerHigh
+import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceContainerHighest
+import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceContainerLow
+import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceContainerLowest
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceVariant
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_tertiaryContainer
 import net.mullvad.mullvadvpn.lib.theme.dimensions.Dimensions
@@ -84,6 +89,11 @@ private val darkColorScheme =
         // surfaceTint = md_theme_dark_surfaceTint,
         outlineVariant = Color.Transparent, // Used by divider,
         // scrim = md_theme_dark_scrim,
+        surfaceContainerHighest = md_theme_dark_surfaceContainerHighest,
+        surfaceContainerHigh = md_theme_dark_surfaceContainerHigh,
+        surfaceContainerLow = md_theme_dark_surfaceContainerLow,
+        surfaceContainerLowest = md_theme_dark_surfaceContainerLowest,
+        surfaceContainer = md_theme_dark_surfaceContainer
     )
 
 val Shapes =

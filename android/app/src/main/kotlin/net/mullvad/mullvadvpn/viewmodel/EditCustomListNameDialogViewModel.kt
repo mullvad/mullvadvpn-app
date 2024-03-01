@@ -10,15 +10,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.communication.EditCustomListNameDialogResult
+import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
 import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.model.UpdateCustomListResult
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 
 class EditCustomListNameDialogViewModel(
-    private val id: String,
-    private val initialName: String,
+    private val action: CustomListAction.Rename,
     private val customListsRepository: CustomListsRepository
 ) : ViewModel() {
 
@@ -30,24 +30,29 @@ class EditCustomListNameDialogViewModel(
 
     val uiState =
         _error
-            .map { UpdateCustomListUiState(name = initialName, error = it) }
+            .map { UpdateCustomListUiState(name = action.name, error = it) }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                UpdateCustomListUiState(name = initialName)
+                UpdateCustomListUiState(name = action.name)
             )
 
     fun updateCustomListName(name: String) {
         viewModelScope.launch {
-            when (val result = customListsRepository.updateCustomListName(id, name)) {
+            when (
+                val result =
+                    customListsRepository.updateCustomListName(
+                        id = action.customListId,
+                        name = name
+                    )
+            ) {
                 UpdateCustomListResult.Ok -> {
                     _uiSideEffect.send(
                         EditCustomListNameDialogSideEffect.ReturnResult(
                             result =
-                                EditCustomListNameDialogResult(
-                                    customListId = id,
-                                    newName = name,
-                                    oldName = initialName
+                                CustomListResult.ListRenamed(
+                                    name = name,
+                                    reverseAction = action.not()
                                 )
                         )
                     )
@@ -65,6 +70,6 @@ class EditCustomListNameDialogViewModel(
 }
 
 sealed interface EditCustomListNameDialogSideEffect {
-    data class ReturnResult(val result: EditCustomListNameDialogResult) :
+    data class ReturnResult(val result: CustomListResult.ListRenamed) :
         EditCustomListNameDialogSideEffect
 }

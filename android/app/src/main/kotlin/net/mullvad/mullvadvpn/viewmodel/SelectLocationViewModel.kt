@@ -11,10 +11,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.state.toNullableOwnership
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
 import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.relaylist.Provider
 import net.mullvad.mullvadvpn.relaylist.RelayItem
@@ -149,16 +151,37 @@ class SelectLocationViewModel(
         }
     }
 
-    fun deleteCustomList(customListId: String) {
-        customListsRepository.deleteCustomList(customListId)
+    fun performAction(action: CustomListAction) {
+        when (action) {
+            is CustomListAction.Create -> createCustomList(action.name, action.locations)
+            is CustomListAction.Delete -> deleteCustomList(action.customListId)
+            is CustomListAction.Rename -> renameCustomList(action.customListId, action.name)
+            is CustomListAction.UpdateLocations ->
+                updateLocations(action.customListId, action.locations)
+        }
     }
 
-    fun updateCustomListName(customListId: String, name: String) {
-        viewModelScope.launch { customListsRepository.updateCustomListName(customListId, name) }
+    private fun createCustomList(name: String, locations: List<String>) {
+        viewModelScope.launch {
+            val result = customListsRepository.createCustomList(name)
+            if (result is CreateCustomListResult.Ok) {
+                customListsRepository.updateCustomListLocationsFromCodes(result.id, locations)
+            }
+        }
     }
 
-    fun undoDeleteCustomList() {
-        viewModelScope.launch { customListsRepository.undoDeleteLatest() }
+    private fun deleteCustomList(id: String) {
+        customListsRepository.deleteCustomList(id)
+    }
+
+    private fun renameCustomList(id: String, name: String) {
+        viewModelScope.launch { customListsRepository.updateCustomListName(id, name) }
+    }
+
+    private fun updateLocations(id: String, locations: List<String>) {
+        viewModelScope.launch {
+            customListsRepository.updateCustomListLocationsFromCodes(id, locations)
+        }
     }
 
     companion object {

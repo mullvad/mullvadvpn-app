@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.content.Context
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -15,19 +16,15 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -58,13 +55,12 @@ import net.mullvad.mullvadvpn.compose.cell.IconCell
 import net.mullvad.mullvadvpn.compose.cell.NormalRelayLocationCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.cell.ThreeDotCell
-import net.mullvad.mullvadvpn.compose.communication.CreateCustomListDialogRequest
-import net.mullvad.mullvadvpn.compose.communication.CreateCustomListDialogResult
-import net.mullvad.mullvadvpn.compose.communication.CustomListLocationScreenRequest
-import net.mullvad.mullvadvpn.compose.communication.EditCustomListNameDialogRequest
-import net.mullvad.mullvadvpn.compose.communication.EditCustomListNameDialogResult
+import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.CustomListRequest
+import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
@@ -115,10 +111,13 @@ private fun PreviewSelectLocationScreen() {
 fun SelectLocation(
     navigator: DestinationsNavigator,
     createCustomListDialogResultRecipient:
-        ResultRecipient<CreateCustomListDestination, CreateCustomListDialogResult>,
+        ResultRecipient<CreateCustomListDestination, CustomListResult.ListCreated>,
     editCustomListNameDialogResultRecipient:
-        ResultRecipient<EditCustomListNameDestination, EditCustomListNameDialogResult>,
-    deleteCustomListDialogResultRecipent: ResultRecipient<DeleteCustomListDestination, String>,
+        ResultRecipient<EditCustomListNameDestination, CustomListResult.ListRenamed>,
+    deleteCustomListDialogResultRecipient:
+        ResultRecipient<DeleteCustomListDestination, CustomListResult.ListDeleted>,
+    updateCustomListResultRecipient:
+        ResultRecipient<CustomListLocationsDestination, CustomListResult.ListUpdated>
 ) {
     val vm = koinViewModel<SelectLocationViewModel>()
     val state = vm.uiState.collectAsState().value
@@ -137,7 +136,7 @@ fun SelectLocation(
                         snackbarHostState.showSnackbar(
                             message =
                                 context.getString(
-                                    R.string.country_was_added_to_list,
+                                    R.string.location_was_added_to_list,
                                     it.item.name,
                                     it.customList.name
                                 ),
@@ -162,25 +161,12 @@ fun SelectLocation(
                 /* Do nothing */
             }
             is NavResult.Value -> {
-                when (
-                    val dialogResult = result.value as? CreateCustomListDialogResult.WithLocation
-                ) {
-                    is CreateCustomListDialogResult.WithLocation -> {
-                        scope.launch {
-                            snackbarHostState.currentSnackbarData?.dismiss()
-                            snackbarHostState.showSnackbar(
-                                message =
-                                    context.getString(
-                                        R.string.country_was_added_to_list,
-                                        dialogResult.locationName,
-                                        dialogResult.customListName
-                                    ),
-                                actionLabel = context.getString(R.string.undo),
-                                duration = SnackbarDuration.Long,
-                                onAction = { vm.deleteCustomList(dialogResult.customListId) }
-                            )
-                        }
-                    }
+                scope.launch {
+                    snackbarHostState.showResultSnackbar(
+                        context = context,
+                        result = result.value,
+                        onAction = { action -> vm.performAction(action) }
+                    )
                 }
             }
         }
@@ -193,35 +179,44 @@ fun SelectLocation(
             }
             is NavResult.Value -> {
                 scope.launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar(
-                        message =
-                            context.getString(R.string.name_was_changed_to, result.value.newName),
-                        actionLabel = context.getString(R.string.undo),
-                        duration = SnackbarDuration.Short,
-                        onAction = {
-                            vm.updateCustomListName(result.value.customListId, result.value.oldName)
-                        }
+                    snackbarHostState.showResultSnackbar(
+                        context = context,
+                        result = result.value,
+                        onAction = { action -> vm.performAction(action) }
                     )
                 }
             }
         }
     }
 
-    deleteCustomListDialogResultRecipent.onNavResult { result ->
+    deleteCustomListDialogResultRecipient.onNavResult { result ->
         when (result) {
             NavResult.Canceled -> {
                 /* Do nothing */
             }
             is NavResult.Value -> {
                 scope.launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar(
-                        message =
-                            context.getString(R.string.delete_custom_list_message, result.value),
-                        actionLabel = context.getString(R.string.undo),
-                        duration = SnackbarDuration.Long,
-                        onAction = { vm.undoDeleteCustomList() }
+                    snackbarHostState.showResultSnackbar(
+                        context = context,
+                        result = result.value,
+                        onAction = { action -> vm.performAction(action) }
+                    )
+                }
+            }
+        }
+    }
+
+    updateCustomListResultRecipient.onNavResult { result ->
+        when (result) {
+            NavResult.Canceled -> {
+                /* Do nothing */
+            }
+            is NavResult.Value -> {
+                scope.launch {
+                    snackbarHostState.showResultSnackbar(
+                        context = context,
+                        result = result.value,
+                        onAction = { action -> vm.performAction(action) }
                     )
                 }
             }
@@ -238,14 +233,13 @@ fun SelectLocation(
         onCreateCustomList = { relayItem ->
             navigator.navigate(
                 CreateCustomListDestination(
-                    if (relayItem != null) {
-                        CreateCustomListDialogRequest.WithLocation(
-                            locationCode = relayItem.code,
-                            locationName = relayItem.name
-                        )
-                    } else {
-                        CreateCustomListDialogRequest.FromScratch
-                    }
+                    CustomListRequest(
+                        action =
+                            CustomListAction.Create(
+                                locations = relayItem?.code?.let { listOf(it) } ?: emptyList(),
+                                locationNames = relayItem?.name?.let { listOf(it) } ?: emptyList()
+                            )
+                    )
                 )
             ) {
                 launchSingleTop = true
@@ -258,20 +252,27 @@ fun SelectLocation(
         onEditCustomListName = {
             navigator.navigate(
                 EditCustomListNameDestination(
-                    EditCustomListNameDialogRequest(customListId = it.id, name = it.name)
+                    CustomListRequest(
+                        action = CustomListAction.Rename(customListId = it.id, name = it.name)
+                    )
                 )
             )
         },
         onEditLocationsCustomList = {
             navigator.navigate(
                 CustomListLocationsDestination(
-                    request =
-                        CustomListLocationScreenRequest(customListKey = it.id, newList = false)
+                    CustomListRequest(action = CustomListAction.UpdateLocations(it.id, false))
                 )
             )
         },
         onDeleteCustomList = {
-            navigator.navigate(DeleteCustomListDestination(id = it.id, name = it.name))
+            navigator.navigate(
+                DeleteCustomListDestination(
+                    CustomListRequest(
+                        action = CustomListAction.Delete(customListId = it.id, name = it.name)
+                    )
+                )
+            )
         }
     )
 }
@@ -425,42 +426,16 @@ fun SelectLocationScreen(
                     }
                 }
             }
-            when (bottomSheetState) {
-                is BottomSheetState.ShowCustomListsBottomSheet -> {
-                    CustomListsBottomSheet(
-                        bottomSheetState =
-                            bottomSheetState as BottomSheetState.ShowCustomListsBottomSheet,
-                        onCreateCustomList = { onCreateCustomList(null) },
-                        onEditCustomLists = onEditCustomLists,
-                        closeBottomSheet = { bottomSheetState = BottomSheetState.Hidden }
-                    )
-                }
-                is BottomSheetState.ShowLocationBottomSheet -> {
-                    LocationBottomSheet(
-                        customLists =
-                            (bottomSheetState as BottomSheetState.ShowLocationBottomSheet)
-                                .customLists,
-                        item = (bottomSheetState as BottomSheetState.ShowLocationBottomSheet).item,
-                        onCreateCustomList = onCreateCustomList,
-                        onAddLocationToList = onAddLocationToList,
-                        closeBottomSheet = { bottomSheetState = BottomSheetState.Hidden }
-                    )
-                }
-                is BottomSheetState.ShowEditCustomListBottomSheet -> {
-                    EditCustomListBottomSheet(
-                        customList =
-                            (bottomSheetState as BottomSheetState.ShowEditCustomListBottomSheet)
-                                .customList,
-                        onEditName = onEditCustomListName,
-                        onEditLocations = onEditLocationsCustomList,
-                        onDeleteCustomList = onDeleteCustomList,
-                        closeBottomSheet = { bottomSheetState = BottomSheetState.Hidden }
-                    )
-                }
-                BottomSheetState.Hidden -> {
-                    /* Do nothing */
-                }
-            }
+            BottomSheets(
+                bottomSheetState = bottomSheetState,
+                onCreateCustomList = onCreateCustomList,
+                onEditCustomLists = onEditCustomLists,
+                onAddLocationToList = onAddLocationToList,
+                onEditCustomListName = onEditCustomListName,
+                onEditLocationsCustomList = onEditLocationsCustomList,
+                onDeleteCustomList = onDeleteCustomList,
+                onHideBottomSheet = { bottomSheetState = BottomSheetState.Hidden }
+            )
         }
     }
 }
@@ -543,6 +518,50 @@ private fun LazyListScope.relayList(
     }
 }
 
+@Composable
+private fun BottomSheets(
+    bottomSheetState: BottomSheetState,
+    onCreateCustomList: (RelayItem?) -> Unit,
+    onEditCustomLists: () -> Unit,
+    onAddLocationToList: (RelayItem, RelayItem.CustomList) -> Unit,
+    onEditCustomListName: (RelayItem.CustomList) -> Unit,
+    onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
+    onDeleteCustomList: (RelayItem.CustomList) -> Unit,
+    onHideBottomSheet: () -> Unit
+) {
+    when (bottomSheetState) {
+        is BottomSheetState.ShowCustomListsBottomSheet -> {
+            CustomListsBottomSheet(
+                bottomSheetState = bottomSheetState,
+                onCreateCustomList = { onCreateCustomList(null) },
+                onEditCustomLists = onEditCustomLists,
+                closeBottomSheet = onHideBottomSheet
+            )
+        }
+        is BottomSheetState.ShowLocationBottomSheet -> {
+            LocationBottomSheet(
+                customLists = bottomSheetState.customLists,
+                item = bottomSheetState.item,
+                onCreateCustomList = onCreateCustomList,
+                onAddLocationToList = onAddLocationToList,
+                closeBottomSheet = onHideBottomSheet
+            )
+        }
+        is BottomSheetState.ShowEditCustomListBottomSheet -> {
+            EditCustomListBottomSheet(
+                customList = bottomSheetState.customList,
+                onEditName = onEditCustomListName,
+                onEditLocations = onEditLocationsCustomList,
+                onDeleteCustomList = onDeleteCustomList,
+                closeBottomSheet = onHideBottomSheet
+            )
+        }
+        BottomSheetState.Hidden -> {
+            /* Do nothing */
+        }
+    }
+}
+
 private fun SelectLocationUiState.Content.indexOfSelectedRelayItem(): Int {
     val rawIndex =
         countries.indexOfFirst { relayCountry ->
@@ -563,7 +582,6 @@ private fun SelectLocationUiState.Content.indexOfSelectedRelayItem(): Int {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CustomListsBottomSheet(
     bottomSheetState: BottomSheetState.ShowCustomListsBottomSheet,
@@ -571,55 +589,32 @@ private fun CustomListsBottomSheet(
     onEditCustomLists: () -> Unit,
     closeBottomSheet: () -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val scope = rememberCoroutineScope()
-
-    ModalBottomSheet(
-        onDismissRequest = closeBottomSheet,
-        sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.background,
-        dragHandle = {
-            BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.onBackground)
-        }
-    ) {
+    MullvadModalBottomSheet(closeBottomSheet = closeBottomSheet) { onBackgroundColor, onClose ->
         HeaderCell(
             text = stringResource(id = R.string.edit_custom_lists),
-            background = MaterialTheme.colorScheme.background
+            background = Color.Unspecified
         )
-        HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
+        HorizontalDivider(color = onBackgroundColor)
         IconCell(
             iconId = R.drawable.icon_add,
             title = stringResource(id = R.string.new_list),
             onClick = {
                 onCreateCustomList()
-                scope
-                    .launch { sheetState.hide() }
-                    .invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            closeBottomSheet()
-                        }
-                    }
+                onClose()
             },
-            background = MaterialTheme.colorScheme.background,
-            titleColor = MaterialTheme.colorScheme.onBackground
+            background = Color.Unspecified,
+            titleColor = onBackgroundColor
         )
         IconCell(
             iconId = R.drawable.icon_edit,
             title = stringResource(id = R.string.edit_lists),
             onClick = {
                 onEditCustomLists()
-                scope
-                    .launch { sheetState.hide() }
-                    .invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            closeBottomSheet()
-                        }
-                    }
+                onClose()
             },
-            background = MaterialTheme.colorScheme.background,
+            background = Color.Unspecified,
             titleColor =
-                MaterialTheme.colorScheme.onBackground.copy(
+                onBackgroundColor.copy(
                     alpha =
                         if (bottomSheetState.editListEnabled) {
                             AlphaVisible
@@ -632,7 +627,6 @@ private fun CustomListsBottomSheet(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LocationBottomSheet(
     customLists: List<RelayItem.CustomList>,
@@ -641,30 +635,19 @@ private fun LocationBottomSheet(
     onAddLocationToList: (location: RelayItem, customList: RelayItem.CustomList) -> Unit,
     closeBottomSheet: () -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val scope = rememberCoroutineScope()
-
-    ModalBottomSheet(
-        onDismissRequest = closeBottomSheet,
-        sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.background,
-        dragHandle = {
-            BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.onBackground)
-        }
-    ) {
+    MullvadModalBottomSheet(closeBottomSheet = closeBottomSheet) { onBackgroundColor, onClose ->
         HeaderCell(
             text = stringResource(id = R.string.add_location_to_list, item.name),
-            background = MaterialTheme.colorScheme.background
+            background = Color.Unspecified
         )
-        HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
+        HorizontalDivider(color = onBackgroundColor)
         customLists.forEach {
             val enabled = it.canAddLocation(item)
             IconCell(
-                background = MaterialTheme.colorScheme.background,
+                background = Color.Unspecified,
                 titleColor =
                     if (enabled) {
-                        MaterialTheme.colorScheme.onBackground
+                        onBackgroundColor
                     } else {
                         MaterialTheme.colorScheme.onSecondary
                     },
@@ -677,13 +660,7 @@ private fun LocationBottomSheet(
                     },
                 onClick = {
                     onAddLocationToList(item, it)
-                    scope
-                        .launch { sheetState.hide() }
-                        .invokeOnCompletion {
-                            if (!sheetState.isVisible) {
-                                closeBottomSheet()
-                            }
-                        }
+                    onClose()
                 },
                 enabled = enabled
             )
@@ -693,21 +670,14 @@ private fun LocationBottomSheet(
             title = stringResource(id = R.string.new_list),
             onClick = {
                 onCreateCustomList(item)
-                scope
-                    .launch { sheetState.hide() }
-                    .invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            closeBottomSheet()
-                        }
-                    }
+                onClose()
             },
-            background = MaterialTheme.colorScheme.background,
-            titleColor = MaterialTheme.colorScheme.onBackground
+            background = Color.Unspecified,
+            titleColor = onBackgroundColor
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditCustomListBottomSheet(
     customList: RelayItem.CustomList,
@@ -716,75 +686,46 @@ private fun EditCustomListBottomSheet(
     onDeleteCustomList: (item: RelayItem.CustomList) -> Unit,
     closeBottomSheet: () -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val scope = rememberCoroutineScope()
-
-    ModalBottomSheet(
-        onDismissRequest = closeBottomSheet,
-        sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.background,
-        dragHandle = {
-            BottomSheetDefaults.DragHandle(color = MaterialTheme.colorScheme.onBackground)
-        }
-    ) {
+    MullvadModalBottomSheet(closeBottomSheet = closeBottomSheet) { onBackgroundColor, onClose ->
         HeaderCell(
             text = stringResource(id = R.string.edit_custom_lists),
-            background = MaterialTheme.colorScheme.background
+            background = Color.Unspecified
         )
         IconCell(
             iconId = R.drawable.icon_edit,
             title = stringResource(id = R.string.edit_name),
             onClick = {
                 onEditName(customList)
-                scope
-                    .launch { sheetState.hide() }
-                    .invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            closeBottomSheet()
-                        }
-                    }
+                onClose()
             },
-            background = MaterialTheme.colorScheme.background,
-            titleColor = MaterialTheme.colorScheme.onBackground
+            background = Color.Unspecified,
+            titleColor = onBackgroundColor
         )
         IconCell(
             iconId = R.drawable.icon_add,
             title = stringResource(id = R.string.edit_locations),
             onClick = {
                 onEditLocations(customList)
-                scope
-                    .launch { sheetState.hide() }
-                    .invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            closeBottomSheet()
-                        }
-                    }
+                onClose()
             },
-            background = MaterialTheme.colorScheme.background,
-            titleColor = MaterialTheme.colorScheme.onBackground
+            background = Color.Unspecified,
+            titleColor = onBackgroundColor
         )
-        HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
+        HorizontalDivider(color = onBackgroundColor)
         IconCell(
             iconId = R.drawable.icon_delete,
             title = stringResource(id = R.string.delete),
             onClick = {
                 onDeleteCustomList(customList)
-                scope
-                    .launch { sheetState.hide() }
-                    .invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            closeBottomSheet()
-                        }
-                    }
+                onClose()
             },
-            background = MaterialTheme.colorScheme.background,
-            titleColor = MaterialTheme.colorScheme.onBackground
+            background = Color.Unspecified,
+            titleColor = onBackgroundColor
         )
     }
 }
 
-suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
+private suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
     val itemInfo = this.layoutInfo.visibleItemsInfo.firstOrNull { it.index == index }
     if (itemInfo != null) {
         val center = layoutInfo.viewportEndOffset / 2
@@ -794,6 +735,31 @@ suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
         animateScrollToItem(index)
     }
 }
+
+private suspend fun SnackbarHostState.showResultSnackbar(
+    context: Context,
+    result: CustomListResult,
+    onAction: (CustomListAction) -> Unit
+) {
+    currentSnackbarData?.dismiss()
+    showSnackbar(
+        message = result.message(context),
+        actionLabel = context.getString(R.string.undo),
+        duration = SnackbarDuration.Long,
+        onAction = { onAction(result.reverseAction) }
+    )
+}
+
+private fun CustomListResult.message(context: Context): String =
+    when (this) {
+        is CustomListResult.ListCreated ->
+            context.getString(R.string.location_was_added_to_list, locationName, customListName)
+        is CustomListResult.ListDeleted ->
+            context.getString(R.string.delete_custom_list_message, name)
+        is CustomListResult.ListRenamed -> context.getString(R.string.name_was_changed_to, name)
+        is CustomListResult.ListUpdated ->
+            context.getString(R.string.locations_were_changed_for, name)
+    }
 
 private const val EXTRA_ITEMS = 3
 
