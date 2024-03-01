@@ -15,6 +15,7 @@
     <string name="added_to_your_account">Do konta dodano %1$s.</string>
     <string name="agree_and_continue">Zaakceptuj i kontynuuj</string>
     <string name="all_applications">Wszystkie aplikacje</string>
+    <string name="all_locations">Wszystkie lokalizacje</string>
     <string name="all_providers">Wszyscy dostawcy</string>
     <string name="allow_lan_footer">Umożliwia dostęp do innych urządzeń w tej samej sieci w celu udostępniania, drukowania itd.</string>
     <string name="always_on_vpn_error_notification_content">Nie można uruchomić połączenia tunelowego. Przed rozpoczęciem użytkowania usługi Mullvad VPN wyłącz opcję „Zawsze włączony VPN” w &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -59,6 +60,8 @@
     <string name="custom_dns_disable_mode_subtitle">Aby aktywować to ustawienie, wyłącz powyżej wszystkie &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="custom_dns_footer">Włącz, aby dodać co najmniej jeden serwer DNS.</string>
     <string name="custom_dns_hint">Wprowadź adres IP</string>
+    <string name="custom_list_error_list_exists">Nazwa jest już zajęta.</string>
+    <string name="custom_lists">Listy niestandardowe</string>
     <string name="custom_port_dialog_placeholder">Wprowadź port</string>
     <string name="custom_port_dialog_remove">Usuń port niestandardowy</string>
     <string name="custom_port_dialog_submit">Ustaw port</string>
@@ -183,6 +186,7 @@
     <string name="rented_only">Wyłącznie wynajmowane</string>
     <string name="report_a_problem">Zgłoś problem</string>
     <string name="reset_to_default_button">Przywróć domyślne</string>
+    <string name="save">Zapisz</string>
     <string name="search_placeholder">Wyszukaj...</string>
     <string name="secure_connection">BEZPIECZNE POŁĄCZENIE</string>
     <string name="secured">Zabezpieczone</string>

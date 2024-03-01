@@ -15,6 +15,7 @@
     <string name="added_to_your_account">%1$s blev føjet til din konto.</string>
     <string name="agree_and_continue">Accepter og fortsæt</string>
     <string name="all_applications">Alle applikationer</string>
+    <string name="all_locations">Alle placeringer</string>
     <string name="all_providers">Alle udbydere</string>
     <string name="allow_lan_footer">Giver adgang til andre enheder på det samme netværk til deling, udskrivning osv.</string>
     <string name="always_on_vpn_error_notification_content">Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN for &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -59,6 +60,8 @@
     <string name="custom_dns_disable_mode_subtitle">Deaktiver alle &lt;b&gt;%1$s&lt;/b&gt; ovenfor for at aktivere denne indstilling.</string>
     <string name="custom_dns_footer">Aktiver for at tilføje mindst én DNS-server.</string>
     <string name="custom_dns_hint">Indtast IP</string>
+    <string name="custom_list_error_list_exists">Navnet er allerede taget.</string>
+    <string name="custom_lists">Brugerdefinerede lister</string>
     <string name="custom_port_dialog_placeholder">Indtast port</string>
     <string name="custom_port_dialog_remove">Fjern brugerdefineret port</string>
     <string name="custom_port_dialog_submit">Indstil port</string>
@@ -183,6 +186,7 @@
     <string name="rented_only">Kun lejet</string>
     <string name="report_a_problem">Rapporter et problem</string>
     <string name="reset_to_default_button">Nulstil til standard</string>
+    <string name="save">Gem</string>
     <string name="search_placeholder">Søg efter...</string>
     <string name="secure_connection">SIKKER TILSLUTNING</string>
     <string name="secured">Sikret</string>

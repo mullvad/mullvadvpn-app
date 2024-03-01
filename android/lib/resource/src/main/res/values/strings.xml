@@ -284,7 +284,6 @@
     <string name="auto_connect_footer_legacy"><![CDATA[Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above.]]></string>
     <string name="custom_lists">Custom lists</string>
     <string name="all_locations">All locations</string>
-    <string name="create_new">Create new</string>
     <string name="edit_lists">Edit lists</string>
     <string name="create_new_list">Create new list</string>
     <string name="create">Create</string>
