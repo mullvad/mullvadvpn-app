@@ -148,6 +148,7 @@ pub struct VpnInterface {
 pub struct SplitTunnelHandle {
     redir_handle: Option<RedirectHandle>,
     tun_name: String,
+    route_manager: RouteManagerHandle,
 }
 
 impl SplitTunnelHandle {
@@ -168,7 +169,9 @@ impl SplitTunnelHandle {
         vpn_interface: Option<VpnInterface>,
     ) -> Result<Self, Error> {
         let handle = self.redir_handle.take().unwrap();
-        let (st_utun, pktap_stream, classify, default_interface, _) = handle.stop().await?;
+        let (st_utun, pktap_stream, classify, _default_interface, _) = handle.stop().await?;
+
+        let default_interface = get_default_interface(&self.route_manager).await?;
 
         self.redir_handle = Some(
             redirect_packets_for_pktap_stream(
@@ -197,6 +200,42 @@ pub async fn create_split_tunnel(
     vpn_interface: Option<VpnInterface>,
     classify: impl Fn(&PktapPacket) -> RoutingDecision + Send + 'static,
 ) -> Result<SplitTunnelHandle, Error> {
+    let default_interface = get_default_interface(&route_manager).await?;
+
+    let mut tun_config = tun::configure();
+    tun_config.address(ST_IFACE_IPV4).up();
+    let tun_device =
+        tun::create_as_async(&tun_config).map_err(Error::CreateSplitTunnelInterface)?;
+    let tun_name = tun_device.get_ref().name().to_owned();
+
+    // Add IPv6 address
+    // TODO: Only add IPv6 address if there's either a tun or a non-tun IPv6 route
+    // FIXME: Solve cleanly rather than using subcmd
+    let output = tokio::process::Command::new("ifconfig")
+        .args([&tun_name, "inet6", &ST_IFACE_IPV6.to_string(), "alias"])
+        .output()
+        .await
+        .map_err(Error::AddIpv6Address)?;
+    if !output.status.success() {
+        return Err(Error::AddIpv6Address(io::Error::new(
+            io::ErrorKind::Other,
+            "ifconfig failed",
+        )));
+    }
+
+    let redir_handle =
+        redirect_packets(tun_device, default_interface, vpn_interface, classify).await?;
+
+    Ok(SplitTunnelHandle {
+        redir_handle: Some(redir_handle),
+        tun_name,
+        route_manager,
+    })
+}
+
+async fn get_default_interface(
+    route_manager: &RouteManagerHandle,
+) -> Result<DefaultInterface, Error> {
     let (v4_default, v6_default) = route_manager
         .get_default_routes()
         .await
@@ -266,39 +305,10 @@ pub async fn create_split_tunnel(
         None
     };
 
-    let default_interface = DefaultInterface {
+    Ok(DefaultInterface {
         name: default_interface,
         v4_addrs: default_v4,
         v6_addrs: default_v6,
-    };
-
-    let mut tun_config = tun::configure();
-    tun_config.address(ST_IFACE_IPV4).up();
-    let tun_device =
-        tun::create_as_async(&tun_config).map_err(Error::CreateSplitTunnelInterface)?;
-    let tun_name = tun_device.get_ref().name().to_owned();
-
-    // Add IPv6 address
-    // TODO: Only add IPv6 address if there's either a tun or a non-tun IPv6 route
-    // FIXME: Solve cleanly rather than using subcmd
-    let output = tokio::process::Command::new("ifconfig")
-        .args([&tun_name, "inet6", &ST_IFACE_IPV6.to_string(), "alias"])
-        .output()
-        .await
-        .map_err(Error::AddIpv6Address)?;
-    if !output.status.success() {
-        return Err(Error::AddIpv6Address(io::Error::new(
-            io::ErrorKind::Other,
-            "ifconfig failed",
-        )));
-    }
-
-    let redir_handle =
-        redirect_packets(tun_device, default_interface, vpn_interface, classify).await?;
-
-    Ok(SplitTunnelHandle {
-        redir_handle: Some(redir_handle),
-        tun_name,
     })
 }
 
