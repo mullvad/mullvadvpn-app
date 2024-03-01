@@ -15,6 +15,7 @@
     <string name="added_to_your_account">%1$s ถูกเพิ่มลงในบัญชีของคุณแล้ว</string>
     <string name="agree_and_continue">ยอมรับและดำเนินการต่อ</string>
     <string name="all_applications">แอปพลิเคชันทั้งหมด</string>
+    <string name="all_locations">ตำแหน่งที่ตั้งทั้งหมด</string>
     <string name="all_providers">ผู้ให้บริการทั้งหมด</string>
     <string name="allow_lan_footer">อนุญาตให้เข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายเดียวกัน เพื่อแชร์ พิมพ์ ฯลฯ</string>
     <string name="always_on_vpn_error_notification_content">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน Always-on VPN เป็นเวลา &lt;b&gt;%1$s&lt;/b&gt; ก่อนที่จะใช้งาน Mullvad VPN</string>
@@ -59,6 +60,8 @@
     <string name="custom_dns_disable_mode_subtitle">ปิดใช้งาน &lt;b&gt;%1$s&lt;/b&gt; ด้านบนทั้งหมด เพื่อเปิดใช้การตั้งค่านี้</string>
     <string name="custom_dns_footer">เปิดเพื่อเพิ่มเซิร์ฟเวอร์ DNS อย่างน้อยหนึ่งรายการ</string>
     <string name="custom_dns_hint">ป้อน IP</string>
+    <string name="custom_list_error_list_exists">ชื่อนี้ถูกใช้ไปแล้ว</string>
+    <string name="custom_lists">รายการกำหนดเอง</string>
     <string name="custom_port_dialog_placeholder">ป้อนพอร์ต</string>
     <string name="custom_port_dialog_remove">นำพอร์ตแบบกำหนดเองออก</string>
     <string name="custom_port_dialog_submit">ตั้งค่าพอร์ต</string>
@@ -183,6 +186,7 @@
     <string name="rented_only">เช่าเท่านั้น</string>
     <string name="report_a_problem">รายงานปัญหา</string>
     <string name="reset_to_default_button">รีเซ็ตเป็นค่าเริ่มต้น</string>
+    <string name="save">บันทึก</string>
     <string name="search_placeholder">ค้นหา…</string>
     <string name="secure_connection">การเชื่อมต่อที่ปลอดภัย</string>
     <string name="secured">ปลอดภัย</string>
