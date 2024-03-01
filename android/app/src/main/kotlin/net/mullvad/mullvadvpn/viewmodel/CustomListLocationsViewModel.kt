@@ -7,23 +7,27 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
+import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.allChildren
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
-import net.mullvad.mullvadvpn.repository.CustomListsRepository
+import net.mullvad.mullvadvpn.relaylist.getById
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.util.firstOrNullWithTimeout
 
 class CustomListLocationsViewModel(
-    private val action: CustomListAction.UpdateLocations,
-    relayListUseCase: RelayListUseCase,
-    private val customListsRepository: CustomListsRepository
+    private val customListId: String,
+    private val newList: Boolean,
+    private val relayListUseCase: RelayListUseCase,
+    private val customListActionUseCase: CustomListActionUseCase
 ) : ViewModel() {
     private var customListName: String = ""
 
@@ -44,15 +48,15 @@ class CustomListLocationsViewModel(
 
                 when {
                     selectedLocations == null ->
-                        CustomListLocationsUiState.Loading(newList = action.newList)
+                        CustomListLocationsUiState.Loading(newList = newList)
                     filteredRelayCountries.isEmpty() ->
                         CustomListLocationsUiState.Content.Empty(
-                            newList = action.newList,
+                            newList = newList,
                             searchTerm = searchTerm
                         )
                     else ->
                         CustomListLocationsUiState.Content.Data(
-                            newList = action.newList,
+                            newList = newList,
                             searchTerm = searchTerm,
                             availableLocations = filteredRelayCountries,
                             selectedLocations = selectedLocations,
@@ -66,16 +70,13 @@ class CustomListLocationsViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                CustomListLocationsUiState.Loading(newList = action.newList)
+                CustomListLocationsUiState.Loading(newList = newList)
             )
 
     init {
         viewModelScope.launch {
             _selectedLocations.value =
-                relayListUseCase
-                    .customLists()
-                    .firstOrNull()
-                    ?.firstOrNull { it.id == action.customListId }
+                awaitCustomListById(customListId)
                     ?.apply { customListName = name }
                     ?.locations
                     ?.selectChildren()
@@ -86,22 +87,15 @@ class CustomListLocationsViewModel(
     fun save() {
         viewModelScope.launch {
             _selectedLocations.value?.let { selectedLocations ->
-                customListsRepository.updateCustomListLocations(
-                    id = action.customListId,
-                    locations = selectedLocations.calculateLocationsToSave()
-                )
-                _uiSideEffect.tryEmit(
-                    CustomListLocationsSideEffect.ReturnWithResult(
-                        CustomListResult.ListUpdated(
-                            name = customListName,
-                            reverseAction =
-                                action.not(
-                                    _initialLocations.value.calculateLocationsToSave().map {
-                                        it.code
-                                    }
-                                )
+                val result =
+                    customListActionUseCase.performAction(
+                        CustomListAction.UpdateLocations(
+                            customListId,
+                            selectedLocations.calculateLocationsToSave().map { it.code }
                         )
                     )
+                _uiSideEffect.tryEmit(
+                    CustomListLocationsSideEffect.ReturnWithResult(result.getOrThrow())
                 )
             }
         }
@@ -118,6 +112,12 @@ class CustomListLocationsViewModel(
     fun onSearchTermInput(searchTerm: String) {
         viewModelScope.launch { _searchTerm.emit(searchTerm) }
     }
+
+    private suspend fun awaitCustomListById(id: String): RelayItem.CustomList? =
+        relayListUseCase
+            .customLists()
+            .mapNotNull { customList -> customList.getById(id) }
+            .firstOrNullWithTimeout(GET_CUSTOM_LIST_TIMEOUT_MS)
 
     private fun selectLocation(relayItem: RelayItem) {
         viewModelScope.launch {
@@ -197,10 +197,11 @@ class CustomListLocationsViewModel(
 
     companion object {
         private const val EMPTY_SEARCH_TERM = ""
+        private const val GET_CUSTOM_LIST_TIMEOUT_MS = 5000L
     }
 }
 
 sealed interface CustomListLocationsSideEffect {
-    data class ReturnWithResult(val result: CustomListResult.ListUpdated) :
+    data class ReturnWithResult(val result: CustomListResult.LocationsChanged) :
         CustomListLocationsSideEffect
 }

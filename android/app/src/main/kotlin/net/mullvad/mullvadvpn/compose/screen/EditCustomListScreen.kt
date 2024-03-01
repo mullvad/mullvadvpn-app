@@ -26,8 +26,6 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
-import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListRequest
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
@@ -76,10 +74,10 @@ fun PreviewEditCustomListScreen() {
 @Destination(style = SlideInFromRightTransition::class)
 fun EditCustomList(
     navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<CustomListResult.ListDeleted>,
+    backNavigator: ResultBackNavigator<CustomListResult.Deleted>,
     customListId: String,
     confirmDeleteListResultRecipient:
-        ResultRecipient<DeleteCustomListDestination, CustomListResult.ListDeleted>
+        ResultRecipient<DeleteCustomListDestination, CustomListResult.Deleted>
 ) {
     val viewModel =
         koinViewModel<EditCustomListViewModel>(parameters = { parametersOf(customListId) })
@@ -98,32 +96,20 @@ fun EditCustomList(
         uiState = uiState,
         onDeleteList = { name ->
             navigator.navigate(
-                DeleteCustomListDestination(
-                    CustomListRequest(action = CustomListAction.Delete(customListId, name))
-                )
+                DeleteCustomListDestination(customListId = customListId, name = name)
             ) {
                 launchSingleTop = true
             }
         },
         onNameClicked = { id, name ->
             navigator.navigate(
-                EditCustomListNameDestination(
-                    request = CustomListRequest(action = CustomListAction.Rename(id, name))
-                )
+                EditCustomListNameDestination(customListId = id, initialName = name)
             ) {
                 launchSingleTop = true
             }
         },
         onLocationsClicked = {
-            navigator.navigate(
-                CustomListLocationsDestination(
-                    request =
-                        CustomListRequest(
-                            action =
-                                CustomListAction.UpdateLocations(customListId = it, newList = false)
-                        )
-                )
-            ) {
+            navigator.navigate(CustomListLocationsDestination(customListId = it, newList = false)) {
                 launchSingleTop = true
             }
         },
