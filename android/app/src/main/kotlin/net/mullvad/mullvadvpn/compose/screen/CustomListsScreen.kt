@@ -15,7 +15,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -32,7 +31,9 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
-import net.mullvad.mullvadvpn.compose.communication.CreateCustomListDialogRequest
+import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.CustomListRequest
+import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
@@ -60,7 +61,8 @@ fun PreviewCustomListsScreen() {
 @Destination(style = SlideInFromRightTransition::class)
 fun CustomLists(
     navigator: DestinationsNavigator,
-    editCustomListResultRecipient: ResultRecipient<EditCustomListDestination, String>
+    editCustomListResultRecipient:
+        ResultRecipient<EditCustomListDestination, CustomListResult.ListDeleted>
 ) {
     val viewModel = koinViewModel<CustomListsViewModel>()
     val uiState by viewModel.uiState.collectAsState()
@@ -85,7 +87,11 @@ fun CustomLists(
                                 ),
                             actionLabel = context.getString(R.string.undo),
                             duration = SnackbarDuration.Long,
-                            onAction = { viewModel.undoDeleteCustomList() }
+                            onAction = {
+                                viewModel.undoDeleteCustomList(
+                                    result.value.reverseAction as CustomListAction.Create
+                                )
+                            }
                         )
                     }
                 }
@@ -98,7 +104,7 @@ fun CustomLists(
         snackbarHostState = snackbarHostState,
         addCustomList = {
             navigator.navigate(
-                CreateCustomListDestination(CreateCustomListDialogRequest.FromScratch)
+                CreateCustomListDestination(CustomListRequest(CustomListAction.Create())),
             ) {
                 launchSingleTop = true
             }

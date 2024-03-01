@@ -26,8 +26,9 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
-import net.mullvad.mullvadvpn.compose.communication.CustomListLocationScreenRequest
-import net.mullvad.mullvadvpn.compose.communication.EditCustomListNameDialogRequest
+import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.CustomListRequest
+import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
@@ -75,9 +76,10 @@ fun PreviewEditCustomListScreen() {
 @Destination(style = SlideInFromRightTransition::class)
 fun EditCustomList(
     navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<String>,
+    backNavigator: ResultBackNavigator<CustomListResult.ListDeleted>,
     customListId: String,
-    confirmDeleteListResultRecipient: ResultRecipient<DeleteCustomListDestination, String>
+    confirmDeleteListResultRecipient:
+        ResultRecipient<DeleteCustomListDestination, CustomListResult.ListDeleted>
 ) {
     val viewModel =
         koinViewModel<EditCustomListViewModel>(parameters = { parametersOf(customListId) })
@@ -87,10 +89,7 @@ fun EditCustomList(
             NavResult.Canceled -> {
                 // Do nothing
             }
-            is NavResult.Value ->
-                if (it.value.isNotEmpty()) {
-                    backNavigator.navigateBack(result = it.value)
-                }
+            is NavResult.Value -> backNavigator.navigateBack(result = it.value)
         }
     }
 
@@ -98,14 +97,18 @@ fun EditCustomList(
     EditCustomListScreen(
         uiState = uiState,
         onDeleteList = { name ->
-            navigator.navigate(DeleteCustomListDestination(id = customListId, name = name)) {
+            navigator.navigate(
+                DeleteCustomListDestination(
+                    CustomListRequest(action = CustomListAction.Delete(customListId, name))
+                )
+            ) {
                 launchSingleTop = true
             }
         },
         onNameClicked = { id, name ->
             navigator.navigate(
                 EditCustomListNameDestination(
-                    EditCustomListNameDialogRequest(customListId = id, name = name)
+                    request = CustomListRequest(action = CustomListAction.Rename(id, name))
                 )
             ) {
                 launchSingleTop = true
@@ -114,7 +117,11 @@ fun EditCustomList(
         onLocationsClicked = {
             navigator.navigate(
                 CustomListLocationsDestination(
-                    request = CustomListLocationScreenRequest(customListKey = it, newList = false)
+                    request =
+                        CustomListRequest(
+                            action =
+                                CustomListAction.UpdateLocations(customListId = it, newList = false)
+                        )
                 )
             ) {
                 launchSingleTop = true

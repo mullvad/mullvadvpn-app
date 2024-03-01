@@ -34,5 +34,3 @@ fun RelayItem.allChildren(): List<RelayItem> {
         else -> emptyList()
     }
 }
-
-fun RelayItem.toLocation() = Location(code, name)
