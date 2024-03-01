@@ -1,6 +1,9 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -16,6 +19,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.IconCell
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Preview
 @Composable
@@ -54,6 +58,7 @@ fun MullvadModalBottomSheet(
         sheetState = sheetState,
         containerColor = backgroundColor,
         modifier = modifier,
+        windowInsets = WindowInsets(0, 0, 0, 0), // No insets
         dragHandle = { BottomSheetDefaults.DragHandle(color = onBackgroundColor) }
     ) {
         sheetContent(onBackgroundColor) {
@@ -65,5 +70,6 @@ fun MullvadModalBottomSheet(
                     }
                 }
         }
+        Spacer(modifier = Modifier.height(Dimens.cellHeight))
     }
 }
