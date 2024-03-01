@@ -298,11 +298,11 @@ fun NormalRelayLocationCell(
         },
         modifier = modifier,
         specialBackgroundColor = { relayItem ->
-            val selected = selectedItem?.code == relayItem.code
-            if (selected) {
-                MaterialTheme.colorScheme.selected
-            } else {
-                null
+            when {
+                selectedItem?.code == relayItem.code -> MaterialTheme.colorScheme.selected
+                relayItem is RelayItem.CustomList && !relayItem.active ->
+                    MaterialTheme.colorScheme.surfaceTint
+                else -> null
             }
         },
         onClick = onSelectRelay,

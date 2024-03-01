@@ -62,34 +62,32 @@ class CreateCustomListDialogViewModel(
         }
     }
 
-    private fun addCustomListToLocation(
+    private suspend fun addCustomListToLocation(
         customListId: String,
         name: String,
         locationCode: String,
         locationName: String
     ) {
-        viewModelScope.launch {
-            when (
-                val result =
-                    customListsRepository.updateCustomListLocationsFromCodes(
-                        customListId,
-                        listOf(locationCode)
-                    )
-            ) {
-                is UpdateCustomListResult.Ok -> {
-                    _uiSideEffect.send(
-                        CreateCustomListDialogSideEffect.ReturnWithResult(
-                            CustomListResult.ListCreated(
-                                locationName = locationName,
-                                customListName = name,
-                                reverseAction = action.not(customListId)
-                            )
+        when (
+            val result =
+                customListsRepository.updateCustomListLocationsFromCodes(
+                    customListId,
+                    listOf(locationCode)
+                )
+        ) {
+            is UpdateCustomListResult.Ok -> {
+                _uiSideEffect.send(
+                    CreateCustomListDialogSideEffect.ReturnWithResult(
+                        CustomListResult.ListCreated(
+                            locationName = locationName,
+                            customListName = name,
+                            reverseAction = action.not(customListId)
                         )
                     )
-                }
-                is UpdateCustomListResult.Error -> {
-                    _error.emit(result.error)
-                }
+                )
+            }
+            is UpdateCustomListResult.Error -> {
+                _error.emit(result.error)
             }
         }
     }

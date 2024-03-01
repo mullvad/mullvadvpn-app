@@ -33,6 +33,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceContainerHigh
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceContainerHighest
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceContainerLow
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceContainerLowest
+import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceTint
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_surfaceVariant
 import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_tertiaryContainer
 import net.mullvad.mullvadvpn.lib.theme.dimensions.Dimensions
@@ -93,7 +94,8 @@ private val darkColorScheme =
         surfaceContainerHigh = md_theme_dark_surfaceContainerHigh,
         surfaceContainerLow = md_theme_dark_surfaceContainerLow,
         surfaceContainerLowest = md_theme_dark_surfaceContainerLowest,
-        surfaceContainer = md_theme_dark_surfaceContainer
+        surfaceContainer = md_theme_dark_surfaceContainer,
+        surfaceTint = md_theme_dark_surfaceTint
     )
 
 val Shapes =
