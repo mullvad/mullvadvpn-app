@@ -38,6 +38,11 @@ on:
         description: Run firebase tests
         type: boolean
         required: false
+      mockapi_test_repeat:
+        description: Mockapi test repeat
+        default: '1'
+        required: true
+        type: string
   # Build if main is updated to ensure up-to-date caches are available
   push:
     branches: [main]
@@ -396,11 +401,14 @@ jobs:
         include:
           - test-type: app
             path: android/app/build/outputs/apk
-          #  Disabled due to flakiness.
-          #- test-type: mockapi
-          #  path: android/test/mockapi/build/outputs/apk
+            test-repeat: 1
+          # Disabled (test-repeat='0') due to flakiness unless overridden by input.
+          - test-type: mockapi
+            path: android/test/mockapi/build/outputs/apk
+            test-repeat: ${{ github.event.inputs.mockapi_test_repeat || 0 }}
     steps:
       - name: Prepare report dir
+        if: ${{ matrix.test-repeat != 0 }}
         id: prepare-report-dir
         env:
           INNER_REPORT_DIR: /tmp/${{ matrix.test-type }}-${{ github.run_id }}-${{ github.run_attempt }}
@@ -409,21 +417,25 @@ jobs:
           echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
 
       - name: Checkout repository
+        if: ${{ matrix.test-repeat != 0 }}
         uses: actions/checkout@v4
 
       # Using v3 due to v4 being very slow for this artifact.
       - uses: actions/download-artifact@v3
+        if: ${{ matrix.test-repeat != 0 }}
         with:
           name: apks
           path: android/app/build/outputs/apk
 
       # Using v3 due to v4 being very slow for this artifact.
       - uses: actions/download-artifact@v3
+        if: ${{ matrix.test-repeat != 0 }}
         with:
           name: ${{ matrix.test-type }}-instrumentation-apks
           path: ${{ matrix.path }}
 
       - name: Run instrumented test script
+        if: ${{ matrix.test-repeat != 0 }}
         shell: bash -ieo pipefail {0}
         env:
           AUTO_FETCH_TEST_HELPER_APKS: true
@@ -431,11 +443,11 @@ jobs:
           BILLING_FLAVOR: oss
           INFRA_FLAVOR: prod
           REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
-        run: ./android/scripts/run-instrumented-tests.sh
+        run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ matrix.test-repeat }}
 
       - name: Upload instrumentation report (${{ matrix.test-type }})
         uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ matrix.test-repeat != 0 }}
         with:
           name: ${{ matrix.test-type }}-instrumentation-report
           path: ${{ steps.prepare-report-dir.outputs.report_dir }}
