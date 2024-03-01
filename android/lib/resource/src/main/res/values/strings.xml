@@ -311,8 +311,9 @@
     <string name="discard_changes">Discard changes?</string>
     <string name="discard">Discard</string>
     <string name="add_location_to_list">Add %s to list</string>
-    <string name="country_was_added_to_list">%s was added to \"%s\"</string>
+    <string name="location_was_added_to_list">%s was added to \"%s\"</string>
     <string name="location_added">%s (added)</string>
     <string name="edit_name">Edit name</string>
     <string name="name_was_changed_to">Name was changed to %s</string>
+    <string name="locations_were_changed_for">Locations were changed for \"%s\"</string>
 </resources>
