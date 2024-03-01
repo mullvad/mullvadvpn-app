@@ -46,16 +46,6 @@ class CustomListsRepository(
         }
     }
 
-    suspend fun updateCustomListLocations(
-        id: String,
-        locations: List<RelayItem>
-    ): UpdateCustomListResult {
-        return updateCustomListLocations(
-            id = id,
-            locations = locations.toGeographicLocationConstraints()
-        )
-    }
-
     suspend fun updateCustomListLocationsFromCodes(
         id: String,
         locationCodes: List<String>
