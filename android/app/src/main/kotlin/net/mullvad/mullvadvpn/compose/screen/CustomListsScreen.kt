@@ -21,9 +21,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -32,7 +35,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListRequest
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
@@ -62,7 +64,7 @@ fun PreviewCustomListsScreen() {
 fun CustomLists(
     navigator: DestinationsNavigator,
     editCustomListResultRecipient:
-        ResultRecipient<EditCustomListDestination, CustomListResult.ListDeleted>
+        ResultRecipient<EditCustomListDestination, CustomListResult.Deleted>
 ) {
     val viewModel = koinViewModel<CustomListsViewModel>()
     val uiState by viewModel.uiState.collectAsState()
@@ -89,7 +91,7 @@ fun CustomLists(
                             duration = SnackbarDuration.Long,
                             onAction = {
                                 viewModel.undoDeleteCustomList(
-                                    result.value.reverseAction as CustomListAction.Create
+                                    result.value.undo as CustomListAction.Create
                                 )
                             }
                         )
@@ -104,7 +106,7 @@ fun CustomLists(
         snackbarHostState = snackbarHostState,
         addCustomList = {
             navigator.navigate(
-                CreateCustomListDestination(CustomListRequest(CustomListAction.Create())),
+                CreateCustomListDestination(),
             ) {
                 launchSingleTop = true
             }
@@ -131,6 +133,17 @@ fun CustomListsScreen(
         navigationIcon = { NavigateBackIconButton(onBackClick) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
+                modifier =
+                    Modifier.shadow(
+                            elevation = 3.dp,
+                            spotColor = Color(0x4D000000),
+                            ambientColor = Color(0x4D000000)
+                        )
+                        .shadow(
+                            elevation = 8.dp,
+                            spotColor = Color(0x26000000),
+                            ambientColor = Color(0x26000000)
+                        ),
                 onClick = addCustomList,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,

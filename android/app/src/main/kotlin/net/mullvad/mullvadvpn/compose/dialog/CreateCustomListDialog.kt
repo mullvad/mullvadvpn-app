@@ -23,10 +23,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
-import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListRequest
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
-import net.mullvad.mullvadvpn.compose.communication.parsedAction
 import net.mullvad.mullvadvpn.compose.destinations.CustomListLocationsDestination
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
@@ -57,28 +54,21 @@ fun PreviewCreateCustomListDialogError() {
 @Destination(style = DestinationStyle.Dialog::class)
 fun CreateCustomList(
     navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<CustomListResult.ListCreated>,
-    request: CustomListRequest
+    backNavigator: ResultBackNavigator<CustomListResult.Created>,
+    locationCode: String = ""
 ) {
     val vm: CreateCustomListDialogViewModel =
         koinViewModel(
-            parameters = { parametersOf(request.parsedAction<CustomListAction.Create>()) }
+            parameters = { parametersOf(locationCode) }
         )
     LaunchedEffect(key1 = Unit) {
         vm.uiSideEffect.collect { sideEffect ->
             when (sideEffect) {
                 is CreateCustomListDialogSideEffect.NavigateToCustomListLocationsScreen -> {
-                    navigator.popBackStack()
                     navigator.navigate(
                         CustomListLocationsDestination(
-                            request =
-                                CustomListRequest(
-                                    action =
-                                        CustomListAction.UpdateLocations(
-                                            customListId = sideEffect.customListId,
-                                            newList = true
-                                        )
-                                )
+                            customListId = sideEffect.customListId,
+                            newList = true
                         )
                     ) {
                         launchSingleTop = true

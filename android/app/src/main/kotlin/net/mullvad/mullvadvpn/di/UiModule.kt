@@ -37,6 +37,7 @@ import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
@@ -117,6 +118,7 @@ val uiModule = module {
     single { OutOfTimeUseCase(get(), get()) }
     single { ConnectivityUseCase(get()) }
     single { SystemVpnSettingsUseCase(androidContext()) }
+    single { CustomListActionUseCase(get(), get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
 
@@ -167,9 +169,13 @@ val uiModule = module {
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get()) }
     viewModel { parameters -> CreateCustomListDialogViewModel(parameters.get(), get()) }
-    viewModel { parameters -> CustomListLocationsViewModel(parameters.get(), get(), get()) }
+    viewModel { parameters ->
+        CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get())
+    }
     viewModel { parameters -> EditCustomListViewModel(parameters.get(), get()) }
-    viewModel { parameters -> EditCustomListNameDialogViewModel(parameters.get(), get()) }
+    viewModel { parameters ->
+        EditCustomListNameDialogViewModel(parameters.get(), parameters.get(), get())
+    }
     viewModel { CustomListsViewModel(get(), get()) }
     viewModel { parameters -> DeleteCustomListConfirmationViewModel(parameters.get(), get()) }
 
