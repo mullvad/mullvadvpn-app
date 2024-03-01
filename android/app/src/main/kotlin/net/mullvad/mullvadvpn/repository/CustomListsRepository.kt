@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.repository
 
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.mapNotNull
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
@@ -15,6 +16,7 @@ import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.getGeographicLocationConstraintByCode
 import net.mullvad.mullvadvpn.relaylist.toGeographicLocationConstraints
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
+import net.mullvad.mullvadvpn.util.firstOrNullWithTimeout
 
 class CustomListsRepository(
     private val messageHandler: MessageHandler,
@@ -75,9 +77,14 @@ class CustomListsRepository(
         id: String,
         locations: ArrayList<GeographicLocationConstraint>
     ): UpdateCustomListResult {
-        return getCustomListById(id)?.let { updateCustomList(it.copy(locations = locations)) }
+        return awaitCustomListById(id)?.let { updateCustomList(it.copy(locations = locations)) }
             ?: UpdateCustomListResult.Error(CustomListsError.OtherError)
     }
+
+    private suspend fun awaitCustomListById(id: String): CustomList? =
+        settingsRepository.settingsUpdates
+            .mapNotNull { settings -> settings?.customLists?.customLists?.find { it.id == id } }
+            .firstOrNullWithTimeout(700000L)
 
     fun getCustomListById(id: String): CustomList? =
         settingsRepository.settingsUpdates.value?.customLists?.customLists?.find { it.id == id }
