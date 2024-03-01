@@ -122,7 +122,10 @@ android {
         }
     }
 
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
 
     composeOptions { kotlinCompilerExtensionVersion = Versions.kotlinCompilerExtensionVersion }
 

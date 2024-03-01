@@ -44,6 +44,9 @@ android {
             buildConfigField("String", "API_ENDPOINT", "\"api.stagemole.eu\"")
         }
     }
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
 dependencies {
