@@ -10,6 +10,9 @@ on:
       - closed
     branches:
       - main
+    paths:
+      - .github/workflows/ios-end-to-end-tests.yml
+      - ios/**
   workflow_dispatch:
 jobs:
   test:
