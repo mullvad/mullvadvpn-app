@@ -563,22 +563,27 @@ private fun BottomSheets(
 }
 
 private fun SelectLocationUiState.Content.indexOfSelectedRelayItem(): Int {
-    val rawIndex =
-        countries.indexOfFirst { relayCountry ->
-            relayCountry.location.location.country ==
-                when (selectedItem) {
-                    is RelayItem.Country -> selectedItem.code
-                    is RelayItem.City -> selectedItem.location.countryCode
-                    is RelayItem.Relay -> selectedItem.location.countryCode
-                    is RelayItem.CustomList,
-                    null -> null
-                }
-        }
-    return if (rawIndex >= 0) {
-        // Extra items are: Custom list header, custom list description and locations header
-        return rawIndex + customLists.size + EXTRA_ITEMS
+    if (selectedItem is RelayItem.CustomList) {
+        // Add the header for custom list
+        return filteredCustomLists.indexOfFirst { it.id == selectedItem.id } +
+            EXTRA_ITEM_CUSTOM_LIST
     } else {
-        rawIndex
+        val rawIndex =
+            countries.indexOfFirst { relayCountry ->
+                relayCountry.location.location.country ==
+                    when (selectedItem) {
+                        is RelayItem.Country -> selectedItem.code
+                        is RelayItem.City -> selectedItem.location.countryCode
+                        is RelayItem.Relay -> selectedItem.location.countryCode
+                        else -> null
+                    }
+            }
+        return if (rawIndex >= 0) {
+            // Extra items are: Custom list header, custom list description and locations header
+            return rawIndex + customLists.size + EXTRA_ITEMS_LOCATION
+        } else {
+            rawIndex
+        }
     }
 }
 
@@ -687,10 +692,7 @@ private fun EditCustomListBottomSheet(
     closeBottomSheet: () -> Unit
 ) {
     MullvadModalBottomSheet(closeBottomSheet = closeBottomSheet) { onBackgroundColor, onClose ->
-        HeaderCell(
-            text = stringResource(id = R.string.edit_custom_lists),
-            background = Color.Unspecified
-        )
+        HeaderCell(text = customList.name, background = Color.Unspecified)
         IconCell(
             iconId = R.drawable.icon_edit,
             title = stringResource(id = R.string.edit_name),
@@ -761,7 +763,8 @@ private fun CustomListResult.message(context: Context): String =
             context.getString(R.string.locations_were_changed_for, name)
     }
 
-private const val EXTRA_ITEMS = 3
+private const val EXTRA_ITEMS_LOCATION = 3
+private const val EXTRA_ITEM_CUSTOM_LIST = 1
 
 sealed interface BottomSheetState {
     data object Hidden : BottomSheetState
