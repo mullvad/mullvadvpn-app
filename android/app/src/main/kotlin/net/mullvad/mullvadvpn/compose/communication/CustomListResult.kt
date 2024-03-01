@@ -4,24 +4,31 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 sealed interface CustomListResult : Parcelable {
-    val reverseAction: CustomListAction
+    val undo: CustomListAction
 
     @Parcelize
-    data class ListCreated(
-        val locationName: String,
-        val customListName: String,
-        override val reverseAction: CustomListAction
+    data class Created(
+        val id: String,
+        val name: String,
+        val locationName: String?,
+        override val undo: CustomListAction.Delete
     ) : CustomListResult
 
     @Parcelize
-    data class ListDeleted(val name: String, override val reverseAction: CustomListAction) :
-        CustomListResult
+    data class Deleted(override val undo: CustomListAction.Create) : CustomListResult {
+        val name
+            get() = undo.name
+    }
 
     @Parcelize
-    data class ListRenamed(val name: String, override val reverseAction: CustomListAction) :
-        CustomListResult
+    data class Renamed(override val undo: CustomListAction.Rename) : CustomListResult {
+        val name: String
+            get() = undo.name
+    }
 
     @Parcelize
-    data class ListUpdated(val name: String, override val reverseAction: CustomListAction) :
-        CustomListResult
+    data class LocationsChanged(
+        val name: String,
+        override val undo: CustomListAction.UpdateLocations
+    ) : CustomListResult
 }

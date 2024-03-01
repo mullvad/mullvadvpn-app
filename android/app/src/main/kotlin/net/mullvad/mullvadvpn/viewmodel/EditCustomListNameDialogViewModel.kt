@@ -14,12 +14,13 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
 import net.mullvad.mullvadvpn.model.CustomListsError
-import net.mullvad.mullvadvpn.model.UpdateCustomListResult
-import net.mullvad.mullvadvpn.repository.CustomListsRepository
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListsException
 
 class EditCustomListNameDialogViewModel(
-    private val action: CustomListAction.Rename,
-    private val customListsRepository: CustomListsRepository
+    private val customListId: String,
+    private val initialName: String,
+    private val customListActionUseCase: CustomListActionUseCase
 ) : ViewModel() {
 
     private val _uiSideEffect =
@@ -30,37 +31,35 @@ class EditCustomListNameDialogViewModel(
 
     val uiState =
         _error
-            .map { UpdateCustomListUiState(name = action.name, error = it) }
+            .map { UpdateCustomListUiState(name = initialName, error = it) }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                UpdateCustomListUiState(name = action.name)
+                UpdateCustomListUiState(name = initialName)
             )
 
     fun updateCustomListName(name: String) {
         viewModelScope.launch {
-            when (
-                val result =
-                    customListsRepository.updateCustomListName(
-                        id = action.customListId,
-                        name = name
+            customListActionUseCase
+                .performAction(
+                    CustomListAction.Rename(
+                        customListId = customListId,
+                        name = initialName,
+                        newName = name
                     )
-            ) {
-                UpdateCustomListResult.Ok -> {
-                    _uiSideEffect.send(
-                        EditCustomListNameDialogSideEffect.ReturnResult(
-                            result =
-                                CustomListResult.ListRenamed(
-                                    name = name,
-                                    reverseAction = action.not()
-                                )
-                        )
-                    )
-                }
-                is UpdateCustomListResult.Error -> {
-                    _error.emit(result.error)
-                }
-            }
+                )
+                .fold(
+                    onSuccess = { result ->
+                        _uiSideEffect.send(EditCustomListNameDialogSideEffect.ReturnResult(result))
+                    },
+                    onFailure = { exception ->
+                        if (exception is CustomListsException) {
+                            _error.emit(exception.error)
+                        } else {
+                            _error.emit(CustomListsError.OtherError)
+                        }
+                    }
+                )
         }
     }
 
@@ -70,6 +69,6 @@ class EditCustomListNameDialogViewModel(
 }
 
 sealed interface EditCustomListNameDialogSideEffect {
-    data class ReturnResult(val result: CustomListResult.ListRenamed) :
+    data class ReturnResult(val result: CustomListResult.Renamed) :
         EditCustomListNameDialogSideEffect
 }
