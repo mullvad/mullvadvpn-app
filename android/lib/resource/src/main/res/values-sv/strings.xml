@@ -15,6 +15,7 @@
     <string name="added_to_your_account">%1$s har lagts till i ditt konto.</string>
     <string name="agree_and_continue">Godkänn och fortsätt</string>
     <string name="all_applications">Alla applikationer</string>
+    <string name="all_locations">Alla platser</string>
     <string name="all_providers">Alla leverantörer</string>
     <string name="allow_lan_footer">Tillåter åtkomst till andra enheter på samma nätverk för delning, utskrift osv.</string>
     <string name="always_on_vpn_error_notification_content">Det går inte att starta tunnelanslutning. Aktivera VPN som alltid är på för &lt;b&gt;%1$s&lt;/b&gt; innan du använder Mullvad VPN.</string>
@@ -59,6 +60,8 @@
     <string name="custom_dns_disable_mode_subtitle">Inaktivera alla &lt;b&gt;%1$s&lt;/b&gt; ovan för att aktivera inställningen.</string>
     <string name="custom_dns_footer">Aktivera för att lägga till minst en DNS-server.</string>
     <string name="custom_dns_hint">Ange IP</string>
+    <string name="custom_list_error_list_exists">Namnet används redan.</string>
+    <string name="custom_lists">Anpassade listor</string>
     <string name="custom_port_dialog_placeholder">Ange port</string>
     <string name="custom_port_dialog_remove">Ta bort anpassad port</string>
     <string name="custom_port_dialog_submit">Ställ in port</string>
@@ -183,6 +186,7 @@
     <string name="rented_only">Endast hyrd</string>
     <string name="report_a_problem">Rapportera ett problem</string>
     <string name="reset_to_default_button">Återställ till standard</string>
+    <string name="save">Spara</string>
     <string name="search_placeholder">Sök efter …</string>
     <string name="secure_connection">SÄKER ANSLUTNING</string>
     <string name="secured">Skyddad</string>

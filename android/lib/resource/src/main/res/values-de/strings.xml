@@ -15,6 +15,7 @@
     <string name="added_to_your_account">%1$s wurde(n) zu Ihrem Konto hinzugefügt.</string>
     <string name="agree_and_continue">Akzeptieren und weiter</string>
     <string name="all_applications">Alle Anwendungen</string>
+    <string name="all_locations">Alle Standorte</string>
     <string name="all_providers">Alle Anbieter</string>
     <string name="allow_lan_footer">Ermöglicht den Zugriff auf andere Geräte im selben Netzwerk zum Teilen von Dateien, Drucken etc.</string>
     <string name="always_on_vpn_error_notification_content">Tunnelverbindung kann nicht gestartet werden. Bitte deaktivieren Sie Always-on VPN für &lt;b&gt;%1$s&lt;/b&gt;, bevor Sie Mullvad VPN verwenden.</string>
@@ -59,6 +60,8 @@
     <string name="custom_dns_disable_mode_subtitle">Deaktivieren Sie oben alle &lt;b&gt;%1$s&lt;/b&gt;, um diese Einstellung zu aktivieren.</string>
     <string name="custom_dns_footer">Aktivieren, um mindestens einen DNS-Server hinzuzufügen.</string>
     <string name="custom_dns_hint">IP eingeben</string>
+    <string name="custom_list_error_list_exists">Der Name ist bereits vergeben.</string>
+    <string name="custom_lists">Eigene Listen</string>
     <string name="custom_port_dialog_placeholder">Port eingeben</string>
     <string name="custom_port_dialog_remove">Eigenen Port entfernen</string>
     <string name="custom_port_dialog_submit">Port festlegen</string>
@@ -183,6 +186,7 @@
     <string name="rented_only">Nur gemietet</string>
     <string name="report_a_problem">Problem melden</string>
     <string name="reset_to_default_button">Auf Standard zurücksetzen</string>
+    <string name="save">Speichern</string>
     <string name="search_placeholder">Suchen nach …</string>
     <string name="secure_connection">SICHERE VERBINDUNG</string>
     <string name="secured">Gesichert</string>
