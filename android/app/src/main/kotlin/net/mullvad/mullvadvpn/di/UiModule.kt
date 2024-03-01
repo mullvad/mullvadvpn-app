@@ -166,16 +166,10 @@ val uiModule = module {
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get()) }
-    viewModel { parameters ->
-        CreateCustomListDialogViewModel(parameters.get(), parameters.get(), get())
-    }
-    viewModel { parameters ->
-        CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get())
-    }
+    viewModel { parameters -> CreateCustomListDialogViewModel(parameters.get(), get()) }
+    viewModel { parameters -> CustomListLocationsViewModel(parameters.get(), get(), get()) }
     viewModel { parameters -> EditCustomListViewModel(parameters.get(), get()) }
-    viewModel { parameters ->
-        EditCustomListNameDialogViewModel(parameters.get(), parameters.get(), get())
-    }
+    viewModel { parameters -> EditCustomListNameDialogViewModel(parameters.get(), get()) }
     viewModel { CustomListsViewModel(get(), get()) }
     viewModel { parameters -> DeleteCustomListConfirmationViewModel(parameters.get(), get()) }
 

@@ -19,6 +19,7 @@ data class Dimensions(
     val cellHeightTwoRows: Dp = 72.dp,
     val cellLabelVerticalPadding: Dp = 14.dp,
     val cellStartPadding: Dp = 22.dp,
+    val cellStartPaddingInteractive: Dp = 14.dp,
     val cellTopPadding: Dp = 6.dp,
     val cellVerticalSpacing: Dp = 14.dp,
     val checkBoxSize: Dp = 24.dp,

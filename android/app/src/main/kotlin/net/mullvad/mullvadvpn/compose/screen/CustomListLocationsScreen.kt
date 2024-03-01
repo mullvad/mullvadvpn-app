@@ -28,8 +28,9 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.CheckableRelayLocationCell
-import net.mullvad.mullvadvpn.compose.communication.CustomListLocationScreenRequest
-import net.mullvad.mullvadvpn.compose.communication.CustomListLocationScreenResult
+import net.mullvad.mullvadvpn.compose.communication.CustomListRequest
+import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.parsedAction
 import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
@@ -58,13 +59,13 @@ fun PreviewCustomListLocationScreen() {
 @Destination(style = SlideInFromRightTransition::class)
 fun CustomListLocations(
     navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<CustomListLocationScreenResult>,
-    request: CustomListLocationScreenRequest,
+    backNavigator: ResultBackNavigator<CustomListResult.ListUpdated>,
+    request: CustomListRequest,
     discardChangesResultRecipient: ResultRecipient<DiscardChangesDialogDestination, Boolean>
 ) {
     val customListsViewModel =
         koinViewModel<CustomListLocationsViewModel>(
-            parameters = { parametersOf(request.customListKey, request.newList) }
+            parameters = { parametersOf(request.parsedAction()) }
         )
 
     discardChangesResultRecipient.onNavResult(
@@ -96,10 +97,10 @@ fun CustomListLocations(
         onSaveClick = customListsViewModel::save,
         onRelaySelectionClick = customListsViewModel::onRelaySelectionClick,
         onBackClick = {
-            if (state.saveEnabled.not()) {
-                backNavigator.navigateBack()
+            if (state.willDiscardChanges) {
+                navigator.navigate(DiscardChangesDialogDestination) { launchSingleTop = true }
             } else {
-                navigator.navigate(DiscardChangesDialogDestination) {}
+                backNavigator.navigateBack()
             }
         }
     )

@@ -21,6 +21,10 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.CustomListRequest
+import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.parsedAction
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationSideEffect
@@ -36,21 +40,24 @@ private fun PreviewRemoveDeviceConfirmationDialog() {
 
 @Composable
 @Destination(style = DestinationStyle.Dialog::class)
-fun DeleteCustomList(navigator: ResultBackNavigator<String>, id: String, name: String) {
+fun DeleteCustomList(
+    navigator: ResultBackNavigator<CustomListResult.ListDeleted>,
+    request: CustomListRequest
+) {
     val viewModel: DeleteCustomListConfirmationViewModel =
-        koinViewModel(parameters = { parametersOf(id) })
+        koinViewModel(parameters = { parametersOf(request.parsedAction()) })
 
     LaunchedEffect(Unit) {
         viewModel.uiSideEffect.collect {
             when (it) {
-                is DeleteCustomListConfirmationSideEffect.CloseDialog ->
-                    navigator.navigateBack(result = name)
+                is DeleteCustomListConfirmationSideEffect.ReturnWithResult ->
+                    navigator.navigateBack(result = it.result)
             }
         }
     }
 
     DeleteCustomListConfirmationDialog(
-        name = name,
+        name = request.parsedAction<CustomListAction.Delete>().name,
         onDelete = viewModel::deleteCustomList,
         onBack = { navigator.navigateBack() }
     )
