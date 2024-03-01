@@ -24,8 +24,9 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.Request
-import net.mullvad.mullvadvpn.compose.communication.Result
+import net.mullvad.mullvadvpn.compose.communication.CustomListRequest
+import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.parsedAction
 import net.mullvad.mullvadvpn.compose.destinations.CustomListLocationsDestination
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
@@ -56,11 +57,13 @@ fun PreviewCreateCustomListDialogError() {
 @Destination(style = DestinationStyle.Dialog::class)
 fun CreateCustomList(
     navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<Result<CustomListAction.Delete>>,
-    request: Request<CustomListAction.Create>
+    backNavigator: ResultBackNavigator<CustomListResult.ListCreated>,
+    request: CustomListRequest
 ) {
     val vm: CreateCustomListDialogViewModel =
-        koinViewModel(parameters = { parametersOf(request.action.locations) })
+        koinViewModel(
+            parameters = { parametersOf(request.parsedAction<CustomListAction.Create>()) }
+        )
     LaunchedEffect(key1 = Unit) {
         vm.uiSideEffect.collect { sideEffect ->
             when (sideEffect) {
@@ -69,7 +72,7 @@ fun CreateCustomList(
                     navigator.navigate(
                         CustomListLocationsDestination(
                             request =
-                                Request(
+                                CustomListRequest(
                                     action =
                                         CustomListAction.UpdateLocations(
                                             customListId = sideEffect.customListId,

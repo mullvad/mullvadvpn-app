@@ -22,8 +22,9 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
-import net.mullvad.mullvadvpn.compose.communication.EditCustomListNameDialogRequest
-import net.mullvad.mullvadvpn.compose.communication.EditCustomListNameDialogResult
+import net.mullvad.mullvadvpn.compose.communication.CustomListRequest
+import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.parsedAction
 import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -42,11 +43,11 @@ fun PreviewEditCustomListNameDialog() {
 @Composable
 @Destination(style = DestinationStyle.Dialog::class)
 fun EditCustomListName(
-    backNavigator: ResultBackNavigator<EditCustomListNameDialogResult>,
-    request: EditCustomListNameDialogRequest
+    backNavigator: ResultBackNavigator<CustomListResult.ListRenamed>,
+    request: CustomListRequest
 ) {
     val vm: EditCustomListNameDialogViewModel =
-        koinViewModel(parameters = { parametersOf(request.customListId, request.name) })
+        koinViewModel(parameters = { parametersOf(request.parsedAction()) })
     LaunchedEffect(Unit) {
         vm.uiSideEffect.collect { sideEffect ->
             when (sideEffect) {

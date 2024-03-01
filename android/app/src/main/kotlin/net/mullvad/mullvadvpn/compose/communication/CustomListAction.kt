@@ -1,26 +1,36 @@
 package net.mullvad.mullvadvpn.compose.communication
 
-import net.mullvad.mullvadvpn.relaylist.Location
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-sealed interface CustomListAction {
+sealed interface CustomListAction : Parcelable {
+
+    @Parcelize
     data class Rename(val customListId: String, val name: String) : CustomListAction {
-        fun not(oldName: String): CustomListAction = this.copy(name = oldName)
+        fun not(): CustomListAction = this
     }
 
-    data class Delete(val customListId: String) : CustomListAction {
-        fun not(name: String, locations: List<Location>): CustomListAction = Create(name, locations)
+    @Parcelize
+    data class Delete(val customListId: String, val name: String) : CustomListAction {
+        fun not(locations: List<String>): CustomListAction = Create(name, locations)
     }
 
-    data class Create(val name: String, val locations: List<Location> = emptyList()) :
-        CustomListAction {
-        fun not(customListId: String) = Delete(customListId)
+    @Parcelize
+    data class Create(
+        val name: String = "",
+        val locations: List<String> = emptyList(),
+        val locationNames: List<String> = emptyList()
+    ) : CustomListAction, Parcelable {
+        fun not(customListId: String) = Delete(customListId, name)
     }
 
-    data class UpdateLocations(val customListId: String, val newList: Boolean) : CustomListAction {
-        fun not(locations: List<Location>): CustomListAction =
-            RemoveLocations(customListId, locations)
+    @Parcelize
+    data class UpdateLocations(
+        val customListId: String,
+        val newList: Boolean = false,
+        val locations: List<String> = emptyList()
+    ) : CustomListAction {
+        fun not(locations: List<String>): CustomListAction =
+            UpdateLocations(customListId = customListId, locations = locations)
     }
-
-    data class RemoveLocations(val customListId: String, val locations: List<Location>) :
-        CustomListAction
 }
