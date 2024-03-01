@@ -264,10 +264,12 @@ pub enum UpdateCustomListResult {
 #[jnix(package = "net.mullvad.mullvadvpn.model")]
 pub enum CustomListsError {
     CustomListExists,
-    OtherError
+    OtherError,
 }
 
-impl From<Result<mullvad_types::custom_list::Id, daemon_interface::Error>> for CreateCustomListResult {
+impl From<Result<mullvad_types::custom_list::Id, daemon_interface::Error>>
+    for CreateCustomListResult
+{
     fn from(result: Result<mullvad_types::custom_list::Id, daemon_interface::Error>) -> Self {
         match result {
             Ok(id) => CreateCustomListResult::Ok(id),
@@ -1402,9 +1404,13 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_createC
             log_request_error("Failed to create custom list", error);
         }
 
-        CreateCustomListResult::from(raw_result).into_java(&env).forget()
+        CreateCustomListResult::from(raw_result)
+            .into_java(&env)
+            .forget()
     } else {
-        CreateCustomListResult::Error(CustomListsError::OtherError).into_java(&env).forget()
+        CreateCustomListResult::Error(CustomListsError::OtherError)
+            .into_java(&env)
+            .forget()
     }
 }
 
@@ -1449,9 +1455,13 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateC
             log_request_error("Failed to update custom list", error);
         }
 
-        UpdateCustomListResult::from(raw_result).into_java(&env).forget()
+        UpdateCustomListResult::from(raw_result)
+            .into_java(&env)
+            .forget()
     } else {
-        UpdateCustomListResult::Error(CustomListsError::OtherError).into_java(&env).forget()
+        UpdateCustomListResult::Error(CustomListsError::OtherError)
+            .into_java(&env)
+            .forget()
     }
 }
 
