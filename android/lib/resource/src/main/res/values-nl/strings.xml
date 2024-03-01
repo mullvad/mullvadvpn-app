@@ -15,6 +15,7 @@
     <string name="added_to_your_account">Er is %1$s toegevoegd aan uw account.</string>
     <string name="agree_and_continue">Akkoord en doorgaan</string>
     <string name="all_applications">Alle toepassingen</string>
+    <string name="all_locations">Alle locaties</string>
     <string name="all_providers">Alle aanbieders</string>
     <string name="allow_lan_footer">Biedt toegang tot andere apparaten op hetzelfde netwerk voor delen, afdrukken en dergelijke</string>
     <string name="always_on_vpn_error_notification_content">Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voor &lt;b&gt;%1$s&lt;/b&gt; voordat u Mullvad VPN gebruikt.</string>
@@ -59,6 +60,8 @@
     <string name="custom_dns_disable_mode_subtitle">Schakel alle &lt;b&gt;%1$s&lt;/b&gt; hierboven uit om deze instelling te activeren.</string>
     <string name="custom_dns_footer">Schakel in om minimaal één DNS-server toe te voegen.</string>
     <string name="custom_dns_hint">Voer IP-adres in</string>
+    <string name="custom_list_error_list_exists">Naam wordt al gebruikt.</string>
+    <string name="custom_lists">Aangepaste lijsten</string>
     <string name="custom_port_dialog_placeholder">Voer poort in</string>
     <string name="custom_port_dialog_remove">Aangepaste poort verwijderen</string>
     <string name="custom_port_dialog_submit">Poort instellen</string>
@@ -183,6 +186,7 @@
     <string name="rented_only">Alleen gehuurde</string>
     <string name="report_a_problem">Een probleem rapporteren</string>
     <string name="reset_to_default_button">Standaardwaarde herstellen</string>
+    <string name="save">Opslaan</string>
     <string name="search_placeholder">Zoeken naar...</string>
     <string name="secure_connection">BEVEILIGDE VERBINDING</string>
     <string name="secured">Beveiligd</string>

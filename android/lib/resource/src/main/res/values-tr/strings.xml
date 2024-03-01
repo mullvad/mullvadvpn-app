@@ -15,6 +15,7 @@
     <string name="added_to_your_account">Hesabınıza %1$s eklendi.</string>
     <string name="agree_and_continue">Kabul et ve devam et</string>
     <string name="all_applications">Tüm uygulamalar</string>
+    <string name="all_locations">Tüm konumlar</string>
     <string name="all_providers">Tüm hizmet sağlayıcılar</string>
     <string name="allow_lan_footer">Paylaşım, yazdırma gibi özellikler için aynı ağdaki diğer cihazlara erişim izni verir.</string>
     <string name="always_on_vpn_error_notification_content">Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen Her zaman açık VPN\'i &lt;b&gt;%1$s&lt;/b&gt; için devre dışı bırakın.</string>
@@ -59,6 +60,8 @@
     <string name="custom_dns_disable_mode_subtitle">Bu ayarı etkinleştirmek için yukarıdaki &lt;b&gt;%1$s&lt;/b&gt; öğelerinin tümünü devre dışı bırakın.</string>
     <string name="custom_dns_footer">En az bir DNS sunucusu eklemek için etkinleştirin.</string>
     <string name="custom_dns_hint">IP\'yi girin</string>
+    <string name="custom_list_error_list_exists">İsim zaten kullanılıyor.</string>
+    <string name="custom_lists">Özel listeler</string>
     <string name="custom_port_dialog_placeholder">Portu girin</string>
     <string name="custom_port_dialog_remove">Özel portu kaldır</string>
     <string name="custom_port_dialog_submit">Portu ayarla</string>
@@ -183,6 +186,7 @@
     <string name="rented_only">Sadece kiralananlar</string>
     <string name="report_a_problem">Bir sorun bildir</string>
     <string name="reset_to_default_button">Varsayılana sıfırla</string>
+    <string name="save">Kaydet</string>
     <string name="search_placeholder">Ara...</string>
     <string name="secure_connection">GÜVENLİ BAĞLANTI</string>
     <string name="secured">Güvenli</string>
