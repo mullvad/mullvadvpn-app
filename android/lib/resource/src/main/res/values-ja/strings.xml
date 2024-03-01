@@ -15,6 +15,7 @@
     <string name="added_to_your_account">アカウントに%1$s分が追加されました。</string>
     <string name="agree_and_continue">同意して続行</string>
     <string name="all_applications">すべてのアプリケーション</string>
+    <string name="all_locations">すべての場所</string>
     <string name="all_providers">すべてのプロバイダ</string>
     <string name="allow_lan_footer">共有や印刷などのため、同一ネットワーク上の他のデバイスへのアクセスを許可します。</string>
     <string name="always_on_vpn_error_notification_content">トンネル接続を開始できません。Mullvad VPNを使用する前に&lt;b&gt;%1$s&lt;/b&gt;のAlways-on VPNを無効にしてください。</string>
@@ -59,6 +60,8 @@
     <string name="custom_dns_disable_mode_subtitle">この設定を有効にするには、上記のすべての&lt;b&gt;%1$s&lt;/b&gt;を無効にしてください。</string>
     <string name="custom_dns_footer">1つ以上のDNSサーバーを追加するには有効にしてください。</string>
     <string name="custom_dns_hint">IPを入力</string>
+    <string name="custom_list_error_list_exists">名前はすでに使用されています。</string>
+    <string name="custom_lists">カスタムリスト</string>
     <string name="custom_port_dialog_placeholder">ポートを入力してください</string>
     <string name="custom_port_dialog_remove">カスタムポートを削除</string>
     <string name="custom_port_dialog_submit">ポートを設定</string>
@@ -183,6 +186,7 @@
     <string name="rented_only">レンタルサーバーのみ</string>
     <string name="report_a_problem">問題を報告する</string>
     <string name="reset_to_default_button">デフォルトにリセット</string>
+    <string name="save">保存</string>
     <string name="search_placeholder">検索...</string>
     <string name="secure_connection">セキュリティ保護された接続</string>
     <string name="secured">セキュリティ保護されています</string>

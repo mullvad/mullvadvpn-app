@@ -15,6 +15,7 @@
     <string name="added_to_your_account">已為您的帳戶新增 %1$s。</string>
     <string name="agree_and_continue">同意並繼續</string>
     <string name="all_applications">所有應用程式</string>
+    <string name="all_locations">所有位置</string>
     <string name="all_providers">所有供應商</string>
     <string name="allow_lan_footer">允許存取同一網路上的其他裝置，以進行分享、列印等。</string>
     <string name="always_on_vpn_error_notification_content">無法啟動通道連線。在使用 Mullvad VPN 之前，請先為 &lt;b&gt;%1$s&lt;/b&gt; 停用「始終啟用 VPN」。</string>
@@ -59,6 +60,8 @@
     <string name="custom_dns_disable_mode_subtitle">停用上方所有 &lt;b&gt;%1$s&lt;/b&gt;以啟動此設定。</string>
     <string name="custom_dns_footer">啟用以新增至少一個 DNS 伺服器。</string>
     <string name="custom_dns_hint">輸入 IP</string>
+    <string name="custom_list_error_list_exists">名稱已在別處使用。</string>
+    <string name="custom_lists">自訂清單</string>
     <string name="custom_port_dialog_placeholder">輸入連接埠</string>
     <string name="custom_port_dialog_remove">移除自訂連接埠</string>
     <string name="custom_port_dialog_submit">設定連接埠</string>
@@ -183,6 +186,7 @@
     <string name="rented_only">僅租用</string>
     <string name="report_a_problem">回報問題</string>
     <string name="reset_to_default_button">重設為預設值</string>
+    <string name="save">儲存</string>
     <string name="search_placeholder">搜尋…</string>
     <string name="secure_connection">安全連線</string>
     <string name="secured">安全</string>

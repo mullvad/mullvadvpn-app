@@ -15,6 +15,7 @@
     <string name="added_to_your_account">%1$s이(가) 귀하의 계정에 추가되었습니다.</string>
     <string name="agree_and_continue">동의하고 계속하기</string>
     <string name="all_applications">모든 애플리케이션</string>
+    <string name="all_locations">모든 위치</string>
     <string name="all_providers">모든 제공업체</string>
     <string name="allow_lan_footer">공유, 인쇄 등을 위해 동일한 네트워크의 다른 장치에 액세스할 수 있습니다.</string>
     <string name="always_on_vpn_error_notification_content">터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 &lt;b&gt;%1$s&lt;/b&gt;에 대한 상시 접속 VPN을 비활성화하세요.</string>
@@ -59,6 +60,8 @@
     <string name="custom_dns_disable_mode_subtitle">이 설정을 활성화하려면 위의 모든 &lt;b&gt;%1$s&lt;/b&gt;을(를) 비활성화하세요.</string>
     <string name="custom_dns_footer">하나 이상의 DNS 서버를 추가하려면 활성화합니다.</string>
     <string name="custom_dns_hint">IP 입력</string>
+    <string name="custom_list_error_list_exists">이미 사용 중인 이름입니다.</string>
+    <string name="custom_lists">사용자 지정 목록</string>
     <string name="custom_port_dialog_placeholder">포트 입력</string>
     <string name="custom_port_dialog_remove">사용자 지정 포트 제거</string>
     <string name="custom_port_dialog_submit">포트 설정</string>
@@ -183,6 +186,7 @@
     <string name="rented_only">대여만</string>
     <string name="report_a_problem">문제 신고</string>
     <string name="reset_to_default_button">기본값으로 재설정</string>
+    <string name="save">저장</string>
     <string name="search_placeholder">검색...</string>
     <string name="secure_connection">보안 연결</string>
     <string name="secured">안전함</string>
