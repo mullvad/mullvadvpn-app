@@ -8,6 +8,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.retryWhen
@@ -149,3 +150,7 @@ suspend inline fun <T> Flow<T>.retryWithExponentialBackOff(
         }
 
 class ExceptionWrapper(val item: Any) : Throwable()
+
+suspend fun <T> Flow<T>.firstOrNullWithTimeout(timeMillis: Long): T? {
+    return withTimeoutOrNull(timeMillis) { firstOrNull() }
+}

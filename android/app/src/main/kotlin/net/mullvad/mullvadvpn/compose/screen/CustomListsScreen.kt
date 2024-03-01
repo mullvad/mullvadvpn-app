@@ -83,7 +83,7 @@ fun CustomLists(
                             message =
                                 context.getString(
                                     R.string.delete_custom_list_message,
-                                    result.value
+                                    result.value.name
                                 ),
                             actionLabel = context.getString(R.string.undo),
                             duration = SnackbarDuration.Long,

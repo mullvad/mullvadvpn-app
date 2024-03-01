@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Column
@@ -368,7 +369,7 @@ fun SelectLocationScreen(
                     state.inSearch.not() &&
                     state.selectedItem != null
             ) {
-                LaunchedEffect(state.selectedItem) {
+                LaunchedEffect(state.selectedItem.code) {
                     val index = state.indexOfSelectedRelayItem()
 
                     if (index >= 0) {
@@ -452,6 +453,7 @@ private fun LazyListScope.loading() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.customLists(
     customLists: List<RelayItem.CustomList>,
     selectedItem: RelayItem?,
@@ -470,7 +472,7 @@ private fun LazyListScope.customLists(
     if (customLists.isNotEmpty()) {
         items(
             items = customLists,
-            key = { item -> item.hashCode() },
+            key = { item -> item.code },
             contentType = { ContentType.ITEM },
         ) { customList ->
             NormalRelayLocationCell(
@@ -483,7 +485,7 @@ private fun LazyListScope.customLists(
                         onShowEditBottomSheet(it)
                     }
                 },
-                modifier = Modifier.animateContentSize(),
+                modifier = Modifier.animateContentSize().animateItemPlacement(),
             )
         }
         item {
@@ -496,6 +498,7 @@ private fun LazyListScope.customLists(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.relayList(
     countries: List<RelayItem.Country>,
     selectedItem: RelayItem?,
@@ -511,7 +514,7 @@ private fun LazyListScope.relayList(
     }
     items(
         items = countries,
-        key = { item -> item.hashCode() },
+        key = { item -> item.code },
         contentType = { ContentType.ITEM },
     ) { country ->
         NormalRelayLocationCell(
@@ -519,7 +522,7 @@ private fun LazyListScope.relayList(
             selectedItem = selectedItem,
             onSelectRelay = onSelectRelay,
             onLongClick = onShowLocationBottomSheet,
-            modifier = Modifier.animateContentSize(),
+            modifier = Modifier.animateContentSize().animateItemPlacement(),
         )
     }
 }
