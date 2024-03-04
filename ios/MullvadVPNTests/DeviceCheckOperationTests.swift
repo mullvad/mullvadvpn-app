@@ -526,17 +526,6 @@ private extension StoredDeviceData {
     }
 }
 
-private extension Account {
-    static func mock(expiry: Date = .distantFuture) -> Account {
-        Account(
-            id: "account-id",
-            expiry: expiry,
-            maxDevices: 5,
-            canAddDevices: true
-        )
-    }
-}
-
 private extension KeyRotationStatus {
     /// Returns `true` if key rotation status is `.attempted`.
     var isAttempted: Bool {
