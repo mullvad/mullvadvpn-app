@@ -40,7 +40,7 @@ class SelectLocationScreenTest {
             // Arrange
             setContentWithTheme {
                 SelectLocationScreen(
-                    uiState = SelectLocationUiState.Loading,
+                    state = SelectLocationUiState.Loading,
                 )
             }
 
@@ -54,7 +54,7 @@ class SelectLocationScreenTest {
             // Arrange
             setContentWithTheme {
                 SelectLocationScreen(
-                    uiState =
+                    state =
                         SelectLocationUiState.Data(
                             relayListState =
                                 RelayListState.RelayList(
@@ -94,7 +94,7 @@ class SelectLocationScreenTest {
             // Arrange
             setContentWithTheme {
                 SelectLocationScreen(
-                    uiState =
+                    state =
                         SelectLocationUiState.Data(
                             relayListState =
                                 RelayListState.RelayList(
@@ -124,7 +124,7 @@ class SelectLocationScreenTest {
             val mockedSearchTermInput: (String) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 SelectLocationScreen(
-                    uiState =
+                    state =
                         SelectLocationUiState.Data(
                             relayListState =
                                 RelayListState.RelayList(
@@ -155,7 +155,7 @@ class SelectLocationScreenTest {
             val mockSearchString = "SEARCH"
             setContentWithTheme {
                 SelectLocationScreen(
-                    uiState =
+                    state =
                         SelectLocationUiState.Data(
                             relayListState = RelayListState.Empty,
                             selectedOwnership = null,

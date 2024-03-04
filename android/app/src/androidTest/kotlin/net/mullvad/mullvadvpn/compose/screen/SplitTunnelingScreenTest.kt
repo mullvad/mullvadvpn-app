@@ -35,7 +35,7 @@ class SplitTunnelingScreenTest {
         composeExtension.use {
             // Arrange
             setContentWithTheme {
-                SplitTunnelingScreen(uiState = SplitTunnelingUiState.Loading(enabled = true))
+                SplitTunnelingScreen(state = SplitTunnelingUiState.Loading(enabled = true))
             }
 
             // Assert
@@ -64,7 +64,7 @@ class SplitTunnelingScreenTest {
                 )
             setContentWithTheme {
                 SplitTunnelingScreen(
-                    uiState =
+                    state =
                         SplitTunnelingUiState.ShowAppList(
                             enabled = true,
                             excludedApps = listOf(excludedApp),
@@ -96,7 +96,7 @@ class SplitTunnelingScreenTest {
                 )
             setContentWithTheme {
                 SplitTunnelingScreen(
-                    uiState =
+                    state =
                         SplitTunnelingUiState.ShowAppList(
                             enabled = true,
                             excludedApps = emptyList(),
@@ -135,7 +135,7 @@ class SplitTunnelingScreenTest {
             val mockedClickHandler: (String) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 SplitTunnelingScreen(
-                    uiState =
+                    state =
                         SplitTunnelingUiState.ShowAppList(
                             enabled = true,
                             excludedApps = listOf(excludedApp),
@@ -172,7 +172,7 @@ class SplitTunnelingScreenTest {
             val mockedClickHandler: (String) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 SplitTunnelingScreen(
-                    uiState =
+                    state =
                         SplitTunnelingUiState.ShowAppList(
                             enabled = true,
                             excludedApps = listOf(excludedApp),
@@ -209,7 +209,7 @@ class SplitTunnelingScreenTest {
             val mockedClickHandler: (Boolean) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 SplitTunnelingScreen(
-                    uiState =
+                    state =
                         SplitTunnelingUiState.ShowAppList(
                             enabled = true,
                             excludedApps = listOf(excludedApp),

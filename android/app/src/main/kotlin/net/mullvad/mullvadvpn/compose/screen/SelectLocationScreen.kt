@@ -21,7 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.text.HtmlCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
@@ -75,7 +76,7 @@ private fun PreviewSelectLocationScreen() {
         )
     AppTheme {
         SelectLocationScreen(
-            uiState = state,
+            state = state,
         )
     }
 }
@@ -84,7 +85,7 @@ private fun PreviewSelectLocationScreen() {
 @Composable
 fun SelectLocation(navigator: DestinationsNavigator) {
     val vm = koinViewModel<SelectLocationViewModel>()
-    val state = vm.uiState.collectAsState().value
+    val state by vm.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
         vm.uiSideEffect.collect {
             when (it) {
@@ -94,7 +95,7 @@ fun SelectLocation(navigator: DestinationsNavigator) {
     }
 
     SelectLocationScreen(
-        uiState = state,
+        state = state,
         onSelectRelay = vm::selectRelay,
         onSearchTermInput = vm::onSearchTermInput,
         onBackClick = navigator::navigateUp,
@@ -106,7 +107,7 @@ fun SelectLocation(navigator: DestinationsNavigator) {
 
 @Composable
 fun SelectLocationScreen(
-    uiState: SelectLocationUiState,
+    state: SelectLocationUiState,
     onSelectRelay: (item: RelayItem) -> Unit = {},
     onSearchTermInput: (searchTerm: String) -> Unit = {},
     onBackClick: () -> Unit = {},
@@ -143,13 +144,13 @@ fun SelectLocationScreen(
                 }
             }
 
-            when (uiState) {
+            when (state) {
                 SelectLocationUiState.Loading -> {}
                 is SelectLocationUiState.Data -> {
-                    if (uiState.hasFilter) {
+                    if (state.hasFilter) {
                         FilterCell(
-                            ownershipFilter = uiState.selectedOwnership,
-                            selectedProviderFilter = uiState.selectedProvidersCount,
+                            ownershipFilter = state.selectedOwnership,
+                            selectedProviderFilter = state.selectedProvidersCount,
                             removeOwnershipFilter = removeOwnershipFilter,
                             removeProviderFilter = removeProviderFilter
                         )
@@ -170,12 +171,12 @@ fun SelectLocationScreen(
             Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
             val lazyListState = rememberLazyListState()
             if (
-                uiState is SelectLocationUiState.Data &&
-                    uiState.relayListState is RelayListState.RelayList &&
-                    uiState.relayListState.selectedItem != null
+                state is SelectLocationUiState.Data &&
+                    state.relayListState is RelayListState.RelayList &&
+                    state.relayListState.selectedItem != null
             ) {
-                LaunchedEffect(uiState.relayListState.selectedItem) {
-                    val index = uiState.relayListState.indexOfSelectedRelayItem()
+                LaunchedEffect(state.relayListState.selectedItem) {
+                    val index = state.relayListState.indexOfSelectedRelayItem()
 
                     if (index >= 0) {
                         lazyListState.scrollToItem(index)
@@ -193,14 +194,14 @@ fun SelectLocationScreen(
                 state = lazyListState,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                when (uiState) {
+                when (state) {
                     SelectLocationUiState.Loading -> {
                         loading()
                     }
                     is SelectLocationUiState.Data -> {
                         relayList(
-                            relayListState = uiState.relayListState,
-                            searchTerm = uiState.searchTerm,
+                            relayListState = state.relayListState,
+                            searchTerm = state.searchTerm,
                             onSelectRelay = onSelectRelay
                         )
                     }

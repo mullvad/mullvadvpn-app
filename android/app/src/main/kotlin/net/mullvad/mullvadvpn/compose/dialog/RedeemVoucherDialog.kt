@@ -12,7 +12,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
@@ -51,7 +52,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewRedeemVoucherDialog() {
     AppTheme {
         RedeemVoucherDialog(
-            uiState = VoucherDialogUiState.INITIAL,
+            state = VoucherDialogUiState.INITIAL,
             onVoucherInputChange = {},
             onRedeem = {},
             onDismiss = {}
@@ -64,7 +65,7 @@ private fun PreviewRedeemVoucherDialog() {
 private fun PreviewRedeemVoucherDialogVerifying() {
     AppTheme {
         RedeemVoucherDialog(
-            uiState = VoucherDialogUiState("", VoucherDialogState.Verifying),
+            state = VoucherDialogUiState("", VoucherDialogState.Verifying),
             onVoucherInputChange = {},
             onRedeem = {},
             onDismiss = {}
@@ -77,7 +78,7 @@ private fun PreviewRedeemVoucherDialogVerifying() {
 private fun PreviewRedeemVoucherDialogError() {
     AppTheme {
         RedeemVoucherDialog(
-            uiState = VoucherDialogUiState("", VoucherDialogState.Error("An Error message")),
+            state = VoucherDialogUiState("", VoucherDialogState.Error("An Error message")),
             onVoucherInputChange = {},
             onRedeem = {},
             onDismiss = {}
@@ -90,7 +91,7 @@ private fun PreviewRedeemVoucherDialogError() {
 private fun PreviewRedeemVoucherDialogSuccess() {
     AppTheme {
         RedeemVoucherDialog(
-            uiState = VoucherDialogUiState("", VoucherDialogState.Success(3600)),
+            state = VoucherDialogUiState("", VoucherDialogState.Success(3600)),
             onVoucherInputChange = {},
             onRedeem = {},
             onDismiss = {}
@@ -102,8 +103,9 @@ private fun PreviewRedeemVoucherDialogSuccess() {
 @Composable
 fun RedeemVoucher(resultBackNavigator: ResultBackNavigator<Boolean>) {
     val vm = koinViewModel<VoucherDialogViewModel>()
+    val state by vm.uiState.collectAsStateWithLifecycle()
     RedeemVoucherDialog(
-        uiState = vm.uiState.collectAsState().value,
+        state = state,
         onVoucherInputChange = vm::onVoucherInputChange,
         onRedeem = vm::onRedeem,
         onDismiss = { resultBackNavigator.navigateBack(result = it) }
@@ -112,37 +114,37 @@ fun RedeemVoucher(resultBackNavigator: ResultBackNavigator<Boolean>) {
 
 @Composable
 fun RedeemVoucherDialog(
-    uiState: VoucherDialogUiState,
+    state: VoucherDialogUiState,
     onVoucherInputChange: (String) -> Unit = {},
     onRedeem: (voucherCode: String) -> Unit,
     onDismiss: (isTimeAdded: Boolean) -> Unit
 ) {
     AlertDialog(
         title = {
-            if (uiState.voucherState !is VoucherDialogState.Success)
+            if (state.voucherState !is VoucherDialogState.Success)
                 Text(
                     text = stringResource(id = R.string.enter_voucher_code),
                 )
         },
         confirmButton = {
             Column {
-                if (uiState.voucherState !is VoucherDialogState.Success) {
+                if (state.voucherState !is VoucherDialogState.Success) {
                     VariantButton(
                         text = stringResource(id = R.string.redeem),
-                        onClick = { onRedeem(uiState.voucherInput) },
+                        onClick = { onRedeem(state.voucherInput) },
                         modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
-                        isEnabled = uiState.voucherInput.length == VOUCHER_LENGTH
+                        isEnabled = state.voucherInput.length == VOUCHER_LENGTH
                     )
                 }
                 PrimaryButton(
                     text =
                         stringResource(
                             id =
-                                if (uiState.voucherState is VoucherDialogState.Success)
+                                if (state.voucherState is VoucherDialogState.Success)
                                     R.string.got_it
                                 else R.string.cancel
                         ),
-                    onClick = { onDismiss(uiState.voucherState is VoucherDialogState.Success) }
+                    onClick = { onDismiss(state.voucherState is VoucherDialogState.Success) }
                 )
             }
         },
@@ -151,9 +153,9 @@ fun RedeemVoucherDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (uiState.voucherState is VoucherDialogState.Success) {
+                if (state.voucherState is VoucherDialogState.Success) {
                     val days: Int =
-                        (uiState.voucherState.addedTime / DateTimeConstants.SECONDS_PER_DAY).toInt()
+                        (state.voucherState.addedTime / DateTimeConstants.SECONDS_PER_DAY).toInt()
                     val message =
                         stringResource(
                             R.string.added_to_your_account,
@@ -177,7 +179,7 @@ fun RedeemVoucherDialog(
                 } else {
 
                     EnterVoucherBody(
-                        uiState = uiState,
+                        state = state,
                         onVoucherInputChange = onVoucherInputChange,
                         onRedeem = onRedeem
                     )
@@ -186,7 +188,7 @@ fun RedeemVoucherDialog(
         },
         containerColor = MaterialTheme.colorScheme.background,
         titleContentColor = MaterialTheme.colorScheme.onBackground,
-        onDismissRequest = { onDismiss(uiState.voucherState is VoucherDialogState.Success) },
+        onDismissRequest = { onDismiss(state.voucherState is VoucherDialogState.Success) },
         properties =
             DialogProperties(
                 securePolicy =
@@ -226,20 +228,20 @@ private fun RedeemSuccessBody(message: String) {
 
 @Composable
 private fun EnterVoucherBody(
-    uiState: VoucherDialogUiState,
+    state: VoucherDialogUiState,
     onVoucherInputChange: (String) -> Unit = {},
     onRedeem: (voucherCode: String) -> Unit
 ) {
     CustomTextField(
-        value = uiState.voucherInput,
+        value = state.voucherInput,
         onSubmit = { input ->
-            if (uiState.voucherInput.length == VOUCHER_LENGTH) {
+            if (state.voucherInput.length == VOUCHER_LENGTH) {
                 onRedeem(input)
             }
         },
         onValueChanged = { input -> onVoucherInputChange(input) },
         isValidValue =
-            uiState.voucherInput.isEmpty() || uiState.voucherInput.length == MAX_VOUCHER_LENGTH,
+            state.voucherInput.isEmpty() || state.voucherInput.length == MAX_VOUCHER_LENGTH,
         keyboardType = KeyboardType.Password,
         placeholderText = stringResource(id = R.string.voucher_hint),
         visualTransformation = vouchersVisualTransformation(),
@@ -251,7 +253,7 @@ private fun EnterVoucherBody(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.height(Dimens.listIconSize).fillMaxWidth()
     ) {
-        if (uiState.voucherState is VoucherDialogState.Verifying) {
+        if (state.voucherState is VoucherDialogState.Verifying) {
             MullvadCircularProgressIndicatorSmall()
             Text(
                 text = stringResource(id = R.string.verifying_voucher),
@@ -259,9 +261,9 @@ private fun EnterVoucherBody(
                 color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.bodySmall
             )
-        } else if (uiState.voucherState is VoucherDialogState.Error) {
+        } else if (state.voucherState is VoucherDialogState.Error) {
             Text(
-                text = uiState.voucherState.errorMessage,
+                text = state.voucherState.errorMessage,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall
             )

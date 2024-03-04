@@ -18,7 +18,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -30,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
@@ -58,7 +58,7 @@ private fun PreviewFilterScreen() {
         )
     AppTheme {
         FilterScreen(
-            uiState = state,
+            state = state,
             onSelectedOwnership = {},
             onSelectedProvider = { _, _ -> },
             onAllProviderCheckChange = {},
@@ -70,7 +70,7 @@ private fun PreviewFilterScreen() {
 @Composable
 fun FilterScreen(navigator: DestinationsNavigator) {
     val viewModel = koinViewModel<FilterViewModel>()
-    val uiState by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.uiSideEffect.collect {
@@ -80,7 +80,7 @@ fun FilterScreen(navigator: DestinationsNavigator) {
         }
     }
     FilterScreen(
-        uiState = uiState,
+        state = state,
         onBackClick = navigator::navigateUp,
         onApplyClick = viewModel::onApplyButtonClicked,
         onSelectedOwnership = viewModel::setSelectedOwnership,
@@ -91,7 +91,7 @@ fun FilterScreen(navigator: DestinationsNavigator) {
 
 @Composable
 fun FilterScreen(
-    uiState: RelayFilterState,
+    state: RelayFilterState,
     onBackClick: () -> Unit = {},
     onApplyClick: () -> Unit = {},
     onSelectedOwnership: (ownership: Ownership?) -> Unit = {},
@@ -134,7 +134,7 @@ fun FilterScreen(
             ) {
                 ApplyButton(
                     onClick = onApplyClick,
-                    isEnabled = uiState.isApplyButtonEnabled,
+                    isEnabled = state.isApplyButtonEnabled,
                     modifier =
                         Modifier.padding(
                             start = Dimens.sideMargin,
@@ -160,15 +160,15 @@ fun FilterScreen(
                 item {
                     SelectableCell(
                         title = stringResource(id = R.string.any),
-                        isSelected = uiState.selectedOwnership == null,
+                        isSelected = state.selectedOwnership == null,
                         onCellClicked = { onSelectedOwnership(null) }
                     )
                 }
-                items(uiState.filteredOwnershipByProviders) { ownership ->
+                items(state.filteredOwnershipByProviders) { ownership ->
                     Divider()
                     SelectableCell(
                         title = stringResource(id = ownership.stringResource()),
-                        isSelected = ownership == uiState.selectedOwnership,
+                        isSelected = ownership == state.selectedOwnership,
                         onCellClicked = { onSelectedOwnership(ownership) }
                     )
                 }
@@ -188,15 +188,15 @@ fun FilterScreen(
                     Divider()
                     CheckboxCell(
                         providerName = stringResource(R.string.all_providers),
-                        checked = uiState.isAllProvidersChecked,
+                        checked = state.isAllProvidersChecked,
                         onCheckedChange = { isChecked -> onAllProviderCheckChange(isChecked) }
                     )
                 }
-                items(uiState.filteredProvidersByOwnership) { provider ->
+                items(state.filteredProvidersByOwnership) { provider ->
                     Divider()
                     CheckboxCell(
                         providerName = provider.name,
-                        checked = provider in uiState.selectedProviders,
+                        checked = provider in state.selectedProviders,
                         onCheckedChange = { checked -> onSelectedProvider(checked, provider) }
                     )
                 }
