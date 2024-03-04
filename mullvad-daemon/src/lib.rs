@@ -1821,7 +1821,7 @@ where
     }
 
     /// Update the split app paths in both the settings and tunnel
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(target_os = "windows")]
     fn set_split_tunnel_paths(
         &mut self,
         tx: ResponseTx<(), Error>,
@@ -1885,6 +1885,53 @@ where
                 .tx
                 .send(InternalDaemonEvent::ExcludedPathsEvent(update, tx));
         }
+    }
+
+    /// Update the split app paths in both the settings and tunnel
+    #[cfg(target_os = "macos")]
+    fn set_split_tunnel_paths(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        _response_msg: &'static str,
+        settings: Settings,
+        update: ExcludedPathsUpdate,
+    ) {
+        let new_list = match update {
+            ExcludedPathsUpdate::SetPaths(ref paths) => paths.iter(),
+            ExcludedPathsUpdate::SetState(_) => settings.split_tunnel.apps.iter(),
+        };
+        let new_state = match update {
+            ExcludedPathsUpdate::SetPaths(_) => settings.split_tunnel.enable_exclusions,
+            ExcludedPathsUpdate::SetState(state) => state,
+        };
+
+        let tunnel_list = if new_state {
+            new_list.map(OsString::from).collect()
+        } else {
+            vec![]
+        };
+
+        let (result_tx, result_rx) = oneshot::channel();
+        self.send_tunnel_command(TunnelCommand::SetExcludedApps(result_tx, tunnel_list));
+        let daemon_tx = self.tx.clone();
+
+        tokio::spawn(async move {
+            match result_rx.await {
+                Ok(Ok(_)) => (),
+                Ok(Err(error)) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to set excluded apps list")
+                    );
+                    // NOTE: On macOS, we don't care if this fails. The tunnel will prevent us from
+                    // connecting if we're in a bad state, and we can reset it by clearing the paths
+                }
+                Err(_) => {
+                    log::error!("The tunnel failed to return a result");
+                }
+            }
+            let _ = daemon_tx.send(InternalDaemonEvent::ExcludedPathsEvent(update, tx));
+        });
     }
 
     #[cfg(any(target_os = "windows", target_os = "macos"))]
