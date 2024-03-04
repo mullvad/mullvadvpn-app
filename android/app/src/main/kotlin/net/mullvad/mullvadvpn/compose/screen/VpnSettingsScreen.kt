@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -67,6 +65,7 @@ import net.mullvad.mullvadvpn.compose.destinations.WireguardPortInfoDialogDestin
 import net.mullvad.mullvadvpn.compose.dialog.WireguardCustomPortNavArgs
 import net.mullvad.mullvadvpn.compose.dialog.WireguardPortInfoDialogArgument
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
+import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
@@ -436,7 +435,7 @@ fun VpnSettingsScreen(
             }
 
             if (state.isCustomDnsEnabled) {
-                itemsIndexed(state.customDnsItems) { index, item ->
+                itemsIndexedWithDivider(state.customDnsItems) { index, item ->
                     DnsCell(
                         address = item.address,
                         isUnreachableLocalDnsWarningVisible =
@@ -444,7 +443,6 @@ fun VpnSettingsScreen(
                         onClick = { navigateToDns(index, item.address) },
                         modifier = Modifier.animateItemPlacement()
                     )
-                    Divider()
                 }
 
                 itemWithDivider {
