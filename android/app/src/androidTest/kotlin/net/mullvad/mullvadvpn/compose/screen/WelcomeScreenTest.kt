@@ -36,7 +36,7 @@ class WelcomeScreenTest {
             // Arrange
             setContentWithTheme {
                 WelcomeScreen(
-                    uiState = WelcomeUiState(),
+                    state = WelcomeUiState(),
                     onSitePaymentClick = {},
                     onRedeemVoucherClick = {},
                     onSettingsClick = {},
@@ -58,7 +58,7 @@ class WelcomeScreenTest {
             // Arrange
             setContentWithTheme {
                 WelcomeScreen(
-                    uiState = WelcomeUiState(),
+                    state = WelcomeUiState(),
                     onSitePaymentClick = {},
                     onRedeemVoucherClick = {},
                     onSettingsClick = {},
@@ -86,7 +86,7 @@ class WelcomeScreenTest {
             val expectedAccountNumber = "1111 2222 3333 4444"
             setContentWithTheme {
                 WelcomeScreen(
-                    uiState = WelcomeUiState(accountNumber = rawAccountNumber),
+                    state = WelcomeUiState(accountNumber = rawAccountNumber),
                     onSitePaymentClick = {},
                     onRedeemVoucherClick = {},
                     onSettingsClick = {},
@@ -108,7 +108,7 @@ class WelcomeScreenTest {
             val mockClickListener: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 WelcomeScreen(
-                    uiState = WelcomeUiState(showSitePayment = true),
+                    state = WelcomeUiState(showSitePayment = true),
                     onSitePaymentClick = mockClickListener,
                     onRedeemVoucherClick = {},
                     onSettingsClick = {},
@@ -133,7 +133,7 @@ class WelcomeScreenTest {
             val mockClickListener: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 WelcomeScreen(
-                    uiState = WelcomeUiState(),
+                    state = WelcomeUiState(),
                     onSitePaymentClick = {},
                     onRedeemVoucherClick = mockClickListener,
                     onSettingsClick = {},
@@ -157,8 +157,7 @@ class WelcomeScreenTest {
             // Arrange
             setContentWithTheme {
                 WelcomeScreen(
-                    uiState =
-                        WelcomeUiState().copy(billingPaymentState = PaymentState.Error.Billing),
+                    state = WelcomeUiState().copy(billingPaymentState = PaymentState.Error.Billing),
                     onSitePaymentClick = {},
                     onRedeemVoucherClick = {},
                     onSettingsClick = {},
@@ -182,7 +181,7 @@ class WelcomeScreenTest {
             every { mockPaymentProduct.status } returns null
             setContentWithTheme {
                 WelcomeScreen(
-                    uiState =
+                    state =
                         WelcomeUiState(
                             billingPaymentState =
                                 PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
@@ -210,7 +209,7 @@ class WelcomeScreenTest {
             every { mockPaymentProduct.status } returns PaymentStatus.PENDING
             setContentWithTheme {
                 WelcomeScreen(
-                    uiState =
+                    state =
                         WelcomeUiState()
                             .copy(
                                 billingPaymentState =
@@ -240,7 +239,7 @@ class WelcomeScreenTest {
             val mockShowPendingInfo = mockk<() -> Unit>(relaxed = true)
             setContentWithTheme {
                 WelcomeScreen(
-                    uiState =
+                    state =
                         WelcomeUiState()
                             .copy(
                                 billingPaymentState =
@@ -272,7 +271,7 @@ class WelcomeScreenTest {
             every { mockPaymentProduct.status } returns PaymentStatus.VERIFICATION_IN_PROGRESS
             setContentWithTheme {
                 WelcomeScreen(
-                    uiState =
+                    state =
                         WelcomeUiState()
                             .copy(
                                 billingPaymentState =
@@ -303,7 +302,7 @@ class WelcomeScreenTest {
             every { mockPaymentProduct.status } returns null
             setContentWithTheme {
                 WelcomeScreen(
-                    uiState =
+                    state =
                         WelcomeUiState(
                             billingPaymentState =
                                 PaymentState.PaymentAvailable(listOf(mockPaymentProduct))

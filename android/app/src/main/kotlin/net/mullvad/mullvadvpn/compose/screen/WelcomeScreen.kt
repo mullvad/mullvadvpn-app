@@ -17,7 +17,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -68,7 +68,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewWelcomeScreen() {
     AppTheme {
         WelcomeScreen(
-            uiState =
+            state =
                 WelcomeUiState(
                     accountNumber = "4444555566667777",
                     deviceName = "Happy Mole",
@@ -99,7 +99,7 @@ fun Welcome(
     playPaymentResultRecipient: ResultRecipient<PaymentDestination, Boolean>
 ) {
     val vm = koinViewModel<WelcomeViewModel>()
-    val state by vm.uiState.collectAsState()
+    val state by vm.uiState.collectAsStateWithLifecycle()
 
     voucherRedeemResultRecipient.onNavResult {
         when (it) {
@@ -142,7 +142,7 @@ fun Welcome(
     }
 
     WelcomeScreen(
-        uiState = state,
+        state = state,
         onSitePaymentClick = vm::onSitePaymentClick,
         onRedeemVoucherClick = {
             navigator.navigate(RedeemVoucherDestination) { launchSingleTop = true }
@@ -163,7 +163,7 @@ fun Welcome(
 
 @Composable
 fun WelcomeScreen(
-    uiState: WelcomeUiState,
+    state: WelcomeUiState,
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onSettingsClick: () -> Unit,
@@ -177,13 +177,13 @@ fun WelcomeScreen(
 
     ScaffoldWithTopBar(
         topBarColor =
-            if (uiState.tunnelState.isSecured()) {
+            if (state.tunnelState.isSecured()) {
                 MaterialTheme.colorScheme.inversePrimary
             } else {
                 MaterialTheme.colorScheme.error
             },
         iconTintColor =
-            if (uiState.tunnelState.isSecured()) {
+            if (state.tunnelState.isSecured()) {
                     MaterialTheme.colorScheme.onPrimary
                 } else {
                     MaterialTheme.colorScheme.onError
@@ -204,14 +204,14 @@ fun WelcomeScreen(
                     )
         ) {
             // Welcome info area
-            WelcomeInfo(snackbarHostState, uiState, navigateToDeviceInfoDialog)
+            WelcomeInfo(snackbarHostState, state, navigateToDeviceInfoDialog)
 
             Spacer(modifier = Modifier.weight(1f))
 
             // Payment button area
             PaymentPanel(
-                showSitePayment = uiState.showSitePayment,
-                billingPaymentState = uiState.billingPaymentState,
+                showSitePayment = state.showSitePayment,
+                billingPaymentState = state.billingPaymentState,
                 onSitePaymentClick = onSitePaymentClick,
                 onRedeemVoucherClick = onRedeemVoucherClick,
                 onPurchaseBillingProductClick = onPurchaseBillingProductClick,
@@ -224,7 +224,7 @@ fun WelcomeScreen(
 @Composable
 private fun WelcomeInfo(
     snackbarHostState: SnackbarHostState,
-    uiState: WelcomeUiState,
+    state: WelcomeUiState,
     navigateToDeviceInfoDialog: () -> Unit
 ) {
     Column {
@@ -254,15 +254,15 @@ private fun WelcomeInfo(
             color = MaterialTheme.colorScheme.onPrimary
         )
 
-        AccountNumberRow(snackbarHostState, uiState)
+        AccountNumberRow(snackbarHostState, state)
 
-        DeviceNameRow(deviceName = uiState.deviceName, navigateToDeviceInfoDialog)
+        DeviceNameRow(deviceName = state.deviceName, navigateToDeviceInfoDialog)
 
         Text(
             text =
                 buildString {
                     append(stringResource(id = R.string.pay_to_start_using))
-                    if (uiState.showSitePayment) {
+                    if (state.showSitePayment) {
                         append(" ")
                         append(stringResource(id = R.string.add_time_to_account))
                     }
@@ -281,11 +281,11 @@ private fun WelcomeInfo(
 }
 
 @Composable
-private fun AccountNumberRow(snackbarHostState: SnackbarHostState, uiState: WelcomeUiState) {
+private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: WelcomeUiState) {
     val copiedAccountNumberMessage = stringResource(id = R.string.copied_mullvad_account_number)
     val copyToClipboard = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
     val onCopyToClipboard = {
-        copyToClipboard(uiState.accountNumber ?: "", copiedAccountNumberMessage)
+        copyToClipboard(state.accountNumber ?: "", copiedAccountNumberMessage)
     }
 
     Row(
@@ -297,7 +297,7 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, uiState: Welc
                 .padding(horizontal = Dimens.sideMargin)
     ) {
         Text(
-            text = uiState.accountNumber?.groupWithSpaces() ?: "",
+            text = state.accountNumber?.groupWithSpaces() ?: "",
             modifier = Modifier.weight(1f).padding(vertical = Dimens.smallPadding),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onPrimary

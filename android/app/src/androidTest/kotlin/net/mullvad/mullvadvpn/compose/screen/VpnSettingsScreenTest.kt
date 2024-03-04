@@ -45,7 +45,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState = VpnSettingsUiState.createDefault(),
+                    state = VpnSettingsUiState.createDefault(),
                 )
             }
 
@@ -67,7 +67,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState = VpnSettingsUiState.createDefault(mtu = VALID_DUMMY_MTU_VALUE),
+                    state = VpnSettingsUiState.createDefault(mtu = VALID_DUMMY_MTU_VALUE),
                 )
             }
 
@@ -84,7 +84,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState =
+                    state =
                         VpnSettingsUiState.createDefault(
                             isCustomDnsEnabled = true,
                             customDnsItems =
@@ -110,7 +110,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState =
+                    state =
                         VpnSettingsUiState.createDefault(
                             isCustomDnsEnabled = false,
                             customDnsItems =
@@ -131,7 +131,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState =
+                    state =
                         VpnSettingsUiState.createDefault(
                             isCustomDnsEnabled = true,
                             isLocalNetworkSharingEnabled = true,
@@ -151,7 +151,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState =
+                    state =
                         VpnSettingsUiState.createDefault(
                             isCustomDnsEnabled = true,
                             customDnsItems =
@@ -170,7 +170,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState =
+                    state =
                         VpnSettingsUiState.createDefault(
                             isCustomDnsEnabled = true,
                             customDnsItems =
@@ -189,7 +189,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState =
+                    state =
                         VpnSettingsUiState.createDefault(
                             isCustomDnsEnabled = true,
                             customDnsItems =
@@ -208,7 +208,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState =
+                    state =
                         VpnSettingsUiState.createDefault(
                             quantumResistant = QuantumResistantState.On
                         ),
@@ -230,7 +230,7 @@ class VpnSettingsScreenTest {
                 mockk(relaxed = true)
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState =
+                    state =
                         VpnSettingsUiState.createDefault(
                             quantumResistant = QuantumResistantState.Auto,
                         ),
@@ -254,7 +254,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState =
+                    state =
                         VpnSettingsUiState.createDefault(
                             selectedWireguardPort = Constraint.Only(Port(53))
                         ),
@@ -283,7 +283,7 @@ class VpnSettingsScreenTest {
                 mockk(relaxed = true)
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState =
+                    state =
                         VpnSettingsUiState.createDefault(
                             selectedWireguardPort = Constraint.Only(Port(53))
                         ),
@@ -314,7 +314,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState =
+                    state =
                         VpnSettingsUiState.createDefault(
                             customWireguardPort = Constraint.Only(Port(4000))
                         ),
@@ -336,7 +336,7 @@ class VpnSettingsScreenTest {
             val onWireguardPortSelected: (Constraint<Port>) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState =
+                    state =
                         VpnSettingsUiState.createDefault(
                             selectedWireguardPort = Constraint.Only(Port(4000)),
                             customWireguardPort = Constraint.Only(Port(4000))
@@ -363,7 +363,7 @@ class VpnSettingsScreenTest {
             val mockedClickHandler: (Int?) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState = VpnSettingsUiState.createDefault(),
+                    state = VpnSettingsUiState.createDefault(),
                     navigateToMtuDialog = mockedClickHandler
                 )
             }
@@ -385,7 +385,7 @@ class VpnSettingsScreenTest {
             val mockedClickHandler: (Int?, String?) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState = VpnSettingsUiState.createDefault(isCustomDnsEnabled = true),
+                    state = VpnSettingsUiState.createDefault(isCustomDnsEnabled = true),
                     navigateToDns = mockedClickHandler
                 )
             }
@@ -405,7 +405,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState = VpnSettingsUiState.createDefault(),
+                    state = VpnSettingsUiState.createDefault(),
                     navigateToQuantumResistanceInfo = mockedShowTunnelQuantumInfoClick
                 )
             }
@@ -428,7 +428,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState = VpnSettingsUiState.createDefault(),
+                    state = VpnSettingsUiState.createDefault(),
                     navigateToWireguardPortInfo = mockedClickHandler
                 )
             }
@@ -446,7 +446,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState = VpnSettingsUiState.createDefault(),
+                    state = VpnSettingsUiState.createDefault(),
                     navigateToWireguardPortDialog = mockedClickHandler
                 )
             }
@@ -466,7 +466,7 @@ class VpnSettingsScreenTest {
             val mockOnShowCustomPortDialog: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState = VpnSettingsUiState.createDefault(),
+                    state = VpnSettingsUiState.createDefault(),
                     navigateToWireguardPortDialog = mockOnShowCustomPortDialog
                 )
             }
@@ -487,7 +487,7 @@ class VpnSettingsScreenTest {
             val mockOnShowCustomPortDialog: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 VpnSettingsScreen(
-                    uiState =
+                    state =
                         VpnSettingsUiState.createDefault(
                             selectedWireguardPort = Constraint.Only(Port(4000))
                         ),

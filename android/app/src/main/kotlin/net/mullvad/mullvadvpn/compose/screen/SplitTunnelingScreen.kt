@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -22,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
@@ -54,7 +54,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewSplitTunnelingScreen() {
     AppTheme {
         SplitTunnelingScreen(
-            uiState =
+            state =
                 SplitTunnelingUiState.ShowAppList(
                     enabled = true,
                     excludedApps =
@@ -88,11 +88,11 @@ private fun PreviewSplitTunnelingScreen() {
 @Composable
 fun SplitTunneling(navigator: DestinationsNavigator) {
     val viewModel = koinViewModel<SplitTunnelingViewModel>()
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val packageManager = remember(context) { context.packageManager }
     SplitTunnelingScreen(
-        uiState = state,
+        state = state,
         onEnableSplitTunneling = viewModel::onEnableSplitTunneling,
         onShowSystemAppsClick = viewModel::onShowSystemAppsClick,
         onExcludeAppClick = viewModel::onExcludeAppClick,
@@ -106,7 +106,7 @@ fun SplitTunneling(navigator: DestinationsNavigator) {
 
 @Composable
 fun SplitTunnelingScreen(
-    uiState: SplitTunnelingUiState,
+    state: SplitTunnelingUiState,
     onEnableSplitTunneling: (Boolean) -> Unit = {},
     onShowSystemAppsClick: (show: Boolean) -> Unit = {},
     onExcludeAppClick: (packageName: String) -> Unit = {},
@@ -126,19 +126,16 @@ fun SplitTunnelingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             state = lazyListState
         ) {
-            enabledToggle(
-                enabled = uiState.enabled,
-                onEnableSplitTunneling = onEnableSplitTunneling
-            )
-            description(enabled = uiState.enabled)
+            enabledToggle(enabled = state.enabled, onEnableSplitTunneling = onEnableSplitTunneling)
+            description(enabled = state.enabled)
             spacer()
-            when (uiState) {
+            when (state) {
                 is SplitTunnelingUiState.Loading -> {
                     loading()
                 }
                 is SplitTunnelingUiState.ShowAppList -> {
                     appList(
-                        uiState = uiState,
+                        state = state,
                         focusManager = focusManager,
                         onShowSystemAppsClick = onShowSystemAppsClick,
                         onExcludeAppClick = onExcludeAppClick,
@@ -184,45 +181,45 @@ private fun LazyListScope.loading() {
 }
 
 private fun LazyListScope.appList(
-    uiState: SplitTunnelingUiState.ShowAppList,
+    state: SplitTunnelingUiState.ShowAppList,
     focusManager: FocusManager,
     onShowSystemAppsClick: (show: Boolean) -> Unit,
     onExcludeAppClick: (packageName: String) -> Unit,
     onIncludeAppClick: (packageName: String) -> Unit,
     onResolveIcon: (String) -> Bitmap?
 ) {
-    if (uiState.excludedApps.isNotEmpty()) {
+    if (state.excludedApps.isNotEmpty()) {
         headerItem(
             key = SplitTunnelingContentKey.EXCLUDED_APPLICATIONS,
             textId = R.string.exclude_applications,
-            enabled = uiState.enabled
+            enabled = state.enabled
         )
         appItems(
-            apps = uiState.excludedApps,
+            apps = state.excludedApps,
             focusManager = focusManager,
             onAppClick = onIncludeAppClick,
             onResolveIcon = onResolveIcon,
-            enabled = uiState.enabled,
+            enabled = state.enabled,
             excluded = true
         )
         spacer()
     }
     systemAppsToggle(
-        showSystemApps = uiState.showSystemApps,
+        showSystemApps = state.showSystemApps,
         onShowSystemAppsClick = onShowSystemAppsClick,
-        enabled = uiState.enabled
+        enabled = state.enabled
     )
     headerItem(
         key = SplitTunnelingContentKey.INCLUDED_APPLICATIONS,
         textId = R.string.all_applications,
-        enabled = uiState.enabled
+        enabled = state.enabled
     )
     appItems(
-        apps = uiState.includedApps,
+        apps = state.includedApps,
         focusManager = focusManager,
         onAppClick = onExcludeAppClick,
         onResolveIcon = onResolveIcon,
-        enabled = uiState.enabled,
+        enabled = state.enabled,
         excluded = false
     )
 }

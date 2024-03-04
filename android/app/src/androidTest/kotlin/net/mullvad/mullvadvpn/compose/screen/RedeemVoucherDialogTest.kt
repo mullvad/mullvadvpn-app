@@ -35,7 +35,7 @@ class RedeemVoucherDialogTest {
             val mockedClickHandler: (Boolean) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 RedeemVoucherDialog(
-                    uiState = VoucherDialogUiState.INITIAL,
+                    state = VoucherDialogUiState.INITIAL,
                     onVoucherInputChange = {},
                     onRedeem = {},
                     onDismiss = mockedClickHandler
@@ -56,7 +56,7 @@ class RedeemVoucherDialogTest {
             val mockedClickHandler: (Boolean) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 RedeemVoucherDialog(
-                    uiState = VoucherDialogUiState(voucherState = VoucherDialogState.Success(0)),
+                    state = VoucherDialogUiState(voucherState = VoucherDialogState.Success(0)),
                     onVoucherInputChange = {},
                     onRedeem = {},
                     onDismiss = mockedClickHandler
@@ -77,7 +77,7 @@ class RedeemVoucherDialogTest {
             val mockedClickHandler: (String) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 RedeemVoucherDialog(
-                    uiState = VoucherDialogUiState(),
+                    state = VoucherDialogUiState(),
                     onVoucherInputChange = mockedClickHandler,
                     onRedeem = {},
                     onDismiss = {}
@@ -97,7 +97,7 @@ class RedeemVoucherDialogTest {
             // Arrange
             setContentWithTheme {
                 RedeemVoucherDialog(
-                    uiState = VoucherDialogUiState(voucherState = VoucherDialogState.Verifying),
+                    state = VoucherDialogUiState(voucherState = VoucherDialogState.Verifying),
                     onVoucherInputChange = {},
                     onRedeem = {},
                     onDismiss = {}
@@ -114,7 +114,7 @@ class RedeemVoucherDialogTest {
             // Arrange
             setContentWithTheme {
                 RedeemVoucherDialog(
-                    uiState = VoucherDialogUiState(voucherState = VoucherDialogState.Success(0)),
+                    state = VoucherDialogUiState(voucherState = VoucherDialogState.Success(0)),
                     onVoucherInputChange = {},
                     onRedeem = {},
                     onDismiss = {}
@@ -131,7 +131,7 @@ class RedeemVoucherDialogTest {
             // Arrange
             setContentWithTheme {
                 RedeemVoucherDialog(
-                    uiState =
+                    state =
                         VoucherDialogUiState(
                             voucherState = VoucherDialogState.Error(ERROR_MESSAGE)
                         ),

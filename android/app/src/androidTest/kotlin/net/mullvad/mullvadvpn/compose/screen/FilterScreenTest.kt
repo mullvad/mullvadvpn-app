@@ -27,7 +27,7 @@ class FilterScreenTest {
         composeExtension.use {
             setContentWithTheme {
                 FilterScreen(
-                    uiState =
+                    state =
                         RelayFilterState(
                             allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                             selectedOwnership = null,
@@ -45,7 +45,7 @@ class FilterScreenTest {
         composeExtension.use {
             setContentWithTheme {
                 FilterScreen(
-                    uiState =
+                    state =
                         RelayFilterState(
                             allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                             selectedOwnership = null,
@@ -63,7 +63,7 @@ class FilterScreenTest {
         composeExtension.use {
             setContentWithTheme {
                 FilterScreen(
-                    uiState =
+                    state =
                         RelayFilterState(
                             allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                             selectedOwnership = Ownership.MullvadOwned,
@@ -81,7 +81,7 @@ class FilterScreenTest {
         composeExtension.use {
             setContentWithTheme {
                 FilterScreen(
-                    uiState =
+                    state =
                         RelayFilterState(
                             allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                             selectedOwnership = Ownership.Rented,
@@ -99,7 +99,7 @@ class FilterScreenTest {
         composeExtension.use {
             setContentWithTheme {
                 FilterScreen(
-                    uiState =
+                    state =
                         RelayFilterState(
                             allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                             selectedOwnership = null,
@@ -120,7 +120,7 @@ class FilterScreenTest {
             val mockClickListener: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 FilterScreen(
-                    uiState =
+                    state =
                         RelayFilterState(
                             allProviders = listOf(),
                             selectedOwnership = null,

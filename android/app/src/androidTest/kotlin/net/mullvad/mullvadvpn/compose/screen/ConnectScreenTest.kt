@@ -58,7 +58,7 @@ class ConnectScreenTest {
             // Arrange
             setContentWithTheme {
                 ConnectScreen(
-                    uiState = ConnectUiState.INITIAL,
+                    state = ConnectUiState.INITIAL,
                 )
             }
 
@@ -75,7 +75,7 @@ class ConnectScreenTest {
             // Arrange
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
@@ -109,7 +109,7 @@ class ConnectScreenTest {
             every { mockTunnelEndpoint.quantumResistant } returns true
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
@@ -144,7 +144,7 @@ class ConnectScreenTest {
             val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
@@ -176,7 +176,7 @@ class ConnectScreenTest {
             every { mockTunnelEndpoint.quantumResistant } returns true
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
@@ -209,7 +209,7 @@ class ConnectScreenTest {
             every { mockSelectedLocation.locationName } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = mockSelectedLocation,
@@ -244,7 +244,7 @@ class ConnectScreenTest {
             every { mockSelectedLocation.locationName } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = mockSelectedLocation,
@@ -277,7 +277,7 @@ class ConnectScreenTest {
             every { mockSelectedLocation.locationName } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = mockSelectedLocation,
@@ -320,7 +320,7 @@ class ConnectScreenTest {
             every { mockSelectedLocation.locationName } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = mockSelectedLocation,
@@ -361,7 +361,7 @@ class ConnectScreenTest {
             // Arrange
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
@@ -398,7 +398,7 @@ class ConnectScreenTest {
             every { mockSelectedLocation.locationName } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = mockSelectedLocation,
@@ -434,7 +434,7 @@ class ConnectScreenTest {
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = mockSelectedLocation,
@@ -468,7 +468,7 @@ class ConnectScreenTest {
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
@@ -502,7 +502,7 @@ class ConnectScreenTest {
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
@@ -535,7 +535,7 @@ class ConnectScreenTest {
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
@@ -568,7 +568,7 @@ class ConnectScreenTest {
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
@@ -609,7 +609,7 @@ class ConnectScreenTest {
             every { mockLocation.hostname } returns mockHostName
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = mockLocation,
                             selectedRelayItem = null,
@@ -650,7 +650,7 @@ class ConnectScreenTest {
                 )
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
@@ -686,7 +686,7 @@ class ConnectScreenTest {
                 )
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
@@ -719,7 +719,7 @@ class ConnectScreenTest {
             val expiryDate = DateTime(2020, 11, 11, 10, 10)
             setContentWithTheme {
                 ConnectScreen(
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
@@ -757,7 +757,7 @@ class ConnectScreenTest {
             setContentWithTheme {
                 ConnectScreen(
                     onUpdateVersionClick = mockedClickHandler,
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
@@ -791,7 +791,7 @@ class ConnectScreenTest {
             setContentWithTheme {
                 ConnectScreen(
                     onManageAccountClick = mockedClickHandler,
-                    uiState =
+                    state =
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
@@ -822,10 +822,7 @@ class ConnectScreenTest {
             // Arrange
             val onAccountClickMockk: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
-                ConnectScreen(
-                    uiState = ConnectUiState.INITIAL,
-                    onAccountClick = onAccountClickMockk
-                )
+                ConnectScreen(state = ConnectUiState.INITIAL, onAccountClick = onAccountClickMockk)
             }
 
             // Assert
