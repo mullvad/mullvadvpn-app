@@ -26,6 +26,8 @@ object Dependencies {
             "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.AndroidX.lifecycle}"
         const val lifecycleViewmodelKtx =
             "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.AndroidX.lifecycle}"
+        const val lifecycleRuntimeCompose =
+            "androidx.lifecycle:lifecycle-runtime-compose:${Versions.AndroidX.lifecycle}"
         const val espressoCore =
             "androidx.test.espresso:espresso-core:${Versions.AndroidX.espresso}"
         const val testCore = "androidx.test:core:${Versions.AndroidX.test}"
