@@ -12,15 +12,7 @@ import Foundation
 @testable import WireGuardKitTypes
 
 struct DevicesProxyStub: DeviceHandling {
-    let mockDevice = Device(
-        id: "device-id",
-        name: "Devicey McDeviceface",
-        pubkey: PrivateKey().publicKey,
-        hijackDNS: false,
-        created: Date(),
-        ipv4Address: IPAddressRange(from: "127.0.0.1/32")!,
-        ipv6Address: IPAddressRange(from: "::ff/64")!
-    )
+    let mockDevice = Device.mock(publicKey: PrivateKey().publicKey)
     func getDevice(
         accountNumber: String,
         identifier: String,

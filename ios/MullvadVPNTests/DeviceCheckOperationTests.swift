@@ -526,20 +526,6 @@ private extension StoredDeviceData {
     }
 }
 
-private extension Device {
-    static func mock(publicKey: PublicKey) -> Device {
-        Device(
-            id: "device-id",
-            name: "device-name",
-            pubkey: publicKey,
-            hijackDNS: false,
-            created: Date(),
-            ipv4Address: IPAddressRange(from: "127.0.0.1/32")!,
-            ipv6Address: IPAddressRange(from: "::ff/64")!
-        )
-    }
-}
-
 private extension Account {
     static func mock(expiry: Date = .distantFuture) -> Account {
         Account(

@@ -7,3 +7,19 @@
 //
 
 import Foundation
+import MullvadTypes
+import WireGuardKitTypes
+
+extension Device {
+    static func mock(publicKey: PublicKey) -> Device {
+        Device(
+            id: "device-id",
+            name: "Devicey McDeviceface",
+            pubkey: publicKey,
+            hijackDNS: false,
+            created: Date(),
+            ipv4Address: IPAddressRange(from: "127.0.0.1/32")!,
+            ipv6Address: IPAddressRange(from: "::ff/64")!
+        )
+    }
+}
