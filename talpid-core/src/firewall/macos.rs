@@ -1,9 +1,11 @@
 use super::{FirewallArguments, FirewallPolicy};
 use ipnetwork::IpNetwork;
+use libc::{c_int, sysctlbyname};
 use pfctl::{DropAction, FilterRuleAction, Uid};
 use std::{
     env, io,
     net::{IpAddr, Ipv4Addr},
+    ptr,
 };
 use subslice::SubsliceExt;
 use talpid_types::net::{self, AllowedEndpoint, AllowedTunnelTraffic};
@@ -131,9 +133,7 @@ impl Firewall {
 
                 if let Some(tunnel) = tunnel {
                     if let Some(redirect_interface) = redirect_interface {
-                        if enable_forwarding().is_err() {
-                            log::error!("Failed to enable forwarding");
-                        }
+                        try_enable_forwarding();
 
                         if !allowed_tunnel_traffic.all() {
                             log::warn!("Split tunneling does not respect the 'allowed tunnel traffic' setting");
@@ -183,9 +183,7 @@ impl Firewall {
                 }
 
                 if let Some(redirect_interface) = redirect_interface {
-                    if enable_forwarding().is_err() {
-                        log::error!("Failed to enable forwarding");
-                    }
+                    try_enable_forwarding();
 
                     rules.extend(self.get_allow_established_tunnel_rules(
                         &tunnel.interface,
@@ -743,17 +741,41 @@ enum RuleLogging {
     All,
 }
 
-fn enable_forwarding() -> io::Result<()> {
-    log::trace!("Enabling forwarding");
+fn try_enable_forwarding() {
+    if let Err(error) = enable_forwarding_for_family(true) {
+        log::error!("Failed to enable forwarding (IPv4): {error}");
+    }
+    if let Err(error) = enable_forwarding_for_family(false) {
+        log::error!("Failed to enable forwarding (IPv6): {error}");
+    }
+}
 
-    let mut cmd = std::process::Command::new("sysctl");
-    cmd.arg("net.inet.ip.forwarding=1");
-    let output = cmd.output()?;
-    if !output.status.success() {
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
-            "failed to enable forwarding",
-        ));
+fn enable_forwarding_for_family(ipv4: bool) -> io::Result<()> {
+    if ipv4 {
+        log::trace!("Enabling forwarding (IPv4)");
+    } else {
+        log::trace!("Enabling forwarding (IPv6)");
+    }
+
+    let mut val: c_int = 1;
+
+    let option = if ipv4 {
+        b"net.inet.ip.forwarding\0".as_ptr()
+    } else {
+        b"net.inet6.ip6.forwarding\0".as_ptr()
+    };
+
+    let result = unsafe {
+        sysctlbyname(
+            option as _,
+            ptr::null_mut(),
+            ptr::null_mut(),
+            &mut val as *mut _ as _,
+            std::mem::size_of_val(&val),
+        )
+    };
+    if result != 0 {
+        return Err(io::Error::from_raw_os_error(result));
     }
     Ok(())
 }
