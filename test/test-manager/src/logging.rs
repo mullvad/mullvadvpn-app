@@ -1,4 +1,4 @@
-use crate::tests::Error;
+use anyhow::Error;
 use colored::Colorize;
 use std::sync::{Arc, Mutex};
 use test_rpc::logging::{LogOutput, Output};

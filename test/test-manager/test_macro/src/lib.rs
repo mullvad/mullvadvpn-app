@@ -52,7 +52,7 @@ use syn::{AttributeArgs, Lit, Meta, NestedMeta};
 /// pub async fn test_function(
 ///     rpc: ServiceClient,
 ///     mut mullvad_client: mullvad_management_interface::MullvadProxyClient,
-/// ) -> Result<(), Error> {
+/// ) -> anyhow::Result<()> {
 ///     Ok(())
 /// }
 /// ```
@@ -67,7 +67,7 @@ use syn::{AttributeArgs, Lit, Meta, NestedMeta};
 /// pub async fn test_function(
 ///     rpc: ServiceClient,
 ///     mut mullvad_client: mullvad_management_interface::MullvadProxyClient,
-/// ) -> Result<(), Error> {
+/// ) -> anyhow::Result<()> {
 ///     Ok(())
 /// }
 /// ```
@@ -193,7 +193,7 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
                     use std::any::Any;
                     let mullvad_client = mullvad_client.downcast::<#mullvad_client_type>().expect("invalid mullvad client");
                     Box::pin(async move {
-                        #func_name(test_context, rpc, *mullvad_client).await
+                        Ok(#func_name(test_context, rpc, *mullvad_client).await?)
                     })
                 }
             }
@@ -204,7 +204,7 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
                 rpc: test_rpc::ServiceClient,
                 mullvad_client: Box<dyn std::any::Any + Send>| {
                     Box::pin(async move {
-                        #func_name(test_context, rpc).await
+                        Ok(#func_name(test_context, rpc).await?)
                     })
                 }
             }
