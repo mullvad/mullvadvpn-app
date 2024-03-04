@@ -6,7 +6,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
@@ -14,6 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
@@ -123,7 +123,7 @@ private fun PreviewPaymentDialogPaymentAvailabilityError() {
 @Composable
 fun Payment(productId: ProductId, resultBackNavigator: ResultBackNavigator<Boolean>) {
     val vm = koinViewModel<PaymentViewModel>()
-    val uiState = vm.uiState.collectAsState().value
+    val state by vm.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         vm.uiSideEffect.collect {
@@ -137,9 +137,10 @@ fun Payment(productId: ProductId, resultBackNavigator: ResultBackNavigator<Boole
     val context = LocalContext.current
     LaunchedEffect(Unit) { vm.startBillingPayment(productId) { context.getActivity()!! } }
 
-    if (uiState.paymentDialogData != null) {
+    val dialogData = state.paymentDialogData
+    if (dialogData != null) {
         PaymentDialog(
-            paymentDialogData = uiState.paymentDialogData,
+            paymentDialogData = dialogData,
             retryPurchase = { vm.startBillingPayment(it) { context.getActivity()!! } },
             onCloseDialog = { resultBackNavigator.navigateBack(result = it) }
         )

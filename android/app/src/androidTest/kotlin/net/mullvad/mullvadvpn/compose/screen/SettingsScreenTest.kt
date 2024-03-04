@@ -27,7 +27,7 @@ class SettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 SettingsScreen(
-                    uiState =
+                    state =
                         SettingsUiState(
                             appVersion = "",
                             isLoggedIn = true,
@@ -49,7 +49,7 @@ class SettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 SettingsScreen(
-                    uiState =
+                    state =
                         SettingsUiState(
                             appVersion = "",
                             isLoggedIn = false,

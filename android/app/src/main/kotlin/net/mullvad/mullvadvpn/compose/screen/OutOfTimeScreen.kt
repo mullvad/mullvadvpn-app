@@ -14,7 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -62,7 +63,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewOutOfTimeScreenDisconnected() {
     AppTheme {
         OutOfTimeScreen(
-            uiState =
+            state =
                 OutOfTimeUiState(
                     tunnelState = TunnelState.Disconnected(),
                     "Heroic Frog",
@@ -77,7 +78,7 @@ private fun PreviewOutOfTimeScreenDisconnected() {
 private fun PreviewOutOfTimeScreenConnecting() {
     AppTheme {
         OutOfTimeScreen(
-            uiState =
+            state =
                 OutOfTimeUiState(
                     tunnelState = TunnelState.Connecting(null, null),
                     "Strong Rabbit",
@@ -92,7 +93,7 @@ private fun PreviewOutOfTimeScreenConnecting() {
 private fun PreviewOutOfTimeScreenError() {
     AppTheme {
         OutOfTimeScreen(
-            uiState =
+            state =
                 OutOfTimeUiState(
                     tunnelState =
                         TunnelState.Error(
@@ -113,7 +114,7 @@ fun OutOfTime(
     playPaymentResultRecipient: ResultRecipient<PaymentDestination, Boolean>
 ) {
     val vm = koinViewModel<OutOfTimeViewModel>()
-    val state = vm.uiState.collectAsState().value
+    val state by vm.uiState.collectAsStateWithLifecycle()
     redeemVoucherResultRecipient.onNavResult {
         // If we successfully redeemed a voucher, navigate to Connect screen
         if (it is NavResult.Value && it.value) {
@@ -150,7 +151,7 @@ fun OutOfTime(
     }
 
     OutOfTimeScreen(
-        uiState = state,
+        state = state,
         onSitePaymentClick = vm::onSitePaymentClick,
         onRedeemVoucherClick = {
             navigator.navigate(RedeemVoucherDestination) { launchSingleTop = true }
@@ -169,7 +170,7 @@ fun OutOfTime(
 
 @Composable
 fun OutOfTimeScreen(
-    uiState: OutOfTimeUiState,
+    state: OutOfTimeUiState,
     onDisconnectClick: () -> Unit = {},
     onSitePaymentClick: () -> Unit = {},
     onRedeemVoucherClick: () -> Unit = {},
@@ -182,13 +183,13 @@ fun OutOfTimeScreen(
     val scrollState = rememberScrollState()
     ScaffoldWithTopBarAndDeviceName(
         topBarColor =
-            if (uiState.tunnelState.isSecured()) {
+            if (state.tunnelState.isSecured()) {
                 MaterialTheme.colorScheme.inversePrimary
             } else {
                 MaterialTheme.colorScheme.error
             },
         iconTintColor =
-            if (uiState.tunnelState.isSecured()) {
+            if (state.tunnelState.isSecured()) {
                     MaterialTheme.colorScheme.onPrimary
                 } else {
                     MaterialTheme.colorScheme.onError
@@ -196,7 +197,7 @@ fun OutOfTimeScreen(
                 .copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
-        deviceName = uiState.deviceName,
+        deviceName = state.deviceName,
         timeLeft = null
     ) {
         Column(
@@ -230,7 +231,7 @@ fun OutOfTimeScreen(
                 text =
                     buildString {
                         append(stringResource(R.string.account_credit_has_expired))
-                        if (uiState.showSitePayment) {
+                        if (state.showSitePayment) {
                             append(" ")
                             append(stringResource(R.string.add_time_to_account))
                         }
@@ -246,7 +247,7 @@ fun OutOfTimeScreen(
             )
             Spacer(modifier = Modifier.weight(1f).defaultMinSize(minHeight = Dimens.verticalSpace))
             // Button area
-            if (uiState.tunnelState.showDisconnectButton()) {
+            if (state.tunnelState.showDisconnectButton()) {
                 NegativeButton(
                     onClick = onDisconnectClick,
                     text = stringResource(id = R.string.disconnect),
@@ -258,9 +259,9 @@ fun OutOfTimeScreen(
                         )
                 )
             }
-            uiState.billingPaymentState?.let {
+            state.billingPaymentState?.let {
                 PlayPayment(
-                    billingPaymentState = uiState.billingPaymentState,
+                    billingPaymentState = state.billingPaymentState,
                     onPurchaseBillingProductClick = { productId ->
                         onPurchaseBillingProductClick(productId)
                     },
@@ -274,10 +275,10 @@ fun OutOfTimeScreen(
                             .align(Alignment.CenterHorizontally)
                 )
             }
-            if (uiState.showSitePayment) {
+            if (state.showSitePayment) {
                 SitePaymentButton(
                     onClick = onSitePaymentClick,
-                    isEnabled = uiState.tunnelState.enableSitePaymentButton(),
+                    isEnabled = state.tunnelState.enableSitePaymentButton(),
                     modifier =
                         Modifier.padding(
                             start = Dimens.sideMargin,
@@ -294,7 +295,7 @@ fun OutOfTimeScreen(
                         end = Dimens.sideMargin,
                         bottom = Dimens.screenVerticalMargin
                     ),
-                isEnabled = uiState.tunnelState.enableRedeemButton()
+                isEnabled = state.tunnelState.enableRedeemButton()
             )
         }
     }

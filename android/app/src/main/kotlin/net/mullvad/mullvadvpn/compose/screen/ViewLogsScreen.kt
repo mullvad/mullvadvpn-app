@@ -18,7 +18,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
@@ -49,27 +50,27 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewViewLogsScreen() {
-    AppTheme { ViewLogsScreen(uiState = ViewLogsUiState(listOf("Lorem ipsum"))) }
+    AppTheme { ViewLogsScreen(state = ViewLogsUiState(listOf("Lorem ipsum"))) }
 }
 
 @Preview
 @Composable
 private fun PreviewViewLogsLoadingScreen() {
-    AppTheme { ViewLogsScreen(uiState = ViewLogsUiState()) }
+    AppTheme { ViewLogsScreen(state = ViewLogsUiState()) }
 }
 
 @Destination(style = SlideInFromRightTransition::class)
 @Composable
 fun ViewLogs(navigator: DestinationsNavigator) {
     val vm = koinViewModel<ViewLogsViewModel>()
-    val uiState = vm.uiState.collectAsState()
-    ViewLogsScreen(uiState = uiState.value, onBackClick = navigator::navigateUp)
+    val state by vm.uiState.collectAsStateWithLifecycle()
+    ViewLogsScreen(state = state, onBackClick = navigator::navigateUp)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewLogsScreen(
-    uiState: ViewLogsUiState,
+    state: ViewLogsUiState,
     onBackClick: () -> Unit = {},
 ) {
     val context = LocalContext.current
@@ -90,15 +91,13 @@ fun ViewLogsScreen(
                 navigationIcon = { NavigateBackIconButton(onBackClick) },
                 actions = {
                     val clipboardToastMessage = stringResource(R.string.copied_logs_to_clipboard)
-                    IconButton(
-                        onClick = { clipboardHandle(uiState.text(), clipboardToastMessage) }
-                    ) {
+                    IconButton(onClick = { clipboardHandle(state.text(), clipboardToastMessage) }) {
                         Icon(
                             painter = painterResource(id = R.drawable.icon_copy),
                             contentDescription = null
                         )
                     }
-                    IconButton(onClick = { scope.launch { shareText(context, uiState.text()) } }) {
+                    IconButton(onClick = { scope.launch { shareText(context, state.text()) } }) {
                         Icon(imageVector = Icons.Default.Share, contentDescription = null)
                     }
                 }
@@ -115,24 +114,24 @@ fun ViewLogsScreen(
                         bottom = Dimens.screenVerticalMargin
                     ),
         ) {
-            if (uiState.isLoading) {
+            if (state.isLoading) {
                 MullvadCircularProgressIndicatorMedium(
                     modifier =
                         Modifier.padding(Dimens.mediumPadding).align(Alignment.CenterHorizontally),
                     color = MaterialTheme.colorScheme.primary
                 )
             } else {
-                val state = rememberLazyListState()
+                val listState = rememberLazyListState()
                 LazyColumn(
-                    state = state,
+                    state = listState,
                     modifier =
                         Modifier.drawVerticalScrollbar(
-                                state,
+                                listState,
                                 MaterialTheme.colorScheme.primary.copy(alpha = AlphaScrollbar)
                             )
                             .padding(horizontal = Dimens.smallPadding)
                 ) {
-                    items(uiState.allLines) {
+                    items(state.allLines) {
                         Text(text = it, style = MaterialTheme.typography.bodySmall)
                     }
                 }

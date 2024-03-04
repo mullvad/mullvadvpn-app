@@ -41,7 +41,7 @@ class AccountScreenTest {
             // Arrange
             setContentWithTheme {
                 AccountScreen(
-                    uiState =
+                    state =
                         AccountUiState(
                             deviceName = DUMMY_DEVICE_NAME,
                             accountNumber = DUMMY_ACCOUNT_NUMBER,
@@ -65,7 +65,7 @@ class AccountScreenTest {
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 AccountScreen(
-                    uiState =
+                    state =
                         AccountUiState(
                             showSitePayment = true,
                             deviceName = DUMMY_DEVICE_NAME,
@@ -92,7 +92,7 @@ class AccountScreenTest {
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 AccountScreen(
-                    uiState =
+                    state =
                         AccountUiState(
                             deviceName = DUMMY_DEVICE_NAME,
                             accountNumber = DUMMY_ACCOUNT_NUMBER,
@@ -119,7 +119,7 @@ class AccountScreenTest {
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 AccountScreen(
-                    uiState =
+                    state =
                         AccountUiState(
                             deviceName = DUMMY_DEVICE_NAME,
                             accountNumber = DUMMY_ACCOUNT_NUMBER,
@@ -145,7 +145,7 @@ class AccountScreenTest {
             // Arrange
             setContentWithTheme {
                 AccountScreen(
-                    uiState =
+                    state =
                         AccountUiState.default()
                             .copy(billingPaymentState = PaymentState.Error.Billing),
                     uiSideEffect =
@@ -166,7 +166,7 @@ class AccountScreenTest {
             every { mockPaymentProduct.status } returns null
             setContentWithTheme {
                 AccountScreen(
-                    uiState =
+                    state =
                         AccountUiState.default()
                             .copy(
                                 billingPaymentState =
@@ -190,7 +190,7 @@ class AccountScreenTest {
             every { mockPaymentProduct.status } returns PaymentStatus.PENDING
             setContentWithTheme {
                 AccountScreen(
-                    uiState =
+                    state =
                         AccountUiState.default()
                             .copy(
                                 billingPaymentState =
@@ -215,7 +215,7 @@ class AccountScreenTest {
             val mockNavigateToVerificationPending: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 AccountScreen(
-                    uiState =
+                    state =
                         AccountUiState.default()
                             .copy(
                                 billingPaymentState =
@@ -243,7 +243,7 @@ class AccountScreenTest {
             every { mockPaymentProduct.status } returns PaymentStatus.VERIFICATION_IN_PROGRESS
             setContentWithTheme {
                 AccountScreen(
-                    uiState =
+                    state =
                         AccountUiState.default()
                             .copy(
                                 billingPaymentState =
@@ -269,7 +269,7 @@ class AccountScreenTest {
             every { mockPaymentProduct.status } returns null
             setContentWithTheme {
                 AccountScreen(
-                    uiState =
+                    state =
                         AccountUiState.default()
                             .copy(
                                 billingPaymentState =
