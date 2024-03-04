@@ -33,7 +33,7 @@ pub type TestWrapperFunction = fn(
     TestContext,
     ServiceClient,
     Box<dyn std::any::Any + Send>,
-) -> BoxFuture<'static, Result<(), Error>>;
+) -> BoxFuture<'static, anyhow::Result<()>>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

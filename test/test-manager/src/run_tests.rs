@@ -2,9 +2,7 @@ use crate::summary::{self, maybe_log_test_result};
 use crate::tests::{config::TEST_CONFIG, TestContext};
 use crate::{
     logging::{panic_as_string, TestOutput},
-    mullvad_daemon, tests,
-    tests::Error,
-    vm,
+    mullvad_daemon, tests, vm,
 };
 use anyhow::{Context, Result};
 use futures::FutureExt;
@@ -187,7 +185,7 @@ pub async fn run_test<F, R, MullvadClient>(
 ) -> TestOutput
 where
     F: Fn(super::tests::TestContext, ServiceClient, MullvadClient) -> R,
-    R: Future<Output = Result<(), Error>>,
+    R: Future<Output = anyhow::Result<()>>,
 {
     let _flushed = runner_rpc.try_poll_output().await;
 
