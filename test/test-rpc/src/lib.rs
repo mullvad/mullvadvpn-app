@@ -148,6 +148,9 @@ mod service {
         /// Returns the IP of the given interface.
         async fn get_interface_ip(interface: String) -> Result<IpAddr, Error>;
 
+        /// Returns the MTU of the given interface.
+        async fn get_interface_mtu(interface: String) -> Result<u16, Error>;
+
         /// Returns the name of the default interface.
         async fn get_default_interface() -> Result<String, Error>;
 

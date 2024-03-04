@@ -1,4 +1,4 @@
-use super::{config::TEST_CONFIG, Error, PING_TIMEOUT, WAIT_FOR_TUNNEL_STATE_TIMEOUT};
+use super::{config::TEST_CONFIG, Error, WAIT_FOR_TUNNEL_STATE_TIMEOUT};
 use crate::network_monitor::{
     self, start_packet_monitor, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor,
 };
@@ -21,7 +21,6 @@ use std::{
 };
 use talpid_types::net::wireguard::{PeerConfig, PrivateKey, TunnelConfig};
 use test_rpc::{package::Package, AmIMullvad, ServiceClient};
-use tokio::time::timeout;
 
 #[macro_export]
 macro_rules! assert_tunnel_state {
@@ -183,13 +182,10 @@ pub async fn ping_with_timeout(
     interface: Option<String>,
 ) -> Result<(), Error> {
     const DEFAULT_PING_SIZE: usize = 64;
-    timeout(
-        PING_TIMEOUT,
-        rpc.send_ping(dest, interface, DEFAULT_PING_SIZE),
-    )
-    .await
-    .map_err(|_| Error::PingTimeout)?
-    .map_err(Error::Rpc)
+
+    rpc.send_ping(dest, interface, DEFAULT_PING_SIZE)
+        .await
+        .map_err(Error::Rpc)
 }
 
 pub async fn ping_sized_with_timeout(
@@ -198,9 +194,8 @@ pub async fn ping_sized_with_timeout(
     interface: Option<String>,
     size: usize,
 ) -> Result<(), Error> {
-    timeout(PING_TIMEOUT, rpc.send_ping(dest, interface, size))
+    rpc.send_ping(dest, interface, size)
         .await
-        .map_err(|_| Error::PingTimeout)?
         .map_err(Error::Rpc)
 }
 
@@ -522,8 +517,9 @@ impl Pinger {
         log::debug!("Monitoring outgoing traffic");
         let monitor = start_packet_monitor(
             move |packet| {
-                // NOTE: Many packets will likely be observed for API traffic. Rather than filtering all
-                // of those specifically, simply fail if our probes are observed.
+                // NOTE: Many packets will likely be observed for API traffic. Rather than filtering
+                // all of those specifically, simply fail if our probes are
+                // observed.
                 packet.source.ip() == guest_ip
                     && packet.destination.ip() == builder.destination.ip()
             },

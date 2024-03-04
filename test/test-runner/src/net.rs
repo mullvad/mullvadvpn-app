@@ -142,28 +142,28 @@ pub async fn send_ping(
     interface: Option<&str>,
     size: usize,
 ) -> Result<(), surge_ping::SurgeError> {
-    use surge_ping::{Client, Config, PingIdentifier, PingSequence};
-    // let config_builder = Config::builder().kind(surge_ping::ICMP::V4);
-    let config_builder = Config::builder();
-    let config_builder = if let Some(iface_name) = interface {
-        config_builder.interface(iface_name)
-    } else {
-        config_builder
-    };
-    // Can we import these from talpid-tunnel?
+    use surge_ping::{Client, Config, PingIdentifier, PingSequence, ICMP};
+
     const IPV4_HEADER_SIZE: usize = 20;
     const ICMP_HEADER_SIZE: usize = 8;
     let payload_size = size - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE;
     let payload: &[u8] = &vec![0; payload_size];
-    let kind = match destination {
-        IpAddr::V4(_) => surge_ping::ICMP::V4,
-        IpAddr::V6(_) => surge_ping::ICMP::V6,
+
+    let config = match destination {
+        IpAddr::V4(_) => Config::builder(),
+        IpAddr::V6(_) => Config::builder().kind(ICMP::V6),
     };
-    let config_builder = config_builder.kind(kind);
-    let mut pinger = Client::new(&config_builder.build())?
+    let config = if let Some(iface_name) = interface {
+        config.interface(iface_name)
+    } else {
+        config
+    };
+    let client = Client::new(&config.build())?;
+    let mut pinger = client
         .pinger(destination, PingIdentifier(rand::random()))
         .await;
     pinger.ping(PingSequence(0), payload).await?;
+    // surge_ping::ping(destination, payload).await?;
 
     Ok(())
 }
@@ -238,6 +238,48 @@ pub fn get_default_interface() -> &'static str {
 #[cfg(target_os = "macos")]
 pub fn get_default_interface() -> &'static str {
     "en0"
+}
+
+#[cfg(unix)]
+pub fn get_interface_mtu(interface_name: &str) -> Result<u16, test_rpc::Error> {
+    use std::os::fd::AsRawFd;
+
+    let sock = socket2::Socket::new(
+        socket2::Domain::IPV4,
+        socket2::Type::STREAM,
+        Some(socket2::Protocol::TCP),
+    )
+    .map_err(|_e| test_rpc::Error::Syscall)?; // TODO: look over error type
+
+    let mut ifr: libc::ifreq = unsafe { std::mem::zeroed() };
+    if interface_name.len() >= ifr.ifr_name.len() {
+        panic!("Interface '{interface_name}' name too long")
+    }
+
+    unsafe {
+        std::ptr::copy_nonoverlapping(
+            interface_name.as_ptr() as *const libc::c_char,
+            &mut ifr.ifr_name as *mut _,
+            interface_name.len(),
+        )
+    };
+
+    if unsafe { libc::ioctl(sock.as_raw_fd(), libc::SIOCGIFMTU, &mut ifr) } < 0 {
+        let e = std::io::Error::last_os_error();
+
+        log::error!("{}", e);
+        return Err(test_rpc::Error::Syscall); // TODO: look over error type
+    }
+    Ok(unsafe { ifr.ifr_ifru.ifru_mtu }
+        .try_into()
+        .expect("MTU should fit in u16"))
+}
+
+#[cfg(target_os = "windows")]
+pub fn get_interface_mtu(interface: &str) -> Result<u16, test_rpc::Error> {
+    talpid_windows::net::get_ip_interface_entry(talpid_windows::net::AddressFamily::Ipv4, &luid)
+        .map_err(|_error| test_rpc::Error::InterfaceNotFound)
+        .map_ok(|row| row.NlMtu)
 }
 
 fn result_from_output<E>(action: &'static str, output: Output, err: E) -> Result<(), E> {

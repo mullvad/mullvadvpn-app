@@ -5,7 +5,11 @@ use super::{
     },
     ui, Error, TestContext,
 };
-use crate::assert_tunnel_state;
+use crate::{
+    assert_tunnel_state,
+    tests::helpers::{disconnect_and_wait, ping_sized_with_timeout},
+    vm::network::linux::run_nft,
+};
 // use crate::tests::helpers::{disconnect_and_wait, ping_sized_with_timeout};
 use crate::vm::network::DUMMY_LAN_INTERFACE_IP;
 
@@ -19,97 +23,146 @@ use mullvad_types::{
     states::TunnelState,
     CustomTunnelEndpoint,
 };
-use std::net::{IpAddr, SocketAddr};
+use std::{
+    net::{IpAddr, SocketAddr},
+    time::Duration,
+};
 use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
-#[test_function]
-pub async fn test_nft(
+struct NftableGuard;
+
+#[cfg(target_os = "linux")]
+pub mod nft {
+    use super::*;
+    impl Drop for NftableGuard {
+        fn drop(&mut self) {
+            let mut cmd = std::process::Command::new("nft");
+            cmd.args(["delete", "table", "inet", "DropPings"]);
+            let output = cmd.output().unwrap();
+            if !output.status.success() {
+                panic!("{}", std::str::from_utf8(&output.stderr).unwrap());
+            }
+            Self::list_ruleset();
+        }
+    }
+
+    impl NftableGuard {
+        pub async fn new(max_packet_size: usize) -> NftableGuard {
+            let ruleset = format!(
+                "table inet DropPings {{
+            chain output {{
+                type filter hook postrouting priority 0; policy accept;
+                ip length > {max_packet_size} drop;
+              }}
+        }}"
+            );
+
+            // Set nftables ruleset
+            run_nft(&ruleset).await.unwrap();
+            Self::list_ruleset();
+            Self
+        }
+
+        fn list_ruleset() {
+            let output = std::process::Command::new("nft")
+                .args(["list", "ruleset"])
+                .output()
+                .unwrap();
+
+            log::debug!(
+                "Set NF-tables ruleset to:\n{}",
+                String::from_utf8(output.stdout).unwrap()
+            );
+
+            let exit_status = output.status;
+            assert_eq!(exit_status.code(), Some(0));
+        }
+    }
+}
+
+#[test_function(target_os = "windows")]
+pub async fn test_mtu_detection_windows(
     _: TestContext,
-    _rpc: ServiceClient,
-    _mullvad_client: MullvadProxyClient,
+    rpc: ServiceClient,
+    mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    // Plan:
-    // Assert that we are in the disconnected state
-    // Send ping or maximum size (1380?) to some external destination or the test manager
-    // Connect
-    // Send ping to the same destination and verify that it still works.
-    // Disconnect
-    // Apply firewall rule that drops pings data larger than, say 1000 bytes
-    // Verify that (only) pings over 1000 - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE are dropped
-    // Connect
-    // Verify that pings over 1000 - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE are not dropped
-    // Potentially disable the mtu detection by manually setting the mtu, then verify that it
-    // stopped working
+    test_mtu_detection(rpc, mullvad_client).await
+}
 
-    // let large_ping_size = 1400;
-    // let small_ping_size = 500;
-    // let max_packet_size = 1200;
-    //
-    // log::info!("Verify tunnel state: disconnected");
-    // assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
-    //
-    // let non_tunnel_interface = rpc
-    //     .get_default_interface()
-    //     .await
-    //     .expect("failed to obtain non-tun interface");
-    // let inet_destination = "1.3.3.7:1337".parse().unwrap();
-    // ping_sized_with_timeout(
-    //     &rpc,
-    //     inet_destination,
-    //     Some(non_tunnel_interface.clone()),
-    //     large_ping_size,
-    // )
-    // .await?;
-    // connect_and_wait(&mut mullvad_client).await?;
-    // ping_sized_with_timeout(
-    //     &rpc,
-    //     inet_destination,
-    //     Some(non_tunnel_interface.clone()),
-    //     large_ping_size,
-    // )
-    // .await?;
-    // disconnect_and_wait(&mut mullvad_client).await?;
+#[test_function(target_os = "linux")]
+pub async fn test_mtu_detection_linux(
+    _: TestContext,
+    rpc: ServiceClient,
+    mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    test_mtu_detection(rpc, mullvad_client).await
+}
 
-    const RULES: &str = "table inet DropPings {
-        chain output {
-            type filter hook output priority 0; policy accept;
-            ip length > 1000 drop;
-          }
-    }";
-    use std::process::Stdio;
-    use tokio::{io::AsyncWriteExt, process::Command};
-    {
-        let mut handle = Command::new("nft")
-            .args(["-f", "-"])
-            .stdin(Stdio::piped())
-            .stdout(Stdio::null())
-            .spawn()
-            .unwrap();
-        handle
-            .stdin
-            .take()
-            .expect("Command should have a handle to stdin")
-            .write_all(RULES.as_bytes())
-            .await
-            .unwrap();
-        let exit_status = handle.wait().await.unwrap();
-        assert_eq!(exit_status.code(), Some(0));
+async fn test_mtu_detection(
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    let large_ping_size = 1100;
+    let small_ping_size = 500;
+    let max_packet_size = 800;
+
+    log::info!("Verify tunnel state: disconnected");
+    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
+
+    let inet_destination = "45.83.223.209".parse().unwrap();
+
+    // Make sure we can reach the address
+    log::info!("Sending ping outside tunnel");
+    ping_sized_with_timeout(&rpc, inet_destination, None, large_ping_size)
+        .await
+        .expect("Ping should return when disconnected");
+    log::info!("Connecting");
+    connect_and_wait(&mut mullvad_client).await.unwrap();
+    log::info!("Sending ping inside tunnel");
+    ping_sized_with_timeout(&rpc, inet_destination, None, large_ping_size)
+        .await
+        .expect("Ping should return when connected");
+    let tunnel_iface = helpers::get_tunnel_interface(&mut mullvad_client)
+        .await
+        .expect("failed to find tunnel interface");
+    let mtu = rpc.get_interface_mtu(tunnel_iface).await?;
+    log::info!("Tunnel MTU: {mtu}");
+    assert!(mtu > 1000);
+    log::info!("Disconnecting");
+    disconnect_and_wait(&mut mullvad_client).await.unwrap();
+
+    log::info!("Setting up nftables firewall rules");
+    let _nft_guard = NftableGuard::new(max_packet_size).await;
+
+    log::info!("Sending small ping outside tunnel");
+    // Make sure that the rule we just set up actually works
+    ping_sized_with_timeout(&rpc, inet_destination, None, small_ping_size)
+        .await
+        .expect("Ping smaller than nftables filter should return");
+    log::info!("Sending large ping outside tunnel");
+    ping_sized_with_timeout(&rpc, inet_destination, None, large_ping_size)
+        .await
+        .expect_err("Ping larger than nftables filter should time out");
+    log::info!("Connecting");
+    connect_and_wait(&mut mullvad_client).await.unwrap();
+    let tunnel_iface = helpers::get_tunnel_interface(&mut mullvad_client)
+        .await
+        .expect("failed to find tunnel interface");
+
+    log::info!("Waiting for MTU detection");
+    for _ in 0..10 {
+        let mtu = rpc.get_interface_mtu(tunnel_iface.clone()).await?;
+        if mtu < 1000 {
+            println!(
+                "Tunnel MTU after dropping packets larger than {max_packet_size} bytes: {mtu}"
+            );
+            return Ok(());
+        }
+        tokio::time::sleep(Duration::from_secs(1)).await;
     }
-    {
-        let output = Command::new("nft")
-            .args(["list", "ruleset"])
-            .output()
-            .await
-            .unwrap();
-
-        println!("{}", String::from_utf8(output.stdout).unwrap());
-
-        let exit_status = output.status;
-        assert_eq!(exit_status.code(), Some(0));
-    }
-    Ok(())
+    panic!("MTU detection test failed")
 }
 
 /// Verify that outgoing TCP, UDP, and ICMP packets can be observed
