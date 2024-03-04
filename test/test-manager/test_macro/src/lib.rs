@@ -162,11 +162,14 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
         Some(priority) => quote! { Some(#priority) },
         None => quote! { None },
     };
-    let target_os = match test_function.macro_parameters.target_os {
+    let target_os = match test_function.macro_parameters.target_os.as_deref() {
+        Some("linux") => quote! { Some(::test_rpc::meta::Os::Linux) },
+        Some("macos") => quote! { Some(::test_rpc::meta::Os::Macos) },
+        Some("windows") => quote! { Some(::test_rpc::meta::Os::Windows) },
         Some(target_os) => {
-            quote! {
-                Some(::std::str::FromStr::from_str(#target_os).expect("invalid target os"))
-            }
+            return quote! {
+                compile_error!("invalid target_os: {:?}", #target_os);
+            };
         }
         None => quote! { None },
     };
@@ -214,7 +217,7 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
             command: stringify!(#func_name),
             target_os: #target_os,
             mullvad_client_version: #function_mullvad_version,
-            func: Box::new(#wrapper_closure),
+            func: #wrapper_closure,
             priority: #test_function_priority,
             always_run: #always_run,
             must_succeed: #must_succeed,
