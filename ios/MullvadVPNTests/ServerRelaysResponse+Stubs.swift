@@ -63,6 +63,12 @@ enum ServerRelaysResponseStubs {
                 latitude: 32.89748,
                 longitude: -97.040443
             ),
+            "us-nyc": REST.ServerLocation(
+                country: "USA",
+                city: "New York, NY",
+                latitude: 40.6963302,
+                longitude: -74.6034843
+            ),
         ],
         wireguard: REST.ServerWireguardTunnels(
             ipv4Gateway: .loopback,

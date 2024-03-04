@@ -59,6 +59,45 @@ class RelaySelectorTests: XCTestCase {
         XCTAssertEqual(result.relay.hostname, "se6-wireguard")
     }
 
+    func testMultipleLocationsConstraint() throws {
+        let constraints = RelayConstraints(
+            locations: .only(RelayLocations(locations: [
+                .city("se", "got"),
+                .hostname("se", "sto", "se6-wireguard"),
+            ]))
+        )
+
+        let relayWithLocations = sampleRelays.wireguard.relays.map {
+            let location = sampleRelays.locations[$0.location]!
+            let locationComponents = $0.location.split(separator: "-")
+
+            return RelayWithLocation(
+                relay: $0,
+                serverLocation: Location(
+                    country: location.country,
+                    countryCode: String(locationComponents[0]),
+                    city: location.city,
+                    cityCode: String(locationComponents[1]),
+                    latitude: location.latitude,
+                    longitude: location.longitude
+                )
+            )
+        }
+
+        let constrainedLocations = RelaySelector.applyConstraints(constraints, relays: relayWithLocations)
+
+        XCTAssertTrue(
+            constrainedLocations.contains(
+                where: { $0.matches(location: .city("se", "got")) }
+            )
+        )
+        XCTAssertTrue(
+            constrainedLocations.contains(
+                where: { $0.matches(location: .hostname("se", "sto", "se6-wireguard")) }
+            )
+        )
+    }
+
     func testSpecificPortConstraint() throws {
         let constraints = RelayConstraints(
             locations: .only(RelayLocations(locations: [.hostname("se", "sto", "se6-wireguard")])),
