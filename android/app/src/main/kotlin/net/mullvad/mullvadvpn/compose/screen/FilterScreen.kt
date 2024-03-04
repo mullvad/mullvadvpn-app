@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +35,8 @@ import net.mullvad.mullvadvpn.compose.button.ApplyButton
 import net.mullvad.mullvadvpn.compose.cell.CheckboxCell
 import net.mullvad.mullvadvpn.compose.cell.ExpandableComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
+import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
+import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.state.RelayFilterState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -146,8 +146,7 @@ fun FilterScreen(
         },
     ) { contentPadding ->
         LazyColumn(modifier = Modifier.padding(contentPadding).fillMaxSize()) {
-            item {
-                Divider()
+            itemWithDivider {
                 ExpandableComposeCell(
                     title = stringResource(R.string.ownership),
                     isExpanded = ownershipExpanded,
@@ -164,8 +163,7 @@ fun FilterScreen(
                         onCellClicked = { onSelectedOwnership(null) }
                     )
                 }
-                items(uiState.filteredOwnershipByProviders) { ownership ->
-                    Divider()
+                itemsWithDivider(uiState.filteredOwnershipByProviders) { ownership ->
                     SelectableCell(
                         title = stringResource(id = ownership.stringResource()),
                         isSelected = ownership == uiState.selectedOwnership,
@@ -173,8 +171,7 @@ fun FilterScreen(
                     )
                 }
             }
-            item {
-                Divider()
+            itemWithDivider {
                 ExpandableComposeCell(
                     title = stringResource(R.string.providers),
                     isExpanded = providerExpanded,
@@ -184,16 +181,14 @@ fun FilterScreen(
                 )
             }
             if (providerExpanded) {
-                item {
-                    Divider()
+                itemWithDivider {
                     CheckboxCell(
                         providerName = stringResource(R.string.all_providers),
                         checked = uiState.isAllProvidersChecked,
                         onCheckedChange = { isChecked -> onAllProviderCheckChange(isChecked) }
                     )
                 }
-                items(uiState.filteredProvidersByOwnership) { provider ->
-                    Divider()
+                itemsWithDivider(uiState.filteredProvidersByOwnership) { provider ->
                     CheckboxCell(
                         providerName = provider.name,
                         checked = provider in uiState.selectedProviders,
