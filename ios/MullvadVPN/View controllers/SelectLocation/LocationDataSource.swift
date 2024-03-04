@@ -26,7 +26,10 @@ final class LocationDataSource: UITableViewDiffableDataSource<SelectLocationSect
         customLists: LocationDataSourceProtocol
     ) {
         self.tableView = tableView
+
+        #if DEBUG
         self.dataSources.append(customLists)
+        #endif
         self.dataSources.append(allLocations)
 
         let locationCellFactory = LocationCellFactory(
@@ -76,14 +79,16 @@ final class LocationDataSource: UITableViewDiffableDataSource<SelectLocationSect
                 .map { LocationCellViewModel(group: group, location: $0) }
         }
 
-        updateDataSnapshot(with: list, reloadExisting: !searchString.isEmpty)
-
-        if searchString.isEmpty {
-            setSelectedRelayLocation(selectedRelayLocation, animated: false, completion: {
-                self.scrollToSelectedRelay()
-            })
-        } else {
-            scrollToTop(animated: false)
+        updateDataSnapshot(with: list, reloadExisting: !searchString.isEmpty) {
+            DispatchQueue.main.async {
+                if searchString.isEmpty {
+                    self.setSelectedRelayLocation(self.selectedRelayLocation, animated: false, completion: {
+                        self.scrollToSelectedRelay()
+                    })
+                } else {
+                    self.scrollToTop(animated: false)
+                }
+            }
         }
     }
 
