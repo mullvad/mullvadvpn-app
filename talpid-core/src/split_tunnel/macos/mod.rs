@@ -40,10 +40,16 @@ enum State {
         process: process::ProcessMonitorHandle,
     },
     Initialized {
+        route_manager: RouteManagerHandle,
         process: process::ProcessMonitorHandle,
         tun_handle: tun::SplitTunnelHandle,
     },
-    Failed,
+    /// State entered when anything at all fails. Users can force a transition out of this state
+    /// by disabling/clearing the paths to use.
+    Failed {
+        route_manager: RouteManagerHandle,
+        vpn_interface: Option<VpnInterface>,
+    },
 }
 
 impl Handle {
@@ -66,13 +72,14 @@ impl Handle {
             State::Initialized {
                 mut process,
                 tun_handle,
+                ..
             } => {
                 if let Err(error) = tun_handle.shutdown().await {
                     log::error!("Failed to stop split tunnel: {error}");
                 }
                 process.shutdown().await;
             }
-            State::Failed | State::NoExclusions { .. } => (),
+            State::Failed { .. } | State::NoExclusions { .. } => (),
         }
     }
 
@@ -87,14 +94,25 @@ impl Handle {
     /// Set paths to exclude
     pub async fn set_exclude_paths(&mut self, paths: Vec<PathBuf>) -> Result<(), Error> {
         match &mut self.state {
-            State::NoExclusions { .. } => {
+            State::NoExclusions {
+                route_manager,
+                vpn_interface,
+            } => {
                 if paths.is_empty() {
                     return Ok(());
                 }
 
                 log::debug!("Initializing process monitor");
 
-                let prev_state = std::mem::replace(&mut self.state, State::Failed);
+                let route_manager = route_manager.clone();
+                let vpn_interface = vpn_interface.clone();
+                let prev_state = std::mem::replace(
+                    &mut self.state,
+                    State::Failed {
+                        route_manager,
+                        vpn_interface,
+                    },
+                );
                 let State::NoExclusions {
                     route_manager,
                     vpn_interface,
@@ -116,7 +134,21 @@ impl Handle {
                 process.states().exclude_paths(paths);
                 Ok(())
             }
-            State::Failed => Err(Error::Unavailable),
+            State::Failed {
+                route_manager,
+                vpn_interface,
+            } => {
+                if paths.is_empty() {
+                    log::debug!("Transitioning out of split tunnel error state");
+
+                    self.state = State::NoExclusions {
+                        route_manager: route_manager.clone(),
+                        vpn_interface: vpn_interface.clone(),
+                    };
+                    return Ok(());
+                }
+                Err(Error::Unavailable)
+            }
         }
     }
 
@@ -130,9 +162,17 @@ impl Handle {
                 *vpn_interface = new_vpn_interface;
                 Ok(())
             }
-            State::Initialized { .. } => {
-                let prev_state = std::mem::replace(&mut self.state, State::Failed);
+            State::Initialized { route_manager, .. } => {
+                let route_manager = route_manager.clone();
+                let prev_state = std::mem::replace(
+                    &mut self.state,
+                    State::Failed {
+                        route_manager,
+                        vpn_interface: new_vpn_interface.clone(),
+                    },
+                );
                 let State::Initialized {
+                    route_manager,
                     mut process,
                     tun_handle,
                 } = prev_state
@@ -145,6 +185,7 @@ impl Handle {
                 match tun_handle.set_vpn_tunnel(new_vpn_interface).await {
                     Ok(tun_handle) => {
                         self.state = State::Initialized {
+                            route_manager,
                             process,
                             tun_handle,
                         };
@@ -156,15 +197,22 @@ impl Handle {
                     }
                 }
             }
-            State::HasProcessMonitor { .. } => {
+            State::HasProcessMonitor { route_manager, .. } => {
                 if new_vpn_interface.is_none() {
                     return Ok(());
                 }
 
+                let route_manager = route_manager.clone();
                 let State::HasProcessMonitor {
                     route_manager,
                     mut process,
-                } = std::mem::replace(&mut self.state, State::Failed)
+                } = std::mem::replace(
+                    &mut self.state,
+                    State::Failed {
+                        route_manager,
+                        vpn_interface: new_vpn_interface.clone(),
+                    },
+                )
                 else {
                     unreachable!("unexpected state");
                 };
@@ -172,8 +220,10 @@ impl Handle {
                 log::debug!("Initializing split tunnel device");
 
                 let states = process.states().clone();
-                let result =
-                    tun::create_split_tunnel(route_manager, new_vpn_interface, move |packet| {
+                let result = tun::create_split_tunnel(
+                    route_manager.clone(),
+                    new_vpn_interface,
+                    move |packet| {
                         match states.get_process_status(packet.header.pth_pid as u32) {
                             ExclusionStatus::Excluded => tun::RoutingDecision::DefaultInterface,
                             ExclusionStatus::Included => tun::RoutingDecision::VpnTunnel,
@@ -182,12 +232,14 @@ impl Handle {
                                 tun::RoutingDecision::Drop
                             }
                         }
-                    })
-                    .await;
+                    },
+                )
+                .await;
 
                 match result {
                     Ok(tun_handle) => {
                         self.state = State::Initialized {
+                            route_manager,
                             process,
                             tun_handle,
                         };
@@ -199,7 +251,10 @@ impl Handle {
                     }
                 }
             }
-            State::Failed => Err(Error::Unavailable),
+            State::Failed { vpn_interface, .. } => {
+                *vpn_interface = new_vpn_interface;
+                Err(Error::Unavailable)
+            }
         }
     }
 }
