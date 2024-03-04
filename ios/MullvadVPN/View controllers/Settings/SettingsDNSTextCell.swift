@@ -115,7 +115,7 @@ class SettingsDNSTextCell: SettingsCell, UITextFieldDelegate {
             textField.textMargins.left = UIMetrics.SettingsCell.textFieldNonEditingContentInsetLeft
 
             textField.textColor = .white
-            backgroundView?.backgroundColor = UIColor.SubCell.backgroundColor
+            backgroundView?.backgroundColor = UIColor.Cell.Background.indentationLevelOne
         }
     }
 

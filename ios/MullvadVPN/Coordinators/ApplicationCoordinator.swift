@@ -65,7 +65,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }()
 
     private var splitTunnelCoordinator: TunnelCoordinator?
-    private var splitLocationCoordinator: SelectLocationCoordinator?
+    private var splitLocationCoordinator: LocationCoordinator?
 
     private let tunnelManager: TunnelManager
     private let storePaymentManager: StorePaymentManager
@@ -488,17 +488,17 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private func setupSplitView() {
         let tunnelCoordinator = makeTunnelCoordinator()
-        let selectLocationCoordinator = makeSelectLocationCoordinator(forModalPresentation: false)
+        let locationCoordinator = makeLocationCoordinator(forModalPresentation: false)
 
         addChild(tunnelCoordinator)
-        addChild(selectLocationCoordinator)
+        addChild(locationCoordinator)
 
         splitTunnelCoordinator = tunnelCoordinator
-        splitLocationCoordinator = selectLocationCoordinator
+        splitLocationCoordinator = locationCoordinator
 
         splitViewController.delegate = self
         splitViewController.viewControllers = [
-            selectLocationCoordinator.navigationController,
+            locationCoordinator.navigationController,
             tunnelCoordinator.rootViewController,
         ]
 
@@ -508,7 +508,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             .safeAreaLayoutGuide
 
         tunnelCoordinator.start()
-        selectLocationCoordinator.start()
+        locationCoordinator.start()
     }
 
     private func presentTOS(animated: Bool, completion: @escaping (Coordinator) -> Void) {
@@ -634,7 +634,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func presentSelectLocation(animated: Bool, completion: @escaping (Coordinator) -> Void) {
-        let coordinator = makeSelectLocationCoordinator(forModalPresentation: true)
+        let coordinator = makeLocationCoordinator(forModalPresentation: true)
         coordinator.start()
 
         presentChild(coordinator, animated: animated) {
@@ -702,24 +702,24 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         return tunnelCoordinator
     }
 
-    private func makeSelectLocationCoordinator(forModalPresentation isModalPresentation: Bool)
-        -> SelectLocationCoordinator {
+    private func makeLocationCoordinator(forModalPresentation isModalPresentation: Bool)
+        -> LocationCoordinator {
         let navigationController = CustomNavigationController()
         navigationController.isNavigationBarHidden = !isModalPresentation
 
-        let selectLocationCoordinator = SelectLocationCoordinator(
+        let locationCoordinator = LocationCoordinator(
             navigationController: navigationController,
             tunnelManager: tunnelManager,
             relayCacheTracker: relayCacheTracker
         )
 
-        selectLocationCoordinator.didFinish = { [weak self] _, _ in
+        locationCoordinator.didFinish = { [weak self] _ in
             if isModalPresentation {
                 self?.router.dismiss(.selectLocation, animated: true)
             }
         }
 
-        return selectLocationCoordinator
+        return locationCoordinator
     }
 
     private func presentAccount(animated: Bool, completion: @escaping (Coordinator) -> Void) {

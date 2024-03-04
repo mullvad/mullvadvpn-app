@@ -20,7 +20,7 @@ class SelectableSettingsCell: SettingsCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         setLeftView(tickImageView, spacing: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
-        selectedBackgroundView?.backgroundColor = UIColor.Cell.selectedBackgroundColor
+        selectedBackgroundView?.backgroundColor = UIColor.Cell.Background.selected
     }
 
     required init?(coder: NSCoder) {
