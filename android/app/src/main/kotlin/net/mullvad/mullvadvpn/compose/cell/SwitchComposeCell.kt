@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -118,12 +119,12 @@ private fun SwitchComposeCell(
     modifier: Modifier = Modifier,
 ) {
     BaseCell(
-        modifier = modifier,
+        modifier = modifier.focusProperties { canFocus = false },
         title = titleView,
         isRowEnabled = isEnabled,
         bodyView = {
             SwitchCellView(
-                onSwitchClicked = null,
+                onSwitchClicked = onCellClicked,
                 isEnabled = isEnabled,
                 isToggled = isToggled,
                 onInfoClicked = onInfoClicked

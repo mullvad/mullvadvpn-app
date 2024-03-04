@@ -4,6 +4,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -15,12 +16,11 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaChevron
 
 @Composable
-fun ChevronView(
+fun Chevron(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaChevron),
     isExpanded: Boolean
 ) {
-    val resourceId = R.drawable.icon_chevron
 
     val degree = remember(isExpanded) { if (isExpanded) 270f else 90f }
     val animatedRotation =
@@ -31,9 +31,21 @@ fun ChevronView(
         )
 
     Icon(
-        painterResource(id = resourceId),
+        painterResource(id = R.drawable.icon_chevron),
         contentDescription = null,
         tint = color,
         modifier = modifier.rotate(animatedRotation.value),
     )
+}
+
+@Composable
+fun ChevronButton(
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaChevron),
+    onExpand: (Boolean) -> Unit,
+    isExpanded: Boolean
+) {
+    IconButton(modifier = modifier, onClick = { onExpand(!isExpanded) }) {
+        Chevron(isExpanded = isExpanded, color = color)
+    }
 }
