@@ -334,7 +334,7 @@ where
     Ok(())
 }
 
-async fn run_nft(input: &str) -> Result<()> {
+pub async fn run_nft(input: &str) -> Result<()> {
     let mut cmd = Command::new("nft");
     cmd.args(["-f", "-"]);
 
