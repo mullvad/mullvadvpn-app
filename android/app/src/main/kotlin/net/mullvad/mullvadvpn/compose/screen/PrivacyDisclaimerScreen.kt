@@ -109,6 +109,7 @@ fun PrivacyDisclaimer(
     PrivacyDisclaimerScreen(state, {}, viewModel::setPrivacyDisclosureAccepted)
 }
 
+@Suppress("LongMethod")
 @Composable
 fun PrivacyDisclaimerScreen(
     state: PrivacyDisclaimerViewState,

@@ -158,6 +158,7 @@ fun Connect(navigator: DestinationsNavigator) {
     )
 }
 
+@Suppress("LongMethod")
 @Composable
 fun ConnectScreen(
     state: ConnectUiState,

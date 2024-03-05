@@ -205,6 +205,7 @@ private fun LoginScreen(
     }
 }
 
+@Suppress("LongMethod")
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
 private fun LoginContent(
