@@ -1,23 +1,183 @@
-use super::helpers::{
-    self, connect_and_wait, send_guest_probes, set_relay_settings, unreachable_wireguard_tunnel,
-    wait_for_tunnel_state,
+use super::{
+    helpers::{
+        self, connect_and_wait, send_guest_probes, set_relay_settings,
+        unreachable_wireguard_tunnel, wait_for_tunnel_state,
+    },
+    ui, Error, TestContext,
 };
-use super::{ui, Error, TestContext};
-use crate::assert_tunnel_state;
+use crate::{
+    assert_tunnel_state,
+    tests::helpers::{disconnect_and_wait, ping_sized_with_timeout},
+};
+// use crate::tests::helpers::{disconnect_and_wait, ping_sized_with_timeout};
 use crate::vm::network::DUMMY_LAN_INTERFACE_IP;
 
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::relay_constraints::GeographicLocationConstraint;
-use mullvad_types::relay_list::{Relay, RelayEndpointData};
-use mullvad_types::CustomTunnelEndpoint;
 use mullvad_types::{
-    relay_constraints::{Constraint, LocationConstraint, RelayConstraints, RelaySettings},
+    relay_constraints::{
+        Constraint, GeographicLocationConstraint, LocationConstraint, RelayConstraints,
+        RelaySettings,
+    },
+    relay_list::{Relay, RelayEndpointData},
     states::TunnelState,
+    CustomTunnelEndpoint,
 };
-use std::net::{IpAddr, SocketAddr};
+use std::{
+    net::{IpAddr, SocketAddr},
+    time::Duration,
+};
 use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
+
+struct DropPingFirewallGuard;
+
+#[cfg(target_os = "linux")]
+pub mod nft {
+    use super::*;
+    impl Drop for DropPingFirewallGuard {
+        fn drop(&mut self) {
+            let mut cmd = std::process::Command::new("nft");
+            cmd.args(["delete", "table", "inet", "DropPings"]);
+            let output = cmd.output().unwrap();
+            if !output.status.success() {
+                panic!("{}", std::str::from_utf8(&output.stderr).unwrap());
+            }
+            Self::list_ruleset();
+        }
+    }
+
+    impl DropPingFirewallGuard {
+        pub async fn new(max_packet_size: usize) -> DropPingFirewallGuard {
+            let ruleset = format!(
+                "table inet DropPings {{
+            chain output {{
+                type filter hook postrouting priority 0; policy accept;
+                ip length > {max_packet_size} drop;
+              }}
+        }}"
+            );
+
+            // Set nftables ruleset
+            crate::vm::network::linux::run_nft(&ruleset).await.unwrap();
+            Self::list_ruleset();
+            Self
+        }
+
+        fn list_ruleset() {
+            let output = std::process::Command::new("nft")
+                .args(["list", "ruleset"])
+                .output()
+                .unwrap();
+
+            log::debug!(
+                "Set NF-tables ruleset to:\n{}",
+                String::from_utf8(output.stdout).unwrap()
+            );
+
+            let exit_status = output.status;
+            assert_eq!(exit_status.code(), Some(0));
+        }
+    }
+}
+
+#[cfg(target_os = "macos")]
+pub mod PacketFilter {
+    use super::*;
+    impl Drop for DropPingFirewallGuard {
+        fn drop(&mut self) {
+            todo!("Clean up PacketFilter ruleset")
+        }
+    }
+
+    impl DropPingFirewallGuard {
+        #[allow(clippy::unused_async)]
+        pub async fn new(_max_packet_size: usize) -> DropPingFirewallGuard {
+            todo!("Set up PacketFilter ruleset")
+        }
+
+        fn list_ruleset() {
+            todo!("Print ruleset")
+        }
+    }
+}
+
+#[test_function(target_os = "windows")]
+pub async fn test_mtu_detection_windows(
+    _: TestContext,
+    rpc: ServiceClient,
+    mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    test_mtu_detection(rpc, mullvad_client).await
+}
+
+#[test_function(target_os = "linux")]
+pub async fn test_mtu_detection_linux(
+    _: TestContext,
+    rpc: ServiceClient,
+    mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    test_mtu_detection(rpc, mullvad_client).await
+}
+
+async fn test_mtu_detection(
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    let large_ping_size = 1100;
+    let small_ping_size = 500;
+    let max_packet_size = 800;
+
+    log::info!("Verify tunnel state: disconnected");
+    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
+
+    let inet_destination = "45.83.223.209".parse().unwrap();
+
+    // Make sure we can reach the address
+    log::info!("Sending ping outside tunnel");
+    ping_sized_with_timeout(&rpc, inet_destination, None, large_ping_size)
+        .await
+        .expect("Ping should return when disconnected");
+    log::info!("Connecting");
+    connect_and_wait(&mut mullvad_client).await.unwrap();
+    log::info!("Sending ping inside tunnel");
+    ping_sized_with_timeout(&rpc, inet_destination, None, large_ping_size)
+        .await
+        .expect("Ping should return when connected");
+    let tunnel_iface = helpers::get_tunnel_interface(&mut mullvad_client)
+        .await
+        .expect("failed to find tunnel interface");
+    let mtu = rpc.get_interface_mtu(tunnel_iface).await?;
+    log::info!("Tunnel MTU: {mtu}");
+    assert!(mtu > 1000);
+    log::info!("Disconnecting");
+    disconnect_and_wait(&mut mullvad_client).await.unwrap();
+
+    // Test that the firewall rules are working
+    log::info!("Sending large ping outside tunnel");
+    ping_sized_with_timeout(&rpc, inet_destination, None, large_ping_size)
+        .await
+        .expect_err("Ping larger than nftables filter should time out");
+
+    log::info!("Connecting");
+    connect_and_wait(&mut mullvad_client).await.unwrap();
+    let tunnel_iface = helpers::get_tunnel_interface(&mut mullvad_client)
+        .await
+        .expect("failed to find tunnel interface");
+
+    log::info!("Waiting for MTU detection");
+    for _ in 0..10 {
+        let mtu = rpc.get_interface_mtu(tunnel_iface.clone()).await?;
+        if mtu < 1000 {
+            println!(
+                "Tunnel MTU after dropping packets larger than {max_packet_size} bytes: {mtu}"
+            );
+            return Ok(());
+        }
+        tokio::time::sleep(Duration::from_secs(1)).await;
+    }
+    panic!("MTU detection test failed")
+}
 
 /// Verify that outgoing TCP, UDP, and ICMP packets can be observed
 /// in the disconnected state. The purpose is mostly to rule prevent
@@ -51,7 +211,6 @@ pub async fn test_disconnected_state(
         "did not see (all) outgoing packets to destination: {detected_probes:?}",
     );
 
-    //
     // Test UI view
     //
 
@@ -118,7 +277,6 @@ pub async fn test_connecting_state(
         new_state
     );
 
-    //
     // Leak test
     //
 
@@ -197,7 +355,6 @@ pub async fn test_error_state(
     let _ = connect_and_wait(&mut mullvad_client).await;
     assert_tunnel_state!(&mut mullvad_client, TunnelState::Error { .. });
 
-    //
     // Leak test
     //
 
@@ -235,12 +392,11 @@ pub async fn test_error_state(
 }
 
 /// Connect to a single relay and verify that:
-/// * Traffic can be sent and received in the tunnel.
-///   This is done by pinging a single public IP address
-///   and failing if there is no response.
+/// * Traffic can be sent and received in the tunnel. This is done by pinging a single public IP
+///   address and failing if there is no response.
 /// * The correct relay is used.
-/// * Leaks outside the tunnel are blocked. Refer to the
-///   `test_connecting_state` documentation for details.
+/// * Leaks outside the tunnel are blocked. Refer to the `test_connecting_state` documentation for
+///   details.
 #[test_function]
 pub async fn test_connected_state(
     _: TestContext,
@@ -249,7 +405,6 @@ pub async fn test_connected_state(
 ) -> Result<(), Error> {
     let inet_destination = "1.1.1.1:1337".parse().unwrap();
 
-    //
     // Set relay to use
     //
 
@@ -273,13 +428,11 @@ pub async fn test_connected_state(
         .await
         .expect("failed to update relay settings");
 
-    //
     // Connect
     //
 
     connect_and_wait(&mut mullvad_client).await?;
 
-    //
     // Verify that endpoint was selected
     //
 
@@ -307,7 +460,6 @@ pub async fn test_connected_state(
         actual => panic!("unexpected tunnel state: {:?}", actual),
     }
 
-    //
     // Ping outside of tunnel while connected
     //
 
