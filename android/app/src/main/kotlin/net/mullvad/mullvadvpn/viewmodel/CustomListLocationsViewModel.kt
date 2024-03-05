@@ -87,7 +87,13 @@ class CustomListLocationsViewModel(
                         )
                     )
                 _uiSideEffect.tryEmit(
-                    CustomListLocationsSideEffect.ReturnWithResult(result.getOrThrow())
+                    // This is so that we don't show a snackbar after returning to the select
+                    // location screen
+                    if (newList) {
+                        CustomListLocationsSideEffect.CloseScreen
+                    } else {
+                        CustomListLocationsSideEffect.ReturnWithResult(result.getOrThrow())
+                    }
                 )
             }
         }
@@ -203,6 +209,8 @@ class CustomListLocationsViewModel(
 }
 
 sealed interface CustomListLocationsSideEffect {
+    data object CloseScreen : CustomListLocationsSideEffect
+
     data class ReturnWithResult(val result: CustomListResult.LocationsChanged) :
         CustomListLocationsSideEffect
 }
