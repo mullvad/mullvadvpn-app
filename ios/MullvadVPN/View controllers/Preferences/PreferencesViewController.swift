@@ -32,6 +32,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        tableView.accessibilityIdentifier = .vpnSettingsTableView
         tableView.backgroundColor = .secondaryColor
         tableView.separatorColor = .secondaryColor
         tableView.rowHeight = UITableView.automaticDimension

@@ -16,6 +16,13 @@ class SettingsPage: Page {
         self.pageAccessibilityIdentifier = .settingsTableView
     }
 
+    @discardableResult func tapDoneButton() -> Self {
+        app.buttons[AccessibilityIdentifier.settingsDoneButton]
+            .tap()
+
+        return self
+    }
+
     @discardableResult func tapVPNSettingsCell() -> Self {
         app.tables[AccessibilityIdentifier.settingsTableView]
             .cells[AccessibilityIdentifier.preferencesCell]

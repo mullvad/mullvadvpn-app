@@ -33,6 +33,8 @@ public enum AccessibilityIdentifier: String {
     case startUsingTheAppButton
     case problemReportAppLogsButton
     case problemReportSendButton
+    case relayStatusCollapseButton
+    case settingsDoneButton
 
     // Cells
     case preferencesCell
@@ -43,10 +45,15 @@ public enum AccessibilityIdentifier: String {
     case ipOverrideCell
     case relayFilterOwnershipCell
     case relayFilterProviderCell
+    case wireGuardPortsCell
+    case wireGuardObfuscationCell
+    case udpOverTCPPortCell
+    case quantumResistantTunnelCell
 
     // Labels
     case headerDeviceNameLabel
     case connectionStatusLabel
+    case connectionPanelDetailLabel
 
     // Views
     case accountView
@@ -58,14 +65,17 @@ public enum AccessibilityIdentifier: String {
     case selectLocationView
     case selectLocationTableView
     case settingsTableView
+    case vpnSettingsTableView
     case tunnelControlView
     case problemReportView
     case problemReportSubmittedView
+    case settingsContainerView
 
     // Other UI elements
     case connectionPanelInAddressRow
     case connectionPanelOutAddressRow
     case customSwitch
+    case customWireGuardPortTextField
     case dnsContentBlockersHeaderView
     case loginTextField
     case selectLocationSearchTextField

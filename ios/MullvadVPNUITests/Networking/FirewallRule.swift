@@ -30,6 +30,10 @@ struct FirewallRule {
         self.protocols = protocols
     }
 
+    public func protocolsAsStringArray() -> [String] {
+        return protocols.map { $0.rawValue }
+    }
+
     /// Make a firewall rule blocking API access for the current device under test
     public static func makeBlockAPIAccessFirewallRule() throws -> FirewallRule {
         let deviceIPAddress = try Networking.getIPAddress()
@@ -37,7 +41,17 @@ struct FirewallRule {
         return FirewallRule(
             fromIPAddress: deviceIPAddress,
             toIPAddress: apiIPAddress,
-            protocols: [NetworkingProtocol.TCP]
+            protocols: [.TCP]
+        )
+    }
+
+    public static func makeBlockUDPTrafficRule(toIPAddress: String) throws -> FirewallRule {
+        let deviceIPAddress = try Networking.getIPAddress()
+
+        return FirewallRule(
+            fromIPAddress: deviceIPAddress,
+            toIPAddress: toIPAddress,
+            protocols: [.UDP]
         )
     }
 }
