@@ -19,6 +19,9 @@ sealed interface SelectLocationUiState {
     ) : SelectLocationUiState {
         val hasFilter: Boolean = (selectedProvidersCount != null || selectedOwnership != null)
         val inSearch = searchTerm.length >= MIN_SEARCH_LENGTH
-        val showCustomLists = inSearch.not() || customLists.isNotEmpty()
+        val showCustomLists = inSearch.not() || filteredCustomLists.isNotEmpty()
+        // Show empty state if we don't have any relays or if we are searching and no custom list or
+        // relay is found
+        val showEmpty = countries.isEmpty() && (inSearch.not() || filteredCustomLists.isEmpty())
     }
 }

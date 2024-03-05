@@ -126,17 +126,6 @@ fun CustomListsScreen(
         navigationIcon = { NavigateBackIconButton(onBackClick) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                modifier =
-                    Modifier.shadow(
-                            elevation = 3.dp,
-                            spotColor = Color(0x4D000000),
-                            ambientColor = Color(0x4D000000)
-                        )
-                        .shadow(
-                            elevation = 8.dp,
-                            spotColor = Color(0x26000000),
-                            ambientColor = Color(0x26000000)
-                        ),
                 onClick = addCustomList,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
