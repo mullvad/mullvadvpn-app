@@ -44,6 +44,7 @@
 		449872E42B7CB96300094DDC /* TunnelSettingsUpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449872E32B7CB96300094DDC /* TunnelSettingsUpdateTests.swift */; };
 		449EB9FD2B95F8AD00DFA4EB /* DeviceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449EB9FC2B95F8AD00DFA4EB /* DeviceMock.swift */; };
 		449EB9FF2B95FF2500DFA4EB /* AccountMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449EB9FE2B95FF2500DFA4EB /* AccountMock.swift */; };
+		449EBA262B975B9700DFA4EB /* PostQuantumKeyReceiving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449EBA252B975B9700DFA4EB /* PostQuantumKeyReceiving.swift */; };
 		44DD7D242B6CFFD70005F67F /* StartTunnelOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */; };
 		44DD7D272B6D18FB0005F67F /* MockTunnelInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */; };
 		44DD7D292B7113CA0005F67F /* MockTunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D282B7113CA0005F67F /* MockTunnel.swift */; };
@@ -1298,6 +1299,7 @@
 		449872E32B7CB96300094DDC /* TunnelSettingsUpdateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsUpdateTests.swift; sourceTree = "<group>"; };
 		449EB9FC2B95F8AD00DFA4EB /* DeviceMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceMock.swift; sourceTree = "<group>"; };
 		449EB9FE2B95FF2500DFA4EB /* AccountMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountMock.swift; sourceTree = "<group>"; };
+		449EBA252B975B9700DFA4EB /* PostQuantumKeyReceiving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostQuantumKeyReceiving.swift; sourceTree = "<group>"; };
 		44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartTunnelOperationTests.swift; sourceTree = "<group>"; };
 		44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnelInteractor.swift; sourceTree = "<group>"; };
 		44DD7D282B7113CA0005F67F /* MockTunnel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnel.swift; sourceTree = "<group>"; };
@@ -2203,6 +2205,14 @@
 			path = MullvadSettings;
 			sourceTree = "<group>";
 		};
+		449EBA242B975B7C00DFA4EB /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				449EBA252B975B9700DFA4EB /* PostQuantumKeyReceiving.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
 		44DD7D252B6D18E90005F67F /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
@@ -2229,6 +2239,7 @@
 		581943F228F8014500B0CB5E /* MullvadTypes */ = {
 			isa = PBXGroup;
 			children = (
+				449EBA242B975B7C00DFA4EB /* Protocols */,
 				584D26BE270C550B004EA533 /* AnyIPAddress.swift */,
 				586A951329013235007BAF2B /* AnyIPEndpoint.swift */,
 				06AC113628F83FD70037AF9A /* Cancellable.swift */,
@@ -5451,6 +5462,7 @@
 				7AF9BE8C2A321D1F00DBFEDB /* RelayFilter.swift in Sources */,
 				58D22414294C90210029F5F8 /* RelayLocation.swift in Sources */,
 				581DA2732A1E227D0046ED47 /* RESTTypes.swift in Sources */,
+				449EBA262B975B9700DFA4EB /* PostQuantumKeyReceiving.swift in Sources */,
 				58D22417294C90210029F5F8 /* FixedWidthInteger+Arithmetics.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
