@@ -1,6 +1,5 @@
 //! Functions for handling default interfaces/routes
 
-use nix::{net::if_::InterfaceFlags, sys::socket::AddressFamily};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use talpid_routing::{MacAddress, RouteManagerHandle};
 
@@ -56,63 +55,39 @@ pub async fn get_default_interface(
         .await
         .map_err(Error::GetDefaultGateways)?;
 
-    let default_interface = match (v4_default, v6_default) {
+    let default_interface = match (&v4_default, &v6_default) {
         (Some(v4_default), Some(v6_default)) => {
-            let v4_name = v4_default
-                .get_node()
-                .get_device()
-                .expect("missing device on default route");
-            let v6_name = v6_default
-                .get_node()
-                .get_device()
-                .expect("missing device on default route");
-            if v4_name != v6_name {
+            if v4_default.interface != v6_default.interface {
                 return Err(Error::DefaultInterfaceMismatch);
             }
-            v4_name.to_owned()
+            v4_default.interface.to_owned()
         }
-        (Some(default), None) | (None, Some(default)) => default
-            .get_node()
-            .get_device()
-            .expect("missing device on default route")
-            .to_owned(),
+        (Some(default), None) | (None, Some(default)) => default.interface.to_owned(),
         (None, None) => return Err(Error::NoDefaultInterface),
     };
 
     let default_v4 = if let Some(v4_gateway) = v4_gateway {
-        match get_interface_ip(&default_interface, AddressFamily::Inet) {
-            Ok(Some(ip)) => Some(DefaultInterfaceAddrs {
-                source_ip: match ip {
-                    IpAddr::V4(addr) => addr,
-                    _ => unreachable!("unexpected address type"),
-                },
-                gateway_address: v4_gateway.mac_address,
-            }),
-            Ok(None) => None,
-            Err(error) => {
-                log::error!("Failed to obtain interface IP for {default_interface}: {error}");
-                None
-            }
-        }
+        v4_default.map(|v4_default| DefaultInterfaceAddrs {
+            source_ip: match v4_default.ip {
+                IpAddr::V4(addr) => addr,
+                _ => unreachable!("unexpected IP address type"),
+            },
+            gateway_address: v4_gateway.mac_address,
+        })
     } else {
+        log::debug!("Missing V4 gateway");
         None
     };
     let default_v6 = if let Some(v6_gateway) = v6_gateway {
-        match get_interface_ip(&default_interface, AddressFamily::Inet6) {
-            Ok(Some(ip)) => Some(DefaultInterfaceAddrs {
-                source_ip: match ip {
-                    IpAddr::V6(addr) => addr,
-                    _ => unreachable!("unexpected address type"),
-                },
-                gateway_address: v6_gateway.mac_address,
-            }),
-            Ok(None) => None,
-            Err(error) => {
-                log::error!("Failed to obtain interface IP for {default_interface}: {error}");
-                None
-            }
-        }
+        v6_default.map(|v6_default| DefaultInterfaceAddrs {
+            source_ip: match v6_default.ip {
+                IpAddr::V6(addr) => addr,
+                _ => unreachable!("unexpected IP address type"),
+            },
+            gateway_address: v6_gateway.mac_address,
+        })
     } else {
+        log::debug!("Missing V6 gateway");
         None
     };
 
@@ -121,56 +96,4 @@ pub async fn get_default_interface(
         v4_addrs: default_v4,
         v6_addrs: default_v6,
     })
-}
-
-fn get_interface_ip(interface_name: &str, family: AddressFamily) -> Result<Option<IpAddr>, Error> {
-    let required_link_flags: InterfaceFlags = InterfaceFlags::IFF_UP | InterfaceFlags::IFF_RUNNING;
-    let ip_addr = nix::ifaddrs::getifaddrs()
-        .map_err(Error::GetInterfaceAddresses)?
-        .filter(|addr| (addr.flags & required_link_flags) == required_link_flags)
-        .filter(|addr| addr.interface_name == interface_name)
-        .find_map(|addr| {
-            let Some(addr) = addr.address else {
-                return None;
-            };
-            // Check if family matches; ignore if link-local address
-            match family {
-                AddressFamily::Inet => match addr.as_sockaddr_in() {
-                    Some(addr_in) => {
-                        let addr_in = Ipv4Addr::from(addr_in.ip());
-                        if is_routable_v4(&addr_in) {
-                            Some(IpAddr::from(addr_in))
-                        } else {
-                            None
-                        }
-                    }
-                    _ => None,
-                },
-                AddressFamily::Inet6 => match addr.as_sockaddr_in6() {
-                    Some(addr_in) => {
-                        let addr_in = Ipv6Addr::from(addr_in.ip());
-                        if is_routable_v6(&addr_in) {
-                            Some(IpAddr::from(addr_in))
-                        } else {
-                            None
-                        }
-                    }
-                    _ => None,
-                },
-                _ => None,
-            }
-        });
-    Ok(ip_addr)
-}
-
-fn is_routable_v4(addr: &Ipv4Addr) -> bool {
-    !addr.is_unspecified() && !addr.is_loopback() && !addr.is_link_local()
-}
-
-fn is_routable_v6(addr: &Ipv6Addr) -> bool {
-    !addr.is_unspecified() && !addr.is_loopback() && !is_link_local_v6(addr)
-}
-
-fn is_link_local_v6(addr: &Ipv6Addr) -> bool {
-    (addr.segments()[0] & 0xffc0) == 0xfe80
 }
