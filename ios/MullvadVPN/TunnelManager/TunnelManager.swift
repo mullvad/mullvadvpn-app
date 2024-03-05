@@ -62,7 +62,7 @@ final class TunnelManager: StorePaymentObserver {
 
     private var privateKeyRotationTimer: DispatchSourceTimer?
     public private(set) var isRunningPeriodicPrivateKeyRotation = false
-    public private(set) var nextKeyRotationDate: Date? = nil
+    public private(set) var nextKeyRotationDate: Date?
 
     private var tunnelStatusPollTimer: DispatchSourceTimer?
     private var isPolling = false
