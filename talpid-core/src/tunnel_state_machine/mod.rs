@@ -545,6 +545,9 @@ impl SharedTunnelStateValues {
                 "{}",
                 error.display_chain_with_msg("Failed to set VPN interface for split tunnel")
             );
+            if error.is_offline() {
+                return Err(ErrorStateCause::IsOffline);
+            }
             return Err(ErrorStateCause::SplitTunnelError);
         }
         Ok(())
