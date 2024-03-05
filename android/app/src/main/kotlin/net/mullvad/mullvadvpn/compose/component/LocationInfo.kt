@@ -71,7 +71,7 @@ fun LocationInfo(
                     },
                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
             )
-            ChevronView(
+            Chevron(
                 isExpanded = isExpanded,
                 color =
                     if (isExpanded) {

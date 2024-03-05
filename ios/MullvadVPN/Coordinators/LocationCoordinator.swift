@@ -1,5 +1,5 @@
 //
-//  SelectLocationCoordinator.swift
+//  LocationCoordinator.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 29/01/2023.
@@ -11,9 +11,7 @@ import MullvadTypes
 import Routing
 import UIKit
 
-import MullvadSettings
-
-class SelectLocationCoordinator: Coordinator, Presentable, Presenting, RelayCacheTrackerObserver {
+class LocationCoordinator: Coordinator, Presentable, Presenting, RelayCacheTrackerObserver {
     private let tunnelManager: TunnelManager
     private let relayCacheTracker: RelayCacheTracker
     private var cachedRelays: CachedRelays?
@@ -24,10 +22,10 @@ class SelectLocationCoordinator: Coordinator, Presentable, Presenting, RelayCach
         navigationController
     }
 
-    var selectLocationViewController: SelectLocationViewController? {
+    var selectLocationViewController: LocationViewController? {
         return navigationController.viewControllers.first {
-            $0 is SelectLocationViewController
-        } as? SelectLocationViewController
+            $0 is LocationViewController
+        } as? LocationViewController
     }
 
     var relayFilter: RelayFilter {
@@ -39,7 +37,7 @@ class SelectLocationCoordinator: Coordinator, Presentable, Presenting, RelayCach
         }
     }
 
-    var didFinish: ((SelectLocationCoordinator, RelayLocation?) -> Void)?
+    var didFinish: ((LocationCoordinator) -> Void)?
 
     init(
         navigationController: UINavigationController,
@@ -52,22 +50,19 @@ class SelectLocationCoordinator: Coordinator, Presentable, Presenting, RelayCach
     }
 
     func start() {
-        let selectLocationViewController = SelectLocationViewController()
+        let selectLocationViewController = LocationViewController()
 
-        selectLocationViewController.didSelectRelay = { [weak self] relay in
+        selectLocationViewController.didSelectRelays = { [weak self] locations in
             guard let self else { return }
 
             var relayConstraints = tunnelManager.settings.relayConstraints
-            relayConstraints.locations = .only(RelayLocations(
-                locations: [relay],
-                customListId: nil
-            ))
+            relayConstraints.locations = .only(locations)
 
             tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
                 self.tunnelManager.startTunnel()
             }
 
-            didFinish?(self, relay)
+            didFinish?(self)
         }
 
         selectLocationViewController.navigateToFilter = { [weak self] in
@@ -91,7 +86,7 @@ class SelectLocationCoordinator: Coordinator, Presentable, Presenting, RelayCach
         selectLocationViewController.didFinish = { [weak self] in
             guard let self else { return }
 
-            didFinish?(self, nil)
+            didFinish?(self)
         }
 
         relayCacheTracker.addObserver(self)
@@ -101,8 +96,7 @@ class SelectLocationCoordinator: Coordinator, Presentable, Presenting, RelayCach
             selectLocationViewController.setCachedRelays(cachedRelays, filter: relayFilter)
         }
 
-        selectLocationViewController.relayLocation =
-            tunnelManager.settings.relayConstraints.locations.value?.locations.first
+        selectLocationViewController.relayLocations = tunnelManager.settings.relayConstraints.locations.value
 
         navigationController.pushViewController(selectLocationViewController, animated: false)
     }

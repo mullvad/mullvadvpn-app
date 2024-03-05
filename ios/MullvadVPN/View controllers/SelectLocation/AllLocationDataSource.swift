@@ -2,7 +2,7 @@
 //  AllLocationDataSource.swift
 //  MullvadVPN
 //
-//  Created by Mojgan on 2024-02-07.
+//  Created by Jon Petersson on 2024-02-22.
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
@@ -11,83 +11,86 @@ import MullvadREST
 import MullvadTypes
 
 class AllLocationDataSource: LocationDataSourceProtocol {
-    var nodeByLocation = [RelayLocation: SelectLocationNode]()
-    private var locationList = [RelayLocation]()
+    private(set) var nodes = [LocationNode]()
 
-    func search(by text: String) -> [RelayLocation] {
-        guard !text.isEmpty else {
-            return locationList
-        }
-
-        var filteredLocations: [RelayLocation] = []
-        locationList.forEach { location in
-            guard let countryNode = nodeByLocation[location] else { return }
-            countryNode.showsChildren = false
-
-            if countryNode.displayName.fuzzyMatch(text) {
-                filteredLocations.append(countryNode.location)
-            }
-
-            countryNode.children.forEach { cityNode in
-                cityNode.showsChildren = false
-
-                let relaysContainSearchString = cityNode.children
-                    .contains(where: { $0.displayName.fuzzyMatch(text) })
-
-                if cityNode.displayName.fuzzyMatch(text) || relaysContainSearchString {
-                    if !filteredLocations.contains(countryNode.location) {
-                        filteredLocations.append(countryNode.location)
-                    }
-
-                    filteredLocations.append(cityNode.location)
-                    countryNode.showsChildren = true
-
-                    if relaysContainSearchString {
-                        filteredLocations.append(contentsOf: cityNode.children.map { $0.location })
-                        cityNode.showsChildren = true
-                    }
-                }
-            }
-        }
-
-        return filteredLocations
+    var searchableNodes: [LocationNode] {
+        nodes
     }
 
-    func reload(
-        _ response: REST.ServerRelaysResponse,
-        relays: [REST.ServerRelay]
-    ) -> [RelayLocation] {
-        nodeByLocation.removeAll()
-        let rootNode = self.makeRootNode(name: SelectLocationSection.allLocations.description)
+    /// Constructs a collection of node trees from relays fetched from the API.
+    /// ``RelayLocation.city`` is of special import since we use it to get country
+    /// and city names.
+    func reload(_ response: REST.ServerRelaysResponse, relays: [REST.ServerRelay]) {
+        let rootNode = RootLocationNode()
 
         for relay in relays {
-            guard case let .city(countryCode, cityCode) = RelayLocation(dashSeparatedString: relay.location),
-                  let serverLocation = response.locations[relay.location] else { continue }
+            guard case
+                let .city(countryCode, cityCode) = RelayLocation(dashSeparatedString: relay.location),
+                let serverLocation = response.locations[relay.location]
+            else { continue }
 
             let relayLocation = RelayLocation.hostname(countryCode, cityCode, relay.hostname)
 
             for ancestorOrSelf in relayLocation.ancestors + [relayLocation] {
-                guard !nodeByLocation.keys.contains(ancestorOrSelf) else {
-                    continue
-                }
-
-                // Maintain the `showsChildren` state when transitioning between relay lists
-                let wasShowingChildren = nodeByLocation[ancestorOrSelf]?.showsChildren ?? false
-
-                let node = createNode(
-                    root: rootNode,
-                    ancestorOrSelf: ancestorOrSelf,
-                    serverLocation: serverLocation,
-                    relay: relay,
-                    wasShowingChildren: wasShowingChildren
-                )
-                nodeByLocation[ancestorOrSelf] = node
+                addLocation(ancestorOrSelf, rootNode: rootNode, serverLocation: serverLocation, relay: relay)
             }
         }
 
-        rootNode.sortChildrenRecursive()
-        rootNode.computeActiveChildrenRecursive()
-        locationList = rootNode.flatRelayLocationList()
-        return locationList
+        nodes = rootNode.children
+    }
+
+    func node(by location: RelayLocation) -> LocationNode? {
+        let rootNode = RootLocationNode(children: nodes)
+
+        return switch location {
+        case let .country(countryCode):
+            rootNode.descendantNodeFor(code: countryCode)
+        case let .city(_, cityCode):
+            rootNode.descendantNodeFor(code: cityCode)
+        case let .hostname(_, _, hostCode):
+            rootNode.descendantNodeFor(code: hostCode)
+        }
+    }
+
+    private func addLocation(
+        _ location: RelayLocation,
+        rootNode: LocationNode,
+        serverLocation: REST.ServerLocation,
+        relay: REST.ServerRelay
+    ) {
+        switch location {
+        case let .country(countryCode):
+            let countryNode = CountryLocationNode(
+                name: serverLocation.country,
+                code: countryCode,
+                locations: [location]
+            )
+
+            if !rootNode.children.contains(countryNode) {
+                rootNode.children.append(countryNode)
+                rootNode.children.sort()
+            }
+
+        case let .city(countryCode, cityCode):
+            let cityNode = CityLocationNode(name: serverLocation.city, code: cityCode, locations: [location])
+
+            if let countryNode = rootNode.countryFor(code: countryCode),
+               !countryNode.children.contains(cityNode) {
+                cityNode.parent = countryNode
+                countryNode.children.append(cityNode)
+                countryNode.children.sort()
+            }
+
+        case let .hostname(countryCode, cityCode, hostCode):
+            let hostNode = HostLocationNode(name: relay.hostname, code: hostCode, locations: [location])
+
+            if let countryNode = rootNode.countryFor(code: countryCode),
+               let cityNode = countryNode.cityFor(code: cityCode),
+               !cityNode.children.contains(hostNode) {
+                hostNode.parent = cityNode
+                cityNode.children.append(hostNode)
+                cityNode.children.sort()
+            }
+        }
     }
 }
