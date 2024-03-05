@@ -18,12 +18,12 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 @Composable
 fun DiscardChangesDialog(resultBackNavigator: ResultBackNavigator<Boolean>) {
     AlertDialog(
-        onDismissRequest = { resultBackNavigator.navigateBack() },
+        onDismissRequest = resultBackNavigator::navigateBack,
         title = { Text(text = stringResource(id = R.string.discard_changes)) },
         dismissButton = {
             PrimaryButton(
                 modifier = Modifier.focusRequester(FocusRequester()),
-                onClick = { resultBackNavigator.navigateBack() },
+                onClick = resultBackNavigator::navigateBack,
                 text = stringResource(id = R.string.cancel)
             )
         },
