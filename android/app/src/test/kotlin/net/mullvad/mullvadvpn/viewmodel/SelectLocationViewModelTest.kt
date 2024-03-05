@@ -14,7 +14,6 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.compose.state.RelayListState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
@@ -33,6 +32,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -47,6 +47,7 @@ class SelectLocationViewModelTest {
     private val relayListWithSelectionFlow =
         MutableStateFlow(RelayList(emptyList(), emptyList(), null))
     private val mockRelayListUseCase: RelayListUseCase = mockk()
+    private val mockCustomListActionUseCase: CustomListActionUseCase = mockk()
     private val selectedOwnership = MutableStateFlow<Constraint<Ownership>>(Constraint.Any())
     private val selectedProvider = MutableStateFlow<Constraint<Providers>>(Constraint.Any())
     private val allProvider = MutableStateFlow<List<Provider>>(emptyList())
@@ -63,11 +64,13 @@ class SelectLocationViewModelTest {
         mockkStatic(SERVICE_CONNECTION_MANAGER_EXTENSIONS)
         mockkStatic(RELAY_LIST_EXTENSIONS)
         mockkStatic(RELAY_ITEM_EXTENSIONS)
+        mockkStatic(CUSTOM_LIST_EXTENSIONS)
         viewModel =
             SelectLocationViewModel(
                 mockServiceConnectionManager,
                 mockRelayListUseCase,
-                mockRelayListFilterUseCase
+                mockRelayListFilterUseCase,
+                mockCustomListActionUseCase
             )
     }
 
@@ -94,16 +97,9 @@ class SelectLocationViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             val actualState = awaitItem()
-            assertIs<SelectLocationUiState.Data>(actualState)
-            assertIs<RelayListState.RelayList>(actualState.relayListState)
-            assertLists(
-                mockCountries,
-                (actualState.relayListState as RelayListState.RelayList).countries
-            )
-            assertEquals(
-                selectedItem,
-                (actualState.relayListState as RelayListState.RelayList).selectedItem
-            )
+            assertIs<SelectLocationUiState.Content>(actualState)
+            assertLists(mockCountries, actualState.countries)
+            assertEquals(selectedItem, actualState.selectedItem)
         }
     }
 
@@ -121,16 +117,9 @@ class SelectLocationViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 val actualState = awaitItem()
-                assertIs<SelectLocationUiState.Data>(actualState)
-                assertIs<RelayListState.RelayList>(actualState.relayListState)
-                assertLists(
-                    mockCountries,
-                    (actualState.relayListState as RelayListState.RelayList).countries
-                )
-                assertEquals(
-                    selectedItem,
-                    (actualState.relayListState as RelayListState.RelayList).selectedItem
-                )
+                assertIs<SelectLocationUiState.Content>(actualState)
+                assertLists(mockCountries, actualState.countries)
+                assertEquals(selectedItem, actualState.selectedItem)
             }
         }
 
@@ -169,28 +158,22 @@ class SelectLocationViewModelTest {
         val mockSearchString = "SEARCH"
         every { mockRelayList.filterOnSearchTerm(mockSearchString, selectedItem) } returns
             mockCountries
+        every { mockCustomList.filterOnSearchTerm(mockSearchString) } returns mockCustomList
         relayListWithSelectionFlow.value = RelayList(mockCustomList, mockRelayList, selectedItem)
 
         // Act, Assert
         viewModel.uiState.test {
             // Wait for first data
-            assertIs<SelectLocationUiState.Data>(awaitItem())
+            assertIs<SelectLocationUiState.Content>(awaitItem())
 
             // Update search string
             viewModel.onSearchTermInput(mockSearchString)
 
             // Assert
             val actualState = awaitItem()
-            assertIs<SelectLocationUiState.Data>(actualState)
-            assertIs<RelayListState.RelayList>(actualState.relayListState)
-            assertLists(
-                mockCountries,
-                (actualState.relayListState as RelayListState.RelayList).countries
-            )
-            assertEquals(
-                selectedItem,
-                (actualState.relayListState as RelayListState.RelayList).selectedItem
-            )
+            assertIs<SelectLocationUiState.Content>(actualState)
+            assertLists(mockCountries, actualState.countries)
+            assertEquals(selectedItem, actualState.selectedItem)
         }
     }
 
@@ -204,19 +187,20 @@ class SelectLocationViewModelTest {
         val mockSearchString = "SEARCH"
         every { mockRelayList.filterOnSearchTerm(mockSearchString, selectedItem) } returns
             mockCountries
+        every { mockCustomList.filterOnSearchTerm(mockSearchString) } returns mockCustomList
         relayListWithSelectionFlow.value = RelayList(mockCustomList, mockRelayList, selectedItem)
 
         // Act, Assert
         viewModel.uiState.test {
             // Wait for first data
-            assertIs<SelectLocationUiState.Data>(awaitItem())
+            assertIs<SelectLocationUiState.Content>(awaitItem())
 
             // Update search string
             viewModel.onSearchTermInput(mockSearchString)
 
             // Assert
             val actualState = awaitItem()
-            assertIs<SelectLocationUiState.Data>(actualState)
+            assertIs<SelectLocationUiState.Content>(actualState)
             assertEquals(mockSearchString, actualState.searchTerm)
         }
     }
@@ -264,5 +248,7 @@ class SelectLocationViewModelTest {
             "net.mullvad.mullvadvpn.relaylist.RelayListExtensionsKt"
         private const val RELAY_ITEM_EXTENSIONS =
             "net.mullvad.mullvadvpn.relaylist.RelayItemExtensionsKt"
+        private const val CUSTOM_LIST_EXTENSIONS =
+            "net.mullvad.mullvadvpn.relaylist.CustomListExtensionsKt"
     }
 }

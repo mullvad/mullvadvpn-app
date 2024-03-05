@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -37,6 +38,7 @@ import net.mullvad.mullvadvpn.compose.destinations.EditCustomListNameDestination
 import net.mullvad.mullvadvpn.compose.state.EditCustomListState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
@@ -113,7 +115,7 @@ fun EditCustomList(
                 launchSingleTop = true
             }
         },
-        onBackClick = { backNavigator.navigateBack() }
+        onBackClick = backNavigator::navigateBack
     )
 }
 
@@ -127,7 +129,8 @@ fun EditCustomListScreen(
 ) {
     val title =
         when (uiState) {
-            is EditCustomListState.Loading -> ""
+            EditCustomListState.Loading,
+            EditCustomListState.NotFound -> ""
             is EditCustomListState.Content -> uiState.name
         }
     ScaffoldWithMediumTopBar(
@@ -139,6 +142,14 @@ fun EditCustomListScreen(
             when (uiState) {
                 EditCustomListState.Loading -> {
                     MullvadCircularProgressIndicatorLarge()
+                }
+                EditCustomListState.NotFound -> {
+                    Text(
+                        text = stringResource(id = R.string.not_found),
+                        modifier = Modifier.padding(Dimens.screenVerticalMargin),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSecondary
+                    )
                 }
                 is EditCustomListState.Content -> {
                     // Name cell

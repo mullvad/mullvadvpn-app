@@ -192,17 +192,15 @@ class MullvadDaemon(
         setQuantumResistantTunnel(daemonInterfaceAddress, quantumResistant)
     }
 
-    fun createCustomList(name: String): CreateCustomListResult {
-        return createCustomList(daemonInterfaceAddress, name)
-    }
+    fun createCustomList(name: String): CreateCustomListResult =
+        createCustomList(daemonInterfaceAddress, name)
 
     fun deleteCustomList(id: String) {
         deleteCustomList(daemonInterfaceAddress, id)
     }
 
-    fun updateCustomList(customList: CustomList): UpdateCustomListResult {
-        return updateCustomList(daemonInterfaceAddress, customList)
-    }
+    fun updateCustomList(customList: CustomList): UpdateCustomListResult =
+        updateCustomList(daemonInterfaceAddress, customList)
 
     fun onDestroy() {
         onSettingsChange.unsubscribeAll()

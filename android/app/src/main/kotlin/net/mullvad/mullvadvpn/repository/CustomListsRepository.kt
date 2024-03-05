@@ -30,9 +30,7 @@ class CustomListsRepository(
         }
     }
 
-    fun deleteCustomList(id: String) {
-        messageHandler.trySendRequest(Request.DeleteCustomList(id))
-    }
+    fun deleteCustomList(id: String) = messageHandler.trySendRequest(Request.DeleteCustomList(id))
 
     private suspend fun updateCustomList(customList: CustomList): UpdateCustomListResult {
         val result = messageHandler.trySendRequest(Request.UpdateCustomList(customList))
@@ -47,26 +45,23 @@ class CustomListsRepository(
     suspend fun updateCustomListLocationsFromCodes(
         id: String,
         locationCodes: List<String>
-    ): UpdateCustomListResult {
-        return updateCustomListLocations(
+    ): UpdateCustomListResult =
+        updateCustomListLocations(
             id = id,
             locations =
                 ArrayList(locationCodes.mapNotNull { getGeographicLocationConstraintByCode(it) })
         )
-    }
 
-    suspend fun updateCustomListName(id: String, name: String): UpdateCustomListResult {
-        return getCustomListById(id)?.let { updateCustomList(it.copy(name = name)) }
+    suspend fun updateCustomListName(id: String, name: String): UpdateCustomListResult =
+        getCustomListById(id)?.let { updateCustomList(it.copy(name = name)) }
             ?: UpdateCustomListResult.Error(CustomListsError.OtherError)
-    }
 
     private suspend fun updateCustomListLocations(
         id: String,
         locations: ArrayList<GeographicLocationConstraint>
-    ): UpdateCustomListResult {
-        return awaitCustomListById(id)?.let { updateCustomList(it.copy(locations = locations)) }
+    ): UpdateCustomListResult =
+        awaitCustomListById(id)?.let { updateCustomList(it.copy(locations = locations)) }
             ?: UpdateCustomListResult.Error(CustomListsError.OtherError)
-    }
 
     private suspend fun awaitCustomListById(id: String): CustomList? =
         settingsRepository.settingsUpdates
