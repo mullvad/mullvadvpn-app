@@ -42,3 +42,9 @@ const val VOUCHER_INPUT_TEST_TAG = "voucher_input_test_tag"
 
 // OutOfTimeScreen
 const val OUT_OF_TIME_SCREEN_TITLE_TEST_TAG = "out_of_time_screen_title_test_tag"
+
+// CreateCustomListDialog
+const val CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG = "create_custom_list_dialog_input_test_tag"
+
+// UpdateCustomListDialog
+const val EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG = "edit_custom_list_dialog_input_test_tag"
