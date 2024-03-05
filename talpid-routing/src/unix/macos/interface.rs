@@ -23,8 +23,8 @@ use system_configuration::{
     network_configuration::SCNetworkSet,
     preferences::SCPreferences,
     sys::schema_definitions::{
-        kSCDynamicStorePropNetPrimaryInterface, kSCPropInterfaceName, kSCPropNetIPv4Router,
-        kSCPropNetIPv6Router,
+        kSCDynamicStorePropNetPrimaryInterface, kSCPropInterfaceName, kSCPropNetIPv4Addresses,
+        kSCPropNetIPv4Router, kSCPropNetIPv6Addresses, kSCPropNetIPv6Router,
     },
 };
 
@@ -60,6 +60,7 @@ impl Family {
 struct NetworkServiceDetails {
     name: String,
     router_ip: IpAddr,
+    first_ip: IpAddr,
 }
 
 pub struct PrimaryInterfaceMonitor {
@@ -74,11 +75,17 @@ pub enum InterfaceEvent {
     Update,
 }
 
+/// Default interface/route
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DefaultRoute {
+    /// Default interface name
     pub interface: String,
+    /// Default interface index
     pub interface_index: u16,
+    /// Router IP
     pub router_ip: IpAddr,
+    /// Default interface IP address
+    pub ip: IpAddr,
 }
 
 impl From<DefaultRoute> for RouteMessage {
@@ -199,6 +206,7 @@ impl PrimaryInterfaceMonitor {
             interface: iface.name,
             interface_index: index,
             router_ip,
+            ip: iface.first_ip,
         })
     }
 
@@ -238,7 +246,32 @@ impl PrimaryInterfaceMonitor {
                 None
             })?;
 
-        Some(NetworkServiceDetails { name, router_ip })
+        let ip_key = if family == Family::V4 {
+            unsafe { kSCPropNetIPv4Addresses.to_void() }
+        } else {
+            unsafe { kSCPropNetIPv6Addresses.to_void() }
+        };
+
+        let first_ip = global_dict
+            .find(ip_key)
+            .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+            .and_then(|s| s.downcast::<CFArray>())
+            .and_then(|ips| {
+                ips.get(0)
+                    .map(|ip| unsafe { CFType::wrap_under_get_rule(*ip) })
+            })
+            .and_then(|s| s.downcast::<CFString>())
+            .and_then(|ip| ip.to_string().parse().ok())
+            .or_else(|| {
+                log::debug!("Missing IP for primary interface \"{name}\"");
+                None
+            })?;
+
+        Some(NetworkServiceDetails {
+            name,
+            router_ip,
+            first_ip,
+        })
     }
 
     fn network_services(&self, family: Family) -> Vec<NetworkServiceDetails> {
@@ -282,7 +315,32 @@ impl PrimaryInterfaceMonitor {
                         None
                     })?;
 
-                Some(NetworkServiceDetails { name, router_ip })
+                let ip_key = if family == Family::V4 {
+                    unsafe { kSCPropNetIPv4Addresses.to_void() }
+                } else {
+                    unsafe { kSCPropNetIPv6Addresses.to_void() }
+                };
+
+                let first_ip = ip_dict
+                    .find(ip_key)
+                    .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+                    .and_then(|s| s.downcast::<CFArray>())
+                    .and_then(|ips| {
+                        ips.get(0)
+                            .map(|ip| unsafe { CFType::wrap_under_get_rule(*ip) })
+                    })
+                    .and_then(|s| s.downcast::<CFString>())
+                    .and_then(|ip| ip.to_string().parse().ok())
+                    .or_else(|| {
+                        log::debug!("Missing IP for primary interface \"{name}\"");
+                        None
+                    })?;
+
+                Some(NetworkServiceDetails {
+                    name,
+                    router_ip,
+                    first_ip,
+                })
             })
             .collect::<Vec<_>>()
     }
