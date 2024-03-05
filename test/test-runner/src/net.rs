@@ -4,9 +4,7 @@ use std::{ffi::CString, num::NonZeroU32};
 use std::{
     io::Write,
     net::{IpAddr, SocketAddr},
-    process::Output,
 };
-use tokio::process::Command;
 
 pub async fn send_tcp(
     bind_interface: Option<String>,
@@ -139,66 +137,37 @@ pub async fn send_udp(
 }
 
 pub async fn send_ping(
-    interface: Option<&str>,
     destination: IpAddr,
+    interface: Option<&str>,
+    size: usize,
 ) -> Result<(), test_rpc::Error> {
-    #[cfg(target_os = "windows")]
-    let mut source_ip = None;
-    #[cfg(target_os = "windows")]
-    if let Some(interface) = interface {
-        let family = match destination {
-            IpAddr::V4(_) => talpid_windows::net::AddressFamily::Ipv4,
-            IpAddr::V6(_) => talpid_windows::net::AddressFamily::Ipv6,
-        };
-        source_ip = get_interface_ip_for_family(interface, family)
-            .map_err(|_error| test_rpc::Error::Syscall)?;
-        if source_ip.is_none() {
-            log::error!("Failed to obtain interface IP");
-            return Err(test_rpc::Error::Ping);
-        }
-    }
+    use surge_ping::{Client, Config, PingIdentifier, PingSequence, ICMP};
 
-    let mut cmd = Command::new("ping");
-    cmd.arg(destination.to_string());
+    const IPV4_HEADER_SIZE: usize = 20;
+    const ICMP_HEADER_SIZE: usize = 8;
+    let payload_size = size - IPV4_HEADER_SIZE - ICMP_HEADER_SIZE;
+    let payload: &[u8] = &vec![0; payload_size];
 
-    #[cfg(target_os = "windows")]
-    cmd.args(["-n", "1"]);
-
-    #[cfg(not(target_os = "windows"))]
-    cmd.args(["-c", "1"]);
-
-    match interface {
-        Some(interface) => {
-            log::info!("Pinging {destination} on interface {interface}");
-
-            #[cfg(target_os = "windows")]
-            if let Some(source_ip) = source_ip {
-                cmd.args(["-S", &source_ip.to_string()]);
-            }
-
-            #[cfg(target_os = "linux")]
-            cmd.args(["-I", interface]);
-
-            #[cfg(target_os = "macos")]
-            cmd.args(["-b", interface]);
-        }
-        None => log::info!("Pinging {destination}"),
-    }
-
-    cmd.kill_on_drop(true);
-
-    cmd.spawn()
-        .map_err(|error| {
-            log::error!("Failed to spawn ping process: {error}");
-            test_rpc::Error::Ping
-        })?
-        .wait_with_output()
+    let config = match destination {
+        IpAddr::V4(_) => Config::builder(),
+        IpAddr::V6(_) => Config::builder().kind(ICMP::V6),
+    };
+    let config = if let Some(interface) = interface {
+        let interface_ip = get_interface_ip(interface)?;
+        config.interface(interface).bind((interface_ip, 0).into())
+    } else {
+        config
+    };
+    let client = Client::new(&config.build()).map_err(|e| test_rpc::Error::Ping(e.to_string()))?;
+    let mut pinger = client
+        .pinger(destination, PingIdentifier(rand::random()))
+        .await;
+    pinger
+        .ping(PingSequence(0), payload)
         .await
-        .map_err(|error| {
-            log::error!("Failed to wait on ping: {error}");
-            test_rpc::Error::Ping
-        })
-        .and_then(|output| result_from_output("ping", output, test_rpc::Error::Ping))
+        .map_err(|e| test_rpc::Error::Ping(e.to_string()))?;
+
+    Ok(())
 }
 
 #[cfg(unix)]
@@ -273,19 +242,58 @@ pub fn get_default_interface() -> &'static str {
     "en0"
 }
 
-fn result_from_output<E>(action: &'static str, output: Output, err: E) -> Result<(), E> {
-    if output.status.success() {
-        return Ok(());
+#[cfg(target_os = "macos")]
+pub fn get_interface_mtu(_interface_name: &str) -> Result<u16, test_rpc::Error> {
+    todo!("Implement setting MTU on macOS")
+}
+
+#[cfg(target_os = "linux")]
+pub fn get_interface_mtu(interface_name: &str) -> Result<u16, test_rpc::Error> {
+    use std::os::fd::AsRawFd;
+
+    let sock = socket2::Socket::new(
+        socket2::Domain::IPV4,
+        socket2::Type::STREAM,
+        Some(socket2::Protocol::TCP),
+    )
+    .map_err(|e| test_rpc::Error::Io(e.to_string()))?;
+
+    let mut ifr: libc::ifreq = unsafe { std::mem::zeroed() };
+    if interface_name.len() >= ifr.ifr_name.len() {
+        panic!("Interface '{interface_name}' name too long")
     }
 
-    let stdout_str = std::str::from_utf8(&output.stdout).unwrap_or("non-utf8 string");
-    let stderr_str = std::str::from_utf8(&output.stderr).unwrap_or("non-utf8 string");
+    // SAFETY: interface_name is shorter than ifr.ifr_name
+    unsafe {
+        std::ptr::copy_nonoverlapping(
+            interface_name.as_ptr() as *const libc::c_char,
+            &mut ifr.ifr_name as *mut _,
+            interface_name.len(),
+        )
+    };
 
-    log::error!(
-        "{action} failed:\n\ncode: {:?}\n\nstdout:\n\n{}\n\nstderr:\n\n{}",
-        output.status.code(),
-        stdout_str,
-        stderr_str
-    );
-    Err(err)
+    // TODO: define SIOCGIFMTU for macos
+    // SAFETY: SIOCGIFMTU expects an ifreq, and the socket is valid
+    if unsafe { libc::ioctl(sock.as_raw_fd(), libc::SIOCGIFMTU, &mut ifr) } < 0 {
+        let e = std::io::Error::last_os_error();
+
+        log::error!("{}", e);
+        return Err(test_rpc::Error::Io(e.to_string()));
+    }
+
+    // SAFETY: ifru_mtu is set since SIOGCIFMTU succeeded
+    Ok(unsafe { ifr.ifr_ifru.ifru_mtu }
+        .try_into()
+        .expect("MTU should fit in u16"))
+}
+
+#[cfg(target_os = "windows")]
+pub fn get_interface_mtu(interface: &str) -> Result<u16, test_rpc::Error> {
+    let luid = talpid_windows::net::luid_from_alias(interface).map_err(|error| {
+        log::error!("Failed to obtain interface LUID: {error}");
+        test_rpc::Error::Syscall
+    })?;
+    talpid_windows::net::get_ip_interface_entry(talpid_windows::net::AddressFamily::Ipv4, &luid)
+        .map_err(|_error| test_rpc::Error::InterfaceNotFound)
+        .map(|row| row.NlMtu.try_into().unwrap())
 }

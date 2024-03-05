@@ -6,8 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use tarpc::context;
-use tarpc::server::Channel;
+use tarpc::{context, server::Channel};
 use test_rpc::{
     mullvad_daemon::{ServiceStatus, SOCKET_PATH},
     net::SockHandleId,
@@ -15,10 +14,10 @@ use test_rpc::{
     transport::GrpcForwarder,
     AppTrace, Service,
 };
-use tokio::sync::broadcast::error::TryRecvError;
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     process::Command,
+    sync::broadcast::error::TryRecvError,
 };
 use tokio_util::codec::{Decoder, LengthDelimitedCodec};
 
@@ -141,10 +140,13 @@ impl Service for TestServer {
     async fn send_ping(
         self,
         _: context::Context,
-        interface: Option<String>,
         destination: IpAddr,
+        interface: Option<String>,
+        size: usize,
     ) -> Result<(), test_rpc::Error> {
-        net::send_ping(interface.as_deref(), destination).await
+        net::send_ping(destination, interface.as_deref(), size)
+            .await
+            .map_err(|e| test_rpc::Error::Ping(e.to_string()))
     }
 
     async fn geoip_lookup(
@@ -192,6 +194,14 @@ impl Service for TestServer {
         interface: String,
     ) -> Result<IpAddr, test_rpc::Error> {
         net::get_interface_ip(&interface)
+    }
+
+    async fn get_interface_mtu(
+        self,
+        _: context::Context,
+        interface: String,
+    ) -> Result<u16, test_rpc::Error> {
+        net::get_interface_mtu(&interface)
     }
 
     async fn get_default_interface(self, _: context::Context) -> Result<String, test_rpc::Error> {
