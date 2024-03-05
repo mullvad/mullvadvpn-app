@@ -109,8 +109,8 @@ impl ServiceClient {
             .map_err(Error::Tarpc)
     }
 
-    /// Wait for the Mullvad service to enter a specified state. The state is inferred from the presence
-    /// of a named pipe or UDS, not the actual system service state.
+    /// Wait for the Mullvad service to enter a specified state. The state is inferred from the
+    /// presence of a named pipe or UDS, not the actual system service state.
     pub async fn mullvad_daemon_wait_for_state(
         &self,
         accept_state_fn: impl Fn(ServiceStatus) -> bool,
@@ -178,11 +178,12 @@ impl ServiceClient {
     /// Send ICMP
     pub async fn send_ping(
         &self,
-        interface: Option<String>,
         destination: IpAddr,
+        interface: Option<String>,
+        size: usize,
     ) -> Result<(), Error> {
         self.client
-            .send_ping(tarpc::context::current(), interface, destination)
+            .send_ping(tarpc::context::current(), destination, interface, size)
             .await?
     }
 
@@ -200,6 +201,13 @@ impl ServiceClient {
             .await?
     }
 
+    /// Returns the MTU of the given interface.
+    pub async fn get_interface_mtu(&self, interface: String) -> Result<u16, Error> {
+        self.client
+            .get_interface_mtu(tarpc::context::current(), interface)
+            .await?
+    }
+
     /// Returns the name of the default non-tunnel interface
     pub async fn get_default_interface(&self) -> Result<String, Error> {
         self.client
@@ -213,8 +221,8 @@ impl ServiceClient {
             .await?
     }
 
-    /// Start forwarding TCP from a server listening on `bind_addr` to the given address, and return a handle that closes the
-    /// server when dropped
+    /// Start forwarding TCP from a server listening on `bind_addr` to the given address, and return
+    /// a handle that closes the server when dropped
     pub async fn start_tcp_forward(
         &self,
         bind_addr: SocketAddr,

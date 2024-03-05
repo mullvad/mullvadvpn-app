@@ -21,7 +21,6 @@ use futures::future::BoxFuture;
 use mullvad_management_interface::MullvadProxyClient;
 use std::time::Duration;
 
-const PING_TIMEOUT: Duration = Duration::from_secs(3);
 const WAIT_FOR_TUNNEL_STATE_TIMEOUT: Duration = Duration::from_secs(40);
 
 #[derive(Clone)]
@@ -41,9 +40,6 @@ pub type TestWrapperFunction = Box<
 pub enum Error {
     #[error("RPC call failed")]
     Rpc(#[from] test_rpc::Error),
-
-    #[error("Timeout waiting for ping")]
-    PingTimeout,
 
     #[error("geoip lookup failed")]
     GeoipLookup(test_rpc::Error),
