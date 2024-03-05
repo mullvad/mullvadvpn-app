@@ -57,7 +57,7 @@ fun DeleteCustomList(
     DeleteCustomListConfirmationDialog(
         name = name,
         onDelete = viewModel::deleteCustomList,
-        onBack = { navigator.navigateBack() }
+        onBack = navigator::navigateBack
     )
 }
 

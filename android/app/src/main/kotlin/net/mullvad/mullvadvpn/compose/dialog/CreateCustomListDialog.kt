@@ -124,17 +124,7 @@ fun CreateCustomListDialog(
                     supportingText = {
                         if (uiState.error != null) {
                             Text(
-                                text =
-                                    stringResource(
-                                        id =
-                                            if (
-                                                uiState.error == CustomListsError.CustomListExists
-                                            ) {
-                                                R.string.custom_list_error_list_exists
-                                            } else {
-                                                R.string.error_occurred
-                                            }
-                                    ),
+                                text = uiState.error.errorString(),
                                 color = MaterialTheme.colorScheme.error,
                                 style = MaterialTheme.typography.bodySmall
                             )
@@ -166,3 +156,12 @@ fun CreateCustomListDialog(
         }
     )
 }
+
+@Composable
+private fun CustomListsError.errorString() =
+    stringResource(
+        when (this) {
+            CustomListsError.CustomListExists -> R.string.custom_list_error_list_exists
+            CustomListsError.OtherError -> R.string.error_occurred
+        }
+    )

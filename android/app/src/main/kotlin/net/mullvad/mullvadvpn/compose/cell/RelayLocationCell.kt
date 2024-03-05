@@ -45,7 +45,7 @@ import net.mullvad.mullvadvpn.relaylist.RelayItem
 
 @Composable
 @Preview
-private fun PreviewNormalRelayLocationCell() {
+private fun PreviewStatusRelayLocationCell() {
     AppTheme {
         Column(Modifier.background(color = MaterialTheme.colorScheme.background)) {
             val countryActive =
@@ -138,11 +138,11 @@ private fun PreviewNormalRelayLocationCell() {
                         )
                 )
             // Active relay list not expanded
-            NormalRelayLocationCell(countryActive)
+            StatusRelayLocationCell(countryActive)
             // Not Active Relay
-            NormalRelayLocationCell(countryNotActive)
+            StatusRelayLocationCell(countryNotActive)
             // Relay expanded country and city
-            NormalRelayLocationCell(countryActive.copy(expanded = true))
+            StatusRelayLocationCell(countryActive.copy(expanded = true))
         }
     }
 }
@@ -252,7 +252,7 @@ private fun PreviewCheckableRelayLocationCell() {
 }
 
 @Composable
-fun NormalRelayLocationCell(
+fun StatusRelayLocationCell(
     relay: RelayItem,
     modifier: Modifier = Modifier,
     activeColor: Color = MaterialTheme.colorScheme.selected,
@@ -273,7 +273,7 @@ fun NormalRelayLocationCell(
                         .background(
                             color =
                                 when {
-                                    selected -> Color.Transparent
+                                    selected -> Color.Unspecified
                                     relayItem is RelayItem.CustomList && !relayItem.hasChildren ->
                                         disabledColor
                                     relayItem.active -> activeColor
@@ -330,7 +330,7 @@ fun CheckableRelayLocationCell(
         leadingContentStartPadding = Dimens.cellStartPaddingInteractive,
         modifier = modifier,
         onClick = { onRelayCheckedChange(it, !selectedRelays.contains(it)) },
-        onLongClick = {},
+        onLongClick = null,
         depth = 0
     )
 }
@@ -345,7 +345,7 @@ private fun RelayLocationCell(
     leadingContentStarPaddingModifier: Dp = Dimens.mediumPadding,
     specialBackgroundColor: @Composable (relayItem: RelayItem) -> Color? = { null },
     onClick: (item: RelayItem) -> Unit,
-    onLongClick: (item: RelayItem) -> Unit,
+    onLongClick: ((item: RelayItem) -> Unit)?,
     depth: Int
 ) {
     val startPadding = leadingContentStartPadding + leadingContentStarPaddingModifier * depth
@@ -382,7 +382,7 @@ private fun RelayLocationCell(
                         .combinedClickable(
                             enabled = relay.active,
                             onClick = { onClick(relay) },
-                            onLongClick = { onLongClick(relay) },
+                            onLongClick = { onLongClick?.invoke(relay) },
                         )
             ) {
                 Box(

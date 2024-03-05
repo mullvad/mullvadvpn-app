@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
-import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.allChildren
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
@@ -63,7 +62,7 @@ class CustomListLocationsViewModel(
                             saveEnabled =
                                 selectedLocations.isNotEmpty() &&
                                     selectedLocations != _initialLocations.value,
-                            willDiscardChanges = selectedLocations != _initialLocations.value
+                            hasUnsavedChanges = selectedLocations != _initialLocations.value
                         )
                 }
             }
@@ -74,14 +73,7 @@ class CustomListLocationsViewModel(
             )
 
     init {
-        viewModelScope.launch {
-            _selectedLocations.value =
-                awaitCustomListById(customListId)
-                    ?.apply { customListName = name }
-                    ?.locations
-                    ?.selectChildren()
-                    .apply { _initialLocations.value = this ?: emptySet() }
-        }
+        viewModelScope.launch { fetchInitialSelectedLocations() }
     }
 
     fun save() {
@@ -194,6 +186,15 @@ class CustomListLocationsViewModel(
 
     private fun List<RelayItem>.selectChildren(): Set<RelayItem> =
         (this + flatMap { it.allChildren() }).toSet()
+
+    private suspend fun fetchInitialSelectedLocations() {
+        _selectedLocations.value =
+            awaitCustomListById(customListId)
+                ?.apply { customListName = name }
+                ?.locations
+                ?.selectChildren()
+                .apply { _initialLocations.value = this ?: emptySet() }
+    }
 
     companion object {
         private const val EMPTY_SEARCH_TERM = ""
