@@ -30,12 +30,12 @@ use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType}
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
-struct NftableGuard;
+struct DropPingFirewallGuard;
 
 #[cfg(target_os = "linux")]
 pub mod nft {
     use super::*;
-    impl Drop for NftableGuard {
+    impl Drop for DropPingFirewallGuard {
         fn drop(&mut self) {
             let mut cmd = std::process::Command::new("nft");
             cmd.args(["delete", "table", "inet", "DropPings"]);
@@ -47,8 +47,8 @@ pub mod nft {
         }
     }
 
-    impl NftableGuard {
-        pub async fn new(max_packet_size: usize) -> NftableGuard {
+    impl DropPingFirewallGuard {
+        pub async fn new(max_packet_size: usize) -> DropPingFirewallGuard {
             let ruleset = format!(
                 "table inet DropPings {{
             chain output {{
@@ -81,6 +81,28 @@ pub mod nft {
     }
 }
 
+#[cfg(target_os = "macos")]
+pub mod pf {
+    use super::*;
+    impl Drop for DropPingFirewallGuard {
+        fn drop(&mut self) {
+            todo!("Clean up pf ruleset")
+        }
+    }
+
+    impl DropPingFirewallGuard {
+        pub async fn new(max_packet_size: usize) -> DropPingFirewallGuard {
+            todo!("Set up pf ruleset");
+            Self::list_ruleset();
+            Self
+        }
+
+        fn list_ruleset() {
+            todo!("Print ruleset");
+        }
+    }
+}
+
 #[test_function(target_os = "windows")]
 pub async fn test_mtu_detection_windows(
     _: TestContext,
@@ -99,7 +121,6 @@ pub async fn test_mtu_detection_linux(
     test_mtu_detection(rpc, mullvad_client).await
 }
 
-#[cfg(any(target_os = "windows", target_os = "linux"))]
 async fn test_mtu_detection(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
@@ -134,7 +155,7 @@ async fn test_mtu_detection(
     disconnect_and_wait(&mut mullvad_client).await.unwrap();
 
     log::info!("Setting up nftables firewall rules");
-    let _nft_guard = NftableGuard::new(max_packet_size).await;
+    let _nft_guard = DropPingFirewallGuard::new(max_packet_size).await;
 
     log::info!("Sending small ping outside tunnel");
     // Make sure that the rule we just set up actually works
