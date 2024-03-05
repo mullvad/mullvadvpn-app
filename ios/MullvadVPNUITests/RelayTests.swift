@@ -205,7 +205,12 @@ class RelayTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .tapSecureConnectionButton()
 
-        allowAddVPNConfigurations()
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForSecureConnectionLabel()
+
+        try Networking.verifyCanAccessInternet()
 
         HeaderBar(app)
             .tapSettingsButton()
