@@ -63,24 +63,24 @@ class Networking {
         throw NetworkingError.internalError(reason: "Failed to determine device's IP address")
     }
 
-    private static func getAdServingDomainURL() -> URL? {
-        guard let adServingDomain = Bundle(for: BaseUITestCase.self)
-            .infoDictionary?["AdServingDomain"] as? String,
-            let adServingDomainURL = URL(string: adServingDomain) else {
-            XCTFail("Ad serving domain not configured")
-            return nil
-        }
-
-        return adServingDomainURL
-    }
-
+    /// Get configured ad serving domain
     private static func getAdServingDomain() throws -> String {
-        guard let adServingDomain = Bundle(for: BaseUITestCase.self)
+        guard let adServingDomain = Bundle(for: Networking.self)
             .infoDictionary?["AdServingDomain"] as? String else {
             throw NetworkingError.notConfiguredError
         }
 
         return adServingDomain
+    }
+
+    /// Get configured domain to use for Internet connectivity checks
+    private static func getAlwaysReachableDomain() throws -> String {
+        guard let shouldBeReachableDomain = Bundle(for: Networking.self)
+            .infoDictionary?["ShouldBeReachableDomain"] as? String else {
+            throw NetworkingError.notConfiguredError
+        }
+
+        return shouldBeReachableDomain
     }
 
     /// Check whether host and port is reachable by attempting to connect a socket
@@ -132,6 +132,16 @@ class Networking {
         let apiIPAddress = try MullvadAPIWrapper.getAPIIPAddress()
         let apiPort = try MullvadAPIWrapper.getAPIPort()
         XCTAssertFalse(try canConnectSocket(host: apiIPAddress, port: apiPort))
+    }
+
+    /// Verify that the device has Internet connectivity
+    public static func verifyCanAccessInternet() throws {
+        XCTAssertTrue(try canConnectSocket(host: getAlwaysReachableDomain(), port: "80"))
+    }
+
+    /// Verify that the device does not have Internet connectivity
+    public static func verifyCannotAccessInternet() throws {
+        XCTAssertFalse(try canConnectSocket(host: getAlwaysReachableDomain(), port: "80"))
     }
 
     /// Verify that an ad serving domain is reachable by making sure a connection can be established on port 80

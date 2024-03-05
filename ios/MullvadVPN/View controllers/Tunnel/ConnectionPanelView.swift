@@ -29,6 +29,7 @@ class ConnectionPanelView: UIView {
 
     var connectedRelayName = "" {
         didSet {
+            collapseButton.accessibilityIdentifier = .relayStatusCollapseButton
             collapseButton.setTitle(connectedRelayName, for: .normal)
             collapseButton.accessibilityLabel = NSLocalizedString(
                 "RELAY_ACCESSIBILITY_LABEL",
@@ -185,6 +186,7 @@ class ConnectionPanelAddressRow: UIView {
 
     private let detailTextLabel: UILabel = {
         let detailTextLabel = UILabel()
+        detailTextLabel.accessibilityIdentifier = .connectionPanelDetailLabel
         detailTextLabel.font = .systemFont(ofSize: 17)
         detailTextLabel.textColor = .white
         detailTextLabel.translatesAutoresizingMaskIntoConstraints = false

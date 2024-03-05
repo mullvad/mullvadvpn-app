@@ -31,6 +31,11 @@ class Page {
         return self
     }
 
+    @discardableResult func dismissKeyboard() -> Self {
+        self.enterText("\n")
+        return self
+    }
+
     /// Fast swipe down action to dismiss a modal view. Will swipe on the middle of the screen.
     @discardableResult func swipeDownToDismissModal() -> Self {
         app.swipeDown(velocity: .fast)

@@ -45,7 +45,8 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate 
             value: "Settings",
             comment: ""
         )
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
+
+        let doneButton = UIBarButtonItem(
             systemItem: .done,
             primaryAction: UIAction(handler: { [weak self] _ in
                 guard let self else { return }
@@ -53,6 +54,8 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate 
                 delegate?.settingsViewControllerDidFinish(self)
             })
         )
+        doneButton.accessibilityIdentifier = .settingsDoneButton
+        navigationItem.rightBarButtonItem = doneButton
 
         tableView.accessibilityIdentifier = .settingsTableView
         tableView.backgroundColor = .secondaryColor
