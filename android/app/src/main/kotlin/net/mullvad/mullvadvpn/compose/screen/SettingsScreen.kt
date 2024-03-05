@@ -11,13 +11,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
@@ -46,7 +46,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewSettings() {
     AppTheme {
         SettingsScreen(
-            uiState =
+            state =
                 SettingsUiState(
                     appVersion = "2222.22",
                     isLoggedIn = true,
@@ -62,9 +62,9 @@ private fun PreviewSettings() {
 @Composable
 fun Settings(navigator: DestinationsNavigator) {
     val vm = koinViewModel<SettingsViewModel>()
-    val state by vm.uiState.collectAsState()
+    val state by vm.uiState.collectAsStateWithLifecycle()
     SettingsScreen(
-        uiState = state,
+        state = state,
         onVpnSettingCellClick = {
             navigator.navigate(VpnSettingsDestination) { launchSingleTop = true }
         },
@@ -78,10 +78,11 @@ fun Settings(navigator: DestinationsNavigator) {
     )
 }
 
+@Suppress("LongMethod")
 @ExperimentalMaterial3Api
 @Composable
 fun SettingsScreen(
-    uiState: SettingsUiState,
+    state: SettingsUiState,
     onVpnSettingCellClick: () -> Unit = {},
     onSplitTunnelingCellClick: () -> Unit = {},
     onReportProblemCellClick: () -> Unit = {},
@@ -98,7 +99,7 @@ fun SettingsScreen(
             state = lazyListState
         ) {
             item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
-            if (uiState.isLoggedIn) {
+            if (state.isLoggedIn) {
                 item {
                     NavigationComposeCell(
                         title = stringResource(id = R.string.settings_vpn),
@@ -123,32 +124,32 @@ fun SettingsScreen(
                             Uri.parse(
                                 context.resources
                                     .getString(R.string.download_url)
-                                    .appendHideNavOnPlayBuild(uiState.isPlayBuild)
+                                    .appendHideNavOnPlayBuild(state.isPlayBuild)
                             )
                         )
                     },
                     bodyView =
                         @Composable {
-                            if (!uiState.isPlayBuild) {
+                            if (!state.isPlayBuild) {
                                 NavigationCellBody(
-                                    content = uiState.appVersion,
+                                    content = state.appVersion,
                                     contentBodyDescription =
                                         stringResource(id = R.string.app_version),
                                     isExternalLink = true,
                                 )
                             } else {
                                 Text(
-                                    text = uiState.appVersion,
+                                    text = state.appVersion,
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSecondary
                                 )
                             }
                         },
-                    showWarning = uiState.isUpdateAvailable,
-                    isRowEnabled = !uiState.isPlayBuild
+                    showWarning = state.isUpdateAvailable,
+                    isRowEnabled = !state.isPlayBuild
                 )
             }
-            if (uiState.isUpdateAvailable) {
+            if (state.isUpdateAvailable) {
                 item {
                     Text(
                         text = stringResource(id = R.string.update_available_footer),
@@ -174,7 +175,7 @@ fun SettingsScreen(
                 )
             }
 
-            if (!uiState.isPlayBuild) {
+            if (!state.isPlayBuild) {
                 itemWithDivider {
                     val faqGuideLabel = stringResource(id = R.string.faqs_and_guides)
                     NavigationComposeCell(
@@ -199,7 +200,7 @@ fun SettingsScreen(
                             Uri.parse(
                                 context.resources
                                     .getString(R.string.privacy_policy_url)
-                                    .appendHideNavOnPlayBuild(uiState.isPlayBuild)
+                                    .appendHideNavOnPlayBuild(state.isPlayBuild)
                             )
                         )
                     }

@@ -17,7 +17,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -28,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -75,7 +75,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewAccountScreen() {
     AppTheme {
         AccountScreen(
-            uiState =
+            state =
                 AccountUiState(
                     deviceName = "Test Name",
                     accountNumber = "1234123412341234",
@@ -110,7 +110,7 @@ fun Account(
     playPaymentResultRecipient: ResultRecipient<PaymentDestination, Boolean>
 ) {
     val vm = koinViewModel<AccountViewModel>()
-    val state by vm.uiState.collectAsState()
+    val state by vm.uiState.collectAsStateWithLifecycle()
 
     playPaymentResultRecipient.onNavResult {
         when (it) {
@@ -122,7 +122,7 @@ fun Account(
     }
 
     AccountScreen(
-        uiState = state,
+        state = state,
         uiSideEffect = vm.uiSideEffect,
         onRedeemVoucherClick = {
             navigator.navigate(RedeemVoucherDestination) { launchSingleTop = true }
@@ -152,7 +152,7 @@ fun Account(
 @ExperimentalMaterial3Api
 @Composable
 fun AccountScreen(
-    uiState: AccountUiState,
+    state: AccountUiState,
     uiSideEffect: Flow<AccountViewModel.UiSideEffect>,
     onCopyAccountNumber: (String) -> Unit = {},
     onRedeemVoucherClick: () -> Unit = {},
@@ -199,18 +199,18 @@ fun AccountScreen(
             verticalArrangement = Arrangement.spacedBy(Dimens.accountRowSpacing),
             modifier = modifier.animateContentSize().padding(horizontal = Dimens.sideMargin)
         ) {
-            DeviceNameRow(deviceName = uiState.deviceName ?: "", onInfoClick = navigateToDeviceInfo)
+            DeviceNameRow(deviceName = state.deviceName ?: "", onInfoClick = navigateToDeviceInfo)
 
-            AccountNumberRow(accountNumber = uiState.accountNumber ?: "", onCopyAccountNumber)
+            AccountNumberRow(accountNumber = state.accountNumber ?: "", onCopyAccountNumber)
 
-            PaidUntilRow(accountExpiry = uiState.accountExpiry)
+            PaidUntilRow(accountExpiry = state.accountExpiry)
 
             Spacer(modifier = Modifier.weight(1f))
 
             Column(modifier = Modifier.padding(bottom = Dimens.screenVerticalMargin)) {
-                uiState.billingPaymentState?.let {
+                state.billingPaymentState?.let {
                     PlayPayment(
-                        billingPaymentState = uiState.billingPaymentState,
+                        billingPaymentState = state.billingPaymentState,
                         onPurchaseBillingProductClick = { productId ->
                             onPurchaseBillingProductClick(productId)
                         },
@@ -219,7 +219,7 @@ fun AccountScreen(
                     )
                 }
 
-                if (uiState.showSitePayment) {
+                if (state.showSitePayment) {
                     ExternalButton(
                         text = stringResource(id = R.string.manage_account),
                         onClick = onManageAccountClick,

@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -28,6 +27,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -55,7 +55,7 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewReportProblemScreen() {
-    AppTheme { ReportProblemScreen(uiState = ReportProblemUiState()) }
+    AppTheme { ReportProblemScreen(state = ReportProblemUiState()) }
 }
 
 @Preview
@@ -63,7 +63,7 @@ private fun PreviewReportProblemScreen() {
 private fun PreviewReportProblemSendingScreen() {
     AppTheme {
         ReportProblemScreen(
-            uiState = ReportProblemUiState(sendingState = SendingReportUiState.Sending),
+            state = ReportProblemUiState(sendingState = SendingReportUiState.Sending),
         )
     }
 }
@@ -73,7 +73,7 @@ private fun PreviewReportProblemSendingScreen() {
 private fun PreviewReportProblemSuccessScreen() {
     AppTheme {
         ReportProblemScreen(
-            uiState =
+            state =
                 ReportProblemUiState(sendingState = SendingReportUiState.Success("email@mail.com")),
         )
     }
@@ -84,7 +84,7 @@ private fun PreviewReportProblemSuccessScreen() {
 private fun PreviewReportProblemErrorScreen() {
     AppTheme {
         ReportProblemScreen(
-            uiState =
+            state =
                 ReportProblemUiState(
                     sendingState =
                         SendingReportUiState.Error(SendProblemReportResult.Error.CollectLog)
@@ -100,7 +100,7 @@ fun ReportProblem(
     noEmailConfirmResultRecipent: ResultRecipient<ReportProblemNoEmailDialogDestination, Boolean>
 ) {
     val vm = koinViewModel<ReportProblemViewModel>()
-    val uiState by vm.uiState.collectAsState()
+    val state by vm.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         vm.uiSideEffect.collect {
@@ -115,13 +115,13 @@ fun ReportProblem(
     noEmailConfirmResultRecipent.onNavResult {
         when (it) {
             NavResult.Canceled -> {}
-            is NavResult.Value -> vm.sendReport(uiState.email, uiState.description, true)
+            is NavResult.Value -> vm.sendReport(state.email, state.description, true)
         }
     }
 
     ReportProblemScreen(
-        uiState,
-        onSendReport = { vm.sendReport(uiState.email, uiState.description) },
+        state,
+        onSendReport = { vm.sendReport(state.email, state.description) },
         onClearSendResult = vm::clearSendResult,
         onNavigateToViewLogs = {
             navigator.navigate(ViewLogsDestination()) { launchSingleTop = true }
@@ -134,7 +134,7 @@ fun ReportProblem(
 
 @Composable
 private fun ReportProblemScreen(
-    uiState: ReportProblemUiState,
+    state: ReportProblemUiState,
     onSendReport: () -> Unit = {},
     onClearSendResult: () -> Unit = {},
     onNavigateToViewLogs: () -> Unit = {},
@@ -148,7 +148,7 @@ private fun ReportProblemScreen(
         navigationIcon = { NavigateBackIconButton(onBackClick) }
     ) { modifier ->
         // Show sending states
-        if (uiState.sendingState != null) {
+        if (state.sendingState != null) {
             Column(
                 modifier =
                     modifier.padding(
@@ -156,10 +156,10 @@ private fun ReportProblemScreen(
                         horizontal = Dimens.sideMargin
                     )
             ) {
-                when (uiState.sendingState) {
+                when (state.sendingState) {
                     SendingReportUiState.Sending -> SendingContent()
                     is SendingReportUiState.Error -> ErrorContent(onSendReport, onClearSendResult)
-                    is SendingReportUiState.Success -> SentContent(uiState.sendingState)
+                    is SendingReportUiState.Success -> SentContent(state.sendingState)
                 }
                 return@ScaffoldWithMediumTopBar
             }
@@ -180,7 +180,7 @@ private fun ReportProblemScreen(
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = uiState.email,
+                value = state.email,
                 onValueChange = onEmailChanged,
                 maxLines = 1,
                 singleLine = true,
@@ -190,7 +190,7 @@ private fun ReportProblemScreen(
 
             TextField(
                 modifier = Modifier.fillMaxWidth().weight(1f),
-                value = uiState.description,
+                value = state.description,
                 onValueChange = onDescriptionChanged,
                 placeholder = { Text(stringResource(R.string.user_message_hint)) },
                 colors = mullvadWhiteTextFieldColors()
@@ -204,7 +204,7 @@ private fun ReportProblemScreen(
                 Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
                 VariantButton(
                     onClick = onSendReport,
-                    isEnabled = uiState.description.isNotEmpty(),
+                    isEnabled = state.description.isNotEmpty(),
                     text = stringResource(id = R.string.send)
                 )
             }

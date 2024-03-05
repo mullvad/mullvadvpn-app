@@ -37,7 +37,7 @@ class OutOfTimeScreenTest {
             // Arrange
             setContentWithTheme {
                 OutOfTimeScreen(
-                    uiState = OutOfTimeUiState(deviceName = ""),
+                    state = OutOfTimeUiState(deviceName = ""),
                     onSitePaymentClick = {},
                     onRedeemVoucherClick = {},
                     onSettingsClick = {},
@@ -61,7 +61,7 @@ class OutOfTimeScreenTest {
             // Arrange
             setContentWithTheme {
                 OutOfTimeScreen(
-                    uiState = OutOfTimeUiState(deviceName = "", showSitePayment = true),
+                    state = OutOfTimeUiState(deviceName = "", showSitePayment = true),
                     onSitePaymentClick = {},
                     onRedeemVoucherClick = {},
                     onSettingsClick = {},
@@ -81,7 +81,7 @@ class OutOfTimeScreenTest {
             val mockClickListener: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 OutOfTimeScreen(
-                    uiState = OutOfTimeUiState(deviceName = "", showSitePayment = true),
+                    state = OutOfTimeUiState(deviceName = "", showSitePayment = true),
                     onSitePaymentClick = mockClickListener,
                     onRedeemVoucherClick = {},
                     onSettingsClick = {},
@@ -104,7 +104,7 @@ class OutOfTimeScreenTest {
             val mockClickListener: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 OutOfTimeScreen(
-                    uiState = OutOfTimeUiState(deviceName = "", showSitePayment = true),
+                    state = OutOfTimeUiState(deviceName = "", showSitePayment = true),
                     onSitePaymentClick = {},
                     onRedeemVoucherClick = mockClickListener,
                     onSettingsClick = {},
@@ -127,7 +127,7 @@ class OutOfTimeScreenTest {
             val mockClickListener: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 OutOfTimeScreen(
-                    uiState =
+                    state =
                         OutOfTimeUiState(
                             tunnelState = TunnelState.Connecting(null, null),
                             deviceName = "",
@@ -154,7 +154,7 @@ class OutOfTimeScreenTest {
             // Arrange
             setContentWithTheme {
                 OutOfTimeScreen(
-                    uiState =
+                    state =
                         OutOfTimeUiState(
                             showSitePayment = true,
                             billingPaymentState = PaymentState.Error.Billing
@@ -180,7 +180,7 @@ class OutOfTimeScreenTest {
             every { mockPaymentProduct.status } returns null
             setContentWithTheme {
                 OutOfTimeScreen(
-                    uiState =
+                    state =
                         OutOfTimeUiState(
                             showSitePayment = true,
                             billingPaymentState =
@@ -207,7 +207,7 @@ class OutOfTimeScreenTest {
             every { mockPaymentProduct.status } returns PaymentStatus.PENDING
             setContentWithTheme {
                 OutOfTimeScreen(
-                    uiState =
+                    state =
                         OutOfTimeUiState(
                             showSitePayment = true,
                             billingPaymentState =
@@ -230,7 +230,7 @@ class OutOfTimeScreenTest {
             val mockNavigateToVerificationPending: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 OutOfTimeScreen(
-                    uiState =
+                    state =
                         OutOfTimeUiState(
                             showSitePayment = true,
                             billingPaymentState =
@@ -257,7 +257,7 @@ class OutOfTimeScreenTest {
             every { mockPaymentProduct.status } returns PaymentStatus.VERIFICATION_IN_PROGRESS
             setContentWithTheme {
                 OutOfTimeScreen(
-                    uiState =
+                    state =
                         OutOfTimeUiState(
                             billingPaymentState =
                                 PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
@@ -281,7 +281,7 @@ class OutOfTimeScreenTest {
             every { mockPaymentProduct.status } returns null
             setContentWithTheme {
                 OutOfTimeScreen(
-                    uiState =
+                    state =
                         OutOfTimeUiState(
                             billingPaymentState =
                                 PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
