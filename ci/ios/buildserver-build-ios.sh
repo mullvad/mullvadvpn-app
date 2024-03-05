@@ -93,7 +93,9 @@ function run_build_loop() {
 
         run_git fetch --prune --tags 2> /dev/null || continue
         local tags
-        mapfile -t tags < <(run_git tag | grep "$TAG_PATTERN_TO_BUILD")
+
+        # shellcheck disable=SC2207
+        tags=( $(run_git tag | grep "$TAG_PATTERN_TO_BUILD") )
 
         for tag in "${tags[@]}"; do
           build_ref "refs/tags/$tag"
