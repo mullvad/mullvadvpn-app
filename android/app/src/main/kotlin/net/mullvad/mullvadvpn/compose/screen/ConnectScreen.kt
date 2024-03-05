@@ -308,6 +308,7 @@ fun ConnectScreen(
                 state = uiState.tunnelUiState,
                 modifier =
                     Modifier.padding(horizontal = Dimens.sideMargin)
+                        .padding(bottom = Dimens.screenVerticalMargin)
                         .testTag(CONNECT_BUTTON_TEST_TAG),
                 disconnectClick = onDisconnectClick,
                 reconnectClick = { handleThrottledAction(onReconnectClick) },
