@@ -5,8 +5,11 @@ import android.net.Uri
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -37,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -95,7 +98,7 @@ private fun PreviewConnectScreen() {
     val state = ConnectUiState.INITIAL
     AppTheme {
         ConnectScreen(
-            uiState = state,
+            state = state,
         )
     }
 }
@@ -105,7 +108,7 @@ private fun PreviewConnectScreen() {
 fun Connect(navigator: DestinationsNavigator) {
     val connectViewModel: ConnectViewModel = koinViewModel()
 
-    val state = connectViewModel.uiState.collectAsState().value
+    val state by connectViewModel.uiState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     LaunchedEffect(key1 = Unit) {
@@ -130,7 +133,7 @@ fun Connect(navigator: DestinationsNavigator) {
         }
     }
     ConnectScreen(
-        uiState = state,
+        state = state,
         onDisconnectClick = connectViewModel::onDisconnectClick,
         onReconnectClick = connectViewModel::onReconnectClick,
         onConnectClick = connectViewModel::onConnectClick,
@@ -160,7 +163,7 @@ fun Connect(navigator: DestinationsNavigator) {
 
 @Composable
 fun ConnectScreen(
-    uiState: ConnectUiState,
+    state: ConnectUiState,
     onDisconnectClick: () -> Unit = {},
     onReconnectClick: () -> Unit = {},
     onConnectClick: () -> Unit = {},
@@ -174,65 +177,22 @@ fun ConnectScreen(
 ) {
 
     val scrollState = rememberScrollState()
-    var lastConnectionActionTimestamp by remember { mutableLongStateOf(0L) }
-
-    fun handleThrottledAction(action: () -> Unit) {
-        val currentTime = System.currentTimeMillis()
-        if ((currentTime - lastConnectionActionTimestamp) > CONNECT_BUTTON_THROTTLE_MILLIS) {
-            lastConnectionActionTimestamp = currentTime
-            action.invoke()
-        }
-    }
 
     ScaffoldWithTopBarAndDeviceName(
-        topBarColor = uiState.tunnelUiState.topBarColor(),
-        iconTintColor = uiState.tunnelUiState.iconTintColor(),
+        topBarColor = state.tunnelUiState.topBarColor(),
+        iconTintColor = state.tunnelUiState.iconTintColor(),
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
-        deviceName = uiState.deviceName,
-        timeLeft = uiState.daysLeftUntilExpiry
+        deviceName = state.deviceName,
+        timeLeft = state.daysLeftUntilExpiry
     ) {
         var progressIndicatorBias by remember { mutableFloatStateOf(0f) }
 
-        // Distance to marker when secure/unsecure
-        val baseZoom =
-            animateFloatAsState(
-                targetValue =
-                    if (uiState.tunnelRealState is TunnelState.Connected) SECURE_ZOOM
-                    else UNSECURE_ZOOM,
-                animationSpec = tween(SECURE_ZOOM_ANIMATION_MILLIS),
-                label = "baseZoom"
-            )
-
-        val markers =
-            uiState.tunnelRealState.toMarker(uiState.location)?.let { listOf(it) } ?: emptyList()
-
-        AnimatedMap(
-            modifier = Modifier.padding(top = it.calculateTopPadding()),
-            cameraLocation = uiState.location?.toLatLong() ?: fallbackLatLong,
-            cameraBaseZoom = baseZoom.value,
-            cameraVerticalBias = progressIndicatorBias,
-            markers = markers,
-            globeColors =
-                GlobeColors(
-                    landColor = MaterialTheme.colorScheme.primary,
-                    oceanColor = MaterialTheme.colorScheme.secondary,
-                )
-        )
-
-        Column(
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.Start,
-            modifier =
-                Modifier.animateContentSize()
-                    .padding(top = it.calculateTopPadding())
-                    .fillMaxHeight()
-                    .drawVerticalScrollbar(
-                        scrollState,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar)
-                    )
-                    .verticalScroll(scrollState)
-                    .testTag(SCROLLABLE_COLUMN_TEST_TAG)
+        MapColumn(
+            state,
+            it,
+            progressIndicatorBias,
+            scrollState,
         ) {
             Spacer(modifier = Modifier.defaultMinSize(minHeight = Dimens.mediumPadding).weight(1f))
             MullvadCircularProgressIndicatorLarge(
@@ -244,7 +204,7 @@ fun ConnectScreen(
                             end = Dimens.sideMargin,
                             top = Dimens.mediumPadding
                         )
-                        .alpha(if (uiState.showLoading) AlphaVisible else AlphaInvisible)
+                        .alpha(if (state.showLoading) AlphaVisible else AlphaInvisible)
                         .align(Alignment.CenterHorizontally)
                         .testTag(CIRCULAR_PROGRESS_INDICATOR)
                         .onGloballyPositioned {
@@ -259,77 +219,165 @@ fun ConnectScreen(
                         }
             )
             Spacer(modifier = Modifier.defaultMinSize(minHeight = Dimens.mediumPadding).weight(1f))
-            ConnectionStatusText(
-                state = uiState.tunnelRealState,
-                modifier = Modifier.padding(horizontal = Dimens.sideMargin)
-            )
-            Text(
-                text = uiState.location?.country ?: "",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.padding(horizontal = Dimens.sideMargin)
-            )
-            Text(
-                text = uiState.location?.city ?: "",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.padding(horizontal = Dimens.sideMargin)
-            )
-            var expanded by rememberSaveable { mutableStateOf(false) }
-            LocationInfo(
-                onToggleTunnelInfo = { expanded = !expanded },
-                isVisible = uiState.showLocationInfo,
-                isExpanded = expanded,
-                location = uiState.location,
-                inAddress = uiState.inAddress,
-                outAddress = uiState.outAddress,
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .padding(horizontal = Dimens.sideMargin)
-                        .testTag(LOCATION_INFO_TEST_TAG)
-            )
+
+            ConnectionInfo(state = state)
+
             Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
-            SwitchLocationButton(
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .padding(horizontal = Dimens.sideMargin)
-                        .testTag(SELECT_LOCATION_BUTTON_TEST_TAG),
-                onClick = onSwitchLocationClick,
-                showChevron = uiState.showLocation,
-                text =
-                    if (uiState.showLocation && uiState.selectedRelayItem != null) {
-                        uiState.selectedRelayItem.locationName
-                    } else {
-                        stringResource(id = R.string.switch_location)
-                    }
+
+            ButtonPanel(
+                state,
+                onSwitchLocationClick,
+                onDisconnectClick,
+                onReconnectClick,
+                onCancelClick,
+                onConnectClick,
             )
-            Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
-            ConnectionButton(
-                state = uiState.tunnelUiState,
-                modifier =
-                    Modifier.padding(horizontal = Dimens.sideMargin)
-                        .padding(bottom = Dimens.screenVerticalMargin)
-                        .testTag(CONNECT_BUTTON_TEST_TAG),
-                disconnectClick = onDisconnectClick,
-                reconnectClick = { handleThrottledAction(onReconnectClick) },
-                cancelClick = onCancelClick,
-                connectClick = { handleThrottledAction(onConnectClick) },
-                reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG
-            )
-            // We need to manually add this padding so we align size with the map
-            // component and marker with the progress indicator.
-            Spacer(modifier = Modifier.height(it.calculateBottomPadding()))
         }
 
         NotificationBanner(
             modifier = Modifier.padding(top = it.calculateTopPadding()),
-            notification = uiState.inAppNotification,
-            isPlayBuild = uiState.isPlayBuild,
+            notification = state.inAppNotification,
+            isPlayBuild = state.isPlayBuild,
             onClickUpdateVersion = onUpdateVersionClick,
             onClickShowAccount = onManageAccountClick,
             onClickDismissNewDevice = onDismissNewDeviceClick,
         )
     }
+}
+
+@Composable
+private fun MapColumn(
+    state: ConnectUiState,
+    it: PaddingValues,
+    progressIndicatorBias: Float,
+    scrollState: ScrollState,
+    content: @Composable ColumnScope.() -> Unit
+) {
+
+    // Distance to marker when secure/unsecure
+    val baseZoom =
+        animateFloatAsState(
+            targetValue =
+                if (state.tunnelRealState is TunnelState.Connected) SECURE_ZOOM else UNSECURE_ZOOM,
+            animationSpec = tween(SECURE_ZOOM_ANIMATION_MILLIS),
+            label = "baseZoom"
+        )
+
+    val markers = state.tunnelRealState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
+
+    AnimatedMap(
+        modifier = Modifier.padding(top = it.calculateTopPadding()),
+        cameraLocation = state.location?.toLatLong() ?: fallbackLatLong,
+        cameraBaseZoom = baseZoom.value,
+        cameraVerticalBias = progressIndicatorBias,
+        markers = markers,
+        globeColors =
+            GlobeColors(
+                landColor = MaterialTheme.colorScheme.primary,
+                oceanColor = MaterialTheme.colorScheme.secondary,
+            )
+    )
+
+    Column(
+        verticalArrangement = Arrangement.Bottom,
+        horizontalAlignment = Alignment.Start,
+        modifier =
+            Modifier.animateContentSize()
+                .padding(top = it.calculateTopPadding())
+                .fillMaxHeight()
+                .drawVerticalScrollbar(
+                    scrollState,
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar)
+                )
+                .verticalScroll(scrollState)
+                .testTag(SCROLLABLE_COLUMN_TEST_TAG)
+    ) {
+        content()
+        // We need to manually add this padding so we align size with the map
+        // component and marker with the progress indicator.
+        Spacer(modifier = Modifier.height(it.calculateBottomPadding()))
+    }
+}
+
+@Composable
+private fun ConnectionInfo(state: ConnectUiState) {
+    ConnectionStatusText(
+        state = state.tunnelRealState,
+        modifier = Modifier.padding(horizontal = Dimens.sideMargin)
+    )
+    Text(
+        text = state.location?.country ?: "",
+        style = MaterialTheme.typography.headlineLarge,
+        color = MaterialTheme.colorScheme.onPrimary,
+        modifier = Modifier.padding(horizontal = Dimens.sideMargin)
+    )
+    Text(
+        text = state.location?.city ?: "",
+        style = MaterialTheme.typography.headlineLarge,
+        color = MaterialTheme.colorScheme.onPrimary,
+        modifier = Modifier.padding(horizontal = Dimens.sideMargin)
+    )
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    LocationInfo(
+        onToggleTunnelInfo = { expanded = !expanded },
+        isVisible = state.showLocationInfo,
+        isExpanded = expanded,
+        location = state.location,
+        inAddress = state.inAddress,
+        outAddress = state.outAddress,
+        modifier =
+            Modifier.fillMaxWidth()
+                .padding(horizontal = Dimens.sideMargin)
+                .testTag(LOCATION_INFO_TEST_TAG)
+    )
+}
+
+@Composable
+private fun ButtonPanel(
+    state: ConnectUiState,
+    onSwitchLocationClick: () -> Unit,
+    onDisconnectClick: () -> Unit,
+    onReconnectClick: () -> Unit,
+    onCancelClick: () -> Unit,
+    onConnectClick: () -> Unit,
+) {
+    var lastConnectionActionTimestamp by remember { mutableLongStateOf(0L) }
+
+    fun handleThrottledAction(action: () -> Unit) {
+        val currentTime = System.currentTimeMillis()
+        if ((currentTime - lastConnectionActionTimestamp) > CONNECT_BUTTON_THROTTLE_MILLIS) {
+            lastConnectionActionTimestamp = currentTime
+            action.invoke()
+        }
+    }
+
+    SwitchLocationButton(
+        modifier =
+            Modifier.fillMaxWidth()
+                .padding(horizontal = Dimens.sideMargin)
+                .testTag(SELECT_LOCATION_BUTTON_TEST_TAG),
+        onClick = onSwitchLocationClick,
+        showChevron = state.showLocation,
+        text =
+            if (state.showLocation && state.selectedRelayItem != null) {
+                state.selectedRelayItem.locationName
+            } else {
+                stringResource(id = R.string.switch_location)
+            }
+    )
+    Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
+    ConnectionButton(
+        state = state.tunnelUiState,
+        modifier =
+            Modifier.padding(horizontal = Dimens.sideMargin)
+                .padding(bottom = Dimens.screenVerticalMargin)
+                .testTag(CONNECT_BUTTON_TEST_TAG),
+        disconnectClick = onDisconnectClick,
+        reconnectClick = { handleThrottledAction(onReconnectClick) },
+        cancelClick = onCancelClick,
+        connectClick = { handleThrottledAction(onConnectClick) },
+        reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG
+    )
 }
 
 @Composable
