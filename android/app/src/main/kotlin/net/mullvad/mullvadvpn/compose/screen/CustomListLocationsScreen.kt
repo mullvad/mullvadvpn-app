@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -21,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
@@ -40,6 +40,8 @@ import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.destinations.DiscardChangesDialogDestination
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
+import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
+import net.mullvad.mullvadvpn.compose.test.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -176,7 +178,8 @@ private fun Actions(isSaveEnabled: Boolean, onSaveClick: () -> Unit) {
         enabled = isSaveEnabled,
         colors =
             ButtonDefaults.textButtonColors()
-                .copy(contentColor = MaterialTheme.colorScheme.onPrimary)
+                .copy(contentColor = MaterialTheme.colorScheme.onPrimary),
+        modifier = Modifier.testTag(SAVE_BUTTON_TEST_TAG)
     ) {
         Text(
             text = stringResource(R.string.save),
@@ -186,7 +189,9 @@ private fun Actions(isSaveEnabled: Boolean, onSaveClick: () -> Unit) {
 
 private fun LazyListScope.loading() {
     item(key = CommonContentKey.PROGRESS, contentType = ContentType.PROGRESS) {
-        MullvadCircularProgressIndicatorLarge()
+        MullvadCircularProgressIndicatorLarge(
+            modifier = Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
+        )
     }
 }
 
