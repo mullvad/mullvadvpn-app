@@ -3182,6 +3182,7 @@ dependencies = [
  "pcap",
  "pnet_packet 0.31.0",
  "regex",
+ "scopeguard",
  "serde",
  "serde_json",
  "socks-server",
