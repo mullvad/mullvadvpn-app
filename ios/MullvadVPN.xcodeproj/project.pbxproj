@@ -603,6 +603,7 @@
 		8529693A2B4F0238007EAD4C /* TermsOfServicePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969392B4F0238007EAD4C /* TermsOfServicePage.swift */; };
 		8529693C2B4F0257007EAD4C /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8529693B2B4F0257007EAD4C /* Alert.swift */; };
 		8532E6872B8CCED600ACECD1 /* ProblemReportSubmittedPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8532E6862B8CCED600ACECD1 /* ProblemReportSubmittedPage.swift */; };
+		8542CE242B95F7B9006FCA14 /* VPNSettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8542CE232B95F7B9006FCA14 /* VPNSettingsPage.swift */; };
 		85557B0E2B591B2600795FE1 /* FirewallAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85557B0D2B591B2600795FE1 /* FirewallAPIClient.swift */; };
 		85557B102B59215F00795FE1 /* FirewallRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85557B0F2B59215F00795FE1 /* FirewallRule.swift */; };
 		85557B122B594FC900795FE1 /* ConnectivityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85557B112B594FC900795FE1 /* ConnectivityTests.swift */; };
@@ -1828,6 +1829,7 @@
 		852969392B4F0238007EAD4C /* TermsOfServicePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfServicePage.swift; sourceTree = "<group>"; };
 		8529693B2B4F0257007EAD4C /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		8532E6862B8CCED600ACECD1 /* ProblemReportSubmittedPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportSubmittedPage.swift; sourceTree = "<group>"; };
+		8542CE232B95F7B9006FCA14 /* VPNSettingsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsPage.swift; sourceTree = "<group>"; };
 		85557B0D2B591B2600795FE1 /* FirewallAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirewallAPIClient.swift; sourceTree = "<group>"; };
 		85557B0F2B59215F00795FE1 /* FirewallRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirewallRule.swift; sourceTree = "<group>"; };
 		85557B112B594FC900795FE1 /* ConnectivityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectivityTests.swift; sourceTree = "<group>"; };
@@ -3536,6 +3538,7 @@
 				850201E22B51A93C00EF8C96 /* SettingsPage.swift */,
 				852969392B4F0238007EAD4C /* TermsOfServicePage.swift */,
 				850201DE2B5040A500EF8C96 /* TunnelControlPage.swift */,
+				8542CE232B95F7B9006FCA14 /* VPNSettingsPage.swift */,
 			);
 			path = Pages;
 			sourceTree = "<group>";
@@ -5500,6 +5503,7 @@
 				8529693A2B4F0238007EAD4C /* TermsOfServicePage.swift in Sources */,
 				8532E6872B8CCED600ACECD1 /* ProblemReportSubmittedPage.swift in Sources */,
 				850201DF2B5040A500EF8C96 /* TunnelControlPage.swift in Sources */,
+				8542CE242B95F7B9006FCA14 /* VPNSettingsPage.swift in Sources */,
 				85557B1E2B5FB8C700795FE1 /* HeaderBar.swift in Sources */,
 				85557B122B594FC900795FE1 /* ConnectivityTests.swift in Sources */,
 				852969332B4E9232007EAD4C /* Page.swift in Sources */,

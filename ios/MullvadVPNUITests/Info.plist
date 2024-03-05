@@ -20,6 +20,8 @@
 	<string>$(IOS_DEVICE_PIN_CODE)</string>
 	<key>NoTimeAccountNumber</key>
 	<string>$(NO_TIME_ACCOUNT_NUMBER)</string>
+	<key>ShouldBeReachableDomain</key>
+	<string>$(SHOULD_BE_REACHABLE_DOMAIN)</string>
 	<key>TestDeviceIdentifier</key>
 	<string>$(TEST_DEVICE_IDENTIFIER_UUID</string>
 </dict>
