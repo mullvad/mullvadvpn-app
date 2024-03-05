@@ -13,9 +13,10 @@ on:
   workflow_dispatch:
     inputs:
       oses:
-        description: "Comma separated list of targets to run tests on, e.g. `debian11 debian12`. Available images for \
-          each OS are\nLinux: 'debian11','debian12','ubuntu2004','ubuntu2204','ubuntu2304','ubuntu2310','fedora39',\
-          'fedora38','fedora37','fedora36'\nWindows:'windows10','windows11'\nmacOS'macos12','macos13','macos14'."
+        description: "Comma separated list of targets to run tests on, e.g. `debian11 debian12`.\
+          Available images are:\n
+          `debian11 debian12 ubuntu2004 ubuntu2204 ubuntu2304 ubuntu2310 fedora39\
+          fedora38 fedora37 fedora36 windows10 windows11 macos12 macos13 macos14`."
         default: ''
         required: false
         type: string
