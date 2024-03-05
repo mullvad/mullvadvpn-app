@@ -89,6 +89,8 @@ pub async fn spawn_monitor(
         let mut route_listener = route_listener.fuse();
 
         loop {
+            talpid_types::detect_flood!();
+
             select! {
                 _ = timeout => {
                     // Update shared state

@@ -3618,6 +3618,7 @@ dependencies = [
  "err-derive",
  "ipnetwork",
  "jnix",
+ "log",
  "serde",
  "x25519-dalek",
  "zeroize",
