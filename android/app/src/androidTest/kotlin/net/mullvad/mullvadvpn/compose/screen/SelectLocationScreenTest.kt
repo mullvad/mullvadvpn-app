@@ -3,23 +3,22 @@ package net.mullvad.mullvadvpn.compose.screen
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
+import net.mullvad.mullvadvpn.compose.data.DUMMY_CUSTOM_LISTS
+import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_COUNTRIES
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
-import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.PortRange
-import net.mullvad.mullvadvpn.model.RelayEndpointData
-import net.mullvad.mullvadvpn.model.RelayList
-import net.mullvad.mullvadvpn.model.RelayListCity
-import net.mullvad.mullvadvpn.model.RelayListCountry
-import net.mullvad.mullvadvpn.model.WireguardEndpointData
-import net.mullvad.mullvadvpn.model.WireguardRelayEndpointData
-import net.mullvad.mullvadvpn.relaylist.toRelayCountries
+import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
+import net.mullvad.mullvadvpn.performLongClick
+import net.mullvad.mullvadvpn.relaylist.RelayItem
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -170,41 +169,143 @@ class SelectLocationScreenTest {
             onNodeWithText("Try a different search", substring = true).assertExists()
         }
 
-    companion object {
-        private val DUMMY_RELAY_1 =
-            net.mullvad.mullvadvpn.model.Relay(
-                hostname = "Relay host 1",
-                active = true,
-                endpointData = RelayEndpointData.Wireguard(WireguardRelayEndpointData),
-                owned = true,
-                provider = "PROVIDER"
-            )
-        private val DUMMY_RELAY_2 =
-            net.mullvad.mullvadvpn.model.Relay(
-                hostname = "Relay host 2",
-                active = true,
-                endpointData = RelayEndpointData.Wireguard(WireguardRelayEndpointData),
-                owned = true,
-                provider = "PROVIDER"
-            )
-        private val DUMMY_RELAY_CITY_1 =
-            RelayListCity("Relay City 1", "RCi1", arrayListOf(DUMMY_RELAY_1))
-        private val DUMMY_RELAY_CITY_2 =
-            RelayListCity("Relay City 2", "RCi2", arrayListOf(DUMMY_RELAY_2))
-        private val DUMMY_RELAY_COUNTRY_1 =
-            RelayListCountry("Relay Country 1", "RCo1", arrayListOf(DUMMY_RELAY_CITY_1))
-        private val DUMMY_RELAY_COUNTRY_2 =
-            RelayListCountry("Relay Country 2", "RCo2", arrayListOf(DUMMY_RELAY_CITY_2))
-
-        private val DUMMY_WIREGUARD_PORT_RANGES = ArrayList<PortRange>()
-        private val DUMMY_WIREGUARD_ENDPOINT_DATA =
-            WireguardEndpointData(DUMMY_WIREGUARD_PORT_RANGES)
-
-        private val DUMMY_RELAY_COUNTRIES =
-            RelayList(
-                    arrayListOf(DUMMY_RELAY_COUNTRY_1, DUMMY_RELAY_COUNTRY_2),
-                    DUMMY_WIREGUARD_ENDPOINT_DATA,
+    @Test
+    fun givenNoCustomListsAndSearchIsTermIsEmptyShouldShowCustomListsEmptyText() =
+        composeExtension.use {
+            // Arrange
+            val mockSearchString = ""
+            setContentWithTheme {
+                SelectLocationScreen(
+                    uiState =
+                        SelectLocationUiState.Content(
+                            customLists = emptyList(),
+                            filteredCustomLists = emptyList(),
+                            countries = emptyList(),
+                            selectedItem = null,
+                            selectedOwnership = null,
+                            selectedProvidersCount = 0,
+                            searchTerm = mockSearchString
+                        ),
                 )
-                .toRelayCountries(ownership = Constraint.Any(), providers = Constraint.Any())
+            }
+
+            // Assert
+            onNodeWithText(CUSTOM_LISTS_EMPTY_TEXT).assertExists()
+        }
+
+    @Test
+    fun givenNoCustomListsAndSearchIsActiveShouldNotShowCustomListHeader() =
+        composeExtension.use {
+            // Arrange
+            val mockSearchString = "SEARCH"
+            setContentWithTheme {
+                SelectLocationScreen(
+                    uiState =
+                        SelectLocationUiState.Content(
+                            customLists = DUMMY_CUSTOM_LISTS,
+                            filteredCustomLists = emptyList(),
+                            countries = emptyList(),
+                            selectedItem = null,
+                            selectedOwnership = null,
+                            selectedProvidersCount = 0,
+                            searchTerm = mockSearchString
+                        ),
+                )
+            }
+
+            // Assert
+            onNodeWithText(CUSTOM_LISTS_EMPTY_TEXT).assertDoesNotExist()
+            onNodeWithTag(SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG).assertDoesNotExist()
+        }
+
+    @Test
+    fun whenCustomListIsClickedShouldCallOnSelectRelay() =
+        composeExtension.use {
+            // Arrange
+            val customList = DUMMY_CUSTOM_LISTS[0]
+            val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
+            setContentWithTheme {
+                SelectLocationScreen(
+                    uiState =
+                        SelectLocationUiState.Content(
+                            customLists = DUMMY_CUSTOM_LISTS,
+                            filteredCustomLists = DUMMY_CUSTOM_LISTS,
+                            countries = emptyList(),
+                            selectedItem = null,
+                            selectedOwnership = null,
+                            selectedProvidersCount = 0,
+                            searchTerm = ""
+                        ),
+                    onSelectRelay = mockedOnSelectRelay
+                )
+            }
+
+            // Act
+            onNodeWithText(customList.name).performClick()
+
+            // Assert
+            verify { mockedOnSelectRelay(customList) }
+        }
+
+    @Test
+    fun whenCustomListIsLongClickedShouldShowBottomSheet() =
+        composeExtension.use {
+            // Arrange
+            val customList = DUMMY_CUSTOM_LISTS[0]
+            val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
+            setContentWithTheme {
+                SelectLocationScreen(
+                    uiState =
+                        SelectLocationUiState.Content(
+                            customLists = DUMMY_CUSTOM_LISTS,
+                            filteredCustomLists = DUMMY_CUSTOM_LISTS,
+                            countries = emptyList(),
+                            selectedItem = null,
+                            selectedOwnership = null,
+                            selectedProvidersCount = 0,
+                            searchTerm = ""
+                        ),
+                    onSelectRelay = mockedOnSelectRelay
+                )
+            }
+
+            // Act
+            onNodeWithText(customList.name).performLongClick()
+
+            // Assert
+            onNodeWithTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG)
+        }
+
+    @Test
+    fun whenLocationIsLongClickedShouldShowBottomSheet() =
+        composeExtension.use {
+            // Arrange
+            val relayItem = DUMMY_RELAY_COUNTRIES[0]
+            val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
+            setContentWithTheme {
+                SelectLocationScreen(
+                    uiState =
+                    SelectLocationUiState.Content(
+                        customLists = emptyList(),
+                        filteredCustomLists = emptyList(),
+                        countries = DUMMY_RELAY_COUNTRIES,
+                        selectedItem = null,
+                        selectedOwnership = null,
+                        selectedProvidersCount = 0,
+                        searchTerm = ""
+                    ),
+                    onSelectRelay = mockedOnSelectRelay
+                )
+            }
+
+            // Act
+            onNodeWithText(relayItem.name).performLongClick()
+
+            // Assert
+            onNodeWithTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
+        }
+
+    companion object {
+        private const val CUSTOM_LISTS_EMPTY_TEXT = "To create a custom list press the \"︙\""
     }
 }
