@@ -1,4 +1,4 @@
-use crate::{debounce::BurstGuard, Gateway, MacAddress, NetNode, Node, RequiredRoute, Route};
+use crate::{debounce::BurstGuard, Gateway, MacAddress, NetNode, RequiredRoute, Route};
 
 use futures::{
     channel::mpsc::{self, UnboundedReceiver},
@@ -18,6 +18,8 @@ use watch::RoutingTable;
 
 use super::{DefaultRouteEvent, RouteManagerCommand};
 use data::{Destination, RouteDestination, RouteMessage, RouteSocketMessage};
+
+pub use interface::DefaultRoute;
 
 mod data;
 mod interface;
@@ -138,6 +140,7 @@ impl RouteManagerImpl {
         // Initialize default routes
         // NOTE: This isn't race-free, as we're not listening for route changes before initializing
         self.update_best_default_route(interface::Family::V4)
+            .await
             .unwrap_or_else(|error| {
                 log::error!(
                     "{}",
@@ -146,6 +149,7 @@ impl RouteManagerImpl {
                 false
             });
         self.update_best_default_route(interface::Family::V6)
+            .await
             .unwrap_or_else(|error| {
                 log::error!(
                     "{}",
@@ -191,29 +195,8 @@ impl RouteManagerImpl {
                             let _ = tx.send(events_rx);
                         }
                         Some(RouteManagerCommand::GetDefaultRoutes(tx)) => {
-                            let v4_route = self.v4_default_route.as_ref().map(|route| {
-                                Route {
-                                    node: Node {
-                                        device: Some(route.interface.clone()),
-                                        ip: Some(route.router_ip),
-                                    },
-                                    prefix: interface::Family::V4.default_network(),
-                                    metric: None,
-                                    mtu: None,
-                                }
-                            });
-                            let v6_route = self.v6_default_route.as_ref().map(|route| {
-                                Route {
-                                    node: Node {
-                                        device: Some(route.interface.clone()),
-                                        ip: Some(route.router_ip),
-                                    },
-                                    prefix: interface::Family::V6.default_network(),
-                                    metric: None,
-                                    mtu: None,
-                                }
-                            });
-
+                            let v4_route = self.v4_default_route.clone();
+                            let v6_route = self.v6_default_route.clone();
                             let _ = tx.send((v4_route, v6_route));
                         }
                         Some(RouteManagerCommand::GetDefaultGateway(tx)) => {
@@ -405,8 +388,10 @@ impl RouteManagerImpl {
     ///   server. The gateway of the relay route is set to the first interface in the network
     ///   service order that has a working ifscoped default route.
     async fn refresh_routes(&mut self) -> Result<()> {
-        self.update_best_default_route(interface::Family::V4)?;
-        self.update_best_default_route(interface::Family::V6)?;
+        self.update_best_default_route(interface::Family::V4)
+            .await?;
+        self.update_best_default_route(interface::Family::V6)
+            .await?;
 
         self.debug_offline();
 
@@ -445,8 +430,9 @@ impl RouteManagerImpl {
     /// a valid IP address and gateway.
     ///
     /// On success, the function returns whether the previously known best default changed.
-    fn update_best_default_route(&mut self, family: interface::Family) -> Result<bool> {
+    async fn update_best_default_route(&mut self, family: interface::Family) -> Result<bool> {
         let best_route = self.primary_interface_monitor.get_route(family);
+
         let current_route = get_current_best_default_route!(self, family);
 
         log::trace!("Best route ({family:?}): {best_route:?}");
