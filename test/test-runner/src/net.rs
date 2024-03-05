@@ -4,7 +4,6 @@ use std::{ffi::CString, num::NonZeroU32};
 use std::{
     io::Write,
     net::{IpAddr, SocketAddr},
-    process::Output,
 };
 
 pub async fn send_tcp(
@@ -240,6 +239,11 @@ pub fn get_default_interface() -> &'static str {
     "en0"
 }
 
+#[cfg(target_os = "macos")]
+pub fn get_interface_mtu(_interface_name: &str) -> Result<u16, test_rpc::Error> {
+    todo!("Implement setting MTU on macOS")
+}
+
 #[cfg(target_os = "linux")]
 pub fn get_interface_mtu(interface_name: &str) -> Result<u16, test_rpc::Error> {
     use std::os::fd::AsRawFd;
@@ -280,14 +284,16 @@ pub fn get_interface_mtu(interface_name: &str) -> Result<u16, test_rpc::Error> {
 pub fn get_interface_mtu(interface: &str) -> Result<u16, test_rpc::Error> {
     let luid = talpid_windows::net::luid_from_alias(interface).map_err(|error| {
         log::error!("Failed to obtain interface LUID: {error}");
+        test_rpc::Error::Syscall
     })?;
     talpid_windows::net::get_ip_interface_entry(talpid_windows::net::AddressFamily::Ipv4, &luid)
         .map_err(|_error| test_rpc::Error::InterfaceNotFound)
-        .map(|row| row.NlMtu)
+        .map(|row| row.NlMtu.try_into().unwrap())
 }
 
-#[cfg(any(target_os = "macos", target_os = "windows"))]
+#[cfg(target_os = "windows")]
 fn result_from_output<E>(action: &'static str, output: Output, err: E) -> Result<(), E> {
+    use std::process::Output;
     if output.status.success() {
         return Ok(());
     }

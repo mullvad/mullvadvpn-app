@@ -201,12 +201,7 @@ impl Service for TestServer {
         _: context::Context,
         interface: String,
     ) -> Result<u16, test_rpc::Error> {
-        #[cfg(not(target_os = "macos"))]
-        {
-            net::get_interface_mtu(&interface)
-        }
-        #[cfg(target_os = "macos")]
-        todo!("Implement setting MTU on macOS")
+        net::get_interface_mtu(&interface)
     }
 
     async fn get_default_interface(self, _: context::Context) -> Result<String, test_rpc::Error> {

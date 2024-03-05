@@ -8,7 +8,6 @@ use super::{
 use crate::{
     assert_tunnel_state,
     tests::helpers::{disconnect_and_wait, ping_sized_with_timeout},
-    vm::network::linux::run_nft,
 };
 // use crate::tests::helpers::{disconnect_and_wait, ping_sized_with_timeout};
 use crate::vm::network::DUMMY_LAN_INTERFACE_IP;
@@ -60,7 +59,7 @@ pub mod nft {
             );
 
             // Set nftables ruleset
-            run_nft(&ruleset).await.unwrap();
+            crate::vm::network::linux::run_nft(&ruleset).await.unwrap();
             Self::list_ruleset();
             Self
         }
@@ -100,6 +99,7 @@ pub async fn test_mtu_detection_linux(
     test_mtu_detection(rpc, mullvad_client).await
 }
 
+#[cfg(any(target_os = "windows", target_os = "linux"))]
 async fn test_mtu_detection(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
