@@ -22,7 +22,7 @@ class SelectLocationPage: Page {
         return self
     }
 
-    @discardableResult func tapLocationCellExpandButton(withName name: String) -> Self {
+    @discardableResult func tapLocationCellExpandCollapseButton(withName name: String) -> Self {
         let table = app.tables[AccessibilityIdentifier.selectLocationTableView]
         let matchingCells = table.cells.containing(.any, identifier: name)
         let buttons = matchingCells.buttons

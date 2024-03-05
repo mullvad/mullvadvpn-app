@@ -34,6 +34,7 @@ class FirewallAPIClient {
             "label": sessionIdentifier,
             "from": firewallRule.fromIPAddress,
             "to": firewallRule.toIPAddress,
+            "protocols": firewallRule.protocolsAsStringArray(),
         ]
 
         var requestError: Error?
@@ -80,7 +81,6 @@ class FirewallAPIClient {
 
         var request = URLRequest(url: removeRulesURL)
         request.httpMethod = "DELETE"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
         var requestResponse: URLResponse?
         var requestError: Error?

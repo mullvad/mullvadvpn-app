@@ -13,8 +13,15 @@ class SettingsPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .settingsTableView
+        self.pageAccessibilityIdentifier = .settingsContainerView
         waitForPageToBeShown()
+    }
+
+    @discardableResult func tapDoneButton() -> Self {
+        app.buttons[AccessibilityIdentifier.settingsDoneButton]
+            .tap()
+
+        return self
     }
 
     @discardableResult func tapVPNSettingsCell() -> Self {

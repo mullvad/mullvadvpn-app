@@ -38,6 +38,7 @@ class VPNSettingsViewController: UITableViewController, VPNSettingsDataSourceDel
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        tableView.accessibilityIdentifier = .vpnSettingsTableView
         tableView.backgroundColor = .secondaryColor
         tableView.separatorColor = .secondaryColor
         tableView.rowHeight = UITableView.automaticDimension

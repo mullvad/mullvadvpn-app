@@ -12,6 +12,7 @@ import XCTest
 class BaseUITestCase: XCTestCase {
     let app = XCUIApplication()
     static let defaultTimeout = 5.0
+    static let shortTimeout = 1.0
 
     // swiftlint:disable force_cast
     let displayName = Bundle(for: BaseUITestCase.self)
@@ -41,6 +42,15 @@ class BaseUITestCase: XCTestCase {
         }
     }
 
+    /// Handle iOS add VPN configuration permission alert if presented, otherwise ignore
+    func allowAddVPNConfigurationsIfAsked() {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+
+        if springboard.buttons["Allow"].waitForExistence(timeout: Self.shortTimeout) {
+            allowAddVPNConfigurations()
+        }
+    }
+
     // MARK: - Setup & teardown
 
     /// Suite level teardown ran after test have executed
@@ -62,8 +72,14 @@ class BaseUITestCase: XCTestCase {
     /// Check if currently logged on to an account. Note that it is assumed that we are logged in if login view isn't currently shown.
     func isLoggedIn() -> Bool {
         return !app
-            .otherElements[AccessibilityIdentifier.loginView.rawValue]
+            .otherElements[AccessibilityIdentifier.loginView]
             .waitForExistence(timeout: 1.0)
+    }
+
+    func isPresentingSettings() -> Bool {
+        return app
+            .otherElements[AccessibilityIdentifier.settingsContainerView]
+            .exists
     }
 
     func agreeToTermsOfServiceIfShown() {
@@ -101,10 +117,14 @@ class BaseUITestCase: XCTestCase {
 
     func logoutIfLoggedIn() {
         if isLoggedIn() {
+            if isPresentingSettings() {
+                SettingsPage(app)
+                    .swipeDownToDismissModal()
+            }
+
             if app.buttons[AccessibilityIdentifier.accountButton].exists {
                 HeaderBar(app)
                     .tapAccountButton()
-
                 AccountPage(app)
                     .tapLogOutButton()
             } else {
