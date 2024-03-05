@@ -105,6 +105,7 @@ fun SelectLocation(navigator: DestinationsNavigator) {
     )
 }
 
+@Suppress("LongMethod")
 @Composable
 fun SelectLocationScreen(
     state: SelectLocationUiState,

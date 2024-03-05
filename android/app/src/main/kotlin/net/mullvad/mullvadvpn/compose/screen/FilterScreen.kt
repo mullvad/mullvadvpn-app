@@ -89,6 +89,7 @@ fun FilterScreen(navigator: DestinationsNavigator) {
     )
 }
 
+@Suppress("LongMethod")
 @Composable
 fun FilterScreen(
     state: RelayFilterState,
