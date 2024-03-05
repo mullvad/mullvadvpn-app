@@ -30,76 +30,55 @@ use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType}
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
-struct DropPingFirewallGuard;
-
-#[cfg(target_os = "linux")]
-pub mod nft {
-    use super::*;
-    impl Drop for DropPingFirewallGuard {
-        fn drop(&mut self) {
-            let mut cmd = std::process::Command::new("nft");
-            cmd.args(["delete", "table", "inet", "DropPings"]);
-            let output = cmd.output().unwrap();
-            if !output.status.success() {
-                panic!("{}", std::str::from_utf8(&output.stderr).unwrap());
-            }
-            Self::list_ruleset();
-        }
-    }
-
-    impl DropPingFirewallGuard {
-        pub async fn new(max_packet_size: usize) -> DropPingFirewallGuard {
-            let ruleset = format!(
-                "table inet DropPings {{
-            chain output {{
-                type filter hook postrouting priority 0; policy accept;
-                ip length > {max_packet_size} drop;
-              }}
-        }}"
-            );
-
-            // Set nftables ruleset
-            crate::vm::network::linux::run_nft(&ruleset).await.unwrap();
-            Self::list_ruleset();
-            Self
-        }
-
-        fn list_ruleset() {
-            let output = std::process::Command::new("nft")
-                .args(["list", "ruleset"])
-                .output()
-                .unwrap();
-
-            log::debug!(
-                "Set NF-tables ruleset to:\n{}",
-                String::from_utf8(output.stdout).unwrap()
-            );
-
-            let exit_status = output.status;
-            assert_eq!(exit_status.code(), Some(0));
-        }
-    }
+#[cfg(target_os = "macos")]
+async fn setup_packetfilter_drop_pings_rule(
+    max_packet_size: usize,
+) -> scopeguard::ScopeGuard<(), impl FnOnce(())> {
+    todo!()
 }
 
-#[cfg(target_os = "macos")]
-pub mod PacketFilter {
-    use super::*;
-    impl Drop for DropPingFirewallGuard {
-        fn drop(&mut self) {
-            todo!("Clean up PacketFilter ruleset")
-        }
-    }
+#[cfg(target_os = "linux")]
+async fn setup_nftables_drop_pings_rule(
+    max_packet_size: usize,
+) -> scopeguard::ScopeGuard<(), impl FnOnce(())> {
+    fn log_ruleset() {
+        let output = std::process::Command::new("nft")
+            .args(["list", "ruleset"])
+            .output()
+            .unwrap();
 
-    impl DropPingFirewallGuard {
-        #[allow(clippy::unused_async)]
-        pub async fn new(_max_packet_size: usize) -> DropPingFirewallGuard {
-            todo!("Set up PacketFilter ruleset")
-        }
+        log::debug!(
+            "Set NF-tables ruleset to:\n{}",
+            String::from_utf8(output.stdout).unwrap()
+        );
 
-        fn list_ruleset() {
-            todo!("Print ruleset")
-        }
+        let exit_status = output.status;
+        assert_eq!(exit_status.code(), Some(0));
     }
+    // Set nftables ruleset
+    crate::vm::network::linux::run_nft(
+        &(format!(
+            "table inet DropPings {{
+                chain postrouting {{
+                    type filter hook postrouting priority 0; policy accept;
+                    ip length > {max_packet_size} drop;
+                }}
+            }}"
+        )),
+    )
+    .await
+    .unwrap();
+    log_ruleset();
+
+    scopeguard::guard((), |()| {
+        let mut cmd = std::process::Command::new("nft");
+        cmd.args(["delete", "table", "inet", "DropPings"]);
+        let output = cmd.output().unwrap();
+        if !output.status.success() {
+            panic!("{}", std::str::from_utf8(&output.stderr).unwrap());
+        }
+        log_ruleset();
+    })
 }
 
 #[test_function(target_os = "windows")]
@@ -154,7 +133,10 @@ async fn test_mtu_detection(
     disconnect_and_wait(&mut mullvad_client).await.unwrap();
 
     log::info!("Setting up nftables firewall rules");
-    let _nft_guard = DropPingFirewallGuard::new(max_packet_size).await;
+    #[cfg(target_os = "linux")]
+    let _nft_guard = setup_nftables_drop_pings_rule(max_packet_size).await;
+    #[cfg(target_os = "macos")]
+    let _pf_guard = setup_packetfilter_drop_pings_rule(max_packet_size).await;
 
     log::info!("Sending small ping outside tunnel");
     // Make sure that the rule we just set up actually works
