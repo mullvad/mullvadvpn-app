@@ -6,6 +6,7 @@ use self::process::ExclusionStatus;
 #[allow(non_camel_case_types)]
 mod bindings;
 mod bpf;
+mod default;
 mod process;
 mod tun;
 
