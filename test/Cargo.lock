@@ -3229,6 +3229,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+ "test-rpc",
 ]
 
 [[package]]
