@@ -68,3 +68,57 @@ macro_rules! win32_err {
         }
     }};
 }
+
+#[cfg(feature = "log")]
+pub mod flood {
+    use std::time::{Duration, Instant};
+
+    const CALLS_INTERVAL: Duration = Duration::from_secs(10);
+    const CALLS_THRESHOLD: usize = 10_000;
+
+    #[macro_export]
+    macro_rules! detect_flood {
+        () => {{
+            static FLOOD: ::once_cell::sync::Lazy<
+                std::sync::Mutex<talpid_types::flood::DetectFlood>,
+            > = ::once_cell::sync::Lazy::new(|| {
+                std::sync::Mutex::new(talpid_types::flood::DetectFlood::new())
+            });
+            if FLOOD.lock().unwrap().bump() {
+                log::debug!("Flood: {}, line {}, col {}", file!(), line!(), column!());
+            }
+        }};
+    }
+
+    /// Used to functions that are called too frequently
+    pub struct DetectFlood {
+        last_clear: Instant,
+        counter: usize,
+    }
+
+    impl DetectFlood {
+        pub fn new() -> Self {
+            DetectFlood {
+                last_clear: Instant::now(),
+                counter: 0,
+            }
+        }
+
+        pub fn bump(&mut self) -> bool {
+            let now = Instant::now();
+            if now.saturating_duration_since(self.last_clear) >= CALLS_INTERVAL {
+                self.last_clear = now;
+                self.counter = 0;
+            } else {
+                self.counter = self.counter.saturating_add(1);
+
+                if self.counter >= CALLS_THRESHOLD {
+                    self.last_clear = now;
+                    self.counter = 0;
+                    return true;
+                }
+            }
+            false
+        }
+    }
+}
