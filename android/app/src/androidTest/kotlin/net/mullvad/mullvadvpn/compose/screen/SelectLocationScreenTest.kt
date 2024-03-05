@@ -9,7 +9,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
-import net.mullvad.mullvadvpn.compose.state.RelayListState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.model.Constraint
@@ -55,12 +54,11 @@ class SelectLocationScreenTest {
             setContentWithTheme {
                 SelectLocationScreen(
                     uiState =
-                        SelectLocationUiState.Data(
-                            relayListState =
-                                RelayListState.RelayList(
-                                    countries = DUMMY_RELAY_COUNTRIES,
-                                    selectedItem = null
-                                ),
+                        SelectLocationUiState.Content(
+                            customLists = emptyList(),
+                            filteredCustomLists = emptyList(),
+                            countries = DUMMY_RELAY_COUNTRIES,
+                            selectedItem = null,
                             selectedOwnership = null,
                             selectedProvidersCount = 0,
                             searchTerm = ""
@@ -95,12 +93,11 @@ class SelectLocationScreenTest {
             setContentWithTheme {
                 SelectLocationScreen(
                     uiState =
-                        SelectLocationUiState.Data(
-                            relayListState =
-                                RelayListState.RelayList(
-                                    countries = updatedDummyList,
-                                    selectedItem = updatedDummyList[0].cities[0].relays[0]
-                                ),
+                        SelectLocationUiState.Content(
+                            customLists = emptyList(),
+                            filteredCustomLists = emptyList(),
+                            countries = updatedDummyList,
+                            selectedItem = updatedDummyList[0].cities[0].relays[0],
                             selectedOwnership = null,
                             selectedProvidersCount = 0,
                             searchTerm = ""
@@ -125,12 +122,11 @@ class SelectLocationScreenTest {
             setContentWithTheme {
                 SelectLocationScreen(
                     uiState =
-                        SelectLocationUiState.Data(
-                            relayListState =
-                                RelayListState.RelayList(
-                                    countries = emptyList(),
-                                    selectedItem = null
-                                ),
+                        SelectLocationUiState.Content(
+                            customLists = emptyList(),
+                            filteredCustomLists = emptyList(),
+                            countries = emptyList(),
+                            selectedItem = null,
                             selectedOwnership = null,
                             selectedProvidersCount = 0,
                             searchTerm = ""
@@ -156,8 +152,11 @@ class SelectLocationScreenTest {
             setContentWithTheme {
                 SelectLocationScreen(
                     uiState =
-                        SelectLocationUiState.Data(
-                            relayListState = RelayListState.Empty,
+                        SelectLocationUiState.Content(
+                            customLists = emptyList(),
+                            filteredCustomLists = emptyList(),
+                            countries = emptyList(),
+                            selectedItem = null,
                             selectedOwnership = null,
                             selectedProvidersCount = 0,
                             searchTerm = mockSearchString
