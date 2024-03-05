@@ -54,7 +54,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterCell
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.IconCell
-import net.mullvad.mullvadvpn.compose.cell.NormalRelayLocationCell
+import net.mullvad.mullvadvpn.compose.cell.StatusRelayLocationCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.cell.ThreeDotCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
@@ -287,9 +287,7 @@ fun SelectLocationScreen(
                     }
                 }
             }
-            var bottomSheetState by remember {
-                mutableStateOf<BottomSheetState>(BottomSheetState.Hidden)
-            }
+            var bottomSheetState by remember { mutableStateOf<BottomSheetState?>(null) }
             LazyColumn(
                 modifier =
                     Modifier.fillMaxSize()
@@ -350,7 +348,7 @@ fun SelectLocationScreen(
                 onEditCustomListName = onEditCustomListName,
                 onEditLocationsCustomList = onEditLocationsCustomList,
                 onDeleteCustomList = onDeleteCustomList,
-                onHideBottomSheet = { bottomSheetState = BottomSheetState.Hidden }
+                onHideBottomSheet = { bottomSheetState = null }
             )
         }
     }
@@ -384,7 +382,7 @@ private fun LazyListScope.customLists(
             key = { item -> item.code },
             contentType = { ContentType.ITEM },
         ) { customList ->
-            NormalRelayLocationCell(
+            StatusRelayLocationCell(
                 relay = customList,
                 // Do not show selection for locations in custom lists
                 selectedItem = selectedItem as? RelayItem.CustomList,
@@ -426,7 +424,7 @@ private fun LazyListScope.relayList(
         key = { item -> item.code },
         contentType = { ContentType.ITEM },
     ) { country ->
-        NormalRelayLocationCell(
+        StatusRelayLocationCell(
             relay = country,
             selectedItem = selectedItem,
             onSelectRelay = onSelectRelay,
@@ -438,7 +436,7 @@ private fun LazyListScope.relayList(
 
 @Composable
 private fun BottomSheets(
-    bottomSheetState: BottomSheetState,
+    bottomSheetState: BottomSheetState?,
     onCreateCustomList: (RelayItem?) -> Unit,
     onEditCustomLists: () -> Unit,
     onAddLocationToList: (RelayItem, RelayItem.CustomList) -> Unit,
@@ -474,7 +472,7 @@ private fun BottomSheets(
                 closeBottomSheet = onHideBottomSheet
             )
         }
-        BottomSheetState.Hidden -> {
+        null -> {
             /* Do nothing */
         }
     }
@@ -711,7 +709,6 @@ private const val EXTRA_ITEMS_LOCATION = 3
 private const val EXTRA_ITEM_CUSTOM_LIST = 1
 
 sealed interface BottomSheetState {
-    data object Hidden : BottomSheetState
 
     data class ShowCustomListsBottomSheet(val editListEnabled: Boolean) : BottomSheetState
 

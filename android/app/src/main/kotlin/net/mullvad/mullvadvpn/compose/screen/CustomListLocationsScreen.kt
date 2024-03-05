@@ -67,18 +67,16 @@ fun CustomListLocations(
             parameters = { parametersOf(customListId, newList) }
         )
 
-    discardChangesResultRecipient.onNavResult(
-        listener = {
-            when (it) {
-                NavResult.Canceled -> {}
-                is NavResult.Value -> {
-                    if (it.value) {
-                        backNavigator.navigateBack()
-                    }
+    discardChangesResultRecipient.onNavResult {
+        when (it) {
+            NavResult.Canceled -> {}
+            is NavResult.Value -> {
+                if (it.value) {
+                    backNavigator.navigateBack()
                 }
             }
         }
-    )
+    }
 
     LaunchedEffect(Unit) {
         customListsViewModel.uiSideEffect.collect { sideEffect ->
@@ -96,7 +94,7 @@ fun CustomListLocations(
         onSaveClick = customListsViewModel::save,
         onRelaySelectionClick = customListsViewModel::onRelaySelectionClick,
         onBackClick = {
-            if (state.willDiscardChanges) {
+            if (state.hasUnsavedChanges) {
                 navigator.navigate(DiscardChangesDialogDestination) { launchSingleTop = true }
             } else {
                 backNavigator.navigateBack()
