@@ -183,7 +183,7 @@ private fun Actions(onDeleteList: () -> Unit) {
             DropdownMenu(
                 expanded = true,
                 onDismissRequest = { showMenu = false },
-                modifier = Modifier.background(MaterialTheme.colorScheme.background)
+                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer)
             ) {
                 DropdownMenuItem(
                     text = { Text(text = stringResource(id = R.string.delete_list)) },
@@ -196,8 +196,8 @@ private fun Actions(onDeleteList: () -> Unit) {
                     colors =
                         MenuDefaults.itemColors()
                             .copy(
-                                leadingIconColor = MaterialTheme.colorScheme.onBackground,
-                                textColor = MaterialTheme.colorScheme.onBackground,
+                                leadingIconColor = MaterialTheme.colorScheme.onSurface,
+                                textColor = MaterialTheme.colorScheme.onSurface,
                             ),
                     onClick = {
                         onDeleteList()

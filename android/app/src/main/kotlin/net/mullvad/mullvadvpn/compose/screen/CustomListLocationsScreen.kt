@@ -2,13 +2,15 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,6 +35,7 @@ import net.mullvad.mullvadvpn.compose.component.LocationsEmptyText
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
+import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.destinations.DiscardChangesDialogDestination
@@ -41,6 +44,7 @@ import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
@@ -83,6 +87,7 @@ fun CustomListLocations(
             when (sideEffect) {
                 is CustomListLocationsSideEffect.ReturnWithResult ->
                     backNavigator.navigateBack(result = sideEffect.result)
+                CustomListLocationsSideEffect.CloseScreen -> backNavigator.navigateBack()
             }
         }
     }
@@ -112,8 +117,6 @@ fun CustomListLocationsScreen(
     onRelaySelectionClick: (RelayItem, selected: Boolean) -> Unit = { _, _ -> },
     onBackClick: () -> Unit = {}
 ) {
-    val backgroundColor = MaterialTheme.colorScheme.background
-
     ScaffoldWithSmallTopBar(
         appBarTitle =
             stringResource(
@@ -125,40 +128,41 @@ fun CustomListLocationsScreen(
             ),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         actions = { Actions(isSaveEnabled = uiState.saveEnabled, onSaveClick = onSaveClick) }
-    ) { modifier, lazyListState ->
-        LazyColumn(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier,
-            state = lazyListState,
-        ) {
-            stickyHeader {
-                Box(
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .background(backgroundColor)
-                            .padding(bottom = Dimens.verticalSpace)
-                ) {
-                    SearchTextField(
-                        modifier =
-                            Modifier.fillMaxWidth()
-                                .height(Dimens.searchFieldHeight)
-                                .padding(horizontal = Dimens.searchFieldHorizontalPadding),
-                        backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        textColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                    ) { searchString ->
-                        onSearchTermInput.invoke(searchString)
-                    }
-                }
+    ) { modifier ->
+        Column(modifier = modifier) {
+            SearchTextField(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .height(Dimens.searchFieldHeight)
+                        .padding(horizontal = Dimens.searchFieldHorizontalPadding),
+                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+                textColor = MaterialTheme.colorScheme.onTertiaryContainer,
+            ) { searchString ->
+                onSearchTermInput.invoke(searchString)
             }
-            when (uiState) {
-                is CustomListLocationsUiState.Loading -> {
-                    loading()
-                }
-                is CustomListLocationsUiState.Content.Empty -> {
-                    empty(searchTerm = uiState.searchTerm)
-                }
-                is CustomListLocationsUiState.Content.Data -> {
-                    content(uiState = uiState, onRelaySelectedChanged = onRelaySelectionClick)
+            Spacer(modifier = Modifier.height(Dimens.verticalSpace))
+            val lazyListState = rememberLazyListState()
+            LazyColumn(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier =
+                    Modifier.drawVerticalScrollbar(
+                            state = lazyListState,
+                            color =
+                                MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar)
+                        )
+                        .fillMaxWidth(),
+                state = lazyListState,
+            ) {
+                when (uiState) {
+                    is CustomListLocationsUiState.Loading -> {
+                        loading()
+                    }
+                    is CustomListLocationsUiState.Content.Empty -> {
+                        empty(searchTerm = uiState.searchTerm)
+                    }
+                    is CustomListLocationsUiState.Content.Data -> {
+                        content(uiState = uiState, onRelaySelectedChanged = onRelaySelectionClick)
+                    }
                 }
             }
         }
