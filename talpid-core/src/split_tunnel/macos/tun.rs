@@ -4,7 +4,7 @@
 use super::{
     bindings::{pcap_create, pcap_set_want_pktap, pktap_header, PCAP_ERRBUF_SIZE},
     bpf,
-    default::{get_default_interface, DefaultInterface},
+    default::DefaultInterface,
 };
 use futures::{Stream, StreamExt};
 use libc::{AF_INET, AF_INET6};
@@ -27,7 +27,6 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr},
     ptr::NonNull,
 };
-use talpid_routing::RouteManagerHandle;
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     sync::broadcast,
@@ -86,9 +85,6 @@ pub enum Error {
     /// Failed to receive next pktap packet
     #[error("Failed to receive next pktap packet")]
     PktapStreamStopped,
-    /// Failed to obtain default interface
-    #[error("Failed to obtain default interface")]
-    DefaultInterfaceError(#[from] super::default::Error),
 }
 
 /// Routing decision made for an outbound packet
@@ -116,7 +112,6 @@ pub struct VpnInterface {
 pub struct SplitTunnelHandle {
     redir_handle: Option<RedirectHandle>,
     tun_name: String,
-    route_manager: RouteManagerHandle,
 }
 
 impl SplitTunnelHandle {
@@ -132,14 +127,13 @@ impl SplitTunnelHandle {
         &self.tun_name
     }
 
-    pub async fn set_vpn_tunnel(
+    pub async fn set_interfaces(
         mut self,
+        default_interface: DefaultInterface,
         vpn_interface: Option<VpnInterface>,
     ) -> Result<Self, Error> {
         let handle = self.redir_handle.take().unwrap();
         let (st_utun, pktap_stream, classify, _default_interface, _) = handle.stop().await?;
-
-        let default_interface = get_default_interface(&self.route_manager).await?;
 
         self.redir_handle = Some(
             redirect_packets_for_pktap_stream(
@@ -164,12 +158,10 @@ impl SplitTunnelHandle {
 /// `classify` receives an Ethernet frame. The Ethernet header is not valid at this point, however.
 /// Only the IP header and payload are.
 pub async fn create_split_tunnel(
-    route_manager: RouteManagerHandle,
+    default_interface: DefaultInterface,
     vpn_interface: Option<VpnInterface>,
     classify: impl Fn(&PktapPacket) -> RoutingDecision + Send + 'static,
 ) -> Result<SplitTunnelHandle, Error> {
-    let default_interface = get_default_interface(&route_manager).await?;
-
     let mut tun_config = tun::configure();
     tun_config.address(ST_IFACE_IPV4).up();
     let tun_device =
@@ -197,7 +189,6 @@ pub async fn create_split_tunnel(
     Ok(SplitTunnelHandle {
         redir_handle: Some(redir_handle),
         tun_name,
-        route_manager,
     })
 }
 

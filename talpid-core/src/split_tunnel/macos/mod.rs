@@ -21,9 +21,19 @@ pub enum Error {
     /// Failed to initialize split tunnel
     #[error("Failed to initialize split tunnel")]
     InitializeTunnel(#[from] tun::Error),
+    /// Default interface unavailable
+    #[error("Default interface unavailable")]
+    Default(#[from] default::Error),
     /// Split tunnel is unavailable
     #[error("Split tunnel is unavailable")]
     Unavailable,
+}
+
+impl Error {
+    /// Return whether the error is due to a missing default route
+    pub fn is_offline(&self) -> bool {
+        matches!(self, Error::Default(_))
+    }
 }
 
 /// Handle for interacting with the split tunnel module
@@ -164,6 +174,11 @@ impl Handle {
                 Ok(())
             }
             State::Initialized { route_manager, .. } => {
+                // Try to update the default interface first
+                // If this fails, remain in the current state and just fail
+                let default_interface = default::get_default_interface(route_manager).await?;
+
+                // Update the VPN interface
                 let route_manager = route_manager.clone();
                 let prev_state = std::mem::replace(
                     &mut self.state,
@@ -183,7 +198,10 @@ impl Handle {
 
                 log::debug!("Updating split tunnel device");
 
-                match tun_handle.set_vpn_tunnel(new_vpn_interface).await {
+                match tun_handle
+                    .set_interfaces(default_interface, new_vpn_interface)
+                    .await
+                {
                     Ok(tun_handle) => {
                         self.state = State::Initialized {
                             route_manager,
@@ -203,6 +221,10 @@ impl Handle {
                     return Ok(());
                 }
 
+                // Try to update the default interface first
+                // If this fails, remain in the current state and just fail
+                let default_interface = default::get_default_interface(route_manager).await?;
+
                 let route_manager = route_manager.clone();
                 let State::HasProcessMonitor {
                     route_manager,
@@ -221,10 +243,8 @@ impl Handle {
                 log::debug!("Initializing split tunnel device");
 
                 let states = process.states().clone();
-                let result = tun::create_split_tunnel(
-                    route_manager.clone(),
-                    new_vpn_interface,
-                    move |packet| {
+                let result =
+                    tun::create_split_tunnel(default_interface, new_vpn_interface, move |packet| {
                         match states.get_process_status(packet.header.pth_pid as u32) {
                             ExclusionStatus::Excluded => tun::RoutingDecision::DefaultInterface,
                             ExclusionStatus::Included => tun::RoutingDecision::VpnTunnel,
@@ -233,9 +253,8 @@ impl Handle {
                                 tun::RoutingDecision::Drop
                             }
                         }
-                    },
-                )
-                .await;
+                    })
+                    .await;
 
                 match result {
                     Ok(tun_handle) => {
