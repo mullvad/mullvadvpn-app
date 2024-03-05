@@ -140,7 +140,7 @@ pub async fn send_ping(
     destination: IpAddr,
     interface: Option<&str>,
     size: usize,
-) -> Result<(), surge_ping::SurgeError> {
+) -> Result<(), test_rpc::Error> {
     use surge_ping::{Client, Config, PingIdentifier, PingSequence, ICMP};
 
     const IPV4_HEADER_SIZE: usize = 20;
@@ -152,17 +152,20 @@ pub async fn send_ping(
         IpAddr::V4(_) => Config::builder(),
         IpAddr::V6(_) => Config::builder().kind(ICMP::V6),
     };
-    let config = if let Some(iface_name) = interface {
-        config.interface(iface_name)
+    let config = if let Some(interface) = interface {
+        let interface_ip = get_interface_ip(interface)?;
+        config.interface(interface).bind((interface_ip, 0).into())
     } else {
         config
     };
-    let client = Client::new(&config.build())?;
+    let client = Client::new(&config.build()).map_err(|e| test_rpc::Error::Ping(e.to_string()))?;
     let mut pinger = client
         .pinger(destination, PingIdentifier(rand::random()))
         .await;
-    pinger.ping(PingSequence(0), payload).await?;
-    // surge_ping::ping(destination, payload).await?;
+    pinger
+        .ping(PingSequence(0), payload)
+        .await
+        .map_err(|e| test_rpc::Error::Ping(e.to_string()))?;
 
     Ok(())
 }
