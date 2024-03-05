@@ -30,7 +30,7 @@ use test_rpc::ServiceClient;
 
 #[cfg(target_os = "macos")]
 async fn setup_packetfilter_drop_pings_rule(
-    max_packet_size: usize,
+    max_packet_size: u16,
 ) -> scopeguard::ScopeGuard<(), impl FnOnce(())> {
     todo!()
 }
