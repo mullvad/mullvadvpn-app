@@ -2208,6 +2208,9 @@ msgstr ""
 msgid "No locations found"
 msgstr ""
 
+msgid "Not found"
+msgstr ""
+
 msgid "Preferences"
 msgstr ""
 
