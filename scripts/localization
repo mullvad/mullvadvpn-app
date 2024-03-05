@@ -5,6 +5,7 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+# shellcheck disable=SC1091
 source utils/log
 
 function main {
@@ -106,6 +107,8 @@ function download_from_crowdin {
 function verify {
     sync_localizations
     git diff
+
+    # shellcheck disable=SC2251
     ! git status -s | grep .
     local out_of_sync=$?
 

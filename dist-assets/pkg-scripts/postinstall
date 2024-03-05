@@ -5,7 +5,7 @@ set -eu
 LOG_DIR=/var/log/mullvad-vpn
 
 mkdir -p $LOG_DIR
-exec 2>&1 > $LOG_DIR/postinstall.log
+exec > $LOG_DIR/postinstall.log 2>&1
 
 echo "Running postinstall at $(date)"
 

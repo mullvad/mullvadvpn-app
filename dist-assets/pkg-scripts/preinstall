@@ -7,7 +7,7 @@ INSTALL_DIR=$2
 
 mkdir -p $LOG_DIR
 chmod 755 $LOG_DIR
-exec 2>&1 > $LOG_DIR/preinstall.log
+exec > $LOG_DIR/preinstall.log 2>&1
 
 echo "Running preinstall at $(date)"
 

@@ -2,7 +2,7 @@
 set -eu
 shopt -s nullglob
 
-TAG_PATTERN_TO_BUILD=("^ios/")
+TAG_PATTERN_TO_BUILD="^ios/"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app/ios"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
@@ -93,6 +93,8 @@ function run_build_loop() {
 
         run_git fetch --prune --tags 2> /dev/null || continue
         local tags
+
+        # shellcheck disable=SC2207
         tags=( $(run_git tag | grep "$TAG_PATTERN_TO_BUILD") )
 
         for tag in "${tags[@]}"; do

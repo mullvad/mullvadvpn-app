@@ -13,10 +13,10 @@ if [ "${XDG_SESSION_TYPE:-""}"  = "wayland" ] && \
     echo " $SUPPORTED_COMPOSITORS " | \
     grep -qi -e " ${XDG_CURRENT_DESKTOP:-""} " -e " ${XDG_SESSION_DESKTOP:-""} "
 then
-    WAYLAND_FLAGS="--ozone-platform=wayland --enable-features=WaylandWindowDecorations"
+    WAYLAND_FLAGS=( "--ozone-platform=wayland" "--enable-features=WaylandWindowDecorations" )
 else
-    WAYLAND_FLAGS=""
+    WAYLAND_FLAGS=()
 fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-exec "$SCRIPT_DIR/mullvad-gui" $SANDBOX_FLAG $WAYLAND_FLAGS "$@"
+exec "$SCRIPT_DIR/mullvad-gui" "$SANDBOX_FLAG" "${WAYLAND_FLAGS[@]}" "$@"

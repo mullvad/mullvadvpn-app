@@ -2,7 +2,7 @@
 
 set -ue
 
-read -p "Are you sure you want to stop and uninstall Mullvad VPN? (y/n) "
+read -r -p "Are you sure you want to stop and uninstall Mullvad VPN? (y/n) "
 if [[ "$REPLY" =~ [Yy]$ ]]; then
     echo "Uninstalling Mullvad VPN ..."
 else
@@ -40,7 +40,7 @@ sudo pkgutil --forget net.mullvad.vpn || true
 echo "Removing login item ..."
 osascript -e 'tell application "System Events" to delete login item "Mullvad VPN"' 2>/dev/null || true
 
-read -p "Do you want to delete the log and cache files the app has created? (y/n) "
+read -r -p "Do you want to delete the log and cache files the app has created? (y/n) "
 if [[ "$REPLY" =~ [Yy]$ ]]; then
     sudo rm -rf /var/log/mullvad-vpn /var/root/Library/Caches/mullvad-vpn /Library/Caches/mullvad-vpn
     for user in /Users/*; do
@@ -52,7 +52,7 @@ if [[ "$REPLY" =~ [Yy]$ ]]; then
     done
 fi
 
-read -p "Do you want to delete the Mullvad VPN settings? (y/n) "
+read -r -p "Do you want to delete the Mullvad VPN settings? (y/n) "
 if [[ "$REPLY" =~ [Yy]$ ]]; then
     sudo rm -rf /etc/mullvad-vpn
     for user in /Users/*; do
