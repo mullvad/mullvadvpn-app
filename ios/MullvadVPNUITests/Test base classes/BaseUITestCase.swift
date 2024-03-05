@@ -129,6 +129,7 @@ class BaseUITestCase: XCTestCase {
 
     func logoutIfLoggedIn() {
         if isLoggedIn() {
+            // First dismiss settings modal if presented
             if isPresentingSettings() {
                 SettingsPage(app)
                     .swipeDownToDismissModal()
