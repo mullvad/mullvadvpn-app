@@ -12,15 +12,21 @@ import MullvadSettings
 import MullvadTypes
 import UIKit
 
+protocol LocationViewControllerDelegate: AnyObject {
+    func didRequestRouteToCustomLists(_ controller: LocationViewController)
+}
+
 final class LocationViewController: UIViewController {
     private let searchBar = UISearchBar()
-    private let tableView = UITableView()
+    private let tableView = UITableView(frame: .zero, style: .grouped)
     private let topContentView = UIStackView()
     private let filterView = RelayFilterView()
     private var dataSource: LocationDataSource?
     private var cachedRelays: CachedRelays?
     private var filter = RelayFilter()
     var relayLocations: RelayLocations?
+    weak var delegate: LocationViewControllerDelegate?
+    var customListRepository: CustomListRepositoryProtocol
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
@@ -34,6 +40,15 @@ final class LocationViewController: UIViewController {
     var didSelectRelays: ((RelayLocations) -> Void)?
     var didUpdateFilter: ((RelayFilter) -> Void)?
     var didFinish: (() -> Void)?
+
+    init(customListRepository: CustomListRepositoryProtocol) {
+        self.customListRepository = customListRepository
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     // MARK: - View lifecycle
 
@@ -108,7 +123,7 @@ final class LocationViewController: UIViewController {
         dataSource = LocationDataSource(
             tableView: tableView,
             allLocations: AllLocationDataSource(),
-            customLists: CustomListsDataSource(repository: CustomListRepository())
+            customLists: CustomListsDataSource(repository: customListRepository)
         )
 
         dataSource?.didSelectRelayLocations = { [weak self] locations in
@@ -128,6 +143,7 @@ final class LocationViewController: UIViewController {
         tableView.indicatorStyle = .white
         tableView.keyboardDismissMode = .onDrag
         tableView.accessibilityIdentifier = .selectLocationTableView
+        tableView.sectionHeaderHeight = 56.0
     }
 
     private func setUpTopContent() {

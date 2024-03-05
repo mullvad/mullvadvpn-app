@@ -43,6 +43,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
      */
     private let secondaryNavigationContainer = RootContainerViewController()
 
+    private var customListRepository: CustomListRepositoryProtocol {
+        #if DEBUG
+        CustomListStub()
+        #else
+        CustomListRepository()
+        #endif
+    }
+
     /// Posts `preferredAccountNumber` notification when user inputs the account number instead of voucher code
     private let preferredAccountNumberSubject = PassthroughSubject<String, Never>()
 
@@ -710,7 +718,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         let locationCoordinator = LocationCoordinator(
             navigationController: navigationController,
             tunnelManager: tunnelManager,
-            relayCacheTracker: relayCacheTracker
+            relayCacheTracker: relayCacheTracker,
+            customListRepository: customListRepository
         )
 
         locationCoordinator.didFinish = { [weak self] _ in
