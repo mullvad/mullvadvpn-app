@@ -29,7 +29,7 @@ class CreateCustomListDialogTest {
     }
 
     @Test
-    fun givenNoErrorShouldShowNoErrorMessage() {
+    fun givenNoErrorShouldShowNoErrorMessage() =
         composeExtension.use {
             // Arrange
             val uiState = CreateCustomListUiState(error = null)
@@ -39,10 +39,9 @@ class CreateCustomListDialogTest {
             onNodeWithText(NAME_EXIST_ERROR_TEXT).assertDoesNotExist()
             onNodeWithText(OTHER_ERROR_TEXT).assertDoesNotExist()
         }
-    }
 
     @Test
-    fun givenCustomListExistsShouldShowCustomListExitsErrorText() {
+    fun givenCustomListExistsShouldShowCustomListExitsErrorText() =
         composeExtension.use {
             // Arrange
             val uiState = CreateCustomListUiState(error = CustomListsError.CustomListExists)
@@ -52,10 +51,9 @@ class CreateCustomListDialogTest {
             onNodeWithText(NAME_EXIST_ERROR_TEXT).assertExists()
             onNodeWithText(OTHER_ERROR_TEXT).assertDoesNotExist()
         }
-    }
 
     @Test
-    fun givenOtherCustomListErrorShouldShowAnErrorOccurredErrorText() {
+    fun givenOtherCustomListErrorShouldShowAnErrorOccurredErrorText() =
         composeExtension.use {
             // Arrange
             val uiState = CreateCustomListUiState(error = CustomListsError.OtherError)
@@ -65,10 +63,9 @@ class CreateCustomListDialogTest {
             onNodeWithText(NAME_EXIST_ERROR_TEXT).assertDoesNotExist()
             onNodeWithText(OTHER_ERROR_TEXT).assertExists()
         }
-    }
 
     @Test
-    fun whenCancelIsClickedShouldDismissDialog() {
+    fun whenCancelIsClickedShouldDismissDialog() =
         composeExtension.use {
             // Arrange
             val mockedOnDismiss: () -> Unit = mockk(relaxed = true)
@@ -83,10 +80,9 @@ class CreateCustomListDialogTest {
             // Assert
             verify { mockedOnDismiss.invoke() }
         }
-    }
 
     @Test
-    fun givenEmptyTextInputWhenSubmitIsClickedThenShouldNotCallOnCreate() {
+    fun givenEmptyTextInputWhenSubmitIsClickedThenShouldNotCallOnCreate() =
         composeExtension.use {
             // Arrange
             val mockedCreateCustomList: (String) -> Unit = mockk(relaxed = true)
@@ -101,10 +97,9 @@ class CreateCustomListDialogTest {
             // Assert
             verify(exactly = 0) { mockedCreateCustomList.invoke(any()) }
         }
-    }
 
     @Test
-    fun givenValidTextInputWhenSubmitIsClickedThenShouldCallOnCreate() {
+    fun givenValidTextInputWhenSubmitIsClickedThenShouldCallOnCreate() =
         composeExtension.use {
             // Arrange
             val mockedCreateCustomList: (String) -> Unit = mockk(relaxed = true)
@@ -121,10 +116,9 @@ class CreateCustomListDialogTest {
             // Assert
             verify { mockedCreateCustomList.invoke(inputText) }
         }
-    }
 
     @Test
-    fun whenInputIsChangedShouldCallOnInputChanged() {
+    fun whenInputIsChangedShouldCallOnInputChanged() =
         composeExtension.use {
             // Arrange
             val mockedOnInputChanged: () -> Unit = mockk(relaxed = true)
@@ -140,7 +134,6 @@ class CreateCustomListDialogTest {
             // Assert
             verify { mockedOnInputChanged.invoke() }
         }
-    }
 
     companion object {
         private const val NAME_EXIST_ERROR_TEXT = "Name is already taken."

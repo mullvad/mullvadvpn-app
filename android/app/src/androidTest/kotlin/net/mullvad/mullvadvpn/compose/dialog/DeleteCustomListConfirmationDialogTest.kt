@@ -24,7 +24,7 @@ class DeleteCustomListConfirmationDialogTest {
     }
 
     @Test
-    fun givenNameShouldShowDeleteNameTitle() {
+    fun givenNameShouldShowDeleteNameTitle() =
         composeExtension.use {
             // Arrange
             val name = "List should be deleted"
@@ -33,10 +33,9 @@ class DeleteCustomListConfirmationDialogTest {
             // Assert
             onNodeWithText(DELETE_TITLE.format(name)).assertExists()
         }
-    }
 
     @Test
-    fun whenDeleteIsClickedShouldCallOnDelete() {
+    fun whenDeleteIsClickedShouldCallOnDelete() =
         composeExtension.use {
             // Arrange
             val name = "List should be deleted"
@@ -51,10 +50,9 @@ class DeleteCustomListConfirmationDialogTest {
             // Assert
             verify { mockedOnDelete.invoke() }
         }
-    }
 
     @Test
-    fun whenCancelIsClickedShouldCallOnBack() {
+    fun whenCancelIsClickedShouldCallOnBack() =
         composeExtension.use {
             // Arrange
             val name = "List should be deleted"
@@ -69,7 +67,6 @@ class DeleteCustomListConfirmationDialogTest {
             // Assert
             verify { mockedOnBack.invoke() }
         }
-    }
 
     companion object {
         private const val DELETE_TITLE = "Delete \"%s\"?"

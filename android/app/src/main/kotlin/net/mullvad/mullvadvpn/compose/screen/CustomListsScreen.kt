@@ -21,12 +21,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -44,6 +42,8 @@ import net.mullvad.mullvadvpn.compose.destinations.EditCustomListDestination
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.showSnackbar
 import net.mullvad.mullvadvpn.compose.state.CustomListsUiState
+import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
+import net.mullvad.mullvadvpn.compose.test.NEW_LIST_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -129,7 +129,8 @@ fun CustomListsScreen(
                 onClick = addCustomList,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = MaterialTheme.shapes.fabShape
+                shape = MaterialTheme.shapes.fabShape,
+                modifier = Modifier.testTag(NEW_LIST_BUTTON_TEST_TAG)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
@@ -163,7 +164,11 @@ fun CustomListsScreen(
 }
 
 private fun LazyListScope.loading() {
-    item(contentType = ContentType.PROGRESS) { MullvadCircularProgressIndicatorLarge() }
+    item(contentType = ContentType.PROGRESS) {
+        MullvadCircularProgressIndicatorLarge(
+            modifier = Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
+        )
+    }
 }
 
 private fun LazyListScope.content(

@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,6 +37,9 @@ import net.mullvad.mullvadvpn.compose.destinations.CustomListLocationsDestinatio
 import net.mullvad.mullvadvpn.compose.destinations.DeleteCustomListDestination
 import net.mullvad.mullvadvpn.compose.destinations.EditCustomListNameDestination
 import net.mullvad.mullvadvpn.compose.state.EditCustomListState
+import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
+import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -141,7 +145,9 @@ fun EditCustomListScreen(
         SpacedColumn(modifier = modifier, alignment = Alignment.Top) {
             when (uiState) {
                 EditCustomListState.Loading -> {
-                    MullvadCircularProgressIndicatorLarge()
+                    MullvadCircularProgressIndicatorLarge(
+                        modifier = Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
+                    )
                 }
                 EditCustomListState.NotFound -> {
                     Text(
@@ -177,7 +183,10 @@ fun EditCustomListScreen(
 @Composable
 private fun Actions(onDeleteList: () -> Unit) {
     var showMenu by remember { mutableStateOf(false) }
-    IconButton(onClick = { showMenu = true }) {
+    IconButton(
+        onClick = { showMenu = true },
+        modifier = Modifier.testTag(TOP_BAR_DROPDOWN_BUTTON_TEST_TAG)
+    ) {
         Icon(painter = painterResource(id = R.drawable.icon_more_vert), contentDescription = null)
         if (showMenu) {
             DropdownMenu(
@@ -202,7 +211,8 @@ private fun Actions(onDeleteList: () -> Unit) {
                     onClick = {
                         onDeleteList()
                         showMenu = false
-                    }
+                    },
+                    modifier = Modifier.testTag(DELETE_DROPDOWN_MENU_ITEM_TEST_TAG)
                 )
             }
         }
