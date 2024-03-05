@@ -88,6 +88,8 @@ impl State {
         interface: &str,
         servers: &[IpAddr],
     ) -> Result<()> {
+        talpid_types::detect_flood!();
+
         let servers: Vec<DnsServer> = servers.iter().map(|ip| ip.to_string()).collect();
         let new_settings = DnsSettings::from_server_addresses(&servers, interface.to_string());
         match &self.dns_settings {
@@ -115,6 +117,8 @@ impl State {
     }
 
     fn on_changed_keys(&mut self, store: SCDynamicStore, changed_keys: CFArray<CFString>) {
+        talpid_types::detect_flood!();
+
         if let Some(expected_settings) = &self.dns_settings {
             for path in &changed_keys {
                 let should_set_dns = match DnsSettings::load(&store, path.clone()).ok() {
