@@ -109,7 +109,12 @@ fun ScaffoldWithTopBarAndDeviceName(
 
 @Composable
 fun MullvadSnackbar(snackbarData: SnackbarData) {
-    Snackbar(snackbarData = snackbarData, contentColor = MaterialTheme.colorScheme.secondary)
+    Snackbar(
+        snackbarData = snackbarData,
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        actionColor = MaterialTheme.colorScheme.onSurface
+    )
 }
 
 @Composable
@@ -256,16 +261,13 @@ fun ScaffoldWithLargeTopBarAndButton(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScaffoldWithSmallTopBar(
     appBarTitle: String,
     modifier: Modifier = Modifier,
-    lazyListState: LazyListState = rememberLazyListState(),
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
-    scrollbarColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
-    content: @Composable (modifier: Modifier, lazyListState: LazyListState) -> Unit
+    content: @Composable (modifier: Modifier) -> Unit
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -280,8 +282,6 @@ fun ScaffoldWithSmallTopBar(
             content(
                 Modifier.fillMaxSize()
                     .padding(it)
-                    .drawVerticalScrollbar(state = lazyListState, color = scrollbarColor),
-                lazyListState
             )
         }
     )

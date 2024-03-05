@@ -273,18 +273,13 @@ fun SelectLocationScreen(
             }
             Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
             val lazyListState = rememberLazyListState()
-            if (
-                state is SelectLocationUiState.Content &&
-                    state.inSearch.not() &&
-                    state.selectedItem != null
-            ) {
-                LaunchedEffect(state.selectedItem.code) {
-                    val index = state.indexOfSelectedRelayItem()
+            val selectedItemCode = (state as? SelectLocationUiState.Content)?.selectedItem?.code
+            LaunchedEffect(selectedItemCode) {
+                val index = state.indexOfSelectedRelayItem()
 
-                    if (index >= 0) {
-                        lazyListState.scrollToItem(index)
-                        lazyListState.animateScrollAndCentralizeItem(index)
-                    }
+                if (index >= 0) {
+                    lazyListState.scrollToItem(index)
+                    lazyListState.animateScrollAndCentralizeItem(index)
                 }
             }
             var bottomSheetState by remember { mutableStateOf<BottomSheetState?>(null) }
@@ -329,12 +324,13 @@ fun SelectLocationScreen(
                                 onShowLocationBottomSheet = { location ->
                                     bottomSheetState =
                                         BottomSheetState.ShowLocationBottomSheet(
-                                            customLists = uiState.customLists,
+                                            customLists = state.customLists,
                                             item = location
                                         )
                                 }
                             )
-                        } else {
+                        }
+                        if (state.showEmpty) {
                             item { LocationsEmptyText(searchTerm = state.searchTerm) }
                         }
                     }
@@ -478,7 +474,10 @@ private fun BottomSheets(
     }
 }
 
-private fun SelectLocationUiState.Content.indexOfSelectedRelayItem(): Int {
+private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int {
+    if (this !is SelectLocationUiState.Content) {
+        return -1
+    }
     if (selectedItem is RelayItem.CustomList) {
         // Add the header for custom list
         return filteredCustomLists.indexOfFirst { it.id == selectedItem.id } +
