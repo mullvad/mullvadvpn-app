@@ -51,28 +51,28 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
     }
 
     func setRelays(_ response: REST.ServerRelaysResponse, selectedLocations: RelayLocations?, filter: RelayFilter) {
-        guard let customListsDataSource =
-            dataSources.first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource,
-            let allLocationsDataSource =
+        let allLocationsDataSource =
             dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource
-        else { return }
+
+        let customListsDataSource =
+            dataSources.first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource
 
         let relays = response.wireguard.relays.filter { relay in
             RelaySelector.relayMatchesFilter(relay, filter: filter)
         }
 
-        allLocationsDataSource.reload(response, relays: relays)
-        customListsDataSource.reload(allLocationNodes: allLocationsDataSource.nodes)
+        allLocationsDataSource?.reload(response, relays: relays)
+        customListsDataSource?.reload(allLocationNodes: allLocationsDataSource?.nodes ?? [])
 
         if let selectedLocations {
             // Look for a matching custom list node.
             if let customListId = selectedLocations.customListId,
-               let customList = customListsDataSource.customList(by: customListId),
-               let selectedNode = customListsDataSource.node(by: selectedLocations.locations, for: customList) {
+               let customList = customListsDataSource?.customList(by: customListId),
+               let selectedNode = customListsDataSource?.node(by: selectedLocations.locations, for: customList) {
                 selectedItem = LocationCellViewModel(section: .customLists, node: selectedNode)
                 // Look for a matching all locations node.
             } else if let location = selectedLocations.locations.first,
-                      let selectedNode = allLocationsDataSource.node(by: location) {
+                      let selectedNode = allLocationsDataSource?.node(by: location) {
                 selectedItem = LocationCellViewModel(section: .allLocations, node: selectedNode)
             }
         }
