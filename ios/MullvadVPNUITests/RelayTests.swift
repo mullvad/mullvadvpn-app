@@ -159,4 +159,93 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .verifyConnectingToPort("4001")
             .tapDisconnectButton()
     }
+
+    func testWireGuardOverTCPManually() throws {
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapWireGuardObfuscationExpandButton()
+            .tapWireGuardObfuscationValueOnCell()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .tapSecureConnectionButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForSecureConnectionLabel()
+
+        try Networking.verifyCanAccessInternet()
+    }
+
+    func testWireGuardOverTCPAutomatically() throws {
+        let wireGuardGot001RelayIPAddress = "185.213.154.66"
+        let wireGuardGot001RelayName = "se-got-wg-001"
+
+        try FirewallAPIClient().createRule(
+            FirewallRule.makeBlockUDPTrafficRule(toIPAddress: wireGuardGot001RelayIPAddress)
+        )
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapWireGuardObfuscationExpandButton()
+            .tapWireGuardObfuscationValueAutomaticCell()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .tapSelectLocationButton()
+
+        SelectLocationPage(app)
+            .tapLocationCellExpandButton(withName: "Sweden")
+            .tapLocationCellExpandButton(withName: "Gothenburg")
+            .tapLocationCell(withName: wireGuardGot001RelayName)
+
+        allowAddVPNConfigurationsIfAsked()
+
+        // Should be two UDP connection attempts but sometimes only one is shown in the UI
+        TunnelControlPage(app)
+            .tapRelayStatusExpandCollapseButton()
+            .verifyConnectingOverTCPAfterUDPAttempts()
+            .waitForSecureConnectionLabel()
+    }
+
+    func testWireGuardPortSettings() throws {
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapWireGuardPortsExpandButton()
+            .tapCustomWireGuardPortTextField()
+            .enterText("4001")
+            .dismissKeyboard()
+            .swipeDownToDismissModal()
+
+        TunnelControlPage(app)
+            .tapSecureConnectionButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .tapRelayStatusExpandCollapseButton()
+            .verifyConnectingToPort("4001")
+    }
 }
