@@ -82,23 +82,22 @@ pub mod nft {
 }
 
 #[cfg(target_os = "macos")]
-pub mod pf {
+pub mod PacketFilter {
     use super::*;
     impl Drop for DropPingFirewallGuard {
         fn drop(&mut self) {
-            todo!("Clean up pf ruleset")
+            todo!("Clean up PacketFilter ruleset")
         }
     }
 
     impl DropPingFirewallGuard {
-        pub async fn new(max_packet_size: usize) -> DropPingFirewallGuard {
-            todo!("Set up pf ruleset");
-            Self::list_ruleset();
-            Self
+        #[allow(clippy::unused_async)]
+        pub async fn new(_max_packet_size: usize) -> DropPingFirewallGuard {
+            todo!("Set up PacketFilter ruleset")
         }
 
         fn list_ruleset() {
-            todo!("Print ruleset");
+            todo!("Print ruleset")
         }
     }
 }
