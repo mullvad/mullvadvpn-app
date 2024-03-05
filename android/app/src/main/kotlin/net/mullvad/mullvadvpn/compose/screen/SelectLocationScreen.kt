@@ -272,18 +272,13 @@ fun SelectLocationScreen(
             }
             Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
             val lazyListState = rememberLazyListState()
-            if (
-                uiState is SelectLocationUiState.Content &&
-                    uiState.inSearch.not() &&
-                    uiState.selectedItem != null
-            ) {
-                LaunchedEffect(uiState.selectedItem.code) {
-                    val index = uiState.indexOfSelectedRelayItem()
+            val selectedItemCode = (uiState as? SelectLocationUiState.Content)?.selectedItem?.code
+            LaunchedEffect(selectedItemCode) {
+                val index = uiState.indexOfSelectedRelayItem()
 
-                    if (index >= 0) {
-                        lazyListState.scrollToItem(index)
-                        lazyListState.animateScrollAndCentralizeItem(index)
-                    }
+                if (index >= 0) {
+                    lazyListState.scrollToItem(index)
+                    lazyListState.animateScrollAndCentralizeItem(index)
                 }
             }
             var bottomSheetState by remember { mutableStateOf<BottomSheetState?>(null) }
@@ -333,7 +328,8 @@ fun SelectLocationScreen(
                                         )
                                 }
                             )
-                        } else {
+                        }
+                        if (uiState.showEmpty) {
                             item { LocationsEmptyText(searchTerm = uiState.searchTerm) }
                         }
                     }
@@ -477,7 +473,10 @@ private fun BottomSheets(
     }
 }
 
-private fun SelectLocationUiState.Content.indexOfSelectedRelayItem(): Int {
+private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int {
+    if (this !is SelectLocationUiState.Content) {
+        return -1
+    }
     if (selectedItem is RelayItem.CustomList) {
         // Add the header for custom list
         return filteredCustomLists.indexOfFirst { it.id == selectedItem.id } +
