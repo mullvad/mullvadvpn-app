@@ -78,6 +78,7 @@ fun Settings(navigator: DestinationsNavigator) {
     )
 }
 
+@Suppress("LongMethod")
 @ExperimentalMaterial3Api
 @Composable
 fun SettingsScreen(

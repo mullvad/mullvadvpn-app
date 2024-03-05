@@ -168,6 +168,7 @@ fun OutOfTime(
     )
 }
 
+@Suppress("LongMethod")
 @Composable
 fun OutOfTimeScreen(
     state: OutOfTimeUiState,
