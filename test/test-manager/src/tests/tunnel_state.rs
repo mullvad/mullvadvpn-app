@@ -28,6 +28,13 @@ use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType}
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
+#[cfg(target_os = "macos")]
+async fn setup_packetfilter_drop_pings_rule(
+    max_packet_size: usize,
+) -> scopeguard::ScopeGuard<(), impl FnOnce(())> {
+    todo!()
+}
+
 #[cfg(target_os = "linux")]
 async fn setup_nftables_drop_pings_rule(
     max_packet_size: u16,
@@ -107,6 +114,8 @@ async fn test_mtu_detection(
     log::info!("Setting up nftables firewall rules");
     #[cfg(target_os = "linux")]
     let _nft_guard = setup_nftables_drop_pings_rule(MAX_PACKET_SIZE).await;
+    #[cfg(target_os = "macos")]
+    let _pf_guard = setup_packetfilter_drop_pings_rule(MAX_PACKET_SIZE).await;
 
     // Test that the firewall rule works
     log::info!("Sending large ping outside tunnel");
