@@ -315,4 +315,5 @@
     <string name="edit_name">Edit name</string>
     <string name="name_was_changed_to">Name was changed to %s</string>
     <string name="locations_were_changed_for">Locations were changed for \"%s\"</string>
+    <string name="not_found">Not found</string>
 </resources>

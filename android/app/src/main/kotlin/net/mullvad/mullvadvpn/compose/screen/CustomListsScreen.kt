@@ -34,7 +34,6 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
-import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
@@ -72,34 +71,28 @@ fun CustomLists(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    editCustomListResultRecipient.onNavResult(
-        listener = { result ->
-            when (result) {
-                NavResult.Canceled -> {
-                    /* Do nothing */
-                }
-                is NavResult.Value -> {
-                    scope.launch {
-                        snackbarHostState.currentSnackbarData?.dismiss()
-                        snackbarHostState.showSnackbar(
-                            message =
-                                context.getString(
-                                    R.string.delete_custom_list_message,
-                                    result.value.name
-                                ),
-                            actionLabel = context.getString(R.string.undo),
-                            duration = SnackbarDuration.Long,
-                            onAction = {
-                                viewModel.undoDeleteCustomList(
-                                    result.value.undo as CustomListAction.Create
-                                )
-                            }
-                        )
-                    }
+    editCustomListResultRecipient.onNavResult { result ->
+        when (result) {
+            NavResult.Canceled -> {
+                /* Do nothing */
+            }
+            is NavResult.Value -> {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar(
+                        message =
+                            context.getString(
+                                R.string.delete_custom_list_message,
+                                result.value.name
+                            ),
+                        actionLabel = context.getString(R.string.undo),
+                        duration = SnackbarDuration.Long,
+                        onAction = { viewModel.undoDeleteCustomList(result.value.undo) }
+                    )
                 }
             }
         }
-    )
+    }
 
     CustomListsScreen(
         uiState = uiState,

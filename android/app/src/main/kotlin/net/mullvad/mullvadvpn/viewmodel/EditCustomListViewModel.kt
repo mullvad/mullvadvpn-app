@@ -18,13 +18,13 @@ class EditCustomListViewModel(
             .map { customLists ->
                 customLists
                     .find { it.id == customListId }
-                    .let {
+                    ?.let {
                         EditCustomListState.Content(
-                            id = it?.id ?: "",
-                            name = it?.name ?: "",
-                            locations = it?.locations ?: emptyList()
+                            id = it.id,
+                            name = it.name,
+                            locations = it.locations
                         )
-                    }
+                    } ?: EditCustomListState.NotFound
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), EditCustomListState.Loading)
 }
