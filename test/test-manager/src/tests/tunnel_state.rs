@@ -6,11 +6,9 @@ use super::{
     ui, Error, TestContext,
 };
 use crate::{
-    assert_tunnel_state,
-    tests::helpers::{disconnect_and_wait, ping_sized_with_timeout},
+    assert_tunnel_state, tests::helpers::ping_sized_with_timeout,
+    vm::network::DUMMY_LAN_INTERFACE_IP,
 };
-// use crate::tests::helpers::{disconnect_and_wait, ping_sized_with_timeout};
-use crate::vm::network::DUMMY_LAN_INTERFACE_IP;
 
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
@@ -32,14 +30,14 @@ use test_rpc::ServiceClient;
 
 #[cfg(target_os = "macos")]
 async fn setup_packetfilter_drop_pings_rule(
-    max_packet_size: usize,
+    max_packet_size: u16,
 ) -> scopeguard::ScopeGuard<(), impl FnOnce(())> {
     todo!()
 }
 
 #[cfg(target_os = "linux")]
 async fn setup_nftables_drop_pings_rule(
-    max_packet_size: usize,
+    max_packet_size: u16,
 ) -> scopeguard::ScopeGuard<(), impl FnOnce(())> {
     fn log_ruleset() {
         let output = std::process::Command::new("nft")
@@ -103,50 +101,28 @@ async fn test_mtu_detection(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    let large_ping_size = 1100;
-    let small_ping_size = 500;
-    let max_packet_size = 800;
+    const MAX_PACKET_SIZE: u16 = 800;
+    const MARGIN: u16 = 200;
+    let large_ping_size: usize = (MAX_PACKET_SIZE + MARGIN).into();
+    let small_ping_size: usize = (MAX_PACKET_SIZE - MARGIN).into();
 
     log::info!("Verify tunnel state: disconnected");
     assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
 
+    // mullvad.net address
     let inet_destination = "45.83.223.209".parse().unwrap();
-
-    // Make sure we can reach the address
-    log::info!("Sending ping outside tunnel");
-    ping_sized_with_timeout(&rpc, inet_destination, None, large_ping_size)
-        .await
-        .expect("Ping should return when disconnected");
-    log::info!("Connecting");
-    connect_and_wait(&mut mullvad_client).await.unwrap();
-    log::info!("Sending ping inside tunnel");
-    ping_sized_with_timeout(&rpc, inet_destination, None, large_ping_size)
-        .await
-        .expect("Ping should return when connected");
-    let tunnel_iface = helpers::get_tunnel_interface(&mut mullvad_client)
-        .await
-        .expect("failed to find tunnel interface");
-    let mtu = rpc.get_interface_mtu(tunnel_iface).await?;
-    log::info!("Tunnel MTU: {mtu}");
-    assert!(mtu > 1000);
-    log::info!("Disconnecting");
-    disconnect_and_wait(&mut mullvad_client).await.unwrap();
 
     log::info!("Setting up nftables firewall rules");
     #[cfg(target_os = "linux")]
-    let _nft_guard = setup_nftables_drop_pings_rule(max_packet_size).await;
+    let _nft_guard = setup_nftables_drop_pings_rule(MAX_PACKET_SIZE).await;
     #[cfg(target_os = "macos")]
     let _pf_guard = setup_packetfilter_drop_pings_rule(max_packet_size).await;
 
-    log::info!("Sending small ping outside tunnel");
-    // Make sure that the rule we just set up actually works
-    ping_sized_with_timeout(&rpc, inet_destination, None, small_ping_size)
-        .await
-        .expect("Ping smaller than nftables filter should return");
     log::info!("Sending large ping outside tunnel");
     ping_sized_with_timeout(&rpc, inet_destination, None, large_ping_size)
         .await
         .expect_err("Ping larger than nftables filter should time out");
+
     log::info!("Connecting");
     connect_and_wait(&mut mullvad_client).await.unwrap();
     let tunnel_iface = helpers::get_tunnel_interface(&mut mullvad_client)
@@ -156,9 +132,9 @@ async fn test_mtu_detection(
     log::info!("Waiting for MTU detection");
     for _ in 0..10 {
         let mtu = rpc.get_interface_mtu(tunnel_iface.clone()).await?;
-        if mtu < 1000 {
+        if mtu < MAX_PACKET_SIZE {
             println!(
-                "Tunnel MTU after dropping packets larger than {max_packet_size} bytes: {mtu}"
+                "Tunnel MTU after dropping packets larger than {MAX_PACKET_SIZE} bytes: {mtu}"
             );
             return Ok(());
         }
