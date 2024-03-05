@@ -290,22 +290,3 @@ pub fn get_interface_mtu(interface: &str) -> Result<u16, test_rpc::Error> {
         .map_err(|_error| test_rpc::Error::InterfaceNotFound)
         .map(|row| row.NlMtu.try_into().unwrap())
 }
-
-#[cfg(target_os = "windows")]
-fn result_from_output<E>(action: &'static str, output: Output, err: E) -> Result<(), E> {
-    use std::process::Output;
-    if output.status.success() {
-        return Ok(());
-    }
-
-    let stdout_str = std::str::from_utf8(&output.stdout).unwrap_or("non-utf8 string");
-    let stderr_str = std::str::from_utf8(&output.stderr).unwrap_or("non-utf8 string");
-
-    log::error!(
-        "{action} failed:\n\ncode: {:?}\n\nstdout:\n\n{}\n\nstderr:\n\n{}",
-        output.status.code(),
-        stdout_str,
-        stderr_str
-    );
-    Err(err)
-}
