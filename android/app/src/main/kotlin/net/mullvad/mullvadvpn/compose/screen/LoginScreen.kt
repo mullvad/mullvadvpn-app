@@ -205,9 +205,7 @@ private fun LoginScreen(
     }
 }
 
-@Suppress("LongMethod")
 @Composable
-@OptIn(ExperimentalComposeUiApi::class)
 private fun LoginContent(
     state: LoginUiState,
     onAccountNumberChange: (String) -> Unit,
@@ -225,10 +223,6 @@ private fun LoginContent(
                     .padding(bottom = Dimens.smallPadding)
         )
 
-        var tfFocusState: FocusState? by remember { mutableStateOf(null) }
-        var ddFocusState: FocusState? by remember { mutableStateOf(null) }
-        val expandedDropdown = tfFocusState?.hasFocus ?: false || ddFocusState?.hasFocus ?: false
-
         Text(
             modifier = Modifier.padding(bottom = Dimens.smallPadding),
             text = state.loginState.supportingText() ?: "",
@@ -241,65 +235,7 @@ private fun LoginContent(
                 },
         )
 
-        TextField(
-            modifier =
-                // Fix for DPad navigation
-                Modifier.onFocusChanged { tfFocusState = it }
-                    .focusProperties {
-                        left = FocusRequester.Cancel
-                        right = FocusRequester.Cancel
-                    }
-                    .fillMaxWidth()
-                    .testTag(LOGIN_INPUT_TEST_TAG)
-                    .let {
-                        if (!expandedDropdown || state.lastUsedAccount == null) {
-                            it.clip(MaterialTheme.shapes.small)
-                        } else {
-                            it
-                        }
-                    },
-            value = state.accountNumberInput,
-            label = {
-                Text(
-                    text = stringResource(id = R.string.login_description),
-                    color = Color.Unspecified,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            },
-            keyboardActions = KeyboardActions(onDone = { onLoginClick(state.accountNumberInput) }),
-            keyboardOptions =
-                KeyboardOptions(
-                    imeAction = if (state.loginButtonEnabled) ImeAction.Done else ImeAction.None,
-                    keyboardType = KeyboardType.NumberPassword
-                ),
-            onValueChange = onAccountNumberChange,
-            singleLine = true,
-            maxLines = 1,
-            visualTransformation = accountTokenVisualTransformation(),
-            enabled = state.loginState is Idle,
-            colors = mullvadWhiteTextFieldColors(),
-            isError = state.loginState.isError(),
-        )
-
-        AnimatedVisibility(visible = state.lastUsedAccount != null && expandedDropdown) {
-            val token = state.lastUsedAccount?.value.orEmpty()
-            val accountTransformation = remember { accountTokenVisualTransformation() }
-            val transformedText =
-                remember(token) { accountTransformation.filter(AnnotatedString(token)).text }
-
-            AccountDropDownItem(
-                modifier = Modifier.onFocusChanged { ddFocusState = it },
-                accountToken = transformedText.toString(),
-                onClick = {
-                    state.lastUsedAccount?.let {
-                        onAccountNumberChange(it.value)
-                        onLoginClick(it.value)
-                    }
-                },
-                onDeleteClick = onDeleteHistoryClick
-            )
-        }
+        LoginInput(state = state, onLoginClick, onAccountNumberChange, onDeleteHistoryClick)
 
         Spacer(modifier = Modifier.size(Dimens.largePadding))
         VariantButton(
@@ -332,6 +268,79 @@ private fun LoginIcon(loginState: LoginState, modifier: Modifier = Modifier) {
                     contentDescription = stringResource(id = R.string.logged_in_title),
                 )
         }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun LoginInput(
+    state: LoginUiState,
+    onLoginClick: (String) -> Unit,
+    onAccountNumberChange: (String) -> Unit,
+    onDeleteHistoryClick: () -> Unit
+) {
+    var tfFocusState: FocusState? by remember { mutableStateOf(null) }
+    var ddFocusState: FocusState? by remember { mutableStateOf(null) }
+    val expandedDropdown = tfFocusState?.hasFocus ?: false || ddFocusState?.hasFocus ?: false
+
+    TextField(
+        modifier =
+            // Fix for DPad navigation
+            Modifier.onFocusChanged { tfFocusState = it }
+                .focusProperties {
+                    left = FocusRequester.Cancel
+                    right = FocusRequester.Cancel
+                }
+                .fillMaxWidth()
+                .testTag(LOGIN_INPUT_TEST_TAG)
+                .let {
+                    if (!expandedDropdown || state.lastUsedAccount == null) {
+                        it.clip(MaterialTheme.shapes.small)
+                    } else {
+                        it
+                    }
+                },
+        value = state.accountNumberInput,
+        label = {
+            Text(
+                text = stringResource(id = R.string.login_description),
+                color = Color.Unspecified,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        keyboardActions = KeyboardActions(onDone = { onLoginClick(state.accountNumberInput) }),
+        keyboardOptions =
+            KeyboardOptions(
+                imeAction = if (state.loginButtonEnabled) ImeAction.Done else ImeAction.None,
+                keyboardType = KeyboardType.NumberPassword
+            ),
+        onValueChange = onAccountNumberChange,
+        singleLine = true,
+        maxLines = 1,
+        visualTransformation = accountTokenVisualTransformation(),
+        enabled = state.loginState is Idle,
+        colors = mullvadWhiteTextFieldColors(),
+        isError = state.loginState.isError(),
+    )
+
+    AnimatedVisibility(visible = state.lastUsedAccount != null && expandedDropdown) {
+        val token = state.lastUsedAccount?.value.orEmpty()
+        val accountTransformation = remember { accountTokenVisualTransformation() }
+        val transformedText =
+            remember(token) { accountTransformation.filter(AnnotatedString(token)).text }
+
+        AccountDropDownItem(
+            modifier = Modifier.onFocusChanged { ddFocusState = it },
+            accountToken = transformedText.toString(),
+            onClick = {
+                state.lastUsedAccount?.let {
+                    onAccountNumberChange(it.value)
+                    onLoginClick(it.value)
+                }
+            },
+            onDeleteClick = onDeleteHistoryClick
+        )
     }
 }
 
