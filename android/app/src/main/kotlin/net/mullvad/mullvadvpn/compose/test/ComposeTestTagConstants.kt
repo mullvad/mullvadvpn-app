@@ -16,7 +16,7 @@ const val LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG =
     "lazy_list_wireguard_custom_port_number_test_tag"
 const val CUSTOM_PORT_DIALOG_INPUT_TEST_TAG = "custom_port_dialog_input_test_tag"
 
-// SelectLocationScreen, ConnectScreen
+// SelectLocationScreen, ConnectScreen, CustomListLocationsScreen
 const val CIRCULAR_PROGRESS_INDICATOR = "circular_progress_indicator"
 
 // ConnectScreen
@@ -48,3 +48,19 @@ const val CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG = "create_custom_list_dialog_
 
 // UpdateCustomListDialog
 const val EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG = "edit_custom_list_dialog_input_test_tag"
+
+// CustomListLocationsScreen
+const val SAVE_BUTTON_TEST_TAG = "save_button_test_tag"
+
+// CustomListsScreen
+const val NEW_LIST_BUTTON_TEST_TAG = "new_list_button_test_tag"
+const val TOP_BAR_DROPDOWN_BUTTON_TEST_TAG = "top_bar_dropdown_button_test_tag"
+const val DELETE_DROPDOWN_MENU_ITEM_TEST_TAG = "delete_dropdown_menu_item_test_tag"
+
+// SelectLocationScreen
+const val SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG =
+    "select_location_custom_list_header_test_tag"
+const val SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG =
+    "select_location_custom_list_bottom_sheet_test_tag"
+const val SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG =
+    "select_location_location_bottom_sheet_test_tag"

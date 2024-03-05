@@ -74,6 +74,9 @@ import net.mullvad.mullvadvpn.compose.destinations.FilterScreenDestination
 import net.mullvad.mullvadvpn.compose.extensions.showSnackbar
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
+import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -369,6 +372,7 @@ private fun LazyListScope.customLists(
         ThreeDotCell(
             text = stringResource(R.string.custom_lists),
             onClickDots = onShowCustomListBottomSheet,
+            modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG)
         )
     }
     if (customLists.isNotEmpty()) {
@@ -508,7 +512,10 @@ private fun CustomListsBottomSheet(
     onEditCustomLists: () -> Unit,
     closeBottomSheet: () -> Unit
 ) {
-    MullvadModalBottomSheet(closeBottomSheet = closeBottomSheet) { onBackgroundColor, onClose ->
+    MullvadModalBottomSheet(
+        closeBottomSheet = closeBottomSheet,
+        modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG)
+    ) { onBackgroundColor, onClose ->
         HeaderCell(
             text = stringResource(id = R.string.edit_custom_lists),
             background = Color.Unspecified
@@ -554,7 +561,10 @@ private fun LocationBottomSheet(
     onAddLocationToList: (location: RelayItem, customList: RelayItem.CustomList) -> Unit,
     closeBottomSheet: () -> Unit
 ) {
-    MullvadModalBottomSheet(closeBottomSheet = closeBottomSheet) { onBackgroundColor, onClose ->
+    MullvadModalBottomSheet(
+        closeBottomSheet = closeBottomSheet,
+        modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
+    ) { onBackgroundColor, onClose ->
         HeaderCell(
             text = stringResource(id = R.string.add_location_to_list, item.name),
             background = Color.Unspecified
