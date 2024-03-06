@@ -285,15 +285,15 @@ class SelectLocationScreenTest {
             setContentWithTheme {
                 SelectLocationScreen(
                     uiState =
-                    SelectLocationUiState.Content(
-                        customLists = emptyList(),
-                        filteredCustomLists = emptyList(),
-                        countries = DUMMY_RELAY_COUNTRIES,
-                        selectedItem = null,
-                        selectedOwnership = null,
-                        selectedProvidersCount = 0,
-                        searchTerm = ""
-                    ),
+                        SelectLocationUiState.Content(
+                            customLists = emptyList(),
+                            filteredCustomLists = emptyList(),
+                            countries = DUMMY_RELAY_COUNTRIES,
+                            selectedItem = null,
+                            selectedOwnership = null,
+                            selectedProvidersCount = 0,
+                            searchTerm = ""
+                        ),
                     onSelectRelay = mockedOnSelectRelay
                 )
             }
