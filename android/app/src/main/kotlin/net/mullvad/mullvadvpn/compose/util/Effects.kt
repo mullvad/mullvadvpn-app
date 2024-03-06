@@ -10,9 +10,7 @@ import kotlinx.coroutines.launch
 fun RunOnKeyChange(key: Any, block: suspend CoroutineScope.() -> Unit) {
     val scope = rememberCoroutineScope()
     rememberSaveable(key) {
-        scope.launch {
-            block()
-        }
+        scope.launch { block() }
         key
     }
 }
