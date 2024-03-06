@@ -7,6 +7,7 @@
 //
 
 import Foundation
+@testable import MullvadVPN
 import XCTest
 
 final class OutgoingConnectionServiceTests: XCTestCase {

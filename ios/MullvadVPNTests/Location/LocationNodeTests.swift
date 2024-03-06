@@ -7,6 +7,7 @@
 //
 
 import MullvadSettings
+@testable import MullvadVPN
 import XCTest
 
 class LocationNodeTests: XCTestCase {

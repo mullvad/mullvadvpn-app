@@ -6,6 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+@testable import MullvadVPN
 import XCTest
 
 class AccountExpiryTests: XCTestCase {

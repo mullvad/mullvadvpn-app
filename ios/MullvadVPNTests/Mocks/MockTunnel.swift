@@ -7,6 +7,7 @@
 //
 
 import Foundation
+@testable import MullvadVPN
 import NetworkExtension
 
 class MockTunnel: TunnelProtocol {

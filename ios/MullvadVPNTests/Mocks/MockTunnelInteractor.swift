@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadSettings
+@testable import MullvadVPN
 import PacketTunnelCore
 
 // this is still very minimal, and will be fleshed out as needed.

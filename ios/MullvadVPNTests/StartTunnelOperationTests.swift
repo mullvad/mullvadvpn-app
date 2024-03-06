@@ -7,6 +7,7 @@
 //
 
 import MullvadSettings
+@testable import MullvadVPN
 import Network
 import Operations
 import WireGuardKitTypes
