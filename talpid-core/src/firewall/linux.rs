@@ -486,7 +486,6 @@ impl<'a> PolicyBatch<'a> {
         }
         for chain in &[&self.out_chain, &self.forward_chain] {
             let mut rule = Rule::new(chain);
-            check_net(&mut rule, End::Dst, *super::IPV6_LINK_LOCAL);
             check_icmpv6(&mut rule, 135, 0);
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
@@ -494,7 +493,6 @@ impl<'a> PolicyBatch<'a> {
         // Incoming Neighbor solicitation (part of NDP)
         for chain in &[&self.in_chain, &self.forward_chain] {
             let mut rule = Rule::new(chain);
-            check_net(&mut rule, End::Src, *super::IPV6_LINK_LOCAL);
             check_icmpv6(&mut rule, 135, 0);
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
@@ -502,7 +500,6 @@ impl<'a> PolicyBatch<'a> {
         // Outgoing Neighbor advertisement (part of NDP)
         for chain in &[&self.out_chain, &self.forward_chain] {
             let mut rule = Rule::new(chain);
-            check_net(&mut rule, End::Dst, *super::IPV6_LINK_LOCAL);
             check_icmpv6(&mut rule, 136, 0);
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
