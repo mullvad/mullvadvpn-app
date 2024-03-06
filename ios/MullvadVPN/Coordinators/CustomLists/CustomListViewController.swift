@@ -11,8 +11,8 @@ import MullvadSettings
 import UIKit
 
 protocol CustomListViewControllerDelegate: AnyObject {
-    func customListDidSave()
-    func customListDidDelete()
+    func customListDidSave(_ list: CustomList)
+    func customListDidDelete(_ list: CustomList)
     func showLocations()
 }
 
@@ -91,13 +91,6 @@ class CustomListViewController: UIViewController {
     }
 
     private func configureNavigationItem() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            systemItem: .cancel,
-            primaryAction: UIAction(handler: { _ in
-                self.dismiss(animated: true)
-            })
-        )
-
         navigationItem.rightBarButtonItem = saveBarButton
     }
 
@@ -149,8 +142,8 @@ class CustomListViewController: UIViewController {
 
     private func onSave() {
         do {
-            try interactor.createCustomList(viewModel: subject.value)
-            delegate?.customListDidSave()
+            try interactor.save(viewModel: subject.value)
+            delegate?.customListDidSave(subject.value.customList)
         } catch {
             validationErrors.insert(.name)
             dataSourceConfiguration?.set(validationErrors: validationErrors)
@@ -182,9 +175,8 @@ class CustomListViewController: UIViewController {
                     ),
                     style: .destructive,
                     handler: {
-                        self.interactor.deleteCustomList(id: self.subject.value.id)
-                        self.dismiss(animated: true)
-                        self.delegate?.customListDidDelete()
+                        self.interactor.delete(id: self.subject.value.id)
+                        self.delegate?.customListDidDelete(self.subject.value.customList)
                     }
                 ),
                 AlertAction(

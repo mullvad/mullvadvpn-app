@@ -12,10 +12,6 @@ import MullvadSettings
 import MullvadTypes
 
 class InMemoryCustomListRepository: CustomListRepositoryProtocol {
-    var publisher: AnyPublisher<[CustomList], Never> {
-        passthroughSubject.eraseToAnyPublisher()
-    }
-
     private var customRelayLists: [CustomList] = [
         CustomList(
             id: UUID(uuidString: "F17948CB-18E2-4F84-82CD-5780F94216DB")!,
@@ -33,11 +29,13 @@ class InMemoryCustomListRepository: CustomListRepositoryProtocol {
         ),
     ]
 
-    private let passthroughSubject = PassthroughSubject<[CustomList], Never>()
-
-    func update(_ list: CustomList) {
+    func save(list: MullvadSettings.CustomList) throws {
         if let index = customRelayLists.firstIndex(where: { $0.id == list.id }) {
             customRelayLists[index] = list
+        } else if customRelayLists.contains(where: { $0.name == list.name }) {
+            throw CustomRelayListError.duplicateName
+        } else {
+            customRelayLists.append(list)
         }
     }
 
@@ -49,12 +47,6 @@ class InMemoryCustomListRepository: CustomListRepositoryProtocol {
 
     func fetch(by id: UUID) -> CustomList? {
         return customRelayLists.first(where: { $0.id == id })
-    }
-
-    func create(_ name: String, locations: [RelayLocation]) throws -> CustomList {
-        let item = CustomList(id: UUID(), name: name, locations: locations)
-        customRelayLists.append(item)
-        return item
     }
 
     func fetchAll() -> [CustomList] {

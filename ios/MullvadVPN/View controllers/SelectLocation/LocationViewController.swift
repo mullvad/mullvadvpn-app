@@ -24,7 +24,7 @@ final class LocationViewController: UIViewController {
     private var dataSource: LocationDataSource?
     private var cachedRelays: CachedRelays?
     private var filter = RelayFilter()
-    var relayLocations: RelayLocations?
+    var relayLocations: UserSelectedRelays?
     weak var delegate: LocationViewControllerDelegate?
     var customListRepository: CustomListRepositoryProtocol
 
@@ -37,7 +37,7 @@ final class LocationViewController: UIViewController {
     }
 
     var navigateToFilter: (() -> Void)?
-    var didSelectRelays: ((RelayLocations) -> Void)?
+    var didSelectRelays: ((UserSelectedRelays) -> Void)?
     var didUpdateFilter: ((RelayFilter) -> Void)?
     var didFinish: (() -> Void)?
 
@@ -114,7 +114,11 @@ final class LocationViewController: UIViewController {
             filterView.setFilter(filter)
         }
 
-        dataSource?.setRelays(cachedRelays.relays, selectedLocations: relayLocations, filter: filter)
+        dataSource?.setRelays(cachedRelays.relays, selectedRelays: relayLocations, filter: filter)
+    }
+
+    func refreshCustomLists() {
+        dataSource?.refreshCustomLists(selectedRelays: relayLocations)
     }
 
     // MARK: - Private
@@ -122,6 +126,7 @@ final class LocationViewController: UIViewController {
     private func setUpDataSources() {
         let allLocationDataSource = AllLocationDataSource()
         let customListsDataSource = CustomListsDataSource(repository: customListRepository)
+
         dataSource = LocationDataSource(
             tableView: tableView,
             allLocations: allLocationDataSource,
@@ -138,7 +143,7 @@ final class LocationViewController: UIViewController {
         }
 
         if let cachedRelays {
-            dataSource?.setRelays(cachedRelays.relays, selectedLocations: relayLocations, filter: filter)
+            dataSource?.setRelays(cachedRelays.relays, selectedRelays: relayLocations, filter: filter)
         }
     }
 
