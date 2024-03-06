@@ -263,6 +263,7 @@ pub fn get_interface_mtu(interface_name: &str) -> Result<u16, test_rpc::Error> {
         panic!("Interface '{interface_name}' name too long")
     }
 
+    // SAFETY: interface_name is shorter than ifr.ifr_name
     unsafe {
         std::ptr::copy_nonoverlapping(
             interface_name.as_ptr() as *const libc::c_char,
@@ -272,12 +273,15 @@ pub fn get_interface_mtu(interface_name: &str) -> Result<u16, test_rpc::Error> {
     };
 
     // TODO: define SIOCGIFMTU for macos
+    // SAFETY: SIOCGIFMTU expects an ifreq, and the socket is valid
     if unsafe { libc::ioctl(sock.as_raw_fd(), libc::SIOCGIFMTU, &mut ifr) } < 0 {
         let e = std::io::Error::last_os_error();
 
         log::error!("{}", e);
         return Err(test_rpc::Error::Io(e.to_string()));
     }
+
+    // SAFETY: ifru_mtu is set since SIOGCIFMTU succeeded
     Ok(unsafe { ifr.ifr_ifru.ifru_mtu }
         .try_into()
         .expect("MTU should fit in u16"))
