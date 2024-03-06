@@ -7,6 +7,7 @@
 //
 
 @testable import MullvadSettings
+@testable import MullvadVPN
 import Network
 import XCTest
 

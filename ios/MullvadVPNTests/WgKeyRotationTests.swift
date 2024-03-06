@@ -8,6 +8,7 @@
 
 import MullvadSettings
 import MullvadTypes
+@testable import MullvadVPN
 import WireGuardKitTypes
 import XCTest
 

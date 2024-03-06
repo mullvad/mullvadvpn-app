@@ -8,6 +8,7 @@
 
 import MullvadREST
 @testable import MullvadSettings
+@testable import MullvadVPN
 import XCTest
 
 final class TunnelManagerTests: XCTestCase {

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+@testable import MullvadVPN
 
 class URLSessionStub: URLSessionProtocol {
     var response: (Data, URLResponse)

@@ -7,6 +7,7 @@
 //
 
 import MullvadREST
+@testable import MullvadVPN
 
 struct OutgoingConnectionProxyStub: OutgoingConnectionHandling {
     var ipV4: IPV4ConnectionData

@@ -9,6 +9,7 @@
 import Foundation
 @testable import MullvadREST
 @testable import MullvadTypes
+@testable import MullvadVPN
 
 struct AccessTokenManagerStub: RESTAccessTokenManagement {
     func getAccessToken(
