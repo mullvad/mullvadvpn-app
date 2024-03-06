@@ -69,7 +69,6 @@ macro_rules! win32_err {
     }};
 }
 
-#[cfg(feature = "log")]
 pub mod flood {
     use std::time::{Duration, Instant};
 
@@ -80,12 +79,12 @@ pub mod flood {
     macro_rules! detect_flood {
         () => {{
             static FLOOD: ::once_cell::sync::Lazy<
-                std::sync::Mutex<talpid_types::flood::DetectFlood>,
+                ::std::sync::Mutex<talpid_types::flood::DetectFlood>,
             > = ::once_cell::sync::Lazy::new(|| {
-                std::sync::Mutex::new(talpid_types::flood::DetectFlood::new())
+                ::std::sync::Mutex::new(talpid_types::flood::DetectFlood::new())
             });
             if FLOOD.lock().unwrap().bump() {
-                log::debug!("Flood: {}, line {}, col {}", file!(), line!(), column!());
+                ::log::debug!("Flood: {}, line {}, col {}", file!(), line!(), column!());
             }
         }};
     }

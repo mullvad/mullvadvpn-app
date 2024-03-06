@@ -10,10 +10,6 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
-[features]
-log = []
-default = ["log"]
-
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 ipnetwork = "0.16"
