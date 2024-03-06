@@ -139,6 +139,16 @@ pub struct VmConfig {
     #[serde(default)]
     #[arg(long)]
     pub tpm: bool,
+
+    /// Override the path to `OVMF_VARS.secboot.fd`. Requires `tpm`.
+    #[serde(default)]
+    #[arg(long, requires("tpm"))]
+    pub ovmf_vars_path: Option<String>,
+
+    /// Override the path to `OVMF_CODE.secboot.fd`. Requires `tpm`.
+    #[serde(default)]
+    #[arg(long, requires("tpm"))]
+    pub ovmf_code_path: Option<String>,
 }
 
 impl VmConfig {
