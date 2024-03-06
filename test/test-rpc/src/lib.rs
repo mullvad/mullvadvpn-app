@@ -19,6 +19,8 @@ pub enum Error {
     Tarpc(#[from] tarpc::client::RpcError),
     #[error("Syscall failed")]
     Syscall,
+    #[error("Internal IO error occurred")]
+    Io(String),
     #[error("Interface not found")]
     InterfaceNotFound,
     #[error("HTTP request failed")]
