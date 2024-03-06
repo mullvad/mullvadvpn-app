@@ -92,7 +92,7 @@ jobs:
       container_image: ${{ env.inner_container_image }}
   build-linux:
     needs: prepare-linux
-    runs-on: [self-hosted, desktop-test, Linux]
+    runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare-linux.outputs.container_image }}
     continue-on-error: true
