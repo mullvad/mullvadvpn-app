@@ -107,6 +107,31 @@ public enum RelayLocation: Codable, Hashable, CustomDebugStringConvertible {
     }
 }
 
+public struct UserSelectedRelays: Codable, Equatable {
+    public let locations: [RelayLocation]
+    public let customListSelection: CustomListSelection?
+
+    public init(locations: [RelayLocation], customListSelection: CustomListSelection? = nil) {
+        self.locations = locations
+        self.customListSelection = customListSelection
+    }
+}
+
+extension UserSelectedRelays {
+    public struct CustomListSelection: Codable, Equatable {
+        /// The ID of the custom list that the selected relays belong to.
+        public let listId: UUID
+        /// Whether the selected relays are subnodes or the custom list itself.
+        public let isList: Bool
+
+        public init(listId: UUID, isList: Bool) {
+            self.listId = listId
+            self.isList = isList
+        }
+    }
+}
+
+/// - Warning: Deprecated, use UserSelectedRelays instead.
 public struct RelayLocations: Codable, Equatable {
     public let locations: [RelayLocation]
     public let customListId: UUID?
