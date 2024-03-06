@@ -51,6 +51,7 @@ import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -86,11 +87,9 @@ private fun PreviewSelectLocationScreen() {
 fun SelectLocation(navigator: DestinationsNavigator) {
     val vm = koinViewModel<SelectLocationViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
-    LaunchedEffect(Unit) {
-        vm.uiSideEffect.collect {
-            when (it) {
-                SelectLocationSideEffect.CloseScreen -> navigator.navigateUp()
-            }
+    LaunchedEffectCollect(vm.uiSideEffect) {
+        when (it) {
+            SelectLocationSideEffect.CloseScreen -> navigator.navigateUp()
         }
     }
 

@@ -8,7 +8,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,6 +21,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.textfield.DnsTextField
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogSideEffect
@@ -100,11 +100,9 @@ fun DnsDialog(
     val viewModel =
         koinViewModel<DnsDialogViewModel>(parameters = { parametersOf(initialValue, index) })
 
-    LaunchedEffect(Unit) {
-        viewModel.uiSideEffect.collect {
-            when (it) {
-                DnsDialogSideEffect.Complete -> resultNavigator.navigateBack(result = true)
-            }
+    LaunchedEffectCollect(viewModel.uiSideEffect) {
+        when (it) {
+            DnsDialogSideEffect.Complete -> resultNavigator.navigateBack(result = true)
         }
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
