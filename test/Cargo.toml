@@ -7,7 +7,13 @@ rust-version = "1.75.0"
 
 [workspace]
 resolver = "2"
-members = ["test-manager", "test-runner", "test-rpc", "socks-server"]
+members = [
+    "test-manager",
+    "test-runner",
+    "test-rpc",
+    "socks-server",
+    "am-i-mullvad",
+]
 
 [workspace.lints.rust]
 rust_2018_idioms = "deny"
