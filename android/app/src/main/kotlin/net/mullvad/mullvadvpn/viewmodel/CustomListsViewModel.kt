@@ -8,13 +8,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.state.CustomListsUiState
-import net.mullvad.mullvadvpn.model.CreateCustomListResult
-import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 
 class CustomListsViewModel(
     relayListUseCase: RelayListUseCase,
-    private val customListsRepository: CustomListsRepository
+    private val customListActionUseCase: CustomListActionUseCase
 ) : ViewModel() {
 
     val uiState =
@@ -28,14 +27,6 @@ class CustomListsViewModel(
             )
 
     fun undoDeleteCustomList(action: CustomListAction.Create) {
-        viewModelScope.launch {
-            val result = customListsRepository.createCustomList(action.name)
-            if (result is CreateCustomListResult.Ok) {
-                customListsRepository.updateCustomListLocationsFromCodes(
-                    result.id,
-                    action.locations
-                )
-            }
-        }
+        viewModelScope.launch { customListActionUseCase.performAction(action) }
     }
 }
