@@ -123,7 +123,6 @@ async fn test_mtu_detection(
         .await
         .expect_err("Ping larger than the filter should time out");
 
-    log::info!("Connecting");
     connect_and_wait(&mut mullvad_client).await.unwrap();
     let tunnel_iface = helpers::get_tunnel_interface(&mut mullvad_client)
         .await
