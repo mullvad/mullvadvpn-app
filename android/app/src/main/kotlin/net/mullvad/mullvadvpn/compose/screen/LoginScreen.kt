@@ -79,7 +79,6 @@ import net.mullvad.mullvadvpn.compose.util.accountTokenVisualTransformation
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
-import net.mullvad.mullvadvpn.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import org.koin.androidx.compose.koinViewModel

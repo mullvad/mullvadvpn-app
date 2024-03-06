@@ -14,7 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,6 +41,7 @@ import net.mullvad.mullvadvpn.compose.destinations.ReportProblemNoEmailDialogDes
 import net.mullvad.mullvadvpn.compose.destinations.ViewLogsDestination
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -102,13 +102,10 @@ fun ReportProblem(
     val vm = koinViewModel<ReportProblemViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        vm.uiSideEffect.collect {
-            when (it) {
-                is ReportProblemSideEffect.ShowConfirmNoEmail -> {
-                    navigator.navigate(ReportProblemNoEmailDialogDestination)
-                }
-            }
+    LaunchedEffectCollect(vm.uiSideEffect) {
+        when (it) {
+            is ReportProblemSideEffect.ShowConfirmNoEmail ->
+                navigator.navigate(ReportProblemNoEmailDialogDestination)
         }
     }
 
