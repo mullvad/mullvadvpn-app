@@ -49,6 +49,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterCell
@@ -80,6 +81,7 @@ import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_LOCATION_BOTTOM_SHEET
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
@@ -168,17 +170,11 @@ fun SelectLocation(
         onSelectRelay = vm::selectRelay,
         onSearchTermInput = vm::onSearchTermInput,
         onBackClick = navigator::navigateUp,
-<<<<<<< HEAD
         onFilterClick = { navigator.navigate(FilterScreenDestination, true) },
-        onCreateCustomList = {
-            navigator.navigate(CreateCustomListDestination) { launchSingleTop = true }
-=======
-        onFilterClick = { navigator.navigate(FilterScreenDestination) },
         onCreateCustomList = { relayItem ->
             navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.code ?: "")) {
                 launchSingleTop = true
             }
->>>>>>> 896e56ffc (WIP)
         },
         onEditCustomLists = { navigator.navigate(CustomListsDestination()) },
         removeOwnershipFilter = vm::removeOwnerFilter,
@@ -281,8 +277,9 @@ fun SelectLocationScreen(
             }
             Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
             val lazyListState = rememberLazyListState()
-            val selectedItemCode = (state as? SelectLocationUiState.Content)?.selectedItem?.code
-            LaunchedEffect(selectedItemCode) {
+            val selectedItemCode =
+                (state as? SelectLocationUiState.Content)?.selectedItem?.code ?: ""
+            RunOnKeyChange(key = selectedItemCode) {
                 val index = state.indexOfSelectedRelayItem()
 
                 if (index >= 0) {
