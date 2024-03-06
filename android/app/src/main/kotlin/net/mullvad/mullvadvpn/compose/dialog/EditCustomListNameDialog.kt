@@ -53,7 +53,7 @@ fun EditCustomListName(
     LaunchedEffect(Unit) {
         vm.uiSideEffect.collect { sideEffect ->
             when (sideEffect) {
-                is EditCustomListNameDialogSideEffect.ReturnResult -> {
+                is EditCustomListNameDialogSideEffect.ReturnWithResult -> {
                     backNavigator.navigateBack(result = sideEffect.result)
                 }
             }
@@ -122,11 +122,13 @@ fun EditCustomListNameDialog(
                         }
                     },
                     modifier =
-                        Modifier.focusRequester(focusRequester).onFocusChanged { focusState ->
-                            if (focusState.hasFocus) {
-                                keyboardController?.show()
+                        Modifier.focusRequester(focusRequester)
+                            .onFocusChanged { focusState ->
+                                if (focusState.hasFocus) {
+                                    keyboardController?.show()
+                                }
                             }
-                        }.testTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG)
+                            .testTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG)
                 )
             }
 

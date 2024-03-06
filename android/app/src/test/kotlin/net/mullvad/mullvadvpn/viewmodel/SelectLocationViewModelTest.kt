@@ -2,6 +2,8 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -14,6 +16,8 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.communication.CustomListAction
+import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
@@ -238,6 +242,40 @@ class SelectLocationViewModelTest {
                 mockSelectedOwnership,
                 any<Constraint.Any<Providers>>()
             )
+        }
+    }
+
+    @Test
+    fun `when perform action is called should call custom list use case`() {
+        // Arrange
+        val action: CustomListAction = mockk()
+
+        // Act
+        viewModel.performAction(action)
+
+        // Assert
+        coVerify { mockCustomListActionUseCase.performAction(action) }
+    }
+
+    @Test
+    fun `after adding a location to a list should emit location added side effect`() = runTest {
+        // Arrange
+        val expectedResult: CustomListResult.LocationsChanged = mockk()
+        val location: RelayItem = mockk { every { code } returns "code" }
+        val customList: RelayItem.CustomList = mockk {
+            every { id } returns "1"
+            every { locations } returns emptyList()
+        }
+        coEvery {
+            mockCustomListActionUseCase.performAction(any<CustomListAction.UpdateLocations>())
+        } returns Result.success(expectedResult)
+
+        // Act, Assert
+        viewModel.uiSideEffect.test {
+            viewModel.addLocationToList(item = location, customList = customList)
+            val sideEffect = awaitItem()
+            assertIs<SelectLocationSideEffect.LocationAddedToCustomList>(sideEffect)
+            assertEquals(expectedResult, sideEffect.result)
         }
     }
 
