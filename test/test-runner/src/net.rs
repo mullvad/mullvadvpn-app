@@ -256,7 +256,7 @@ pub fn get_interface_mtu(interface_name: &str) -> Result<u16, test_rpc::Error> {
         socket2::Type::STREAM,
         Some(socket2::Protocol::TCP),
     )
-    .map_err(|_e| test_rpc::Error::Syscall)?; // TODO: look over error type
+    .map_err(|e| test_rpc::Error::Io(e.to_string()))?;
 
     let mut ifr: libc::ifreq = unsafe { std::mem::zeroed() };
     if interface_name.len() >= ifr.ifr_name.len() {
@@ -276,7 +276,7 @@ pub fn get_interface_mtu(interface_name: &str) -> Result<u16, test_rpc::Error> {
         let e = std::io::Error::last_os_error();
 
         log::error!("{}", e);
-        return Err(test_rpc::Error::Syscall); // TODO: look over error type
+        return Err(test_rpc::Error::Io(e.to_string()));
     }
     Ok(unsafe { ifr.ifr_ifru.ifru_mtu }
         .try_into()
