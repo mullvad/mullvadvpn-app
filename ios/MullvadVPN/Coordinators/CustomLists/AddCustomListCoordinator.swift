@@ -13,7 +13,7 @@ import UIKit
 
 class AddCustomListCoordinator: Coordinator, Presentable, Presenting {
     let navigationController: UINavigationController
-    let customListInteractor: CustomListInteractorProtocol
+    let interactor: CustomListInteractorProtocol
 
     var presentedViewController: UIViewController {
         navigationController
@@ -23,10 +23,10 @@ class AddCustomListCoordinator: Coordinator, Presentable, Presenting {
 
     init(
         navigationController: UINavigationController,
-        customListInteractor: CustomListInteractorProtocol
+        interactor: CustomListInteractorProtocol
     ) {
         self.navigationController = navigationController
-        self.customListInteractor = customListInteractor
+        self.interactor = interactor
     }
 
     func start() {
@@ -35,7 +35,7 @@ class AddCustomListCoordinator: Coordinator, Presentable, Presenting {
         )
 
         let controller = CustomListViewController(
-            interactor: customListInteractor,
+            interactor: interactor,
             subject: subject,
             alertPresenter: AlertPresenter(context: self)
         )
@@ -55,16 +55,23 @@ class AddCustomListCoordinator: Coordinator, Presentable, Presenting {
             comment: ""
         )
 
+        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(
+            systemItem: .cancel,
+            primaryAction: UIAction(handler: { _ in
+                self.didFinish?()
+            })
+        )
+
         navigationController.pushViewController(controller, animated: false)
     }
 }
 
 extension AddCustomListCoordinator: CustomListViewControllerDelegate {
-    func customListDidSave() {
+    func customListDidSave(_ list: CustomList) {
         didFinish?()
     }
 
-    func customListDidDelete() {
+    func customListDidDelete(_ list: CustomList) {
         // No op.
     }
 

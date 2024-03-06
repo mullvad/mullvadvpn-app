@@ -18,7 +18,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
     private var dataSources: [LocationDataSourceProtocol] = []
     private var selectedItem: LocationCellViewModel?
 
-    var didSelectRelayLocations: ((RelayLocations) -> Void)?
+    var didSelectRelayLocations: ((UserSelectedRelays) -> Void)?
     var didTapEditCustomLists: (() -> Void)?
 
     init(
@@ -35,11 +35,8 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
 
         super.init(tableView: tableView) { _, indexPath, itemIdentifier in
             let reuseIdentifier = LocationSection.Cell.locationCell.reuseIdentifier
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: reuseIdentifier,
-                for: indexPath
-                // swiftlint:disable:next force_cast
-            ) as! LocationCell
+            // swiftlint:disable:next force_cast
+            let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! LocationCell
             cell.configureCell(item: itemIdentifier)
             return cell
         }
@@ -49,7 +46,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
         registerClasses()
     }
 
-    func setRelays(_ response: REST.ServerRelaysResponse, selectedLocations: RelayLocations?, filter: RelayFilter) {
+    func setRelays(_ response: REST.ServerRelaysResponse, selectedRelays: UserSelectedRelays?, filter: RelayFilter) {
         let allLocationsDataSource =
             dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource
 
@@ -63,23 +60,11 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
         allLocationsDataSource?.reload(response, relays: relays)
         customListsDataSource?.reload(allLocationNodes: allLocationsDataSource?.nodes ?? [])
 
-        if let selectedLocations {
-            // Look for a matching custom list node.
-            if let customListId = selectedLocations.customListId,
-               let customList = customListsDataSource?.customList(by: customListId),
-               let selectedNode = customListsDataSource?.node(by: selectedLocations.locations, for: customList) {
-                selectedItem = LocationCellViewModel(section: .customLists, node: selectedNode)
-                // Look for a matching all locations node.
-            } else if let location = selectedLocations.locations.first,
-                      let selectedNode = allLocationsDataSource?.node(by: location) {
-                selectedItem = LocationCellViewModel(section: .allLocations, node: selectedNode)
-            }
-        }
-
+        mapSelectedItem(from: selectedRelays)
         filterRelays(by: currentSearchString)
     }
 
-    func filterRelays(by searchString: String) {
+    func filterRelays(by searchString: String, scrollToSelected: Bool = true) {
         currentSearchString = searchString
 
         let list = LocationSection.allCases.enumerated().map { index, section in
@@ -92,6 +77,11 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
         }
 
         updateDataSnapshot(with: list, reloadExisting: !searchString.isEmpty) {
+            guard scrollToSelected else {
+                self.setSelectedItem(self.selectedItem, animated: false)
+                return
+            }
+
             DispatchQueue.main.async {
                 if searchString.isEmpty {
                     self.setSelectedItem(self.selectedItem, animated: false, completion: {
@@ -102,6 +92,19 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
                 }
             }
         }
+    }
+
+    func refreshCustomLists(selectedRelays: UserSelectedRelays?) {
+        let allLocationsDataSource =
+            dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource
+
+        let customListsDataSource =
+            dataSources.first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource
+
+        customListsDataSource?.reload(allLocationNodes: allLocationsDataSource?.nodes ?? [])
+
+        mapSelectedItem(from: selectedRelays)
+        filterRelays(by: currentSearchString, scrollToSelected: false)
     }
 
     private func indexPathForSelectedRelay() -> IndexPath? {
@@ -119,11 +122,13 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
 
         snapshot.appendSections(sections)
         for (index, section) in sections.enumerated() {
-            snapshot.appendItems(list[index], toSection: section)
-        }
+            let items = list[index]
 
-        if reloadExisting {
-            snapshot.reloadSections(sections)
+            snapshot.appendItems(items, toSection: section)
+
+            if reloadExisting {
+                snapshot.reconfigureOrReloadItems(items)
+            }
         }
 
         apply(snapshot, animatingDifferences: animated, completion: completion)
@@ -131,18 +136,32 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
 
     private func registerClasses() {
         LocationSection.allCases.forEach {
-            tableView.register(
-                $0.cell.reusableViewClass,
-                forCellReuseIdentifier: $0.cell.reuseIdentifier
-            )
+            tableView.register($0.cell.reusableViewClass, forCellReuseIdentifier: $0.cell.reuseIdentifier)
         }
     }
 
-    private func setSelectedItem(
-        _ item: LocationCellViewModel?,
-        animated: Bool,
-        completion: (() -> Void)? = nil
-    ) {
+    private func mapSelectedItem(from selectedRelays: UserSelectedRelays?) {
+        let allLocationsDataSource =
+            dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource
+
+        let customListsDataSource =
+            dataSources.first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource
+
+        if let selectedRelays {
+            // Look for a matching custom list node.
+            if let customListSelection = selectedRelays.customListSelection,
+               let customList = customListsDataSource?.customList(by: customListSelection.listId),
+               let selectedNode = customListsDataSource?.node(by: selectedRelays, for: customList) {
+                selectedItem = LocationCellViewModel(section: .customLists, node: selectedNode)
+                // Look for a matching all locations node.
+            } else if let location = selectedRelays.locations.first,
+                      let selectedNode = allLocationsDataSource?.node(by: location) {
+                selectedItem = LocationCellViewModel(section: .allLocations, node: selectedNode)
+            }
+        }
+    }
+
+    private func setSelectedItem(_ item: LocationCellViewModel?, animated: Bool, completion: (() -> Void)? = nil) {
         selectedItem = item
         guard let selectedItem else { return }
 
@@ -202,14 +221,12 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
                 )
             )
 
-            let indentationLevel = indentationLevel + 1
-
             if childNode.showsChildren {
                 viewModels.append(
                     contentsOf: recursivelyCreateCellViewModelTree(
                         for: childNode,
                         in: section,
-                        indentationLevel: indentationLevel
+                        indentationLevel: indentationLevel + 1
                     )
                 )
             }
@@ -262,11 +279,7 @@ extension LocationDataSource: UITableViewDelegate {
         itemIdentifier(for: indexPath)?.indentationLevel ?? 0
     }
 
-    func tableView(
-        _ tableView: UITableView,
-        willDisplay cell: UITableViewCell,
-        forRowAt indexPath: IndexPath
-    ) {
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if let item = itemIdentifier(for: indexPath),
            item == selectedItem {
             cell.setSelected(true, animated: false)
@@ -278,8 +291,18 @@ extension LocationDataSource: UITableViewDelegate {
 
         guard let item = itemIdentifier(for: indexPath) else { return }
 
-        let topmostNode = item.node.root as? CustomListLocationNode
-        let relayLocations = RelayLocations(locations: item.node.locations, customListId: topmostNode?.customList.id)
+        var customListSelection: UserSelectedRelays.CustomListSelection?
+        if let topmostNode = item.node.root as? CustomListLocationNode {
+            customListSelection = UserSelectedRelays.CustomListSelection(
+                listId: topmostNode.customList.id,
+                isList: topmostNode == item.node
+            )
+        }
+
+        let relayLocations = UserSelectedRelays(
+            locations: item.node.locations,
+            customListSelection: customListSelection
+        )
 
         didSelectRelayLocations?(relayLocations)
     }
