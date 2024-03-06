@@ -81,7 +81,7 @@ pub mod flood {
             static FLOOD: ::once_cell::sync::Lazy<
                 ::std::sync::Mutex<talpid_types::flood::DetectFlood>,
             > = ::once_cell::sync::Lazy::new(|| {
-                ::std::sync::Mutex::new(talpid_types::flood::DetectFlood::new())
+                ::std::sync::Mutex::new(talpid_types::flood::DetectFlood::default())
             });
             if FLOOD.lock().unwrap().bump() {
                 ::log::debug!("Flood: {}, line {}, col {}", file!(), line!(), column!());
@@ -95,14 +95,16 @@ pub mod flood {
         counter: usize,
     }
 
-    impl DetectFlood {
-        pub fn new() -> Self {
+    impl Default for DetectFlood {
+        fn default() -> Self {
             DetectFlood {
                 last_clear: Instant::now(),
                 counter: 0,
             }
         }
+    }
 
+    impl DetectFlood {
         pub fn bump(&mut self) -> bool {
             let now = Instant::now();
             if now.saturating_duration_since(self.last_clear) >= CALLS_INTERVAL {

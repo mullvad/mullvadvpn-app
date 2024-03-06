@@ -3744,7 +3744,6 @@ dependencies = [
  "base64 0.13.1",
  "ipnetwork",
  "jnix",
- "log",
  "serde",
  "thiserror",
  "x25519-dalek",
