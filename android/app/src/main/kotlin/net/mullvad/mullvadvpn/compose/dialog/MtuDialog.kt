@@ -8,7 +8,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -21,6 +20,7 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.textfield.MtuTextField
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.constant.MTU_MAX_VALUE
 import net.mullvad.mullvadvpn.constant.MTU_MIN_VALUE
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -42,11 +42,9 @@ private fun PreviewMtuDialog() {
 fun MtuDialog(mtuInitial: Int?, navigator: DestinationsNavigator) {
     val viewModel = koinViewModel<MtuDialogViewModel>()
 
-    LaunchedEffect(Unit) {
-        viewModel.uiSideEffect.collect {
-            when (it) {
-                MtuDialogSideEffect.Complete -> navigator.navigateUp()
-            }
+    LaunchedEffectCollect(viewModel.uiSideEffect) {
+        when (it) {
+            MtuDialogSideEffect.Complete -> navigator.navigateUp()
         }
     }
     MtuDialog(
