@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -55,6 +54,7 @@ import net.mullvad.mullvadvpn.compose.destinations.RedeemVoucherDestination
 import net.mullvad.mullvadvpn.compose.destinations.VerificationPendingDialogDestination
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromBottomTransition
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
@@ -171,22 +171,20 @@ fun AccountScreen(
     val clipboardManager = LocalClipboardManager.current
     val snackbarHostState = remember { SnackbarHostState() }
     val copyTextString = stringResource(id = R.string.copied_mullvad_account_number)
-    LaunchedEffect(Unit) {
-        uiSideEffect.collect { uiSideEffect ->
-            when (uiSideEffect) {
-                AccountViewModel.UiSideEffect.NavigateToLogin -> navigateToLogin()
-                is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
-                    context.openAccountPageInBrowser(uiSideEffect.token)
-                is AccountViewModel.UiSideEffect.CopyAccountNumber ->
-                    launch {
-                        clipboardManager.setText(AnnotatedString(uiSideEffect.accountNumber))
+    LaunchedEffectCollect(uiSideEffect) { sideEffect ->
+        when (sideEffect) {
+            AccountViewModel.UiSideEffect.NavigateToLogin -> navigateToLogin()
+            is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
+                context.openAccountPageInBrowser(sideEffect.token)
+            is AccountViewModel.UiSideEffect.CopyAccountNumber ->
+                launch {
+                    clipboardManager.setText(AnnotatedString(sideEffect.accountNumber))
 
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                            snackbarHostState.currentSnackbarData?.dismiss()
-                            snackbarHostState.showSnackbar(message = copyTextString)
-                        }
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar(message = copyTextString)
                     }
-            }
+                }
         }
     }
 
