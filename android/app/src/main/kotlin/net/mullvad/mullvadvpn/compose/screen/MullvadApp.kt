@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.compose.screen
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
@@ -14,7 +13,6 @@ import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.navigation.popBackStack
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.destination
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.compose.NavGraphs
@@ -22,6 +20,7 @@ import net.mullvad.mullvadvpn.compose.destinations.ChangelogDestination
 import net.mullvad.mullvadvpn.compose.destinations.ConnectDestination
 import net.mullvad.mullvadvpn.compose.destinations.NoDaemonScreenDestination
 import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.DaemonScreenEvent
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
@@ -50,28 +49,23 @@ fun MullvadApp() {
     )
 
     // Globally handle daemon dropped connection with NoDaemonScreen
-    LaunchedEffect(Unit) {
-        serviceVm.uiSideEffect.collect {
-            when (it) {
-                DaemonScreenEvent.Show ->
-                    navController.navigate(NoDaemonScreenDestination) { launchSingleTop = true }
-                DaemonScreenEvent.Remove ->
-                    navController.popBackStack(NoDaemonScreenDestination, true)
-            }
+    LaunchedEffectCollect(serviceVm.uiSideEffect) {
+        when (it) {
+            DaemonScreenEvent.Show ->
+                navController.navigate(NoDaemonScreenDestination) { launchSingleTop = true }
+            DaemonScreenEvent.Remove -> navController.popBackStack(NoDaemonScreenDestination, true)
         }
     }
 
     // Globally show the changelog
     val changeLogsViewModel = koinViewModel<ChangelogViewModel>()
-    LaunchedEffect(Unit) {
-        changeLogsViewModel.uiSideEffect.collect {
+    LaunchedEffectCollect(changeLogsViewModel.uiSideEffect) {
 
-            // Wait until we are in an acceptable destination
-            navController.currentBackStackEntryFlow
-                .map { it.destination() }
-                .first { it in changeLogDestinations }
+        // Wait until we are in an acceptable destination
+        navController.currentBackStackEntryFlow
+            .map { it.destination() }
+            .first { it in changeLogDestinations }
 
-            navController.navigate(ChangelogDestination(it).route)
-        }
+        navController.navigate(ChangelogDestination(it).route)
     }
 }

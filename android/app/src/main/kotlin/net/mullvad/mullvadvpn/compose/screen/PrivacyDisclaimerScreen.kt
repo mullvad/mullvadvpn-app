@@ -17,9 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +46,7 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
 import net.mullvad.mullvadvpn.compose.destinations.SplashDestination
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.toDp
 import net.mullvad.mullvadvpn.constant.DAEMON_READY_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -74,36 +73,30 @@ fun PrivacyDisclaimer(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    LaunchedEffect(Unit) {
-        viewModel.uiSideEffect.collect {
-            when (it) {
-                PrivacyDisclaimerUiSideEffect.NavigateToLogin -> {
-                    navigator.navigate(LoginDestination(null)) {
-                        launchSingleTop = true
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
+    LaunchedEffectCollect(viewModel.uiSideEffect) {
+        when (it) {
+            PrivacyDisclaimerUiSideEffect.NavigateToLogin ->
+                navigator.navigate(LoginDestination(null)) {
+                    launchSingleTop = true
+                    popUpTo(NavGraphs.root) { inclusive = true }
                 }
-                PrivacyDisclaimerUiSideEffect.StartService -> {
-                    scope.launch {
-                        try {
-                            withTimeout(DAEMON_READY_TIMEOUT_MS) {
-                                (context as MainActivity).startServiceSuspend()
-                            }
-                            viewModel.onServiceStartedSuccessful()
-                        } catch (e: CancellationException) {
-                            // Timeout
-                            viewModel.onServiceStartedTimeout()
+            PrivacyDisclaimerUiSideEffect.StartService ->
+                launch {
+                    try {
+                        withTimeout(DAEMON_READY_TIMEOUT_MS) {
+                            (context as MainActivity).startServiceSuspend()
                         }
+                        viewModel.onServiceStartedSuccessful()
+                    } catch (e: CancellationException) {
+                        // Timeout
+                        viewModel.onServiceStartedTimeout()
                     }
                 }
-                PrivacyDisclaimerUiSideEffect.NavigateToSplash -> {
-                    navigator.navigate(SplashDestination) {
-                        launchSingleTop = true
-                        popUpTo(NavGraphs.root) { inclusive = true }
-                    }
+            PrivacyDisclaimerUiSideEffect.NavigateToSplash ->
+                navigator.navigate(SplashDestination) {
+                    launchSingleTop = true
+                    popUpTo(NavGraphs.root) { inclusive = true }
                 }
-            }
         }
     }
     PrivacyDisclaimerScreen(state, {}, viewModel::setPrivacyDisclosureAccepted)
