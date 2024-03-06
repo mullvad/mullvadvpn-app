@@ -117,11 +117,16 @@ final class LocationViewController: UIViewController {
         dataSource?.setRelays(cachedRelays.relays, selectedLocations: relayLocations, filter: filter)
     }
 
+    func refreshCustomLists() {
+        dataSource?.refreshCustomLists()
+    }
+
     // MARK: - Private
 
     private func setUpDataSources() {
         let allLocationDataSource = AllLocationDataSource()
         let customListsDataSource = CustomListsDataSource(repository: customListRepository)
+
         dataSource = LocationDataSource(
             tableView: tableView,
             allLocations: allLocationDataSource,

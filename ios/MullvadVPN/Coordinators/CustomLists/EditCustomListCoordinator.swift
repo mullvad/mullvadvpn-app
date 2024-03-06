@@ -56,7 +56,7 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
             comment: ""
         )
 
-        navigationController.pushViewController(controller, animated: false)
+        navigationController.pushViewController(controller, animated: true)
     }
 }
 

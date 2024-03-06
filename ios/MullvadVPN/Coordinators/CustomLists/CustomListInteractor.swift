@@ -9,20 +9,20 @@
 import MullvadSettings
 
 protocol CustomListInteractorProtocol {
-    func createCustomList(viewModel: CustomListViewModel) throws
-    func updateCustomList(viewModel: CustomListViewModel)
+    func fetchAllCustomLists() -> [CustomList]
+    func saveCustomList(viewModel: CustomListViewModel) throws
     func deleteCustomList(id: UUID)
 }
 
 struct CustomListInteractor: CustomListInteractorProtocol {
     let repository: CustomListRepositoryProtocol
 
-    func createCustomList(viewModel: CustomListViewModel) throws {
-        try _ = repository.create(viewModel.name, locations: viewModel.locations)
+    func fetchAllCustomLists() -> [CustomList] {
+        repository.fetchAll()
     }
 
-    func updateCustomList(viewModel: CustomListViewModel) {
-        repository.update(viewModel.customList)
+    func saveCustomList(viewModel: CustomListViewModel) throws {
+        try _ = repository.save(list: viewModel.customList)
     }
 
     func deleteCustomList(id: UUID) {

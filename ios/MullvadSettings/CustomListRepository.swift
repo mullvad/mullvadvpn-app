@@ -28,12 +28,7 @@ public enum CustomRelayListError: LocalizedError, Equatable {
 }
 
 public struct CustomListRepository: CustomListRepositoryProtocol {
-    public var publisher: AnyPublisher<[CustomList], Never> {
-        passthroughSubject.eraseToAnyPublisher()
-    }
-
     private let logger = Logger(label: "CustomListRepository")
-    private let passthroughSubject = PassthroughSubject<[CustomList], Never>()
 
     private let settingsParser: SettingsParser = {
         SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
@@ -41,15 +36,17 @@ public struct CustomListRepository: CustomListRepositoryProtocol {
 
     public init() {}
 
-    public func create(_ name: String, locations: [RelayLocation]) throws -> CustomList {
+    public func save(list: CustomList) throws {
         var lists = fetchAll()
-        if lists.contains(where: { $0.name == name }) {
+
+        if let index = lists.firstIndex(where: { $0.id == list.id }) {
+            lists[index] = list
+            try write(lists)
+        } else if lists.contains(where: { $0.name == list.name }) {
             throw CustomRelayListError.duplicateName
         } else {
-            let item = CustomList(id: UUID(), name: name, locations: locations)
-            lists.append(item)
+            lists.append(list)
             try write(lists)
-            return item
         }
     }
 
@@ -72,18 +69,6 @@ public struct CustomListRepository: CustomListRepositoryProtocol {
     public func fetchAll() -> [CustomList] {
         (try? read()) ?? []
     }
-
-    public func update(_ list: CustomList) {
-        do {
-            var lists = fetchAll()
-            if let index = lists.firstIndex(where: { $0.id == list.id }) {
-                lists[index] = list
-                try write(lists)
-            }
-        } catch {
-            logger.error(error: error)
-        }
-    }
 }
 
 extension CustomListRepository {
@@ -97,7 +82,5 @@ extension CustomListRepository {
         let data = try settingsParser.produceUnversionedPayload(list)
 
         try SettingsManager.store.write(data, for: .customRelayLists)
-
-        passthroughSubject.send(list)
     }
 }

@@ -91,13 +91,6 @@ class CustomListViewController: UIViewController {
     }
 
     private func configureNavigationItem() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            systemItem: .cancel,
-            primaryAction: UIAction(handler: { _ in
-                self.dismiss(animated: true)
-            })
-        )
-
         navigationItem.rightBarButtonItem = saveBarButton
     }
 
@@ -149,7 +142,7 @@ class CustomListViewController: UIViewController {
 
     private func onSave() {
         do {
-            try interactor.createCustomList(viewModel: subject.value)
+            try interactor.saveCustomList(viewModel: subject.value)
             delegate?.customListDidSave()
         } catch {
             validationErrors.insert(.name)
@@ -183,7 +176,6 @@ class CustomListViewController: UIViewController {
                     style: .destructive,
                     handler: {
                         self.interactor.deleteCustomList(id: self.subject.value.id)
-                        self.dismiss(animated: true)
                         self.delegate?.customListDidDelete()
                     }
                 ),

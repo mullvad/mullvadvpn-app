@@ -593,6 +593,8 @@
 		7ADCB2D82B6A6EB300C88F89 /* AnyRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */; };
 		7ADCB2DA2B6A730400C88F89 /* IPOverrideRepositoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */; };
 		7AE044BB2A935726003915D8 /* Routing.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A88DCD02A8FABBE00D2FF0E /* Routing.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7AE7E81D2B985EB000E66F4E /* ListCustomListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE7E81C2B985EB000E66F4E /* ListCustomListCoordinator.swift */; };
+		7AE7E81F2B98637B00E66F4E /* ListCustomListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE7E81E2B98637B00E66F4E /* ListCustomListViewController.swift */; };
 		7AEF7F1A2AD00F52006FE45D /* AppMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */; };
 		7AF10EB22ADE859200C090B9 /* AlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF10EB12ADE859200C090B9 /* AlertViewController.swift */; };
 		7AF10EB42ADE85BC00C090B9 /* RelayFilterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF10EB32ADE85BC00C090B9 /* RelayFilterCoordinator.swift */; };
@@ -1825,6 +1827,8 @@
 		7AD0AA202AD6CB0000119E10 /* URLRequestProxyStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestProxyStub.swift; sourceTree = "<group>"; };
 		7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyRelay.swift; sourceTree = "<group>"; };
 		7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideRepositoryStub.swift; sourceTree = "<group>"; };
+		7AE7E81C2B985EB000E66F4E /* ListCustomListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCustomListCoordinator.swift; sourceTree = "<group>"; };
+		7AE7E81E2B98637B00E66F4E /* ListCustomListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCustomListViewController.swift; sourceTree = "<group>"; };
 		7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMessageHandler.swift; sourceTree = "<group>"; };
 		7AF10EB12ADE859200C090B9 /* AlertViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertViewController.swift; sourceTree = "<group>"; };
 		7AF10EB32ADE85BC00C090B9 /* RelayFilterCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelayFilterCoordinator.swift; sourceTree = "<group>"; };
@@ -3485,6 +3489,8 @@
 				7A6389E62B7E42BE008E77E1 /* CustomListViewController.swift */,
 				7A6389D32B7E3BD6008E77E1 /* CustomListViewModel.swift */,
 				7A6389E42B7E4247008E77E1 /* EditCustomListCoordinator.swift */,
+				7AE7E81C2B985EB000E66F4E /* ListCustomListCoordinator.swift */,
+				7AE7E81E2B98637B00E66F4E /* ListCustomListViewController.swift */,
 			);
 			path = CustomLists;
 			sourceTree = "<group>";
@@ -5265,6 +5271,7 @@
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
 				F0C6FA852A6A733700F521F0 /* InAppPurchaseInteractor.swift in Sources */,
 				58CEB2F92AFD136E00E6E088 /* UIBackgroundConfiguration+Extensions.swift in Sources */,
+				7AE7E81D2B985EB000E66F4E /* ListCustomListCoordinator.swift in Sources */,
 				5878F50029CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift in Sources */,
 				A98502032B627B120061901E /* LocalNetworkProbe.swift in Sources */,
 				583FE01029C0F532006E85F9 /* CustomSplitViewController.swift in Sources */,
@@ -5338,6 +5345,7 @@
 				58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */,
 				586E54FB27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift in Sources */,
 				584592612639B4A200EF967F /* TermsOfServiceContentView.swift in Sources */,
+				7AE7E81F2B98637B00E66F4E /* ListCustomListViewController.swift in Sources */,
 				5875960A26F371FC00BF6711 /* Tunnel+Messaging.swift in Sources */,
 				586C0D912B03D8A400E7CDD7 /* AccessMethodHeaderFooterReuseIdentifier.swift in Sources */,
 				7A2960F62A963F7500389B82 /* AlertCoordinator.swift in Sources */,

@@ -79,7 +79,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
         filterRelays(by: currentSearchString)
     }
 
-    func filterRelays(by searchString: String) {
+    func filterRelays(by searchString: String, scrollToSelected: Bool = true) {
         currentSearchString = searchString
 
         let list = LocationSection.allCases.enumerated().map { index, section in
@@ -92,6 +92,8 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
         }
 
         updateDataSnapshot(with: list, reloadExisting: !searchString.isEmpty) {
+            guard scrollToSelected else { return }
+
             DispatchQueue.main.async {
                 if searchString.isEmpty {
                     self.setSelectedItem(self.selectedItem, animated: false, completion: {
@@ -102,6 +104,17 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
                 }
             }
         }
+    }
+
+    func refreshCustomLists() {
+        let allLocationsDataSource =
+            dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource
+
+        let customListsDataSource =
+            dataSources.first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource
+
+        customListsDataSource?.reload(allLocationNodes: allLocationsDataSource?.nodes ?? [])
+        filterRelays(by: currentSearchString, scrollToSelected: false)
     }
 
     private func indexPathForSelectedRelay() -> IndexPath? {

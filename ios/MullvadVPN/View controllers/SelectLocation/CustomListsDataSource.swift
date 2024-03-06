@@ -51,8 +51,7 @@ class CustomListsDataSource: LocationDataSourceProtocol {
     }
 
     func node(by locations: [RelayLocation], for customList: CustomList) -> LocationNode? {
-        guard let listNode = nodes.first(where: { $0.name == customList.name })
-        else { return nil }
+        guard let listNode = nodes.first(where: { $0.name == customList.name }) else { return nil }
 
         if locations.count > 1 {
             return listNode
