@@ -1,11 +1,23 @@
 use mullvad_management_interface::MullvadProxyClient;
 use std::str;
 use test_macro::test_function;
-use test_rpc::{ExecResult, ServiceClient};
+use test_rpc::{meta::Os, ExecResult, ServiceClient};
 
-use super::{helpers, TestContext};
+use super::{config::TEST_CONFIG, helpers, TestContext};
 
-#[test_function(target_os = "windows")]
+#[test_function]
+pub async fn test_split_tunnel(
+    ctx: TestContext,
+    rpc: ServiceClient,
+    mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    match TEST_CONFIG.os {
+        Os::Linux => test_split_tunnel_linux(ctx, rpc, mullvad_client).await,
+        Os::Windows => test_split_tunnel_windows(ctx, rpc, mullvad_client).await,
+        Os::Macos => todo!("MacOS"),
+    }
+}
+
 pub async fn test_split_tunnel_windows(
     _: TestContext,
     rpc: ServiceClient,
@@ -69,7 +81,6 @@ pub async fn test_split_tunnel_windows(
     Ok(())
 }
 
-#[test_function(target_os = "linux")]
 pub async fn test_split_tunnel_linux(
     _: TestContext,
     rpc: ServiceClient,
