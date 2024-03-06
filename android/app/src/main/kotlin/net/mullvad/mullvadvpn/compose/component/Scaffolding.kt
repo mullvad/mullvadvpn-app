@@ -278,11 +278,6 @@ fun ScaffoldWithSmallTopBar(
                 actions = actions
             )
         },
-        content = {
-            content(
-                Modifier.fillMaxSize()
-                    .padding(it)
-            )
-        }
+        content = { content(Modifier.fillMaxSize().padding(it)) }
     )
 }

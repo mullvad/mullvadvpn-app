@@ -7,6 +7,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -99,6 +101,7 @@ fun CreateCustomListDialog(
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     val name = remember { mutableStateOf("") }
+    val isValidName by remember { derivedStateOf { name.value.isNotBlank() } }
 
     AlertDialog(
         title = {
@@ -115,7 +118,7 @@ fun CreateCustomListDialog(
                         onInputChanged()
                     },
                     onSubmit = {
-                        if (it.isNotBlank()) {
+                        if (isValidName) {
                             createCustomList(it)
                         }
                     },
@@ -152,7 +155,7 @@ fun CreateCustomListDialog(
             PrimaryButton(
                 text = stringResource(id = R.string.create),
                 onClick = { createCustomList(name.value) },
-                isEnabled = name.value.isNotBlank()
+                isEnabled = isValidName
             )
         },
         dismissButton = {
