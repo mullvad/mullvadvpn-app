@@ -50,7 +50,9 @@ class EditCustomListNameDialogViewModel(
                 )
                 .fold(
                     onSuccess = { result ->
-                        _uiSideEffect.send(EditCustomListNameDialogSideEffect.ReturnResult(result))
+                        _uiSideEffect.send(
+                            EditCustomListNameDialogSideEffect.ReturnWithResult(result)
+                        )
                     },
                     onFailure = { exception ->
                         if (exception is CustomListsException) {
@@ -69,6 +71,6 @@ class EditCustomListNameDialogViewModel(
 }
 
 sealed interface EditCustomListNameDialogSideEffect {
-    data class ReturnResult(val result: CustomListResult.Renamed) :
+    data class ReturnWithResult(val result: CustomListResult.Renamed) :
         EditCustomListNameDialogSideEffect
 }
