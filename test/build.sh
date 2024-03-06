@@ -19,7 +19,10 @@ if [[ $TARGET == x86_64-unknown-linux-gnu ]]; then
         mullvadvpn-app-tests \
         /bin/bash -c "cd /src/test/; cargo build --bin test-runner --release --target ${TARGET}"
 else
-    cargo build --bin test-runner --release --target "${TARGET}"
+    cargo build \
+        --bin test-runner \
+        --bin am-i-mullvad \
+        --release --target "${TARGET}"
 fi
 
 # Only build runner image for Windows
