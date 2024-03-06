@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Change default obfuscation setting to `auto`.
 - Migrate obfuscation settings for existing users from `off` to `auto`.
+- Allow NDP packets from/to non link-local IPv6.
 
 #### Android
 - Add support for all screen orientations.
