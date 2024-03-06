@@ -68,6 +68,8 @@ impl FfiClient {
             )
         })?;
 
+        // The call site guarantees that
+        // api_hostname and api_address will never change after the first call to new.
         std::env::set_var(crate::env::API_HOST_VAR, &api_hostname);
         std::env::set_var(crate::env::API_ADDR_VAR, &addr_str);
         std::env::set_var(crate::env::API_FORCE_DIRECT_VAR, "0");

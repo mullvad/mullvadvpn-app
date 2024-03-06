@@ -32,6 +32,9 @@ struct InitMutableBufferError: Error {
     let description = "Failed to allocate memory for mutable buffer"
 }
 
+/// - Warning: Do not change the `apiAddress` or the `hostname` after the time `MullvadApi.init` has been invoked
+/// The Mullvad API crate is using a global static variable to store those. They will be initialized only once.
+///
 class MullvadApi {
     private var clientContext = MullvadApiClient()
 
