@@ -12,7 +12,7 @@ import MullvadTypes
 import Routing
 import UIKit
 
-class LocationCoordinator: Coordinator, Presentable, Presenting, RelayCacheTrackerObserver {
+class LocationCoordinator: Coordinator, Presentable, Presenting {
     private let tunnelManager: TunnelManager
     private let relayCacheTracker: RelayCacheTracker
     private var cachedRelays: CachedRelays?
@@ -24,7 +24,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting, RelayCacheTrack
         navigationController
     }
 
-    var selectLocationViewController: LocationViewController? {
+    var locationViewController: LocationViewController? {
         return navigationController.viewControllers.first {
             $0 is LocationViewController
         } as? LocationViewController
@@ -40,6 +40,10 @@ class LocationCoordinator: Coordinator, Presentable, Presenting, RelayCacheTrack
     }
 
     var didFinish: ((LocationCoordinator) -> Void)?
+
+    deinit {
+        print("deinit LocationCoordinator")
+    }
 
     init(
         navigationController: UINavigationController,
@@ -58,7 +62,6 @@ class LocationCoordinator: Coordinator, Presentable, Presenting, RelayCacheTrack
         locationViewController.delegate = self
 
         locationViewController.didSelectRelays = { [weak self] locations in
-
             guard let self else { return }
 
             var relayConstraints = tunnelManager.settings.relayConstraints
@@ -119,7 +122,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting, RelayCacheTrack
 
         relayFilterCoordinator.didFinish = { [weak self] coordinator, filter in
             if let cachedRelays = self?.cachedRelays, let filter {
-                self?.selectLocationViewController?.setCachedRelays(cachedRelays, filter: filter)
+                self?.locationViewController?.setCachedRelays(cachedRelays, filter: filter)
             }
 
             coordinator.dismiss(animated: true)
@@ -128,18 +131,112 @@ class LocationCoordinator: Coordinator, Presentable, Presenting, RelayCacheTrack
         return relayFilterCoordinator
     }
 
+    private func showAddCustomList() {
+        let coordinator = AddCustomListCoordinator(
+            navigationController: CustomNavigationController(),
+            interactor: CustomListInteractor(repository: customListRepository)
+        )
+
+        coordinator.didFinish = {
+            coordinator.dismiss(animated: true)
+            self.locationViewController?.refreshCustomLists()
+        }
+
+        coordinator.start()
+        presentChild(coordinator, animated: true)
+    }
+
+    private func showEditCustomLists() {
+        let coordinator = ListCustomListCoordinator(
+            navigationController: CustomNavigationController(),
+            interactor: CustomListInteractor(repository: customListRepository),
+            tunnelManager: tunnelManager
+        )
+
+        coordinator.didFinish = {
+            coordinator.dismiss(animated: true)
+            self.locationViewController?.refreshCustomLists()
+        }
+
+        coordinator.start()
+        presentChild(coordinator, animated: true)
+
+        coordinator.presentedViewController.presentationController?.delegate = self
+    }
+}
+
+// Intercept dismissal (by down swipe) of ListCustomListCoordinator and apply custom actions.
+// See showEditCustomLists() above.
+extension LocationCoordinator: UIAdaptivePresentationControllerDelegate {
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        locationViewController?.refreshCustomLists()
+    }
+}
+
+extension LocationCoordinator: RelayCacheTrackerObserver {
     func relayCacheTracker(
         _ tracker: RelayCacheTracker,
         didUpdateCachedRelays cachedRelays: CachedRelays
     ) {
         self.cachedRelays = cachedRelays
 
-        selectLocationViewController?.setCachedRelays(cachedRelays, filter: relayFilter)
+        locationViewController?.setCachedRelays(cachedRelays, filter: relayFilter)
     }
 }
 
 extension LocationCoordinator: LocationViewControllerDelegate {
     func didRequestRouteToCustomLists(_ controller: LocationViewController) {
-        // TODO: Show add/Edit bottom sheet.
+        let actionSheet = UIAlertController(
+            title: NSLocalizedString(
+                "CUSTOM_LIST_ACTION_SHEET_TITLE",
+                tableName: "CustomLists",
+                value: "Custom lists",
+                comment: ""
+            ),
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+
+        actionSheet.addAction(UIAlertAction(
+            title: NSLocalizedString(
+                "CUSTOM_LIST_ACTION_SHEET_ADD_LIST_BUTTON",
+                tableName: "CustomLists",
+                value: "Add new list",
+                comment: ""
+            ),
+            style: .default,
+            handler: { _ in
+                self.showAddCustomList()
+            }
+        ))
+
+        actionSheet.addAction(UIAlertAction(
+            title: NSLocalizedString(
+                "CUSTOM_LIST_ACTION_SHEET_EDIT_LISTS_BUTTON",
+                tableName: "CustomLists",
+                value: "Edit lists",
+                comment: ""
+            ),
+            style: .default,
+            handler: { _ in
+                self.showEditCustomLists()
+            }
+        ))
+
+        actionSheet.addAction(UIAlertAction(
+            title: NSLocalizedString(
+                "CUSTOM_LIST_ACTION_SHEET_CANCEL_BUTTON",
+                tableName: "CustomLists",
+                value: "Cancel",
+                comment: ""
+            ),
+            style: .cancel,
+            handler: nil
+        ))
+
+        actionSheet.overrideUserInterfaceStyle = .dark
+        actionSheet.view.tintColor = .white
+
+        presentationContext.present(actionSheet, animated: true)
     }
 }

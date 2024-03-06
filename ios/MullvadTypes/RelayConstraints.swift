@@ -29,14 +29,14 @@ public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible
     public var filter: RelayConstraint<RelayFilter>
 
     // Added in 2024.1
-    public var locations: RelayConstraint<RelayLocations>
+    public var locations: RelayConstraint<UserSelectedRelays>
 
     public var debugDescription: String {
         "RelayConstraints { locations: \(locations), port: \(port) }"
     }
 
     public init(
-        locations: RelayConstraint<RelayLocations> = .only(RelayLocations(locations: [.country("se")])),
+        locations: RelayConstraint<UserSelectedRelays> = .only(UserSelectedRelays(locations: [.country("se")])),
         port: RelayConstraint<UInt16> = .any,
         filter: RelayConstraint<RelayFilter> = .any
     ) {
@@ -53,14 +53,14 @@ public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible
         filter = try container.decodeIfPresent(RelayConstraint<RelayFilter>.self, forKey: .filter) ?? .any
 
         // Added in 2024.1
-        locations = try container.decodeIfPresent(RelayConstraint<RelayLocations>.self, forKey: .locations)
+        locations = try container.decodeIfPresent(RelayConstraint<UserSelectedRelays>.self, forKey: .locations)
             ?? Self.migrateLocations(decoder: decoder)
-            ?? .only(RelayLocations(locations: [.country("se")]))
+            ?? .only(UserSelectedRelays(locations: [.country("se")]))
     }
 }
 
 extension RelayConstraints {
-    private static func migrateLocations(decoder: Decoder) -> RelayConstraint<RelayLocations>? {
+    private static func migrateLocations(decoder: Decoder) -> RelayConstraint<UserSelectedRelays>? {
         let container = try? decoder.container(keyedBy: CodingKeys.self)
 
         guard
@@ -73,7 +73,7 @@ extension RelayConstraints {
         case .any:
             return .any
         case let .only(location):
-            return .only(RelayLocations(locations: [location]))
+            return .only(UserSelectedRelays(locations: [location]))
         }
     }
 }

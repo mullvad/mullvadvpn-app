@@ -29,33 +29,47 @@ class CustomListRepositoryTests: XCTestCase {
     }
 
     func testFailedAddingDuplicateCustomList() throws {
-        let name = "Netflix"
-        let item = try XCTUnwrap(repository.create(name, locations: []))
+        let item1 = CustomList(name: "Netflix", locations: [])
+        let item2 = CustomList(name: "Netflix", locations: [])
 
-        XCTAssertThrowsError(try repository.create(item.name, locations: [])) { error in
+        try XCTAssertNoThrow(repository.save(list: item1))
+
+        XCTAssertThrowsError(try repository.save(list: item2)) { error in
             XCTAssertEqual(error as? CustomRelayListError, CustomRelayListError.duplicateName)
         }
     }
 
     func testAddingCustomList() throws {
-        let name = "Netflix"
-
-        let item = try XCTUnwrap(repository.create(name, locations: [
+        let item = CustomList(name: "Netflix", locations: [
             .country("SE"),
             .city("SE", "Gothenburg"),
-        ]))
+        ])
+        try repository.save(list: item)
+
+        let storedItem = repository.fetch(by: item.id)
+        XCTAssertEqual(storedItem, item)
+    }
+
+    func testUpdatingCustomList() throws {
+        var item = CustomList(name: "Netflix", locations: [
+            .country("SE"),
+            .city("SE", "Gothenburg"),
+        ])
+        try repository.save(list: item)
+
+        item.locations.append(.country("FR"))
+        try repository.save(list: item)
 
         let storedItem = repository.fetch(by: item.id)
         XCTAssertEqual(storedItem, item)
     }
 
     func testDeletingCustomList() throws {
-        let name = "Netflix"
-
-        let item = try XCTUnwrap(repository.create(name, locations: [
+        let item = CustomList(name: "Netflix", locations: [
             .country("SE"),
             .city("SE", "Gothenburg"),
-        ]))
+        ])
+        try repository.save(list: item)
 
         let storedItem = repository.fetch(by: item.id)
         repository.delete(id: try XCTUnwrap(storedItem?.id))
@@ -64,12 +78,12 @@ class CustomListRepositoryTests: XCTestCase {
     }
 
     func testFetchingAllCustomList() throws {
-        _ = try XCTUnwrap(repository.create("Netflix", locations: [
+        try repository.save(list: CustomList(name: "Netflix", locations: [
             .country("FR"),
             .city("SE", "Gothenburg"),
         ]))
 
-        _ = try XCTUnwrap(repository.create("PS5", locations: [
+        try repository.save(list: CustomList(name: "PS5", locations: [
             .country("DE"),
             .city("SE", "Gothenburg"),
         ]))

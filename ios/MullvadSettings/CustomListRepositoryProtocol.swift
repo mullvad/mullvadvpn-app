@@ -10,12 +10,9 @@ import Combine
 import Foundation
 import MullvadTypes
 public protocol CustomListRepositoryProtocol {
-    /// Publisher that propagates a snapshot of persistent store upon modifications.
-    var publisher: AnyPublisher<[CustomList], Never> { get }
-
-    /// Persist modified custom list locating existing entry by id.
-    /// - Parameter list: persistent custom list model.
-    func update(_ list: CustomList)
+    /// Save a custom list. If the list doesn't already exist, it must have a unique name.
+    /// - Parameter list: a custom list.
+    func save(list: CustomList) throws
 
     /// Delete custom list by id.
     /// - Parameter id: an access method id.
@@ -25,12 +22,6 @@ public protocol CustomListRepositoryProtocol {
     /// - Parameter id: a custom list id.
     /// - Returns: a persistent custom list model upon success, otherwise `nil`.
     func fetch(by id: UUID) -> CustomList?
-
-    /// Create a custom list  by unique name.
-    /// - Parameter name: a custom list name.
-    /// - Parameter locations: locations in a custom list.
-    /// - Returns: a persistent custom list model upon success, otherwise  throws `Error`.
-    func create(_ name: String, locations: [RelayLocation]) throws -> CustomList
 
     /// Fetch all  custom list.
     /// - Returns: all custom list model .
