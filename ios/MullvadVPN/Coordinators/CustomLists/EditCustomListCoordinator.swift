@@ -12,6 +12,10 @@ import Routing
 import UIKit
 
 class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
+    enum FinishAction {
+        case save, delete
+    }
+
     let navigationController: UINavigationController
     let customListInteractor: CustomListInteractorProtocol
     let customList: CustomList
@@ -20,7 +24,7 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    var didFinish: (() -> Void)?
+    var didFinish: ((FinishAction, CustomList) -> Void)?
 
     init(
         navigationController: UINavigationController,
@@ -56,17 +60,17 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
             comment: ""
         )
 
-        navigationController.pushViewController(controller, animated: false)
+        navigationController.pushViewController(controller, animated: true)
     }
 }
 
 extension EditCustomListCoordinator: CustomListViewControllerDelegate {
-    func customListDidSave() {
-        didFinish?()
+    func customListDidSave(_ list: CustomList) {
+        didFinish?(.save, list)
     }
 
-    func customListDidDelete() {
-        didFinish?()
+    func customListDidDelete(_ list: CustomList) {
+        didFinish?(.delete, list)
     }
 
     func showLocations() {

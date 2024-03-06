@@ -13,24 +13,12 @@ import MullvadTypes
 struct CustomListsRepositoryStub: CustomListRepositoryProtocol {
     let customLists: [CustomList]
 
-    var publisher: AnyPublisher<[CustomList], Never> {
-        PassthroughSubject().eraseToAnyPublisher()
-    }
-
-    init(customLists: [CustomList]) {
-        self.customLists = customLists
-    }
-
-    func update(_ list: CustomList) {}
+    func save(list: CustomList) throws {}
 
     func delete(id: UUID) {}
 
     func fetch(by id: UUID) -> CustomList? {
         nil
-    }
-
-    func create(_ name: String, locations: [RelayLocation]) throws -> CustomList {
-        CustomList(name: "", locations: [])
     }
 
     func fetchAll() -> [CustomList] {
