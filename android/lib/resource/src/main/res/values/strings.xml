@@ -292,7 +292,6 @@
     <string name="delete_list">Delete list</string>
     <string name="list_name">List name</string>
     <string name="locations">Locations</string>
-    <string name="number_of_locations">%d locations</string>
     <string name="edit_locations">Edit locations</string>
     <string name="delete_custom_list_confirmation_description">
         Delete \"%s\"?

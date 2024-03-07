@@ -48,4 +48,9 @@
         <item quantity="one">%d month</item>
         <item quantity="other">%d months</item>
     </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="zero">No locations</item>
+        <item quantity="one">%d location</item>
+        <item quantity="other">%d locations</item>
+    </plurals>
 </resources>
