@@ -18,8 +18,8 @@ public enum CustomRelayListError: LocalizedError, Equatable {
         switch self {
         case .duplicateName:
             NSLocalizedString(
-                "DUPLICATE_CUSTOM_LIST_ERROR",
-                tableName: "CustomListRepository",
+                "DUPLICATE_CUSTOM_LISTS_ERROR",
+                tableName: "CustomLists",
                 value: "Name is already taken.",
                 comment: ""
             )
