@@ -34,6 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add toggle for enabling or disabling split tunneling.
 - Replace auto connect with auto connect and lockdown mode guide on platforms that has
   system vpn settings.
+- Add the ability to create and manage custom lists of relays.   
 
 ### Changed
 #### Android
