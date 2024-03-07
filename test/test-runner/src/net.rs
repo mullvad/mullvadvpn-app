@@ -242,49 +242,9 @@ pub fn get_default_interface() -> &'static str {
     "en0"
 }
 
-#[cfg(target_os = "macos")]
-pub fn get_interface_mtu(_interface_name: &str) -> Result<u16, test_rpc::Error> {
-    todo!("Implement setting MTU on macOS")
-}
-
-#[cfg(target_os = "linux")]
+#[cfg(unix)]
 pub fn get_interface_mtu(interface_name: &str) -> Result<u16, test_rpc::Error> {
-    use std::os::fd::AsRawFd;
-
-    let sock = socket2::Socket::new(
-        socket2::Domain::IPV4,
-        socket2::Type::STREAM,
-        Some(socket2::Protocol::TCP),
-    )
-    .map_err(|e| test_rpc::Error::Io(e.to_string()))?;
-
-    let mut ifr: libc::ifreq = unsafe { std::mem::zeroed() };
-    if interface_name.len() >= ifr.ifr_name.len() {
-        panic!("Interface '{interface_name}' name too long")
-    }
-
-    // SAFETY: interface_name is shorter than ifr.ifr_name
-    unsafe {
-        std::ptr::copy_nonoverlapping(
-            interface_name.as_ptr() as *const libc::c_char,
-            &mut ifr.ifr_name as *mut _,
-            interface_name.len(),
-        )
-    };
-
-    // TODO: define SIOCGIFMTU for macos
-    // SAFETY: SIOCGIFMTU expects an ifreq, and the socket is valid
-    if unsafe { libc::ioctl(sock.as_raw_fd(), libc::SIOCGIFMTU, &mut ifr) } < 0 {
-        let e = std::io::Error::last_os_error();
-
-        log::error!("{}", e);
-        return Err(test_rpc::Error::Io(e.to_string()));
-    }
-
-    // SAFETY: ifru_mtu is set since SIOGCIFMTU succeeded
-    Ok(unsafe { ifr.ifr_ifru.ifru_mtu }
-        .try_into()
-        .expect("MTU should fit in u16"))
+    test_rpc::net::unix::get_mtu(interface_name).map_err(|e| test_rpc::Error::Io(e.to_string()))
 }
 
 #[cfg(target_os = "windows")]

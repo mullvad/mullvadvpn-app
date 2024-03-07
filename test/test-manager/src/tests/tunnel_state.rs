@@ -29,42 +29,21 @@ use test_macro::test_function;
 use test_rpc::ServiceClient;
 
 #[cfg(target_os = "macos")]
-async fn setup_packetfilter_drop_pings_rule(
+fn set_bridge_interface_mtu(
     max_packet_size: u16,
 ) -> anyhow::Result<scopeguard::ScopeGuard<(), impl FnOnce(())>> {
-    use anyhow::{bail, Context};
+    use anyhow::Context;
+    use test_rpc::net::unix;
+    let bridge_iface: String = crate::vm::network::macos::find_vm_bridge()
+        .context("Failed to get bridge interface name")?;
 
-    // Enable forwarding
-    let mut cmd = tokio::process::Command::new("/usr/bin/sudo");
-    cmd.args(["/usr/sbin/sysctl", "-n", "net.inet.raw.maxdgram"]);
-    let output = cmd.output().await.context("Run sysctl")?;
-    if !output.status.success() {
-        bail!("sysctl failed: {}", output.status.code().unwrap());
-    }
-    let output = String::from_utf8(output.stdout).unwrap();
-    let previous_maxdgram: u16 = output.trim().parse().unwrap();
-    log::warn!("{}", &previous_maxdgram); // TODO(seb) DELETE ME
-
-    let mut cmd = tokio::process::Command::new("/usr/bin/sudo");
-    cmd.args([
-        "/usr/sbin/sysctl",
-        &format!("net.inet.raw.maxdgram={max_packet_size}"),
-    ]);
-    let output = cmd.output().await.context("Run sysctl")?;
-    if !output.status.success() {
-        bail!("sysctl failed: {}", output.status.code().unwrap());
-    }
+    let previous_mtu = unix::get_mtu(&bridge_iface)
+        .with_context(|| format!("Failed to get MTU for bridge interface '{bridge_iface}'"))?;
+    unix::set_mtu(&bridge_iface, max_packet_size)
+        .with_context(|| format!("Failed to set MTU for bridge interface '{bridge_iface}'"))?;
 
     Ok(scopeguard::guard((), move |()| {
-        let mut cmd = std::process::Command::new("/usr/bin/sudo");
-        cmd.args([
-            "/usr/sbin/sysctl",
-            &format!("net.inet.raw.maxdgram={previous_maxdgram}"),
-        ]);
-        let output = cmd.output().expect("Run sysctl");
-        if !output.status.success() {
-            panic!("sysctl failed: {}", output.status.code().unwrap());
-        }
+        unix::set_mtu(&bridge_iface, previous_mtu).expect("Failed to set MTU on bridge interface");
     }))
 }
 
@@ -132,7 +111,7 @@ async fn test_mtu_detection(
     #[cfg(target_os = "linux")]
     let _nft_guard = setup_nftables_drop_pings_rule(MAX_PACKET_SIZE).await;
     #[cfg(target_os = "macos")]
-    let _pf_guard = setup_packetfilter_drop_pings_rule(MAX_PACKET_SIZE).await?;
+    let _mtu_guard = set_bridge_interface_mtu(MAX_PACKET_SIZE)?;
 
     // Test that the firewall rule works
     log::info!("Sending large ping outside tunnel");

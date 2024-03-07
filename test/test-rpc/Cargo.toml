@@ -29,6 +29,9 @@ hyper-rustls = { version = "0.24", features = ["log", "webpki-roots"] }
 tokio-rustls = "0.24"
 rustls-pemfile = "0.2"
 
+socket2 = { version = "0.5", features = ["all"] }
+libc = "0.2"
+
 [dependencies.tokio-util]
 version = "0.7"
 features = ["codec"]
