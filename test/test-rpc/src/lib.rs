@@ -23,7 +23,7 @@ pub enum Error {
     Io(String),
     #[error("Interface not found")]
     InterfaceNotFound,
-    #[error("HTTP request failed: {0}")]
+    #[error("HTTP request failed")]
     HttpRequest(String),
     #[error("Failed to deserialize HTTP body")]
     DeserializeBody,
@@ -39,17 +39,17 @@ pub enum Error {
     SendUdp,
     #[error("Failed to send TCP segment")]
     SendTcp,
-    #[error("Failed to send ping: {0}")]
+    #[error("Failed to send ping")]
     Ping(String),
-    #[error("Failed to get or set registry value: {0}")]
+    #[error("Failed to get or set registry value")]
     Registry(String),
-    #[error("Failed to change the service: {0}")]
+    #[error("Failed to change the service")]
     Service(String),
-    #[error("Could not read from or write to the file system: {0}")]
+    #[error("Could not read from or write to the file system")]
     FileSystem(String),
-    #[error("Could not serialize or deserialize file: {0}")]
+    #[error("Could not serialize or deserialize file")]
     FileSerialization(String),
-    #[error("User must be logged in but is not: {0}")]
+    #[error("User must be logged in but is not")]
     UserNotLoggedIn(String),
     #[error("Invalid URL")]
     InvalidUrl,
