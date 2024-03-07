@@ -131,7 +131,7 @@ async fn test_mtu_detection(
     #[cfg(target_os = "linux")]
     let _nft_guard = setup_nftables_drop_pings_rule(MAX_PACKET_SIZE).await;
     #[cfg(target_os = "macos")]
-    let _pf_guard = setup_packetfilter_drop_pings_rule(MAX_PACKET_SIZE).await;
+    let _pf_guard = setup_packetfilter_drop_pings_rule(MAX_PACKET_SIZE).await?;
 
     // Test that the firewall rule works
     log::info!("Sending large ping outside tunnel");
