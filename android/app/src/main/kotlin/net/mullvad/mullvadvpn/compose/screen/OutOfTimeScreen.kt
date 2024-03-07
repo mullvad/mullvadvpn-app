@@ -168,7 +168,6 @@ fun OutOfTime(
     )
 }
 
-@Suppress("LongMethod")
 @Composable
 fun OutOfTimeScreen(
     state: OutOfTimeUiState,
@@ -248,57 +247,80 @@ fun OutOfTimeScreen(
             )
             Spacer(modifier = Modifier.weight(1f).defaultMinSize(minHeight = Dimens.verticalSpace))
             // Button area
-            if (state.tunnelState.showDisconnectButton()) {
-                NegativeButton(
-                    onClick = onDisconnectClick,
-                    text = stringResource(id = R.string.disconnect),
-                    modifier =
-                        Modifier.padding(
-                            start = Dimens.sideMargin,
-                            end = Dimens.sideMargin,
-                            bottom = Dimens.buttonSpacing
-                        )
-                )
-            }
-            state.billingPaymentState?.let {
-                PlayPayment(
-                    billingPaymentState = state.billingPaymentState,
-                    onPurchaseBillingProductClick = { productId ->
-                        onPurchaseBillingProductClick(productId)
-                    },
-                    onInfoClick = navigateToVerificationPendingDialog,
-                    modifier =
-                        Modifier.padding(
-                                start = Dimens.sideMargin,
-                                end = Dimens.sideMargin,
-                                bottom = Dimens.buttonSpacing
-                            )
-                            .align(Alignment.CenterHorizontally)
-                )
-            }
-            if (state.showSitePayment) {
-                SitePaymentButton(
-                    onClick = onSitePaymentClick,
-                    isEnabled = state.tunnelState.enableSitePaymentButton(),
-                    modifier =
-                        Modifier.padding(
-                            start = Dimens.sideMargin,
-                            end = Dimens.sideMargin,
-                            bottom = Dimens.buttonSpacing
-                        )
-                )
-            }
-            RedeemVoucherButton(
-                onClick = onRedeemVoucherClick,
+
+            ButtonPanel(
+                state = state,
+                onDisconnectClick = onDisconnectClick,
+                onPurchaseBillingProductClick = onPurchaseBillingProductClick,
+                onRedeemVoucherClick = onRedeemVoucherClick,
+                onSitePaymentClick = onSitePaymentClick,
+                navigateToVerificationPendingDialog = navigateToVerificationPendingDialog
+            )
+        }
+    }
+}
+
+@Composable
+private fun ButtonPanel(
+    state: OutOfTimeUiState,
+    onDisconnectClick: () -> Unit,
+    onPurchaseBillingProductClick: (ProductId) -> Unit,
+    onRedeemVoucherClick: () -> Unit,
+    onSitePaymentClick: () -> Unit,
+    navigateToVerificationPendingDialog: () -> Unit
+) {
+
+    Column {
+        if (state.tunnelState.showDisconnectButton()) {
+            NegativeButton(
+                onClick = onDisconnectClick,
+                text = stringResource(id = R.string.disconnect),
                 modifier =
                     Modifier.padding(
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
-                        bottom = Dimens.screenVerticalMargin
-                    ),
-                isEnabled = state.tunnelState.enableRedeemButton()
+                        bottom = Dimens.buttonSpacing
+                    )
             )
         }
+        state.billingPaymentState?.let {
+            PlayPayment(
+                billingPaymentState = state.billingPaymentState,
+                onPurchaseBillingProductClick = { productId ->
+                    onPurchaseBillingProductClick(productId)
+                },
+                onInfoClick = navigateToVerificationPendingDialog,
+                modifier =
+                    Modifier.padding(
+                            start = Dimens.sideMargin,
+                            end = Dimens.sideMargin,
+                            bottom = Dimens.buttonSpacing
+                        )
+                        .align(Alignment.CenterHorizontally)
+            )
+        }
+        if (state.showSitePayment) {
+            SitePaymentButton(
+                onClick = onSitePaymentClick,
+                isEnabled = state.tunnelState.enableSitePaymentButton(),
+                modifier =
+                    Modifier.padding(
+                        start = Dimens.sideMargin,
+                        end = Dimens.sideMargin,
+                        bottom = Dimens.buttonSpacing
+                    )
+            )
+        }
+        RedeemVoucherButton(
+            onClick = onRedeemVoucherClick,
+            modifier =
+                Modifier.padding(
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin,
+                    bottom = Dimens.screenVerticalMargin
+                ),
+            isEnabled = state.tunnelState.enableRedeemButton()
+        )
     }
 }
 
