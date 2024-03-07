@@ -75,8 +75,8 @@ pub mod flood {
     const CALLS_INTERVAL: Duration = Duration::from_secs(5);
     const CALLS_THRESHOLD: usize = 1000;
 
-    /// Log when a line is hit an unusually frequently, that is, over `CALLS_THRESHOLD` times within
-    /// a period of `CALLS_INTERVAL`.
+    /// Log when a line is hit unusually frequently, that is, over `CALLS_THRESHOLD` times within a
+    /// period of `CALLS_INTERVAL`.
     ///
     /// The caller of this macro must have `once_cell` and `log` as dependencies.
     #[macro_export]
