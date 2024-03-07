@@ -11,10 +11,11 @@ import MullvadLogging
 import MullvadSettings
 import MullvadTypes
 
-struct IPOverrideInteractor {
+final class IPOverrideInteractor {
     private let logger = Logger(label: "IPOverrideInteractor")
     private let repository: IPOverrideRepositoryProtocol
     private let tunnelManager: TunnelManager
+    private var statusWorkItem: DispatchWorkItem?
 
     private let statusSubject = CurrentValueSubject<IPOverrideStatus, Never>(.noImports)
     var statusPublisher: AnyPublisher<IPOverrideStatus, Never> {
@@ -87,8 +88,14 @@ struct IPOverrideInteractor {
     }
 
     private func resetToDefaultStatus(delay: Duration = .zero) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay.timeInterval) {
-            statusSubject.send(defaultStatus)
+        statusWorkItem?.cancel()
+
+        let statusWorkItem = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            self.statusSubject.send(self.defaultStatus)
         }
+        self.statusWorkItem = statusWorkItem
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay.timeInterval, execute: statusWorkItem)
     }
 }
