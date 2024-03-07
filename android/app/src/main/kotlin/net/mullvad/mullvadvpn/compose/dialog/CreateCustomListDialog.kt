@@ -6,7 +6,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +19,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -40,16 +40,16 @@ import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
-fun PreviewCreateCustomListDialog() {
-    AppTheme { CreateCustomListDialog(uiState = CreateCustomListUiState()) }
+private fun PreviewCreateCustomListDialog() {
+    AppTheme { CreateCustomListDialog(state = CreateCustomListUiState()) }
 }
 
 @Preview
 @Composable
-fun PreviewCreateCustomListDialogError() {
+private fun PreviewCreateCustomListDialogError() {
     AppTheme {
         CreateCustomListDialog(
-            uiState = CreateCustomListUiState(error = CustomListsError.CustomListExists)
+            state = CreateCustomListUiState(error = CustomListsError.CustomListExists)
         )
     }
 }
@@ -82,9 +82,9 @@ fun CreateCustomList(
             }
         }
     }
-    val uiState = vm.uiState.collectAsState().value
+    val state by vm.uiState.collectAsStateWithLifecycle()
     CreateCustomListDialog(
-        uiState = uiState,
+        state = state,
         createCustomList = vm::createCustomList,
         onInputChanged = vm::clearError,
         onDismiss = backNavigator::navigateBack
@@ -93,7 +93,7 @@ fun CreateCustomList(
 
 @Composable
 fun CreateCustomListDialog(
-    uiState: CreateCustomListUiState,
+    state: CreateCustomListUiState,
     createCustomList: (String) -> Unit = {},
     onInputChanged: () -> Unit = {},
     onDismiss: () -> Unit = {}
@@ -124,12 +124,12 @@ fun CreateCustomListDialog(
                     },
                     keyboardType = KeyboardType.Text,
                     placeholderText = "",
-                    isValidValue = uiState.error == null,
+                    isValidValue = state.error == null,
                     isDigitsOnlyAllowed = false,
                     supportingText = {
-                        if (uiState.error != null) {
+                        if (state.error != null) {
                             Text(
-                                text = uiState.error.errorString(),
+                                text = state.error.errorString(),
                                 color = MaterialTheme.colorScheme.error,
                                 style = MaterialTheme.typography.bodySmall
                             )
