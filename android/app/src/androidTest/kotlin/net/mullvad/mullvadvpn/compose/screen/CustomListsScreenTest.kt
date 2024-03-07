@@ -34,7 +34,7 @@ class CustomListsScreenTest {
             // Arrange
             setContentWithTheme {
                 CustomListsScreen(
-                    uiState = CustomListsUiState.Loading,
+                    state = CustomListsUiState.Loading,
                     snackbarHostState = SnackbarHostState()
                 )
             }
@@ -50,7 +50,7 @@ class CustomListsScreenTest {
             val customLists = DUMMY_CUSTOM_LISTS
             setContentWithTheme {
                 CustomListsScreen(
-                    uiState = CustomListsUiState.Content(customLists = customLists),
+                    state = CustomListsUiState.Content(customLists = customLists),
                     snackbarHostState = SnackbarHostState()
                 )
             }
@@ -68,7 +68,7 @@ class CustomListsScreenTest {
             val mockedAddCustomList: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 CustomListsScreen(
-                    uiState = CustomListsUiState.Content(customLists = customLists),
+                    state = CustomListsUiState.Content(customLists = customLists),
                     snackbarHostState = SnackbarHostState(),
                     addCustomList = mockedAddCustomList
                 )
@@ -90,7 +90,7 @@ class CustomListsScreenTest {
             val mockedOpenCustomList: (RelayItem.CustomList) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 CustomListsScreen(
-                    uiState = CustomListsUiState.Content(customLists = customLists),
+                    state = CustomListsUiState.Content(customLists = customLists),
                     snackbarHostState = SnackbarHostState(),
                     openCustomList = mockedOpenCustomList
                 )

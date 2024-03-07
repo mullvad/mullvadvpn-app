@@ -31,7 +31,7 @@ class EditCustomListScreenTest {
     fun givenLoadingStateShouldShowLoadingSpinner() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { EditCustomListScreen(uiState = EditCustomListState.Loading) }
+            setContentWithTheme { EditCustomListScreen(state = EditCustomListState.Loading) }
 
             // Assert
             onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertExists()
@@ -41,7 +41,7 @@ class EditCustomListScreenTest {
     fun givenNotFoundStateShouldShowNotFound() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { EditCustomListScreen(uiState = EditCustomListState.NotFound) }
+            setContentWithTheme { EditCustomListScreen(state = EditCustomListState.NotFound) }
 
             // Assert
             onNodeWithText(NOT_FOUND_TEXT).assertExists()
@@ -54,7 +54,7 @@ class EditCustomListScreenTest {
             val customList = DUMMY_CUSTOM_LISTS[0]
             setContentWithTheme {
                 EditCustomListScreen(
-                    uiState =
+                    state =
                         EditCustomListState.Content(
                             id = customList.id,
                             name = customList.name,
@@ -74,7 +74,7 @@ class EditCustomListScreenTest {
             val customList = DUMMY_CUSTOM_LISTS[0]
             setContentWithTheme {
                 EditCustomListScreen(
-                    uiState =
+                    state =
                         EditCustomListState.Content(
                             id = customList.id,
                             name = customList.name,
@@ -95,7 +95,7 @@ class EditCustomListScreenTest {
             val customList = DUMMY_CUSTOM_LISTS[0]
             setContentWithTheme {
                 EditCustomListScreen(
-                    uiState =
+                    state =
                         EditCustomListState.Content(
                             id = customList.id,
                             name = customList.name,
@@ -121,7 +121,7 @@ class EditCustomListScreenTest {
             val customList = DUMMY_CUSTOM_LISTS[0]
             setContentWithTheme {
                 EditCustomListScreen(
-                    uiState =
+                    state =
                         EditCustomListState.Content(
                             id = customList.id,
                             name = customList.name,
@@ -146,7 +146,7 @@ class EditCustomListScreenTest {
             val customList = DUMMY_CUSTOM_LISTS[0]
             setContentWithTheme {
                 EditCustomListScreen(
-                    uiState =
+                    state =
                         EditCustomListState.Content(
                             id = customList.id,
                             name = customList.name,
