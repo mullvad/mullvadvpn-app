@@ -36,7 +36,7 @@ async fn setup_packetfilter_drop_pings_rule(
 
     // Enable forwarding
     let mut cmd = tokio::process::Command::new("/usr/bin/sudo");
-    cmd.args(["/usr/sbin/sysctl", "net.inet.raw.maxdgram"]);
+    cmd.args(["/usr/sbin/sysctl", "-n", "net.inet.raw.maxdgram"]);
     let output = cmd.output().await.context("Run sysctl")?;
     if !output.status.success() {
         bail!("sysctl failed: {}", output.status.code().unwrap());
