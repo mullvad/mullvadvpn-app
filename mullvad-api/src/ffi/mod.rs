@@ -68,6 +68,12 @@ impl FfiClient {
             )
         })?;
 
+        // The call site guarantees that
+        // api_hostname and api_address will never change after the first call to new.
+        std::env::set_var(crate::env::API_HOST_VAR, &api_hostname);
+        std::env::set_var(crate::env::API_ADDR_VAR, &addr_str);
+        std::env::set_var(crate::env::API_FORCE_DIRECT_VAR, "0");
+        std::env::set_var(crate::env::DISABLE_TLS_VAR, "0");
         let mut runtime_builder = tokio::runtime::Builder::new_multi_thread();
 
         runtime_builder.worker_threads(2).enable_all();
