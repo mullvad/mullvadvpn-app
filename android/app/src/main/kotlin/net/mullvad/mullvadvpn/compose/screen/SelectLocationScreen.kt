@@ -17,15 +17,18 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,7 +52,6 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterCell
@@ -225,6 +227,18 @@ fun SelectLocationScreen(
             )
         }
     ) {
+        var bottomSheetState by remember { mutableStateOf<BottomSheetState?>(null) }
+        BottomSheets(
+            bottomSheetState = bottomSheetState,
+            onCreateCustomList = onCreateCustomList,
+            onEditCustomLists = onEditCustomLists,
+            onAddLocationToList = onAddLocationToList,
+            onEditCustomListName = onEditCustomListName,
+            onEditLocationsCustomList = onEditLocationsCustomList,
+            onDeleteCustomList = onDeleteCustomList,
+            onHideBottomSheet = { bottomSheetState = null }
+        )
+
         Column(modifier = Modifier.padding(it).background(backgroundColor).fillMaxSize()) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 IconButton(onClick = onBackClick) {
@@ -287,7 +301,6 @@ fun SelectLocationScreen(
                     lazyListState.animateScrollAndCentralizeItem(index)
                 }
             }
-            var bottomSheetState by remember { mutableStateOf<BottomSheetState?>(null) }
             LazyColumn(
                 modifier =
                     Modifier.fillMaxSize()
@@ -341,16 +354,6 @@ fun SelectLocationScreen(
                     }
                 }
             }
-            BottomSheets(
-                bottomSheetState = bottomSheetState,
-                onCreateCustomList = onCreateCustomList,
-                onEditCustomLists = onEditCustomLists,
-                onAddLocationToList = onAddLocationToList,
-                onEditCustomListName = onEditCustomListName,
-                onEditLocationsCustomList = onEditLocationsCustomList,
-                onDeleteCustomList = onDeleteCustomList,
-                onHideBottomSheet = { bottomSheetState = null }
-            )
         }
     }
 }
@@ -436,8 +439,10 @@ private fun LazyListScope.relayList(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BottomSheets(
+    modifier: Modifier = Modifier,
     bottomSheetState: BottomSheetState?,
     onCreateCustomList: (RelayItem?) -> Unit,
     onEditCustomLists: () -> Unit,
@@ -447,31 +452,54 @@ private fun BottomSheets(
     onDeleteCustomList: (RelayItem.CustomList) -> Unit,
     onHideBottomSheet: () -> Unit
 ) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+    val onCloseBottomSheet: (animate: Boolean) -> Unit = { animate ->
+        if (animate) {
+            scope
+                .launch { sheetState.hide() }
+                .invokeOnCompletion {
+                    if (!sheetState.isVisible) {
+                        onHideBottomSheet()
+                    }
+                }
+        } else {
+            onHideBottomSheet()
+        }
+    }
+    val onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface
+
     when (bottomSheetState) {
         is BottomSheetState.ShowCustomListsBottomSheet -> {
             CustomListsBottomSheet(
+                sheetState = sheetState,
+                onBackgroundColor = onBackgroundColor,
                 bottomSheetState = bottomSheetState,
                 onCreateCustomList = { onCreateCustomList(null) },
                 onEditCustomLists = onEditCustomLists,
-                closeBottomSheet = onHideBottomSheet
+                closeBottomSheet = onCloseBottomSheet
             )
         }
         is BottomSheetState.ShowLocationBottomSheet -> {
             LocationBottomSheet(
+                sheetState = sheetState,
+                onBackgroundColor = onBackgroundColor,
                 customLists = bottomSheetState.customLists,
                 item = bottomSheetState.item,
                 onCreateCustomList = onCreateCustomList,
                 onAddLocationToList = onAddLocationToList,
-                closeBottomSheet = onHideBottomSheet
+                closeBottomSheet = onCloseBottomSheet
             )
         }
         is BottomSheetState.ShowEditCustomListBottomSheet -> {
             EditCustomListBottomSheet(
+                sheetState = sheetState,
+                onBackgroundColor = onBackgroundColor,
                 customList = bottomSheetState.customList,
                 onEditName = onEditCustomListName,
                 onEditLocations = onEditLocationsCustomList,
                 onDeleteCustomList = onDeleteCustomList,
-                closeBottomSheet = onHideBottomSheet
+                closeBottomSheet = onCloseBottomSheet
             )
         }
         null -> {
@@ -508,17 +536,21 @@ private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CustomListsBottomSheet(
+    onBackgroundColor: Color,
+    sheetState: SheetState,
     bottomSheetState: BottomSheetState.ShowCustomListsBottomSheet,
     onCreateCustomList: () -> Unit,
     onEditCustomLists: () -> Unit,
-    closeBottomSheet: () -> Unit
+    closeBottomSheet: (animate: Boolean) -> Unit
 ) {
     MullvadModalBottomSheet(
-        closeBottomSheet = closeBottomSheet,
+        sheetState = sheetState,
+        closeBottomSheet = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG)
-    ) { onBackgroundColor, onClose ->
+    ) { ->
         HeaderCell(
             text = stringResource(id = R.string.edit_custom_lists),
             background = Color.Unspecified
@@ -529,7 +561,7 @@ private fun CustomListsBottomSheet(
             title = stringResource(id = R.string.new_list),
             onClick = {
                 onCreateCustomList()
-                onClose()
+                closeBottomSheet(true)
             },
             background = Color.Unspecified,
             titleColor = onBackgroundColor
@@ -539,7 +571,7 @@ private fun CustomListsBottomSheet(
             title = stringResource(id = R.string.edit_lists),
             onClick = {
                 onEditCustomLists()
-                onClose()
+                closeBottomSheet(true)
             },
             background = Color.Unspecified,
             titleColor =
@@ -556,18 +588,22 @@ private fun CustomListsBottomSheet(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LocationBottomSheet(
+    onBackgroundColor: Color,
+    sheetState: SheetState,
     customLists: List<RelayItem.CustomList>,
     item: RelayItem,
     onCreateCustomList: (relayItem: RelayItem) -> Unit,
     onAddLocationToList: (location: RelayItem, customList: RelayItem.CustomList) -> Unit,
-    closeBottomSheet: () -> Unit
+    closeBottomSheet: (animate: Boolean) -> Unit
 ) {
     MullvadModalBottomSheet(
-        closeBottomSheet = closeBottomSheet,
+        sheetState = sheetState,
+        closeBottomSheet = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
-    ) { onBackgroundColor, onClose ->
+    ) { ->
         HeaderCell(
             text = stringResource(id = R.string.add_location_to_list, item.name),
             background = Color.Unspecified
@@ -592,7 +628,7 @@ private fun LocationBottomSheet(
                     },
                 onClick = {
                     onAddLocationToList(item, it)
-                    onClose()
+                    closeBottomSheet(true)
                 },
                 enabled = enabled
             )
@@ -602,7 +638,7 @@ private fun LocationBottomSheet(
             title = stringResource(id = R.string.new_list),
             onClick = {
                 onCreateCustomList(item)
-                onClose()
+                closeBottomSheet(true)
             },
             background = Color.Unspecified,
             titleColor = onBackgroundColor
@@ -610,22 +646,28 @@ private fun LocationBottomSheet(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditCustomListBottomSheet(
+    onBackgroundColor: Color,
+    sheetState: SheetState,
     customList: RelayItem.CustomList,
     onEditName: (item: RelayItem.CustomList) -> Unit,
     onEditLocations: (item: RelayItem.CustomList) -> Unit,
     onDeleteCustomList: (item: RelayItem.CustomList) -> Unit,
-    closeBottomSheet: () -> Unit
+    closeBottomSheet: (animate: Boolean) -> Unit
 ) {
-    MullvadModalBottomSheet(closeBottomSheet = closeBottomSheet) { onBackgroundColor, onClose ->
+    MullvadModalBottomSheet(
+        sheetState = sheetState,
+        closeBottomSheet = { closeBottomSheet(false) }
+    ) {
         HeaderCell(text = customList.name, background = Color.Unspecified)
         IconCell(
             iconId = R.drawable.icon_edit,
             title = stringResource(id = R.string.edit_name),
             onClick = {
                 onEditName(customList)
-                onClose()
+                closeBottomSheet(true)
             },
             background = Color.Unspecified,
             titleColor = onBackgroundColor
@@ -635,7 +677,7 @@ private fun EditCustomListBottomSheet(
             title = stringResource(id = R.string.edit_locations),
             onClick = {
                 onEditLocations(customList)
-                onClose()
+                closeBottomSheet(true)
             },
             background = Color.Unspecified,
             titleColor = onBackgroundColor
@@ -646,7 +688,7 @@ private fun EditCustomListBottomSheet(
             title = stringResource(id = R.string.delete),
             onClick = {
                 onDeleteCustomList(customList)
-                onClose()
+                closeBottomSheet(true)
             },
             background = Color.Unspecified,
             titleColor = onBackgroundColor
