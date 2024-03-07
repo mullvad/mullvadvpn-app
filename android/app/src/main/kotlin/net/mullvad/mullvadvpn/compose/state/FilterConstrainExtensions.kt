@@ -17,11 +17,11 @@ fun Ownership?.toOwnershipConstraint(): Constraint<Ownership> =
         else -> Constraint.Only(this)
     }
 
-fun Constraint<Providers>.toSelectedProviders(allProviders: List<Provider>): List<Provider>? =
+fun Constraint<Providers>.toSelectedProviders(allProviders: List<Provider>): List<Provider> =
     when (this) {
-        is Constraint.Any -> null
+        is Constraint.Any -> allProviders
         is Constraint.Only ->
-            this.value.providers.toList().mapNotNull { providerName ->
+            value.providers.toList().mapNotNull { providerName ->
                 allProviders.firstOrNull { it.name == providerName }
             }
     }
