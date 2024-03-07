@@ -1,7 +1,6 @@
 use std::{
     collections::VecDeque,
     mem::size_of,
-    os::unix::prelude::{FromRawFd, RawFd},
     pin::Pin,
     task::{ready, Context, Poll},
     time::Duration,
@@ -14,6 +13,7 @@ use nix::{
 use std::{
     fs::File,
     io::{self, Read, Write},
+    os::fd::{AsRawFd, RawFd},
 };
 
 use super::data::{rt_msghdr_short, MessageType, RouteMessage};
@@ -139,9 +139,11 @@ struct RoutingSocketInner {
 impl RoutingSocketInner {
     fn new() -> io::Result<Self> {
         let fd = socket(AddressFamily::Route, SockType::Raw, SockFlag::empty(), None)?;
-        let _ = fcntl::fcntl(fd, fcntl::FcntlArg::F_SETFL(fcntl::OFlag::O_NONBLOCK))?;
-        // SAFETY: File handle is valid here
-        let socket = unsafe { File::from_raw_fd(fd) };
+        let _ = fcntl::fcntl(
+            fd.as_raw_fd(),
+            fcntl::FcntlArg::F_SETFL(fcntl::OFlag::O_NONBLOCK),
+        )?;
+        let socket = File::from(fd);
         Ok(Self {
             socket: AsyncFd::new(socket)?,
         })
@@ -158,7 +160,7 @@ impl RoutingSocketInner {
     }
 }
 
-impl std::os::unix::prelude::AsRawFd for RoutingSocketInner {
+impl AsRawFd for RoutingSocketInner {
     fn as_raw_fd(&self) -> RawFd {
         self.socket.as_raw_fd()
     }
