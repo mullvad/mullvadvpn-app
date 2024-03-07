@@ -1,12 +1,16 @@
 package net.mullvad.mullvadvpn.lib.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.LocalRippleTheme
+import androidx.compose.material.ripple.RippleAlpha
+import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
@@ -117,7 +121,24 @@ fun AppTheme(content: @Composable () -> Unit) {
             colorScheme = colors,
             shapes = Shapes,
             typography = typography,
-            content = content
+            content = {
+                CompositionLocalProvider(LocalRippleTheme provides MullvadRippleTheme) { content() }
+            }
         )
     }
+}
+
+@Immutable
+object MullvadRippleTheme : RippleTheme {
+    @Composable
+    override fun defaultColor() = RippleTheme.defaultRippleColor(Color.Black, lightTheme = false)
+
+    @Composable
+    override fun rippleAlpha(): RippleAlpha =
+        RippleAlpha(
+            pressedAlpha = 0.24f,
+            focusedAlpha = 0.24f,
+            draggedAlpha = 0.16f,
+            hoveredAlpha = 0.08f
+        )
 }
