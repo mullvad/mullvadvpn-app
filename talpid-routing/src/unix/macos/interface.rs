@@ -307,7 +307,7 @@ fn is_active_interface(interface_name: &str, family: Family) -> io::Result<bool>
             if let Some(addr) = addr.address {
                 // Check if family matches; ignore if link-local address
                 match family {
-                    Family::V4 => matches!(addr.as_sockaddr_in(), Some(addr_in) if is_routable_v4(&Ipv4Addr::from(addr_in.ip()))),
+                    Family::V4 => matches!(addr.as_sockaddr_in(), Some(addr_in) if is_routable_v4(&addr_in.ip())),
                     Family::V6 => {
                         matches!(addr.as_sockaddr_in6(), Some(addr_in) if is_routable_v6(&addr_in.ip()))
                     }
