@@ -32,8 +32,8 @@ class CreateCustomListDialogTest {
     fun givenNoErrorShouldShowNoErrorMessage() =
         composeExtension.use {
             // Arrange
-            val uiState = CreateCustomListUiState(error = null)
-            setContentWithTheme { CreateCustomListDialog(state = uiState) }
+            val state = CreateCustomListUiState(error = null)
+            setContentWithTheme { CreateCustomListDialog(state = state) }
 
             // Assert
             onNodeWithText(NAME_EXIST_ERROR_TEXT).assertDoesNotExist()
@@ -56,8 +56,8 @@ class CreateCustomListDialogTest {
     fun givenOtherCustomListErrorShouldShowAnErrorOccurredErrorText() =
         composeExtension.use {
             // Arrange
-            val uiState = CreateCustomListUiState(error = CustomListsError.OtherError)
-            setContentWithTheme { CreateCustomListDialog(state = uiState) }
+            val state = CreateCustomListUiState(error = CustomListsError.OtherError)
+            setContentWithTheme { CreateCustomListDialog(state = state) }
 
             // Assert
             onNodeWithText(NAME_EXIST_ERROR_TEXT).assertDoesNotExist()
@@ -69,9 +69,9 @@ class CreateCustomListDialogTest {
         composeExtension.use {
             // Arrange
             val mockedOnDismiss: () -> Unit = mockk(relaxed = true)
-            val uiState = CreateCustomListUiState()
+            val state = CreateCustomListUiState()
             setContentWithTheme {
-                CreateCustomListDialog(state = uiState, onDismiss = mockedOnDismiss)
+                CreateCustomListDialog(state = state, onDismiss = mockedOnDismiss)
             }
 
             // Act

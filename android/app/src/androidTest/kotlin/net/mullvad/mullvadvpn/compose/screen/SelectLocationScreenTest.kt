@@ -176,7 +176,7 @@ class SelectLocationScreenTest {
             val mockSearchString = ""
             setContentWithTheme {
                 SelectLocationScreen(
-                    uiState =
+                    state =
                         SelectLocationUiState.Content(
                             customLists = emptyList(),
                             filteredCustomLists = emptyList(),
@@ -200,7 +200,7 @@ class SelectLocationScreenTest {
             val mockSearchString = "SEARCH"
             setContentWithTheme {
                 SelectLocationScreen(
-                    uiState =
+                    state =
                         SelectLocationUiState.Content(
                             customLists = DUMMY_CUSTOM_LISTS,
                             filteredCustomLists = emptyList(),
@@ -226,7 +226,7 @@ class SelectLocationScreenTest {
             val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 SelectLocationScreen(
-                    uiState =
+                    state =
                         SelectLocationUiState.Content(
                             customLists = DUMMY_CUSTOM_LISTS,
                             filteredCustomLists = DUMMY_CUSTOM_LISTS,
@@ -255,7 +255,7 @@ class SelectLocationScreenTest {
             val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 SelectLocationScreen(
-                    uiState =
+                    state =
                         SelectLocationUiState.Content(
                             customLists = DUMMY_CUSTOM_LISTS,
                             filteredCustomLists = DUMMY_CUSTOM_LISTS,
@@ -284,7 +284,7 @@ class SelectLocationScreenTest {
             val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 SelectLocationScreen(
-                    uiState =
+                    state =
                         SelectLocationUiState.Content(
                             customLists = emptyList(),
                             filteredCustomLists = emptyList(),
