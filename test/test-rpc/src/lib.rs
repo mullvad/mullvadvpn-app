@@ -19,11 +19,11 @@ pub enum Error {
     Tarpc(#[from] tarpc::client::RpcError),
     #[error("Syscall failed")]
     Syscall,
-    #[error("Internal IO error occurred")]
+    #[error("Internal IO error occurred: {0}")]
     Io(String),
     #[error("Interface not found")]
     InterfaceNotFound,
-    #[error("HTTP request failed")]
+    #[error("HTTP request failed: {0}")]
     HttpRequest(String),
     #[error("Failed to deserialize HTTP body")]
     DeserializeBody,
@@ -39,17 +39,17 @@ pub enum Error {
     SendUdp,
     #[error("Failed to send TCP segment")]
     SendTcp,
-    #[error("Failed to send ping")]
+    #[error("Failed to send ping: {0}")]
     Ping(String),
-    #[error("Failed to get or set registry value")]
+    #[error("Failed to get or set registry value: {0}")]
     Registry(String),
-    #[error("Failed to change the service")]
+    #[error("Failed to change the service: {0}")]
     Service(String),
-    #[error("Could not read from or write to the file system")]
+    #[error("Could not read from or write to the file system: {0}")]
     FileSystem(String),
-    #[error("Could not serialize or deserialize file")]
+    #[error("Could not serialize or deserialize file: {0}")]
     FileSerialization(String),
-    #[error("User must be logged in but is not")]
+    #[error("User must be logged in but is not: {0}")]
     UserNotLoggedIn(String),
     #[error("Invalid URL")]
     InvalidUrl,
