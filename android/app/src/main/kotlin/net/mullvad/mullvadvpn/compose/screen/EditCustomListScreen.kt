@@ -171,6 +171,7 @@ fun EditCustomListScreen(
                         subtitleText =
                             pluralStringResource(
                                 id = R.plurals.number_of_locations,
+                                state.locations.size,
                                 state.locations.size
                             ),
                         onCellClicked = { onLocationsClicked(state.id) }
