@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -42,6 +43,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.color.selected
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.relaylist.allChildren
 
 @Composable
 @Preview
@@ -365,16 +367,7 @@ private fun RelayLocationCell(
                     .wrapContentHeight()
                     .height(IntrinsicSize.Min)
                     .fillMaxWidth()
-                    .background(
-                        specialBackgroundColor.invoke(relay)
-                            ?: when (depth) {
-                                0 -> MaterialTheme.colorScheme.surfaceContainerHighest
-                                1 -> MaterialTheme.colorScheme.surfaceContainerHigh
-                                2 -> MaterialTheme.colorScheme.surfaceContainerLow
-                                3 -> MaterialTheme.colorScheme.surfaceContainerLowest
-                                else -> MaterialTheme.colorScheme.surfaceContainerLowest
-                            }
-                    )
+                    .background(specialBackgroundColor.invoke(relay) ?: depth.toBackgroundColor())
         ) {
             Row(
                 modifier =
@@ -391,83 +384,69 @@ private fun RelayLocationCell(
                 ) {
                     leadingContent(relay)
                 }
-                Text(
-                    text = relay.name,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    modifier =
-                        Modifier.weight(1f)
-                            .align(Alignment.CenterVertically)
-                            .alpha(
-                                if (relay.active) {
-                                    AlphaVisible
-                                } else {
-                                    AlphaInactive
-                                }
-                            )
-                            .padding(
-                                horizontal = Dimens.smallPadding,
-                                vertical = Dimens.mediumPadding
-                            )
-                )
+                Name(relay = relay)
             }
             if (relay.hasChildren) {
-                VerticalDivider(
-                    color = MaterialTheme.colorScheme.background,
-                    modifier = Modifier.padding(vertical = Dimens.verticalDividerPadding)
-                )
-                Chevron(
-                    isExpanded = expanded.value,
-                    modifier =
-                        Modifier.fillMaxHeight()
-                            .clickable { expanded.value = !expanded.value }
-                            .padding(horizontal = Dimens.largePadding)
-                            .align(Alignment.CenterVertically)
-                )
+                ExpandButton(isExpanded = expanded.value) { expand -> expanded.value = expand }
             }
-        }
-        if (expanded.value) {
-            when (relay) {
-                is RelayItem.CustomList -> {
-                    relay.locations.forEach { location ->
-                        RelayLocationCell(
-                            relay = location,
-                            onClick = onClick,
-                            modifier = Modifier.animateContentSize(),
-                            leadingContent = leadingContent,
-                            specialBackgroundColor = specialBackgroundColor,
-                            onLongClick = onLongClick,
-                            depth = depth + 1,
-                        )
-                    }
+            if (expanded.value) {
+                relay.allChildren(false).forEach {
+                    RelayLocationCell(
+                        relay = it,
+                        onClick = onClick,
+                        modifier = Modifier.animateContentSize(),
+                        leadingContent = leadingContent,
+                        specialBackgroundColor = specialBackgroundColor,
+                        onLongClick = onLongClick,
+                        depth = depth + 1,
+                    )
                 }
-                is RelayItem.Country -> {
-                    relay.cities.forEach { relayCity ->
-                        RelayLocationCell(
-                            relay = relayCity,
-                            onClick = onClick,
-                            modifier = Modifier.animateContentSize(),
-                            leadingContent = leadingContent,
-                            specialBackgroundColor = specialBackgroundColor,
-                            onLongClick = onLongClick,
-                            depth = depth + 1
-                        )
-                    }
-                }
-                is RelayItem.City -> {
-                    relay.relays.forEach { relay ->
-                        RelayLocationCell(
-                            relay = relay,
-                            onClick = onClick,
-                            modifier = Modifier.animateContentSize(),
-                            leadingContent = leadingContent,
-                            specialBackgroundColor = specialBackgroundColor,
-                            onLongClick = onLongClick,
-                            depth = depth + 1
-                        )
-                    }
-                }
-                is RelayItem.Relay -> {}
             }
         }
     }
 }
+
+@Composable
+private fun RowScope.Name(relay: RelayItem) {
+    Text(
+        text = relay.name,
+        color = MaterialTheme.colorScheme.onPrimary,
+        modifier =
+            Modifier.weight(1f)
+                .align(Alignment.CenterVertically)
+                .alpha(
+                    if (relay.active) {
+                        AlphaVisible
+                    } else {
+                        AlphaInactive
+                    }
+                )
+                .padding(horizontal = Dimens.smallPadding, vertical = Dimens.mediumPadding)
+    )
+}
+
+@Composable
+private fun RowScope.ExpandButton(isExpanded: Boolean, onClick: (expand: Boolean) -> Unit) {
+    VerticalDivider(
+        color = MaterialTheme.colorScheme.background,
+        modifier = Modifier.padding(vertical = Dimens.verticalDividerPadding)
+    )
+    Chevron(
+        isExpanded = isExpanded,
+        modifier =
+            Modifier.fillMaxHeight()
+                .clickable { onClick(!isExpanded) }
+                .padding(horizontal = Dimens.largePadding)
+                .align(Alignment.CenterVertically)
+    )
+}
+
+@Composable
+private fun Int.toBackgroundColor(): Color =
+    when (this) {
+        0 -> MaterialTheme.colorScheme.surfaceContainerHighest
+        1 -> MaterialTheme.colorScheme.surfaceContainerHigh
+        2 -> MaterialTheme.colorScheme.surfaceContainerLow
+        3 -> MaterialTheme.colorScheme.surfaceContainerLowest
+        else -> MaterialTheme.colorScheme.surfaceContainerLowest
+    }

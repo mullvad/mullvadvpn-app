@@ -443,7 +443,6 @@ private fun LazyListScope.relayList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BottomSheets(
-    modifier: Modifier = Modifier,
     bottomSheetState: BottomSheetState?,
     onCreateCustomList: (RelayItem?) -> Unit,
     onEditCustomLists: () -> Unit,
@@ -509,33 +508,32 @@ private fun BottomSheets(
     }
 }
 
-private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int {
-    if (this !is SelectLocationUiState.Content) {
-        return -1
-    }
-    if (selectedItem is RelayItem.CustomList) {
-        // Add the header for custom list
-        return filteredCustomLists.indexOfFirst { it.id == selectedItem.id } +
-            EXTRA_ITEM_CUSTOM_LIST
-    } else {
-        val rawIndex =
-            countries.indexOfFirst { relayCountry ->
-                relayCountry.location.location.country ==
-                    when (selectedItem) {
-                        is RelayItem.Country -> selectedItem.code
-                        is RelayItem.City -> selectedItem.location.countryCode
-                        is RelayItem.Relay -> selectedItem.location.countryCode
-                        else -> null
-                    }
-            }
-        return if (rawIndex >= 0) {
-            // Extra items are: Custom list header, custom list description and locations header
-            return rawIndex + customLists.size + EXTRA_ITEMS_LOCATION
-        } else {
-            rawIndex
+private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int =
+    if (this is SelectLocationUiState.Content) {
+        when (selectedItem) {
+            is RelayItem.Country,
+            is RelayItem.City,
+            is RelayItem.Relay ->
+                countries.indexOfFirst { it.code == selectedItem.countryCode() } +
+                    customLists.size +
+                    EXTRA_ITEMS_LOCATION
+            is RelayItem.CustomList ->
+                filteredCustomLists.indexOfFirst { it.id == selectedItem.id } +
+                    EXTRA_ITEM_CUSTOM_LIST
+            else -> -1
         }
+    } else {
+        -1
     }
-}
+
+private fun RelayItem.countryCode(): String =
+    when (this) {
+        is RelayItem.Country -> this.code
+        is RelayItem.City -> this.location.countryCode
+        is RelayItem.Relay -> this.location.countryCode
+        is RelayItem.CustomList ->
+            throw IllegalArgumentException("Custom list does not have a country code")
+    }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
