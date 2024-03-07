@@ -35,18 +35,17 @@ jobs:
       - name: Configure Xcode project
         run: |
           for file in *.xcconfig.template ; do cp $file ${file//.template/} ; done
+          sed -i "" "/^HAS_TIME_ACCOUNT_NUMBER/d" UITests.xcconfig
+          sed -i "" "/^NO_TIME_ACCOUNT_NUMBER/d" UITests.xcconfig
           sed -i "" \
-            "/MULLVAD_IOS_DEVICE_PIN_CODE =/ s/= .*/= $IOS_DEVICE_PIN_CODE/" \
+            "/IOS_DEVICE_PIN_CODE =/ s/= .*/= $IOS_DEVICE_PIN_CODE/" \
             UITests.xcconfig
           sed -i "" \
-            "/MULLVAD_TEST_DEVICE_IDENTIFIER_UUID =/ s/= .*/= $TEST_DEVICE_IDENTIFIER_UUID/" \
+            "/TEST_DEVICE_IDENTIFIER_UUID =/ s/= .*/= $TEST_DEVICE_IDENTIFIER_UUID/" \
             UITests.xcconfig
-          sed -i "" \
-            "/MULLVAD_HAS_TIME_ACCOUNT_NUMBER =/ s/= .*/= $HAS_TIME_ACCOUNT_NUMBER/" \
-            UITests.xcconfig
-          sed -i "" \
-            "/MULLVAD_NO_TIME_ACCOUNT_NUMBER =/ s/= .*/= $NO_TIME_ACCOUNT_NUMBER/" \
-            UITests.xcconfig
+          printf "\n" >> UITests.xcconfig
+          printf "HAS_TIME_ACCOUNT_NUMBER = $HAS_TIME_ACCOUNT_NUMBER\n" >> UITests.xcconfig
+          printf "NO_TIME_ACCOUNT_NUMBER = $NO_TIME_ACCOUNT_NUMBER\n" >> UITests.xcconfig
         working-directory: ios/Configurations
 
       - name: Run end-to-end-tests
