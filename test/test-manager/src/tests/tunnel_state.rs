@@ -31,8 +31,40 @@ use test_rpc::ServiceClient;
 #[cfg(target_os = "macos")]
 async fn setup_packetfilter_drop_pings_rule(
     max_packet_size: u16,
-) -> scopeguard::ScopeGuard<(), impl FnOnce(())> {
-    todo!()
+) -> anyhow::Result<scopeguard::ScopeGuard<(), impl FnOnce(())>> {
+    use anyhow::{bail, Context};
+
+    // Enable forwarding
+    let mut cmd = tokio::process::Command::new("/usr/bin/sudo");
+    cmd.args(["/usr/sbin/sysctl", "net.inet.raw.maxdgram"]);
+    let output = cmd.output().await.context("Run sysctl")?;
+    if !output.status.success() {
+        bail!("sysctl failed: {}", output.status.code().unwrap());
+    }
+    let previous_maxdgram: u16 = String::from_utf8(output.stdout).unwrap().parse().unwrap();
+    log::warn!("{}", &previous_maxdgram); // TODO(seb) DELETE ME
+
+    let mut cmd = tokio::process::Command::new("/usr/bin/sudo");
+    cmd.args([
+        "/usr/sbin/sysctl",
+        &format!("net.inet.raw.maxdgram={max_packet_size}"),
+    ]);
+    let output = cmd.output().await.context("Run sysctl")?;
+    if !output.status.success() {
+        bail!("sysctl failed: {}", output.status.code().unwrap());
+    }
+
+    Ok(scopeguard::guard((), move |()| {
+        let mut cmd = std::process::Command::new("/usr/bin/sudo");
+        cmd.args([
+            "/usr/sbin/sysctl",
+            &format!("net.inet.raw.maxdgram={previous_maxdgram}"),
+        ]);
+        let output = cmd.output().expect("Run sysctl");
+        if !output.status.success() {
+            panic!("sysctl failed: {}", output.status.code().unwrap());
+        }
+    }))
 }
 
 #[cfg(target_os = "linux")]
@@ -79,25 +111,9 @@ async fn setup_nftables_drop_pings_rule(
     })
 }
 
-#[test_function(target_os = "windows")]
-pub async fn test_mtu_detection_windows(
-    _: TestContext,
-    rpc: ServiceClient,
-    mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
-    test_mtu_detection(rpc, mullvad_client).await
-}
-
-#[test_function(target_os = "linux")]
-pub async fn test_mtu_detection_linux(
-    _: TestContext,
-    rpc: ServiceClient,
-    mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
-    test_mtu_detection(rpc, mullvad_client).await
-}
-
+#[test_function]
 async fn test_mtu_detection(
+    _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
