@@ -50,6 +50,11 @@ enum TunnelState: Equatable, CustomStringConvertible {
     /// Connecting the tunnel.
     case connecting(SelectedRelay?)
 
+    #if DEBUG
+    /// Negotiating a key for post-quantum resistance
+    case negotiatingKey(SelectedRelay)
+    #endif
+
     /// Connected the tunnel
     case connected(SelectedRelay)
 
@@ -75,25 +80,29 @@ enum TunnelState: Equatable, CustomStringConvertible {
     var description: String {
         switch self {
         case .pendingReconnect:
-            return "pending reconnect after disconnect"
+            "pending reconnect after disconnect"
         case let .connecting(tunnelRelay):
             if let tunnelRelay {
-                return "connecting to \(tunnelRelay.hostname)"
+                "connecting to \(tunnelRelay.hostname)"
             } else {
-                return "connecting, fetching relay"
+                "connecting, fetching relay"
             }
         case let .connected(tunnelRelay):
-            return "connected to \(tunnelRelay.hostname)"
+            "connected to \(tunnelRelay.hostname)"
         case let .disconnecting(actionAfterDisconnect):
-            return "disconnecting and then \(actionAfterDisconnect)"
+            "disconnecting and then \(actionAfterDisconnect)"
         case .disconnected:
-            return "disconnected"
+            "disconnected"
         case let .reconnecting(tunnelRelay):
-            return "reconnecting to \(tunnelRelay.hostname)"
+            "reconnecting to \(tunnelRelay.hostname)"
         case .waitingForConnectivity:
-            return "waiting for connectivity"
+            "waiting for connectivity"
         case let .error(blockedStateReason):
-            return "error state: \(blockedStateReason)"
+            "error state: \(blockedStateReason)"
+        #if DEBUG
+        case let .negotiatingKey(tunnelRelay):
+            "negotiating key with \(tunnelRelay.hostname)"
+        #endif
         }
     }
 
@@ -101,20 +110,28 @@ enum TunnelState: Equatable, CustomStringConvertible {
         switch self {
         case .reconnecting, .connecting, .connected, .waitingForConnectivity(.noConnection), .error(.accountExpired),
              .error(.deviceRevoked):
-            return true
+            true
         case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork), .error:
-            return false
+            false
+        #if DEBUG
+        case .negotiatingKey:
+            false
+        #endif
         }
     }
 
     var relay: SelectedRelay? {
         switch self {
         case let .connected(relay), let .reconnecting(relay):
-            return relay
+            relay
         case let .connecting(relay):
-            return relay
+            relay
+        #if DEBUG
+        case let .negotiatingKey(relay):
+            relay
+        #endif
         case .disconnecting, .disconnected, .waitingForConnectivity, .pendingReconnect, .error:
-            return nil
+            nil
         }
     }
 }
@@ -130,9 +147,9 @@ enum ActionAfterDisconnect: CustomStringConvertible {
     var description: String {
         switch self {
         case .nothing:
-            return "do nothing"
+            "do nothing"
         case .reconnect:
-            return "reconnect"
+            "reconnect"
         }
     }
 }

@@ -450,13 +450,18 @@ private extension TunnelState {
     var textColorForSecureLabel: UIColor {
         switch self {
         case .connecting, .reconnecting, .waitingForConnectivity(.noConnection):
-            return .white
+            .white
+
+        #if DEBUG
+        case .negotiatingKey:
+            .white
+        #endif
 
         case .connected:
-            return .successColor
+            .successColor
 
         case .disconnecting, .disconnected, .pendingReconnect, .waitingForConnectivity(.noNetwork), .error:
-            return .dangerColor
+            .dangerColor
         }
     }
 
@@ -471,15 +476,25 @@ private extension TunnelState {
     var localizedTitleForSecureLabel: String {
         switch self {
         case .connecting, .reconnecting:
-            return NSLocalizedString(
+            NSLocalizedString(
                 "TUNNEL_STATE_CONNECTING",
                 tableName: "Main",
                 value: "Creating secure connection",
                 comment: ""
             )
 
+        #if DEBUG
+        case .negotiatingKey:
+            NSLocalizedString(
+                "TUNNEL_STATE_NEGOTIATING_KEY",
+                tableName: "Main",
+                value: "Negotiating key",
+                comment: ""
+            )
+        #endif
+
         case .connected:
-            return NSLocalizedString(
+            NSLocalizedString(
                 "TUNNEL_STATE_CONNECTED",
                 tableName: "Main",
                 value: "Secure connection",
@@ -487,14 +502,14 @@ private extension TunnelState {
             )
 
         case .disconnecting(.nothing):
-            return NSLocalizedString(
+            NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTING",
                 tableName: "Main",
                 value: "Disconnecting",
                 comment: ""
             )
         case .disconnecting(.reconnect), .pendingReconnect:
-            return NSLocalizedString(
+            NSLocalizedString(
                 "TUNNEL_STATE_PENDING_RECONNECT",
                 tableName: "Main",
                 value: "Reconnecting",
@@ -502,7 +517,7 @@ private extension TunnelState {
             )
 
         case .disconnected:
-            return NSLocalizedString(
+            NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTED",
                 tableName: "Main",
                 value: "Unsecured connection",
@@ -510,7 +525,7 @@ private extension TunnelState {
             )
 
         case .waitingForConnectivity(.noConnection), .error:
-            return NSLocalizedString(
+            NSLocalizedString(
                 "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY",
                 tableName: "Main",
                 value: "Blocked connection",
@@ -518,7 +533,7 @@ private extension TunnelState {
             )
 
         case .waitingForConnectivity(.noNetwork):
-            return NSLocalizedString(
+            NSLocalizedString(
                 "TUNNEL_STATE_NO_NETWORK",
                 tableName: "Main",
                 value: "No network",
@@ -530,7 +545,7 @@ private extension TunnelState {
     var localizedTitleForSelectLocationButton: String? {
         switch self {
         case .disconnecting(.reconnect), .pendingReconnect:
-            return NSLocalizedString(
+            NSLocalizedString(
                 "SWITCH_LOCATION_BUTTON_TITLE",
                 tableName: "Main",
                 value: "Select location",
@@ -538,7 +553,7 @@ private extension TunnelState {
             )
 
         case .disconnected, .disconnecting(.nothing):
-            return NSLocalizedString(
+            NSLocalizedString(
                 "SELECT_LOCATION_BUTTON_TITLE",
                 tableName: "Main",
                 value: "Select location",
@@ -546,27 +561,47 @@ private extension TunnelState {
             )
 
         case .connecting, .connected, .reconnecting, .waitingForConnectivity, .error:
-            return NSLocalizedString(
+            NSLocalizedString(
                 "SWITCH_LOCATION_BUTTON_TITLE",
                 tableName: "Main",
                 value: "Switch location",
                 comment: ""
             )
+
+        #if DEBUG
+        case .negotiatingKey:
+            NSLocalizedString(
+                "SWITCH_LOCATION_BUTTON_TITLE",
+                tableName: "Main",
+                value: "Switch location",
+                comment: ""
+            )
+        #endif
         }
     }
 
     var localizedAccessibilityLabel: String {
         switch self {
         case .connecting:
-            return NSLocalizedString(
+            NSLocalizedString(
                 "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL",
                 tableName: "Main",
                 value: "Creating secure connection",
                 comment: ""
             )
 
+        #if DEBUG
+        case .negotiatingKey:
+            NSLocalizedString(
+                "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL",
+                tableName: "Main",
+                value: "Creating secure connection",
+                comment: ""
+            )
+        #endif
+
         case let .connected(tunnelInfo):
-            return String(
+            String(
                 format: NSLocalizedString(
                     "TUNNEL_STATE_CONNECTED_ACCESSIBILITY_LABEL",
                     tableName: "Main",
@@ -578,7 +613,7 @@ private extension TunnelState {
             )
 
         case .disconnected:
-            return NSLocalizedString(
+            NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTED_ACCESSIBILITY_LABEL",
                 tableName: "Main",
                 value: "Unsecured connection",
@@ -586,7 +621,7 @@ private extension TunnelState {
             )
 
         case let .reconnecting(tunnelInfo):
-            return String(
+            String(
                 format: NSLocalizedString(
                     "TUNNEL_STATE_RECONNECTING_ACCESSIBILITY_LABEL",
                     tableName: "Main",
@@ -598,7 +633,7 @@ private extension TunnelState {
             )
 
         case .waitingForConnectivity(.noConnection), .error:
-            return NSLocalizedString(
+            NSLocalizedString(
                 "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY_ACCESSIBILITY_LABEL",
                 tableName: "Main",
                 value: "Blocked connection",
@@ -606,7 +641,7 @@ private extension TunnelState {
             )
 
         case .waitingForConnectivity(.noNetwork):
-            return NSLocalizedString(
+            NSLocalizedString(
                 "TUNNEL_STATE_NO_NETWORK_ACCESSIBILITY_LABEL",
                 tableName: "Main",
                 value: "No network",
@@ -614,7 +649,7 @@ private extension TunnelState {
             )
 
         case .disconnecting(.nothing):
-            return NSLocalizedString(
+            NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTING_ACCESSIBILITY_LABEL",
                 tableName: "Main",
                 value: "Disconnecting",
@@ -622,7 +657,7 @@ private extension TunnelState {
             )
 
         case .disconnecting(.reconnect), .pendingReconnect:
-            return NSLocalizedString(
+            NSLocalizedString(
                 "TUNNEL_STATE_PENDING_RECONNECT_ACCESSIBILITY_LABEL",
                 tableName: "Main",
                 value: "Reconnecting",
@@ -636,31 +671,40 @@ private extension TunnelState {
         case (.phone, _), (.pad, .compact):
             switch self {
             case .disconnected, .disconnecting(.nothing), .waitingForConnectivity(.noNetwork):
-                return [.selectLocation, .connect]
+                [.selectLocation, .connect]
 
             case .connecting, .pendingReconnect, .disconnecting(.reconnect),
                  .waitingForConnectivity(.noConnection):
-                return [.selectLocation, .cancel]
+                [.selectLocation, .cancel]
+
+            #if DEBUG
+            case .negotiatingKey:
+                [.selectLocation, .cancel]
+            #endif
 
             case .connected, .reconnecting, .error:
-                return [.selectLocation, .disconnect]
+                [.selectLocation, .disconnect]
             }
 
         case (.pad, .regular):
             switch self {
             case .disconnected, .disconnecting(.nothing), .waitingForConnectivity(.noNetwork):
-                return [.connect]
+                [.connect]
 
             case .connecting, .pendingReconnect, .disconnecting(.reconnect),
                  .waitingForConnectivity(.noConnection):
-                return [.cancel]
+                [.cancel]
 
+            #if DEBUG
+            case .negotiatingKey:
+                [.cancel]
+            #endif
             case .connected, .reconnecting, .error:
-                return [.disconnect]
+                [.disconnect]
             }
 
         default:
-            return []
+            []
         }
     }
 
