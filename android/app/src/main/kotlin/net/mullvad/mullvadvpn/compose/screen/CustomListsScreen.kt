@@ -15,7 +15,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -25,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -54,7 +54,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
-fun PreviewCustomListsScreen() {
+private fun PreviewCustomListsScreen() {
     AppTheme { CustomListsScreen(CustomListsUiState.Content(), SnackbarHostState()) }
 }
 
@@ -66,7 +66,7 @@ fun CustomLists(
         ResultRecipient<EditCustomListDestination, CustomListResult.Deleted>
 ) {
     val viewModel = koinViewModel<CustomListsViewModel>()
-    val uiState by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -95,7 +95,7 @@ fun CustomLists(
     }
 
     CustomListsScreen(
-        uiState = uiState,
+        state = state,
         snackbarHostState = snackbarHostState,
         addCustomList = {
             navigator.navigate(
@@ -115,7 +115,7 @@ fun CustomLists(
 
 @Composable
 fun CustomListsScreen(
-    uiState: CustomListsUiState,
+    state: CustomListsUiState,
     snackbarHostState: SnackbarHostState,
     addCustomList: () -> Unit = {},
     openCustomList: (RelayItem.CustomList) -> Unit = {},
@@ -147,10 +147,10 @@ fun CustomListsScreen(
             state = lazyListState,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            when (uiState) {
+            when (state) {
                 is CustomListsUiState.Content -> {
-                    if (uiState.customLists.isNotEmpty()) {
-                        content(customLists = uiState.customLists, openCustomList = openCustomList)
+                    if (state.customLists.isNotEmpty()) {
+                        content(customLists = state.customLists, openCustomList = openCustomList)
                     } else {
                         empty()
                     }

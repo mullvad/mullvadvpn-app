@@ -6,7 +6,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +19,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
@@ -38,7 +38,7 @@ import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
-fun PreviewEditCustomListNameDialog() {
+private fun PreviewEditCustomListNameDialog() {
     AppTheme { EditCustomListNameDialog(UpdateCustomListUiState()) }
 }
 
@@ -61,9 +61,9 @@ fun EditCustomListName(
         }
     }
 
-    val uiState by vm.uiState.collectAsState()
+    val state by vm.uiState.collectAsStateWithLifecycle()
     EditCustomListNameDialog(
-        uiState = uiState,
+        state = state,
         updateName = vm::updateCustomListName,
         onInputChanged = vm::clearError,
         onDismiss = backNavigator::navigateBack
@@ -72,14 +72,14 @@ fun EditCustomListName(
 
 @Composable
 fun EditCustomListNameDialog(
-    uiState: UpdateCustomListUiState,
+    state: UpdateCustomListUiState,
     updateName: (String) -> Unit = {},
     onInputChanged: () -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val input = remember { mutableStateOf(uiState.name) }
+    val input = remember { mutableStateOf(state.name) }
     val isValidName by remember { derivedStateOf { input.value.isNotBlank() } }
     AlertDialog(
         title = {
@@ -102,17 +102,15 @@ fun EditCustomListNameDialog(
                     },
                     keyboardType = KeyboardType.Text,
                     placeholderText = "",
-                    isValidValue = uiState.error == null,
+                    isValidValue = state.error == null,
                     isDigitsOnlyAllowed = false,
                     supportingText = {
-                        if (uiState.error != null) {
+                        if (state.error != null) {
                             Text(
                                 text =
                                     stringResource(
                                         id =
-                                            if (
-                                                uiState.error == CustomListsError.CustomListExists
-                                            ) {
+                                            if (state.error == CustomListsError.CustomListExists) {
                                                 R.string.custom_list_error_list_exists
                                             } else {
                                                 R.string.error_occurred

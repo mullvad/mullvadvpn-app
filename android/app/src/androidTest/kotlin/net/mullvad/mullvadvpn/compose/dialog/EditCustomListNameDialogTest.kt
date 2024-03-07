@@ -32,8 +32,8 @@ class EditCustomListNameDialogTest {
     fun givenNoErrorShouldShowNoErrorMessage() =
         composeExtension.use {
             // Arrange
-            val uiState = UpdateCustomListUiState(error = null)
-            setContentWithTheme { EditCustomListNameDialog(uiState = uiState) }
+            val state = UpdateCustomListUiState(error = null)
+            setContentWithTheme { EditCustomListNameDialog(state = state) }
 
             // Assert
             onNodeWithText(NAME_EXIST_ERROR_TEXT).assertDoesNotExist()
@@ -44,8 +44,8 @@ class EditCustomListNameDialogTest {
     fun givenCustomListExistsShouldShowCustomListExitsErrorText() =
         composeExtension.use {
             // Arrange
-            val uiState = UpdateCustomListUiState(error = CustomListsError.CustomListExists)
-            setContentWithTheme { EditCustomListNameDialog(uiState = uiState) }
+            val state = UpdateCustomListUiState(error = CustomListsError.CustomListExists)
+            setContentWithTheme { EditCustomListNameDialog(state = state) }
 
             // Assert
             onNodeWithText(NAME_EXIST_ERROR_TEXT).assertExists()
@@ -56,8 +56,8 @@ class EditCustomListNameDialogTest {
     fun givenOtherCustomListErrorShouldShowAnErrorOccurredErrorText() =
         composeExtension.use {
             // Arrange
-            val uiState = UpdateCustomListUiState(error = CustomListsError.OtherError)
-            setContentWithTheme { EditCustomListNameDialog(uiState = uiState) }
+            val state = UpdateCustomListUiState(error = CustomListsError.OtherError)
+            setContentWithTheme { EditCustomListNameDialog(state = state) }
 
             // Assert
             onNodeWithText(NAME_EXIST_ERROR_TEXT).assertDoesNotExist()
@@ -69,9 +69,9 @@ class EditCustomListNameDialogTest {
         composeExtension.use {
             // Arrange
             val mockedOnDismiss: () -> Unit = mockk(relaxed = true)
-            val uiState = UpdateCustomListUiState()
+            val state = UpdateCustomListUiState()
             setContentWithTheme {
-                EditCustomListNameDialog(uiState = uiState, onDismiss = mockedOnDismiss)
+                EditCustomListNameDialog(state = state, onDismiss = mockedOnDismiss)
             }
 
             // Act
@@ -86,9 +86,9 @@ class EditCustomListNameDialogTest {
         composeExtension.use {
             // Arrange
             val mockedUpdateName: (String) -> Unit = mockk(relaxed = true)
-            val uiState = UpdateCustomListUiState()
+            val state = UpdateCustomListUiState()
             setContentWithTheme {
-                EditCustomListNameDialog(uiState = uiState, updateName = mockedUpdateName)
+                EditCustomListNameDialog(state = state, updateName = mockedUpdateName)
             }
 
             // Act
@@ -106,7 +106,7 @@ class EditCustomListNameDialogTest {
             val inputText = "NEW NAME"
             val uiState = UpdateCustomListUiState()
             setContentWithTheme {
-                EditCustomListNameDialog(uiState = uiState, updateName = mockedUpdateName)
+                EditCustomListNameDialog(state = state, updateName = mockedUpdateName)
             }
 
             // Act
@@ -123,9 +123,9 @@ class EditCustomListNameDialogTest {
             // Arrange
             val mockedOnInputChanged: () -> Unit = mockk(relaxed = true)
             val inputText = "NEW NAME"
-            val uiState = UpdateCustomListUiState()
+            val state = UpdateCustomListUiState()
             setContentWithTheme {
-                EditCustomListNameDialog(uiState = uiState, onInputChanged = mockedOnInputChanged)
+                EditCustomListNameDialog(state = state, onInputChanged = mockedOnInputChanged)
             }
 
             // Act

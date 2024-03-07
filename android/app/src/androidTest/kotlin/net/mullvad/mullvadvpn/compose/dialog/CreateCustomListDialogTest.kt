@@ -33,7 +33,7 @@ class CreateCustomListDialogTest {
         composeExtension.use {
             // Arrange
             val uiState = CreateCustomListUiState(error = null)
-            setContentWithTheme { CreateCustomListDialog(uiState = uiState) }
+            setContentWithTheme { CreateCustomListDialog(state = uiState) }
 
             // Assert
             onNodeWithText(NAME_EXIST_ERROR_TEXT).assertDoesNotExist()
@@ -44,8 +44,8 @@ class CreateCustomListDialogTest {
     fun givenCustomListExistsShouldShowCustomListExitsErrorText() =
         composeExtension.use {
             // Arrange
-            val uiState = CreateCustomListUiState(error = CustomListsError.CustomListExists)
-            setContentWithTheme { CreateCustomListDialog(uiState = uiState) }
+            val state = CreateCustomListUiState(error = CustomListsError.CustomListExists)
+            setContentWithTheme { CreateCustomListDialog(state = state) }
 
             // Assert
             onNodeWithText(NAME_EXIST_ERROR_TEXT).assertExists()
@@ -57,7 +57,7 @@ class CreateCustomListDialogTest {
         composeExtension.use {
             // Arrange
             val uiState = CreateCustomListUiState(error = CustomListsError.OtherError)
-            setContentWithTheme { CreateCustomListDialog(uiState = uiState) }
+            setContentWithTheme { CreateCustomListDialog(state = uiState) }
 
             // Assert
             onNodeWithText(NAME_EXIST_ERROR_TEXT).assertDoesNotExist()
@@ -71,7 +71,7 @@ class CreateCustomListDialogTest {
             val mockedOnDismiss: () -> Unit = mockk(relaxed = true)
             val uiState = CreateCustomListUiState()
             setContentWithTheme {
-                CreateCustomListDialog(uiState = uiState, onDismiss = mockedOnDismiss)
+                CreateCustomListDialog(state = uiState, onDismiss = mockedOnDismiss)
             }
 
             // Act
@@ -86,9 +86,9 @@ class CreateCustomListDialogTest {
         composeExtension.use {
             // Arrange
             val mockedCreateCustomList: (String) -> Unit = mockk(relaxed = true)
-            val uiState = CreateCustomListUiState()
+            val state = CreateCustomListUiState()
             setContentWithTheme {
-                CreateCustomListDialog(uiState = uiState, createCustomList = mockedCreateCustomList)
+                CreateCustomListDialog(state = state, createCustomList = mockedCreateCustomList)
             }
 
             // Act
@@ -104,9 +104,9 @@ class CreateCustomListDialogTest {
             // Arrange
             val mockedCreateCustomList: (String) -> Unit = mockk(relaxed = true)
             val inputText = "NEW LIST"
-            val uiState = CreateCustomListUiState()
+            val state = CreateCustomListUiState()
             setContentWithTheme {
-                CreateCustomListDialog(uiState = uiState, createCustomList = mockedCreateCustomList)
+                CreateCustomListDialog(state = state, createCustomList = mockedCreateCustomList)
             }
 
             // Act
@@ -123,9 +123,9 @@ class CreateCustomListDialogTest {
             // Arrange
             val mockedOnInputChanged: () -> Unit = mockk(relaxed = true)
             val inputText = "NEW LIST"
-            val uiState = CreateCustomListUiState()
+            val state = CreateCustomListUiState()
             setContentWithTheme {
-                CreateCustomListDialog(uiState = uiState, onInputChanged = mockedOnInputChanged)
+                CreateCustomListDialog(state = state, onInputChanged = mockedOnInputChanged)
             }
 
             // Act

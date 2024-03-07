@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Preview
 @Composable
-fun PreviewIconCell() {
+private fun PreviewIconCell() {
     AppTheme { IconCell(iconId = R.drawable.icon_add, title = "Add") }
 }
 
