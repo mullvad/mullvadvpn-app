@@ -236,6 +236,7 @@ private fun List<RelayItem.Country>.expandItemForSelection(
     } ?: this
 }
 
+@Suppress("NestedBlockDepth", "ReturnCount")
 fun RelayList.getGeographicLocationConstraintByCode(code: String): GeographicLocationConstraint? {
     countries.forEach { country ->
         val countryCode = country.code

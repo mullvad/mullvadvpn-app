@@ -35,13 +35,13 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.Chevron
 import net.mullvad.mullvadvpn.compose.component.MullvadCheckbox
 import net.mullvad.mullvadvpn.compose.component.VerticalDivider
+import net.mullvad.mullvadvpn.compose.util.generateRelayItemCountry
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.color.selected
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.allChildren
 
@@ -51,100 +51,41 @@ private fun PreviewStatusRelayLocationCell() {
     AppTheme {
         Column(Modifier.background(color = MaterialTheme.colorScheme.background)) {
             val countryActive =
-                RelayItem.Country(
+                generateRelayItemCountry(
                     name = "Relay country Active",
-                    code = "RC1",
-                    expanded = false,
-                    cities =
-                        listOf(
-                            RelayItem.City(
-                                name = "Relay city 1",
-                                code = "RI1",
-                                expanded = false,
-                                location = GeographicLocationConstraint.City("RC1", "RI1"),
-                                relays =
-                                    listOf(
-                                        RelayItem.Relay(
-                                            name = "Relay 1",
-                                            active = true,
-                                            locationName = "",
-                                            location =
-                                                GeographicLocationConstraint.Hostname(
-                                                    "RC1",
-                                                    "RI1",
-                                                    "NER"
-                                                )
-                                        )
-                                    )
-                            ),
-                            RelayItem.City(
-                                name = "Relay city 2",
-                                code = "RI2",
-                                expanded = true,
-                                location = GeographicLocationConstraint.City("RC1", "RI2"),
-                                relays =
-                                    listOf(
-                                        RelayItem.Relay(
-                                            name = "Relay 2",
-                                            active = true,
-                                            locationName = "",
-                                            location =
-                                                GeographicLocationConstraint.Hostname(
-                                                    "RC1",
-                                                    "RI2",
-                                                    "NER"
-                                                )
-                                        ),
-                                        RelayItem.Relay(
-                                            name = "Relay 3",
-                                            active = true,
-                                            locationName = "",
-                                            location =
-                                                GeographicLocationConstraint.Hostname(
-                                                    "RC1",
-                                                    "RI1",
-                                                    "NER"
-                                                )
-                                        )
-                                    )
-                            )
-                        )
+                    cityNames = listOf("Relay city 1", "Relay city 2"),
+                    relaysPerCity = 2
                 )
             val countryNotActive =
-                RelayItem.Country(
+                generateRelayItemCountry(
                     name = "Not Enabled Relay country",
-                    code = "RC3",
+                    cityNames = listOf("Not Enabled city"),
+                    relaysPerCity = 1,
+                    active = false
+                )
+            val countryExpanded =
+                generateRelayItemCountry(
+                    name = "Relay country Expanded",
+                    cityNames = listOf("Normal city"),
+                    relaysPerCity = 2,
+                    expanded = true
+                )
+            val countryAndCityExpanded =
+                generateRelayItemCountry(
+                    name = "Country and city Expanded",
+                    cityNames = listOf("Expanded city A", "Expanded city B"),
+                    relaysPerCity = 2,
                     expanded = true,
-                    cities =
-                        listOf(
-                            RelayItem.City(
-                                name = "Not Enabled city",
-                                code = "RI3",
-                                expanded = true,
-                                location = GeographicLocationConstraint.City("RC3", "RI3"),
-                                relays =
-                                    listOf(
-                                        RelayItem.Relay(
-                                            name = "Not Enabled Relay",
-                                            active = false,
-                                            locationName = "",
-                                            location =
-                                                GeographicLocationConstraint.Hostname(
-                                                    "RC3",
-                                                    "RI3",
-                                                    "NER"
-                                                )
-                                        )
-                                    )
-                            )
-                        )
+                    expandChildren = true
                 )
             // Active relay list not expanded
             StatusRelayLocationCell(countryActive)
             // Not Active Relay
             StatusRelayLocationCell(countryNotActive)
-            // Relay expanded country and city
-            StatusRelayLocationCell(countryActive.copy(expanded = true))
+            // Relay expanded country
+            StatusRelayLocationCell(countryExpanded)
+            // Relay expanded country and cities
+            StatusRelayLocationCell(countryAndCityExpanded)
         }
     }
 }
@@ -155,100 +96,32 @@ private fun PreviewCheckableRelayLocationCell() {
     AppTheme {
         Column(Modifier.background(color = MaterialTheme.colorScheme.background)) {
             val countryActive =
-                RelayItem.Country(
+                generateRelayItemCountry(
                     name = "Relay country Active",
-                    code = "RC1",
-                    expanded = false,
-                    cities =
-                        listOf(
-                            RelayItem.City(
-                                name = "Relay city 1",
-                                code = "RI1",
-                                expanded = false,
-                                location = GeographicLocationConstraint.City("RC1", "RI1"),
-                                relays =
-                                    listOf(
-                                        RelayItem.Relay(
-                                            name = "Relay 1",
-                                            active = true,
-                                            locationName = "",
-                                            location =
-                                                GeographicLocationConstraint.Hostname(
-                                                    "RC1",
-                                                    "RI1",
-                                                    "NER"
-                                                )
-                                        )
-                                    )
-                            ),
-                            RelayItem.City(
-                                name = "Relay city 2",
-                                code = "RI2",
-                                expanded = true,
-                                location = GeographicLocationConstraint.City("RC1", "RI2"),
-                                relays =
-                                    listOf(
-                                        RelayItem.Relay(
-                                            name = "Relay 2",
-                                            active = true,
-                                            locationName = "",
-                                            location =
-                                                GeographicLocationConstraint.Hostname(
-                                                    "RC1",
-                                                    "RI2",
-                                                    "NER"
-                                                )
-                                        ),
-                                        RelayItem.Relay(
-                                            name = "Relay 3",
-                                            active = true,
-                                            locationName = "",
-                                            location =
-                                                GeographicLocationConstraint.Hostname(
-                                                    "RC1",
-                                                    "RI1",
-                                                    "NER"
-                                                )
-                                        )
-                                    )
-                            )
-                        )
+                    cityNames = listOf("Relay city 1", "Relay city 2"),
+                    relaysPerCity = 2
                 )
-            val countryNotActive =
-                RelayItem.Country(
-                    name = "Not Enabled Relay country",
-                    code = "RC3",
+            val countryExpanded =
+                generateRelayItemCountry(
+                    name = "Relay country Expanded",
+                    cityNames = listOf("Normal city"),
+                    relaysPerCity = 2,
+                    expanded = true
+                )
+            val countryAndCityExpanded =
+                generateRelayItemCountry(
+                    name = "Country and city Expanded",
+                    cityNames = listOf("Expanded city A", "Expanded city B"),
+                    relaysPerCity = 2,
                     expanded = true,
-                    cities =
-                        listOf(
-                            RelayItem.City(
-                                name = "Not Enabled city",
-                                code = "RI3",
-                                expanded = true,
-                                location = GeographicLocationConstraint.City("RC3", "RI3"),
-                                relays =
-                                    listOf(
-                                        RelayItem.Relay(
-                                            name = "Not Enabled Relay",
-                                            active = false,
-                                            locationName = "",
-                                            location =
-                                                GeographicLocationConstraint.Hostname(
-                                                    "RC3",
-                                                    "RI3",
-                                                    "NER"
-                                                )
-                                        )
-                                    )
-                            )
-                        )
+                    expandChildren = true
                 )
             // Active relay list not expanded
             CheckableRelayLocationCell(countryActive)
-            // Not Active Relay
-            CheckableRelayLocationCell(countryNotActive)
-            // Relay expanded country and city
-            CheckableRelayLocationCell(countryActive.copy(expanded = true))
+            // Relay expanded country
+            CheckableRelayLocationCell(countryExpanded)
+            // Relay expanded country and cities
+            CheckableRelayLocationCell(countryAndCityExpanded)
         }
     }
 }
@@ -389,18 +262,18 @@ private fun RelayLocationCell(
             if (relay.hasChildren) {
                 ExpandButton(isExpanded = expanded.value) { expand -> expanded.value = expand }
             }
-            if (expanded.value) {
-                relay.allChildren(false).forEach {
-                    RelayLocationCell(
-                        relay = it,
-                        onClick = onClick,
-                        modifier = Modifier.animateContentSize(),
-                        leadingContent = leadingContent,
-                        specialBackgroundColor = specialBackgroundColor,
-                        onLongClick = onLongClick,
-                        depth = depth + 1,
-                    )
-                }
+        }
+        if (expanded.value) {
+            relay.allChildren(false).forEach {
+                RelayLocationCell(
+                    relay = it,
+                    onClick = onClick,
+                    modifier = Modifier.animateContentSize(),
+                    leadingContent = leadingContent,
+                    specialBackgroundColor = specialBackgroundColor,
+                    onLongClick = onLongClick,
+                    depth = depth + 1,
+                )
             }
         }
     }
@@ -441,6 +314,7 @@ private fun RowScope.ExpandButton(isExpanded: Boolean, onClick: (expand: Boolean
     )
 }
 
+@Suppress("MagicNumber")
 @Composable
 private fun Int.toBackgroundColor(): Color =
     when (this) {
