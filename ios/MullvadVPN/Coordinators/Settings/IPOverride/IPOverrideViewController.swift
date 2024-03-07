@@ -66,6 +66,7 @@ class IPOverrideViewController: UIViewController {
 
         interactor.statusPublisher.sink { [weak self] status in
             self?.statusView.setStatus(status)
+            self?.clearButton.isEnabled = self?.interactor.defaultStatus == .active
         }.store(in: &cancellables)
     }
 
