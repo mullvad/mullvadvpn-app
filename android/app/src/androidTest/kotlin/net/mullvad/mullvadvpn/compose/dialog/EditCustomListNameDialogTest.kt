@@ -104,7 +104,7 @@ class EditCustomListNameDialogTest {
             // Arrange
             val mockedUpdateName: (String) -> Unit = mockk(relaxed = true)
             val inputText = "NEW NAME"
-            val uiState = UpdateCustomListUiState()
+            val state = UpdateCustomListUiState()
             setContentWithTheme {
                 EditCustomListNameDialog(state = state, updateName = mockedUpdateName)
             }
