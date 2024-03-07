@@ -1,12 +1,17 @@
 package net.mullvad.mullvadvpn.lib.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.LocalRippleTheme
+import androidx.compose.material.ripple.RippleAlpha
+import androidx.compose.material.ripple.RippleTheme
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
@@ -97,6 +102,21 @@ val Shapes =
 val Dimens: Dimensions
     @Composable get() = LocalAppDimens.current
 
+private object StateTokens {
+    const val DraggedStateLayerOpacity = 0.32f // 0.16f (Material default)
+    const val FocusStateLayerOpacity = 0.24f // 0.12f (Material default)
+    const val HoverStateLayerOpacity = 0.16f // 0.08f (Material default)
+    const val PressedStateLayerOpacity = 0.24f // 0.12f (Material default)
+}
+
+private val rippleAlpha =
+    RippleAlpha(
+        pressedAlpha = StateTokens.PressedStateLayerOpacity,
+        focusedAlpha = StateTokens.FocusStateLayerOpacity,
+        draggedAlpha = StateTokens.DraggedStateLayerOpacity,
+        hoveredAlpha = StateTokens.HoverStateLayerOpacity
+    )
+
 @Composable
 fun ProvideDimens(dimensions: Dimensions, content: @Composable () -> Unit) {
     val dimensionSet = remember { dimensions }
@@ -117,7 +137,16 @@ fun AppTheme(content: @Composable () -> Unit) {
             colorScheme = colors,
             shapes = Shapes,
             typography = typography,
-            content = content
+            content = {
+                CompositionLocalProvider(LocalRippleTheme provides MullvadRippleTheme) { content() }
+            }
         )
     }
+}
+
+@Immutable
+object MullvadRippleTheme : RippleTheme {
+    @Composable override fun defaultColor() = LocalContentColor.current
+
+    @Composable override fun rippleAlpha() = rippleAlpha
 }
