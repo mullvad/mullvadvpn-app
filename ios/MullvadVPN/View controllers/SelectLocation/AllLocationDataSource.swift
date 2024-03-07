@@ -44,11 +44,11 @@ class AllLocationDataSource: LocationDataSourceProtocol {
 
         return switch location {
         case let .country(countryCode):
-            rootNode.descendantNodeFor(code: countryCode)
-        case let .city(_, cityCode):
-            rootNode.descendantNodeFor(code: cityCode)
+            rootNode.descendantNodeFor(codes: [countryCode])
+        case let .city(countryCode, cityCode):
+            rootNode.descendantNodeFor(codes: [countryCode, cityCode])
         case let .hostname(_, _, hostCode):
-            rootNode.descendantNodeFor(code: hostCode)
+            rootNode.descendantNodeFor(codes: [hostCode])
         }
     }
 
@@ -62,7 +62,7 @@ class AllLocationDataSource: LocationDataSourceProtocol {
         case let .country(countryCode):
             let countryNode = CountryLocationNode(
                 name: serverLocation.country,
-                code: countryCode,
+                code: LocationNode.combineNodeCodes([countryCode]),
                 locations: [location]
             )
 
@@ -72,7 +72,11 @@ class AllLocationDataSource: LocationDataSourceProtocol {
             }
 
         case let .city(countryCode, cityCode):
-            let cityNode = CityLocationNode(name: serverLocation.city, code: cityCode, locations: [location])
+            let cityNode = CityLocationNode(
+                name: serverLocation.city,
+                code: LocationNode.combineNodeCodes([countryCode, cityCode]),
+                locations: [location]
+            )
 
             if let countryNode = rootNode.countryFor(code: countryCode),
                !countryNode.children.contains(cityNode) {
@@ -82,10 +86,14 @@ class AllLocationDataSource: LocationDataSourceProtocol {
             }
 
         case let .hostname(countryCode, cityCode, hostCode):
-            let hostNode = HostLocationNode(name: relay.hostname, code: hostCode, locations: [location])
+            let hostNode = HostLocationNode(
+                name: relay.hostname,
+                code: LocationNode.combineNodeCodes([hostCode]),
+                locations: [location]
+            )
 
             if let countryNode = rootNode.countryFor(code: countryCode),
-               let cityNode = countryNode.cityFor(code: cityCode),
+               let cityNode = countryNode.cityFor(codes: [countryCode, cityCode]),
                !cityNode.children.contains(hostNode) {
                 hostNode.parent = cityNode
                 cityNode.children.append(hostNode)

@@ -43,7 +43,7 @@ class CustomListsDataSource: LocationDataSourceProtocol {
                 // Since LocationCellViewModel partly depends on LocationNode.code for
                 // equality, each node code needs to be prefixed with the code of its
                 // parent custom list to uphold this.
-                node.code = "\(listNode.code)-\(node.code)"
+                node.code = LocationNode.combineNodeCodes([listNode.code, node.code])
             }
 
             return listNode
@@ -51,21 +51,21 @@ class CustomListsDataSource: LocationDataSourceProtocol {
     }
 
     func node(by locations: [RelayLocation], for customList: CustomList) -> LocationNode? {
-        guard let customListNode = nodes.first(where: { $0.name == customList.name })
+        guard let listNode = nodes.first(where: { $0.name == customList.name })
         else { return nil }
 
         if locations.count > 1 {
-            return customListNode
+            return listNode
         } else {
             // Each search for descendant nodes needs the parent custom list node code to be
             // prefixed in order to get a match. See comment in reload() above.
             return switch locations.first {
             case let .country(countryCode):
-                customListNode.descendantNodeFor(code: "\(customListNode.code)-\(countryCode)")
-            case let .city(_, cityCode):
-                customListNode.descendantNodeFor(code: "\(customListNode.code)-\(cityCode)")
+                listNode.descendantNodeFor(codes: [listNode.code, countryCode])
+            case let .city(countryCode, cityCode):
+                listNode.descendantNodeFor(codes: [listNode.code, countryCode, cityCode])
             case let .hostname(_, _, hostCode):
-                customListNode.descendantNodeFor(code: "\(customListNode.code)-\(hostCode)")
+                listNode.descendantNodeFor(codes: [listNode.code, hostCode])
             case .none:
                 nil
             }
@@ -91,12 +91,12 @@ class CustomListsDataSource: LocationDataSourceProtocol {
         case let .city(countryCode, cityCode):
             rootNode
                 .countryFor(code: countryCode)?.copy(withParent: parentNode)
-                .cityFor(code: cityCode)
+                .cityFor(codes: [countryCode, cityCode])
 
         case let .hostname(countryCode, cityCode, hostCode):
             rootNode
                 .countryFor(code: countryCode)?.copy(withParent: parentNode)
-                .cityFor(code: cityCode)?
+                .cityFor(codes: [countryCode, cityCode])?
                 .hostFor(code: hostCode)
         }
     }

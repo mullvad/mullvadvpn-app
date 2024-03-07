@@ -81,7 +81,7 @@ class LocationNodeTests: XCTestCase {
     }
 
     func testFindByCityCode() {
-        XCTAssertTrue(countryNode.cityFor(code: cityNode.code) == cityNode)
+        XCTAssertTrue(countryNode.cityFor(codes: [cityNode.code]) == cityNode)
     }
 
     func testFindByHostCode() {
@@ -89,7 +89,7 @@ class LocationNodeTests: XCTestCase {
     }
 
     func testFindDescendantByNodeCode() {
-        XCTAssertTrue(listNode.descendantNodeFor(code: hostNode.code) == hostNode)
+        XCTAssertTrue(listNode.descendantNodeFor(codes: [hostNode.code]) == hostNode)
     }
 }
 
