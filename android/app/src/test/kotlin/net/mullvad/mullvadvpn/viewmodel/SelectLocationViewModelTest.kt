@@ -51,7 +51,7 @@ class SelectLocationViewModelTest {
     private val relayListWithSelectionFlow =
         MutableStateFlow(RelayList(emptyList(), emptyList(), null))
     private val mockRelayListUseCase: RelayListUseCase = mockk()
-    private val mockCustomListActionUseCase: CustomListActionUseCase = mockk()
+    private val mockCustomListActionUseCase: CustomListActionUseCase = mockk(relaxed = true)
     private val selectedOwnership = MutableStateFlow<Constraint<Ownership>>(Constraint.Any())
     private val selectedProvider = MutableStateFlow<Constraint<Providers>>(Constraint.Any())
     private val allProvider = MutableStateFlow<List<Provider>>(emptyList())
