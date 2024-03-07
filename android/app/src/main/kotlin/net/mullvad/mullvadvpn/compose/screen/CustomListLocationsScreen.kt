@@ -16,13 +16,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -55,8 +55,8 @@ import org.koin.core.parameter.parametersOf
 
 @Composable
 @Preview
-fun PreviewCustomListLocationScreen() {
-    AppTheme { CustomListLocationsScreen(uiState = CustomListLocationsUiState.Content.Data()) }
+private fun PreviewCustomListLocationScreen() {
+    AppTheme { CustomListLocationsScreen(state = CustomListLocationsUiState.Content.Data()) }
 }
 
 @Composable
@@ -94,9 +94,9 @@ fun CustomListLocations(
         }
     }
 
-    val state by customListsViewModel.uiState.collectAsState()
+    val state by customListsViewModel.uiState.collectAsStateWithLifecycle()
     CustomListLocationsScreen(
-        uiState = state,
+        state = state,
         onSearchTermInput = customListsViewModel::onSearchTermInput,
         onSaveClick = customListsViewModel::save,
         onRelaySelectionClick = customListsViewModel::onRelaySelectionClick,
@@ -113,7 +113,7 @@ fun CustomListLocations(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CustomListLocationsScreen(
-    uiState: CustomListLocationsUiState,
+    state: CustomListLocationsUiState,
     onSearchTermInput: (String) -> Unit = {},
     onSaveClick: () -> Unit = {},
     onRelaySelectionClick: (RelayItem, selected: Boolean) -> Unit = { _, _ -> },
@@ -122,14 +122,14 @@ fun CustomListLocationsScreen(
     ScaffoldWithSmallTopBar(
         appBarTitle =
             stringResource(
-                if (uiState.newList) {
+                if (state.newList) {
                     R.string.add_locations
                 } else {
                     R.string.edit_locations
                 }
             ),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-        actions = { Actions(isSaveEnabled = uiState.saveEnabled, onSaveClick = onSaveClick) }
+        actions = { Actions(isSaveEnabled = state.saveEnabled, onSaveClick = onSaveClick) }
     ) { modifier ->
         Column(modifier = modifier) {
             SearchTextField(
@@ -155,15 +155,15 @@ fun CustomListLocationsScreen(
                         .fillMaxWidth(),
                 state = lazyListState,
             ) {
-                when (uiState) {
+                when (state) {
                     is CustomListLocationsUiState.Loading -> {
                         loading()
                     }
                     is CustomListLocationsUiState.Content.Empty -> {
-                        empty(searchTerm = uiState.searchTerm)
+                        empty(searchTerm = state.searchTerm)
                     }
                     is CustomListLocationsUiState.Content.Data -> {
-                        content(uiState = uiState, onRelaySelectedChanged = onRelaySelectionClick)
+                        content(uiState = state, onRelaySelectedChanged = onRelaySelectionClick)
                     }
                 }
             }

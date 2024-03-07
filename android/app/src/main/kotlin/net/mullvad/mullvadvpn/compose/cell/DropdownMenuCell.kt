@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Preview
 @Composable
-fun PreviewThreeDotCell() {
+private fun PreviewThreeDotCell() {
     AppTheme {
         ThreeDotCell(
             text = "Three dots",

@@ -10,7 +10,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,6 +20,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
@@ -51,10 +51,10 @@ import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
-fun PreviewEditCustomListScreen() {
+private fun PreviewEditCustomListScreen() {
     AppTheme {
         EditCustomListScreen(
-            uiState =
+            state =
                 EditCustomListState.Content(
                     id = "id",
                     name = "Custom list",
@@ -97,9 +97,9 @@ fun EditCustomList(
         }
     }
 
-    val uiState by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     EditCustomListScreen(
-        uiState = uiState,
+        state = state,
         onDeleteList = { name ->
             navigator.navigate(
                 DeleteCustomListDestination(customListId = customListId, name = name)
@@ -125,17 +125,17 @@ fun EditCustomList(
 
 @Composable
 fun EditCustomListScreen(
-    uiState: EditCustomListState,
+    state: EditCustomListState,
     onDeleteList: (name: String) -> Unit = {},
     onNameClicked: (id: String, name: String) -> Unit = { _, _ -> },
     onLocationsClicked: (String) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val title =
-        when (uiState) {
+        when (state) {
             EditCustomListState.Loading,
             EditCustomListState.NotFound -> ""
-            is EditCustomListState.Content -> uiState.name
+            is EditCustomListState.Content -> state.name
         }
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.edit_list),
@@ -143,7 +143,7 @@ fun EditCustomListScreen(
         actions = { Actions(onDeleteList = { onDeleteList(title) }) },
     ) { modifier: Modifier ->
         SpacedColumn(modifier = modifier, alignment = Alignment.Top) {
-            when (uiState) {
+            when (state) {
                 EditCustomListState.Loading -> {
                     MullvadCircularProgressIndicatorLarge(
                         modifier = Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
@@ -161,18 +161,15 @@ fun EditCustomListScreen(
                     // Name cell
                     TwoRowCell(
                         titleText = stringResource(id = R.string.list_name),
-                        subtitleText = uiState.name,
-                        onCellClicked = { onNameClicked(uiState.id, uiState.name) }
+                        subtitleText = state.name,
+                        onCellClicked = { onNameClicked(state.id, state.name) }
                     )
                     // Locations cell
                     TwoRowCell(
                         titleText = stringResource(id = R.string.locations),
                         subtitleText =
-                            stringResource(
-                                id = R.string.number_of_locations,
-                                uiState.locations.size
-                            ),
-                        onCellClicked = { onLocationsClicked(uiState.id) }
+                            stringResource(id = R.string.number_of_locations, state.locations.size),
+                        onCellClicked = { onLocationsClicked(state.id) }
                     )
                 }
             }
