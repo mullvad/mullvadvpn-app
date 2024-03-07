@@ -40,7 +40,7 @@ final class LocationCellFactory: CellFactoryProtocol {
     func configureCell(_ cell: UITableViewCell, item: LocationCellViewModel, indexPath: IndexPath) {
         guard let cell = cell as? LocationCell else { return }
 
-        cell.accessibilityIdentifier = item.node.name
+        cell.accessibilityIdentifier = item.node.code
         cell.locationLabel.text = item.node.name
         cell.showsCollapseControl = !item.node.children.isEmpty
         cell.isExpanded = item.node.showsChildren

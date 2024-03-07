@@ -21,18 +21,18 @@ class AllLocationsDataSourceTests: XCTestCase {
         let rootNode = RootLocationNode(children: dataSource.nodes)
 
         // Testing a selection.
-        XCTAssertNotNil(rootNode.descendantNodeFor(code: "se"))
-        XCTAssertNotNil(rootNode.descendantNodeFor(code: "dal"))
-        XCTAssertNotNil(rootNode.descendantNodeFor(code: "es1-wireguard"))
-        XCTAssertNotNil(rootNode.descendantNodeFor(code: "se2-wireguard"))
+        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se"]))
+        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["us", "dal"]))
+        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["es1-wireguard"]))
+        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se2-wireguard"]))
     }
 
     func testSearch() throws {
         let nodes = dataSource.search(by: "got")
         let rootNode = RootLocationNode(children: nodes)
 
-        XCTAssertTrue(rootNode.descendantNodeFor(code: "got")?.isHiddenFromSearch == false)
-        XCTAssertTrue(rootNode.descendantNodeFor(code: "sto")?.isHiddenFromSearch == true)
+        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se", "got"])?.isHiddenFromSearch == false)
+        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se", "sto"])?.isHiddenFromSearch == true)
     }
 
     func testSearchWithEmptyText() throws {
@@ -42,15 +42,15 @@ class AllLocationsDataSourceTests: XCTestCase {
 
     func testNodeByLocation() throws {
         var nodeByLocation = dataSource.node(by: .country("es"))
-        var nodeByCode = dataSource.nodes.first?.descendantNodeFor(code: "es")
+        var nodeByCode = dataSource.nodes.first?.descendantNodeFor(codes: ["es"])
         XCTAssertEqual(nodeByLocation, nodeByCode)
 
         nodeByLocation = dataSource.node(by: .city("es", "mad"))
-        nodeByCode = dataSource.nodes.first?.descendantNodeFor(code: "mad")
+        nodeByCode = dataSource.nodes.first?.descendantNodeFor(codes: ["es", "mad"])
         XCTAssertEqual(nodeByLocation, nodeByCode)
 
         nodeByLocation = dataSource.node(by: .hostname("es", "mad", "es1-wireguard"))
-        nodeByCode = dataSource.nodes.first?.descendantNodeFor(code: "es1-wireguard")
+        nodeByCode = dataSource.nodes.first?.descendantNodeFor(codes: ["es1-wireguard"])
         XCTAssertEqual(nodeByLocation, nodeByCode)
     }
 }
