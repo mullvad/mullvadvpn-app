@@ -22,21 +22,21 @@ class CustomListsDataSourceTests: XCTestCase {
         let nodes = dataSource.nodes
 
         let netflixNode = try XCTUnwrap(nodes.first(where: { $0.name == "Netflix" }))
-        XCTAssertNotNil(netflixNode.descendantNodeFor(code: "netflix-es1-wireguard"))
-        XCTAssertNotNil(netflixNode.descendantNodeFor(code: "netflix-se"))
-        XCTAssertNotNil(netflixNode.descendantNodeFor(code: "netflix-dal"))
+        XCTAssertNotNil(netflixNode.descendantNodeFor(codes: ["netflix", "es1-wireguard"]))
+        XCTAssertNotNil(netflixNode.descendantNodeFor(codes: ["netflix", "se"]))
+        XCTAssertNotNil(netflixNode.descendantNodeFor(codes: ["netflix", "us", "dal"]))
 
         let youtubeNode = try XCTUnwrap(nodes.first(where: { $0.name == "Youtube" }))
-        XCTAssertNotNil(youtubeNode.descendantNodeFor(code: "youtube-se2-wireguard"))
-        XCTAssertNotNil(youtubeNode.descendantNodeFor(code: "youtube-dal"))
+        XCTAssertNotNil(youtubeNode.descendantNodeFor(codes: ["youtube", "se2-wireguard"]))
+        XCTAssertNotNil(youtubeNode.descendantNodeFor(codes: ["youtube", "us", "dal"]))
     }
 
     func testSearch() throws {
         let nodes = dataSource.search(by: "got")
         let rootNode = RootLocationNode(children: nodes)
 
-        XCTAssertTrue(rootNode.descendantNodeFor(code: "netflix-got")?.isHiddenFromSearch == false)
-        XCTAssertTrue(rootNode.descendantNodeFor(code: "netflix-sto")?.isHiddenFromSearch == true)
+        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["netflix", "se", "got"])?.isHiddenFromSearch == false)
+        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["netflix", "se", "sto"])?.isHiddenFromSearch == true)
     }
 
     func testSearchWithEmptyText() throws {
@@ -51,7 +51,7 @@ class CustomListsDataSourceTests: XCTestCase {
 
     func testNodeByLocations() throws {
         let nodeByLocations = dataSource.node(by: [.hostname("es", "mad", "es1-wireguard")], for: customLists.first!)
-        let nodeByCode = dataSource.nodes.first?.descendantNodeFor(code: "netflix-es1-wireguard")
+        let nodeByCode = dataSource.nodes.first?.descendantNodeFor(codes: ["netflix", "es1-wireguard"])
 
         XCTAssertEqual(nodeByLocations, nodeByCode)
     }

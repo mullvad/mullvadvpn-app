@@ -46,16 +46,18 @@ extension LocationNode {
         self.code == code ? self : children.first(where: { $0.code == code })
     }
 
-    func cityFor(code: String) -> LocationNode? {
-        self.code == code ? self : children.first(where: { $0.code == code })
+    func cityFor(codes: [String]) -> LocationNode? {
+        let combinedCode = Self.combineNodeCodes(codes)
+        return self.code == combinedCode ? self : children.first(where: { $0.code == combinedCode })
     }
 
     func hostFor(code: String) -> LocationNode? {
         self.code == code ? self : children.first(where: { $0.code == code })
     }
 
-    func descendantNodeFor(code: String) -> LocationNode? {
-        self.code == code ? self : children.compactMap { $0.descendantNodeFor(code: code) }.first
+    func descendantNodeFor(codes: [String]) -> LocationNode? {
+        let combinedCode = Self.combineNodeCodes(codes)
+        return self.code == combinedCode ? self : children.compactMap { $0.descendantNodeFor(codes: codes) }.first
     }
 
     func forEachDescendant(do callback: (LocationNode) -> Void) {
@@ -70,6 +72,10 @@ extension LocationNode {
             callback(parent)
             parent.forEachAncestor(do: callback)
         }
+    }
+
+    static func combineNodeCodes(_ codes: [String]) -> String {
+        codes.joined(separator: "-")
     }
 }
 
