@@ -34,7 +34,7 @@ class CustomListLocationsScreenTest {
             // Arrange
             setContentWithTheme {
                 CustomListLocationsScreen(
-                    uiState = CustomListLocationsUiState.Loading(newList = false)
+                    state = CustomListLocationsUiState.Loading(newList = false)
                 )
             }
 
@@ -49,7 +49,7 @@ class CustomListLocationsScreenTest {
             val newList = true
             setContentWithTheme {
                 CustomListLocationsScreen(
-                    uiState = CustomListLocationsUiState.Loading(newList = newList)
+                    state = CustomListLocationsUiState.Loading(newList = newList)
                 )
             }
 
@@ -64,7 +64,7 @@ class CustomListLocationsScreenTest {
             val newList = false
             setContentWithTheme {
                 CustomListLocationsScreen(
-                    uiState = CustomListLocationsUiState.Loading(newList = newList)
+                    state = CustomListLocationsUiState.Loading(newList = newList)
                 )
             }
 
@@ -78,7 +78,7 @@ class CustomListLocationsScreenTest {
             // Arrange
             setContentWithTheme {
                 CustomListLocationsScreen(
-                    uiState =
+                    state =
                         CustomListLocationsUiState.Content.Data(
                             availableLocations = DUMMY_RELAY_COUNTRIES,
                             selectedLocations = emptySet(),
@@ -104,7 +104,7 @@ class CustomListLocationsScreenTest {
             val mockedOnRelaySelectionClicked: (RelayItem, Boolean) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 CustomListLocationsScreen(
-                    uiState =
+                    state =
                         CustomListLocationsUiState.Content.Data(
                             newList = false,
                             availableLocations = DUMMY_RELAY_COUNTRIES,
@@ -128,7 +128,7 @@ class CustomListLocationsScreenTest {
             val mockedSearchTermInput: (String) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 CustomListLocationsScreen(
-                    uiState =
+                    state =
                         CustomListLocationsUiState.Content.Data(
                             newList = false,
                             availableLocations = DUMMY_RELAY_COUNTRIES,
@@ -153,7 +153,7 @@ class CustomListLocationsScreenTest {
             val mockSearchString = "SEARCH"
             setContentWithTheme {
                 CustomListLocationsScreen(
-                    uiState =
+                    state =
                         CustomListLocationsUiState.Content.Empty(
                             newList = false,
                             searchTerm = mockSearchString
@@ -175,7 +175,7 @@ class CustomListLocationsScreenTest {
             val emptySearchString = ""
             setContentWithTheme {
                 CustomListLocationsScreen(
-                    uiState =
+                    state =
                         CustomListLocationsUiState.Content.Empty(
                             newList = false,
                             searchTerm = emptySearchString
@@ -194,7 +194,7 @@ class CustomListLocationsScreenTest {
             val mockOnSaveClick: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 CustomListLocationsScreen(
-                    uiState =
+                    state =
                         CustomListLocationsUiState.Content.Data(
                             newList = false,
                             availableLocations = DUMMY_RELAY_COUNTRIES,
@@ -218,7 +218,7 @@ class CustomListLocationsScreenTest {
             val mockOnSaveClick: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 CustomListLocationsScreen(
-                    uiState =
+                    state =
                         CustomListLocationsUiState.Content.Data(
                             newList = false,
                             availableLocations = DUMMY_RELAY_COUNTRIES,

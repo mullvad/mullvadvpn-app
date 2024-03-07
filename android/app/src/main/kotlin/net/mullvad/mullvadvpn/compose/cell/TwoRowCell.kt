@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Preview
 @Composable
-fun PreviewTwoRowCell() {
+private fun PreviewTwoRowCell() {
     AppTheme { TwoRowCell(titleText = "Title", subtitleText = "Subtitle") }
 }
 
