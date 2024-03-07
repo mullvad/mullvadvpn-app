@@ -8,7 +8,7 @@
 
 import UIKit
 
-enum IPOverrideStatus: CustomStringConvertible {
+enum IPOverrideStatus: Equatable, CustomStringConvertible {
     case active, noImports, importSuccessful(Context), importFailed(Context)
 
     enum Context {
