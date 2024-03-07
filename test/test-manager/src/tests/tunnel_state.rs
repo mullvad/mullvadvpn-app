@@ -41,7 +41,8 @@ async fn setup_packetfilter_drop_pings_rule(
     if !output.status.success() {
         bail!("sysctl failed: {}", output.status.code().unwrap());
     }
-    let previous_maxdgram: u16 = String::from_utf8(output.stdout).unwrap().parse().unwrap();
+    let output = String::from_utf8(output.stdout).unwrap();
+    let previous_maxdgram: u16 = output.trim().parse().unwrap();
     log::warn!("{}", &previous_maxdgram); // TODO(seb) DELETE ME
 
     let mut cmd = tokio::process::Command::new("/usr/bin/sudo");
