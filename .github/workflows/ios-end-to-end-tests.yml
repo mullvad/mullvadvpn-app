@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure Rust
-        run: rustup target install aarch64-apple-ios aarch64-apple-ios-sim
+        run: rustup target add aarch64-apple-ios aarch64-apple-ios-sim
 
       - name: Configure Xcode project
         run: |
@@ -54,6 +54,7 @@ jobs:
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
             -project MullvadVPN.xcodeproj \
             -scheme MullvadVPNUITests \
+            -configuration Debug \
             -testPlan MullvadVPNUITestsSmoke \
             -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
             test 2>&1 | xcbeautify --report junit --report-path test-report
