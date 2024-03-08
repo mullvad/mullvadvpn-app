@@ -102,7 +102,7 @@ impl RoutingSocket {
         }
     }
 
-    pub async fn wait_for_response(&mut self, response_num: i32) -> Result<Vec<u8>> {
+    async fn wait_for_response(&mut self, response_num: i32) -> Result<Vec<u8>> {
         loop {
             let mut buffer = vec![0u8; 2048];
             // do not truncate the buffer - trailing empty bytes won't be written but will be
