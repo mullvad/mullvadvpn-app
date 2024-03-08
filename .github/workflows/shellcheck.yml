@@ -1,3 +1,5 @@
+---
+name: Shellcheck - Lint shell scripts
 on:
   pull_request:
   workflow_dispatch:
