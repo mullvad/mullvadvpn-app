@@ -7,7 +7,7 @@ use futures::channel::{
     mpsc::{self, UnboundedSender},
     oneshot,
 };
-use std::{collections::HashSet, io, sync::Arc};
+use std::{collections::HashSet, sync::Arc};
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 use futures::stream::Stream;
@@ -41,12 +41,6 @@ pub enum Error {
     /// Platform specific error occurred
     #[error("Internal route manager error")]
     PlatformError(#[from] imp::Error),
-    /// Failed to spawn route manager future
-    #[error("Failed to spawn route manager on the provided executor")]
-    FailedToSpawnManager,
-    /// Failed to spawn route manager runtime
-    #[error("Failed to spawn route manager runtime")]
-    FailedToSpawnRuntime(#[from] io::Error),
     /// Attempt to use route manager that has been dropped
     #[error("Cannot send message to route manager since it is down")]
     RouteManagerDown,
