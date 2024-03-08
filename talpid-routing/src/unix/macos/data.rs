@@ -649,14 +649,6 @@ impl Interface {
     }
 }
 
-// #define RTA_DST         0x1     /* destination sockaddr present */
-// #define RTA_GATEWAY     0x2     /* gateway sockaddr present */
-// #define RTA_NETMASK     0x4     /* netmask sockaddr present */
-// #define RTA_GENMASK     0x8     /* cloning mask sockaddr present */
-// #define RTA_IFP         0x10    /* interface name sockaddr present */
-// #define RTA_IFA         0x20    /* interface addr sockaddr present */
-// #define RTA_AUTHOR      0x40    /* sockaddr for author of redirect */
-// #define RTA_BRD         0x80    /* for NEWADDR, broadcast or p-p dest addr */
 bitflags::bitflags! {
     /// All enum values of address flags can be iterated via `flag <<= 1`, starting from 1.
     /// See https://www.manpagez.com/man/4/route/.
