@@ -34,8 +34,7 @@ fn set_bridge_interface_mtu(
 ) -> anyhow::Result<scopeguard::ScopeGuard<(), impl FnOnce(())>> {
     use anyhow::Context;
     use test_rpc::net::unix;
-    let bridge_iface: String = crate::vm::network::macos::find_vm_bridge()
-        .context("Failed to get bridge interface name")?;
+    let bridge_iface: String = String::new("eth0");
 
     let previous_mtu = unix::get_mtu(&bridge_iface)
         .with_context(|| format!("Failed to get MTU for bridge interface '{bridge_iface}'"))?;
