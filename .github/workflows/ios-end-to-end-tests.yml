@@ -57,6 +57,7 @@ jobs:
             -configuration Debug \
             -testPlan MullvadVPNUITestsSmoke \
             -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
+            -disableAutomaticPackageResolution \
             test 2>&1 | xcbeautify --report junit --report-path test-report
         working-directory: ios/
 

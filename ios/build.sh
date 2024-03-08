@@ -93,6 +93,7 @@ release_build() {
     -sdk iphoneos \
     -configuration Release \
     -derivedDataPath "$DERIVED_DATA_DIR" \
+    -disableAutomaticPackageResolution \
     "$@"
 }
 
@@ -107,4 +108,5 @@ xcodebuild \
     -exportArchive \
     -archivePath "$XCODE_ARCHIVE_DIR" \
     -exportOptionsPlist "$EXPORT_OPTIONS_PATH" \
-    -exportPath "$BUILD_OUTPUT_DIR"
+    -exportPath "$BUILD_OUTPUT_DIR" \
+    -disableAutomaticPackageResolution
