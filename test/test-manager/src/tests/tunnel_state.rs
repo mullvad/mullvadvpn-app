@@ -1,23 +1,137 @@
-use super::helpers::{
-    self, connect_and_wait, send_guest_probes, set_relay_settings, unreachable_wireguard_tunnel,
-    wait_for_tunnel_state,
+use super::{
+    helpers::{
+        self, connect_and_wait, send_guest_probes, set_relay_settings,
+        unreachable_wireguard_tunnel, wait_for_tunnel_state,
+    },
+    ui, Error, TestContext,
 };
-use super::{ui, Error, TestContext};
-use crate::assert_tunnel_state;
-use crate::vm::network::DUMMY_LAN_INTERFACE_IP;
+use crate::{
+    assert_tunnel_state, tests::helpers::ping_sized_with_timeout,
+    vm::network::DUMMY_LAN_INTERFACE_IP,
+};
 
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::relay_constraints::GeographicLocationConstraint;
-use mullvad_types::relay_list::{Relay, RelayEndpointData};
-use mullvad_types::CustomTunnelEndpoint;
 use mullvad_types::{
-    relay_constraints::{Constraint, LocationConstraint, RelayConstraints, RelaySettings},
+    relay_constraints::{
+        Constraint, GeographicLocationConstraint, LocationConstraint, RelayConstraints,
+        RelaySettings,
+    },
+    relay_list::{Relay, RelayEndpointData},
     states::TunnelState,
+    CustomTunnelEndpoint,
 };
-use std::net::{IpAddr, SocketAddr};
+use std::{
+    net::{IpAddr, SocketAddr},
+    time::Duration,
+};
 use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
+
+#[cfg(target_os = "linux")]
+async fn setup_nftables_drop_pings_rule(
+    max_packet_size: u16,
+) -> scopeguard::ScopeGuard<(), impl FnOnce(())> {
+    fn log_ruleset() {
+        let output = std::process::Command::new("nft")
+            .args(["list", "ruleset"])
+            .output()
+            .unwrap();
+
+        log::debug!(
+            "Set NF-tables ruleset to:\n{}",
+            String::from_utf8(output.stdout).unwrap()
+        );
+
+        let exit_status = output.status;
+        assert_eq!(exit_status.code(), Some(0));
+    }
+    // Set nftables ruleset
+    crate::vm::network::linux::run_nft(
+        &(format!(
+            "table inet DropPings {{
+                chain postrouting {{
+                    type filter hook postrouting priority 0; policy accept;
+                    ip length > {max_packet_size} drop;
+                }}
+            }}"
+        )),
+    )
+    .await
+    .unwrap();
+    log_ruleset();
+
+    scopeguard::guard((), |()| {
+        let mut cmd = std::process::Command::new("nft");
+        cmd.args(["delete", "table", "inet", "DropPings"]);
+        let output = cmd.output().unwrap();
+        if !output.status.success() {
+            panic!("{}", std::str::from_utf8(&output.stderr).unwrap());
+        }
+        log_ruleset();
+    })
+}
+
+#[test_function(target_os = "windows")]
+pub async fn test_mtu_detection_windows(
+    _: TestContext,
+    rpc: ServiceClient,
+    mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    test_mtu_detection(rpc, mullvad_client).await
+}
+
+#[test_function(target_os = "linux")]
+pub async fn test_mtu_detection_linux(
+    _: TestContext,
+    rpc: ServiceClient,
+    mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    test_mtu_detection(rpc, mullvad_client).await
+}
+
+async fn test_mtu_detection(
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    const MAX_PACKET_SIZE: u16 = 800;
+    const MARGIN: u16 = 200;
+    let large_ping_size: usize = (MAX_PACKET_SIZE + MARGIN).into();
+
+    log::info!("Verify tunnel state: disconnected");
+    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
+
+    // mullvad.net address
+    let inet_destination = "45.83.223.209".parse().unwrap();
+
+    log::info!("Setting up nftables firewall rules");
+    #[cfg(target_os = "linux")]
+    let _nft_guard = setup_nftables_drop_pings_rule(MAX_PACKET_SIZE).await;
+
+    // Test that the firewall rule works
+    log::info!("Sending large ping outside tunnel");
+    ping_sized_with_timeout(&rpc, inet_destination, None, large_ping_size)
+        .await
+        .expect_err("Ping larger than the filter should time out");
+
+    connect_and_wait(&mut mullvad_client).await.unwrap();
+    let tunnel_iface = helpers::get_tunnel_interface(&mut mullvad_client)
+        .await
+        .expect("failed to find tunnel interface");
+
+    log::info!("Waiting for MTU detection");
+    for _ in 0..10 {
+        let mtu = rpc.get_interface_mtu(tunnel_iface.clone()).await?;
+        if mtu < MAX_PACKET_SIZE {
+            println!(
+                "Tunnel MTU after dropping packets larger than {MAX_PACKET_SIZE} bytes: {mtu}"
+            );
+            return Ok(());
+        }
+        tokio::time::sleep(Duration::from_secs(1)).await;
+    }
+    panic!("MTU detection test failed")
+}
 
 /// Verify that outgoing TCP, UDP, and ICMP packets can be observed
 /// in the disconnected state. The purpose is mostly to rule prevent
@@ -51,7 +165,6 @@ pub async fn test_disconnected_state(
         "did not see (all) outgoing packets to destination: {detected_probes:?}",
     );
 
-    //
     // Test UI view
     //
 
@@ -118,7 +231,6 @@ pub async fn test_connecting_state(
         new_state
     );
 
-    //
     // Leak test
     //
 
@@ -197,7 +309,6 @@ pub async fn test_error_state(
     let _ = connect_and_wait(&mut mullvad_client).await;
     assert_tunnel_state!(&mut mullvad_client, TunnelState::Error { .. });
 
-    //
     // Leak test
     //
 
@@ -235,12 +346,11 @@ pub async fn test_error_state(
 }
 
 /// Connect to a single relay and verify that:
-/// * Traffic can be sent and received in the tunnel.
-///   This is done by pinging a single public IP address
-///   and failing if there is no response.
+/// * Traffic can be sent and received in the tunnel. This is done by pinging a single public IP
+///   address and failing if there is no response.
 /// * The correct relay is used.
-/// * Leaks outside the tunnel are blocked. Refer to the
-///   `test_connecting_state` documentation for details.
+/// * Leaks outside the tunnel are blocked. Refer to the `test_connecting_state` documentation for
+///   details.
 #[test_function]
 pub async fn test_connected_state(
     _: TestContext,
@@ -249,7 +359,6 @@ pub async fn test_connected_state(
 ) -> Result<(), Error> {
     let inet_destination = "1.1.1.1:1337".parse().unwrap();
 
-    //
     // Set relay to use
     //
 
@@ -273,13 +382,11 @@ pub async fn test_connected_state(
         .await
         .expect("failed to update relay settings");
 
-    //
     // Connect
     //
 
     connect_and_wait(&mut mullvad_client).await?;
 
-    //
     // Verify that endpoint was selected
     //
 
@@ -307,7 +414,6 @@ pub async fn test_connected_state(
         actual => panic!("unexpected tunnel state: {:?}", actual),
     }
 
-    //
     // Ping outside of tunnel while connected
     //
 

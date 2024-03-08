@@ -19,9 +19,11 @@ pub enum Error {
     Tarpc(#[from] tarpc::client::RpcError),
     #[error("Syscall failed")]
     Syscall,
+    #[error("Internal IO error occurred: {0}")]
+    Io(String),
     #[error("Interface not found")]
     InterfaceNotFound,
-    #[error("HTTP request failed")]
+    #[error("HTTP request failed: {0}")]
     HttpRequest(String),
     #[error("Failed to deserialize HTTP body")]
     DeserializeBody,
@@ -37,17 +39,17 @@ pub enum Error {
     SendUdp,
     #[error("Failed to send TCP segment")]
     SendTcp,
-    #[error("Failed to send ping")]
-    Ping,
-    #[error("Failed to get or set registry value")]
+    #[error("Failed to send ping: {0}")]
+    Ping(String),
+    #[error("Failed to get or set registry value: {0}")]
     Registry(String),
-    #[error("Failed to change the service")]
+    #[error("Failed to change the service: {0}")]
     Service(String),
-    #[error("Could not read from or write to the file system")]
+    #[error("Could not read from or write to the file system: {0}")]
     FileSystem(String),
-    #[error("Could not serialize or deserialize file")]
+    #[error("Could not serialize or deserialize file: {0}")]
     FileSerialization(String),
-    #[error("User must be logged in but is not")]
+    #[error("User must be logged in but is not: {0}")]
     UserNotLoggedIn(String),
     #[error("Invalid URL")]
     InvalidUrl,
@@ -136,13 +138,20 @@ mod service {
         ) -> Result<(), Error>;
 
         /// Send ICMP
-        async fn send_ping(interface: Option<String>, destination: IpAddr) -> Result<(), Error>;
+        async fn send_ping(
+            destination: IpAddr,
+            interface: Option<String>,
+            size: usize,
+        ) -> Result<(), Error>;
 
         /// Fetch the current location.
         async fn geoip_lookup(mullvad_host: String) -> Result<AmIMullvad, Error>;
 
         /// Returns the IP of the given interface.
         async fn get_interface_ip(interface: String) -> Result<IpAddr, Error>;
+
+        /// Returns the MTU of the given interface.
+        async fn get_interface_mtu(interface: String) -> Result<u16, Error>;
 
         /// Returns the name of the default interface.
         async fn get_default_interface() -> Result<String, Error>;
@@ -175,7 +184,8 @@ mod service {
             verbosity_level: mullvad_daemon::Verbosity,
         ) -> Result<(), Error>;
 
-        /// Set environment variables for the daemon service. This will restart the daemon system service.
+        /// Set environment variables for the daemon service. This will restart the daemon system
+        /// service.
         async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), Error>;
 
         /// Copy a file from `src` to `dest` on the test runner.
