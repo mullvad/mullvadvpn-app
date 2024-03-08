@@ -78,7 +78,7 @@ impl RoutingSocket {
 
     pub async fn recv_msg(&mut self, mut buf: &mut [u8]) -> Result<usize> {
         if let Some(buffered_msg) = self.buf.pop_front() {
-            let bytes_written = buf.write(&buffered_msg).map_err(Error::Write)?;
+            let bytes_written = buf.write(&buffered_msg).map_err(Error::Read)?;
             return Ok(bytes_written);
         }
         self.read_next_msg(buf).await
