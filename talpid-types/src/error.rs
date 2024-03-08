@@ -70,6 +70,10 @@ macro_rules! win32_err {
 }
 
 pub mod flood {
+    #[doc(hidden)]
+    pub use log;
+    #[doc(hidden)]
+    pub use once_cell;
     use std::time::{Duration, Instant};
 
     const CALLS_INTERVAL: Duration = Duration::from_secs(5);
@@ -82,13 +86,18 @@ pub mod flood {
     #[macro_export]
     macro_rules! detect_flood {
         () => {{
-            static FLOOD: ::once_cell::sync::Lazy<
+            static FLOOD: $crate::flood::once_cell::sync::Lazy<
                 ::std::sync::Mutex<talpid_types::flood::DetectFlood>,
-            > = ::once_cell::sync::Lazy::new(|| {
-                ::std::sync::Mutex::new(talpid_types::flood::DetectFlood::default())
+            > = $crate::flood::once_cell::sync::Lazy::new(|| {
+                ::std::sync::Mutex::new($crate::flood::DetectFlood::default())
             });
             if FLOOD.lock().unwrap().bump() {
-                ::log::debug!("Flood: {}, line {}, col {}", file!(), line!(), column!());
+                $crate::flood::log::warn!(
+                    "Flood: {}, line {}, col {}",
+                    file!(),
+                    line!(),
+                    column!()
+                );
             }
         }};
     }
@@ -114,12 +123,11 @@ pub mod flood {
             if now.saturating_duration_since(self.last_clear) >= CALLS_INTERVAL {
                 self.last_clear = now;
                 self.counter = 0;
+                false
             } else {
-                let was_less = self.counter < CALLS_THRESHOLD;
                 self.counter = self.counter.saturating_add(1);
-                return was_less && self.counter >= CALLS_THRESHOLD;
+                self.counter == CALLS_THRESHOLD
             }
-            false
         }
     }
 }

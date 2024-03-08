@@ -17,6 +17,8 @@ base64 = "0.13"
 x25519-dalek = { version = "2.0.1", features = ["static_secrets", "zeroize", "getrandom"] }
 thiserror = { workspace = true }
 zeroize = "1.5.7"
+log = "0.4"
+once_cell = { workspace = true}
 
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5.1", features = ["derive"] }
