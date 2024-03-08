@@ -123,7 +123,10 @@ final class LocationViewController: UIViewController {
         dataSource = LocationDataSource(
             tableView: tableView,
             allLocations: AllLocationDataSource(),
-            customLists: CustomListsDataSource(repository: customListRepository)
+            customLists: CustomListsDataSource(repository: customListRepository, didTapEditCustomLists: { [weak self] in
+                guard let self else { return }
+                delegate?.didRequestRouteToCustomLists(self)
+            })
         )
 
         dataSource?.didSelectRelayLocations = { [weak self] locations in

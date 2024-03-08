@@ -12,6 +12,8 @@ import MullvadTypes
 import UIKit
 
 protocol LocationDataSourceProtocol {
+    var viewForHeader: UIView? { get }
+    var heightForFooterInSection: CGFloat { get }
     var nodes: [LocationNode] { get }
     var searchableNodes: [LocationNode] { get }
 }

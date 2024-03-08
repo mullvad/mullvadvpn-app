@@ -18,6 +18,16 @@ class AllLocationDataSource: LocationDataSourceProtocol {
         nodes
     }
 
+    var heightForFooterInSection: CGFloat {
+        .zero
+    }
+
+    var viewForHeader: UIView? {
+        LocationSectionHeaderView(
+            configuration: LocationSectionHeaderView.Configuration(name: LocationSection.allLocations.description)
+        )
+    }
+
     /// Constructs a collection of node trees from relays fetched from the API.
     /// ``RelayLocation.city`` is of special import since we use it to get country
     /// and city names.

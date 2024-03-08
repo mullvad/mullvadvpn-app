@@ -10,13 +10,32 @@ import Foundation
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
+import UIKit
 
 class CustomListsDataSource: LocationDataSourceProtocol {
     private(set) var nodes = [LocationNode]()
     private(set) var repository: CustomListRepositoryProtocol
 
-    init(repository: CustomListRepositoryProtocol) {
+    var didTapEditCustomLists: (() -> Void)?
+
+    var viewForHeader: UIView? {
+        LocationSectionHeaderView(configuration: LocationSectionHeaderView.Configuration(
+            name: LocationSection.customLists.description,
+            primaryAction: UIAction(
+                handler: { [weak self] _ in
+                    self?.didTapEditCustomLists?()
+                }
+            )
+        ))
+    }
+
+    var heightForFooterInSection: CGFloat {
+        24.0
+    }
+
+    init(repository: CustomListRepositoryProtocol, didTapEditCustomLists: (() -> Void)?) {
         self.repository = repository
+        self.didTapEditCustomLists = didTapEditCustomLists
     }
 
     var searchableNodes: [LocationNode] {

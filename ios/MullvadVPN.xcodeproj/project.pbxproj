@@ -117,7 +117,6 @@
 		584023292A407F5F007B27AC /* libtunnel_obfuscator_proxy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 584023282A407F5F007B27AC /* libtunnel_obfuscator_proxy.a */; };
 		58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */; };
 		58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */; };
-		58435AC229CB2A350099C71B /* LocationCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58435AC129CB2A350099C71B /* LocationCellFactory.swift */; };
 		584592612639B4A200EF967F /* TermsOfServiceContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584592602639B4A200EF967F /* TermsOfServiceContentView.swift */; };
 		5846227126E229F20035F7C2 /* StoreSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227026E229F20035F7C2 /* StoreSubscription.swift */; };
 		5846227326E22A160035F7C2 /* StorePaymentObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227226E22A160035F7C2 /* StorePaymentObserver.swift */; };
@@ -818,6 +817,7 @@
 		F050AE5E2B739A73003F4EDB /* LocationDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE5D2B739A73003F4EDB /* LocationDataSourceProtocol.swift */; };
 		F050AE602B73A41E003F4EDB /* AllLocationDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE5F2B73A41E003F4EDB /* AllLocationDataSource.swift */; };
 		F050AE622B74DBAC003F4EDB /* CustomListsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE612B74DBAC003F4EDB /* CustomListsDataSource.swift */; };
+		F055F43D2B971B470055DD22 /* LocationSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F055F43C2B971B470055DD22 /* LocationSectionHeaderView.swift */; };
 		F05F39942B21C6C6006E60A7 /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
 		F05F39972B21C735006E60A7 /* RelayCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820675A26E6576800655B05 /* RelayCache.swift */; };
 		F05F39982B21C73C006E60A7 /* CachedRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87626B024A600B8C587 /* CachedRelays.swift */; };
@@ -1416,7 +1416,6 @@
 		5842102D282D3FC200F24E46 /* ResultBlockOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultBlockOperation.swift; sourceTree = "<group>"; };
 		5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateAccountDataOperation.swift; sourceTree = "<group>"; };
 		58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateDeviceDataOperation.swift; sourceTree = "<group>"; };
-		58435AC129CB2A350099C71B /* LocationCellFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationCellFactory.swift; sourceTree = "<group>"; };
 		584592602639B4A200EF967F /* TermsOfServiceContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfServiceContentView.swift; sourceTree = "<group>"; };
 		5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsRequestOperation.swift; sourceTree = "<group>"; };
 		5846227026E229F20035F7C2 /* StoreSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreSubscription.swift; sourceTree = "<group>"; };
@@ -1954,6 +1953,7 @@
 		F050AE5D2B739A73003F4EDB /* LocationDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDataSourceProtocol.swift; sourceTree = "<group>"; };
 		F050AE5F2B73A41E003F4EDB /* AllLocationDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllLocationDataSource.swift; sourceTree = "<group>"; };
 		F050AE612B74DBAC003F4EDB /* CustomListsDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListsDataSource.swift; sourceTree = "<group>"; };
+		F055F43C2B971B470055DD22 /* LocationSectionHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationSectionHeaderView.swift; sourceTree = "<group>"; };
 		F06045E52B231EB700B2D37A /* URLSessionTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionTransport.swift; sourceTree = "<group>"; };
 		F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksTransport.swift; sourceTree = "<group>"; };
 		F06045EB2B2322A500B2D37A /* Jittered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Jittered.swift; sourceTree = "<group>"; };
@@ -2395,12 +2395,12 @@
 				F050AE612B74DBAC003F4EDB /* CustomListsDataSource.swift */,
 				F0A92B3B2B8E44F900DC7B37 /* CustomListStub.swift */,
 				5888AD82227B11080051EB06 /* LocationCell.swift */,
-				58435AC129CB2A350099C71B /* LocationCellFactory.swift */,
 				F050AE4D2B70D7F8003F4EDB /* LocationCellViewModel.swift */,
 				583DA21325FA4B5C00318683 /* LocationDataSource.swift */,
 				F050AE5D2B739A73003F4EDB /* LocationDataSourceProtocol.swift */,
 				7A6389F72B864CDF008E77E1 /* LocationNode.swift */,
 				F050AE512B70DFC0003F4EDB /* LocationSection.swift */,
+				F055F43C2B971B470055DD22 /* LocationSectionHeaderView.swift */,
 				5888AD86227B17950051EB06 /* LocationViewController.swift */,
 			);
 			path = SelectLocation;
@@ -5097,7 +5097,6 @@
 				58B26E22294351EA00D5980C /* InAppNotificationProvider.swift in Sources */,
 				5893716A28817A45004EE76C /* DeviceManagementViewController.swift in Sources */,
 				7A9CCCB82A96302800DD6A34 /* SetupAccountCompletedCoordinator.swift in Sources */,
-				58435AC229CB2A350099C71B /* LocationCellFactory.swift in Sources */,
 				58BFA5C622A7C97F00A6173D /* RelayCacheTracker.swift in Sources */,
 				7A0B311E2B303A0D004B12E0 /* AccessbilityIdentifier.swift in Sources */,
 				E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */,
@@ -5250,6 +5249,7 @@
 				7A6F2FA92AFD0842006D0856 /* CustomDNSDataSource.swift in Sources */,
 				58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */,
 				5892A45E265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift in Sources */,
+				F055F43D2B971B470055DD22 /* LocationSectionHeaderView.swift in Sources */,
 				580909D32876D09A0078138D /* RevokedDeviceViewController.swift in Sources */,
 				58FF9FF02B07C4D300E4C97D /* PersistentAccessMethod+ViewModel.swift in Sources */,
 				58CEB2FD2AFD19D300E6E088 /* UITableView+ReuseIdentifier.swift in Sources */,
