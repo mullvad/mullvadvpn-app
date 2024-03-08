@@ -102,7 +102,7 @@ impl RoutingSocket {
         }
     }
 
-    pub async fn wait_for_response(&mut self, response_num: i32) -> Result<Vec<u8>> {
+    async fn wait_for_response(&mut self, response_num: i32) -> Result<Vec<u8>> {
         loop {
             talpid_types::detect_flood!();
 
