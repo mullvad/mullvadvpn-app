@@ -103,8 +103,10 @@ skip-tree = []
 unknown-registry = "deny"
 unknown-git = "deny"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
-# TODO: The PF socket type isn't released yet
-allow-git = ["https://github.com/nix-rust/nix"]
+# If we need to temporarily depend on a git repository in our Rust dependency tree,
+# it has to be added here. We should try to keep this list minimal. Having git
+# dependencies is not recommended.
+allow-git = []
 
 [sources.allow-org]
 # 1 or more github.com organizations to allow git sources for
