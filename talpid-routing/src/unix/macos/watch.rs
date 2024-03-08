@@ -14,7 +14,7 @@ pub enum Error {
     RoutingSocket(#[source] routing_socket::Error),
     /// Failed to parse route message
     #[error("Invalid message")]
-    InvalidMessage(data::Error),
+    InvalidMessage(#[source] data::Error),
     /// Failed to send route message
     #[error("Failed to send routing message")]
     Send(#[source] routing_socket::Error),

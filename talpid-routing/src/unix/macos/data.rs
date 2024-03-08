@@ -117,11 +117,11 @@ impl RouteMessage {
 
         let msg_len = usize::from(header.rtm_msglen);
         if msg_len > buffer.len() {
-            return Err(Error::BufferTooSmall(
-                "Message is shorter than it's msg_len indicates",
-                msg_len,
-                buffer.len(),
-            ));
+            return Err(Error::BufferTooSmall {
+                message_type: "route message (rt_msghdr.msg_len)",
+                expect_min_size: msg_len,
+                actual_size: buffer.len(),
+            });
         }
 
         let payload = &buffer[ROUTE_MESSAGE_HEADER_SIZE..std::cmp::min(msg_len, buffer.len())];
@@ -243,7 +243,7 @@ impl RouteMessage {
                 let ip_addr = *SocketAddrV4::from(*v4).ip();
                 let netmask = self.netmask().unwrap_or(Ipv4Addr::UNSPECIFIED.into());
                 let destination = IpNetwork::with_netmask(ip_addr.into(), netmask)
-                    .map_err(Error::InvalidNetmask)?;
+                    .map_err(|_| Error::InvalidNetmask)?;
                 return Ok(destination);
             }
 
@@ -251,7 +251,7 @@ impl RouteMessage {
                 let ip_addr = *SocketAddrV6::from(*v6).ip();
                 let netmask = self.netmask().unwrap_or(Ipv6Addr::UNSPECIFIED.into());
                 let destination = IpNetwork::with_netmask(ip_addr.into(), netmask)
-                    .map_err(Error::InvalidNetmask)?;
+                    .map_err(|_| Error::InvalidNetmask)?;
                 return Ok(destination);
             }
 
@@ -444,17 +444,17 @@ impl AddressMessage {
 
     pub fn netmask(&self) -> Result<IpAddr> {
         self.get_address(&AddressFlag::RTA_NETMASK)
-            .ok_or(Error::NoNetmaskAddress)
+            .ok_or(Error::NoNetmask)
     }
 
     pub fn from_byte_buffer(buffer: &[u8]) -> Result<Self> {
         const HEADER_SIZE: usize = std::mem::size_of::<ifa_msghdr>();
         if HEADER_SIZE > buffer.len() {
-            return Err(Error::BufferTooSmall(
-                "ifa_msghdr",
-                buffer.len(),
-                HEADER_SIZE,
-            ));
+            return Err(Error::BufferTooSmall {
+                message_type: "ifa_msghdr",
+                expect_min_size: HEADER_SIZE,
+                actual_size: buffer.len(),
+            });
         }
 
         // SAFETY: buffer is pointing to enough memory to contain a valid value for ifa_msghdr
@@ -462,11 +462,11 @@ impl AddressMessage {
 
         let msg_len = usize::from(header.ifam_msglen);
         if msg_len > buffer.len() {
-            return Err(Error::BufferTooSmall(
-                "Message is shorter than it's msg_len indicates",
-                msg_len,
-                buffer.len(),
-            ));
+            return Err(Error::BufferTooSmall {
+                message_type: "address message (ifa_msghdr.msg_len)",
+                expect_min_size: msg_len,
+                actual_size: buffer.len(),
+            });
         }
 
         let payload = &buffer[HEADER_SIZE..std::cmp::min(msg_len, buffer.len())];
@@ -540,34 +540,39 @@ impl From<IpNetwork> for Destination {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
     /// Payload buffer didn't match the reported message size in header
+    #[error("Buffer didn't match reported message size")]
     InvalidBuffer(Vec<u8>, AddressFlag),
     /// Buffer too small for specific message type
-    BufferTooSmall(&'static str, usize, usize),
+    #[error("The buffer is too small for msg \"{message_type}\": expected size >= {expect_min_size}, actual {actual_size}")]
+    BufferTooSmall {
+        message_type: &'static str,
+        expect_min_size: usize,
+        actual_size: usize,
+    },
     /// Unknown route flag
-    UnknownRouteFlag(i32),
-    /// Socket address is empty for the given address flag
-    EmptySockaddr(AddressFlag),
-    /// Unrecognized message
-    UnknownMessageType(u8),
+    #[error("Unknown route flag: {0}")]
+    UnknownRouteFlag(c_int),
     /// Unrecognized address flag
+    #[error("Unrecognized address flag: {0}")]
     UnknownAddressFlag(c_int),
     /// Mismatched socket address type
+    #[error("Unrecognized socket address: expected IPv4 or IPv6")]
     MismatchedSocketAddress(AddressFlag, Box<SockaddrStorage>),
-    /// Link socket address contains no identifier
-    NoLinkIdentifier(nix::libc::sockaddr_dl),
-    /// Failed to resolve an interface name to an index
-    InterfaceIndex(nix::Error),
     /// Invalid netmask
-    InvalidNetmask(ipnetwork::IpNetworkError),
+    #[error("Invalid netmask")]
+    InvalidNetmask,
     /// Route contains no netmask socket address
+    #[error("Found no route destination")]
     NoDestination,
+    /// Found no netmask
+    #[error("Found no netmask")]
+    NoNetmask,
     /// Address message does not contain an interface address
+    #[error("Found no interface address")]
     NoInterfaceAddress,
-    /// Address message does not contain an interface address
-    NoNetmaskAddress,
 }
 
 type Result<T> = std::result::Result<T, Error>;
@@ -606,11 +611,11 @@ impl RouteSocketMessage {
                 header,
                 payload: buffer.to_vec(),
             }),
-            None => Err(Error::BufferTooSmall(
-                "rt_msghdr_short",
-                buffer.len(),
-                ROUTE_MESSAGE_HEADER_SHORT_SIZE,
-            )),
+            None => Err(Error::BufferTooSmall {
+                message_type: "rt_msghdr_short",
+                expect_min_size: ROUTE_MESSAGE_HEADER_SHORT_SIZE,
+                actual_size: buffer.len(),
+            }),
         }
     }
 }
@@ -632,11 +637,11 @@ impl Interface {
     fn from_byte_buffer(buffer: &[u8]) -> Result<Self> {
         const INTERFACE_MESSAGE_HEADER_SIZE: usize = std::mem::size_of::<libc::if_msghdr>();
         if INTERFACE_MESSAGE_HEADER_SIZE > buffer.len() {
-            return Err(Error::BufferTooSmall(
-                "if_msghdr",
-                buffer.len(),
-                INTERFACE_MESSAGE_HEADER_SIZE,
-            ));
+            return Err(Error::BufferTooSmall {
+                message_type: "if_msghdr",
+                expect_min_size: INTERFACE_MESSAGE_HEADER_SIZE,
+                actual_size: buffer.len(),
+            });
         }
         let header: libc::if_msghdr = unsafe { std::ptr::read(buffer.as_ptr() as *const _) };
         // let payload = buffer[INTERFACE_MESSAGE_HEADER_SIZE..header.ifm_msglen.into()].to_vec();
@@ -814,11 +819,11 @@ impl RouteSocketAddress {
 
         // to get the length and type of
         if buf.len() < std::mem::size_of::<sockaddr_hdr>() {
-            return Err(Error::BufferTooSmall(
-                "sockaddr buffer too small",
-                buf.len(),
-                std::mem::size_of::<sockaddr_hdr>(),
-            ));
+            return Err(Error::BufferTooSmall {
+                message_type: "sockaddr_hdr",
+                expect_min_size: std::mem::size_of::<sockaddr_hdr>(),
+                actual_size: buf.len(),
+            });
         }
 
         let addr_header_ptr = buf.as_ptr() as *const sockaddr_hdr;
@@ -1062,11 +1067,11 @@ impl rt_msghdr {
             // readable. rt_msghdr doesn't contain any pointers so any values are valid.
             Ok(unsafe { std::ptr::read(ptr as *const _) })
         } else {
-            Err(Error::BufferTooSmall(
-                "if_msghdr",
-                buf.len(),
-                ROUTE_MESSAGE_HEADER_SIZE,
-            ))
+            Err(Error::BufferTooSmall {
+                message_type: "rt_msghdr",
+                expect_min_size: ROUTE_MESSAGE_HEADER_SIZE,
+                actual_size: buf.len(),
+            })
         }
     }
 }

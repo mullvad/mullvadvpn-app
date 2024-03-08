@@ -51,7 +51,7 @@ pub enum Error {
 
     /// Received message isn't valid
     #[error("Invalid data")]
-    InvalidData(data::Error),
+    InvalidData(#[source] data::Error),
 }
 
 /// Convenience macro to get the current default route. Macro because I don't want to borrow `self`
