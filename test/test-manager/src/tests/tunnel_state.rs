@@ -34,7 +34,7 @@ fn set_bridge_interface_mtu(
 ) -> anyhow::Result<scopeguard::ScopeGuard<(), impl FnOnce(())>> {
     use anyhow::Context;
     use test_rpc::net::unix;
-    let bridge_iface: String = String::new("eth0");
+    let bridge_iface: String = String::from("eth0");
 
     let previous_mtu = unix::get_mtu(&bridge_iface)
         .with_context(|| format!("Failed to get MTU for bridge interface '{bridge_iface}'"))?;
