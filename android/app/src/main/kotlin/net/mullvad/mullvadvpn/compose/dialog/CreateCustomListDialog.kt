@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
-import androidx.compose.foundation.layout.Column
+import android.util.Log
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -11,13 +11,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
@@ -27,10 +22,10 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.component.CustomListNameTextField
 import net.mullvad.mullvadvpn.compose.destinations.CustomListLocationsDestination
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.compose.test.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
-import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogSideEffect
@@ -83,6 +78,7 @@ fun CreateCustomList(
         }
     }
     val state by vm.uiState.collectAsStateWithLifecycle()
+    Log.d("LOLZ", "CreateCustomList: $state")
     CreateCustomListDialog(
         state = state,
         createCustomList = vm::createCustomList,
@@ -98,8 +94,7 @@ fun CreateCustomListDialog(
     onInputChanged: () -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
-    val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
+
     val name = remember { mutableStateOf("") }
     val isValidName by remember { derivedStateOf { name.value.isNotBlank() } }
 
@@ -110,43 +105,17 @@ fun CreateCustomListDialog(
             )
         },
         text = {
-            Column {
-                CustomTextField(
-                    value = name.value,
-                    onValueChanged = {
-                        name.value = it
-                        onInputChanged()
-                    },
-                    onSubmit = {
-                        if (isValidName) {
-                            createCustomList(it)
-                        }
-                    },
-                    keyboardType = KeyboardType.Text,
-                    placeholderText = "",
-                    isValidValue = state.error == null,
-                    isDigitsOnlyAllowed = false,
-                    supportingText = {
-                        if (state.error != null) {
-                            Text(
-                                text = state.error.errorString(),
-                                color = MaterialTheme.colorScheme.error,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                    },
-                    modifier =
-                        Modifier.focusRequester(focusRequester)
-                            .onFocusChanged { focusState ->
-                                if (focusState.hasFocus) {
-                                    keyboardController?.show()
-                                }
-                            }
-                            .testTag(CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG)
-                )
-            }
-
-            LaunchedEffect(Unit) { focusRequester.requestFocus() }
+            CustomListNameTextField(
+                name = name.value,
+                isValidName = isValidName,
+                error = state.error,
+                onSubmit = createCustomList,
+                onValueChanged = {
+                    name.value = it
+                    onInputChanged()
+                },
+                modifier = Modifier.testTag(CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG)
+            )
         },
         containerColor = MaterialTheme.colorScheme.background,
         titleContentColor = MaterialTheme.colorScheme.onBackground,
@@ -163,12 +132,3 @@ fun CreateCustomListDialog(
         }
     )
 }
-
-@Composable
-private fun CustomListsError.errorString() =
-    stringResource(
-        when (this) {
-            CustomListsError.CustomListExists -> R.string.custom_list_error_list_exists
-            CustomListsError.OtherError -> R.string.error_occurred
-        }
-    )

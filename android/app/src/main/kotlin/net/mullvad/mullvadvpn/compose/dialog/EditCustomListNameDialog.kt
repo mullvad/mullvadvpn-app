@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -11,13 +10,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
@@ -26,11 +20,10 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.component.CustomListNameTextField
 import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
 import net.mullvad.mullvadvpn.compose.test.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
-import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -77,10 +70,9 @@ fun EditCustomListNameDialog(
     onInputChanged: () -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
-    val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val input = remember { mutableStateOf(state.name) }
-    val isValidName by remember { derivedStateOf { input.value.isNotBlank() } }
+    val name = remember { mutableStateOf(state.name) }
+    val isValidName by remember { derivedStateOf { name.value.isNotBlank() } }
+
     AlertDialog(
         title = {
             Text(
@@ -88,51 +80,17 @@ fun EditCustomListNameDialog(
             )
         },
         text = {
-            Column {
-                CustomTextField(
-                    value = input.value,
-                    onValueChanged = {
-                        input.value = it
-                        onInputChanged()
-                    },
-                    onSubmit = {
-                        if (isValidName) {
-                            updateName(it)
-                        }
-                    },
-                    keyboardType = KeyboardType.Text,
-                    placeholderText = "",
-                    isValidValue = state.error == null,
-                    isDigitsOnlyAllowed = false,
-                    supportingText = {
-                        if (state.error != null) {
-                            Text(
-                                text =
-                                    stringResource(
-                                        id =
-                                            if (state.error == CustomListsError.CustomListExists) {
-                                                R.string.custom_list_error_list_exists
-                                            } else {
-                                                R.string.error_occurred
-                                            }
-                                    ),
-                                color = MaterialTheme.colorScheme.error,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                    },
-                    modifier =
-                        Modifier.focusRequester(focusRequester)
-                            .onFocusChanged { focusState ->
-                                if (focusState.hasFocus) {
-                                    keyboardController?.show()
-                                }
-                            }
-                            .testTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG)
-                )
-            }
-
-            LaunchedEffect(Unit) { focusRequester.requestFocus() }
+            CustomListNameTextField(
+                name = name.value,
+                isValidName = isValidName,
+                error = state.error,
+                onSubmit = updateName,
+                onValueChanged = {
+                    name.value = it
+                    onInputChanged()
+                },
+                modifier = Modifier.testTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG)
+            )
         },
         containerColor = MaterialTheme.colorScheme.background,
         titleContentColor = MaterialTheme.colorScheme.onBackground,
@@ -140,7 +98,7 @@ fun EditCustomListNameDialog(
         confirmButton = {
             PrimaryButton(
                 text = stringResource(id = R.string.save),
-                onClick = { updateName(input.value) },
+                onClick = { updateName(name.value) },
                 isEnabled = isValidName
             )
         },
