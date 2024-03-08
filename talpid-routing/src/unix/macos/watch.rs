@@ -52,7 +52,7 @@ impl RoutingTable {
             .await
             .map_err(Error::RoutingSocket)?;
         let msg_buf = &buf[0..bytes_read];
-        data::RouteSocketMessage::parse_message(msg_buf).map_err(Error::InvalidMessage)
+        RouteSocketMessage::parse_message(msg_buf).map_err(Error::InvalidMessage)
     }
 
     pub async fn add_route(&mut self, message: &RouteMessage) -> Result<()> {
@@ -98,7 +98,7 @@ impl RoutingTable {
 
         match result {
             Ok(response) => {
-                data::RouteSocketMessage::parse_message(&response).map_err(Error::InvalidMessage)
+                RouteSocketMessage::parse_message(&response).map_err(Error::InvalidMessage)
             }
 
             Err(routing_socket::Error::Write(err)) if err.kind() == io::ErrorKind::NotFound => {
@@ -130,10 +130,7 @@ impl RoutingTable {
         }
     }
 
-    pub async fn get_route(
-        &mut self,
-        message: &RouteMessage,
-    ) -> Result<Option<data::RouteMessage>> {
+    pub async fn get_route(&mut self, message: &RouteMessage) -> Result<Option<RouteMessage>> {
         let response = self
             .socket
             .send_route_message(message, MessageType::RTM_GET)
@@ -154,8 +151,8 @@ impl RoutingTable {
             }
         };
 
-        match data::RouteSocketMessage::parse_message(&response).map_err(Error::InvalidMessage)? {
-            data::RouteSocketMessage::GetRoute(route) => Ok(Some(route)),
+        match RouteSocketMessage::parse_message(&response).map_err(Error::InvalidMessage)? {
+            RouteSocketMessage::GetRoute(route) => Ok(Some(route)),
             unexpected_route_message => Err(Error::UnexpectedMessageType(
                 unexpected_route_message,
                 MessageType::RTM_GET,

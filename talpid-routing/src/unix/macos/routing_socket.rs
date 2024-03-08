@@ -1,24 +1,19 @@
-use std::{
-    collections::VecDeque,
-    mem::size_of,
-    pin::Pin,
-    task::{ready, Context, Poll},
-    time::Duration,
-};
-
 use nix::{
     fcntl,
     sys::socket::{socket, AddressFamily, SockFlag, SockType},
 };
 use std::{
+    collections::VecDeque,
     fs::File,
     io::{self, Read, Write},
     os::fd::{AsRawFd, RawFd},
+    pin::Pin,
+    task::{ready, Context, Poll},
+    time::Duration,
 };
-
-use super::data::{rt_msghdr_short, MessageType, RouteMessage};
-
 use tokio::io::{unix::AsyncFd, AsyncWrite, AsyncWriteExt};
+
+use super::data::{rt_msghdr_short, MessageType, RouteMessage, ROUTE_MESSAGE_HEADER_SIZE};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -117,10 +112,10 @@ impl RoutingSocket {
             std::ptr::copy_nonoverlapping(
                 &header as *const _ as *const u8,
                 msg_buffer.as_mut_ptr(),
-                size_of::<super::data::rt_msghdr>(),
+                ROUTE_MESSAGE_HEADER_SIZE,
             );
         }
-        let mut sockaddr_buf = &mut msg_buffer[std::mem::size_of::<super::data::rt_msghdr>()..];
+        let mut sockaddr_buf = &mut msg_buffer[ROUTE_MESSAGE_HEADER_SIZE..];
         for socket_addr in payload {
             sockaddr_buf
                 .write_all(socket_addr.as_slice())
