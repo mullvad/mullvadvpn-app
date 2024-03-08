@@ -34,6 +34,23 @@ pub enum Error {
     ResponseTimeout,
 }
 
+impl Error {
+    /// Return the underlying `io::Error` (or `None`)
+    pub fn as_io_error(&self) -> Option<&io::Error> {
+        use std::error::Error;
+        self.source()
+            .and_then(|source| source.downcast_ref::<io::Error>())
+    }
+
+    /// Return whether an operation failed because the socket has been shut down
+    pub fn is_shutdown(&self) -> bool {
+        // ENOTCONN is returned when the socket is shut down (e.g., due to `pid_shutdown_sockets`)
+        self.as_io_error()
+            .map(|io_error| io_error.kind() == io::ErrorKind::NotConnected)
+            .unwrap_or(false)
+    }
+}
+
 type Result<T> = std::result::Result<T, Error>;
 
 const RESPONSE_TIMEOUT: Duration = Duration::from_secs(10);
