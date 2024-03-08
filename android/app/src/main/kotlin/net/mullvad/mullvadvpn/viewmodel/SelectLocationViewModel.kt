@@ -48,11 +48,15 @@ class SelectLocationViewModel(
                 selectedConstraintProviders ->
                 val selectedOwnershipItem = selectedOwnership.toNullableOwnership()
                 val selectedProvidersCount =
-                    filterSelectedProvidersByOwnership(
-                            selectedConstraintProviders.toSelectedProviders(allProviders),
-                            selectedOwnershipItem
-                        )
-                        ?.size
+                    when (selectedConstraintProviders) {
+                        is Constraint.Any -> null
+                        is Constraint.Only ->
+                            filterSelectedProvidersByOwnership(
+                                    selectedConstraintProviders.toSelectedProviders(allProviders),
+                                    selectedOwnershipItem
+                                )
+                                .size
+                    }
 
                 val filteredRelayCountries =
                     relayCountries.filterOnSearchTerm(searchTerm, selectedItem)
@@ -97,15 +101,13 @@ class SelectLocationViewModel(
     }
 
     private fun filterSelectedProvidersByOwnership(
-        selectedProviders: List<Provider>?,
+        selectedProviders: List<Provider>,
         selectedOwnership: Ownership?
-    ): List<Provider>? =
-        selectedProviders?.let {
-            when (selectedOwnership) {
-                Ownership.MullvadOwned -> selectedProviders.filter { it.mullvadOwned }
-                Ownership.Rented -> selectedProviders.filterNot { it.mullvadOwned }
-                else -> selectedProviders
-            }
+    ): List<Provider> =
+        when (selectedOwnership) {
+            Ownership.MullvadOwned -> selectedProviders.filter { it.mullvadOwned }
+            Ownership.Rented -> selectedProviders.filterNot { it.mullvadOwned }
+            else -> selectedProviders
         }
 
     fun removeOwnerFilter() {

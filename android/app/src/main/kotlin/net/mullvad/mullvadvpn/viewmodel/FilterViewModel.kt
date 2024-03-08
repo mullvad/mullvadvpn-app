@@ -39,7 +39,7 @@ class FilterViewModel(
                     ) { allProviders, selectedConstraintProviders ->
                         selectedConstraintProviders.toSelectedProviders(allProviders)
                     }
-                    .first() ?: emptyList()
+                    .first()
 
             val ownershipConstraint = relayListFilterUseCase.selectedOwnership().first()
             selectedOwnership.value = ownershipConstraint.toNullableOwnership()
