@@ -89,7 +89,6 @@ fun FilterScreen(navigator: DestinationsNavigator) {
     )
 }
 
-@Suppress("LongMethod")
 @Composable
 fun FilterScreen(
     state: RelayFilterState,
@@ -149,61 +148,103 @@ fun FilterScreen(
         LazyColumn(modifier = Modifier.padding(contentPadding).fillMaxSize()) {
             item {
                 Divider()
-                ExpandableComposeCell(
-                    title = stringResource(R.string.ownership),
-                    isExpanded = ownershipExpanded,
-                    isEnabled = true,
-                    onInfoClicked = null,
-                    onCellClicked = { ownershipExpanded = !ownershipExpanded }
-                )
+                OwnershipHeader(ownershipExpanded, { ownershipExpanded = it })
             }
             if (ownershipExpanded) {
-                item {
-                    SelectableCell(
-                        title = stringResource(id = R.string.any),
-                        isSelected = state.selectedOwnership == null,
-                        onCellClicked = { onSelectedOwnership(null) }
-                    )
-                }
+                item { AnyOwnership(state, onSelectedOwnership) }
                 items(state.filteredOwnershipByProviders) { ownership ->
                     Divider()
-                    SelectableCell(
-                        title = stringResource(id = ownership.stringResource()),
-                        isSelected = ownership == state.selectedOwnership,
-                        onCellClicked = { onSelectedOwnership(ownership) }
-                    )
+                    Ownership(ownership, state, onSelectedOwnership)
                 }
             }
             item {
                 Divider()
-                ExpandableComposeCell(
-                    title = stringResource(R.string.providers),
-                    isExpanded = providerExpanded,
-                    isEnabled = true,
-                    onInfoClicked = null,
-                    onCellClicked = { providerExpanded = !providerExpanded }
-                )
+                ProvidersHeader(providerExpanded, { providerExpanded = it })
             }
             if (providerExpanded) {
                 item {
                     Divider()
-                    CheckboxCell(
-                        providerName = stringResource(R.string.all_providers),
-                        checked = state.isAllProvidersChecked,
-                        onCheckedChange = { isChecked -> onAllProviderCheckChange(isChecked) }
-                    )
+                    AllProviders(state, onAllProviderCheckChange)
                 }
                 items(state.filteredProvidersByOwnership) { provider ->
                     Divider()
-                    CheckboxCell(
-                        providerName = provider.name,
-                        checked = provider in state.selectedProviders,
-                        onCheckedChange = { checked -> onSelectedProvider(checked, provider) }
-                    )
+                    Provider(provider, state, onSelectedProvider)
                 }
             }
         }
     }
+}
+
+@Composable
+private fun OwnershipHeader(expanded: Boolean, onToggleExpanded: (Boolean) -> Unit) {
+    ExpandableComposeCell(
+        title = stringResource(R.string.ownership),
+        isExpanded = expanded,
+        isEnabled = true,
+        onInfoClicked = null,
+        onCellClicked = { onToggleExpanded(!expanded) }
+    )
+}
+
+@Composable
+private fun AnyOwnership(
+    state: RelayFilterState,
+    onSelectedOwnership: (ownership: Ownership?) -> Unit
+) {
+    SelectableCell(
+        title = stringResource(id = R.string.any),
+        isSelected = state.selectedOwnership == null,
+        onCellClicked = { onSelectedOwnership(null) }
+    )
+}
+
+@Composable
+private fun Ownership(
+    ownership: Ownership,
+    state: RelayFilterState,
+    onSelectedOwnership: (ownership: Ownership?) -> Unit
+) {
+    SelectableCell(
+        title = stringResource(id = ownership.stringResource()),
+        isSelected = ownership == state.selectedOwnership,
+        onCellClicked = { onSelectedOwnership(ownership) }
+    )
+}
+
+@Composable
+private fun ProvidersHeader(expanded: Boolean, onToggleExpanded: (Boolean) -> Unit) {
+    ExpandableComposeCell(
+        title = stringResource(R.string.providers),
+        isExpanded = expanded,
+        isEnabled = true,
+        onInfoClicked = null,
+        onCellClicked = { onToggleExpanded(!expanded) }
+    )
+}
+
+@Composable
+private fun AllProviders(
+    state: RelayFilterState,
+    onAllProviderCheckChange: (isChecked: Boolean) -> Unit
+) {
+    CheckboxCell(
+        providerName = stringResource(R.string.all_providers),
+        checked = state.isAllProvidersChecked,
+        onCheckedChange = { isChecked -> onAllProviderCheckChange(isChecked) }
+    )
+}
+
+@Composable
+private fun Provider(
+    provider: Provider,
+    state: RelayFilterState,
+    onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit
+) {
+    CheckboxCell(
+        providerName = provider.name,
+        checked = provider in state.selectedProviders,
+        onCheckedChange = { checked -> onSelectedProvider(checked, provider) }
+    )
 }
 
 private fun Ownership.stringResource(): Int =
