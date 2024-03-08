@@ -10,14 +10,14 @@ type Result<T> = std::result::Result<T, Error>;
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     /// Generic routing socket error
-    #[error("Routing socket error: {0}")]
-    RoutingSocket(routing_socket::Error),
+    #[error("Routing socket error")]
+    RoutingSocket(#[source] routing_socket::Error),
     /// Failed to parse route message
     #[error("Invalid message")]
     InvalidMessage(data::Error),
     /// Failed to send route message
     #[error("Failed to send routing message")]
-    Send(routing_socket::Error),
+    Send(#[source] routing_socket::Error),
     /// Received unexpected response to route message
     #[error("Unexpected message type")]
     UnexpectedMessageType(RouteSocketMessage, MessageType),

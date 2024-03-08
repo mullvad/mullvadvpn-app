@@ -363,7 +363,12 @@ impl RouteManagerImpl {
             // ignore all other message types
             Ok(_) => {}
             Err(err) => {
-                log::error!("Failed to receive a message from the routing table: {err}");
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg(
+                        "Failed to receive a message from the routing table"
+                    )
+                );
             }
         }
     }
