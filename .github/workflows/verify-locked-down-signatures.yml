@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/verify-locked-down-signatures.yml
       - Cargo.lock
+      - deny.toml
       - gui/package-lock.json
       - wireguard/libwg/go.sum
       - ci/keys/**
