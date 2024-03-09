@@ -151,7 +151,7 @@ pub enum RouteManagerCommand {
     GetMtuForRoute(IpAddr, oneshot::Sender<Result<u16>>),
     ClearRoutes,
     RegisterDefaultRouteChangeCallback(Callback, oneshot::Sender<CallbackHandle>),
-    Shutdown,
+    Shutdown(oneshot::Sender<Result<()>>),
 }
 
 impl RouteManager {
@@ -233,7 +233,9 @@ impl RouteManager {
                 RouteManagerCommand::RegisterDefaultRouteChangeCallback(callback, tx) => {
                     let _ = tx.send(internal.register_default_route_changed_callback(callback));
                 }
-                RouteManagerCommand::Shutdown => {
+                RouteManagerCommand::Shutdown(tx) => {
+                    drop(internal);
+                    let _ = tx.send(());
                     break;
                 }
             }
@@ -242,11 +244,11 @@ impl RouteManager {
 
     /// Stops the routing manager and invalidates the route manager - no new default route callbacks
     /// can be added
-    pub fn stop(&mut self) {
+    pub async fn stop(&mut self) {
         if let Some(tx) = self.manage_tx.take() {
-            if tx.unbounded_send(RouteManagerCommand::Shutdown).is_err() {
-                log::error!("RouteManager channel already down or thread panicked");
-            }
+            let (result_tx, result_rx) = oneshot::channel();
+            let _ = tx.unbounded_send(RouteManagerCommand::Shutdown(result_tx));
+            _ = result_rx.await;
         }
     }
 
@@ -293,6 +295,9 @@ fn get_mtu_for_route(addr_family: AddressFamily) -> Result<Option<u16>> {
 
 impl Drop for RouteManager {
     fn drop(&mut self) {
-        self.stop();
+        if let Some(tx) = self.manage_tx.take() {
+            let (done_tx, _) = oneshot::channel();
+            let _ = tx.unbounded_send(RouteManagerCommand::Shutdown(done_tx));
+        }
     }
 }
