@@ -176,29 +176,19 @@ impl RouteManager {
         &self,
         callback: Callback,
     ) -> Result<CallbackHandle> {
-        if let Some(tx) = &self.manage_tx {
-            let (result_tx, result_rx) = oneshot::channel();
-            if tx
-                .unbounded_send(RouteManagerCommand::RegisterDefaultRouteChangeCallback(
-                    callback, result_tx,
-                ))
-                .is_err()
-            {
-                return Err(Error::RouteManagerDown);
-            }
-            Ok(result_rx.await.map_err(|_| Error::ManagerChannelDown)?)
-        } else {
-            Err(Error::RouteManagerDown)
-        }
+        let tx = self.get_command_tx()?;
+        let (result_tx, result_rx) = oneshot::channel();
+        tx.unbounded_send(RouteManagerCommand::RegisterDefaultRouteChangeCallback(
+            callback, result_tx,
+        ))
+        .map_err(|_| Error::RouteManagerDown)?;
+        result_rx.await.map_err(|_| Error::ManagerChannelDown)
     }
 
     /// Retrieve a sender directly to the command channel.
     pub fn handle(&self) -> Result<RouteManagerHandle> {
-        if let Some(tx) = &self.manage_tx {
-            Ok(RouteManagerHandle { tx: tx.clone() })
-        } else {
-            Err(Error::RouteManagerDown)
-        }
+        let tx = self.get_command_tx()?;
+        Ok(RouteManagerHandle { tx: tx.clone() })
     }
 
     async fn listen(
@@ -262,28 +252,22 @@ impl RouteManager {
 
     /// Applies the given routes until [`RouteManager::stop`] is called.
     pub async fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<()> {
-        if let Some(tx) = &self.manage_tx {
-            let (result_tx, result_rx) = oneshot::channel();
-            if tx
-                .unbounded_send(RouteManagerCommand::AddRoutes(routes, result_tx))
-                .is_err()
-            {
-                return Err(Error::RouteManagerDown);
-            }
-            result_rx.await.map_err(|_| Error::ManagerChannelDown)?
-        } else {
-            Err(Error::RouteManagerDown)
-        }
+        let tx = self.get_command_tx()?;
+        let (result_tx, result_rx) = oneshot::channel();
+        tx.unbounded_send(RouteManagerCommand::AddRoutes(routes, result_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+        result_rx.await.map_err(|_| Error::ManagerChannelDown)?
     }
 
     /// Removes all routes previously applied in [`RouteManager::add_routes`].
     pub fn clear_routes(&self) -> Result<()> {
-        if let Some(tx) = &self.manage_tx {
-            tx.unbounded_send(RouteManagerCommand::ClearRoutes)
-                .map_err(|_| Error::RouteManagerDown)
-        } else {
-            Err(Error::RouteManagerDown)
-        }
+        let tx = self.get_command_tx()?;
+        tx.unbounded_send(RouteManagerCommand::ClearRoutes)
+            .map_err(|_| Error::RouteManagerDown)
+    }
+
+    fn get_command_tx(&self) -> Result<&UnboundedSender<RouteManagerCommand>> {
+        self.manage_tx.as_ref().ok_or(Error::RouteManagerDown)
     }
 }
 
