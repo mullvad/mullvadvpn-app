@@ -251,7 +251,6 @@ pub enum CallbackMessage {
 /// the route will be adjusted dynamically when the default route changes.
 pub struct RouteManager {
     manage_tx: Option<Arc<UnboundedSender<RouteManagerCommand>>>,
-    runtime: tokio::runtime::Handle,
 }
 
 impl RouteManager {
@@ -274,7 +273,6 @@ impl RouteManager {
         tokio::spawn(manager.run(manage_rx));
 
         Ok(Self {
-            runtime: tokio::runtime::Handle::current(),
             manage_tx: Some(manage_tx),
         })
     }
@@ -333,6 +331,8 @@ impl RouteManager {
 
 impl Drop for RouteManager {
     fn drop(&mut self) {
-        self.runtime.clone().block_on(self.stop());
+        tokio::task::block_in_place(move || {
+            tokio::runtime::Handle::current().block_on(self.stop());
+        });
     }
 }
