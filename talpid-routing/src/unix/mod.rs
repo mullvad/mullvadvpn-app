@@ -289,7 +289,7 @@ impl RouteManager {
     }
 
     /// Applies the given routes until [`RouteManager::stop`] is called.
-    pub async fn add_routes(&mut self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
+    pub async fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
         let tx = self.get_command_tx()?;
         let (result_tx, result_rx) = oneshot::channel();
         tx.unbounded_send(RouteManagerCommand::AddRoutes(routes, result_tx))
@@ -302,7 +302,7 @@ impl RouteManager {
     }
 
     /// Removes all routes previously applied in [`RouteManager::add_routes`].
-    pub fn clear_routes(&mut self) -> Result<(), Error> {
+    pub fn clear_routes(&self) -> Result<(), Error> {
         let tx = self.get_command_tx()?;
         tx.unbounded_send(RouteManagerCommand::ClearRoutes)
             .map_err(|_| Error::RouteManagerDown)
@@ -310,13 +310,13 @@ impl RouteManager {
 
     /// Ensure that packets are routed using the correct tables.
     #[cfg(target_os = "linux")]
-    pub async fn create_routing_rules(&mut self, enable_ipv6: bool) -> Result<(), Error> {
+    pub async fn create_routing_rules(&self, enable_ipv6: bool) -> Result<(), Error> {
         self.handle()?.create_routing_rules(enable_ipv6).await
     }
 
     /// Remove any routing rules created by [Self::create_routing_rules].
     #[cfg(target_os = "linux")]
-    pub async fn clear_routing_rules(&mut self) -> Result<(), Error> {
+    pub async fn clear_routing_rules(&self) -> Result<(), Error> {
         self.handle()?.clear_routing_rules().await
     }
 
