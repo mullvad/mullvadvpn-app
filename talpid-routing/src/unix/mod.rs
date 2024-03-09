@@ -289,51 +289,29 @@ impl RouteManager {
     pub async fn stop(&mut self) {
         if let Some(tx) = self.manage_tx.take() {
             let (wait_tx, wait_rx) = oneshot::channel();
-
-            if tx
-                .unbounded_send(RouteManagerCommand::Shutdown(wait_tx))
-                .is_err()
-            {
-                log::error!("RouteManager already down!");
-                return;
-            }
-
-            if wait_rx.await.is_err() {
-                log::error!("{}", Error::ManagerChannelDown);
-            }
+            let _ = tx.unbounded_send(RouteManagerCommand::Shutdown(wait_tx));
+            let _ = wait_rx.await;
         }
     }
 
     /// Applies the given routes until [`RouteManager::stop`] is called.
     pub async fn add_routes(&mut self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
-        if let Some(tx) = &self.manage_tx {
-            let (result_tx, result_rx) = oneshot::channel();
-            if tx
-                .unbounded_send(RouteManagerCommand::AddRoutes(routes, result_tx))
-                .is_err()
-            {
-                return Err(Error::RouteManagerDown);
-            }
+        let tx = self.get_command_tx()?;
+        let (result_tx, result_rx) = oneshot::channel();
+        tx.unbounded_send(RouteManagerCommand::AddRoutes(routes, result_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
 
-            result_rx
-                .await
-                .map_err(|_| Error::ManagerChannelDown)?
-                .map_err(Error::PlatformError)
-        } else {
-            Err(Error::RouteManagerDown)
-        }
+        result_rx
+            .await
+            .map_err(|_| Error::ManagerChannelDown)?
+            .map_err(Error::PlatformError)
     }
 
     /// Removes all routes previously applied in [`RouteManager::add_routes`].
     pub fn clear_routes(&mut self) -> Result<(), Error> {
-        if let Some(tx) = &self.manage_tx {
-            if tx.unbounded_send(RouteManagerCommand::ClearRoutes).is_err() {
-                return Err(Error::RouteManagerDown);
-            }
-            Ok(())
-        } else {
-            Err(Error::RouteManagerDown)
-        }
+        let tx = self.get_command_tx()?;
+        tx.unbounded_send(RouteManagerCommand::ClearRoutes)
+            .map_err(|_| Error::RouteManagerDown)
     }
 
     /// Ensure that packets are routed using the correct tables.
@@ -350,11 +328,12 @@ impl RouteManager {
 
     /// Retrieve a sender directly to the command channel.
     pub fn handle(&self) -> Result<RouteManagerHandle, Error> {
-        if let Some(tx) = &self.manage_tx {
-            Ok(RouteManagerHandle { tx: tx.clone() })
-        } else {
-            Err(Error::RouteManagerDown)
-        }
+        let tx = self.get_command_tx()?;
+        Ok(RouteManagerHandle { tx: tx.clone() })
+    }
+
+    fn get_command_tx(&self) -> Result<&Arc<UnboundedSender<RouteManagerCommand>>, Error> {
+        self.manage_tx.as_ref().ok_or(Error::RouteManagerDown)
     }
 }
 
