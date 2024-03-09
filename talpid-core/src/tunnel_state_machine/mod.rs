@@ -409,7 +409,9 @@ impl TunnelStateMachine {
             }
         }
 
-        log::debug!("Exiting tunnel state machine loop");
+        log::debug!("Tunnel state machine exited");
+
+        runtime.block_on(self.shared_values.route_manager.stop());
     }
 }
 
