@@ -331,8 +331,9 @@ impl RouteManager {
 
 impl Drop for RouteManager {
     fn drop(&mut self) {
-        tokio::task::block_in_place(move || {
-            tokio::runtime::Handle::current().block_on(self.stop());
-        });
+        if let Some(tx) = self.manage_tx.take() {
+            let (done_tx, _) = oneshot::channel();
+            let _ = tx.unbounded_send(RouteManagerCommand::Shutdown(done_tx));
+        }
     }
 }
