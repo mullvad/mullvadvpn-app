@@ -50,7 +50,7 @@ object Versions {
         const val androidAapt = "$android-10154469"
         const val playPublisher = "3.9.0"
         const val dependencyCheck = "9.0.9"
-        const val detekt = "1.23.4"
+        const val detekt = "1.23.5"
         const val gradleVersions = "0.51.0"
         const val junit5 = "1.10.0.0"
         const val ktfmt = "0.17.0"
