@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.viewmodel
 import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +29,7 @@ class AccountViewModel(
     deviceRepository: DeviceRepository,
     private val isPlayBuild: Boolean,
 ) : ViewModel() {
-    private val _uiSideEffect = Channel<UiSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    private val _uiSideEffect = Channel<UiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     val uiState: StateFlow<AccountUiState> =

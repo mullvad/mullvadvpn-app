@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -11,9 +10,13 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -26,7 +29,6 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
-import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
 import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
@@ -39,12 +41,11 @@ class WelcomeViewModel(
     private val deviceRepository: DeviceRepository,
     private val serviceConnectionManager: ServiceConnectionManager,
     private val paymentUseCase: PaymentUseCase,
-    private val outOfTimeUseCase: OutOfTimeUseCase,
     private val pollAccountExpiry: Boolean = true,
     private val isPlayBuild: Boolean
 ) : ViewModel() {
-    private val _uiSideEffect = Channel<UiSideEffect>(1, BufferOverflow.DROP_OLDEST)
-    val uiSideEffect = _uiSideEffect.receiveAsFlow()
+    private val _uiSideEffect = Channel<UiSideEffect>()
+    val uiSideEffect = merge(_uiSideEffect.receiveAsFlow(), hasAddedTimeEffect())
 
     val uiState =
         serviceConnectionManager.connectionState
@@ -81,14 +82,16 @@ class WelcomeViewModel(
                 delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
             }
         }
-        viewModelScope.launch {
-            outOfTimeUseCase.isOutOfTime().first { it == false }
-            paymentUseCase.resetPurchaseResult()
-            _uiSideEffect.send(UiSideEffect.OpenConnectScreen)
-        }
         verifyPurchases()
         fetchPaymentAvailability()
     }
+
+    private fun hasAddedTimeEffect() =
+        accountRepository.accountExpiryState
+            .mapNotNull { it.date() }
+            .filter { it.minusHours(MIN_HOURS_PAST_ACCOUNT_EXPIRY).isAfterNow }
+            .onEach { paymentUseCase.resetPurchaseResult() }
+            .map { UiSideEffect.OpenConnectScreen }
 
     private fun ConnectionProxy.tunnelUiStateFlow(): Flow<TunnelState> =
         callbackFlowFromNotifier(this.onUiStateChange)
@@ -139,5 +142,9 @@ class WelcomeViewModel(
         data class OpenAccountView(val token: String) : UiSideEffect
 
         data object OpenConnectScreen : UiSideEffect
+    }
+
+    companion object {
+        private const val MIN_HOURS_PAST_ACCOUNT_EXPIRY = 20
     }
 }

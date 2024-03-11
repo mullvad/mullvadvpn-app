@@ -108,7 +108,7 @@ val uiModule = module {
     single { NewDeviceNotificationUseCase(get()) }
     single { PortRangeUseCase(get()) }
     single { RelayListUseCase(get(), get()) }
-    single { OutOfTimeUseCase(get(), get()) }
+    single { OutOfTimeUseCase(get(), get(), MainScope()) }
     single { ConnectivityUseCase(get()) }
     single { SystemVpnSettingsUseCase(androidContext()) }
 
@@ -154,7 +154,7 @@ val uiModule = module {
     viewModel { SplashViewModel(get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
-    viewModel { WelcomeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
+    viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }

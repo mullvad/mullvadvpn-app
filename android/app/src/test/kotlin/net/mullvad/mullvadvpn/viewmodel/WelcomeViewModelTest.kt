@@ -32,11 +32,9 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
-import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
-import org.joda.time.ReadableInstant
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -51,7 +49,6 @@ class WelcomeViewModelTest {
     private val accountExpiryStateFlow = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
     private val purchaseResultFlow = MutableStateFlow<PurchaseResult?>(null)
     private val paymentAvailabilityFlow = MutableStateFlow<PaymentAvailability?>(null)
-    private val outOfTimeFlow = MutableStateFlow(true)
 
     // Service connections
     private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
@@ -64,7 +61,6 @@ class WelcomeViewModelTest {
     private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
-    private val mockOutOfTimeUseCase: OutOfTimeUseCase = mockk(relaxed = true)
 
     private lateinit var viewModel: WelcomeViewModel
 
@@ -87,15 +83,12 @@ class WelcomeViewModelTest {
 
         coEvery { mockPaymentUseCase.paymentAvailability } returns paymentAvailabilityFlow
 
-        coEvery { mockOutOfTimeUseCase.isOutOfTime() } returns outOfTimeFlow
-
         viewModel =
             WelcomeViewModel(
                 accountRepository = mockAccountRepository,
                 deviceRepository = mockDeviceRepository,
                 serviceConnectionManager = mockServiceConnectionManager,
                 paymentUseCase = mockPaymentUseCase,
-                outOfTimeUseCase = mockOutOfTimeUseCase,
                 pollAccountExpiry = false,
                 isPlayBuild = false
             )
@@ -164,19 +157,16 @@ class WelcomeViewModelTest {
         }
 
     @Test
-    fun `when OutOfTimeUseCase return false uiSideEffect should emit OpenConnectScreen`() =
-        runTest {
-            // Arrange
-            val mockExpiryDate: DateTime = mockk()
-            every { mockExpiryDate.isAfter(any<ReadableInstant>()) } returns true
+    fun `when user has added time then uiSideEffect should emit OpenConnectScreen`() = runTest {
+        // Arrange
+        accountExpiryStateFlow.emit(AccountExpiry.Available(DateTime().plusDays(1)))
 
-            // Act, Assert
-            viewModel.uiSideEffect.test {
-                outOfTimeFlow.value = false
-                val action = awaitItem()
-                assertIs<WelcomeViewModel.UiSideEffect.OpenConnectScreen>(action)
-            }
+        // Act, Assert
+        viewModel.uiSideEffect.test {
+            val action = awaitItem()
+            assertIs<WelcomeViewModel.UiSideEffect.OpenConnectScreen>(action)
         }
+    }
 
     @Test
     fun `when paymentAvailability emits ProductsUnavailable uiState should include state NoPayment`() =
