@@ -34,6 +34,8 @@ fn set_bridge_interface_mtu(
 ) -> anyhow::Result<scopeguard::ScopeGuard<(), impl FnOnce(())>> {
     use anyhow::Context;
     use test_rpc::net::unix;
+    // TODO: This can be retrieved from test_runner::net::get_default_interface();
+    // Move it to test-rpc?
     let bridge_iface: String = String::from("en0");
 
     let previous_mtu = unix::get_mtu(&bridge_iface)
