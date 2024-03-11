@@ -3,7 +3,7 @@ object Versions {
     const val jodaTime = "2.12.7"
     const val junit = "5.10.2"
     const val jvmTarget = "17"
-    const val konsist = "0.13.0"
+    const val konsist = "0.14.0"
     const val kotlin = "1.9.22"
     const val kotlinCompilerExtensionVersion = "1.5.10"
     const val kotlinx = "1.8.0"
