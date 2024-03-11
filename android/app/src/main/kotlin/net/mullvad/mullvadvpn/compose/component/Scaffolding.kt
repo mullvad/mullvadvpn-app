@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -127,8 +126,6 @@ fun ScaffoldWithMediumTopBar(
     lazyListState: LazyListState = rememberLazyListState(),
     scrollbarColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    floatingActionButton: @Composable () -> Unit = {},
-    floatingActionButtonPosition: FabPosition = FabPosition.End,
     content: @Composable (modifier: Modifier, lazyListState: LazyListState) -> Unit
 ) {
 
@@ -146,8 +143,6 @@ fun ScaffoldWithMediumTopBar(
                 scrollBehavior = scrollBehavior
             )
         },
-        floatingActionButton = floatingActionButton,
-        floatingActionButtonPosition = floatingActionButtonPosition,
         snackbarHost = {
             SnackbarHost(
                 snackbarHostState,
