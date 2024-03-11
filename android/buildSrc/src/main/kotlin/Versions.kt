@@ -39,7 +39,7 @@ object Versions {
         const val base = "1.6.3"
         const val constrainLayout = "1.0.1"
         const val foundation = base
-        const val material3 = "1.2.0"
+        const val material3 = "1.2.1"
     }
 
     object Plugin {
