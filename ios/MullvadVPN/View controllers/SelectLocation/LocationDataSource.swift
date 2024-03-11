@@ -15,11 +15,11 @@ import UIKit
 final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, LocationCellViewModel> {
     private var currentSearchString = ""
     private let tableView: UITableView
-    private let locationCellFactory: LocationCellFactory
     private var dataSources: [LocationDataSourceProtocol] = []
     private var selectedItem: LocationCellViewModel?
 
     var didSelectRelayLocations: ((RelayLocations) -> Void)?
+    var didTapEditCustomLists: (() -> Void)?
 
     init(
         tableView: UITableView,
@@ -33,19 +33,19 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
         #endif
         self.dataSources.append(allLocations)
 
-        let locationCellFactory = LocationCellFactory(
-            tableView: tableView,
-            reuseIdentifier: LocationSection.Cell.locationCell.reuseIdentifier
-        )
-        self.locationCellFactory = locationCellFactory
-
         super.init(tableView: tableView) { _, indexPath, itemIdentifier in
-            locationCellFactory.makeCell(for: itemIdentifier, indexPath: indexPath)
+            let reuseIdentifier = LocationSection.Cell.locationCell.reuseIdentifier
+            // swiftlint:disable force_cast
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: reuseIdentifier,
+                for: indexPath
+            ) as! LocationCell
+            // swiftlint:enable force_cast
+            cell.configureCell(item: itemIdentifier)
+            return cell
         }
 
         tableView.delegate = self
-        locationCellFactory.delegate = self
-
         defaultRowAnimation = .fade
         registerClasses()
     }
@@ -218,21 +218,44 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
 
         return viewModels
     }
+
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // swiftlint:disable:next force_cast
+        let cell = super.tableView(tableView, cellForRowAt: indexPath) as! LocationCell
+        cell.delegate = self
+        return cell
+    }
 }
 
 extension LocationDataSource: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        switch LocationSection.allCases[section] {
+        case .allLocations:
+            return LocationSectionHeaderView(
+                configuration: LocationSectionHeaderView.Configuration(name: LocationSection.allLocations.description)
+            )
+        case .customLists:
+            return LocationSectionHeaderView(configuration: LocationSectionHeaderView.Configuration(
+                name: LocationSection.customLists.description,
+                primaryAction: UIAction(
+                    handler: { [weak self] _ in
+                        self?.didTapEditCustomLists?()
+                    }
+                )
+            ))
+        }
+    }
+
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         nil
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        let section = snapshot().sectionIdentifiers[section]
-
-        switch section {
-        case .customLists:
-            return 24
+        switch LocationSection.allCases[section] {
         case .allLocations:
-            return 0
+            return .zero
+        case .customLists:
+            return 24.0
         }
     }
 
@@ -263,9 +286,10 @@ extension LocationDataSource: UITableViewDelegate {
     }
 }
 
-extension LocationDataSource: LocationCellEventHandler {
-    func toggleCell(for item: LocationCellViewModel) {
-        guard let indexPath = indexPath(for: item) else { return }
+extension LocationDataSource: LocationCellDelegate {
+    func toggle(cell: LocationCell) {
+        guard let indexPath = tableView.indexPath(for: cell),
+              let item = itemIdentifier(for: indexPath) else { return }
 
         let sections = LocationSection.allCases
         let section = sections[indexPath.section]
