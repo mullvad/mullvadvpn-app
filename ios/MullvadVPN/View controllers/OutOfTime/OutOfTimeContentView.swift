@@ -95,6 +95,7 @@ class OutOfTimeContentView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        accessibilityIdentifier = .outOfTimeView
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .secondaryColor
         directionalLayoutMargins = UIMetrics.contentLayoutMargins

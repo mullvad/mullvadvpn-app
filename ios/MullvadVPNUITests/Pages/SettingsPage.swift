@@ -14,6 +14,7 @@ class SettingsPage: Page {
         super.init(app)
 
         self.pageAccessibilityIdentifier = .settingsTableView
+        waitForPageToBeShown()
     }
 
     @discardableResult func tapVPNSettingsCell() -> Self {

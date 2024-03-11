@@ -54,6 +54,7 @@ final class WelcomeContentView: UIView {
 
     private let accountNumberLabel: UILabel = {
         let label = UILabel()
+        label.accessibilityIdentifier = .welcomeAccountNumberLabel
         label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = .zero
@@ -192,6 +193,7 @@ final class WelcomeContentView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
+        accessibilityIdentifier = .welcomeView
         backgroundColor = .primaryColor
         directionalLayoutMargins = UIMetrics.contentLayoutMargins
         backgroundColor = .secondaryColor

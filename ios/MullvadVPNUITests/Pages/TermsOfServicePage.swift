@@ -14,6 +14,7 @@ class TermsOfServicePage: Page {
         super.init(app)
 
         self.pageAccessibilityIdentifier = .termsOfServiceView
+        waitForPageToBeShown()
     }
 
     @discardableResult func tapAgreeButton() -> Self {

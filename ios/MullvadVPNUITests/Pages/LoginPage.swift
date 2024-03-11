@@ -27,6 +27,11 @@ class LoginPage: Page {
         return self
     }
 
+    @discardableResult public func tapCreateAccountButton() -> Self {
+        app.buttons[AccessibilityIdentifier.createAccountButton].tap()
+        return self
+    }
+
     @discardableResult public func verifyDeviceLabelShown() -> Self {
         XCTAssertTrue(
             app.staticTexts[AccessibilityIdentifier.headerDeviceNameLabel]

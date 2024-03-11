@@ -84,6 +84,7 @@ class LoginContentView: UIView {
 
     let createAccountButton: AppButton = {
         let button = AppButton(style: .default)
+        button.accessibilityIdentifier = .createAccountButton
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString(
             "CREATE_ACCOUNT_BUTTON_LABEL",
