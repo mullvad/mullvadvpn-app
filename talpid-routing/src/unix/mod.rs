@@ -7,7 +7,7 @@ use futures::channel::{
     mpsc::{self, UnboundedSender},
     oneshot,
 };
-use std::{collections::HashSet, io, sync::Arc};
+use std::{collections::HashSet, sync::Arc};
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 use futures::stream::Stream;
@@ -41,12 +41,6 @@ pub enum Error {
     /// Platform specific error occurred
     #[error("Internal route manager error")]
     PlatformError(#[from] imp::Error),
-    /// Failed to spawn route manager future
-    #[error("Failed to spawn route manager on the provided executor")]
-    FailedToSpawnManager,
-    /// Failed to spawn route manager runtime
-    #[error("Failed to spawn route manager runtime")]
-    FailedToSpawnRuntime(#[from] io::Error),
     /// Attempt to use route manager that has been dropped
     #[error("Cannot send message to route manager since it is down")]
     RouteManagerDown,
@@ -257,7 +251,6 @@ pub enum CallbackMessage {
 /// the route will be adjusted dynamically when the default route changes.
 pub struct RouteManager {
     manage_tx: Option<Arc<UnboundedSender<RouteManagerCommand>>>,
-    runtime: tokio::runtime::Handle,
 }
 
 impl RouteManager {
@@ -280,7 +273,6 @@ impl RouteManager {
         tokio::spawn(manager.run(manage_rx));
 
         Ok(Self {
-            runtime: tokio::runtime::Handle::current(),
             manage_tx: Some(manage_tx),
         })
     }
@@ -289,77 +281,59 @@ impl RouteManager {
     pub async fn stop(&mut self) {
         if let Some(tx) = self.manage_tx.take() {
             let (wait_tx, wait_rx) = oneshot::channel();
-
-            if tx
-                .unbounded_send(RouteManagerCommand::Shutdown(wait_tx))
-                .is_err()
-            {
-                log::error!("RouteManager already down!");
-                return;
-            }
-
-            if wait_rx.await.is_err() {
-                log::error!("{}", Error::ManagerChannelDown);
-            }
+            let _ = tx.unbounded_send(RouteManagerCommand::Shutdown(wait_tx));
+            let _ = wait_rx.await;
         }
     }
 
     /// Applies the given routes until [`RouteManager::stop`] is called.
-    pub async fn add_routes(&mut self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
-        if let Some(tx) = &self.manage_tx {
-            let (result_tx, result_rx) = oneshot::channel();
-            if tx
-                .unbounded_send(RouteManagerCommand::AddRoutes(routes, result_tx))
-                .is_err()
-            {
-                return Err(Error::RouteManagerDown);
-            }
+    pub async fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
+        let tx = self.get_command_tx()?;
+        let (result_tx, result_rx) = oneshot::channel();
+        tx.unbounded_send(RouteManagerCommand::AddRoutes(routes, result_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
 
-            result_rx
-                .await
-                .map_err(|_| Error::ManagerChannelDown)?
-                .map_err(Error::PlatformError)
-        } else {
-            Err(Error::RouteManagerDown)
-        }
+        result_rx
+            .await
+            .map_err(|_| Error::ManagerChannelDown)?
+            .map_err(Error::PlatformError)
     }
 
     /// Removes all routes previously applied in [`RouteManager::add_routes`].
-    pub fn clear_routes(&mut self) -> Result<(), Error> {
-        if let Some(tx) = &self.manage_tx {
-            if tx.unbounded_send(RouteManagerCommand::ClearRoutes).is_err() {
-                return Err(Error::RouteManagerDown);
-            }
-            Ok(())
-        } else {
-            Err(Error::RouteManagerDown)
-        }
+    pub fn clear_routes(&self) -> Result<(), Error> {
+        let tx = self.get_command_tx()?;
+        tx.unbounded_send(RouteManagerCommand::ClearRoutes)
+            .map_err(|_| Error::RouteManagerDown)
     }
 
     /// Ensure that packets are routed using the correct tables.
     #[cfg(target_os = "linux")]
-    pub async fn create_routing_rules(&mut self, enable_ipv6: bool) -> Result<(), Error> {
+    pub async fn create_routing_rules(&self, enable_ipv6: bool) -> Result<(), Error> {
         self.handle()?.create_routing_rules(enable_ipv6).await
     }
 
     /// Remove any routing rules created by [Self::create_routing_rules].
     #[cfg(target_os = "linux")]
-    pub async fn clear_routing_rules(&mut self) -> Result<(), Error> {
+    pub async fn clear_routing_rules(&self) -> Result<(), Error> {
         self.handle()?.clear_routing_rules().await
     }
 
     /// Retrieve a sender directly to the command channel.
     pub fn handle(&self) -> Result<RouteManagerHandle, Error> {
-        if let Some(tx) = &self.manage_tx {
-            Ok(RouteManagerHandle { tx: tx.clone() })
-        } else {
-            Err(Error::RouteManagerDown)
-        }
+        let tx = self.get_command_tx()?;
+        Ok(RouteManagerHandle { tx: tx.clone() })
+    }
+
+    fn get_command_tx(&self) -> Result<&Arc<UnboundedSender<RouteManagerCommand>>, Error> {
+        self.manage_tx.as_ref().ok_or(Error::RouteManagerDown)
     }
 }
 
 impl Drop for RouteManager {
     fn drop(&mut self) {
-        self.runtime.clone().block_on(self.stop());
+        if let Some(tx) = self.manage_tx.take() {
+            let (done_tx, _) = oneshot::channel();
+            let _ = tx.unbounded_send(RouteManagerCommand::Shutdown(done_tx));
+        }
     }
 }
