@@ -8,25 +8,46 @@
 
 import UIKit
 
-private let kCollapseButtonWidth: CGFloat = 24
-private let kRelayIndicatorSize: CGFloat = 16
+protocol LocationCellDelegate: AnyObject {
+    func toggle(cell: LocationCell)
+}
 
 class LocationCell: UITableViewCell {
-    typealias CollapseHandler = (LocationCell) -> Void
+    weak var delegate: LocationCellDelegate?
 
-    let locationLabel = UILabel()
-    let statusIndicator: UIView = {
+    private let locationLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 16)
+        label.textColor = .white
+        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 0
+        label.lineBreakStrategy = []
+        return label
+    }()
+
+    private let statusIndicator: UIView = {
         let view = UIView()
-        view.layer.cornerRadius = kRelayIndicatorSize * 0.5
+        view.layer.cornerRadius = 16 * 0.5
         view.layer.cornerCurve = .circular
         return view
     }()
 
-    let tickImageView = UIImageView(image: UIImage(named: "IconTick"))
-    let collapseButton = UIButton(type: .custom)
+    private let tickImageView: UIImageView = {
+        let imageView = UIImageView(image: UIImage(resource: .iconTick))
+        imageView.tintColor = .white
+        return imageView
+    }()
 
-    private let chevronDown = UIImage(named: "IconChevronDown")
-    private let chevronUp = UIImage(named: "IconChevronUp")
+    private let collapseButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.accessibilityIdentifier = .collapseButton
+        button.isAccessibilityElement = false
+        button.tintColor = .white
+        return button
+    }()
+
+    private let chevronDown = UIImage(resource: .iconChevronDown)
+    private let chevronUp = UIImage(resource: .iconChevronUp)
 
     var isDisabled = false {
         didSet {
@@ -49,8 +70,6 @@ class LocationCell: UITableViewCell {
             updateAccessibilityCustomActions()
         }
     }
-
-    var didCollapseHandler: CollapseHandler?
 
     override var indentationLevel: Int {
         didSet {
@@ -103,17 +122,6 @@ class LocationCell: UITableViewCell {
         selectedBackgroundView = UIView()
         selectedBackgroundView?.backgroundColor = UIColor.Cell.Background.selected
 
-        locationLabel.font = UIFont.systemFont(ofSize: 17)
-        locationLabel.textColor = .white
-        locationLabel.lineBreakMode = .byWordWrapping
-        locationLabel.numberOfLines = 0
-        locationLabel.lineBreakStrategy = []
-
-        tickImageView.tintColor = .white
-
-        collapseButton.accessibilityIdentifier = .collapseButton
-        collapseButton.isAccessibilityElement = false
-        collapseButton.tintColor = .white
         collapseButton.addTarget(self, action: #selector(handleCollapseButton(_:)), for: .touchUpInside)
 
         [locationLabel, tickImageView, statusIndicator, collapseButton].forEach { subview in
@@ -131,7 +139,7 @@ class LocationCell: UITableViewCell {
             tickImageView.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
             tickImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
 
-            statusIndicator.widthAnchor.constraint(equalToConstant: kRelayIndicatorSize),
+            statusIndicator.widthAnchor.constraint(equalToConstant: 16),
             statusIndicator.heightAnchor.constraint(equalTo: statusIndicator.widthAnchor),
             statusIndicator.centerXAnchor.constraint(equalTo: tickImageView.centerXAnchor),
             statusIndicator.centerYAnchor.constraint(equalTo: tickImageView.centerYAnchor),
@@ -148,7 +156,7 @@ class LocationCell: UITableViewCell {
             collapseButton.widthAnchor
                 .constraint(
                     equalToConstant: UIMetrics.contentLayoutMargins.leading + UIMetrics
-                        .contentLayoutMargins.trailing + kCollapseButtonWidth
+                        .contentLayoutMargins.trailing + 24
                 ),
             collapseButton.topAnchor.constraint(equalTo: contentView.topAnchor),
             collapseButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
@@ -213,11 +221,11 @@ class LocationCell: UITableViewCell {
     }
 
     @objc private func handleCollapseButton(_ sender: UIControl) {
-        didCollapseHandler?(self)
+        delegate?.toggle(cell: self)
     }
 
     @objc private func toggleCollapseAccessibilityAction() -> Bool {
-        didCollapseHandler?(self)
+        delegate?.toggle(cell: self)
         return true
     }
 
@@ -253,5 +261,14 @@ class LocationCell: UITableViewCell {
         } else {
             accessibilityCustomActions = nil
         }
+    }
+}
+
+extension LocationCell {
+    func configureCell(item: LocationCellViewModel) {
+        accessibilityIdentifier = item.node.code
+        locationLabel.text = item.node.name
+        showsCollapseControl = !item.node.children.isEmpty
+        isExpanded = item.node.showsChildren
     }
 }
