@@ -33,7 +33,7 @@ android {
         fun MutableMap<String, String>.addOptionalPropertyAsArgument(name: String) {
             val value =
                 rootProject.properties.getOrDefault(name, null) as? String
-                    ?: gradleLocalProperties(rootProject.projectDir).getProperty(name)
+                    ?: gradleLocalProperties(rootProject.projectDir, providers).getProperty(name)
 
             if (value != null) {
                 put(name, value)
