@@ -111,6 +111,7 @@ pub enum GetRelay {
         obfuscator: Option<SelectedObfuscator>,
         inner: WireguardConfig,
     },
+    #[cfg(not(target_os = "android"))]
     OpenVpn {
         endpoint: MullvadEndpoint,
         exit: Relay,
@@ -386,6 +387,7 @@ impl RelaySelector {
     /// See [`GetRelay`] for more details.
     /// * An `Err` if no suitable relay is found
     /// * An `Err` if no suitable bridge is found
+    #[cfg(not(target_os = "android"))]
     fn get_relay_inner(
         query: &RelayQuery,
         parsed_relays: &ParsedRelays,
@@ -411,6 +413,15 @@ impl RelaySelector {
                 Err(Error::NoRelay)
             }
         }
+    }
+
+    #[cfg(target_os = "android")]
+    fn get_relay_inner(
+        query: &RelayQuery,
+        parsed_relays: &ParsedRelays,
+        config: &SelectorConfig,
+    ) -> Result<GetRelay, Error> {
+        Self::get_wireguard_relay(query, config, parsed_relays)
     }
 
     /// Derive a valid Wireguard relay configuration from `query`.
@@ -569,6 +580,7 @@ impl RelaySelector {
     /// * An `Err` if no entry bridge can be chosen (if bridge mode is enabled on `query`)
     /// * an `Err` if no [`MullvadEndpoint`] can be derived from the selected relay
     /// * `Ok(GetRelay::OpenVpn)` otherwise
+    #[cfg(not(target_os = "android"))]
     fn get_openvpn_relay(
         query: &RelayQuery,
         config: &SelectorConfig,
@@ -594,6 +606,7 @@ impl RelaySelector {
     }
 
     /// Constructs a `MullvadEndpoint` with details for how to connect to `relay`.
+    #[cfg(not(target_os = "android"))]
     fn get_openvpn_endpoint(
         query: &RelayQuery,
         relay: Relay,
@@ -622,6 +635,7 @@ impl RelaySelector {
     /// * On success, returns an `Option` containing the selected bridge, if one is found. Returns `None` if no suitable bridge meets the criteria.
     /// * `Error::NoBridge` if attempting to use OpenVPN bridges over UDP, as this is unsupported.
     /// * `Error::NoRelay` if `relay` does not have a location set.
+    #[cfg(not(target_os = "android"))]
     fn get_openvpn_bridge(
         query: &RelayQuery,
         relay: &Relay,
@@ -805,54 +819,44 @@ impl RelaySelector {
     ) -> Option<Relay> {
         // Filter among all valid relays
         let relays = Self::get_tunnel_endpoints(
-            parsed_relays,
             query,
-            config.bridge_state,
-            &config.custom_lists,
+            config,
+            parsed_relays,
         );
         // Pick one of the valid relays.
         helpers::pick_random_relay(&relays).cloned()
     }
 
-    /// Returns a random relay and relay endpoint matching the given constraints and with
-    /// preferences applied.
-    #[cfg(target_os = "android")]
-    #[cfg_attr(target_os = "android", allow(unused_variables))]
-    fn get_tunnel_endpoints(
-        parsed_relays: &ParsedRelays,
-        relay_constraints: &RelayConstraints,
-        bridge_state: BridgeState,
-        custom_lists: &CustomListsSettings,
-    ) -> Vec<Relay> {
-        let relays = parsed_relays.relays();
-        let matcher = WireguardMatcher::new_matcher(
-            relay_constraints.clone(),
-            relay_constraints.wireguard_constraints.clone(),
-            parsed_relays.parsed_list().wireguard.clone(),
-            custom_lists,
-        );
-
-        helpers::get_tunnel_endpoint_internal(&relays, &matcher)
-    }
-
+    /// Returns all relays matching the given `query`.
     #[cfg(not(target_os = "android"))]
-    /// Returns a random relay and relay endpoint matching the given constraints and with
-    /// preferences applied.
     fn get_tunnel_endpoints(
+        query: &RelayQuery,
+        config: &SelectorConfig,
         parsed_relays: &ParsedRelays,
-        // Note: It should always be safe to call `unwrap_openvpn` here, unless there
-        // is a bug in `OpenVpnDetailer::to_endpoint`.
-        relay_constraints: &RelayQuery,
-        bridge_state: BridgeState,
-        custom_lists: &CustomListsSettings,
     ) -> Vec<Relay> {
         let relays = parsed_relays.relays();
         let matcher = RelayMatcher::new(
-            relay_constraints.clone(),
+            query.clone(),
             parsed_relays.parsed_list().openvpn.clone(),
-            bridge_state,
+            config.bridge_state,
             parsed_relays.parsed_list().wireguard.clone(),
-            custom_lists,
+            &config.custom_lists,
+        );
+        matcher.filter_matching_relay_list(relays)
+    }
+
+    /// Returns all relays matching the given `query`.
+    #[cfg(target_os = "android")]
+    fn get_tunnel_endpoints(
+        query: &RelayQuery,
+        config: &SelectorConfig,
+        parsed_relays: &ParsedRelays,
+    ) -> Vec<Relay> {
+        let relays = parsed_relays.relays();
+        let matcher = WireguardMatcher::new_matcher(
+            query.clone(),
+            parsed_relays.parsed_list().wireguard.clone(),
+            &config.custom_lists,
         );
         matcher.filter_matching_relay_list(relays)
     }
