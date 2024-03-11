@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
-import android.util.Log
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -78,7 +77,6 @@ fun CreateCustomList(
         }
     }
     val state by vm.uiState.collectAsStateWithLifecycle()
-    Log.d("LOLZ", "CreateCustomList: $state")
     CreateCustomListDialog(
         state = state,
         createCustomList = vm::createCustomList,
