@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +35,8 @@ import net.mullvad.mullvadvpn.compose.button.ApplyButton
 import net.mullvad.mullvadvpn.compose.cell.CheckboxCell
 import net.mullvad.mullvadvpn.compose.cell.ExpandableComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
+import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
+import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
 import net.mullvad.mullvadvpn.compose.state.RelayFilterState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -146,28 +146,17 @@ fun FilterScreen(
         },
     ) { contentPadding ->
         LazyColumn(modifier = Modifier.padding(contentPadding).fillMaxSize()) {
-            item {
-                Divider()
-                OwnershipHeader(ownershipExpanded, { ownershipExpanded = it })
-            }
+            itemWithDivider { OwnershipHeader(ownershipExpanded) { ownershipExpanded = it } }
             if (ownershipExpanded) {
                 item { AnyOwnership(state, onSelectedOwnership) }
-                items(state.filteredOwnershipByProviders) { ownership ->
-                    Divider()
+                itemsWithDivider(state.filteredOwnershipByProviders) { ownership ->
                     Ownership(ownership, state, onSelectedOwnership)
                 }
             }
-            item {
-                Divider()
-                ProvidersHeader(providerExpanded, { providerExpanded = it })
-            }
+            itemWithDivider() { ProvidersHeader(providerExpanded) { providerExpanded = it } }
             if (providerExpanded) {
-                item {
-                    Divider()
-                    AllProviders(state, onAllProviderCheckChange)
-                }
-                items(state.filteredProvidersByOwnership) { provider ->
-                    Divider()
+                itemWithDivider { AllProviders(state, onAllProviderCheckChange) }
+                itemsWithDivider(state.filteredProvidersByOwnership) { provider ->
                     Provider(provider, state, onSelectedProvider)
                 }
             }
