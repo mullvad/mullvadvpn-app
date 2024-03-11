@@ -196,48 +196,57 @@ fun AccountScreen(
     ) { modifier ->
         Column(
             horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(Dimens.accountRowSpacing),
-            modifier = modifier.animateContentSize().padding(horizontal = Dimens.sideMargin)
+            modifier =
+                modifier
+                    .animateContentSize()
+                    .padding(horizontal = Dimens.sideMargin)
+                    .padding(bottom = Dimens.screenVerticalMargin)
         ) {
-            DeviceNameRow(deviceName = state.deviceName ?: "", onInfoClick = navigateToDeviceInfo)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(Dimens.accountRowSpacing),
+                modifier = Modifier.padding(bottom = Dimens.smallPadding).animateContentSize()
+            ) {
+                DeviceNameRow(
+                    deviceName = state.deviceName ?: "",
+                    onInfoClick = navigateToDeviceInfo
+                )
 
-            AccountNumberRow(accountNumber = state.accountNumber ?: "", onCopyAccountNumber)
+                AccountNumberRow(accountNumber = state.accountNumber ?: "", onCopyAccountNumber)
 
-            PaidUntilRow(accountExpiry = state.accountExpiry)
+                PaidUntilRow(accountExpiry = state.accountExpiry)
+            }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Column(modifier = Modifier.padding(bottom = Dimens.screenVerticalMargin)) {
-                state.billingPaymentState?.let {
-                    PlayPayment(
-                        billingPaymentState = state.billingPaymentState,
-                        onPurchaseBillingProductClick = { productId ->
-                            onPurchaseBillingProductClick(productId)
-                        },
-                        onInfoClick = navigateToVerificationPendingDialog,
-                        modifier = Modifier.padding(bottom = Dimens.buttonSpacing)
-                    )
-                }
-
-                if (state.showSitePayment) {
-                    ExternalButton(
-                        text = stringResource(id = R.string.manage_account),
-                        onClick = onManageAccountClick,
-                        modifier = Modifier.padding(bottom = Dimens.buttonSpacing)
-                    )
-                }
-
-                RedeemVoucherButton(
-                    onClick = onRedeemVoucherClick,
-                    modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
-                    isEnabled = true
-                )
-
-                NegativeButton(
-                    text = stringResource(id = R.string.log_out),
-                    onClick = onLogoutClick,
+            state.billingPaymentState?.let {
+                PlayPayment(
+                    billingPaymentState = state.billingPaymentState,
+                    onPurchaseBillingProductClick = { productId ->
+                        onPurchaseBillingProductClick(productId)
+                    },
+                    onInfoClick = navigateToVerificationPendingDialog,
+                    modifier = Modifier.padding(bottom = Dimens.buttonSpacing)
                 )
             }
+
+            if (state.showSitePayment) {
+                ExternalButton(
+                    text = stringResource(id = R.string.manage_account),
+                    onClick = onManageAccountClick,
+                    modifier = Modifier.padding(bottom = Dimens.buttonSpacing)
+                )
+            }
+
+            RedeemVoucherButton(
+                onClick = onRedeemVoucherClick,
+                modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
+                isEnabled = true
+            )
+
+            NegativeButton(
+                text = stringResource(id = R.string.log_out),
+                onClick = onLogoutClick,
+            )
         }
     }
 }
