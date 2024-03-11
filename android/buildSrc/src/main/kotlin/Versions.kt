@@ -6,7 +6,7 @@ object Versions {
     const val konsist = "0.13.0"
     const val kotlin = "1.9.22"
     const val kotlinCompilerExtensionVersion = "1.5.10"
-    const val kotlinx = "1.7.3"
+    const val kotlinx = "1.8.0"
     const val leakCanary = "2.13"
     const val mockk = "1.13.8"
     const val mockWebserver = "4.12.0"
