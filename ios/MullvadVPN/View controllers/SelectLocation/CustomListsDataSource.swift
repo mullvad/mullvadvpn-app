@@ -10,6 +10,7 @@ import Foundation
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
+import UIKit
 
 class CustomListsDataSource: LocationDataSourceProtocol {
     private(set) var nodes = [LocationNode]()

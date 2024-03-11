@@ -83,7 +83,7 @@ final class LocationViewController: UIViewController {
             })
         )
 
-        setUpDataSource()
+        setUpDataSources()
         setUpTableView()
         setUpTopContent()
 
@@ -119,15 +119,22 @@ final class LocationViewController: UIViewController {
 
     // MARK: - Private
 
-    private func setUpDataSource() {
+    private func setUpDataSources() {
+        let allLocationDataSource = AllLocationDataSource()
+        let customListsDataSource = CustomListsDataSource(repository: customListRepository)
         dataSource = LocationDataSource(
             tableView: tableView,
-            allLocations: AllLocationDataSource(),
-            customLists: CustomListsDataSource(repository: customListRepository)
+            allLocations: allLocationDataSource,
+            customLists: customListsDataSource
         )
 
         dataSource?.didSelectRelayLocations = { [weak self] locations in
             self?.didSelectRelays?(locations)
+        }
+
+        dataSource?.didTapEditCustomLists = { [weak self] in
+            guard let self else { return }
+            delegate?.didRequestRouteToCustomLists(self)
         }
 
         if let cachedRelays {
