@@ -1,6 +1,6 @@
 use std::net::{Ipv4Addr, SocketAddrV4};
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use futures::future::{self, Either};
 use tokio::{io::AsyncWriteExt, process::Command};
 
@@ -232,5 +232,15 @@ AllowedIPs = {CUSTOM_TUN_LOCAL_TUN_ADDR}
     if !status.success() {
         return Err(anyhow!("ipconfig failed: {}", status.code().unwrap()));
     }
+    Ok(())
+}
+
+pub fn set_mtu(iface: &String, mtu: u16) -> Result<(), anyhow::Error> {
+    let mut cmd = std::process::Command::new("/usr/bin/sudo");
+    cmd.args(["/sbin/ifconfig", iface, "mtu", &format!("{mtu}")]);
+    let output = cmd.output().context("Run ifconfig")?;
+    if !output.status.success() {
+        bail!("ifconfig failed: {}", output.status.code().unwrap());
+    };
     Ok(())
 }

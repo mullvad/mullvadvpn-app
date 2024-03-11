@@ -32,6 +32,7 @@ use test_rpc::ServiceClient;
 fn set_bridge_interface_mtu(
     max_packet_size: u16,
 ) -> anyhow::Result<scopeguard::ScopeGuard<(), impl FnOnce(())>> {
+    use crate::vm::network::macos;
     use anyhow::Context;
     use test_rpc::net::unix;
     // TODO: This can be retrieved from test_runner::net::get_default_interface();
@@ -40,11 +41,15 @@ fn set_bridge_interface_mtu(
 
     let previous_mtu = unix::get_mtu(&bridge_iface)
         .with_context(|| format!("Failed to get MTU for bridge interface '{bridge_iface}'"))?;
-    unix::set_mtu(&bridge_iface, max_packet_size)
+
+    log::info!("Changing '{bridge_iface}' MTU from {previous_mtu} to {max_packet_size}");
+
+    macos::set_mtu(&bridge_iface, max_packet_size)
         .with_context(|| format!("Failed to set MTU for bridge interface '{bridge_iface}'"))?;
 
     Ok(scopeguard::guard((), move |()| {
-        unix::set_mtu(&bridge_iface, previous_mtu).expect("Failed to set MTU on bridge interface");
+        log::info!("Resetting '{bridge_iface}' MTU to {previous_mtu}");
+        macos::set_mtu(&bridge_iface, previous_mtu).expect("Failed to set MTU on bridge interface");
     }))
 }
 
