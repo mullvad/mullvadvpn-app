@@ -312,7 +312,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 proxy_auth_file_path: proxy_auth_file_path.clone(),
                 abort_server_tx: event_server_abort_tx,
                 proxy: params.proxy.clone(),
-                route_manager_handle: route_manager,
+                route_manager,
                 #[cfg(target_os = "linux")]
                 ipv6_enabled,
             },
@@ -817,7 +817,7 @@ mod event_server {
         pub proxy_auth_file_path: Option<super::PathBuf>,
         pub abort_server_tx: triggered::Trigger,
         pub proxy: Option<CustomProxy>,
-        pub route_manager_handle: talpid_routing::RouteManagerHandle,
+        pub route_manager: talpid_routing::RouteManagerHandle,
         #[cfg(target_os = "linux")]
         pub ipv6_enabled: bool,
     }
@@ -864,7 +864,7 @@ mod event_server {
                 let route = talpid_routing::RequiredRoute::new(network, node);
                 routes.insert(route);
             }
-            let route_handle = self.route_manager_handle.clone();
+            let route_handle = self.route_manager.clone();
 
             #[cfg(target_os = "linux")]
             {

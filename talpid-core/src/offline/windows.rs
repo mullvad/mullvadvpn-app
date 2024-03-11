@@ -29,7 +29,7 @@ unsafe impl Send for BroadcastListener {}
 impl BroadcastListener {
     pub async fn start(
         notify_tx: UnboundedSender<Connectivity>,
-        route_manager_handle: RouteManagerHandle,
+        route_manager: RouteManagerHandle,
         mut power_mgmt_rx: PowerManagementListener,
     ) -> Result<Self, Error> {
         let notify_tx = Arc::new(notify_tx);
@@ -67,8 +67,7 @@ impl BroadcastListener {
         });
 
         let callback_handle =
-            Self::setup_network_connectivity_listener(system_state.clone(), route_manager_handle)
-                .await?;
+            Self::setup_network_connectivity_listener(system_state.clone(), route_manager).await?;
 
         Ok(BroadcastListener {
             system_state,
@@ -107,9 +106,9 @@ impl BroadcastListener {
     /// until after `WinNet_DeactivateConnectivityMonitor` has been called.
     async fn setup_network_connectivity_listener(
         system_state: Arc<Mutex<SystemState>>,
-        route_manager_handle: RouteManagerHandle,
+        route_manager: RouteManagerHandle,
     ) -> Result<CallbackHandle, Error> {
-        let change_handle = route_manager_handle
+        let change_handle = route_manager
             .add_default_route_change_callback(Box::new(move |event, addr_family| {
                 Self::connectivity_callback(event, addr_family, &system_state)
             }))
@@ -202,10 +201,10 @@ pub type MonitorHandle = BroadcastListener;
 
 pub async fn spawn_monitor(
     sender: UnboundedSender<Connectivity>,
-    route_manager_handle: RouteManagerHandle,
+    route_manager: RouteManagerHandle,
 ) -> Result<MonitorHandle, Error> {
     let power_mgmt_rx = crate::window::PowerManagementListener::new();
-    BroadcastListener::start(sender, route_manager_handle, power_mgmt_rx).await
+    BroadcastListener::start(sender, route_manager, power_mgmt_rx).await
 }
 
 fn apply_system_state_change(state: Arc<Mutex<SystemState>>, change: StateChange) {

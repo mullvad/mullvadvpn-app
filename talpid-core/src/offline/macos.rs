@@ -65,14 +65,14 @@ impl ConnectivityInner {
 
 pub async fn spawn_monitor(
     notify_tx: UnboundedSender<Connectivity>,
-    route_manager_handle: RouteManagerHandle,
+    route_manager: RouteManagerHandle,
 ) -> Result<MonitorHandle, Error> {
     let notify_tx = Arc::new(notify_tx);
 
     // note: begin observing before initializing the state
-    let route_listener = route_manager_handle.default_route_listener().await?;
+    let route_listener = route_manager.default_route_listener().await?;
 
-    let (ipv4, ipv6) = match route_manager_handle.get_default_routes().await {
+    let (ipv4, ipv6) = match route_manager.get_default_routes().await {
         Ok((v4_route, v6_route)) => (v4_route.is_some(), v6_route.is_some()),
         Err(error) => {
             log::warn!("Failed to initialize offline monitor: {error}");
