@@ -140,13 +140,6 @@ class LocationCoordinator: Coordinator, Presentable, Presenting, RelayCacheTrack
 
 extension LocationCoordinator: LocationViewControllerDelegate {
     func didRequestRouteToCustomLists(_ controller: LocationViewController) {
-        let coordinator = AddCustomListCoordinator(
-            navigationController: CustomNavigationController(),
-            customListInteractor: CustomListInteractor(
-                repository: customListRepository
-            )
-        )
-        coordinator.start()
-        presentChild(coordinator, animated: true)
+        // TODO: Show add/Edit bottom sheet.
     }
 }

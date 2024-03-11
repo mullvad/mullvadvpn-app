@@ -17,12 +17,20 @@ class InMemoryCustomListRepository: CustomListRepositoryProtocol {
     }
 
     private var customRelayLists: [CustomList] = [
-        CustomList(id: UUID(), name: "Netflix", locations: [.city("al", "tia")]),
-        CustomList(id: UUID(), name: "Streaming", locations: [
-            .city("us", "dal"),
-            .country("se"),
-            .city("de", "ber"),
-        ]),
+        CustomList(
+            id: UUID(uuidString: "F17948CB-18E2-4F84-82CD-5780F94216DB")!,
+            name: "Netflix",
+            locations: [.city("al", "tia")]
+        ),
+        CustomList(
+            id: UUID(uuidString: "4104C603-B35D-4A64-8865-96C0BF33D57F")!,
+            name: "Streaming",
+            locations: [
+                .city("us", "dal"),
+                .country("se"),
+                .city("de", "ber"),
+            ]
+        ),
     ]
 
     private let passthroughSubject = PassthroughSubject<[CustomList], Never>()

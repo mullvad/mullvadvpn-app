@@ -9,7 +9,6 @@
 import Foundation
 import MullvadREST
 import MullvadTypes
-import UIKit
 
 protocol LocationDataSourceProtocol {
     var nodes: [LocationNode] { get }
