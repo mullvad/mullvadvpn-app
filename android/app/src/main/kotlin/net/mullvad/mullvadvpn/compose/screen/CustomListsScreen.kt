@@ -1,15 +1,11 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -20,8 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,7 +45,7 @@ import net.mullvad.mullvadvpn.compose.test.NEW_LIST_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.shape.fabShape
+import net.mullvad.mullvadvpn.lib.theme.color.Alpha60
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.CustomListsViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -124,20 +122,19 @@ fun CustomListsScreen(
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.edit_custom_lists),
         navigationIcon = { NavigateBackIconButton(onBackClick) },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
+        actions = {
+            IconButton(
                 onClick = addCustomList,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = MaterialTheme.shapes.fabShape,
                 modifier = Modifier.testTag(NEW_LIST_BUTTON_TEST_TAG)
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Add,
+                    painterResource(id = R.drawable.ic_icons_add),
+                    tint =
+                        MaterialTheme.colorScheme.onBackground
+                            .copy(alpha = Alpha60)
+                            .compositeOver(MaterialTheme.colorScheme.background),
                     contentDescription = stringResource(id = R.string.new_list)
                 )
-                Spacer(modifier = Modifier.width(Dimens.mediumPadding))
-                Text(stringResource(id = R.string.new_list))
             }
         },
         snackbarHostState = snackbarHostState
