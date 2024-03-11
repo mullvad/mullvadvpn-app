@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -27,7 +28,6 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
-import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
 import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
@@ -40,12 +40,11 @@ class WelcomeViewModel(
     private val deviceRepository: DeviceRepository,
     private val serviceConnectionManager: ServiceConnectionManager,
     private val paymentUseCase: PaymentUseCase,
-    private val outOfTimeUseCase: OutOfTimeUseCase,
     private val pollAccountExpiry: Boolean = true,
     private val isPlayBuild: Boolean
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
-    val uiSideEffect = merge(_uiSideEffect.receiveAsFlow(), notOutOfTimeEffect())
+    val uiSideEffect = merge(_uiSideEffect.receiveAsFlow(), hasAddedTime())
 
     val uiState =
         serviceConnectionManager.connectionState
@@ -86,9 +85,11 @@ class WelcomeViewModel(
         fetchPaymentAvailability()
     }
 
-    private fun notOutOfTimeEffect() =
-        outOfTimeUseCase.isOutOfTime
-            .filter { it == false }
+    private fun hasAddedTime() =
+        accountRepository.accountExpiryState
+            .map { it.date() }
+            .filterNotNull()
+            .filter { it.minusHours(MIN_TIME_PAST_ACCOUNT_EXPIRY).isAfterNow }
             .map {
                 paymentUseCase.resetPurchaseResult()
                 UiSideEffect.OpenConnectScreen
@@ -143,5 +144,9 @@ class WelcomeViewModel(
         data class OpenAccountView(val token: String) : UiSideEffect
 
         data object OpenConnectScreen : UiSideEffect
+    }
+
+    companion object {
+        private const val MIN_TIME_PAST_ACCOUNT_EXPIRY = 20
     }
 }
