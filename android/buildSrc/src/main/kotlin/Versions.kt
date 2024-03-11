@@ -7,7 +7,7 @@ object Versions {
     const val kotlin = "1.9.22"
     const val kotlinCompilerExtensionVersion = "1.5.10"
     const val kotlinx = "1.7.3"
-    const val leakCanary = "2.12"
+    const val leakCanary = "2.13"
     const val mockk = "1.13.8"
     const val mockWebserver = "4.12.0"
     const val turbine = "1.0.0"
