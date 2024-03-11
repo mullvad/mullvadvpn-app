@@ -756,8 +756,9 @@ private fun <D : DestinationSpec<*>, R : CustomListResult> ResultRecipient<D, R>
     }
 }
 
-private const val EXTRA_ITEMS_LOCATION = 3
-private const val EXTRA_ITEM_CUSTOM_LIST = 1
+private const val EXTRA_ITEMS_LOCATION =
+    4 // Custom lists header, custom lists description, spacer, all locations header
+private const val EXTRA_ITEM_CUSTOM_LIST = 1 // Custom lists header
 
 sealed interface BottomSheetState {
 
