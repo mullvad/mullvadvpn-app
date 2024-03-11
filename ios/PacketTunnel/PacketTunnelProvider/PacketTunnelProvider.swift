@@ -229,6 +229,11 @@ extension PacketTunnelProvider {
                     // Cache last connection attempt to filter out repeating calls.
                     lastConnectionAttempt = connectionAttempt
 
+                #if DEBUG
+                case .negotiatingKey:
+                    break
+                #endif
+
                 case .initial, .connected, .disconnecting, .disconnected, .error:
                     break
                 }

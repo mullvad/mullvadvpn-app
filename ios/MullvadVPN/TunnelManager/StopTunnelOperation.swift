@@ -36,27 +36,36 @@ class StopTunnelOperation: ResultOperation<Void> {
             finish(result: .success(()))
 
         case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error:
-            guard let tunnel = interactor.tunnel else {
-                finish(result: .failure(UnsetTunnelError()))
-                return
-            }
+            doShutDownTunnel()
 
-            // Disable on-demand when stopping the tunnel to prevent it from coming back up
-            tunnel.isOnDemandEnabled = false
-
-            tunnel.saveToPreferences { error in
-                self.dispatchQueue.async {
-                    if let error {
-                        self.finish(result: .failure(error))
-                    } else {
-                        tunnel.stop()
-                        self.finish(result: .success(()))
-                    }
-                }
-            }
+        #if DEBUG
+        case .negotiatingKey:
+            doShutDownTunnel()
+        #endif
 
         case .disconnected, .disconnecting, .pendingReconnect, .waitingForConnectivity(.noNetwork):
             finish(result: .success(()))
+        }
+    }
+
+    private func doShutDownTunnel() {
+        guard let tunnel = interactor.tunnel else {
+            finish(result: .failure(UnsetTunnelError()))
+            return
+        }
+
+        // Disable on-demand when stopping the tunnel to prevent it from coming back up
+        tunnel.isOnDemandEnabled = false
+
+        tunnel.saveToPreferences { error in
+            self.dispatchQueue.async {
+                if let error {
+                    self.finish(result: .failure(error))
+                } else {
+                    tunnel.stop()
+                    self.finish(result: .success(()))
+                }
+            }
         }
     }
 }

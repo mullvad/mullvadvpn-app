@@ -13,32 +13,40 @@ extension ObservedState {
     public var relayConstraints: RelayConstraints? {
         switch self {
         case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
-            return connState.relayConstraints
+            connState.relayConstraints
 
+        #if DEBUG
+        case let .negotiatingKey(connState):
+            connState.relayConstraints
+        #endif
         case let .error(blockedState):
-            return blockedState.relayConstraints
+            blockedState.relayConstraints
 
         case .initial, .disconnecting, .disconnected:
-            return nil
+            nil
         }
     }
 
     public var name: String {
         switch self {
         case .connected:
-            return "Connected"
+            "Connected"
         case .connecting:
-            return "Connecting"
+            "Connecting"
+        #if DEBUG
+        case .negotiatingKey:
+            "Negotiating key"
+        #endif
         case .reconnecting:
-            return "Reconnecting"
+            "Reconnecting"
         case .disconnecting:
-            return "Disconnecting"
+            "Disconnecting"
         case .disconnected:
-            return "Disconnected"
+            "Disconnected"
         case .initial:
-            return "Initial"
+            "Initial"
         case .error:
-            return "Error"
+            "Error"
         }
     }
 
