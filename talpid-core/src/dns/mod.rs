@@ -1,6 +1,6 @@
 use std::net::IpAddr;
 #[cfg(target_os = "linux")]
-use talpid_routing::RouteManagerHandle;
+use talpid_routing::RouteManager;
 
 #[cfg(target_os = "macos")]
 use {
@@ -38,7 +38,7 @@ impl DnsMonitor {
     /// Returns a new `DnsMonitor` that can set and monitor the system DNS.
     pub fn new(
         #[cfg(target_os = "linux")] handle: tokio::runtime::Handle,
-        #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
+        #[cfg(target_os = "linux")] route_manager: RouteManager,
         #[cfg(target_os = "macos")] tx: Weak<UnboundedSender<TunnelCommand>>,
     ) -> Result<Self, Error> {
         Ok(DnsMonitor {
@@ -94,7 +94,7 @@ trait DnsMonitorT: Sized {
 
     fn new(
         #[cfg(target_os = "linux")] handle: tokio::runtime::Handle,
-        #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
+        #[cfg(target_os = "linux")] route_manager: RouteManager,
         #[cfg(target_os = "macos")] tx: Weak<UnboundedSender<TunnelCommand>>,
     ) -> Result<Self, Self::Error>;
 

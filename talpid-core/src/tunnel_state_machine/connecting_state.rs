@@ -60,9 +60,9 @@ impl ConnectingState {
         if shared_values.connectivity.is_offline() {
             // FIXME: Temporary: Nudge route manager to update the default interface
             #[cfg(target_os = "macos")]
-            if let Ok(handle) = shared_values.route_manager.handle() {
+            {
                 log::debug!("Poking route manager to update default routes");
-                let _ = handle.refresh_routes();
+                let _ = shared_values.route_manager.refresh_routes();
             }
             return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
         }
@@ -202,7 +202,7 @@ impl ConnectingState {
                 })
             };
 
-        let route_manager_handle = route_manager.handle();
+        let route_manager_handle = route_manager.clone();
         let log_dir = log_dir.clone();
         let resource_dir = resource_dir.to_path_buf();
 
@@ -213,25 +213,6 @@ impl ConnectingState {
 
         tokio::task::spawn_blocking(move || {
             let start = Instant::now();
-
-            let route_manager_handle = match route_manager_handle {
-                Ok(handle) => handle,
-                Err(error) => {
-                    if tunnel_close_event_tx
-                        .send(Some(ErrorStateCause::StartTunnelError))
-                        .is_err()
-                    {
-                        log::warn!(
-                            "Tunnel state machine stopped before receiving tunnel closed event"
-                        );
-                    }
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to obtain route monitor handle")
-                    );
-                    return;
-                }
-            };
 
             let args = TunnelArgs {
                 runtime,

@@ -3,7 +3,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     sync::Arc,
 };
-use talpid_routing::RouteManagerHandle;
+use talpid_routing::RouteManager;
 use talpid_types::{net::Connectivity, ErrorExt};
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -15,7 +15,7 @@ pub enum Error {
 }
 
 pub struct MonitorHandle {
-    route_manager: RouteManagerHandle,
+    route_manager: RouteManager,
     fwmark: Option<u32>,
     _notify_tx: Arc<UnboundedSender<Connectivity>>,
 }
@@ -42,7 +42,7 @@ impl MonitorHandle {
 
 pub async fn spawn_monitor(
     notify_tx: UnboundedSender<Connectivity>,
-    route_manager: RouteManagerHandle,
+    route_manager: RouteManager,
     fwmark: Option<u32>,
 ) -> Result<MonitorHandle> {
     let mut is_offline = public_ip_unreachable(&route_manager, fwmark).await?;
@@ -86,10 +86,7 @@ pub async fn spawn_monitor(
     Ok(monitor_handle)
 }
 
-async fn public_ip_unreachable(
-    handle: &RouteManagerHandle,
-    fwmark: Option<u32>,
-) -> Result<Connectivity> {
+async fn public_ip_unreachable(handle: &RouteManager, fwmark: Option<u32>) -> Result<Connectivity> {
     let route_exists = |destination| async move {
         handle
             .get_destination_route(destination, fwmark)

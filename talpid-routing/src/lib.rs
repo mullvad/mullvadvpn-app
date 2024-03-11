@@ -25,7 +25,7 @@ use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
 #[cfg(target_os = "macos")]
 pub use imp::{imp::RouteError, DefaultRouteEvent, PlatformError};
 
-pub use imp::{Error, RouteManager, RouteManagerHandle};
+pub use imp::{Error, RouteManager};
 
 /// A network route with a specific network node, destination and an optional metric.
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]

@@ -1,7 +1,7 @@
 use crate::linux::{iface_index, IfaceIndexLookupError};
 use std::net::IpAddr;
 use talpid_dbus::systemd_resolved::{AsyncHandle, SystemdResolved as DbusInterface};
-use talpid_routing::RouteManagerHandle;
+use talpid_routing::RouteManager;
 use talpid_types::ErrorExt;
 
 pub(crate) use talpid_dbus::systemd_resolved::Error as SystemdDbusError;
@@ -36,7 +36,7 @@ impl SystemdResolved {
 
     pub async fn set_dns(
         &mut self,
-        _route_manager: RouteManagerHandle,
+        _route_manager: RouteManager,
         interface_name: &str,
         servers: &[IpAddr],
     ) -> Result<()> {

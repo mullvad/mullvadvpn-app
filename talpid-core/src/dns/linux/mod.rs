@@ -8,7 +8,7 @@ use self::{
     systemd_resolved::SystemdResolved,
 };
 use std::{env, fmt, net::IpAddr};
-use talpid_routing::RouteManagerHandle;
+use talpid_routing::RouteManager;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -37,7 +37,7 @@ pub enum Error {
 }
 
 pub struct DnsMonitor {
-    route_manager: RouteManagerHandle,
+    route_manager: RouteManager,
     handle: tokio::runtime::Handle,
     inner: Option<DnsMonitorHolder>,
 }
@@ -45,7 +45,7 @@ pub struct DnsMonitor {
 impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
-    fn new(handle: tokio::runtime::Handle, route_manager: RouteManagerHandle) -> Result<Self> {
+    fn new(handle: tokio::runtime::Handle, route_manager: RouteManager) -> Result<Self> {
         Ok(DnsMonitor {
             route_manager,
             handle,
@@ -129,7 +129,7 @@ impl DnsMonitorHolder {
     fn set(
         &mut self,
         handle: &tokio::runtime::Handle,
-        route_manager: &RouteManagerHandle,
+        route_manager: &RouteManager,
         interface: &str,
         servers: &[IpAddr],
     ) -> Result<()> {

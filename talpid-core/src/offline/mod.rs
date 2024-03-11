@@ -1,7 +1,7 @@
 use futures::channel::mpsc::UnboundedSender;
 use once_cell::sync::Lazy;
 #[cfg(not(target_os = "android"))]
-use talpid_routing::RouteManagerHandle;
+use talpid_routing::RouteManager;
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 use talpid_types::net::Connectivity;
@@ -45,7 +45,7 @@ impl MonitorHandle {
 #[cfg(not(target_os = "android"))]
 pub async fn spawn_monitor(
     sender: UnboundedSender<Connectivity>,
-    route_manager: RouteManagerHandle,
+    route_manager: RouteManager,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
 ) -> Result<MonitorHandle, Error> {
     let monitor = if *FORCE_DISABLE_OFFLINE_MONITOR {

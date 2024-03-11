@@ -249,7 +249,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         params: &openvpn::TunnelParameters,
         log_path: Option<PathBuf>,
         resource_dir: &Path,
-        route_manager: talpid_routing::RouteManagerHandle,
+        route_manager: talpid_routing::RouteManager,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -817,7 +817,7 @@ mod event_server {
         pub proxy_auth_file_path: Option<super::PathBuf>,
         pub abort_server_tx: triggered::Trigger,
         pub proxy: Option<CustomProxy>,
-        pub route_manager_handle: talpid_routing::RouteManagerHandle,
+        pub route_manager_handle: talpid_routing::RouteManager,
         #[cfg(target_os = "linux")]
         pub ipv6_enabled: bool,
     }

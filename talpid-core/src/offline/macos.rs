@@ -2,7 +2,7 @@
 //! that the app gets stuck in an offline state, blocking all internet access and preventing the
 //! user from connecting to a relay.
 //!
-//! See [RouteManagerHandle::default_route_listener].
+//! See [RouteManager::default_route_listener].
 //!
 //! This offline monitor synthesizes an offline state between network switches and before coming
 //! online from an offline state. This is done to work around issues with DNS being blocked due
@@ -17,7 +17,7 @@ use std::{
     sync::{Arc, Mutex},
     time::Duration,
 };
-use talpid_routing::{DefaultRouteEvent, RouteManagerHandle};
+use talpid_routing::{DefaultRouteEvent, RouteManager};
 use talpid_types::net::Connectivity;
 
 const SYNTHETIC_OFFLINE_DURATION: Duration = Duration::from_secs(1);
@@ -65,7 +65,7 @@ impl ConnectivityInner {
 
 pub async fn spawn_monitor(
     notify_tx: UnboundedSender<Connectivity>,
-    route_manager_handle: RouteManagerHandle,
+    route_manager_handle: RouteManager,
 ) -> Result<MonitorHandle, Error> {
     let notify_tx = Arc::new(notify_tx);
 

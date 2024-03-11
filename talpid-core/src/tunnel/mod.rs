@@ -3,7 +3,7 @@ use crate::logging;
 use futures::channel::oneshot;
 use std::path;
 #[cfg(not(target_os = "android"))]
-use talpid_routing::RouteManagerHandle;
+use talpid_routing::RouteManager;
 pub use talpid_tunnel::{TunnelArgs, TunnelEvent, TunnelMetadata};
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::openvpn as openvpn_types;
@@ -227,7 +227,7 @@ impl TunnelMonitor {
         resource_dir: &path::Path,
         on_event: L,
         tunnel_close_rx: oneshot::Receiver<()>,
-        route_manager: RouteManagerHandle,
+        route_manager: RouteManager,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)

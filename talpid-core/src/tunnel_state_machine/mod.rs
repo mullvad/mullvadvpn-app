@@ -269,7 +269,7 @@ impl TunnelStateMachine {
         #[cfg(target_os = "macos")]
         let filtering_resolver = crate::resolver::start_resolver().await?;
 
-        let route_manager = RouteManager::new(
+        let route_manager = RouteManager::spawn(
             #[cfg(target_os = "linux")]
             args.linux_ids.fwmark,
             #[cfg(target_os = "linux")]
@@ -284,9 +284,7 @@ impl TunnelStateMachine {
             args.resource_dir.clone(),
             args.command_tx.clone(),
             volume_update_rx,
-            route_manager
-                .handle()
-                .map_err(Error::InitRouteManagerError)?,
+            route_manager.clone(),
         )
         .map_err(Error::InitSplitTunneling)?;
 
@@ -308,9 +306,7 @@ impl TunnelStateMachine {
             #[cfg(target_os = "linux")]
             runtime.clone(),
             #[cfg(target_os = "linux")]
-            route_manager
-                .handle()
-                .map_err(Error::InitRouteManagerError)?,
+            route_manager.clone(),
             #[cfg(target_os = "macos")]
             args.command_tx.clone(),
         )
@@ -331,7 +327,7 @@ impl TunnelStateMachine {
         let offline_monitor = offline::spawn_monitor(
             offline_tx,
             #[cfg(not(target_os = "android"))]
-            route_manager.handle()?,
+            route_manager.clone(),
             #[cfg(target_os = "linux")]
             Some(args.linux_ids.fwmark),
             #[cfg(target_os = "android")]

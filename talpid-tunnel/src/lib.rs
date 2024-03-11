@@ -10,7 +10,7 @@ pub mod network_interface;
 
 pub mod tun_provider;
 use futures::{channel::oneshot, future::BoxFuture};
-use talpid_routing::RouteManagerHandle;
+use talpid_routing::RouteManager;
 use talpid_types::net::AllowedTunnelTraffic;
 use tun_provider::TunProvider;
 
@@ -45,7 +45,7 @@ where
     /// Connection retry attempts.
     pub retry_attempt: u32,
     /// Route manager handle.
-    pub route_manager: RouteManagerHandle,
+    pub route_manager: RouteManager,
 }
 
 /// Information about a VPN tunnel.

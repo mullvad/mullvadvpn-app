@@ -18,7 +18,7 @@ use std::{
     },
     time::Duration,
 };
-use talpid_routing::{get_best_default_route, CallbackHandle, EventType, RouteManagerHandle};
+use talpid_routing::{get_best_default_route, CallbackHandle, EventType, RouteManager};
 use talpid_types::{split_tunnel::ExcludedProcess, tunnel::ErrorStateCause, ErrorExt};
 use talpid_windows::{
     io::Overlapped,
@@ -112,7 +112,7 @@ pub struct SplitTunnel {
     _route_change_callback: Option<CallbackHandle>,
     daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
     async_path_update_in_progress: Arc<AtomicBool>,
-    route_manager: RouteManagerHandle,
+    route_manager: RouteManager,
 }
 
 enum Request {
@@ -166,7 +166,7 @@ impl SplitTunnel {
         resource_dir: PathBuf,
         daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
         volume_update_rx: mpsc::UnboundedReceiver<()>,
-        route_manager: RouteManagerHandle,
+        route_manager: RouteManager,
     ) -> Result<Self, Error> {
         let excluded_processes = Arc::new(RwLock::new(HashMap::new()));
 

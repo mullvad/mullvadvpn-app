@@ -718,7 +718,7 @@ impl WireguardMonitor {
         resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
         #[cfg(target_os = "android")] psk_negotiation: bool,
-        #[cfg(windows)] route_manager_handle: crate::routing::RouteManagerHandle,
+        #[cfg(windows)] route_manager_handle: crate::routing::RouteManager,
         #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Box<dyn Tunnel>> {
         log::debug!("Tunnel MTU: {}", config.mtu);
