@@ -632,7 +632,7 @@ impl RelaySelector {
     /// - `custom_lists`: User-defined or application-specific settings that may influence bridge selection.
     ///
     /// # Returns
-    /// * On success, returns an `Option` containing the selected bridge, if one is found. Returns `None` if no suitable bridge meets the criteria.
+    /// * On success, returns an `Option` containing the selected bridge, if one is found. Returns `None` if no suitable bridge meets the criteria or bridges should not be used.
     /// * `Error::NoBridge` if attempting to use OpenVPN bridges over UDP, as this is unsupported.
     /// * `Error::NoRelay` if `relay` does not have a location set.
     #[cfg(not(target_os = "android"))]
@@ -818,11 +818,7 @@ impl RelaySelector {
         parsed_relays: &ParsedRelays,
     ) -> Option<Relay> {
         // Filter among all valid relays
-        let relays = Self::get_tunnel_endpoints(
-            query,
-            config,
-            parsed_relays,
-        );
+        let relays = Self::get_tunnel_endpoints(query, config, parsed_relays);
         // Pick one of the valid relays.
         helpers::pick_random_relay(&relays).cloned()
     }

@@ -902,3 +902,48 @@ fn openvpn_handle_bridge_settings() {
         ),
     };
 }
+
+/// Verify that the relay selector correctly gives back an OpenVPN relay + bridge when the user's
+/// settings indicate that bridge mode is on, but the transport protocol is set to auto. Note that
+/// it is only valid to use TCP with bridges. Trying to use UDP over bridges is not allowed, and
+/// the relay selector should fail to select a relay in these cases.
+#[test]
+fn openvpn_bridge_with_automatic_transport_protocol() {
+    // Enable bridge mode.
+    let config = SelectorConfig {
+        bridge_state: BridgeState::On,
+        ..SelectorConfig::default()
+    };
+    let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
+
+    // First, construct a query to choose an OpenVPN relay and bridge.
+    let mut query = RelayQueryBuilder::new().openvpn().bridge().build();
+    // Forcefully modify the transport protocol, as the builder will ensure that the transport
+    // protocol is set to TCP.
+    query.openvpn_constraints.port = Constraint::Any;
+
+    for _ in 0..100 {
+        let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
+        // Assert that the relay selector is able to cope with the transport protocol being set to
+        // auto.
+        match relay {
+            GetRelay::OpenVpn { endpoint, .. } => {
+                assert_eq!(endpoint.unwrap_openvpn().protocol, TCP);
+            }
+            wrong_relay => panic!(
+                "Relay selector should have picked an OpenVPN relay, instead chose {wrong_relay:?}"
+            ),
+        }
+    }
+
+    // Modify the query slightly to forcefully use UDP. This should not be allowed!
+    let query = RelayQueryBuilder::new()
+        .openvpn()
+        .bridge()
+        .transport_protocol(UDP)
+        .build();
+    for _ in 0..100 {
+        let relay = relay_selector.get_relay_by_query(query.clone());
+        assert!(relay.is_err())
+    }
+}
