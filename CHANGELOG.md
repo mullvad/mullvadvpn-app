@@ -27,17 +27,17 @@ Line wrap the file at 100 chars.                                              Th
   dropped packets and does not take fragmentation into account.
 - Add ability to import server IP overrides in GUI.
 
-### Changed
-- Change default obfuscation setting to `auto`.
-- Migrate obfuscation settings for existing users from `off` to `auto`.
-
 #### Android
 - Add support for all screen orientations.
 - Add toggle for enabling or disabling split tunneling.
 - Replace auto connect with auto connect and lockdown mode guide on platforms that has
   system vpn settings.
+- Add 3D map to Connect screen.  
 
 ### Changed
+- Change default obfuscation setting to `auto`.
+- Migrate obfuscation settings for existing users from `off` to `auto`.
+
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.
 
