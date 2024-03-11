@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add toggle for enabling or disabling split tunneling.
 - Replace auto connect with auto connect and lockdown mode guide on platforms that has
   system vpn settings.
+- Add 3D map to Connect screen.  
 
 ### Changed
 - Change default obfuscation setting to `auto`.
