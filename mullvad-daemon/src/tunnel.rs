@@ -8,23 +8,25 @@ use std::{
 
 use tokio::sync::Mutex;
 
+#[cfg(not(target_os = "android"))]
 use mullvad_relay_selector::{GetRelay, RelaySelector, SelectedBridge, WireguardConfig};
+#[cfg(target_os = "android")]
+use mullvad_relay_selector::{GetRelay, RelaySelector, WireguardConfig};
 use mullvad_types::{
     endpoint::MullvadWireguardEndpoint, location::GeoIpLocation, relay_list::Relay,
     settings::TunnelOptions,
 };
 use once_cell::sync::Lazy;
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
-use talpid_types::{
-    net::{
-        obfuscation::ObfuscatorConfig, proxy::CustomProxy, wireguard, Endpoint, TunnelParameters,
-    },
-    tunnel::ParameterGenerationError,
-    ErrorExt,
-};
-
 #[cfg(not(target_os = "android"))]
-use talpid_types::net::openvpn;
+use talpid_types::net::{
+    obfuscation::ObfuscatorConfig, openvpn, proxy::CustomProxy, wireguard, Endpoint,
+    TunnelParameters,
+};
+#[cfg(target_os = "android")]
+use talpid_types::net::{obfuscation::ObfuscatorConfig, wireguard, TunnelParameters};
+
+use talpid_types::{tunnel::ParameterGenerationError, ErrorExt};
 
 use crate::device::{AccountManagerHandle, PrivateAccountAndDevice};
 
@@ -152,33 +154,7 @@ impl InnerParametersGenerator {
             })?;
 
         match selected_relay {
-            GetRelay::Wireguard {
-                endpoint,
-                obfuscator,
-                inner,
-            } => {
-                let (obfuscator_relay, obfuscator_config) = match obfuscator {
-                    Some(obfuscator) => (Some(obfuscator.relay), Some(obfuscator.config)),
-                    None => (None, None),
-                };
-
-                let (wg_entry, wg_exit) = match inner {
-                    WireguardConfig::Singlehop { exit } => (None, exit),
-                    WireguardConfig::Multihop { exit, entry } => (Some(entry), exit),
-                };
-                self.last_generated_relays = Some(LastSelectedRelays::WireGuard {
-                    wg_entry,
-                    wg_exit,
-                    obfuscator: obfuscator_relay,
-                });
-
-                Ok(self.create_wireguard_tunnel_parameters(
-                    endpoint.unwrap_wireguard().clone(),
-                    data,
-                    obfuscator_config,
-                ))
-            }
-
+            #[cfg(not(target_os = "android"))]
             GetRelay::OpenVpn {
                 endpoint,
                 exit,
@@ -207,6 +183,32 @@ impl InnerParametersGenerator {
                     bridge_settings,
                 ))
             }
+            GetRelay::Wireguard {
+                endpoint,
+                obfuscator,
+                inner,
+            } => {
+                let (obfuscator_relay, obfuscator_config) = match obfuscator {
+                    Some(obfuscator) => (Some(obfuscator.relay), Some(obfuscator.config)),
+                    None => (None, None),
+                };
+
+                let (wg_entry, wg_exit) = match inner {
+                    WireguardConfig::Singlehop { exit } => (None, exit),
+                    WireguardConfig::Multihop { exit, entry } => (Some(entry), exit),
+                };
+                self.last_generated_relays = Some(LastSelectedRelays::WireGuard {
+                    wg_entry,
+                    wg_exit,
+                    obfuscator: obfuscator_relay,
+                });
+
+                Ok(self.create_wireguard_tunnel_parameters(
+                    endpoint.unwrap_wireguard().clone(),
+                    data,
+                    obfuscator_config,
+                ))
+            }
             GetRelay::Custom(custom_relay) => {
                 self.last_generated_relays = None;
                 custom_relay
@@ -220,6 +222,7 @@ impl InnerParametersGenerator {
         }
     }
 
+    #[cfg(not(target_os = "android"))]
     fn create_openvpn_tunnel_parameters(
         &self,
         endpoint: Endpoint,
