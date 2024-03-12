@@ -30,7 +30,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -135,19 +134,19 @@ fun SelectLocation(
     val context = LocalContext.current
 
     LaunchedEffectCollect(vm.uiSideEffect) {
-            when (it) {
-                SelectLocationSideEffect.CloseScreen -> navigator.navigateUp()
-                is SelectLocationSideEffect.LocationAddedToCustomList -> {
-                    launch {
-                        snackbarHostState.showResultSnackbar(
-                            context = context,
-                            result = it.result,
-                            onUndo = vm::performAction
-                        )
-                    }
+        when (it) {
+            SelectLocationSideEffect.CloseScreen -> navigator.navigateUp()
+            is SelectLocationSideEffect.LocationAddedToCustomList -> {
+                launch {
+                    snackbarHostState.showResultSnackbar(
+                        context = context,
+                        result = it.result,
+                        onUndo = vm::performAction
+                    )
                 }
             }
         }
+    }
 
     createCustomListDialogResultRecipient.OnCustomListNavResult(
         snackbarHostState,

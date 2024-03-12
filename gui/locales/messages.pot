@@ -2199,13 +2199,13 @@ msgstr ""
 msgid "No internet connection"
 msgstr ""
 
-msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
-msgstr ""
-
 msgid "No locations found"
 msgstr ""
 
 msgid "Not found"
+msgstr ""
+
+msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
 msgstr ""
 
 msgid "Preferences"
