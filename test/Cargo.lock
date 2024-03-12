@@ -62,16 +62,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "am-i-mullvad"
-version = "0.0.0"
-dependencies = [
- "color-eyre",
- "eyre",
- "reqwest",
- "serde",
-]
-
-[[package]]
 name = "android-tzdata"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -525,6 +515,19 @@ checksum = "35ed6e9d84f0b51a7f52daf1c7d71dd136fd7a3f41a8462b8cdb8c78d920fad4"
 dependencies = [
  "bytes",
  "memchr",
+]
+
+[[package]]
+name = "connection-checker"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "color-eyre",
+ "eyre",
+ "ping",
+ "reqwest",
+ "serde",
+ "socket2 0.5.4",
 ]
 
 [[package]]
@@ -2158,6 +2161,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
+name = "ping"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "122ee1f5a6843bec84fcbd5c6ba3622115337a6b8965b93a61aad347648f4e8d"
+dependencies = [
+ "rand 0.8.5",
+ "socket2 0.4.9",
+ "thiserror",
+]
+
+[[package]]
 name = "pkcs8"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3172,6 +3186,7 @@ dependencies = [
  "base64 0.13.1",
  "ipnetwork 0.16.0",
  "jnix",
+ "log",
  "serde",
  "thiserror",
  "x25519-dalek",

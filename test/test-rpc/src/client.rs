@@ -351,4 +351,26 @@ impl ServiceClient {
             .make_device_json_old(tarpc::context::current())
             .await?
     }
+
+    pub async fn spawn(&self, opts: SpawnOpts) -> Result<u32, Error> {
+        self.client.spawn(tarpc::context::current(), opts).await?
+    }
+
+    pub async fn read_child_stdout(&self, pid: u32) -> Result<Option<String>, Error> {
+        self.client
+            .read_child_stdout(tarpc::context::current(), pid)
+            .await?
+    }
+
+    pub async fn write_child_stdin(&self, pid: u32, data: String) -> Result<(), Error> {
+        self.client
+            .write_child_stdin(tarpc::context::current(), pid, data)
+            .await?
+    }
+
+    pub async fn close_child_stdin(&self, pid: u32) -> Result<(), Error> {
+        self.client
+            .close_child_stdin(tarpc::context::current(), pid)
+            .await?
+    }
 }

@@ -591,7 +591,6 @@ impl MullvadProxyClient {
             .map(drop)
     }
 
-    #[cfg(target_os = "linux")]
     pub async fn get_split_tunnel_processes(&mut self) -> Result<Vec<i32>> {
         use futures::TryStreamExt;
 
@@ -604,7 +603,6 @@ impl MullvadProxyClient {
         procs.try_collect().await.map_err(Error::Rpc)
     }
 
-    #[cfg(target_os = "linux")]
     pub async fn add_split_tunnel_process(&mut self, pid: i32) -> Result<()> {
         self.0
             .add_split_tunnel_process(pid)
@@ -613,7 +611,6 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    #[cfg(target_os = "linux")]
     pub async fn remove_split_tunnel_process(&mut self, pid: i32) -> Result<()> {
         self.0
             .remove_split_tunnel_process(pid)
@@ -622,7 +619,6 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    #[cfg(target_os = "linux")]
     pub async fn clear_split_tunnel_processes(&mut self) -> Result<()> {
         self.0
             .clear_split_tunnel_processes(())
@@ -631,7 +627,6 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    //#[cfg(target_os = "windows")]
     pub async fn add_split_tunnel_app<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
         let path = path.as_ref().to_str().ok_or(Error::PathMustBeUtf8)?;
         self.0
@@ -641,7 +636,6 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    //#[cfg(target_os = "windows")]
     pub async fn remove_split_tunnel_app<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
         let path = path.as_ref().to_str().ok_or(Error::PathMustBeUtf8)?;
         self.0
@@ -651,7 +645,6 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    //#[cfg(target_os = "windows")]
     pub async fn clear_split_tunnel_apps(&mut self) -> Result<()> {
         self.0
             .clear_split_tunnel_apps(())
@@ -660,7 +653,6 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    //#[cfg(target_os = "windows")]
     pub async fn set_split_tunnel_state(&mut self, state: bool) -> Result<()> {
         self.0
             .set_split_tunnel_state(state)
