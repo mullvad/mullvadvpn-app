@@ -44,6 +44,7 @@ import net.mullvad.mullvadvpn.compose.destinations.RemoveDeviceConfirmationDialo
 import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
 import net.mullvad.mullvadvpn.compose.state.DeviceListItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
+import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.lib.common.util.parseAsDateTime
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -164,7 +165,7 @@ private fun PreviewDeviceListLoading() {
     }
 }
 
-@Destination
+@Destination(style = DefaultTransition::class)
 @Composable
 fun DeviceList(
     navigator: DestinationsNavigator,
