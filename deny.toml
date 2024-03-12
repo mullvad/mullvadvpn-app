@@ -21,7 +21,13 @@ ignore = [
     # Ignored audit issues. This list should be kept short, and effort should be
     # put into removing items from the list.
     # RUSTSEC-2023-0079 - KyberSlash in `pqc_kyber`.
-    "RUSTSEC-2023-0079"
+    "RUSTSEC-2023-0079",
+    # RUSTSEC-2023-0081 - `safemem` is unmaintained: https://github.com/ebarnard/rust-plist/pull/134
+    "RUSTSEC-2023-0081",
+    # RUSTSEC-2023-0057 - Unsoundness in `inventory`.
+    "RUSTSEC-2023-0057",
+    # RUSTSEC-2023-0058 - Unsoundness in `inventory`.
+    "RUSTSEC-2023-0058"
 ]
 
 #severity-threshold =
