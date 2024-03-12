@@ -176,12 +176,7 @@ impl InnerParametersGenerator {
                     bridge: bridge_relay,
                 });
 
-                // TODO(markus): Remodel `GetRelay` to not require this unwrap.
-                Ok(self.create_openvpn_tunnel_parameters(
-                    *endpoint.unwrap_openvpn(),
-                    data,
-                    bridge_settings,
-                ))
+                Ok(self.create_openvpn_tunnel_parameters(endpoint, data, bridge_settings))
             }
             GetRelay::Wireguard {
                 endpoint,
@@ -204,7 +199,7 @@ impl InnerParametersGenerator {
                 });
 
                 Ok(self.create_wireguard_tunnel_parameters(
-                    endpoint.unwrap_wireguard().clone(),
+                    endpoint.clone(),
                     data,
                     obfuscator_config,
                 ))

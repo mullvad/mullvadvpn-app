@@ -10,7 +10,7 @@ use std::net::{IpAddr, SocketAddr, SocketAddrV4};
 use ipnetwork::IpNetwork;
 use mullvad_types::{
     constraints::Constraint,
-    endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
+    endpoint::MullvadWireguardEndpoint,
     relay_constraints::TransportPort,
     relay_list::{OpenVpnEndpoint, OpenVpnEndpointData, Relay, WireguardEndpointData},
 };
@@ -25,7 +25,7 @@ use super::{
 
 /// Given a Wireguad relay (and optionally an entry relay if multihop is used) and the original
 /// query the relay selector used, fill in all connection details to produce a valid
-/// [`MullvadEndpoint`] by calling [`to_endpoint`].
+/// [`MullvadWireguardEndpoint`] by calling [`to_endpoint`].
 ///
 /// [`to_endpoint`]: WireguardDetailer::to_endpoint
 pub struct WireguardDetailer {
@@ -52,7 +52,7 @@ impl WireguardDetailer {
         }
     }
 
-    /// Constructs a `MullvadEndpoint` with details for a Wireguard circuit.
+    /// Constructs a [`MullvadWireguardEndpoint`] with details for a Wireguard circuit.
     ///
     /// If entry is `None`, `to_endpoint` configures a single-hop connection using the exit relay data.
     /// Otherwise, it constructs a multihop setup using both entry and exit to set up appropriate peer
@@ -62,7 +62,7 @@ impl WireguardDetailer {
     /// - A configured Mullvad endpoint for Wireguard, encapsulating either a single-hop or multi-hop connection setup.
     /// - Returns `None` if the desired port is not in a valid port range (see
     /// [`WireguradRelayQuery::port`]) or relay addresses cannot be resolved.
-    pub fn to_endpoint(&self) -> Option<MullvadEndpoint> {
+    pub fn to_endpoint(&self) -> Option<MullvadWireguardEndpoint> {
         match &self.config {
             WireguardConfig::Singlehop { exit } => self.to_singlehop_endpoint(exit),
             WireguardConfig::Multihop { exit, entry } => self.to_multihop_endpoint(exit, entry),
@@ -70,7 +70,7 @@ impl WireguardDetailer {
     }
 
     /// Configure a single-hop connection using the exit relay data.
-    fn to_singlehop_endpoint(&self, exit: &Relay) -> Option<MullvadEndpoint> {
+    fn to_singlehop_endpoint(&self, exit: &Relay) -> Option<MullvadWireguardEndpoint> {
         let endpoint = {
             let host = self.get_address_for_wireguard_relay(exit)?;
             let port = self.get_port_for_wireguard_relay(&self.data)?;
@@ -83,12 +83,12 @@ impl WireguardDetailer {
             // This will be filled in later, not the relay selector's problem
             psk: None,
         };
-        Some(MullvadEndpoint::Wireguard(MullvadWireguardEndpoint {
+        Some(MullvadWireguardEndpoint {
             peer: peer_config,
             exit_peer: None,
             ipv4_gateway: self.data.ipv4_gateway,
             ipv6_gateway: self.data.ipv6_gateway,
-        }))
+        })
     }
 
     /// Configure a multihop connection using the entry & exit relay data.
@@ -96,7 +96,11 @@ impl WireguardDetailer {
     /// # Note
     /// In a multihop circuit, we need to provide an exit peer configuration in addition to the
     /// peer configuration.
-    fn to_multihop_endpoint(&self, exit: &Relay, entry: &Relay) -> Option<MullvadEndpoint> {
+    fn to_multihop_endpoint(
+        &self,
+        exit: &Relay,
+        entry: &Relay,
+    ) -> Option<MullvadWireguardEndpoint> {
         let exit_endpoint = {
             let ip = exit.ipv4_addr_in;
             // The port that the exit relay listens for incoming connections from entry
@@ -133,12 +137,12 @@ impl WireguardDetailer {
             psk: None,
         };
 
-        Some(MullvadEndpoint::Wireguard(MullvadWireguardEndpoint {
+        Some(MullvadWireguardEndpoint {
             peer: entry,
             exit_peer: Some(exit),
             ipv4_gateway: self.data.ipv4_gateway,
             ipv6_gateway: self.data.ipv6_gateway,
-        }))
+        })
     }
 
     /// Get the correct IP address for the given relay.
@@ -208,8 +212,8 @@ impl WireguardDetailer {
 }
 
 /// Given an OpenVPN relay and the original query the relay selector used,
-/// fill in all connection details to produce a valid [`MullvadEndpoint`]
-/// by calling [`to_endpoint`].
+/// fill in all connection details to produce a valid [`Endpoint`] by
+/// calling [`to_endpoint`].
 ///
 /// [`to_endpoint`]: OpenVpnDetailer::to_endpoint
 pub struct OpenVpnDetailer {
@@ -228,14 +232,14 @@ impl OpenVpnDetailer {
         }
     }
 
-    /// Map `self` to a [`MullvadEndpoint`].
+    /// Map `self` to a [`Endpoint`].
     ///
     /// If this endpoint is to be used in conjunction with a bridge, the resulting endpoint is
     /// guaranteed to use transport protocol `TCP`.
     ///
     /// This function can fail if no valid port + transport protocol combination is found.
     /// See [`OpenVpnEndpointData`] for more details.
-    pub fn to_endpoint(&self) -> Option<MullvadEndpoint> {
+    pub fn to_endpoint(&self) -> Option<Endpoint> {
         // If `bridge_mode` is true, this function may only return endpoints which use TCP, not UDP.
         if BridgeQuery::should_use_bridge(&self.openvpn_constraints.bridge_settings) {
             self.to_bridged_endpoint()
@@ -245,7 +249,7 @@ impl OpenVpnDetailer {
     }
 
     /// Configure a single-hop connection using the exit relay data.
-    fn to_singlehop_endpoint(&self) -> Option<MullvadEndpoint> {
+    fn to_singlehop_endpoint(&self) -> Option<Endpoint> {
         use rand::seq::IteratorRandom;
         let constraints_port = self.openvpn_constraints.port;
         self.data
@@ -253,13 +257,7 @@ impl OpenVpnDetailer {
             .iter()
             .filter(|&endpoint| Self::compatible_port_combo(&constraints_port, endpoint))
             .choose(&mut rand::thread_rng())
-            .map(|endpoint| {
-                MullvadEndpoint::OpenVpn(Endpoint::new(
-                    self.exit.ipv4_addr_in,
-                    endpoint.port,
-                    endpoint.protocol,
-                ))
-            })
+            .map(|endpoint| Endpoint::new(self.exit.ipv4_addr_in, endpoint.port, endpoint.protocol))
     }
 
     /// Configure an endpoint that will be used together with a bridge.
@@ -267,7 +265,7 @@ impl OpenVpnDetailer {
     /// # Note
     /// In bridge mode, the only viable transport protocol is TCP. Otherwise, this function is
     /// identical to [`Self::to_singlehop_endpoint`].
-    fn to_bridged_endpoint(&self) -> Option<MullvadEndpoint> {
+    fn to_bridged_endpoint(&self) -> Option<Endpoint> {
         use rand::seq::IteratorRandom;
         let constraints_port = self.openvpn_constraints.port;
         self.data
@@ -276,13 +274,7 @@ impl OpenVpnDetailer {
             .filter(|endpoint| matches!(endpoint.protocol, TransportProtocol::Tcp))
             .filter(|endpoint| Self::compatible_port_combo(&constraints_port, endpoint))
             .choose(&mut rand::thread_rng())
-            .map(|endpoint| {
-                MullvadEndpoint::OpenVpn(Endpoint::new(
-                    self.exit.ipv4_addr_in,
-                    endpoint.port,
-                    endpoint.protocol,
-                ))
-            })
+            .map(|endpoint| Endpoint::new(self.exit.ipv4_addr_in, endpoint.port, endpoint.protocol))
     }
 
     /// Returns true if `port_constraint` can be used to connect to `endpoint`.
