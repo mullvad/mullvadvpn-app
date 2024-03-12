@@ -47,8 +47,10 @@ use self::{
 };
 
 /// [`RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector should prioritize on
-/// successive connection attempts.
-/// in successive retry attempts: https://linear.app/mullvad/issue/DES-543/optimize-order-of-connection-parameters-when-trying-to-connect
+/// successive connection attempts. Note that these will *never* override user preferences.
+/// See [`query::Intersection`] for further details.
+///
+/// This list should be kept in sync with the expected behavior defined in `docs/relay-selector.ms`
 pub static RETRY_ORDER: Lazy<Vec<RelayQuery>> = Lazy::new(|| {
     use query::builder::{IpVersion, RelayQueryBuilder};
     vec![
