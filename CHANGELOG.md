@@ -30,8 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Add support for all screen orientations.
 - Add toggle for enabling or disabling split tunneling.
-- Replace auto connect with auto connect and lockdown mode guide on platforms that has
-  system vpn settings.
+- Add auto connect and lockdown mode guide on platforms that has system vpn settings.
 - Add 3D map to Connect screen.
 
 ### Changed
@@ -40,7 +39,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.
-- Increase focus highlight opacity
+- Increase focus highlight opacity.
+- Set auto-connect setting as legacy on platforms with system vpn settings.
 
 ### Fixed
 - Continual excessive attempts to update the API IP were made after testing access methods.
