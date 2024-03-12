@@ -57,6 +57,8 @@ pub enum Error {
     Timeout,
     #[error("TCP forward error")]
     TcpForward,
+    #[error("{0}")]
+    Other(String),
 }
 
 /// Response from am.i.mullvad.net
@@ -77,6 +79,27 @@ pub struct ExecResult {
 impl ExecResult {
     pub fn success(&self) -> bool {
         self.code == Some(0)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct SpawnOpts {
+    pub path: String,
+    pub args: Vec<String>,
+    pub env: BTreeMap<String, String>,
+    pub attach_stdin: bool,
+    pub attach_stdout: bool,
+}
+
+impl SpawnOpts {
+    pub fn new(path: impl Into<String>) -> SpawnOpts {
+        SpawnOpts {
+            path: path.into(),
+            args: Default::default(),
+            env: Default::default(),
+            attach_stdin: Default::default(),
+            attach_stdout: Default::default(),
+        }
     }
 }
 
@@ -197,6 +220,25 @@ mod service {
         async fn reboot() -> Result<(), Error>;
 
         async fn make_device_json_old() -> Result<(), Error>;
+
+        /// Spawn a child process and return the PID.
+        async fn spawn(opts: SpawnOpts) -> Result<u32, Error>;
+
+        /// Read from stdout of a process spawned through [Service::spawn].
+        ///
+        /// Process must have been spawned with `attach_stdout`.
+        /// Returns `None` if process stdout is closed.
+        async fn read_child_stdout(pid: u32) -> Result<Option<String>, Error>;
+
+        /// Write to stdin of a process spawned through [Service::spawn].
+        ///
+        /// Process must have been spawned with `attach_stdin`.
+        async fn write_child_stdin(pid: u32, data: String) -> Result<(), Error>;
+
+        /// Close stdin of a process spawned through [Service::spawn].
+        ///
+        /// Process must have been spawned with `attach_stdin`.
+        async fn close_child_stdin(pid: u32) -> Result<(), Error>;
     }
 }
 

@@ -1,9 +1,12 @@
-use futures::{pin_mut, SinkExt, StreamExt};
+use futures::{pin_mut, select_biased, FutureExt, SinkExt, StreamExt};
 use logging::LOGGER;
 use std::{
     collections::{BTreeMap, HashMap},
     net::{IpAddr, SocketAddr},
     path::{Path, PathBuf},
+    process::Stdio,
+    sync::Arc,
+    time::Duration,
 };
 
 use tarpc::{context, server::Channel};
@@ -12,12 +15,13 @@ use test_rpc::{
     net::SockHandleId,
     package::Package,
     transport::GrpcForwarder,
-    AppTrace, Service,
+    AppTrace, Service, SpawnOpts,
 };
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
-    process::Command,
-    sync::broadcast::error::TryRecvError,
+    process::{Child, Command},
+    sync::{broadcast::error::TryRecvError, Mutex},
+    time::sleep,
 };
 use tokio_util::codec::{Decoder, LengthDelimitedCodec};
 
@@ -28,8 +32,13 @@ mod net;
 mod package;
 mod sys;
 
-#[derive(Clone)]
-pub struct TestServer(pub ());
+#[derive(Clone, Default)]
+pub struct TestServer(Arc<Mutex<State>>);
+
+#[derive(Default)]
+struct State {
+    spawned_procs: HashMap<u32, Child>,
+}
 
 #[tarpc::server]
 impl Service for TestServer {
@@ -319,6 +328,114 @@ impl Service for TestServer {
     async fn make_device_json_old(self, _: context::Context) -> Result<(), test_rpc::Error> {
         app::make_device_json_old().await
     }
+
+    async fn spawn(self, _: context::Context, opts: SpawnOpts) -> Result<u32, test_rpc::Error> {
+        log::info!("Spawn {} (args: {:?})", opts.path, opts.args);
+
+        let mut cmd = Command::new(&opts.path);
+        cmd.args(opts.args);
+
+        // Make sure that PATH is updated
+        // TODO: We currently do not need this on non-Windows
+        #[cfg(target_os = "windows")]
+        cmd.env("PATH", sys::get_system_path_var()?);
+
+        cmd.envs(opts.env);
+
+        if opts.attach_stdin {
+            cmd.stdin(Stdio::piped());
+        } else {
+            cmd.stdin(Stdio::null());
+        }
+
+        if opts.attach_stdout {
+            cmd.stdout(Stdio::piped());
+        }
+
+        let child = cmd.spawn().map_err(|error| {
+            log::error!("Failed to exec {}: {error}", opts.path);
+            test_rpc::Error::Syscall
+        })?;
+
+        let pid = child
+            .id()
+            .expect("Child hasn't been polled to completion yet");
+
+        let mut state = self.0.lock().await;
+        state.spawned_procs.insert(pid, child);
+
+        Ok(pid)
+    }
+
+    async fn read_child_stdout(
+        self,
+        _: context::Context,
+        pid: u32,
+    ) -> Result<Option<String>, test_rpc::Error> {
+        let mut state = self.0.lock().await;
+        let child = state
+            .spawned_procs
+            .get_mut(&pid)
+            .expect("TODO: unknown pid error");
+
+        let Some(stdout) = child.stdout.as_mut() else {
+            return Ok(None);
+        };
+
+        let mut buf = vec![0u8; 512];
+
+        let n = select_biased! {
+            result = stdout.read(&mut buf).fuse() => result.expect("todo: read error"),
+            _ = sleep(Duration::from_millis(500)).fuse() => return Ok(Some(String::new())),
+        };
+
+        // check for EOF
+        if n == 0 {
+            child.stdout = None;
+            return Ok(None);
+        }
+
+        buf.truncate(n);
+        let output = String::from_utf8(buf).expect("TODO: utf8 error");
+
+        Ok(Some(output))
+    }
+
+    async fn write_child_stdin(
+        self,
+        _: context::Context,
+        pid: u32,
+        data: String,
+    ) -> Result<(), test_rpc::Error> {
+        let mut state = self.0.lock().await;
+        let child = state
+            .spawned_procs
+            .get_mut(&pid)
+            .expect("TODO: unknown pid error");
+
+        let Some(stdin) = child.stdin.as_mut() else {
+            todo!("error on no stdin?")
+        };
+
+        stdin
+            .write_all(data.as_bytes())
+            .await
+            .expect("todo: write error");
+        log::debug!("wrote {} bytes to pid {pid}", data.len());
+
+        Ok(())
+    }
+
+    async fn close_child_stdin(self, _: context::Context, pid: u32) -> Result<(), test_rpc::Error> {
+        let mut state = self.0.lock().await;
+        let child = state
+            .spawned_procs
+            .get_mut(&pid)
+            .expect("TODO: unknown pid error");
+
+        child.stdin = None;
+        Ok(())
+    }
 }
 
 fn get_pipe_status() -> ServiceStatus {
@@ -364,7 +481,7 @@ async fn main() -> Result<(), Error> {
         ));
 
         let server = tarpc::server::BaseChannel::with_defaults(runner_transport);
-        server.execute(TestServer(()).serve()).await;
+        server.execute(TestServer::default().serve()).await;
 
         log::error!("Restarting server since it stopped");
     }

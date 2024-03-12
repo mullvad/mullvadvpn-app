@@ -12,7 +12,7 @@ members = [
     "test-runner",
     "test-rpc",
     "socks-server",
-    "am-i-mullvad",
+    "connection-checker",
 ]
 
 [workspace.lints.rust]
