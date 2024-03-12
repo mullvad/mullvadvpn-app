@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -191,5 +192,10 @@ fun CustomDnsCellSubtitle(isCellClickable: Boolean, modifier: Modifier) {
 
 @Composable
 fun SwitchComposeSubtitleCell(text: String, modifier: Modifier = Modifier) {
+    BaseSubtitleCell(text = text, modifier = modifier)
+}
+
+@Composable
+fun SwitchComposeSubtitleCell(text: AnnotatedString, modifier: Modifier = Modifier) {
     BaseSubtitleCell(text = text, modifier = modifier)
 }

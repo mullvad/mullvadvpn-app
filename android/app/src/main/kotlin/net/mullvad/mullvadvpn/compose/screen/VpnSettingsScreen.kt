@@ -22,8 +22,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.text.HtmlCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,6 +51,7 @@ import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.destinations.AutoConnectAndLockdownModeDestination
 import net.mullvad.mullvadvpn.compose.destinations.ContentBlockersInfoDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.CustomDnsInfoDialogDestination
@@ -65,6 +68,7 @@ import net.mullvad.mullvadvpn.compose.dialog.WireguardCustomPortNavArgs
 import net.mullvad.mullvadvpn.compose.dialog.WireguardPortInfoDialogArgument
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
+import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
@@ -305,21 +309,39 @@ fun VpnSettingsScreen(
                         text = stringResource(id = R.string.auto_connect_and_lockdown_mode_footer)
                     )
                 }
-            } else {
-                item {
-                    Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-                    HeaderSwitchComposeCell(
-                        title = stringResource(R.string.auto_connect),
-                        isToggled = state.isAutoConnectEnabled,
-                        isEnabled = true,
-                        onCellClicked = { newValue -> onToggleAutoConnect(newValue) }
-                    )
-                }
-                item {
-                    SwitchComposeSubtitleCell(
-                        text = stringResource(id = R.string.auto_connect_footer)
-                    )
-                }
+            }
+            item {
+                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                HeaderSwitchComposeCell(
+                    title =
+                        stringResource(
+                            if (state.systemVpnSettingsAvailable) {
+                                R.string.auto_connect_legacy
+                            } else {
+                                R.string.auto_connect
+                            }
+                        ),
+                    isToggled = state.isAutoConnectEnabled,
+                    isEnabled = true,
+                    onCellClicked = { newValue -> onToggleAutoConnect(newValue) }
+                )
+            }
+            item {
+                SwitchComposeSubtitleCell(
+                    text =
+                        HtmlCompat.fromHtml(
+                                if (state.systemVpnSettingsAvailable) {
+                                    textResource(
+                                        R.string.auto_connect_footer_legacy,
+                                        textResource(R.string.auto_connect_and_lockdown_mode)
+                                    )
+                                } else {
+                                    textResource(R.string.auto_connect_footer)
+                                },
+                                HtmlCompat.FROM_HTML_MODE_COMPACT
+                            )
+                            .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
+                )
             }
             item {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
