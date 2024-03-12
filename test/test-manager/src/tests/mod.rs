@@ -28,13 +28,11 @@ pub struct TestContext {
     pub rpc_provider: RpcClientProvider,
 }
 
-pub type TestWrapperFunction = Box<
-    dyn Fn(
-        TestContext,
-        ServiceClient,
-        Box<dyn std::any::Any + Send>,
-    ) -> BoxFuture<'static, Result<(), Error>>,
->;
+pub type TestWrapperFunction = fn(
+    TestContext,
+    ServiceClient,
+    Box<dyn std::any::Any + Send>,
+) -> BoxFuture<'static, Result<(), Error>>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

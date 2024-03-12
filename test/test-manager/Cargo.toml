@@ -23,7 +23,7 @@ bytes = { workspace = true }
 test_macro = { path = "./test_macro" }
 ipnetwork = "0.20"
 once_cell = { workspace = true }
-inventory = "0.1"
+inventory = "0.3"
 data-encoding-macro = "0.1.12"
 itertools = "0.10.5"
 libc = "0.2.14"
