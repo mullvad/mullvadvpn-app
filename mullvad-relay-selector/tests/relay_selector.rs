@@ -3,7 +3,11 @@
 use once_cell::sync::Lazy;
 use std::collections::HashSet;
 use talpid_types::net::{
-    obfuscation::ObfuscatorConfig, wireguard::PublicKey, Endpoint, TransportProtocol, TunnelType,
+    obfuscation::ObfuscatorConfig,
+    wireguard::PublicKey,
+    Endpoint,
+    TransportProtocol::{Tcp, Udp},
+    TunnelType,
 };
 
 use mullvad_relay_selector::{
@@ -112,15 +116,15 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
         ports: vec![
             OpenVpnEndpoint {
                 port: 1194,
-                protocol: TransportProtocol::Udp,
+                protocol: Udp,
             },
             OpenVpnEndpoint {
                 port: 443,
-                protocol: TransportProtocol::Tcp,
+                protocol: Tcp,
             },
             OpenVpnEndpoint {
                 port: 80,
-                protocol: TransportProtocol::Tcp,
+                protocol: Tcp,
             },
         ],
     },
@@ -130,19 +134,19 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                 port: 443,
                 cipher: "aes-256-gcm".to_string(),
                 password: "mullvad".to_string(),
-                protocol: TransportProtocol::Tcp,
+                protocol: Tcp,
             },
             ShadowsocksEndpointData {
                 port: 1234,
                 cipher: "aes-256-cfb".to_string(),
                 password: "mullvad".to_string(),
-                protocol: TransportProtocol::Udp,
+                protocol: Udp,
             },
             ShadowsocksEndpointData {
                 port: 1236,
                 cipher: "aes-256-gcm".to_string(),
                 password: "mullvad".to_string(),
-                protocol: TransportProtocol::Udp,
+                protocol: Udp,
             },
         ],
     },
@@ -159,10 +163,6 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
         udp2tcp_ports: vec![],
     },
 });
-
-// Some nifty constants.
-const UDP: TransportProtocol = TransportProtocol::Udp;
-const TCP: TransportProtocol = TransportProtocol::Tcp;
 
 // Helper functions
 fn unwrap_relay(get_result: GetRelay) -> Relay {
@@ -398,21 +398,21 @@ fn test_openvpn_constraints() {
         (
             RelayQueryBuilder::new()
                 .openvpn()
-                .transport_protocol(UDP)
+                .transport_protocol(Udp)
                 .build(),
             true,
         ),
         (
             RelayQueryBuilder::new()
                 .openvpn()
-                .transport_protocol(TCP)
+                .transport_protocol(Tcp)
                 .build(),
             true,
         ),
         (
             RelayQueryBuilder::new()
                 .openvpn()
-                .transport_protocol(UDP)
+                .transport_protocol(Udp)
                 .port(ACTUAL_UDP_PORT)
                 .build(),
             true,
@@ -420,7 +420,7 @@ fn test_openvpn_constraints() {
         (
             RelayQueryBuilder::new()
                 .openvpn()
-                .transport_protocol(UDP)
+                .transport_protocol(Udp)
                 .port(NON_EXISTENT_PORT)
                 .build(),
             false,
@@ -428,7 +428,7 @@ fn test_openvpn_constraints() {
         (
             RelayQueryBuilder::new()
                 .openvpn()
-                .transport_protocol(TCP)
+                .transport_protocol(Tcp)
                 .port(ACTUAL_TCP_PORT)
                 .build(),
             true,
@@ -436,7 +436,7 @@ fn test_openvpn_constraints() {
         (
             RelayQueryBuilder::new()
                 .openvpn()
-                .transport_protocol(TCP)
+                .transport_protocol(Tcp)
                 .port(NON_EXISTENT_PORT)
                 .build(),
             false,
@@ -780,15 +780,15 @@ fn test_include_in_country() {
             ports: vec![
                 OpenVpnEndpoint {
                     port: 1194,
-                    protocol: TransportProtocol::Udp,
+                    protocol: Udp,
                 },
                 OpenVpnEndpoint {
                     port: 443,
-                    protocol: TransportProtocol::Tcp,
+                    protocol: Tcp,
                 },
                 OpenVpnEndpoint {
                     port: 80,
-                    protocol: TransportProtocol::Tcp,
+                    protocol: Tcp,
                 },
             ],
         },
@@ -844,7 +844,7 @@ fn openvpn_handle_bridge_settings() {
     // First, construct a query to choose an OpenVPN relay to talk to over UDP.
     let mut query = RelayQueryBuilder::new()
         .openvpn()
-        .transport_protocol(UDP)
+        .transport_protocol(Udp)
         .build();
 
     let config = SelectorConfig {
@@ -856,7 +856,7 @@ fn openvpn_handle_bridge_settings() {
     // Assert that the resulting relay uses UDP.
     match relay {
         GetRelay::OpenVpn { endpoint, .. } => {
-            assert_eq!(endpoint.protocol, UDP);
+            assert_eq!(endpoint.protocol, Udp);
         }
         wrong_relay => panic!(
             "Relay selector should have picked an OpenVPN relay, instead chose {wrong_relay:?}"
@@ -871,7 +871,7 @@ fn openvpn_handle_bridge_settings() {
 
     // Correcting the query to use TCP, the relay selector should yield a valid relay + bridge
     query.openvpn_constraints.port = Constraint::Only(TransportPort {
-        protocol: TCP,
+        protocol: Tcp,
         port: Constraint::default(),
     });
     let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
@@ -880,7 +880,7 @@ fn openvpn_handle_bridge_settings() {
             endpoint, bridge, ..
         } => {
             assert!(bridge.is_some());
-            assert_eq!(endpoint.protocol, TCP);
+            assert_eq!(endpoint.protocol, Tcp);
         }
         wrong_relay => panic!(
             "Relay selector should have picked an OpenVPN relay, instead chose {wrong_relay:?}"
@@ -913,7 +913,7 @@ fn openvpn_bridge_with_automatic_transport_protocol() {
         // auto.
         match relay {
             GetRelay::OpenVpn { endpoint, .. } => {
-                assert_eq!(endpoint.protocol, TCP);
+                assert_eq!(endpoint.protocol, Tcp);
             }
             wrong_relay => panic!(
                 "Relay selector should have picked an OpenVPN relay, instead chose {wrong_relay:?}"
@@ -925,7 +925,7 @@ fn openvpn_bridge_with_automatic_transport_protocol() {
     let query = RelayQueryBuilder::new()
         .openvpn()
         .bridge()
-        .transport_protocol(UDP)
+        .transport_protocol(Udp)
         .build();
     for _ in 0..100 {
         let relay = relay_selector.get_relay_by_query(query.clone());
