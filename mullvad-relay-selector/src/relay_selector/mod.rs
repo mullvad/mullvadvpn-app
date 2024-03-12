@@ -37,7 +37,7 @@ use talpid_types::{
     ErrorExt,
 };
 
-use crate::error::Error;
+use crate::error::{EndpointError, Error};
 
 use self::{
     detailer::{OpenVpnDetailer, WireguardDetailer},
@@ -445,7 +445,7 @@ impl RelaySelector {
         } else {
             Self::get_wireguard_multihop_config(query, config, parsed_relays)?
         };
-        let endpoint = Self::get_wireguard_endpoint(query, inner.clone(), parsed_relays)?;
+        let endpoint = Self::get_wireguard_endpoint(query, &inner, parsed_relays)?;
         let obfuscator =
             Self::get_wireguard_obfuscator(query, inner.clone(), &endpoint, parsed_relays);
 
@@ -534,17 +534,16 @@ impl RelaySelector {
     /// Constructs a `MullvadEndpoint` with details for how to connect to `relay`.
     fn get_wireguard_endpoint(
         query: &RelayQuery,
-        relay: WireguardConfig,
+        relay: &WireguardConfig,
         parsed_relays: &ParsedRelays,
     ) -> Result<MullvadWireguardEndpoint, Error> {
         WireguardDetailer::new(
-            query.wireguard_constraints.clone(),
+            &query.wireguard_constraints,
             relay,
-            parsed_relays.parsed_list().wireguard.clone(),
+            &parsed_relays.parsed_list().wireguard,
         )
         .to_endpoint()
-        // TODO(markus): This is not the right error variant ..
-        .ok_or(Error::NoRelay)
+        .ok_or(EndpointError::from_wireguard(relay.clone()))
     }
 
     fn get_wireguard_obfuscator(
@@ -585,7 +584,7 @@ impl RelaySelector {
         parsed_relays: &ParsedRelays,
     ) -> Result<GetRelay, Error> {
         let exit = Self::choose_relay(query, config, parsed_relays).ok_or(Error::NoRelay)?;
-        let endpoint = Self::get_openvpn_endpoint(query, exit.clone(), parsed_relays)?;
+        let endpoint = Self::get_openvpn_endpoint(query, &exit, parsed_relays)?;
         let bridge =
             Self::get_openvpn_bridge(query, &exit, &endpoint.protocol, parsed_relays, config)?;
 
@@ -600,17 +599,16 @@ impl RelaySelector {
     #[cfg(not(target_os = "android"))]
     fn get_openvpn_endpoint(
         query: &RelayQuery,
-        relay: Relay,
+        relay: &Relay,
         parsed_relays: &ParsedRelays,
     ) -> Result<Endpoint, Error> {
         OpenVpnDetailer::new(
-            query.openvpn_constraints.clone(),
+            &query.openvpn_constraints,
             relay,
-            parsed_relays.parsed_list().openvpn.clone(),
+            &parsed_relays.parsed_list().openvpn,
         )
         .to_endpoint()
-        // TODO(markus): This is no the best error value in this situation..
-        .ok_or(Error::NoRelay)
+        .ok_or(EndpointError::from_openvpn(relay.clone()))
     }
 
     /// Selects a suitable bridge based on the specified settings, relay information, and transport protocol.
