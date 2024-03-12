@@ -163,6 +163,7 @@ fun ScaffoldWithMediumTopBar(
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
     scrollbarColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     content: @Composable (modifier: Modifier) -> Unit
 ) {
     val appBarState = rememberTopAppBarState()
@@ -178,6 +179,12 @@ fun ScaffoldWithMediumTopBar(
                 navigationIcon = navigationIcon,
                 actions,
                 scrollBehavior = scrollBehavior
+            )
+        },
+        snackbarHost = {
+            SnackbarHost(
+                snackbarHostState,
+                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) }
             )
         },
         content = {

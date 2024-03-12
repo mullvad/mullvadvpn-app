@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.os.Build
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,11 +19,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
@@ -56,6 +53,7 @@ import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromBottomTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
+import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
@@ -168,29 +166,23 @@ fun AccountScreen(
     SecureScreenWhileInView()
 
     val context = LocalContext.current
-    val clipboardManager = LocalClipboardManager.current
     val snackbarHostState = remember { SnackbarHostState() }
     val copyTextString = stringResource(id = R.string.copied_mullvad_account_number)
+    val copyToClipboard = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
     LaunchedEffectCollect(uiSideEffect) { sideEffect ->
         when (sideEffect) {
             AccountViewModel.UiSideEffect.NavigateToLogin -> navigateToLogin()
             is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
                 context.openAccountPageInBrowser(sideEffect.token)
             is AccountViewModel.UiSideEffect.CopyAccountNumber ->
-                launch {
-                    clipboardManager.setText(AnnotatedString(sideEffect.accountNumber))
-
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                        snackbarHostState.currentSnackbarData?.dismiss()
-                        snackbarHostState.showSnackbar(message = copyTextString)
-                    }
-                }
+                launch { copyToClipboard(sideEffect.accountNumber, copyTextString) }
         }
     }
 
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings_account),
-        navigationIcon = { NavigateBackDownIconButton(onBackClick) }
+        navigationIcon = { NavigateBackDownIconButton(onBackClick) },
+        snackbarHostState = snackbarHostState
     ) { modifier ->
         Column(
             horizontalAlignment = Alignment.Start,
