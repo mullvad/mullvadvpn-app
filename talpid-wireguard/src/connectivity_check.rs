@@ -217,7 +217,14 @@ impl ConnectivityMonitor {
             .lock()
             .ok()?
             .as_ref()
-            .map(|tunnel| tunnel.get_tunnel_stats().map_err(Error::ConfigReadError))
+            .and_then(|tunnel| match tunnel.get_tunnel_stats() {
+                Ok(stats) if stats.is_empty() => {
+                    log::error!("Tunnel unexpectedly shut down");
+                    None
+                }
+                Ok(stats) => Some(Ok(stats)),
+                Err(error) => Some(Err(Error::ConfigReadError(error))),
+            })
     }
 
     fn maybe_send_ping(&mut self, now: Instant) -> Result<(), Error> {
