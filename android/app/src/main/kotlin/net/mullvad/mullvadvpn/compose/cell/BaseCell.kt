@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -109,6 +110,11 @@ internal fun BaseCellTitle(
 
 @Composable
 fun BaseSubtitleCell(text: String, modifier: Modifier = Modifier) {
+    BaseSubtitleCell(text = AnnotatedString(text), modifier = modifier)
+}
+
+@Composable
+fun BaseSubtitleCell(text: AnnotatedString, modifier: Modifier = Modifier) {
     Text(
         text = text,
         style = MaterialTheme.typography.labelMedium,

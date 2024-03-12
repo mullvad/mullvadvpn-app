@@ -2061,6 +2061,9 @@ msgstr ""
 msgid "Auto-connect & \\nLockdown mode"
 msgstr ""
 
+msgid "Auto-connect (legacy)"
+msgstr ""
+
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr ""
 
@@ -2134,6 +2137,9 @@ msgid "Mullvad services unavailable"
 msgstr ""
 
 msgid "No internet connection"
+msgstr ""
+
+msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
 msgstr ""
 
 msgid "Preferences"
