@@ -15,7 +15,7 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.relaylist.RelayItem
-import net.mullvad.mullvadvpn.relaylist.allChildren
+import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.relaylist.getById
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
@@ -120,7 +120,7 @@ class CustomListLocationsViewModel(
     private fun selectLocation(relayItem: RelayItem) {
         viewModelScope.launch {
             _selectedLocations.update {
-                it?.plus(relayItem)?.plus(relayItem.allChildren()) ?: setOf(relayItem)
+                it?.plus(relayItem)?.plus(relayItem.descendants()) ?: setOf(relayItem)
             }
         }
     }
@@ -130,7 +130,7 @@ class CustomListLocationsViewModel(
             _selectedLocations.update {
                 val newSelectedLocations = it?.toMutableSet() ?: mutableSetOf()
                 newSelectedLocations.remove(relayItem)
-                newSelectedLocations.removeAll(relayItem.allChildren().toSet())
+                newSelectedLocations.removeAll(relayItem.descendants().toSet())
                 // If a parent is selected, deselect it, since we only want to select a parent if
                 // all children are selected
                 newSelectedLocations.deselectParents(relayItem)
@@ -191,7 +191,7 @@ class CustomListLocationsViewModel(
     }
 
     private fun List<RelayItem>.selectChildren(): Set<RelayItem> =
-        (this + flatMap { it.allChildren() }).toSet()
+        (this + flatMap { it.descendants() }).toSet()
 
     private suspend fun fetchInitialSelectedLocations() {
         _selectedLocations.value =

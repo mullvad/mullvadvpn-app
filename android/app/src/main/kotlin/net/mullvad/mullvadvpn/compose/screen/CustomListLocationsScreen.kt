@@ -15,7 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +43,7 @@ import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -84,13 +84,11 @@ fun CustomListLocations(
         }
     }
 
-    LaunchedEffect(Unit) {
-        customListsViewModel.uiSideEffect.collect { sideEffect ->
-            when (sideEffect) {
-                is CustomListLocationsSideEffect.ReturnWithResult ->
-                    backNavigator.navigateBack(result = sideEffect.result)
-                CustomListLocationsSideEffect.CloseScreen -> backNavigator.navigateBack()
-            }
+    LaunchedEffectCollect(customListsViewModel.uiSideEffect) { sideEffect ->
+        when (sideEffect) {
+            is CustomListLocationsSideEffect.ReturnWithResult ->
+                backNavigator.navigateBack(result = sideEffect.result)
+            CustomListLocationsSideEffect.CloseScreen -> backNavigator.navigateBack()
         }
     }
 

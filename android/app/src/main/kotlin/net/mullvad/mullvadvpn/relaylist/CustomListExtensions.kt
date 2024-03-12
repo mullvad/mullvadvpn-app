@@ -28,6 +28,6 @@ fun List<RelayItem.CustomList>.filterOnSearchTerm(searchTerm: String) =
 
 fun RelayItem.CustomList.canAddLocation(location: RelayItem) =
     this.locations.none { it.code == location.code } &&
-        this.locations.flatMap { it.allChildren() }.none { it.code == location.code }
+        this.locations.flatMap { it.descendants() }.none { it.code == location.code }
 
 fun List<RelayItem.CustomList>.getById(id: String) = this.find { it.id == id }

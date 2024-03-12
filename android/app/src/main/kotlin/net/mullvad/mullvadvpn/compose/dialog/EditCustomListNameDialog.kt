@@ -4,7 +4,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +22,7 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.component.CustomListNameTextField
 import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
 import net.mullvad.mullvadvpn.compose.test.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogViewModel
@@ -44,12 +44,10 @@ fun EditCustomListName(
 ) {
     val vm: EditCustomListNameDialogViewModel =
         koinViewModel(parameters = { parametersOf(customListId, initialName) })
-    LaunchedEffect(Unit) {
-        vm.uiSideEffect.collect { sideEffect ->
-            when (sideEffect) {
-                is EditCustomListNameDialogSideEffect.ReturnWithResult -> {
-                    backNavigator.navigateBack(result = sideEffect.result)
-                }
+    LaunchedEffectCollect(vm.uiSideEffect) { sideEffect ->
+        when (sideEffect) {
+            is EditCustomListNameDialogSideEffect.ReturnWithResult -> {
+                backNavigator.navigateBack(result = sideEffect.result)
             }
         }
     }

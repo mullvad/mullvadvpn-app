@@ -43,7 +43,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.color.selected
 import net.mullvad.mullvadvpn.relaylist.RelayItem
-import net.mullvad.mullvadvpn.relaylist.allChildren
+import net.mullvad.mullvadvpn.relaylist.children
 
 @Composable
 @Preview
@@ -257,14 +257,17 @@ private fun RelayLocationCell(
                 ) {
                     leadingContent(relay)
                 }
-                Name(relay = relay)
+                Name(
+                    modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
+                    relay = relay
+                )
             }
             if (relay.hasChildren) {
                 ExpandButton(isExpanded = expanded.value) { expand -> expanded.value = expand }
             }
         }
         if (expanded.value) {
-            relay.allChildren(false).forEach {
+            relay.children().forEach {
                 RelayLocationCell(
                     relay = it,
                     onClick = onClick,
@@ -280,13 +283,12 @@ private fun RelayLocationCell(
 }
 
 @Composable
-private fun RowScope.Name(relay: RelayItem) {
+private fun Name(modifier: Modifier = Modifier, relay: RelayItem) {
     Text(
         text = relay.name,
         color = MaterialTheme.colorScheme.onPrimary,
         modifier =
-            Modifier.weight(1f)
-                .align(Alignment.CenterVertically)
+            modifier
                 .alpha(
                     if (relay.active) {
                         AlphaVisible

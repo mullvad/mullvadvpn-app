@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.relaylist
 
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.LocationConstraint
 
 fun RelayItem.toLocationConstraint(): LocationConstraint {
@@ -12,31 +11,16 @@ fun RelayItem.toLocationConstraint(): LocationConstraint {
     }
 }
 
-private fun RelayItem.toGeographicLocationConstraint(): GeographicLocationConstraint =
-    when (this) {
-        is RelayItem.Country -> this.location
-        is RelayItem.City -> this.location
-        is RelayItem.Relay -> this.location
-        is RelayItem.CustomList ->
-            throw IllegalArgumentException("CustomList is not a geographic location")
-    }
-
-fun List<RelayItem>.toGeographicLocationConstraints(): ArrayList<GeographicLocationConstraint> =
-    ArrayList(
-        this.map { it.toGeographicLocationConstraint() },
-    )
-
-fun RelayItem.allChildren(includeChildrenOfChildren: Boolean = true): List<RelayItem> {
+fun RelayItem.children(): List<RelayItem> {
     return when (this) {
-        is RelayItem.Country ->
-            cities +
-                if (includeChildrenOfChildren) {
-                    cities.flatMap { it.relays }
-                } else {
-                    emptyList()
-                }
+        is RelayItem.Country -> cities
         is RelayItem.City -> relays
         is RelayItem.CustomList -> locations
         else -> emptyList()
     }
+}
+
+fun RelayItem.descendants(): List<RelayItem> {
+    val children = children()
+    return children + children.flatMap { it.descendants() }
 }
