@@ -124,7 +124,14 @@ pub enum GetRelay {
     Custom(CustomTunnelEndpoint),
 }
 
-/// TODO(markus): Document
+/// This struct defines the different Wireguard relays the the relay selector can end up selecting
+/// for an arbitrary Wireguard query.
+///
+/// [`WireguardConfig::Singlehop`]; A normal wireguard relay where VPN traffic enters and exits
+/// through this sole relay.
+/// [`WireguardConfig::Multihop`]; Two wireguard relays to be used in a multihop circuit. VPN
+/// traffic will enter through `entry` and eventually come out from `exit` before the traffic
+/// will actually be routed to the broader internet.
 #[derive(Clone, Debug)]
 pub enum WireguardConfig {
     Singlehop { exit: Relay },
