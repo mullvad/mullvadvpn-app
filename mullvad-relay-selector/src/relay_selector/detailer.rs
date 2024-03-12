@@ -28,23 +28,23 @@ use super::{
 /// [`MullvadWireguardEndpoint`] by calling [`to_endpoint`].
 ///
 /// [`to_endpoint`]: WireguardDetailer::to_endpoint
-pub struct WireguardDetailer {
-    wireguard_constraints: WireguardRelayQuery,
-    config: WireguardConfig,
-    data: WireguardEndpointData,
+pub struct WireguardDetailer<'a> {
+    wireguard_constraints: &'a WireguardRelayQuery,
+    config: &'a WireguardConfig,
+    data: &'a WireguardEndpointData,
 }
 
-impl WireguardDetailer {
+impl<'a> WireguardDetailer<'a> {
     /// The standard port on which an exit relay accepts connections from an entry relay in a
     /// multihop circuit.
     pub const WIREGUARD_EXIT_PORT: u16 = 51820;
 
     /// Create a new [`WireguardDetailer`].
     pub const fn new(
-        query: WireguardRelayQuery,
-        config: WireguardConfig,
-        data: WireguardEndpointData,
-    ) -> Self {
+        query: &'a WireguardRelayQuery,
+        config: &'a WireguardConfig,
+        data: &'a WireguardEndpointData,
+    ) -> WireguardDetailer<'a> {
         Self {
             wireguard_constraints: query,
             config,
@@ -73,7 +73,7 @@ impl WireguardDetailer {
     fn to_singlehop_endpoint(&self, exit: &Relay) -> Option<MullvadWireguardEndpoint> {
         let endpoint = {
             let host = self.get_address_for_wireguard_relay(exit)?;
-            let port = self.get_port_for_wireguard_relay(&self.data)?;
+            let port = self.get_port_for_wireguard_relay(self.data)?;
             SocketAddr::new(host, port)
         };
         let peer_config = PeerConfig {
@@ -120,7 +120,7 @@ impl WireguardDetailer {
 
         let entry_endpoint = {
             let host = self.get_address_for_wireguard_relay(entry)?;
-            let port = self.get_port_for_wireguard_relay(&self.data)?;
+            let port = self.get_port_for_wireguard_relay(self.data)?;
             SocketAddr::new(host, port)
         };
         let entry = PeerConfig {
@@ -216,15 +216,19 @@ impl WireguardDetailer {
 /// calling [`to_endpoint`].
 ///
 /// [`to_endpoint`]: OpenVpnDetailer::to_endpoint
-pub struct OpenVpnDetailer {
-    openvpn_constraints: OpenVpnRelayQuery,
-    exit: Relay,
-    data: OpenVpnEndpointData,
+pub struct OpenVpnDetailer<'a> {
+    openvpn_constraints: &'a OpenVpnRelayQuery,
+    exit: &'a Relay,
+    data: &'a OpenVpnEndpointData,
 }
 
-impl OpenVpnDetailer {
+impl<'a> OpenVpnDetailer<'a> {
     /// Create a new [`OpenVpnDetailer`].
-    pub const fn new(query: OpenVpnRelayQuery, relay: Relay, data: OpenVpnEndpointData) -> Self {
+    pub const fn new(
+        query: &'a OpenVpnRelayQuery,
+        relay: &'a Relay,
+        data: &'a OpenVpnEndpointData,
+    ) -> OpenVpnDetailer<'a> {
         Self {
             openvpn_constraints: query,
             exit: relay,
