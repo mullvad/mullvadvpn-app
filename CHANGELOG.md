@@ -32,7 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add toggle for enabling or disabling split tunneling.
 - Replace auto connect with auto connect and lockdown mode guide on platforms that has
   system vpn settings.
-- Add 3D map to Connect screen.  
+- Add 3D map to Connect screen.
 
 ### Changed
 - Change default obfuscation setting to `auto`.
@@ -40,6 +40,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.
+- Increase focus highlight opacity
 
 ### Fixed
 - Continual excessive attempts to update the API IP were made after testing access methods.
