@@ -227,7 +227,7 @@ fn test_retry_order() {
     }
 }
 
-/// Verify that Wireguard is prefered if the tunnel type is set to auto.
+/// Verify that Wireguard is preferred if the tunnel type is set to auto.
 #[test]
 fn prefer_wireguard_when_auto() {
     // Turn on bridge state. This is only relevant when selecting OpenVPN relays, but turning

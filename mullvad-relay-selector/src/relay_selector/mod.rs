@@ -360,7 +360,7 @@ impl RelaySelector {
     ) -> Result<GetRelay, Error> {
         let config = self.config.lock().unwrap();
 
-        // Short-ciruit if a custom tunnel endpoint is to be used - don't have to involve the
+        // Short-circuit if a custom tunnel endpoint is to be used - don't have to involve the
         // relay selector further!
         if let RelaySettings::CustomTunnelEndpoint(custom_relay) = &config.relay_settings {
             return Ok(GetRelay::Custom(custom_relay.clone()));
