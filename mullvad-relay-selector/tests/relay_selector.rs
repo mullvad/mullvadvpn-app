@@ -195,6 +195,10 @@ fn tunnel_type(relay: &Relay) -> TunnelType {
     }
 }
 
+fn default_relay_selector() -> RelaySelector {
+    RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone())
+}
+
 /// Test whether the relay selector seems to respect the order as defined by [`RETRY_ORDER`].
 #[test]
 fn test_retry_order() {
@@ -203,7 +207,7 @@ fn test_retry_order() {
     // A default `SelectorConfig` *should* have this property, but a more robust way to guarantee
     // this would be to create a neutral relay query and supply it to the relay selector at every
     // call to the `get_relay` function.
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = default_relay_selector();
     let tunnel_protocols: Vec<Constraint<TunnelType>> = RETRY_ORDER
         .iter()
         .map(|relay| relay.tunnel_protocol)
@@ -249,7 +253,7 @@ fn prefer_wireguard_when_auto() {
 /// still return a relay of the correct tunnel type (Wireguard).
 #[test]
 fn test_prefer_wireguard_if_location_supports_it() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = default_relay_selector();
     let query = RelayQueryBuilder::new()
         .location(GeographicLocationConstraint::hostname(
             "se",
@@ -269,7 +273,7 @@ fn test_prefer_wireguard_if_location_supports_it() {
 /// still return a relay of the correct tunnel type (OpenVPN).
 #[test]
 fn test_prefer_openvpn_if_location_supports_it() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = default_relay_selector();
     let query = RelayQueryBuilder::new()
         .location(GeographicLocationConstraint::hostname(
             "se",
@@ -290,7 +294,7 @@ fn test_prefer_openvpn_if_location_supports_it() {
 /// pick either the entry or exit relay first depending on which one ends up yielding a valid configuration.
 #[test]
 fn test_wireguard_entry() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = default_relay_selector();
     let specific_hostname = "se10-wireguard";
     let specific_location = GeographicLocationConstraint::hostname("se", "got", specific_hostname);
     let general_location = GeographicLocationConstraint::city("se", "got");
@@ -350,7 +354,7 @@ fn test_wireguard_entry() {
 /// selector should instead always return a valid configuration.
 #[test]
 fn test_wireguard_entry_hostname_collision() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = default_relay_selector();
     // Define two distinct Wireguard relays.
     let host1 = GeographicLocationConstraint::hostname("se", "got", "se9-wireguard");
     let host2 = GeographicLocationConstraint::hostname("se", "got", "se10-wireguard");
@@ -386,7 +390,7 @@ fn test_wireguard_entry_hostname_collision() {
 /// * does *not* return an OpenVPN relay given a constraint of an *invalid* transport protocol + port combo
 #[test]
 fn test_openvpn_constraints() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = default_relay_selector();
     const ACTUAL_TCP_PORT: u16 = 443;
     const ACTUAL_UDP_PORT: u16 = 1194;
     const NON_EXISTENT_PORT: u16 = 1337;
@@ -475,7 +479,7 @@ fn test_openvpn_constraints() {
 /// Construct a query for multihop configuration and assert that the relay selector picks an accompanying entry relay.
 #[test]
 fn test_selecting_wireguard_location_will_consider_multihop() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = default_relay_selector();
 
     for _ in 0..100 {
         let query = RelayQueryBuilder::new().wireguard().multihop().build();
@@ -494,7 +498,7 @@ fn test_selecting_wireguard_location_will_consider_multihop() {
 /// If a Wireguard relay is chosen, the relay selector should also pick an accompanying entry relay.
 #[test]
 fn test_selecting_any_relay_will_consider_multihop() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = default_relay_selector();
     let mut query = RelayQueryBuilder::new().wireguard().multihop().build();
     query.tunnel_protocol = Constraint::Any;
 
@@ -510,7 +514,7 @@ fn test_selecting_any_relay_will_consider_multihop() {
 /// turned off. Assert that the relay selector always return an obfuscator configuration.
 #[test]
 fn test_selecting_wireguard_endpoint_with_udp2tcp_obfuscation() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = default_relay_selector();
     let mut query = RelayQueryBuilder::new().wireguard().udp2tcp().build();
     query.wireguard_constraints.use_multihop = Constraint::Only(false);
 
@@ -540,7 +544,7 @@ fn test_selecting_wireguard_endpoint_with_udp2tcp_obfuscation() {
 /// The cost (in latency primarily) of using obfuscation is deemed to be too high to enable it as an auto-configuration.
 #[test]
 fn test_selecting_wireguard_endpoint_with_auto_obfuscation() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = default_relay_selector();
     let mut query = RelayQueryBuilder::new().wireguard().build();
     query.wireguard_constraints.obfuscation = SelectedObfuscation::Auto;
 
@@ -562,7 +566,7 @@ fn test_selecting_wireguard_endpoint_with_auto_obfuscation() {
 #[test]
 fn test_selected_wireguard_endpoints_use_correct_port_ranges() {
     const TCP2UDP_PORTS: [u16; 3] = [80, 443, 5001];
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = default_relay_selector();
     // Note that we do *not* specify any port here!
     let query = RelayQueryBuilder::new().wireguard().udp2tcp().build();
 
@@ -592,7 +596,7 @@ fn test_selected_wireguard_endpoints_use_correct_port_ranges() {
 /// Verify that any query which sets an explicit [`Ownership`] is respected by the relay selector.
 #[test]
 fn test_ownership() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = default_relay_selector();
 
     for _ in 0..100 {
         // Construct an arbitrary query for owned relays.
@@ -619,7 +623,7 @@ fn test_ownership() {
 #[test]
 fn test_load_balancing() {
     const ATTEMPTS: usize = 100;
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = default_relay_selector();
     let location = GeographicLocationConstraint::country("se");
     for query in [
         RelayQueryBuilder::new().location(location.clone()).build(),
@@ -663,7 +667,7 @@ fn test_load_balancing() {
 fn test_providers() {
     const EXPECTED_PROVIDERS: [&str; 2] = ["provider0", "provider2"];
     let providers = Providers::new(EXPECTED_PROVIDERS).unwrap();
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = default_relay_selector();
 
     for _attempt in 0..100 {
         let query = RelayQueryBuilder::new()
@@ -691,7 +695,7 @@ fn test_providers() {
 /// to automatic.
 #[test]
 fn test_openvpn_auto_bridge() {
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
+    let relay_selector = default_relay_selector();
     let retry_order = [
         // This attempt should not use bridge
         RelayQueryBuilder::new().openvpn().build(),
