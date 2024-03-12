@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.test.arch
 
 import com.lemonappdev.konsist.api.Konsist
+import com.lemonappdev.konsist.api.ext.list.withAnnotationOf
 import com.lemonappdev.konsist.api.verify.assertEmpty
 import com.lemonappdev.konsist.api.verify.assertTrue
 import org.junit.jupiter.api.Test
@@ -48,9 +49,7 @@ class JUnitTest {
     private fun allNonAndroidTests() =
         Konsist.scopeFromTest()
             .functions()
-            // withAnnotationOf is broken in latest Consist version, so we filter manually
-            // https://github.com/LemonAppDev/konsist/discussions/738
-            .filter { it.annotations.any { it.text == "@Test" } }
+            .withAnnotationOf(Test::class)
             .filter { it.sourceSetName != "androidTest" }
             .filter { function ->
                 ignoredTestPackages.none { function.packagee!!.fullyQualifiedName.startsWith(it) }
