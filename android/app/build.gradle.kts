@@ -33,7 +33,7 @@ android {
     compileSdk = Versions.Android.compileSdkVersion
 
     defaultConfig {
-        val localProperties = gradleLocalProperties(rootProject.projectDir)
+        val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
 
         applicationId = "net.mullvad.mullvadvpn"
         minSdk = Versions.Android.minSdkVersion
@@ -114,7 +114,7 @@ android {
     sourceSets {
         getByName("main") {
             val changelogDir =
-                gradleLocalProperties(rootProject.projectDir)
+                gradleLocalProperties(rootProject.projectDir, providers)
                     .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangelogAssetsDirectory)
 
             assets.srcDirs(extraAssetsDirectory, changelogDir)
@@ -181,13 +181,13 @@ android {
 
     applicationVariants.configureEach {
         val alwaysShowChangelog =
-            gradleLocalProperties(rootProject.projectDir).getProperty("ALWAYS_SHOW_CHANGELOG")
+            gradleLocalProperties(rootProject.projectDir, providers).getProperty("ALWAYS_SHOW_CHANGELOG")
                 ?: "false"
 
         buildConfigField("boolean", "ALWAYS_SHOW_CHANGELOG", alwaysShowChangelog)
 
         val enableInAppVersionNotifications =
-            gradleLocalProperties(rootProject.projectDir)
+            gradleLocalProperties(rootProject.projectDir, providers)
                 .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS")
                 ?: "true"
 
@@ -303,13 +303,6 @@ afterEvaluate {
 }
 
 play { serviceAccountCredentials.set(file("play-api-key.json")) }
-
-configurations.all {
-    resolutionStrategy {
-        // Hold back emoji2 since newer versions require api level 34 which is not yet stable.
-        force("androidx.emoji2:emoji2:1.3.0")
-    }
-}
 
 dependencies {
     implementation(project(Dependencies.Mullvad.vpnService))

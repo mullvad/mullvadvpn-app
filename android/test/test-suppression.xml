@@ -110,4 +110,12 @@
         <packageUrl regex="true">^pkg:maven/com\.squareup\.okhttp3/.*@.*$</packageUrl>
         <cve>CVE-2023-3782</cve>
     </suppress>
+    <suppress until="2024-09-01Z">
+        <notes><![CDATA[
+            False-positive related to Drupal rather than Android development.
+            https://nvd.nist.gov/vuln/detail/CVE-2014-9152
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/androidx\.test\.services/storage@.*$</packageUrl>
+        <cve>CVE-2014-9152</cve>
+    </suppress>
 </suppressions>
