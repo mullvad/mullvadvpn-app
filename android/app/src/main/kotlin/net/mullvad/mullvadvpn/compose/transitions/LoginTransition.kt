@@ -8,6 +8,7 @@ import androidx.navigation.NavBackStackEntry
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.ramcosta.composedestinations.utils.destination
 import net.mullvad.mullvadvpn.compose.destinations.ConnectDestination
+import net.mullvad.mullvadvpn.compose.destinations.DeviceListDestination
 import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
 import net.mullvad.mullvadvpn.compose.destinations.WelcomeDestination
 import net.mullvad.mullvadvpn.constant.SCREEN_ANIMATION_TIME_MILLIS
@@ -21,7 +22,8 @@ object LoginTransition : DestinationStyle.Animated {
         when (this.targetState.destination()) {
             is OutOfTimeDestination,
             is WelcomeDestination,
-            is ConnectDestination -> fadeOut()
+            is ConnectDestination,
+            is DeviceListDestination -> fadeOut()
             else -> fadeOut(snap(SCREEN_ANIMATION_TIME_MILLIS))
         }
 
