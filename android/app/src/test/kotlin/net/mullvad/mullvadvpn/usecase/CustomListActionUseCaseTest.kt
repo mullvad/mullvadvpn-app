@@ -38,7 +38,7 @@ class CustomListActionUseCaseTest {
     }
 
     @Test
-    fun `give action create when successful should return created result`() = runTest {
+    fun `create action should return success when ok`() = runTest {
         // Arrange
         val name = "test"
         val locationCode = "AB"
@@ -81,7 +81,7 @@ class CustomListActionUseCaseTest {
     }
 
     @Test
-    fun `give action create when list name already exits should return error`() = runTest {
+    fun `create action should return error when name already exists`() = runTest {
         // Arrange
         val name = "test"
         val locationCode = "AB"
@@ -101,7 +101,7 @@ class CustomListActionUseCaseTest {
     }
 
     @Test
-    fun `give action rename when successful should return rename result`() = runTest {
+    fun `rename action should return success when ok`() = runTest {
         // Arrange
         val name = "test"
         val newName = "test2"
@@ -121,7 +121,7 @@ class CustomListActionUseCaseTest {
     }
 
     @Test
-    fun `give action rename when list name already exists should return error`() = runTest {
+    fun `rename action should return error when name already exists`() = runTest {
         // Arrange
         val name = "test"
         val newName = "test2"
@@ -144,7 +144,7 @@ class CustomListActionUseCaseTest {
     }
 
     @Test
-    fun `give action delete when successful should return delete result`() = runTest {
+    fun `delete action should return successful with deleted list`() = runTest {
         // Arrange
         val mockCustomList: CustomList = mockk()
         val mockLocation: GeographicLocationConstraint.Country = mockk()
@@ -173,46 +173,45 @@ class CustomListActionUseCaseTest {
     }
 
     @Test
-    fun `give action update locations when successful should return locations changed result`() =
-        runTest {
-            // Arrange
-            val name = "test"
-            val oldLocationCodes = listOf("AB", "CD")
-            val newLocationCodes = listOf("EF", "GH")
-            val oldLocations: ArrayList<GeographicLocationConstraint> =
-                arrayListOf(
-                    GeographicLocationConstraint.Country("AB"),
-                    GeographicLocationConstraint.Country("CD")
+    fun `update locations action should return success with changed locations`() = runTest {
+        // Arrange
+        val name = "test"
+        val oldLocationCodes = listOf("AB", "CD")
+        val newLocationCodes = listOf("EF", "GH")
+        val oldLocations: ArrayList<GeographicLocationConstraint> =
+            arrayListOf(
+                GeographicLocationConstraint.Country("AB"),
+                GeographicLocationConstraint.Country("CD")
+            )
+        val customListId = "1"
+        val customList = CustomList(id = customListId, name = name, locations = oldLocations)
+        val action =
+            CustomListAction.UpdateLocations(
+                customListId = customListId,
+                locations = newLocationCodes
+            )
+        val expectedResult =
+            Result.success(
+                CustomListResult.LocationsChanged(
+                    name = name,
+                    undo = action.not(locations = oldLocationCodes)
                 )
-            val customListId = "1"
-            val customList = CustomList(id = customListId, name = name, locations = oldLocations)
-            val action =
-                CustomListAction.UpdateLocations(
-                    customListId = customListId,
-                    locations = newLocationCodes
-                )
-            val expectedResult =
-                Result.success(
-                    CustomListResult.LocationsChanged(
-                        name = name,
-                        undo = action.not(locations = oldLocationCodes)
-                    )
-                )
-            coEvery { mockCustomListsRepository.getCustomListById(customListId) } returns customList
+            )
+        coEvery { mockCustomListsRepository.getCustomListById(customListId) } returns customList
 
-            coEvery {
-                mockCustomListsRepository.updateCustomListLocationsFromCodes(
-                    customListId,
-                    newLocationCodes
-                )
-            } returns UpdateCustomListResult.Ok
+        coEvery {
+            mockCustomListsRepository.updateCustomListLocationsFromCodes(
+                customListId,
+                newLocationCodes
+            )
+        } returns UpdateCustomListResult.Ok
 
-            // Act
-            val result = customListActionUseCase.performAction(action)
+        // Act
+        val result = customListActionUseCase.performAction(action)
 
-            // Assert
-            assertEquals(expectedResult, result)
-        }
+        // Assert
+        assertEquals(expectedResult, result)
+    }
 
     companion object {
         private const val RELAY_LIST_EXTENSIONS =

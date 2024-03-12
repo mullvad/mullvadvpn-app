@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.relaylist.RelayItem
-import net.mullvad.mullvadvpn.relaylist.allChildren
+import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -83,7 +83,7 @@ class CustomListLocationsViewModelTest {
         }
         customListFlow.value = listOf(customList)
         val expectedSelection =
-            (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.allChildren() }).toSet()
+            (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.descendants() }).toSet()
         val viewModel = createViewModel(customListId, true)
         relayListFlow.value = expectedList
 
@@ -106,7 +106,7 @@ class CustomListLocationsViewModelTest {
         // Arrange
         val expectedList = DUMMY_COUNTRIES
         val initialSelection =
-            (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.allChildren() }).toSet()
+            (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.descendants() }).toSet()
         val customListId = "id"
         val customListName = "name"
         val customList: RelayItem.CustomList = mockk {
@@ -138,7 +138,7 @@ class CustomListLocationsViewModelTest {
         // Arrange
         val expectedList = DUMMY_COUNTRIES
         val initialSelection =
-            (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.allChildren() }).toSet()
+            (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.descendants() }).toSet()
         val customListId = "id"
         val customListName = "name"
         val customList: RelayItem.CustomList = mockk {
