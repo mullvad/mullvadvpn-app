@@ -19,7 +19,7 @@ use matcher::{BridgeMatcher, RelayMatcher, WireguardMatcher};
 use mullvad_types::{
     constraints::Constraint,
     custom_list::CustomListsSettings,
-    endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
+    endpoint::MullvadWireguardEndpoint,
     location::{Coordinates, Location},
     relay_constraints::{
         BridgeSettings, BridgeState, InternalBridgeConstraints, ObfuscationSettings,
@@ -31,7 +31,9 @@ use mullvad_types::{
     CustomTunnelEndpoint,
 };
 use talpid_types::{
-    net::{obfuscation::ObfuscatorConfig, proxy::CustomProxy, TransportProtocol, TunnelType},
+    net::{
+        obfuscation::ObfuscatorConfig, proxy::CustomProxy, Endpoint, TransportProtocol, TunnelType,
+    },
     ErrorExt,
 };
 
@@ -107,13 +109,13 @@ pub struct SelectorConfig {
 #[derive(Clone, Debug)]
 pub enum GetRelay {
     Wireguard {
-        endpoint: MullvadEndpoint,
+        endpoint: MullvadWireguardEndpoint,
         obfuscator: Option<SelectedObfuscator>,
         inner: WireguardConfig,
     },
     #[cfg(not(target_os = "android"))]
     OpenVpn {
-        endpoint: MullvadEndpoint,
+        endpoint: Endpoint,
         exit: Relay,
         bridge: Option<SelectedBridge>,
     },
@@ -442,14 +444,8 @@ impl RelaySelector {
             Self::get_wireguard_multihop_config(query, config, parsed_relays)?
         };
         let endpoint = Self::get_wireguard_endpoint(query, inner.clone(), parsed_relays)?;
-        let obfuscator = Self::get_wireguard_obfuscator(
-            query,
-            inner.clone(),
-            // Note: It should always be safe to call `unwrap_wireguard` here, unless there
-            // is a bug in `get_wireguard_endpoint`.
-            endpoint.unwrap_wireguard(),
-            parsed_relays,
-        );
+        let obfuscator =
+            Self::get_wireguard_obfuscator(query, inner.clone(), &endpoint, parsed_relays);
 
         Ok(GetRelay::Wireguard {
             endpoint,
@@ -538,7 +534,7 @@ impl RelaySelector {
         query: &RelayQuery,
         relay: WireguardConfig,
         parsed_relays: &ParsedRelays,
-    ) -> Result<MullvadEndpoint, Error> {
+    ) -> Result<MullvadWireguardEndpoint, Error> {
         WireguardDetailer::new(
             query.wireguard_constraints.clone(),
             relay,
@@ -588,15 +584,8 @@ impl RelaySelector {
     ) -> Result<GetRelay, Error> {
         let exit = Self::choose_relay(query, config, parsed_relays).ok_or(Error::NoRelay)?;
         let endpoint = Self::get_openvpn_endpoint(query, exit.clone(), parsed_relays)?;
-        let bridge = Self::get_openvpn_bridge(
-            query,
-            &exit,
-            // Note: It should always be safe to call `unwrap_openvpn` here, unless there
-            // is a bug in `OpenVpnDetailer::to_endpoint`.
-            &endpoint.unwrap_openvpn().protocol,
-            parsed_relays,
-            config,
-        )?;
+        let bridge =
+            Self::get_openvpn_bridge(query, &exit, &endpoint.protocol, parsed_relays, config)?;
 
         Ok(GetRelay::OpenVpn {
             endpoint,
@@ -611,7 +600,7 @@ impl RelaySelector {
         query: &RelayQuery,
         relay: Relay,
         parsed_relays: &ParsedRelays,
-    ) -> Result<MullvadEndpoint, Error> {
+    ) -> Result<Endpoint, Error> {
         OpenVpnDetailer::new(
             query.openvpn_constraints.clone(),
             relay,

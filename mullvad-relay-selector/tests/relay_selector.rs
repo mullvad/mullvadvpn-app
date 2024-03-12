@@ -180,8 +180,8 @@ fn unwrap_relay(get_result: GetRelay) -> Relay {
 
 fn unwrap_endpoint(get_result: GetRelay) -> MullvadEndpoint {
     match get_result {
-        GetRelay::Wireguard { endpoint, .. } => endpoint,
-        GetRelay::OpenVpn { endpoint, .. } => endpoint,
+        GetRelay::Wireguard { endpoint, .. } => MullvadEndpoint::Wireguard(endpoint),
+        GetRelay::OpenVpn { endpoint, .. } => MullvadEndpoint::OpenVpn(endpoint),
         GetRelay::Custom(custom) => {
             panic!("Can not extract Mullvad endpoint from custom relay: {custom}")
         }
@@ -463,8 +463,7 @@ fn test_openvpn_constraints() {
             } else {
                 match relay.expect("Expected to find a relay") {
                     GetRelay::OpenVpn { endpoint, .. } =>  {
-                        assert!(matches!(endpoint, MullvadEndpoint::OpenVpn(_)));
-                        matches_constraints(endpoint.to_endpoint(), &query.openvpn_constraints);
+                        matches_constraints(endpoint, &query.openvpn_constraints);
                     },
                     wrong_relay => panic!("Relay selector should have picked an OpenVPN relay, instead chose {wrong_relay:?}")
                 };
@@ -501,18 +500,9 @@ fn test_selecting_any_relay_will_consider_multihop() {
 
     for _ in 0..100 {
         let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
-        match relay {
-            GetRelay::Wireguard {
-                endpoint,
-                inner: WireguardConfig::Multihop { .. },
-                ..
-            } => {
-                assert!(matches!(endpoint, MullvadEndpoint::Wireguard(_)));
-            }
-            wrong_relay => panic!(
-            "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
-        ),
-        }
+        assert!(matches!(relay, GetRelay::Wireguard { inner: WireguardConfig::Multihop { .. }, .. }),
+            "Relay selector should have picked a Wireguard relay with multihop, instead chose {relay:?}"
+        );
     }
 }
 
@@ -557,13 +547,8 @@ fn test_selecting_wireguard_endpoint_with_auto_obfuscation() {
     for _ in 0..100 {
         let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
         match relay {
-            GetRelay::Wireguard {
-                endpoint,
-                obfuscator,
-                ..
-            } => {
+            GetRelay::Wireguard { obfuscator, .. } => {
                 assert!(obfuscator.is_none());
-                assert!(matches!(endpoint, MullvadEndpoint::Wireguard { .. }));
             }
             wrong_relay => panic!(
             "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
@@ -871,7 +856,7 @@ fn openvpn_handle_bridge_settings() {
     // Assert that the resulting relay uses UDP.
     match relay {
         GetRelay::OpenVpn { endpoint, .. } => {
-            assert_eq!(endpoint.unwrap_openvpn().protocol, UDP);
+            assert_eq!(endpoint.protocol, UDP);
         }
         wrong_relay => panic!(
             "Relay selector should have picked an OpenVPN relay, instead chose {wrong_relay:?}"
@@ -895,7 +880,7 @@ fn openvpn_handle_bridge_settings() {
             endpoint, bridge, ..
         } => {
             assert!(bridge.is_some());
-            assert_eq!(endpoint.unwrap_openvpn().protocol, TCP);
+            assert_eq!(endpoint.protocol, TCP);
         }
         wrong_relay => panic!(
             "Relay selector should have picked an OpenVPN relay, instead chose {wrong_relay:?}"
@@ -928,7 +913,7 @@ fn openvpn_bridge_with_automatic_transport_protocol() {
         // auto.
         match relay {
             GetRelay::OpenVpn { endpoint, .. } => {
-                assert_eq!(endpoint.unwrap_openvpn().protocol, TCP);
+                assert_eq!(endpoint.protocol, TCP);
             }
             wrong_relay => panic!(
                 "Relay selector should have picked an OpenVPN relay, instead chose {wrong_relay:?}"
