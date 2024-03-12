@@ -2,7 +2,7 @@
 
 set -euvx
 
-if [ "$#" -gt 2 ]
+if [ "$#" -gt 2 ] || [ "$#" -eq 0 ]
 then
     echo "Usage (note: only call inside xcode!):"
     echo "build-rust-library.sh <FFI_TARGET> [FFI_FEATURES]"
@@ -13,6 +13,8 @@ fi
 FFI_TARGET=$1
 
 # Enable cargo features by passing feature names to this script, i.e. build-rust-library.sh mullvad-api api-override
+# If more than one feature flag needs to be enabled, pass in a single argument all the features flags separated by spaces
+# build-rust-library.sh mullvad-api "featureA featureB featureC"
 FEATURE_FLAGS=
 if [[ "$#" -eq 2 ]] ; then
 FEATURE_FLAGS=$2
