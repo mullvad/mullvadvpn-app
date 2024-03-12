@@ -1,0 +1,18 @@
+---
+name: Git - Check commit message style
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  check-commit-message-style:
+    name: Check commit message style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check against guidlines
+        uses: mristin/opinionated-commit-message@v3.1.0
+        with:
+          # Commit messages are allowed to be subject only, no body
+          allow-one-liners: 'true'
+          # This action defaults to 50 char subjects, but 74 is fine.
+          max-subject-line-length: '74'
