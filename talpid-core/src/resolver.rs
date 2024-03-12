@@ -105,24 +105,29 @@ impl FilteringResolver {
         let (tx, rx) = mpsc::channel(0);
         let command_tx = Arc::new(tx);
 
-        let mut server = ServerFuture::new(ResolverImpl {
-            tx: Arc::downgrade(&command_tx),
-        });
-
-        let server_listening_socket =
-            tokio::net::UdpSocket::bind(SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 0))
-                .await
-                .map_err(Error::UdpBindError)?;
-        let port = server_listening_socket
-            .local_addr()
-            .map_err(Error::GetSocketAddrError)?
-            .port();
-        server.register_socket(server_listening_socket);
+        let weak_tx = Arc::downgrade(&command_tx);
+        let (mut server, port) = Self::new_server(0, weak_tx.clone()).await?;
 
         let (server_done_tx, server_done_rx) = oneshot::channel();
         let server_handle = tokio::spawn(async move {
-            if let Err(err) = server.block_until_done().await {
-                log::error!("DNS server stopped: {}", err);
+            loop {
+                if let Err(err) = server.block_until_done().await {
+                    log::error!("DNS server unexpectedly stopped: {}", err);
+
+                    if weak_tx.strong_count() > 0 {
+                        log::debug!("Attempting restart server");
+                        match Self::new_server(port, weak_tx.clone()).await {
+                            Ok((new_server, _port)) => {
+                                server = new_server;
+                                continue;
+                            }
+                            Err(error) => {
+                                log::error!("Failed to restart DNS server: {error}");
+                            }
+                        }
+                    }
+                }
+                break;
             }
 
             let _ = server_done_tx.send(());
@@ -133,6 +138,25 @@ impl FilteringResolver {
         };
 
         Ok((resolver, ResolverHandle::new(command_tx, port)))
+    }
+
+    async fn new_server(
+        port: u16,
+        command_tx: Weak<mpsc::Sender<ResolverMessage>>,
+    ) -> Result<(ServerFuture<ResolverImpl>, u16), Error> {
+        let mut server = ServerFuture::new(ResolverImpl { tx: command_tx });
+
+        let server_listening_socket =
+            tokio::net::UdpSocket::bind(SocketAddr::new(Ipv4Addr::LOCALHOST.into(), port))
+                .await
+                .map_err(Error::UdpBindError)?;
+        let port = server_listening_socket
+            .local_addr()
+            .map_err(Error::GetSocketAddrError)?
+            .port();
+        server.register_socket(server_listening_socket);
+
+        Ok((server, port))
     }
 
     /// Runs the filtering resolver as an actor, listening for new queries instances.  When all
