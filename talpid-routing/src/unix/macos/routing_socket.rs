@@ -34,6 +34,23 @@ pub enum Error {
     ResponseTimeout,
 }
 
+impl Error {
+    /// Return the underlying `io::Error` (or `None`)
+    pub fn as_io_error(&self) -> Option<&io::Error> {
+        use std::error::Error;
+        self.source()
+            .and_then(|source| source.downcast_ref::<io::Error>())
+    }
+
+    /// Return whether an operation failed because the socket has been shut down
+    pub fn is_shutdown(&self) -> bool {
+        // ENOTCONN is returned when the socket is shut down (e.g., due to `pid_shutdown_sockets`)
+        self.as_io_error()
+            .map(|io_error| io_error.kind() == io::ErrorKind::NotConnected)
+            .unwrap_or(false)
+    }
+}
+
 type Result<T> = std::result::Result<T, Error>;
 
 const RESPONSE_TIMEOUT: Duration = Duration::from_secs(10);
@@ -61,7 +78,7 @@ impl RoutingSocket {
 
     pub async fn recv_msg(&mut self, mut buf: &mut [u8]) -> Result<usize> {
         if let Some(buffered_msg) = self.buf.pop_front() {
-            let bytes_written = buf.write(&buffered_msg).map_err(Error::Write)?;
+            let bytes_written = buf.write(&buffered_msg).map_err(Error::Read)?;
             return Ok(bytes_written);
         }
         self.read_next_msg(buf).await
@@ -85,7 +102,7 @@ impl RoutingSocket {
         }
     }
 
-    pub async fn wait_for_response(&mut self, response_num: i32) -> Result<Vec<u8>> {
+    async fn wait_for_response(&mut self, response_num: i32) -> Result<Vec<u8>> {
         loop {
             talpid_types::detect_flood!();
 
