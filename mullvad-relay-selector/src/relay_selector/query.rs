@@ -1,4 +1,46 @@
-//! TODO(markus): Document the purpose of this module. Oh boi
+//! This module provides a flexible way to specify 'queries' for relays.
+//!
+//! A query is a set of constraints that the [`crate::RelaySelector`] will use when filtering out
+//! potential relays that the daemon should connect to. It supports filtering relays by geographic location,
+//! provider, ownership, and tunnel protocol, along with protocol-specific settings for WireGuard and OpenVPN.
+//!
+//! The main components of this module include:
+//!
+//! - [`RelayQuery`]: The core struct for specifying a query to select relay servers. It
+//!   aggregates constraints on location, providers, ownership, tunnel protocol, and
+//!   protocol-specific constraints for WireGuard and OpenVPN.
+//! - [`WireguardRelayQuery`] and [`OpenVpnRelayQuery`]: Structs that define protocol-specific
+//!   constraints for selecting WireGuard and OpenVPN relays, respectively.
+//! - [`Intersection`]: A trait implemented by the different query types that support intersection logic,
+//!   which allwows for combining two queries into a single query that represents the common constraints of both.
+//! - [Builder patterns][builder]: The module also provides builder patterns for creating instances
+//!   of `RelayQuery`, `WireguardRelayQuery`, and `OpenVpnRelayQuery` with a fluent API.
+//!
+//! ## Examples
+//!
+//! Creating a basic `RelayQuery` to filter relays by location, ownership and tunnel protocol:
+//!
+//! ```rust
+//! use mullvad_relay_selector::query::RelayQuery;
+//! use mullvad_relay_selector::query::builder::RelayQueryBuilder;
+//! use mullvad_relay_selector::query::builder::{Ownership, GeographicLocationConstraint};
+//!
+//! let query: RelayQuery = RelayQueryBuilder::new()
+//!     .openvpn()                                              // The relay should use OpenVPN, ..
+//!     .location(GeographicLocationConstraint::country("no"))  // .. be locatated in Norway ..
+//!     .ownership(Ownership::MullvadOwned)                     // .. and it must be owned by Mullvad.
+//!     .build();                                               // Construct the query
+//! ```
+//!
+//! ## Design
+//!
+//! This module has been built in such a way that it should be easy to reason about,
+//! while providing a flexible and easy-to-use API. The `Intersection` trait provides
+//! a robust framework for combining and refining queries based on multiple criteria.
+//!
+//! The builder patterns included in the module simplify the process of constructing
+//! queries and ensure that queries are built in a type-safe manner, reducing the risk
+//! of runtime errors and improving code readability.
 
 use mullvad_types::{
     constraints::Constraint,
@@ -14,8 +56,8 @@ use talpid_types::net::{proxy::CustomProxy, IpVersion, TunnelType};
 ///
 /// This struct contains constraints for the location, providers, ownership,
 /// tunnel protocol, and additional protocol-specific constraints for WireGuard
-/// and OpenVPN. These constraints are used by the [`relay_selector`] to filter
-/// and select suitable relay servers that match the specified criteria.
+/// and OpenVPN. These constraints are used by the [`crate::RelaySelector`] to
+/// filter and select suitable relay servers that match the specified criteria.
 ///
 /// A [`RelayQuery`] is best constructed via the fluent builder API exposed by
 /// [`builder::RelayQueryBuilder`].
@@ -40,7 +82,7 @@ use talpid_types::net::{proxy::CustomProxy, IpVersion, TunnelType};
 /// ```
 ///
 /// This example demonstrates creating a `RelayQuery` which can then be passed
-/// to the [`crate::relay_selector`] to find a relay that matches the criteria.
+/// to the [`crate::RelaySelector`] to find a relay that matches the criteria.
 /// See [`builder`] for more info on how to build queries and.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct RelayQuery {
@@ -76,8 +118,7 @@ impl Intersection for RelayQuery {
     /// incompatible and `intersection` returns [`Option::None`].
     ///
     /// * Otherwise, a new [`RelayQuery`] is returned where each constraint is
-    /// as specific as possible. See [`Constraint::intersection()`] for further
-    /// details.
+    /// as specific as possible. See [`Constraint`] for further details.
     ///
     /// This way, if the mullvad app wants to check if the user's configured
     /// [`RelayQuery`] are compatible with any other [`RelayQuery`], taking the
@@ -117,7 +158,14 @@ impl From<RelayQuery> for RelayConstraints {
     }
 }
 
-/// TODO(markus): Document
+/// A query for a relay with Wireguard-specific properties, such as `multihop` and [wireguard obfuscation][`SelectedObfuscation`].
+///
+/// This struct may look a lot like [`WireguardConstraints`], and that is the point!
+/// This struct is meant to be that type in the "universe of relay queries". The difference
+/// between them may seem subtle, but in a [`WireguardRelayQuery`] every field is represented
+/// as a [`Constraint`], which allow us to implement [`Intersection`] in a straight forward manner.
+/// Notice that [obfuscation][`SelectedObfuscation`] is not a [`Constraint`], but it is trivial
+/// to define [`Intersection`] on it, so it is fine.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct WireguardRelayQuery {
     pub port: Constraint<u16>,
@@ -190,7 +238,12 @@ impl From<WireguardRelayQuery> for WireguardConstraints {
     }
 }
 
-/// TODO(markus): Document
+/// A query for a relay with OpenVPN-specific properties, such as `bridge_settings`.
+///
+/// This struct may look a lot like [`OpenVpnConstraints`], and that is the point!
+/// This struct is meant to be that type in the "universe of relay queries". The difference
+/// between them may seem subtle, but in a [`OpenVpnRelayQuery`] every field is represented
+/// as a [`Constraint`], which allow us to implement [`Intersection`] in a straight forward manner.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct OpenVpnRelayQuery {
     pub port: Constraint<TransportPort>,
@@ -228,17 +281,22 @@ impl Intersection for OpenVpnRelayQuery {
     }
 }
 
-/// TODO(markus): Document
+/// This is the reflection of [`BridgeState`] + [`BridgeSettings`] in the "universe of relay queries".
+///
+/// [`BridgeState`]: mullvad_types::relay_constraints::BridgeState
+/// [`BridgeSettings`]: mullvad_types::relay_constraints::BridgeSettings
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum BridgeQuery {
+    /// Bridges should not be used.
     Off,
     /// Don't care, let the relay selector choose!
     ///
-    /// If this variant is intersected with another [`BridgeQuery`] `x`,
-    /// `x` is always preferred.
+    /// If this variant is intersected with another [`BridgeQuery`] `bq`,
+    /// `bq` is always preferred.
     Auto,
-    // These two options denote two different form of `Enabled`.
+    /// Bridges should be used.
     Normal(BridgeConstraints),
+    /// Bridges should be used.
     Custom(Option<CustomProxy>),
 }
 
@@ -411,9 +469,7 @@ pub mod builder {
         /// Call [`Self::build`] to convert the builder into a [`RelayQuery`],
         /// which is used to guide the [`RelaySelector`]
         ///
-        /// TODO(markus): Make sure this module link is up to date!
-        ///
-        /// [`RelaySelector`]: mullvad_relay_selector::RelaySelector
+        /// [`RelaySelector`]: crate::RelaySelector
         pub const fn new() -> RelayQueryBuilder<Any> {
             RelayQueryBuilder {
                 query: RelayQuery::new(),
@@ -456,6 +512,8 @@ pub mod builder {
     /// - The type parameter `Multihop` keeps track of the state of multihop.
     /// If multihop has been enabled, the builder should expose an option to
     /// select entry point.
+    ///
+    /// [`WireguardRelayQuery`]: super::WireguardRelayQuery
     pub struct Wireguard<Multihop, Obfuscation> {
         multihop: Multihop,
         obfuscation: Obfuscation,
@@ -546,6 +604,8 @@ pub mod builder {
     /// [`TransportProtocol`] & port-combo to use. [`TransportProtocol`] has
     /// to be set first before the option to select a specific port is
     /// exposed.
+    ///
+    /// [`OpenVpnRelayQuery`]: super::OpenVpnRelayQuery
     pub struct OpenVPN<TransportPort, Bridge> {
         transport_port: TransportPort,
         bridge_settings: Bridge,

@@ -48,7 +48,7 @@ use self::{
 
 /// [`RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector should prioritize on
 /// successive connection attempts. Note that these will *never* override user preferences.
-/// See [`query::Intersection`] for further details.
+/// See [the documentation on `RelayQuery`][RelayQuery] for further details.
 ///
 /// This list should be kept in sync with the expected behavior defined in `docs/relay-selector.ms`
 pub static RETRY_ORDER: Lazy<Vec<RelayQuery>> = Lazy::new(|| {
@@ -107,7 +107,7 @@ pub struct SelectorConfig {
     pub bridge_settings: BridgeSettings,
 }
 
-/// The return type of `get_relay`.
+/// The return type of [`RelaySelector::get_relay`].
 #[derive(Clone, Debug)]
 pub enum GetRelay {
     Wireguard {
@@ -127,9 +127,9 @@ pub enum GetRelay {
 /// This struct defines the different Wireguard relays the the relay selector can end up selecting
 /// for an arbitrary Wireguard [`query`].
 ///
-/// [`WireguardConfig::Singlehop`]; A normal wireguard relay where VPN traffic enters and exits
+/// - [`WireguardConfig::Singlehop`]; A normal wireguard relay where VPN traffic enters and exits
 /// through this sole relay.
-/// [`WireguardConfig::Multihop`]; Two wireguard relays to be used in a multihop circuit. VPN
+/// - [`WireguardConfig::Multihop`]; Two wireguard relays to be used in a multihop circuit. VPN
 /// traffic will enter through `entry` and eventually come out from `exit` before the traffic
 /// will actually be routed to the broader internet.
 #[derive(Clone, Debug)]
@@ -348,12 +348,10 @@ impl RelaySelector {
         Self::get_relay_inner(&query, parsed_relays, &config)
     }
 
-    /// Returns a random relay and relay endpoint matching the current constraints defined by
-    /// `retry_order`.
+    /// Returns a random relay and relay endpoint matching the current constraints corresponding to
+    /// `retry_attempt` in [`RETRY_ORDER`].
     ///
-    /// See [`RETRY_ORDER`] for the current constraints.
-    ///
-    /// [`RETRY_ORDER`]: mullvad_relay_selector::relay_selector::RETRY_ORDER
+    /// [`RETRY_ORDER`]: crate::RETRY_ORDER
     pub fn get_relay(&self, retry_attempt: usize) -> Result<GetRelay, Error> {
         self.get_relay_with_order(&RETRY_ORDER, retry_attempt)
     }
