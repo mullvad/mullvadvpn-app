@@ -12,7 +12,7 @@
     <string name="add_a_server">サーバーを追加</string>
     <string name="add_dns_server_dialog_title">DNS サーバーを追加</string>
     <string name="add_time_to_account">当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。</string>
-    <string name="added_to_your_account">アカウントに%1$s分が追加されました。</string>
+    <string name="added_to_your_account">%1$sがアカウントに追加されました。</string>
     <string name="agree_and_continue">同意して続行</string>
     <string name="all_applications">すべてのアプリケーション</string>
     <string name="all_providers">すべてのプロバイダ</string>
@@ -24,6 +24,14 @@
     <string name="apply">適用</string>
     <string name="auth_failed">アカウントを認証できません。問題の報告を送信してください。</string>
     <string name="auto_connect">自動接続</string>
+    <string name="auto_connect_and_lockdown_mode">自動接続とロックダウンモード</string>
+    <string name="auto_connect_and_lockdown_mode_footer">デバイスが必ずVPNトンネルを使用するようにします。</string>
+    <string name="auto_connect_carousel_first_slide_bottom_text">1. 下の [&lt;b&gt;VPN設定に移動&lt;/b&gt;] ボタンをクリックし、&lt;b&gt;Mullvad VPN&lt;/b&gt;名の横にある歯車をクリックします。</string>
+    <string name="auto_connect_carousel_first_slide_top_text">自動接続とロックダウンモードの設定はAndroidシステム設定にあります。どちらか、または両方をこのガイドに従って有効にしてください。</string>
+    <string name="auto_connect_carousel_second_slide_bottom_text">2. 自動接続を有効にするには、[&lt;b&gt;Always-on VPN&lt;/b&gt;] の横のトグルボタンをクリックします。</string>
+    <string name="auto_connect_carousel_second_slide_top_text">自動接続はAndroidシステム設定で「Always-on VPN」と呼ばれており、確実に一貫してVPNトンネルに接続し、再起動の後に自動接続を行う機能です。</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. ロックダウンモードを有効にするには、[&lt;b&gt;VPNを使用していない接続をブロック&lt;/b&gt;] の横のトグルボタンをクリックします。</string>
+    <string name="auto_connect_carousel_third_slide_top_text">ロックダウンモードはVPNトンネルが手動で切断された場合にすべてのインターネットアクセスをブロックします。&lt;br/&gt;&lt;b&gt;警告: この設定は分割アプリとローカルネットワーク共有機能をブロックします。&lt;/b&gt;</string>
     <string name="auto_connect_footer">アプリ起動時に自動的にサーバーに接続します。</string>
     <string name="automatic">自動</string>
     <string name="back">戻る</string>
@@ -48,6 +56,7 @@
     <string name="connecting">接続中</string>
     <string name="connecting_to_daemon">Mullvad システムサービスに接続中...</string>
     <string name="continue_login">ログインを続ける</string>
+    <string name="copied_logs_to_clipboard">ログをクリップボードにコピーしました</string>
     <string name="copied_mullvad_account_number">Mullvadアカウント番号をクリップボードにコピーしました</string>
     <string name="copied_to_clipboard">クリップボードにコピーしました</string>
     <string name="copy_account_number">アカウント番号のコピー</string>
@@ -59,7 +68,7 @@
     <string name="custom_dns_disable_mode_subtitle">この設定を有効にするには、上記のすべての&lt;b&gt;%1$s&lt;/b&gt;を無効にしてください。</string>
     <string name="custom_dns_footer">1つ以上のDNSサーバーを追加するには有効にしてください。</string>
     <string name="custom_dns_hint">IPを入力</string>
-    <string name="custom_port_dialog_placeholder">ポートを入力してください</string>
+    <string name="custom_port_dialog_placeholder">ポートを入力</string>
     <string name="custom_port_dialog_remove">カスタムポートを削除</string>
     <string name="custom_port_dialog_submit">ポートを設定</string>
     <string name="custom_port_dialog_title">WireGuardカスタムポート</string>
@@ -102,6 +111,7 @@
     <string name="foreground_notification_channel_description">現在のVPNトンネルのステータスを表示します</string>
     <string name="foreground_notification_channel_name">VPNトンネルのステータス</string>
     <string name="go_to_login">ログインに進む</string>
+    <string name="go_to_vpn_settings">VPN設定に移動</string>
     <string name="got_it">了解</string>
     <string name="here_is_your_account_number">これがあなたのアカウント番号です。保存してください！</string>
     <string name="hide_account_number">アカウント番号の非表示</string>
@@ -139,6 +149,7 @@
     <string name="mullvad_owned_only">Mullvad 所有サーバーのみ</string>
     <string name="new_device_notification_message">ようこそ。このデバイスの名前は&lt;b&gt;%1$s&lt;/b&gt;です。詳細はアカウントの情報ボタンで確認してください。</string>
     <string name="new_device_notification_title">新しいデバイスが作成されました</string>
+    <string name="no_internet_connection">インターネット接続がありません</string>
     <string name="no_matching_relay">設定に一致するサーバーはありません。サーバーまたは他の設定を変更してみてください。</string>
     <string name="no_wireguard_key">有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。</string>
     <string name="not_blocking_internet">ネットワーク通信が漏洩している可能性があります</string>
@@ -207,6 +218,7 @@
     <string name="show_account_number">アカウント番号の表示</string>
     <string name="show_system_apps">システムアプリの表示</string>
     <string name="split_tunneling_description">VPNトンネルから除外するアプリを選択してください。</string>
+    <string name="split_tunneling_disabled_description">スプリットトンネリングは無効です。</string>
     <string name="start_tunnel_error">トンネル接続を開始できません。問題の報告を送信してください。</string>
     <string name="submit_button">送信</string>
     <string name="switch_location">場所を切り替える</string>
@@ -236,6 +248,7 @@
     <string name="vpn_permission_denied_error">トンネルを作成中にVPNへのアクセスが拒否されました。もう一度接続してみてください。</string>
     <string name="vpn_permission_error_notification_message">Always-on VPNが別のアプリで有効になっている可能性があります</string>
     <string name="vpn_permission_error_notification_title">VPN許可エラー</string>
+    <string name="vpn_settings_not_found">デバイスにVPN設定がありません</string>
     <string name="we_will_look_into_this">この問題を調査いたします。</string>
     <string name="wireguard_custon_port_title">カスタム</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
