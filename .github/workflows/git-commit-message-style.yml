@@ -23,7 +23,8 @@ jobs:
           # Pattern matches strings not containing weird unicode whitespace/separator characters
           # [^\s] = All non-whitespace characters
           # [ \t\n] = Allowed whitespace characters
-          pattern: '^([^\s]|[ \t\n])+$'
+          pattern: '^([^\p{Z}]|[ \t\n])+$'
+          flags: 'gmsu'
           error: 'Detected unicode whitespace character in commit message.'
           checkAllCommitMessages: 'true' # optional: this checks all commits associated with a pull request
           accessToken: ${{ secrets.GITHUB_TOKEN }} # only required if checkAllCommitMessages is true
