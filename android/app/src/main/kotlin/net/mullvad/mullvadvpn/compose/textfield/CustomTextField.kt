@@ -8,9 +8,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextRange
@@ -40,18 +43,41 @@ fun CustomTextField(
 
     val scope = rememberCoroutineScope()
 
-    // Pass initial text range ensure cursor position is correct when entering a TextField with a
-    // preexisting value
-    val textRange = remember { mutableStateOf(TextRange(value.length)) }
+    // This is the same implementation as in BasicTextField.kt but with initial selection set at the
+    // end of the text rather than in the beginning.
+    // This is a fix for https://issuetracker.google.com/issues/272693535.
+    var textFieldValueState by remember {
+        mutableStateOf(TextFieldValue(text = value, selection = TextRange(value.length)))
+    }
+    val textFieldValue = textFieldValueState.copy(text = value)
+    SideEffect {
+        if (
+            textFieldValue.selection != textFieldValueState.selection ||
+                textFieldValue.composition != textFieldValueState.composition
+        ) {
+            textFieldValueState = textFieldValue
+        }
+    }
+    var lastTextValue by remember(value) { mutableStateOf(value) }
 
     TextField(
-        value = TextFieldValue(value, textRange.value),
-        onValueChange = { input ->
-            val isValidInput = if (isDigitsOnlyAllowed) TextUtils.isDigitsOnly(input.text) else true
-            if (input.text.length <= maxCharLength && isValidInput) {
-                // Remove any newline chars added by enter key clicks
-                textRange.value = input.selection
-                onValueChanged(input.text.replace(NEWLINE_STRING, EMPTY_STRING))
+        value = textFieldValue,
+        onValueChange = { newTextFieldValueState ->
+            textFieldValueState = newTextFieldValueState
+
+            val stringChangedSinceLastInvocation = lastTextValue != newTextFieldValueState.text
+            lastTextValue = newTextFieldValueState.text
+
+            if (stringChangedSinceLastInvocation) {
+                val isValidInput =
+                    if (isDigitsOnlyAllowed) TextUtils.isDigitsOnly(newTextFieldValueState.text)
+                    else true
+                if (newTextFieldValueState.text.length <= maxCharLength && isValidInput) {
+                    // Remove any newline chars added by enter key clicks
+                    onValueChanged(
+                        newTextFieldValueState.text.replace(NEWLINE_STRING, EMPTY_STRING)
+                    )
+                }
             }
         },
         enabled = isEnabled,
