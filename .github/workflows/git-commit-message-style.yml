@@ -24,7 +24,7 @@ jobs:
           # [^\s] = All non-whitespace characters
           # [ \t\n] = Allowed whitespace characters
           pattern: '^[^\u2028]+$'
-          flags: 'gmsu'
+          flags: 'gsu'
           error: 'Detected unicode whitespace character in commit message.'
           checkAllCommitMessages: 'true' # optional: this checks all commits associated with a pull request
           accessToken: ${{ secrets.GITHUB_TOKEN }} # only required if checkAllCommitMessages is true
