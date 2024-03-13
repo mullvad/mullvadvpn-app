@@ -272,10 +272,7 @@ fn test_retry_order() {
             Constraint::Any => continue,
             Constraint::Only(expected_tunnel_protocol) => {
                 let relay = relay_selector.get_relay(retry_attempt).unwrap_or_else(|_| {
-                    panic!(
-                        "{}",
-                        format!("Retry attempt {retry_attempt} did not yield any relay")
-                    )
+                    panic!("Retry attempt {retry_attempt} did not yield any relay")
                 });
                 let tunnel_type = tunnel_type(&unwrap_relay(relay));
                 assert_eq!(tunnel_type, *expected_tunnel_protocol);
