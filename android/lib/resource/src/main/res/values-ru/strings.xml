@@ -15,6 +15,7 @@
     <string name="added_to_your_account">На учетную запись добавлено время: %1$s.</string>
     <string name="agree_and_continue">Согласиться и продолжить</string>
     <string name="all_applications">Все приложения</string>
+    <string name="all_locations">Все местоположения</string>
     <string name="all_providers">Все провайдеры</string>
     <string name="allow_lan_footer">Разрешить доступ к другим устройствам в той же сети для организации общего доступа, печати и т. д.</string>
     <string name="always_on_vpn_error_notification_content">Не удалось запустить туннельное подключение. Перед использованием Mullvad VPN отключите опцию «Постоянная VPN» для приложения &lt;b&gt;%1$s&lt;/b&gt;.</string>
@@ -68,12 +69,16 @@
     <string name="custom_dns_disable_mode_subtitle">Чтобы включить эту настройку, отключите все &lt;b&gt;%1$s&lt;/b&gt; выше.</string>
     <string name="custom_dns_footer">Чтобы добавить как минимум один DNS-сервер, включите этот параметр.</string>
     <string name="custom_dns_hint">Введите IP-адрес</string>
+    <string name="custom_list_error_list_exists">Такое название уже используется.</string>
+    <string name="custom_lists">Свои списки</string>
     <string name="custom_port_dialog_placeholder">Введите порт</string>
     <string name="custom_port_dialog_remove">Удалить пользовательский порт</string>
     <string name="custom_port_dialog_submit">Установить порт</string>
     <string name="custom_port_dialog_title">Пользовательский порт WireGuard</string>
     <string name="custom_port_dialog_valid_ranges">Допустимые диапазоны: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки.</string>
+    <string name="delete">Удалить</string>
+    <string name="delete_list">Удалить список</string>
     <string name="device_inactive_description">Вы удалили это устройство. Чтобы снова подключиться, нужно будет выполнить вход.</string>
     <string name="device_inactive_title">Устройство неактивно</string>
     <string name="device_inactive_unblock_warning">Вход в профиль разблокирует Интернет на этом устройстве.</string>
@@ -194,6 +199,7 @@
     <string name="rented_only">Только арендованные</string>
     <string name="report_a_problem">Сообщение о проблеме</string>
     <string name="reset_to_default_button">Восстановить значение по умолчанию</string>
+    <string name="save">Сохранить</string>
     <string name="search_placeholder">Поиск...</string>
     <string name="secure_connection">ЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ</string>
     <string name="secured">Подключение защищено</string>

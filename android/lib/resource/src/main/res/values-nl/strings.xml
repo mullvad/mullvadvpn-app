@@ -15,6 +15,7 @@
     <string name="added_to_your_account">%1$s is toegevoegd aan uw account.</string>
     <string name="agree_and_continue">Akkoord en doorgaan</string>
     <string name="all_applications">Alle toepassingen</string>
+    <string name="all_locations">Alle locaties</string>
     <string name="all_providers">Alle aanbieders</string>
     <string name="allow_lan_footer">Biedt toegang tot andere apparaten op hetzelfde netwerk voor delen, afdrukken en dergelijke</string>
     <string name="always_on_vpn_error_notification_content">Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voor &lt;b&gt;%1$s&lt;/b&gt; voordat u Mullvad VPN gebruikt.</string>
@@ -68,12 +69,16 @@
     <string name="custom_dns_disable_mode_subtitle">Schakel alle &lt;b&gt;%1$s&lt;/b&gt; hierboven uit om deze instelling te activeren.</string>
     <string name="custom_dns_footer">Schakel in om minimaal één DNS-server toe te voegen.</string>
     <string name="custom_dns_hint">Voer IP-adres in</string>
+    <string name="custom_list_error_list_exists">Naam wordt al gebruikt.</string>
+    <string name="custom_lists">Aangepaste lijsten</string>
     <string name="custom_port_dialog_placeholder">Voer poort in</string>
     <string name="custom_port_dialog_remove">Aangepaste poort verwijderen</string>
     <string name="custom_port_dialog_submit">Poort instellen</string>
     <string name="custom_port_dialog_title">Aangepaste WireGuard-poort</string>
     <string name="custom_port_dialog_valid_ranges">Geldige bereiken: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen.</string>
+    <string name="delete">Verwijderen</string>
+    <string name="delete_list">Lijst verwijderen</string>
     <string name="device_inactive_description">U hebt dit apparaat verwijderd. U moet zich opnieuw aanmelden om het opnieuw te verbinden.</string>
     <string name="device_inactive_title">Apparaat is niet actief</string>
     <string name="device_inactive_unblock_warning">Als u naar aanmelden gaat, wordt het blokkeren van internet op dit apparaat opgeheven.</string>
@@ -194,6 +199,7 @@
     <string name="rented_only">Alleen gehuurde</string>
     <string name="report_a_problem">Een probleem rapporteren</string>
     <string name="reset_to_default_button">Standaardwaarde herstellen</string>
+    <string name="save">Opslaan</string>
     <string name="search_placeholder">Zoeken naar...</string>
     <string name="secure_connection">BEVEILIGDE VERBINDING</string>
     <string name="secured">Beveiligd</string>
