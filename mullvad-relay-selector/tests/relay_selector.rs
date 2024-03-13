@@ -1,4 +1,5 @@
 //! Tests for verifying that the relay selector works as expected.
+#![deny(missing_docs)]
 
 use once_cell::sync::Lazy;
 use std::collections::HashSet;
