@@ -6,9 +6,9 @@ use talpid_time::sleep;
 /// Retries a future until it should stop as determined by the retry function, or when
 /// the iterator returns `None`.
 pub async fn retry_future<
-    F: FnMut() -> O + 'static,
-    R: FnMut(&T) -> bool + 'static,
-    D: Iterator<Item = Duration> + 'static,
+    F: FnMut() -> O,
+    R: FnMut(&T) -> bool,
+    D: Iterator<Item = Duration>,
     O: Future<Output = T>,
     T,
 >(
