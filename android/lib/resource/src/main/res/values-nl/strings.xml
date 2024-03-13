@@ -121,6 +121,8 @@
     <string name="here_is_your_account_number">Hier is uw accountnummer. Sla het op!</string>
     <string name="hide_account_number">Accountnummer verbergen</string>
     <string name="hint_default">Standaard</string>
+    <string name="import_overrides_import">Importeren</string>
+    <string name="import_overrides_text_title">Importeren via tekst</string>
     <string name="in_address">In</string>
     <string name="invalid_dns_servers">Aangepaste DNS-serveradressen %1$s zijn ongeldig</string>
     <string name="invalid_voucher">Vouchercode is ongeldig.</string>
@@ -213,6 +215,9 @@
     <string name="sent">Verzonden</string>
     <string name="sent_contact">Indien nodig nemen we u contact op via %1$s</string>
     <string name="sent_thanks">Bedankt!</string>
+    <string name="server_ip_overrides_info_first_paragraph">Op sommige netwerken, waar verschillende soorten censuur worden gebruikt, worden onze server-IP-adressen soms geblokkeerd.</string>
+    <string name="server_ip_overrides_info_second_paragraph">Om dit te omzeilen, kunt u een door ons ondersteuningsteam verstrekt bestand of tekst importeren, met nieuwe IP-adressen die de standaardadressen van de servers in de weergave Locatie selecteren overschrijven.</string>
+    <string name="server_ip_overrides_info_third_paragraph">Als u problemen hebt met het verbinden met VPN-servers, neem dan contact op met de ondersteuning.</string>
     <string name="set_dns_error">Kan DNS-server van systeem niet instellen. Stuur een probleemrapport.</string>
     <string name="set_firewall_policy_error">Kan firewallregels niet toepassen. Los problemen op of stuur een probleemmelding.</string>
     <string name="settings">Instellingen</string>

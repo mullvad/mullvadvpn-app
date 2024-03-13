@@ -107,8 +107,9 @@ fun ScaffoldWithTopBarAndDeviceName(
 }
 
 @Composable
-fun MullvadSnackbar(snackbarData: SnackbarData) {
+fun MullvadSnackbar(modifier: Modifier = Modifier, snackbarData: SnackbarData) {
     Snackbar(
+        modifier = modifier,
         snackbarData = snackbarData,
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         contentColor = MaterialTheme.colorScheme.onSurface,

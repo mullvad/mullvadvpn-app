@@ -545,7 +545,7 @@ private fun CustomListsBottomSheet(
 ) {
     MullvadModalBottomSheet(
         sheetState = sheetState,
-        closeBottomSheet = { closeBottomSheet(false) },
+        onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG)
     ) { ->
         HeaderCell(
@@ -598,7 +598,7 @@ private fun LocationBottomSheet(
 ) {
     MullvadModalBottomSheet(
         sheetState = sheetState,
-        closeBottomSheet = { closeBottomSheet(false) },
+        onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
     ) { ->
         HeaderCell(
@@ -656,7 +656,7 @@ private fun EditCustomListBottomSheet(
 ) {
     MullvadModalBottomSheet(
         sheetState = sheetState,
-        closeBottomSheet = { closeBottomSheet(false) }
+        onDismissRequest = { closeBottomSheet(false) }
     ) {
         HeaderCell(text = customList.name, background = Color.Unspecified)
         IconCell(

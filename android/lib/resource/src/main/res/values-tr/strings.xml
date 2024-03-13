@@ -121,6 +121,8 @@
     <string name="here_is_your_account_number">İşte hesap numaranız. Kaydedin!</string>
     <string name="hide_account_number">Hesap numarasını gizle</string>
     <string name="hint_default">Varsayılan</string>
+    <string name="import_overrides_import">İçe aktar</string>
+    <string name="import_overrides_text_title">Metin yoluyla içe aktar</string>
     <string name="in_address">Giriş</string>
     <string name="invalid_dns_servers">Özel DNS sunucu adresleri (%1$s) geçersiz</string>
     <string name="invalid_voucher">Kupon kodu geçersiz.</string>
@@ -213,6 +215,9 @@
     <string name="sent">Gönderildi</string>
     <string name="sent_contact">Gerektiğinde sizinle %1$s adresinden iletişime geçeceğiz</string>
     <string name="sent_thanks">Teşekkürler!</string>
+    <string name="server_ip_overrides_info_first_paragraph">Farklı sansür türlerinin kullanıldığı bazı ağlarda sunucu IP adreslerimiz zaman zaman engellenir.</string>
+    <string name="server_ip_overrides_info_second_paragraph">Bu sınırlamadan kaçınmak için Konum Seç görünümündeki varsayılan sunucu adreslerini geçersiz kılan yeni IP adreslerine sahip bir dosyayı veya metni (destek ekibimiz tarafından sağlanır) içe aktarabilirsiniz.</string>
+    <string name="server_ip_overrides_info_third_paragraph">VPN sunucularına bağlanırken sorun yaşıyorsanız lütfen destek ekibiyle iletişime geçin.</string>
     <string name="set_dns_error">Sistem DNS sunucusu ayarlanamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="set_firewall_policy_error">Güvenlik duvarı kuralları uygulanamıyor. Lütfen sorunu çözmeye çalışın veya bir hata raporu gönderin.</string>
     <string name="settings">Ayarlar</string>

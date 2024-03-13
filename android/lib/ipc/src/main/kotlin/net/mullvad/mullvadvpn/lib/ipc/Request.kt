@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.PlayPurchase
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.QuantumResistantState
+import net.mullvad.mullvadvpn.model.RelayOverride
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 
 // Requests that the service can handle
@@ -116,6 +117,14 @@ sealed class Request : Message.RequestMessage() {
     @Parcelize data class DeleteCustomList(val id: String) : Request()
 
     @Parcelize data class UpdateCustomList(val customList: CustomList) : Request()
+
+    @Parcelize data object ClearAllRelayOverrides : Request()
+
+    @Parcelize data class ApplyJsonSettings(val json: String) : Request()
+
+    @Parcelize data object ExportJsonSettings : Request()
+
+    @Parcelize data class SetRelayOverride(val override: RelayOverride) : Request()
 
     companion object {
         private const val MESSAGE_KEY = "request"
