@@ -404,12 +404,83 @@ fn test_prefer_openvpn_if_location_supports_it() {
 /// pick either the entry or exit relay first depending on which one ends up yielding a valid configuration.
 #[test]
 fn test_wireguard_entry() {
-    let relay_selector = default_relay_selector();
+    // Define a relay list containing exactly two Wireguard relays in Gothenburg.
+    let relays = RelayList {
+        etag: None,
+        countries: vec![RelayListCountry {
+            name: "Sweden".to_string(),
+            code: "se".to_string(),
+            cities: vec![RelayListCity {
+                name: "Gothenburg".to_string(),
+                code: "got".to_string(),
+                latitude: 57.70887,
+                longitude: 11.97456,
+                relays: vec![
+                    Relay {
+                        hostname: "se9-wireguard".to_string(),
+                        ipv4_addr_in: "185.213.154.68".parse().unwrap(),
+                        ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                        include_in_country: true,
+                        active: true,
+                        owned: true,
+                        provider: "provider0".to_string(),
+                        weight: 1,
+                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
+                            public_key: PublicKey::from_base64(
+                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                            )
+                            .unwrap(),
+                        }),
+                        location: None,
+                    },
+                    Relay {
+                        hostname: "se10-wireguard".to_string(),
+                        ipv4_addr_in: "185.213.154.69".parse().unwrap(),
+                        ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
+                        include_in_country: true,
+                        active: true,
+                        owned: false,
+                        provider: "provider1".to_string(),
+                        weight: 1,
+                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
+                            public_key: PublicKey::from_base64(
+                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                            )
+                            .unwrap(),
+                        }),
+                        location: None,
+                    },
+                ],
+            }],
+        }],
+        openvpn: OpenVpnEndpointData { ports: vec![] },
+        bridge: BridgeEndpointData {
+            shadowsocks: vec![],
+        },
+        wireguard: WireguardEndpointData {
+            port_ranges: vec![
+                (53, 53),
+                (443, 443),
+                (4000, 33433),
+                (33565, 51820),
+                (52000, 60000),
+            ],
+            ipv4_gateway: "10.64.0.1".parse().unwrap(),
+            ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
+            udp2tcp_ports: vec![],
+        },
+    };
+
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relays);
     let specific_hostname = "se10-wireguard";
     let specific_location = GeographicLocationConstraint::hostname("se", "got", specific_hostname);
     let general_location = GeographicLocationConstraint::city("se", "got");
 
+    // general_location candidates: [se-09-wireguard, se-10-wireguard]
+    // specific_location candidates: [se-10-wireguard]
     for _ in 0..100 {
+        // Because the entry location constraint is more specific than the exit loation constraint,
+        // the entry location should always become `specific_location`
         let query = RelayQueryBuilder::new()
             .wireguard()
             .location(general_location.clone())
@@ -417,14 +488,15 @@ fn test_wireguard_entry() {
             .entry(specific_location.clone())
             .build();
 
-        // The exit relay must not equal the entry relay
         let relay = relay_selector.get_relay_by_query(query).unwrap();
         match relay {
             GetRelay::Wireguard {
                 inner: WireguardConfig::Multihop { exit, entry },
                 ..
             } => {
+                assert_eq!(entry.hostname, specific_hostname);
                 assert_ne!(exit.hostname, entry.hostname);
+                assert_ne!(exit.ipv4_addr_in, entry.ipv4_addr_in);
             }
             wrong_relay => panic!(
             "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
@@ -432,7 +504,11 @@ fn test_wireguard_entry() {
         }
     }
 
+    // general_location candidates: [se-09-wireguard, se-10-wireguard]
+    // specific_location candidates: [se-10-wireguard]
     for _ in 0..100 {
+        // Because the exit location constraint is more specific than the entry loation constraint,
+        // the exit location should always become `specific_location`
         let query = RelayQueryBuilder::new()
             .wireguard()
             .location(specific_location.clone())
@@ -446,9 +522,9 @@ fn test_wireguard_entry() {
                 inner: WireguardConfig::Multihop { exit, entry },
                 ..
             } => {
+                assert_eq!(exit.hostname, specific_hostname);
                 assert_ne!(exit.hostname, entry.hostname);
                 assert_ne!(exit.ipv4_addr_in, entry.ipv4_addr_in);
-                assert_eq!(exit.hostname, specific_hostname)
             }
             wrong_relay => panic!(
             "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
@@ -457,7 +533,7 @@ fn test_wireguard_entry() {
     }
 }
 
-/// If a Wireguard multihop constrant has the same entry and exit relay, the relay selector
+/// If a Wireguard multihop constraint has the same entry and exit relay, the relay selector
 /// should fail to come up with a valid configuration.
 ///
 /// If instead the entry and exit relay are distinct, and assuming that the relays exist, the relay
