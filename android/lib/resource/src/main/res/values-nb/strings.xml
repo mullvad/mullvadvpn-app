@@ -24,6 +24,14 @@
     <string name="apply">Angi</string>
     <string name="auth_failed">Kunne ikke autentisere konto. Send inn en problemrapport.</string>
     <string name="auto_connect">Automatisk tilkobling</string>
+    <string name="auto_connect_and_lockdown_mode">Automatisk tilkobling og låsemodus</string>
+    <string name="auto_connect_and_lockdown_mode_footer">Sørger for at enheten alltid er på VPN-tunnelen.</string>
+    <string name="auto_connect_carousel_first_slide_bottom_text">1. Etter at du har trykket på &lt;b&gt;Gå til VPN-innstillinger&lt;/b&gt; nedenfor, trykker du på tannhjulet ved siden av navnet &lt;b&gt;Mullvad VPN&lt;/b&gt;.</string>
+    <string name="auto_connect_carousel_first_slide_top_text">Du finner innstillingene for automatisk tilkobling og låsemodus i Androids systeminnstillinger. Følg denne veiledningen for å aktivere én eller begge.</string>
+    <string name="auto_connect_carousel_second_slide_bottom_text">2. For å aktivere Automatisk tilkobling trykker du på bryteren ved siden av &lt;b&gt;VPN alltid på&lt;/b&gt;.</string>
+    <string name="auto_connect_carousel_second_slide_top_text">Automatisk tilkobling heter «Alltid-på-VPN» i Androids systeminnstillinger og sørger for at du alltid er tilkoblet VPN-tunnelen og automatisk tilkobling etter omstart.</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. For å aktivere låsemodus trykker du på bryteren ved siden av &lt;b&gt;Blokker tilkoblinger uten VPN&lt;/b&gt;.</string>
+    <string name="auto_connect_carousel_third_slide_top_text">Låsemodusen blokkerer all internettilgang når VPN-tunnelen er manuelt frakoblet. &lt;br/&gt;&lt;b&gt;Advarsel: Innstillingen blokkerer delte apper og funksjonen Deling over lokalt nettverk&lt;/b&gt;.</string>
     <string name="auto_connect_footer">Kobler automatisk til en server når appen starter.</string>
     <string name="automatic">Automatisk</string>
     <string name="back">Tilbake</string>
@@ -48,6 +56,7 @@
     <string name="connecting">Kobler til</string>
     <string name="connecting_to_daemon">Kobler til Mullvads systemtjeneste ...</string>
     <string name="continue_login">Fortsett med pålogging</string>
+    <string name="copied_logs_to_clipboard">Logger kopiert til utklippstavlen</string>
     <string name="copied_mullvad_account_number">Kopierte Mullvad-kontonummer til utklippstavlen</string>
     <string name="copied_to_clipboard">Kopiert til utklippstavlen</string>
     <string name="copy_account_number">Kopier kontonummer</string>
@@ -58,8 +67,8 @@
     <string name="critical_error">Kritisk feil (krever din oppmerksomhet)</string>
     <string name="custom_dns_disable_mode_subtitle">Deaktiver alle &lt;b&gt;%1$s&lt;/b&gt; ovenfor for å aktivere denne innstillingen.</string>
     <string name="custom_dns_footer">Aktiver for å legge til minst én DNS-server.</string>
-    <string name="custom_dns_hint">Angi IP</string>
-    <string name="custom_port_dialog_placeholder">Angi port</string>
+    <string name="custom_dns_hint">Skriv inn IP</string>
+    <string name="custom_port_dialog_placeholder">Skriv inn port</string>
     <string name="custom_port_dialog_remove">Fjern tilpasset port</string>
     <string name="custom_port_dialog_submit">Konfigurer port</string>
     <string name="custom_port_dialog_title">Tilpasset WireGuard-port</string>
@@ -102,6 +111,7 @@
     <string name="foreground_notification_channel_description">Viser gjeldende VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="go_to_login">Gå til pålogging</string>
+    <string name="go_to_vpn_settings">Gå til VPN-innstillinger</string>
     <string name="got_it">Forstått!</string>
     <string name="here_is_your_account_number">Dette er kontonummeret ditt. Ta vare på det!</string>
     <string name="hide_account_number">Skjul kontonummer</string>
@@ -139,6 +149,7 @@
     <string name="mullvad_owned_only">Kun eid av Mullvad</string>
     <string name="new_device_notification_message">Velkommen. Denne enheten har fått navnet &lt;b&gt;%1$s&lt;/b&gt;. For å finne ut mer kan du bruke informasjonsknappen under Konto.</string>
     <string name="new_device_notification_title">NY ENHET OPPRETTET</string>
+    <string name="no_internet_connection">Ingen internettforbindelse</string>
     <string name="no_matching_relay">Ingen servere passer til innstillingene dine. Prøv å endre server eller andre innstillinger.</string>
     <string name="no_wireguard_key">Det mangler en gyldig WireGuard-nøkkel. Du kan behandle nøklene under avanserte innstillinger.</string>
     <string name="not_blocking_internet">DET KAN VÆRE EN NETTVERKSLEKKASJE HOS DEG</string>
@@ -207,6 +218,7 @@
     <string name="show_account_number">Vis kontonummer</string>
     <string name="show_system_apps">Vis systemapper</string>
     <string name="split_tunneling_description">Velg appene du vil ekskludere fra VPN-tunnelen.</string>
+    <string name="split_tunneling_disabled_description">Delt tunnelering er deaktivert.</string>
     <string name="start_tunnel_error">Kunne ikke starte tunneltilkobling. Send inn en problemrapport.</string>
     <string name="submit_button">Send inn</string>
     <string name="switch_location">Bytt plassering</string>
@@ -236,6 +248,7 @@
     <string name="vpn_permission_denied_error">VPN-tillatelse ble avvist under opprettelsen av tunnelen. Prøv å koble til igjen.</string>
     <string name="vpn_permission_error_notification_message">VPN som alltid er på, kan være aktivert for en annen app</string>
     <string name="vpn_permission_error_notification_title">Feil med VPN-tillatelse</string>
+    <string name="vpn_settings_not_found">Det er ingen VPN-innstillinger på enheten din</string>
     <string name="we_will_look_into_this">Dette skal vi følge opp.</string>
     <string name="wireguard_custon_port_title">Egendefinert</string>
     <string name="wireguard_mtu">WireGuard MTU</string>

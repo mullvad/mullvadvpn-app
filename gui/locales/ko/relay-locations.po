@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2023-12-04 12:55\n"
+"PO-Revision-Date: 2024-03-13 08:24\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -154,7 +154,7 @@ msgstr "덴버, CO"
 
 #. US DET
 msgid "Detroit, MI"
-msgstr "디트로이트, MI"
+msgstr "미시간주 디트로이트"
 
 #. AE DXB
 msgid "Dubai"
@@ -575,3 +575,4 @@ msgstr "자그레브"
 #. CH ZRH
 msgid "Zurich"
 msgstr "취리히"
+

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2023-12-04 12:55\n"
+"PO-Revision-Date: 2024-03-13 08:24\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "已新增 %(duration)s，帳戶到期時間為 %(expiry)s。"
@@ -45,6 +45,9 @@ msgstr "帳戶到期時間為 %(expiry)s。"
 msgid "Account settings"
 msgstr "帳戶設定"
 
+msgid "Add"
+msgstr "新增"
+
 msgid "Any"
 msgstr "任何"
 
@@ -75,6 +78,9 @@ msgstr "購買更多點數"
 msgid "Cancel"
 msgstr "取消"
 
+msgid "Cipher"
+msgstr "加密方式"
+
 msgid "Clear"
 msgstr "清除"
 
@@ -102,6 +108,12 @@ msgstr "自訂"
 
 msgid "Default"
 msgstr "預設"
+
+msgid "Delete"
+msgstr "刪除"
+
+msgid "Delete list"
+msgstr "刪除清單"
 
 msgid "Disable"
 msgstr "停用"
@@ -137,17 +149,26 @@ msgstr "前往「系統設定」"
 msgid "Got it!"
 msgstr "知道了！"
 
+msgid "Import"
+msgstr "匯入"
+
 msgid "IPv4"
 msgstr "IPv4"
 
 msgid "IPv6"
 msgstr "IPv6"
 
+msgid "Learn more"
+msgstr "瞭解更多"
+
 msgid "less than a day"
 msgstr "不足 1 天"
 
 msgid "less than a day left"
 msgstr "剩餘時間不足 1 天"
+
+msgid "Name"
+msgstr "名稱"
 
 msgid "Next"
 msgstr "下一步"
@@ -164,6 +185,15 @@ msgstr "開啟"
 msgid "Open URL"
 msgstr "開啟 URL"
 
+msgid "Optional"
+msgstr "選填"
+
+msgid "Password"
+msgstr "密碼"
+
+msgid "Port"
+msgstr "連接埠"
+
 #. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "量子安全連線"
@@ -173,6 +203,9 @@ msgstr "結束"
 
 msgid "Reconnect"
 msgstr "重新連線"
+
+msgid "Required"
+msgstr "必填"
 
 msgid "Save"
 msgstr "儲存"
@@ -202,6 +235,9 @@ msgstr "故障排除"
 msgid "Try a different search."
 msgstr "請嘗試使用其他關鍵字。"
 
+msgid "Type"
+msgstr "類型"
+
 msgid "UDP"
 msgstr "UDP"
 
@@ -210,6 +246,9 @@ msgstr "解除封鎖"
 
 msgid "UNSECURED CONNECTION"
 msgstr "不安全的連線"
+
+msgid "Username"
+msgstr "使用者名稱"
 
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
@@ -306,6 +345,174 @@ msgstr "逾時"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "支付至"
+
+msgctxt "api-access-methods-view"
+msgid "Add method"
+msgstr "新增方式"
+
+msgctxt "api-access-methods-view"
+msgid "Adding a new API access method also tests it."
+msgstr "添加新的 API 存取方式也會對其進行測試。"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable"
+msgstr "可透過 API 存取"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, adding method…"
+msgstr "可透過 API 存取，正在新增方式…"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, saving method…"
+msgstr "可透過 API 存取，正在儲存方式…"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable"
+msgstr "無法透過 API 存取"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, add anyway?"
+msgstr "無法透過 API 存取，仍要新增嗎？"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, save anyway?"
+msgstr "無法透過 API 存取，仍要儲存嗎？"
+
+msgctxt "api-access-methods-view"
+msgid "Authentication"
+msgstr "驗證"
+
+msgctxt "api-access-methods-view"
+msgid "Clicking “Save” changes the in use method."
+msgstr "按一下「儲存」，即可變更正在使用的方式。"
+
+msgctxt "api-access-methods-view"
+msgid "Delete %(name)s?"
+msgstr "要刪除 %(name)s 嗎？"
+
+msgctxt "api-access-methods-view"
+msgid "Edit method"
+msgstr "編輯方式"
+
+msgctxt "api-access-methods-view"
+msgid "Editing an API access method also tests it."
+msgstr "編輯 API 存取方式也會對其進行測試。"
+
+msgctxt "api-access-methods-view"
+msgid "Enter IP"
+msgstr "輸入 IP"
+
+msgctxt "api-access-methods-view"
+msgid "Enter name"
+msgstr "輸入名稱"
+
+msgctxt "api-access-methods-view"
+msgid "Enter port"
+msgstr "輸入連接埠"
+
+msgctxt "api-access-methods-view"
+msgid "In use"
+msgstr "正在使用"
+
+msgctxt "api-access-methods-view"
+msgid "Local SOCKS5 server"
+msgstr "本機 SOCKS5 伺服器"
+
+msgctxt "api-access-methods-view"
+msgid "Manage and add custom methods to access the Mullvad API."
+msgstr "管理並新增自訂方式以存取 Mullvad API。"
+
+msgctxt "api-access-methods-view"
+msgid "On some networks, where various types of censorship are being used, the API servers might not be directly reachable."
+msgstr "在某些採用了各類審查制度的網路上，可能無法直接存取 API 伺服器。"
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid IPv4 or IPv6 address."
+msgstr "請輸入有效的 IPv4 或 IPv6 位址。"
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid localhost port."
+msgstr "請輸入有效的 localhost 連接埠。"
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid remote server port."
+msgstr "請輸入有效的遠端伺服器連接埠。"
+
+msgctxt "api-access-methods-view"
+msgid "Remote Server"
+msgstr "遠端伺服器"
+
+msgctxt "api-access-methods-view"
+msgid "Server"
+msgstr "伺服器"
+
+msgctxt "api-access-methods-view"
+msgid "Server details"
+msgstr "伺服器詳細資訊"
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 local"
+msgstr "SOCKS5 本機"
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 remote"
+msgstr "SOCKS5 遠端"
+
+msgctxt "api-access-methods-view"
+msgid "Testing method..."
+msgstr "正在對方式進行測試…"
+
+msgctxt "api-access-methods-view"
+msgid "Testing..."
+msgstr "正在測試…"
+
+msgctxt "api-access-methods-view"
+msgid "The API could not be reached using the %(name)s method."
+msgstr "無法使用 %(name)s 方式存取 API。"
+
+msgctxt "api-access-methods-view"
+msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
+msgstr "該應用程式需要遠端伺服器詳細資訊，藉此，您的本機 SOCKS5 伺服器才能轉送您的流量。"
+
+msgctxt "api-access-methods-view"
+msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
+msgstr "該應用程式需要與 Mulvad API 伺服器通訊，以便您登入、取得伺服器清單並執行其他重要作業。"
+
+msgctxt "api-access-methods-view"
+msgid "The in use API access method will change."
+msgstr "正在使用的 API 存取方式會發生變化。"
+
+msgctxt "api-access-methods-view"
+msgid "The TCP port where your local SOCKS5 server is listening."
+msgstr "正由本機 SOCKS5 伺服器接聽的 TCP 連接埠。"
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
+msgstr "如果 API 受到審查，但 Mullvad 的橋接伺服器未受到審查，此方式可能會很有用。"
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful when you are not affected by censorship."
+msgstr "當您不受審查影響時，此方式可能會很有用。"
+
+msgctxt "api-access-methods-view"
+msgid "This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods."
+msgstr "此功能允許您透過代理伺服器和類似方式來新增存取 API 的自訂方式，從而規避審查。"
+
+msgctxt "api-access-methods-view"
+msgid "This is needed so our app can allow that traffic in the firewall."
+msgstr "我們的應用程式需要此資訊，才能在防火牆中允許該流量。"
+
+msgctxt "api-access-methods-view"
+msgid "Transport protocol"
+msgstr "傳輸通訊協定"
+
+msgctxt "api-access-methods-view"
+msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
+msgstr "使用「直接」方式，應用程式將直接與 Mulvad API 伺服器通訊，而不經過任何中間代理伺服器。"
+
+msgctxt "api-access-methods-view"
+msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
+msgstr "使用「Mullvad 橋接」方式，則應用程式會透過 Mullvad 橋接伺服器，與 Mullvad API 伺服器進行通訊。應用程式會透過 Shadowsocks 將流量混淆再加以送出，從而實現這種通訊方式。"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -639,8 +846,32 @@ msgid "Connecting to Mullvad system service..."
 msgstr "連線 Mullvad 系統服務中..."
 
 msgctxt "launch-view"
+msgid "If these steps do not work please send a problem report."
+msgstr "如果以上步驟仍無法解決問題，請傳送問題回報。"
+
+msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "Mullvad VPN 服務的權限已遭到撤銷。請前往「系統設定」，並在「允許在背景中執行」設定下允許 Mullvad VPN。"
+
+msgctxt "launch-view"
+msgid "Reinstalling the app."
+msgstr "重新安裝應用程式。"
+
+msgctxt "launch-view"
+msgid "Restarting your computer."
+msgstr "重新啟動您的電腦。"
+
+msgctxt "launch-view"
+msgid "Send problem report"
+msgstr "傳送問題回報"
+
+msgctxt "launch-view"
+msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
+msgstr "應用程式的系統服務組件尚未啟動或無法通訊。系統服務負責安全、終止開關和 VPN 通道等項目。如果要排除故障，請嘗試："
+
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
+msgstr "無法與 Mulvad 系統服務通訊，您的連線可能不安全。請按一下「瞭解更多」按鈕進行故障排除，或是傳送問題回報。"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -744,6 +975,11 @@ msgstr "有效帳號"
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
+msgid "API access"
+msgstr "API 存取"
+
+#. Title label in navigation bar
+msgctxt "navigation-bar"
 msgid "Settings"
 msgstr "設定"
 
@@ -795,6 +1031,10 @@ msgstr "連線中"
 msgctxt "notifications"
 msgid "Connecting to %(location)s"
 msgstr "正在連線到 %(location)s"
+
+msgctxt "notifications"
+msgid "Connection might be unsecured. App lost contact with system service, please troubleshoot."
+msgstr "連線可能不安全。應用程式與系統服務失去通訊，請排除故障。"
 
 msgctxt "notifications"
 msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
@@ -859,6 +1099,10 @@ msgstr "無法設定系統 DNS 伺服器。請傳送問題回報。"
 msgctxt "notifications"
 msgid "Unable to start tunnel connection. Please send a problem report."
 msgstr "無法啟動通道連線。請傳送問題回報。"
+
+msgctxt "notifications"
+msgid "Unable to start tunnel connection. This could be because of conflicts with VMware, please troubleshoot."
+msgstr "無法啟動通道連線。這可能是因為與 VMware 發生衝突，請排除故障。"
 
 msgctxt "notifications"
 msgid "Update available. Install the latest app version to stay up to date"
@@ -1040,6 +1284,10 @@ msgid "Custom lists"
 msgstr "自訂清單"
 
 msgctxt "select-location-view"
+msgid "Do you want to delete the list <b>%(list)s</b>?"
+msgstr "要刪除清單 <b>%(list)s</b> 嗎？"
+
+msgctxt "select-location-view"
 msgid "Edit list name"
 msgstr "編輯清單名稱"
 
@@ -1067,9 +1315,9 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "供應商：%(numberOfProviders)d"
 
-msgctxt "select-location-viewThis refers to a VPN server which we also call relay since it relays internet traffic from the user onto the internet. It should probably say server here instead of relay. I'll look into if this should be changed until next relay but for now it will be \"Relay\"."
+msgctxt "select-location-view"
 msgid "Relay"
-msgstr "轉送"
+msgstr "中繼"
 
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
@@ -1083,6 +1331,82 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr "連線時，您的流量將經過兩個安全的位置，即入口點和出口點 (需要是兩個不同的 VPN 伺服器) 。"
 
+msgctxt "settings-import"
+msgid "Clear all overrides"
+msgstr "清除所有覆寫"
+
+msgctxt "settings-import"
+msgid "Clear all overrides?"
+msgstr "要清除所有覆寫嗎？"
+
+msgctxt "settings-import"
+msgid "Clearing the imported overrides changes the server IPs, in the Select location view, back to default."
+msgstr "清除已匯入的覆蓋，會將「選取位置」視圖中的伺服器 IP 變更回預設值。"
+
+msgctxt "settings-import"
+msgid "If you are having issues connecting to VPN servers, please contact support."
+msgstr "如果您在連線至 VPN 伺服器時遇到問題，請聯絡支援人員。"
+
+msgctxt "settings-import"
+msgid "Import file"
+msgstr "匯入檔案"
+
+msgctxt "settings-import"
+msgid "Import files or text with new IP addresses for the servers in the Select location view."
+msgstr "為「選取位置」視圖中的伺服器，匯入具有新 IP 位址的檔案或文字。"
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was successful, overrides are now active."
+msgstr "檔案 %(fileName)s 匯入成功，現已啟動覆寫。"
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was unsuccessful, please try again."
+msgstr "檔案 %(fileName)s 匯入失敗，請再試一次。"
+
+msgctxt "settings-import"
+msgid "Import of text was successful, overrides are now active."
+msgstr "文字匯入成功，現已啟動覆寫。"
+
+msgctxt "settings-import"
+msgid "Import of text was unsuccessful, please try again."
+msgstr "文字匯入失敗，請再試一次。"
+
+msgctxt "settings-import"
+msgid "IMPORT SUCCESSFUL"
+msgstr "匯入成功"
+
+#. Title label in navigation bar
+msgctxt "settings-import"
+msgid "Import via text"
+msgstr "透過文字匯入"
+
+msgctxt "settings-import"
+msgid "NO OVERRIDES IMPORTED"
+msgstr "未匯入覆寫"
+
+msgctxt "settings-import"
+msgid "On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked."
+msgstr "在某些採用了各類審查功能的網路上，我們的伺服器 IP 位址有時會遭到封鎖。"
+
+msgctxt "settings-import"
+msgid "OVERRIDES ACTIVE"
+msgstr "覆寫處於啟動狀態"
+
+#. Title label in navigation bar. This is for a feature that lets
+#. users import server IP settings.
+msgctxt "settings-import"
+msgid "Server IP override"
+msgstr "伺服器 IP 覆寫"
+
+msgctxt "settings-import"
+msgid "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
+msgstr "為了避免這種情況，您可以匯入由我們支援團隊所提供的檔案或文字，其中的新 IP 位址會覆蓋「選取位置」視圖中伺服器的預設位址。"
+
+#. Navigation button to the 'API access methods' view
+msgctxt "settings-view"
+msgid "API access"
+msgstr "API 存取"
+
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "應用程式未同步。請退出並重新啟動。"
@@ -1090,11 +1414,6 @@ msgstr "應用程式未同步。請退出並重新啟動。"
 msgctxt "settings-view"
 msgid "App version"
 msgstr "應用程式版本"
-
-#. Navigation button to the 'Split tunneling' view
-msgctxt "settings-view"
-msgid "Split tunneling"
-msgstr "拆分通道"
 
 msgctxt "settings-view"
 msgid "Support"
@@ -1320,12 +1639,24 @@ msgid "Try restarting your device."
 msgstr "嘗試重新啟動裝置。"
 
 msgctxt "troubleshoot"
+msgid "Try to reinstall VMware."
+msgstr "嘗試重新安裝 VMware。"
+
+msgctxt "troubleshoot"
 msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
 msgstr "嘗試在 FaceTime App 設定中關閉 Wi-Fi 通話，並重新啟動 Mac。"
 
 msgctxt "troubleshoot"
+msgid "Try to uninstall VMware."
+msgstr "嘗試解除安裝 VMware。"
+
+msgctxt "troubleshoot"
 msgid "Unable to communicate with Mullvad kernel driver."
 msgstr "無法與 Mullvad 核心驅動程式通訊。"
+
+msgctxt "troubleshoot"
+msgid "Unable to start tunnel connection because of a failure when creating the tunnel device. This is often caused by conflicts with the VMware Bridge Protocol."
+msgstr "由於建立通道裝置失敗，無法啟動通道連線。這通常是因為，與 VMware 橋接通訊協定產生衝突所導致。"
 
 msgctxt "troubleshoot"
 msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
@@ -1342,6 +1673,14 @@ msgstr "保護我的連線"
 msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "切換位置"
+
+msgctxt "user-interface-settings-view"
+msgid "Animate map"
+msgstr "動畫式地圖"
+
+msgctxt "user-interface-settings-view"
+msgid "Animate map movements."
+msgstr "為地圖移動新增動畫效果。"
 
 msgctxt "user-interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -1416,6 +1755,10 @@ msgstr "成人內容"
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "注意：啟用此功能，皆需 Mullvad VPN 連線才能上網。"
+
+msgctxt "vpn-settings-view"
+msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
+msgstr "注意：此設定無法與 <b>%(customDnsFeatureName)s</b> 結合使用"
 
 msgctxt "vpn-settings-view"
 msgid "Auto-connect"
@@ -1503,6 +1846,10 @@ msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "惡意軟體"
 
+msgctxt "vpn-settings-view"
+msgid "Server IP override"
+msgstr "伺服器 IP 覆寫"
+
 #. Label for settings that enables block of social media.
 msgctxt "vpn-settings-view"
 msgid "Social media"
@@ -1540,8 +1887,8 @@ msgid "This feature allows access to other devices on the local network, such as
 msgstr "此功能可允許存取本機網路上的其他裝置，以便用於分享、列印、串流等。"
 
 msgctxt "vpn-settings-view"
-msgid "This might cause issues on certain websites, services, and programs."
-msgstr "這可能會導致某些網站、服務和程式出現問題。"
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "這可能會導致某些網站、服務和應用程式出現問題。"
 
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
@@ -1661,9 +2008,18 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。"
 
-msgctxt "Message shown after successfully adding subscription time to an account, where \"%s\" represent the amount of time, like for example \"1 day\" or \"4 months\".Full examples: \"1 day was added to your account.\"\"4 months was added to your account.\""
+msgctxt "Message to indicate how much time was added to an account as part of an in-app purchase. Example: \"30 days was added to your account.\""
 msgid "%s was added to your account."
-msgstr "已為您的帳戶新增 %s。"
+msgstr "%s已新增至您的帳戶。"
+
+msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
+msgstr "1. 按一下底下<b>前往 VPN 設定</b>按鈕後，請按一下 <b>Mullvad VPN</b> 名稱旁邊的齒輪。"
+
+msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
+msgstr "2. 若要啟用自動連線，請按一下<b>始終啟用 VPN</b> 旁邊的開關。"
+
+msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>."
+msgstr "3. 若要啟用鎖定模式，請按一下<b>在沒有 VPN 的情況下封鎖連線</b>旁邊的開關。"
 
 msgid "30 days was added to your account."
 msgstr "已為您的帳戶新增 30 天。"
@@ -1704,6 +2060,15 @@ msgstr "可能已為另一個應用程式啟用了「始終啟用 VPN」"
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
 msgstr "注意：此設定不能與<b>使用自訂 DNS 伺服器</b>結合使用。"
 
+msgid "Auto-connect & Lockdown mode"
+msgstr "自動連線和鎖定模式"
+
+msgid "Auto-connect & \\nLockdown mode"
+msgstr "自動連線和\\n鎖定模式"
+
+msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
+msgstr "自動連線在 Android 系統設定中稱為「始終啟用 VPN」，此功能可確保您始終與 VPN 通道連線，並且會在重新啟動後自動連線。"
+
 msgid "Blocking internet (device offline)"
 msgstr "封鎖網際網路 (裝置離線)"
 
@@ -1715,6 +2080,9 @@ msgstr "正在連線…"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "已將 Mullvad 帳號複製到剪貼簿"
+
+msgid "Copied logs to clipboard"
+msgstr "已將記錄複製到剪貼簿"
 
 msgid "Copied to clipboard"
 msgstr "已複製到剪貼簿"
@@ -1737,12 +2105,11 @@ msgstr "啟用"
 msgid "Enter MTU"
 msgstr "輸入 MTU"
 
-msgctxt "Placeholder in port number input field."
-msgid "Enter port"
-msgstr "輸入連接埠"
-
 msgid "Excluded applications"
 msgstr "已排除的應用程式"
+
+msgid "Go to VPN settings"
+msgstr "前往「VPN 設定」"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "若前往登入，則會在此裝置上解除對網際網路的封鎖。"
@@ -1759,6 +2126,9 @@ msgstr "如果使用了分割通道功能，該應用程式會查詢您的系統
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "安裝 Mullvad VPN (%s) 以維持最新狀態"
 
+msgid "Makes sure the device is always on the VPN tunnel."
+msgstr "請確認裝置始終位於 VPN 通道上。"
+
 msgid "Manage account"
 msgstr "管理帳戶"
 
@@ -1767,6 +2137,9 @@ msgstr "Mullvad 帳號"
 
 msgid "Mullvad services unavailable"
 msgstr "Mullvad 服務無法使用"
+
+msgid "No internet connection"
+msgstr "沒有網際網路連線"
 
 msgid "Preferences"
 msgstr "喜好設定"
@@ -1804,17 +2177,26 @@ msgstr "顯示目前的 VPN 通道狀態"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "在帳戶時間即將到期時顯示提醒"
 
+msgid "Split tunneling is disabled."
+msgstr "分割通道已停用。"
+
 msgid "Submit"
 msgstr "提交"
+
+msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
+msgstr "自動連線和鎖定模式設定皆可在 Android 系統設定中找到，請按照本指南的指示，啟用其中一項或兩項設定。"
+
+msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
+msgstr "如果手動中斷與 VPN 通道的連線，鎖定模式便會封鎖所有的網際網路存取。<br/><b>警告：此設定會封鎖分割應用程式和「本機網路共享」功能</b>。"
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "若要使本機 DNS 伺服器運作，需先在「偏好設定」下啟用「本機網路共用」。"
 
+msgid "There is no VPN settings on your device"
+msgstr "您的裝置上沒有 VPN 設定"
+
 msgid "This address has already been entered."
 msgstr "此地址已輸入過。"
-
-msgid "This might cause issues on certain websites, services, and apps."
-msgstr "這可能會導致某些網站、服務和應用程式出現問題。"
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "為確保您擁有最安全的版本，並告知您目前執行的版本有無任何問題，該應用程式會自動進行版本檢查。為此，應用程式會將其版本和 Android 系統版本傳送至 Mullvad 伺服器，以便讓 Mullvad 統計已使用的應用程式版本和 Android 版本的數量。這些資料永遠不會以任何方式儲存或用來辨識您的身分。"
@@ -1849,7 +2231,7 @@ msgstr "VPN 通道狀態"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。"
 
-msgctxt "Used to inform the user about a set of valid network port number ranges, for example: \"Valid ranges: 1-10, 100-200, 30000-31000\" "
+msgctxt "Help text to explain which numbers are valid to configure. The user should enter a single number/integer that either matches one of the listed numbers or is within one of the listed ranges. Example: \"Valid ranges: 53, 123, 4000-33433\""
 msgid "Valid ranges: %s"
 msgstr "有效範圍：%s"
 

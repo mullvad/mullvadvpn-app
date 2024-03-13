@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Danish\n"
 "Language: da_DK\n"
-"PO-Revision-Date: 2023-12-04 12:55\n"
+"PO-Revision-Date: 2024-03-13 08:24\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s blev tilføjet, konto betalt indtil %(expiry)s."
@@ -51,6 +51,9 @@ msgstr "Konto betalt indtil %(expiry)s."
 msgid "Account settings"
 msgstr "Kontoindstillinger"
 
+msgid "Add"
+msgstr "Tilføj"
+
 msgid "Any"
 msgstr "Enhver"
 
@@ -81,6 +84,9 @@ msgstr "Køb mere kredit"
 msgid "Cancel"
 msgstr "Annuller"
 
+msgid "Cipher"
+msgstr "Chiffer"
+
 msgid "Clear"
 msgstr "Ryd"
 
@@ -108,6 +114,12 @@ msgstr "Brugerdefineret"
 
 msgid "Default"
 msgstr "Standard"
+
+msgid "Delete"
+msgstr "Slet"
+
+msgid "Delete list"
+msgstr "Slet liste"
 
 msgid "Disable"
 msgstr "Deaktiver"
@@ -143,17 +155,26 @@ msgstr "Gå til Systemindstillinger"
 msgid "Got it!"
 msgstr "Forstået!"
 
+msgid "Import"
+msgstr "Importer"
+
 msgid "IPv4"
 msgstr "IPv4"
 
 msgid "IPv6"
 msgstr "IPv6"
 
+msgid "Learn more"
+msgstr "Lær mere"
+
 msgid "less than a day"
 msgstr "mindre end én dag"
 
 msgid "less than a day left"
 msgstr "mindre end én dag tilbage"
+
+msgid "Name"
+msgstr "Navn"
 
 msgid "Next"
 msgstr "Næste"
@@ -170,6 +191,15 @@ msgstr "Til"
 msgid "Open URL"
 msgstr "Åbn URL"
 
+msgid "Optional"
+msgstr "Valgfri"
+
+msgid "Password"
+msgstr "Adgangskode"
+
+msgid "Port"
+msgstr "Port"
+
 #. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "KVANTESIKKER FORBINDELSE"
@@ -179,6 +209,9 @@ msgstr "Afslut"
 
 msgid "Reconnect"
 msgstr "Genopret forbindelse"
+
+msgid "Required"
+msgstr "Påkrævet"
 
 msgid "Save"
 msgstr "Gem"
@@ -208,6 +241,9 @@ msgstr "Fejlfinding"
 msgid "Try a different search."
 msgstr "Prøv en anden søgning."
 
+msgid "Type"
+msgstr "Type"
+
 msgid "UDP"
 msgstr "UDP"
 
@@ -216,6 +252,9 @@ msgstr "Fjern blokering"
 
 msgid "UNSECURED CONNECTION"
 msgstr "IKKE-SIKRET FORBINDELSE"
+
+msgid "Username"
+msgstr "Brugernavn"
 
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
@@ -312,6 +351,174 @@ msgstr "TID UDLØBET"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "Betalt indtil"
+
+msgctxt "api-access-methods-view"
+msgid "Add method"
+msgstr "Tilføj metode"
+
+msgctxt "api-access-methods-view"
+msgid "Adding a new API access method also tests it."
+msgstr "Tilføjelse af en ny API-adgangsmetode tester den også."
+
+msgctxt "api-access-methods-view"
+msgid "API reachable"
+msgstr "API tilgængelig"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, adding method…"
+msgstr "API tilgængelig. Tilføjer metode…"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, saving method…"
+msgstr "API tilgængelig. Gemmer metode…"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable"
+msgstr "API utilgængelig"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, add anyway?"
+msgstr "API utilgængelig. Tilføj alligevel?"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, save anyway?"
+msgstr "API utilgængelig. Gem alligevel?"
+
+msgctxt "api-access-methods-view"
+msgid "Authentication"
+msgstr "Godkendelse"
+
+msgctxt "api-access-methods-view"
+msgid "Clicking “Save” changes the in use method."
+msgstr "Ved at klikke på \"Gem\" ændres metoden i brug."
+
+msgctxt "api-access-methods-view"
+msgid "Delete %(name)s?"
+msgstr "Vil du slette %(name)s?"
+
+msgctxt "api-access-methods-view"
+msgid "Edit method"
+msgstr "Rediger metode"
+
+msgctxt "api-access-methods-view"
+msgid "Editing an API access method also tests it."
+msgstr "Redigering af en API-adgangsmetode tester den også."
+
+msgctxt "api-access-methods-view"
+msgid "Enter IP"
+msgstr "Indtast IP"
+
+msgctxt "api-access-methods-view"
+msgid "Enter name"
+msgstr "Indtast navn"
+
+msgctxt "api-access-methods-view"
+msgid "Enter port"
+msgstr "Indtast port"
+
+msgctxt "api-access-methods-view"
+msgid "In use"
+msgstr "I brug"
+
+msgctxt "api-access-methods-view"
+msgid "Local SOCKS5 server"
+msgstr "Lokal SOCKS5-server"
+
+msgctxt "api-access-methods-view"
+msgid "Manage and add custom methods to access the Mullvad API."
+msgstr "Administrer og tilføj brugerdefinerede metoder for at få adgang til Mullvad API."
+
+msgctxt "api-access-methods-view"
+msgid "On some networks, where various types of censorship are being used, the API servers might not be directly reachable."
+msgstr "På nogle netværk, hvor der bruges forskellige typer censur, er API-serverne muligvis ikke direkte tilgængelige."
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid IPv4 or IPv6 address."
+msgstr "Indtast en gyldig IPv4- eller IPv6-adresse."
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid localhost port."
+msgstr "Indtast en gyldig localhost-port."
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid remote server port."
+msgstr "Indtast en gyldig fjernserverport."
+
+msgctxt "api-access-methods-view"
+msgid "Remote Server"
+msgstr "Fjernserver"
+
+msgctxt "api-access-methods-view"
+msgid "Server"
+msgstr "Server"
+
+msgctxt "api-access-methods-view"
+msgid "Server details"
+msgstr "Info om server"
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 local"
+msgstr "SOCKS5 lokal"
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 remote"
+msgstr "SOCKS5 fjern"
+
+msgctxt "api-access-methods-view"
+msgid "Testing method..."
+msgstr "Testmetode..."
+
+msgctxt "api-access-methods-view"
+msgid "Testing..."
+msgstr "Tester..."
+
+msgctxt "api-access-methods-view"
+msgid "The API could not be reached using the %(name)s method."
+msgstr "API'en kunne ikke nås ved hjælp af metoden %(name)s."
+
+msgctxt "api-access-methods-view"
+msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
+msgstr "Appen har brug for fjernserveroplysningerne, hvor din lokale SOCKS5-server videresender din trafik."
+
+msgctxt "api-access-methods-view"
+msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
+msgstr "Appen skal kommunikere med en Mullvad API-server for at kunne logge dig på, hente serverlister og andre kritiske operationer."
+
+msgctxt "api-access-methods-view"
+msgid "The in use API access method will change."
+msgstr "Den anvendte API-adgangsmetode ændres."
+
+msgctxt "api-access-methods-view"
+msgid "The TCP port where your local SOCKS5 server is listening."
+msgstr "TCP-porten, hvor din lokale SOCKS5-server lytter."
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
+msgstr "Dette kan være nyttigt, hvis API'en er censureret, men Mullvads broservere ikke er det."
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful when you are not affected by censorship."
+msgstr "Dette kan være nyttigt, når du ikke er berørt af censur."
+
+msgctxt "api-access-methods-view"
+msgid "This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods."
+msgstr "Denne funktion giver dig mulighed for at omgå denne censur ved at tilføje brugerdefinerede måder at få adgang til API'en via proxyer og lignende metoder."
+
+msgctxt "api-access-methods-view"
+msgid "This is needed so our app can allow that traffic in the firewall."
+msgstr "Dette er nødvendigt, så vores app kan tillade denne trafik i firewallen."
+
+msgctxt "api-access-methods-view"
+msgid "Transport protocol"
+msgstr "Transportprotokol"
+
+msgctxt "api-access-methods-view"
+msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
+msgstr "Med \"Direkte\"-metoden kommunikerer appen med en Mullvad API-server direkte uden nogen mellemliggende proxyer."
+
+msgctxt "api-access-methods-view"
+msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
+msgstr "Med \"Mullvad-broer\" metoden kommunikerer appen med en Mullvad API-server via en Mullvad-broserver. Det gør den ved at sende trafikken sløret af Shadowsocks."
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -645,8 +852,32 @@ msgid "Connecting to Mullvad system service..."
 msgstr "Opretter forbindelse til Mullvad-systemtjeneste..."
 
 msgctxt "launch-view"
+msgid "If these steps do not work please send a problem report."
+msgstr "Hvis disse trin ikke virker, bedes du indsende en problemrapport."
+
+msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "Tilladelsen til Mullvad VPN-tjenesten er blevet tilbagekaldt. Gå til Systemindstillinger og tillad Mullvad VPN under indstillingen \"Tillad i baggrunden\"."
+
+msgctxt "launch-view"
+msgid "Reinstalling the app."
+msgstr "Geninstallerer appen."
+
+msgctxt "launch-view"
+msgid "Restarting your computer."
+msgstr "Genstarter din computer."
+
+msgctxt "launch-view"
+msgid "Send problem report"
+msgstr "Send problemrapport"
+
+msgctxt "launch-view"
+msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
+msgstr "Systemservicekomponenten i appen er ikke startet eller kan ikke kontaktes. Systemtjenesten er ansvarlig for sikkerheden, kill-switchen og VPN-tunnelen. Prøv følgende for at fejlfinde:"
+
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
+msgstr "Kan ikke kontakte Mullvad-systemtjenesten. Din forbindelse kan være usikker. Fejlfind eller send en problemrapport ved at klikke på knappen Lær mere."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -750,6 +981,11 @@ msgstr "Gyldigt kontonummer"
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
+msgid "API access"
+msgstr "API-adgang"
+
+#. Title label in navigation bar
+msgctxt "navigation-bar"
 msgid "Settings"
 msgstr "Indstillinger"
 
@@ -801,6 +1037,10 @@ msgstr "Tilslutter"
 msgctxt "notifications"
 msgid "Connecting to %(location)s"
 msgstr "Opretter forbindelse til %(location)s"
+
+msgctxt "notifications"
+msgid "Connection might be unsecured. App lost contact with system service, please troubleshoot."
+msgstr "Forbindelsen kan være usikker. App mistede kontakten med systemtjenesten, udfør fejlfinding."
 
 msgctxt "notifications"
 msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
@@ -865,6 +1105,10 @@ msgstr "Kan ikke indstille systemets DNS-server. Indsend en problemrapport."
 msgctxt "notifications"
 msgid "Unable to start tunnel connection. Please send a problem report."
 msgstr "Kan ikke starte tunnelforbindelse. Indsend en problemrapport."
+
+msgctxt "notifications"
+msgid "Unable to start tunnel connection. This could be because of conflicts with VMware, please troubleshoot."
+msgstr "Kunne ikke starte tunnelforbindelse. Dette kan være på grund af konflikter med VMware. Udfør fejlfinding."
 
 msgctxt "notifications"
 msgid "Update available. Install the latest app version to stay up to date"
@@ -1046,6 +1290,10 @@ msgid "Custom lists"
 msgstr "Brugerdefinerede lister"
 
 msgctxt "select-location-view"
+msgid "Do you want to delete the list <b>%(list)s</b>?"
+msgstr "Vil du slette listen <b>%(list)s</b>?"
+
+msgctxt "select-location-view"
 msgid "Edit list name"
 msgstr "Rediger listenavn"
 
@@ -1073,7 +1321,7 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "Udbydere: %(numberOfProviders)d"
 
-msgctxt "select-location-viewThis refers to a VPN server which we also call relay since it relays internet traffic from the user onto the internet. It should probably say server here instead of relay. I'll look into if this should be changed until next relay but for now it will be \"Relay\"."
+msgctxt "select-location-view"
 msgid "Relay"
 msgstr "Relæ"
 
@@ -1089,6 +1337,82 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr "Mens du er tilsluttet, vil din trafik blive dirigeret gennem to sikre lokationer, indgangspunktet og udgangspunktet (skal være to forskellige VPN-servere)."
 
+msgctxt "settings-import"
+msgid "Clear all overrides"
+msgstr "Ryd alle tilsidesættelser"
+
+msgctxt "settings-import"
+msgid "Clear all overrides?"
+msgstr "Vil du rydde alle tilsidesættelser?"
+
+msgctxt "settings-import"
+msgid "Clearing the imported overrides changes the server IPs, in the Select location view, back to default."
+msgstr "Rydning af de importerede tilsidesættelser sætter server-IP'erne i visningen Vælg placering tilbage til standard."
+
+msgctxt "settings-import"
+msgid "If you are having issues connecting to VPN servers, please contact support."
+msgstr "Hvis du har problemer med at oprette forbindelse til VPN-servere, bedes du kontakte support."
+
+msgctxt "settings-import"
+msgid "Import file"
+msgstr "Importer fil"
+
+msgctxt "settings-import"
+msgid "Import files or text with new IP addresses for the servers in the Select location view."
+msgstr "Importer filer eller tekst med nye IP-adresser til serverne i visningen Vælg placering."
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was successful, overrides are now active."
+msgstr "Importen af filen %(fileName)s lykkedes. Tilsidesættelser er nu aktive."
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was unsuccessful, please try again."
+msgstr "Importen af filen %(fileName)s mislykkedes. Prøv igen."
+
+msgctxt "settings-import"
+msgid "Import of text was successful, overrides are now active."
+msgstr "Import af tekst gennemført, tilsidesættelser er nu aktive."
+
+msgctxt "settings-import"
+msgid "Import of text was unsuccessful, please try again."
+msgstr "Import af tekst mislykkedes. Prøv igen."
+
+msgctxt "settings-import"
+msgid "IMPORT SUCCESSFUL"
+msgstr "IMPORT GENNEMFØRT"
+
+#. Title label in navigation bar
+msgctxt "settings-import"
+msgid "Import via text"
+msgstr "Importer via tekst"
+
+msgctxt "settings-import"
+msgid "NO OVERRIDES IMPORTED"
+msgstr "INGEN TILSIDESÆTTELSER IMPORTERET"
+
+msgctxt "settings-import"
+msgid "On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked."
+msgstr "På nogle netværk, hvor der bruges forskellige typer censur, er vores server IP-adresser nogle gange blokeret."
+
+msgctxt "settings-import"
+msgid "OVERRIDES ACTIVE"
+msgstr "TILSIDESÆTTELSER AKTIVE"
+
+#. Title label in navigation bar. This is for a feature that lets
+#. users import server IP settings.
+msgctxt "settings-import"
+msgid "Server IP override"
+msgstr "Server IP tilsidesættelse"
+
+msgctxt "settings-import"
+msgid "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
+msgstr "For at omgå dette kan du importere en fil eller en tekst, leveret af vores supportteam, med nye IP-adresser, der tilsidesætter standardadresserne på serverne i visningen Vælg placering."
+
+#. Navigation button to the 'API access methods' view
+msgctxt "settings-view"
+msgid "API access"
+msgstr "API-adgang"
+
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Appen er ikke synkroniseret. Afslut og genstart."
@@ -1096,11 +1420,6 @@ msgstr "Appen er ikke synkroniseret. Afslut og genstart."
 msgctxt "settings-view"
 msgid "App version"
 msgstr "App-version"
-
-#. Navigation button to the 'Split tunneling' view
-msgctxt "settings-view"
-msgid "Split tunneling"
-msgstr "Split tunneling"
 
 msgctxt "settings-view"
 msgid "Support"
@@ -1326,12 +1645,24 @@ msgid "Try restarting your device."
 msgstr "Prøv at genstarte din enhed."
 
 msgctxt "troubleshoot"
+msgid "Try to reinstall VMware."
+msgstr "Prøv at geninstallere VMware."
+
+msgctxt "troubleshoot"
 msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
 msgstr "Prøv at slå Wi-Fi-opkald fra i FaceTime-appens indstillinger, og genstart Mac'en."
 
 msgctxt "troubleshoot"
+msgid "Try to uninstall VMware."
+msgstr "Prøv at afinstallere VMware."
+
+msgctxt "troubleshoot"
 msgid "Unable to communicate with Mullvad kernel driver."
 msgstr "Kan ikke kommunikere med Mullvad-kernedriveren."
+
+msgctxt "troubleshoot"
+msgid "Unable to start tunnel connection because of a failure when creating the tunnel device. This is often caused by conflicts with the VMware Bridge Protocol."
+msgstr "Kunne ikke starte tunnelforbindelse på grund af en fejl under oprettelse af tunnelenheden. Dette er ofte forårsaget af konflikter med VMware Bridge Protocol."
 
 msgctxt "troubleshoot"
 msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
@@ -1348,6 +1679,14 @@ msgstr "Gør min forbindelse sikker"
 msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "Skift placering"
+
+msgctxt "user-interface-settings-view"
+msgid "Animate map"
+msgstr "Animer kort"
+
+msgctxt "user-interface-settings-view"
+msgid "Animate map movements."
+msgstr "Animer kortbevægelser."
 
 msgctxt "user-interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -1422,6 +1761,10 @@ msgstr "Voksenindhold"
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Bemærk: aktivering af dette medfører, at der altid kræves en Mullvad VPN-forbindelse for at oprette forbindelse til internettet."
+
+msgctxt "vpn-settings-view"
+msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
+msgstr "Bemærk: denne indstilling kan ikke bruges i kombination med <b>%(customDnsFeatureName)s</b>"
 
 msgctxt "vpn-settings-view"
 msgid "Auto-connect"
@@ -1509,6 +1852,10 @@ msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "Malware"
 
+msgctxt "vpn-settings-view"
+msgid "Server IP override"
+msgstr "Tilsidesættelse af server-IP"
+
 #. Label for settings that enables block of social media.
 msgctxt "vpn-settings-view"
 msgid "Social media"
@@ -1546,8 +1893,8 @@ msgid "This feature allows access to other devices on the local network, such as
 msgstr "Denne funktion giver adgang til andre enheder på det lokale netværk, såsom til deling, udskrivning, streaming osv."
 
 msgctxt "vpn-settings-view"
-msgid "This might cause issues on certain websites, services, and programs."
-msgstr "Dette kan forårsage problemer på visse websteder, tjenester og programmer."
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "Dette kan forårsage problemer på visse websteder, tjenester og apps."
 
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
@@ -1667,9 +2014,18 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Hvilken TCP-port UDP-over-TCP tilsløringsprotokollen skal forbinde til på VPN-serveren."
 
-msgctxt "Message shown after successfully adding subscription time to an account, where \"%s\" represent the amount of time, like for example \"1 day\" or \"4 months\".Full examples: \"1 day was added to your account.\"\"4 months was added to your account.\""
+msgctxt "Message to indicate how much time was added to an account as part of an in-app purchase. Example: \"30 days was added to your account.\""
 msgid "%s was added to your account."
 msgstr "%s blev føjet til din konto."
+
+msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
+msgstr "1. Når du har klikket på knappen <b>Gå til VPN-indstillinger</b> nedenfor, skal du klikke på tandhjulet ved siden af <b>Mullvad VPN</b>-navnet."
+
+msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
+msgstr "2. For at aktivere automatisk forbindelse skal du klikke på knappen ud for <b>Altid-til VPN</b>."
+
+msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>."
+msgstr "3. For at aktivere Lockdown-tilstand skal du klikke på knappen ud for <b>Bloker forbindelser uden VPN</b>."
 
 msgid "30 days was added to your account."
 msgstr "30 dage blev føjet til din konto."
@@ -1710,6 +2066,15 @@ msgstr "Altid-til VPN er måske aktiveret for en anden app"
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
 msgstr "Bemærk: Denne indstilling kan ikke bruges i kombination med <b>Brug tilpasset DNS-server</b>."
 
+msgid "Auto-connect & Lockdown mode"
+msgstr "Auto-tilslutning og Lockdown-tilstand"
+
+msgid "Auto-connect & \\nLockdown mode"
+msgstr "Auto-tilslutning og \\nLockdown-tilstand"
+
+msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
+msgstr "Auto-tilslutning kaldes Altid-til VPN i Android-systemindstillingerne, og det sørger for, at du konstant er forbundet til VPN-tunnelen og automatisk forbinder efter genstart."
+
 msgid "Blocking internet (device offline)"
 msgstr "Blokering af internet (enhed offline)"
 
@@ -1721,6 +2086,9 @@ msgstr "Tilslutter..."
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Kopierede Mullvad-kontonummer til udklipsholder"
+
+msgid "Copied logs to clipboard"
+msgstr "Kopierede logfiler til udklipsholder"
 
 msgid "Copied to clipboard"
 msgstr "Kopieret til udklipsholder"
@@ -1743,12 +2111,11 @@ msgstr "Aktiver"
 msgid "Enter MTU"
 msgstr "Indtast MTU"
 
-msgctxt "Placeholder in port number input field."
-msgid "Enter port"
-msgstr "Indtast port"
-
 msgid "Excluded applications"
 msgstr "Ekskluderede applikationer"
+
+msgid "Go to VPN settings"
+msgstr "Gå til VPN-indstillinger"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "Hvis du logger på, ophæves blokeringen af internettet på denne enhed."
@@ -1765,6 +2132,9 @@ msgstr "Hvis funktionen split tunneling bruges, beder appen dit system om en lis
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Installer Mullvad VPN (%s) for at holde dig opdateret"
 
+msgid "Makes sure the device is always on the VPN tunnel."
+msgstr "Sørger for, at enheden altid er på VPN-tunnelen."
+
 msgid "Manage account"
 msgstr "Administrer konto"
 
@@ -1773,6 +2143,9 @@ msgstr "Mullvad-kontonummer"
 
 msgid "Mullvad services unavailable"
 msgstr "Mullvad-tjenester er ikke tilgængelige"
+
+msgid "No internet connection"
+msgstr "Ingen internetforbindelse"
 
 msgid "Preferences"
 msgstr "Indstillinger"
@@ -1810,17 +2183,26 @@ msgstr "Viser den aktuelle VPN-tunnelstatus"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Viser påmindelser, når kontotiden er ved at udløbe"
 
+msgid "Split tunneling is disabled."
+msgstr "Split-tunneling er deaktiveret."
+
 msgid "Submit"
 msgstr "Indsend"
+
+msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
+msgstr "Indstillingerne for automatisk forbindelse og Lockdown-tilstand kan findes i Android- systemindstillingerne. Følg denne vejledning for at aktivere en eller begge."
+
+msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
+msgstr "Lockdown-tilstand blokerer al internetadgang, hvis VPN-tunnelen afbrydes manuelt. <br/><b>Advarsel: Denne indstilling blokerer opdelte apps og funktionen Lokal netværksdeling</b>."
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "Den lokale DNS-server fungerer ikke, medmindre du aktiverer \"Lokal netværksdeling\" under Indstillinger."
 
+msgid "There is no VPN settings on your device"
+msgstr "Der er ingen VPN-indstillinger på din enhed"
+
 msgid "This address has already been entered."
 msgstr "Denne adresse er allerede blevet indtastet."
-
-msgid "This might cause issues on certain websites, services, and apps."
-msgstr "Dette kan forårsage problemer på visse websteder, tjenester og apps."
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "For at sørge for, at du har den mest sikre version og for at informere dig om eventuelle problemer med den aktuelle version, der kører, udfører appen automatisk versionstjek. Dette sender app-versionen og Android-systemversionen til Mullvad-servere. Mullvad holder tal på antallet af brugte app-versioner og Android-versioner. Dataene bliver aldrig opbevaret eller brugt på nogen måde, der kan identificere dig."
@@ -1855,7 +2237,7 @@ msgstr "VPN-tunnelstatus"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Gyldig WireGuard-nøgle mangler. Administrer nøgler under Avancerede indstillinger."
 
-msgctxt "Used to inform the user about a set of valid network port number ranges, for example: \"Valid ranges: 1-10, 100-200, 30000-31000\" "
+msgctxt "Help text to explain which numbers are valid to configure. The user should enter a single number/integer that either matches one of the listed numbers or is within one of the listed ranges. Example: \"Valid ranges: 53, 123, 4000-33433\""
 msgid "Valid ranges: %s"
 msgstr "Gyldige intervaller: %s"
 
