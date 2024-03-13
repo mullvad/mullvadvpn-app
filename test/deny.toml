@@ -1,0 +1,98 @@
+# This section is considered when running `cargo deny check advisories`
+# More documentation for the advisories section can be found here:
+# https://embarkstudios.github.io/cargo-deny/checks/advisories/cfg.html
+[advisories]
+version = 2 # https://github.com/EmbarkStudios/cargo-deny/pull/611
+db-path = "~/.cargo/advisory-db"
+db-urls = ["https://github.com/rustsec/advisory-db"]
+
+ignore = [
+    # Ignored audit issues. This list should be kept short, and effort should be
+    # put into removing items from the list.
+    # RUSTSEC-2023-0081 - `safemem` is unmaintained: https://github.com/ebarnard/rust-plist/pull/134
+    "RUSTSEC-2023-0081"
+]
+
+#severity-threshold =
+
+
+# This section is considered when running `cargo deny check licenses`
+# More documentation for the licenses section can be found here:
+# https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html
+[licenses]
+version = 2 # https://github.com/EmbarkStudios/cargo-deny/pull/611
+
+# Adding a license here has to be done carefully. Should not be changed
+# by individual developers.
+allow = [
+    "GPL-3.0",
+    "Apache-2.0",
+    "MIT",
+    "WTFPL",
+    "ISC",
+    "BSD-3-Clause",
+    "BSD-2-Clause",
+    "CC0-1.0",
+    "MPL-2.0",
+    # https://github.com/briansmith/ring/issues/902
+    "LicenseRef-ring",
+    "Unicode-DFS-2016"
+]
+
+confidence-threshold = 0.8
+
+exceptions = []
+
+[[licenses.clarify]]
+name = "ring"
+expression = "LicenseRef-ring"
+license-files = [
+    { path = "LICENSE", hash = 0xbd0eed23 }
+]
+
+[licenses.private]
+ignore = false
+registries = []
+
+# This section is considered when running `cargo deny check bans`.
+# More documentation about the 'bans' section can be found here:
+# https://embarkstudios.github.io/cargo-deny/checks/bans/cfg.html
+[bans]
+multiple-versions = "warn"
+wildcards = "warn"
+highlight = "all"
+
+allow = []
+deny = [
+    { name = "clap", version = "2" },
+    { name = "clap", version = "3" },
+    # `atty` is an unmaintained crate with a CVE: RUSTSEC-2021-0145
+    { name = "atty" },
+    { name = "time", version = "0.1"},
+]
+skip = []
+skip-tree = []
+
+# This section is considered when running `cargo deny check sources`.
+# More documentation about the 'sources' section can be found here:
+# https://embarkstudios.github.io/cargo-deny/checks/sources/cfg.html
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+# If we need to temporarily depend on a git repository in our Rust dependency tree,
+# it has to be added here. We should try to keep this list minimal. Having git
+# dependencies is not recommended.
+allow-git = []
+
+[sources.allow-org]
+# 1 or more github.com organizations to allow git sources for
+github = ["mullvad"]
+
+[graph]
+targets = [
+    { triple = "x86_64-unknown-linux-gnu" },
+    { triple = "x86_64-pc-windows-gnu" },
+    { triple = "x86_64-apple-darwin" },
+    { triple = "aarch64-apple-darwin" }
+]

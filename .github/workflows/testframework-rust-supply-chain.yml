@@ -1,0 +1,25 @@
+---
+name: Rust - Supply chain (Test framework)
+on:
+  pull_request:
+    paths:
+      - .github/workflows/testframework-rust-supply-chain.yml
+      - ./test/deny.toml
+      - 'test/**/Cargo.toml'
+      - 'test/**/Cargo.lock'
+      - 'test/**/*.rs'
+  workflow_dispatch:
+jobs:
+  check-test-framework-supply-chain:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run cargo deny (test workspace)
+        uses: EmbarkStudios/cargo-deny-action@v1
+        with:
+          manifest-path: ./test/Cargo.toml
+          log-level: warn
+          rust-version: stable
+          command: check all
