@@ -12,7 +12,7 @@
     <string name="add_a_server">Server toevoegen</string>
     <string name="add_dns_server_dialog_title">DNS-server toevoegen</string>
     <string name="add_time_to_account">Koop krediet op onze website of wissel een voucher in.</string>
-    <string name="added_to_your_account">Er is %1$s toegevoegd aan uw account.</string>
+    <string name="added_to_your_account">%1$s is toegevoegd aan uw account.</string>
     <string name="agree_and_continue">Akkoord en doorgaan</string>
     <string name="all_applications">Alle toepassingen</string>
     <string name="all_providers">Alle aanbieders</string>
@@ -24,6 +24,14 @@
     <string name="apply">Toevoegen</string>
     <string name="auth_failed">Kan account niet verifiëren. Stuur een probleemrapport.</string>
     <string name="auto_connect">Automatisch verbinden</string>
+    <string name="auto_connect_and_lockdown_mode">Automatisch verbinden en lockdownmodus</string>
+    <string name="auto_connect_and_lockdown_mode_footer">Zorg dat het apparaat altijd de VPN-tunnel gebruikt.</string>
+    <string name="auto_connect_carousel_first_slide_bottom_text">1. Klik nadat u op de knop &lt;b&gt;Naar VPN-instellingen&lt;/b&gt; hebt geklikt op het tandwiel naast de naam &lt;b&gt;Mullvad VPN&lt;/b&gt;.</string>
+    <string name="auto_connect_carousel_first_slide_top_text">De instellingen Automatisch verbinden en Lockdownmodus zijn te vinden in de Android-systeeminstellingen, volg deze gids om een of beide in te schakelen.</string>
+    <string name="auto_connect_carousel_second_slide_bottom_text">2. Klik om Automatisch verbinden in te schakelen op de schakelaar naast &lt;b&gt;Altijd-aan VPN&lt;/b&gt;.</string>
+    <string name="auto_connect_carousel_second_slide_top_text">Automatisch verbinden heet Altijd-aan VPN in de Android-systeeminstellingen en zorgt ervoor dat u altijd verbonden bent met de VPN-tunnel en automatisch verbinding maakt na een herstart.</string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">3. Klik om Lockdownmodus in te schakelen op de schakelaar naast &lt;b&gt;Verbindingen zonder VPN blokkeren&lt;/b&gt;.</string>
+    <string name="auto_connect_carousel_third_slide_top_text">De Lockdownmodus blokkeert alle internettoegang als de VPN-tunnel handmatig wordt verbroken. &lt;br&gt;&lt;b&gt;Waarschuwing: deze instelling blokkeert gesplitste apps en de functie Lokaal netwerk delen&lt;/b&gt;.</string>
     <string name="auto_connect_footer">Automatisch verbinden met een server wanneer de app wordt gestart.</string>
     <string name="automatic">Automatisch</string>
     <string name="back">Terug</string>
@@ -48,6 +56,7 @@
     <string name="connecting">Bezig met verbinden</string>
     <string name="connecting_to_daemon">Verbinden met Mullvad-systeemdienst...</string>
     <string name="continue_login">Doorgaan met aanmelden</string>
+    <string name="copied_logs_to_clipboard">Logs gekopieerd naar klembord</string>
     <string name="copied_mullvad_account_number">Mullvad-accountnummer gekopieerd naar klembord</string>
     <string name="copied_to_clipboard">Gekopieerd naar klembord</string>
     <string name="copy_account_number">Accountnummer kopiëren</string>
@@ -102,6 +111,7 @@
     <string name="foreground_notification_channel_description">Toont de huidige status van de VPN-tunnel</string>
     <string name="foreground_notification_channel_name">Status VPN-tunnel</string>
     <string name="go_to_login">Ga naar aanmelden</string>
+    <string name="go_to_vpn_settings">Naar VPN-instellingen</string>
     <string name="got_it">Begrepen!</string>
     <string name="here_is_your_account_number">Hier is uw accountnummer. Sla het op!</string>
     <string name="hide_account_number">Accountnummer verbergen</string>
@@ -139,6 +149,7 @@
     <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
     <string name="new_device_notification_message">Welkom, dit apparaat heet nu &lt;b&gt;%1$s&lt;/b&gt;. Zie voor meer informatie de infoknop in Account.</string>
     <string name="new_device_notification_title">NIEUW APPARAAT GEMAAKT</string>
+    <string name="no_internet_connection">Geen internetverbinding</string>
     <string name="no_matching_relay">Er zijn geen servers die overeenkomen met uw instellingen. Probeer een andere server of andere instellingen.</string>
     <string name="no_wireguard_key">Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde instellingen.</string>
     <string name="not_blocking_internet">U LEKT MOGELIJK NETWERKVERKEER</string>
@@ -207,6 +218,7 @@
     <string name="show_account_number">Accountnummer weergeven</string>
     <string name="show_system_apps">Systeemapps weergeven</string>
     <string name="split_tunneling_description">Kies de apps die die u wilt uitsluiten van de VPN-tunnel.</string>
+    <string name="split_tunneling_disabled_description">Gesplitste tunneling is uitgeschakeld.</string>
     <string name="start_tunnel_error">Kan de tunnelverbinding niet starten. Stuur een probleemrapport.</string>
     <string name="submit_button">Verzenden</string>
     <string name="switch_location">Locatie wijzigen</string>
@@ -236,6 +248,7 @@
     <string name="vpn_permission_denied_error">VPN-toestemming is geweigerd tijdens maken van de tunnel. Probeer opnieuw verbinding te maken.</string>
     <string name="vpn_permission_error_notification_message">Altijd-aan VPN is mogelijk ingeschakeld voor een andere app</string>
     <string name="vpn_permission_error_notification_title">VPN-machtigingsfout</string>
+    <string name="vpn_settings_not_found">Er zijn geen VPN-instellingen op uw apparaat</string>
     <string name="we_will_look_into_this">We gaan het bekijken.</string>
     <string name="wireguard_custon_port_title">Aangepast</string>
     <string name="wireguard_mtu">WireGuard-MTU</string>

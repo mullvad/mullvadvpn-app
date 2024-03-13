@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Polish\n"
 "Language: pl_PL\n"
-"PO-Revision-Date: 2023-12-04 12:55\n"
+"PO-Revision-Date: 2024-03-13 08:24\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "Dodano %(duration)s, konto opłacone do %(expiry)s."
@@ -63,6 +63,9 @@ msgstr "Konto opłacone do %(expiry)s."
 msgid "Account settings"
 msgstr "Ustawienia konta"
 
+msgid "Add"
+msgstr "Dodaj"
+
 msgid "Any"
 msgstr "Dowolny"
 
@@ -93,6 +96,9 @@ msgstr "Doładuj konto"
 msgid "Cancel"
 msgstr "Anuluj"
 
+msgid "Cipher"
+msgstr "Szyfrowanie"
+
 msgid "Clear"
 msgstr "Wyczyść"
 
@@ -120,6 +126,12 @@ msgstr "Niestandardowy"
 
 msgid "Default"
 msgstr "Domyślnie"
+
+msgid "Delete"
+msgstr "Usuń"
+
+msgid "Delete list"
+msgstr "Usuń listę"
 
 msgid "Disable"
 msgstr "Wyłącz"
@@ -155,17 +167,26 @@ msgstr "Przejdź do sekcji Ustawienia systemowe"
 msgid "Got it!"
 msgstr "Jasne!"
 
+msgid "Import"
+msgstr "Importuj"
+
 msgid "IPv4"
 msgstr "IPv4"
 
 msgid "IPv6"
 msgstr "IPv6"
 
+msgid "Learn more"
+msgstr "Więcej informacji"
+
 msgid "less than a day"
 msgstr "mniej niż jeden dzień"
 
 msgid "less than a day left"
 msgstr "pozostał mniej niż jeden dzień"
+
+msgid "Name"
+msgstr "Nazwa"
 
 msgid "Next"
 msgstr "Dalej"
@@ -182,6 +203,15 @@ msgstr "Wł."
 msgid "Open URL"
 msgstr "Otwórz adres URL"
 
+msgid "Optional"
+msgstr "Opcjonalnie"
+
+msgid "Password"
+msgstr "Hasło"
+
+msgid "Port"
+msgstr "Port"
+
 #. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "KWANTOWO BEZPIECZNE POŁĄCZENIE"
@@ -191,6 +221,9 @@ msgstr "Wyjdź"
 
 msgid "Reconnect"
 msgstr "Połącz ponownie"
+
+msgid "Required"
+msgstr "Wymagane"
 
 msgid "Save"
 msgstr "Zapisz"
@@ -220,6 +253,9 @@ msgstr "Rozwiązywanie problemów"
 msgid "Try a different search."
 msgstr "Wypróbuj inne wyszukiwanie."
 
+msgid "Type"
+msgstr "Typ"
+
 msgid "UDP"
 msgstr "UDP"
 
@@ -228,6 +264,9 @@ msgstr "Odblokuj"
 
 msgid "UNSECURED CONNECTION"
 msgstr "NIEZABEZPIECZONE POŁĄCZENIE"
+
+msgid "Username"
+msgstr "Nazwa użytkownika"
 
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
@@ -324,6 +363,174 @@ msgstr "KONIEC CZASU"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "Płatne do"
+
+msgctxt "api-access-methods-view"
+msgid "Add method"
+msgstr "Dodaj metodę"
+
+msgctxt "api-access-methods-view"
+msgid "Adding a new API access method also tests it."
+msgstr "Dodanie nowej metody dostępu do API również ją testuje."
+
+msgctxt "api-access-methods-view"
+msgid "API reachable"
+msgstr "API osiągalny"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, adding method…"
+msgstr "API osiągalny, dodawanie metody…"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, saving method…"
+msgstr "API osiągalny, zapisywanie metody…"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable"
+msgstr "API nieosiągalny"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, add anyway?"
+msgstr "API nieosiągalny, dodać mimo to?"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, save anyway?"
+msgstr "API nieosiągalny, zapisać mimo to?"
+
+msgctxt "api-access-methods-view"
+msgid "Authentication"
+msgstr "Uwierzytelnianie"
+
+msgctxt "api-access-methods-view"
+msgid "Clicking “Save” changes the in use method."
+msgstr "Kliknięcie przycisku „Zapisz” zmienia używaną metodę."
+
+msgctxt "api-access-methods-view"
+msgid "Delete %(name)s?"
+msgstr "Usunąć %(name)s?"
+
+msgctxt "api-access-methods-view"
+msgid "Edit method"
+msgstr "Edytuj metodę"
+
+msgctxt "api-access-methods-view"
+msgid "Editing an API access method also tests it."
+msgstr "Edycja metody dostępu do API również ją testuje."
+
+msgctxt "api-access-methods-view"
+msgid "Enter IP"
+msgstr "Wprowadź adres IP"
+
+msgctxt "api-access-methods-view"
+msgid "Enter name"
+msgstr "Wprowadź nazwę"
+
+msgctxt "api-access-methods-view"
+msgid "Enter port"
+msgstr "Wprowadź port"
+
+msgctxt "api-access-methods-view"
+msgid "In use"
+msgstr "W użyciu"
+
+msgctxt "api-access-methods-view"
+msgid "Local SOCKS5 server"
+msgstr "Lokalny serwer SOCKS5"
+
+msgctxt "api-access-methods-view"
+msgid "Manage and add custom methods to access the Mullvad API."
+msgstr "Zarządzaj i dodawaj niestandardowe metody dostępu do interfejsu API Mullvad."
+
+msgctxt "api-access-methods-view"
+msgid "On some networks, where various types of censorship are being used, the API servers might not be directly reachable."
+msgstr "W niektórych sieciach, w których stosowane są różne rodzaje cenzury, serwery API mogą nie być bezpośrednio dostępne."
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid IPv4 or IPv6 address."
+msgstr "Wprowadź prawidłowy adres IPv4 lub IPv6."
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid localhost port."
+msgstr "Wprowadź prawidłowy port localhost."
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid remote server port."
+msgstr "Wprowadź prawidłowy port serwera zdalnego."
+
+msgctxt "api-access-methods-view"
+msgid "Remote Server"
+msgstr "Serwer zdalny"
+
+msgctxt "api-access-methods-view"
+msgid "Server"
+msgstr "Serwer"
+
+msgctxt "api-access-methods-view"
+msgid "Server details"
+msgstr "Dane serwera"
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 local"
+msgstr "Lokalny SOCKS5"
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 remote"
+msgstr "Zdalny SOCKS5"
+
+msgctxt "api-access-methods-view"
+msgid "Testing method..."
+msgstr "Testowanie metody..."
+
+msgctxt "api-access-methods-view"
+msgid "Testing..."
+msgstr "Testowanie..."
+
+msgctxt "api-access-methods-view"
+msgid "The API could not be reached using the %(name)s method."
+msgstr "Nie można uzyskać dostępu do API przy użyciu metody %(name)s."
+
+msgctxt "api-access-methods-view"
+msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
+msgstr "Aplikacja potrzebuje danych serwera zdalnego, na który lokalny serwer SOCKS5 będzie przekazywał ruch."
+
+msgctxt "api-access-methods-view"
+msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
+msgstr "Aplikacja musi komunikować się z serwerem API Mullvad, aby można było się zalogować, pobrać listy serwerów i wykonywać inne krytyczne operacje."
+
+msgctxt "api-access-methods-view"
+msgid "The in use API access method will change."
+msgstr "Używana metoda dostępu do API ulegnie zmianie."
+
+msgctxt "api-access-methods-view"
+msgid "The TCP port where your local SOCKS5 server is listening."
+msgstr "Port TCP, na którym nasłuchuje lokalny serwer SOCKS5."
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
+msgstr "Może to być przydatne, jeśli API jest cenzurowany, a serwery mostowe Mullvad nie."
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful when you are not affected by censorship."
+msgstr "Może to być przydatne, gdy cenzura Cię nie dotyczy."
+
+msgctxt "api-access-methods-view"
+msgid "This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods."
+msgstr "Ta funkcja pozwala ominąć tę cenzurę, dodając niestandardowe sposoby dostępu do API za pośrednictwem serwerów proxy i podobnych metod."
+
+msgctxt "api-access-methods-view"
+msgid "This is needed so our app can allow that traffic in the firewall."
+msgstr "Jest to potrzebne, aby nasza aplikacja przepuściła ruch przez zaporę."
+
+msgctxt "api-access-methods-view"
+msgid "Transport protocol"
+msgstr "Protokół transportowy"
+
+msgctxt "api-access-methods-view"
+msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
+msgstr "Dzięki metodzie „Direct” aplikacja komunikuje się z serwerem API Mullvad bezpośrednio, bez pośredniczących serwerów proxy."
+
+msgctxt "api-access-methods-view"
+msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
+msgstr "Dzięki metodzie „Mullvad bridges” aplikacja komunikuje się z serwerem API Mullvad za pośrednictwem serwera mostowego Mullvad. Robi to poprzez wysyłanie ruchu zaciemnianego przez Shadowsocks."
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -657,8 +864,32 @@ msgid "Connecting to Mullvad system service..."
 msgstr "Łączenie z usługą systemową Mullvad..."
 
 msgctxt "launch-view"
+msgid "If these steps do not work please send a problem report."
+msgstr "Jeśli te kroki nie zadziałają, wyślij zgłoszenie problemu."
+
+msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "Uprawnienie usługi Mullvad VPN zostało cofnięte. Przejdź do sekcji Ustawienia systemowe i zezwól na działanie usługi Mullvad VPN w ustawieniu „Pozwalaj w tle”."
+
+msgctxt "launch-view"
+msgid "Reinstalling the app."
+msgstr "Ponownie zainstalować aplikację."
+
+msgctxt "launch-view"
+msgid "Restarting your computer."
+msgstr "Ponownie uruchomić komputer."
+
+msgctxt "launch-view"
+msgid "Send problem report"
+msgstr "Wyślij zgłoszenie problemu"
+
+msgctxt "launch-view"
+msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
+msgstr "Składnik usługi systemowej aplikacji nie został uruchomiony lub nie odpowiada. Usługa systemowa odpowiada za zabezpieczenia, kill switch i tunel VPN. Aby rozwiązać problem, spróbuj:"
+
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
+msgstr "Usługa systemowa Mullvad nie odpowiada. Połączenie może być niezabezpieczone. Rozwiąż problem lub wyślij zgłoszenie problemu, klikając przycisk Więcej informacji."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -762,6 +993,11 @@ msgstr "Prawidłowy numer konta"
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
+msgid "API access"
+msgstr "Dostęp do API"
+
+#. Title label in navigation bar
+msgctxt "navigation-bar"
 msgid "Settings"
 msgstr "Ustawienia"
 
@@ -813,6 +1049,10 @@ msgstr "Łączenie"
 msgctxt "notifications"
 msgid "Connecting to %(location)s"
 msgstr "Łączenie z %(location)s"
+
+msgctxt "notifications"
+msgid "Connection might be unsecured. App lost contact with system service, please troubleshoot."
+msgstr "Połączenie może być niezabezpieczone. Aplikacja utraciła kontakt z usługą systemową. Rozwiąż ten problem."
 
 msgctxt "notifications"
 msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
@@ -877,6 +1117,10 @@ msgstr "Nie można ustawić systemowego serwera DNS. Wyślij zgłoszenie problem
 msgctxt "notifications"
 msgid "Unable to start tunnel connection. Please send a problem report."
 msgstr "Nie można uruchomić połączenia tunelowego. Wyślij zgłoszenie problemu."
+
+msgctxt "notifications"
+msgid "Unable to start tunnel connection. This could be because of conflicts with VMware, please troubleshoot."
+msgstr "Nie można ustanowić połączenia tunelowego. Może to być spowodowane konfliktami z VMware. Rozwiąż ten problem."
 
 msgctxt "notifications"
 msgid "Update available. Install the latest app version to stay up to date"
@@ -1058,6 +1302,10 @@ msgid "Custom lists"
 msgstr "Listy niestandardowe"
 
 msgctxt "select-location-view"
+msgid "Do you want to delete the list <b>%(list)s</b>?"
+msgstr "Czy chcesz usunąć listę <b>%(list)s</b>?"
+
+msgctxt "select-location-view"
 msgid "Edit list name"
 msgstr "Edytuj nazwę listy"
 
@@ -1085,9 +1333,9 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "Dostawcy: %(numberOfProviders)d"
 
-msgctxt "select-location-viewThis refers to a VPN server which we also call relay since it relays internet traffic from the user onto the internet. It should probably say server here instead of relay. I'll look into if this should be changed until next relay but for now it will be \"Relay\"."
+msgctxt "select-location-view"
 msgid "Relay"
-msgstr "przekaźnik"
+msgstr "Przekaźnik"
 
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
@@ -1101,6 +1349,82 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr "Podczas połączenia ruch będzie kierowany przez dwie bezpieczne lokalizacje, punkt wejściowy i punkt wyjściowy (muszą to być dwa różne serwery VPN)."
 
+msgctxt "settings-import"
+msgid "Clear all overrides"
+msgstr "Wyczyść wszystkie zastąpienia"
+
+msgctxt "settings-import"
+msgid "Clear all overrides?"
+msgstr "Wyczyścić wszystkie zastąpienia?"
+
+msgctxt "settings-import"
+msgid "Clearing the imported overrides changes the server IPs, in the Select location view, back to default."
+msgstr "Wyczyszczenie zaimportowanych zastąpień skutkuje przywróceniem domyślnych adresów IP serwerów w widoku Wybierz lokalizację."
+
+msgctxt "settings-import"
+msgid "If you are having issues connecting to VPN servers, please contact support."
+msgstr "Jeśli masz problemy z łączeniem się z serwerami VPN, skontaktuj się z pomocą techniczną."
+
+msgctxt "settings-import"
+msgid "Import file"
+msgstr "Zaimportuj plik"
+
+msgctxt "settings-import"
+msgid "Import files or text with new IP addresses for the servers in the Select location view."
+msgstr "Zaimportuj pliki lub tekst z nowymi adresami IP serwerów w widoku Wybierz lokalizację."
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was successful, overrides are now active."
+msgstr "Import pliku %(fileName)s powiódł się. Zastąpienia są teraz aktywne."
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was unsuccessful, please try again."
+msgstr "Import pliku %(fileName)s nie powiódł się. Spróbuj ponownie."
+
+msgctxt "settings-import"
+msgid "Import of text was successful, overrides are now active."
+msgstr "Import tekstu powiódł się. Zastąpienia są teraz aktywne."
+
+msgctxt "settings-import"
+msgid "Import of text was unsuccessful, please try again."
+msgstr "Import tekstu nie powiódł się. Spróbuj ponownie."
+
+msgctxt "settings-import"
+msgid "IMPORT SUCCESSFUL"
+msgstr "IMPORT POWIÓDŁ SIĘ"
+
+#. Title label in navigation bar
+msgctxt "settings-import"
+msgid "Import via text"
+msgstr "Import tekstowy"
+
+msgctxt "settings-import"
+msgid "NO OVERRIDES IMPORTED"
+msgstr "NIE ZAIMPORTOWANO ZASTĄPIEŃ"
+
+msgctxt "settings-import"
+msgid "On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked."
+msgstr "W niektórych sieciach, w których stosowane są różnego rodzaju cenzury, adresy IP naszych serwerów są czasami blokowane."
+
+msgctxt "settings-import"
+msgid "OVERRIDES ACTIVE"
+msgstr "ZASTĄPIENIA AKTYWNE"
+
+#. Title label in navigation bar. This is for a feature that lets
+#. users import server IP settings.
+msgctxt "settings-import"
+msgid "Server IP override"
+msgstr "Zastąpienie adresu IP serwera"
+
+msgctxt "settings-import"
+msgid "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
+msgstr "Aby obejść ten problem, można zaimportować plik lub tekst dostarczony przez nasz zespół pomocy technicznej, zawierający nowe adresy IP, które zastępują domyślne adresy serwerów w widoku Wybierz lokalizację."
+
+#. Navigation button to the 'API access methods' view
+msgctxt "settings-view"
+msgid "API access"
+msgstr "Dostęp do API"
+
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Aplikacja nie jest zsynchronizowana. Zamknij ją, a następnie uruchom ponownie."
@@ -1108,11 +1432,6 @@ msgstr "Aplikacja nie jest zsynchronizowana. Zamknij ją, a następnie uruchom p
 msgctxt "settings-view"
 msgid "App version"
 msgstr "Wersja aplikacji"
-
-#. Navigation button to the 'Split tunneling' view
-msgctxt "settings-view"
-msgid "Split tunneling"
-msgstr "Dzielone tunelowanie"
 
 msgctxt "settings-view"
 msgid "Support"
@@ -1338,12 +1657,24 @@ msgid "Try restarting your device."
 msgstr "Spróbuj ponownie uruchomić urządzenie."
 
 msgctxt "troubleshoot"
+msgid "Try to reinstall VMware."
+msgstr "Spróbuj ponownie zainstalować VMware."
+
+msgctxt "troubleshoot"
 msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
 msgstr "Spróbuj wyłączyć połączenia przez sieć Wi-Fi w ustawieniach aplikacji FaceTime i uruchom ponownie system Mac."
 
 msgctxt "troubleshoot"
+msgid "Try to uninstall VMware."
+msgstr "Spróbuj odinstalować VMware."
+
+msgctxt "troubleshoot"
 msgid "Unable to communicate with Mullvad kernel driver."
 msgstr "Nie można skomunikować się ze sterownikiem jądra Mullvad."
+
+msgctxt "troubleshoot"
+msgid "Unable to start tunnel connection because of a failure when creating the tunnel device. This is often caused by conflicts with the VMware Bridge Protocol."
+msgstr "Nie można ustanowić połączenia tunelowego z powodu błędu podczas tworzenia urządzenia tunelowego. Jest to często spowodowane konfliktami z protokołem mostu VMware."
 
 msgctxt "troubleshoot"
 msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
@@ -1360,6 +1691,14 @@ msgstr "Zabezpiecz moje połączenie"
 msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "Zmień lokalizację"
+
+msgctxt "user-interface-settings-view"
+msgid "Animate map"
+msgstr "Animuj mapę"
+
+msgctxt "user-interface-settings-view"
+msgid "Animate map movements."
+msgstr "Animuj ruchy na mapie."
 
 msgctxt "user-interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -1434,6 +1773,10 @@ msgstr "Treści dla dorosłych"
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Uwaga: wskutek włączenia tej opcji w celu uzyskania dostępu do Internetu zawsze wymagane będzie połączenie przez Mullvad VPN."
+
+msgctxt "vpn-settings-view"
+msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
+msgstr "Uwaga: tego ustawienia nie można używać w połączeniu z opcją <b>%(customDnsFeatureName)s</b>"
 
 msgctxt "vpn-settings-view"
 msgid "Auto-connect"
@@ -1521,6 +1864,10 @@ msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "Złośliwe oprogramowanie"
 
+msgctxt "vpn-settings-view"
+msgid "Server IP override"
+msgstr "Zastąpienie adresu IP serwera"
+
 #. Label for settings that enables block of social media.
 msgctxt "vpn-settings-view"
 msgid "Social media"
@@ -1558,8 +1905,8 @@ msgid "This feature allows access to other devices on the local network, such as
 msgstr "Funkcja ta umożliwia dostęp do innych urządzeń w sieci lokalnej, np. w celu udostępniania, drukowania, transmisji strumieniowej itd."
 
 msgctxt "vpn-settings-view"
-msgid "This might cause issues on certain websites, services, and programs."
-msgstr "Może to powodować problemy z niektórymi witrynami, usługami i programami."
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "Może to powodować problemy z niektórymi witrynami internetowymi, usługami i aplikacjami."
 
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
@@ -1679,9 +2026,18 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN."
 
-msgctxt "Message shown after successfully adding subscription time to an account, where \"%s\" represent the amount of time, like for example \"1 day\" or \"4 months\".Full examples: \"1 day was added to your account.\"\"4 months was added to your account.\""
+msgctxt "Message to indicate how much time was added to an account as part of an in-app purchase. Example: \"30 days was added to your account.\""
 msgid "%s was added to your account."
-msgstr "Do konta dodano %s."
+msgstr "Do Twojego konta dodano %s."
+
+msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
+msgstr "1. Po kliknięciu poniższego przycisku <b>Przejdź do ustawień VPN</b> kliknij koło zębate obok nazwy <b>Mullvad VPN</b>."
+
+msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
+msgstr "2. Aby włączyć automatyczne łączenie, kliknij przełącznik obok opcji <b>Zawsze włączony VPN</b>."
+
+msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>."
+msgstr "3. Aby włączyć tryb Lockdown, kliknij przełącznik opcji <b>Blokuj połączenia bez VPN</b>."
 
 msgid "30 days was added to your account."
 msgstr "Do konta dodano 30 dni."
@@ -1722,6 +2078,15 @@ msgstr "Opcja „Zawsze włączony VPN” może być włączona dla innej aplika
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
 msgstr "Uwaga: tego ustawienia nie można używać w połączeniu z opcją <b>Użyj niestandardowego serwera DNS</b>."
 
+msgid "Auto-connect & Lockdown mode"
+msgstr "Automatyczne łączenie i tryb Lockdown"
+
+msgid "Auto-connect & \\nLockdown mode"
+msgstr "Automatyczne łączenie \\ni tryb Lockdown"
+
+msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
+msgstr "Automatyczne łączenie w ustawieniach systemu Android nazywa się „Zawsze włączony VPN” i zapewnia stałe połączenie z tunelem VPN oraz automatyczne łączenie po ponownym uruchomieniu."
+
 msgid "Blocking internet (device offline)"
 msgstr "Blokowanie Internetu (urządzenie rozłączone)"
 
@@ -1733,6 +2098,9 @@ msgstr "Łączenie..."
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Skopiowano numer konta Mullvad do schowka"
+
+msgid "Copied logs to clipboard"
+msgstr "Skopiowano dzienniki do schowka"
 
 msgid "Copied to clipboard"
 msgstr "Skopiowano do schowka"
@@ -1755,12 +2123,11 @@ msgstr "Włącz"
 msgid "Enter MTU"
 msgstr "Wprowadź MTU"
 
-msgctxt "Placeholder in port number input field."
-msgid "Enter port"
-msgstr "Wprowadź port"
-
 msgid "Excluded applications"
 msgstr "Wykluczone aplikacje"
+
+msgid "Go to VPN settings"
+msgstr "Przejdź do ustawień VPN"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "Przejście do logowania odblokuje Internet na tym urządzeniu."
@@ -1777,6 +2144,9 @@ msgstr "Jeśli używana jest funkcja dzielonego tunelowania, aplikacja wysyła d
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Aby być na bieżąco, zainstaluj Mullvad VPN (%s)"
 
+msgid "Makes sure the device is always on the VPN tunnel."
+msgstr "Zapewnia, że urządzenie zawsze działa za pośrednictwem tunelu VPN."
+
 msgid "Manage account"
 msgstr "Zarządzaj kontem"
 
@@ -1785,6 +2155,9 @@ msgstr "Numer konta Mullvad"
 
 msgid "Mullvad services unavailable"
 msgstr "Usługi Mullvad są niedostępne"
+
+msgid "No internet connection"
+msgstr "Brak połączenia z Internetem"
 
 msgid "Preferences"
 msgstr "Preferencje"
@@ -1822,17 +2195,26 @@ msgstr "Pokazuje bieżący status tunelu VPN"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Pokazuje przypomnienia, gdy kończy się czas na koncie"
 
+msgid "Split tunneling is disabled."
+msgstr "Dzielone tunelowanie jest wyłączone."
+
 msgid "Submit"
 msgstr "Prześlij"
+
+msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
+msgstr "Ustawienia trybu automatycznego łączenia i trybu Lockdown można znaleźć w ustawieniach systemu Android. Aby włączyć jeden lub oba tryby, postępuj zgodnie z niniejszym poradnikiem."
+
+msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
+msgstr "Jeśli tunel VPN jest ręcznie odłączony, wówczas tryb Lockdown całkowicie blokuje dostęp do Internetu. <br/><b>Ostrzeżenie: to ustawienie blokuje aplikacje dzielące i udostępnianie sieci lokalnej</b>."
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "Lokalny serwer DNS nie będzie działał, dopóki nie włączysz opcji „Udostępnianie sieci lokalnej” w Preferencjach."
 
+msgid "There is no VPN settings on your device"
+msgstr "Na Twoim urządzeniu nie ma ustawień VPN"
+
 msgid "This address has already been entered."
 msgstr "Ten adres został już wprowadzony."
-
-msgid "This might cause issues on certain websites, services, and apps."
-msgstr "Może to powodować problemy z niektórymi witrynami internetowymi, usługami i aplikacjami."
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Aby upewnić się, że masz najbezpieczniejszą wersję i poinformować Cię o wszelkich problemach z aktualnie uruchomioną wersją, aplikacja automatycznie sprawdza wersję. Powoduje to wysłanie wersji aplikacji i wersji systemu Android na serwery Mullvad. Mullvad prowadzi liczniki używanych wersji aplikacji i wersji systemu Android. Dane te nigdy nie są przechowywane ani wykorzystywane w żaden sposób, który umożliwiłby zidentyfikowanie Ciebie jako osoby."
@@ -1867,7 +2249,7 @@ msgstr "Status tunelu VPN"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Brak prawidłowego klucza WireGuard. Zarządzaj kluczami w Ustawieniach zaawansowanych."
 
-msgctxt "Used to inform the user about a set of valid network port number ranges, for example: \"Valid ranges: 1-10, 100-200, 30000-31000\" "
+msgctxt "Help text to explain which numbers are valid to configure. The user should enter a single number/integer that either matches one of the listed numbers or is within one of the listed ranges. Example: \"Valid ranges: 53, 123, 4000-33433\""
 msgid "Valid ranges: %s"
 msgstr "Prawidłowe zakresy: %s"
 

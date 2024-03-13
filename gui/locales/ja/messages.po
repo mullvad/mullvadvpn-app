@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2023-12-04 12:55\n"
+"PO-Revision-Date: 2024-03-13 08:24\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)sが追加され、アカウントは%(expiry)sまでに支払われます。"
@@ -45,6 +45,9 @@ msgstr "アカウントは%(expiry)sまでに支払われます。"
 msgid "Account settings"
 msgstr "アカウント設定"
 
+msgid "Add"
+msgstr "追加"
+
 msgid "Any"
 msgstr "すべて"
 
@@ -75,6 +78,9 @@ msgstr "追加クレジットを購入"
 msgid "Cancel"
 msgstr "キャンセル"
 
+msgid "Cipher"
+msgstr "暗号化"
+
 msgid "Clear"
 msgstr "クリア"
 
@@ -102,6 +108,12 @@ msgstr "カスタム"
 
 msgid "Default"
 msgstr "デフォルト"
+
+msgid "Delete"
+msgstr "削除"
+
+msgid "Delete list"
+msgstr "リストを削除"
 
 msgid "Disable"
 msgstr "無効にする"
@@ -137,17 +149,26 @@ msgstr "システム設定に移動"
 msgid "Got it!"
 msgstr "了解"
 
+msgid "Import"
+msgstr "インポート"
+
 msgid "IPv4"
 msgstr "IPv4"
 
 msgid "IPv6"
 msgstr "IPv6"
 
+msgid "Learn more"
+msgstr "詳細"
+
 msgid "less than a day"
 msgstr "1 日未満"
 
 msgid "less than a day left"
 msgstr "残り1日未満"
+
+msgid "Name"
+msgstr "名前"
 
 msgid "Next"
 msgstr "次へ"
@@ -164,6 +185,15 @@ msgstr "オン"
 msgid "Open URL"
 msgstr "URLを開く"
 
+msgid "Optional"
+msgstr "オプション"
+
+msgid "Password"
+msgstr "パスワード"
+
+msgid "Port"
+msgstr "ポート"
+
 #. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "量子セキュア保護接続"
@@ -173,6 +203,9 @@ msgstr "終了"
 
 msgid "Reconnect"
 msgstr "再接続"
+
+msgid "Required"
+msgstr "必須"
 
 msgid "Save"
 msgstr "保存"
@@ -202,6 +235,9 @@ msgstr "トラブルシューティング"
 msgid "Try a different search."
 msgstr "別の検索をお試しください。"
 
+msgid "Type"
+msgstr "種類"
+
 msgid "UDP"
 msgstr "UDP"
 
@@ -210,6 +246,9 @@ msgstr "ブロックを解除"
 
 msgid "UNSECURED CONNECTION"
 msgstr "セキュリティ保護されていない接続"
+
+msgid "Username"
+msgstr "ユーザー名"
 
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
@@ -306,6 +345,174 @@ msgstr "時間切れ"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "次の日時まで支払い済み"
+
+msgctxt "api-access-methods-view"
+msgid "Add method"
+msgstr "方法の追加"
+
+msgctxt "api-access-methods-view"
+msgid "Adding a new API access method also tests it."
+msgstr "新しいAPIアクセス方法を追加してテストします。"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable"
+msgstr "API到達可能"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, adding method…"
+msgstr "API到達可能、方法を追加中…"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, saving method…"
+msgstr "API到達可能、方法を保存中…"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable"
+msgstr "API到達不能"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, add anyway?"
+msgstr "API到達不能。追加しますか？"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, save anyway?"
+msgstr "API到達不能。保存しますか？"
+
+msgctxt "api-access-methods-view"
+msgid "Authentication"
+msgstr "認証"
+
+msgctxt "api-access-methods-view"
+msgid "Clicking “Save” changes the in use method."
+msgstr "[保存] をクリックすると使用中の方法が変更されます。"
+
+msgctxt "api-access-methods-view"
+msgid "Delete %(name)s?"
+msgstr "%(name)sを削除しますか？"
+
+msgctxt "api-access-methods-view"
+msgid "Edit method"
+msgstr "方法の編集"
+
+msgctxt "api-access-methods-view"
+msgid "Editing an API access method also tests it."
+msgstr "APIアクセス方法を編集してテストします。"
+
+msgctxt "api-access-methods-view"
+msgid "Enter IP"
+msgstr "IPを入力"
+
+msgctxt "api-access-methods-view"
+msgid "Enter name"
+msgstr "名前を入力"
+
+msgctxt "api-access-methods-view"
+msgid "Enter port"
+msgstr "ポートを入力"
+
+msgctxt "api-access-methods-view"
+msgid "In use"
+msgstr "使用中"
+
+msgctxt "api-access-methods-view"
+msgid "Local SOCKS5 server"
+msgstr "ローカルSOCKS5サーバー"
+
+msgctxt "api-access-methods-view"
+msgid "Manage and add custom methods to access the Mullvad API."
+msgstr "Mullvad APIへのカスタムのアクセス方法を管理・追加します。"
+
+msgctxt "api-access-methods-view"
+msgid "On some networks, where various types of censorship are being used, the API servers might not be directly reachable."
+msgstr "各種の検閲が使用されている一部のネットワークでは、APIサーバーに直接アクセスできない場合があります。"
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid IPv4 or IPv6 address."
+msgstr "有効なIPv4またはIPv6アドレスを入力してください。"
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid localhost port."
+msgstr "有効な localhost のポートを入力してください。"
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid remote server port."
+msgstr "有効なリモートサーバーのポートを入力してください。"
+
+msgctxt "api-access-methods-view"
+msgid "Remote Server"
+msgstr "リモートサーバー"
+
+msgctxt "api-access-methods-view"
+msgid "Server"
+msgstr "サーバー"
+
+msgctxt "api-access-methods-view"
+msgid "Server details"
+msgstr "サーバーの詳細"
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 local"
+msgstr "SOCKS5ローカル"
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 remote"
+msgstr "SOCKS5リモート"
+
+msgctxt "api-access-methods-view"
+msgid "Testing method..."
+msgstr "方法をテスト中..."
+
+msgctxt "api-access-methods-view"
+msgid "Testing..."
+msgstr "テスト中..."
+
+msgctxt "api-access-methods-view"
+msgid "The API could not be reached using the %(name)s method."
+msgstr "%(name)sの方法ではAPIにアクセスできませんでした。"
+
+msgctxt "api-access-methods-view"
+msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
+msgstr "アプリにリモートサーバーの詳細が必要です。これはローカルSOCKS5サーバーがトラフィックを転送する宛先です。"
+
+msgctxt "api-access-methods-view"
+msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
+msgstr "アプリはユーザーのログイン、サーバーリストの取得、およびその他の重要な操作を行うためにMullvad APIサーバーと通信する必要があります。"
+
+msgctxt "api-access-methods-view"
+msgid "The in use API access method will change."
+msgstr "使用中のAPIアクセス方法が変更されます。"
+
+msgctxt "api-access-methods-view"
+msgid "The TCP port where your local SOCKS5 server is listening."
+msgstr "ローカルSOCKS5サーバーがリッスンしているTCPポートです。"
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
+msgstr "これは、APIが検閲されていてもMullvadのブリッジサーバーが検閲されていない場合に便利な場合があります。"
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful when you are not affected by censorship."
+msgstr "これは、検閲による影響を受けていない場合に便利な場合があります。"
+
+msgctxt "api-access-methods-view"
+msgid "This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods."
+msgstr "この機能では、プロキシなどの方法を経由してAPIにアクセスするためのカスタムの方法を追加することで検閲を回避できます。"
+
+msgctxt "api-access-methods-view"
+msgid "This is needed so our app can allow that traffic in the firewall."
+msgstr "これはファイアウォールでアプリがそのトラフィックを許可するために必要です。"
+
+msgctxt "api-access-methods-view"
+msgid "Transport protocol"
+msgstr "転送プロトコル"
+
+msgctxt "api-access-methods-view"
+msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
+msgstr "「ダイレクト」方法の場合、アプリは中間プロキシを使わずにMullvad APIサーバーと直接通信します。"
+
+msgctxt "api-access-methods-view"
+msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
+msgstr "「Mullvadブリッジ」方法の場合、アプリはMullvadブリッジサーバーを経由してMullvad APIサーバーと通信します。この通信では、Shadowsocksによって難読化されたトラフィックが送信されます。"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -639,8 +846,32 @@ msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad システムサービスに接続中..."
 
 msgctxt "launch-view"
+msgid "If these steps do not work please send a problem report."
+msgstr "これらの手順で解決できない場合は、問題の報告を送信してください。"
+
+msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "Mullvad VPNサービスの許可が無効化されました。システム設定に移動して、「バックグラウンドでの実行を許可」設定でMullvad VPNを許可してください。"
+
+msgctxt "launch-view"
+msgid "Reinstalling the app."
+msgstr "アプリを再インストールする。"
+
+msgctxt "launch-view"
+msgid "Restarting your computer."
+msgstr "コンピューターを再起動する。"
+
+msgctxt "launch-view"
+msgid "Send problem report"
+msgstr "問題の報告を送信"
+
+msgctxt "launch-view"
+msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
+msgstr "アプリのシステムサービスコンポーネントが起動していないか、通信不可能です。システムサービスはセキュリティ、キルスイッチ、およびVPNトンネルを管理しています。次の方法でトラブルシューティングしてください。"
+
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
+msgstr "Mullvadシステムサービスと通信できません。接続が安全でない可能性があります。トラブルシューティングするか、「詳細」ボタンをクリックして問題の報告を送信してください。"
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -744,6 +975,11 @@ msgstr "有効なアカウント番号"
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
+msgid "API access"
+msgstr "APIアクセス"
+
+#. Title label in navigation bar
+msgctxt "navigation-bar"
 msgid "Settings"
 msgstr "設定"
 
@@ -795,6 +1031,10 @@ msgstr "接続中"
 msgctxt "notifications"
 msgid "Connecting to %(location)s"
 msgstr "%(location)sに接続中"
+
+msgctxt "notifications"
+msgid "Connection might be unsecured. App lost contact with system service, please troubleshoot."
+msgstr "接続が安全でない可能性があります。アプリとシステムサービスとの通信が失われました。トラブルシューティングしてください。"
 
 msgctxt "notifications"
 msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
@@ -859,6 +1099,10 @@ msgstr "システムのDNSサーバーを設定できません。問題の報告
 msgctxt "notifications"
 msgid "Unable to start tunnel connection. Please send a problem report."
 msgstr "トンネル接続を開始できません。問題の報告を送信してください。"
+
+msgctxt "notifications"
+msgid "Unable to start tunnel connection. This could be because of conflicts with VMware, please troubleshoot."
+msgstr "トンネル接続を開始できません。VMwareとの競合が原因である可能性があります。トラブルシューティングしてください。"
 
 msgctxt "notifications"
 msgid "Update available. Install the latest app version to stay up to date"
@@ -1040,6 +1284,10 @@ msgid "Custom lists"
 msgstr "カスタムリスト"
 
 msgctxt "select-location-view"
+msgid "Do you want to delete the list <b>%(list)s</b>?"
+msgstr "リスト<b>%(list)s</b>を削除しますか？"
+
+msgctxt "select-location-view"
 msgid "Edit list name"
 msgstr "リスト名を編集します"
 
@@ -1067,7 +1315,7 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "プロバイダ数: %(numberOfProviders)d"
 
-msgctxt "select-location-viewThis refers to a VPN server which we also call relay since it relays internet traffic from the user onto the internet. It should probably say server here instead of relay. I'll look into if this should be changed until next relay but for now it will be \"Relay\"."
+msgctxt "select-location-view"
 msgid "Relay"
 msgstr "中継サーバー"
 
@@ -1083,6 +1331,82 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr "接続中のトラフィックは、セキュリティで保護された入口ポイントと出口ポイント (これらのポイントは2つの異なるVPNサーバーである必要があります) の2箇所を経由して転送されます。"
 
+msgctxt "settings-import"
+msgid "Clear all overrides"
+msgstr "すべてのオーバーライドをクリア"
+
+msgctxt "settings-import"
+msgid "Clear all overrides?"
+msgstr "すべてのオーバーライドをクリアしますか？"
+
+msgctxt "settings-import"
+msgid "Clearing the imported overrides changes the server IPs, in the Select location view, back to default."
+msgstr "インポートされたオーバーライドをクリアすると「場所を選択」ビューのサーバーIPがデフォルトに戻されます。"
+
+msgctxt "settings-import"
+msgid "If you are having issues connecting to VPN servers, please contact support."
+msgstr "VPNサーバーへの接続に問題が生じている場合は、サポートにお問い合わせください。"
+
+msgctxt "settings-import"
+msgid "Import file"
+msgstr "ファイルをインポート"
+
+msgctxt "settings-import"
+msgid "Import files or text with new IP addresses for the servers in the Select location view."
+msgstr "「場所を選択」ビューでサーバーの新しいIPアドレスを持つファイルまたはテキストをインポートします。"
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was successful, overrides are now active."
+msgstr "ファイル %(fileName)s を正常にインポートしました。現在、オーバーライドが有効です。"
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was unsuccessful, please try again."
+msgstr "ファイル %(fileName)s は正常にインポートされませんでした。もう一度お試しください。"
+
+msgctxt "settings-import"
+msgid "Import of text was successful, overrides are now active."
+msgstr "テキストを正常にインポートしました。現在、オーバーライドが有効です。"
+
+msgctxt "settings-import"
+msgid "Import of text was unsuccessful, please try again."
+msgstr "テキストは正常にインポートされませんでした。もう一度お試しください。"
+
+msgctxt "settings-import"
+msgid "IMPORT SUCCESSFUL"
+msgstr "インポートしました"
+
+#. Title label in navigation bar
+msgctxt "settings-import"
+msgid "Import via text"
+msgstr "テキストでインポート"
+
+msgctxt "settings-import"
+msgid "NO OVERRIDES IMPORTED"
+msgstr "オーバーライドはインポートされませんでした"
+
+msgctxt "settings-import"
+msgid "On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked."
+msgstr "各種の検閲が使用されている一部のネットワークでは、サーバーIPアドレスがブロックされる場合があります。"
+
+msgctxt "settings-import"
+msgid "OVERRIDES ACTIVE"
+msgstr "オーバーライドが有効です"
+
+#. Title label in navigation bar. This is for a feature that lets
+#. users import server IP settings.
+msgctxt "settings-import"
+msgid "Server IP override"
+msgstr "サーバーIPのオーバーライド"
+
+msgctxt "settings-import"
+msgid "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
+msgstr "これを回避するには、「場所を選択」ビューでサポートチームが提供したサーバーのデフォルトアドレスをオーバーライドする新しいIPアドレスを含むファイルまたはテキストをインポートできます。"
+
+#. Navigation button to the 'API access methods' view
+msgctxt "settings-view"
+msgid "API access"
+msgstr "APIアクセス"
+
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "アプリが同期していません。いったん終了して、再起動してください。"
@@ -1090,11 +1414,6 @@ msgstr "アプリが同期していません。いったん終了して、再起
 msgctxt "settings-view"
 msgid "App version"
 msgstr "アプリのバージョン"
-
-#. Navigation button to the 'Split tunneling' view
-msgctxt "settings-view"
-msgid "Split tunneling"
-msgstr "スプリットトンネリング"
 
 msgctxt "settings-view"
 msgid "Support"
@@ -1320,12 +1639,24 @@ msgid "Try restarting your device."
 msgstr "デバイスを再起動してください。"
 
 msgctxt "troubleshoot"
+msgid "Try to reinstall VMware."
+msgstr "VMwareの再インストールを試してください。"
+
+msgctxt "troubleshoot"
 msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
 msgstr "FaceTimeアプリの設定でWi-Fi通話をオフにしてからMacを再起動してください。"
 
 msgctxt "troubleshoot"
+msgid "Try to uninstall VMware."
+msgstr "VMwareのアンインストールを試してください。"
+
+msgctxt "troubleshoot"
 msgid "Unable to communicate with Mullvad kernel driver."
 msgstr "Mullvadカーネルドライバーと通信できません。"
+
+msgctxt "troubleshoot"
+msgid "Unable to start tunnel connection because of a failure when creating the tunnel device. This is often caused by conflicts with the VMware Bridge Protocol."
+msgstr "トンネルデバイスを作成する際にエラーが発生したため、トンネル接続を開始できません。これは多くの場合、VMwareブリッジプロトコルとの競合が原因です。"
 
 msgctxt "troubleshoot"
 msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
@@ -1342,6 +1673,14 @@ msgstr "接続を保護する"
 msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "場所を切り替える"
+
+msgctxt "user-interface-settings-view"
+msgid "Animate map"
+msgstr "地図のアニメーション表示"
+
+msgctxt "user-interface-settings-view"
+msgid "Animate map movements."
+msgstr "地図の動きをアニメーション表示します。"
 
 msgctxt "user-interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -1416,6 +1755,10 @@ msgstr "アダルトコンテンツ"
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "注意: この設定を有効にすると、インターネットにアクセスするために常にMullvad VPNへの接続が必要になります。"
+
+msgctxt "vpn-settings-view"
+msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
+msgstr "注意: この設定を「<b>%(customDnsFeatureName)s</b>」と一緒に使用することはできません"
 
 msgctxt "vpn-settings-view"
 msgid "Auto-connect"
@@ -1503,6 +1846,10 @@ msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "マルウェア"
 
+msgctxt "vpn-settings-view"
+msgid "Server IP override"
+msgstr "サーバーIPのオーバーライド"
+
 #. Label for settings that enables block of social media.
 msgctxt "vpn-settings-view"
 msgid "Social media"
@@ -1540,8 +1887,8 @@ msgid "This feature allows access to other devices on the local network, such as
 msgstr "この機能は、共有、印刷、ストリーミングなどのため、ローカルネットワーク上の他デバイスへのアクセスを許可します。"
 
 msgctxt "vpn-settings-view"
-msgid "This might cause issues on certain websites, services, and programs."
-msgstr "これにより、特定のWebサイト、サービス、プログラムで問題が発生する可能性があります。"
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "これにより、特定のWebサイト、サービス、アプリで問題が発生する可能性があります。"
 
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
@@ -1661,9 +2008,18 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。"
 
-msgctxt "Message shown after successfully adding subscription time to an account, where \"%s\" represent the amount of time, like for example \"1 day\" or \"4 months\".Full examples: \"1 day was added to your account.\"\"4 months was added to your account.\""
+msgctxt "Message to indicate how much time was added to an account as part of an in-app purchase. Example: \"30 days was added to your account.\""
 msgid "%s was added to your account."
-msgstr "アカウントに%s分が追加されました。"
+msgstr "%sがアカウントに追加されました。"
+
+msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
+msgstr "1. 下の [<b>VPN設定に移動</b>] ボタンをクリックし、<b>Mullvad VPN</b>名の横にある歯車をクリックします。"
+
+msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
+msgstr "2. 自動接続を有効にするには、[<b>Always-on VPN</b>] の横のトグルボタンをクリックします。"
+
+msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>."
+msgstr "3. ロックダウンモードを有効にするには、[<b>VPNを使用していない接続をブロック</b>] の横のトグルボタンをクリックします。"
 
 msgid "30 days was added to your account."
 msgstr "アカウントに30日分が追加されました。"
@@ -1704,6 +2060,15 @@ msgstr "Always-on VPNが別のアプリで有効になっている可能性が�
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
 msgstr "注意: この設定を「<b>カスタムDNSサーバーを使う</b>」と一緒に使用することはできません。"
 
+msgid "Auto-connect & Lockdown mode"
+msgstr "自動接続とロックダウンモード"
+
+msgid "Auto-connect & \\nLockdown mode"
+msgstr "自動接続と\\nロックダウンモード"
+
+msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
+msgstr "自動接続はAndroidシステム設定で「Always-on VPN」と呼ばれており、確実に一貫してVPNトンネルに接続し、再起動の後に自動接続を行う機能です。"
+
 msgid "Blocking internet (device offline)"
 msgstr "インターネットをブロック中 (デバイスがオフライン)"
 
@@ -1715,6 +2080,9 @@ msgstr "接続中..."
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvadアカウント番号をクリップボードにコピーしました"
+
+msgid "Copied logs to clipboard"
+msgstr "ログをクリップボードにコピーしました"
 
 msgid "Copied to clipboard"
 msgstr "クリップボードにコピーしました"
@@ -1737,12 +2105,11 @@ msgstr "有効にする"
 msgid "Enter MTU"
 msgstr "MTU を入力"
 
-msgctxt "Placeholder in port number input field."
-msgid "Enter port"
-msgstr "ポートを入力してください"
-
 msgid "Excluded applications"
 msgstr "除外対象アプリケーション"
+
+msgid "Go to VPN settings"
+msgstr "VPN設定に移動"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "ログインに進むと、このデバイスのインターネットのブロックが解除されます。"
@@ -1759,6 +2126,9 @@ msgstr "スプリットトンネリング機能が使用されている場合、
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Mullvad VPN (%s) をインストールして常に最新の状態を保ちましょう"
 
+msgid "Makes sure the device is always on the VPN tunnel."
+msgstr "デバイスが必ずVPNトンネルを使用するようにします。"
+
 msgid "Manage account"
 msgstr "アカウントを管理する"
 
@@ -1767,6 +2137,9 @@ msgstr "Mullvadアカウント番号"
 
 msgid "Mullvad services unavailable"
 msgstr "Mullvadサービスを使用できません"
+
+msgid "No internet connection"
+msgstr "インターネット接続がありません"
 
 msgid "Preferences"
 msgstr "環境設定"
@@ -1804,17 +2177,26 @@ msgstr "現在のVPNトンネルのステータスを表示します"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "アカウントの期限切れが迫っているときにリマインダーを表示します"
 
+msgid "Split tunneling is disabled."
+msgstr "スプリットトンネリングは無効です。"
+
 msgid "Submit"
 msgstr "送信"
+
+msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
+msgstr "自動接続とロックダウンモードの設定はAndroidシステム設定にあります。どちらか、または両方をこのガイドに従って有効にしてください。"
+
+msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
+msgstr "ロックダウンモードはVPNトンネルが手動で切断された場合にすべてのインターネットアクセスをブロックします。<br/><b>警告: この設定は分割アプリとローカルネットワーク共有機能をブロックします。</b>"
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "環境設定で \"ローカルネットワーク共有\" を有効にしない限り、ローカルDNSサーバーは機能しません。"
 
+msgid "There is no VPN settings on your device"
+msgstr "デバイスにVPN設定がありません"
+
 msgid "This address has already been entered."
 msgstr "このアドレスは入力済みです。"
-
-msgid "This might cause issues on certain websites, services, and apps."
-msgstr "これにより、特定のWebサイト、サービス、アプリで問題が発生する可能性があります。"
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "このアプリは最も安全なバージョンを使用していることを確認し、実行中の現在のバージョンに関する問題を通知できるよう、バージョンチェックを自動的に実行します。このチェックによってアプリのバージョンとAndroidシステムのバージョンがMullvadサーバーに送信されます。Mullvadは使用されているアプリのバージョンとAndroidのバージョンの数字を記憶しています。このデータがユーザーを特定できる方法で保存されたり、使用されたりすることはありません。"
@@ -1849,7 +2231,7 @@ msgstr "VPNトンネルのステータス"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。"
 
-msgctxt "Used to inform the user about a set of valid network port number ranges, for example: \"Valid ranges: 1-10, 100-200, 30000-31000\" "
+msgctxt "Help text to explain which numbers are valid to configure. The user should enter a single number/integer that either matches one of the listed numbers or is within one of the listed ranges. Example: \"Valid ranges: 53, 123, 4000-33433\""
 msgid "Valid ranges: %s"
 msgstr "有効な範囲: %s"
 
