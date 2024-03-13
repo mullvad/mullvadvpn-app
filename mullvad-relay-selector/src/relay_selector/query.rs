@@ -10,7 +10,38 @@ use mullvad_types::{
 };
 use talpid_types::net::{proxy::CustomProxy, IpVersion, TunnelType};
 
-/// TODO(markus): Document
+/// Represents a query for a relay based on various constraints.
+///
+/// This struct contains constraints for the location, providers, ownership,
+/// tunnel protocol, and additional protocol-specific constraints for WireGuard
+/// and OpenVPN. These constraints are used by the [`relay_selector`] to filter
+/// and select suitable relay servers that match the specified criteria.
+///
+/// A [`RelayQuery`] is best constructed via the fluent builder API exposed by
+/// [`builder::RelayQueryBuilder`].
+///
+/// # Examples
+///
+/// Basic usage:
+///
+/// ```rust
+/// // Create a query for a Wireguard relay that is owned by Mullvad and located in Norway.
+/// // The endpoint should specify port 443.
+/// use mullvad_relay_selector::query::RelayQuery;
+/// use mullvad_relay_selector::query::builder::RelayQueryBuilder;
+/// use mullvad_relay_selector::query::builder::{Ownership, GeographicLocationConstraint};
+///
+/// let query: RelayQuery = RelayQueryBuilder::new()
+///     .wireguard()                                            // Specify the tunnel protocol
+///     .location(GeographicLocationConstraint::country("no"))  // Specify the country as Norway
+///     .ownership(Ownership::MullvadOwned)                     // Specify that the relay must be owned by Mullvad
+///     .port(443)                                              // Specify the port to use when connecting to the relay
+///     .build();                                               // Construct the query
+/// ```
+///
+/// This example demonstrates creating a `RelayQuery` which can then be passed
+/// to the [`crate::relay_selector`] to find a relay that matches the criteria.
+/// See [`builder`] for more info on how to build queries and.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct RelayQuery {
     pub location: Constraint<LocationConstraint>,
@@ -310,8 +341,8 @@ pub mod builder {
     use mullvad_types::{
         constraints::Constraint,
         relay_constraints::{
-            BridgeConstraints, LocationConstraint, Ownership, Providers, RelayConstraints,
-            SelectedObfuscation, TransportPort, Udp2TcpObfuscationSettings,
+            BridgeConstraints, LocationConstraint, RelayConstraints, SelectedObfuscation,
+            TransportPort, Udp2TcpObfuscationSettings,
         },
     };
     use talpid_types::net::TunnelType;
@@ -319,7 +350,9 @@ pub mod builder {
     use super::{BridgeQuery, RelayQuery};
 
     // Re-exports
-    pub use mullvad_types::relay_constraints::GeographicLocationConstraint;
+    pub use mullvad_types::relay_constraints::{
+        GeographicLocationConstraint, Ownership, Providers,
+    };
     pub use talpid_types::net::{IpVersion, TransportProtocol};
 
     /// Internal builder state for a [`RelayQuery`] parameterized over the
