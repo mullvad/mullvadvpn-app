@@ -15,6 +15,7 @@
     <string name="added_to_your_account">%1$s ble lagt til kontoen din.</string>
     <string name="agree_and_continue">Godta og fortsett</string>
     <string name="all_applications">Alle applikasjoner</string>
+    <string name="all_locations">Alle steder</string>
     <string name="all_providers">Alle leverandører</string>
     <string name="allow_lan_footer">Gir tilgang til andre enheter på samme nettverk for deling, utskrift osv.</string>
     <string name="always_on_vpn_error_notification_content">Kunne ikke starte tunneltilkobling. Deaktiver VPN som alltid er på, for &lt;b&gt;%1$s&lt;/b&gt; før du bruker Mullvad VPN.</string>
@@ -68,12 +69,16 @@
     <string name="custom_dns_disable_mode_subtitle">Deaktiver alle &lt;b&gt;%1$s&lt;/b&gt; ovenfor for å aktivere denne innstillingen.</string>
     <string name="custom_dns_footer">Aktiver for å legge til minst én DNS-server.</string>
     <string name="custom_dns_hint">Skriv inn IP</string>
+    <string name="custom_list_error_list_exists">Navn allerede i bruk.</string>
+    <string name="custom_lists">Tilpassede lister</string>
     <string name="custom_port_dialog_placeholder">Skriv inn port</string>
     <string name="custom_port_dialog_remove">Fjern tilpasset port</string>
     <string name="custom_port_dialog_submit">Konfigurer port</string>
     <string name="custom_port_dialog_title">Tilpasset WireGuard-port</string>
     <string name="custom_port_dialog_valid_ranges">Gyldige verdiområder: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vert for egendefinert tunnel. Forsøk å endre innstillingene dine.</string>
+    <string name="delete">Slett</string>
+    <string name="delete_list">Slett liste</string>
     <string name="device_inactive_description">Du har fjernet denne enheten. For å koble til igjen, må du logge inn på nytt.</string>
     <string name="device_inactive_title">Enheten er inaktiv</string>
     <string name="device_inactive_unblock_warning">Å gå til pålogging vil oppheve blokkeringen av internettet på denne enheten.</string>
@@ -194,6 +199,7 @@
     <string name="rented_only">Kun leid</string>
     <string name="report_a_problem">Rapporter et problem</string>
     <string name="reset_to_default_button">Tilbakestill til standard</string>
+    <string name="save">Lagre</string>
     <string name="search_placeholder">Søk etter ...</string>
     <string name="secure_connection">SIKKER TILKOBLING</string>
     <string name="secured">Sikret</string>
