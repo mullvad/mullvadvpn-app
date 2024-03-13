@@ -37,14 +37,21 @@ import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
+import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
+import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
+import net.mullvad.mullvadvpn.viewmodel.CustomListsViewModel
+import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewModel
+import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogViewModel
+import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import net.mullvad.mullvadvpn.viewmodel.FilterViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
@@ -100,7 +107,7 @@ val uiModule = module {
     }
     single { SettingsRepository(get()) }
     single { MullvadProblemReport(get()) }
-    single { CustomListsRepository(get()) }
+    single { CustomListsRepository(get(), get(), get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }
@@ -111,6 +118,7 @@ val uiModule = module {
     single { OutOfTimeUseCase(get(), get(), MainScope()) }
     single { ConnectivityUseCase(get()) }
     single { SystemVpnSettingsUseCase(androidContext()) }
+    single { CustomListActionUseCase(get(), get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
 
@@ -150,6 +158,7 @@ val uiModule = module {
     viewModel { LoginViewModel(get(), get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel { SelectLocationViewModel(get(), get(), get()) }
+    viewModel { SelectLocationViewModel(get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
@@ -160,6 +169,16 @@ val uiModule = module {
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get()) }
+    viewModel { parameters -> CreateCustomListDialogViewModel(parameters.get(), get()) }
+    viewModel { parameters ->
+        CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get())
+    }
+    viewModel { parameters -> EditCustomListViewModel(parameters.get(), get()) }
+    viewModel { parameters ->
+        EditCustomListNameDialogViewModel(parameters.get(), parameters.get(), get())
+    }
+    viewModel { CustomListsViewModel(get(), get()) }
+    viewModel { parameters -> DeleteCustomListConfirmationViewModel(parameters.get(), get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { NoDaemonViewModel(get()) }

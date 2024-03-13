@@ -16,7 +16,6 @@ sealed interface RelayItem {
 
     data class CustomList(
         override val name: String,
-        override val code: String,
         override val expanded: Boolean,
         val id: String,
         val locations: List<RelayItem>,
@@ -26,6 +25,8 @@ sealed interface RelayItem {
 
         override val hasChildren
             get() = locations.isNotEmpty()
+
+        override val code = id
     }
 
     data class Country(
@@ -35,6 +36,7 @@ sealed interface RelayItem {
         val cities: List<City>
     ) : RelayItem {
         val location = GeographicLocationConstraint.Country(code)
+        val relays = cities.flatMap { city -> city.relays }
         override val active
             get() = cities.any { city -> city.active }
 
