@@ -72,8 +72,7 @@ macro_rules! win32_err {
 pub mod flood {
     #[doc(hidden)]
     pub use log;
-    #[doc(hidden)]
-    pub use once_cell;
+
     use std::time::{Duration, Instant};
 
     const CALLS_INTERVAL: Duration = Duration::from_secs(5);
