@@ -2,11 +2,14 @@ package net.mullvad.mullvadvpn.compose.util
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 @Composable
 inline fun <T> LaunchedEffectCollect(
@@ -32,5 +35,14 @@ inline fun <T> CollectSideEffectWithLifecycle(
         sideEffect.flowWithLifecycle(lifecycleOwner.lifecycle, minActiveState).collect {
             collector(it)
         }
+    }
+}
+
+@Composable
+fun RunOnKeyChange(key: Any, block: suspend CoroutineScope.() -> Unit) {
+    val scope = rememberCoroutineScope()
+    rememberSaveable(key) {
+        scope.launch { block() }
+        key
     }
 }

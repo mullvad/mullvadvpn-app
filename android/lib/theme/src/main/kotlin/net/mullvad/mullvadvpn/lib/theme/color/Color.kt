@@ -21,6 +21,7 @@ const val AlphaDescription = 0.6f
 const val AlphaDisconnectButton = 0.6f
 const val AlphaChevron = 0.6f
 const val AlphaScrollbar = 0.6f
+const val Alpha60 = 0.6f
 const val AlphaTopBar = 0.8f
 const val AlphaInvisible = 0f
 

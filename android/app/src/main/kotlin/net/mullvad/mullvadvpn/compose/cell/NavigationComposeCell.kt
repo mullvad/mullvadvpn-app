@@ -70,7 +70,7 @@ fun NavigationComposeCell(
 ) {
     BaseCell(
         onCellClicked = onClick,
-        title = {
+        headlineContent = {
             NavigationTitleView(
                 title = title,
                 modifier = modifier.weight(1f, true),
