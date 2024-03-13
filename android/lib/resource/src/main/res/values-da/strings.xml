@@ -48,6 +48,7 @@
     <string name="connecting">Tilslutter</string>
     <string name="connecting_to_daemon">Opretter forbindelse til Mullvad-systemtjeneste...</string>
     <string name="continue_login">Fortsæt med login</string>
+    <string name="copied_logs_to_clipboard">Kopierede logfiler til udklipsholder</string>
     <string name="copied_mullvad_account_number">Kopierede Mullvad-kontonummer til udklipsholder</string>
     <string name="copied_to_clipboard">Kopieret til udklipsholder</string>
     <string name="copy_account_number">Kopiér kontonummer</string>
@@ -139,6 +140,7 @@
     <string name="mullvad_owned_only">Kun ejet af Mullvad</string>
     <string name="new_device_notification_message">Velkommen! Denne enhed hedder nu &lt;b&gt;%1$s&lt;/b&gt;. Se info-knappen i Konto for at flere oplysninger.</string>
     <string name="new_device_notification_title">NY ENHED OPRETTET</string>
+    <string name="no_internet_connection">Ingen internetforbindelse</string>
     <string name="no_matching_relay">Ingen servere matcher dine indstillinger. Prøv at ændre server eller andre indstillinger.</string>
     <string name="no_wireguard_key">Gyldig WireGuard-nøgle mangler. Administrer nøgler under Avancerede indstillinger.</string>
     <string name="not_blocking_internet">DU LÆKKER MÅSKE NETVÆRKSTRAFIK</string>

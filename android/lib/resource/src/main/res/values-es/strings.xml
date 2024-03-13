@@ -48,6 +48,7 @@
     <string name="connecting">Conectando</string>
     <string name="connecting_to_daemon">Conectando al servicio del sistema Mullvad…</string>
     <string name="continue_login">Iniciar sesión</string>
+    <string name="copied_logs_to_clipboard">Registros copiados en el portapapeles</string>
     <string name="copied_mullvad_account_number">El número de cuenta de Mullvad se copió en el Portapapeles</string>
     <string name="copied_to_clipboard">Copiado en el Portapapeles</string>
     <string name="copy_account_number">Copiar número de cuenta</string>
@@ -58,7 +59,7 @@
     <string name="critical_error">Error crítico (precisa su atención)</string>
     <string name="custom_dns_disable_mode_subtitle">Deshabilite todos los &lt;b&gt;%1$s&lt;/b&gt; de arriba para activar este ajuste.</string>
     <string name="custom_dns_footer">Active esta opción para agregar como mínimo un servidor DNS.</string>
-    <string name="custom_dns_hint">Escriba la IP</string>
+    <string name="custom_dns_hint">Introducir IP</string>
     <string name="custom_port_dialog_placeholder">Introducir puerto</string>
     <string name="custom_port_dialog_remove">Quitar puerto personalizado</string>
     <string name="custom_port_dialog_submit">Establecer puerto</string>
@@ -139,6 +140,7 @@
     <string name="mullvad_owned_only">Solo propiedad de Mullvad</string>
     <string name="new_device_notification_message">Hola, este dispositivo se llama ahora &lt;b&gt;%1$s&lt;/b&gt;. Para más información, consulte el botón de información en la Cuenta.</string>
     <string name="new_device_notification_title">NUEVO DISPOSITIVO CREADO</string>
+    <string name="no_internet_connection">No hay conexión a Internet</string>
     <string name="no_matching_relay">Ningún servidor coincide con su configuración, pruebe con otro servidor u otra configuración.</string>
     <string name="no_wireguard_key">Falta una clave de WireGuard válida. Para administrar las claves, vaya a Configuración avanzada.</string>
     <string name="not_blocking_internet">PUEDE QUE SE ESTÉ FILTRANDO EL TRÁFICO DE RED</string>

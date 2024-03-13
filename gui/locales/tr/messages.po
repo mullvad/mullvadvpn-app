@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2023-12-04 12:55\n"
+"PO-Revision-Date: 2024-03-13 08:24\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s eklendi, hesap için %(expiry)s tarihine kadar ödeme yapıldı."
@@ -51,6 +51,9 @@ msgstr "Hesap için %(expiry)s tarihine kadar ödeme yapıldı."
 msgid "Account settings"
 msgstr "Hesap ayarları"
 
+msgid "Add"
+msgstr "Ekle"
+
 msgid "Any"
 msgstr "Tümü"
 
@@ -81,6 +84,9 @@ msgstr "Daha fazla kredi satın alın"
 msgid "Cancel"
 msgstr "İptal et"
 
+msgid "Cipher"
+msgstr "Şifre"
+
 msgid "Clear"
 msgstr "Temizle"
 
@@ -108,6 +114,12 @@ msgstr "Özel"
 
 msgid "Default"
 msgstr "Varsayılan"
+
+msgid "Delete"
+msgstr "Sil"
+
+msgid "Delete list"
+msgstr "Listeyi sil"
 
 msgid "Disable"
 msgstr "Devre dışı bırak"
@@ -143,17 +155,26 @@ msgstr "Sistem Ayarlarına Git"
 msgid "Got it!"
 msgstr "Anladım!"
 
+msgid "Import"
+msgstr "İçe aktar"
+
 msgid "IPv4"
 msgstr "IPv4"
 
 msgid "IPv6"
 msgstr "IPv6"
 
+msgid "Learn more"
+msgstr "Daha fazla bilgi"
+
 msgid "less than a day"
 msgstr "bir günden az"
 
 msgid "less than a day left"
 msgstr "bir günden az kaldı"
+
+msgid "Name"
+msgstr "Ad"
 
 msgid "Next"
 msgstr "Sonraki"
@@ -170,6 +191,15 @@ msgstr "Açık"
 msgid "Open URL"
 msgstr "URL'yi aç"
 
+msgid "Optional"
+msgstr "İsteğe bağlı"
+
+msgid "Password"
+msgstr "Parola"
+
+msgid "Port"
+msgstr "Port"
+
 #. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "KUANTUM GÜVENLİ BAĞLANTISI"
@@ -179,6 +209,9 @@ msgstr "Çık"
 
 msgid "Reconnect"
 msgstr "Yeniden Bağlan"
+
+msgid "Required"
+msgstr "Gerekli"
 
 msgid "Save"
 msgstr "Kaydet"
@@ -208,6 +241,9 @@ msgstr "Sorun Giderme"
 msgid "Try a different search."
 msgstr "Farklı bir arama deneyin."
 
+msgid "Type"
+msgstr "Tür"
+
 msgid "UDP"
 msgstr "UDP"
 
@@ -216,6 +252,9 @@ msgstr "Engeli kaldır"
 
 msgid "UNSECURED CONNECTION"
 msgstr "GÜVENLİ OLMAYAN BAĞLANTI"
+
+msgid "Username"
+msgstr "Kullanıcı adı"
 
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
@@ -312,6 +351,174 @@ msgstr "SÜRE DOLDU"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "Şu tarihe kadar ödendi:"
+
+msgctxt "api-access-methods-view"
+msgid "Add method"
+msgstr "Yöntem ekle"
+
+msgctxt "api-access-methods-view"
+msgid "Adding a new API access method also tests it."
+msgstr "Yeni bir API erişim yöntemi eklemek de test edilmesini sağlar."
+
+msgctxt "api-access-methods-view"
+msgid "API reachable"
+msgstr "Erişilebilir API"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, adding method…"
+msgstr "Erişilebilir API, yöntem ekleniyor…"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, saving method…"
+msgstr "Erişilebilir API, yöntem kaydediliyor…"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable"
+msgstr "Erişilemez API"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, add anyway?"
+msgstr "Erişilemez API yine de eklensin mi?"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, save anyway?"
+msgstr "Erişilemez API yine de kaydedilsin mi?"
+
+msgctxt "api-access-methods-view"
+msgid "Authentication"
+msgstr "Yetkilendirme"
+
+msgctxt "api-access-methods-view"
+msgid "Clicking “Save” changes the in use method."
+msgstr "\"Kaydet\" düğmesine tıklamak kullanımdaki yöntemi değiştirir."
+
+msgctxt "api-access-methods-view"
+msgid "Delete %(name)s?"
+msgstr "%(name)s silinsin mi?"
+
+msgctxt "api-access-methods-view"
+msgid "Edit method"
+msgstr "Yöntemi düzenle"
+
+msgctxt "api-access-methods-view"
+msgid "Editing an API access method also tests it."
+msgstr "API erişim yöntemini düzenlemek de test edilmesini sağlar."
+
+msgctxt "api-access-methods-view"
+msgid "Enter IP"
+msgstr "IP'yi girin"
+
+msgctxt "api-access-methods-view"
+msgid "Enter name"
+msgstr "Adı girin"
+
+msgctxt "api-access-methods-view"
+msgid "Enter port"
+msgstr "Portu girin"
+
+msgctxt "api-access-methods-view"
+msgid "In use"
+msgstr "Kullanımda"
+
+msgctxt "api-access-methods-view"
+msgid "Local SOCKS5 server"
+msgstr "Yerel SOCKS5 sunucusu"
+
+msgctxt "api-access-methods-view"
+msgid "Manage and add custom methods to access the Mullvad API."
+msgstr "Mullvad API'sine erişim için özel yöntemler ekleyip yönetin."
+
+msgctxt "api-access-methods-view"
+msgid "On some networks, where various types of censorship are being used, the API servers might not be directly reachable."
+msgstr "Çeşitli sansür türlerinin kullanıldığı bazı ağlarda API sunucularına doğrudan erişilemeyebilir."
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid IPv4 or IPv6 address."
+msgstr "Lütfen geçerli bir IPv4 veya IPv6 adresi girin."
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid localhost port."
+msgstr "Lütfen geçerli bir localhost portu girin."
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid remote server port."
+msgstr "Lütfen geçerli bir uzak sunucu portu girin."
+
+msgctxt "api-access-methods-view"
+msgid "Remote Server"
+msgstr "Uzak Sunucu"
+
+msgctxt "api-access-methods-view"
+msgid "Server"
+msgstr "Sunucu"
+
+msgctxt "api-access-methods-view"
+msgid "Server details"
+msgstr "Sunucu ayrıntıları"
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 local"
+msgstr "Yerel SOCKS5"
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 remote"
+msgstr "Uzaktan SOCKS5"
+
+msgctxt "api-access-methods-view"
+msgid "Testing method..."
+msgstr "Yöntem test ediliyor..."
+
+msgctxt "api-access-methods-view"
+msgid "Testing..."
+msgstr "Test ediliyor..."
+
+msgctxt "api-access-methods-view"
+msgid "The API could not be reached using the %(name)s method."
+msgstr "%(name)s yöntemiyle API'ye erişilemedi."
+
+msgctxt "api-access-methods-view"
+msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
+msgstr "Uygulama için yerel SOCKS5 sunucunuzun trafiğinizi yönlendireceği uzak sunucu ayrıntıları gerekir."
+
+msgctxt "api-access-methods-view"
+msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
+msgstr "Uygulamanın oturumunuzu açmak, sunucu listelerini almak ve diğer kritik işlemleri yapmak için bir Mullvad API sunucusuyla iletişim kurması gerekir."
+
+msgctxt "api-access-methods-view"
+msgid "The in use API access method will change."
+msgstr "Kullanımdaki API erişim yöntemi değişecek."
+
+msgctxt "api-access-methods-view"
+msgid "The TCP port where your local SOCKS5 server is listening."
+msgstr "Yerel SOCKS5 sunucunuz TCP portu noktasını dinliyor."
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
+msgstr "Bu, API'nin sansürlendiği ancak Mullvad'ın köprü sunucularının sansürlenmediği durumlarda kullanışlı olabilir."
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful when you are not affected by censorship."
+msgstr "Bu özellik sansürden etkilenmediğiniz durumlarda kullanışlı olabilir."
+
+msgctxt "api-access-methods-view"
+msgid "This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods."
+msgstr "Bu özellik, proxy'ler ve benzer yöntemler aracılığıyla API'ye erişmenin özel yollarını ekleyerek bu sansürü aşmanıza imkan tanır."
+
+msgctxt "api-access-methods-view"
+msgid "This is needed so our app can allow that traffic in the firewall."
+msgstr "Uygulamamızın güvenlik duvarındaki trafiğe izin verebilmesi için bu ayrıntılar gereklidir."
+
+msgctxt "api-access-methods-view"
+msgid "Transport protocol"
+msgstr "Taşıma protokolü"
+
+msgctxt "api-access-methods-view"
+msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
+msgstr "“Direkt” yöntemiyle uygulama herhangi bir ara proxy olmadan Mullvad API sunucusuyla doğrudan iletişim kurar."
+
+msgctxt "api-access-methods-view"
+msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
+msgstr "Uygulama, \"Mullvad köprüleri\" yöntemiyle Mullvad köprü sunucusu üzerinden Mullvad API sunucusuyla Shadowsocks tarafından gizlenen trafiği göndererek iletişim kurar."
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -638,15 +845,39 @@ msgstr "GÜNCELLEME MEVCUT"
 
 msgctxt "in-app-notifications"
 msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
-msgstr "Hoş geldiniz, bu cihaz artık <b>%(deviceName)s</b> olarak adlandırılıyor. Daha fazla ayrıntı için Hesaptaki bilgi düğmesine bakın."
+msgstr "Hoş geldiniz, bu cihazın adı artık <b>%(deviceName)s</b>. Daha fazla ayrıntı için Hesap içinden bilgi düğmesine bakın."
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad sistem hizmetlerine bağlanılıyor..."
 
 msgctxt "launch-view"
+msgid "If these steps do not work please send a problem report."
+msgstr "Bu adımlar işe yaramazsa lütfen bir hata raporu gönderin."
+
+msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "Mullvad VPN hizmetinin izni iptal edildi. Lütfen Sistem Ayarları'na giderek \"Arka Planda İzin Ver\" seçeneğinden Mullvad VPN'e izin verin."
+
+msgctxt "launch-view"
+msgid "Reinstalling the app."
+msgstr "Uygulamayı yeniden yükleme."
+
+msgctxt "launch-view"
+msgid "Restarting your computer."
+msgstr "Bilgisayarınızı yeniden başlatma."
+
+msgctxt "launch-view"
+msgid "Send problem report"
+msgstr "Hata raporu gönder"
+
+msgctxt "launch-view"
+msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
+msgstr "Uygulamanın sistem hizmeti bileşeni başlatılmadı veya bağlantı kurulamıyor. Sistem hizmeti güvenlikten, kill switch'ten ve VPN tünelinden sorumludur. Sorunu gidermek için lütfen şu işlemleri deneyin:"
+
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
+msgstr "Mullvad sistem hizmetiyle bağlantı kurulamıyor, bağlantınız güvenli olmayabilir. Lütfen \"Daha fazla bilgi\" düğmesine tıklayarak sorunu gidermeyi deneyin veya bir hata raporu gönderin."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -750,6 +981,11 @@ msgstr "Geçerli hesap numarası"
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
+msgid "API access"
+msgstr "API erişimi"
+
+#. Title label in navigation bar
+msgctxt "navigation-bar"
 msgid "Settings"
 msgstr "Ayarlar"
 
@@ -801,6 +1037,10 @@ msgstr "Bağlanılıyor"
 msgctxt "notifications"
 msgid "Connecting to %(location)s"
 msgstr "%(location)s konumuna bağlanılıyor"
+
+msgctxt "notifications"
+msgid "Connection might be unsecured. App lost contact with system service, please troubleshoot."
+msgstr "Bağlantı güvenli olmayabilir. Uygulamanın sistem hizmetiyle bağlantısı kesildi. Lütfen sorunu gidermeyi deneyin."
 
 msgctxt "notifications"
 msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
@@ -865,6 +1105,10 @@ msgstr "Sistem DNS sunucusu ayarlanamıyor. Lütfen bir hata raporu gönderin."
 msgctxt "notifications"
 msgid "Unable to start tunnel connection. Please send a problem report."
 msgstr "Tünel bağlantısı başlatılamıyor. Lütfen bir hata raporu gönderin."
+
+msgctxt "notifications"
+msgid "Unable to start tunnel connection. This could be because of conflicts with VMware, please troubleshoot."
+msgstr "Tünel bağlantısı başlatılamıyor. Bunun nedeni VMware ile çakışma olabilir. Lütfen sorunu gidermeyi deneyin."
 
 msgctxt "notifications"
 msgid "Update available. Install the latest app version to stay up to date"
@@ -1046,6 +1290,10 @@ msgid "Custom lists"
 msgstr "Özel listeler"
 
 msgctxt "select-location-view"
+msgid "Do you want to delete the list <b>%(list)s</b>?"
+msgstr "<b>%(list)s</b> listesini silmek istiyor musunuz?"
+
+msgctxt "select-location-view"
 msgid "Edit list name"
 msgstr "Liste adını düzenleyin"
 
@@ -1073,9 +1321,9 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "Hizmet sağlayıcılar: %(numberOfProviders)d"
 
-msgctxt "select-location-viewThis refers to a VPN server which we also call relay since it relays internet traffic from the user onto the internet. It should probably say server here instead of relay. I'll look into if this should be changed until next relay but for now it will be \"Relay\"."
+msgctxt "select-location-view"
 msgid "Relay"
-msgstr "Aktarma"
+msgstr "Geçiş"
 
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
@@ -1089,6 +1337,82 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr "Bağlıyken trafiğiniz, giriş noktası ve çıkış noktası (iki farklı VPN sunucusu gerekir) olmak üzere iki güvenli konum üzerinden yönlendirilir."
 
+msgctxt "settings-import"
+msgid "Clear all overrides"
+msgstr "Tüm geçersiz kılmaları temizle"
+
+msgctxt "settings-import"
+msgid "Clear all overrides?"
+msgstr "Tüm geçersiz kılmalar temizlensin mi?"
+
+msgctxt "settings-import"
+msgid "Clearing the imported overrides changes the server IPs, in the Select location view, back to default."
+msgstr "İçe aktarılan geçersiz kılmaların temizlenmesi, Konum seç görünümündeki sunucu IP'lerini varsayılana döndürür."
+
+msgctxt "settings-import"
+msgid "If you are having issues connecting to VPN servers, please contact support."
+msgstr "VPN sunucularına bağlanırken sorun yaşıyorsanız lütfen destek ekibiyle iletişime geçin."
+
+msgctxt "settings-import"
+msgid "Import file"
+msgstr "Dosyayı içe aktar"
+
+msgctxt "settings-import"
+msgid "Import files or text with new IP addresses for the servers in the Select location view."
+msgstr "Konum seç görünümündeki sunucular için yeni IP adreslerini içeren dosya veya metinleri içe aktarın."
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was successful, overrides are now active."
+msgstr "%(fileName)s dosyası başarıyla içe aktarıldı. Geçersiz kılmalar artık etkin."
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was unsuccessful, please try again."
+msgstr "%(fileName)s dosyasının içe aktarımı başarısız oldu. Lütfen tekrar deneyin."
+
+msgctxt "settings-import"
+msgid "Import of text was successful, overrides are now active."
+msgstr "Metin başarıyla içe aktarıldı. Geçersiz kılmalar artık etkin."
+
+msgctxt "settings-import"
+msgid "Import of text was unsuccessful, please try again."
+msgstr "Metnin içe aktarılması başarısız oldu. Lütfen tekrar deneyin."
+
+msgctxt "settings-import"
+msgid "IMPORT SUCCESSFUL"
+msgstr "İÇE AKTARMA BAŞARILI"
+
+#. Title label in navigation bar
+msgctxt "settings-import"
+msgid "Import via text"
+msgstr "Metin yoluyla içe aktar"
+
+msgctxt "settings-import"
+msgid "NO OVERRIDES IMPORTED"
+msgstr "GEÇERSİZ KILMA İÇE AKTARILMADI"
+
+msgctxt "settings-import"
+msgid "On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked."
+msgstr "Farklı sansür türlerinin kullanıldığı bazı ağlarda sunucu IP adreslerimiz zaman zaman engellenir."
+
+msgctxt "settings-import"
+msgid "OVERRIDES ACTIVE"
+msgstr "GEÇERSİZ KILMALAR ETKİN"
+
+#. Title label in navigation bar. This is for a feature that lets
+#. users import server IP settings.
+msgctxt "settings-import"
+msgid "Server IP override"
+msgstr "Sunucu IP'sini geçersiz kılma"
+
+msgctxt "settings-import"
+msgid "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
+msgstr "Bu sınırlamadan kaçınmak için Konum Seç görünümündeki varsayılan sunucu adreslerini geçersiz kılan yeni IP adreslerine sahip bir dosyayı veya metni (destek ekibimiz tarafından sağlanır) içe aktarabilirsiniz."
+
+#. Navigation button to the 'API access methods' view
+msgctxt "settings-view"
+msgid "API access"
+msgstr "API erişimi"
+
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Uygulama senkronize değil. Lütfen çıkış yapın ve yeniden başlatın."
@@ -1096,11 +1420,6 @@ msgstr "Uygulama senkronize değil. Lütfen çıkış yapın ve yeniden başlat�
 msgctxt "settings-view"
 msgid "App version"
 msgstr "Uygulama sürümü"
-
-#. Navigation button to the 'Split tunneling' view
-msgctxt "settings-view"
-msgid "Split tunneling"
-msgstr "Bölünmüş tünelleme"
 
 msgctxt "settings-view"
 msgid "Support"
@@ -1138,7 +1457,7 @@ msgstr "VPN tünelinden hariç tutmak istediğiniz uygulamaları seçin."
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
-msgstr "Başlatmak için bir uygulamanın üzerine tıklayın. Uygulama trafiği, siz kapatana kadar VPN tünelini atlayacaktır."
+msgstr "Başlatmak için bir uygulamaya tıklayın. Uygulama trafiği, siz kapatana kadar VPN tünelini atlayacaktır."
 
 msgctxt "split-tunneling-view"
 msgid "Excluded apps"
@@ -1326,12 +1645,24 @@ msgid "Try restarting your device."
 msgstr "Cihazınızı yeniden başlatmayı deneyin."
 
 msgctxt "troubleshoot"
+msgid "Try to reinstall VMware."
+msgstr "VMware'i yeniden yüklemeyi deneyin."
+
+msgctxt "troubleshoot"
 msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
 msgstr "FaceTime uygulama ayarlarından Wi-Fi Aramasını kapatmayı deneyin ve Mac'i yeniden başlatın."
 
 msgctxt "troubleshoot"
+msgid "Try to uninstall VMware."
+msgstr "VMware'i kaldırmayı deneyin."
+
+msgctxt "troubleshoot"
 msgid "Unable to communicate with Mullvad kernel driver."
 msgstr "Mullvad çekirdek sürücüsü ile iletişim kurulamıyor."
+
+msgctxt "troubleshoot"
+msgid "Unable to start tunnel connection because of a failure when creating the tunnel device. This is often caused by conflicts with the VMware Bridge Protocol."
+msgstr "Tünel cihazı oluşturulurken oluşan bir hata nedeniyle tünel bağlantısı başlatılamıyor. Bu genellikle VMware Bridge Protokolü'nün neden olduğu çakışmalardan kaynaklanır."
 
 msgctxt "troubleshoot"
 msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
@@ -1348,6 +1679,14 @@ msgstr "Bağlantımı güvenceye al"
 msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "Konum değiştir"
+
+msgctxt "user-interface-settings-view"
+msgid "Animate map"
+msgstr "Animasyonlu harita"
+
+msgctxt "user-interface-settings-view"
+msgid "Animate map movements."
+msgstr "Animasyonlu harita hareketleri."
 
 msgctxt "user-interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -1422,6 +1761,10 @@ msgstr "Yetişkinlere özel içerik"
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Dikkat: Bu seçeneğin etkinleştirilmesi, internete erişim için her zaman bir Mullvad VPN bağlantısı gerektirir."
+
+msgctxt "vpn-settings-view"
+msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
+msgstr "Dikkat: Bu ayar <b>%(customDnsFeatureName)s</b> ile birlikte kullanılamaz."
 
 msgctxt "vpn-settings-view"
 msgid "Auto-connect"
@@ -1509,6 +1852,10 @@ msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "Kötü amaçlı yazılım"
 
+msgctxt "vpn-settings-view"
+msgid "Server IP override"
+msgstr "Sunucu IP'sini geçersiz kılma"
+
 #. Label for settings that enables block of social media.
 msgctxt "vpn-settings-view"
 msgid "Social media"
@@ -1516,7 +1863,7 @@ msgstr "Sosyal medya"
 
 msgctxt "vpn-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
-msgstr "Uygulamanın dahili kill switch seçeneği her zaman açıktır. Ayrıca bu ayar, Bağlantıyı Kes veya Çık seçeneklerini tıkladığınızda interneti de engeller."
+msgstr "Uygulamanın dahili kill switch seçeneği her zaman açıktır. Ayrıca bu ayar, Bağlantıyı Kes veya Çık seçeneklerine tıkladığınızda interneti de engeller."
 
 msgctxt "vpn-settings-view"
 msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents."
@@ -1546,8 +1893,8 @@ msgid "This feature allows access to other devices on the local network, such as
 msgstr "Bu özellik; paylaşım, yazdırma, akış sağlama gibi özellikler için yerel ağdaki diğer cihazlara erişim izni verir."
 
 msgctxt "vpn-settings-view"
-msgid "This might cause issues on certain websites, services, and programs."
-msgstr "Bu özellik belirli web sitelerinde, hizmetlerde ve programlarda sorunlara neden olabilir."
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "Bu, belirli web sitelerinde, hizmetlerde ve uygulamalarda sorunlara neden olabilir."
 
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
@@ -1667,9 +2014,18 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor."
 
-msgctxt "Message shown after successfully adding subscription time to an account, where \"%s\" represent the amount of time, like for example \"1 day\" or \"4 months\".Full examples: \"1 day was added to your account.\"\"4 months was added to your account.\""
+msgctxt "Message to indicate how much time was added to an account as part of an in-app purchase. Example: \"30 days was added to your account.\""
 msgid "%s was added to your account."
 msgstr "Hesabınıza %s eklendi."
+
+msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
+msgstr "1. Aşağıdaki <b>VPN ayarlarına git</b> düğmesine tıkladıktan sonra <b>Mullvad VPN</b>'nin yanındaki dişli çarka tıklayın."
+
+msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
+msgstr "2. Otomatik bağlantıyı etkinleştirmek için <b>VPN her zaman açık</b> seçeneğinin yanındaki düğmeye tıklayın."
+
+msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>."
+msgstr "3. Kilitleme modunu etkinleştirmek için <b>VPN olmadığında bağlantıları engelle</b> seçeneğinin yanındaki düğmeye tıklayın."
 
 msgid "30 days was added to your account."
 msgstr "Hesabınıza 30gün eklendi."
@@ -1710,6 +2066,15 @@ msgstr "Her zaman açık VPN başka bir uygulama için etkinleştirilebilir"
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
 msgstr "Dikkat: Bu ayar <b>Özel DNS sunucusu kullan</b> seçeneği ile birlikte kullanılamaz."
 
+msgid "Auto-connect & Lockdown mode"
+msgstr "Otomatik bağlantı ve Kilitleme modu"
+
+msgid "Auto-connect & \\nLockdown mode"
+msgstr "Otomatik bağlantı ve \\nKilitleme modu"
+
+msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
+msgstr "Otomatik bağlantı, Android sistem ayarlarında VPN her zaman açık olarak gösterilir ve VPN tüneline sürekli bağlı olmanızı ve yeniden başlatma sonrası otomatik olarak bağlanmanızı sağlar."
+
 msgid "Blocking internet (device offline)"
 msgstr "İnternet bağlantısı engelleniyor (cihaz çevrimdışı)"
 
@@ -1721,6 +2086,9 @@ msgstr "Bağlanılıyor..."
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad hesap numarası panoya kopyalandı"
+
+msgid "Copied logs to clipboard"
+msgstr "Günlükler panoya kopyalandı"
 
 msgid "Copied to clipboard"
 msgstr "Panoya kopyalandı"
@@ -1743,12 +2111,11 @@ msgstr "Etkinleştir"
 msgid "Enter MTU"
 msgstr "MTU'yu girin"
 
-msgctxt "Placeholder in port number input field."
-msgid "Enter port"
-msgstr "Portu girin"
-
 msgid "Excluded applications"
 msgstr "Hariç tutulan uygulamalar"
+
+msgid "Go to VPN settings"
+msgstr "VPN ayarlarına git"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "Giriş yapmak bu cihazdaki internet engelini kaldıracaktır."
@@ -1765,6 +2132,9 @@ msgstr "Bölünmüş tünelleme özelliği kullanılıyorsa uygulama, yüklü t�
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Güncel kalmak için Mullvad VPN (%s) yükleyin"
 
+msgid "Makes sure the device is always on the VPN tunnel."
+msgstr "Cihazın her zaman VPN tünelinde olduğundan emin olun."
+
 msgid "Manage account"
 msgstr "Hesabı yönet"
 
@@ -1773,6 +2143,9 @@ msgstr "Mullvad hesap numarası"
 
 msgid "Mullvad services unavailable"
 msgstr "Mullvad hizmetleri kullanılamıyor"
+
+msgid "No internet connection"
+msgstr "İnternet bağlantısı yok"
 
 msgid "Preferences"
 msgstr "Tercihler"
@@ -1810,17 +2183,26 @@ msgstr "Mevcut VPN tünelinin durumunu gösterir"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Hesap süresinin dolmak üzere olduğunu bildiren hatırlatıcıları gösterir"
 
+msgid "Split tunneling is disabled."
+msgstr "Bölünmüş tünelleme devre dışı."
+
 msgid "Submit"
 msgstr "Gönder"
+
+msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
+msgstr "Otomatik Bağlantı ve Kilitleme modu ayarları Android sistem ayarlarında yer alır. Bu ayarlardan birini veya her ikisini de etkinleştirmek için bu kılavuza göz atın."
+
+msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
+msgstr "Kilitleme modu, VPN tünelinin bağlantısı manuel olarak kesilirse tüm internet erişimini engeller. <br/><b>Uyarı: Bu ayar, bölünmüş uygulamaları ve Yerel Ağ Paylaşımı özelliğini engeller</b>."
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "Tercihler sekmesinin altındaki \"Yerel Ağ Paylaşımı\" seçeneğini etkinleştirmediğiniz sürece yerel DNS sunucusu çalışmaz."
 
+msgid "There is no VPN settings on your device"
+msgstr "Cihazınızda VPN ayarları belirlenmemiş"
+
 msgid "This address has already been entered."
 msgstr "Bu adres zaten girilmiş."
-
-msgid "This might cause issues on certain websites, services, and apps."
-msgstr "Bu özellik belirli web sitelerinde, hizmetlerde ve uygulamalarda sorunlara neden olabilir."
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Uygulama, en güvenli sürüme sahip olduğunuzdan emin olmak ve çalışan mevcut sürümle ilgili sorunları size bildirmek için sürüm kontrollerini otomatik olarak gerçekleştirir. Bu işlem, uygulama sürümünü ve Android sistem sürümünü Mullvad sunucularına gönderir. Mullvad, kullanılan uygulama sürümlerinin ve Android sürümlerinin numarasını kaydeder. Veriler asla sizi tanımlayacak şekilde saklanmaz veya kullanılmaz."
@@ -1855,7 +2237,7 @@ msgstr "VPN tüneli durumu"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Geçerli WireGuard anahtarı eksik. Gelişmiş ayarlardan anahtarları yönetin."
 
-msgctxt "Used to inform the user about a set of valid network port number ranges, for example: \"Valid ranges: 1-10, 100-200, 30000-31000\" "
+msgctxt "Help text to explain which numbers are valid to configure. The user should enter a single number/integer that either matches one of the listed numbers or is within one of the listed ranges. Example: \"Valid ranges: 53, 123, 4000-33433\""
 msgid "Valid ranges: %s"
 msgstr "Geçerli aralıklar: %s"
 

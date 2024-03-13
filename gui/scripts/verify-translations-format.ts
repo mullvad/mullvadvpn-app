@@ -4,7 +4,8 @@ import path from 'path';
 
 const LOCALES_DIR = path.join('..', 'locales');
 
-const ALLOWED_TAGS = ['b'];
+const ALLOWED_TAGS = ['b', 'br'];
+const ALLOWED_VOID_TAGS = ['br'];
 
 function getLocales(): string[] {
   const localesContent = fs.readdirSync(LOCALES_DIR);
@@ -70,22 +71,25 @@ function checkHtmlTagsImpl(value: string): { correct: boolean, amount: number } 
   // item.
   let tagStack: string[] = [];
   for (let tag of tagTypes) {
+    const selfClosing = tag.endsWith('/');
     const endTag = tag.startsWith('/');
-    tag = endTag ? tag.slice(1) : tag;
+    tag = endTag ? tag.slice(1) : selfClosing ? tag.slice(0, -1) : tag;
 
     if (!ALLOWED_TAGS.includes(tag)) {
       console.error(`Tag "<${tag}>" not allowed: "${value}"`);
       return { correct: false, amount: NaN };
     }
 
-    if (endTag) {
-      // End tags require a matching start tag.
-      if (tag !== tagStack.pop()) {
-        console.error(`Closing non-existent start-tag (</${tag}>) in "${value}"`);
-        return { correct: false, amount: NaN };
+    if (!ALLOWED_VOID_TAGS.includes(tag)) {
+      if (endTag) {
+        // End tags require a matching start tag.
+        if (tag !== tagStack.pop()) {
+          console.error(`Closing non-existent start-tag (</${tag}>) in "${value}"`);
+          return { correct: false, amount: NaN };
+        }
+      } else {
+        tagStack.push(tag);
       }
-    } else {
-      tagStack.push(tag);
     }
   }
 

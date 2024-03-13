@@ -48,6 +48,7 @@
     <string name="connecting">Kobler til</string>
     <string name="connecting_to_daemon">Kobler til Mullvads systemtjeneste ...</string>
     <string name="continue_login">Fortsett med pålogging</string>
+    <string name="copied_logs_to_clipboard">Logger kopiert til utklippstavlen</string>
     <string name="copied_mullvad_account_number">Kopierte Mullvad-kontonummer til utklippstavlen</string>
     <string name="copied_to_clipboard">Kopiert til utklippstavlen</string>
     <string name="copy_account_number">Kopier kontonummer</string>
@@ -58,8 +59,8 @@
     <string name="critical_error">Kritisk feil (krever din oppmerksomhet)</string>
     <string name="custom_dns_disable_mode_subtitle">Deaktiver alle &lt;b&gt;%1$s&lt;/b&gt; ovenfor for å aktivere denne innstillingen.</string>
     <string name="custom_dns_footer">Aktiver for å legge til minst én DNS-server.</string>
-    <string name="custom_dns_hint">Angi IP</string>
-    <string name="custom_port_dialog_placeholder">Angi port</string>
+    <string name="custom_dns_hint">Skriv inn IP</string>
+    <string name="custom_port_dialog_placeholder">Skriv inn port</string>
     <string name="custom_port_dialog_remove">Fjern tilpasset port</string>
     <string name="custom_port_dialog_submit">Konfigurer port</string>
     <string name="custom_port_dialog_title">Tilpasset WireGuard-port</string>
@@ -139,6 +140,7 @@
     <string name="mullvad_owned_only">Kun eid av Mullvad</string>
     <string name="new_device_notification_message">Velkommen. Denne enheten har fått navnet &lt;b&gt;%1$s&lt;/b&gt;. For å finne ut mer kan du bruke informasjonsknappen under Konto.</string>
     <string name="new_device_notification_title">NY ENHET OPPRETTET</string>
+    <string name="no_internet_connection">Ingen internettforbindelse</string>
     <string name="no_matching_relay">Ingen servere passer til innstillingene dine. Prøv å endre server eller andre innstillinger.</string>
     <string name="no_wireguard_key">Det mangler en gyldig WireGuard-nøkkel. Du kan behandle nøklene under avanserte innstillinger.</string>
     <string name="not_blocking_internet">DET KAN VÆRE EN NETTVERKSLEKKASJE HOS DEG</string>

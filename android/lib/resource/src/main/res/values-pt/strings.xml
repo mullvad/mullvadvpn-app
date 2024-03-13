@@ -48,6 +48,7 @@
     <string name="connecting">A ligar</string>
     <string name="connecting_to_daemon">A ligar-se ao serviço de sistema Mulvad...</string>
     <string name="continue_login">Continuar com a ligação</string>
+    <string name="copied_logs_to_clipboard">Registos copiados para a área de transferência</string>
     <string name="copied_mullvad_account_number">Número de conta Mullvad copiado para a área de transferência</string>
     <string name="copied_to_clipboard">Copiado para a área de transferência</string>
     <string name="copy_account_number">Copiar número de conta</string>
@@ -139,6 +140,7 @@
     <string name="mullvad_owned_only">Apenas propriedade de Mullvad</string>
     <string name="new_device_notification_message">Bem-vindo, este dispositivo é agora chamado &lt;b&gt;%1$s&lt;/b&gt;. Para mais detalhes consulte o botão de informação na Conta.</string>
     <string name="new_device_notification_title">NOVO DISPOSITIVO CRIADO</string>
+    <string name="no_internet_connection">Sem ligação à internet</string>
     <string name="no_matching_relay">Nenhum servidor corresponde às suas definições. Tente alterar o servidor ou outras definições.</string>
     <string name="no_wireguard_key">Chave WireGuard válida em falta. Faça a gestão das chaves em Definições Avançadas.</string>
     <string name="not_blocking_internet">PODERÁ ESTAR A PERDER TRÁFEGO DE REDE</string>

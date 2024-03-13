@@ -12,7 +12,7 @@
     <string name="add_a_server">Ajouter un serveur</string>
     <string name="add_dns_server_dialog_title">Ajouter un serveur DNS</string>
     <string name="add_time_to_account">Achetez du crédit sur notre site web ou échangez un bon.</string>
-    <string name="added_to_your_account">%1$s ajouté à votre compte.</string>
+    <string name="added_to_your_account">%1$s ajouté(s) à votre compte.</string>
     <string name="agree_and_continue">Accepter et continuer</string>
     <string name="all_applications">Toutes les applications</string>
     <string name="all_providers">Tous les fournisseurs</string>
@@ -48,6 +48,7 @@
     <string name="connecting">Connexion</string>
     <string name="connecting_to_daemon">Connexion au service système Mullvad...</string>
     <string name="continue_login">Continuer avec la connexion</string>
+    <string name="copied_logs_to_clipboard">Journaux copiés dans le presse-papiers</string>
     <string name="copied_mullvad_account_number">Numéro de compte Mullvad copié dans le presse-papiers</string>
     <string name="copied_to_clipboard">Copié dans le presse-papiers</string>
     <string name="copy_account_number">Copier le numéro de compte</string>
@@ -139,6 +140,7 @@
     <string name="mullvad_owned_only">Propriété de Mullvad uniquement</string>
     <string name="new_device_notification_message">Bienvenue, cet appareil s\'appelle désormais &lt;b&gt;%1$s&lt;/b&gt;. Pour plus d\'informations, consultez le bouton d\'information sous Compte.</string>
     <string name="new_device_notification_title">NOUVEL APPAREIL CRÉÉ</string>
+    <string name="no_internet_connection">Aucune connexion à Internet</string>
     <string name="no_matching_relay">Aucun serveur ne correspond à vos paramètres, essayez de modifier les paramètres du serveur ou d\'autres paramètres.</string>
     <string name="no_wireguard_key">Une clé WireGuard valide manque. Gérez les clés dans les paramètres avancés.</string>
     <string name="not_blocking_internet">VOUS POURRIEZ AVOIR DES FUITES DE TRAFIC RÉSEAU</string>

@@ -48,6 +48,7 @@
     <string name="connecting">Connessione</string>
     <string name="connecting_to_daemon">Connessione al servizio del sistema Mullvad...</string>
     <string name="continue_login">Continua con il login</string>
+    <string name="copied_logs_to_clipboard">Log copiati negli appunti</string>
     <string name="copied_mullvad_account_number">Numero account di Mullvad copiato negli appunti</string>
     <string name="copied_to_clipboard">Copiato negli appunti</string>
     <string name="copy_account_number">Copia numero di account</string>
@@ -139,6 +140,7 @@
     <string name="mullvad_owned_only">Solo di proprietà di Mullvad</string>
     <string name="new_device_notification_message">Benvenuto, questo dispositivo ora si chiama &lt;b&gt;%1$s&lt;/b&gt;. Per maggiori dettagli, premi il pulsante delle informazioni in Account.</string>
     <string name="new_device_notification_title">NUOVO DISPOSITIVO CREATO</string>
+    <string name="no_internet_connection">Nessuna connessione Internet</string>
     <string name="no_matching_relay">Nessun server corrispondente alle tue impostazioni, prova a cambiare server o impostazioni.</string>
     <string name="no_wireguard_key">Manca una chiave WireGuard valida. Gestisci le chiavi da Impostazioni avanzate.</string>
     <string name="not_blocking_internet">POSSIBILI PERDITE NEL TRAFFICO DI RETE</string>

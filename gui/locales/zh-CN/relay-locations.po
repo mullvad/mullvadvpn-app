@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2023-12-04 12:55\n"
+"PO-Revision-Date: 2024-03-13 08:24\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -151,6 +151,10 @@ msgstr "丹麦"
 #. US DEN
 msgid "Denver, CO"
 msgstr "科罗拉多州丹佛"
+
+#. US DET
+msgid "Detroit, MI"
+msgstr "密歇根州底特律"
 
 #. AE DXB
 msgid "Dubai"

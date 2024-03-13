@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2023-12-04 12:55\n"
+"PO-Revision-Date: 2024-03-13 08:24\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s lisättiin: tilin käyttö maksettu %(expiry)s asti."
@@ -51,6 +51,9 @@ msgstr "Tilin käyttö maksettu %(expiry)s asti."
 msgid "Account settings"
 msgstr "Tiliasetukset"
 
+msgid "Add"
+msgstr "Lisää"
+
 msgid "Any"
 msgstr "Mikä tahansa"
 
@@ -81,6 +84,9 @@ msgstr "Uudista tilaus"
 msgid "Cancel"
 msgstr "Peruuta"
 
+msgid "Cipher"
+msgstr "Salaus"
+
 msgid "Clear"
 msgstr "Tyhjennä"
 
@@ -108,6 +114,12 @@ msgstr "Mukautettu"
 
 msgid "Default"
 msgstr "Oletus"
+
+msgid "Delete"
+msgstr "Poista"
+
+msgid "Delete list"
+msgstr "Poista luettelo"
 
 msgid "Disable"
 msgstr "Poista käytöstä"
@@ -143,17 +155,26 @@ msgstr "Siirry järjestelmäasetuksiin"
 msgid "Got it!"
 msgstr "Selvä!"
 
+msgid "Import"
+msgstr "Tuo"
+
 msgid "IPv4"
 msgstr "IPv4"
 
 msgid "IPv6"
 msgstr "IPv6"
 
+msgid "Learn more"
+msgstr "Lisätietoja"
+
 msgid "less than a day"
 msgstr "alle vuorokausi"
 
 msgid "less than a day left"
 msgstr "alle vuorokausi jäljellä"
+
+msgid "Name"
+msgstr "Nimi"
 
 msgid "Next"
 msgstr "Seuraava"
@@ -170,6 +191,15 @@ msgstr "Päällä"
 msgid "Open URL"
 msgstr "Avaa URL"
 
+msgid "Optional"
+msgstr "Valinnainen"
+
+msgid "Password"
+msgstr "Salasana"
+
+msgid "Port"
+msgstr "Portti"
+
 #. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
 msgstr "KVANTTISUOJATTU YHTEYS"
@@ -179,6 +209,9 @@ msgstr "Sulje"
 
 msgid "Reconnect"
 msgstr "Yhdistä uudelleen"
+
+msgid "Required"
+msgstr "Pakollinen"
 
 msgid "Save"
 msgstr "Tallenna"
@@ -208,6 +241,9 @@ msgstr "Vianetsintä"
 msgid "Try a different search."
 msgstr "Kokeile toista hakua."
 
+msgid "Type"
+msgstr "Tyyppi"
+
 msgid "UDP"
 msgstr "UDP"
 
@@ -216,6 +252,9 @@ msgstr "Poista esto"
 
 msgid "UNSECURED CONNECTION"
 msgstr "SUOJAAMATON YHTEYS"
+
+msgid "Username"
+msgstr "Käyttäjätunnus"
 
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
@@ -312,6 +351,174 @@ msgstr "EI KÄYTTÖAIKAA"
 msgctxt "account-view"
 msgid "Paid until"
 msgstr "Maksu ennen"
+
+msgctxt "api-access-methods-view"
+msgid "Add method"
+msgstr "Lisää menetelmä"
+
+msgctxt "api-access-methods-view"
+msgid "Adding a new API access method also tests it."
+msgstr "Uuden ohjelmointirajapinnan käyttötavan lisääminen testaa sitä myös."
+
+msgctxt "api-access-methods-view"
+msgid "API reachable"
+msgstr "Ohjelmointirajapinta saavutettavissa"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, adding method…"
+msgstr "Ohjelmointirajapinta saavutettavissa, menetelmää lisätään…"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, saving method…"
+msgstr "Ohjelmointirajapinta saavutettavissa, menetelmää tallennetaan…"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable"
+msgstr "Ohjelmointirajapinta ei ole saavutettavissa"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, add anyway?"
+msgstr "Ohjelmointirajapinta ei ole saavutettavissa. Lisätäänkö se silti?"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, save anyway?"
+msgstr "Ohjelmointirajapinta ei ole saavutettavissa. Tallennetaanko se silti?"
+
+msgctxt "api-access-methods-view"
+msgid "Authentication"
+msgstr "Todennus"
+
+msgctxt "api-access-methods-view"
+msgid "Clicking “Save” changes the in use method."
+msgstr "Jos napsautat \"Tallenna\", käytössä oleva menetelmä vaihtuu."
+
+msgctxt "api-access-methods-view"
+msgid "Delete %(name)s?"
+msgstr "Poistetaanko %(name)s?"
+
+msgctxt "api-access-methods-view"
+msgid "Edit method"
+msgstr "Muokkaa menetelmää"
+
+msgctxt "api-access-methods-view"
+msgid "Editing an API access method also tests it."
+msgstr "Ohjelmointirajapinnan käyttötavan muokkaaminen testaa sitä myös."
+
+msgctxt "api-access-methods-view"
+msgid "Enter IP"
+msgstr "Anna IP-osoite"
+
+msgctxt "api-access-methods-view"
+msgid "Enter name"
+msgstr "Anna nimi"
+
+msgctxt "api-access-methods-view"
+msgid "Enter port"
+msgstr "Anna portti"
+
+msgctxt "api-access-methods-view"
+msgid "In use"
+msgstr "Käytössä"
+
+msgctxt "api-access-methods-view"
+msgid "Local SOCKS5 server"
+msgstr "Paikallinen SOCKS5-palvelin"
+
+msgctxt "api-access-methods-view"
+msgid "Manage and add custom methods to access the Mullvad API."
+msgstr "Hallitse ja lisää mukautettuja menetelmiä Mullvadin ohjelmointirajapinnan käyttämiseksi."
+
+msgctxt "api-access-methods-view"
+msgid "On some networks, where various types of censorship are being used, the API servers might not be directly reachable."
+msgstr "Ohjelmointirajapinnan palvelimet eivät välttämättä ole suoraan tavoitettavissa joissakin useita erityyppisiä sensurointimenetelmiä käyttävissä verkoissa."
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid IPv4 or IPv6 address."
+msgstr "Anna kelvollinen IPv4- tai IPv6-osoite."
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid localhost port."
+msgstr "Anna kelvollinen localhost-portti."
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid remote server port."
+msgstr "Anna kelvollinen etäpalvelimen portti."
+
+msgctxt "api-access-methods-view"
+msgid "Remote Server"
+msgstr "Etäpalvelin"
+
+msgctxt "api-access-methods-view"
+msgid "Server"
+msgstr "Palvelin"
+
+msgctxt "api-access-methods-view"
+msgid "Server details"
+msgstr "Palvelimen tiedot"
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 local"
+msgstr "Paikallinen SOCKS5"
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 remote"
+msgstr "Etä-SOCKS5"
+
+msgctxt "api-access-methods-view"
+msgid "Testing method..."
+msgstr "Menetelmää testataan..."
+
+msgctxt "api-access-methods-view"
+msgid "Testing..."
+msgstr "Testataan..."
+
+msgctxt "api-access-methods-view"
+msgid "The API could not be reached using the %(name)s method."
+msgstr "Ohjelmointirajapintaan ei saatu yhteyttä menetelmällä %(name)s."
+
+msgctxt "api-access-methods-view"
+msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
+msgstr "Sovellus tarvitsee sen etäpalvelimen tiedot, jonne paikallinen SOCKS5-palvelin välittää liikennettäsi."
+
+msgctxt "api-access-methods-view"
+msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
+msgstr "Sovelluksen on kommunikoitava Mullvadin ohjelmointirajapinnan palvelimen kanssa, jotta sinut voidaan kirjata sisään, palvelinluetteloiden hakemiseksi sekä muiden tärkeiden toimintojen suorittamiseksi."
+
+msgctxt "api-access-methods-view"
+msgid "The in use API access method will change."
+msgstr "Käytössä oleva ohjelmointirajapinnan käyttötapa muuttuu."
+
+msgctxt "api-access-methods-view"
+msgid "The TCP port where your local SOCKS5 server is listening."
+msgstr "TCP-portti, jota paikallinen SOCKS5-palvelin kuuntelee."
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
+msgstr "Tästä voi olla hyötyä, jos ohjelmointirajapinta on sensuroitu, mutta Mullvadin siltauspalvelimet eivät."
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful when you are not affected by censorship."
+msgstr "Tästä voi olla hyötyä, kun sensuurilla ei ole vaikutusta toimintaasi."
+
+msgctxt "api-access-methods-view"
+msgid "This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods."
+msgstr "Tämän ominaisuuden avulla voit kiertää sensuurin lisäämällä välityspalvelinten ja vastaavien menetelmien kautta toimivia, mukautettuja ohjelmointirajapinnan käyttötapoja."
+
+msgctxt "api-access-methods-view"
+msgid "This is needed so our app can allow that traffic in the firewall."
+msgstr "Tätä tarvitaan, jotta sovelluksemme pystyy sallimaan liikenteen palomuurin sisällä."
+
+msgctxt "api-access-methods-view"
+msgid "Transport protocol"
+msgstr "Siirtoprotokolla"
+
+msgctxt "api-access-methods-view"
+msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
+msgstr "Nk. suora menetelmä sallii sovelluksen kommunikoida Mullvadin ohjelmointirajapinnan palvelimen kanssa suoraan ilman välityspalvelimia."
+
+msgctxt "api-access-methods-view"
+msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
+msgstr "Kun käytössä on Mullvadin siltausmenetelmä, sovellus kommunikoi Mullvadin ohjelmointirajapinnan palvelimen kanssa Mullvadin siltauspalvelimen kautta. Se tekee tämän lähettämällä liikenteen Shadowsocksin peittämänä."
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -645,8 +852,32 @@ msgid "Connecting to Mullvad system service..."
 msgstr "Yhdistetään Mullvad-järjestelmäpalveluun..."
 
 msgctxt "launch-view"
+msgid "If these steps do not work please send a problem report."
+msgstr "Jos ongelma ei ratkea näillä ohjeilla, lähetä siitä raportti."
+
+msgctxt "launch-view"
 msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
 msgstr "Mullvad VPN -palvelun käyttöoikeus on peruutettu. Siirry järjestelmäasetuksiin sallimaan Mullvad VPN \"Salli taustalla\" -asetuksen kautta."
+
+msgctxt "launch-view"
+msgid "Reinstalling the app."
+msgstr "Asentamalla sovellus uudelleen."
+
+msgctxt "launch-view"
+msgid "Restarting your computer."
+msgstr "Käynnistämällä tietokoneesi uudelleen."
+
+msgctxt "launch-view"
+msgid "Send problem report"
+msgstr "Lähetä ongelmaraportti"
+
+msgctxt "launch-view"
+msgid "The system service component of the app hasn’t started or can’t be contacted. The system service is responsible for the security, kill switch, and the VPN tunnel. To troubleshoot please try:"
+msgstr "Sovelluksen järjestelmän palvelukomponentti ei ole käynnistynyt tai siihen ei saada yhteyttä. Järjestelmän palvelu vastaa turvallisuudesta, tappokytkimestä ja VPN-tunnelista. Yritä paikantaa vika:"
+
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the Learn more button."
+msgstr "Mullvad-järjestelmäpalveluun ei saada yhteyttä, eikä yhteytesi välttämättä ole turvallinen. Suorita vianetsintä tai lähetä ongelmaraportti napsauttamalla lisätietojen painiketta."
 
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
@@ -750,6 +981,11 @@ msgstr "Oikea tilin numero"
 
 #. Title label in navigation bar
 msgctxt "navigation-bar"
+msgid "API access"
+msgstr "Ohjelmointirajapinnan käyttö"
+
+#. Title label in navigation bar
+msgctxt "navigation-bar"
 msgid "Settings"
 msgstr "Asetukset"
 
@@ -801,6 +1037,10 @@ msgstr "Yhdistetään"
 msgctxt "notifications"
 msgid "Connecting to %(location)s"
 msgstr "Yhdistetään sijaintiin %(location)s"
+
+msgctxt "notifications"
+msgid "Connection might be unsecured. App lost contact with system service, please troubleshoot."
+msgstr "Yhteys saattaa olla suojaamaton; sovelluksen yhteys järjestelmäpalveluun katkesi. Suorita vianetsintä."
 
 msgctxt "notifications"
 msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
@@ -865,6 +1105,10 @@ msgstr "Järjestelmän DNS-palvelimen asettaminen ei onnistu. Lähetä ongelmara
 msgctxt "notifications"
 msgid "Unable to start tunnel connection. Please send a problem report."
 msgstr "Tunneliyhteyden muodostaminen ei onnistu. Lähetä ongelmaraportti."
+
+msgctxt "notifications"
+msgid "Unable to start tunnel connection. This could be because of conflicts with VMware, please troubleshoot."
+msgstr "Tunneliyhteyttä ei voida muodostaa; tämä saattaa johtua ristiriidoista VMwaren kanssa. Suorita vianetsintä."
 
 msgctxt "notifications"
 msgid "Update available. Install the latest app version to stay up to date"
@@ -1046,6 +1290,10 @@ msgid "Custom lists"
 msgstr "Mukautetut luettelot"
 
 msgctxt "select-location-view"
+msgid "Do you want to delete the list <b>%(list)s</b>?"
+msgstr "Haluatko poistaa luettelon <b>%(list)s</b>?"
+
+msgctxt "select-location-view"
 msgid "Edit list name"
 msgstr "Muokkaa luettelon nimeä"
 
@@ -1073,7 +1321,7 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "Palveluntarjoajat: %(numberOfProviders)d"
 
-msgctxt "select-location-viewThis refers to a VPN server which we also call relay since it relays internet traffic from the user onto the internet. It should probably say server here instead of relay. I'll look into if this should be changed until next relay but for now it will be \"Relay\"."
+msgctxt "select-location-view"
 msgid "Relay"
 msgstr "Välitys"
 
@@ -1089,6 +1337,82 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr "Kun yhteys on muodostettu, liikenteesi ohjataan kahden turvallisen siajinnin kautta: tulopisteen ja poistumispisteen (näiden on oltava kaksi erillistä VPN-palvelinta)."
 
+msgctxt "settings-import"
+msgid "Clear all overrides"
+msgstr "Poista kaikki ohitukset"
+
+msgctxt "settings-import"
+msgid "Clear all overrides?"
+msgstr "Poistetaanko kaikki ohitukset?"
+
+msgctxt "settings-import"
+msgid "Clearing the imported overrides changes the server IPs, in the Select location view, back to default."
+msgstr "Tuotujen ohitusten poistaminen vaihtaa palvelimien IP-osoitteet takaisin oletusarvoisiksi sijainnin valintanäkymässä."
+
+msgctxt "settings-import"
+msgid "If you are having issues connecting to VPN servers, please contact support."
+msgstr "Jos sinulla on ongelmia yhteyden muodostamisessa VPN-palvelimiin, ota yhteyttä tukeen."
+
+msgctxt "settings-import"
+msgid "Import file"
+msgstr "Tuo tiedosto"
+
+msgctxt "settings-import"
+msgid "Import files or text with new IP addresses for the servers in the Select location view."
+msgstr "Tuo tiedostoja tai tekstiä palvelimien uusin IP-osoittein sijainnin valintanäkymässä."
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was successful, overrides are now active."
+msgstr "Tiedoston %(fileName)s tuonti onnistui. Ohitukset ovat nyt voimassa."
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was unsuccessful, please try again."
+msgstr "Tiedoston %(fileName)s tuonti epäonnistui. Yritä uudelleen."
+
+msgctxt "settings-import"
+msgid "Import of text was successful, overrides are now active."
+msgstr "Tekstin tuonti onnistui. Ohitukset ovat nyt voimassa."
+
+msgctxt "settings-import"
+msgid "Import of text was unsuccessful, please try again."
+msgstr "Tekstin tuonti epäonnistui. Yritä uudelleen."
+
+msgctxt "settings-import"
+msgid "IMPORT SUCCESSFUL"
+msgstr "TUONTI ONNISTUI"
+
+#. Title label in navigation bar
+msgctxt "settings-import"
+msgid "Import via text"
+msgstr "Tuo tekstinä"
+
+msgctxt "settings-import"
+msgid "NO OVERRIDES IMPORTED"
+msgstr "OHITUKSIA EI TUOTU"
+
+msgctxt "settings-import"
+msgid "On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked."
+msgstr "Palvelimiemme IP-osoitteet estetään toisinaan joissakin useita erityyppistä sensurointimenetelmiä käyttävissä verkoissa."
+
+msgctxt "settings-import"
+msgid "OVERRIDES ACTIVE"
+msgstr "OHITUKSIA KÄYTÖSSÄ"
+
+#. Title label in navigation bar. This is for a feature that lets
+#. users import server IP settings.
+msgctxt "settings-import"
+msgid "Server IP override"
+msgstr "Palvelimen IP-osoitteen ohitus"
+
+msgctxt "settings-import"
+msgid "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
+msgstr "Voit kiertää estot tuomalla tukitiimimme toimittaman tiedoston tai tekstin, josta löytyy uusia, palvelimien oletusosoitteet sijainnin valintanäkymässä ohittavia IP-osoitteita."
+
+#. Navigation button to the 'API access methods' view
+msgctxt "settings-view"
+msgid "API access"
+msgstr "Ohjelmointirajapinnan käyttö"
+
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Sovellus ei ole synkronoitu. Sulje se ja käynnistä uudelleen."
@@ -1096,11 +1420,6 @@ msgstr "Sovellus ei ole synkronoitu. Sulje se ja käynnistä uudelleen."
 msgctxt "settings-view"
 msgid "App version"
 msgstr "Sovelluksen versio"
-
-#. Navigation button to the 'Split tunneling' view
-msgctxt "settings-view"
-msgid "Split tunneling"
-msgstr "Sovelluskohtainen yhdistäminen"
 
 msgctxt "settings-view"
 msgid "Support"
@@ -1326,12 +1645,24 @@ msgid "Try restarting your device."
 msgstr "Kokeile käynnistää laitteesi uudelleen."
 
 msgctxt "troubleshoot"
+msgid "Try to reinstall VMware."
+msgstr "Yritä asentaa VMware uudelleen."
+
+msgctxt "troubleshoot"
 msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
 msgstr "Yritä poistaa Wi-Fi-puhelut käytöstä FaceTime-sovelluksen asetuksista ja käynnistä Mac uudelleen."
 
 msgctxt "troubleshoot"
+msgid "Try to uninstall VMware."
+msgstr "Yritä poistaa VMwaren asennus."
+
+msgctxt "troubleshoot"
 msgid "Unable to communicate with Mullvad kernel driver."
 msgstr "Kommunikointi Mullvad-ytimen ohjaimen kanssa ei onnistu."
+
+msgctxt "troubleshoot"
+msgid "Unable to start tunnel connection because of a failure when creating the tunnel device. This is often caused by conflicts with the VMware Bridge Protocol."
+msgstr "Tunneliyhteyttä ei voida käynnistää, koska tunnelilaitteen luomisen aikana tapahtui virhe. Tämä johtuu usein ristiriidoista VMwaren siltausprotokollan kanssa."
 
 msgctxt "troubleshoot"
 msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
@@ -1348,6 +1679,14 @@ msgstr "Suojaa yhteyteni"
 msgctxt "tunnel-control"
 msgid "Switch location"
 msgstr "Vaihda sijaintia"
+
+msgctxt "user-interface-settings-view"
+msgid "Animate map"
+msgstr "Animoitu kartta"
+
+msgctxt "user-interface-settings-view"
+msgid "Animate map movements."
+msgstr "Luo animaatioita kartalla näkyvästä liikkeestä."
 
 msgctxt "user-interface-settings-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -1422,6 +1761,10 @@ msgstr "Aikuisille suunnattu sisältö"
 msgctxt "vpn-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Huomio: jos tämä otetaan käyttöön, verkkoon yhdistäminen vaatii aina Mullvad VPN -yhteyden."
+
+msgctxt "vpn-settings-view"
+msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
+msgstr "Huomio: <b>%(customDnsFeatureName)s</b> ja tämä asetus eivät voi olla käytössä samanaikaisesti."
 
 msgctxt "vpn-settings-view"
 msgid "Auto-connect"
@@ -1509,6 +1852,10 @@ msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "Haittaohjelmat"
 
+msgctxt "vpn-settings-view"
+msgid "Server IP override"
+msgstr "Palvelimen IP-osoitteen ohitus"
+
 #. Label for settings that enables block of social media.
 msgctxt "vpn-settings-view"
 msgid "Social media"
@@ -1546,8 +1893,8 @@ msgid "This feature allows access to other devices on the local network, such as
 msgstr "Tämä ominaisuus mahdollistaa pääsyn muihin paikallisverkon laitteisiin esimerkiksi jakamisen, tulostamisen, suoratoiston jne. tarpeisiin."
 
 msgctxt "vpn-settings-view"
-msgid "This might cause issues on certain websites, services, and programs."
-msgstr "Tämä voi aiheuttaa ongelmia tietyillä verkkosivustoilla, palveluissa ja ohjelmissa."
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "Tämä voi aiheuttaa ongelmia tietyillä verkkosivustoilla, palveluissa ja sovelluksissa."
 
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
@@ -1667,9 +2014,18 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys."
 
-msgctxt "Message shown after successfully adding subscription time to an account, where \"%s\" represent the amount of time, like for example \"1 day\" or \"4 months\".Full examples: \"1 day was added to your account.\"\"4 months was added to your account.\""
+msgctxt "Message to indicate how much time was added to an account as part of an in-app purchase. Example: \"30 days was added to your account.\""
 msgid "%s was added to your account."
 msgstr "Tilillesi lisättiin %s käyttöaikaa."
+
+msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
+msgstr "1. Napsautettuasi alla olevaa <b>Siirry VPN-asetuksiin</b> -painiketta napsauta <b>Mullvad VPN:n</b> nimen vierestä löytyvää hammaspyöräkuvaketta."
+
+msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
+msgstr "2. Ota automaattinen yhteyden muodostus käyttöön napsauttamalla <b>Aina päällä oleva VPN</b> -kohdan vieressä olevaa valintapainiketta."
+
+msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>."
+msgstr "3. Ota lukitustila käyttöön napsauttamalla <b>Estä yhteydet ilman VPN:ää</b> -kohdan vierestä löytyvää valintapainiketta."
 
 msgid "30 days was added to your account."
 msgstr "Tilillesi lisättiin 30 päivää käyttöaikaa."
@@ -1710,6 +2066,15 @@ msgstr "Aina päällä oleva VPN on mahdollisesti otettu käyttöön toiselle so
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
 msgstr "Huomio: asetusta ei voi käyttää yhdessä \"<b>Käytä mukautettua DNS-palvelinta</b>\" -asetuksen kanssa."
 
+msgid "Auto-connect & Lockdown mode"
+msgstr "Automaattinen yhdistäminen ja lukitustila"
+
+msgid "Auto-connect & \\nLockdown mode"
+msgstr "Automaattinen yhdistäminen \\nja lukitustila"
+
+msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
+msgstr "Automaattista yhdistämistä kutsutaan aina päällä olevaksi VPN-yhteydeksi Androidin järjestelmäasetuksissa. Se varmistaa, että olet jatkuvasti yhteydessä VPN-tunneliin, sekä muodostaa yhteyden automaattisesti aina uudelleenkäynnistyksen jälkeen."
+
 msgid "Blocking internet (device offline)"
 msgstr "Internetyhteys on estetty (laite on offline-tilassa)"
 
@@ -1721,6 +2086,9 @@ msgstr "Yhdistetään..."
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad-tilin numero kopioitu leikepöydälle"
+
+msgid "Copied logs to clipboard"
+msgstr "Lokit kopioitu leikepöydälle"
 
 msgid "Copied to clipboard"
 msgstr "Kopioitu leikepöydälle"
@@ -1743,12 +2111,11 @@ msgstr "Ota käyttöön"
 msgid "Enter MTU"
 msgstr "Syötä MTU"
 
-msgctxt "Placeholder in port number input field."
-msgid "Enter port"
-msgstr "Anna portti"
-
 msgid "Excluded applications"
 msgstr "Poissuljetut sovellukset"
+
+msgid "Go to VPN settings"
+msgstr "Siirry VPN-asetuksiin"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "Kirjautumiseen siirtyminen purkaa internetin käytön eston tältä laitteelta."
@@ -1765,6 +2132,9 @@ msgstr "Jos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää jä
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Asenna Mullvad VPN (%s) pysyäksesi ajan tasalla"
 
+msgid "Makes sure the device is always on the VPN tunnel."
+msgstr "Varmistaa, että laite on aina yhteydessä VPN-tunnelin kautta."
+
 msgid "Manage account"
 msgstr "Tilin hallinta"
 
@@ -1773,6 +2143,9 @@ msgstr "Mullvad-tilin numero"
 
 msgid "Mullvad services unavailable"
 msgstr "Mullvad-palvelut eivät ole käytettävissä"
+
+msgid "No internet connection"
+msgstr "Ei verkkoyhteyttä"
 
 msgid "Preferences"
 msgstr "Asetukset"
@@ -1810,17 +2183,26 @@ msgstr "Näyttää VPN-tunnelin nykyisen tilan"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Näyttää muistutuksia, kun tilin käyttöaika on umpeutumassa"
 
+msgid "Split tunneling is disabled."
+msgstr "Sovelluskohtainen yhdistäminen on poistettu käytöstä."
+
 msgid "Submit"
 msgstr "Lähetä"
+
+msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
+msgstr "Automaattisen yhdistämisen ja lukitustilan asetukset löytyvät Androidin järjestelmäasetuksista. Voit ottaa jommankumman tai molemmat käyttöön tämän oppaan ohjeilla."
+
+msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
+msgstr "Lukitustila estää kaikki verkkoyhteydet, jos yhteys VPN-tunneliin katkaistaan manuaalisesti. <br/><b>Varoitus: asetus estää sovelluskohtaisesti yhdistettävät sovellukset ja paikallisen verkon jakamisominaisuuden</b>."
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr "Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamisasetusta käyttöön asetuksissa."
 
+msgid "There is no VPN settings on your device"
+msgstr "Laitteessasi ei ole VPN-asetuksia"
+
 msgid "This address has already been entered."
 msgstr "Tämä osoite on annettu jo."
-
-msgid "This might cause issues on certain websites, services, and apps."
-msgstr "Tämä voi aiheuttaa ongelmia tietyillä verkkosivustoilla, palveluissa ja sovelluksissa."
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Sovellus suorittaa versiotarkistuksia automaattisesti varmistaakseen, että käytät kaikkein turvallisinta versiota, ja ilmoittaakseen sinulle kaikista parhaillaan käynnissä olevan version ongelmista. Se lähettää Mullvadin palvelimille tiedot sovellusversiosta ja Android-järjestelmäversiosta. Mullvad pitää lukua käytettyjen sovellusversioiden ja Android-versioiden määristä. Tietoja ei koskaan tallenneta tai käytetä tavalla, joka voisi mahdollistaa tunnistamisesi."
@@ -1855,7 +2237,7 @@ msgstr "VPN-tunnelin tila"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Käypä WireGuard-avain puuttuu. Voit hallinnoida avaimia lisäasetuksissa."
 
-msgctxt "Used to inform the user about a set of valid network port number ranges, for example: \"Valid ranges: 1-10, 100-200, 30000-31000\" "
+msgctxt "Help text to explain which numbers are valid to configure. The user should enter a single number/integer that either matches one of the listed numbers or is within one of the listed ranges. Example: \"Valid ranges: 53, 123, 4000-33433\""
 msgid "Valid ranges: %s"
 msgstr "Kelvolliset portit: %s"
 

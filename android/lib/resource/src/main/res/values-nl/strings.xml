@@ -12,7 +12,7 @@
     <string name="add_a_server">Server toevoegen</string>
     <string name="add_dns_server_dialog_title">DNS-server toevoegen</string>
     <string name="add_time_to_account">Koop krediet op onze website of wissel een voucher in.</string>
-    <string name="added_to_your_account">Er is %1$s toegevoegd aan uw account.</string>
+    <string name="added_to_your_account">%1$s is toegevoegd aan uw account.</string>
     <string name="agree_and_continue">Akkoord en doorgaan</string>
     <string name="all_applications">Alle toepassingen</string>
     <string name="all_providers">Alle aanbieders</string>
@@ -48,6 +48,7 @@
     <string name="connecting">Bezig met verbinden</string>
     <string name="connecting_to_daemon">Verbinden met Mullvad-systeemdienst...</string>
     <string name="continue_login">Doorgaan met aanmelden</string>
+    <string name="copied_logs_to_clipboard">Logs gekopieerd naar klembord</string>
     <string name="copied_mullvad_account_number">Mullvad-accountnummer gekopieerd naar klembord</string>
     <string name="copied_to_clipboard">Gekopieerd naar klembord</string>
     <string name="copy_account_number">Accountnummer kopiëren</string>
@@ -139,6 +140,7 @@
     <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
     <string name="new_device_notification_message">Welkom, dit apparaat heet nu &lt;b&gt;%1$s&lt;/b&gt;. Zie voor meer informatie de infoknop in Account.</string>
     <string name="new_device_notification_title">NIEUW APPARAAT GEMAAKT</string>
+    <string name="no_internet_connection">Geen internetverbinding</string>
     <string name="no_matching_relay">Er zijn geen servers die overeenkomen met uw instellingen. Probeer een andere server of andere instellingen.</string>
     <string name="no_wireguard_key">Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde instellingen.</string>
     <string name="not_blocking_internet">U LEKT MOGELIJK NETWERKVERKEER</string>

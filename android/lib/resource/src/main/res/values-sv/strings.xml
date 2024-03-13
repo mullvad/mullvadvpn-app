@@ -12,7 +12,7 @@
     <string name="add_a_server">Lägg till en server</string>
     <string name="add_dns_server_dialog_title">Lägg till DNS-server</string>
     <string name="add_time_to_account">Du kan antingen köpa kredit på vår webbplats eller lösa in en kupong.</string>
-    <string name="added_to_your_account">%1$s har lagts till i ditt konto.</string>
+    <string name="added_to_your_account">%1$s har lagts till på ditt konto.</string>
     <string name="agree_and_continue">Godkänn och fortsätt</string>
     <string name="all_applications">Alla applikationer</string>
     <string name="all_providers">Alla leverantörer</string>
@@ -48,6 +48,7 @@
     <string name="connecting">Ansluter</string>
     <string name="connecting_to_daemon">Ansluter till Mullvads systemtjänst...</string>
     <string name="continue_login">Fortsätt med inloggning</string>
+    <string name="copied_logs_to_clipboard">Loggarna har kopierats till urklipp</string>
     <string name="copied_mullvad_account_number">Kopierade Mullvad-kontonummer till urklipp</string>
     <string name="copied_to_clipboard">Kopierat till urklipp</string>
     <string name="copy_account_number">Kopiera kontonummer</string>
@@ -139,6 +140,7 @@
     <string name="mullvad_owned_only">Endast Mullvad-ägd</string>
     <string name="new_device_notification_message">Välkommen! Den här enheten heter nu &lt;b&gt;%1$s&lt;/b&gt;. Använd informationsknappen i Konto för mer information.</string>
     <string name="new_device_notification_title">NY ENHET HAR SKAPATS</string>
+    <string name="no_internet_connection">Ingen internetanslutning</string>
     <string name="no_matching_relay">Inga servrar matchar dina inställningar. Försök att byta server eller ändra inställningarna.</string>
     <string name="no_wireguard_key">Giltig WireGuard-nyckel saknas. Hantera nycklar i Avancerade inställningar.</string>
     <string name="not_blocking_internet">DU KANSKE HAR LÄCKAGE I NÄTVERKSTRAFIKEN</string>

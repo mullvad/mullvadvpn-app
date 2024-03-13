@@ -12,7 +12,7 @@
     <string name="add_a_server">新增伺服器</string>
     <string name="add_dns_server_dialog_title">新增 DNS 伺服器</string>
     <string name="add_time_to_account">在我們網站上購買點數或兌換憑證。</string>
-    <string name="added_to_your_account">已為您的帳戶新增 %1$s。</string>
+    <string name="added_to_your_account">%1$s已新增至您的帳戶。</string>
     <string name="agree_and_continue">同意並繼續</string>
     <string name="all_applications">所有應用程式</string>
     <string name="all_providers">所有供應商</string>
@@ -48,6 +48,7 @@
     <string name="connecting">正在連線</string>
     <string name="connecting_to_daemon">連線 Mullvad 系統服務中...</string>
     <string name="continue_login">繼續登入</string>
+    <string name="copied_logs_to_clipboard">已將記錄複製到剪貼簿</string>
     <string name="copied_mullvad_account_number">已將 Mullvad 帳號複製到剪貼簿</string>
     <string name="copied_to_clipboard">已複製到剪貼簿</string>
     <string name="copy_account_number">複製帳號</string>
@@ -139,6 +140,7 @@
     <string name="mullvad_owned_only">僅 Mullvad 自有</string>
     <string name="new_device_notification_message">歡迎，此裝置現在稱為 &lt;b&gt;%1$s&lt;/b&gt;。如需詳細資訊，請點按「帳戶」中的資訊按鈕。</string>
     <string name="new_device_notification_title">已建立新裝置</string>
+    <string name="no_internet_connection">沒有網際網路連線</string>
     <string name="no_matching_relay">沒有與您的設定相符的伺服器，請嘗試變更伺服器或其他設定。</string>
     <string name="no_wireguard_key">缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。</string>
     <string name="not_blocking_internet">您的網路流量可能正在洩露</string>

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2023-12-04 12:55\n"
+"PO-Revision-Date: 2024-03-13 08:24\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -151,6 +151,10 @@ msgstr "Danmark"
 #. US DEN
 msgid "Denver, CO"
 msgstr "Denver, CO"
+
+#. US DET
+msgid "Detroit, MI"
+msgstr "Detroit, MI"
 
 #. AE DXB
 msgid "Dubai"

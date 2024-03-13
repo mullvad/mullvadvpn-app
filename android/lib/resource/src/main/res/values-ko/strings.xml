@@ -12,7 +12,7 @@
     <string name="add_a_server">서버 추가</string>
     <string name="add_dns_server_dialog_title">DNS 서버 추가</string>
     <string name="add_time_to_account">웹 사이트에서 크레딧을 구매하거나 바우처를 사용하세요.</string>
-    <string name="added_to_your_account">%1$s이(가) 귀하의 계정에 추가되었습니다.</string>
+    <string name="added_to_your_account">%1$s이(가) 계정에 추가되었습니다.</string>
     <string name="agree_and_continue">동의하고 계속하기</string>
     <string name="all_applications">모든 애플리케이션</string>
     <string name="all_providers">모든 제공업체</string>
@@ -48,6 +48,7 @@
     <string name="connecting">연결 중</string>
     <string name="connecting_to_daemon">Mullvad 시스템 서비스에 연결하는 중...</string>
     <string name="continue_login">로그인 계속하기</string>
+    <string name="copied_logs_to_clipboard">로그를 클립보드에 복사했습니다.</string>
     <string name="copied_mullvad_account_number">클립보드에 Mullvad 계정 번호 복사됨</string>
     <string name="copied_to_clipboard">클립보드에 복사됨</string>
     <string name="copy_account_number">계정 번호 복사</string>
@@ -139,6 +140,7 @@
     <string name="mullvad_owned_only">Mullvad 소유만</string>
     <string name="new_device_notification_message">환영합니다! 이제 이 장치의 이름은 &lt;b&gt;%1$s&lt;/b&gt;입니다. 자세한 내용을 보려면 계정의 정보 버튼을 누르세요.</string>
     <string name="new_device_notification_title">새 장치가 생성됨</string>
+    <string name="no_internet_connection">인터넷에 연결되지 않음</string>
     <string name="no_matching_relay">설정과 일치하는 서버가 없습니다. 서버 또는 기타 설정을 변경해 보세요.</string>
     <string name="no_wireguard_key">유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요.</string>
     <string name="not_blocking_internet">네트워크 트래픽이 유출될 수 있습니다.</string>
