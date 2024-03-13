@@ -350,7 +350,7 @@ private fun DeviceListItem(
 ) {
     BaseCell(
         isRowEnabled = false,
-        title = {
+        headlineContent = {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
