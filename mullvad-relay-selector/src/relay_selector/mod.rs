@@ -125,7 +125,7 @@ pub enum GetRelay {
 }
 
 /// This struct defines the different Wireguard relays the the relay selector can end up selecting
-/// for an arbitrary Wireguard query.
+/// for an arbitrary Wireguard [`query`].
 ///
 /// [`WireguardConfig::Singlehop`]; A normal wireguard relay where VPN traffic enters and exits
 /// through this sole relay.
