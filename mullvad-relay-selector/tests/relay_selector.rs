@@ -199,6 +199,58 @@ fn default_relay_selector() -> RelaySelector {
     RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone())
 }
 
+/// This is not an actual test. Rather, it serves as a reminder that if [`RETRY_ORDER`] is modified,
+/// the programmer should be made aware to update all external documents which rely on the retry order
+/// to be correct.
+///
+/// When all necessary changes have been made, feel free to update this test to mirror the new [`RETRY_ORDER`].
+#[test]
+fn assert_retry_order() {
+    use talpid_types::net::{IpVersion, TransportProtocol};
+    let expected_retry_order = vec![
+        // 0
+        RelayQueryBuilder::new().build(),
+        // 1
+        RelayQueryBuilder::new().wireguard().build(),
+        // 2
+        RelayQueryBuilder::new().wireguard().port(443).build(),
+        // 3
+        RelayQueryBuilder::new()
+            .wireguard()
+            .ip_version(IpVersion::V6)
+            .build(),
+        // 4
+        RelayQueryBuilder::new()
+            .openvpn()
+            .transport_protocol(TransportProtocol::Tcp)
+            .port(443)
+            .build(),
+        // 5
+        RelayQueryBuilder::new().wireguard().udp2tcp().build(),
+        // 6
+        RelayQueryBuilder::new()
+            .wireguard()
+            .udp2tcp()
+            .ip_version(IpVersion::V6)
+            .build(),
+        // 7
+        RelayQueryBuilder::new()
+            .openvpn()
+            .transport_protocol(TransportProtocol::Tcp)
+            .bridge()
+            .build(),
+    ];
+
+    assert!(
+        *RETRY_ORDER == expected_retry_order,
+        "
+    The relay selector's retry order has been modified!
+    Make sure to update `docs/relay-selector.md` with these changes.
+    Lastly, you may go ahead and fix this test to reflect the new retry order.
+    "
+    );
+}
+
 /// Test whether the relay selector seems to respect the order as defined by [`RETRY_ORDER`].
 #[test]
 fn test_retry_order() {
