@@ -1,21 +1,10 @@
-targets = [
-    { triple = "x86_64-unknown-linux-gnu" },
-    { triple = "x86_64-pc-windows-gnu" },
-    { triple = "x86_64-apple-darwin" },
-    { triple = "aarch64-apple-darwin" }
-]
-
 # This section is considered when running `cargo deny check advisories`
 # More documentation for the advisories section can be found here:
 # https://embarkstudios.github.io/cargo-deny/checks/advisories/cfg.html
 [advisories]
+version = 2 # https://github.com/EmbarkStudios/cargo-deny/pull/611
 db-path = "~/.cargo/advisory-db"
 db-urls = ["https://github.com/rustsec/advisory-db"]
-
-vulnerability = "deny"
-unmaintained = "warn"
-yanked = "deny"
-notice = "deny"
 
 ignore = [
     # Ignored audit issues. This list should be kept short, and effort should be
@@ -31,8 +20,7 @@ ignore = [
 # More documentation for the licenses section can be found here:
 # https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html
 [licenses]
-# The lint level for crates which do not have a detectable license
-unlicensed = "deny"
+version = 2 # https://github.com/EmbarkStudios/cargo-deny/pull/611
 
 # Adding a license here has to be done carefully. Should not be changed
 # by individual developers.
@@ -45,16 +33,12 @@ allow = [
     "BSD-3-Clause",
     "BSD-2-Clause",
     "CC0-1.0",
+    "MPL-2.0",
     # https://github.com/briansmith/ring/issues/902
     "LicenseRef-ring",
     "Unicode-DFS-2016"
 ]
 
-deny = []
-
-copyleft = "allow"
-allow-osi-fsf-free = "neither"
-default = "deny"
 confidence-threshold = 0.8
 
 exceptions = []
@@ -69,7 +53,6 @@ license-files = [
 [licenses.private]
 ignore = false
 registries = []
-
 
 # This section is considered when running `cargo deny check bans`.
 # More documentation about the 'bans' section can be found here:
@@ -90,7 +73,6 @@ deny = [
 skip = []
 skip-tree = []
 
-
 # This section is considered when running `cargo deny check sources`.
 # More documentation about the 'sources' section can be found here:
 # https://embarkstudios.github.io/cargo-deny/checks/sources/cfg.html
@@ -106,3 +88,11 @@ allow-git = []
 [sources.allow-org]
 # 1 or more github.com organizations to allow git sources for
 github = ["mullvad"]
+
+[graph]
+targets = [
+    { triple = "x86_64-unknown-linux-gnu" },
+    { triple = "x86_64-pc-windows-gnu" },
+    { triple = "x86_64-apple-darwin" },
+    { triple = "aarch64-apple-darwin" }
+]
