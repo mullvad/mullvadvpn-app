@@ -1,4 +1,5 @@
 //! Definition of relay selector errors
+#![allow(dead_code)]
 
 use mullvad_types::{relay_constraints::MissingCustomBridgeSettings, relay_list::Relay};
 
