@@ -81,16 +81,11 @@ pub mod flood {
 
     /// Log when a line is hit unusually frequently, that is, over `CALLS_THRESHOLD` times within a
     /// period of `CALLS_INTERVAL`.
-    ///
-    /// The caller of this macro must have `once_cell` and `log` as dependencies.
     #[macro_export]
     macro_rules! detect_flood {
         () => {{
-            static FLOOD: $crate::flood::once_cell::sync::Lazy<
-                ::std::sync::Mutex<talpid_types::flood::DetectFlood>,
-            > = $crate::flood::once_cell::sync::Lazy::new(|| {
-                ::std::sync::Mutex::new($crate::flood::DetectFlood::default())
-            });
+            static FLOOD: ::std::sync::Mutex<$crate::flood::DetectFlood> =
+                ::std::sync::Mutex::new($crate::flood::DetectFlood::new());
             if FLOOD.lock().unwrap().bump() {
                 $crate::flood::log::warn!(
                     "Flood: {}, line {}, col {}",
@@ -104,24 +99,23 @@ pub mod flood {
 
     /// Used to detect code that is running too frequently
     pub struct DetectFlood {
-        last_clear: Instant,
+        last_clear: Option<Instant>,
         counter: usize,
     }
 
-    impl Default for DetectFlood {
-        fn default() -> Self {
+    impl DetectFlood {
+        pub const fn new() -> Self {
             DetectFlood {
-                last_clear: Instant::now(),
+                last_clear: None,
                 counter: 0,
             }
         }
-    }
 
-    impl DetectFlood {
         pub fn bump(&mut self) -> bool {
             let now = Instant::now();
-            if now.saturating_duration_since(self.last_clear) >= CALLS_INTERVAL {
-                self.last_clear = now;
+            let last_clear = self.last_clear.get_or_insert(now);
+            if now.saturating_duration_since(*last_clear) >= CALLS_INTERVAL {
+                self.last_clear = Some(now);
                 self.counter = 0;
                 false
             } else {
