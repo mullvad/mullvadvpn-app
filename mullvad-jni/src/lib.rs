@@ -19,13 +19,20 @@ use jnix::{
 };
 use mullvad_api::{rest::Error as RestError, StatusCode};
 use mullvad_daemon::{
-    device, exception_logging, logging, runtime::new_runtime_builder, version, Daemon,
+    device,
+    exception_logging,
+    logging,
+    runtime::new_runtime_builder,
+    version,
+    Daemon,
     DaemonCommandChannel,
+    settings::patch::Error as PatchError,
 };
 use mullvad_types::{
     account::{AccountData, PlayPurchase, VoucherSubmission},
     custom_list::CustomList,
     settings::DnsOptions,
+    relay_constraints::RelayOverride,
 };
 use std::{
     io,
@@ -186,6 +193,39 @@ impl From<daemon_interface::Error> for VoucherSubmissionError {
                 device::Error::UsedVoucher,
             )) => VoucherSubmissionError::VoucherAlreadyUsed,
             _ => VoucherSubmissionError::OtherError,
+        }
+    }
+}
+
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
+pub enum SettingsPatchError {
+    InvalidOrMissingValue(String),
+    UnknownOrProhibitedKey(String),
+    ParsePatch,
+    DeserializePatched,
+    RecursionLimit,
+    ApplyPatch,
+}
+
+impl From<daemon_interface::Error> for SettingsPatchError {
+    fn from(error: daemon_interface::Error) -> Self {
+        match error {
+            daemon_interface::Error::Patch(PatchError::InvalidOrMissingValue(str))
+                => SettingsPatchError::InvalidOrMissingValue(str.to_string()),
+            daemon_interface::Error::Patch(PatchError::UnknownOrProhibitedKey(string))
+                => SettingsPatchError::UnknownOrProhibitedKey(string),
+            daemon_interface::Error::Patch(PatchError::ParsePatch(_))
+                => SettingsPatchError::ParsePatch,
+            daemon_interface::Error::Patch(PatchError::DeserializePatched(_))
+                => SettingsPatchError::DeserializePatched,
+            daemon_interface::Error::Patch(PatchError::SerializeSettings(_))
+                => SettingsPatchError::ApplyPatch,
+            daemon_interface::Error::Patch(PatchError::SerializeValue(_))
+                => SettingsPatchError::ApplyPatch,
+            daemon_interface::Error::Patch(PatchError::RecursionLimit)
+                => SettingsPatchError::RecursionLimit,
+            _ => SettingsPatchError::ApplyPatch,
         }
     }
 }
@@ -1464,6 +1504,103 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateC
             .forget()
     }
 }
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_applyJsonSettings<'env>(
+    env: JNIEnv<'env>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    json: JString<'_>,
+) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
+
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
+        let jsonSettings = String::from_java(&env, json);
+        match daemon_interface.apply_json_settings(jsonSettings) {
+            Ok(()) => JObject::null(),
+            Err(error) => {
+                log_request_error("apply json settings", &error);
+                SettingsPatchError::from(error).into_java(&env).forget()
+            }
+        }
+    } else {
+        log::warn!("Daemon was unreachable");
+        JObject::null()
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_exportJsonSettings<'env>(
+    env: JNIEnv<'env>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    _: JObject<'_>,
+) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
+        match daemon_interface.export_json_settings() {
+            Ok(exported_json) => exported_json.into_java(&env).forget(),
+            Err(error) => {
+                log_request_error("export json settings", &error);
+                JObject::null()
+            }
+        }
+    } else {
+        log::warn!("Daemon was unreachable");
+        JObject::null()
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setRelayOverride(
+    env: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    relay_override: JObject<'_>,
+) {
+    let env = JnixEnv::from(env);
+
+
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
+        let r_override = RelayOverride::from_java(&env, relay_override);
+
+        match daemon_interface.set_relay_override(r_override) {
+            Ok(()) => (),
+            Err(error) => {
+                log_request_error("set relay override", &error);
+            }
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_clearAllRelayOverrides(
+    _: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    _: JObject<'_>,
+) {
+
+    // SAFETY: The address points to an instance valid for the duration of this function call
+    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
+        match daemon_interface.clear_all_relay_overrides() {
+            Ok(()) => (),
+            Err(error) => {
+                log_request_error("clear all relay overrides", &error);
+            }
+        }
+    }
+}
+
 
 fn log_request_error(request: &str, error: &daemon_interface::Error) {
     match error {

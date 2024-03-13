@@ -1,16 +1,17 @@
 use futures::{channel::oneshot, executor::block_on};
-use mullvad_daemon::{device, DaemonCommand, DaemonCommandSender};
+use mullvad_daemon::{device, DaemonCommand, DaemonCommandSender, settings::patch};
 use mullvad_types::{
     account::{AccountData, AccountToken, PlayPurchase, VoucherSubmission},
     custom_list::CustomList,
     device::{Device, DeviceState},
-    relay_constraints::{ObfuscationSettings, RelaySettings},
+    relay_constraints::{ObfuscationSettings, RelaySettings, RelayOverride},
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
     version::AppVersionInfo,
     wireguard,
     wireguard::QuantumResistantState,
+
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -30,6 +31,9 @@ pub enum Error {
     #[error("Failed to update settings")]
     UpdateSettings,
 
+    #[error("Patch error")]
+    Patch(#[source] patch::Error),
+
     #[error("Daemon returned an error")]
     Other(#[source] mullvad_daemon::Error),
 }
@@ -45,6 +49,14 @@ impl From<mullvad_daemon::Error> for Error {
                 Error::Api(error)
             }
             error => Error::Other(error),
+        }
+    }
+}
+
+impl From<patch::Error> for Error {
+    fn from(error: patch::Error) -> Error {
+        match error {
+            error => Error::Patch(error),
         }
     }
 }
@@ -382,6 +394,46 @@ impl DaemonInterface {
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
             .map_err(Error::from)
+    }
+
+    pub fn apply_json_settings(&self, json: String) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::ApplyJsonSettings(tx, json))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::from)
+    }
+
+    pub fn export_json_settings(&self) -> Result<String> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::ExportJsonSettings(tx))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::from)
+    }
+
+    pub fn set_relay_override(&self, relay_override: RelayOverride) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::SetRelayOverride(tx, relay_override))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(|_| Error::UpdateSettings)
+    }
+
+    pub fn clear_all_relay_overrides(&self) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::ClearAllRelayOverrides(tx))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(|_| Error::UpdateSettings)
     }
 
     fn send_command(&self, command: DaemonCommand) -> Result<()> {

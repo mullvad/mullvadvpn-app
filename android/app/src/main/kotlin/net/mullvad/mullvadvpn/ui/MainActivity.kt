@@ -92,7 +92,13 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        serviceConnectionManager.onVpnPermissionResult(resultCode == Activity.RESULT_OK)
+        // super call is needed for return value when opening file.
+        super.onActivityResult(requestCode, resultCode, resultData)
+
+        // Ensure we are responding to the correct request
+        if (requestCode == 0) {
+            serviceConnectionManager.onVpnPermissionResult(resultCode == Activity.RESULT_OK)
+        }
     }
 
     override fun onStop() {
