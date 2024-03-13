@@ -16,3 +16,15 @@ jobs:
           allow-one-liners: 'true'
           # This action defaults to 50 char subjects, but 74 is fine.
           max-subject-line-length: '74'
+
+      - name: Check for unicode whitespaces
+        uses: gsactions/commit-message-checker@v2
+        with:
+          # Pattern matches strings not containing weird unicode whitespace/separator characters
+          # \P{Z} = All non-whitespace characters (the u-flag is needed to enable \P{Z})
+          # [ \t\n] = Allowed whitespace characters
+          pattern: '^(\P{Z}|[ \t\n])+$'
+          flags: 'u'
+          error: 'Detected unicode whitespace character in commit message.'
+          checkAllCommitMessages: 'true' # optional: this checks all commits associated with a pull request
+          accessToken: ${{ secrets.GITHUB_TOKEN }} # only required if checkAllCommitMessages is true
