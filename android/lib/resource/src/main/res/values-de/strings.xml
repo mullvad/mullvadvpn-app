@@ -24,14 +24,6 @@
     <string name="apply">Anwenden</string>
     <string name="auth_failed">Konto konnte nicht authentifiziert werden. Bitte senden Sie einen Problembericht.</string>
     <string name="auto_connect">Automatische Verbindung</string>
-    <string name="auto_connect_and_lockdown_mode">Automatische Verbindung &amp; Sperrmodus</string>
-    <string name="auto_connect_and_lockdown_mode_footer">Gewährleistet, dass sich das Gerät immer im VPN-Tunnel befindet.</string>
-    <string name="auto_connect_carousel_first_slide_bottom_text">1. Nachdem Sie unten auf &lt;b&gt;VPN-Einstellungen öffnen&lt;/b&gt; geklickt haben, klicken Sie auf das Zahnrad neben &lt;b&gt;Mullvad-VPN&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_first_slide_top_text">Die Einstellungen für die automatische Verbindung und den Sperrmodus finden Sie in den Android-Systemeinstellungen. Folgen Sie dieser Anleitung, um eine oder beide Einstellungen zu aktivieren.</string>
-    <string name="auto_connect_carousel_second_slide_bottom_text">2. Um die automatische Verbindung zu aktivieren, klicken Sie auf den Kippschalter neben &lt;b&gt;Always-on VPN&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_second_slide_top_text">Die automatische Verbindung wird in den Android-Systemeinstellungen als „Always-on VPN“ bezeichnet und sorgt dafür, dass Sie ständig mit dem VPN-Tunnel verbunden sind und sich nach einem Neustart automatisch verbinden.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Um den Sperrmodus zu aktivieren, klicken Sie auf den Kippschalter neben &lt;b&gt;Verbindungen ohne VPN sperren&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">Der Sperrmodus blockiert den gesamten Internetzugang, wenn die Verbindung zum VPN-Tunnel manuell unterbrochen wird. &lt;br/&gt;&lt;b&gt;Warnung: Diese Einstellung blockiert geteilte Anwendungen und das Teilen im lokalen Netzwerk&lt;/b&gt;.</string>
     <string name="auto_connect_footer">Stellt automatisch eine Verbindung zum Server her, wenn die App startet.</string>
     <string name="automatic">Automatisch</string>
     <string name="back">Zurück</string>
@@ -111,7 +103,6 @@
     <string name="foreground_notification_channel_description">Zeigt den aktuellen Status des VPN-Tunnels an</string>
     <string name="foreground_notification_channel_name">Status des VPN-Tunnels</string>
     <string name="go_to_login">Zur Anmeldung</string>
-    <string name="go_to_vpn_settings">VPN-Einstellungen öffnen</string>
     <string name="got_it">Verstanden!</string>
     <string name="here_is_your_account_number">Hier ist Ihre Kontonummer. Verlieren Sie sie nicht!</string>
     <string name="hide_account_number">Kontonummer verbergen</string>
@@ -218,7 +209,6 @@
     <string name="show_account_number">Kontonummer anzeigen</string>
     <string name="show_system_apps">System-Apps anzeigen</string>
     <string name="split_tunneling_description">Wählen Sie die Apps aus, die Sie aus dem VPN-Tunnel ausschließen möchten.</string>
-    <string name="split_tunneling_disabled_description">Split-Tunneling ist deaktiviert.</string>
     <string name="start_tunnel_error">Die Tunnelverbindung konnte nicht gestartet werden. Bitte senden Sie einen Problembericht.</string>
     <string name="submit_button">Absenden</string>
     <string name="switch_location">Ort wechseln</string>
@@ -248,7 +238,6 @@
     <string name="vpn_permission_denied_error">VPN-Berechtigungen wurden beim Erstellen des Tunnels abgelehnt.</string>
     <string name="vpn_permission_error_notification_message">Always-on VPN könnte für eine andere App aktiviert sein</string>
     <string name="vpn_permission_error_notification_title">VPN-Berechtigungsfehler</string>
-    <string name="vpn_settings_not_found">Es gibt keine VPN-Einstellungen auf Ihrem Gerät</string>
     <string name="we_will_look_into_this">Wir werden uns das anschauen.</string>
     <string name="wireguard_custon_port_title">Benutzerdefiniert</string>
     <string name="wireguard_mtu">WireGuard-MTU</string>

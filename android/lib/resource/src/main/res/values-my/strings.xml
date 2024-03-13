@@ -24,14 +24,6 @@
     <string name="apply">သုံးရန်</string>
     <string name="auth_failed">အကောင့်ကို စစ်မှန်ကြောင်း အတည်ပြု၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
     <string name="auto_connect">အော်တို ချိတ်ဆက်မှု</string>
-    <string name="auto_connect_and_lockdown_mode">အော်တို ချိတ်ဆက်မှု နှင့် လော့ခ်ဒေါင်းစနစ်</string>
-    <string name="auto_connect_and_lockdown_mode_footer">စက်သည် VPN Tunnel ကို အမြဲဖွင့်ထားကြောင်း သေချာပါစေ။</string>
-    <string name="auto_connect_carousel_first_slide_bottom_text">1. အောက်ရှိ &lt;b&gt;VPN ဆက်တင်များသို့ သွားရန်&lt;/b&gt; ခလုတ်ကို နှိပ်ပြီးနောက် &lt;b&gt;Mullvad VPN&lt;/b&gt; အမည်ဘေးရှိ ခွေးသွားစိတ်ပုံကို နှိပ်ပါ။</string>
-    <string name="auto_connect_carousel_first_slide_top_text">အော်တို ချိတ်ဆက်မှုနှင့် လော့ခ်ဒေါင်းစနစ် ဆက်တင်များကို Android စနစ် ဆက်တင်များတွင် ရှာတွေ့နိုင်ပြီး တစ်ခု သို့မဟုတ် နှစ်ခုလုံးကို ဖွင့်ရန် ဤလမ်းညွှန်ချက်ကို လိုက်နာပါ။</string>
-    <string name="auto_connect_carousel_second_slide_bottom_text">2. အော်တို ချိတ်ဆက်မှု ဖွင့်ရန် &lt;b&gt;အမြဲဖွင့် VPN&lt;/b&gt; ဘေးရှိ ဖွင့်/ပိတ် ခလုတ်ကို နှိပ်ပါ။</string>
-    <string name="auto_connect_carousel_second_slide_top_text">Android စနစ် ဆက်တင်တွင် အော်တိုချိတ်ဆက်မှုကို အမြဲဖွင့် VPN ဟုခေါ်ပြီး VPN Tunnel ကို အမြဲချိတ်ဆက်ထားကြောင်း သေချာစေပြီး အစမှ ပြန်ဖွင့်ပြီးနောက် အော်တို ချိတ်ဆက်ပါသည်။</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. လော့ခ်ဒေါင်းစနစ်ကို ဖွင့်ရန် &lt;b&gt;VPN မပါဘဲ ချိတ်ဆက်မှုများ ပိတ်ဆို့ရန်&lt;/b&gt; ဘေးရှိ ဖွင့်/ပိတ် ခလုတ်ကို နှိပ်ပါ။.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">VPN Tunnel ကို ချိတ်ဆက်မှုမှ ကိုယ်တိုင် ဖြုတ်လိုက်ပါက လော့ခ်ဒေါင်းစနစ်သည် အင်တာနက် ရယူသုံးစွဲခွင့် အာလုံးကို ပိတ်ဆို့ပါသည်။ &lt;br/&gt;&lt;b&gt;သတိပြုရန်- ဤဆက်တင်သည် Split အက်ပ်များနှင့် ဒေသတွင်း ကွန်ရက် ဝေမျှမှု လုပ်ဆောင်ချက်ကို ပိတ်ဆို့ပါမည်&lt;/b&gt;။</string>
     <string name="auto_connect_footer">အက်ပ် စတင်ဆောင်ရွက်ချိန်တွင် ဆာဗာနှင့် အော်တို ချိတ်ဆက်သွားပါမည်။</string>
     <string name="automatic">အလိုအလျောက်</string>
     <string name="back">နောက်သို့</string>
@@ -111,7 +103,6 @@
     <string name="foreground_notification_channel_description">လက်ရှိ VPN Tunnel အခြေအနေကို ပြသပေးပါသည်</string>
     <string name="foreground_notification_channel_name">VPN Tunnel အခြေအနေ</string>
     <string name="go_to_login">ဝင်ရောက်ရန် သွားပါ</string>
-    <string name="go_to_vpn_settings">VPN ဆက်တင်များသို့ သွားရန်</string>
     <string name="got_it">ရပါပြီ။</string>
     <string name="here_is_your_account_number">ဤသည်မှာ သင့်အကောင့်နံပါတ် ဖြစ်ပါသည်။ သိမ်းမှတ်ထားပါ။</string>
     <string name="hide_account_number">အကောင့်နံပါတ်ကို ဝှက်ရန်</string>
@@ -218,7 +209,6 @@
     <string name="show_account_number">အကောင့်နံပါတ်ကို ပြရန်</string>
     <string name="show_system_apps">စနစ်အက်ပ်များ ပြရန်</string>
     <string name="split_tunneling_description">VPN Tunnel မှ ဖယ်ထုတ်လိုသည့် အက်ပ်များကို ရွေးချယ်ပါ။</string>
-    <string name="split_tunneling_disabled_description">Split Tunneling ကို ပိတ်ထားပါသည်။</string>
     <string name="start_tunnel_error">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
     <string name="submit_button">ပေးပို့ရန်</string>
     <string name="switch_location">တည်နေရာ ပြောင်းရန်</string>
@@ -248,7 +238,6 @@
     <string name="vpn_permission_denied_error">Tunnel ဖန်တီးနေစဉ် VPN ခွင့်ပြုချက်ကို ပယ်ချခဲ့ပါသည်။ ထပ်မံချိတ်ဆက်ပေးပါ။</string>
     <string name="vpn_permission_error_notification_message">အမြဲဖွင့် VPN ကို နောက်ထပ်အက်ပ်အတွက် ဖွင့်ထားနိုင်ပါသည်</string>
     <string name="vpn_permission_error_notification_title">VPN ခွင့်ပြုချက် ချို့ယွင်းချက်</string>
-    <string name="vpn_settings_not_found">သင့်စက်တွင် VPN ဆက်တင် မရှိပါ။</string>
     <string name="we_will_look_into_this">ဤသည်ကို စစ်ဆေးလိုက်ပါမည်။</string>
     <string name="wireguard_custon_port_title">စိတ်ကြိုက်</string>
     <string name="wireguard_mtu">WireGuard MTU</string>

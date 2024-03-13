@@ -24,14 +24,6 @@
     <string name="apply">적용</string>
     <string name="auth_failed">계정을 인증할 수 없습니다. 문제 보고서를 보내주세요.</string>
     <string name="auto_connect">자동 연결</string>
-    <string name="auto_connect_and_lockdown_mode">자동 연결 및 잠금 모드</string>
-    <string name="auto_connect_and_lockdown_mode_footer">장치가 항상 VPN 터널에 있어야 합니다.</string>
-    <string name="auto_connect_carousel_first_slide_bottom_text">1. 아래의 &lt;b&gt;VPN 설정으로 이동&lt;/b&gt; 버튼을 클릭한 후 &lt;b&gt;Mullvad VPN&lt;/b&gt; 이름 옆의 톱니바퀴를 클릭합니다.</string>
-    <string name="auto_connect_carousel_first_slide_top_text">자동 연결 및 잠금 모드 설정은 Android 시스템 설정에서 찾을 수 있습니다. 이 가이드에 따라 하나 또는 둘 다를 활성화하세요.</string>
-    <string name="auto_connect_carousel_second_slide_bottom_text">2. 자동 연결을 활성화하려면 &lt;b&gt;상시 접속 VPN&lt;/b&gt; 옆에 있는 토글을 클릭합니다.</string>
-    <string name="auto_connect_carousel_second_slide_top_text">자동 연결은 Android 시스템 설정에서 상시 접속 VPN이라고 하며 VPN 터널에 지속적으로 연결되고 다시 시작한 후 자동 연결되게 해줍니다.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. 잠금 모드를 활성화하려면 &lt;b&gt;VPN 없이 연결 차단&lt;/b&gt; 옆에 있는 토글을 클릭합니다.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">VPN 터널이 수동으로 연결 해제되면 잠금 모드는 모든 인터넷 액세스를 차단합니다. &lt;br/&gt;&lt;b&gt;경고: 이 설정은 분할 앱과 로컬 네트워크 공유 기능을 차단합니다&lt;/b&gt;.</string>
     <string name="auto_connect_footer">앱이 시작되면 자동으로 서버에 연결합니다.</string>
     <string name="automatic">자동</string>
     <string name="back">뒤로</string>
@@ -111,7 +103,6 @@
     <string name="foreground_notification_channel_description">현재 VPN 터널 상태 표시</string>
     <string name="foreground_notification_channel_name">VPN 터널 상태</string>
     <string name="go_to_login">로그인하기</string>
-    <string name="go_to_vpn_settings">VPN 설정으로 이동</string>
     <string name="got_it">확인!</string>
     <string name="here_is_your_account_number">계정 번호는 다음과 같습니다. 저장하세요!</string>
     <string name="hide_account_number">계정 번호 숨기기</string>
@@ -218,7 +209,6 @@
     <string name="show_account_number">계정 번호 표시</string>
     <string name="show_system_apps">시스템 앱 표시</string>
     <string name="split_tunneling_description">VPN 터널에서 제외할 앱을 선택하세요.</string>
-    <string name="split_tunneling_disabled_description">분할 터널링이 비활성화되었습니다.</string>
     <string name="start_tunnel_error">터널 연결을 시작할 수 없습니다. 문제 보고서를 보내주세요.</string>
     <string name="submit_button">제출</string>
     <string name="switch_location">위치 전환</string>
@@ -248,7 +238,6 @@
     <string name="vpn_permission_denied_error">터널을 만드는 동안 VPN 사용 권한이 거부되었습니다. 다시 연결해 보세요.</string>
     <string name="vpn_permission_error_notification_message">상시 접속 VPN이 다른 앱에 활성화되었을 수 있습니다.</string>
     <string name="vpn_permission_error_notification_title">VPN 권한 오류</string>
-    <string name="vpn_settings_not_found">장치에 VPN 설정이 없습니다</string>
     <string name="we_will_look_into_this">조사해보겠습니다.</string>
     <string name="wireguard_custon_port_title">사용자 지정</string>
     <string name="wireguard_mtu">WireGuard MTU</string>

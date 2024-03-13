@@ -24,14 +24,6 @@
     <string name="apply">Zastosuj</string>
     <string name="auth_failed">Nie można uwierzytelnić konta. Wyślij zgłoszenie problemu.</string>
     <string name="auto_connect">Automatyczne łączenie</string>
-    <string name="auto_connect_and_lockdown_mode">Automatyczne łączenie i tryb Lockdown</string>
-    <string name="auto_connect_and_lockdown_mode_footer">Zapewnia, że urządzenie zawsze działa za pośrednictwem tunelu VPN.</string>
-    <string name="auto_connect_carousel_first_slide_bottom_text">1. Po kliknięciu poniższego przycisku &lt;b&gt;Przejdź do ustawień VPN&lt;/b&gt; kliknij koło zębate obok nazwy &lt;b&gt;Mullvad VPN&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_first_slide_top_text">Ustawienia trybu automatycznego łączenia i trybu Lockdown można znaleźć w ustawieniach systemu Android. Aby włączyć jeden lub oba tryby, postępuj zgodnie z niniejszym poradnikiem.</string>
-    <string name="auto_connect_carousel_second_slide_bottom_text">2. Aby włączyć automatyczne łączenie, kliknij przełącznik obok opcji &lt;b&gt;Zawsze włączony VPN&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_second_slide_top_text">Automatyczne łączenie w ustawieniach systemu Android nazywa się „Zawsze włączony VPN” i zapewnia stałe połączenie z tunelem VPN oraz automatyczne łączenie po ponownym uruchomieniu.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Aby włączyć tryb Lockdown, kliknij przełącznik opcji &lt;b&gt;Blokuj połączenia bez VPN&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">Jeśli tunel VPN jest ręcznie odłączony, wówczas tryb Lockdown całkowicie blokuje dostęp do Internetu. &lt;br/&gt;&lt;b&gt;Ostrzeżenie: to ustawienie blokuje aplikacje dzielące i udostępnianie sieci lokalnej&lt;/b&gt;.</string>
     <string name="auto_connect_footer">Automatycznie łącz z serwerem po uruchomieniu aplikacji.</string>
     <string name="automatic">Automatycznie</string>
     <string name="back">Wstecz</string>
@@ -111,7 +103,6 @@
     <string name="foreground_notification_channel_description">Pokazuje bieżący status tunelu VPN</string>
     <string name="foreground_notification_channel_name">Status tunelu VPN</string>
     <string name="go_to_login">Przejdź do logowania</string>
-    <string name="go_to_vpn_settings">Przejdź do ustawień VPN</string>
     <string name="got_it">Jasne!</string>
     <string name="here_is_your_account_number">Oto Twój numer konta. Zachowaj go!</string>
     <string name="hide_account_number">Ukryj numer konta</string>
@@ -218,7 +209,6 @@
     <string name="show_account_number">Pokaż numer konta</string>
     <string name="show_system_apps">Pokaż aplikacje systemowe</string>
     <string name="split_tunneling_description">Wybierz aplikacje, które chcesz wykluczyć z tunelu VPN.</string>
-    <string name="split_tunneling_disabled_description">Dzielone tunelowanie jest wyłączone.</string>
     <string name="start_tunnel_error">Nie można uruchomić połączenia tunelowego. Wyślij zgłoszenie problemu.</string>
     <string name="submit_button">Prześlij</string>
     <string name="switch_location">Zmień lokalizację</string>
@@ -248,7 +238,6 @@
     <string name="vpn_permission_denied_error">Uprawnienie VPN zostało odrzucone podczas tworzenia tunelu. Spróbuj połączyć się ponownie.</string>
     <string name="vpn_permission_error_notification_message">Opcja „Zawsze włączony VPN” może być włączona dla innej aplikacji</string>
     <string name="vpn_permission_error_notification_title">Błąd uprawnienia VPN</string>
-    <string name="vpn_settings_not_found">Na Twoim urządzeniu nie ma ustawień VPN</string>
     <string name="we_will_look_into_this">Sprawdzimy to.</string>
     <string name="wireguard_custon_port_title">Niestandardowy</string>
     <string name="wireguard_mtu">MTU WireGuard</string>

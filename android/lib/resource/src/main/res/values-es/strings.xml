@@ -24,14 +24,6 @@
     <string name="apply">Aplicar</string>
     <string name="auth_failed">No se puede autenticar la cuenta. Envíe un informe de problemas.</string>
     <string name="auto_connect">Conexión automática</string>
-    <string name="auto_connect_and_lockdown_mode">Conexión automática y modo de bloqueo</string>
-    <string name="auto_connect_and_lockdown_mode_footer">Asegura que el dispositivo esté siempre activado en el túnel de la VPN.</string>
-    <string name="auto_connect_carousel_first_slide_bottom_text">1. Tras hacer clic en el botón &lt;b&gt;Ir a la configuración de VPN&lt;/b&gt; de abajo, haga clic en el icono de engranaje situado junto al nombre de la &lt;b&gt;Mullvad VPN&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_first_slide_top_text">La configuración del modo de bloqueo y de la conexión automática puede encontrarse en la configuración del sistema Android, siga esta guía para habilitar uno o ambos.</string>
-    <string name="auto_connect_carousel_second_slide_bottom_text">2. Para habilitar la conexión automática, haga clic en el botón &lt;b&gt;VPN siempre activa&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_second_slide_top_text">La conexión automática se llama VPN siempre activa en la configuración del sistema Android y asegura estar conectado constantemente al túnel de la VPN y conectarse automáticamente después de cada reinicio.</string>
-    <string name="auto_connect_carousel_third_slide_bottom_text">3. Para habilitar el modo de bloqueo, haga clic en el botón situado junto a &lt;b&gt;Bloquear conexiones sin VPN&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">El modo de bloqueo bloquea todo el acceso a Internet si el túnel de la VPN está desconectado manualmente. &lt;br/&gt;&lt;b&gt;Advertencia: Este ajuste bloquea las aplicaciones divididas y la opción Uso compartido de la red local&lt;/b&gt;.</string>
     <string name="auto_connect_footer">Al iniciarse la aplicación, se conecta automáticamente a un servidor.</string>
     <string name="automatic">Automático</string>
     <string name="back">Volver</string>
@@ -111,7 +103,6 @@
     <string name="foreground_notification_channel_description">Muestra el estado actual del túnel VPN</string>
     <string name="foreground_notification_channel_name">Estado del túnel VPN</string>
     <string name="go_to_login">Iniciar sesión</string>
-    <string name="go_to_vpn_settings">Ir a la configuración de VPN</string>
     <string name="got_it">¡Entendido!</string>
     <string name="here_is_your_account_number">Este es un número de cuenta. ¡Guárdelo bien!</string>
     <string name="hide_account_number">Ocultar número de cuenta</string>
@@ -218,7 +209,6 @@
     <string name="show_account_number">Mostrar número de cuenta</string>
     <string name="show_system_apps">Mostrar aplicaciones del sistema</string>
     <string name="split_tunneling_description">Seleccione las aplicaciones que quiera excluir del túnel VPN.</string>
-    <string name="split_tunneling_disabled_description">La tunelización dividida está deshabilitada.</string>
     <string name="start_tunnel_error">No se puede iniciar la conexión del túnel. Envíe un informe de problemas.</string>
     <string name="submit_button">Enviar</string>
     <string name="switch_location">Cambiar ubicación</string>
@@ -248,7 +238,6 @@
     <string name="vpn_permission_denied_error">Se denegó el permiso para usar una conexión VPN al crear el túnel. Intente volver a establecer la conexión.</string>
     <string name="vpn_permission_error_notification_message">La VPN siempre activa podría estar habilitada en otra aplicación</string>
     <string name="vpn_permission_error_notification_title">Error en la autorización de la VPN</string>
-    <string name="vpn_settings_not_found">No hay configuración de VPN en su dispositivo</string>
     <string name="we_will_look_into_this">Revisaremos esto.</string>
     <string name="wireguard_custon_port_title">Personalizado</string>
     <string name="wireguard_mtu">MTU de WireGuard</string>
