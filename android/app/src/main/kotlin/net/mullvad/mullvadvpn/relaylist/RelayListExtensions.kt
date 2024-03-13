@@ -236,4 +236,32 @@ private fun List<RelayItem.Country>.expandItemForSelection(
     } ?: this
 }
 
-private const val MIN_SEARCH_LENGTH = 2
+@Suppress("NestedBlockDepth", "ReturnCount")
+fun RelayList.getGeographicLocationConstraintByCode(code: String): GeographicLocationConstraint? {
+    countries.forEach { country ->
+        val countryCode = country.code
+        if (country.code == code) {
+            return GeographicLocationConstraint.Country(countryCode)
+        }
+        country.cities.forEach { city ->
+            val cityCode = city.code
+            if (city.code == code) {
+                return GeographicLocationConstraint.City(countryCode, city.code)
+            }
+            city.relays.forEach { relay ->
+                if (relay.hostname == code) {
+                    return GeographicLocationConstraint.Hostname(
+                        countryCode,
+                        cityCode,
+                        relay.hostname
+                    )
+                }
+            }
+        }
+    }
+    return null
+}
+
+fun List<RelayItem.Country>.getRelayItemsByCodes(codes: List<String>): List<RelayItem> =
+    this.filter { codes.contains(it.code) } +
+        this.flatMap { it.descendants() }.filter { codes.contains(it.code) }
