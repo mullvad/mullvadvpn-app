@@ -21,9 +21,9 @@ jobs:
         uses: gsactions/commit-message-checker@v2
         with:
           # Pattern matches strings not containing weird unicode whitespace/separator characters
-          # [^\p{Z}] = All non-whitespace characters (the u-flag is needed to enable \p{Z})
+          # \P{Z} = All non-whitespace characters (the u-flag is needed to enable \P{Z})
           # [ \t\n] = Allowed whitespace characters
-          pattern: '^([^\p{Z}]|[ \t\n])+$'
+          pattern: '^(\P{Z}|[ \t\n])+$'
           flags: 'u'
           error: 'Detected unicode whitespace character in commit message.'
           checkAllCommitMessages: 'true' # optional: this checks all commits associated with a pull request
