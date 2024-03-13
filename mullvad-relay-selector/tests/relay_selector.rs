@@ -1,5 +1,4 @@
 //! Tests for verifying that the relay selector works as expected.
-#![deny(missing_docs)]
 
 use once_cell::sync::Lazy;
 use std::collections::HashSet;
@@ -261,13 +260,74 @@ fn test_retry_order() {
     // this would be to create a neutral relay query and supply it to the relay selector at every
     // call to the `get_relay` function.
     let relay_selector = default_relay_selector();
+    for (retry_attempt, query) in RETRY_ORDER.iter().enumerate() {
+        let relay = relay_selector
+            .get_relay(retry_attempt)
+            .unwrap_or_else(|_| panic!("Retry attempt {retry_attempt} did not yield any relay"));
+        // For each relay, cross-check that the it has the expected tunnel protocol
+        let tunnel_type = tunnel_type(&unwrap_relay(relay.clone()));
+        assert_eq!(
+            tunnel_type,
+            query.tunnel_protocol.unwrap_or(TunnelType::Wireguard)
+        );
+        // Then perform some protocol-specific probing as well.
+        match relay {
+            GetRelay::Wireguard {
+                endpoint,
+                obfuscator,
+                ..
+            } => {
+                assert!(query
+                    .wireguard_constraints
+                    .ip_version
+                    .matches_eq(&match endpoint.peer.endpoint.ip() {
+                        std::net::IpAddr::V4(_) => talpid_types::net::IpVersion::V4,
+                        std::net::IpAddr::V6(_) => talpid_types::net::IpVersion::V6,
+                    }));
+                assert!(query
+                    .wireguard_constraints
+                    .port
+                    .matches_eq(&endpoint.peer.endpoint.port()));
+                assert!(match query.wireguard_constraints.obfuscation {
+                    SelectedObfuscation::Auto => true,
+                    SelectedObfuscation::Off => obfuscator.is_none(),
+                    SelectedObfuscation::Udp2Tcp => obfuscator.is_some(),
+                });
+            }
+            GetRelay::OpenVpn {
+                endpoint, bridge, ..
+            } => {
+                if BridgeQuery::should_use_bridge(&query.openvpn_constraints.bridge_settings) {
+                    assert!(bridge.is_some(), "Relay selector should have selected a bridge for query {query:?}, but bridge was `None`");
+                };
+                assert!(query
+                    .openvpn_constraints
+                    .port
+                    .map(|transport_port| transport_port.port.matches_eq(&endpoint.address.port()))
+                    .unwrap_or(true),
+                    "The query {query:?} defined a port to use, but the chosen relay endpoint did not match that port number.
+                    Expected: {expected}
+                    Actual: {actual}",
+                    expected = query.openvpn_constraints.port.unwrap().port.unwrap(), actual = endpoint.address.port()
+                );
+
+                assert!(query.openvpn_constraints.port.map(|transport_port| transport_port.protocol == endpoint.protocol).unwrap_or(true),
+                    "The query {query:?} defined a transport protocol to use, but the chosen relay endpoint did not match that transport protocol.
+                    Expected: {expected}
+                    Actual: {actual}",
+                    expected = query.openvpn_constraints.port.unwrap().protocol, actual = endpoint.protocol
+                );
+            }
+            GetRelay::Custom(_) => unreachable!(),
+        }
+    }
+
+    let relay_selector = default_relay_selector();
     let tunnel_protocols: Vec<Constraint<TunnelType>> = RETRY_ORDER
         .iter()
         .map(|relay| relay.tunnel_protocol)
         .collect();
     for (retry_attempt, tunnel_protocol) in tunnel_protocols.iter().enumerate() {
-        // Check if the tunnel protocol on the relay returned from the relay selector aligns with
-        // the tunnel protocol defined by the default retry strategy.
         match tunnel_protocol {
             Constraint::Any => continue,
             Constraint::Only(expected_tunnel_protocol) => {
