@@ -3,10 +3,7 @@
 
 mod constants;
 mod error;
-#[cfg(not(target_os = "android"))]
-mod relay_selector;
-#[cfg(target_os = "android")]
-#[allow(unused)]
+#[cfg_attr(target_os = "android", allow(unused))]
 mod relay_selector;
 
 // Re-exports

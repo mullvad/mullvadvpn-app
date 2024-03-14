@@ -16,22 +16,6 @@
 //! - [Builder patterns][builder]: The module also provides builder patterns for creating instances
 //!   of `RelayQuery`, `WireguardRelayQuery`, and `OpenVpnRelayQuery` with a fluent API.
 //!
-//! ## Examples
-//!
-//! Creating a basic `RelayQuery` to filter relays by location, ownership and tunnel protocol:
-//!
-//! ```rust
-//! use mullvad_relay_selector::query::RelayQuery;
-//! use mullvad_relay_selector::query::builder::RelayQueryBuilder;
-//! use mullvad_relay_selector::query::builder::{Ownership, GeographicLocationConstraint};
-//!
-//! let query: RelayQuery = RelayQueryBuilder::new()
-//!     .openvpn()                                              // The relay should use OpenVPN, ..
-//!     .location(GeographicLocationConstraint::country("no"))  // .. be locatated in Norway ..
-//!     .ownership(Ownership::MullvadOwned)                     // .. and it must be owned by Mullvad.
-//!     .build();                                               // Construct the query
-//! ```
-//!
 //! ## Design
 //!
 //! This module has been built in such a way that it should be easy to reason about,
@@ -64,7 +48,7 @@ use talpid_types::net::{proxy::CustomProxy, IpVersion, TunnelType};
 ///
 /// # Examples
 ///
-/// Basic usage:
+/// Creating a basic `RelayQuery` to filter relays by location, ownership and tunnel protocol:
 ///
 /// ```rust
 /// // Create a query for a Wireguard relay that is owned by Mullvad and located in Norway.
@@ -83,7 +67,7 @@ use talpid_types::net::{proxy::CustomProxy, IpVersion, TunnelType};
 ///
 /// This example demonstrates creating a `RelayQuery` which can then be passed
 /// to the [`crate::RelaySelector`] to find a relay that matches the criteria.
-/// See [`builder`] for more info on how to build queries and.
+/// See [`builder`] for more info on how to construct queries.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct RelayQuery {
     pub location: Constraint<LocationConstraint>,
