@@ -14,7 +14,6 @@ use talpid_types::net::{IpVersion, TransportProtocol, TunnelType};
 
 use super::query::{OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery};
 
-#[derive(Clone)]
 pub struct RelayMatcher<T: EndpointMatcher> {
     /// Locations allowed to be picked from. In the case of custom lists this may be multiple
     /// locations. In normal circumstances this contains only 1 location.
@@ -27,29 +26,22 @@ pub struct RelayMatcher<T: EndpointMatcher> {
     pub endpoint_matcher: T,
 }
 
-impl RelayMatcher<AnyTunnelMatcher> {
+impl<'a> RelayMatcher<AnyTunnelMatcher<'a>> {
     pub fn new(
-        constraints: RelayQuery,
-        openvpn_data: OpenVpnEndpointData,
+        query: RelayQuery,
+        openvpn_data: &'a OpenVpnEndpointData,
         bridge_state: BridgeState,
-        wireguard_data: WireguardEndpointData,
+        wireguard_data: &'a WireguardEndpointData,
         custom_lists: &CustomListsSettings,
-    ) -> Self {
+    ) -> RelayMatcher<AnyTunnelMatcher<'a>> {
         Self {
-            locations: ResolvedLocationConstraint::from_constraint(
-                constraints.location,
-                custom_lists,
-            ),
-            providers: constraints.providers,
-            ownership: constraints.ownership,
+            locations: ResolvedLocationConstraint::from_constraint(query.location, custom_lists),
+            providers: query.providers,
+            ownership: query.ownership,
             endpoint_matcher: AnyTunnelMatcher {
-                wireguard: WireguardMatcher::new(constraints.wireguard_constraints, wireguard_data),
-                openvpn: OpenVpnMatcher::new(
-                    constraints.openvpn_constraints,
-                    openvpn_data,
-                    bridge_state,
-                ),
-                tunnel_type: constraints.tunnel_protocol,
+                wireguard: WireguardMatcher::new(query.wireguard_constraints, wireguard_data),
+                openvpn: OpenVpnMatcher::new(query.openvpn_constraints, openvpn_data, bridge_state),
+                tunnel_type: query.tunnel_protocol,
             },
         }
     }
@@ -92,24 +84,23 @@ impl<T: EndpointMatcher> RelayMatcher<T> {
 /// EndpointMatcher allows to abstract over different tunnel-specific or bridge constraints.
 /// This enables one to not have false dependencies on OpenVpn specific constraints when
 /// selecting only WireGuard tunnels.
-pub trait EndpointMatcher: Clone {
+pub trait EndpointMatcher {
     /// Returns whether the relay has matching endpoints.
     fn is_matching_relay(&self, relay: &Relay) -> bool;
 }
 
-#[derive(Clone)]
-pub struct AnyTunnelMatcher {
+pub struct AnyTunnelMatcher<'a> {
     /// The [`WireguardMatcher`] to be used in case we should filter Wireguard relays.
-    pub wireguard: WireguardMatcher,
+    pub wireguard: WireguardMatcher<'a>,
     /// The [`OpenVpnMatcher`] to be used in case we should filter OpenVPN relays.
-    pub openvpn: OpenVpnMatcher,
+    pub openvpn: OpenVpnMatcher<'a>,
     /// If the user hasn't specified a tunnel protocol the relay selector might
     /// still prefer a specific tunnel protocol, which is why the tunnel type
     /// may be specified in the `AnyTunnelMatcher`.
     pub tunnel_type: Constraint<TunnelType>,
 }
 
-impl EndpointMatcher for AnyTunnelMatcher {
+impl EndpointMatcher for AnyTunnelMatcher<'_> {
     fn is_matching_relay(&self, relay: &Relay) -> bool {
         match self.tunnel_type {
             Constraint::Any => {
@@ -121,16 +112,19 @@ impl EndpointMatcher for AnyTunnelMatcher {
     }
 }
 
-#[derive(Default, Clone)]
-pub struct WireguardMatcher {
+#[derive(Debug)]
+pub struct WireguardMatcher<'a> {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
-    pub data: WireguardEndpointData,
+    pub data: &'a WireguardEndpointData,
 }
 
 /// Filter suitable Wireguard relays from the relay list
-impl WireguardMatcher {
-    pub fn new(constraints: WireguardRelayQuery, data: WireguardEndpointData) -> Self {
+impl<'a> WireguardMatcher<'a> {
+    pub fn new(
+        constraints: WireguardRelayQuery,
+        data: &'a WireguardEndpointData,
+    ) -> WireguardMatcher<'a> {
         Self {
             port: constraints.port,
             ip_version: constraints.ip_version,
@@ -140,7 +134,7 @@ impl WireguardMatcher {
 
     pub fn new_matcher(
         constraints: RelayQuery,
-        data: WireguardEndpointData,
+        data: &'a WireguardEndpointData,
         custom_lists: &CustomListsSettings,
     ) -> RelayMatcher<Self> {
         RelayMatcher {
@@ -155,23 +149,23 @@ impl WireguardMatcher {
     }
 }
 
-impl EndpointMatcher for WireguardMatcher {
+impl<'a> EndpointMatcher for WireguardMatcher<'a> {
     fn is_matching_relay(&self, relay: &Relay) -> bool {
         filter_wireguard(relay)
     }
 }
 
 /// Filter suitable OpenVPN relays from the relay list
-#[derive(Debug, Clone)]
-pub struct OpenVpnMatcher {
+#[derive(Debug)]
+pub struct OpenVpnMatcher<'a> {
     pub constraints: OpenVpnRelayQuery,
-    pub data: OpenVpnEndpointData,
+    pub data: &'a OpenVpnEndpointData,
 }
 
-impl OpenVpnMatcher {
+impl<'a> OpenVpnMatcher<'a> {
     pub fn new(
         mut constraints: OpenVpnRelayQuery,
-        data: OpenVpnEndpointData,
+        data: &'a OpenVpnEndpointData,
         bridge_state: BridgeState,
     ) -> Self {
         // Using bridges demands the selected endpoint to use TCP.
@@ -189,13 +183,13 @@ impl OpenVpnMatcher {
     }
 }
 
-impl EndpointMatcher for OpenVpnMatcher {
+impl EndpointMatcher for OpenVpnMatcher<'_> {
     fn is_matching_relay(&self, relay: &Relay) -> bool {
-        filter_openvpn(relay) && openvpn_filter_on_port(self.constraints.port, &self.data)
+        filter_openvpn(relay) && openvpn_filter_on_port(self.constraints.port, self.data)
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug)]
 pub struct BridgeMatcher;
 
 impl BridgeMatcher {
