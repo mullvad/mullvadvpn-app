@@ -6,6 +6,13 @@ default:
   timeout: 10m
   use-orchestrator: true
   device:
-    - {model: shiba, version: 34, locale: en, orientation: portrait}
-    - {model: tangorpro, version: 33, locale: en, orientation: portrait}
-    - {model: felix, version: 33, locale: en, orientation: portrait}
+    - {model: shiba, version: 34, locale: en, orientation: portrait} # pixel 8
+    - {model: felix, version: 34, locale: en, orientation: portrait} # pixel fold
+    - {model: tangorpro, version: 33, locale: en, orientation: portrait} # pixel tablet
+    - {model: oriole, version: 32, locale: en, orientation: portrait} # pixel 6
+    - {model: oriole, version: 31, locale: en, orientation: portrait} # pixel 6
+    - {model: redfin, version: 30, locale: en, orientation: portrait} # pixel 5
+    - {model: crownqlteue, version: 29, locale: en, orientation: portrait} # galaxy note9
+    - {model: blueline, version: 28, locale: en, orientation: portrait} # pixel 3
+    - {model: cactus, version: 27, locale: en, orientation: portrait} # redmi 6a
+    - {model: starqlteue, version: 26, locale: en, orientation: portrait} # galaxy s9
