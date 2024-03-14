@@ -148,7 +148,7 @@ val uiModule = module {
         DnsDialogViewModel(get(), get(), parameters.getOrNull(), parameters.getOrNull())
     }
     viewModel { LoginViewModel(get(), get(), get(), get()) }
-    viewModel { PrivacyDisclaimerViewModel(get()) }
+    viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel { SelectLocationViewModel(get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get()) }
