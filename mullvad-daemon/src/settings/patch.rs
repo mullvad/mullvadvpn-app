@@ -47,7 +47,6 @@ pub enum Error {
 }
 
 /// Converts an [Error] to a management interface status
-#[cfg(not(target_os = "android"))]
 impl From<Error> for mullvad_management_interface::Status {
     fn from(error: Error) -> mullvad_management_interface::Status {
         use mullvad_management_interface::Status;

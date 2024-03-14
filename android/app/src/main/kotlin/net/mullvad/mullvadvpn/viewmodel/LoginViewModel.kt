@@ -104,7 +104,7 @@ class LoginViewModel(
                         newDeviceNotificationUseCase.newDeviceCreated()
                         launch {
                             val isOutOfTimeDeferred = async {
-                                accountRepository.accountExpiryState
+                                accountRepository.accountExpiry
                                     .filterIsInstance<AccountExpiry.Available>()
                                     .map { it.expiryDateTime.isBeforeNow }
                                     .first()
