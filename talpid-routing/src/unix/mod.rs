@@ -32,7 +32,7 @@ mod imp;
 
 pub use imp::Error as PlatformError;
 
-/// Errors that can be encountered whilst initializing RouteManager
+/// Errors that can be encountered whilst initializing route manager
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Route manager thread may have panicked
@@ -65,23 +65,121 @@ impl Error {
     }
 }
 
-/// Handle to a route manager.
-#[derive(Clone)]
+/// Represents a firewall mark.
+#[cfg(target_os = "linux")]
+type Fwmark = u32;
+
+/// Commands for the underlying route manager object.
+#[derive(Debug)]
+pub(crate) enum RouteManagerCommand {
+    AddRoutes(
+        HashSet<RequiredRoute>,
+        oneshot::Sender<Result<(), PlatformError>>,
+    ),
+    ClearRoutes,
+    Shutdown(oneshot::Sender<()>),
+    #[cfg(target_os = "macos")]
+    RefreshRoutes,
+    #[cfg(target_os = "macos")]
+    NewDefaultRouteListener(oneshot::Sender<mpsc::UnboundedReceiver<DefaultRouteEvent>>),
+    #[cfg(target_os = "macos")]
+    GetDefaultRoutes(oneshot::Sender<(Option<Route>, Option<Route>)>),
+    #[cfg(target_os = "linux")]
+    CreateRoutingRules(bool, oneshot::Sender<Result<(), PlatformError>>),
+    #[cfg(target_os = "linux")]
+    ClearRoutingRules(oneshot::Sender<Result<(), PlatformError>>),
+    #[cfg(target_os = "linux")]
+    NewChangeListener(oneshot::Sender<mpsc::UnboundedReceiver<CallbackMessage>>),
+    #[cfg(target_os = "linux")]
+    GetMtuForRoute(IpAddr, oneshot::Sender<Result<u16, PlatformError>>),
+    /// Attempt to fetch a route for the given destination with an optional firewall mark.
+    #[cfg(target_os = "linux")]
+    GetDestinationRoute(
+        IpAddr,
+        Option<Fwmark>,
+        oneshot::Sender<Result<Option<Route>, PlatformError>>,
+    ),
+}
+
+/// Event that is sent when a preferred non-tunnel default route is
+/// added or removed.
+#[cfg(target_os = "macos")]
+#[derive(Debug, Clone, Copy)]
+pub enum DefaultRouteEvent {
+    /// Added or updated a non-tunnel default IPv4 route
+    AddedOrChangedV4,
+    /// Added or updated a non-tunnel default IPv6 route
+    AddedOrChangedV6,
+    /// Non-tunnel default IPv4 route was removed
+    RemovedV4,
+    /// Non-tunnel default IPv6 route was removed
+    RemovedV6,
+}
+
+#[cfg(target_os = "linux")]
+#[derive(Debug, Clone)]
+pub enum CallbackMessage {
+    NewRoute(Route),
+    DelRoute(Route),
+}
+
+/// Route manager applies a set of routes to the route table.
+/// If a destination has to be routed through the default node,
+/// the route will be adjusted dynamically when the default route changes.
+#[derive(Debug, Clone)]
 pub struct RouteManagerHandle {
     tx: Arc<UnboundedSender<RouteManagerCommand>>,
 }
 
 impl RouteManagerHandle {
-    /// Applies the given routes while the route manager is running.
+    /// Construct a route manager.
+    pub async fn spawn(
+        #[cfg(target_os = "linux")] fwmark: u32,
+        #[cfg(target_os = "linux")] table_id: u32,
+    ) -> Result<Self, Error> {
+        let (manage_tx, manage_rx) = mpsc::unbounded();
+        let manage_tx = Arc::new(manage_tx);
+        let manager = imp::RouteManagerImpl::new(
+            #[cfg(target_os = "linux")]
+            fwmark,
+            #[cfg(target_os = "linux")]
+            table_id,
+            #[cfg(target_os = "macos")]
+            Arc::downgrade(&manage_tx),
+        )
+        .await?;
+        tokio::spawn(manager.run(manage_rx));
+
+        Ok(Self { tx: manage_tx })
+    }
+
+    /// Stop route manager and revert all changes to routing
+    pub async fn stop(&self) {
+        let (wait_tx, wait_rx) = oneshot::channel();
+        let _ = self
+            .tx
+            .unbounded_send(RouteManagerCommand::Shutdown(wait_tx));
+        let _ = wait_rx.await;
+    }
+
+    /// Applies the given routes until they are cleared
     pub async fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
-        let (response_tx, response_rx) = oneshot::channel();
+        let (result_tx, result_rx) = oneshot::channel();
         self.tx
-            .unbounded_send(RouteManagerCommand::AddRoutes(routes, response_tx))
+            .unbounded_send(RouteManagerCommand::AddRoutes(routes, result_tx))
             .map_err(|_| Error::RouteManagerDown)?;
-        response_rx
+
+        result_rx
             .await
             .map_err(|_| Error::ManagerChannelDown)?
             .map_err(Error::PlatformError)
+    }
+
+    /// Removes all routes previously applied in [`RouteManager::add_routes`].
+    pub fn clear_routes(&self) -> Result<(), Error> {
+        self.tx
+            .unbounded_send(RouteManagerCommand::ClearRoutes)
+            .map_err(|_| Error::RouteManagerDown)
     }
 
     /// Listen for non-tunnel default route changes.
@@ -185,155 +283,5 @@ impl RouteManagerHandle {
             .await
             .map_err(|_| Error::ManagerChannelDown)?
             .map_err(Error::PlatformError)
-    }
-}
-
-/// Represents a firewall mark.
-#[cfg(target_os = "linux")]
-type Fwmark = u32;
-
-/// Commands for the underlying route manager object.
-#[derive(Debug)]
-pub(crate) enum RouteManagerCommand {
-    AddRoutes(
-        HashSet<RequiredRoute>,
-        oneshot::Sender<Result<(), PlatformError>>,
-    ),
-    ClearRoutes,
-    Shutdown(oneshot::Sender<()>),
-    #[cfg(target_os = "macos")]
-    RefreshRoutes,
-    #[cfg(target_os = "macos")]
-    NewDefaultRouteListener(oneshot::Sender<mpsc::UnboundedReceiver<DefaultRouteEvent>>),
-    #[cfg(target_os = "macos")]
-    GetDefaultRoutes(oneshot::Sender<(Option<Route>, Option<Route>)>),
-    #[cfg(target_os = "linux")]
-    CreateRoutingRules(bool, oneshot::Sender<Result<(), PlatformError>>),
-    #[cfg(target_os = "linux")]
-    ClearRoutingRules(oneshot::Sender<Result<(), PlatformError>>),
-    #[cfg(target_os = "linux")]
-    NewChangeListener(oneshot::Sender<mpsc::UnboundedReceiver<CallbackMessage>>),
-    #[cfg(target_os = "linux")]
-    GetMtuForRoute(IpAddr, oneshot::Sender<Result<u16, PlatformError>>),
-    /// Attempt to fetch a route for the given destination with an optional firewall mark.
-    #[cfg(target_os = "linux")]
-    GetDestinationRoute(
-        IpAddr,
-        Option<Fwmark>,
-        oneshot::Sender<Result<Option<Route>, PlatformError>>,
-    ),
-}
-
-/// Event that is sent when a preferred non-tunnel default route is
-/// added or removed.
-#[cfg(target_os = "macos")]
-#[derive(Debug, Clone, Copy)]
-pub enum DefaultRouteEvent {
-    /// Added or updated a non-tunnel default IPv4 route
-    AddedOrChangedV4,
-    /// Added or updated a non-tunnel default IPv6 route
-    AddedOrChangedV6,
-    /// Non-tunnel default IPv4 route was removed
-    RemovedV4,
-    /// Non-tunnel default IPv6 route was removed
-    RemovedV6,
-}
-
-#[cfg(target_os = "linux")]
-#[derive(Debug, Clone)]
-pub enum CallbackMessage {
-    NewRoute(Route),
-    DelRoute(Route),
-}
-
-/// RouteManager applies a set of routes to the route table.
-/// If a destination has to be routed through the default node,
-/// the route will be adjusted dynamically when the default route changes.
-pub struct RouteManager {
-    manage_tx: Option<Arc<UnboundedSender<RouteManagerCommand>>>,
-}
-
-impl RouteManager {
-    /// Construct a RouteManager.
-    pub async fn new(
-        #[cfg(target_os = "linux")] fwmark: u32,
-        #[cfg(target_os = "linux")] table_id: u32,
-    ) -> Result<Self, Error> {
-        let (manage_tx, manage_rx) = mpsc::unbounded();
-        let manage_tx = Arc::new(manage_tx);
-        let manager = imp::RouteManagerImpl::new(
-            #[cfg(target_os = "linux")]
-            fwmark,
-            #[cfg(target_os = "linux")]
-            table_id,
-            #[cfg(target_os = "macos")]
-            Arc::downgrade(&manage_tx),
-        )
-        .await?;
-        tokio::spawn(manager.run(manage_rx));
-
-        Ok(Self {
-            manage_tx: Some(manage_tx),
-        })
-    }
-
-    /// Stops RouteManager and removes all of the applied routes.
-    pub async fn stop(&mut self) {
-        if let Some(tx) = self.manage_tx.take() {
-            let (wait_tx, wait_rx) = oneshot::channel();
-            let _ = tx.unbounded_send(RouteManagerCommand::Shutdown(wait_tx));
-            let _ = wait_rx.await;
-        }
-    }
-
-    /// Applies the given routes until [`RouteManager::stop`] is called.
-    pub async fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
-        let tx = self.get_command_tx()?;
-        let (result_tx, result_rx) = oneshot::channel();
-        tx.unbounded_send(RouteManagerCommand::AddRoutes(routes, result_tx))
-            .map_err(|_| Error::RouteManagerDown)?;
-
-        result_rx
-            .await
-            .map_err(|_| Error::ManagerChannelDown)?
-            .map_err(Error::PlatformError)
-    }
-
-    /// Removes all routes previously applied in [`RouteManager::add_routes`].
-    pub fn clear_routes(&self) -> Result<(), Error> {
-        let tx = self.get_command_tx()?;
-        tx.unbounded_send(RouteManagerCommand::ClearRoutes)
-            .map_err(|_| Error::RouteManagerDown)
-    }
-
-    /// Ensure that packets are routed using the correct tables.
-    #[cfg(target_os = "linux")]
-    pub async fn create_routing_rules(&self, enable_ipv6: bool) -> Result<(), Error> {
-        self.handle()?.create_routing_rules(enable_ipv6).await
-    }
-
-    /// Remove any routing rules created by [Self::create_routing_rules].
-    #[cfg(target_os = "linux")]
-    pub async fn clear_routing_rules(&self) -> Result<(), Error> {
-        self.handle()?.clear_routing_rules().await
-    }
-
-    /// Retrieve a sender directly to the command channel.
-    pub fn handle(&self) -> Result<RouteManagerHandle, Error> {
-        let tx = self.get_command_tx()?;
-        Ok(RouteManagerHandle { tx: tx.clone() })
-    }
-
-    fn get_command_tx(&self) -> Result<&Arc<UnboundedSender<RouteManagerCommand>>, Error> {
-        self.manage_tx.as_ref().ok_or(Error::RouteManagerDown)
-    }
-}
-
-impl Drop for RouteManager {
-    fn drop(&mut self) {
-        if let Some(tx) = self.manage_tx.take() {
-            let (done_tx, _) = oneshot::channel();
-            let _ = tx.unbounded_send(RouteManagerCommand::Shutdown(done_tx));
-        }
     }
 }

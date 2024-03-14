@@ -25,7 +25,7 @@ use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
 #[cfg(target_os = "macos")]
 pub use imp::{imp::RouteError, DefaultRouteEvent, PlatformError};
 
-pub use imp::{Error, RouteManager, RouteManagerHandle};
+pub use imp::{Error, RouteManagerHandle};
 
 /// A network route with a specific network node, destination and an optional metric.
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
@@ -81,7 +81,7 @@ impl fmt::Display for Route {
     }
 }
 
-/// A network route that should be applied by the RouteManager.
+/// A network route that should be applied by the route manager.
 /// It can either be routed through a specific network node or it can be routed through the current
 /// default route.
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
@@ -130,7 +130,7 @@ impl RequiredRoute {
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub enum NetNode {
     /// A real node will be used to set a regular route that will remain unchanged for the lifetime
-    /// of the RouteManager
+    /// of the route manager
     RealNode(Node),
     /// A default node is a symbolic node that will resolve to the network node used in the current
     /// most preferable default route

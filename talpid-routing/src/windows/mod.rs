@@ -21,9 +21,6 @@ mod route_manager;
 /// Windows routing errors.
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    /// The sender was dropped unexpectedly -- possible panic
-    #[error("The channel sender was dropped")]
-    ManagerChannelDown,
     /// Failure to initialize route manager
     #[error("Failed to start route manager")]
     FailedToStartManager,
@@ -101,17 +98,31 @@ impl Error {
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Manages routes by calling into WinNet
-pub struct RouteManager {
-    manage_tx: Option<UnboundedSender<RouteManagerCommand>>,
-}
-
-/// Handle to a route manager.
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct RouteManagerHandle {
     tx: UnboundedSender<RouteManagerCommand>,
 }
 
+pub enum RouteManagerCommand {
+    AddRoutes(HashSet<RequiredRoute>, oneshot::Sender<Result<()>>),
+    GetMtuForRoute(IpAddr, oneshot::Sender<Result<u16>>),
+    ClearRoutes,
+    RegisterDefaultRouteChangeCallback(Callback, oneshot::Sender<CallbackHandle>),
+    Shutdown(oneshot::Sender<()>),
+}
+
 impl RouteManagerHandle {
+    /// Create a new route manager
+    #[allow(clippy::unused_async)]
+    pub async fn spawn() -> Result<Self> {
+        let internal = RouteManagerInternal::new().map_err(|_| Error::FailedToStartManager)?;
+        let (tx, rx) = mpsc::unbounded();
+        let handle = Self { tx };
+        tokio::spawn(RouteManagerHandle::run(rx, internal));
+
+        Ok(handle)
+    }
+
     /// Add a callback which will be called if the default route changes.
     pub async fn add_default_route_change_callback(
         &self,
@@ -124,7 +135,7 @@ impl RouteManagerHandle {
                 response_tx,
             ))
             .map_err(|_| Error::RouteManagerDown)?;
-        response_rx.await.map_err(|_| Error::ManagerChannelDown)
+        response_rx.await.map_err(|_| Error::RouteManagerDown)
     }
 
     /// Applies the given routes while the route manager is running.
@@ -133,65 +144,35 @@ impl RouteManagerHandle {
         self.tx
             .unbounded_send(RouteManagerCommand::AddRoutes(routes, response_tx))
             .map_err(|_| Error::RouteManagerDown)?;
-        response_rx.await.map_err(|_| Error::ManagerChannelDown)?
+        response_rx.await.map_err(|_| Error::RouteManagerDown)?
     }
 
-    /// Applies the given routes while the route manager is running.
+    /// Retrieve MTU for the given destination/route.
     pub async fn get_mtu_for_route(&self, ip: IpAddr) -> Result<u16> {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RouteManagerCommand::GetMtuForRoute(ip, response_tx))
             .map_err(|_| Error::RouteManagerDown)?;
-        response_rx.await.map_err(|_| Error::ManagerChannelDown)?
-    }
-}
-
-pub enum RouteManagerCommand {
-    AddRoutes(HashSet<RequiredRoute>, oneshot::Sender<Result<()>>),
-    GetMtuForRoute(IpAddr, oneshot::Sender<Result<u16>>),
-    ClearRoutes,
-    RegisterDefaultRouteChangeCallback(Callback, oneshot::Sender<CallbackHandle>),
-    Shutdown(oneshot::Sender<Result<()>>),
-}
-
-impl RouteManager {
-    /// Create a new route manager
-    #[allow(clippy::unused_async)]
-    pub async fn new() -> Result<Self> {
-        let internal = match RouteManagerInternal::new() {
-            Ok(internal) => internal,
-            Err(_) => return Err(Error::FailedToStartManager),
-        };
-        let (manage_tx, manage_rx) = mpsc::unbounded();
-        let manager = Self {
-            manage_tx: Some(manage_tx),
-        };
-        tokio::spawn(RouteManager::listen(manage_rx, internal));
-
-        Ok(manager)
+        response_rx.await.map_err(|_| Error::RouteManagerDown)?
     }
 
-    /// Add a callback which will be called if the default route changes.
-    pub async fn add_default_route_change_callback(
-        &self,
-        callback: Callback,
-    ) -> Result<CallbackHandle> {
-        let tx = self.get_command_tx()?;
+    /// Stop the routing manager actor and revert all changes to routing
+    pub async fn stop(&self) {
         let (result_tx, result_rx) = oneshot::channel();
-        tx.unbounded_send(RouteManagerCommand::RegisterDefaultRouteChangeCallback(
-            callback, result_tx,
-        ))
-        .map_err(|_| Error::RouteManagerDown)?;
-        result_rx.await.map_err(|_| Error::ManagerChannelDown)
+        _ = self
+            .tx
+            .unbounded_send(RouteManagerCommand::Shutdown(result_tx));
+        _ = result_rx.await;
     }
 
-    /// Retrieve a sender directly to the command channel.
-    pub fn handle(&self) -> Result<RouteManagerHandle> {
-        let tx = self.get_command_tx()?;
-        Ok(RouteManagerHandle { tx: tx.clone() })
+    /// Removes all routes previously applied in [`RouteManager::add_routes`].
+    pub fn clear_routes(&self) -> Result<()> {
+        self.tx
+            .unbounded_send(RouteManagerCommand::ClearRoutes)
+            .map_err(|_| Error::RouteManagerDown)
     }
 
-    async fn listen(
+    async fn run(
         mut manage_rx: UnboundedReceiver<RouteManagerCommand>,
         mut internal: RouteManagerInternal,
     ) {
@@ -235,41 +216,11 @@ impl RouteManager {
                 }
                 RouteManagerCommand::Shutdown(tx) => {
                     drop(internal);
-                    let _ = tx.send(Ok(()));
+                    let _ = tx.send(());
                     break;
                 }
             }
         }
-    }
-
-    /// Stops the routing manager and invalidates the route manager - no new default route callbacks
-    /// can be added
-    pub async fn stop(&mut self) {
-        if let Some(tx) = self.manage_tx.take() {
-            let (result_tx, result_rx) = oneshot::channel();
-            let _ = tx.unbounded_send(RouteManagerCommand::Shutdown(result_tx));
-            _ = result_rx.await;
-        }
-    }
-
-    /// Applies the given routes until [`RouteManager::stop`] is called.
-    pub async fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<()> {
-        let tx = self.get_command_tx()?;
-        let (result_tx, result_rx) = oneshot::channel();
-        tx.unbounded_send(RouteManagerCommand::AddRoutes(routes, result_tx))
-            .map_err(|_| Error::RouteManagerDown)?;
-        result_rx.await.map_err(|_| Error::ManagerChannelDown)?
-    }
-
-    /// Removes all routes previously applied in [`RouteManager::add_routes`].
-    pub fn clear_routes(&self) -> Result<()> {
-        let tx = self.get_command_tx()?;
-        tx.unbounded_send(RouteManagerCommand::ClearRoutes)
-            .map_err(|_| Error::RouteManagerDown)
-    }
-
-    fn get_command_tx(&self) -> Result<&UnboundedSender<RouteManagerCommand>> {
-        self.manage_tx.as_ref().ok_or(Error::RouteManagerDown)
     }
 }
 
@@ -289,15 +240,6 @@ fn get_mtu_for_route(addr_family: AddressFamily) -> Result<Option<u16>> {
         Err(e) => {
             log::error!("Could not get best default route: {}", e);
             Err(Error::GetMtu)
-        }
-    }
-}
-
-impl Drop for RouteManager {
-    fn drop(&mut self) {
-        if let Some(tx) = self.manage_tx.take() {
-            let (done_tx, _) = oneshot::channel();
-            let _ = tx.unbounded_send(RouteManagerCommand::Shutdown(done_tx));
         }
     }
 }
