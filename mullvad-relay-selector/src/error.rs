@@ -23,7 +23,7 @@ pub enum Error {
     NoObfuscator,
 
     #[error("No endpoint could be constructed for relay {0:?}")]
-    NoEndpoint(Box<EndpointError>),
+    NoEndpoint(EndpointError),
 
     #[error("Failure in serialization of the relay list")]
     Serialize(#[from] serde_json::Error),
@@ -36,22 +36,28 @@ pub enum Error {
 /// endpoint could be constructed from the selected relay.
 #[derive(Debug)]
 pub enum EndpointError {
-    /// No valid Wireguard endpoint could be constructed from this [`WireguardConfig`]
-    Wireguard(WireguardConfig),
+    /// No valid Wireguard endpoint could be constructed from this [`WireguardConfig`].
+    ///
+    /// # Note
+    /// The inner value is boxed to not bloat the size of [`Error`] due to the size of [`WireguardConfig`].
+    Wireguard(Box<WireguardConfig>),
     /// No valid OpenVPN endpoint could be constructed from this [`Relay`]
-    OpenVpn(Relay),
+    ///
+    /// # Note
+    /// The inner value is boxed to not bloat the size of [`Error`] due to the size of [`Relay`].
+    OpenVpn(Box<Relay>),
 }
 
 impl EndpointError {
     /// Helper function for constructing an [`Error::NoEndpoint`] from `relay`.
     /// Takes care of boxing the [`WireguardConfig`] for you!
     pub(crate) fn from_wireguard(relay: WireguardConfig) -> Error {
-        Error::NoEndpoint(Box::new(EndpointError::Wireguard(relay)))
+        Error::NoEndpoint(EndpointError::Wireguard(Box::new(relay)))
     }
 
     /// Helper function for constructing an [`Error::NoEndpoint`] from `relay`.
     /// Takes care of boxing the [`Relay`] for you!
     pub(crate) fn from_openvpn(relay: Relay) -> Error {
-        Error::NoEndpoint(Box::new(EndpointError::OpenVpn(relay)))
+        Error::NoEndpoint(EndpointError::OpenVpn(Box::new(relay)))
     }
 }
