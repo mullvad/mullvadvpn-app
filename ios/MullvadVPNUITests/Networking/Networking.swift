@@ -68,18 +68,6 @@ class Networking {
         throw NetworkingError.internalError(reason: "Failed to determine device's IP address")
     }
 
-    /// Get configured ad serving domain as URL object
-    private static func getAdServingDomainURL() -> URL? {
-        guard let adServingDomain = Bundle(for: BaseUITestCase.self)
-            .infoDictionary?["AdServingDomain"] as? String,
-            let adServingDomainURL = URL(string: adServingDomain) else {
-            XCTFail("Ad serving domain not configured")
-            return nil
-        }
-
-        return adServingDomainURL
-    }
-
     /// Get configured ad serving domain
     private static func getAdServingDomain() throws -> String {
         guard let adServingDomain = Bundle(for: Networking.self)
@@ -171,7 +159,7 @@ class Networking {
         XCTAssertFalse(try Self.canConnectSocket(host: try Self.getAdServingDomain(), port: "80"))
     }
 
-    /// Verify that the expected DNS server is used by verifying provider name and whether it is a Mullvad DNS server or not
+     /// Verify that the expected DNS server is used by verifying provider name and whether it is a Mullvad DNS server or not
     public static func verifyDNSServerProvider(_ providerName: String, isMullvad: Bool) throws {
         guard let mullvadDNSLeakURL = URL(string: "https://am.i.mullvad.net/dnsleak") else {
             throw NetworkingError.internalError(reason: "Failed to create URL object")
@@ -224,6 +212,61 @@ class Networking {
             }
         } catch {
             XCTFail("Failed to verify DNS server provider - couldn't serialize JSON")
+        }
+    }
+
+     public static func verifyConnectedThroughMullvad() {
+        let mullvadConnectionJsonEndpoint = "https://am.i.mullvad.net/json"
+        guard let url = URL(string: mullvadConnectionJsonEndpoint) else {
+            XCTFail("Failed to unwrap URL")
+            return
+        }
+
+        let request = URLRequest(url: url)
+        let completionHandlerInvokedExpectation = XCTestExpectation(
+            description: "Completion handler for the request is invoked"
+        )
+
+        let dataTask = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let response = response as? HTTPURLResponse {
+                if response.statusCode != 200 {
+                    XCTFail("Request to connection check API failed - unexpected server response")
+                }
+            }
+
+            if let error = error {
+                XCTFail("Request to connection check API failed - encountered error \(error.localizedDescription)")
+            }
+
+            guard let data = data else {
+                XCTFail("Didn't receive any data")
+                return
+            }
+
+            do {
+                let jsonObject = try JSONSerialization.jsonObject(with: data)
+
+                if let dictionary = jsonObject as? [String: Any] {
+                    guard let isConnectedThroughMullvad = dictionary["mullvad_exit_ip"] as? Bool else {
+                        XCTFail("Unexpected JSON format")
+                        return
+                    }
+
+                    XCTAssertTrue(isConnectedThroughMullvad)
+                }
+            } catch {
+                XCTFail("Failed to verify whether connected through Mullvad or not")
+            }
+
+            completionHandlerInvokedExpectation.fulfill()
+        }
+
+        dataTask.resume()
+
+        let waitResult = XCTWaiter.wait(for: [completionHandlerInvokedExpectation], timeout: 30)
+
+        if waitResult != .completed {
+            XCTFail("Request to connection check API failed - timeout")
         }
     }
 }
