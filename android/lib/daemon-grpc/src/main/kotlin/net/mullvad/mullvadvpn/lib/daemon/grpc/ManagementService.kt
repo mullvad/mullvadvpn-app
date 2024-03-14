@@ -96,6 +96,7 @@ class ManagementService(
                         _mutableStateFlow.update { it.copy(device = event.device.newState) }
                     DaemonEvent.EventCase.REMOVE_DEVICE -> {}
                     DaemonEvent.EventCase.EVENT_NOT_SET -> {}
+                    DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
                 }
             }
         }

@@ -53,6 +53,7 @@ class AccountRepository(
     }
 
     suspend fun getAccountExpiry(): AccountExpiry {
+        if (accountState.value !is AccountState.LoggedIn) return AccountExpiry.Missing
         val accountExpiry =
             managementService.getAccountExpiry(
                 (accountState.value as AccountState.LoggedIn).accountToken

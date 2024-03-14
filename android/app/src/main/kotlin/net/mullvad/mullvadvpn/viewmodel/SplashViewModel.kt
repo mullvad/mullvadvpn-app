@@ -12,6 +12,7 @@ import kotlinx.coroutines.selects.select
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_TIMEOUT_MS
 import net.mullvad.mullvadvpn.model.AccountAndDevice
 import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.model.AccountState
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -31,15 +32,13 @@ class SplashViewModel(
         }
 
         val deviceState =
-            deviceRepository.deviceState
+            accountRepository.accountState
                 .map {
                     when (it) {
-                        DeviceState.Initial -> null
-                        is DeviceState.LoggedIn ->
-                            ValidStartDeviceState.LoggedIn(it.accountAndDevice)
-                        DeviceState.LoggedOut -> ValidStartDeviceState.LoggedOut
-                        DeviceState.Revoked -> ValidStartDeviceState.Revoked
-                        DeviceState.Unknown -> null
+                        is AccountState.LoggedIn -> ValidStartDeviceState.LoggedIn
+                        AccountState.LoggedOut -> ValidStartDeviceState.LoggedOut
+                        AccountState.Revoked -> ValidStartDeviceState.Revoked
+                        AccountState.Unrecognized -> null
                     }
                 }
                 .filterNotNull()
@@ -48,7 +47,7 @@ class SplashViewModel(
         return when (deviceState) {
             ValidStartDeviceState.LoggedOut -> SplashUiSideEffect.NavigateToLogin
             ValidStartDeviceState.Revoked -> SplashUiSideEffect.NavigateToRevoked
-            is ValidStartDeviceState.LoggedIn -> getLoggedInStartDestination()
+            ValidStartDeviceState.LoggedIn -> getLoggedInStartDestination()
         }
     }
 
@@ -56,7 +55,7 @@ class SplashViewModel(
     private suspend fun getLoggedInStartDestination(): SplashUiSideEffect {
         val expiry =
             viewModelScope.async {
-                accountRepository.accountExpiryState.first { it !is AccountExpiry.Missing }
+                accountRepository.accountExpiry.first { it !is AccountExpiry.Missing }
             }
 
         val accountExpiry = select {
@@ -79,7 +78,7 @@ class SplashViewModel(
 }
 
 private sealed interface ValidStartDeviceState {
-    data class LoggedIn(val accountAndDevice: AccountAndDevice) : ValidStartDeviceState
+    data object LoggedIn : ValidStartDeviceState
 
     data object Revoked : ValidStartDeviceState
 
