@@ -28,9 +28,6 @@ pub enum Error {
     #[error("Failure in serialization of the relay list")]
     Serialize(#[from] serde_json::Error),
 
-    #[error("Downloader already shut down")]
-    DownloaderShutDown,
-
     #[error("Invalid bridge settings")]
     InvalidBridgeSettings(#[from] MissingCustomBridgeSettings),
 }
