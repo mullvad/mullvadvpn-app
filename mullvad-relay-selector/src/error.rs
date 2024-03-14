@@ -33,9 +33,7 @@ pub enum Error {
 }
 
 /// Special type which only shows up in [`Error`]. This error variant signals that no valid
-/// endpoint could be constructed from the selected relay. See [`detailer`] for more info.
-///
-/// [`detailer`]: mullvad_relay_selector::relay_selector::detailer.rs
+/// endpoint could be constructed from the selected relay.
 #[derive(Debug)]
 pub enum EndpointError {
     /// No valid Wireguard endpoint could be constructed from this [`WireguardConfig`]
