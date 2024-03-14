@@ -9,13 +9,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 
-data class PrivacyDisclaimerViewState(val isStartingService: Boolean)
+data class PrivacyDisclaimerViewState(val isStartingService: Boolean, val isPlayBuild: Boolean)
 
 class PrivacyDisclaimerViewModel(
-    private val privacyDisclaimerRepository: PrivacyDisclaimerRepository
+    private val privacyDisclaimerRepository: PrivacyDisclaimerRepository,
+    isPlayBuild: Boolean
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(PrivacyDisclaimerViewState(false))
+    private val _uiState =
+        MutableStateFlow(
+            PrivacyDisclaimerViewState(isStartingService = false, isPlayBuild = isPlayBuild)
+        )
     val uiState = _uiState
 
     private val _uiSideEffect = Channel<PrivacyDisclaimerUiSideEffect>()

@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -49,10 +51,12 @@ import net.mullvad.mullvadvpn.compose.destinations.SplashDestination
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.toDp
 import net.mullvad.mullvadvpn.constant.DAEMON_READY_TIMEOUT_MS
+import net.mullvad.mullvadvpn.lib.common.util.openLink
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.ui.MainActivity
+import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewState
@@ -61,7 +65,13 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewPrivacyDisclaimerScreen() {
-    AppTheme { PrivacyDisclaimerScreen(PrivacyDisclaimerViewState(false), {}, {}) }
+    AppTheme {
+        PrivacyDisclaimerScreen(
+            PrivacyDisclaimerViewState(isStartingService = false, isPlayBuild = false),
+            {},
+            {}
+        )
+    }
 }
 
 @Destination
@@ -99,7 +109,11 @@ fun PrivacyDisclaimer(
                 }
         }
     }
-    PrivacyDisclaimerScreen(state, {}, viewModel::setPrivacyDisclosureAccepted)
+    PrivacyDisclaimerScreen(
+        state,
+        { openPrivacyPolicy(context, state.isPlayBuild) },
+        viewModel::setPrivacyDisclosureAccepted
+    )
 }
 
 @Composable
@@ -193,4 +207,14 @@ private fun ButtonPanel(isStartingService: Boolean, onAcceptClicked: () -> Unit)
             )
         }
     }
+}
+
+private fun openPrivacyPolicy(context: Context, isPlayBuild: Boolean) {
+    context.openLink(
+        Uri.parse(
+            context.resources
+                .getString(R.string.privacy_policy_url)
+                .appendHideNavOnPlayBuild(isPlayBuild)
+        )
+    )
 }
