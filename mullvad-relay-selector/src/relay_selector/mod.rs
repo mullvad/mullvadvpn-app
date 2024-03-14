@@ -572,12 +572,14 @@ impl RelaySelector {
         entry_relay_query.location = query.wireguard_constraints.entry_location.clone();
         // After we have our two queries (one for the exit relay & one for the entry relay),
         // we can construct our two matchers:
-        let wg_data = parsed_relays.parsed_list().wireguard.clone();
-        let exit_matcher =
-            WireguardMatcher::new_matcher(query.clone(), wg_data.clone(), config.custom_lists);
+        let exit_matcher = WireguardMatcher::new_matcher(
+            query.clone(),
+            &parsed_relays.parsed_list().wireguard,
+            config.custom_lists,
+        );
         let entry_matcher = WireguardMatcher::new_matcher(
             entry_relay_query.clone(),
-            wg_data.clone(),
+            &parsed_relays.parsed_list().wireguard,
             config.custom_lists,
         );
         // .. and query for all exit & entry candidates! All candidates are needed for the next step.
@@ -844,17 +846,13 @@ impl RelaySelector {
         if constraints.location.is_any() {
             return None;
         }
-        let (openvpn_data, wireguard_data) = (
-            parsed_relays.parsed_list().openvpn.clone(),
-            parsed_relays.parsed_list().wireguard.clone(),
-        );
 
         let matcher = RelayMatcher::new(
             constraints.clone(),
-            openvpn_data,
+            &parsed_relays.parsed_list().openvpn,
             *config.bridge_state,
-            wireguard_data,
-            &config.custom_lists.clone(),
+            &parsed_relays.parsed_list().wireguard,
+            config.custom_lists,
         );
 
         Self::get_relay_midpoint_inner(parsed_relays, matcher)
@@ -862,7 +860,7 @@ impl RelaySelector {
 
     fn get_relay_midpoint_inner(
         parsed_relays: &ParsedRelays,
-        matcher: RelayMatcher<AnyTunnelMatcher>,
+        matcher: RelayMatcher<AnyTunnelMatcher<'_>>,
     ) -> Option<Coordinates> {
         use std::ops::Not;
         let matching_locations: Vec<Location> = matcher
@@ -906,9 +904,9 @@ impl RelaySelector {
         let relays = parsed_relays.relays();
         let matcher = RelayMatcher::new(
             query.clone(),
-            parsed_relays.parsed_list().openvpn.clone(),
+            &parsed_relays.parsed_list().openvpn,
             *config.bridge_state,
-            parsed_relays.parsed_list().wireguard.clone(),
+            &parsed_relays.parsed_list().wireguard,
             config.custom_lists,
         );
         matcher.filter_matching_relay_list(relays)
@@ -924,8 +922,8 @@ impl RelaySelector {
         let relays = parsed_relays.relays();
         let matcher = WireguardMatcher::new_matcher(
             query.clone(),
-            parsed_relays.parsed_list().wireguard.clone(),
-            &config.custom_lists,
+            &parsed_relays.parsed_list().wireguard,
+            config.custom_lists,
         );
         matcher.filter_matching_relay_list(relays)
     }
