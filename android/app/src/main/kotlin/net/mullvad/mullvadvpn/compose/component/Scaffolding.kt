@@ -108,7 +108,12 @@ fun ScaffoldWithTopBarAndDeviceName(
 
 @Composable
 fun MullvadSnackbar(snackbarData: SnackbarData) {
-    Snackbar(snackbarData = snackbarData, contentColor = MaterialTheme.colorScheme.secondary)
+    Snackbar(
+        snackbarData = snackbarData,
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        actionColor = MaterialTheme.colorScheme.onSurface
+    )
 }
 
 @Composable
@@ -255,5 +260,26 @@ fun ScaffoldWithLargeTopBarAndButton(
                     .verticalScroll(scrollState)
             )
         }
+    )
+}
+
+@Composable
+fun ScaffoldWithSmallTopBar(
+    appBarTitle: String,
+    modifier: Modifier = Modifier,
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    content: @Composable (modifier: Modifier) -> Unit
+) {
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            MullvadSmallTopBar(
+                title = appBarTitle,
+                navigationIcon = navigationIcon,
+                actions = actions
+            )
+        },
+        content = { content(Modifier.fillMaxSize().padding(it)) }
     )
 }

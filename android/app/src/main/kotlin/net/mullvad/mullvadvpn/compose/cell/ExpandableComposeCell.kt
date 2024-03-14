@@ -54,7 +54,7 @@ fun ExpandableComposeCell(
 
     BaseCell(
         modifier = Modifier.focusProperties { canFocus = false },
-        title = {
+        headlineContent = {
             BaseCellTitle(
                 title = title,
                 style = MaterialTheme.typography.titleMedium,

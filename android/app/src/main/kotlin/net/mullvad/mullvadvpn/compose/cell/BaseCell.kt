@@ -35,7 +35,7 @@ private fun PreviewBaseCell() {
     AppTheme {
         SpacedColumn {
             BaseCell(
-                title = {
+                headlineContent = {
                     BaseCellTitle(
                         title = "Header title",
                         style = MaterialTheme.typography.titleMedium
@@ -43,7 +43,7 @@ private fun PreviewBaseCell() {
                 }
             )
             BaseCell(
-                title = {
+                headlineContent = {
                     BaseCellTitle(
                         title = "Normal title",
                         style = MaterialTheme.typography.labelLarge
@@ -58,7 +58,7 @@ private fun PreviewBaseCell() {
 internal fun BaseCell(
     modifier: Modifier = Modifier,
     iconView: @Composable RowScope.() -> Unit = {},
-    title: @Composable RowScope.() -> Unit,
+    headlineContent: @Composable RowScope.() -> Unit,
     bodyView: @Composable ColumnScope.() -> Unit = {},
     isRowEnabled: Boolean = true,
     onCellClicked: () -> Unit = {},
@@ -83,7 +83,7 @@ internal fun BaseCell(
     ) {
         iconView()
 
-        title()
+        headlineContent()
 
         Column(modifier = Modifier.wrapContentWidth().wrapContentHeight()) { bodyView() }
     }

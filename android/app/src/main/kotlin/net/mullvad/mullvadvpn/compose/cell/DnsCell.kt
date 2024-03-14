@@ -34,7 +34,7 @@ fun DnsCell(
     val startPadding = 54.dp
 
     BaseCell(
-        title = { DnsTitle(address = address, modifier = titleModifier) },
+        headlineContent = { DnsTitle(address = address, modifier = titleModifier) },
         bodyView = {
             if (isUnreachableLocalDnsWarningVisible) {
                 Icon(

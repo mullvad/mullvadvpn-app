@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.Request
+import net.mullvad.mullvadvpn.model.CustomList
 
 class CustomLists(
     private val endpoint: ServiceEndpoint,
@@ -34,13 +35,18 @@ class CustomLists(
         scope.launch {
             endpoint.dispatcher.parsedMessages
                 .filterIsInstance<Request.UpdateCustomList>()
-                .collect { daemon.await().updateCustomList(it.customList) }
+                .collect { updateCustomList(it.customList) }
         }
     }
 
     private suspend fun createCustomList(name: String) {
         val result = daemon.await().createCustomList(name)
-        endpoint.sendEvent(Event.CreateCustomListResult(result))
+        endpoint.sendEvent(Event.CreateCustomListResultEvent(result))
+    }
+
+    private suspend fun updateCustomList(customList: CustomList) {
+        val result = daemon.await().updateCustomList(customList)
+        endpoint.sendEvent(Event.UpdateCustomListResultEvent(result))
     }
 
     fun onDestroy() {

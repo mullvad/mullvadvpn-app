@@ -10,3 +10,17 @@ fun RelayItem.toLocationConstraint(): LocationConstraint {
         is RelayItem.CustomList -> LocationConstraint.CustomList(id)
     }
 }
+
+fun RelayItem.children(): List<RelayItem> {
+    return when (this) {
+        is RelayItem.Country -> cities
+        is RelayItem.City -> relays
+        is RelayItem.CustomList -> locations
+        else -> emptyList()
+    }
+}
+
+fun RelayItem.descendants(): List<RelayItem> {
+    val children = children()
+    return children + children.flatMap { it.descendants() }
+}
