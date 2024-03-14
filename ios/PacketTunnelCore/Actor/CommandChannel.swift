@@ -48,6 +48,7 @@ import Foundation
  ```
  */
 final class CommandChannel: @unchecked Sendable {
+    typealias Command = PacketTunnelActor.Command
     private enum State {
         /// Channel is active and running.
         case active

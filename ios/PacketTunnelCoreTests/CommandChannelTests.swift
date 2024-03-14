@@ -91,7 +91,7 @@ enum PrimitiveCommand: Equatable {
     case start, stop, reconnect(NextRelay), switchKey, other
 }
 
-extension Command {
+extension PacketTunnelActor.Command {
     var primitiveCommand: PrimitiveCommand {
         switch self {
         case .start:
