@@ -106,16 +106,14 @@ pub struct Relay {
     pub location: Option<Location>,
 }
 
-// TODO(markus): Justify
-// TODO(markus): Document
 impl PartialEq for Relay {
     fn eq(&self, other: &Self) -> bool {
+        // Hostnames are assumed to be unique per relay, i.e. a relay can be uniquely identified by its hostname.
         self.hostname == other.hostname
     }
 }
 
-// TODO(markus): Justify
-// TODO(markus): Document
+// See uniqueness argument in the implementation of [`PartialEq`] for [`Relay`].
 impl Eq for Relay {}
 
 /// Specifies the type of a relay or relay-specific endpoint data.

@@ -31,7 +31,7 @@ impl RelayMatcher<AnyTunnelMatcher> {
     pub fn new(
         constraints: RelayQuery,
         openvpn_data: OpenVpnEndpointData,
-        brige_state: BridgeState,
+        bridge_state: BridgeState,
         wireguard_data: WireguardEndpointData,
         custom_lists: &CustomListsSettings,
     ) -> Self {
@@ -47,7 +47,7 @@ impl RelayMatcher<AnyTunnelMatcher> {
                 openvpn: OpenVpnMatcher::new(
                     constraints.openvpn_constraints,
                     openvpn_data,
-                    brige_state,
+                    bridge_state,
                 ),
                 tunnel_type: constraints.tunnel_protocol,
             },
