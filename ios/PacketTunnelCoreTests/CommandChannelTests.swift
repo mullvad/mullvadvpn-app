@@ -11,7 +11,7 @@ import XCTest
 
 final class CommandChannelTests: XCTestCase {
     func testCoalescingReconnect() async {
-        let channel = CommandChannel()
+        let channel = PacketTunnelActor.CommandChannel()
 
         channel.send(.start(StartOptions(launchSource: .app)))
         channel.send(.reconnect(.random))
@@ -27,7 +27,7 @@ final class CommandChannelTests: XCTestCase {
 
     /// Test that stops cancels all preceding tasks.
     func testCoalescingStop() async {
-        let channel = CommandChannel()
+        let channel = PacketTunnelActor.CommandChannel()
 
         channel.send(.start(StartOptions(launchSource: .app)))
         channel.send(.reconnect(.random))
@@ -44,7 +44,7 @@ final class CommandChannelTests: XCTestCase {
 
     /// Test that iterations over the finished channel yield `nil`.
     func testFinishFlushingUnconsumedValues() async {
-        let channel = CommandChannel()
+        let channel = PacketTunnelActor.CommandChannel()
         channel.send(.stop)
         channel.finish()
 
@@ -54,7 +54,7 @@ final class CommandChannelTests: XCTestCase {
 
     /// Test that the call to `finish()` ends the iteration that began prior to that.
     func testFinishEndsAsyncIterator() async throws {
-        let channel = CommandChannel()
+        let channel = PacketTunnelActor.CommandChannel()
         let expectFinish = expectation(description: "Call to finish()")
         let expectEndIteration = expectation(description: "Iteration over channel should end upon call to finish()")
 
