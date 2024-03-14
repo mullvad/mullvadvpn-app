@@ -111,6 +111,9 @@ public actor PacketTunnelActor {
 
                 case let .networkReachability(defaultPath):
                     await handleDefaultPathChange(defaultPath)
+
+                case .replaceDevicePrivateKey:
+                    self.logger.warning("Not yet implemented")
                 }
             }
         }
