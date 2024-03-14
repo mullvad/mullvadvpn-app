@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import WireGuardKitTypes
 
 /// Describes action that actor can perform.
 enum Command {
@@ -33,6 +34,9 @@ enum Command {
 
     /// Network reachability events.
     case networkReachability(NetworkPath)
+    
+    /// Update the device private key, as per post-quantum protocols
+    case replaceDevicePrivateKey(PrivateKey)
 
     /// Format command for log output.
     func logFormat() -> String {
@@ -65,6 +69,8 @@ enum Command {
             return "networkReachability"
         case .switchKey:
             return "switchKey"
+        case .replaceDevicePrivateKey:
+            return "replaceDevicePrivateKey"
         }
     }
 }
