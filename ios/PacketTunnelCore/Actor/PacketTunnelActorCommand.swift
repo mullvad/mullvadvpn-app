@@ -14,31 +14,31 @@ extension PacketTunnelActor {
     enum Command {
         /// Start tunnel.
         case start(StartOptions)
-        
+
         /// Stop tunnel.
         case stop
-        
+
         /// Reconnect tunnel.
         case reconnect(NextRelay, reason: ReconnectReason = .userInitiated)
-        
+
         /// Enter blocked state.
         case error(BlockedStateReason)
-        
+
         /// Notify that key rotation took place
         case notifyKeyRotated(Date?)
-        
+
         /// Switch to using the recently pushed WG key.
         case switchKey
-        
+
         /// Monitor events.
         case monitorEvent(_ event: TunnelMonitorEvent)
-        
+
         /// Network reachability events.
         case networkReachability(NetworkPath)
-        
+
         /// Update the device private key, as per post-quantum protocols
         case replaceDevicePrivateKey(PrivateKey)
-        
+
         /// Format command for log output.
         func logFormat() -> String {
             switch self {
