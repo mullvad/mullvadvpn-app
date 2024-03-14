@@ -65,8 +65,8 @@ pub enum Error {
     #[error("Failed to spawn the JNI event listener")]
     SpawnJniEventListener(#[source] jni_event_listener::Error),
 
-    #[error(display = "Failed to spawn the JNI event listener")]
-    SpawnManagementInterface(#[error(source)] mullvad_daemon::management_interface::Error),
+    #[error("Failed to spawn the management interface")]
+    SpawnManagementInterface(#[source] mullvad_daemon::management_interface::Error),
 }
 
 #[derive(IntoJava)]

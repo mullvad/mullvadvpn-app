@@ -58,7 +58,7 @@ class OutOfTimeUseCase(
     }
 
     private fun pastAccountExpiry(): Flow<Boolean?> =
-        repository.accountExpiryState
+        repository.accountExpiry
             .flatMapLatest {
                 if (it is AccountExpiry.Available) {
                     flow {
