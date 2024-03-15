@@ -7,6 +7,7 @@
 //
 
 @testable import MullvadSettings
+@testable import MullvadTypes
 import XCTest
 
 class CustomListsDataSourceTests: XCTestCase {
@@ -50,7 +51,9 @@ class CustomListsDataSourceTests: XCTestCase {
     }
 
     func testNodeByLocations() throws {
-        let nodeByLocations = dataSource.node(by: [.hostname("es", "mad", "es1-wireguard")], for: customLists.first!)
+        let relays = UserSelectedRelays(locations: [.hostname("es", "mad", "es1-wireguard")], customListSelection: nil)
+
+        let nodeByLocations = dataSource.node(by: relays, for: customLists.first!)
         let nodeByCode = dataSource.nodes.first?.descendantNodeFor(codes: ["netflix", "es1-wireguard"])
 
         XCTAssertEqual(nodeByLocations, nodeByCode)

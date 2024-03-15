@@ -50,16 +50,15 @@ class CustomListsDataSource: LocationDataSourceProtocol {
         }
     }
 
-    func node(by locations: [RelayLocation], for customList: CustomList) -> LocationNode? {
-        guard let listNode = nodes.first(where: { $0.name == customList.name })
-        else { return nil }
+    func node(by relays: UserSelectedRelays, for customList: CustomList) -> LocationNode? {
+        guard let listNode = nodes.first(where: { $0.name == customList.name }) else { return nil }
 
-        if locations.count > 1 {
+        if relays.customListSelection?.isList == true {
             return listNode
         } else {
             // Each search for descendant nodes needs the parent custom list node code to be
             // prefixed in order to get a match. See comment in reload() above.
-            return switch locations.first {
+            return switch relays.locations.first {
             case let .country(countryCode):
                 listNode.descendantNodeFor(codes: [listNode.code, countryCode])
             case let .city(countryCode, cityCode):

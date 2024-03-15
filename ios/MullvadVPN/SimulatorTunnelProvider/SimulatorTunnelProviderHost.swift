@@ -146,8 +146,8 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                 completionHandler?(reply)
             }
 
-        case let .cancelURLRequest(id):
-            urlRequestProxy.cancelRequest(identifier: id)
+        case let .cancelURLRequest(listId):
+            urlRequestProxy.cancelRequest(identifier: listId)
 
             completionHandler?(nil)
 
