@@ -40,7 +40,7 @@ use talpid_types::{
 use crate::error::{EndpointError, Error};
 
 use self::{
-    detailer::{OpenVpnDetailer, WireguardDetailer},
+    detailer::{wireguard_endpoint, OpenVpnDetailer},
     matcher::AnyTunnelMatcher,
     parsed_relays::ParsedRelays,
     query::{BridgeQuery, Intersection, OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery},
@@ -526,7 +526,7 @@ impl RelaySelector {
         } else {
             Self::get_wireguard_multihop_config(query, config, parsed_relays)?
         };
-        let endpoint = Self::get_wireguard_endpoint(query, &inner, parsed_relays)?;
+        let endpoint = Self::get_wireguard_endpoint(query, parsed_relays, &inner)?;
         let obfuscator =
             Self::get_wireguard_obfuscator(query, inner.clone(), &endpoint, parsed_relays)?;
 
@@ -607,15 +607,14 @@ impl RelaySelector {
     /// Constructs a `MullvadEndpoint` with details for how to connect to `relay`.
     fn get_wireguard_endpoint(
         query: &RelayQuery,
-        relay: &WireguardConfig,
         parsed_relays: &ParsedRelays,
+        relay: &WireguardConfig,
     ) -> Result<MullvadWireguardEndpoint, Error> {
-        WireguardDetailer::new(
+        wireguard_endpoint(
             &query.wireguard_constraints,
-            relay,
             &parsed_relays.parsed_list().wireguard,
+            relay,
         )
-        .to_endpoint()
         .ok_or(EndpointError::from_wireguard(relay.clone()))
     }
 
