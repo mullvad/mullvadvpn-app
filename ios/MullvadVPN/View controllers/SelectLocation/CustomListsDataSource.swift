@@ -27,16 +27,8 @@ class CustomListsDataSource: LocationDataSourceProtocol {
     /// from the complete list of nodes created in ``AllLocationDataSource``.
     func reload(allLocationNodes: [LocationNode]) {
         nodes = repository.fetchAll().map { list in
-            let listNode = CustomListLocationNode(
-                name: list.name,
-                code: list.name.lowercased(),
-                locations: list.locations,
-                customList: list
-            )
-
-            listNode.children = list.locations.compactMap { location in
-                copy(location, from: allLocationNodes, withParent: listNode)
-            }
+            let customListWrapper = CustomListLocationNodeBuilder(customList: list, allLocations: allLocationNodes)
+            let listNode = customListWrapper.customListLocationNode
 
             listNode.forEachDescendant { node in
                 // Each item in a section in a diffable data source needs to be unique.
