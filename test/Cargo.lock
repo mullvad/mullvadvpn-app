@@ -3053,6 +3053,7 @@ dependencies = [
  "base64 0.13.1",
  "ipnetwork 0.16.0",
  "jnix",
+ "log",
  "serde",
  "thiserror",
  "x25519-dalek",
