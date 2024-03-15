@@ -160,6 +160,15 @@ impl Set<Constraint<ResolvedLocationConstraint>> for Constraint<ResolvedLocation
 }
 
 impl Constraint<ResolvedLocationConstraint> {
+    /// # Note
+    ///
+    /// The following statements are true iff `self` is based on [country][`GeographicLocationConstraint::Country`].
+    ///
+    /// * If `ignore_include_in_country` is true, the outcome of `matches_with_opts` is only based on the geographical location of `relay`.
+    ///
+    /// * If `ignore_include_in_country` is false, any [relay][`Relay`] which has the
+    /// `include_in_country` property set to false will cause `matches_with_opts` to return false.
+    /// Otherwise, the outcome is based on the geographical location of `relay`.
     pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
         match self {
             Constraint::Any => true,
@@ -347,6 +356,16 @@ impl GeographicLocationConstraint {
         GeographicLocationConstraint::Hostname(country.into(), city.into(), hostname.into())
     }
 
+    /// # Note
+    ///
+    /// The following statements are true iff `self` is based on [country][`GeographicLocationConstraint::Country`].
+    ///
+    /// * If `ignore_include_in_country` is true, the `include_in_country` property of `relay` is
+    /// disregarded. The outcome of `matches_with_opts` is only based on the geographical location of `relay`.
+    ///
+    /// * If `ignore_include_in_country` is false, any [relay][`Relay`] which has the
+    /// `include_in_country` property set to false will cause `matches_with_opts` to return false
+    /// regardless of the geographical location of `relay`.
     pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
         match self {
             GeographicLocationConstraint::Country(ref country) => {
