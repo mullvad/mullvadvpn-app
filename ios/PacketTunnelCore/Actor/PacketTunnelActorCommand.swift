@@ -37,7 +37,7 @@ extension PacketTunnelActor {
         case networkReachability(NetworkPath)
 
         /// Update the device private key, as per post-quantum protocols
-        case replaceDevicePrivateKey(PrivateKey)
+        case replaceDevicePrivateKey(PreSharedKey)
 
         /// Format command for log output.
         func logFormat() -> String {
