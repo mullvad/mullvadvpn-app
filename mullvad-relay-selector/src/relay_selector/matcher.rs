@@ -36,20 +36,33 @@ impl<'a> RelayMatcher<AnyTunnelMatcher<'a>> {
         wireguard_data: &'a WireguardEndpointData,
         custom_lists: &CustomListsSettings,
     ) -> RelayMatcher<AnyTunnelMatcher<'a>> {
-        Self {
-            locations: ResolvedLocationConstraint::from_constraint(query.location, custom_lists),
-            providers: query.providers,
-            ownership: query.ownership,
-            endpoint_matcher: AnyTunnelMatcher {
-                wireguard: WireguardMatcher::new(query.wireguard_constraints, wireguard_data),
-                openvpn: OpenVpnMatcher::new(query.openvpn_constraints, openvpn_data, bridge_state),
-                tunnel_type: query.tunnel_protocol,
-            },
-        }
+        let endpoint_matcher = AnyTunnelMatcher {
+            wireguard: WireguardMatcher::new(query.wireguard_constraints.clone(), wireguard_data),
+            openvpn: OpenVpnMatcher::new(
+                query.openvpn_constraints.clone(),
+                openvpn_data,
+                bridge_state,
+            ),
+            tunnel_type: query.tunnel_protocol,
+        };
+        Self::using(query, custom_lists, endpoint_matcher)
     }
 }
 
 impl<T: EndpointMatcher> RelayMatcher<T> {
+    pub fn using(
+        query: RelayQuery,
+        custom_lists: &CustomListsSettings,
+        endpoint_matcher: T,
+    ) -> RelayMatcher<T> {
+        RelayMatcher {
+            locations: ResolvedLocationConstraint::from_constraint(query.location, custom_lists),
+            providers: query.providers,
+            ownership: query.ownership,
+            endpoint_matcher,
+        }
+    }
+
     /// Filter a list of relays and their endpoints based on constraints.
     /// Only relays with (and including) matching endpoints are returned.
     pub fn filter_matching_relay_list<'a, R: Iterator<Item = &'a Relay> + Clone>(
