@@ -14,6 +14,8 @@ use talpid_types::net::{IpVersion, TransportProtocol, TunnelType};
 
 use super::query::{OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery};
 
+/// The relay matcher decomposes a [`RelayQuery`] and exposes functions for filtering a set of relays
+/// to a subset which matches the original query.
 pub struct RelayMatcher<T: EndpointMatcher> {
     /// Locations allowed to be picked from. In the case of custom lists this may be multiple
     /// locations. In normal circumstances this contains only 1 location.
