@@ -133,22 +133,6 @@ impl<'a> WireguardMatcher<'a> {
             data,
         }
     }
-
-    pub fn new_matcher(
-        constraints: RelayQuery,
-        data: &'a WireguardEndpointData,
-        custom_lists: &CustomListsSettings,
-    ) -> RelayMatcher<Self> {
-        RelayMatcher {
-            locations: ResolvedLocationConstraint::from_constraint(
-                constraints.location,
-                custom_lists,
-            ),
-            providers: constraints.providers,
-            ownership: constraints.ownership,
-            endpoint_matcher: WireguardMatcher::new(constraints.wireguard_constraints, data),
-        }
-    }
 }
 
 impl<'a> EndpointMatcher for WireguardMatcher<'a> {
