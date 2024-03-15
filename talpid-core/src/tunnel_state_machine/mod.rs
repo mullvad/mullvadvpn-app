@@ -307,8 +307,6 @@ impl TunnelStateMachine {
             runtime.clone(),
             #[cfg(target_os = "linux")]
             route_manager.clone(),
-            #[cfg(target_os = "macos")]
-            args.command_tx.clone(),
         )
         .map_err(Error::InitDnsMonitorError)?;
 
