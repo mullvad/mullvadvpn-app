@@ -69,17 +69,18 @@ impl<T: EndpointMatcher> RelayMatcher<T> {
             .filter(|relay| self.endpoint_matcher.is_matching_relay(relay));
 
         // The last filtering to be done is on the `include_in_country` attribute found on each
-        // relay. A regular, user-facing relay will have `include_in_country` set to true.
-        // If a relay has `include_in_country` set to false, they are purposely hidden than
-        // other relays. We should only consider those if there are no regular candidates left.
-        let ignore_include_in_country = !shortlist.clone().any(|relay| relay.include_in_country);
-        shortlist
-            .filter(|relay| {
-                self.locations
-                    .matches_with_opts(relay, ignore_include_in_country)
-            })
-            .cloned()
-            .collect()
+        // relay. When the location constraint is based on country, a relay which has `include_in_country`
+        // set to true should always be prioritized over relays which has this flag set to false.
+        // We should only consider relays with `include_in_country` set to false if there are no
+        // other candidates left.
+        if !shortlist.clone().any(|relay| relay.include_in_country) {
+            shortlist.cloned().collect()
+        } else {
+            shortlist
+                .filter(|relay| filter_on_include_in_country(&self.locations, relay))
+                .cloned()
+                .collect()
+        }
     }
 }
 
@@ -211,8 +212,20 @@ pub const fn filter_on_active(relay: &Relay) -> bool {
 
 /// Returns whether `relay` satisfy the location constraint posed by `filter`.
 pub fn filter_on_location(filter: &Constraint<ResolvedLocationConstraint>, relay: &Relay) -> bool {
-    let ignore_include_in_countries = true;
-    filter.matches_with_opts(relay, ignore_include_in_countries)
+    filter.matches_with_opts(relay, true)
+}
+
+/// Returns whether `relay` has the `include_in_country` flag set to true.
+///
+/// # Note
+/// This filter only applies if the underlying [location constraint][`ResolvedLocationConstraint`]
+/// is based on country. I.e., this filter does not have any effect if the underlying constraint
+/// is scoped to a specific hostname or city.
+pub fn filter_on_include_in_country(
+    filter: &Constraint<ResolvedLocationConstraint>,
+    relay: &Relay,
+) -> bool {
+    filter.matches_with_opts(relay, false)
 }
 
 /// Returns whether `relay` satisfy the ownership constraint posed by `filter`.
