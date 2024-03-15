@@ -13,7 +13,7 @@ class LocationNode {
     let name: String
     var code: String
     var locations: [RelayLocation]
-    var parent: LocationNode?
+    weak var parent: LocationNode?
     var children: [LocationNode]
     var showsChildren: Bool
     var isHiddenFromSearch: Bool
