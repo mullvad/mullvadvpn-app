@@ -15,7 +15,7 @@ use std::{
     time::SystemTime,
 };
 
-use matcher::{BridgeMatcher, RelayMatcher, WireguardMatcher};
+use matcher::{BridgeMatcher, RelayMatcher};
 use mullvad_types::{
     constraints::Constraint,
     custom_list::CustomListsSettings,
@@ -571,20 +571,10 @@ impl RelaySelector {
         let mut entry_relay_query = query.clone();
         entry_relay_query.location = query.wireguard_constraints.entry_location.clone();
         // After we have our two queries (one for the exit relay & one for the entry relay),
-        // we can construct our two matchers:
-        let exit_matcher = WireguardMatcher::new_matcher(
-            query.clone(),
-            &parsed_relays.parsed_list().wireguard,
-            config.custom_lists,
-        );
-        let entry_matcher = WireguardMatcher::new_matcher(
-            entry_relay_query.clone(),
-            &parsed_relays.parsed_list().wireguard,
-            config.custom_lists,
-        );
-        // .. and query for all exit & entry candidates! All candidates are needed for the next step.
-        let exit_candidates = exit_matcher.filter_matching_relay_list(parsed_relays.relays());
-        let entry_candidates = entry_matcher.filter_matching_relay_list(parsed_relays.relays());
+        // we can query for all exit & entry candidates! All candidates are needed for the next step.
+        let exit_candidates = Self::get_tunnel_endpoints(query, config, parsed_relays);
+        let entry_candidates =
+            Self::get_tunnel_endpoints(&entry_relay_query, config, parsed_relays);
 
         // This algorithm gracefully handles a particular edge case that arise when a constraint on
         // the exit relay is more specific than on the entry relay which forces the relay selector
