@@ -38,10 +38,6 @@ pub enum Error {
     #[error("Failed to initialize dynamic store")]
     DynamicStoreInitError,
 
-    /// Failed to parse IP address from config string
-    #[error("Failed to parse an IP address from a config string")]
-    AddrParseError(String, String, AddrParseError),
-
     /// Failed to obtain name for interface
     #[error("Failed to obtain interface name")]
     GetInterfaceNameError,
@@ -259,20 +255,6 @@ impl DnsSettings {
 
     pub fn address_set(&self) -> BTreeSet<String> {
         BTreeSet::from_iter(self.server_addresses())
-    }
-
-    pub fn interface_config(&self, interface_path: &str) -> Result<Vec<IpAddr>> {
-        let addresses = self
-            .server_addresses()
-            .into_iter()
-            .map(|server_addr| {
-                server_addr.parse().map_err(|err| {
-                    Error::AddrParseError(interface_path.to_string(), server_addr.clone(), err)
-                })
-            })
-            .collect::<Result<Vec<IpAddr>>>()?;
-
-        Ok(addresses)
     }
 
     /// Parses a CFArray into a Rust vector of Rust strings, if the array contains CFString

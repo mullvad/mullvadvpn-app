@@ -53,13 +53,6 @@ impl DnsMonitor {
         })
     }
 
-    /// Returns a map of interfaces and respective list of resolvers that don't contain our
-    /// changes.
-    #[cfg(target_os = "macos")]
-    pub fn get_system_config(&self) -> Result<Option<(String, Vec<IpAddr>)>, Error> {
-        self.inner.get_system_config()
-    }
-
     /// Set DNS to the given servers. And start monitoring the system for changes.
     pub fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
         log::info!(
