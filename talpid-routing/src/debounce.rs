@@ -28,6 +28,7 @@ enum BurstGuardEvent {
 }
 
 impl BurstGuard {
+    /// Create a new burst guard
     pub fn new<F: Fn() + Send + 'static>(
         buffer_period: Duration,
         longest_buffer_period: Duration,

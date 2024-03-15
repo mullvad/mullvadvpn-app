@@ -6,7 +6,8 @@ use ipnetwork::IpNetwork;
 use std::{fmt, net::IpAddr};
 
 #[cfg(any(target_os = "windows", target_os = "macos"))]
-mod debounce;
+/// Burst guard
+pub mod debounce;
 
 #[cfg(target_os = "windows")]
 #[path = "windows/mod.rs"]
