@@ -34,4 +34,5 @@ public struct TunnelAdapterConfiguration {
 public struct TunnelPeer {
     public var endpoint: AnyIPEndpoint
     public var publicKey: PublicKey
+    public var preSharedKey: PreSharedKey?
 }

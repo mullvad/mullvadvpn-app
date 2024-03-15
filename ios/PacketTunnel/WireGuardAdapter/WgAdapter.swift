@@ -113,6 +113,7 @@ private extension TunnelAdapterConfiguration {
             var peerConfig = PeerConfiguration(publicKey: peer.publicKey)
             peerConfig.endpoint = peer.endpoint.wgEndpoint
             peerConfig.allowedIPs = allowedIPs
+            peerConfig.preSharedKey = peer.preSharedKey
             peers.append(peerConfig)
         }
 
