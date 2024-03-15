@@ -909,12 +909,13 @@ impl RelaySelector {
         config: &NormalSelectorConfig<'_>,
         parsed_relays: &ParsedRelays,
     ) -> Vec<Relay> {
+        use self::matcher::WireguardMatcher;
         let relays = parsed_relays.relays();
-        let matcher = WireguardMatcher::new_matcher(
-            query.clone(),
+        let endpoint_matcher = WireguardMatcher::new(
+            query.wireguard_constraints.clone(),
             &parsed_relays.parsed_list().wireguard,
-            config.custom_lists,
         );
+        let matcher = RelayMatcher::using(query.clone(), config.custom_lists, endpoint_matcher);
         matcher.filter_matching_relay_list(relays)
     }
 }
