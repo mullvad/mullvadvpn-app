@@ -27,16 +27,8 @@ class CustomListsDataSource: LocationDataSourceProtocol {
     /// from the complete list of nodes created in ``AllLocationDataSource``.
     func reload(allLocationNodes: [LocationNode]) {
         nodes = repository.fetchAll().map { list in
-            let listNode = CustomListLocationNode(
-                name: list.name,
-                code: list.name.lowercased(),
-                locations: list.locations,
-                customList: list
-            )
-
-            listNode.children = list.locations.compactMap { location in
-                copy(location, from: allLocationNodes, withParent: listNode)
-            }
+            let customListWrapper = CustomListLocationNodeBuilder(customList: list, allLocations: allLocationNodes)
+            let listNode = customListWrapper.customListLocationNode
 
             listNode.forEachDescendant { node in
                 // Each item in a section in a diffable data source needs to be unique.
@@ -73,30 +65,5 @@ class CustomListsDataSource: LocationDataSourceProtocol {
 
     func customList(by id: UUID) -> CustomList? {
         repository.fetch(by: id)
-    }
-
-    private func copy(
-        _ location: RelayLocation,
-        from allLocationNodes: [LocationNode],
-        withParent parentNode: LocationNode
-    ) -> LocationNode? {
-        let rootNode = RootLocationNode(children: allLocationNodes)
-
-        return switch location {
-        case let .country(countryCode):
-            rootNode
-                .countryFor(code: countryCode)?.copy(withParent: parentNode)
-
-        case let .city(countryCode, cityCode):
-            rootNode
-                .countryFor(code: countryCode)?.copy(withParent: parentNode)
-                .cityFor(codes: [countryCode, cityCode])
-
-        case let .hostname(countryCode, cityCode, hostCode):
-            rootNode
-                .countryFor(code: countryCode)?.copy(withParent: parentNode)
-                .cityFor(codes: [countryCode, cityCode])?
-                .hostFor(code: hostCode)
-        }
     }
 }
