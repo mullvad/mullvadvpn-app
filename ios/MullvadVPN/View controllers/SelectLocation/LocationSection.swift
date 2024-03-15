@@ -7,7 +7,7 @@
 //
 
 import Foundation
-enum LocationSection: Int, Hashable, CustomStringConvertible, CaseIterable {
+enum LocationSection: String, Hashable, CustomStringConvertible, CaseIterable, CellIdentifierProtocol {
     case customLists
     case allLocations
 
@@ -28,8 +28,8 @@ enum LocationSection: Int, Hashable, CustomStringConvertible, CaseIterable {
         }
     }
 
-    var cell: Cell {
-        .locationCell
+    var cellClass: AnyClass {
+        LocationCell.self
     }
 
     static var allCases: [LocationSection] {
@@ -38,22 +38,5 @@ enum LocationSection: Int, Hashable, CustomStringConvertible, CaseIterable {
         #else
         return [.allLocations]
         #endif
-    }
-}
-
-extension LocationSection {
-    enum Cell: String, CaseIterable {
-        case locationCell
-
-        var reusableViewClass: AnyClass {
-            switch self {
-            case .locationCell:
-                return LocationCell.self
-            }
-        }
-
-        var reuseIdentifier: String {
-            self.rawValue
-        }
     }
 }

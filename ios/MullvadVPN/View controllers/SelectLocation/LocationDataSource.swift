@@ -28,23 +28,24 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
         customLists: LocationDataSourceProtocol
     ) {
         self.tableView = tableView
-
         #if DEBUG
         self.dataSources.append(customLists)
         #endif
         self.dataSources.append(allLocations)
 
         super.init(tableView: tableView) { _, indexPath, itemIdentifier in
-            let reuseIdentifier = LocationSection.Cell.locationCell.reuseIdentifier
-            // swiftlint:disable:next force_cast
-            let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! LocationCell
+            let cell = tableView.dequeueReusableView(
+                withIdentifier: LocationSection.allCases[indexPath.section],
+                for: indexPath
+                // swiftlint:disable:next force_cast
+            ) as! LocationCell
             cell.configureCell(item: itemIdentifier)
             return cell
         }
 
         tableView.delegate = self
+        tableView.registerReusableViews(from: LocationSection.self)
         defaultRowAnimation = .fade
-        registerClasses()
     }
 
     func setRelays(_ response: REST.ServerRelaysResponse, selectedRelays: UserSelectedRelays?, filter: RelayFilter) {
@@ -134,12 +135,6 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
 
         DispatchQueue.main.async {
             self.apply(snapshot, animatingDifferences: animated, completion: completion)
-        }
-    }
-
-    private func registerClasses() {
-        LocationSection.allCases.forEach {
-            tableView.register($0.cell.reusableViewClass, forCellReuseIdentifier: $0.cell.reuseIdentifier)
         }
     }
 
