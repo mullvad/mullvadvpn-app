@@ -7,3 +7,11 @@
 //
 
 import Foundation
+import MullvadTypes
+import WireGuardKitTypes
+
+extension PacketTunnelProvider: PostQuantumKeyReceiving {
+    func receivePostQuantumKey(_ key: PreSharedKey) {
+        // TODO: send the key to the actor
+    }
+}
