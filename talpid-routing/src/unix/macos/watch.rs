@@ -46,11 +46,19 @@ impl RoutingTable {
 
     pub async fn next_message(&mut self) -> Result<RouteSocketMessage> {
         let mut buf = [0u8; 2048];
-        let bytes_read = self
-            .socket
-            .recv_msg(&mut buf)
-            .await
-            .map_err(Error::RoutingSocket)?;
+
+        let bytes_read = loop {
+            match self.socket.recv_msg(&mut buf).await {
+                Ok(bytes_read) => break bytes_read,
+                Err(error) if error.is_shutdown() => {
+                    log::debug!("Recreating shut down socket");
+                    self.socket =
+                        routing_socket::RoutingSocket::new().map_err(Error::RoutingSocket)?;
+                }
+                Err(error) => return Err(Error::RoutingSocket(error)),
+            }
+        };
+
         let msg_buf = &buf[0..bytes_read];
         data::RouteSocketMessage::parse_message(msg_buf).map_err(Error::InvalidMessage)
     }
