@@ -1380,6 +1380,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "intersection-derive"
+version = "0.0.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.51",
+]
+
+[[package]]
 name = "inventory"
 version = "0.3.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1814,6 +1823,7 @@ name = "mullvad-relay-selector"
 version = "0.0.0"
 dependencies = [
  "chrono",
+ "intersection-derive",
  "ipnetwork 0.16.0",
  "itertools 0.12.1",
  "log",
@@ -1830,6 +1840,7 @@ name = "mullvad-types"
 version = "0.0.0"
 dependencies = [
  "chrono",
+ "intersection-derive",
  "ipnetwork 0.16.0",
  "jnix",
  "log",

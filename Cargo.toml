@@ -24,6 +24,7 @@ members = [
     "mullvad-relay-selector",
     "mullvad-setup",
     "mullvad-types",
+    "mullvad-types/intersection-derive",
     "mullvad-version",
     "talpid-core",
     "talpid-dbus",
