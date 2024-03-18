@@ -27,7 +27,7 @@ use mullvad_types::{
     },
     relay_list::{Relay, RelayEndpointData, RelayList},
     settings::Settings,
-    CustomTunnelEndpoint,
+    CustomTunnelEndpoint, Intersection,
 };
 use talpid_types::{
     net::{
@@ -42,7 +42,7 @@ use self::{
     detailer::{openvpn_endpoint, wireguard_endpoint},
     matcher::{filter_matching_bridges, filter_matching_relay_list},
     parsed_relays::ParsedRelays,
-    query::{BridgeQuery, Intersection, OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery},
+    query::{BridgeQuery, OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery},
 };
 
 /// [`RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector should
