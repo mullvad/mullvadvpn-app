@@ -85,98 +85,15 @@ pub enum LocationConstraint {
     CustomList { list_id: Id },
 }
 
-#[derive(Debug, Clone)]
-pub struct ResolvedLocationConstraint(Vec<GeographicLocationConstraint>);
-
-impl<'a> IntoIterator for &'a ResolvedLocationConstraint {
-    type Item = &'a GeographicLocationConstraint;
-
-    type IntoIter = core::slice::Iter<'a, GeographicLocationConstraint>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.0.iter()
-    }
-}
-
-impl IntoIterator for ResolvedLocationConstraint {
-    type Item = GeographicLocationConstraint;
-
-    type IntoIter = std::vec::IntoIter<GeographicLocationConstraint>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.0.into_iter()
-    }
-}
-
-impl FromIterator<GeographicLocationConstraint> for ResolvedLocationConstraint {
-    fn from_iter<T: IntoIterator<Item = GeographicLocationConstraint>>(iter: T) -> Self {
-        Self(Vec::from_iter(iter))
-    }
-}
-
-impl ResolvedLocationConstraint {
-    pub fn from_constraint(
-        location_constraint: Constraint<LocationConstraint>,
-        custom_lists: &CustomListsSettings,
-    ) -> Constraint<ResolvedLocationConstraint> {
-        location_constraint.map(|location| Self::from_location_constraint(location, custom_lists))
-    }
-
-    fn from_location_constraint(
-        location: LocationConstraint,
-        custom_lists: &CustomListsSettings,
-    ) -> ResolvedLocationConstraint {
-        match location {
-            LocationConstraint::Location(location) => Self::from_iter(std::iter::once(location)),
-            LocationConstraint::CustomList { list_id } => custom_lists
-                .iter()
-                .find(|list| list.id == list_id)
-                .map(|custom_list| Self::from_iter(custom_list.locations.clone()))
-                .unwrap_or_else(|| {
-                    log::warn!("Resolved non-existent custom list");
-                    Self::from_iter(std::iter::empty())
-                }),
-        }
-    }
+pub struct LocationConstraintFormatter<'a> {
+    pub constraint: &'a LocationConstraint,
+    pub custom_lists: &'a CustomListsSettings,
 }
 
 impl From<GeographicLocationConstraint> for LocationConstraint {
     fn from(location: GeographicLocationConstraint) -> Self {
         Self::Location(location)
     }
-}
-
-impl Set<Constraint<ResolvedLocationConstraint>> for Constraint<ResolvedLocationConstraint> {
-    fn is_subset(&self, other: &Self) -> bool {
-        match self {
-            Constraint::Any => other.is_any(),
-            Constraint::Only(locations) => match other {
-                Constraint::Any => true,
-                Constraint::Only(other_locations) => {
-                    for location in locations {
-                        if !other_locations
-                            .into_iter()
-                            .any(|other_location| location.is_subset(other_location))
-                        {
-                            return false;
-                        }
-                    }
-                    true
-                }
-            },
-        }
-    }
-}
-
-impl Match<Relay> for ResolvedLocationConstraint {
-    fn matches(&self, relay: &Relay) -> bool {
-        self.into_iter().any(|location| location.matches(relay))
-    }
-}
-
-pub struct LocationConstraintFormatter<'a> {
-    pub constraint: &'a LocationConstraint,
-    pub custom_lists: &'a CustomListsSettings,
 }
 
 impl<'a> fmt::Display for LocationConstraintFormatter<'a> {
