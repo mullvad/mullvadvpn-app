@@ -30,8 +30,9 @@ class ServerIpOverridesScreenTest {
         MockKAnnotations.init(this)
     }
 
+    @Suppress("TestFunctionName")
     @Composable
-    private fun Screen(
+    private fun ScreenWithDefault(
         state: ServerIpOverridesViewState,
         onBackClick: () -> Unit = {},
         onInfoClick: () -> Unit = {},
@@ -53,7 +54,7 @@ class ServerIpOverridesScreenTest {
     fun testOverridesInactive() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { Screen(state = ServerIpOverridesViewState(false)) }
+            setContentWithTheme { ScreenWithDefault(state = ServerIpOverridesViewState(false)) }
 
             // Assert
             onNodeWithText("Overrides inactive").assertExists()
@@ -63,7 +64,7 @@ class ServerIpOverridesScreenTest {
     fun testOverridesActive() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { Screen(state = ServerIpOverridesViewState(true)) }
+            setContentWithTheme { ScreenWithDefault(state = ServerIpOverridesViewState(true)) }
 
             // Assert
             onNodeWithText("Overrides active").assertExists()
@@ -73,7 +74,7 @@ class ServerIpOverridesScreenTest {
     fun testOverridesActiveShowsWarningOnImport() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { Screen(state = ServerIpOverridesViewState(true)) }
+            setContentWithTheme { ScreenWithDefault(state = ServerIpOverridesViewState(true)) }
 
             // Act
             onNodeWithTag(testTag = SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()
@@ -91,7 +92,10 @@ class ServerIpOverridesScreenTest {
             // Arrange
             val clickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
-                Screen(state = ServerIpOverridesViewState(false), onInfoClick = clickHandler)
+                ScreenWithDefault(
+                    state = ServerIpOverridesViewState(false),
+                    onInfoClick = clickHandler
+                )
             }
 
             // Act
@@ -107,8 +111,8 @@ class ServerIpOverridesScreenTest {
             // Arrange
             val clickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
-                Screen(
-                    state = ServerIpOverridesViewState(false),
+                ScreenWithDefault(
+                    state = ServerIpOverridesViewState(true),
                     onResetOverridesClick = clickHandler
                 )
             }
@@ -127,7 +131,10 @@ class ServerIpOverridesScreenTest {
             // Arrange
             val clickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
-                Screen(state = ServerIpOverridesViewState(false), onImportByFile = clickHandler)
+                ScreenWithDefault(
+                    state = ServerIpOverridesViewState(false),
+                    onImportByFile = clickHandler
+                )
             }
 
             // Act
@@ -144,7 +151,10 @@ class ServerIpOverridesScreenTest {
             // Arrange
             val clickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
-                Screen(state = ServerIpOverridesViewState(false), onImportByText = clickHandler)
+                ScreenWithDefault(
+                    state = ServerIpOverridesViewState(false),
+                    onImportByText = clickHandler
+                )
             }
 
             // Act

@@ -65,6 +65,7 @@ const val SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG =
 const val SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG =
     "select_location_location_bottom_sheet_test_tag"
 
+// ServerIpOverridesScreen
 const val SERVER_IP_OVERRIDE_IMPORT_TEST_TAG = "server_ip_override_import_button_test_tag"
 const val SERVER_IP_OVERRIDE_INFO_TEST_TAG = "server_ip_override_info_button_test_tag"
 const val SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG = "server_ip_override_more_vert_button_test_tag"
