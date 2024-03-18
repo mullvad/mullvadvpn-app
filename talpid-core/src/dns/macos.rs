@@ -1,10 +1,9 @@
-use futures::channel::mpsc;
 use parking_lot::Mutex;
 use std::{
     collections::{BTreeSet, HashMap},
-    fmt,
-    net::{AddrParseError, IpAddr},
-    sync::{mpsc as sync_mpsc, Arc, Weak},
+    fmt, mem,
+    net::IpAddr,
+    sync::{mpsc as sync_mpsc, Arc, RwLock},
     thread,
     time::Duration,
 };
@@ -20,10 +19,7 @@ use system_configuration::{
     dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext},
     sys::schema_definitions::{kSCPropNetDNSServerAddresses, kSCPropNetInterfaceDeviceName},
 };
-use talpid_time::Instant;
-use talpid_types::tunnel::ErrorStateCause;
-
-use crate::tunnel_state_machine::TunnelCommand;
+use talpid_routing::debounce::BurstGuard;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -37,10 +33,6 @@ pub enum Error {
     /// Failed to initialize dynamic store
     #[error("Failed to initialize dynamic store")]
     DynamicStoreInitError,
-
-    /// Failed to parse IP address from config string
-    #[error("Failed to parse an IP address from a config string")]
-    AddrParseError(String, String, AddrParseError),
 
     /// Failed to obtain name for interface
     #[error("Failed to obtain interface name")]
@@ -58,14 +50,13 @@ pub enum Error {
 const STATE_PATH_PATTERN: &str = "State:/Network/Service/.*/DNS";
 const SETUP_PATH_PATTERN: &str = "Setup:/Network/Service/.*/DNS";
 
+const BURST_BUFFER_PERIOD: Duration = Duration::from_millis(500);
+const BURST_LONGEST_BUFFER_PERIOD: Duration = Duration::from_secs(5);
+
 type ServicePath = String;
 type DnsServer = String;
 
 struct State {
-    /// Channel to signal to the TSM that something has gone wrong
-    tsm_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
-    /// Change counter to fail a tunnel if setting DNS
-    change_counter: ChangeCounter,
     /// The settings this monitor is currently enforcing as active settings.
     dns_settings: Option<DnsSettings>,
     /// The backup of all DNS settings. These are being applied back on reset.
@@ -73,11 +64,9 @@ struct State {
 }
 
 impl State {
-    fn new(tsm_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>) -> Self {
+    fn new() -> Self {
         Self {
-            tsm_tx,
             dns_settings: None,
-            change_counter: ChangeCounter::new(),
             backup: HashMap::new(),
         }
     }
@@ -94,13 +83,8 @@ impl State {
         let new_settings = DnsSettings::from_server_addresses(&servers, interface.to_string());
         match &self.dns_settings {
             None => {
-                let backup = read_all_dns(store);
-                log::trace!("Backup of DNS settings: {:#?}", backup);
-                for service_path in backup.keys() {
-                    new_settings.save(store, service_path.as_str())?;
-                }
                 self.dns_settings = Some(new_settings);
-                self.backup = backup;
+                self.update_known_state(store);
             }
             Some(old_settings) => {
                 if new_settings.address_set() != old_settings.address_set() {
@@ -111,62 +95,51 @@ impl State {
                 }
             }
         };
-        self.change_counter.clear();
 
         Ok(())
     }
 
-    fn on_changed_keys(&mut self, store: SCDynamicStore, changed_keys: CFArray<CFString>) {
-        talpid_types::detect_flood!();
+    /// Apply the desired DNS settings to all interfaces, and save the original state. The operation
+    /// is idempotent.
+    fn update_known_state(&mut self, store: &SCDynamicStore) {
+        let Some(expected_settings) = &self.dns_settings else {
+            return;
+        };
 
-        if let Some(expected_settings) = &self.dns_settings {
-            for path in &changed_keys {
-                let should_set_dns = match DnsSettings::load(&store, path.clone()).ok() {
-                    None => {
-                        log::debug!("Detected DNS removed for {}", *path);
-                        self.backup.insert(path.to_string(), None);
+        let new_settings = read_all_dns(store);
+        let mut prev_settings = mem::take(&mut self.backup);
+
+        for (path, settings) in new_settings {
+            let old_entry = prev_settings.remove(&path).flatten();
+
+            let should_set_dns = match settings {
+                Some(settings) => {
+                    if settings.address_set() != expected_settings.address_set() {
+                        let servers = settings.server_addresses().join(",");
+                        log::debug!("Saving DNS settings [{}] for {}", servers, path);
+                        self.backup.insert(path.to_owned(), Some(settings));
                         true
-                    }
-                    Some(new_settings) => {
-                        if new_settings.address_set() != expected_settings.address_set() {
-                            let servers = new_settings.server_addresses().join(",");
-                            log::debug!("Detected DNS change [{}] for {}", servers, *path);
-                            self.backup.insert(path.to_string(), Some(new_settings));
-                            true
-                        } else {
-                            log::trace!("Ignoring DNS change since it's equal to desired DNS");
-                            false
-                        }
-                    }
-                };
-                if should_set_dns {
-                    if self.change_counter.increment() {
-                        if let Some(tx) = self.tsm_tx.upgrade() {
-                            log::error!("A burst of DNS changes has been detected, assuming can't set DNS config properly");
-                            let _ = tx
-                                .unbounded_send(TunnelCommand::Block(ErrorStateCause::SetDnsError));
-                        }
-
-                        if let Err(err) = self.reset(&store) {
-                            log::error!("Failed to reset DNS after detecting a burst: {}", err);
-                        }
-                        return;
-                    }
-                    if let Err(e) = expected_settings.save(&store, path.clone()) {
-                        log::error!("Failed changing DNS for {}: {}", *path, e);
-                    }
-                    // If we changed a "state" entry, also set the corresponding "setup" entry.
-                    if let Some(setup_path_str) = state_to_setup_path(&path.to_string()) {
-                        let setup_path = CFString::new(&setup_path_str);
-                        self.backup
-                            .entry(setup_path_str)
-                            .or_insert_with(|| DnsSettings::load(&store, setup_path.clone()).ok());
-                        if let Err(e) = expected_settings.save(&store, setup_path.clone()) {
-                            log::error!("Failed changing DNS for {}: {}", setup_path, e);
-                        }
+                    } else {
+                        self.backup.insert(path.to_owned(), old_entry);
+                        false
                     }
                 }
+                None => {
+                    self.backup.insert(path.to_owned(), None);
+                    true
+                }
+            };
+
+            if should_set_dns {
+                let path_cf = CFString::new(&path);
+                if let Err(e) = expected_settings.save(store, path_cf) {
+                    log::error!("Failed changing DNS for {}: {}", path, e);
+                }
             }
+        }
+
+        for path in prev_settings.keys() {
+            log::debug!("DNS removed for {path}");
         }
     }
 
@@ -261,20 +234,6 @@ impl DnsSettings {
         BTreeSet::from_iter(self.server_addresses())
     }
 
-    pub fn interface_config(&self, interface_path: &str) -> Result<Vec<IpAddr>> {
-        let addresses = self
-            .server_addresses()
-            .into_iter()
-            .map(|server_addr| {
-                server_addr.parse().map_err(|err| {
-                    Error::AddrParseError(interface_path.to_string(), server_addr.clone(), err)
-                })
-            })
-            .collect::<Result<Vec<IpAddr>>>()?;
-
-        Ok(addresses)
-    }
-
     /// Parses a CFArray into a Rust vector of Rust strings, if the array contains CFString
     /// instances only, otherwise `None` is returned.
     fn parse_cf_array_to_strings(array: CFArray) -> Option<Vec<String>> {
@@ -345,8 +304,8 @@ impl super::DnsMonitorT for DnsMonitor {
     /// DNS settings for all network interfaces. If any changes occur it will instantly reset
     /// the DNS settings for that interface back to the last server list set to this instance
     /// with `set_dns`.
-    fn new(tx: Weak<mpsc::UnboundedSender<TunnelCommand>>) -> Result<Self> {
-        let state = Arc::new(Mutex::new(State::new(tx)));
+    fn new() -> Result<Self> {
+        let state = Arc::new(Mutex::new(State::new()));
         Self::spawn(state.clone())?;
         Ok(DnsMonitor {
             store: SCDynamicStoreBuilder::new("mullvad-dns").build(),
@@ -380,41 +339,44 @@ impl DnsMonitor {
         });
         result_rx.recv().unwrap()
     }
-    /// Get the system config without our changes
-    pub fn get_system_config(&self) -> Result<Option<(String, Vec<IpAddr>)>> {
-        let state = self.state.lock();
-        if state.dns_settings.is_some() {
-            parse_sc_config(&state.backup)
-        } else {
-            parse_sc_config(&read_all_dns(&self.store))
-        }
-    }
-}
-
-fn parse_sc_config(
-    config: &HashMap<String, Option<DnsSettings>>,
-) -> Result<Option<(String, Vec<IpAddr>)>> {
-    config
-        .iter()
-        .filter_map(|(path, maybe_config)| maybe_config.as_ref().map(|settings| (path, settings)))
-        .map(|(path, settings)| {
-            let addresses = settings.interface_config(path.as_str())?;
-            Ok((settings.name.clone(), addresses))
-        })
-        .next()
-        .transpose()
 }
 
 /// Creates a `SCDynamicStore` that watches all network interfaces for changes to the DNS settings.
 fn create_dynamic_store(state: Arc<Mutex<State>>) -> Result<SCDynamicStore> {
+    struct StoreContainer {
+        store: SCDynamicStore,
+    }
+    // SAFETY: The store is thread-safe
+    unsafe impl Send for StoreContainer {}
+    // SAFETY: The store is thread-safe
+    unsafe impl Sync for StoreContainer {}
+
+    let store_container: Arc<RwLock<Option<StoreContainer>>> = Arc::new(RwLock::new(None));
+    let store_container_copy = store_container.clone();
+
+    let update_trigger = BurstGuard::new(
+        BURST_BUFFER_PERIOD,
+        BURST_LONGEST_BUFFER_PERIOD,
+        move || {
+            if let Some(store) = &*store_container.read().unwrap() {
+                state.lock().update_known_state(&store.store);
+            }
+        },
+    );
+
     let callback_context = SCDynamicStoreCallBackContext {
         callout: dns_change_callback,
-        info: state,
+        info: update_trigger,
     };
 
     let store = SCDynamicStoreBuilder::new("talpid-dns-monitor")
         .callback_context(callback_context)
         .build();
+
+    let mut store_container = store_container_copy.write().unwrap();
+    *store_container = Some(StoreContainer {
+        store: store.clone(),
+    });
 
     let watch_keys: CFArray<CFString> = CFArray::from_CFTypes(&[]);
     let watch_patterns = CFArray::from_CFTypes(&[
@@ -441,41 +403,41 @@ fn run_dynamic_store_runloop(store: SCDynamicStore) {
 /// This function is called by the Core Foundation event loop when there is a change to one or more
 /// watched dynamic store values. In our case we watch all DNS settings.
 fn dns_change_callback(
-    store: SCDynamicStore,
-    changed_keys: CFArray<CFString>,
-    state: &mut Arc<Mutex<State>>,
+    _store: SCDynamicStore,
+    _changed_keys: CFArray<CFString>,
+    state: &mut BurstGuard,
 ) {
-    state.lock().on_changed_keys(store, changed_keys)
+    state.trigger();
 }
 
 /// Read all existing DNS settings and return them.
 fn read_all_dns(store: &SCDynamicStore) -> HashMap<ServicePath, Option<DnsSettings>> {
-    let mut backup = HashMap::new();
-    // Backup all "state" DNS, and all corresponding "setup" DNS even if they don't exist
+    let mut settings: HashMap<_, _> = HashMap::new();
+    // All "state" DNS, and all corresponding "setup" DNS even if they don't exist
     if let Some(paths) = store.get_keys(STATE_PATH_PATTERN) {
         for state_path in paths.iter() {
             let state_path_str = state_path.to_string();
             let setup_path_str = state_to_setup_path(&state_path_str).unwrap();
-            backup.insert(
+            settings.insert(
                 state_path_str,
                 DnsSettings::load(store, state_path.clone()).ok(),
             );
-            backup.insert(
+            settings.insert(
                 setup_path_str.clone(),
                 DnsSettings::load(store, setup_path_str.as_ref()).ok(),
             );
         }
     }
-    // Backup all "setup" DNS not already covered
+    // All "setup" DNS not already covered
     if let Some(paths) = store.get_keys(SETUP_PATH_PATTERN) {
         for setup_path in paths.iter() {
             let setup_path_str = setup_path.to_string();
-            backup
+            settings
                 .entry(setup_path_str)
                 .or_insert_with(|| DnsSettings::load(store, setup_path.clone()).ok());
         }
     }
-    backup
+    settings
 }
 
 fn state_to_setup_path(state_path: &str) -> Option<String> {
@@ -483,33 +445,5 @@ fn state_to_setup_path(state_path: &str) -> Option<String> {
         Some(state_path.replacen("State:/", "Setup:/", 1))
     } else {
         None
-    }
-}
-
-const MAX_CHANGES_PER_INTERVAL: usize = 25;
-const FIVE_SECONDS: Duration = Duration::from_secs(5);
-
-/// Effectively a circular buffer of `Instant`s of when was the last time a DNS change occurred.
-struct ChangeCounter {
-    changes: Vec<Instant>,
-}
-
-impl ChangeCounter {
-    fn new() -> Self {
-        Self {
-            changes: Vec::with_capacity(MAX_CHANGES_PER_INTERVAL),
-        }
-    }
-
-    fn clear(&mut self) {
-        self.changes.clear();
-    }
-
-    fn increment(&mut self) -> bool {
-        let now = Instant::now();
-        self.changes
-            .retain(|old_change| now.duration_since(*old_change) < FIVE_SECONDS);
-        self.changes.push(now);
-        self.changes.len() >= MAX_CHANGES_PER_INTERVAL
     }
 }
