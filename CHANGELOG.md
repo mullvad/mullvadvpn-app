@@ -30,6 +30,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.
 
+### macOS
+- Fix bug that caused high CPU usage due to an infinite loop.
+
 ### Security
 #### Android
 - Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
