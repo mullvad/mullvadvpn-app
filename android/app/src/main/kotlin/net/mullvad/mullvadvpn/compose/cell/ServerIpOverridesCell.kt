@@ -34,6 +34,7 @@ fun ServerIpOverridesCell(
     inactiveColor: Color = MaterialTheme.colorScheme.error,
 ) {
     BaseCell(
+        modifier = modifier,
         iconView = {
             Box(
                 modifier =
@@ -65,6 +66,7 @@ fun ServerIpOverridesCell(
                         )
                         .padding(horizontal = Dimens.smallPadding, vertical = Dimens.mediumPadding)
             )
-        }
+        },
+        isRowEnabled = false
     )
 }

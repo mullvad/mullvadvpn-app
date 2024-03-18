@@ -96,8 +96,6 @@ private fun PreviewServerIpOverridesScreen() {
 fun ServerIpOverrides(
     navigator: DestinationsNavigator,
     importByTextResult: ResultRecipient<ImportOverridesByTextDestination, String>,
-    clearAllOverrides:
-        ResultRecipient<ResetServerIpOverridesConfirmationDialogDestination, Boolean>,
 ) {
     val vm = koinViewModel<ServerIpOverridesViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
@@ -122,7 +120,6 @@ fun ServerIpOverrides(
     }
 
     importByTextResult.OnNavResultValue(vm::importText)
-    clearAllOverrides.OnNavResultValue { vm.clearAllOverrides() }
 
     val openFileLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {

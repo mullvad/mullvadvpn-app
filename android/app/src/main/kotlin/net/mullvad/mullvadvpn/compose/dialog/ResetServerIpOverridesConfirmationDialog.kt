@@ -9,39 +9,49 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.viewmodel.ResetServerIpOverridesConfirmationUiSideEffect
+import net.mullvad.mullvadvpn.viewmodel.ResetServerIpOverridesConfirmationViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
 private fun PreviewResetServerIpOverridesConfirmationDialog() {
-    AppTheme { ResetServerIpOverridesConfirmationDialog(EmptyResultBackNavigator()) }
+    AppTheme { ResetServerIpOverridesConfirmationDialog(EmptyDestinationsNavigator) }
 }
 
 @Destination(style = DestinationStyle.Dialog::class)
 @Composable
-fun ResetServerIpOverridesConfirmationDialog(
-    resultNavigator: ResultBackNavigator<Boolean>,
-) {
+fun ResetServerIpOverridesConfirmationDialog(navigator: DestinationsNavigator) {
+    val viewModel: ResetServerIpOverridesConfirmationViewModel = koinViewModel()
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
+        when (it) {
+            ResetServerIpOverridesConfirmationUiSideEffect.OverridesCleared ->
+                navigator.navigateUp()
+        }
+    }
+
     AlertDialog(
         containerColor = MaterialTheme.colorScheme.background,
         confirmButton = {
             NegativeButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.server_ip_overrides_reset_reset_button),
-                onClick = { resultNavigator.navigateBack(result = true) }
+                onClick = viewModel::clearAllOverrides
             )
         },
         dismissButton = {
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.cancel),
-                onClick = resultNavigator::navigateBack
+                onClick = navigator::navigateUp
             )
         },
         title = {
@@ -57,6 +67,6 @@ fun ResetServerIpOverridesConfirmationDialog(
                 style = MaterialTheme.typography.bodySmall,
             )
         },
-        onDismissRequest = resultNavigator::navigateBack
+        onDismissRequest = navigator::navigateUp
     )
 }

@@ -26,7 +26,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 class ServerIpOverridesViewModel(
     private val contentResolver: ContentResolver,
     private val serviceConnectionManager: ServiceConnectionManager,
-    private val relayOverridesRepository: RelayOverridesRepository,
+    relayOverridesRepository: RelayOverridesRepository,
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
@@ -70,12 +70,6 @@ class ServerIpOverridesViewModel(
             // Service never came online, at this point we should already display daemon overlay
         }
     }
-
-    fun clearAllOverrides() =
-        viewModelScope.launch {
-            relayOverridesRepository.clearAllOverrides()
-            _uiSideEffect.send(UiSideEffect.OverridesCleared)
-        }
 
     sealed interface UiSideEffect {
         data class ImportResult(val error: SettingsPatchError?) : UiSideEffect
