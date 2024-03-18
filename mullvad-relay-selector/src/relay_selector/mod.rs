@@ -177,6 +177,25 @@ pub enum SelectedBridge {
     Custom(CustomProxy),
 }
 
+impl SelectedBridge {
+    /// Get the bridge settings.
+    pub fn settings(&self) -> &CustomProxy {
+        match self {
+            SelectedBridge::Normal { settings, .. } => settings,
+            SelectedBridge::Custom(settings) => settings,
+        }
+    }
+
+    /// Get the relay acting as a bridge.
+    /// This is not applicable if `self` is a [custom bridge][`SelectedBridge::Custom`].
+    pub fn relay(&self) -> Option<&Relay> {
+        match self {
+            SelectedBridge::Normal { relay, .. } => Some(relay),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct SelectedObfuscator {
     pub config: ObfuscatorConfig,
