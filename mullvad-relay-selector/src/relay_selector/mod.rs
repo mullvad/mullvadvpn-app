@@ -28,7 +28,7 @@ use mullvad_types::{
     },
     relay_list::{Relay, RelayList},
     settings::Settings,
-    CustomTunnelEndpoint,
+    CustomTunnelEndpoint, Intersection,
 };
 use talpid_types::{
     net::{
@@ -43,12 +43,12 @@ use self::{
     detailer::{openvpn_endpoint, wireguard_endpoint},
     matcher::AnyTunnelMatcher,
     parsed_relays::ParsedRelays,
-    query::{BridgeQuery, Intersection, OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery},
+    query::{BridgeQuery, OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery},
 };
 
-/// [`RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector should prioritize on
-/// successive connection attempts. Note that these will *never* override user preferences.
-/// See [the documentation on `RelayQuery`][RelayQuery] for further details.
+/// [`RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector should
+/// prioritize on successive connection attempts. Note that these will *never* override user
+/// preferences. See [the documentation on `RelayQuery`][RelayQuery] for further details.
 ///
 /// This list should be kept in sync with the expected behavior defined in `docs/relay-selector.ms`
 pub static RETRY_ORDER: Lazy<Vec<RelayQuery>> = Lazy::new(|| {
@@ -110,14 +110,16 @@ pub struct SelectorConfig {
 
 /// This enum exists to separate the two types of [`SelectorConfig`] that exists.
 ///
-/// The first one is a "regular" config, where [`SelectorConfig::relay_settings`] is [`RelaySettings::Normal`].
-/// This is the most common variant, and there exists a mapping from this variant to [`RelayQueryBuilder`].
-/// Being able to implement `From<NormalSelectorConfig> for RelayQueryBuilder` was the main
-/// motivator for introducing these seemingly useless derivates of [`SelectorConfig`].
+/// The first one is a "regular" config, where [`SelectorConfig::relay_settings`] is
+/// [`RelaySettings::Normal`]. This is the most common variant, and there exists a mapping from this
+/// variant to [`RelayQueryBuilder`]. Being able to implement `From<NormalSelectorConfig> for
+/// RelayQueryBuilder` was the main motivator for introducing these seemingly useless derivates of
+/// [`SelectorConfig`].
 ///
-/// The second one is a custom config, where [`SelectorConfig::relay_settings`] is [`RelaySettings::Custom`].
-/// For this variant, the  an endpoint where the client should connect to is already specified inside of the variant,
-/// so in practice relay selector's function is superflous. Also, there exists no mapping to [`RelayQueryBuilder`].
+/// The second one is a custom config, where [`SelectorConfig::relay_settings`] is
+/// [`RelaySettings::Custom`]. For this variant, the  an endpoint where the client should connect to
+/// is already specified inside of the variant, so in practice relay selector's function is
+/// superflous. Also, there exists no mapping to [`RelayQueryBuilder`].
 #[derive(Debug, Clone)]
 enum SpecializedSelectorConfig<'a> {
     // This variant implements `From<NormalSelectorConfig> for RelayQuery`
@@ -460,12 +462,12 @@ impl RelaySelector {
         }
     }
 
-    /// This function defines the merge between a set of pre-defined queries and `user_preferences` for the given
-    /// `retry_attempt`.
+    /// This function defines the merge between a set of pre-defined queries and `user_preferences`
+    /// for the given `retry_attempt`.
     ///
-    /// This algorithm will loop back to the start of `retry_order` if `retry_attempt < retry_order.len()`.
-    /// If `user_preferences` is not compatible with any of the pre-defined queries in `retry_order`, `user_preferences`
-    /// is returned.
+    /// This algorithm will loop back to the start of `retry_order` if `retry_attempt <
+    /// retry_order.len()`. If `user_preferences` is not compatible with any of the pre-defined
+    /// queries in `retry_order`, `user_preferences` is returned.
     fn pick_and_merge_query(
         retry_order: &[RelayQuery],
         user_preferences: RelayQuery,
@@ -479,15 +481,19 @@ impl RelaySelector {
             .unwrap_or(user_preferences)
     }
 
-    /// "Execute" the given query, yielding a final set of relays and/or bridges which the VPN traffic shall be routed through.
+    /// "Execute" the given query, yielding a final set of relays and/or bridges which the VPN
+    /// traffic shall be routed through.
     ///
     /// # Parameters
-    /// - `query`: Constraints that filter the available relays, such as geographic location or tunnel protocol.
-    /// - `config`: Configuration settings that influence relay selection, including bridge state and custom lists.
+    /// - `query`: Constraints that filter the available relays, such as geographic location or
+    ///   tunnel protocol.
+    /// - `config`: Configuration settings that influence relay selection, including bridge state
+    ///   and custom lists.
     /// - `parsed_relays`: The complete set of parsed relays available for selection.
     ///
     /// # Returns
-    /// * A randomly selected relay that meets the specified constraints (and a random bridge/entry relay if applicable).
+    /// * A randomly selected relay that meets the specified constraints (and a random bridge/entry
+    ///   relay if applicable).
     /// See [`GetRelay`] for more details.
     /// * An `Err` if no suitable relay is found
     /// * An `Err` if no suitable bridge is found
@@ -590,7 +596,8 @@ impl RelaySelector {
         let mut entry_relay_query = query.clone();
         entry_relay_query.location = query.wireguard_constraints.entry_location.clone();
         // After we have our two queries (one for the exit relay & one for the entry relay),
-        // we can query for all exit & entry candidates! All candidates are needed for the next step.
+        // we can query for all exit & entry candidates! All candidates are needed for the next
+        // step.
         let exit_candidates = Self::get_tunnel_endpoints(query, config, parsed_relays);
         let entry_candidates =
             Self::get_tunnel_endpoints(&entry_relay_query, config, parsed_relays);
@@ -704,17 +711,20 @@ impl RelaySelector {
         .ok_or(EndpointError::from_openvpn(relay.clone()))
     }
 
-    /// Selects a suitable bridge based on the specified settings, relay information, and transport protocol.
+    /// Selects a suitable bridge based on the specified settings, relay information, and transport
+    /// protocol.
     ///
     /// # Parameters
     /// - `query`: The filter criteria for selecting a bridge.
     /// - `relay`: Information about the current relay, including its location.
     /// - `protocol`: The transport protocol (TCP or UDP) in use.
     /// - `parsed_relays`: A structured representation of all available relays.
-    /// - `custom_lists`: User-defined or application-specific settings that may influence bridge selection.
+    /// - `custom_lists`: User-defined or application-specific settings that may influence bridge
+    ///   selection.
     ///
     /// # Returns
-    /// * On success, returns an `Option` containing the selected bridge, if one is found. Returns `None` if no suitable bridge meets the criteria or bridges should not be used.
+    /// * On success, returns an `Option` containing the selected bridge, if one is found. Returns
+    ///   `None` if no suitable bridge meets the criteria or bridges should not be used.
     /// * `Error::NoBridge` if attempting to use OpenVPN bridges over UDP, as this is unsupported.
     /// * `Error::NoRelay` if `relay` does not have a location set.
     #[cfg(not(target_os = "android"))]
@@ -883,13 +893,16 @@ impl RelaySelector {
             .then(|| Coordinates::midpoint(&matching_locations))
     }
 
-    /// Chooses a suitable relay from a set of parsed relays based on specified constraints and configuration.
+    /// Chooses a suitable relay from a set of parsed relays based on specified constraints and
+    /// configuration.
     ///
-    /// This function filters the available relays according to the given [query][`RelayQuery`] and [config][`NormalSelectorConfig`],
-    /// then selects one relay at random from the filtered list.
+    /// This function filters the available relays according to the given [query][`RelayQuery`] and
+    /// [config][`NormalSelectorConfig`], then selects one relay at random from the filtered
+    /// list.
     ///
     /// # Returns
-    /// A randomly selected relay that meets the specified constraints, or `None` if no suitable relay is found.
+    /// A randomly selected relay that meets the specified constraints, or `None` if no suitable
+    /// relay is found.
     fn choose_relay(
         query: &RelayQuery,
         config: &NormalSelectorConfig<'_>,
