@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.test.e2e
 
 import androidx.test.uiautomator.By
+import net.mullvad.mullvadvpn.test.common.constant.CONNECTION_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
@@ -29,7 +30,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         device.findObjectWithTimeout(By.text("OK")).click()
 
         // Then
-        device.findObjectWithTimeout(By.text("SECURE CONNECTION"))
+        device.findObjectWithTimeout(By.text("SECURE CONNECTION"), CONNECTION_TIMEOUT)
     }
 
     @Test
