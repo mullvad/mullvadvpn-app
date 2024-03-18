@@ -27,25 +27,40 @@ Line wrap the file at 100 chars.                                              Th
   dropped packets and does not take fragmentation into account.
 - Add ability to import server IP overrides in GUI.
 
-#### Android
-- Add support for all screen orientations.
-- Add toggle for enabling or disabling split tunneling.
-- Add auto connect and lockdown mode guide on platforms that has system vpn settings.
-- Add 3D map to Connect screen.
-
 ### Changed
 - Change default obfuscation setting to `auto`.
 - Migrate obfuscation settings for existing users from `off` to `auto`.
-
-#### Android
-- Migrate to Compose Navigation which also improves screen transition animations.
-- Increase focus highlight opacity.
-- Set auto-connect setting as legacy on platforms with system vpn settings.
 
 ### Fixed
 - Continual excessive attempts to update the API IP were made after testing access methods.
 - Fix pointless API access method rotations for concurrent requests.
 - Fix daemon rotating logs on startup even if another daemon is already running.
+
+
+## [android/2024.1-beta1] - 2024-03-18
+### Added
+#### Android
+- Add 3D map to the connect screen.
+- Add support for all screen orientations.
+- Add possibility to filter locations by provider.
+- Add toggle for enabling or disabling split tunneling.
+- Add auto-connect and lockdown guide on platforms with system vpn settings.
+
+### Changed
+#### Android
+- Migrate to Compose Navigation which also improves screen transition animations.
+- Increase focus highlight opacity.
+- Set auto-connect setting as legacy on platforms with system vpn settings.
+- Change default obfuscation setting to `auto`.
+- Migrate obfuscation settings for existing users from `off` to `auto`.
+- Update support email address to new email address, support@mullvadvpn.net.
+
+### Fixed
+#### Android
+- Improve DPAD navigation.
+- Upgrade wireguard-go. This might improve connectivity on some devices such as chromebooks.
+- Fix connectivity issues that would occur when using quantum-resistant tunnels with an incorrectly
+  configured MTU.
 
 ### Security
 #### Android
