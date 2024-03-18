@@ -86,9 +86,10 @@ pub fn pick_random_bridge(data: &BridgeEndpointData, relay: &Relay) -> Option<Cu
             shadowsocks_endpoint.port,
             shadowsocks_endpoint.protocol
         );
+        Some(shadowsocks_endpoint.to_proxy_settings(relay.ipv4_addr_in.into()))
+    } else {
+        None
     }
-    shadowsocks_endpoint
-        .map(|endpoint_data| endpoint_data.to_proxy_settings(relay.ipv4_addr_in.into()))
 }
 
 pub fn get_udp2tcp_obfuscator(
