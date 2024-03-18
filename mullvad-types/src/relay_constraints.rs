@@ -6,7 +6,7 @@ use crate::{
     custom_list::{CustomListsSettings, Id},
     location::{CityCode, CountryCode, Hostname},
     relay_list::Relay,
-    CustomTunnelEndpoint,
+    CustomTunnelEndpoint, Intersection,
 };
 #[cfg(target_os = "android")]
 use jnix::{jni::objects::JObject, FromJava, IntoJava, JnixEnv};
@@ -646,6 +646,21 @@ pub enum SelectedObfuscation {
     Udp2Tcp,
 }
 
+impl Intersection for SelectedObfuscation {
+    fn intersection(self, other: Self) -> Option<Self>
+    where
+        Self: PartialEq,
+        Self: Sized,
+    {
+        match (self, other) {
+            (left, SelectedObfuscation::Auto) => Some(left),
+            (SelectedObfuscation::Auto, right) => Some(right),
+            (left, right) if left == right => Some(left),
+            _ => None,
+        }
+    }
+}
+
 impl fmt::Display for SelectedObfuscation {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -656,7 +671,7 @@ impl fmt::Display for SelectedObfuscation {
     }
 }
 
-#[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize, Intersection)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[serde(rename_all = "snake_case")]
@@ -716,7 +731,7 @@ pub struct ObfuscationSettings {
 }
 
 /// Limits the set of bridge servers to use in `mullvad-daemon`.
-#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize, Intersection)]
 #[serde(default)]
 #[serde(rename_all = "snake_case")]
 pub struct BridgeConstraints {

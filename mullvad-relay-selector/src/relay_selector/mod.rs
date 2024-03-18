@@ -27,7 +27,7 @@ use mullvad_types::{
     },
     relay_list::{Relay, RelayEndpointData, RelayList},
     settings::Settings,
-    CustomTunnelEndpoint,
+    CustomTunnelEndpoint, Intersection,
 };
 use talpid_types::{
     net::{
@@ -42,7 +42,7 @@ use self::{
     detailer::{openvpn_endpoint, wireguard_endpoint},
     matcher::{filter_matching_bridges, filter_matching_relay_list},
     parsed_relays::ParsedRelays,
-    query::{BridgeQuery, Intersection, OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery},
+    query::{BridgeQuery, OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery},
 };
 
 /// [`RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector should prioritize on
@@ -731,13 +731,13 @@ impl RelaySelector {
                 let exit = helpers::random(exits, entry).ok_or(Error::NoRelay)?;
                 Some((exit, entry))
             }
-            ([exit], entrys) if entrys.contains(exit) => {
-                let entry = helpers::random(entrys, exit).ok_or(Error::NoRelay)?;
+            ([exit], entries) if entries.contains(exit) => {
+                let entry = helpers::random(entries, exit).ok_or(Error::NoRelay)?;
                 Some((exit, entry))
             }
-            (exits, entrys) => {
+            (exits, entries) => {
                 let exit = helpers::pick_random_relay(exits).ok_or(Error::NoRelay)?;
-                let entry = helpers::random(entrys, exit).ok_or(Error::NoRelay)?;
+                let entry = helpers::random(entries, exit).ok_or(Error::NoRelay)?;
                 Some((exit, entry))
             }
         }

@@ -1,0 +1,17 @@
+[package]
+name = "intersection-derive"
+description = "Derive macro for the `Intersection` trait"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1"
+syn = "2"
+quote = "1"
