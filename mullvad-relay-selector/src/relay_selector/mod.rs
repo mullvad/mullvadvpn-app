@@ -535,6 +535,8 @@ impl RelaySelector {
     /// * An `Err` if no entry relay can be chosen (if multihop is enabled on `query`)
     /// * an `Err` if no [`MullvadEndpoint`] can be derived from the selected relay(s).
     /// * `Ok(GetRelay::Wireguard)` otherwise
+    ///
+    /// [`MullvadEndpoint`]: mullvad_types::endpoint::MullvadEndpoint
     fn get_wireguard_relay(
         query: &RelayQuery,
         config: &NormalSelectorConfig<'_>,
@@ -623,7 +625,9 @@ impl RelaySelector {
         })
     }
 
-    /// Constructs a `MullvadEndpoint` with details for how to connect to `relay`.
+    /// Constructs a [`MullvadEndpoint`] with details for how to connect to `relay`.
+    ///
+    /// [`MullvadEndpoint`]: mullvad_types::endpoint::MullvadEndpoint
     fn get_wireguard_endpoint(
         query: &RelayQuery,
         parsed_relays: &ParsedRelays,
@@ -671,6 +675,8 @@ impl RelaySelector {
     /// * An `Err` if no entry bridge can be chosen (if bridge mode is enabled on `query`)
     /// * an `Err` if no [`MullvadEndpoint`] can be derived from the selected relay
     /// * `Ok(GetRelay::OpenVpn)` otherwise
+    ///
+    /// [`MullvadEndpoint`]: mullvad_types::endpoint::MullvadEndpoint
     #[cfg(not(target_os = "android"))]
     fn get_openvpn_relay(
         query: &RelayQuery,
@@ -689,7 +695,9 @@ impl RelaySelector {
         })
     }
 
-    /// Constructs a `MullvadEndpoint` with details for how to connect to `relay`.
+    /// Constructs a [`MullvadEndpoint`] with details for how to connect to `relay`.
+    ///
+    /// [`MullvadEndpoint`]: mullvad_types::endpoint::MullvadEndpoint
     #[cfg(not(target_os = "android"))]
     fn get_openvpn_endpoint(
         query: &RelayQuery,

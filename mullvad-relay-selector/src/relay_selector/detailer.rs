@@ -2,10 +2,10 @@
 //! OpenVPN relay chosen by the relay selector.
 //!
 //! [`MullvadEndpoint`] contains all the necessary information for establishing a connection
-//! between the client and Mullvad VPN. It is the daemon's responsibillity of actually establishing
-//! this connection.
+//! between the client and Mullvad VPN. It is the daemon's responsibility to establish this
+//! connection.
 //!
-//! TODO(markus): Revise comments
+//! [`MullvadEndpoint`]: mullvad_types::endpoint::MullvadEndpoint
 
 use std::net::{IpAddr, SocketAddr, SocketAddrV4};
 

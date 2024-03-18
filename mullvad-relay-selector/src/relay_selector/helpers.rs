@@ -45,8 +45,20 @@ pub fn pick_random_relay_fn<RelayType>(
     if total_weight == 0 {
         relays.choose(&mut rng)
     } else {
+        // Assign each relay a subset of the range 0..total_weight with size equal to its weight.
         // Pick a random number in the range 1..=total_weight. This choses the relay with a
         // non-zero weight.
+        //
+        //                                rng(1..=total_weight)
+        //                                |
+        //                                v
+        //   _____________________________i___________________________________________________
+        // 0|_____________|__________________________|___________|_____|___________|__________| total_weight
+        //  ^             ^                          ^                             ^          ^
+        //  |             |                          |                             |          |
+        //  ------------------------------------------                             ------------
+        //         |                    |                                                |
+        //   weight(relay 0)       weight(relay 1)        ..       ..       ..     weight(relay n)
         let mut i: u64 = rng.gen_range(1..=total_weight);
         Some(
             relays
