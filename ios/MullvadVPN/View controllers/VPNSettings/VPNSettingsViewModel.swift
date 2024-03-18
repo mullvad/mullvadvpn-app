@@ -1,5 +1,5 @@
 //
-//  PreferencesViewModel.swift
+//  VPNSettingsViewModel.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 11/10/2021.
@@ -42,7 +42,7 @@ enum CustomDNSPrecondition {
                 return NSAttributedString(
                     string: NSLocalizedString(
                         "CUSTOM_DNS_NO_DNS_ENTRIES_EDITING_ON_FOOTNOTE",
-                        tableName: "Preferences",
+                        tableName: "VPNSettings",
                         value: "To enable this setting, add at least one server.",
                         comment: "Foot note displayed if there are no DNS entries and table view is in editing mode."
                     ),
@@ -52,7 +52,7 @@ enum CustomDNSPrecondition {
                 return NSAttributedString(
                     markdownString: NSLocalizedString(
                         "CUSTOM_DNS_NO_DNS_ENTRIES_EDITING_OFF_FOOTNOTE",
-                        tableName: "Preferences",
+                        tableName: "VPNSettings",
                         value: "Tap **Edit** to add at least one DNS server.",
                         comment:
                         "Foot note displayed if there are no DNS entries, but table view is not in editing mode."
@@ -65,7 +65,7 @@ enum CustomDNSPrecondition {
             return NSAttributedString(
                 string: NSLocalizedString(
                     "CUSTOM_DNS_DISABLE_CONTENT_BLOCKERS_FOOTNOTE",
-                    tableName: "Preferences",
+                    tableName: "VPNSettings",
                     value: "Disable all content blockers (under VPN settings) to activate this setting.",
                     comment: """
                     Foot note displayed when custom DNS cannot be enabled, because content blockers should be \
@@ -83,7 +83,7 @@ struct DNSServerEntry: Equatable, Hashable {
     var address: String
 }
 
-struct PreferencesViewModel: Equatable {
+struct VPNSettingsViewModel: Equatable {
     private(set) var blockAdvertising: Bool
     private(set) var blockTracking: Bool
     private(set) var blockMalware: Bool
@@ -204,7 +204,7 @@ struct PreferencesViewModel: Equatable {
     }
 
     /// Produce merged view model keeping entry `identifier` for matching DNS entries.
-    func merged(_ other: PreferencesViewModel) -> PreferencesViewModel {
+    func merged(_ other: VPNSettingsViewModel) -> VPNSettingsViewModel {
         var mergedViewModel = other
         mergedViewModel.customDNSDomains = merge(customDNSDomains, with: other.customDNSDomains)
 

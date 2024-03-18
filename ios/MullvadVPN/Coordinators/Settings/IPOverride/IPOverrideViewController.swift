@@ -147,10 +147,8 @@ class IPOverrideViewController: UIViewController {
             value: """
             On some networks, where various types of censorship are being used, our server IP addresses are \
             sometimes blocked.
-
             To circumvent this you can import a file or a text, provided by our support team, \
             with new IP addresses that override the default addresses of the servers in the Select location view.
-
             If you are having issues connecting to VPN servers, please contact support.
             """,
             comment: ""

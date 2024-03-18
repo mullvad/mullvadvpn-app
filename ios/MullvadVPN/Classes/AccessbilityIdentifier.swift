@@ -37,12 +37,11 @@ public enum AccessibilityIdentifier: String {
     case problemReportSendButton
 
     // Cells
-    case preferencesCell
+    case vpnSettingsCell
     case versionCell
     case problemReportCell
     case faqCell
     case apiAccessCell
-    case ipOverrideCell
     case relayFilterOwnershipCell
     case relayFilterProviderCell
 
@@ -83,6 +82,7 @@ public enum AccessibilityIdentifier: String {
 
     // DNS settings
     case dnsSettings
+    case ipOverrides
     case wireGuardCustomPort
     case wireGuardObfuscationAutomatic
     case wireGuardObfuscationOff

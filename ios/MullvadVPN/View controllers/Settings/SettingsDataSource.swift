@@ -34,17 +34,16 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     }
 
     enum Item: String {
-        case preferences
+        case vpnSettings
         case version
         case problemReport
         case faq
         case apiAccess
-        case ipOverride
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
-            case .preferences:
-                return .preferencesCell
+            case .vpnSettings:
+                return .vpnSettingsCell
             case .version:
                 return .versionCell
             case .problemReport:
@@ -53,8 +52,6 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 return .faqCell
             case .apiAccess:
                 return .apiAccessCell
-            case .ipOverride:
-                return .ipOverrideCell
             }
         }
 
@@ -149,11 +146,10 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         snapshot.appendSections([.main])
 
         if interactor.deviceState.isLoggedIn {
-            snapshot.appendItems([.preferences], toSection: .main)
+            snapshot.appendItems([.vpnSettings], toSection: .main)
         }
 
         snapshot.appendItems([.apiAccess], toSection: .main)
-        snapshot.appendItems([.ipOverride], toSection: .main)
 
         snapshot.appendSections([.version, .problemReport])
         snapshot.appendItems([.version], toSection: .version)

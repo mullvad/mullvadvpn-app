@@ -79,8 +79,8 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate 
 extension SettingsDataSource.Item {
     var navigationRoute: SettingsNavigationRoute? {
         switch self {
-        case .preferences:
-            return .preferences
+        case .vpnSettings:
+            return .vpnSettings
         case .version:
             return nil
         case .problemReport:
@@ -89,8 +89,6 @@ extension SettingsDataSource.Item {
             return .faq
         case .apiAccess:
             return .apiAccess
-        case .ipOverride:
-            return .ipOverride
         }
     }
 }
