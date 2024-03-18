@@ -55,6 +55,8 @@ subslice = "0.2"
 async-trait = "0.1"
 duct = "0.13"
 
+hickory-proto = { git = "https://github.com/hickory-dns/hickory-dns", rev = "9e8f8c67fbcb6d2985503027362a3fb022529802" }
+hickory-server = { git = "https://github.com/hickory-dns/hickory-dns", rev = "9e8f8c67fbcb6d2985503027362a3fb022529802", features = ["resolver"] }
 
 [target.'cfg(windows)'.dependencies]
 bitflags = "1.2"

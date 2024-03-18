@@ -40,9 +40,9 @@ pub const SILENCED_CRATES: &[&str] = &[
     "rustls",
     "netlink_sys",
     "tracing",
-    "trust_dns_proto",
-    "trust_dns_server",
-    "trust_dns_resolver",
+    "hickory_proto",
+    "hickory_server",
+    "hickory_resolver",
 ];
 const SLIGHTLY_SILENCED_CRATES: &[&str] = &["mnl", "nftnl", "udp_over_tcp"];
 

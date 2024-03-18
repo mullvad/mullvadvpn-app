@@ -12,12 +12,11 @@ use futures::{
     SinkExt, StreamExt,
 };
 
-use once_cell::sync::Lazy;
-use trust_dns_proto::{
+use hickory_proto::{
     op::LowerQuery,
     rr::{LowerName, RecordType},
 };
-use trust_dns_server::{
+use hickory_server::{
     authority::{
         EmptyLookup, LookupObject, MessageRequest, MessageResponse, MessageResponseBuilder,
     },
@@ -29,6 +28,7 @@ use trust_dns_server::{
     server::{Request, RequestHandler, ResponseHandler, ResponseInfo},
     ServerFuture,
 };
+use once_cell::sync::Lazy;
 
 const ALLOWED_RECORD_TYPES: &[RecordType] = &[RecordType::A, RecordType::CNAME];
 const CAPTIVE_PORTAL_DOMAINS: &[&str] = &["captive.apple.com", "netcts.cdn-apple.com"];
@@ -188,7 +188,7 @@ type LookupResponse<'a> = MessageResponse<
     std::iter::Empty<&'a Record>,
 >;
 
-/// An implementation of [trust_dns_server::server::RequestHandler] that forwards queries to
+/// An implementation of [hickory_server::server::RequestHandler] that forwards queries to
 /// `FilteringResolver`.
 struct ResolverImpl {
     tx: Weak<mpsc::Sender<ResolverMessage>>,
@@ -280,17 +280,17 @@ impl LookupObject for ForwardLookup {
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::{mem, net::UdpSocket, thread, time::Duration};
-    use trust_dns_server::resolver::{
+    use hickory_server::resolver::{
         config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
         TokioAsyncResolver,
     };
+    use std::{mem, net::UdpSocket, thread, time::Duration};
 
     async fn start_resolver() -> ResolverHandle {
         super::start_resolver().await.unwrap()
     }
 
-    fn get_test_resolver(port: u16) -> trust_dns_server::resolver::TokioAsyncResolver {
+    fn get_test_resolver(port: u16) -> hickory_server::resolver::TokioAsyncResolver {
         let resolver_config = ResolverConfig::from_parts(
             None,
             vec![],
@@ -309,7 +309,7 @@ mod test {
             for domain in &*ALLOWED_DOMAINS {
                 test_resolver.lookup(domain, RecordType::A).await?;
             }
-            Ok::<(), trust_dns_server::resolver::error::ResolveError>(())
+            Ok::<(), hickory_server::resolver::error::ResolveError>(())
         })
         .expect("Resolution of domains failed");
     }
