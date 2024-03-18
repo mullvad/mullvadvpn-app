@@ -1,17 +1,16 @@
 use futures::{channel::oneshot, executor::block_on};
-use mullvad_daemon::{device, DaemonCommand, DaemonCommandSender, settings::patch};
+use mullvad_daemon::{device, settings::patch, DaemonCommand, DaemonCommandSender};
 use mullvad_types::{
     account::{AccountData, AccountToken, PlayPurchase, VoucherSubmission},
     custom_list::CustomList,
     device::{Device, DeviceState},
-    relay_constraints::{ObfuscationSettings, RelaySettings, RelayOverride},
+    relay_constraints::{ObfuscationSettings, RelayOverride, RelaySettings},
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
     version::AppVersionInfo,
     wireguard,
     wireguard::QuantumResistantState,
-
 };
 
 #[derive(Debug, thiserror::Error)]
