@@ -55,7 +55,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.destinations.ImportOverridesByTextDestination
-import net.mullvad.mullvadvpn.compose.destinations.ResetServerIpOverridesConfirmationDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.ResetServerIpOverridesConfirmationDestination
 import net.mullvad.mullvadvpn.compose.destinations.ServerIpOverridesInfoDialogDestination
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG
@@ -136,7 +136,7 @@ fun ServerIpOverrides(
         },
         onResetOverridesClick = {
             navigator.navigate(
-                ResetServerIpOverridesConfirmationDialogDestination,
+                ResetServerIpOverridesConfirmationDestination,
                 onlyIfResumed = true
             )
         },
