@@ -49,8 +49,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix daemon rotating logs on startup even if another daemon is already running.
 
 ### macOS
-- Fix bug that caused high CPU usage due to an infinite loop.
-- Fix bugs that caused the log to be filled with socket errors, by handling closed sockets more
+- Fix bug that caused high CPU usage.
+- Fix bugs that caused the log to be filled with socket errors, by handling closed sockets
   gracefully.
 
 ### Security
