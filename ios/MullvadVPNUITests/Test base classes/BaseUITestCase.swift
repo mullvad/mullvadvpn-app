@@ -53,9 +53,16 @@ class BaseUITestCase: XCTestCase {
 
     // MARK: - Setup & teardown
 
+    /// Override this class function to change the uninstall behaviour in suite level teardown
+    class func shouldUninstallAppInTeardown() -> Bool {
+        return true
+    }
+
     /// Suite level teardown ran after test have executed
     override class func tearDown() {
-        uninstallApp()
+        if shouldUninstallAppInTeardown() {
+            uninstallApp()
+        }
     }
 
     /// Test level setup
@@ -104,6 +111,11 @@ class BaseUITestCase: XCTestCase {
             ChangeLogAlert(app)
                 .tapOkay()
         }
+
+        // Ensure changelog is no longer shown
+        _ = app
+            .otherElements[AccessibilityIdentifier.changeLogAlert.rawValue]
+            .waitForNonExistence(timeout: Self.shortTimeout)
     }
 
     /// Login with specified account number. It is a prerequisite that the login page is currently shown.
