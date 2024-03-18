@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import WireGuardKitTypes
 
 /**
  Public methods for dispatching commands to Actor.
@@ -48,6 +49,15 @@ extension PacketTunnelActor {
      */
     nonisolated public func notifyKeyRotation(date: Date?) {
         commandChannel.send(.notifyKeyRotated(date))
+    }
+
+    /**
+     Issue a new preshared key to the Actor.
+     - Parameter key: the new key
+     */
+
+    nonisolated public func replacePreSharedKey(_ key: PreSharedKey) {
+        commandChannel.send(.replaceDevicePrivateKey(key))
     }
 
     /**
