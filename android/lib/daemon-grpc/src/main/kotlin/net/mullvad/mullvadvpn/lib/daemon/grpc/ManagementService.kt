@@ -8,7 +8,6 @@ import io.grpc.Status
 import io.grpc.StatusException
 import io.grpc.android.UdsChannelBuilder
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,7 +41,8 @@ class ManagementService(
 
     private val channel =
         UdsChannelBuilder.forPath(rpcSocketPath, LocalSocketAddress.Namespace.FILESYSTEM).build()
-    private val managementService = ManagementServiceGrpcKt.ManagementServiceCoroutineStub(channel)
+    private val managementService =
+        ManagementServiceGrpcKt.ManagementServiceCoroutineStub(channel).withWaitForReady()
 
     private val _mutableStateFlow: MutableStateFlow<ManagementServiceState> =
         MutableStateFlow(ManagementServiceState())
@@ -69,14 +69,6 @@ class ManagementService(
                     DeviceState.State.UNRECOGNIZED -> AccountState.Unrecognized
                 }
             }
-
-    init {
-        // TODO This should be fixed
-        scope.launch {
-            delay(1000)
-            start()
-        }
-    }
 
     suspend fun start() {
         scope.launch { _mutableStateFlow.update { getInitialServiceState() } }
