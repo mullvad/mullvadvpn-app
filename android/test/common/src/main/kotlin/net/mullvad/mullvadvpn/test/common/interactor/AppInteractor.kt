@@ -47,6 +47,7 @@ class AppInteractor(
         launch()
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+        waitForLoginPrompt()
         attemptLogin(accountToken)
         ensureLoggedIn()
     }
@@ -55,6 +56,7 @@ class AppInteractor(
         launch()
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+        waitForLoginPrompt()
         attemptCreateAccount()
         ensureAccountCreated()
     }
