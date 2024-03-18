@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,6 +46,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.button.InfoIconButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.IconCell
@@ -291,9 +290,9 @@ private fun TopBarActions(
     onResetOverridesClick: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
-    IconButton(onClick = onInfoClick) { Icon(Icons.Filled.Info, contentDescription = null) }
+    InfoIconButton(onClick = onInfoClick)
     IconButton(onClick = { showMenu = !showMenu }) {
-        Icon(Icons.Default.MoreVert, contentDescription = null)
+        Icon(painterResource(id = R.drawable.icon_more_vert), contentDescription = null)
     }
     DropdownMenu(
         modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
