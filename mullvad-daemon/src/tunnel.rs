@@ -9,7 +9,7 @@ use std::{
 use tokio::sync::Mutex;
 
 #[cfg(not(target_os = "android"))]
-use mullvad_relay_selector::{GetRelay, RelaySelector, SelectedBridge, WireguardConfig};
+use mullvad_relay_selector::{GetRelay, RelaySelector, WireguardConfig};
 #[cfg(target_os = "android")]
 use mullvad_relay_selector::{GetRelay, RelaySelector, WireguardConfig};
 use mullvad_types::{
@@ -160,23 +160,14 @@ impl InnerParametersGenerator {
                 exit,
                 bridge,
             } => {
-                let bridge_settings = match bridge {
-                    Some(SelectedBridge::Normal { ref settings, .. }) => Some(settings.clone()),
-                    Some(SelectedBridge::Custom(ref settings)) => Some(settings.clone()),
-                    None => None,
-                };
-                let bridge_relay = match bridge {
-                    Some(SelectedBridge::Normal { relay, .. }) => Some(relay),
-                    _ => None,
-                };
-
+                let bridge_relay = bridge.as_ref().and_then(|bridge| bridge.relay());
                 // TODO(markus): Can this be done 'generically'?
                 self.last_generated_relays = Some(LastSelectedRelays::OpenVpn {
                     relay: exit.clone(),
-                    bridge: bridge_relay,
+                    bridge: bridge_relay.cloned(),
                 });
-
-                Ok(self.create_openvpn_tunnel_parameters(endpoint, data, bridge_settings))
+                let bridge_settings = bridge.as_ref().map(|bridge| bridge.settings());
+                Ok(self.create_openvpn_tunnel_parameters(endpoint, data, bridge_settings.cloned()))
             }
             GetRelay::Wireguard {
                 endpoint,
