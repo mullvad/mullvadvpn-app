@@ -127,10 +127,10 @@ fun PrivacyDisclaimerScreen(
         val scrollState = rememberScrollState()
         Column(
             Modifier.padding(it)
-                .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
+                .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
                 .drawVerticalScrollbar(
                     state = scrollState,
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar)
