@@ -1,18 +1,20 @@
 //! This module provides a flexible way to specify 'queries' for relays.
 //!
 //! A query is a set of constraints that the [`crate::RelaySelector`] will use when filtering out
-//! potential relays that the daemon should connect to. It supports filtering relays by geographic location,
-//! provider, ownership, and tunnel protocol, along with protocol-specific settings for WireGuard and OpenVPN.
+//! potential relays that the daemon should connect to. It supports filtering relays by geographic
+//! location, provider, ownership, and tunnel protocol, along with protocol-specific settings for
+//! WireGuard and OpenVPN.
 //!
 //! The main components of this module include:
 //!
-//! - [`RelayQuery`]: The core struct for specifying a query to select relay servers. It
-//!   aggregates constraints on location, providers, ownership, tunnel protocol, and
-//!   protocol-specific constraints for WireGuard and OpenVPN.
+//! - [`RelayQuery`]: The core struct for specifying a query to select relay servers. It aggregates
+//!   constraints on location, providers, ownership, tunnel protocol, and protocol-specific
+//!   constraints for WireGuard and OpenVPN.
 //! - [`WireguardRelayQuery`] and [`OpenVpnRelayQuery`]: Structs that define protocol-specific
 //!   constraints for selecting WireGuard and OpenVPN relays, respectively.
-//! - [`Intersection`]: A trait implemented by the different query types that support intersection logic,
-//!   which allows for combining two queries into a single query that represents the common constraints of both.
+//! - [`Intersection`]: A trait implemented by the different query types that support intersection
+//!   logic, which allows for combining two queries into a single query that represents the common
+//!   constraints of both.
 //! - [Builder patterns][builder]: The module also provides builder patterns for creating instances
 //!   of `RelayQuery`, `WireguardRelayQuery`, and `OpenVpnRelayQuery` with a fluent API.
 //!
@@ -33,6 +35,7 @@ use mullvad_types::{
         RelayConstraints, SelectedObfuscation, TransportPort, Udp2TcpObfuscationSettings,
         WireguardConstraints,
     },
+    Intersection,
 };
 use talpid_types::net::{proxy::CustomProxy, IpVersion, TunnelType};
 
@@ -68,7 +71,7 @@ use talpid_types::net::{proxy::CustomProxy, IpVersion, TunnelType};
 /// This example demonstrates creating a `RelayQuery` which can then be passed
 /// to the [`crate::RelaySelector`] to find a relay that matches the criteria.
 /// See [`builder`] for more info on how to construct queries.
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Intersection)]
 pub struct RelayQuery {
     pub location: Constraint<LocationConstraint>,
     pub providers: Constraint<Providers>,
@@ -86,7 +89,7 @@ impl RelayQuery {
     /// Note that the following identity applies for any `other_query`:
     /// ```rust
     /// # use mullvad_relay_selector::query::RelayQuery;
-    /// # use crate::mullvad_relay_selector::query::Intersection;
+    /// # use mullvad_types::Intersection;
     ///
     /// # let other_query = RelayQuery::new();
     /// assert_eq!(RelayQuery::new().intersection(other_query.clone()), Some(other_query));
@@ -105,105 +108,6 @@ impl RelayQuery {
     }
 }
 
-impl Intersection for RelayQuery {
-    /// Return a new [`RelayQuery`] which matches the intersected queries.
-    ///
-    /// * If two [`RelayQuery`]s differ such that no relay matches both, [`Option::None`] is returned:
-    /// ```rust
-    /// # use mullvad_relay_selector::query::builder::RelayQueryBuilder;
-    /// # use crate::mullvad_relay_selector::query::Intersection;
-    /// let query_a = RelayQueryBuilder::new().wireguard().build();
-    /// let query_b = RelayQueryBuilder::new().openvpn().build();
-    /// assert_eq!(query_a.intersection(query_b), None);
-    /// ```
-    ///
-    /// * Otherwise, a new [`RelayQuery`] is returned where each constraint is
-    /// as specific as possible. See [`Constraint`] for further details.
-    /// ```rust
-    /// # use crate::mullvad_relay_selector::*;
-    /// # use crate::mullvad_relay_selector::query::*;
-    /// # use crate::mullvad_relay_selector::query::builder::*;
-    /// # use mullvad_types::relay_list::*;
-    /// # use talpid_types::net::wireguard::PublicKey;
-    ///
-    /// // The relay list used by `relay_selector` in this example
-    /// let relay_list = RelayList {
-    /// #   etag: None,
-    /// #   openvpn: OpenVpnEndpointData { ports: vec![] },
-    /// #   bridge: BridgeEndpointData {
-    /// #       shadowsocks: vec![],
-    /// #   },
-    /// #   wireguard: WireguardEndpointData {
-    /// #       port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
-    /// #       ipv4_gateway: "10.64.0.1".parse().unwrap(),
-    /// #       ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
-    /// #       udp2tcp_ports: vec![],
-    /// #   },
-    ///     countries: vec![RelayListCountry {
-    ///         name: "Sweden".to_string(),
-    /// #       code: "Sweden".to_string(),
-    ///         cities: vec![RelayListCity {
-    ///             name: "Gothenburg".to_string(),
-    /// #           code: "Gothenburg".to_string(),
-    /// #           latitude: 57.70887,
-    /// #           longitude: 11.97456,
-    ///             relays: vec![Relay {
-    ///                 hostname: "se9-wireguard".to_string(),
-    ///                 ipv4_addr_in: "185.213.154.68".parse().unwrap(),
-    /// #               ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
-    /// #               include_in_country: false,
-    /// #               active: true,
-    /// #               owned: true,
-    /// #               provider: "31173".to_string(),
-    /// #               weight: 1,
-    /// #               endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-    /// #                   public_key: PublicKey::from_base64(
-    /// #                       "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
-    /// #                   )
-    /// #                   .unwrap(),
-    /// #               }),
-    /// #               location: None,
-    ///             }],
-    ///         }],
-    ///     }],
-    /// };
-    ///
-    /// # let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list.clone());
-    /// # let city = |country, city| GeographicLocationConstraint::city(country, city);
-    ///
-    /// let query_a = RelayQueryBuilder::new().wireguard().build();
-    /// let query_b = RelayQueryBuilder::new().location(city("Sweden", "Gothenburg")).build();
-    ///
-    /// let result = relay_selector.get_relay_by_query(query_a.intersection(query_b).unwrap());
-    /// assert!(result.is_ok());
-    /// ```
-    ///
-    /// This way, if the mullvad app wants to check if the user's relay settings
-    /// are compatible with any other [`RelayQuery`], for examples those defined by
-    /// [`RETRY_ORDER`] , taking the intersection between them will never result in
-    /// a situation where the app can override the user's preferences.
-    ///
-    /// [`RETRY_ORDER`]: crate::RETRY_ORDER
-    fn intersection(self, other: Self) -> Option<Self>
-    where
-        Self: PartialEq,
-        Self: Sized,
-    {
-        Some(RelayQuery {
-            location: self.location.intersection(other.location)?,
-            providers: self.providers.intersection(other.providers)?,
-            ownership: self.ownership.intersection(other.ownership)?,
-            tunnel_protocol: self.tunnel_protocol.intersection(other.tunnel_protocol)?,
-            wireguard_constraints: self
-                .wireguard_constraints
-                .intersection(other.wireguard_constraints)?,
-            openvpn_constraints: self
-                .openvpn_constraints
-                .intersection(other.openvpn_constraints)?,
-        })
-    }
-}
-
 impl From<RelayQuery> for RelayConstraints {
     /// The mapping from [`RelayQuery`] to [`RelayConstraints`].
     fn from(value: RelayQuery) -> Self {
@@ -218,7 +122,8 @@ impl From<RelayQuery> for RelayConstraints {
     }
 }
 
-/// A query for a relay with Wireguard-specific properties, such as `multihop` and [wireguard obfuscation][`SelectedObfuscation`].
+/// A query for a relay with Wireguard-specific properties, such as `multihop` and [wireguard
+/// obfuscation][`SelectedObfuscation`].
 ///
 /// This struct may look a lot like [`WireguardConstraints`], and that is the point!
 /// This struct is meant to be that type in the "universe of relay queries". The difference
@@ -226,7 +131,7 @@ impl From<RelayQuery> for RelayConstraints {
 /// as a [`Constraint`], which allow us to implement [`Intersection`] in a straight forward manner.
 /// Notice that [obfuscation][`SelectedObfuscation`] is not a [`Constraint`], but it is trivial
 /// to define [`Intersection`] on it, so it is fine.
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Intersection)]
 pub struct WireguardRelayQuery {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
@@ -254,37 +159,6 @@ impl WireguardRelayQuery {
         }
     }
 }
-impl Intersection for WireguardRelayQuery {
-    fn intersection(self, other: Self) -> Option<Self>
-    where
-        Self: PartialEq,
-        Self: Sized,
-    {
-        Some(WireguardRelayQuery {
-            port: self.port.intersection(other.port)?,
-            ip_version: self.ip_version.intersection(other.ip_version)?,
-            use_multihop: self.use_multihop.intersection(other.use_multihop)?,
-            entry_location: self.entry_location.intersection(other.entry_location)?,
-            obfuscation: self.obfuscation.intersection(other.obfuscation)?,
-            udp2tcp_port: self.udp2tcp_port.intersection(other.udp2tcp_port)?,
-        })
-    }
-}
-
-impl Intersection for SelectedObfuscation {
-    fn intersection(self, other: Self) -> Option<Self>
-    where
-        Self: PartialEq,
-        Self: Sized,
-    {
-        match (self, other) {
-            (left, SelectedObfuscation::Auto) => Some(left),
-            (SelectedObfuscation::Auto, right) => Some(right),
-            (left, right) if left == right => Some(left),
-            _ => None,
-        }
-    }
-}
 
 impl From<WireguardRelayQuery> for WireguardConstraints {
     /// The mapping from [`WireguardRelayQuery`] to [`WireguardConstraints`].
@@ -304,7 +178,7 @@ impl From<WireguardRelayQuery> for WireguardConstraints {
 /// This struct is meant to be that type in the "universe of relay queries". The difference
 /// between them may seem subtle, but in a [`OpenVpnRelayQuery`] every field is represented
 /// as a [`Constraint`], which allow us to implement [`Intersection`] in a straight forward manner.
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Intersection)]
 pub struct OpenVpnRelayQuery {
     pub port: Constraint<TransportPort>,
     pub bridge_settings: Constraint<BridgeQuery>,
@@ -319,29 +193,8 @@ impl OpenVpnRelayQuery {
     }
 }
 
-impl Intersection for OpenVpnRelayQuery {
-    fn intersection(self, other: Self) -> Option<Self>
-    where
-        Self: PartialEq,
-        Self: Sized,
-    {
-        let bridge_settings = {
-            match (self.bridge_settings, other.bridge_settings) {
-                // Recursive case
-                (Constraint::Only(left), Constraint::Only(right)) => {
-                    Constraint::Only(left.intersection(right)?)
-                }
-                (left, right) => left.intersection(right)?,
-            }
-        };
-        Some(OpenVpnRelayQuery {
-            port: self.port.intersection(other.port)?,
-            bridge_settings,
-        })
-    }
-}
-
-/// This is the reflection of [`BridgeState`] + [`BridgeSettings`] in the "universe of relay queries".
+/// This is the reflection of [`BridgeState`] + [`BridgeSettings`] in the "universe of relay
+/// queries".
 ///
 /// [`BridgeState`]: mullvad_types::relay_constraints::BridgeState
 /// [`BridgeSettings`]: mullvad_types::relay_constraints::BridgeSettings
@@ -361,7 +214,7 @@ pub enum BridgeQuery {
 }
 
 impl BridgeQuery {
-    ///If `bridge_constraints` is `Any`, bridges should not be used due to
+    /// If `bridge_constraints` is `Any`, bridges should not be used due to
     /// latency concerns.
     ///
     /// If `bridge_constraints` is `Only(settings)`, then `settings` will be
@@ -399,20 +252,6 @@ impl Intersection for BridgeQuery {
     }
 }
 
-impl Intersection for BridgeConstraints {
-    fn intersection(self, other: Self) -> Option<Self>
-    where
-        Self: PartialEq,
-        Self: Sized,
-    {
-        Some(BridgeConstraints {
-            location: self.location.intersection(other.location)?,
-            providers: self.providers.intersection(other.providers)?,
-            ownership: self.ownership.intersection(other.ownership)?,
-        })
-    }
-}
-
 impl From<OpenVpnRelayQuery> for OpenVpnConstraints {
     /// The mapping from [`OpenVpnRelayQuery`] to [`OpenVpnConstraints`].
     fn from(value: OpenVpnRelayQuery) -> Self {
@@ -420,103 +259,10 @@ impl From<OpenVpnRelayQuery> for OpenVpnConstraints {
     }
 }
 
-/// Any type that wish to implement `Intersection` should make sure that the
-/// following properties are upheld:
-///
-/// - idempotency (if there is an identity element)
-/// - commutativity
-/// - associativity
-pub trait Intersection {
-    fn intersection(self, other: Self) -> Option<Self>
-    where
-        Self: Sized;
-}
-
-impl<T: Intersection> Intersection for Constraint<T> {
-    /// Define the intersection between two arbitrary [`Constraint`]s.
-    ///
-    /// This operation may be compared to the set operation with the same name.
-    /// In contrast to the general set intersection, this function represents a
-    /// very specific case where [`Constraint::Any`] is equivalent to the set
-    /// universe and [`Constraint::Only`] represents a singleton set. Notable is
-    /// that the representation of any empty set is [`Option::None`].
-    fn intersection(self, other: Constraint<T>) -> Option<Constraint<T>> {
-        use Constraint::*;
-        match (self, other) {
-            (Any, Any) => Some(Any),
-            (Only(t), Any) | (Any, Only(t)) => Some(Only(t)),
-            // Recurse on `left` and `right` to see if there exist an intersection
-            (Only(left), Only(right)) => Some(Only(left.intersection(right)?)),
-        }
-    }
-}
-
-// Implement `Intersection` for different types
-
-impl Intersection for Providers {
-    fn intersection(self, other: Self) -> Option<Self>
-    where
-        Self: Sized,
-    {
-        Providers::new(self.providers().intersection(other.providers())).ok()
-    }
-}
-
-impl Intersection for Udp2TcpObfuscationSettings {
-    fn intersection(self, other: Self) -> Option<Self>
-    where
-        Self: Sized,
-    {
-        Some(Udp2TcpObfuscationSettings {
-            port: self.port.intersection(other.port)?,
-        })
-    }
-}
-
-impl Intersection for TransportPort {
-    fn intersection(self, other: Self) -> Option<Self>
-    where
-        Self: Sized,
-    {
-        let protocol = if self.protocol == other.protocol {
-            Some(self.protocol)
-        } else {
-            None
-        }?;
-        let port = self.port.intersection(other.port)?;
-        Some(TransportPort { protocol, port })
-    }
-}
-
-/// Auto-implement `Intersection` for trivial cases where the logic should just check if
-/// `self` is equal to `other`.
-macro_rules! impl_intersection_partialeq {
-    ($ty:ty) => {
-        impl Intersection for $ty {
-            fn intersection(self, other: Self) -> Option<Self> {
-                if self == other {
-                    Some(self)
-                } else {
-                    None
-                }
-            }
-        }
-    };
-}
-impl_intersection_partialeq!(u16);
-impl_intersection_partialeq!(bool);
-// FIXME: [`LocationConstraint`] deserves a hand-rolled implementation of [`Intersection`], but
-// it would probably be best to implement it for [`ResolvedLocationConstraint`] instead to properly
-// handle custom lists.
-impl_intersection_partialeq!(LocationConstraint);
-impl_intersection_partialeq!(Ownership);
-impl_intersection_partialeq!(talpid_types::net::TransportProtocol);
-impl_intersection_partialeq!(talpid_types::net::TunnelType);
-impl_intersection_partialeq!(talpid_types::net::IpVersion);
-
 #[allow(unused)]
 pub mod builder {
-    //! Strongly typed Builder pattern for of relay constraints though the use of the Typestate pattern.
+    //! Strongly typed Builder pattern for of relay constraints though the use of the Typestate
+    //! pattern.
     use mullvad_types::{
         constraints::Constraint,
         relay_constraints::{
