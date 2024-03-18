@@ -51,11 +51,16 @@ Line wrap the file at 100 chars.                                              Th
 - Migrate to Compose Navigation which also improves screen transition animations.
 - Increase focus highlight opacity.
 - Set auto-connect setting as legacy on platforms with system vpn settings.
+- Change default obfuscation setting to `auto`.
+- Migrate obfuscation settings for existing users from `off` to `auto`.
+- Update support email address to new email address, support@mullvadvpn.net.
 
 ### Fixed
 #### Android
 - Improve DPAD navigation.
-- Upgrade and tweak configuration of wireguard-go with the aim of improving connectivity.
+- Upgrade wireguard-go. This might improve connectivity on some devices such as chromebooks.
+- Fix connectivity issues that would occur when using quantum-resistant tunnels with an incorrectly
+  configured MTU.
 
 ### Security
 #### Android
