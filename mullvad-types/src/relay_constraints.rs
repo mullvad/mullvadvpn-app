@@ -86,32 +86,55 @@ pub enum LocationConstraint {
 }
 
 #[derive(Debug, Clone)]
-pub enum ResolvedLocationConstraint {
-    Location(GeographicLocationConstraint),
-    Locations(Vec<GeographicLocationConstraint>),
+pub struct ResolvedLocationConstraint(Vec<GeographicLocationConstraint>);
+
+impl<'a> IntoIterator for &'a ResolvedLocationConstraint {
+    type Item = &'a GeographicLocationConstraint;
+
+    type IntoIter = core::slice::Iter<'a, GeographicLocationConstraint>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter()
+    }
+}
+
+impl IntoIterator for ResolvedLocationConstraint {
+    type Item = GeographicLocationConstraint;
+
+    type IntoIter = std::vec::IntoIter<GeographicLocationConstraint>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+
+impl FromIterator<GeographicLocationConstraint> for ResolvedLocationConstraint {
+    fn from_iter<T: IntoIterator<Item = GeographicLocationConstraint>>(iter: T) -> Self {
+        Self(Vec::from_iter(iter))
+    }
 }
 
 impl ResolvedLocationConstraint {
     pub fn from_constraint(
-        location: Constraint<LocationConstraint>,
+        location_constraint: Constraint<LocationConstraint>,
         custom_lists: &CustomListsSettings,
     ) -> Constraint<ResolvedLocationConstraint> {
+        location_constraint.map(|location| Self::from_location_constraint(location, custom_lists))
+    }
+
+    fn from_location_constraint(
+        location: LocationConstraint,
+        custom_lists: &CustomListsSettings,
+    ) -> ResolvedLocationConstraint {
         match location {
-            Constraint::Any => Constraint::Any,
-            Constraint::Only(LocationConstraint::Location(location)) => {
-                Constraint::Only(Self::Location(location))
-            }
-            Constraint::Only(LocationConstraint::CustomList { list_id }) => custom_lists
+            LocationConstraint::Location(location) => Self::from_iter(std::iter::once(location)),
+            LocationConstraint::CustomList { list_id } => custom_lists
                 .iter()
                 .find(|list| list.id == list_id)
-                .map(|custom_list| {
-                    Constraint::Only(Self::Locations(
-                        custom_list.locations.iter().cloned().collect(),
-                    ))
-                })
+                .map(|custom_list| Self::from_iter(custom_list.locations.clone()))
                 .unwrap_or_else(|| {
                     log::warn!("Resolved non-existent custom list");
-                    Constraint::Only(ResolvedLocationConstraint::Locations(vec![]))
+                    Self::from_iter(std::iter::empty())
                 }),
         }
     }
@@ -127,26 +150,12 @@ impl Set<Constraint<ResolvedLocationConstraint>> for Constraint<ResolvedLocation
     fn is_subset(&self, other: &Self) -> bool {
         match self {
             Constraint::Any => other.is_any(),
-            Constraint::Only(ResolvedLocationConstraint::Location(location)) => match other {
+            Constraint::Only(locations) => match other {
                 Constraint::Any => true,
-                Constraint::Only(ResolvedLocationConstraint::Location(other_location)) => {
-                    location.is_subset(other_location)
-                }
-                Constraint::Only(ResolvedLocationConstraint::Locations(other_locations)) => {
-                    other_locations
-                        .iter()
-                        .any(|other_location| location.is_subset(other_location))
-                }
-            },
-            Constraint::Only(ResolvedLocationConstraint::Locations(locations)) => match other {
-                Constraint::Any => true,
-                Constraint::Only(ResolvedLocationConstraint::Location(other_location)) => locations
-                    .iter()
-                    .all(|location| location.is_subset(other_location)),
-                Constraint::Only(ResolvedLocationConstraint::Locations(other_locations)) => {
+                Constraint::Only(other_locations) => {
                     for location in locations {
                         if !other_locations
-                            .iter()
+                            .into_iter()
                             .any(|other_location| location.is_subset(other_location))
                         {
                             return false;
@@ -159,26 +168,9 @@ impl Set<Constraint<ResolvedLocationConstraint>> for Constraint<ResolvedLocation
     }
 }
 
-impl Constraint<ResolvedLocationConstraint> {
-    /// # Note
-    ///
-    /// The following statements are true iff `self` is based on [country][`GeographicLocationConstraint::Country`].
-    ///
-    /// * If `ignore_include_in_country` is true, the outcome of `matches_with_opts` is only based on the geographical location of `relay`.
-    ///
-    /// * If `ignore_include_in_country` is false, any [relay][`Relay`] which has the
-    /// `include_in_country` property set to false will cause `matches_with_opts` to return false.
-    /// Otherwise, the outcome is based on the geographical location of `relay`.
-    pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
-        match self {
-            Constraint::Any => true,
-            Constraint::Only(ResolvedLocationConstraint::Location(location)) => {
-                location.matches_with_opts(relay, ignore_include_in_country)
-            }
-            Constraint::Only(ResolvedLocationConstraint::Locations(locations)) => locations
-                .iter()
-                .any(|loc| loc.matches_with_opts(relay, ignore_include_in_country)),
-        }
+impl Match<Relay> for ResolvedLocationConstraint {
+    fn matches(&self, relay: &Relay) -> bool {
+        self.into_iter().any(|location| location.matches(relay))
     }
 }
 
@@ -356,25 +348,19 @@ impl GeographicLocationConstraint {
         GeographicLocationConstraint::Hostname(country.into(), city.into(), hostname.into())
     }
 
-    /// # Note
-    ///
-    /// The following statements are true iff `self` is based on [country][`GeographicLocationConstraint::Country`].
-    ///
-    /// * If `ignore_include_in_country` is true, the `include_in_country` property of `relay` is
-    /// disregarded. The outcome of `matches_with_opts` is only based on the geographical location of `relay`.
-    ///
-    /// * If `ignore_include_in_country` is false, any [relay][`Relay`] which has the
-    /// `include_in_country` property set to false will cause `matches_with_opts` to return false
-    /// regardless of the geographical location of `relay`.
-    pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
+    // TODO(markus): Document
+    pub fn is_country(&self) -> bool {
+        matches!(self, GeographicLocationConstraint::Country(_))
+    }
+}
+
+impl Match<Relay> for GeographicLocationConstraint {
+    fn matches(&self, relay: &Relay) -> bool {
         match self {
-            GeographicLocationConstraint::Country(ref country) => {
-                relay
-                    .location
-                    .as_ref()
-                    .map_or(false, |loc| loc.country_code == *country)
-                    && (ignore_include_in_country || relay.include_in_country)
-            }
+            GeographicLocationConstraint::Country(ref country) => relay
+                .location
+                .as_ref()
+                .map_or(false, |loc| loc.country_code == *country),
             GeographicLocationConstraint::City(ref country, ref city) => {
                 relay.location.as_ref().map_or(false, |loc| {
                     loc.country_code == *country && loc.city_code == *city
@@ -388,34 +374,6 @@ impl GeographicLocationConstraint {
                 })
             }
         }
-    }
-}
-
-impl Constraint<Vec<GeographicLocationConstraint>> {
-    pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
-        match self {
-            Constraint::Only(constraint) => constraint
-                .iter()
-                .any(|loc| loc.matches_with_opts(relay, ignore_include_in_country)),
-            Constraint::Any => true,
-        }
-    }
-}
-
-impl Constraint<GeographicLocationConstraint> {
-    pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
-        match self {
-            Constraint::Only(constraint) => {
-                constraint.matches_with_opts(relay, ignore_include_in_country)
-            }
-            Constraint::Any => true,
-        }
-    }
-}
-
-impl Match<Relay> for GeographicLocationConstraint {
-    fn matches(&self, relay: &Relay) -> bool {
-        self.matches_with_opts(relay, false)
     }
 }
 

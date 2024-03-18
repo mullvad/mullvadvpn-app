@@ -161,7 +161,6 @@ impl InnerParametersGenerator {
                 bridge,
             } => {
                 let bridge_relay = bridge.as_ref().and_then(|bridge| bridge.relay());
-                // TODO(markus): Can this be done 'generically'?
                 self.last_generated_relays = Some(LastSelectedRelays::OpenVpn {
                     relay: exit.clone(),
                     bridge: bridge_relay.cloned(),

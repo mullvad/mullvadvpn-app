@@ -116,6 +116,13 @@ impl PartialEq for Relay {
 // See uniqueness argument in the implementation of [`PartialEq`] for [`Relay`].
 impl Eq for Relay {}
 
+// See uniqueness argument in the implementation of [`PartialEq`] for [`Relay`].
+impl std::hash::Hash for Relay {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.hostname.hash(state)
+    }
+}
+
 /// Specifies the type of a relay or relay-specific endpoint data.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
