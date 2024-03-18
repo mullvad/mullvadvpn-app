@@ -772,7 +772,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             storePaymentManager: storePaymentManager,
             tunnelManager: tunnelManager,
             apiProxy: apiProxy,
-            relayCacheTracker: relayCacheTracker
+            relayCacheTracker: relayCacheTracker,
+            ipOverrideRepository: ipOverrideRepository
         )
 
         let navigationController = CustomNavigationController()

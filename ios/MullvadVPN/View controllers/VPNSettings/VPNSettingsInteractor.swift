@@ -1,5 +1,5 @@
 //
-//  PreferencesInteractor.swift
+//  VPNSettingsInteractor.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 31/10/2022.
@@ -10,8 +10,8 @@ import Foundation
 import MullvadREST
 import MullvadSettings
 
-final class PreferencesInteractor {
-    private let tunnelManager: TunnelManager
+final class VPNSettingsInteractor {
+    let tunnelManager: TunnelManager
     private var tunnelObserver: TunnelObserver?
     private let relayCacheTracker: RelayCacheTracker
 
@@ -53,7 +53,7 @@ final class PreferencesInteractor {
     }
 }
 
-extension PreferencesInteractor: RelayCacheTrackerObserver {
+extension VPNSettingsInteractor: RelayCacheTrackerObserver {
     func relayCacheTracker(_ tracker: RelayCacheTracker, didUpdateCachedRelays cachedRelays: CachedRelays) {
         cachedRelaysDidChange?(cachedRelays)
     }

@@ -1,5 +1,5 @@
 //
-//  PreferencesViewModel.swift
+//  VPNSettingsViewModel.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 11/10/2021.
@@ -83,7 +83,7 @@ struct DNSServerEntry: Equatable, Hashable {
     var address: String
 }
 
-struct PreferencesViewModel: Equatable {
+struct VPNSettingsViewModel: Equatable {
     private(set) var blockAdvertising: Bool
     private(set) var blockTracking: Bool
     private(set) var blockMalware: Bool
@@ -204,7 +204,7 @@ struct PreferencesViewModel: Equatable {
     }
 
     /// Produce merged view model keeping entry `identifier` for matching DNS entries.
-    func merged(_ other: PreferencesViewModel) -> PreferencesViewModel {
+    func merged(_ other: VPNSettingsViewModel) -> VPNSettingsViewModel {
         var mergedViewModel = other
         mergedViewModel.customDNSDomains = merge(customDNSDomains, with: other.customDNSDomains)
 

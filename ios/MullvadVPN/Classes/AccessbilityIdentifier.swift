@@ -42,7 +42,6 @@ public enum AccessibilityIdentifier: String {
     case problemReportCell
     case faqCell
     case apiAccessCell
-    case ipOverrideCell
     case relayFilterOwnershipCell
     case relayFilterProviderCell
 
@@ -83,6 +82,7 @@ public enum AccessibilityIdentifier: String {
 
     // DNS settings
     case dnsSettings
+    case ipOverrides
     case wireGuardCustomPort
     case wireGuardObfuscationAutomatic
     case wireGuardObfuscationOff

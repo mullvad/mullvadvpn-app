@@ -113,14 +113,14 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
 
     private var isEditing = false
 
-    private(set) var viewModel = PreferencesViewModel() { didSet {
+    private(set) var viewModel = VPNSettingsViewModel() { didSet {
         cellFactory.viewModel = viewModel
     }}
-    private(set) var viewModelBeforeEditing = PreferencesViewModel()
+    private(set) var viewModelBeforeEditing = VPNSettingsViewModel()
     private let cellFactory: CustomDNSCellFactory
     private weak var tableView: UITableView?
 
-    weak var delegate: PreferencesDataSourceDelegate?
+    weak var delegate: VPNSettingsDataSourceDelegate?
 
     init(tableView: UITableView) {
         self.tableView = tableView
@@ -169,7 +169,7 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
     }
 
     func update(from tunnelSettings: LatestTunnelSettings) {
-        let newViewModel = PreferencesViewModel(from: tunnelSettings)
+        let newViewModel = VPNSettingsViewModel(from: tunnelSettings)
         let mergedViewModel = viewModel.merged(newViewModel)
 
         if viewModel != mergedViewModel {
@@ -652,7 +652,7 @@ extension CustomDNSDataSource: CustomDNSCellEventHandler {
         handleDNSEntryChange(with: identifier, inputString: inputString)
     }
 
-    func showInfo(for button: PreferencesInfoButtonItem) {
+    func showInfo(for button: VPNSettingsInfoButtonItem) {
         delegate?.showInfo(for: button)
     }
 }

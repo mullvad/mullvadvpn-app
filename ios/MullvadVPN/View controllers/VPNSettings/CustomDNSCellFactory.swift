@@ -13,16 +13,16 @@ protocol CustomDNSCellEventHandler {
     func addDNSEntry()
     func didChangeDNSEntry(with identifier: UUID, inputString: String) -> Bool
     func didChangeState(for preference: CustomDNSDataSource.Item, isOn: Bool)
-    func showInfo(for button: PreferencesInfoButtonItem)
+    func showInfo(for button: VPNSettingsInfoButtonItem)
 }
 
 final class CustomDNSCellFactory: CellFactoryProtocol {
     let tableView: UITableView
-    var viewModel: PreferencesViewModel
+    var viewModel: VPNSettingsViewModel
     var delegate: CustomDNSCellEventHandler?
     var isEditing = false
 
-    init(tableView: UITableView, viewModel: PreferencesViewModel) {
+    init(tableView: UITableView, viewModel: VPNSettingsViewModel) {
         self.tableView = tableView
         self.viewModel = viewModel
     }

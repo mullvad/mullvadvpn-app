@@ -9,8 +9,8 @@
 import MullvadSettings
 import UIKit
 
-class CustomDNSViewController: UITableViewController, PreferencesDataSourceDelegate {
-    private let interactor: PreferencesInteractor
+class CustomDNSViewController: UITableViewController, VPNSettingsDataSourceDelegate {
+    private let interactor: VPNSettingsInteractor
     private var dataSource: CustomDNSDataSource?
     private let alertPresenter: AlertPresenter
 
@@ -18,7 +18,7 @@ class CustomDNSViewController: UITableViewController, PreferencesDataSourceDeleg
         .lightContent
     }
 
-    init(interactor: PreferencesInteractor, alertPresenter: AlertPresenter) {
+    init(interactor: VPNSettingsInteractor, alertPresenter: AlertPresenter) {
         self.interactor = interactor
         self.alertPresenter = alertPresenter
 
@@ -92,13 +92,13 @@ class CustomDNSViewController: UITableViewController, PreferencesDataSourceDeleg
         alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
-    // MARK: - PreferencesDataSourceDelegate
+    // MARK: - VPNSettingsDataSourceDelegate
 
-    func didChangeViewModel(_ viewModel: PreferencesViewModel) {
+    func didChangeViewModel(_ viewModel: VPNSettingsViewModel) {
         interactor.updateSettings([.dnsSettings(viewModel.asDNSSettings())])
     }
 
-    func showInfo(for item: PreferencesInfoButtonItem) {
+    func showInfo(for item: VPNSettingsInfoButtonItem) {
         var message = ""
 
         switch item {
@@ -133,6 +133,10 @@ class CustomDNSViewController: UITableViewController, PreferencesDataSourceDeleg
     }
 
     func showDNSSettings() {
+        // No op.
+    }
+
+    func showIPOverrides() {
         // No op.
     }
 

@@ -1,5 +1,5 @@
 //
-//  PreferencesDataSource.swift
+//  VPNSettingsDataSource.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 05/10/2021.
@@ -9,14 +9,15 @@
 import MullvadSettings
 import UIKit
 
-final class PreferencesDataSource: UITableViewDiffableDataSource<
-    PreferencesDataSource.Section,
-    PreferencesDataSource.Item
+final class VPNSettingsDataSource: UITableViewDiffableDataSource<
+    VPNSettingsDataSource.Section,
+    VPNSettingsDataSource.Item
 >, UITableViewDelegate {
     typealias InfoButtonHandler = (Item) -> Void
 
     enum CellReuseIdentifiers: String, CaseIterable {
         case dnsSettings
+        case ipOverrides
         case wireGuardPort
         case wireGuardCustomPort
         case wireGuardObfuscation
@@ -25,6 +26,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         var reusableViewClass: AnyClass {
             switch self {
             case .dnsSettings:
+                return SettingsCell.self
+            case .ipOverrides:
                 return SettingsCell.self
             case .wireGuardPort:
                 return SelectableSettingsCell.self
@@ -50,6 +53,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
     enum Section: String, Hashable, CaseIterable {
         case dnsSettings
+        case ipOverrides
         case wireGuardPorts
         case wireGuardObfuscation
         case wireGuardObfuscationPort
@@ -60,6 +64,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
     enum Item: Hashable {
         case dnsSettings
+        case ipOverrides
         case wireGuardPort(_ port: UInt16?)
         case wireGuardCustomPort
         case wireGuardObfuscationAutomatic
@@ -73,7 +78,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         #endif
 
         static var wireGuardPorts: [Item] {
-            let defaultPorts = PreferencesViewModel.defaultWireGuardPorts.map {
+            let defaultPorts = VPNSettingsViewModel.defaultWireGuardPorts.map {
                 Item.wireGuardPort($0)
             }
             return [.wireGuardPort(nil)] + defaultPorts + [.wireGuardCustomPort]
@@ -97,6 +102,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             switch self {
             case .dnsSettings:
                 return .dnsSettings
+            case .ipOverrides:
+                return .ipOverrides
             case .wireGuardPort:
                 return .wireGuardPort
             case .wireGuardCustomPort:
@@ -124,6 +131,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             switch self {
             case .dnsSettings:
                 return .dnsSettings
+            case .ipOverrides:
+                return .ipOverrides
             case .wireGuardPort:
                 return .wireGuardPort
             case .wireGuardCustomPort:
@@ -140,13 +149,13 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
-    private(set) var viewModel = PreferencesViewModel() { didSet {
+    private(set) var viewModel = VPNSettingsViewModel() { didSet {
         preferencesCellFactory.viewModel = viewModel
     }}
-    private let preferencesCellFactory: PreferencesCellFactory
+    private let preferencesCellFactory: VPNSettingsCellFactory
     private weak var tableView: UITableView?
 
-    weak var delegate: PreferencesDataSourceDelegate?
+    weak var delegate: VPNSettingsDataSourceDelegate?
 
     var selectedIndexPaths: [IndexPath] {
         let wireGuardPortItem: Item = viewModel.customWireGuardPort == nil
@@ -187,7 +196,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     init(tableView: UITableView) {
         self.tableView = tableView
 
-        let preferencesCellFactory = PreferencesCellFactory(
+        let preferencesCellFactory = VPNSettingsCellFactory(
             tableView: tableView,
             viewModel: viewModel
         )
@@ -232,7 +241,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     func update(from tunnelSettings: LatestTunnelSettings) {
-        let newViewModel = PreferencesViewModel(from: tunnelSettings)
+        let newViewModel = VPNSettingsViewModel(from: tunnelSettings)
         let mergedViewModel = viewModel.merged(newViewModel)
 
         if viewModel != mergedViewModel {
@@ -259,6 +268,10 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case .dnsSettings:
             tableView.deselectRow(at: indexPath, animated: false)
             delegate?.showDNSSettings()
+
+        case .ipOverrides:
+            tableView.deselectRow(at: indexPath, animated: false)
+            delegate?.showIPOverrides()
 
         case let .wireGuardPort(port):
             viewModel.setWireGuardPort(port)
@@ -307,7 +320,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let item = itemIdentifier(for: indexPath)
 
         switch item {
-        case .dnsSettings:
+        case .dnsSettings, .ipOverrides:
             return indexPath
         default:
             return nil
@@ -353,7 +366,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .dnsSettings:
+        case .dnsSettings, .ipOverrides:
             return 0
 
         default:
@@ -365,7 +378,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .dnsSettings:
+        case .ipOverrides:
             return 10
         default:
             return 0.5
@@ -402,6 +415,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
         snapshot.appendSections(Section.allCases)
         snapshot.appendItems([.dnsSettings], toSection: .dnsSettings)
+        snapshot.appendItems([.ipOverrides], toSection: .ipOverrides)
 
         applySnapshot(snapshot, animated: animated, completion: completion)
     }
@@ -571,8 +585,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 }
 
-extension PreferencesDataSource: PreferencesCellEventHandler {
-    func showInfo(for button: PreferencesInfoButtonItem) {
+extension VPNSettingsDataSource: VPNSettingsCellEventHandler {
+    func showInfo(for button: VPNSettingsInfoButtonItem) {
         delegate?.showInfo(for: button)
     }
 
