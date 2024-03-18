@@ -95,6 +95,7 @@ fun PrivacyDisclaimer(
                     try {
                         withTimeout(DAEMON_READY_TIMEOUT_MS) {
                             (context as MainActivity).startServiceSuspend()
+                            context.startManagementService()
                         }
                         viewModel.onServiceStartedSuccessful()
                     } catch (e: CancellationException) {
