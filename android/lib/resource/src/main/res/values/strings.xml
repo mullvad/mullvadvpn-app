@@ -197,7 +197,7 @@
     <string name="agree_and_continue">Agree and continue</string>
     <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_disclaimer_body_first_paragraph">To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device.</string>
+    <string name="privacy_disclaimer_body_second_paragraph">If the %1$s feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the %1$s view. The list of installed applications is never sent from the device.</string>
     <string name="submit_button">Submit</string>
     <string name="remove_button">Remove</string>
     <string name="enter_value_placeholder">Enter MTU</string>
@@ -279,7 +279,7 @@
     <string name="loading_connecting">Connecting...</string>
     <string name="loading_verifying">Verifying purchase...</string>
     <string name="copied_logs_to_clipboard">Copied logs to clipboard</string>
-    <string name="split_tunneling_disabled_description">Split tunneling is disabled.</string>
+    <string name="split_tunneling_disabled_description">%s is disabled.</string>
     <string name="auto_connect_legacy">Auto-connect (legacy)</string>
     <string name="auto_connect_footer_legacy"><![CDATA[Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above.]]></string>
     <string name="custom_lists">Custom lists</string>

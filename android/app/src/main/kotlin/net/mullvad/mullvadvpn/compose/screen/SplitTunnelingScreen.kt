@@ -168,7 +168,10 @@ private fun LazyListScope.description(enabled: Boolean) {
                 if (enabled) {
                     stringResource(id = R.string.split_tunneling_description)
                 } else {
-                    stringResource(id = R.string.split_tunneling_disabled_description)
+                    stringResource(
+                        id = R.string.split_tunneling_disabled_description,
+                        stringResource(id = R.string.split_tunneling)
+                    )
                 }
         )
     }

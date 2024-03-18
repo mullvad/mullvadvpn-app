@@ -30,6 +30,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -165,7 +166,11 @@ private fun Content(onPrivacyPolicyLinkClicked: () -> Unit) {
         Spacer(modifier = Modifier.height(fontSize.toDp() + Dimens.smallPadding))
 
         Text(
-            text = stringResource(id = R.string.privacy_disclaimer_body_second_paragraph),
+            text =
+                stringResource(
+                    id = R.string.privacy_disclaimer_body_second_paragraph,
+                    stringResource(id = R.string.split_tunneling).lowercase()
+                ),
             fontSize = fontSize,
             color = MaterialTheme.colorScheme.onBackground,
         )
