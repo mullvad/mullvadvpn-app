@@ -72,7 +72,7 @@ class AppInteractor(
     }
 
     fun ensureAccountCreated(accountToken: String? = null) {
-        device.findObjectWithTimeout(By.text("Congrats!"), DEFAULT_INTERACTION_TIMEOUT)
+        device.findObjectWithTimeout(By.text("Congrats!"), LOGIN_TIMEOUT)
         accountToken?.let {
             device.findObjectWithTimeout(By.text(accountToken), DEFAULT_INTERACTION_TIMEOUT)
         }
