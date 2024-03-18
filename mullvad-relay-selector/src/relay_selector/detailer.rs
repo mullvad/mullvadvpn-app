@@ -29,14 +29,10 @@ use super::{
 
 /// Constructs a [`MullvadWireguardEndpoint`] with details for how to connect to a Wireguard relay.
 ///
-/// If entry is `None`, `to_endpoint` configures a single-hop connection using the exit relay data.
-/// Otherwise, it constructs a multihop setup using both entry and exit to set up appropriate peer
-/// configurations.
-///
 /// # Returns
-/// - A configured Mullvad endpoint for Wireguard, encapsulating either a single-hop or multi-hop connection setup.
-/// - Returns `None` if the desired port is not in a valid port range (see
-/// [`WireguradRelayQuery::port`]) or relay addresses cannot be resolved.
+/// - A configured endpoint for Wireguard relay, encapsulating either a single-hop or multi-hop connection.
+/// - Returns [`Option::None`] if the desired port is not in a valid port range (see
+/// [`WireguardRelayQuery::port`]) or relay addresses cannot be resolved.
 pub fn wireguard_endpoint(
     query: &WireguardRelayQuery,
     data: &WireguardEndpointData,
@@ -97,7 +93,7 @@ fn wireguard_multihop_endpoint(
     let exit = PeerConfig {
         public_key: exit.endpoint_data.unwrap_wireguard_ref().public_key.clone(),
         endpoint: exit_endpoint,
-        // The exit peer should be able to route incomming VPN traffic to the rest of
+        // The exit peer should be able to route incoming VPN traffic to the rest of
         // the internet.
         allowed_ips: all_of_the_internet(),
         // This will be filled in later, not the relay selector's problem
