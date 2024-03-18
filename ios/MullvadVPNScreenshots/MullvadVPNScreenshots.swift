@@ -103,9 +103,9 @@ class MullvadVPNScreenshots: XCTestCase {
         // Open Settings
         app.buttons[AccessibilityIdentifier.settingsButton.rawValue].tap()
 
-        // Tap on preferences cell
-        _ = app.tables.cells[AccessibilityIdentifier.preferencesCell.rawValue].waitForExistence(timeout: 2)
-        app.tables.cells[AccessibilityIdentifier.preferencesCell.rawValue].tap()
+        // Tap on VPN settings cell
+        _ = app.tables.cells[AccessibilityIdentifier.vpnSettingsCell.rawValue].waitForExistence(timeout: 2)
+        app.tables.cells[AccessibilityIdentifier.vpnSettingsCell.rawValue].tap()
 
         app.tables.element
             .cells
@@ -114,7 +114,7 @@ class MullvadVPNScreenshots: XCTestCase {
             .matching(NSPredicate(format: "value = %@", "0"))
             .allElementsBoundByAccessibilityElement
             .forEach { $0.tap() }
-        snapshot("Preferences")
+        snapshot("VPN Settings")
 
         // Tap back button
         app.navigationBars.buttons.firstMatch.tap()

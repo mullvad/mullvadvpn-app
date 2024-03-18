@@ -15,15 +15,6 @@ class IPOverrideCoordinator: Coordinator, Presenting, SettingsChildCoordinator {
     private let navigationController: UINavigationController
     private let interactor: IPOverrideInteractor
 
-    private lazy var ipOverrideViewController: IPOverrideViewController = {
-        let viewController = IPOverrideViewController(
-            interactor: interactor,
-            alertPresenter: AlertPresenter(context: self)
-        )
-        viewController.delegate = self
-        return viewController
-    }()
-
     var presentationContext: UIViewController {
         navigationController
     }
@@ -38,7 +29,14 @@ class IPOverrideCoordinator: Coordinator, Presenting, SettingsChildCoordinator {
     }
 
     func start(animated: Bool) {
-        navigationController.pushViewController(ipOverrideViewController, animated: animated)
+        let controller = IPOverrideViewController(
+            interactor: interactor,
+            alertPresenter: AlertPresenter(context: self)
+        )
+
+        controller.delegate = self
+
+        navigationController.pushViewController(controller, animated: animated)
     }
 }
 

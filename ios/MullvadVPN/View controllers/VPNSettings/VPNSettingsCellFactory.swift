@@ -1,5 +1,5 @@
 //
-//  PreferencesCellFactory.swift
+//  VPNSettingsCellFactory.swift
 //  MullvadVPN
 //
 //  Created by Jon Petersson on 2023-03-09.
@@ -9,25 +9,25 @@
 import MullvadSettings
 import UIKit
 
-protocol PreferencesCellEventHandler {
-    func showInfo(for button: PreferencesInfoButtonItem)
+protocol VPNSettingsCellEventHandler {
+    func showInfo(for button: VPNSettingsInfoButtonItem)
     func addCustomPort(_ port: UInt16)
     func selectCustomPortEntry(_ port: UInt16) -> Bool
     func selectObfuscationState(_ state: WireGuardObfuscationState)
 }
 
-final class PreferencesCellFactory: CellFactoryProtocol {
+final class VPNSettingsCellFactory: CellFactoryProtocol {
     let tableView: UITableView
-    var viewModel: PreferencesViewModel
-    var delegate: PreferencesCellEventHandler?
+    var viewModel: VPNSettingsViewModel
+    var delegate: VPNSettingsCellEventHandler?
     var isEditing = false
 
-    init(tableView: UITableView, viewModel: PreferencesViewModel) {
+    init(tableView: UITableView, viewModel: VPNSettingsViewModel) {
         self.tableView = tableView
         self.viewModel = viewModel
     }
 
-    func makeCell(for item: PreferencesDataSource.Item, indexPath: IndexPath) -> UITableViewCell {
+    func makeCell(for item: VPNSettingsDataSource.Item, indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: item.reuseIdentifier.rawValue, for: indexPath)
 
         configureCell(cell, item: item, indexPath: indexPath)
@@ -36,15 +36,28 @@ final class PreferencesCellFactory: CellFactoryProtocol {
     }
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    func configureCell(_ cell: UITableViewCell, item: PreferencesDataSource.Item, indexPath: IndexPath) {
+    func configureCell(_ cell: UITableViewCell, item: VPNSettingsDataSource.Item, indexPath: IndexPath) {
         switch item {
         case .dnsSettings:
             guard let cell = cell as? SettingsCell else { return }
 
             cell.titleLabel.text = NSLocalizedString(
                 "DNS_SETTINGS_CELL_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "DNS settings",
+                comment: ""
+            )
+
+            cell.disclosureType = .chevron
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
+
+        case .ipOverrides:
+            guard let cell = cell as? SettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "IP_OVERRIDE_CELL_LABEL",
+                tableName: "VPNSettings",
+                value: "Server IP override",
                 comment: ""
             )
 
@@ -56,7 +69,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
 
             var portString = NSLocalizedString(
                 "WIRE_GUARD_PORT_CELL_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "Automatic",
                 comment: ""
             )
@@ -73,13 +86,13 @@ final class PreferencesCellFactory: CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString(
                 "WIRE_GUARD_CUSTOM_PORT_CELL_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "Custom",
                 comment: ""
             )
             cell.textField.placeholder = NSLocalizedString(
                 "WIRE_GUARD_CUSTOM_PORT_CELL_INPUT_PLACEHOLDER",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "Port",
                 comment: ""
             )
@@ -113,7 +126,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString(
                 "WIRE_GUARD_OBFUSCATION_AUTOMATIC_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "Automatic",
                 comment: ""
             )
@@ -125,7 +138,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString(
                 "WIRE_GUARD_OBFUSCATION_ON_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "On (UDP-over-TCP)",
                 comment: ""
             )
@@ -136,7 +149,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString(
                 "WIRE_GUARD_OBFUSCATION_OFF_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "Off",
                 comment: ""
             )
@@ -149,7 +162,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
             let portString = port == 0 ? "Automatic" : "\(port)"
             cell.titleLabel.text = NSLocalizedString(
                 "WIRE_GUARD_OBFUSCATION_PORT_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: portString,
                 comment: ""
             )
@@ -162,7 +175,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString(
                 "QUANTUM_RESISTANCE_AUTOMATIC_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "Automatic",
                 comment: ""
             )
@@ -174,7 +187,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString(
                 "QUANTUM_RESISTANCE_ON_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "On",
                 comment: ""
             )
@@ -185,7 +198,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString(
                 "QUANTUM_RESISTANCE_OFF_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "Off",
                 comment: ""
             )

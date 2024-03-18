@@ -6,13 +6,14 @@
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import MullvadREST
+import MullvadSettings
 
 final class SettingsInteractorFactory {
     private let storePaymentManager: StorePaymentManager
     private let apiProxy: APIQuerying
     private let relayCacheTracker: RelayCacheTracker
+    private let ipOverrideRepository: IPOverrideRepositoryProtocol
 
     let tunnelManager: TunnelManager
 
@@ -20,16 +21,18 @@ final class SettingsInteractorFactory {
         storePaymentManager: StorePaymentManager,
         tunnelManager: TunnelManager,
         apiProxy: APIQuerying,
-        relayCacheTracker: RelayCacheTracker
+        relayCacheTracker: RelayCacheTracker,
+        ipOverrideRepository: IPOverrideRepositoryProtocol
     ) {
         self.storePaymentManager = storePaymentManager
         self.tunnelManager = tunnelManager
         self.apiProxy = apiProxy
         self.relayCacheTracker = relayCacheTracker
+        self.ipOverrideRepository = ipOverrideRepository
     }
 
-    func makePreferencesInteractor() -> PreferencesInteractor {
-        PreferencesInteractor(tunnelManager: tunnelManager, relayCacheTracker: relayCacheTracker)
+    func makeVPNSettingsInteractor() -> VPNSettingsInteractor {
+        VPNSettingsInteractor(tunnelManager: tunnelManager, relayCacheTracker: relayCacheTracker)
     }
 
     func makeProblemReportInteractor() -> ProblemReportInteractor {
@@ -38,5 +41,9 @@ final class SettingsInteractorFactory {
 
     func makeSettingsInteractor() -> SettingsInteractor {
         SettingsInteractor(tunnelManager: tunnelManager)
+    }
+
+    func makeIPOverrideInteractor() -> IPOverrideInteractor {
+        IPOverrideInteractor(repository: ipOverrideRepository, tunnelManager: tunnelManager)
     }
 }

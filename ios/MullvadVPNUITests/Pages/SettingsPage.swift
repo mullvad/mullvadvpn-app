@@ -18,7 +18,7 @@ class SettingsPage: Page {
 
     @discardableResult func tapVPNSettingsCell() -> Self {
         app.tables[AccessibilityIdentifier.settingsTableView]
-            .cells[AccessibilityIdentifier.preferencesCell]
+            .cells[AccessibilityIdentifier.vpnSettingsCell]
             .tap()
 
         return self
