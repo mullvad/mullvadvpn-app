@@ -52,9 +52,8 @@ pfctl = "0.4.4"
 subslice = "0.2"
 system-configuration = "0.5.1"
 talpid-time = { path = "../talpid-time" }
-trust-dns-proto = "0.23.0"
-trust-dns-server = { version = "0.23.0", features = ["resolver"] }
-
+hickory-proto = { git = "https://github.com/hickory-dns/hickory-dns", rev = "9e8f8c67fbcb6d2985503027362a3fb022529802" }
+hickory-server = { git = "https://github.com/hickory-dns/hickory-dns", rev = "9e8f8c67fbcb6d2985503027362a3fb022529802", features = ["resolver"] }
 
 [target.'cfg(windows)'.dependencies]
 bitflags = "1.2"

@@ -48,6 +48,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix pointless API access method rotations for concurrent requests.
 - Fix daemon rotating logs on startup even if another daemon is already running.
 
+### macOS
+- Fix bug that caused high CPU usage due to an infinite loop.
+
 ### Security
 #### Android
 - Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
