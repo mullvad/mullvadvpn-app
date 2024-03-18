@@ -144,7 +144,7 @@ public enum SettingsManager {
     public static func resetStore(completely: Bool = false) {
         logger.debug("Reset store.")
 
-        let keys = completely ? SettingsKey.allCases : [.settings, .deviceState, .apiAccessMethods]
+        let keys = completely ? SettingsKey.allCases : [.settings, .deviceState, .apiAccessMethods,.customRelayLists]
 
         keys.forEach { key in
             do {
