@@ -33,7 +33,6 @@ jobs:
           toolchain: stable
           override: true
           target: aarch64-apple-ios
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
