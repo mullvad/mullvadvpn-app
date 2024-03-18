@@ -189,11 +189,7 @@ impl InnerParametersGenerator {
                     obfuscator: obfuscator_relay,
                 });
 
-                Ok(self.create_wireguard_tunnel_parameters(
-                    endpoint.clone(),
-                    data,
-                    obfuscator_config,
-                ))
+                Ok(self.create_wireguard_tunnel_parameters(endpoint, data, obfuscator_config))
             }
             GetRelay::Custom(custom_relay) => {
                 self.last_generated_relays = None;
