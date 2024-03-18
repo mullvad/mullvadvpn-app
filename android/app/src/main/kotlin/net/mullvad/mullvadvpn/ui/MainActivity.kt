@@ -12,6 +12,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -19,6 +20,7 @@ import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermissionIfMissing
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.repository.AccountRepository
@@ -44,6 +46,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var serviceConnectionManager: ServiceConnectionManager
     private lateinit var changelogViewModel: ChangelogViewModel
     private lateinit var serviceConnectionViewModel: NoDaemonViewModel
+    private lateinit var managementService: ManagementService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(listOf(uiModule, paymentModule))
@@ -58,6 +61,7 @@ class MainActivity : ComponentActivity() {
             serviceConnectionManager = get()
             changelogViewModel = get()
             serviceConnectionViewModel = get()
+            managementService = get()
         }
         lifecycle.addObserver(serviceConnectionViewModel)
 
@@ -75,6 +79,7 @@ class MainActivity : ComponentActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
                     startServiceSuspend(waitForConnectedReady = false)
+                    startManagementService()
                 }
             }
         }
@@ -92,6 +97,11 @@ class MainActivity : ComponentActivity() {
                 .filterIsInstance<ServiceConnectionState.ConnectedReady>()
                 .first()
         }
+    }
+
+    suspend fun startManagementService() {
+        delay(1000)
+        managementService.start()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
