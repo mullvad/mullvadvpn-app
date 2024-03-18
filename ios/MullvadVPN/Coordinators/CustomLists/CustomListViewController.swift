@@ -13,7 +13,7 @@ import UIKit
 protocol CustomListViewControllerDelegate: AnyObject {
     func customListDidSave(_ list: CustomList)
     func customListDidDelete(_ list: CustomList)
-    func showLocations()
+    func showLocations(_ list: CustomList)
 }
 
 class CustomListViewController: UIViewController {
@@ -123,7 +123,7 @@ class CustomListViewController: UIViewController {
             case .name, .deleteList:
                 break
             case .addLocations, .editLocations:
-                self.delegate?.showLocations()
+                self.delegate?.showLocations(self.subject.value.customList)
             }
         }
 

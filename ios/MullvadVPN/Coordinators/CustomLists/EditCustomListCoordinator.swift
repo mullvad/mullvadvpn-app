@@ -19,6 +19,8 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
     let navigationController: UINavigationController
     let customListInteractor: CustomListInteractorProtocol
     let customList: CustomList
+    let nodes: [LocationNode]
+    let subject: CurrentValueSubject<CustomListViewModel, Never>
 
     var presentedViewController: UIViewController {
         navigationController
@@ -29,23 +31,22 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
     init(
         navigationController: UINavigationController,
         customListInteractor: CustomListInteractorProtocol,
-        customList: CustomList
+        customList: CustomList,
+        nodes: [LocationNode]
     ) {
         self.navigationController = navigationController
         self.customListInteractor = customListInteractor
         self.customList = customList
+        self.nodes = nodes
+        self.subject = CurrentValueSubject(CustomListViewModel(
+            id: customList.id,
+            name: customList.name,
+            locations: customList.locations,
+            tableSections: [.name, .editLocations, .deleteList]
+        ))
     }
 
     func start() {
-        let subject = CurrentValueSubject<CustomListViewModel, Never>(
-            CustomListViewModel(
-                id: customList.id,
-                name: customList.name,
-                locations: customList.locations,
-                tableSections: [.name, .editLocations, .deleteList]
-            )
-        )
-
         let controller = CustomListViewController(
             interactor: customListInteractor,
             subject: subject,
@@ -73,7 +74,27 @@ extension EditCustomListCoordinator: CustomListViewControllerDelegate {
         didFinish?(.delete, list)
     }
 
-    func showLocations() {
-        // TODO: Show view controller for locations.
+    func showLocations(_ list: CustomList) {
+        let coordinator = EditLocationsCoordinator(
+            navigationController: navigationController,
+            nodes: nodes,
+            customList: list
+        )
+
+        coordinator.didFinish = { customList in
+            self.subject.send(CustomListViewModel(
+                id: customList.id,
+                name: customList.name,
+                locations: customList.locations,
+                tableSections: self.subject.value.tableSections
+            ))
+            try? self.customListInteractor.save(viewModel: self.subject.value)
+            self.didFinish?(.save, list)
+            self.removeChild(coordinator)
+        }
+
+        coordinator.start()
+
+        coordinator.addChild(coordinator)
     }
 }

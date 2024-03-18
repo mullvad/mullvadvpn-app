@@ -14,6 +14,10 @@ import UIKit
 class AddCustomListCoordinator: Coordinator, Presentable, Presenting {
     let navigationController: UINavigationController
     let interactor: CustomListInteractorProtocol
+    let nodes: [LocationNode]
+    let subject = CurrentValueSubject<CustomListViewModel, Never>(
+        CustomListViewModel(id: UUID(), name: "", locations: [], tableSections: [.name, .addLocations])
+    )
 
     var presentedViewController: UIViewController {
         navigationController
@@ -23,17 +27,15 @@ class AddCustomListCoordinator: Coordinator, Presentable, Presenting {
 
     init(
         navigationController: UINavigationController,
-        interactor: CustomListInteractorProtocol
+        interactor: CustomListInteractorProtocol,
+        nodes: [LocationNode]
     ) {
         self.navigationController = navigationController
         self.interactor = interactor
+        self.nodes = nodes
     }
 
     func start() {
-        let subject = CurrentValueSubject<CustomListViewModel, Never>(
-            CustomListViewModel(id: UUID(), name: "", locations: [], tableSections: [.name, .addLocations])
-        )
-
         let controller = CustomListViewController(
             interactor: interactor,
             subject: subject,
@@ -75,7 +77,25 @@ extension AddCustomListCoordinator: CustomListViewControllerDelegate {
         // No op.
     }
 
-    func showLocations() {
-        // TODO: Show view controller for locations.
+    func showLocations(_ list: CustomList) {
+        let coordinator = AddLocationsCoordinator(
+            navigationController: navigationController,
+            nodes: nodes,
+            customList: list
+        )
+
+        coordinator.didFinish = { customList in
+            self.subject.send(CustomListViewModel(
+                id: customList.id,
+                name: customList.name,
+                locations: customList.locations,
+                tableSections: self.subject.value.tableSections
+            ))
+            self.removeFromParent()
+        }
+
+        coordinator.start()
+
+        addChild(coordinator)
     }
 }

@@ -53,6 +53,7 @@ public enum AccessibilityIdentifier: String {
 
     // Views
     case accountView
+    case addLocationsView
     case alertContainerView
     case alertTitle
     case changeLogAlert
