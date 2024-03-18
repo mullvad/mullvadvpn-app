@@ -121,6 +121,8 @@
     <string name="here_is_your_account_number">Här är ditt kontonummer. Spara det!</string>
     <string name="hide_account_number">Dölj kontonummer</string>
     <string name="hint_default">Standard</string>
+    <string name="import_overrides_import">Importera</string>
+    <string name="import_overrides_text_title">Importera via text</string>
     <string name="in_address">In</string>
     <string name="invalid_dns_servers">Anpassade DNS-serveradresser %1$s är ogiltiga</string>
     <string name="invalid_voucher">Kupongkoden är ogiltig.</string>
@@ -213,6 +215,9 @@
     <string name="sent">Skickat</string>
     <string name="sent_contact">Om det behövs kontaktar vi dig på %1$s</string>
     <string name="sent_thanks">Tack!</string>
+    <string name="server_ip_overrides_info_first_paragraph">På vissa nätverk där olika typer av censureringar används blockeras blir ibland vår servers IP-adresser blockerade.</string>
+    <string name="server_ip_overrides_info_second_paragraph">För att kringgå detta kan du importera en fil eller text, som tillhandahålls av vårt supportteam, med nya IP-adresser som åsidosätter servrarnas standardadresser i Välj platsvy.</string>
+    <string name="server_ip_overrides_info_third_paragraph">Kontakta supporten om du har problem med att ansluta till VPN-servrar.</string>
     <string name="set_dns_error">Det går inte att konfigurera DNS-server. Skicka en problemrapport.</string>
     <string name="set_firewall_policy_error">Det går inte att tillämpa brandväggsregler. Felsök eller skicka en problemrapport.</string>
     <string name="settings">Inställningar</string>

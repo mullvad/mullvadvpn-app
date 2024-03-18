@@ -121,6 +121,8 @@
     <string name="here_is_your_account_number">これがあなたのアカウント番号です。保存してください！</string>
     <string name="hide_account_number">アカウント番号の非表示</string>
     <string name="hint_default">デフォルト</string>
+    <string name="import_overrides_import">インポート</string>
+    <string name="import_overrides_text_title">テキストでインポート</string>
     <string name="in_address">内側</string>
     <string name="invalid_dns_servers">カスタムDNSサーバーアドレス %1$s は無効です</string>
     <string name="invalid_voucher">バウチャーコードが無効です。</string>
@@ -213,6 +215,9 @@
     <string name="sent">送信済み</string>
     <string name="sent_contact">必要に応じて %1$s 宛にご連絡します　</string>
     <string name="sent_thanks">ありがとうございます！</string>
+    <string name="server_ip_overrides_info_first_paragraph">各種の検閲が使用されている一部のネットワークでは、サーバーIPアドレスがブロックされる場合があります。</string>
+    <string name="server_ip_overrides_info_second_paragraph">これを回避するには、「場所を選択」ビューでサポートチームが提供したサーバーのデフォルトアドレスをオーバーライドする新しいIPアドレスを含むファイルまたはテキストをインポートできます。</string>
+    <string name="server_ip_overrides_info_third_paragraph">VPNサーバーへの接続に問題が生じている場合は、サポートにお問い合わせください。</string>
     <string name="set_dns_error">システムのDNSサーバーを設定できません。問題の報告を送信してください。</string>
     <string name="set_firewall_policy_error">ファイアウォールのルールを適用できません。問題に対処するか、問題の報告を送信してください。</string>
     <string name="settings">設定</string>

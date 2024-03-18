@@ -121,6 +121,8 @@
     <string name="here_is_your_account_number">以下是您的帳號。請妥善保管！</string>
     <string name="hide_account_number">隱藏帳號</string>
     <string name="hint_default">預設</string>
+    <string name="import_overrides_import">匯入</string>
+    <string name="import_overrides_text_title">透過文字匯入</string>
     <string name="in_address">入境</string>
     <string name="invalid_dns_servers">自訂 DNS 伺服器位址 %1$s 無效</string>
     <string name="invalid_voucher">憑證兌換碼無效。</string>
@@ -213,6 +215,9 @@
     <string name="sent">已傳送</string>
     <string name="sent_contact">如有需要，我們將透過 %1$s 與您聯絡</string>
     <string name="sent_thanks">謝謝！</string>
+    <string name="server_ip_overrides_info_first_paragraph">在某些採用了各類審查功能的網路上，我們的伺服器 IP 位址有時會遭到封鎖。</string>
+    <string name="server_ip_overrides_info_second_paragraph">為了避免這種情況，您可以匯入由我們支援團隊所提供的檔案或文字，其中的新 IP 位址會覆蓋「選取位置」視圖中伺服器的預設位址。</string>
+    <string name="server_ip_overrides_info_third_paragraph">如果您在連線至 VPN 伺服器時遇到問題，請聯絡支援人員。</string>
     <string name="set_dns_error">無法設定系統 DNS 伺服器。請傳送問題回報。</string>
     <string name="set_firewall_policy_error">無法套用防火牆規則。請排除故障或傳送問題回報。</string>
     <string name="settings">設定</string>

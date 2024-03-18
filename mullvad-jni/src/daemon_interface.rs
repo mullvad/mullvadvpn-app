@@ -54,9 +54,7 @@ impl From<mullvad_daemon::Error> for Error {
 
 impl From<patch::Error> for Error {
     fn from(error: patch::Error) -> Error {
-        match error {
-            error => Error::Patch(error),
-        }
+        Error::Patch(error
     }
 }
 

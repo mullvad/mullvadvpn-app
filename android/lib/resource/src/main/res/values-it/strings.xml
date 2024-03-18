@@ -121,6 +121,8 @@
     <string name="here_is_your_account_number">Ecco il tuo numero di account. Salvalo!</string>
     <string name="hide_account_number">Nascondi numero di account</string>
     <string name="hint_default">Predefinito</string>
+    <string name="import_overrides_import">Importa</string>
+    <string name="import_overrides_text_title">Importa tramite testo</string>
     <string name="in_address">Ricezione</string>
     <string name="invalid_dns_servers">Gli indirizzi del server DNS personalizzato %1$s non sono validi</string>
     <string name="invalid_voucher">Il codice voucher non è valido.</string>
@@ -213,6 +215,9 @@
     <string name="sent">Inviato</string>
     <string name="sent_contact">Se necessario, ti contatteremo all\'indirizzo %1$s</string>
     <string name="sent_thanks">Grazie!</string>
+    <string name="server_ip_overrides_info_first_paragraph">Su alcune reti, dove vengono utilizzati vari tipi di censura, gli indirizzi IP dei nostri server vengono talvolta bloccati.</string>
+    <string name="server_ip_overrides_info_second_paragraph">Per aggirare questo problema, puoi importare un file o un testo, fornito dal nostro team di supporto, con nuovi indirizzi IP che sovrascrivono gli indirizzi predefiniti dei server nella vista Seleziona posizione.</string>
+    <string name="server_ip_overrides_info_third_paragraph">Se riscontri problemi di connessione ai server VPN, contatta l\'assistenza.</string>
     <string name="set_dns_error">Impossibile impostare il server DNS di sistema. Invia una segnalazione del problema.</string>
     <string name="set_firewall_policy_error">Impossibile applicare le regole del firewall. Consulta la risoluzione dei problemi o invia una segnalazione del problema.</string>
     <string name="settings">Impostazioni</string>

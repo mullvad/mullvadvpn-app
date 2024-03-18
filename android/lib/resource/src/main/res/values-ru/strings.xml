@@ -121,6 +121,8 @@
     <string name="here_is_your_account_number">Вот номер вашей учетной записи. Сохраните его!</string>
     <string name="hide_account_number">Скрыть номер учетной записи</string>
     <string name="hint_default">По умолчанию</string>
+    <string name="import_overrides_import">Импортировать</string>
+    <string name="import_overrides_text_title">Импортировать через текст</string>
     <string name="in_address">Вход</string>
     <string name="invalid_dns_servers">Пользовательские адреса DNS-серверов %1$s недопустимы</string>
     <string name="invalid_voucher">Код ваучера недействителен.</string>
@@ -213,6 +215,9 @@
     <string name="sent">Отправлено</string>
     <string name="sent_contact">При необходимости мы свяжемся с вами по адресу %1$s</string>
     <string name="sent_thanks">Спасибо!</string>
+    <string name="server_ip_overrides_info_first_paragraph">В некоторых сетях, где используются различные виды цензуры, IP-адреса наших серверов иногда блокируются.</string>
+    <string name="server_ip_overrides_info_second_paragraph">Чтобы обойти эту проблему, можно импортировать файл или текст, предоставленный нашей службой поддержки, с новыми IP-адресами, которые заменяют адреса серверов по умолчанию в представлении «Выбор местоположения».</string>
+    <string name="server_ip_overrides_info_third_paragraph">Если у вас возникли проблемы с подключением к VPN-серверам, обратитесь в службу поддержки.</string>
     <string name="set_dns_error">Не удалось установить системный DNS-сервер. Отправьте сообщение о проблеме.</string>
     <string name="set_firewall_policy_error">Невозможно применить правила брандмауэра. Устраните неполадки или отправьте сообщение о проблеме.</string>
     <string name="settings">Настройки</string>
