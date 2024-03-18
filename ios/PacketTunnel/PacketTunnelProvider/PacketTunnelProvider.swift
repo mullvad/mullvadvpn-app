@@ -14,6 +14,7 @@ import MullvadTypes
 import NetworkExtension
 import PacketTunnelCore
 import TunnelObfuscation
+import WireGuardKitTypes
 
 class PacketTunnelProvider: NEPacketTunnelProvider {
     private let internalQueue = DispatchQueue(label: "PacketTunnel-internalQueue")
@@ -273,5 +274,12 @@ extension PacketTunnelProvider {
         case .noAction:
             break
         }
+    }
+}
+
+extension PacketTunnelProvider: PostQuantumKeyReceiving {
+    func receivePostQuantumKey(_ key: PreSharedKey) {
+        // TODO: send the key to the actor
+        actor.replacePreSharedKey(key)
     }
 }
