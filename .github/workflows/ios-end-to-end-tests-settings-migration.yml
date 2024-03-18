@@ -1,0 +1,116 @@
+---
+name: iOS settings migration tests
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+  schedule:
+    # At midnight every day.
+    # Notifications for scheduled workflows are sent to the user who last modified the cron
+    # syntax in the workflow file. If you update this you must have notifications for
+    # Github Actions enabled, so these don't go unnoticed.
+    # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
+    - cron: '0 0 * * *'
+jobs:
+  test:
+    name: Settings migration end to end tests
+    runs-on: [self-hosted, macOS, ios-test]
+    env:
+      OLD_APP_COMMIT_HASH: fbd13034f2a7dadaa9a404bea62345bd8d65165b
+    steps:
+      - name: Configure Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          target: aarch64-apple-ios
+
+      - name: Uninstall app
+        run: ios-deploy --id ${{ secrets.IOS_TEST_DEVICE_UDID }} --uninstall_only --bundle_id net.mullvad.MullvadVPN
+
+      - name: Checkout old repository version
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.OLD_APP_COMMIT_HASH }}
+
+      - name: Change DNS settings on old app version
+        uses: ./.github/actions/ios-end-to-end-tests
+        with:
+          ios_device_pin_code: ${{ secrets.IOS_DEVICE_PIN_CODE }}
+          test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
+          has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
+          no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
+          test_device_udid: ${{ secrets.IOS_TEST_DEVICE_UDID }}
+          xcode_test_plan: 'MullvadVPNUITestsChangeDNSSettings'
+
+      - name: Store test report for changing DNS settings
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-report-change-dns-settings
+          path: ios/test-report/junit.xml
+
+      - name: Checkout repository to get the current app version
+        uses: actions/checkout@v4
+
+      - name: Verify DNS settings still changed on current app version
+        uses: ./.github/actions/ios-end-to-end-tests
+        if: always()
+        with:
+          ios_device_pin_code: ${{ secrets.IOS_DEVICE_PIN_CODE }}
+          test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
+          has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
+          no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
+          test_device_udid: ${{ secrets.IOS_TEST_DEVICE_UDID }}
+          xcode_test_plan: 'MullvadVPNUITestsVerifyDNSSettingsChanged'
+
+      - name: Store test report for verifying DNS settings
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-report-verify-dns-settings
+          path: ios/test-report/junit.xml
+
+      - name: Checkout old repository version
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.OLD_APP_COMMIT_HASH }}
+
+      - name: Change all other settings on old app version
+        uses: ./.github/actions/ios-end-to-end-tests
+        if: always()
+        with:
+          ios_device_pin_code: ${{ secrets.IOS_DEVICE_PIN_CODE }}
+          test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
+          has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
+          no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
+          test_device_udid: ${{ secrets.IOS_TEST_DEVICE_UDID }}
+          xcode_test_plan: 'MullvadVPNUITestsChangeSettings'
+
+      - name: Store test report for changing all settings
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-report-change-all-other-settings
+          path: ios/test-report/junit.xml
+
+      - name: Checkout repository to get the current app version
+        uses: actions/checkout@v4
+
+      - name: Verify all other settings still changed on current app version
+        uses: ./.github/actions/ios-end-to-end-tests
+        if: always()
+        with:
+          ios_device_pin_code: ${{ secrets.IOS_DEVICE_PIN_CODE }}
+          test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
+          has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
+          no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
+          test_device_udid: ${{ secrets.IOS_TEST_DEVICE_UDID }}
+          xcode_test_plan: 'MullvadVPNUITestsVerifySettingsChanged'
+
+      - name: Store test report for verifying all other settings
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-report-verify-all-other-settings
+          path: ios/test-report/junit.xml
