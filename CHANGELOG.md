@@ -32,6 +32,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### macOS
 - Fix bug that caused high CPU usage due to an infinite loop.
+- Fix bugs that caused the log to be filled with socket errors, by handling closed sockets more
+  gracefully.
 
 ### Security
 #### Android
