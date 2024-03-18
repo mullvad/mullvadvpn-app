@@ -53,9 +53,16 @@ class BaseUITestCase: XCTestCase {
 
     // MARK: - Setup & teardown
 
+    /// Override this class function to change the uninstall behaviour in suite level teardown
+    class func shouldUninstallAppInTeardown() -> Bool {
+        return true
+    }
+
     /// Suite level teardown ran after test have executed
     override class func tearDown() {
-        uninstallApp()
+        if shouldUninstallAppInTeardown() {
+            uninstallApp()
+        }
     }
 
     /// Test level setup
