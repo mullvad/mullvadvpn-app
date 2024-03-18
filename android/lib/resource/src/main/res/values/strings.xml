@@ -336,9 +336,9 @@
     <string name="import_overrides_text_title">Import via text</string>
     <string name="import_overrides_bottom_sheet_override_warning">Importing new overrides might replace some previously imported overrides.</string>
     <string name="patch_not_matching_specification">Patch not matching specification</string>
-    <string name="settings_patch_error_invalid_or_missing_value">Invalid or missing value: \'%1$s\'</string>
+    <string name="settings_patch_error_invalid_or_missing_value">Invalid or missing value: \"%1$s\"</string>
     <string name="settings_patch_error_unable_to_parse">Unable to parse patch</string>
-    <string name="settings_patch_error_unknown_or_prohibited_key">Unknown or prohibited key \'%1$s\'</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">Unknown or prohibited key \"%1$s\"</string>
     <string name="settings_patch_error_failed_to_apply_patch">Failed to apply patch</string>
     <string name="settings_patch_error_recursion_limit">Recursion limit</string>
     <string name="settings_patch_success">Success</string>

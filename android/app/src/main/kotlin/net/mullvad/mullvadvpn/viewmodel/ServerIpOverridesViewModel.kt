@@ -53,7 +53,9 @@ class ServerIpOverridesViewModel(
     fun importText(config: String) = viewModelScope.launch { applySettingsPatch(config) }
 
     private suspend fun applySettingsPatch(json: String) {
-        // Wait for daemon to come online since we might be paused
+        // Wait for daemon to come online since we might be disconnected (due to File picker being
+        // open
+        // and we disconnect from daemon in paused state)
         val connResult =
             withTimeoutOrNull(5.seconds) {
                 serviceConnectionManager.connectionState

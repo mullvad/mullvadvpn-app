@@ -2181,7 +2181,7 @@ msgstr ""
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr ""
 
-msgid "Invalid or missing value: '%s'"
+msgid "Invalid or missing value: \"%s\""
 msgstr ""
 
 msgid "List name"
@@ -2343,7 +2343,7 @@ msgstr ""
 msgid "Undo"
 msgstr ""
 
-msgid "Unknown or prohibited key '%s'"
+msgid "Unknown or prohibited key \"%s\""
 msgstr ""
 
 msgid "Unsecured"

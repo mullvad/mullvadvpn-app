@@ -96,7 +96,7 @@ class MainActivity : ComponentActivity() {
         super.onActivityResult(requestCode, resultCode, resultData)
 
         // Ensure we are responding to the correct request
-        if (requestCode == 0) {
+        if (requestCode == REQUEST_VPN_PERMISSION_RESULT_CODE) {
             serviceConnectionManager.onVpnPermissionResult(resultCode == Activity.RESULT_OK)
         }
     }
@@ -117,6 +117,10 @@ class MainActivity : ComponentActivity() {
     private fun requestVpnPermission() {
         val intent = VpnService.prepare(this)
 
-        startActivityForResult(intent, 0)
+        startActivityForResult(intent, REQUEST_VPN_PERMISSION_RESULT_CODE)
+    }
+
+    companion object {
+        private const val REQUEST_VPN_PERMISSION_RESULT_CODE = 0
     }
 }

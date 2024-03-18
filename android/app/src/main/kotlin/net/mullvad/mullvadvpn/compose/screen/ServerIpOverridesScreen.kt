@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
@@ -36,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -57,10 +57,16 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.destinations.ImportOverridesByTextDestination
 import net.mullvad.mullvadvpn.compose.destinations.ResetServerIpOverridesConfirmationDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.ServerIpOverridesInfoDialogDestination
+import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_IMPORT_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_INFO_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightLeafTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
-import net.mullvad.mullvadvpn.compose.util.showSnackBarDirect
+import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
@@ -75,12 +81,12 @@ private fun PreviewServerIpOverridesScreen() {
     AppTheme {
         ServerIpOverridesScreen(
             ServerIpOverridesViewState(false),
-            SnackbarHostState(),
             onBackClick = {},
             onInfoClick = {},
             onResetOverridesClick = {},
             onImportByFile = {},
-            onImportByText = {}
+            onImportByText = {},
+            SnackbarHostState()
         )
     }
 }
@@ -101,13 +107,13 @@ fun ServerIpOverrides(
     LaunchedEffectCollect(vm.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is ServerIpOverridesViewModel.UiSideEffect.ImportResult ->
-                snackbarHostState.showSnackBarDirect(
+                snackbarHostState.showSnackbarImmediately(
                     this,
                     message = sideEffect.error.toString(context),
                     actionLabel = null
                 )
             ServerIpOverridesViewModel.UiSideEffect.OverridesCleared ->
-                snackbarHostState.showSnackBarDirect(
+                snackbarHostState.showSnackbarImmediately(
                     this,
                     message = context.getString(R.string.overrides_cleared),
                     actionLabel = null
@@ -127,7 +133,6 @@ fun ServerIpOverrides(
 
     ServerIpOverridesScreen(
         state,
-        snackbarHostState,
         onBackClick = navigator::navigateUp,
         onInfoClick = {
             navigator.navigate(ServerIpOverridesInfoDialogDestination, onlyIfResumed = true)
@@ -141,7 +146,8 @@ fun ServerIpOverrides(
         onImportByFile = { openFileLauncher.launch("application/json") },
         onImportByText = {
             navigator.navigate(ImportOverridesByTextDestination, onlyIfResumed = true)
-        }
+        },
+        snackbarHostState
     )
 }
 
@@ -149,12 +155,12 @@ fun ServerIpOverrides(
 @Composable
 fun ServerIpOverridesScreen(
     state: ServerIpOverridesViewState,
-    snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     onInfoClick: () -> Unit,
     onResetOverridesClick: () -> Unit,
     onImportByFile: () -> Unit,
-    onImportByText: () -> Unit
+    onImportByText: () -> Unit,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -169,7 +175,7 @@ fun ServerIpOverridesScreen(
         },
         actions = {
             TopBarActions(
-                state.overridesActive,
+                overridesActive = state.overridesActive,
                 onInfoClick = onInfoClick,
                 onResetOverridesClick = onResetOverridesClick
             )
@@ -196,7 +202,8 @@ fun ServerIpOverridesScreen(
                 text = stringResource(R.string.server_ip_overrides_import_button),
                 modifier =
                     Modifier.padding(horizontal = Dimens.sideMargin)
-                        .padding(bottom = Dimens.screenVerticalMargin),
+                        .padding(bottom = Dimens.screenVerticalMargin)
+                        .testTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG),
             )
             SnackbarHost(hostState = snackbarHostState, modifier = Modifier.animateContentSize()) {
                 MullvadSnackbar(snackbarData = it)
@@ -227,10 +234,7 @@ private fun ImportOverridesByBottomSheet(
 
     MullvadModalBottomSheet(
         sheetState = sheetState,
-        onDismissRequest = {
-            Log.d("ServerIpOverridesScreen", "onDismissRequest")
-            showBottomSheet(false)
-        },
+        onDismissRequest = { showBottomSheet(false) },
     ) { ->
         HeaderCell(
             text = stringResource(id = R.string.server_ip_overrides_import_by),
@@ -245,6 +249,7 @@ private fun ImportOverridesByBottomSheet(
                 onCloseSheet()
             },
             background = Color.Unspecified,
+            modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG)
         )
         IconCell(
             iconId = R.drawable.icon_text_fields,
@@ -254,6 +259,7 @@ private fun ImportOverridesByBottomSheet(
                 onCloseSheet()
             },
             background = Color.Unspecified,
+            modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG)
         )
         if (overridesActive) {
             HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
@@ -290,8 +296,14 @@ private fun TopBarActions(
     onResetOverridesClick: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
-    InfoIconButton(onClick = onInfoClick)
-    IconButton(onClick = { showMenu = !showMenu }) {
+    InfoIconButton(
+        onClick = onInfoClick,
+        modifier = Modifier.testTag(SERVER_IP_OVERRIDE_INFO_TEST_TAG)
+    )
+    IconButton(
+        onClick = { showMenu = !showMenu },
+        modifier = Modifier.testTag(SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG)
+    ) {
         Icon(painterResource(id = R.drawable.icon_more_vert), contentDescription = null)
     }
     DropdownMenu(
@@ -317,7 +329,8 @@ private fun TopBarActions(
                     Icons.Filled.Delete,
                     contentDescription = null,
                 )
-            }
+            },
+            modifier = Modifier.testTag(SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST_TAG)
         )
     }
 }

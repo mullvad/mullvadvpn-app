@@ -32,7 +32,7 @@ import net.mullvad.mullvadvpn.util.flatMapReadyConnectionOrDefault
 class SettingsRepository(
     private val serviceConnectionManager: ServiceConnectionManager,
     private val messageHandler: MessageHandler,
-    dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     val settingsUpdates: StateFlow<Settings?> =
         serviceConnectionManager.connectionState
@@ -102,7 +102,7 @@ class SettingsRepository(
     }
 
     suspend fun applySettingsPatch(json: String) =
-        withContext(Dispatchers.IO) {
+        withContext(dispatcher) {
             val deferred = async { messageHandler.events<ApplyJsonSettingsResult>().first() }
             messageHandler.trySendRequest(Request.ApplyJsonSettings(json))
             deferred.await()

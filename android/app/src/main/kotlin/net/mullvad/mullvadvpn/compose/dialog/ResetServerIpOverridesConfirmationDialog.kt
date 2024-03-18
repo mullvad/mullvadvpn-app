@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
@@ -18,7 +16,6 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Preview
 @Composable
@@ -34,30 +31,29 @@ fun ResetServerIpOverridesConfirmationDialog(
     AlertDialog(
         containerColor = MaterialTheme.colorScheme.background,
         confirmButton = {
-            Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
-                NegativeButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(id = R.string.server_ip_overrides_reset_reset_button),
-                    onClick = { resultNavigator.navigateBack(result = true) }
-                )
-
-                PrimaryButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.cancel),
-                    onClick = resultNavigator::navigateBack
-                )
-            }
+            NegativeButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.server_ip_overrides_reset_reset_button),
+                onClick = { resultNavigator.navigateBack(result = true) }
+            )
+        },
+        dismissButton = {
+            PrimaryButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(R.string.cancel),
+                onClick = resultNavigator::navigateBack
+            )
         },
         title = {
             Text(
                 text = stringResource(id = R.string.server_ip_overrides_reset_title),
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
         },
         text = {
             Text(
                 text = stringResource(id = R.string.server_ip_overrides_reset_body),
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.bodySmall,
             )
         },

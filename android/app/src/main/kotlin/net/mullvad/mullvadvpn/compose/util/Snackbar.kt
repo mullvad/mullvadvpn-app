@@ -5,7 +5,7 @@ import androidx.compose.material3.SnackbarHostState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-suspend fun SnackbarHostState.showSnackBarDirect(
+suspend fun SnackbarHostState.showSnackbarImmediately(
     coroutineScope: CoroutineScope,
     message: String,
     actionLabel: String? = null,
