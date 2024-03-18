@@ -1,0 +1,5 @@
+Add 3D map to the connect screen.
+Add support for all screen orientations.
+Add possibility to filter locations by provider.
+Add toggle for enabling or disabling split tunneling.
+Add auto-connect and lockdown guide on platforms with system vpn settings while also marking the previous auto-connect settings as "legacy".
