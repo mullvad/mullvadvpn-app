@@ -57,6 +57,8 @@ pub enum Error {
     Timeout,
     #[error("TCP forward error")]
     TcpForward,
+    #[error("Unknown process ID: {0}")]
+    UnknownPid(u32),
     #[error("{0}")]
     Other(String),
 }
@@ -239,6 +241,9 @@ mod service {
         ///
         /// Process must have been spawned with `attach_stdin`.
         async fn close_child_stdin(pid: u32) -> Result<(), Error>;
+
+        /// Kill a process spawned through [Service::spawn].
+        async fn kill_child(pid: u32) -> Result<(), Error>;
     }
 }
 

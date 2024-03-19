@@ -446,7 +446,7 @@ impl Service for TestServer {
         let child = state
             .spawned_procs
             .get_mut(&pid)
-            .expect("TODO: unknown pid error");
+            .ok_or(test_rpc::Error::UnknownPid(pid))?;
 
         let Some(stdout) = child.stdout.as_mut() else {
             return Ok(None);
@@ -455,7 +455,10 @@ impl Service for TestServer {
         let mut buf = vec![0u8; 512];
 
         let n = select_biased! {
-            result = stdout.read(&mut buf).fuse() => result.expect("todo: read error"),
+            result = stdout.read(&mut buf).fuse() => result
+                .map_err(|e| format!("Failed to read from child stdout: {e}"))
+                .map_err(test_rpc::Error::Other)?,
+
             _ = sleep(Duration::from_millis(500)).fuse() => return Ok(Some(String::new())),
         };
 
@@ -466,7 +469,8 @@ impl Service for TestServer {
         }
 
         buf.truncate(n);
-        let output = String::from_utf8(buf).expect("TODO: utf8 error");
+        let output = String::from_utf8(buf)
+            .map_err(|_| test_rpc::Error::Other("Child wrote non UTF-8 to stdout".into()))?;
 
         Ok(Some(output))
     }
@@ -481,16 +485,18 @@ impl Service for TestServer {
         let child = state
             .spawned_procs
             .get_mut(&pid)
-            .expect("TODO: unknown pid error");
+            .ok_or(test_rpc::Error::UnknownPid(pid))?;
 
         let Some(stdin) = child.stdin.as_mut() else {
-            todo!("error on no stdin?")
+            return Err(test_rpc::Error::Other("Child stdin is closed.".into()));
         };
 
         stdin
             .write_all(data.as_bytes())
             .await
-            .expect("todo: write error");
+            .map_err(|e| format!("Error writing to child stdin: {e}"))
+            .map_err(test_rpc::Error::Other)?;
+
         log::debug!("wrote {} bytes to pid {pid}", data.len());
 
         Ok(())
@@ -501,9 +507,22 @@ impl Service for TestServer {
         let child = state
             .spawned_procs
             .get_mut(&pid)
-            .expect("TODO: unknown pid error");
+            .ok_or(test_rpc::Error::UnknownPid(pid))?;
 
         child.stdin = None;
+
+        Ok(())
+    }
+
+    async fn kill_child(self, _: context::Context, pid: u32) -> Result<(), test_rpc::Error> {
+        let mut state = self.0.lock().await;
+        let child = state
+            .spawned_procs
+            .remove(&pid)
+            .ok_or(test_rpc::Error::UnknownPid(pid))?;
+
+        drop(child); // I swear officer, it's not what you think!
+
         Ok(())
     }
 }
