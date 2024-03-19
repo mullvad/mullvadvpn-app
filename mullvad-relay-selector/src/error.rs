@@ -3,7 +3,7 @@
 
 use mullvad_types::{relay_constraints::MissingCustomBridgeSettings, relay_list::Relay};
 
-use crate::WireguardConfig;
+use crate::{detailer, WireguardConfig};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -22,8 +22,11 @@ pub enum Error {
     #[error("No obfuscators matching current constraints")]
     NoObfuscator,
 
-    #[error("No endpoint could be constructed for relay {0:?}")]
-    NoEndpoint(EndpointError),
+    #[error("No endpoint could be constructed due to {} for relay {:?}", .internal, .relay)]
+    NoEndpoint {
+        internal: detailer::Error,
+        relay: EndpointErrorDetails,
+    },
 
     #[error("Failure in serialization of the relay list")]
     Serialize(#[from] serde_json::Error),
@@ -35,7 +38,7 @@ pub enum Error {
 /// Special type which only shows up in [`Error`]. This error variant signals that no valid
 /// endpoint could be constructed from the selected relay.
 #[derive(Debug)]
-pub enum EndpointError {
+pub enum EndpointErrorDetails {
     /// No valid Wireguard endpoint could be constructed from this [`WireguardConfig`].
     ///
     /// # Note
@@ -48,16 +51,16 @@ pub enum EndpointError {
     OpenVpn(Box<Relay>),
 }
 
-impl EndpointError {
+impl EndpointErrorDetails {
     /// Helper function for constructing an [`Error::NoEndpoint`] from `relay`.
     /// Takes care of boxing the [`WireguardConfig`] for you!
-    pub(crate) fn from_wireguard(relay: WireguardConfig) -> Error {
-        Error::NoEndpoint(EndpointError::Wireguard(Box::new(relay)))
+    pub(crate) fn from_wireguard(relay: WireguardConfig) -> Self {
+        EndpointErrorDetails::Wireguard(Box::new(relay))
     }
 
     /// Helper function for constructing an [`Error::NoEndpoint`] from `relay`.
     /// Takes care of boxing the [`Relay`] for you!
-    pub(crate) fn from_openvpn(relay: Relay) -> Error {
-        Error::NoEndpoint(EndpointError::OpenVpn(Box::new(relay)))
+    pub(crate) fn from_openvpn(relay: Relay) -> Self {
+        EndpointErrorDetails::OpenVpn(Box::new(relay))
     }
 }
