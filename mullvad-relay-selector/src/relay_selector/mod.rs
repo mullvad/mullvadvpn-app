@@ -845,7 +845,7 @@ impl RelaySelector {
         // Define the weight function to prioritize bridges which are closer to `location`.
         let weight_fn = |relay: &RelayWithDistance| 1 + (greatest_distance - relay.distance) as u64;
 
-        helpers::pick_random_relay_fn(&matching_relays, weight_fn)
+        helpers::pick_random_relay_weighted(&matching_relays, weight_fn)
             .cloned()
             .map(|relay_with_distance| relay_with_distance.relay)
     }
