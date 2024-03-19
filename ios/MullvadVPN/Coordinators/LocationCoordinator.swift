@@ -127,10 +127,13 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         return relayFilterCoordinator
     }
 
-    private func showAddCustomList() {
+    private func showAddCustomList(nodes: [LocationNode]) {
         let coordinator = AddCustomListCoordinator(
             navigationController: CustomNavigationController(),
-            interactor: CustomListInteractor(repository: customListRepository)
+            interactor: CustomListInteractor(
+                repository: customListRepository
+            ),
+            nodes: nodes
         )
 
         coordinator.didFinish = {
@@ -142,11 +145,12 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         presentChild(coordinator, animated: true)
     }
 
-    private func showEditCustomLists() {
+    private func showEditCustomLists(nodes: [LocationNode]) {
         let coordinator = ListCustomListCoordinator(
             navigationController: CustomNavigationController(),
             interactor: CustomListInteractor(repository: customListRepository),
-            tunnelManager: tunnelManager
+            tunnelManager: tunnelManager,
+            nodes: nodes
         )
 
         coordinator.didFinish = {
@@ -181,7 +185,7 @@ extension LocationCoordinator: RelayCacheTrackerObserver {
 }
 
 extension LocationCoordinator: LocationViewControllerDelegate {
-    func didRequestRouteToCustomLists(_ controller: LocationViewController) {
+    func didRequestRouteToCustomLists(_ controller: LocationViewController, nodes: [LocationNode]) {
         let actionSheet = UIAlertController(
             title: NSLocalizedString(
                 "CUSTOM_LIST_ACTION_SHEET_TITLE",
@@ -202,11 +206,10 @@ extension LocationCoordinator: LocationViewControllerDelegate {
             ),
             style: .default,
             handler: { _ in
-                self.showAddCustomList()
+                self.showAddCustomList(nodes: nodes)
             }
         ))
-
-        actionSheet.addAction(UIAlertAction(
+        let editAction = UIAlertAction(
             title: NSLocalizedString(
                 "CUSTOM_LIST_ACTION_SHEET_EDIT_LISTS_BUTTON",
                 tableName: "CustomLists",
@@ -215,9 +218,12 @@ extension LocationCoordinator: LocationViewControllerDelegate {
             ),
             style: .default,
             handler: { _ in
-                self.showEditCustomLists()
+                self.showEditCustomLists(nodes: nodes)
             }
-        ))
+        )
+        editAction.isEnabled = !customListRepository.fetchAll().isEmpty
+
+        actionSheet.addAction(editAction)
 
         actionSheet.addAction(UIAlertAction(
             title: NSLocalizedString(

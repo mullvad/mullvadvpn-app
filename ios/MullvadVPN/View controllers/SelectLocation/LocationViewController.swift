@@ -13,7 +13,7 @@ import MullvadTypes
 import UIKit
 
 protocol LocationViewControllerDelegate: AnyObject {
-    func didRequestRouteToCustomLists(_ controller: LocationViewController)
+    func didRequestRouteToCustomLists(_ controller: LocationViewController, nodes: [LocationNode])
 }
 
 final class LocationViewController: UIViewController {
@@ -139,7 +139,7 @@ final class LocationViewController: UIViewController {
 
         dataSource?.didTapEditCustomLists = { [weak self] in
             guard let self else { return }
-            delegate?.didRequestRouteToCustomLists(self)
+            delegate?.didRequestRouteToCustomLists(self, nodes: allLocationDataSource.nodes)
         }
 
         if let cachedRelays {
@@ -155,7 +155,6 @@ final class LocationViewController: UIViewController {
         tableView.indicatorStyle = .white
         tableView.keyboardDismissMode = .onDrag
         tableView.accessibilityIdentifier = .selectLocationTableView
-        tableView.sectionHeaderHeight = 56.0
     }
 
     private func setUpTopContent() {

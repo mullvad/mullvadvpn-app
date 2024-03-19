@@ -16,6 +16,7 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
     let interactor: CustomListInteractorProtocol
     let tunnelManager: TunnelManager
     let listViewController: ListCustomListViewController
+    let nodes: [LocationNode]
 
     var presentedViewController: UIViewController {
         navigationController
@@ -26,11 +27,13 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
     init(
         navigationController: UINavigationController,
         interactor: CustomListInteractorProtocol,
-        tunnelManager: TunnelManager
+        tunnelManager: TunnelManager,
+        nodes: [LocationNode]
     ) {
         self.navigationController = navigationController
         self.interactor = interactor
         self.tunnelManager = tunnelManager
+        self.nodes = nodes
 
         listViewController = ListCustomListViewController(interactor: interactor)
     }
@@ -51,7 +54,8 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
         let coordinator = EditCustomListCoordinator(
             navigationController: navigationController,
             customListInteractor: interactor,
-            customList: list
+            customList: list,
+            nodes: nodes
         )
 
         coordinator.didFinish = { action, list in
