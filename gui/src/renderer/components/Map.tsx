@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
 import GlMap, { ConnectionState, Coordinate } from '../lib/3dmap';
-import { useCombinedRefs } from '../lib/utilityHooks';
+import { useCombinedRefs, useRerenderer } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 
 // Default to Gothenburg when we don't know the actual location.
@@ -21,8 +21,6 @@ interface MapParams {
   location: Coordinate;
   connectionState: ConnectionState;
 }
-
-type AnimationFrameCallback = (now: number, newParams?: MapParams) => void;
 
 export default function Map() {
   const connection = useSelector((state) => state.connection);
@@ -73,56 +71,30 @@ interface MapInnerProps extends MapParams {
 function MapInner(props: MapInnerProps) {
   const { getMapData } = useAppContext();
 
-  // Callback that should be passed to requestAnimationFrame. This is initialized after the canvas
-  // has been rendered.
-  const animationFrameCallback = useRef<AnimationFrameCallback>();
   // When location or connection state changes it's stored here until passed to 3dmap
   const newParams = useRef<MapParams>();
 
   // This is set to true when rendering should be paused
   const pause = useRef<boolean>(false);
 
+  const mapRef = useRef<GlMap>();
   const canvasRef = useRef<HTMLCanvasElement>();
-  const [canvasWidth, setCanvasWidth] = useState(window.innerWidth);
+  const width = applyPixelRatio(canvasRef.current?.clientWidth ?? window.innerWidth);
   // This constant is used for the height the first frame that is rendered only.
-  const [canvasHeight, setCanvasHeight] = useState(493);
+  const height = applyPixelRatio(canvasRef.current?.clientHeight ?? 493);
 
-  const updateCanvasSize = useCallback((canvas: HTMLCanvasElement) => {
-    const canvasRect = canvas.getBoundingClientRect();
+  // Hack to rerender when window size changes or when ref is set.
+  const [onSizeChange, sizeChangeCounter] = useRerenderer();
 
-    canvas.width = applyScaleFactor(canvasRect.width);
-    canvas.height = applyScaleFactor(canvasRect.height);
+  const render = useCallback(() => requestAnimationFrame(animationFrameCallback), []);
 
-    setCanvasWidth(canvasRect.width);
-    setCanvasHeight(canvasRect.height);
-  }, []);
-
-  // This is called when the canvas has been rendered the first time and initializes the gl context
-  // and the map.
-  const canvasCallback = useCallback(async (canvas: HTMLCanvasElement | null) => {
-    if (!canvas) {
-      return;
-    }
-
-    updateCanvasSize(canvas);
-
-    const gl = canvas.getContext('webgl2', { antialias: true })!;
-
-    const map = new GlMap(
-      gl,
-      await getMapData(),
-      props.location,
-      props.connectionState,
-      () => (pause.current = true),
-    );
-
-    // Function to be used when calling requestAnimationFrame
-    animationFrameCallback.current = (now: number) => {
+  const animationFrameCallback = useCallback(
+    (now: number) => {
       now *= 0.001; // convert to seconds
 
       // Propagate location change to the map
       if (newParams.current) {
-        map.setLocation(
+        mapRef.current?.setLocation(
           newParams.current.location,
           newParams.current.connectionState,
           now,
@@ -131,15 +103,36 @@ function MapInner(props: MapInnerProps) {
         newParams.current = undefined;
       }
 
-      map.draw(now);
+      mapRef.current?.draw(now);
 
       // Stops rendering if pause is true. This happens when there is no ongoing movements
       if (!pause.current) {
-        requestAnimationFrame(animationFrameCallback.current!);
+        render();
       }
-    };
+    },
+    [props.animate],
+  );
 
-    requestAnimationFrame(animationFrameCallback.current);
+  // This is called when the canvas has been rendered the first time and initializes the gl context
+  // and the map.
+  const canvasCallback = useCallback(async (canvas: HTMLCanvasElement | null) => {
+    if (!canvas) {
+      return;
+    }
+
+    onSizeChange();
+
+    const gl = canvas.getContext('webgl2', { antialias: true })!;
+
+    mapRef.current = new GlMap(
+      gl,
+      await getMapData(),
+      props.location,
+      props.connectionState,
+      () => (pause.current = true),
+    );
+
+    render();
   }, []);
 
   // Set new params when the location or connection state has changed, and unpause if paused
@@ -151,41 +144,47 @@ function MapInner(props: MapInnerProps) {
 
     if (pause.current) {
       pause.current = false;
-      if (animationFrameCallback.current) {
-        requestAnimationFrame(animationFrameCallback.current);
-      }
+      render();
     }
   }, [props.location, props.connectionState]);
 
+  useEffect(() => {
+    mapRef.current?.updateViewport();
+    render();
+  }, [width, height, sizeChangeCounter]);
+
   // Resize canvas if window size changes
   useEffect(() => {
-    const resizeCallback = () => {
-      if (canvasRef.current) {
-        updateCanvasSize(canvasRef.current);
-      }
-    };
+    addEventListener('resize', onSizeChange);
+    return () => removeEventListener('resize', onSizeChange);
+  }, []);
 
-    addEventListener('resize', resizeCallback);
-    return () => removeEventListener('resize', resizeCallback);
-  }, [updateCanvasSize]);
+  useEffect(() => {
+    const unsubscribe = window.ipc.window.listenScaleFactorChange(onSizeChange);
+    return () => unsubscribe();
+  }, []);
 
   // Log new scale factor if it changes
-  useEffect(() => log.verbose('Map canvas scale factor:', window.devicePixelRatio), [
-    window.devicePixelRatio,
-  ]);
+  useEffect(() => {
+    log.verbose(`Map canvas scale factor: ${window.devicePixelRatio}, using: ${getPixelRatio()}`);
+  }, [window.devicePixelRatio]);
 
   const combinedCanvasRef = useCombinedRefs(canvasRef, canvasCallback);
 
-  return (
-    <StyledCanvas
-      ref={combinedCanvasRef}
-      width={applyScaleFactor(canvasWidth)}
-      height={applyScaleFactor(canvasHeight)}
-    />
-  );
+  return <StyledCanvas ref={combinedCanvasRef} width={width} height={height} />;
 }
 
-function applyScaleFactor(dimension: number): number {
-  const scaleFactor = window.devicePixelRatio;
-  return Math.floor(dimension * scaleFactor);
+function getPixelRatio(): number {
+  let pixelRatio = window.devicePixelRatio;
+
+  // Wayland renders non-integer values as the next integer and then scales it back down.
+  if (window.env.platform === 'linux') {
+    pixelRatio = Math.ceil(pixelRatio);
+  }
+
+  return pixelRatio;
+}
+
+function applyPixelRatio(dimension: number): number {
+  return Math.floor(dimension * getPixelRatio());
 }

@@ -451,6 +451,10 @@ export default class GlMap {
     this.zoomAnimations = [];
   }
 
+  public updateViewport() {
+    this.gl.viewport(0, 0, this.gl.drawingBufferWidth, this.gl.drawingBufferHeight);
+  }
+
   // Move the location marker to `newCoordinate` (with state `connectionState`).
   // Queues an animation to `newCoordinate` if `animate` is true. Otherwise it moves
   // directly to that location.
