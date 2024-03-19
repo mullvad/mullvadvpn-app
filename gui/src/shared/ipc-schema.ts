@@ -128,6 +128,7 @@ export const ipcSchema = {
     shape: notifyRenderer<IWindowShapeParameters>(),
     focus: notifyRenderer<boolean>(),
     macOsScrollbarVisibility: notifyRenderer<MacOsScrollbarVisibility>(),
+    scaleFactorChange: notifyRenderer<void>(),
   },
   navigation: {
     reset: notifyRenderer<void>(),
