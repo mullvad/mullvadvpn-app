@@ -1039,6 +1039,8 @@ pub struct InternalBridgeConstraints {
 /// Options to override for a particular relay to use instead of the ones specified in the relay
 /// list
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RelayOverride {
     /// Hostname for which to override the given options
     pub hostname: Hostname,
