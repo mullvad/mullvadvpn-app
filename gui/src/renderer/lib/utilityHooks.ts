@@ -69,3 +69,9 @@ export function useNormalBridgeSettings() {
   const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
   return bridgeSettings.normal;
 }
+
+export function useRerenderer(): [() => void, number] {
+  const [count, setCount] = useState(0);
+  const rerender = useCallback(() => setCount((count) => count + 1), []);
+  return [rerender, count];
+}
