@@ -20,10 +20,12 @@ import net.mullvad.mullvadvpn.model.PlayPurchaseInitResult
 import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyResult
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.RelayList
+import net.mullvad.mullvadvpn.model.RelayOverride
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.RemoveDeviceEvent
 import net.mullvad.mullvadvpn.model.RemoveDeviceResult
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.model.SettingsPatchError
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.model.UpdateCustomListResult
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
@@ -202,6 +204,15 @@ class MullvadDaemon(
     fun updateCustomList(customList: CustomList): UpdateCustomListResult =
         updateCustomList(daemonInterfaceAddress, customList)
 
+    fun clearAllRelayOverrides() = clearAllRelayOverrides(daemonInterfaceAddress)
+
+    fun applyJsonSettings(json: String) = applyJsonSettings(daemonInterfaceAddress, json)
+
+    fun exportJsonSettings(): String = exportJsonSettings(daemonInterfaceAddress)
+
+    fun setRelayOverride(relayOverride: RelayOverride) =
+        setRelayOverride(daemonInterfaceAddress, relayOverride)
+
     fun onDestroy() {
         onSettingsChange.unsubscribeAll()
         onTunnelStateChange.unsubscribeAll()
@@ -322,6 +333,20 @@ class MullvadDaemon(
         daemonInterfaceAddress: Long,
         customList: CustomList
     ): UpdateCustomListResult
+
+    private external fun clearAllRelayOverrides(daemonInterfaceAddress: Long)
+
+    private external fun applyJsonSettings(
+        daemonInterfaceAddress: Long,
+        json: String
+    ): SettingsPatchError
+
+    private external fun exportJsonSettings(daemonInterfaceAddress: Long): String
+
+    private external fun setRelayOverride(
+        daemonInterfaceAddress: Long,
+        relayOverride: RelayOverride
+    )
 
     @Suppress("unused")
     private fun notifyAppVersionInfoEvent(appVersionInfo: AppVersionInfo) {

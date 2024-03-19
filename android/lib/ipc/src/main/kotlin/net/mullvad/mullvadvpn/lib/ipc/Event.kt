@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyResult
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RemoveDeviceResult
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.model.SettingsPatchError
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.model.UpdateCustomListResult
 
@@ -70,6 +71,10 @@ sealed class Event : Message.EventMessage() {
     @Parcelize data class CreateCustomListResultEvent(val result: CreateCustomListResult) : Event()
 
     @Parcelize data class UpdateCustomListResultEvent(val result: UpdateCustomListResult) : Event()
+
+    @Parcelize data class ExportJsonSettingsResult(val json: String) : Event()
+
+    @Parcelize data class ApplyJsonSettingsResult(val error: SettingsPatchError?) : Event()
 
     companion object {
         private const val MESSAGE_KEY = "event"
