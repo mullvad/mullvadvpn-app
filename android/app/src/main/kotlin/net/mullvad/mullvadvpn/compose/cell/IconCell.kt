@@ -25,13 +25,14 @@ private fun PreviewIconCell() {
 @Composable
 fun IconCell(
     iconId: Int?,
-    contentDescription: String? = null,
     title: String,
+    modifier: Modifier = Modifier,
+    contentDescription: String? = null,
     titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
     titleColor: Color = MaterialTheme.colorScheme.onPrimary,
     onClick: () -> Unit = {},
     background: Color = MaterialTheme.colorScheme.primary,
-    enabled: Boolean = true,
+    enabled: Boolean = true
 ) {
     BaseCell(
         headlineContent = {
@@ -49,6 +50,7 @@ fun IconCell(
         },
         onCellClicked = onClick,
         background = background,
-        isRowEnabled = enabled
+        isRowEnabled = enabled,
+        modifier = modifier
     )
 }

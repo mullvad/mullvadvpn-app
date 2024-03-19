@@ -92,7 +92,13 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        serviceConnectionManager.onVpnPermissionResult(resultCode == Activity.RESULT_OK)
+        // super call is needed for return value when opening file.
+        super.onActivityResult(requestCode, resultCode, resultData)
+
+        // Ensure we are responding to the correct request
+        if (requestCode == REQUEST_VPN_PERMISSION_RESULT_CODE) {
+            serviceConnectionManager.onVpnPermissionResult(resultCode == Activity.RESULT_OK)
+        }
     }
 
     override fun onStop() {
@@ -111,6 +117,10 @@ class MainActivity : ComponentActivity() {
     private fun requestVpnPermission() {
         val intent = VpnService.prepare(this)
 
-        startActivityForResult(intent, 0)
+        startActivityForResult(intent, REQUEST_VPN_PERMISSION_RESULT_CODE)
+    }
+
+    companion object {
+        private const val REQUEST_VPN_PERMISSION_RESULT_CODE = 0
     }
 }
