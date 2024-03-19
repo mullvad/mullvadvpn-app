@@ -15,8 +15,8 @@ use crate::network_monitor::{start_packet_monitor, MonitorOptions};
 
 use super::{config::TEST_CONFIG, helpers, TestContext};
 
-const CHECKER_PATH_WINDOWS: &str = "E:\\connection-checker.exe";
-const CHECKER_PATH_LINUX: &str = "/tmp/connection-checker";
+const CHECKER_FILENAME_WINDOWS: &str = "connection-checker.exe";
+const CHECKER_FILENAME_UNIX: &str = "connection-checker";
 const LEAK_DESTINATION: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1, 1, 1, 1)), 1337);
 
 /// Test that split tunneling works by asserting the following:
@@ -94,7 +94,7 @@ struct ConnChecker {
     mullvad_client: MullvadProxyClient,
 
     /// Path to the process binary.
-    executable_path: &'static str,
+    executable_path: String,
 
     /// Whether the process should be split when spawned. Needed on Linux.
     split: bool,
@@ -123,16 +123,17 @@ struct ConnectonStatus {
 
 impl ConnChecker {
     pub fn new(rpc: ServiceClient, mullvad_client: MullvadProxyClient) -> Self {
+        let artifacts_dir = &TEST_CONFIG.artifacts_dir;
+        let executable_path = match TEST_CONFIG.os {
+            Os::Linux | Os::Macos => format!("{artifacts_dir}/{CHECKER_FILENAME_UNIX}"),
+            Os::Windows => format!("{artifacts_dir}\\{CHECKER_FILENAME_WINDOWS}"),
+        };
+
         Self {
             rpc,
             mullvad_client,
             split: false,
-
-            executable_path: match TEST_CONFIG.os {
-                Os::Windows => CHECKER_PATH_WINDOWS,
-                Os::Linux => CHECKER_PATH_LINUX,
-                Os::Macos => todo!("MacOS"),
-            },
+            executable_path,
         }
     }
 
@@ -161,7 +162,7 @@ impl ConnChecker {
             ]
             .map(String::from)
             .to_vec(),
-            ..SpawnOpts::new(self.executable_path)
+            ..SpawnOpts::new(&self.executable_path)
         };
 
         let pid = self.rpc.spawn(opts).await?;
@@ -184,7 +185,7 @@ impl ConnChecker {
             Os::Linux => { /* linux programs can't be split until they are spawned */ }
             Os::Windows => {
                 self.mullvad_client
-                    .add_split_tunnel_app(self.executable_path)
+                    .add_split_tunnel_app(&self.executable_path)
                     .await?;
                 self.mullvad_client.set_split_tunnel_state(true).await?;
             }
@@ -204,7 +205,7 @@ impl ConnChecker {
             Os::Windows => {
                 self.mullvad_client.set_split_tunnel_state(false).await?;
                 self.mullvad_client
-                    .remove_split_tunnel_app(self.executable_path)
+                    .remove_split_tunnel_app(&self.executable_path)
                     .await?;
             }
             Os::Macos => todo!("MacOS"),
