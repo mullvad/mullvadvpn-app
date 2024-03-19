@@ -67,6 +67,14 @@ fun UiDevice.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove(
     }
 }
 
+fun UiDevice.clickOkOnVpnPermissionPrompt(timeout: Long = DEFAULT_INTERACTION_TIMEOUT) {
+    try {
+        findObjectWithTimeout(By.text("OK"), timeout = timeout).click()
+    } catch (e: IllegalArgumentException) {
+        // This is OK since it means the dialog wasn't shown and we can continue.
+    }
+}
+
 fun UiObject2.findObjectWithTimeout(
     selector: BySelector,
     timeout: Long = DEFAULT_INTERACTION_TIMEOUT

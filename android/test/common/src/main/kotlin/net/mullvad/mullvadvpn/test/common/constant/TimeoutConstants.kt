@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.test.common.constant
 
+const val AFTER_SCROLL_INTERACTION_TIMEOUT = 16000L
 const val APP_LAUNCH_TIMEOUT = 5000L
 const val CONNECTION_TIMEOUT = 30000L
 const val DEFAULT_INTERACTION_TIMEOUT = 3000L

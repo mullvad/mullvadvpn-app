@@ -4,10 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Button
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import net.mullvad.mullvadvpn.lib.endpoint.CustomApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
+import net.mullvad.mullvadvpn.test.common.constant.AFTER_SCROLL_INTERACTION_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.APP_LAUNCH_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.CONNECTION_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_INTERACTION_TIMEOUT
@@ -115,8 +117,12 @@ class AppInteractor(
         device.findObjectWithTimeout(By.res("top_bar_account_button")).click()
     }
 
-    fun clickListItemByText(text: String) {
-        device.findObjectWithTimeout(By.text(text)).click()
+    fun clickListItemByText(text: String, timeout: Long = DEFAULT_INTERACTION_TIMEOUT) {
+        device.findObjectWithTimeout(By.text(text), timeout).click()
+    }
+
+    fun clickListItemByRes(res: String, timeout: Long = DEFAULT_INTERACTION_TIMEOUT) {
+        device.findObjectWithTimeout(By.res(res), timeout).click()
     }
 
     fun clickActionButtonByText(text: String) {
@@ -130,6 +136,13 @@ class AppInteractor(
     fun attemptToRemoveDevice() {
         device.findObjectWithTimeout(By.desc("Remove")).click()
         clickActionButtonByText("Yes, log out device")
+    }
+
+    fun scrollToListItemAndClick(listTag: String, itemRes: String) {
+        device
+            .findObjectWithTimeout(By.res(listTag))
+            .scrollUntil(Direction.DOWN, Until.findObject(By.res(itemRes)))
+        clickListItemByRes(itemRes, AFTER_SCROLL_INTERACTION_TIMEOUT)
     }
 
     private fun String.extractIpAddress(): String {
