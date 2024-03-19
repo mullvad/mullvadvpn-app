@@ -112,37 +112,6 @@ extension PacketTunnelActor {
         // Prevent tunnel from reconnecting when in blocked state.
         guard case .error = state else { return changed }
         return false
-//        switch state {
-//        case var .connecting(connState):
-//            if setCurrentKeyPolicy(&connState.keyPolicy) {
-//                state = .connecting(connState)
-//                return true
-//            }
-//
-//        case var .connected(connState):
-//            if setCurrentKeyPolicy(&connState.keyPolicy) {
-//                state = .connected(connState)
-//                return true
-//            }
-//
-//        case var .reconnecting(connState):
-//            if setCurrentKeyPolicy(&connState.keyPolicy) {
-//                state = .reconnecting(connState)
-//                return true
-//            }
-//
-//        case var .error(blockedState):
-//            if setCurrentKeyPolicy(&blockedState.keyPolicy) {
-//                state = .error(blockedState)
-//
-//                // Prevent tunnel from reconnecting when in blocked state.
-//                return false
-//            }
-//
-//        case .disconnected, .disconnecting, .initial:
-//            break
-//        }
-//        return false
     }
 
     /**
