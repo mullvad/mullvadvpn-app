@@ -29,8 +29,6 @@ pub async fn test_split_tunnel(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    helpers::disconnect_and_wait(&mut mullvad_client).await?;
-
     let mut checker = ConnChecker::new(rpc.clone(), mullvad_client.clone());
 
     // Test that program is behaving when we are disconnected
@@ -82,7 +80,6 @@ pub async fn test_split_tunnel(
     handle.unsplit().await?;
     (handle.assert_secure().await)
         .with_context(|| "Test connected and being unsplit while running")?;
-    drop(handle);
 
     Ok(())
 }
