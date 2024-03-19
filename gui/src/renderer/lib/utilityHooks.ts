@@ -69,3 +69,12 @@ export function useNormalBridgeSettings() {
   const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
   return bridgeSettings.normal;
 }
+
+// This hook returns a function that can be used to force a rerender of a component, and
+// additionally also returns a variable that can be used to trigger effects as a result. This is a
+// hack and should be avoided unless there are no better ways.
+export function useRerenderer(): [() => void, number] {
+  const [count, setCount] = useState(0);
+  const rerender = useCallback(() => setCount((count) => count + 1), []);
+  return [rerender, count];
+}
