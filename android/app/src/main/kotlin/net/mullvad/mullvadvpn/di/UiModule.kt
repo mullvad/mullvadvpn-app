@@ -20,6 +20,7 @@ import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.ProblemReportRepository
+import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -60,7 +61,9 @@ import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.PaymentViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
+import net.mullvad.mullvadvpn.viewmodel.ResetServerIpOverridesConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
+import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplashViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
@@ -95,6 +98,7 @@ val uiModule = module {
     single { InetAddressValidator.getInstance() }
     single { androidContext().resources }
     single { androidContext().assets }
+    single { androidContext().contentResolver }
 
     single { ChangelogRepository(get(named(APP_PREFERENCES_NAME)), get()) }
 
@@ -179,6 +183,8 @@ val uiModule = module {
     }
     viewModel { CustomListsViewModel(get(), get()) }
     viewModel { parameters -> DeleteCustomListConfirmationViewModel(parameters.get(), get()) }
+    viewModel { ServerIpOverridesViewModel(get(), get(), get(), get()) }
+    viewModel { ResetServerIpOverridesConfirmationViewModel(get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { NoDaemonViewModel(get()) }
