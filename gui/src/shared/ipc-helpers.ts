@@ -6,7 +6,7 @@ import { capitalize } from './string-helpers';
 type Handler<T, R> = (callback: (arg: T) => R) => void;
 type Sender<T, R> = (arg: T) => R;
 type Notifier<T> = ((arg: T) => void) | undefined;
-type Listener<T> = (callback: (arg: T) => void) => void;
+type Listener<T> = (callback: (arg: T) => void) => () => void;
 
 interface MainToRenderer<T> {
   direction: 'main-to-renderer';
@@ -154,7 +154,9 @@ export function notifyRenderer<T>(): MainToRenderer<T> {
     direction: 'main-to-renderer',
     send: notifyRendererImpl,
     receive: (event, ipcRenderer) => (fn: (value: T) => void) => {
-      ipcRenderer.on(event, (_event, newState: T) => fn(newState));
+      const listener = (_event: unknown, newState: T) => fn(newState);
+      ipcRenderer.on(event, listener);
+      return () => ipcRenderer.off(event, listener);
     },
   };
 }
