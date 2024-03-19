@@ -121,6 +121,8 @@
     <string name="here_is_your_account_number">Her er dit kontonummer. Gem det!</string>
     <string name="hide_account_number">Skjul kontonummer</string>
     <string name="hint_default">Standard</string>
+    <string name="import_overrides_import">Importer</string>
+    <string name="import_overrides_text_title">Importer via tekst</string>
     <string name="in_address">Ind</string>
     <string name="invalid_dns_servers">Tilpassede DNS-serveradresser %1$s er ugyldige</string>
     <string name="invalid_voucher">Kuponkode er ugyldig.</string>
@@ -213,6 +215,9 @@
     <string name="sent">Sendt</string>
     <string name="sent_contact">Hvis det er nødvendigt, kontakter vi dig på %1$s</string>
     <string name="sent_thanks">Tak!</string>
+    <string name="server_ip_overrides_info_first_paragraph">På nogle netværk, hvor der bruges forskellige typer censur, er vores server IP-adresser nogle gange blokeret.</string>
+    <string name="server_ip_overrides_info_second_paragraph">For at omgå dette kan du importere en fil eller en tekst, leveret af vores supportteam, med nye IP-adresser, der tilsidesætter standardadresserne på serverne i visningen Vælg placering.</string>
+    <string name="server_ip_overrides_info_third_paragraph">Hvis du har problemer med at oprette forbindelse til VPN-servere, bedes du kontakte support.</string>
     <string name="set_dns_error">Kan ikke indstille systemets DNS-server. Indsend en problemrapport.</string>
     <string name="set_firewall_policy_error">Kan ikke anvende firewallregler. Fejlfind eller send en problemrapport.</string>
     <string name="settings">Indstillinger</string>

@@ -121,6 +121,8 @@
     <string name="here_is_your_account_number">Hier ist Ihre Kontonummer. Verlieren Sie sie nicht!</string>
     <string name="hide_account_number">Kontonummer verbergen</string>
     <string name="hint_default">Standard</string>
+    <string name="import_overrides_import">Importieren</string>
+    <string name="import_overrides_text_title">Import via Text</string>
     <string name="in_address">Eingehend</string>
     <string name="invalid_dns_servers">Eigene DNS-Server Adressen %1$s sind ungültig</string>
     <string name="invalid_voucher">Der Gutscheincode ist ungültig.</string>
@@ -213,6 +215,9 @@
     <string name="sent">Gesendet</string>
     <string name="sent_contact">Bei Bedarf werden wir Sie über %1$s kontaktieren</string>
     <string name="sent_thanks">Danke!</string>
+    <string name="server_ip_overrides_info_first_paragraph">In einigen Netzwerken, in denen verschiedene Arten der Zensur eingesetzt werden, werden die IP-Adressen unserer Server manchmal blockiert.</string>
+    <string name="server_ip_overrides_info_second_paragraph">Um dies zu umgehen, können Sie eine Datei oder einen von unserem Support-Team bereitgestellten Text mit neuen IP-Adressen importieren, die die Standardadressen der Server in der Ortsauswahl außer Kraft setzen.</string>
+    <string name="server_ip_overrides_info_third_paragraph">Wenn Sie Probleme mit der Verbindung zu VPN-Servern haben, wenden Sie sich bitte an den Support.</string>
     <string name="set_dns_error">Der DNS-Server des Systems konnte nicht eingestellt werden. Bitte senden Sie einen Problembericht.</string>
     <string name="set_firewall_policy_error">Firewall-Regeln können nicht angewendet werden. Bitte beheben Sie das Problem oder senden Sie einen Problembericht.</string>
     <string name="settings">Einstellungen</string>
