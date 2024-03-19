@@ -22,48 +22,74 @@ const DAEMON_LOG_FILENAME: &str = "daemon.log";
 const EARLY_BOOT_LOG_FILENAME: &str = "early-boot-fw.log";
 
 fn main() {
-    let config = cli::get_config();
-
-    let runtime = new_runtime_builder().build().unwrap_or_else(|error| {
-        eprintln!("{}", error.display_chain());
-        std::process::exit(1);
-    });
-
-    if runtime.block_on(rpc_uniqueness_check::is_another_instance_running()) {
-        eprintln!("Another instance of the daemon is already running");
-        std::process::exit(1)
-    }
-
-    let log_dir = init_daemon_logging(config).unwrap_or_else(|error| {
-        eprintln!("{error}");
-        std::process::exit(1)
-    });
-
-    log::trace!("Using configuration: {:?}", config);
-
-    let exit_code = match runtime.block_on(run_platform(config, log_dir)) {
+    let exit_code = match run() {
         Ok(_) => 0,
         Err(error) => {
-            log::error!("{}", error);
+            if logging::is_enabled() {
+                log::error!("{error}");
+            } else {
+                eprintln!("{error}")
+            }
+
             1
         }
     };
+
     log::debug!("Process exiting with code {}", exit_code);
     std::process::exit(exit_code);
 }
 
+fn run() -> Result<(), String> {
+    let config = cli::get_config();
+
+    let runtime = new_runtime_builder()
+        .build()
+        .map_err(|e| e.display_chain().to_string())?;
+
+    match config.command {
+        cli::Command::Daemon => {
+            if runtime.block_on(rpc_uniqueness_check::is_another_instance_running()) {
+                return Err("Another instance of the daemon is already running".into());
+            }
+
+            let log_dir = init_daemon_logging(config)?;
+            log::trace!("Using configuration: {:?}", config);
+
+            runtime.block_on(run_standalone(log_dir))
+        }
+
+        #[cfg(target_os = "linux")]
+        cli::Command::InitializeEarlyBootFirewall => {
+            init_early_boot_logging(config);
+
+            runtime
+                .block_on(crate::early_boot_firewall::initialize_firewall())
+                .map_err(|err| format!("{err}"))
+        }
+
+        #[cfg(target_os = "windows")]
+        cli::Command::RunAsService => {
+            init_logger(config, None)?;
+            system_service::run()
+        }
+
+        #[cfg(target_os = "windows")]
+        cli::Command::RegisterService => {
+            init_logger(config, None)?;
+            system_service::install_service()
+                .inspect(|_| println!("Installed the service."))
+                .map_err(|e| e.display_chain())
+        }
+
+        #[cfg(target_os = "macos")]
+        cli::Command::LaunchDaemonStatus => {
+            std::process::exit(macos_launch_daemon::get_status() as i32);
+        }
+    }
+}
+
+/// Initialize logging to stderr and to file (if configured).
 fn init_daemon_logging(config: &cli::Config) -> Result<Option<PathBuf>, String> {
-    #[cfg(target_os = "linux")]
-    if config.initialize_firewall_and_exit {
-        init_early_boot_logging(config);
-        return Ok(None);
-    }
-
-    #[cfg(target_os = "macos")]
-    if config.launch_daemon_status {
-        return Ok(None);
-    }
-
     let log_dir = get_log_dir(config)?;
     let log_path = |filename| log_dir.as_ref().map(|dir| dir.join(filename));
 
@@ -75,6 +101,7 @@ fn init_daemon_logging(config: &cli::Config) -> Result<Option<PathBuf>, String> 
     Ok(log_dir)
 }
 
+/// Initialize logging to stder and to the [`EARLY_BOOT_LOG_FILENAME`]
 #[cfg(target_os = "linux")]
 fn init_early_boot_logging(config: &cli::Config) {
     // If it's possible to log to the filesystem - attempt to do so, but failing that mustn't stop
@@ -88,6 +115,7 @@ fn init_early_boot_logging(config: &cli::Config) {
     let _ = init_logger(config, None);
 }
 
+/// Initialize logging to stderr and to file (if provided).
 fn init_logger(config: &cli::Config, log_file: Option<PathBuf>) -> Result<(), String> {
     logging::init_logger(
         config.log_level,
@@ -109,44 +137,6 @@ fn get_log_dir(config: &cli::Config) -> Result<Option<PathBuf>, String> {
     } else {
         Ok(None)
     }
-}
-
-#[cfg(windows)]
-async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
-    if config.run_as_service {
-        system_service::run()
-    } else if config.register_service {
-        let install_result = system_service::install_service().map_err(|e| e.display_chain());
-        if install_result.is_ok() {
-            println!("Installed the service.");
-        }
-        install_result
-    } else {
-        run_standalone(log_dir).await
-    }
-}
-
-#[cfg(target_os = "linux")]
-async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
-    if config.initialize_firewall_and_exit {
-        return crate::early_boot_firewall::initialize_firewall()
-            .await
-            .map_err(|err| format!("{err}"));
-    }
-    run_standalone(log_dir).await
-}
-
-#[cfg(target_os = "macos")]
-async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
-    if config.launch_daemon_status {
-        std::process::exit(macos_launch_daemon::get_status() as i32);
-    }
-    run_standalone(log_dir).await
-}
-
-#[cfg(not(any(windows, target_os = "linux", target_os = "macos")))]
-async fn run_platform(_config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
-    run_standalone(log_dir).await
 }
 
 async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
