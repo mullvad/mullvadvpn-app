@@ -121,6 +121,8 @@
     <string name="here_is_your_account_number">Tässä tulee tilisi numero. Laita se talteen!</string>
     <string name="hide_account_number">Piilota tilin numero</string>
     <string name="hint_default">Oletus</string>
+    <string name="import_overrides_import">Tuo</string>
+    <string name="import_overrides_text_title">Tuo tekstinä</string>
     <string name="in_address">Saapuva</string>
     <string name="invalid_dns_servers">Mukautetut DNS-palvelimen osoitteet %1$s ovat virheellisiä</string>
     <string name="invalid_voucher">Kuponkikoodi ei kelpaa.</string>
@@ -213,6 +215,9 @@
     <string name="sent">Lähetetty</string>
     <string name="sent_contact">Tarvittaessa otamme sinuun yhteyttä osoitteeseen %1$s</string>
     <string name="sent_thanks">Kiitos!</string>
+    <string name="server_ip_overrides_info_first_paragraph">Palvelimiemme IP-osoitteet estetään toisinaan joissakin useita erityyppistä sensurointimenetelmiä käyttävissä verkoissa.</string>
+    <string name="server_ip_overrides_info_second_paragraph">Voit kiertää estot tuomalla tukitiimimme toimittaman tiedoston tai tekstin, josta löytyy uusia, palvelimien oletusosoitteet sijainnin valintanäkymässä ohittavia IP-osoitteita.</string>
+    <string name="server_ip_overrides_info_third_paragraph">Jos sinulla on ongelmia yhteyden muodostamisessa VPN-palvelimiin, ota yhteyttä tukeen.</string>
     <string name="set_dns_error">Järjestelmän DNS-palvelimen asettaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="set_firewall_policy_error">Palomuurisääntöjä ei voida käyttää. Suorita vianetsintä tai lähetä ongelmaraportti.</string>
     <string name="settings">Asetukset</string>
