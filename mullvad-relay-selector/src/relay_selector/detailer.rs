@@ -27,6 +27,20 @@ use super::{
     WireguardConfig,
 };
 
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+    #[error("No OpenVPN endpoint could be derived")]
+    NoOpenVPNEndpoint,
+    #[error("No bridge endpoint could be derived")]
+    NoBridgeEndpoint,
+    #[error("The selected relay does not support IPv6")]
+    NoIPv6(Box<Relay>),
+    #[error("Invalid port argument: port {0} is not in any valid Wireguard port range")]
+    PortNotInRange(u16),
+    #[error("Port selection algorithm is broken")]
+    PortSelectionAlgorithm,
+}
+
 /// Constructs a [`MullvadWireguardEndpoint`] with details for how to connect to a Wireguard relay.
 ///
 /// # Returns
@@ -37,7 +51,7 @@ pub fn wireguard_endpoint(
     query: &WireguardRelayQuery,
     data: &WireguardEndpointData,
     relay: &WireguardConfig,
-) -> Option<MullvadWireguardEndpoint> {
+) -> Result<MullvadWireguardEndpoint, Error> {
     match relay {
         WireguardConfig::Singlehop { exit } => wireguard_singlehop_endpoint(query, data, exit),
         WireguardConfig::Multihop { exit, entry } => {
@@ -51,7 +65,7 @@ fn wireguard_singlehop_endpoint(
     query: &WireguardRelayQuery,
     data: &WireguardEndpointData,
     exit: &Relay,
-) -> Option<MullvadWireguardEndpoint> {
+) -> Result<MullvadWireguardEndpoint, Error> {
     let endpoint = {
         let host = get_address_for_wireguard_relay(query, exit)?;
         let port = get_port_for_wireguard_relay(query, data)?;
@@ -64,7 +78,7 @@ fn wireguard_singlehop_endpoint(
         // This will be filled in later, not the relay selector's problem
         psk: None,
     };
-    Some(MullvadWireguardEndpoint {
+    Ok(MullvadWireguardEndpoint {
         peer: peer_config,
         exit_peer: None,
         ipv4_gateway: data.ipv4_gateway,
@@ -82,7 +96,7 @@ fn wireguard_multihop_endpoint(
     data: &WireguardEndpointData,
     exit: &Relay,
     entry: &Relay,
-) -> Option<MullvadWireguardEndpoint> {
+) -> Result<MullvadWireguardEndpoint, Error> {
     let exit_endpoint = {
         let ip = exit.ipv4_addr_in;
         // The port that the exit relay listens for incoming connections from entry
@@ -119,7 +133,7 @@ fn wireguard_multihop_endpoint(
         psk: None,
     };
 
-    Some(MullvadWireguardEndpoint {
+    Ok(MullvadWireguardEndpoint {
         peer: entry,
         exit_peer: Some(exit),
         ipv4_gateway: data.ipv4_gateway,
@@ -128,10 +142,16 @@ fn wireguard_multihop_endpoint(
 }
 
 /// Get the correct IP address for the given relay.
-fn get_address_for_wireguard_relay(query: &WireguardRelayQuery, relay: &Relay) -> Option<IpAddr> {
+fn get_address_for_wireguard_relay(
+    query: &WireguardRelayQuery,
+    relay: &Relay,
+) -> Result<IpAddr, Error> {
     match query.ip_version {
-        Constraint::Any | Constraint::Only(IpVersion::V4) => Some(relay.ipv4_addr_in.into()),
-        Constraint::Only(IpVersion::V6) => relay.ipv6_addr_in.map(|addr| addr.into()),
+        Constraint::Any | Constraint::Only(IpVersion::V4) => Ok(relay.ipv4_addr_in.into()),
+        Constraint::Only(IpVersion::V6) => relay
+            .ipv6_addr_in
+            .map(|addr| addr.into())
+            .ok_or(Error::NoIPv6(Box::new(relay.clone()))),
     }
 }
 
@@ -139,24 +159,18 @@ fn get_address_for_wireguard_relay(query: &WireguardRelayQuery, relay: &Relay) -
 fn get_port_for_wireguard_relay(
     query: &WireguardRelayQuery,
     data: &WireguardEndpointData,
-) -> Option<u16> {
+) -> Result<u16, Error> {
     match query.port {
-        Constraint::Any => {
-            let random_port = select_random_port(&data.port_ranges);
-            if random_port.is_none() {
-                log::error!("Port selection algorithm is broken!");
-            }
-            random_port
-        }
+        Constraint::Any => select_random_port(&data.port_ranges),
         Constraint::Only(port) => {
             if data
                 .port_ranges
                 .iter()
                 .any(|range| (range.0 <= port && port <= range.1))
             {
-                Some(port)
+                Ok(port)
             } else {
-                None
+                Err(Error::PortNotInRange(port))
             }
         }
     }
@@ -174,13 +188,13 @@ fn get_port_for_wireguard_relay(
 /// # Returns
 /// - `Option<u16>`: A randomly selected port number within the given ranges, or `None` if
 ///   the input is empty or the total number of available ports is zero.
-fn select_random_port(port_ranges: &[(u16, u16)]) -> Option<u16> {
+fn select_random_port(port_ranges: &[(u16, u16)]) -> Result<u16, Error> {
     use rand::Rng;
     let get_port_amount = |range: &(u16, u16)| -> u64 { (1 + range.1 - range.0) as u64 };
     let port_amount: u64 = port_ranges.iter().map(get_port_amount).sum();
 
     if port_amount < 1 {
-        return None;
+        return Err(Error::PortSelectionAlgorithm);
     }
 
     let mut port_index = rand::thread_rng().gen_range(0..port_amount);
@@ -188,11 +202,11 @@ fn select_random_port(port_ranges: &[(u16, u16)]) -> Option<u16> {
     for range in port_ranges.iter() {
         let ports_in_range = get_port_amount(range);
         if port_index < ports_in_range {
-            return Some(port_index as u16 + range.0);
+            return Ok(port_index as u16 + range.0);
         }
         port_index -= ports_in_range;
     }
-    None
+    Err(Error::PortSelectionAlgorithm)
 }
 
 /// Constructs an [`Endpoint`] with details for how to connect to an OpenVPN relay.
@@ -206,7 +220,7 @@ pub fn openvpn_endpoint(
     query: &OpenVpnRelayQuery,
     data: &OpenVpnEndpointData,
     relay: &Relay,
-) -> Option<Endpoint> {
+) -> Result<Endpoint, Error> {
     // If `bridge_mode` is true, this function may only return endpoints which use TCP, not UDP.
     if BridgeQuery::should_use_bridge(&query.bridge_settings) {
         openvpn_bridge_endpoint(&query.port, data, relay)
@@ -220,13 +234,14 @@ fn openvpn_singlehop_endpoint(
     port_constraint: &Constraint<TransportPort>,
     data: &OpenVpnEndpointData,
     exit: &Relay,
-) -> Option<Endpoint> {
+) -> Result<Endpoint, Error> {
     use rand::seq::IteratorRandom;
     data.ports
         .iter()
         .filter(|&endpoint| compatible_openvpn_port_combo(port_constraint, endpoint))
         .choose(&mut rand::thread_rng())
         .map(|endpoint| Endpoint::new(exit.ipv4_addr_in, endpoint.port, endpoint.protocol))
+        .ok_or(Error::NoOpenVPNEndpoint)
 }
 
 /// Configure an endpoint that will be used together with a bridge.
@@ -238,7 +253,7 @@ fn openvpn_bridge_endpoint(
     port_constraint: &Constraint<TransportPort>,
     data: &OpenVpnEndpointData,
     exit: &Relay,
-) -> Option<Endpoint> {
+) -> Result<Endpoint, Error> {
     use rand::seq::IteratorRandom;
     data.ports
         .iter()
@@ -246,6 +261,7 @@ fn openvpn_bridge_endpoint(
         .filter(|endpoint| compatible_openvpn_port_combo(port_constraint, endpoint))
         .choose(&mut rand::thread_rng())
         .map(|endpoint| Endpoint::new(exit.ipv4_addr_in, endpoint.port, endpoint.protocol))
+        .ok_or(Error::NoBridgeEndpoint)
 }
 
 /// Returns true if `port_constraint` can be used to connect to `endpoint`.

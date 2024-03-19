@@ -1,6 +1,6 @@
 //! The implementation of the relay selector.
 
-mod detailer;
+pub mod detailer;
 mod helpers;
 mod matcher;
 mod parsed_relays;
@@ -37,7 +37,7 @@ use talpid_types::{
     ErrorExt,
 };
 
-use crate::error::{EndpointError, Error};
+use crate::error::{EndpointErrorDetails, Error};
 
 use self::{
     detailer::{openvpn_endpoint, wireguard_endpoint},
@@ -638,7 +638,10 @@ impl RelaySelector {
             &parsed_relays.parsed_list().wireguard,
             relay,
         )
-        .ok_or(EndpointError::from_wireguard(relay.clone()))
+        .map_err(|internal| Error::NoEndpoint {
+            internal,
+            relay: EndpointErrorDetails::from_wireguard(relay.clone()),
+        })
     }
 
     fn get_wireguard_obfuscator(
@@ -709,7 +712,10 @@ impl RelaySelector {
             &parsed_relays.parsed_list().openvpn,
             relay,
         )
-        .ok_or(EndpointError::from_openvpn(relay.clone()))
+        .map_err(|internal| Error::NoEndpoint {
+            internal,
+            relay: EndpointErrorDetails::from_openvpn(relay.clone()),
+        })
     }
 
     /// Selects a suitable bridge based on the specified settings, relay information, and transport protocol.
