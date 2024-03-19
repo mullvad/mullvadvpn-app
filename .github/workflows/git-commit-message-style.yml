@@ -9,7 +9,7 @@ jobs:
     name: Check commit message style
     runs-on: ubuntu-latest
     steps:
-      - name: Check against guidlines
+      - name: Check against guidelines
         uses: mristin/opinionated-commit-message@v3.1.0
         with:
           # Commit messages are allowed to be subject only, no body
