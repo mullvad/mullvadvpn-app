@@ -1,4 +1,6 @@
 //! This module is responsible for filtering the whole relay list based on queries.
+use std::collections::HashSet;
+
 use mullvad_types::{
     constraints::{Constraint, Match},
     custom_list::CustomListsSettings,
@@ -87,21 +89,20 @@ impl<T: EndpointMatcher> RelayMatcher<T> {
         match &self.locations {
             Constraint::Any => shortlist.cloned().collect(),
             Constraint::Only(locations) => {
-                let mut included = std::collections::HashSet::new();
-                let mut excluded = std::collections::HashSet::new();
-                for relay in shortlist {
-                    for location in locations {
-                        if location.is_country() && relay.include_in_country {
-                            included.insert(relay.clone());
-                        } else {
-                            excluded.insert(relay.clone());
-                        };
-                    }
+                let mut included = HashSet::new();
+                let mut excluded = HashSet::new();
+                for location in locations {
+                    let (included_in_country, not_included_in_country): (Vec<_>, Vec<_>) =
+                        shortlist
+                            .clone()
+                            .partition(|relay| location.is_country() && relay.include_in_country);
+                    included.extend(included_in_country);
+                    excluded.extend(not_included_in_country);
                 }
                 if included.is_empty() {
-                    excluded.into_iter().collect()
+                    excluded.into_iter().cloned().collect()
                 } else {
-                    included.into_iter().collect()
+                    included.into_iter().cloned().collect()
                 }
             }
         }
