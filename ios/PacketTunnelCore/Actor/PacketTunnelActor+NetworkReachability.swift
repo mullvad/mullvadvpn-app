@@ -51,35 +51,14 @@ extension PacketTunnelActor {
             return false
         }
 
-        switch state {
-        case var .connecting(connState):
-            if mutateConnectionState(&connState) {
-                state = .connecting(connState)
+        if !state.mutateConnectionState(mutateConnectionState) {
+            state.mutateBlockedState { blockedState in
+                if blockedState.networkReachability != newReachability {
+                    blockedState.networkReachability = newReachability
+                    return true
+                }
+                return false
             }
-
-        case var .connected(connState):
-            if mutateConnectionState(&connState) {
-                state = .connected(connState)
-            }
-
-        case var .reconnecting(connState):
-            if mutateConnectionState(&connState) {
-                state = .reconnecting(connState)
-            }
-
-        case var .disconnecting(connState):
-            if mutateConnectionState(&connState) {
-                state = .disconnecting(connState)
-            }
-
-        case var .error(blockedState):
-            if blockedState.networkReachability != newReachability {
-                blockedState.networkReachability = newReachability
-                state = .error(blockedState)
-            }
-
-        case .initial, .disconnected:
-            break
         }
     }
 }
