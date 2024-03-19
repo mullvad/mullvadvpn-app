@@ -21,8 +21,5 @@
   # Sensitive screens currently prevent screenshots.
   - android_prevent_screenshot
 
-  # Will be investigate in the externally tracked issue DROID-529.
-  - android_tapjacking
-
   # We've currently decided to support Android 8.
   - android_manifest_insecure_minsdk
