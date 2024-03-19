@@ -4,11 +4,18 @@ import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.withContext
+import net.mullvad.mullvadvpn.lib.ipc.Event.ApplyJsonSettingsResult
+import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
+import net.mullvad.mullvadvpn.lib.ipc.Request
+import net.mullvad.mullvadvpn.lib.ipc.events
 import net.mullvad.mullvadvpn.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.model.DnsOptions
@@ -24,7 +31,8 @@ import net.mullvad.mullvadvpn.util.flatMapReadyConnectionOrDefault
 
 class SettingsRepository(
     private val serviceConnectionManager: ServiceConnectionManager,
-    dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val messageHandler: MessageHandler,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     val settingsUpdates: StateFlow<Settings?> =
         serviceConnectionManager.connectionState
@@ -92,4 +100,11 @@ class SettingsRepository(
     fun setLocalNetworkSharing(isEnabled: Boolean) {
         serviceConnectionManager.settingsListener()?.allowLan = isEnabled
     }
+
+    suspend fun applySettingsPatch(json: String) =
+        withContext(dispatcher) {
+            val deferred = async { messageHandler.events<ApplyJsonSettingsResult>().first() }
+            messageHandler.trySendRequest(Request.ApplyJsonSettings(json))
+            deferred.await()
+        }
 }
