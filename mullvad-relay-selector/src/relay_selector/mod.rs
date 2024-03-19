@@ -433,6 +433,30 @@ impl RelaySelector {
         self.get_relay_with_order(&RETRY_ORDER, retry_attempt)
     }
 
+    /// Peek at which [`TunnelType`] that would be returned for a certain connection attempt for a given
+    /// [`SelectorConfig`]. Returns [`Option::None`] if the given config would return a custom
+    /// tunnel endpoint.
+    ///
+    /// # Note
+    /// This function is only really useful for testing-purposes. It is exposed to ease testing of
+    /// other mullvad crates which depend on the retry behaviour of [`RelaySelector`].
+    pub fn would_return(connection_attempt: usize, config: &SelectorConfig) -> Option<TunnelType> {
+        let config = SpecializedSelectorConfig::from(config);
+        match config {
+            // This case is not really interesting
+            SpecializedSelectorConfig::Custom(_) => None,
+            SpecializedSelectorConfig::Normal(config) => Some(
+                Self::pick_and_merge_query(
+                    &RETRY_ORDER,
+                    RelayQuery::from(config),
+                    connection_attempt,
+                )
+                .tunnel_protocol
+                .unwrap_or(TunnelType::Wireguard),
+            ),
+        }
+    }
+
     /// Returns a random relay and relay endpoint matching the current constraints defined by
     /// `retry_order` corresponsing to `retry_attempt`.
     pub fn get_relay_with_order(

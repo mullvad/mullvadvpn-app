@@ -1435,26 +1435,18 @@ mod test {
         );
     }
 
-    // TODO(markus): `preferred_tunnel_constraints` is slated for removal - consider writing a new test which
-    // does not depend on relay selector internals.
-    // /// Test whether the relay selector selects wireguard often enough, given no special
-    // /// constraints, to verify that the device is valid
-    // #[test]
-    // fn test_validates_by_default() {
-    //     for attempt in 0.. {
-    //         let should_validate =
-    //             TunnelStateChangeHandler::should_check_validity_on_attempt(attempt);
-    //         let (_, _, tunnel_type) =
-    //             RelaySelector::preferred_tunnel_constraints(attempt.try_into().unwrap());
-    //         assert_eq!(
-    //             tunnel_type,
-    //             TunnelType::Wireguard,
-    //             "failed on attempt {attempt}"
-    //         );
-    //         if should_validate {
-    //             // Now that we've triggered a device check, we can give up
-    //             break;
-    //         }
-    //     }
-    // }
+    /// Test whether the relay selector selects wireguard often enough, given no special constraints.
+    /// A Wireguard relay must be used to verify that the device is valid.
+    #[test]
+    fn test_validates_by_default() {
+        use mullvad_relay_selector::{RelaySelector, SelectorConfig};
+        use talpid_types::net::TunnelType;
+        // No special relay constraints / user settings are assumed
+        let config = SelectorConfig::default();
+        // It ought to be enough that the first 3 connection attempts will yield a Wireguard relay
+        for attempt in 0..3 {
+            let typ = RelaySelector::would_return(attempt, &config).unwrap();
+            assert_eq!(typ, TunnelType::Wireguard);
+        }
+    }
 }
