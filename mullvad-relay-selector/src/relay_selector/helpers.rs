@@ -29,18 +29,18 @@ pub fn random<'a, A: PartialEq>(
 /// Picks a relay using [pick_random_relay_fn], using the `weight` member of each relay
 /// as the weight function.
 pub fn pick_random_relay(relays: &[Relay]) -> Option<&Relay> {
-    pick_random_relay_fn(relays, |relay| relay.weight)
+    pick_random_relay_weighted(relays, |relay| relay.weight)
 }
 
 /// Pick a random relay from the given slice. Will return `None` if the given slice is empty.
 /// If all of the relays have a weight of 0, one will be picked at random without bias,
 /// otherwise roulette wheel selection will be used to pick only relays with non-zero
 /// weights.
-pub fn pick_random_relay_fn<RelayType>(
+pub fn pick_random_relay_weighted<RelayType>(
     relays: &[RelayType],
-    weight_fn: impl Fn(&RelayType) -> u64,
+    weight: impl Fn(&RelayType) -> u64,
 ) -> Option<&RelayType> {
-    let total_weight: u64 = relays.iter().map(&weight_fn).sum();
+    let total_weight: u64 = relays.iter().map(&weight).sum();
     let mut rng = thread_rng();
     if total_weight == 0 {
         relays.choose(&mut rng)
@@ -64,7 +64,7 @@ pub fn pick_random_relay_fn<RelayType>(
             relays
                 .iter()
                 .find(|relay| {
-                    i = i.saturating_sub(weight_fn(relay));
+                    i = i.saturating_sub(weight(relay));
                     i == 0
                 })
                 .expect("At least one relay must've had a weight above 0"),
