@@ -1,5 +1,5 @@
 //! This module is responsible for filtering the whole relay list based on queries.
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
 
 use mullvad_types::{
     constraints::{Constraint, Match},
@@ -21,9 +21,7 @@ pub fn new_filter_matching_relay_list<'a, R: Iterator<Item = &'a Relay> + Clone>
     relays: R,
     custom_lists: &CustomListsSettings,
 ) -> Vec<Relay> {
-    // TODO: `ResolvedLocationConstraint` does not need to take any ownership of anything (?)
-    let locations =
-        ResolvedLocationConstraint::from_constraint(query.location.clone(), custom_lists);
+    let locations = ResolvedLocationConstraint::from_constraint(&query.location, custom_lists);
     let shortlist = relays
             // Filter on tunnel type
             .filter(|relay| filter_tunnel_type(&query.tunnel_protocol, relay))
@@ -67,9 +65,8 @@ pub fn filter_matching_bridges<'a, R: Iterator<Item = &'a Relay> + Clone>(
     relays: R,
     custom_lists: &CustomListsSettings,
 ) -> Vec<Relay> {
-    // TODO: Remove clone
     let locations =
-        ResolvedLocationConstraint::from_constraint(constraints.location.clone(), custom_lists);
+        ResolvedLocationConstraint::from_constraint(&constraints.location, custom_lists);
     relays
             // Filter on active relays
             .filter(|relay| filter_on_active(relay))
@@ -94,7 +91,10 @@ pub const fn filter_on_active(relay: &Relay) -> bool {
 }
 
 /// Returns whether `relay` satisfy the location constraint posed by `filter`.
-pub fn filter_on_location(filter: &Constraint<ResolvedLocationConstraint>, relay: &Relay) -> bool {
+pub fn filter_on_location(
+    filter: &Constraint<ResolvedLocationConstraint<'_>>,
+    relay: &Relay,
+) -> bool {
     filter.matches(relay)
 }
 
@@ -134,64 +134,83 @@ pub const fn filter_bridge(relay: &Relay) -> bool {
     matches!(relay.endpoint_data, RelayEndpointData::Bridge)
 }
 
-// -- Wrapper around LocationConstraint --
-
+/// Wrapper around [`GeographicLocationConstraint`].
+/// Useful for iterating over a set of [`GeographicLocationConstraint`] where custom lists
+/// are considered.
 #[derive(Debug, Clone)]
-pub struct ResolvedLocationConstraint(Vec<GeographicLocationConstraint>);
-
-impl<'a> IntoIterator for &'a ResolvedLocationConstraint {
-    type Item = &'a GeographicLocationConstraint;
-
-    type IntoIter = core::slice::Iter<'a, GeographicLocationConstraint>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.0.iter()
-    }
+pub enum ResolvedLocationConstraint<'a> {
+    Location(&'a GeographicLocationConstraint),
+    Locations(&'a BTreeSet<GeographicLocationConstraint>),
+    Empty,
 }
 
-impl IntoIterator for ResolvedLocationConstraint {
-    type Item = GeographicLocationConstraint;
-
-    type IntoIter = std::vec::IntoIter<GeographicLocationConstraint>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.0.into_iter()
-    }
-}
-
-impl FromIterator<GeographicLocationConstraint> for ResolvedLocationConstraint {
-    fn from_iter<T: IntoIterator<Item = GeographicLocationConstraint>>(iter: T) -> Self {
-        Self(Vec::from_iter(iter))
-    }
-}
-
-impl ResolvedLocationConstraint {
+impl<'a> ResolvedLocationConstraint<'a> {
+    /// Define the mapping from a [location][`LocationConstraint`] and a set of
+    /// [custom lists][`CustomListsSettings`] to [`ResolvedLocationConstraint`].
     pub fn from_constraint(
-        location_constraint: Constraint<LocationConstraint>,
-        custom_lists: &CustomListsSettings,
-    ) -> Constraint<ResolvedLocationConstraint> {
-        location_constraint.map(|location| Self::from_location_constraint(location, custom_lists))
-    }
-
-    fn from_location_constraint(
-        location: LocationConstraint,
-        custom_lists: &CustomListsSettings,
-    ) -> ResolvedLocationConstraint {
-        match location {
-            LocationConstraint::Location(location) => Self::from_iter(std::iter::once(location)),
-            LocationConstraint::CustomList { list_id } => custom_lists
-                .iter()
-                .find(|list| list.id == list_id)
-                .map(|custom_list| Self::from_iter(custom_list.locations.clone()))
-                .unwrap_or_else(|| {
-                    log::warn!("Resolved non-existent custom list");
-                    Self::from_iter(std::iter::empty())
-                }),
+        location_constraint: &'a Constraint<LocationConstraint>,
+        custom_lists: &'a CustomListsSettings,
+    ) -> Constraint<ResolvedLocationConstraint<'a>> {
+        match location_constraint {
+            Constraint::Any => Constraint::Any,
+            Constraint::Only(location) => Constraint::Only(match location {
+                LocationConstraint::Location(location) => {
+                    ResolvedLocationConstraint::Location(location)
+                }
+                LocationConstraint::CustomList { list_id } => custom_lists
+                    .iter()
+                    .find(|list| list.id == *list_id)
+                    .map(|custom_list| {
+                        ResolvedLocationConstraint::Locations(&custom_list.locations)
+                    })
+                    .unwrap_or_else(|| {
+                        log::warn!("Resolved non-existent custom list");
+                        ResolvedLocationConstraint::Empty
+                    }),
+            }),
         }
     }
 }
 
-impl Match<Relay> for ResolvedLocationConstraint {
+/// A custom iterator for holding the different iterator types
+pub enum ResolvedLocationConstraintIter<'a> {
+    Single(std::iter::Once<&'a GeographicLocationConstraint>),
+    Multiple(std::collections::btree_set::Iter<'a, GeographicLocationConstraint>),
+    Empty(std::iter::Empty<&'a GeographicLocationConstraint>),
+}
+
+impl<'a> Iterator for ResolvedLocationConstraintIter<'a> {
+    type Item = &'a GeographicLocationConstraint;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self {
+            ResolvedLocationConstraintIter::Single(iter) => iter.next(),
+            ResolvedLocationConstraintIter::Multiple(iter) => iter.next(),
+            ResolvedLocationConstraintIter::Empty(iter) => iter.next(),
+        }
+    }
+}
+
+impl<'a> IntoIterator for &'a ResolvedLocationConstraint<'a> {
+    type Item = &'a GeographicLocationConstraint;
+    type IntoIter = ResolvedLocationConstraintIter<'a>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        match self {
+            ResolvedLocationConstraint::Location(location) => {
+                ResolvedLocationConstraintIter::Single(std::iter::once(location))
+            }
+            ResolvedLocationConstraint::Locations(locations) => {
+                ResolvedLocationConstraintIter::Multiple(locations.iter())
+            }
+            ResolvedLocationConstraint::Empty => {
+                ResolvedLocationConstraintIter::Empty(std::iter::empty())
+            }
+        }
+    }
+}
+
+impl<'a> Match<Relay> for ResolvedLocationConstraint<'a> {
     fn matches(&self, relay: &Relay) -> bool {
         self.into_iter().any(|location| location.matches(relay))
     }
