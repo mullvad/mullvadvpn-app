@@ -15,7 +15,6 @@ use std::{
     time::SystemTime,
 };
 
-use matcher::{BridgeMatcher, RelayMatcher};
 use mullvad_types::{
     constraints::Constraint,
     custom_list::CustomListsSettings,
@@ -41,7 +40,7 @@ use crate::error::{EndpointErrorDetails, Error};
 
 use self::{
     detailer::{openvpn_endpoint, wireguard_endpoint},
-    matcher::AnyTunnelMatcher,
+    matcher::{filter_matching_bridges, new_filter_matching_relay_list},
     parsed_relays::ParsedRelays,
     query::{BridgeQuery, Intersection, OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery},
 };
@@ -382,9 +381,9 @@ impl RelaySelector {
         let specialized_config = SpecializedSelectorConfig::from(&*config);
 
         let near_location = match specialized_config {
-            SpecializedSelectorConfig::Normal(pure) => {
-                let user_preferences = RelayQuery::from(pure.clone());
-                Self::get_relay_midpoint(parsed_relays, &user_preferences, &pure)
+            SpecializedSelectorConfig::Normal(config) => {
+                let user_preferences = RelayQuery::from(config.clone());
+                Self::get_relay_midpoint(&user_preferences, parsed_relays, &config)
             }
             SpecializedSelectorConfig::Custom(_) => None,
         };
@@ -592,8 +591,10 @@ impl RelaySelector {
         config: &NormalSelectorConfig<'_>,
         parsed_relays: &ParsedRelays,
     ) -> Result<WireguardConfig, Error> {
-        Self::choose_relay(query, config, parsed_relays)
-            .map(|exit| WireguardConfig::Singlehop { exit })
+        let candidates =
+            new_filter_matching_relay_list(query, parsed_relays.relays(), config.custom_lists);
+        helpers::pick_random_relay(&candidates)
+            .map(|exit| WireguardConfig::Singlehop { exit: exit.clone() })
             .ok_or(Error::NoRelay)
     }
 
@@ -617,9 +618,13 @@ impl RelaySelector {
         entry_relay_query.location = query.wireguard_constraints.entry_location.clone();
         // After we have our two queries (one for the exit relay & one for the entry relay),
         // we can query for all exit & entry candidates! All candidates are needed for the next step.
-        let exit_candidates = Self::get_tunnel_endpoints(query, config, parsed_relays);
-        let entry_candidates =
-            Self::get_tunnel_endpoints(&entry_relay_query, config, parsed_relays);
+        let exit_candidates =
+            new_filter_matching_relay_list(query, parsed_relays.relays(), config.custom_lists);
+        let entry_candidates = new_filter_matching_relay_list(
+            &entry_relay_query,
+            parsed_relays.relays(),
+            config.custom_lists,
+        );
 
         // This algorithm gracefully handles a particular edge case that arise when a constraint on
         // the exit relay is more specific than on the entry relay which forces the relay selector
@@ -710,7 +715,8 @@ impl RelaySelector {
         config: &NormalSelectorConfig<'_>,
         parsed_relays: &ParsedRelays,
     ) -> Result<GetRelay, Error> {
-        let exit = Self::choose_relay(query, config, parsed_relays).ok_or(Error::NoRelay)?;
+        let exit =
+            Self::choose_openvpn_relay(query, config, parsed_relays).ok_or(Error::NoRelay)?;
         let endpoint = Self::get_openvpn_endpoint(query, &exit, parsed_relays)?;
         let bridge =
             Self::get_openvpn_bridge(query, &exit, &endpoint.protocol, parsed_relays, config)?;
@@ -826,16 +832,14 @@ impl RelaySelector {
         location: Option<T>,
         custom_lists: &CustomListsSettings,
     ) -> Option<(CustomProxy, Relay)> {
-        let matcher = BridgeMatcher::new_matcher(constraints.clone(), custom_lists);
-        let relays = matcher.filter_matching_relay_list(parsed_relays.relays());
-
-        let relay = match location {
-            Some(location) => Self::get_proximate_bridge(relays, location),
-            None => helpers::pick_random_relay(&relays).cloned(),
+        let bridges = filter_matching_bridges(constraints, parsed_relays.relays(), custom_lists);
+        let bridge = match location {
+            Some(location) => Self::get_proximate_bridge(bridges, location),
+            None => helpers::pick_random_relay(&bridges).cloned(),
         }?;
 
-        let bridge = &parsed_relays.parsed_list().bridge;
-        helpers::pick_random_bridge(bridge, &relay).map(|bridge| (bridge, relay.clone()))
+        let bridge_data = &parsed_relays.parsed_list().bridge;
+        helpers::pick_random_bridge(bridge_data, &bridge).map(|endpoint| (endpoint, bridge.clone()))
     }
 
     /// Try to get a bridge which is close to `location`.
@@ -884,36 +888,21 @@ impl RelaySelector {
     /// This returns `None` if the location is [`Constraint::Any`] or if no
     /// relays match the constraints.
     fn get_relay_midpoint(
+        query: &RelayQuery,
         parsed_relays: &ParsedRelays,
-        constraints: &RelayQuery,
         config: &NormalSelectorConfig<'_>,
     ) -> Option<Coordinates> {
-        if constraints.location.is_any() {
+        use std::ops::Not;
+        if query.location.is_any() {
             return None;
         }
 
-        let matcher = RelayMatcher::new(
-            constraints.clone(),
-            &parsed_relays.parsed_list().openvpn,
-            *config.bridge_state,
-            &parsed_relays.parsed_list().wireguard,
-            config.custom_lists,
-        );
-
-        Self::get_relay_midpoint_inner(parsed_relays, matcher)
-    }
-
-    fn get_relay_midpoint_inner(
-        parsed_relays: &ParsedRelays,
-        matcher: RelayMatcher<AnyTunnelMatcher<'_>>,
-    ) -> Option<Coordinates> {
-        use std::ops::Not;
-        let matching_locations: Vec<Location> = matcher
-            .filter_matching_relay_list(parsed_relays.relays())
-            .into_iter()
-            .filter_map(|relay| relay.location)
-            .unique_by(|location| location.city.clone())
-            .collect();
+        let matching_locations: Vec<Location> =
+            new_filter_matching_relay_list(query, parsed_relays.relays(), config.custom_lists)
+                .into_iter()
+                .filter_map(|relay| relay.location)
+                .unique_by(|location| location.city.clone())
+                .collect();
 
         matching_locations
             .is_empty()
@@ -921,40 +910,18 @@ impl RelaySelector {
             .then(|| Coordinates::midpoint(&matching_locations))
     }
 
-    /// Chooses a suitable relay from a set of parsed relays based on specified constraints and configuration.
-    ///
-    /// This function filters the available relays according to the given [query][`RelayQuery`] and [config][`NormalSelectorConfig`],
-    /// then selects one relay at random from the filtered list.
-    ///
     /// # Returns
     /// A randomly selected relay that meets the specified constraints, or `None` if no suitable relay is found.
-    fn choose_relay(
+    fn choose_openvpn_relay(
         query: &RelayQuery,
         config: &NormalSelectorConfig<'_>,
         parsed_relays: &ParsedRelays,
     ) -> Option<Relay> {
         // Filter among all valid relays
-        let relays = Self::get_tunnel_endpoints(query, config, parsed_relays);
-        // Pick one of the valid relays.
-        helpers::pick_random_relay(&relays).cloned()
-    }
-
-    /// Returns all relays matching the given `query`.
-    #[cfg(not(target_os = "android"))]
-    fn get_tunnel_endpoints(
-        query: &RelayQuery,
-        config: &NormalSelectorConfig<'_>,
-        parsed_relays: &ParsedRelays,
-    ) -> Vec<Relay> {
         let relays = parsed_relays.relays();
-        let matcher = RelayMatcher::new(
-            query.clone(),
-            &parsed_relays.parsed_list().openvpn,
-            *config.bridge_state,
-            &parsed_relays.parsed_list().wireguard,
-            config.custom_lists,
-        );
-        matcher.filter_matching_relay_list(relays)
+        let candidates = new_filter_matching_relay_list(query, relays, config.custom_lists);
+        // Pick one of the valid relays.
+        helpers::pick_random_relay(&candidates).cloned()
     }
 
     /// Returns all relays matching the given `query`.
@@ -964,13 +931,6 @@ impl RelaySelector {
         config: &NormalSelectorConfig<'_>,
         parsed_relays: &ParsedRelays,
     ) -> Vec<Relay> {
-        use self::matcher::WireguardMatcher;
-        let relays = parsed_relays.relays();
-        let endpoint_matcher = WireguardMatcher::new(
-            query.wireguard_constraints.clone(),
-            &parsed_relays.parsed_list().wireguard,
-        );
-        let matcher = RelayMatcher::using(query.clone(), config.custom_lists, endpoint_matcher);
-        matcher.filter_matching_relay_list(relays)
+        todo!("Rework")
     }
 }
