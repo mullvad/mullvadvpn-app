@@ -6,9 +6,7 @@ use mullvad_types::{
         BridgeState, GeographicLocationConstraint, InternalBridgeConstraints, LocationConstraint,
         Ownership, Providers, TransportPort,
     },
-    relay_list::{
-        OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData, WireguardEndpointData,
-    },
+    relay_list::{OpenVpnEndpointData, Relay, RelayEndpointData, WireguardEndpointData},
 };
 use talpid_types::net::{IpVersion, TransportProtocol, TunnelType};
 
@@ -271,19 +269,16 @@ pub const fn filter_bridge(relay: &Relay) -> bool {
 /// Returns whether a relay (endpoint) satisfy the port constraints (transport protocol + port
 /// number) posed by `filter`.
 fn openvpn_filter_on_port(port: Constraint<TransportPort>, endpoint: &OpenVpnEndpointData) -> bool {
-    let compatible_port =
-        |transport_port: TransportPort, endpoint: &OpenVpnEndpoint| match transport_port.port {
-            Constraint::Any => true,
-            Constraint::Only(port) => port == endpoint.port,
-        };
-
     match port {
         Constraint::Any => true,
         Constraint::Only(transport_port) => endpoint
             .ports
             .iter()
             .filter(|endpoint| endpoint.protocol == transport_port.protocol)
-            .any(|port| compatible_port(transport_port, port)),
+            .any(|endpoint| match transport_port.port {
+                Constraint::Any => true,
+                Constraint::Only(port) => port == endpoint.port,
+            }),
     }
 }
 
