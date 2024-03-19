@@ -104,7 +104,7 @@ struct ConnCheckerHandle<'a> {
     pid: u32,
 }
 
-struct ConnectonStatus {
+struct ConnectionStatus {
     /// True if <https://am.i.mullvad.net/> reported we are connected.
     am_i_mullvad: bool,
 
@@ -259,7 +259,7 @@ impl ConnCheckerHandle<'_> {
         Ok(())
     }
 
-    async fn check_connection(&mut self) -> anyhow::Result<ConnectonStatus> {
+    async fn check_connection(&mut self) -> anyhow::Result<ConnectionStatus> {
         // Monitor all pakets going to LEAK_DESTINATION during the check.
         let monitor = start_packet_monitor(
             |packet| packet.destination.ip() == LEAK_DESTINATION.ip(),
@@ -284,7 +284,7 @@ impl ConnCheckerHandle<'_> {
             .await
             .map_err(|_e| anyhow!("Packet monitor unexpectedly stopped"))?;
 
-        Ok(ConnectonStatus {
+        Ok(ConnectionStatus {
             am_i_mullvad: parse_am_i_mullvad(line)?,
 
             leaked_tcp: (monitor_result.packets.iter())
