@@ -120,6 +120,8 @@ export default class Account {
   }
 
   public handleDeviceEvent(deviceEvent: DeviceEvent) {
+    this.delegate.closeNotificationsInCategory(SystemNotificationCategory.expiry);
+
     this.deviceStateValue = deviceEvent.deviceState;
 
     switch (deviceEvent.deviceState.type) {
