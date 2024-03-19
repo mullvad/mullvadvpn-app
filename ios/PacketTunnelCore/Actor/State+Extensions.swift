@@ -62,20 +62,65 @@ extension State {
     var name: String {
         switch self {
         case .connected:
-            return "Connected"
+            "Connected"
         case .connecting:
-            return "Connecting"
+            "Connecting"
         case .reconnecting:
-            return "Reconnecting"
+            "Reconnecting"
         case .disconnecting:
-            return "Disconnecting"
+            "Disconnecting"
         case .disconnected:
-            return "Disconnected"
+            "Disconnected"
         case .initial:
-            return "Initial"
+            "Initial"
         case .error:
-            return "Error"
+            "Error"
         }
+    }
+
+    /// Apply a mutating function to the connection state if this state has one, and replace its value. If not, this is a no-op.
+    /// - parameter modifier: A function that takes an `inout ConnectionState` and returns `true`if it has been mutated
+    /// - returns: `true` if the state's value has been changed
+    @discardableResult mutating func mutateConnectionState(_ modifier: (inout ConnectionState) -> Bool) -> Bool {
+        switch self {
+        case var .connecting(connState):
+            defer { self = .connecting(connState) }
+            return modifier(&connState)
+        case var .connected(connState):
+            defer { self = .connected(connState) }
+            return modifier(&connState)
+        case var .reconnecting(connState):
+            defer { self = .reconnecting(connState) }
+            return modifier(&connState)
+        case var .disconnecting(connState):
+            defer { self = .disconnecting(connState) }
+            return modifier(&connState)
+        default:
+            return false
+        }
+    }
+
+    /// Apply a mutating function to the blocked state if this state has one, and replace its value. If not, this is a no-op.
+    /// - parameter modifier: A function that takes an `inout ConnectionState` and returns `true`if it has been mutated
+    /// - returns: `true` if the state's value has been changed
+
+    @discardableResult mutating func mutateBlockedState(_ modifier: (inout BlockedState) -> Bool) -> Bool {
+        switch self {
+        case var .error(blockedState):
+            defer { self = .error(blockedState) }
+            return modifier(&blockedState)
+        default:
+            return false
+        }
+    }
+
+    /// Apply a mutating function to the state's key policy
+    /// - parameter modifier: A function that takes an `inout KeyPolicy` and returns `true`if it has been mutated
+    /// - returns: `true` if the state's value has been changed
+    @discardableResult mutating func mutateKeyPolicy(_ modifier: (inout KeyPolicy) -> Bool) -> Bool {
+        self.mutateConnectionState { modifier(&$0.keyPolicy) }
+            || self.mutateBlockedState { modifier(&$0.keyPolicy) }
+            || false
     }
 }
 

@@ -23,7 +23,7 @@ extension PacketTunnelActor {
      - Parameter lastKeyRotation: date when last key rotation took place.
      */
     func cacheActiveKey(lastKeyRotation: Date?) {
-        func mutateConnectionState(_ connState: inout ConnectionState) -> Bool {
+        func connectionStateMutator(_ connState: inout ConnectionState) -> Bool {
             switch connState.keyPolicy {
             case .useCurrent:
                 if let currentKey = connState.currentKey {
@@ -44,23 +44,7 @@ extension PacketTunnelActor {
             }
         }
 
-        switch state {
-        case var .connecting(connState):
-            if mutateConnectionState(&connState) {
-                state = .connecting(connState)
-            }
-
-        case var .connected(connState):
-            if mutateConnectionState(&connState) {
-                state = .connected(connState)
-            }
-
-        case var .reconnecting(connState):
-            if mutateConnectionState(&connState) {
-                state = .reconnecting(connState)
-            }
-
-        case var .error(blockedState):
+        func blockedStateMutator(_ blockedState: inout BlockedState) -> Bool {
             switch blockedState.keyPolicy {
             case .useCurrent:
                 // Key policy is preserved between states and key rotation may still happen while in blocked state.
@@ -73,16 +57,17 @@ extension PacketTunnelActor {
                     blockedState.keyPolicy = .usePrior(currentKey, startKeySwitchTask())
                     blockedState.currentKey = nil
 
-                    state = .error(blockedState)
+                    return true
                 }
 
-            case .usePrior:
-                break
+            default:
+                return false
             }
-
-        case .initial, .disconnected, .disconnecting:
-            break
+            return false
         }
+
+        _ = state.mutateConnectionState(connectionStateMutator) ||
+            state.mutateBlockedState(blockedStateMutator)
     }
 
     /**
@@ -123,37 +108,41 @@ extension PacketTunnelActor {
      - Returns: `true` if the tunnel should reconnect, otherwise `false`.
      */
     private func switchToCurrentKeyInner() -> Bool {
-        switch state {
-        case var .connecting(connState):
-            if setCurrentKeyPolicy(&connState.keyPolicy) {
-                state = .connecting(connState)
-                return true
-            }
-
-        case var .connected(connState):
-            if setCurrentKeyPolicy(&connState.keyPolicy) {
-                state = .connected(connState)
-                return true
-            }
-
-        case var .reconnecting(connState):
-            if setCurrentKeyPolicy(&connState.keyPolicy) {
-                state = .reconnecting(connState)
-                return true
-            }
-
-        case var .error(blockedState):
-            if setCurrentKeyPolicy(&blockedState.keyPolicy) {
-                state = .error(blockedState)
-
-                // Prevent tunnel from reconnecting when in blocked state.
-                return false
-            }
-
-        case .disconnected, .disconnecting, .initial:
-            break
-        }
+        let changed = state.mutateKeyPolicy(setCurrentKeyPolicy)
+        // Prevent tunnel from reconnecting when in blocked state.
+        guard case .error = state else { return changed }
         return false
+//        switch state {
+//        case var .connecting(connState):
+//            if setCurrentKeyPolicy(&connState.keyPolicy) {
+//                state = .connecting(connState)
+//                return true
+//            }
+//
+//        case var .connected(connState):
+//            if setCurrentKeyPolicy(&connState.keyPolicy) {
+//                state = .connected(connState)
+//                return true
+//            }
+//
+//        case var .reconnecting(connState):
+//            if setCurrentKeyPolicy(&connState.keyPolicy) {
+//                state = .reconnecting(connState)
+//                return true
+//            }
+//
+//        case var .error(blockedState):
+//            if setCurrentKeyPolicy(&blockedState.keyPolicy) {
+//                state = .error(blockedState)
+//
+//                // Prevent tunnel from reconnecting when in blocked state.
+//                return false
+//            }
+//
+//        case .disconnected, .disconnecting, .initial:
+//            break
+//        }
+//        return false
     }
 
     /**
