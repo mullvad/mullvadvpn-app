@@ -25,16 +25,18 @@ class CustomListsDataSource: LocationDataSourceProtocol {
 
     /// Constructs a collection of node trees by copying each matching counterpart
     /// from the complete list of nodes created in ``AllLocationDataSource``.
-    func reload(allLocationNodes: [LocationNode]) {
-        nodes = repository.fetchAll().map { list in
+    func reload(allLocationNodes: [LocationNode], isFiltered: Bool) {
+        nodes.removeAll()
+        let customLists = repository.fetchAll()
+        for customList in customLists {
             let listNode = CustomListLocationNode(
-                name: list.name,
-                code: list.name.lowercased(),
-                locations: list.locations,
-                customList: list
+                name: customList.name,
+                code: customList.name.lowercased(),
+                locations: customList.locations,
+                customList: customList
             )
 
-            listNode.children = list.locations.compactMap { location in
+            listNode.children = customList.locations.compactMap { location in
                 copy(location, from: allLocationNodes, withParent: listNode)
             }
 
@@ -46,7 +48,15 @@ class CustomListsDataSource: LocationDataSourceProtocol {
                 node.code = LocationNode.combineNodeCodes([listNode.code, node.code])
             }
 
-            return listNode
+            // Indicates if the relays are filtered by ``Ownership`` or ``Provider``, node should be added while it has children
+            if isFiltered {
+                guard !listNode.children.isEmpty else {
+                    continue
+                }
+                nodes.append(listNode)
+            } else {
+                nodes.append(listNode)
+            }
         }
     }
 

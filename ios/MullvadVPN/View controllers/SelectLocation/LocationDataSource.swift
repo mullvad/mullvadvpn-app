@@ -17,6 +17,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
     private let tableView: UITableView
     private var dataSources: [LocationDataSourceProtocol] = []
     private var selectedItem: LocationCellViewModel?
+    private var hasFilter = false
 
     var didSelectRelayLocations: ((UserSelectedRelays) -> Void)?
     var didTapEditCustomLists: (() -> Void)?
@@ -47,6 +48,8 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
     }
 
     func setRelays(_ response: REST.ServerRelaysResponse, selectedRelays: UserSelectedRelays?, filter: RelayFilter) {
+        hasFilter = filter.providers != .any || filter.ownership != .any
+
         let allLocationsDataSource =
             dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource
 
@@ -58,7 +61,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
         }
 
         allLocationsDataSource?.reload(response, relays: relays)
-        customListsDataSource?.reload(allLocationNodes: allLocationsDataSource?.nodes ?? [])
+        customListsDataSource?.reload(allLocationNodes: allLocationsDataSource?.nodes ?? [], isFiltered: hasFilter)
 
         mapSelectedItem(from: selectedRelays)
         filterRelays(by: currentSearchString)
@@ -101,7 +104,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
         let customListsDataSource =
             dataSources.first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource
 
-        customListsDataSource?.reload(allLocationNodes: allLocationsDataSource?.nodes ?? [])
+        customListsDataSource?.reload(allLocationNodes: allLocationsDataSource?.nodes ?? [], isFiltered: hasFilter)
 
         mapSelectedItem(from: selectedRelays)
         filterRelays(by: currentSearchString, scrollToSelected: false)
