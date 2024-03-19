@@ -1,5 +1,5 @@
 //
-//  PreferencesViewController.swift
+//  VPNSettingsViewController.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 19/05/2021.
@@ -9,16 +9,22 @@
 import MullvadSettings
 import UIKit
 
-class PreferencesViewController: UITableViewController, PreferencesDataSourceDelegate {
-    private let interactor: PreferencesInteractor
-    private var dataSource: PreferencesDataSource?
+protocol VPNSettingsViewControllerDelegate: AnyObject {
+    func showIPOverrides()
+}
+
+class VPNSettingsViewController: UITableViewController, VPNSettingsDataSourceDelegate {
+    private let interactor: VPNSettingsInteractor
+    private var dataSource: VPNSettingsDataSource?
     private let alertPresenter: AlertPresenter
+
+    weak var delegate: VPNSettingsViewControllerDelegate?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
 
-    init(interactor: PreferencesInteractor, alertPresenter: AlertPresenter) {
+    init(interactor: VPNSettingsInteractor, alertPresenter: AlertPresenter) {
         self.interactor = interactor
         self.alertPresenter = alertPresenter
 
@@ -39,12 +45,12 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         tableView.estimatedSectionHeaderHeight = tableView.estimatedRowHeight
         tableView.allowsMultipleSelection = true
 
-        dataSource = PreferencesDataSource(tableView: tableView)
+        dataSource = VPNSettingsDataSource(tableView: tableView)
         dataSource?.delegate = self
 
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
-            tableName: "Preferences",
+            tableName: "VPNSettings",
             value: "VPN settings",
             comment: ""
         )
@@ -67,13 +73,13 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
     private func showInfo(with message: String) {
         let presentation = AlertPresentation(
-            id: "preferences-content-blockers-alert",
+            id: "vpn-settings-content-blockers-alert",
             icon: .info,
             message: message,
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "PREFERENCES_VPN_SETTINGS_OK_ACTION",
+                        "VPN_SETTINGS_VPN_SETTINGS_OK_ACTION",
                         tableName: "ContentBlockers",
                         value: "Got it!",
                         comment: ""
@@ -98,9 +104,9 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
             .joined(separator: ", ")
     }
 
-    // MARK: - PreferencesDataSourceDelegate
+    // MARK: - VPNSettingsDataSourceDelegate
 
-    func didChangeViewModel(_ viewModel: PreferencesViewModel) {
+    func didChangeViewModel(_ viewModel: VPNSettingsViewModel) {
         interactor.updateSettings(
             [
                 .obfuscation(WireGuardObfuscationSettings(
@@ -113,7 +119,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     }
 
     // swiftlint:disable:next function_body_length
-    func showInfo(for item: PreferencesInfoButtonItem) {
+    func showInfo(for item: VPNSettingsInfoButtonItem) {
         var message = ""
 
         switch item {
@@ -124,13 +130,11 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
             message = String(
                 format: NSLocalizedString(
-                    "PREFERENCES_WIRE_GUARD_PORTS_GENERAL",
+                    "VPN_SETTINGS_WIRE_GUARD_PORTS_GENERAL",
                     tableName: "WireGuardPorts",
                     value: """
                     The automatic setting will randomly choose from the valid port ranges shown below.
-
                     The custom port can be any value inside the valid ranges:
-
                     %@
                     """,
                     comment: ""
@@ -140,7 +144,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
         case .wireGuardObfuscation:
             message = NSLocalizedString(
-                "PREFERENCES_WIRE_GUARD_OBFUSCATION_GENERAL",
+                "VPN_SETTINGS_WIRE_GUARD_OBFUSCATION_GENERAL",
                 tableName: "WireGuardObfuscation",
                 value: """
                 Obfuscation hides the WireGuard traffic inside another protocol. \
@@ -152,7 +156,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
         case .wireGuardObfuscationPort:
             message = NSLocalizedString(
-                "PREFERENCES_WIRE_GUARD_OBFUSCATION_PORT_GENERAL",
+                "VPN_SETTINGS_WIRE_GUARD_OBFUSCATION_PORT_GENERAL",
                 tableName: "WireGuardObfuscation",
                 value: "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.",
                 comment: ""
@@ -160,7 +164,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
         case .quantumResistance:
             message = NSLocalizedString(
-                "PREFERENCES_QUANTUM_RESISTANCE_GENERAL",
+                "VPN_SETTINGS_QUANTUM_RESISTANCE_GENERAL",
                 tableName: "QuantumResistance",
                 value: """
                 This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.
@@ -181,6 +185,10 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     func showDNSSettings() {
         let viewController = CustomDNSViewController(interactor: interactor, alertPresenter: alertPresenter)
         navigationController?.pushViewController(viewController, animated: true)
+    }
+
+    func showIPOverrides() {
+        delegate?.showIPOverrides()
     }
 
     func didSelectWireGuardPort(_ port: UInt16?) {

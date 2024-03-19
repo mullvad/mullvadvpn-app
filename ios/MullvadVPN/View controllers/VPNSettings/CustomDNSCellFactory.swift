@@ -13,16 +13,16 @@ protocol CustomDNSCellEventHandler {
     func addDNSEntry()
     func didChangeDNSEntry(with identifier: UUID, inputString: String) -> Bool
     func didChangeState(for preference: CustomDNSDataSource.Item, isOn: Bool)
-    func showInfo(for button: PreferencesInfoButtonItem)
+    func showInfo(for button: VPNSettingsInfoButtonItem)
 }
 
 final class CustomDNSCellFactory: CellFactoryProtocol {
     let tableView: UITableView
-    var viewModel: PreferencesViewModel
+    var viewModel: VPNSettingsViewModel
     var delegate: CustomDNSCellEventHandler?
     var isEditing = false
 
-    init(tableView: UITableView, viewModel: PreferencesViewModel) {
+    init(tableView: UITableView, viewModel: VPNSettingsViewModel) {
         self.tableView = tableView
         self.viewModel = viewModel
     }
@@ -61,7 +61,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
         case .blockAdvertising:
             let localizedString = NSLocalizedString(
                 "BLOCK_ADS_CELL_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "Ads",
                 comment: ""
             )
@@ -76,7 +76,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
         case .blockTracking:
             let localizedString = NSLocalizedString(
                 "BLOCK_TRACKERS_CELL_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "Trackers",
                 comment: ""
             )
@@ -92,7 +92,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
 
             let localizedString = NSLocalizedString(
                 "BLOCK_MALWARE_CELL_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "Malware",
                 comment: ""
             )
@@ -109,7 +109,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
         case .blockAdultContent:
             let localizedString = NSLocalizedString(
                 "BLOCK_ADULT_CELL_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "Adult content",
                 comment: ""
             )
@@ -123,7 +123,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
         case .blockGambling:
             let localizedString = NSLocalizedString(
                 "BLOCK_GAMBLING_CELL_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "Gambling",
                 comment: ""
             )
@@ -137,7 +137,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
         case .blockSocialMedia:
             let localizedString = NSLocalizedString(
                 "BLOCK_SOCIAL_MEDIA_CELL_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "Social media",
                 comment: ""
             )
@@ -153,7 +153,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString(
                 "CUSTOM_DNS_CELL_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "Use custom DNS",
                 comment: ""
             )
@@ -170,7 +170,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString(
                 "ADD_CUSTOM_DNS_SERVER_CELL_LABEL",
-                tableName: "Preferences",
+                tableName: "VPNSettings",
                 value: "Add a server",
                 comment: ""
             )

@@ -9,8 +9,8 @@
 import MullvadSettings
 import UIKit
 
-class CustomDNSViewController: UITableViewController, PreferencesDataSourceDelegate {
-    private let interactor: PreferencesInteractor
+class CustomDNSViewController: UITableViewController, VPNSettingsDataSourceDelegate {
+    private let interactor: VPNSettingsInteractor
     private var dataSource: CustomDNSDataSource?
     private let alertPresenter: AlertPresenter
 
@@ -18,7 +18,7 @@ class CustomDNSViewController: UITableViewController, PreferencesDataSourceDeleg
         .lightContent
     }
 
-    init(interactor: PreferencesInteractor, alertPresenter: AlertPresenter) {
+    init(interactor: VPNSettingsInteractor, alertPresenter: AlertPresenter) {
         self.interactor = interactor
         self.alertPresenter = alertPresenter
 
@@ -43,7 +43,7 @@ class CustomDNSViewController: UITableViewController, PreferencesDataSourceDeleg
 
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
-            tableName: "Preferences",
+            tableName: "VPNSettings",
             value: "DNS settings",
             comment: ""
         )
@@ -73,13 +73,13 @@ class CustomDNSViewController: UITableViewController, PreferencesDataSourceDeleg
 
     private func showInfo(with message: String) {
         let presentation = AlertPresentation(
-            id: "preferences-content-blockers-alert",
+            id: "vpn-settings-content-blockers-alert",
             icon: .info,
             message: message,
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "PREFERENCES_DNS_SETTINGS_OK_ACTION",
+                        "VPN_SETTINGS_DNS_SETTINGS_OK_ACTION",
                         tableName: "ContentBlockers",
                         value: "Got it!",
                         comment: ""
@@ -92,19 +92,19 @@ class CustomDNSViewController: UITableViewController, PreferencesDataSourceDeleg
         alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
-    // MARK: - PreferencesDataSourceDelegate
+    // MARK: - VPNSettingsDataSourceDelegate
 
-    func didChangeViewModel(_ viewModel: PreferencesViewModel) {
+    func didChangeViewModel(_ viewModel: VPNSettingsViewModel) {
         interactor.updateSettings([.dnsSettings(viewModel.asDNSSettings())])
     }
 
-    func showInfo(for item: PreferencesInfoButtonItem) {
+    func showInfo(for item: VPNSettingsInfoButtonItem) {
         var message = ""
 
         switch item {
         case .contentBlockers:
             message = NSLocalizedString(
-                "PREFERENCES_CONTENT_BLOCKERS_GENERAL",
+                "VPN_SETTINGS_CONTENT_BLOCKERS_GENERAL",
                 tableName: "ContentBlockers",
                 value: """
                 When this feature is enabled it stops the device from contacting certain \
@@ -116,7 +116,7 @@ class CustomDNSViewController: UITableViewController, PreferencesDataSourceDeleg
 
         case .blockMalware:
             message = NSLocalizedString(
-                "PREFERENCES_CONTENT_BLOCKERS_MALWARE",
+                "VPN_SETTINGS_CONTENT_BLOCKERS_MALWARE",
                 tableName: "ContentBlockers",
                 value: """
                 Warning: The malware blocker is not an anti-virus and should not \
@@ -133,6 +133,10 @@ class CustomDNSViewController: UITableViewController, PreferencesDataSourceDeleg
     }
 
     func showDNSSettings() {
+        // No op.
+    }
+
+    func showIPOverrides() {
         // No op.
     }
 

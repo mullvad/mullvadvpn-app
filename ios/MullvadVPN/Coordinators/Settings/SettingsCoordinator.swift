@@ -18,7 +18,7 @@ enum SettingsNavigationRoute: Equatable {
     case root
 
     /// VPN settings.
-    case preferences
+    case vpnSettings
 
     /// Problem report.
     case problemReport
@@ -28,9 +28,6 @@ enum SettingsNavigationRoute: Equatable {
 
     /// API access route.
     case apiAccess
-
-    /// IP override route.
-    case ipOverride
 }
 
 /// Top-level settings coordinator.
@@ -246,10 +243,11 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             controller.delegate = self
             return .viewController(controller)
 
-        case .preferences:
-            return .viewController(PreferencesViewController(
-                interactor: interactorFactory.makePreferencesInteractor(),
-                alertPresenter: AlertPresenter(context: self)
+        case .vpnSettings:
+            return .childCoordinator(VPNSettingsCoordinator(
+                navigationController: navigationController,
+                interactorFactory: interactorFactory,
+                ipOverrideRepository: ipOverrideRepository
             ))
 
         case .problemReport:
@@ -265,13 +263,6 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
                 proxyConfigurationTester: proxyConfigurationTester
             ))
 
-        case .ipOverride:
-            return .childCoordinator(IPOverrideCoordinator(
-                navigationController: navigationController,
-                repository: ipOverrideRepository,
-                tunnelManager: interactorFactory.tunnelManager
-            ))
-
         case .faq:
             // Handled separately and presented as a modal.
             return .failed
@@ -285,14 +276,12 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         switch viewController {
         case is SettingsViewController:
             return .root
-        case is PreferencesViewController:
-            return .preferences
+        case is VPNSettingsViewController:
+            return .vpnSettings
         case is ProblemReportViewController:
             return .problemReport
         case is ListAccessMethodViewController:
             return .apiAccess
-        case is IPOverrideViewController:
-            return .ipOverride
         default:
             return nil
         }
