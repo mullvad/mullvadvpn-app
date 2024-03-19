@@ -160,17 +160,28 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
         selectedItem = item
         guard let selectedItem else { return }
 
-        let rootNode = selectedItem.node.root
+        var snapshotItems = snapshot().itemIdentifiers(inSection: selectedItem.section)
 
-        guard selectedItem.node != rootNode else {
-            completion?()
-            return
-        }
+        let rootNode = selectedItem.node.root
 
         guard let indexPath = indexPath(for: LocationCellViewModel(
             section: selectedItem.section,
             node: rootNode
         )) else { return }
+
+        // reloading the list and collapse expanded items if the root is selected
+        guard selectedItem.node != rootNode else {
+            let list = LocationSection.allCases.enumerated().map { index, section in
+                index == indexPath.section
+                    ? snapshotItems
+                    : snapshot().itemIdentifiers(inSection: section)
+            }
+
+            updateDataSnapshot(with: list, reloadExisting: true, animated: animated)
+
+            completion?()
+            return
+        }
 
         // Walk tree backwards to determine which nodes should be expanded.
         selectedItem.node.forEachAncestor { node in
@@ -183,7 +194,6 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
             indentationLevel: 1
         )
 
-        var snapshotItems = snapshot().itemIdentifiers(inSection: selectedItem.section)
         snapshotItems.insert(contentsOf: nodesToAdd, at: indexPath.row + 1)
 
         let list = LocationSection.allCases.enumerated().map { index, section in
@@ -255,6 +265,10 @@ extension LocationDataSource: UITableViewDelegate {
                 )
             ))
         }
+    }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        56.0
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
