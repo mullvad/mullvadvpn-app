@@ -487,6 +487,10 @@ class ApplicationMain
 
     log.info('Connected to the daemon');
 
+    this.notificationController.closeNotificationsInCategory(
+      SystemNotificationCategory.tunnelState,
+    );
+
     // subscribe to events
     try {
       this.daemonEventListener = this.subscribeEvents();
@@ -622,6 +626,10 @@ class ApplicationMain
     }
     // Reset the daemon event listener since it's going to be invalidated on disconnect
     this.daemonEventListener = undefined;
+
+    this.notificationController.closeNotificationsInCategory(
+      SystemNotificationCategory.tunnelState,
+    );
 
     if (this.tunnelState.tunnelState.state !== 'disconnected') {
       this.notificationController.notifyDaemonDisconnected(
