@@ -72,7 +72,7 @@ extension UIColor {
 
     // Navigation bars
     enum NavigationBar {
-        static let backButtonIndicatorColor = UIColor(white: 1.0, alpha: 0.8)
+        static let buttonColor = UIColor(white: 1.0, alpha: 0.8)
         static let backButtonTitleColor = UIColor.white
         static let titleColor = UIColor.white
         static let promptColor = UIColor.white
