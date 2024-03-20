@@ -14,8 +14,8 @@ jobs:
         with:
           # Commit messages are allowed to be subject only, no body
           allow-one-liners: 'true'
-          # This action defaults to 50 char subjects, but 74 is fine.
-          max-subject-line-length: '74'
+          # This action defaults to 50 char subjects, but 72 is fine.
+          max-subject-line-length: '72'
           # The action's wordlist is a bit short. Add more accepted verbs
           additional-verbs: 'restart, coalesce'
 
