@@ -18,6 +18,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.textfield.MtuTextField
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
@@ -120,7 +121,7 @@ fun MtuDialog(
                 )
 
                 if (mtuInitial != null) {
-                    PrimaryButton(
+                    NegativeButton(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(R.string.reset_to_default_button),
                         onClick = onResetMtu
