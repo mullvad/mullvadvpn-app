@@ -18,7 +18,7 @@ extension State {
         case .initial:
             return .connecting
 
-        case .connecting:
+        case .connecting, .negotiatingPostQuantumKey:
             return .connecting
 
         case .connected, .reconnecting:
@@ -54,13 +54,15 @@ extension State {
         case let .error(blockedState):
             return "\(name): \(blockedState.reason)"
 
-        case .initial, .disconnecting, .disconnected:
+        case .initial, .disconnecting, .disconnected, .negotiatingPostQuantumKey:
             return name
         }
     }
 
     var name: String {
         switch self {
+        case .negotiatingPostQuantumKey:
+            "Negotiating Post Quantum Key"
         case .connected:
             "Connected"
         case .connecting:

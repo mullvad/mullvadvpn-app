@@ -84,7 +84,8 @@ extension PacketTunnelActor {
                 return nil
             }
 
-        case .disconnecting, .disconnected:
+        // Post quantum key exchange cannot enter the blocked state
+        case .disconnecting, .disconnected, .negotiatingPostQuantumKey:
             return nil
         }
     }
