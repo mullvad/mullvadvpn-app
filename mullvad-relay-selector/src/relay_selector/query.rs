@@ -429,11 +429,10 @@ impl From<OpenVpnRelayQuery> for OpenVpnConstraints {
 pub trait Intersection {
     fn intersection(self, other: Self) -> Option<Self>
     where
-        Self: PartialEq,
         Self: Sized;
 }
 
-impl<T: PartialEq> Intersection for Constraint<T> {
+impl<T: Intersection> Intersection for Constraint<T> {
     /// Define the intersection between two arbitrary [`Constraint`]s.
     ///
     /// This operation may be compared to the set operation with the same name.
@@ -446,12 +445,74 @@ impl<T: PartialEq> Intersection for Constraint<T> {
         match (self, other) {
             (Any, Any) => Some(Any),
             (Only(t), Any) | (Any, Only(t)) => Some(Only(t)),
-            // Pick any of `left` or `right` if they are the same.
-            (Only(left), Only(right)) if left == right => Some(Only(left)),
-            _ => None,
+            // Recurse on `left` and `right` to see if there exist an intersection
+            (Only(left), Only(right)) => Some(Only(left.intersection(right)?)),
         }
     }
 }
+
+// Implement `Intersection` for different types
+
+impl Intersection for Providers {
+    fn intersection(self, other: Self) -> Option<Self>
+    where
+        Self: Sized,
+    {
+        Providers::new(self.providers.intersection(&other.providers)).ok()
+    }
+}
+
+impl Intersection for Udp2TcpObfuscationSettings {
+    fn intersection(self, other: Self) -> Option<Self>
+    where
+        Self: Sized,
+    {
+        Some(Udp2TcpObfuscationSettings {
+            port: self.port.intersection(other.port)?,
+        })
+    }
+}
+
+impl Intersection for TransportPort {
+    fn intersection(self, other: Self) -> Option<Self>
+    where
+        Self: Sized,
+    {
+        let protocol = if self.protocol == other.protocol {
+            Some(self.protocol)
+        } else {
+            None
+        }?;
+        let port = self.port.intersection(other.port)?;
+        Some(TransportPort { protocol, port })
+    }
+}
+
+/// Auto-implement `Intersection` for trivial cases where the logic should just check if
+/// `self` is equal to `other`.
+macro_rules! impl_intersection_partialeq {
+    ($ty:ty) => {
+        impl Intersection for $ty {
+            fn intersection(self, other: Self) -> Option<Self> {
+                if self == other {
+                    Some(self)
+                } else {
+                    None
+                }
+            }
+        }
+    };
+}
+impl_intersection_partialeq!(u16);
+impl_intersection_partialeq!(bool);
+// FIXME: [`LocationConstraint`] deserves a hand-rolled implementation of [`Intersection`], but
+// it would probably be best to implement it for [`ResolvedLocationConstraint`] instead to properly
+// handle custom lists.
+impl_intersection_partialeq!(LocationConstraint);
+impl_intersection_partialeq!(Ownership);
+impl_intersection_partialeq!(talpid_types::net::TransportProtocol);
+impl_intersection_partialeq!(talpid_types::net::TunnelType);
+impl_intersection_partialeq!(talpid_types::net::IpVersion);
 
 #[allow(unused)]
 pub mod builder {
