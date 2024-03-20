@@ -11,12 +11,12 @@ use crate::{
 };
 
 use mullvad_management_interface::MullvadProxyClient;
+use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
         GeographicLocationConstraint, LocationConstraint, RelayConstraints, RelaySettings,
     },
-    relay_list::{Relay, RelayEndpointData},
     states::TunnelState,
     CustomTunnelEndpoint,
 };
@@ -340,40 +340,21 @@ pub async fn test_connected_state(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     let inet_destination = "1.1.1.1:1337".parse().unwrap();
 
     // Set relay to use
-    //
-
     log::info!("Select relay");
-
-    let relay_filter = |relay: &Relay| {
-        relay.active && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-    };
-
-    let relay = helpers::filter_relays(&mut mullvad_client, relay_filter)
-        .await?
-        .pop()
-        .unwrap();
-
-    let relay_settings = RelaySettings::Normal(RelayConstraints {
-        location: helpers::into_constraint(&relay),
-        ..Default::default()
-    });
-
-    set_relay_settings(&mut mullvad_client, relay_settings)
-        .await
-        .expect("failed to update relay settings");
+    let relay = helpers::constrain_to_relay(
+        &mut mullvad_client,
+        RelayQueryBuilder::new().wireguard().build(),
+    )
+    .await?;
 
     // Connect
-    //
-
     connect_and_wait(&mut mullvad_client).await?;
 
     // Verify that endpoint was selected
-    //
-
     match mullvad_client.get_tunnel_state().await? {
         TunnelState::Connected {
             endpoint:
