@@ -452,10 +452,9 @@ private extension TunnelState {
         case .connecting, .reconnecting, .waitingForConnectivity(.noConnection):
             .white
 
-        #if DEBUG
+        // TODO: Is this the correct color ?
         case .negotiatingKey:
             .white
-        #endif
 
         case .connected:
             .successColor
@@ -483,7 +482,7 @@ private extension TunnelState {
                 comment: ""
             )
 
-        #if DEBUG
+        // TODO: Is this the correct message here ?
         case .negotiatingKey:
             NSLocalizedString(
                 "TUNNEL_STATE_NEGOTIATING_KEY",
@@ -491,7 +490,6 @@ private extension TunnelState {
                 value: "Negotiating key",
                 comment: ""
             )
-        #endif
 
         case .connected:
             NSLocalizedString(
@@ -568,7 +566,6 @@ private extension TunnelState {
                 comment: ""
             )
 
-        #if DEBUG
         case .negotiatingKey:
             NSLocalizedString(
                 "SWITCH_LOCATION_BUTTON_TITLE",
@@ -576,7 +573,6 @@ private extension TunnelState {
                 value: "Switch location",
                 comment: ""
             )
-        #endif
         }
     }
 
@@ -590,7 +586,6 @@ private extension TunnelState {
                 comment: ""
             )
 
-        #if DEBUG
         case .negotiatingKey:
             NSLocalizedString(
                 "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL",
@@ -598,7 +593,6 @@ private extension TunnelState {
                 value: "Creating secure connection",
                 comment: ""
             )
-        #endif
 
         case let .connected(tunnelInfo):
             String(
@@ -677,10 +671,8 @@ private extension TunnelState {
                  .waitingForConnectivity(.noConnection):
                 [.selectLocation, .cancel]
 
-            #if DEBUG
             case .negotiatingKey:
                 [.selectLocation, .cancel]
-            #endif
 
             case .connected, .reconnecting, .error:
                 [.selectLocation, .disconnect]
@@ -695,10 +687,8 @@ private extension TunnelState {
                  .waitingForConnectivity(.noConnection):
                 [.cancel]
 
-            #if DEBUG
             case .negotiatingKey:
                 [.cancel]
-            #endif
             case .connected, .reconnecting, .error:
                 [.disconnect]
             }

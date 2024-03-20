@@ -15,10 +15,8 @@ extension ObservedState {
         case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
             connState.relayConstraints
 
-        #if DEBUG
         case let .negotiatingKey(connState):
             connState.relayConstraints
-        #endif
         case let .error(blockedState):
             blockedState.relayConstraints
 
@@ -33,10 +31,8 @@ extension ObservedState {
             "Connected"
         case .connecting:
             "Connecting"
-        #if DEBUG
         case .negotiatingKey:
             "Negotiating key"
-        #endif
         case .reconnecting:
             "Reconnecting"
         case .disconnecting:
