@@ -393,7 +393,7 @@ pub type Provider = String;
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct Providers {
-    providers: HashSet<Provider>,
+    pub providers: HashSet<Provider>,
 }
 
 /// Returned if the iterator contained no providers.
