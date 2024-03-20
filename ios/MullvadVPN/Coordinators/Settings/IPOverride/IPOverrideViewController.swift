@@ -13,6 +13,7 @@ class IPOverrideViewController: UIViewController {
     private let interactor: IPOverrideInteractor
     private var cancellables = Set<AnyCancellable>()
     private let alertPresenter: AlertPresenter
+    private let headerView = IPOverrideHeaderView()
 
     weak var delegate: IPOverrideViewControllerDelegate?
 
@@ -51,11 +52,11 @@ class IPOverrideViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationController?.navigationItem.largeTitleDisplayMode = .never
         view.backgroundColor = .secondaryColor
+        view.directionalLayoutMargins = UIMetrics.contentHeadingLayoutMargins
 
-        addHeader()
-        addPreamble()
+        confgiureNavigation()
+        addHeaderView()
         addImportButtons()
         addStatusLabel()
 
@@ -70,44 +71,21 @@ class IPOverrideViewController: UIViewController {
         }.store(in: &cancellables)
     }
 
-    private func addHeader() {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 32, weight: .bold)
-        label.textColor = .white
-        label.text = NSLocalizedString(
+    private func confgiureNavigation() {
+        title = NSLocalizedString(
             "IP_OVERRIDE_HEADER",
             tableName: "IPOverride",
             value: "Server IP override",
             comment: ""
         )
-
-        let infoButton = UIButton(type: .custom)
-        infoButton.tintColor = .white
-        infoButton.setImage(UIImage(resource: .iconInfo), for: .normal)
-        infoButton.addTarget(self, action: #selector(didTapInfoButton), for: .touchUpInside)
-        infoButton.heightAnchor.constraint(equalToConstant: 24).isActive = true
-        infoButton.widthAnchor.constraint(equalTo: infoButton.heightAnchor, multiplier: 1).isActive = true
-
-        let headerView = UIStackView(arrangedSubviews: [label, infoButton, UIView()])
-        headerView.spacing = 8
-
-        containerView.addArrangedSubview(headerView)
-        containerView.setCustomSpacing(14, after: headerView)
     }
 
-    private func addPreamble() {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 12, weight: .semibold)
-        label.textColor = .white.withAlphaComponent(0.6)
-        label.numberOfLines = 0
-        label.text = NSLocalizedString(
-            "IP_OVERRIDE_PREAMBLE",
-            tableName: "IPOverride",
-            value: "Import files or text with new IP addresses for the servers in the Select location view.",
-            comment: ""
-        )
+    private func addHeaderView() {
+        headerView.onAbout = { [weak self] in
+            self?.delegate?.presentAbout()
+        }
 
-        containerView.addArrangedSubview(label)
+        containerView.addArrangedSubview(headerView)
     }
 
     private func addImportButtons() {
@@ -138,44 +116,6 @@ class IPOverrideViewController: UIViewController {
 
     private func addStatusLabel() {
         containerView.addArrangedSubview(statusView)
-    }
-
-    @objc private func didTapInfoButton() {
-        let message = NSLocalizedString(
-            "IP_OVERRIDE_DIALOG_MESSAGE",
-            tableName: "IPOverride",
-            value: """
-            On some networks, where various types of censorship are being used, our server IP addresses are \
-            sometimes blocked.
-            To circumvent this you can import a file or a text, provided by our support team, \
-            with new IP addresses that override the default addresses of the servers in the Select location view.
-            If you are having issues connecting to VPN servers, please contact support.
-            """,
-            comment: ""
-        )
-
-        let presentation = AlertPresentation(
-            id: "ip-override-info-alert",
-            icon: .info,
-            title: NSLocalizedString(
-                "IP_OVERRIDE_INFO_DIALOG_TITLE",
-                tableName: "IPOverride",
-                value: "Server IP override",
-                comment: ""
-            ),
-            message: message,
-            buttons: [AlertAction(
-                title: NSLocalizedString(
-                    "IP_OVERRIDE_INFO_DIALOG_OK_BUTTON",
-                    tableName: "IPOverride",
-                    value: "Got it!",
-                    comment: ""
-                ),
-                style: .default
-            )]
-        )
-
-        alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
     @objc private func didTapClearButton() {

@@ -377,11 +377,11 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
-        switch sectionIdentifier {
-        case .ipOverrides:
-            return 10
-        default:
-            return 0.5
+        return switch sectionIdentifier {
+        // 0 due to there already being a separator between .dnsSettings and .ipOverrides.
+        case .dnsSettings: 0
+        case .ipOverrides: 10
+        default: 0.5
         }
     }
 

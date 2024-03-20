@@ -47,4 +47,53 @@ extension IPOverrideCoordinator: IPOverrideViewControllerDelegate {
 
         presentationContext.present(customNavigationController, animated: true)
     }
+
+    func presentAbout() {
+        let header = NSLocalizedString(
+            "IP_OVERRIDE_HEADER",
+            tableName: "IPOverride",
+            value: "IP Override",
+            comment: ""
+        )
+        let body = [
+            NSLocalizedString(
+                "IP_OVERRIDE_BODY_1",
+                tableName: "IPOverride",
+                value: """
+                On some networks, where various types of censorship are being used, our server IP addresses are \
+                sometimes blocked.
+                """,
+                comment: ""
+            ),
+            NSLocalizedString(
+                "IP_OVERRIDE_BODY_2",
+                tableName: "IPOverride",
+                value: """
+                To circumvent this you can import a file or a text, provided by our support team, \
+                with new IP addresses that override the default addresses of the servers in the Select location view.
+                """,
+                comment: ""
+            ),
+            NSLocalizedString(
+                "IP_OVERRIDE_BODY_3",
+                tableName: "IPOverride",
+                value: """
+                If you are having issues connecting to VPN servers, please contact support.
+                """,
+                comment: ""
+            ),
+        ]
+
+        let aboutController = AboutViewController(header: header, preamble: nil, body: body)
+        let aboutNavController = UINavigationController(rootViewController: aboutController)
+
+        aboutController.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            systemItem: .done,
+            primaryAction: UIAction { [weak aboutNavController] _ in
+                aboutNavController?.dismiss(animated: true)
+            }
+        )
+
+        navigationController.present(aboutNavController, animated: true)
+    }
 }
