@@ -1033,7 +1033,8 @@ class ApplicationMain
       return shell.openExternal(url);
     }
   };
-  public showNotificationIcon = (value: boolean) => this.userInterface?.showNotificationIcon(value);
+  public showNotificationIcon = (value: boolean, reason?: string) =>
+    this.userInterface?.showNotificationIcon(value, reason);
 
   // NotificationSender
   public notify = (notification: SystemNotification) => {

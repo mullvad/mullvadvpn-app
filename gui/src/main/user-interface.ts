@@ -188,8 +188,8 @@ export default class UserInterface implements WindowControllerDelegate {
   public updateTrayTheme = () => this.trayIconController?.updateTheme() ?? Promise.resolve();
   public setMonochromaticIcon = (value: boolean) =>
     this.trayIconController?.setMonochromaticIcon(value);
-  public showNotificationIcon = (value: boolean) =>
-    this.trayIconController?.showNotificationIcon(value);
+  public showNotificationIcon = (value: boolean, reason?: string) =>
+    this.trayIconController?.showNotificationIcon(value, reason);
   public setWindowIcon = (icon: string) => this.windowController.window?.setIcon(icon);
 
   public updateTrayIcon(tunnelState: TunnelState, blockWhenDisconnected: boolean) {
