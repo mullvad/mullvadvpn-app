@@ -57,6 +57,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Security
 #### Android
 - Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
+- Add protection against some tapjacking vulnerabilities.
 
 
 ## [2024.1-beta2] - 2024-02-19

@@ -65,6 +65,9 @@ class MainActivity : ComponentActivity() {
 
         setContent { AppTheme { MullvadApp() } }
 
+        // This is to protect against tapjacking attacks
+        window.decorView.filterTouchesWhenObscured = true
+
         // We use lifecycleScope here to get less start service in background exceptions
         // Se this article for more information:
         // https://medium.com/@lepicekmichal/android-background-service-without-hiccup-501e4479110f
