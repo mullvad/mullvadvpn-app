@@ -10,6 +10,6 @@ mod relay_selector;
 pub use error::Error;
 pub use relay_selector::detailer;
 pub use relay_selector::{
-    query, GetRelay, RelaySelector, SelectedBridge, SelectedObfuscator, SelectorConfig,
-    WireguardConfig, RETRY_ORDER,
+    query, GetRelay, RelaySelector, RuntimeParameters, SelectedBridge, SelectedObfuscator,
+    SelectorConfig, WireguardConfig, RETRY_ORDER,
 };

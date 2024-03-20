@@ -107,6 +107,41 @@ pub struct SelectorConfig {
     pub bridge_settings: BridgeSettings,
 }
 
+/// Values which affect the choice of relay but are only known at runtime.
+#[derive(Clone, Debug)]
+pub struct RuntimeParameters {
+    /// Whether IPv6 is available
+    pub ipv6: bool,
+}
+
+impl RuntimeParameters {
+    /// Return whether a given [query][`RelayQuery`] is valid given the current runtime parameters
+    pub fn compatible(&self, query: &RelayQuery) -> bool {
+        if !self.ipv6 {
+            let must_use_ipv6 = matches!(
+                query.wireguard_constraints.ip_version,
+                Constraint::Only(talpid_types::net::IpVersion::V6)
+            );
+            if must_use_ipv6 {
+                log::trace!(
+                    "{query:?} is incompatible with {self:?} due to IPv6 not being available"
+                );
+                return false;
+            }
+        }
+        true
+    }
+}
+
+// Note: It is probably not a good idea to rely on derived default values to be correct for our use
+// case.
+#[allow(clippy::derivable_impls)]
+impl Default for RuntimeParameters {
+    fn default() -> Self {
+        RuntimeParameters { ipv6: false }
+    }
+}
+
 /// This enum exists to separate the two types of [`SelectorConfig`] that exists.
 ///
 /// The first one is a "regular" config, where [`SelectorConfig::relay_settings`] is [`RelaySettings::Normal`].
@@ -429,7 +464,19 @@ impl RelaySelector {
     ///
     /// [`RETRY_ORDER`]: crate::RETRY_ORDER
     pub fn get_relay(&self, retry_attempt: usize) -> Result<GetRelay, Error> {
-        self.get_relay_with_order(&RETRY_ORDER, retry_attempt)
+        self.get_relay_with_custom_params(retry_attempt, &RETRY_ORDER, RuntimeParameters::default())
+    }
+
+    /// Returns a random relay and relay endpoint matching the current constraints corresponding to
+    /// `retry_attempt` in [`RETRY_ORDER`] while considering [runtime_params][`RuntimeParameters`].
+    ///
+    /// [`RETRY_ORDER`]: crate::RETRY_ORDER
+    pub fn get_relay_with_runtime_params(
+        &self,
+        retry_attempt: usize,
+        runtime_params: RuntimeParameters,
+    ) -> Result<GetRelay, Error> {
+        self.get_relay_with_custom_params(retry_attempt, &RETRY_ORDER, runtime_params)
     }
 
     /// Peek at which [`TunnelType`] that would be returned for a certain connection attempt for a given
@@ -445,9 +492,10 @@ impl RelaySelector {
             SpecializedSelectorConfig::Custom(_) => None,
             SpecializedSelectorConfig::Normal(config) => Some(
                 Self::pick_and_merge_query(
-                    &RETRY_ORDER,
-                    RelayQuery::from(config),
                     connection_attempt,
+                    &RETRY_ORDER,
+                    RuntimeParameters::default(),
+                    RelayQuery::from(config),
                 )
                 .tunnel_protocol
                 .unwrap_or(TunnelType::Wireguard),
@@ -456,11 +504,12 @@ impl RelaySelector {
     }
 
     /// Returns a random relay and relay endpoint matching the current constraints defined by
-    /// `retry_order` corresponsing to `retry_attempt`.
-    pub fn get_relay_with_order(
+    /// `retry_order` corresponding to `retry_attempt`.
+    pub fn get_relay_with_custom_params(
         &self,
-        retry_order: &[RelayQuery],
         retry_attempt: usize,
+        retry_order: &[RelayQuery],
+        runtime_params: RuntimeParameters,
     ) -> Result<GetRelay, Error> {
         let config_guard = self.config.lock().unwrap();
         let config = SpecializedSelectorConfig::from(&*config_guard);
@@ -475,8 +524,12 @@ impl RelaySelector {
                 let parsed_relays = &self.parsed_relays.lock().unwrap();
                 // Merge user preferences with the relay selector's default preferences.
                 let user_preferences = RelayQuery::from(normal_config.clone());
-                let query =
-                    Self::pick_and_merge_query(retry_order, user_preferences, retry_attempt);
+                let query = Self::pick_and_merge_query(
+                    retry_attempt,
+                    retry_order,
+                    runtime_params,
+                    user_preferences,
+                );
                 Self::get_relay_inner(&query, parsed_relays, &normal_config)
             }
         }
@@ -488,15 +541,23 @@ impl RelaySelector {
     /// This algorithm will loop back to the start of `retry_order` if `retry_attempt < retry_order.len()`.
     /// If `user_preferences` is not compatible with any of the pre-defined queries in `retry_order`, `user_preferences`
     /// is returned.
+    ///
+    /// Runtime parameters may affect which of the default queries that are considered. For example,
+    /// queries which rely on IPv6 will not be considered if working IPv6 is not available at runtime.
     fn pick_and_merge_query(
-        retry_order: &[RelayQuery],
-        user_preferences: RelayQuery,
         retry_attempt: usize,
+        retry_order: &[RelayQuery],
+        runtime_params: RuntimeParameters,
+        user_preferences: RelayQuery,
     ) -> RelayQuery {
+        log::trace!("Merging user preferences {user_preferences:?} with default retry strategy");
         retry_order
             .iter()
+            // Remove candidate queries based on runtime parameters before trying to merge user
+            // settings
+            .filter(|query| runtime_params.compatible(query))
             .cycle()
-            .filter_map(|constraint| constraint.clone().intersection(user_preferences.clone()))
+            .filter_map(|query| query.clone().intersection(user_preferences.clone()))
             .nth(retry_attempt)
             .unwrap_or(user_preferences)
     }
