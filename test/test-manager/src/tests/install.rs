@@ -287,6 +287,7 @@ pub async fn test_installation_idempotency(
     // Connect to any relay. This forces the daemon to enter a secured target state
     connect_and_wait(&mut mullvad_client)
         .await
+        .map(|_| ()) // Discard the new tunnel state
         .or_else(|error| match error {
             Error::UnexpectedErrorState(_) => Ok(()),
             err => Err(err),
