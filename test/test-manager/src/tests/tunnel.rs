@@ -2,11 +2,13 @@ use super::helpers::{
     self, connect_and_wait, disconnect_and_wait, set_bridge_settings, set_relay_settings,
 };
 use super::{config::TEST_CONFIG, Error, TestContext};
-use crate::network_monitor::{start_packet_monitor, MonitorOptions};
+use crate::network_monitor::{start_packet_monitor, MonitorOptions, ParsedPacket};
 use crate::tests::helpers::{login_with_retries, ConnChecker};
 
+use anyhow::{bail, ensure};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
+use mullvad_types::states::TunnelState;
 use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
@@ -800,5 +802,91 @@ pub async fn test_establish_tunnel_without_api(
     // 5
     connect_and_wait(&mut mullvad_client).await?;
     // Profit
+    Ok(())
+}
+
+/// Fail to leak traffic to verify that mitigation for MUL-02-002-WP2
+/// ("Firewall allows deanonymization by eavesdropper") works.
+///
+/// # Vulnerability
+/// 1. Connect to a relay on port 443. Record this relay's IP address (the new gateway of the client)
+/// 2. Start listening for unencrypted traffic on the outbound network interface
+/// (Choose some human-readable, identifiable payload to look for in the outgoing TCP packets)
+/// 3. Start a rogue program which performs a GET request* containing the payload defined in step 2
+/// 4. The network snooper started in step 2 should now be able to observe the network request
+///    containing the identifiable payload being sent unencrypted over the wire
+///
+/// * or something similiar, as long as it generates some traffic containing UDP and/or TCP packets
+/// with the correct payload.
+#[test_function]
+pub async fn test_mul_02_002(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> Result<(), anyhow::Error> {
+    // Step 0 - Disconnect from any active tunnel connection
+    helpers::disconnect_and_wait(&mut mullvad_client).await?;
+    // Step 1 - Choose a relay
+    let relay_constraints = RelayQueryBuilder::new()
+        .openvpn()
+        .transport_protocol(TransportProtocol::Tcp)
+        .port(443)
+        .into_constraint();
+
+    set_relay_settings(
+        &mut mullvad_client,
+        RelaySettings::Normal(relay_constraints),
+    )
+    .await?;
+
+    // Step 1.5 - Temporarily connect to the relay to get the target endpoint
+    let tunnel_state = helpers::connect_and_wait(&mut mullvad_client).await?;
+    let TunnelState::Connected { endpoint, .. } = tunnel_state else {
+        bail!("Expected tunnel state to be `Connected` - instead it was {tunnel_state:?}");
+    };
+    helpers::disconnect_and_wait(&mut mullvad_client).await?;
+    let gateway = endpoint.endpoint.address;
+
+    // Step 2 - Start a network monitor snooping the outbound network interface for some
+    // identifiable payload
+    // FIXME: This needs to be kept in sync with the magic payload string defined in `connection_cheker::net`.
+    // An easy fix would be to make the payload for `ConnCheck` configurable.
+    let unique_identifier = b"Hello there!";
+    let identify_rogue_packet = move |packet: &ParsedPacket| {
+        packet
+            .payload
+            .windows(unique_identifier.len())
+            .any(|window| window == unique_identifier)
+    };
+    let rogue_packet_monitor =
+        start_packet_monitor(identify_rogue_packet, MonitorOptions::default()).await;
+
+    // Step 3 - Start the rogue program which will try to leak traffic to the chosen relay endpoint
+    let mut checker = ConnChecker::new(rpc.clone(), mullvad_client.clone(), gateway);
+    let mut conn_artist = checker.spawn().await?;
+    // Before proceeding, assert that the method of detecting identifiable packets work.
+    conn_artist.check_connection().await?;
+    let monitor_result = rogue_packet_monitor.into_result().await.unwrap();
+
+    log::info!("Checking that the identifiable payload was detectable without encryption");
+    ensure!(
+        !monitor_result.packets.is_empty(),
+        "Did not observe rogue packets! The method seems to be broken"
+    );
+
+    // Step 4 - Finally, connect to a tunnel and assert that no outgoing traffic contains the
+    // payload in plain text.
+    helpers::connect_and_wait(&mut mullvad_client).await?;
+    let rogue_packet_monitor =
+        start_packet_monitor(identify_rogue_packet, MonitorOptions::default()).await;
+    conn_artist.check_connection().await?;
+    let monitor_result = rogue_packet_monitor.into_result().await.unwrap();
+
+    log::info!("Checking that the identifiable payload was not detected");
+    ensure!(
+        monitor_result.packets.is_empty(),
+        "Observed rogue packets! The tunnel seems to be leaking traffic"
+    );
+
     Ok(())
 }

@@ -7,6 +7,8 @@ use std::{
 
 use crate::cli::Opt;
 
+const PAYLOAD: &[u8] = b"Hello there!";
+
 pub fn send_tcp(opt: &Opt, destination: SocketAddr) -> eyre::Result<()> {
     let bind_addr: SocketAddr = SocketAddr::new(Ipv4Addr::new(0, 0, 0, 0).into(), 0);
 
@@ -31,7 +33,7 @@ pub fn send_tcp(opt: &Opt, destination: SocketAddr) -> eyre::Result<()> {
 
     let mut stream = std::net::TcpStream::from(sock);
     stream
-        .write_all(b"hello there")
+        .write_all(PAYLOAD)
         .wrap_err(eyre!("Failed to send message to {destination}"))?;
 
     Ok(())
@@ -56,7 +58,7 @@ pub fn send_udp(_opt: &Opt, destination: SocketAddr) -> Result<(), eyre::Error> 
 
     let std_socket = std::net::UdpSocket::from(sock);
     std_socket
-        .send_to(b"Hello there!", destination)
+        .send_to(PAYLOAD, destination)
         .wrap_err(eyre!("Failed to send message to {destination}"))?;
 
     Ok(())
