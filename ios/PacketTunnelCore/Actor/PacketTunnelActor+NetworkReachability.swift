@@ -43,16 +43,6 @@ extension PacketTunnelActor {
 
         let newReachability = networkPath.networkReachability
 
-        func connectionStateMutator(_ connState: inout ConnectionState) -> Bool {
-            connState.networkReachability = newReachability
-            return true
-        }
-
-        func blockedStateMutator(_ blockedState: inout BlockedState) -> Bool {
-            blockedState.networkReachability = newReachability
-            return true
-        }
-
-        _ = state.mutateConnectionState(connectionStateMutator) || state.mutateBlockedState(blockedStateMutator)
+        state.mutateConnectionOrBlockedState { $0.networkReachability = newReachability }
     }
 }

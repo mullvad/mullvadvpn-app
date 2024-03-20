@@ -96,8 +96,16 @@ public enum NetworkReachability: Equatable, Codable {
     case undetermined, reachable, unreachable
 }
 
+// perhaps this should have a better name?
+protocol ConnectionOrBlockedState {
+    var currentKey: PrivateKey? { get set }
+    var keyPolicy: KeyPolicy { get set }
+    var networkReachability: NetworkReachability { get set }
+    var lastKeyRotation: Date? { get set }
+}
+
 /// Data associated with states that hold connection data.
-struct ConnectionState: Equatable {
+struct ConnectionState: Equatable, ConnectionOrBlockedState {
     /// Current selected relay.
     public var selectedRelay: SelectedRelay
 
@@ -138,7 +146,7 @@ struct ConnectionState: Equatable {
 }
 
 /// Data associated with error state.
-struct BlockedState {
+struct BlockedState: ConnectionOrBlockedState {
     /// Reason why block state was entered.
     public var reason: BlockedStateReason
 
