@@ -58,6 +58,9 @@ enum State: Equatable {
     /// Initial state at the time when actor is initialized but before the first connection attempt.
     case initial
 
+    /// Establish a connection to the gateway, and exchange a post quantum key with the GRPC service that resides there.
+    case negotiatingPostQuantumKey(ConnectionData)
+
     /// Tunnel is attempting to connect.
     /// The actor should remain in this state until the very first connection is established, i.e determined by tunnel monitor.
     case connecting(ConnectionData)

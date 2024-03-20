@@ -44,7 +44,7 @@ extension PacketTunnelActor {
             let isPostQuantum = true
             state = isPostQuantum ? .negotiatingKey(connState) : .connected(connState)
 
-        case .initial, .negotiatingKey, .connected, .disconnecting, .disconnected, .error:
+        case .initial, .connected, .disconnecting, .disconnected, .error, .negotiatingPostQuantumKey:
             break
         }
     }
@@ -55,7 +55,7 @@ extension PacketTunnelActor {
         case .connecting, .reconnecting, .connected, .negotiatingKey:
             commandChannel.send(.reconnect(.random, reason: .connectionLoss))
 
-        case .initial, .disconnected, .disconnecting, .error:
+        case .initial, .disconnected, .disconnecting, .error, .negotiatingPostQuantumKey:
             break
         }
     }

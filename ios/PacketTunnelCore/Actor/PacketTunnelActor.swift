@@ -157,7 +157,7 @@ extension PacketTunnelActor {
         case let .connected(connState),
             let .connecting(connState),
             let .reconnecting(connState),
-            let .negotiatingKey(connState):
+            let .negotiatingPostQuantumKey(connState):
             state = .disconnecting(connState)
             tunnelMonitor.stop()
 
@@ -192,7 +192,11 @@ extension PacketTunnelActor {
     private func reconnect(to nextRelay: NextRelay, reason: ReconnectReason) async {
         do {
             switch state {
-            case .connecting, .connected, .reconnecting, .negotiatingKey, .error:
+            case .negotiatingPostQuantumKey:
+                // There is no connection monitoring going on when exchanging keys.
+                // The procedure starts from scratch for each reconnection attempts.
+                try await tryStart(nextRelay: nextRelay, reason: reason)
+            case .connecting, .connected, .reconnecting, .error:
                 switch reason {
                 case .connectionLoss:
                     // Tunnel monitor is already paused at this point. Avoid calling stop() to prevent the reset of
@@ -319,7 +323,7 @@ extension PacketTunnelActor {
                 connectionState.incrementAttemptCount()
             }
             fallthrough
-        case var .connected(connectionState),  var .negotiatingKey(connectionState):
+        case var .connected(connectionState), var .negotiatingPostQuantumKey(connectionState):
             let selectedRelay = try callRelaySelector(
                 connectionState.selectedRelay,
                 connectionState.connectionAttemptCount

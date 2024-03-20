@@ -308,7 +308,7 @@ extension PacketTunnelProvider {
                     // Cache last connection attempt to filter out repeating calls.
                     lastConnectionAttempt = connectionAttempt
 
-                case .negotiatingKey:
+                case .negotiatingPostQuantumKey:
                     // TODO: Call the key negotiatior here ?
                     break
 
