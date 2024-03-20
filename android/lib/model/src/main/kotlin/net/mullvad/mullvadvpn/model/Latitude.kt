@@ -21,6 +21,9 @@ value class Latitude(val value: Float) {
         private const val MAX_LATITUDE_VALUE: Float = 90f
         private val LATITUDE_RANGE = MIN_LATITUDE_VALUE..MAX_LATITUDE_VALUE
 
+        fun mean(latitude1: Latitude, latitude2: Latitude): Latitude =
+            fromFloat((latitude1.value + latitude2.value) / 2)
+
         /**
          * Create a [Latitude] from a float value.
          *
