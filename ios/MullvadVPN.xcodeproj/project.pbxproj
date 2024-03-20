@@ -482,6 +482,7 @@
 		7A1A26492A29D48A00B978AA /* RelayFilterCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1A26482A29D48A00B978AA /* RelayFilterCellFactory.swift */; };
 		7A21DACF2A30AA3700A787A9 /* UITextField+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */; };
 		7A28826A2BA8336600FD9F20 /* VPNSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2882692BA8336600FD9F20 /* VPNSettingsCoordinator.swift */; };
+		7A28826D2BAAC9DE00FD9F20 /* IPOverrideHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A28826C2BAAC9DE00FD9F20 /* IPOverrideHeaderView.swift */; };
 		7A2960F62A963F7500389B82 /* AlertCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2960F52A963F7500389B82 /* AlertCoordinator.swift */; };
 		7A2960FD2A964BB700389B82 /* AlertPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2960FC2A964BB700389B82 /* AlertPresentation.swift */; };
 		7A307AD92A8CD8DA0017618B /* Duration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A307AD82A8CD8DA0017618B /* Duration.swift */; };
@@ -1737,6 +1738,7 @@
 		7A1A264A2A29D65E00B978AA /* SelectableSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSettingsCell.swift; sourceTree = "<group>"; };
 		7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UITextField+Appearance.swift"; sourceTree = "<group>"; };
 		7A2882692BA8336600FD9F20 /* VPNSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsCoordinator.swift; sourceTree = "<group>"; };
+		7A28826C2BAAC9DE00FD9F20 /* IPOverrideHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideHeaderView.swift; sourceTree = "<group>"; };
 		7A2960F52A963F7500389B82 /* AlertCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertCoordinator.swift; sourceTree = "<group>"; };
 		7A2960FC2A964BB700389B82 /* AlertPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresentation.swift; sourceTree = "<group>"; };
 		7A307AD82A8CD8DA0017618B /* Duration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Duration.swift; sourceTree = "<group>"; };
@@ -3476,6 +3478,7 @@
 			isa = PBXGroup;
 			children = (
 				7A5869AA2B55527C00640D27 /* IPOverrideCoordinator.swift */,
+				7A28826C2BAAC9DE00FD9F20 /* IPOverrideHeaderView.swift */,
 				7AB4CCBA2B691BBB006037F5 /* IPOverrideInteractor.swift */,
 				7A5869BE2B57D0A100640D27 /* IPOverrideStatus.swift */,
 				7A5869C02B57D21A00640D27 /* IPOverrideStatusView.swift */,
@@ -5289,6 +5292,7 @@
 				F0C6FA852A6A733700F521F0 /* InAppPurchaseInteractor.swift in Sources */,
 				58CEB2F92AFD136E00E6E088 /* UIBackgroundConfiguration+Extensions.swift in Sources */,
 				5878F50029CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift in Sources */,
+				7A28826D2BAAC9DE00FD9F20 /* IPOverrideHeaderView.swift in Sources */,
 				A98502032B627B120061901E /* LocalNetworkProbe.swift in Sources */,
 				583FE01029C0F532006E85F9 /* CustomSplitViewController.swift in Sources */,
 				7A6F2FA92AFD0842006D0856 /* CustomDNSDataSource.swift in Sources */,

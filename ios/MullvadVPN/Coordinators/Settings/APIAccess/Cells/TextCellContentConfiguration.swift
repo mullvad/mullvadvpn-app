@@ -28,7 +28,7 @@ struct TextCellContentConfiguration: UIContentConfiguration, Equatable {
     /// The editing events configuration.
     var editingEvents = EditingEvents()
 
-    /// The text properties confgiuration.
+    /// The text properties configuration.
     var textProperties = TextProperties()
 
     /// The text field properties configuration.
