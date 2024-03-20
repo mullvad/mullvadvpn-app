@@ -119,11 +119,13 @@ fun MtuDialog(
                     }
                 )
 
-                PrimaryButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.reset_to_default_button),
-                    onClick = onResetMtu
-                )
+                if (mtuInitial != null) {
+                    PrimaryButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.reset_to_default_button),
+                        onClick = onResetMtu
+                    )
+                }
 
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
