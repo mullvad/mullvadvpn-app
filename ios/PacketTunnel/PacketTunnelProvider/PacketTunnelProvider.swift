@@ -305,10 +305,9 @@ extension PacketTunnelProvider {
                     // Cache last connection attempt to filter out repeating calls.
                     lastConnectionAttempt = connectionAttempt
 
-                #if DEBUG
                 case .negotiatingKey:
+                    // TODO: Call the key negotiatior here ?
                     break
-                #endif
 
                 case .initial, .connected, .disconnecting, .disconnected, .error:
                     break

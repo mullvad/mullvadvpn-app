@@ -57,12 +57,10 @@ class MapConnectionStatusOperation: AsyncOperation {
                     return connectionState.isNetworkReachable
                         ? .connecting(connectionState.selectedRelay)
                         : .waitingForConnectivity(.noConnection)
-                #if DEBUG
                 case let .negotiatingKey(connectionState):
                     return connectionState.isNetworkReachable
                         ? .negotiatingKey(connectionState.selectedRelay)
                         : .waitingForConnectivity(.noConnection)
-                #endif
                 case let .reconnecting(connectionState):
                     return connectionState.isNetworkReachable
                         ? .reconnecting(connectionState.selectedRelay)
