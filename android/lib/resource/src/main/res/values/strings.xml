@@ -87,7 +87,7 @@
     <![CDATA[2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>.]]>
      </string>
     <string name="auto_connect_carousel_third_slide_top_text">
-        <![CDATA[The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>.]]>
+        <![CDATA[The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks apps excluded in %s and the Local Network Sharing feature</b>.]]>
     </string>
     <string name="auto_connect_carousel_third_slide_bottom_text">
         <![CDATA[3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.]]>

@@ -164,7 +164,7 @@ private fun ConstraintLayoutScope.AutoConnectCarousel(
                 color = MaterialTheme.colorScheme.onSecondary,
                 text =
                     HtmlCompat.fromHtml(
-                            stringResource(id = PAGES.entries[page].topText),
+                            PAGES.entries[page].topText(),
                             HtmlCompat.FROM_HTML_MODE_COMPACT
                         )
                         .toAnnotatedString(
@@ -255,20 +255,33 @@ private fun ConstraintLayoutScope.PageIndicator(
     }
 }
 
-private enum class PAGES(val topText: Int, val image: Int, val bottomText: Int) {
+private enum class PAGES(
+    val topText: Int,
+    val topTextArg: Int?,
+    val image: Int,
+    val bottomText: Int
+) {
     FIRST(
         R.string.auto_connect_carousel_first_slide_top_text,
+        null,
         R.drawable.carousel_slide_1_cogwheel,
         R.string.auto_connect_carousel_first_slide_bottom_text
     ),
     SECOND(
         R.string.auto_connect_carousel_second_slide_top_text,
+        null,
         R.drawable.carousel_slide_2_always_on,
         R.string.auto_connect_carousel_second_slide_bottom_text
     ),
     THIRD(
         R.string.auto_connect_carousel_third_slide_top_text,
+        R.string.split_tunneling,
         R.drawable.carousel_slide_3_block_connections,
         R.string.auto_connect_carousel_third_slide_bottom_text
     )
 }
+
+@Composable
+private fun PAGES.topText(): String =
+    topTextArg?.let { stringResource(id = topText, stringResource(topTextArg)) }
+        ?: stringResource(id = topText)
