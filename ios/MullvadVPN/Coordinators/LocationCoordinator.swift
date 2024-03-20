@@ -39,6 +39,10 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         }
     }
 
+    deinit {
+        print("Deinit :: \(self)")
+    }
+
     var didFinish: ((LocationCoordinator) -> Void)?
 
     init(
@@ -136,9 +140,9 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
             nodes: nodes
         )
 
-        coordinator.didFinish = {
-            coordinator.dismiss(animated: true)
-            self.locationViewController?.refreshCustomLists()
+        coordinator.didFinish = { [weak self] addCustomListCoordinator in
+            addCustomListCoordinator.dismiss(animated: true)
+            self?.locationViewController?.refreshCustomLists()
         }
 
         coordinator.start()
@@ -153,9 +157,9 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
             nodes: nodes
         )
 
-        coordinator.didFinish = {
-            coordinator.dismiss(animated: true)
-            self.locationViewController?.refreshCustomLists()
+        coordinator.didFinish = { [weak self] listCustomListCoordinator in
+            listCustomListCoordinator.dismiss(animated: true)
+            self?.locationViewController?.refreshCustomLists()
         }
 
         coordinator.start()
@@ -194,7 +198,7 @@ extension LocationCoordinator: LocationViewControllerDelegate {
                 comment: ""
             ),
             message: nil,
-            preferredStyle: .actionSheet
+            preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
         )
 
         actionSheet.addAction(UIAlertAction(
@@ -205,8 +209,8 @@ extension LocationCoordinator: LocationViewControllerDelegate {
                 comment: ""
             ),
             style: .default,
-            handler: { _ in
-                self.showAddCustomList(nodes: nodes)
+            handler: { [weak self] _ in
+                self?.showAddCustomList(nodes: nodes)
             }
         ))
         let editAction = UIAlertAction(
@@ -217,8 +221,8 @@ extension LocationCoordinator: LocationViewControllerDelegate {
                 comment: ""
             ),
             style: .default,
-            handler: { _ in
-                self.showEditCustomLists(nodes: nodes)
+            handler: { [weak self] _ in
+                self?.showEditCustomLists(nodes: nodes)
             }
         )
         editAction.isEnabled = !customListRepository.fetchAll().isEmpty

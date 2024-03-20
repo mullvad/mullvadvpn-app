@@ -108,16 +108,6 @@ class ListCustomListViewController: UIViewController {
         tableView.registerReusableViews(from: CellReuseIdentifier.self)
     }
 
-    private func setEmptyMessage(_ message: String) {
-        tableView.backgroundView = emptyListLabel
-        tableView.separatorStyle = .none
-    }
-
-    private func restore() {
-        tableView.backgroundView = nil
-        tableView.separatorStyle = .singleLine
-    }
-
     private func configureNavigationItem() {
         navigationItem.title = NSLocalizedString(
             "LIST_CUSTOM_LIST_NAVIGATION_TITLE",

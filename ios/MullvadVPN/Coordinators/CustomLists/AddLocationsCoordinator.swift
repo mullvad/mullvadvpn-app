@@ -18,7 +18,7 @@ class AddLocationsCoordinator: Coordinator, Presentable, Presenting {
     private let nodes: [LocationNode]
     private var customList: CustomList
 
-    var didFinish: ((CustomList) -> Void)?
+    var didFinish: ((AddLocationsCoordinator, CustomList) -> Void)?
 
     var presentedViewController: UIViewController {
         navigationController
@@ -54,6 +54,10 @@ class AddLocationsCoordinator: Coordinator, Presentable, Presenting {
 
 extension AddLocationsCoordinator: AddLocationsViewControllerDelegate {
     func didUpdateSelectedLocations(locations: [RelayLocation]) {
-        didFinish?(CustomList(id: customList.id, name: customList.name, locations: locations))
+        customList.locations = locations
+    }
+
+    func didOnBack() {
+        didFinish?(self, customList)
     }
 }

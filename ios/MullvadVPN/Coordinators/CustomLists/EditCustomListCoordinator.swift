@@ -26,7 +26,7 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    var didFinish: ((FinishAction, CustomList) -> Void)?
+    var didFinish: ((EditCustomListCoordinator, FinishAction, CustomList) -> Void)?
 
     init(
         navigationController: UINavigationController,
@@ -67,11 +67,11 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
 
 extension EditCustomListCoordinator: CustomListViewControllerDelegate {
     func customListDidSave(_ list: CustomList) {
-        didFinish?(.save, list)
+        didFinish?(self, .save, list)
     }
 
     func customListDidDelete(_ list: CustomList) {
-        didFinish?(.delete, list)
+        didFinish?(self, .delete, list)
     }
 
     func showLocations(_ list: CustomList) {
@@ -81,14 +81,15 @@ extension EditCustomListCoordinator: CustomListViewControllerDelegate {
             customList: list
         )
 
-        coordinator.didFinish = { customList in
-            self.subject.send(CustomListViewModel(
+        coordinator.didFinish = { [weak self] locationsCoordinator, customList in
+            guard let self else { return }
+            subject.send(CustomListViewModel(
                 id: customList.id,
                 name: customList.name,
                 locations: customList.locations,
-                tableSections: self.subject.value.tableSections
+                tableSections: subject.value.tableSections
             ))
-            coordinator.removeFromParent()
+            locationsCoordinator.removeFromParent()
         }
 
         coordinator.start()

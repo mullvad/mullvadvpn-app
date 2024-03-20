@@ -22,7 +22,7 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    var didFinish: (() -> Void)?
+    var didFinish: ((ListCustomListCoordinator) -> Void)?
 
     init(
         navigationController: UINavigationController,
@@ -39,18 +39,18 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
     }
 
     func start() {
-        listViewController.didFinish = didFinish
-        listViewController.didSelectItem = {
-            self.edit(list: $0)
+        listViewController.didFinish = { [weak self] in
+            guard let self else { return }
+            didFinish?(self)
+        }
+        listViewController.didSelectItem = { [weak self] in
+            self?.edit(list: $0)
         }
 
         navigationController.pushViewController(listViewController, animated: false)
     }
 
     private func edit(list: CustomList) {
-        // Remove previous edit coordinator to prevent accumulation.
-        childCoordinators.filter { $0 is EditCustomListCoordinator }.forEach { $0.removeFromParent() }
-
         let coordinator = EditCustomListCoordinator(
             navigationController: navigationController,
             customListInteractor: interactor,
@@ -58,9 +58,10 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
             nodes: nodes
         )
 
-        coordinator.didFinish = { action, list in
-            self.popToList()
-            coordinator.removeFromParent()
+        coordinator.didFinish = { [weak self] editCustomListCoordinator, action, list in
+            guard let self else { return }
+            popToList()
+            editCustomListCoordinator.removeFromParent()
 
             self.updateRelayConstraints(for: action, in: list)
             self.listViewController.updateDataSource(reloadExisting: action == .save)
@@ -90,8 +91,8 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
             relayConstraints.locations = .only(UserSelectedRelays(locations: []))
         }
 
-        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
-            self.tunnelManager.startTunnel()
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) { [weak self] in
+            self?.tunnelManager.startTunnel()
         }
     }
 

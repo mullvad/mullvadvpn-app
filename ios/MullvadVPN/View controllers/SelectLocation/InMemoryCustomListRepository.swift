@@ -29,7 +29,7 @@ class InMemoryCustomListRepository: CustomListRepositoryProtocol {
         ),
     ]
 
-    func save(list: MullvadSettings.CustomList) throws {
+    func save(list: CustomList) throws {
         if let index = customRelayLists.firstIndex(where: { $0.id == list.id }) {
             customRelayLists[index] = list
         } else if customRelayLists.contains(where: { $0.name == list.name }) {

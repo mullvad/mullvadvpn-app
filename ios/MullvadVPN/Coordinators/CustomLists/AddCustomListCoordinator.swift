@@ -23,7 +23,7 @@ class AddCustomListCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    var didFinish: (() -> Void)?
+    var didFinish: ((AddCustomListCoordinator) -> Void)?
 
     init(
         navigationController: UINavigationController,
@@ -59,8 +59,11 @@ class AddCustomListCoordinator: Coordinator, Presentable, Presenting {
 
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(
             systemItem: .cancel,
-            primaryAction: UIAction(handler: { _ in
-                self.didFinish?()
+            primaryAction: UIAction(handler: { [weak self] _ in
+                guard let self else {
+                    return
+                }
+                didFinish?(self)
             })
         )
 
@@ -70,7 +73,7 @@ class AddCustomListCoordinator: Coordinator, Presentable, Presenting {
 
 extension AddCustomListCoordinator: CustomListViewControllerDelegate {
     func customListDidSave(_ list: CustomList) {
-        didFinish?()
+        didFinish?(self)
     }
 
     func customListDidDelete(_ list: CustomList) {
@@ -84,14 +87,15 @@ extension AddCustomListCoordinator: CustomListViewControllerDelegate {
             customList: list
         )
 
-        coordinator.didFinish = { customList in
-            self.subject.send(CustomListViewModel(
+        coordinator.didFinish = { [weak self] locationsCoordinator, customList in
+            guard let self else { return }
+            subject.send(CustomListViewModel(
                 id: customList.id,
                 name: customList.name,
                 locations: customList.locations,
-                tableSections: self.subject.value.tableSections
+                tableSections: subject.value.tableSections
             ))
-            self.removeFromParent()
+            locationsCoordinator.removeFromParent()
         }
 
         coordinator.start()

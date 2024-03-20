@@ -33,12 +33,7 @@ class AddLocationsDataSource: UITableViewDiffableDataSource<AddLocationsSectionI
         customList: CustomList
     ) {
         self.tableView = tableView
-        self.nodes = allLocations.map {
-            let copy = $0.copy()
-            copy.showsChildren = false
-            copy.allChildren.forEach { $0.showsChildren = false }
-            return copy
-        }
+        self.nodes = allLocations
 
         self.customListLocationNode = CustomListLocationNodeBuilder(
             customList: customList,
@@ -71,7 +66,7 @@ class AddLocationsDataSource: UITableViewDiffableDataSource<AddLocationsSectionI
             )
             locationsList.append(viewModel)
 
-            // Determine the node should be expanded.
+            // Determine if the node should be expanded.
             guard customListLocationNode.children.contains(where: { node.allChildren.contains($0) }) else {
                 return
             }
@@ -158,14 +153,6 @@ class AddLocationsDataSource: UITableViewDiffableDataSource<AddLocationsSectionI
 extension AddLocationsDataSource: UITableViewDelegate {
     func tableView(_ tableView: UITableView, indentationLevelForRowAt indexPath: IndexPath) -> Int {
         itemIdentifier(for: indexPath)?.indentationLevel ?? 0
-    }
-
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        .zero
-    }
-
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        nil
     }
 }
 

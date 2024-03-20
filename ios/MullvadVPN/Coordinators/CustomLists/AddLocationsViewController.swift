@@ -12,6 +12,7 @@ import UIKit
 
 protocol AddLocationsViewControllerDelegate: AnyObject {
     func didUpdateSelectedLocations(locations: [RelayLocation])
+    func didOnBack()
 }
 
 class AddLocationsViewController: UIViewController {
@@ -28,7 +29,25 @@ class AddLocationsViewController: UIViewController {
         tableView.indicatorStyle = .white
         tableView.accessibilityIdentifier = .addLocationsView
         tableView.allowsMultipleSelection = true
+        tableView.tableHeaderView = nil
+        tableView.sectionHeaderHeight = .zero
         return tableView
+    }()
+
+    private lazy var backBarButton: UIBarButtonItem = {
+        let backBarButton = UIBarButtonItem(
+            primaryAction: UIAction(
+                image: UIImage(resource: .iconBack),
+                handler: { [weak self] _ in
+                    guard let self else { return }
+                    delegate?.didOnBack()
+                    navigationController?.popViewController(animated: true)
+                }
+            )
+        )
+        backBarButton.style = .done
+
+        return backBarButton
     }()
 
     init(
@@ -48,6 +67,7 @@ class AddLocationsViewController: UIViewController {
         super.viewDidLoad()
         tableView.backgroundColor = view.backgroundColor
         view.backgroundColor = .secondaryColor
+        navigationItem.leftBarButtonItem = backBarButton
         addConstraints()
         setUpDataSource()
     }

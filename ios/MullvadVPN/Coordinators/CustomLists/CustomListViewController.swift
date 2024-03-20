@@ -45,8 +45,8 @@ class CustomListViewController: UIViewController {
                 value: "Save",
                 comment: ""
             ),
-            primaryAction: UIAction { _ in
-                self.onSave()
+            primaryAction: UIAction { [weak self] _ in
+                self?.onSave()
             }
         )
         barButtonItem.style = .done
@@ -101,14 +101,15 @@ class CustomListViewController: UIViewController {
     }
 
     private func configureDataSource() {
-        cellConfiguration.onDelete = {
-            self.onDelete()
+        cellConfiguration.onDelete = { [weak self] in
+            self?.onDelete()
         }
 
         dataSource = DataSource(
             tableView: tableView,
-            cellProvider: { _, indexPath, itemIdentifier in
-                self.cellConfiguration.dequeueCell(
+            cellProvider: { [weak self] _, indexPath, itemIdentifier in
+                guard let self else { return nil }
+                return cellConfiguration.dequeueCell(
                     at: indexPath,
                     for: itemIdentifier,
                     validationErrors: self.validationErrors
@@ -116,14 +117,15 @@ class CustomListViewController: UIViewController {
             }
         )
 
-        dataSourceConfiguration?.didSelectItem = { item in
+        dataSourceConfiguration?.didSelectItem = { [weak self] item in
+            guard let self else { return }
             self.view.endEditing(false)
 
             switch item {
             case .name, .deleteList:
                 break
             case .addLocations, .editLocations:
-                self.delegate?.showLocations(self.subject.value.customList)
+                delegate?.showLocations(self.subject.value.customList)
             }
         }
 

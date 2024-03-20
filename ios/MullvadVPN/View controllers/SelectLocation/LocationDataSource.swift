@@ -14,7 +14,7 @@ import UIKit
 
 final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, LocationCellViewModel> {
     private var currentSearchString = ""
-    private let tableView: UITableView
+    private weak var tableView: UITableView?
     private var dataSources: [LocationDataSourceProtocol] = []
     private var selectedItem: LocationCellViewModel?
 
@@ -319,7 +319,7 @@ extension LocationDataSource: UITableViewDelegate {
 
 extension LocationDataSource: LocationCellDelegate {
     func toggle(cell: LocationCell) {
-        guard let indexPath = tableView.indexPath(for: cell),
+        guard let indexPath = tableView?.indexPath(for: cell),
               let item = itemIdentifier(for: indexPath) else { return }
 
         let sections = LocationSection.allCases
@@ -350,12 +350,12 @@ extension LocationDataSource: LocationCellDelegate {
 extension LocationDataSource {
     private func scroll(to item: LocationCellViewModel, animated: Bool) {
         guard
-            let visibleIndexPaths = tableView.indexPathsForVisibleRows,
+            let visibleIndexPaths = tableView?.indexPathsForVisibleRows,
             let indexPath = indexPath(for: item)
         else { return }
 
         if item.node.children.count > visibleIndexPaths.count {
-            tableView.scrollToRow(at: indexPath, at: .top, animated: animated)
+            tableView?.scrollToRow(at: indexPath, at: .top, animated: animated)
         } else {
             if let last = item.node.children.last {
                 if let lastInsertedIndexPath = self.indexPath(for: LocationCellViewModel(
@@ -364,19 +364,19 @@ extension LocationDataSource {
                 )),
                     let lastVisibleIndexPath = visibleIndexPaths.last,
                     lastInsertedIndexPath >= lastVisibleIndexPath {
-                    tableView.scrollToRow(at: lastInsertedIndexPath, at: .bottom, animated: animated)
+                    tableView?.scrollToRow(at: lastInsertedIndexPath, at: .bottom, animated: animated)
                 }
             }
         }
     }
 
     private func scrollToTop(animated: Bool) {
-        tableView.setContentOffset(.zero, animated: animated)
+        tableView?.setContentOffset(.zero, animated: animated)
     }
 
     private func scrollToSelectedRelay() {
         indexPathForSelectedRelay().flatMap {
-            tableView.scrollToRow(at: $0, at: .middle, animated: false)
+            tableView?.scrollToRow(at: $0, at: .middle, animated: false)
         }
     }
 }

@@ -139,7 +139,12 @@ final class LocationViewController: UIViewController {
 
         dataSource?.didTapEditCustomLists = { [weak self] in
             guard let self else { return }
-            delegate?.didRequestRouteToCustomLists(self, nodes: allLocationDataSource.nodes)
+            delegate?.didRequestRouteToCustomLists(self, nodes: allLocationDataSource.nodes.map {
+                let copy = $0.copy()
+                copy.showsChildren = false
+                copy.allChildren.forEach { $0.showsChildren = false }
+                return copy
+            })
         }
 
         if let cachedRelays {

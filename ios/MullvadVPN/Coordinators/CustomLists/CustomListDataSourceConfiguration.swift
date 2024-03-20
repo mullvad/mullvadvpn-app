@@ -9,7 +9,7 @@
 import UIKit
 
 class CustomListDataSourceConfiguration: NSObject {
-    let dataSource: UITableViewDiffableDataSource<CustomListSectionIdentifier, CustomListItemIdentifier>
+    private weak var dataSource: UITableViewDiffableDataSource<CustomListSectionIdentifier, CustomListItemIdentifier>?
     var validationErrors: Set<CustomListFieldValidationError> = []
 
     var didSelectItem: ((CustomListItemIdentifier) -> Void)?
@@ -43,13 +43,15 @@ class CustomListDataSourceConfiguration: NSObject {
             }
         }
 
-        dataSource.apply(snapshot, animatingDifferences: animated)
+        dataSource?.apply(snapshot, animatingDifferences: animated)
     }
 
     func set(validationErrors: Set<CustomListFieldValidationError>) {
         self.validationErrors = validationErrors
 
-        var snapshot = dataSource.snapshot()
+        guard var snapshot = dataSource?.snapshot() else {
+            return
+        }
 
         validationErrors.forEach { error in
             switch error {
@@ -58,7 +60,7 @@ class CustomListDataSourceConfiguration: NSObject {
             }
         }
 
-        dataSource.apply(snapshot, animatingDifferences: false)
+        dataSource?.apply(snapshot, animatingDifferences: false)
     }
 }
 
@@ -68,7 +70,7 @@ extension CustomListDataSourceConfiguration: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        let snapshot = dataSource.snapshot()
+        guard let snapshot = dataSource?.snapshot() else { return nil }
 
         let sectionIdentifier = snapshot.sectionIdentifiers[section]
         let itemsInSection = snapshot.itemIdentifiers(inSection: sectionIdentifier)
@@ -99,7 +101,7 @@ extension CustomListDataSourceConfiguration: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: false)
 
-        if let item = dataSource.itemIdentifier(for: indexPath) {
+        if let item = dataSource?.itemIdentifier(for: indexPath) {
             didSelectItem?(item)
         }
     }
