@@ -454,11 +454,7 @@ final class TunnelControlView: UIView {
 private extension TunnelState {
     var textColorForSecureLabel: UIColor {
         switch self {
-        case .connecting, .reconnecting, .waitingForConnectivity(.noConnection):
-            .white
-
-        // TODO: Is this the correct color ?
-        case .negotiatingKey:
+        case .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .negotiatingKey:
             .white
 
         case .connected:
