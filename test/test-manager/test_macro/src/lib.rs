@@ -121,7 +121,7 @@ fn get_test_macro_parameters(attributes: &syn::AttributeArgs) -> Result<MacroPar
     let mut cleanup = true;
     let mut always_run = false;
     let mut must_succeed = false;
-    let mut target_os = None;
+    let mut targets = vec![];
 
     for attribute in attributes {
         // we only use name-value attributes
@@ -155,14 +155,16 @@ fn get_test_macro_parameters(attributes: &syn::AttributeArgs) -> Result<MacroPar
                 bail!(nv, "'target_os' should have a string value");
             };
 
-            if target_os.is_some() {
-                bail!(nv, "can't specify multiple targets");
+            let target = match lit_str.value().parse() {
+                Ok(os) => os,
+                Err(e) => bail!(lit_str, "{e}"),
+            };
+
+            if targets.contains(&target) {
+                bail!(nv, "Duplicate target");
             }
 
-            target_os = match lit_str.value().parse() {
-                Ok(os) => Some(os),
-                Err(e) => bail!(lit_str, "{e}"),
-            }
+            targets.push(target);
         } else {
             bail!(nv, "unknown attribute");
         }
@@ -173,7 +175,7 @@ fn get_test_macro_parameters(attributes: &syn::AttributeArgs) -> Result<MacroPar
         cleanup,
         always_run,
         must_succeed,
-        target_os,
+        targets,
     })
 }
 
@@ -182,12 +184,14 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
         Some(priority) => quote! { Some(#priority) },
         None => quote! { None },
     };
-    let target_os = match test_function.macro_parameters.target_os {
-        Some(Os::Linux) => quote! { Some(::test_rpc::meta::Os::Linux) },
-        Some(Os::Macos) => quote! { Some(::test_rpc::meta::Os::Macos) },
-        Some(Os::Windows) => quote! { Some(::test_rpc::meta::Os::Windows) },
-        None => quote! { None },
-    };
+    let targets: proc_macro2::TokenStream = (test_function.macro_parameters.targets.iter())
+        .map(|&os| match os {
+            Os::Linux => quote! { ::test_rpc::meta::Os::Linux, },
+            Os::Macos => quote! { ::test_rpc::meta::Os::Macos, },
+            Os::Windows => quote! { ::test_rpc::meta::Os::Windows, },
+        })
+        .collect();
+
     let should_cleanup = test_function.macro_parameters.cleanup;
     let always_run = test_function.macro_parameters.always_run;
     let must_succeed = test_function.macro_parameters.must_succeed;
@@ -230,7 +234,7 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
         inventory::submit!(crate::tests::test_metadata::TestMetadata {
             name: stringify!(#func_name),
             command: stringify!(#func_name),
-            target_os: #target_os,
+            targets: &[#targets],
             mullvad_client_version: #function_mullvad_version,
             func: #wrapper_closure,
             priority: #test_function_priority,
@@ -252,7 +256,7 @@ struct MacroParameters {
     cleanup: bool,
     always_run: bool,
     must_succeed: bool,
-    target_os: Option<Os>,
+    targets: Vec<Os>,
 }
 
 enum MullvadClient {

@@ -23,7 +23,7 @@ const LEAK_DESTINATION: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1,
 /// - Splitting a process shouldn't do anything if tunnel is not connected.
 /// - A split process should never push traffic through the tunnel.
 /// - Splitting/unsplitting should work regardless if process is running.
-#[test_function]
+#[test_function(target_os = "linux", target_os = "windows")]
 pub async fn test_split_tunnel(
     _ctx: TestContext,
     rpc: ServiceClient,
@@ -39,7 +39,6 @@ pub async fn test_split_tunnel(
         .with_context(|| "Test disconnected and split")?;
     checker.unsplit().await?;
 
-    // TODO: Overkill?
     // Test that program is behaving being split/unsplit while running and we are disconnected
     let mut handle = checker.spawn().await?;
     handle.split().await?;
@@ -186,7 +185,7 @@ impl ConnChecker {
                     .await?;
                 self.mullvad_client.set_split_tunnel_state(true).await?;
             }
-            Os::Macos => todo!("MacOS"),
+            Os::Macos => unimplemented!("MacOS"),
         }
 
         Ok(())
@@ -205,7 +204,7 @@ impl ConnChecker {
                     .remove_split_tunnel_app(&self.executable_path)
                     .await?;
             }
-            Os::Macos => todo!("MacOS"),
+            Os::Macos => unimplemented!("MacOS"),
         }
 
         Ok(())

@@ -5,7 +5,7 @@ use test_rpc::mullvad_daemon::MullvadClientVersion;
 pub struct TestMetadata {
     pub name: &'static str,
     pub command: &'static str,
-    pub target_os: Option<Os>,
+    pub targets: &'static [Os],
     pub mullvad_client_version: MullvadClientVersion,
     pub func: TestWrapperFunction,
     pub priority: Option<i32>,
@@ -16,9 +16,7 @@ pub struct TestMetadata {
 
 impl TestMetadata {
     pub fn should_run_on_os(&self, os: Os) -> bool {
-        self.target_os
-            .map(|target_os| target_os == os)
-            .unwrap_or(true)
+        self.targets.is_empty() || self.targets.contains(&os)
     }
 }
 
