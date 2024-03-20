@@ -72,25 +72,9 @@ async fn setup_nftables_drop_pings_rule(
     })
 }
 
-#[test_function(target_os = "windows")]
-pub async fn test_mtu_detection_windows(
-    _: TestContext,
-    rpc: ServiceClient,
-    mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
-    test_mtu_detection(rpc, mullvad_client).await
-}
-
-#[test_function(target_os = "linux")]
-pub async fn test_mtu_detection_linux(
-    _: TestContext,
-    rpc: ServiceClient,
-    mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
-    test_mtu_detection(rpc, mullvad_client).await
-}
-
+#[test_function(target_os = "linux", target_os = "windows")]
 async fn test_mtu_detection(
+    _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
