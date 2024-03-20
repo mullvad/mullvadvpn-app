@@ -78,6 +78,32 @@ extension State {
         }
     }
 
+    var connectionState: ConnectionState? {
+        switch self {
+        case
+            let .connecting(connState),
+            let .connected(connState),
+            let .reconnecting(connState),
+            let .disconnecting(connState): connState
+        default: nil
+        }
+    }
+
+    var blockedState: BlockedState? {
+        switch self {
+        case let .error(blockedState): blockedState
+        default: nil
+        }
+    }
+
+    var connectionOrErrorState: ConnectionOrBlockedState? {
+        self.connectionState ?? self.blockedState
+    }
+
+    var keyPolicy: KeyPolicy? {
+        connectionOrErrorState?.keyPolicy
+    }
+
     /// Return a copy of this state with the associated value (if appropriate) replaced with a new value.
     /// If the value does not apply, this just returns the state as is, ignoring it.
 
@@ -91,44 +117,31 @@ extension State {
         }
     }
 
-    /// Apply a mutating function to the connection state if this state has one, and replace its value. If not, this is a no-op.
-    /// - parameter modifier: A function that takes an `inout ConnectionState` and returns `true`if it has been mutated
-    /// - returns: `true` if the state's value has been changed
-    @discardableResult mutating func mutateConnectionState(_ modifier: (inout ConnectionState) -> Bool) -> Bool {
-        var modified = false
+    /// Apply a mutating function to the connection/error state's associated data if this state has one,
+    /// and replace its value. If not, this is a no-op.
+    /// - parameter modifier: A function that takes an `inout ConnectionOrBlockedState` and modifies it
+    mutating func mutateConnectionOrBlockedState(_ modifier: (inout ConnectionOrBlockedState) -> Void) {
         switch self {
-        case var .connecting(connState), var .connected(connState), var .reconnecting(connState),
-             var .disconnecting(connState):
-            modified = modifier(&connState)
-            self = self.replacingConnectionState(with: connState)
+        case let .connecting(connState),
+             let .connected(connState),
+             let .reconnecting(connState),
+             let .disconnecting(connState):
+            var connOrErrorState: ConnectionOrBlockedState = connState
+            modifier(&connOrErrorState)
+            self = self.replacingConnectionState(with: connOrErrorState as! ConnectionState)
+        case let .error(blockedState):
+            var connOrErrorState: ConnectionOrBlockedState = blockedState
+            modifier(&connOrErrorState)
+            self = .error(connOrErrorState as! BlockedState)
         default:
-            return false
-        }
-        return modified
-    }
-
-    /// Apply a mutating function to the blocked state if this state has one, and replace its value. If not, this is a no-op.
-    /// - parameter modifier: A function that takes an `inout ConnectionState` and returns `true`if it has been mutated
-    /// - returns: `true` if the state's value has been changed
-
-    @discardableResult mutating func mutateBlockedState(_ modifier: (inout BlockedState) -> Bool) -> Bool {
-        switch self {
-        case var .error(blockedState):
-            let modified = modifier(&blockedState)
-            self = .error(blockedState)
-            return modified
-        default:
-            return false
+            break
         }
     }
 
     /// Apply a mutating function to the state's key policy
-    /// - parameter modifier: A function that takes an `inout KeyPolicy` and returns `true`if it has been mutated
-    /// - returns: `true` if the state's value has been changed
-    @discardableResult mutating func mutateKeyPolicy(_ modifier: (inout KeyPolicy) -> Bool) -> Bool {
-        self.mutateConnectionState { modifier(&$0.keyPolicy) }
-            || self.mutateBlockedState { modifier(&$0.keyPolicy) }
-            || false
+    /// - parameter modifier: A function that takes an `inout KeyPolicy` and modifies it
+    mutating func mutateKeyPolicy(_ modifier: (inout KeyPolicy) -> Void) {
+        self.mutateConnectionOrBlockedState { modifier(&$0.keyPolicy) }
     }
 }
 
