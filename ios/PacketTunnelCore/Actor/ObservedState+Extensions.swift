@@ -12,11 +12,9 @@ import MullvadTypes
 extension ObservedState {
     public var relayConstraints: RelayConstraints? {
         switch self {
-        case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
+        case let .connecting(connState), let .connected(connState), let .reconnecting(connState), let .negotiatingKey(connState):
             connState.relayConstraints
 
-        case let .negotiatingKey(connState):
-            connState.relayConstraints
         case let .error(blockedState):
             blockedState.relayConstraints
 
