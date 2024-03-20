@@ -8,10 +8,7 @@ use std::{
 
 use tokio::sync::Mutex;
 
-#[cfg(not(target_os = "android"))]
-use mullvad_relay_selector::{GetRelay, RelaySelector, WireguardConfig};
-#[cfg(target_os = "android")]
-use mullvad_relay_selector::{GetRelay, RelaySelector, WireguardConfig};
+use mullvad_relay_selector::{GetRelay, RelaySelector, RuntimeParameters, WireguardConfig};
 use mullvad_types::{
     endpoint::MullvadWireguardEndpoint, location::GeoIpLocation, relay_list::Relay,
     settings::TunnelOptions,
@@ -143,11 +140,15 @@ impl ParametersGenerator {
 }
 
 impl InnerParametersGenerator {
-    async fn generate(&mut self, retry_attempt: u32) -> Result<TunnelParameters, Error> {
+    async fn generate(
+        &mut self,
+        retry_attempt: u32,
+        ipv6: bool,
+    ) -> Result<TunnelParameters, Error> {
         let data = self.device().await?;
         let selected_relay = self
             .relay_selector
-            .get_relay(retry_attempt as usize)
+            .get_relay_with_runtime_params(retry_attempt as usize, RuntimeParameters { ipv6 })
             .map_err(|err| match err {
                 mullvad_relay_selector::Error::NoBridge => Error::NoBridgeAvailable,
                 _ => Error::NoRelayAvailable,
@@ -277,12 +278,13 @@ impl TunnelParametersGenerator for ParametersGenerator {
     fn generate(
         &mut self,
         retry_attempt: u32,
+        ipv6: bool,
     ) -> Pin<Box<dyn Future<Output = Result<TunnelParameters, ParameterGenerationError>>>> {
         let generator = self.0.clone();
         Box::pin(async move {
             let mut inner = generator.lock().await;
             inner
-                .generate(retry_attempt)
+                .generate(retry_attempt, ipv6)
                 .await
                 .map_err(|error| match error {
                     Error::NoBridgeAvailable => ParameterGenerationError::NoMatchingBridgeRelay,

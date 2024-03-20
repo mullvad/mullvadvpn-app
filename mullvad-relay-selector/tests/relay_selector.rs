@@ -12,7 +12,8 @@ use talpid_types::net::{
 
 use mullvad_relay_selector::{
     query::{builder::RelayQueryBuilder, BridgeQuery, OpenVpnRelayQuery},
-    Error, GetRelay, RelaySelector, SelectorConfig, WireguardConfig, RETRY_ORDER,
+    Error, GetRelay, RelaySelector, RuntimeParameters, SelectorConfig, WireguardConfig,
+    RETRY_ORDER,
 };
 use mullvad_types::{
     constraints::Constraint,
@@ -876,7 +877,7 @@ fn test_openvpn_auto_bridge() {
         .take(100 * retry_order.len())
     {
         let relay = relay_selector
-            .get_relay_with_order(&retry_order, retry_attempt)
+            .get_relay_with_custom_params(retry_attempt, &retry_order, RuntimeParameters::default())
             .unwrap();
         match relay {
             GetRelay::OpenVpn { bridge, .. } => {
