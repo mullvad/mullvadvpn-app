@@ -43,6 +43,6 @@ extension PacketTunnelActor {
 
         let newReachability = networkPath.networkReachability
 
-        state.mutateConnectionOrBlockedState { $0.networkReachability = newReachability }
+        state.mutateAssociatedData { $0.networkReachability = newReachability }
     }
 }
