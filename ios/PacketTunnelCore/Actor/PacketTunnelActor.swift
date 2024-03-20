@@ -27,7 +27,8 @@ import WireGuardKitTypes
  */
 public actor PacketTunnelActor {
     var state: State = .initial {
-        didSet {
+        didSet(oldValue) {
+            guard state != oldValue else { return }
             logger.debug("\(state.logFormat())")
             observedState = state.observedState
         }

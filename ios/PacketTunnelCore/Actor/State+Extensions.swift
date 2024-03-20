@@ -78,26 +78,33 @@ extension State {
         }
     }
 
+    /// Return a copy of this state with the associated value (if appropriate) replaced with a new value.
+    /// If the value does not apply, this just returns the state as is, ignoring it.
+
+    internal func replacingConnectionState(with newValue: ConnectionState) -> State {
+        switch self {
+        case .connecting: .connecting(newValue)
+        case .connected: .connected(newValue)
+        case .reconnecting: .reconnecting(newValue)
+        case .disconnecting: .disconnecting(newValue)
+        default: self
+        }
+    }
+
     /// Apply a mutating function to the connection state if this state has one, and replace its value. If not, this is a no-op.
     /// - parameter modifier: A function that takes an `inout ConnectionState` and returns `true`if it has been mutated
     /// - returns: `true` if the state's value has been changed
     @discardableResult mutating func mutateConnectionState(_ modifier: (inout ConnectionState) -> Bool) -> Bool {
+        var modified = false
         switch self {
-        case var .connecting(connState):
-            defer { self = .connecting(connState) }
-            return modifier(&connState)
-        case var .connected(connState):
-            defer { self = .connected(connState) }
-            return modifier(&connState)
-        case var .reconnecting(connState):
-            defer { self = .reconnecting(connState) }
-            return modifier(&connState)
-        case var .disconnecting(connState):
-            defer { self = .disconnecting(connState) }
-            return modifier(&connState)
+        case var .connecting(connState), var .connected(connState), var .reconnecting(connState),
+             var .disconnecting(connState):
+            modified = modifier(&connState)
+            self = self.replacingConnectionState(with: connState)
         default:
             return false
         }
+        return modified
     }
 
     /// Apply a mutating function to the blocked state if this state has one, and replace its value. If not, this is a no-op.
@@ -107,8 +114,9 @@ extension State {
     @discardableResult mutating func mutateBlockedState(_ modifier: (inout BlockedState) -> Bool) -> Bool {
         switch self {
         case var .error(blockedState):
-            defer { self = .error(blockedState) }
-            return modifier(&blockedState)
+            let modified = modifier(&blockedState)
+            self = .error(blockedState)
+            return modified
         default:
             return false
         }
@@ -135,6 +143,16 @@ extension KeyPolicy {
     }
 }
 
+extension KeyPolicy: Equatable {
+    static func == (lhs: KeyPolicy, rhs: KeyPolicy) -> Bool {
+        switch (lhs, rhs) {
+        case (.useCurrent, .useCurrent): true
+        case let (.usePrior(priorA, _), .usePrior(priorB, _)): priorA == priorB
+        default: false
+        }
+    }
+}
+
 extension BlockedStateReason {
     /**
      Returns true if the tunnel should attempt to restart periodically to recover from error that does not require explicit restart to be initiated by user.
@@ -154,5 +172,17 @@ extension BlockedStateReason {
              .tunnelAdapter, .unknown, .deviceLoggedOut, .outdatedSchema, .invalidRelayPublicKey:
             return false
         }
+    }
+}
+
+extension BlockedState: Equatable {
+    static func == (lhs: BlockedState, rhs: BlockedState) -> Bool {
+        lhs.reason == rhs.reason
+            && lhs.relayConstraints == rhs.relayConstraints
+            && lhs.currentKey == rhs.currentKey
+            && lhs.keyPolicy == rhs.keyPolicy
+            && lhs.networkReachability == rhs.networkReachability
+            && lhs.lastKeyRotation == rhs.lastKeyRotation
+            && lhs.priorState == rhs.priorState
     }
 }
