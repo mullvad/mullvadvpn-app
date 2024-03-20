@@ -19,6 +19,8 @@ export default class TrayIconController {
 
   private updateThrottlePromise?: Promise<void>;
 
+  private previousNotificationIconReason?: string;
+
   constructor(
     private tray: Tray,
     private iconTypeValue: TrayIconType,
@@ -57,7 +59,16 @@ export default class TrayIconController {
     void this.updateIconParameters({ monochromatic: monochromaticIcon });
   }
 
-  public showNotificationIcon(notificationIcon: boolean) {
+  public showNotificationIcon(notificationIcon: boolean, reason?: string) {
+    if (reason !== this.previousNotificationIconReason) {
+      this.previousNotificationIconReason = reason;
+      if (notificationIcon) {
+        log.info('Showing notification icon:', reason);
+      } else {
+        log.info('Hiding notification icon');
+      }
+    }
+
     void this.updateIconParameters({ notification: notificationIcon });
   }
 
