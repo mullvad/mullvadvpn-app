@@ -116,11 +116,9 @@ enum TunnelState: Equatable, CustomStringConvertible {
 
     var relay: SelectedRelay? {
         switch self {
-        case let .connected(relay), let .reconnecting(relay):
+        case let .connected(relay), let .reconnecting(relay), let .negotiatingKey(relay):
             relay
         case let .connecting(relay):
-            relay
-        case let .negotiatingKey(relay):
             relay
         case .disconnecting, .disconnected, .waitingForConnectivity, .pendingReconnect, .error:
             nil
