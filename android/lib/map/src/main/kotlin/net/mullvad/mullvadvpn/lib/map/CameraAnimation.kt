@@ -38,7 +38,7 @@ fun animatedCameraPosition(
     }
 
     val distance =
-        remember(targetCameraLocation) { targetCameraLocation.distanceTo(previousLocation).toInt() }
+        remember(targetCameraLocation) { targetCameraLocation.seppDistanceTo(previousLocation) }
     val duration = distance.toAnimationDuration()
 
     val longitudeAnimation = remember { Animatable(targetCameraLocation.longitude.value) }
@@ -97,5 +97,7 @@ fun animatedCameraPosition(
     )
 }
 
-private fun Int.toAnimationDuration() =
-    (this * DISTANCE_DURATION_SCALE_FACTOR).coerceIn(MIN_ANIMATION_MILLIS, MAX_ANIMATION_MILLIS)
+private fun Float.toAnimationDuration(): Int =
+    (this * DISTANCE_DURATION_SCALE_FACTOR)
+        .toInt()
+        .coerceIn(MIN_ANIMATION_MILLIS, MAX_ANIMATION_MILLIS)
