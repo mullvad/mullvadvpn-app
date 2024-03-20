@@ -5,13 +5,17 @@ use crate::network_monitor::{
 use anyhow::{anyhow, bail, ensure, Context};
 use futures::StreamExt;
 use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
+use mullvad_relay_selector::{
+    query::RelayQuery, GetRelay, RelaySelector, SelectorConfig, WireguardConfig,
+};
 use mullvad_types::{
     constraints::Constraint,
     location::Location,
     relay_constraints::{
-        BridgeSettings, GeographicLocationConstraint, LocationConstraint, RelaySettings,
+        BridgeSettings, GeographicLocationConstraint, LocationConstraint, RelayConstraints,
+        RelaySettings,
     },
-    relay_list::{Relay, RelayList},
+    relay_list::Relay,
     states::TunnelState,
 };
 use pcap::Direction;
@@ -499,27 +503,49 @@ pub fn get_app_env() -> HashMap<String, String> {
     ])
 }
 
-/// Return a filtered version of the daemon's relay list.
+/// Constrain the daemon to only select the relay selected with `query` when establishing all
+/// future tunnels (until relay settings are updated, see [`set_relay_settings`]). Returns the
+/// selected [`Relay`] for future reference.
 ///
-/// * `mullvad_client` - An interface to the Mullvad daemon.
-/// * `critera` - A function used to determine which relays to return.
-pub async fn filter_relays<Filter>(
+/// # Note
+/// This function does not handle bridges and multihop configurations (currently). There is no
+/// particular reason for this other than it not being needed at the time, so feel free to extend this
+/// function :).
+pub async fn constrain_to_relay(
     mullvad_client: &mut MullvadProxyClient,
-    criteria: Filter,
-) -> Result<Vec<Relay>, Error>
-where
-    Filter: Fn(&Relay) -> bool,
-{
-    let relay_list: RelayList = mullvad_client
-        .get_relay_locations()
-        .await
-        .map_err(|error| Error::Daemon(format!("Failed to obtain relay list: {}", error)))?;
+    query: RelayQuery,
+) -> anyhow::Result<Relay> {
+    /// Convert the result of invoking the relay selector to a relay constraint.
+    fn convert_to_relay_constraints(
+        selected_relay: GetRelay,
+    ) -> anyhow::Result<(Relay, RelayConstraints)> {
+        match selected_relay {
+            GetRelay::Wireguard {
+                inner: WireguardConfig::Singlehop { exit },
+                ..
+            }
+            | GetRelay::OpenVpn { exit, .. } => {
+                let location = into_constraint(&exit)?;
+                let relay_constraints = RelayConstraints {
+                    location,
+                    ..Default::default()
+                };
+                Ok((exit, relay_constraints))
+            }
+            unsupported => bail!("Can not constrain to a {unsupported:?}"),
+        }
+    }
 
-    Ok(relay_list
-        .relays()
-        .filter(|relay| criteria(relay))
-        .cloned()
-        .collect())
+    // Construct a relay selector with up-to-date information from the runnin daemon's relay list
+    let relay_list = mullvad_client.get_relay_locations().await?;
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
+    // Select an(y) appropriate relay for the given query and constrain the daemon to only connect
+    // to that specific relay (when connecting).
+    let relay = relay_selector.get_relay_by_query(query)?;
+    let (exit, relay_constraints) = convert_to_relay_constraints(relay)?;
+    set_relay_settings(mullvad_client, RelaySettings::Normal(relay_constraints)).await?;
+
+    Ok(exit)
 }
 
 /// Convenience function for constructing a constraint from a given [`Relay`].
@@ -527,7 +553,7 @@ where
 /// # Panics
 ///
 /// The relay must have a location set.
-pub fn into_constraint(relay: &Relay) -> Constraint<LocationConstraint> {
+pub fn into_constraint(relay: &Relay) -> anyhow::Result<Constraint<LocationConstraint>> {
     relay
         .location
         .as_ref()
@@ -537,16 +563,12 @@ pub fn into_constraint(relay: &Relay) -> Constraint<LocationConstraint> {
                  city_code,
                  ..
              }| {
-                GeographicLocationConstraint::Hostname(
-                    country_code.to_string(),
-                    city_code.to_string(),
-                    relay.hostname.to_string(),
-                )
+                GeographicLocationConstraint::hostname(country_code, city_code, &relay.hostname)
             },
         )
         .map(LocationConstraint::Location)
         .map(Constraint::Only)
-        .expect("relay is missing location")
+        .ok_or(anyhow!("relay is missing location"))
 }
 
 /// Ping monitoring made easy!

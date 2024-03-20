@@ -25,6 +25,7 @@ pub struct ParsedPacket {
     pub source: SocketAddr,
     pub destination: SocketAddr,
     pub protocol: IpNextHeaderProtocol,
+    pub payload: Vec<u8>,
 }
 
 impl PacketCodec for Codec {
@@ -74,9 +75,9 @@ impl Codec {
 
         let mut source = SocketAddr::new(IpAddr::V4(packet.get_source()), 0);
         let mut destination = SocketAddr::new(IpAddr::V4(packet.get_destination()), 0);
+        let mut payload = vec![];
 
         let protocol = packet.get_next_level_protocol();
-
         match protocol {
             IpHeaderProtocols::Tcp => {
                 let seg = TcpPacket::new(packet.payload()).or_else(|| {
@@ -85,6 +86,7 @@ impl Codec {
                 })?;
                 source.set_port(seg.get_source());
                 destination.set_port(seg.get_destination());
+                payload = seg.payload().to_vec();
             }
             IpHeaderProtocols::Udp => {
                 let seg = UdpPacket::new(packet.payload()).or_else(|| {
@@ -93,6 +95,7 @@ impl Codec {
                 })?;
                 source.set_port(seg.get_source());
                 destination.set_port(seg.get_destination());
+                payload = seg.payload().to_vec();
             }
             IpHeaderProtocols::Icmp => {}
             proto => log::debug!("ignoring v4 packet, transport/protocol type {proto}"),
@@ -102,6 +105,7 @@ impl Codec {
             source,
             destination,
             protocol,
+            payload,
         })
     }
 
@@ -113,6 +117,7 @@ impl Codec {
 
         let mut source = SocketAddr::new(IpAddr::V6(packet.get_source()), 0);
         let mut destination = SocketAddr::new(IpAddr::V6(packet.get_destination()), 0);
+        let mut payload = vec![];
 
         let protocol = packet.get_next_header();
         match protocol {
@@ -123,6 +128,7 @@ impl Codec {
                 })?;
                 source.set_port(seg.get_source());
                 destination.set_port(seg.get_destination());
+                payload = seg.payload().to_vec();
             }
             IpHeaderProtocols::Udp => {
                 let seg = UdpPacket::new(packet.payload()).or_else(|| {
@@ -131,6 +137,7 @@ impl Codec {
                 })?;
                 source.set_port(seg.get_source());
                 destination.set_port(seg.get_destination());
+                payload = seg.payload().to_vec();
             }
             IpHeaderProtocols::Icmpv6 => {}
             proto => log::debug!("ignoring v6 packet, transport/protocol type {proto}"),
@@ -140,12 +147,14 @@ impl Codec {
             source,
             destination,
             protocol,
+            payload,
         })
     }
 }
 
-#[derive(Debug)]
-pub struct MonitorUnexpectedlyStopped(());
+#[derive(Debug, thiserror::Error)]
+#[error("Packet monitor stopped unexpectedly")]
+pub struct MonitorUnexpectedlyStopped;
 
 pub struct PacketMonitor {
     handle: tokio::task::JoinHandle<Result<MonitorResult, MonitorUnexpectedlyStopped>>,
@@ -297,7 +306,7 @@ async fn start_packet_monitor_for_interface(
                         }
                         _ => {
                             log::error!("lost packet stream");
-                            break Err(MonitorUnexpectedlyStopped(()));
+                            break Err(MonitorUnexpectedlyStopped);
                         }
                     }
                 }
