@@ -48,10 +48,9 @@ fn run() -> Result<(), String> {
 
     match config.command {
         cli::Command::Daemon => {
-            if runtime.block_on(rpc_uniqueness_check::is_another_instance_running()) {
-                return Err("Another instance of the daemon is already running".into());
-            }
-
+            // uniqueness check must happen before logging initializaton,
+            // as initializing logs will rotate any existing log file.
+            runtime.block_on(assert_unique())?;
             let log_dir = init_daemon_logging(config)?;
             log::trace!("Using configuration: {:?}", config);
 
@@ -70,6 +69,7 @@ fn run() -> Result<(), String> {
         #[cfg(target_os = "windows")]
         cli::Command::RunAsService => {
             init_logger(config, None)?;
+            runtime.block_on(assert_unique())?;
             system_service::run()
         }
 
@@ -86,6 +86,14 @@ fn run() -> Result<(), String> {
             std::process::exit(macos_launch_daemon::get_status() as i32);
         }
     }
+}
+
+/// Check that there's not another daemon currently running.
+async fn assert_unique() -> Result<(), &'static str> {
+    if rpc_uniqueness_check::is_another_instance_running().await {
+        return Err("Another instance of the daemon is already running");
+    }
+    Ok(())
 }
 
 /// Initialize logging to stderr and to file (if configured).
