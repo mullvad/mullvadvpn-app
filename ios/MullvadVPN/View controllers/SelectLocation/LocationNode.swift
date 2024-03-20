@@ -80,6 +80,8 @@ extension LocationNode {
 }
 
 extension LocationNode {
+    /// Recursively copies a node, its parent and its descendants from another
+    /// node (tree), with an optional custom root parent.
     func copy(withParent parent: LocationNode? = nil) -> LocationNode {
         let node = LocationNode(
             name: name,
