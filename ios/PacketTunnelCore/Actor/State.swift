@@ -54,7 +54,7 @@ import WireGuardKitTypes
  `.connecting`, `.reconnecting`, `.error` can be interrupted if the tunnel is requested to stop, which should segue actor towards `.disconnected` state.
 
  */
-enum State {
+enum State: Equatable {
     /// Initial state at the time when actor is initialized but before the first connection attempt.
     case initial
 
@@ -97,7 +97,7 @@ public enum NetworkReachability: Equatable, Codable {
 }
 
 /// Data associated with states that hold connection data.
-struct ConnectionState {
+struct ConnectionState: Equatable {
     /// Current selected relay.
     public var selectedRelay: SelectedRelay
 
@@ -206,7 +206,7 @@ public enum BlockedStateReason: String, Codable, Equatable {
 }
 
 /// Legal states that can precede error state.
-enum StatePriorToBlockedState {
+enum StatePriorToBlockedState: Equatable {
     case initial, connecting, connected, reconnecting
 }
 
