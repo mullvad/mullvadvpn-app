@@ -38,10 +38,8 @@ class StopTunnelOperation: ResultOperation<Void> {
         case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error:
             doShutDownTunnel()
 
-        #if DEBUG
         case .negotiatingKey:
             doShutDownTunnel()
-        #endif
 
         case .disconnected, .disconnecting, .pendingReconnect, .waitingForConnectivity(.noNetwork):
             finish(result: .success(()))
