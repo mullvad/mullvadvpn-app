@@ -18,9 +18,7 @@ public enum ObservedState: Equatable, Codable {
 //    case exchangingPostQuantumKey(ObservedConnectionState)
     case connecting(ObservedConnectionState)
     case reconnecting(ObservedConnectionState)
-    #if DEBUG
     case negotiatingKey(ObservedConnectionState)
-    #endif
     case connected(ObservedConnectionState)
     case disconnecting(ObservedConnectionState)
     case disconnected

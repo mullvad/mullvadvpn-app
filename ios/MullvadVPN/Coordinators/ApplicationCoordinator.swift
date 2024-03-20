@@ -991,10 +991,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error:
             tunnelManager.reconnectTunnel(selectNewRelay: true)
 
-        #if DEBUG
         case .negotiatingKey:
             tunnelManager.reconnectTunnel(selectNewRelay: true)
-        #endif
 
         case .disconnecting, .disconnected:
             tunnelManager.startTunnel()
