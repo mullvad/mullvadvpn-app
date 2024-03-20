@@ -60,16 +60,16 @@ enum State: Equatable {
 
     /// Tunnel is attempting to connect.
     /// The actor should remain in this state until the very first connection is established, i.e determined by tunnel monitor.
-    case connecting(ConnectionState)
+    case connecting(ConnectionData)
 
     /// Tunnel is connected.
-    case connected(ConnectionState)
+    case connected(ConnectionData)
 
     /// Tunnel is attempting to reconnect.
-    case reconnecting(ConnectionState)
+    case reconnecting(ConnectionData)
 
     /// Tunnel is disconnecting.
-    case disconnecting(ConnectionState)
+    case disconnecting(ConnectionData)
 
     /// Tunnel is disconnected.
     /// Normally the process is shutdown after entering this state.
@@ -79,7 +79,7 @@ enum State: Equatable {
     /// This state is normally entered when the tunnel is unable to start or reconnect.
     /// In this state the tunnel blocks all nework connectivity by setting up a peerless WireGuard tunnel, and either awaits user action or, in certain
     /// circumstances, attempts to recover automatically using a repeating timer.
-    case error(BlockedState)
+    case error(BlockingData)
 }
 
 /// Policy describing what WG key to use for tunnel communication.
@@ -97,84 +97,87 @@ public enum NetworkReachability: Equatable, Codable {
 }
 
 // perhaps this should have a better name?
-protocol ConnectionOrBlockedState {
+protocol StateAssociatedData {
     var currentKey: PrivateKey? { get set }
     var keyPolicy: KeyPolicy { get set }
     var networkReachability: NetworkReachability { get set }
     var lastKeyRotation: Date? { get set }
 }
 
-/// Data associated with states that hold connection data.
-struct ConnectionState: Equatable, ConnectionOrBlockedState {
-    /// Current selected relay.
-    public var selectedRelay: SelectedRelay
-
-    /// Last relay constraints read from settings.
-    /// This is primarily used by packet tunnel for updating constraints in tunnel provider.
-    public var relayConstraints: RelayConstraints
-
-    /// Last WG key read from settings.
-    /// Can be `nil` if moved to `keyPolicy`.
-    public var currentKey: PrivateKey?
-
-    /// Policy describing the current key that should be used by the tunnel.
-    public var keyPolicy: KeyPolicy
-
-    /// Whether network connectivity outside of tunnel is available.
-    public var networkReachability: NetworkReachability
-
-    /// Connection attempt counter.
-    /// Reset to zero once connection is established.
-    public var connectionAttemptCount: UInt
-
-    /// Last time packet tunnel rotated the key.
-    public var lastKeyRotation: Date?
-
-    /// Increment connection attempt counter by one, wrapping to zero on overflow.
-    public mutating func incrementAttemptCount() {
-        let (value, isOverflow) = connectionAttemptCount.addingReportingOverflow(1)
-        connectionAttemptCount = isOverflow ? 0 : value
+extension State {
+    /// Data associated with states that hold connection data.
+    struct ConnectionData: Equatable, StateAssociatedData {
+        /// Current selected relay.
+        public var selectedRelay: SelectedRelay
+        
+        /// Last relay constraints read from settings.
+        /// This is primarily used by packet tunnel for updating constraints in tunnel provider.
+        public var relayConstraints: RelayConstraints
+        
+        /// Last WG key read from settings.
+        /// Can be `nil` if moved to `keyPolicy`.
+        public var currentKey: PrivateKey?
+        
+        /// Policy describing the current key that should be used by the tunnel.
+        public var keyPolicy: KeyPolicy
+        
+        /// Whether network connectivity outside of tunnel is available.
+        public var networkReachability: NetworkReachability
+        
+        /// Connection attempt counter.
+        /// Reset to zero once connection is established.
+        public var connectionAttemptCount: UInt
+        
+        /// Last time packet tunnel rotated the key.
+        public var lastKeyRotation: Date?
+        
+        /// Increment connection attempt counter by one, wrapping to zero on overflow.
+        public mutating func incrementAttemptCount() {
+            let (value, isOverflow) = connectionAttemptCount.addingReportingOverflow(1)
+            connectionAttemptCount = isOverflow ? 0 : value
+        }
+        
+        /// The actual endpoint fed to WireGuard, can be a local endpoint if obfuscation is used.
+        public let connectedEndpoint: MullvadEndpoint
+        /// Via which transport protocol was the connection made to the relay
+        public let transportLayer: TransportLayer
+        
+        /// The remote port that was chosen to connect to `connectedEndpoint`
+        public let remotePort: UInt16
     }
 
-    /// The actual endpoint fed to WireGuard, can be a local endpoint if obfuscation is used.
-    public let connectedEndpoint: MullvadEndpoint
-    /// Via which transport protocol was the connection made to the relay
-    public let transportLayer: TransportLayer
+    /// Data associated with error state.
+    struct BlockingData: StateAssociatedData {
+        /// Reason why block state was entered.
+        public var reason: BlockedStateReason
 
-    /// The remote port that was chosen to connect to `connectedEndpoint`
-    public let remotePort: UInt16
+        /// Last relay constraints read from settings.
+        /// This is primarily used by packet tunnel for updating constraints in tunnel provider.
+        public var relayConstraints: RelayConstraints?
+
+        /// Last WG key read from setings.
+        /// Can be `nil` if moved to `keyPolicy` or when it's uknown.
+        public var currentKey: PrivateKey?
+
+        /// Policy describing the current key that should be used by the tunnel.
+        public var keyPolicy: KeyPolicy
+
+        /// Whether network connectivity outside of tunnel is available.
+        public var networkReachability: NetworkReachability
+
+        /// Last time packet tunnel rotated or attempted to rotate the key.
+        /// This is used by `TunnelManager` to detect when it needs to refresh device state from Keychain.
+        public var lastKeyRotation: Date?
+
+        /// Task responsible for periodically calling actor to restart the tunnel.
+        /// Initiated based on the error that led to blocked state.
+        public var recoveryTask: AutoCancellingTask?
+
+        /// Prior state of the actor before entering blocked state
+        public var priorState: StatePriorToBlockedState
+    }
 }
 
-/// Data associated with error state.
-struct BlockedState: ConnectionOrBlockedState {
-    /// Reason why block state was entered.
-    public var reason: BlockedStateReason
-
-    /// Last relay constraints read from settings.
-    /// This is primarily used by packet tunnel for updating constraints in tunnel provider.
-    public var relayConstraints: RelayConstraints?
-
-    /// Last WG key read from setings.
-    /// Can be `nil` if moved to `keyPolicy` or when it's uknown.
-    public var currentKey: PrivateKey?
-
-    /// Policy describing the current key that should be used by the tunnel.
-    public var keyPolicy: KeyPolicy
-
-    /// Whether network connectivity outside of tunnel is available.
-    public var networkReachability: NetworkReachability
-
-    /// Last time packet tunnel rotated or attempted to rotate the key.
-    /// This is used by `TunnelManager` to detect when it needs to refresh device state from Keychain.
-    public var lastKeyRotation: Date?
-
-    /// Task responsible for periodically calling actor to restart the tunnel.
-    /// Initiated based on the error that led to blocked state.
-    public var recoveryTask: AutoCancellingTask?
-
-    /// Prior state of the actor before entering blocked state
-    public var priorState: StatePriorToBlockedState
-}
 
 /// Reason why packet tunnel entered error state.
 public enum BlockedStateReason: String, Codable, Equatable {
