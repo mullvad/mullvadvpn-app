@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Args, Parser};
 use once_cell::sync::Lazy;
 
 static ENV_DESC: Lazy<String> = Lazy::new(|| {
@@ -36,13 +36,21 @@ struct Cli {
     #[arg(long)]
     disable_stdout_timestamps: bool,
 
+    #[command(flatten)]
+    command: CommandFlags,
+}
+
+#[derive(Debug, Args)]
+#[group(multiple = false, required = false)]
+pub struct CommandFlags {
     /// Run as a system service
     #[cfg(target_os = "windows")]
-    #[arg(long, conflicts_with = "register_service")]
+    #[arg(long)]
     run_as_service: bool,
+
     /// Register Mullvad daemon as a system service
     #[cfg(target_os = "windows")]
-    #[arg(long, conflicts_with = "run_as_service")]
+    #[arg(long)]
     register_service: bool,
 
     /// Initialize firewall to be used during early boot and exit
@@ -87,6 +95,29 @@ pub enum Command {
     LaunchDaemonStatus,
 }
 
+impl From<CommandFlags> for Command {
+    fn from(f: CommandFlags) -> Self {
+        let command_flags = [
+            #[cfg(target_os = "linux")]
+            (
+                f.initialize_early_boot_firewall,
+                Command::InitializeEarlyBootFirewall,
+            ),
+            #[cfg(target_os = "windows")]
+            (f.run_as_service, Command::RunAsService),
+            #[cfg(target_os = "windows")]
+            (f.register_service, Command::RegisterService),
+            #[cfg(target_os = "macos")]
+            (f.launch_daemon_status, Command::LaunchDaemonStatus),
+        ];
+
+        command_flags
+            .into_iter()
+            .find_map(|(flag, command)| flag.then_some(command))
+            .unwrap_or(Command::Daemon)
+    }
+}
+
 pub fn get_config() -> &'static Config {
     static CONFIG: Lazy<Config> = Lazy::new(create_config);
     &CONFIG
@@ -101,29 +132,10 @@ fn create_config() -> Config {
         _ => log::LevelFilter::Trace,
     };
 
-    let command_flags = [
-        #[cfg(target_os = "linux")]
-        (
-            app.initialize_early_boot_firewall,
-            Command::InitializeEarlyBootFirewall,
-        ),
-        #[cfg(target_os = "windows")]
-        (app.run_as_service, Command::RunAsService),
-        #[cfg(target_os = "windows")]
-        (app.register_service, Command::RegisterService),
-        #[cfg(target_os = "macos")]
-        (app.launch_daemon_status, Command::LaunchDaemonStatus),
-    ];
-
-    let command = command_flags
-        .into_iter()
-        .find_map(|(flag, command)| flag.then_some(command))
-        .unwrap_or(Command::Daemon);
-
     Config {
         log_level,
         log_to_file: !app.disable_log_to_file,
         log_stdout_timestamps: !app.disable_stdout_timestamps,
-        command,
+        command: app.command.into(),
     }
 }
