@@ -271,6 +271,10 @@ export default class WindowController {
     _display: Display,
     changedMetrics: string[],
   ) => {
+    if (changedMetrics.includes('scaleFactor')) {
+      IpcMainEventChannel.window.notifyScaleFactorChange?.();
+    }
+
     if (changedMetrics.includes('workArea') && this.window?.isVisible()) {
       this.onWorkAreaSizeChange();
       if (process.platform === 'win32') {
