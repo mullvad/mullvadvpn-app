@@ -32,7 +32,6 @@
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Om du vill aktivera Anslut automatiskt klickar du på växlingsknappen bredvid &lt;b&gt;Alltid på-VPN&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Anslut automatiskt kallas Alltid på-VPN i Androids systeminställningar och ser till att du är ansluten till VPN-tunneln oavbrutet och ansluter automatiskt efter omstart.</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. Om du vill aktivera Låsningsläge klickar du på växlingsknappen bredvid &lt;b&gt;Blockera anslutningar utan VPN&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">Låsningsläget blockerar all internetåtkomst om VPN-tunneln kopplas från manuellt. &lt;br/&gt;&lt;b&gt;Varning! Den här inställningen blockerar delade appar och funktionen Lokal nätverksdelning (Local Network Sharing)&lt;/b&gt;.</string>
     <string name="auto_connect_footer">Anslut automatiskt till en server när appen startas.</string>
     <string name="automatic">Automatisk</string>
     <string name="back">Tillbaka</string>
@@ -183,7 +182,6 @@
     <string name="payment_status_pending">Google Play-betalning väntar</string>
     <string name="port">Port</string>
     <string name="privacy_disclaimer_body_first_paragraph">Appen genomför automatiska versionskontroller för att se till att du har den säkraste versionen och för att informera dig om problem med den nuvarande versionen. Appversionen och Android-systemversionen skickas till Mullvad-servrarna. Mullvad registrerar antalet använda appversioner och Android-versioner. Dessa data lagras aldrig och används inte på något sätt som kan identifiera dig.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Om delade tunnlar används, frågar appen ditt system om en lista med alla installerade applikationer. Listan hämtas bara i vyn för delade tunnlar. Listan med installerade applikationer skickas aldrig från enheten.</string>
     <string name="privacy_disclaimer_title">Sekretess</string>
     <string name="privacy_policy_label">Sekretesspolicy</string>
     <string name="problem_report_description">För att hjälpa dig mer effektivt kommer appens loggfil att bifogas i detta meddelande. Dina uppgifter förblir säkra och privata, eftersom de anonymiseras innan de skickas över en krypterad kanal.</string>
@@ -229,7 +227,6 @@
     <string name="show_account_number">Visa kontonummer</string>
     <string name="show_system_apps">Visa systemappar</string>
     <string name="split_tunneling_description">Välj de appar du vill exkludera från VPN-tunneln.</string>
-    <string name="split_tunneling_disabled_description">Delade tunnlar är inaktiverat.</string>
     <string name="start_tunnel_error">Det går inte att starta tunnelanslutning. Skicka en problemrapport.</string>
     <string name="submit_button">Skicka</string>
     <string name="switch_location">Växla plats</string>

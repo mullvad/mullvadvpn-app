@@ -32,7 +32,6 @@
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Klik om Automatisch verbinden in te schakelen op de schakelaar naast &lt;b&gt;Altijd-aan VPN&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automatisch verbinden heet Altijd-aan VPN in de Android-systeeminstellingen en zorgt ervoor dat u altijd verbonden bent met de VPN-tunnel en automatisch verbinding maakt na een herstart.</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. Klik om Lockdownmodus in te schakelen op de schakelaar naast &lt;b&gt;Verbindingen zonder VPN blokkeren&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">De Lockdownmodus blokkeert alle internettoegang als de VPN-tunnel handmatig wordt verbroken. &lt;br&gt;&lt;b&gt;Waarschuwing: deze instelling blokkeert gesplitste apps en de functie Lokaal netwerk delen&lt;/b&gt;.</string>
     <string name="auto_connect_footer">Automatisch verbinden met een server wanneer de app wordt gestart.</string>
     <string name="automatic">Automatisch</string>
     <string name="back">Terug</string>
@@ -183,7 +182,6 @@
     <string name="payment_status_pending">Google Play-betaling in behandeling</string>
     <string name="port">Poort</string>
     <string name="privacy_disclaimer_body_first_paragraph">Om zeker te zijn dat u de meest veilige versie hebt en om u te informeren over eventuele problemen met de huidige geactiveerde versie, voert de app automatisch versiecontroles uit. Hierbij worden de appversie en de Android-systeemversie naar de servers van Mullvad gestuurd. Mullvad houdt tellers bij voor gebruikte appversies en Android-versies. De gegevens worden nooit opgeslagen of gebruikt op een manier die u kan identificeren.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Als de split-tunnelingfunctie wordt gebruikt, vraagt de app het systeem om een lijst van alle geïnstalleerde toepassingen. Deze lijst wordt alleen opgehaald in de split-tunnelingweergave. De lijst van geïnstalleerde toepassingen wordt nooit verzonden vanaf het apparaat.</string>
     <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_policy_label">Privacybeleid</string>
     <string name="problem_report_description">Het logboekbestand van uw app wordt aan dit bericht gekoppeld zodat we u beter kunnen helpen. Uw gegevens blijven veilig en privé, omdat ze worden geanonimiseerd voordat ze over een versleuteld kanaal worden verzonden.</string>
@@ -229,7 +227,6 @@
     <string name="show_account_number">Accountnummer weergeven</string>
     <string name="show_system_apps">Systeemapps weergeven</string>
     <string name="split_tunneling_description">Kies de apps die die u wilt uitsluiten van de VPN-tunnel.</string>
-    <string name="split_tunneling_disabled_description">Gesplitste tunneling is uitgeschakeld.</string>
     <string name="start_tunnel_error">Kan de tunnelverbinding niet starten. Stuur een probleemrapport.</string>
     <string name="submit_button">Verzenden</string>
     <string name="switch_location">Locatie wijzigen</string>

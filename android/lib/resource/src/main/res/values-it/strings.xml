@@ -32,7 +32,6 @@
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Per abilitare la connessione automatica, clicca sull\'interruttore accanto a &lt;b&gt;VPN sempre attiva&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_second_slide_top_text">La connessione automatica è denominata VPN sempre attiva nelle impostazioni del sistema Android e garantisce di essere costantemente connessi al tunnel VPN e di connettersi automaticamente dopo il riavvio.</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. Per abilitare la modalità di blocco, clicca sull\'interruttore accanto a &lt;b&gt;Blocca connessioni senza VPN&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">La modalità Blocco blocca tutti gli accessi a Internet se il tunnel VPN viene disconnesso manualmente. &lt;br/&gt;&lt;b&gt;Avviso: questa impostazione blocca le app divise e la funzione di condivisione della rete locale&lt;/b&gt;.</string>
     <string name="auto_connect_footer">Connettiti automaticamente al server all\'avvio dell\'app.</string>
     <string name="automatic">Automatico</string>
     <string name="back">Indietro</string>
@@ -183,7 +182,6 @@
     <string name="payment_status_pending">Pagamento Google Play in sospeso</string>
     <string name="port">Porta</string>
     <string name="privacy_disclaimer_body_first_paragraph">Per assicurarti di avere la versione più sicura e per informarti di eventuali problemi con la versione attualmente in esecuzione, l\'app esegue automaticamente i controlli di versione. Questa operazione invia la versione dell\'app e la versione del sistema Android ai server Mullvad. Mullvad mantiene traccia dei numeri di versione dell\'app utilizzati e delle versioni di Android. I dati non vengono mai archiviati o utilizzati in alcun modo che possa identificarti.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Se viene utilizzata la funzionalità di split tunneling, l\'app richiede al tuo sistema un elenco di tutte le applicazioni installate. Questo elenco viene recuperato solo nella vista split tunneling. L\'elenco delle applicazioni installate non viene mai inviato dal dispositivo.</string>
     <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_policy_label">Informativa sulla privacy</string>
     <string name="problem_report_description">Per aiutarti in modo più efficace, il file di registro della tua app sarà allegato a questo messaggio. I tuoi dati rimarranno protetti e privati, e saranno anonimizzati prima di essere inviati tramite un canale crittografato.</string>
@@ -229,7 +227,6 @@
     <string name="show_account_number">Mostra numero di account</string>
     <string name="show_system_apps">Mostra app di sistema</string>
     <string name="split_tunneling_description">Scegli le app che desideri escludere dal tunnel VPN.</string>
-    <string name="split_tunneling_disabled_description">Lo split tunneling è disabilitato.</string>
     <string name="start_tunnel_error">Impossibile avviare la connessione tunnel. Invia una segnalazione del problema.</string>
     <string name="submit_button">Invia</string>
     <string name="switch_location">Cambia posizione</string>

@@ -32,7 +32,6 @@
     <string name="auto_connect_carousel_second_slide_bottom_text">2. 若要啟用自動連線，請按一下&lt;b&gt;始終啟用 VPN&lt;/b&gt; 旁邊的開關。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自動連線在 Android 系統設定中稱為「始終啟用 VPN」，此功能可確保您始終與 VPN 通道連線，並且會在重新啟動後自動連線。</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. 若要啟用鎖定模式，請按一下&lt;b&gt;在沒有 VPN 的情況下封鎖連線&lt;/b&gt;旁邊的開關。</string>
-    <string name="auto_connect_carousel_third_slide_top_text">如果手動中斷與 VPN 通道的連線，鎖定模式便會封鎖所有的網際網路存取。&lt;br/&gt;&lt;b&gt;警告：此設定會封鎖分割應用程式和「本機網路共享」功能&lt;/b&gt;。</string>
     <string name="auto_connect_footer">啟動應用程式時，自動連線伺服器。</string>
     <string name="automatic">自動</string>
     <string name="back">返回</string>
@@ -183,7 +182,6 @@
     <string name="payment_status_pending">Google Play 付款尚待處理</string>
     <string name="port">連接埠</string>
     <string name="privacy_disclaimer_body_first_paragraph">為確保您擁有最安全的版本，並告知您目前執行的版本有無任何問題，該應用程式會自動進行版本檢查。為此，應用程式會將其版本和 Android 系統版本傳送至 Mullvad 伺服器，以便讓 Mullvad 統計已使用的應用程式版本和 Android 版本的數量。這些資料永遠不會以任何方式儲存或用來辨識您的身分。</string>
-    <string name="privacy_disclaimer_body_second_paragraph">如果使用了分割通道功能，該應用程式會查詢您的系統，以取得所有已安裝應用程式的清單。我們只會在分割通道視圖中擷取這份清單，絕不會傳送至他處。</string>
     <string name="privacy_disclaimer_title">隱私權</string>
     <string name="privacy_policy_label">隱私權政策</string>
     <string name="problem_report_description">為了更有效協助您，會將應用程式的日誌檔將附加到此郵件。您的資料會保持安全和私密性，因為這些資料會先經過匿名處理，再透過加密通道傳送。</string>
@@ -229,7 +227,6 @@
     <string name="show_account_number">顯示帳號</string>
     <string name="show_system_apps">顯示系統應用程式</string>
     <string name="split_tunneling_description">選擇要從 VPN 通道中排除的應用程式。</string>
-    <string name="split_tunneling_disabled_description">分割通道已停用。</string>
     <string name="start_tunnel_error">無法啟動通道連線。請傳送問題回報。</string>
     <string name="submit_button">提交</string>
     <string name="switch_location">切換位置</string>

@@ -32,7 +32,6 @@
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Otomatik bağlantıyı etkinleştirmek için &lt;b&gt;VPN her zaman açık&lt;/b&gt; seçeneğinin yanındaki düğmeye tıklayın.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Otomatik bağlantı, Android sistem ayarlarında VPN her zaman açık olarak gösterilir ve VPN tüneline sürekli bağlı olmanızı ve yeniden başlatma sonrası otomatik olarak bağlanmanızı sağlar.</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. Kilitleme modunu etkinleştirmek için &lt;b&gt;VPN olmadığında bağlantıları engelle&lt;/b&gt; seçeneğinin yanındaki düğmeye tıklayın.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">Kilitleme modu, VPN tünelinin bağlantısı manuel olarak kesilirse tüm internet erişimini engeller. &lt;br/&gt;&lt;b&gt;Uyarı: Bu ayar, bölünmüş uygulamaları ve Yerel Ağ Paylaşımı özelliğini engeller&lt;/b&gt;.</string>
     <string name="auto_connect_footer">Uygulama başladığında bir sunucuya otomatik olarak bağlan.</string>
     <string name="automatic">Otomatik</string>
     <string name="back">Geri</string>
@@ -183,7 +182,6 @@
     <string name="payment_status_pending">Google Play ödemesi bekleniyor</string>
     <string name="port">Port</string>
     <string name="privacy_disclaimer_body_first_paragraph">Uygulama, en güvenli sürüme sahip olduğunuzdan emin olmak ve çalışan mevcut sürümle ilgili sorunları size bildirmek için sürüm kontrollerini otomatik olarak gerçekleştirir. Bu işlem, uygulama sürümünü ve Android sistem sürümünü Mullvad sunucularına gönderir. Mullvad, kullanılan uygulama sürümlerinin ve Android sürümlerinin numarasını kaydeder. Veriler asla sizi tanımlayacak şekilde saklanmaz veya kullanılmaz.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Bölünmüş tünelleme özelliği kullanılıyorsa uygulama, yüklü tüm uygulamaların bir listesi için sisteminizi sorgular. Bu liste yalnızca bölünmüş tünelleme görünümünde alınır. Yüklü uygulamaların listesi hiçbir zaman cihazdan gönderilmez.</string>
     <string name="privacy_disclaimer_title">Gizlilik</string>
     <string name="privacy_policy_label">Gizlilik politikası</string>
     <string name="problem_report_description">Size daha etkili bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır.</string>
@@ -229,7 +227,6 @@
     <string name="show_account_number">Hesap numarasını göster</string>
     <string name="show_system_apps">Sistem uygulamalarını göster</string>
     <string name="split_tunneling_description">VPN tünelinden hariç tutmak istediğiniz uygulamaları seçin.</string>
-    <string name="split_tunneling_disabled_description">Bölünmüş tünelleme devre dışı.</string>
     <string name="start_tunnel_error">Tünel bağlantısı başlatılamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="submit_button">Gönder</string>
     <string name="switch_location">Konum değiştir</string>

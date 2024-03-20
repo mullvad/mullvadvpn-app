@@ -2007,6 +2007,9 @@ msgstr ""
 msgid "%s (added)"
 msgstr ""
 
+msgid "%s is disabled."
+msgstr ""
+
 msgid "%s was added to \"%s\""
 msgstr ""
 
@@ -2169,7 +2172,7 @@ msgstr ""
 msgid "Google Play unavailable"
 msgstr ""
 
-msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgid "If the %s feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the %s view. The list of installed applications is never sent from the device."
 msgstr ""
 
 msgid "Import new overrides by"
@@ -2295,9 +2298,6 @@ msgstr ""
 msgid "Shows reminders when the account time is about to expire"
 msgstr ""
 
-msgid "Split tunneling is disabled."
-msgstr ""
-
 msgid "Submit"
 msgstr ""
 
@@ -2307,7 +2307,7 @@ msgstr ""
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr ""
 
-msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>."
+msgid "The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks apps excluded in %s and the Local Network Sharing feature</b>."
 msgstr ""
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."

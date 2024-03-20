@@ -32,7 +32,6 @@
     <string name="auto_connect_carousel_second_slide_bottom_text">2. 自動接続を有効にするには、[&lt;b&gt;Always-on VPN&lt;/b&gt;] の横のトグルボタンをクリックします。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自動接続はAndroidシステム設定で「Always-on VPN」と呼ばれており、確実に一貫してVPNトンネルに接続し、再起動の後に自動接続を行う機能です。</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. ロックダウンモードを有効にするには、[&lt;b&gt;VPNを使用していない接続をブロック&lt;/b&gt;] の横のトグルボタンをクリックします。</string>
-    <string name="auto_connect_carousel_third_slide_top_text">ロックダウンモードはVPNトンネルが手動で切断された場合にすべてのインターネットアクセスをブロックします。&lt;br/&gt;&lt;b&gt;警告: この設定は分割アプリとローカルネットワーク共有機能をブロックします。&lt;/b&gt;</string>
     <string name="auto_connect_footer">アプリ起動時に自動的にサーバーに接続します。</string>
     <string name="automatic">自動</string>
     <string name="back">戻る</string>
@@ -183,7 +182,6 @@
     <string name="payment_status_pending">Google Playの決済は未完了です</string>
     <string name="port">ポート</string>
     <string name="privacy_disclaimer_body_first_paragraph">このアプリは最も安全なバージョンを使用していることを確認し、実行中の現在のバージョンに関する問題を通知できるよう、バージョンチェックを自動的に実行します。このチェックによってアプリのバージョンとAndroidシステムのバージョンがMullvadサーバーに送信されます。Mullvadは使用されているアプリのバージョンとAndroidのバージョンの数字を記憶しています。このデータがユーザーを特定できる方法で保存されたり、使用されたりすることはありません。</string>
-    <string name="privacy_disclaimer_body_second_paragraph">スプリットトンネリング機能が使用されている場合、アプリはシステムにインストール済みの全アプリケーションのリストを照会します。このリストはスプリットトンネリングビューでのみ取得されます。インストール済みアプリケーションのリストがデバイスから送信されることはありません。</string>
     <string name="privacy_disclaimer_title">プライバシー</string>
     <string name="privacy_policy_label">プライバシーポリシー</string>
     <string name="problem_report_description">さらに効率よく問題解決できるよう、お使いのアプリのログファイルがこのメッセージに添付されます。個人データは匿名化された後に暗号化されたチャネルで送信されるため、その安全は確保され、公開されることはありません。</string>
@@ -229,7 +227,6 @@
     <string name="show_account_number">アカウント番号の表示</string>
     <string name="show_system_apps">システムアプリの表示</string>
     <string name="split_tunneling_description">VPNトンネルから除外するアプリを選択してください。</string>
-    <string name="split_tunneling_disabled_description">スプリットトンネリングは無効です。</string>
     <string name="start_tunnel_error">トンネル接続を開始できません。問題の報告を送信してください。</string>
     <string name="submit_button">送信</string>
     <string name="switch_location">場所を切り替える</string>

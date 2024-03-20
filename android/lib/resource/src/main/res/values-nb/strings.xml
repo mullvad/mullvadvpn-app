@@ -32,7 +32,6 @@
     <string name="auto_connect_carousel_second_slide_bottom_text">2. For å aktivere Automatisk tilkobling trykker du på bryteren ved siden av &lt;b&gt;VPN alltid på&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automatisk tilkobling heter «Alltid-på-VPN» i Androids systeminnstillinger og sørger for at du alltid er tilkoblet VPN-tunnelen og automatisk tilkobling etter omstart.</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. For å aktivere låsemodus trykker du på bryteren ved siden av &lt;b&gt;Blokker tilkoblinger uten VPN&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">Låsemodusen blokkerer all internettilgang når VPN-tunnelen er manuelt frakoblet. &lt;br/&gt;&lt;b&gt;Advarsel: Innstillingen blokkerer delte apper og funksjonen Deling over lokalt nettverk&lt;/b&gt;.</string>
     <string name="auto_connect_footer">Kobler automatisk til en server når appen starter.</string>
     <string name="automatic">Automatisk</string>
     <string name="back">Tilbake</string>
@@ -183,7 +182,6 @@
     <string name="payment_status_pending">Google Play-betaling venter</string>
     <string name="port">Port</string>
     <string name="privacy_disclaimer_body_first_paragraph">For å sørge for at du har den sikreste appversjonen, og informere deg om eventuelle problemer med den versjonen som kjøres, vil appen automatisk sjekke appversjonen. Appversjonen og Android-systemversjonen blir da sendt til Mullvad-servere. Mullvad registrerer antallet brukte appversjoner og Android-versjoner. Dataen blir aldri lagret eller brukt på noen som helst måte som kan identifisere deg.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Hvis funksjonen delt tunnelering brukes, vil appen be systemet ditt om en liste over alle installerte applikasjoner. Denne listen hentes bare i delt tunnelering-visningen. Listen over installerte apper sendes aldri ut fra enheten.</string>
     <string name="privacy_disclaimer_title">Personvern</string>
     <string name="privacy_policy_label">Retningslinjer for personvern</string>
     <string name="problem_report_description">For å kunne gi deg god nok hjelp vil loggfilen til appen ligge som vedlegg til meldingen. All data forblir beskyttet og privat gjennom anonymisering før det sendes gjennom en kryptert kanal.</string>
@@ -229,7 +227,6 @@
     <string name="show_account_number">Vis kontonummer</string>
     <string name="show_system_apps">Vis systemapper</string>
     <string name="split_tunneling_description">Velg appene du vil ekskludere fra VPN-tunnelen.</string>
-    <string name="split_tunneling_disabled_description">Delt tunnelering er deaktivert.</string>
     <string name="start_tunnel_error">Kunne ikke starte tunneltilkobling. Send inn en problemrapport.</string>
     <string name="submit_button">Send inn</string>
     <string name="switch_location">Bytt plassering</string>

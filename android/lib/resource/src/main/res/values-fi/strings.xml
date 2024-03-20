@@ -32,7 +32,6 @@
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Ota automaattinen yhteyden muodostus käyttöön napsauttamalla &lt;b&gt;Aina päällä oleva VPN&lt;/b&gt; -kohdan vieressä olevaa valintapainiketta.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automaattista yhdistämistä kutsutaan aina päällä olevaksi VPN-yhteydeksi Androidin järjestelmäasetuksissa. Se varmistaa, että olet jatkuvasti yhteydessä VPN-tunneliin, sekä muodostaa yhteyden automaattisesti aina uudelleenkäynnistyksen jälkeen.</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. Ota lukitustila käyttöön napsauttamalla &lt;b&gt;Estä yhteydet ilman VPN:ää&lt;/b&gt; -kohdan vierestä löytyvää valintapainiketta.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">Lukitustila estää kaikki verkkoyhteydet, jos yhteys VPN-tunneliin katkaistaan manuaalisesti. &lt;br/&gt;&lt;b&gt;Varoitus: asetus estää sovelluskohtaisesti yhdistettävät sovellukset ja paikallisen verkon jakamisominaisuuden&lt;/b&gt;.</string>
     <string name="auto_connect_footer">Muodosta yhteys palvelimeen automaattisesti, kun sovellus avataan.</string>
     <string name="automatic">Automaattinen</string>
     <string name="back">Takaisin</string>
@@ -183,7 +182,6 @@
     <string name="payment_status_pending">Google Play -maksu odottaa</string>
     <string name="port">Portti</string>
     <string name="privacy_disclaimer_body_first_paragraph">Sovellus suorittaa versiotarkistuksia automaattisesti varmistaakseen, että käytät kaikkein turvallisinta versiota, ja ilmoittaakseen sinulle kaikista parhaillaan käynnissä olevan version ongelmista. Se lähettää Mullvadin palvelimille tiedot sovellusversiosta ja Android-järjestelmäversiosta. Mullvad pitää lukua käytettyjen sovellusversioiden ja Android-versioiden määristä. Tietoja ei koskaan tallenneta tai käytetä tavalla, joka voisi mahdollistaa tunnistamisesi.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Jos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää järjestelmältäsi luettelon kaikista siihen asennetuista sovelluksista. Luettelo noudetaan vain sovelluskohtaisen yhdistämisen näkymässä. Asennettujen sovellusten luetteloa ei koskaan lähetetä laitteelta.</string>
     <string name="privacy_disclaimer_title">Tietosuoja</string>
     <string name="privacy_policy_label">Tietosuojakäytäntö</string>
     <string name="problem_report_description">Jotta voimme olla avuksi parhaamme mukaan, sovelluksesi lokitiedosto liitetään tähän viestiin. Tietosi pysyvät suojattuina ja yksityisinä, ja ne anonymisoidaan salatun kanavan kautta ennen lähetystä.</string>
@@ -229,7 +227,6 @@
     <string name="show_account_number">Näytä tilin numero</string>
     <string name="show_system_apps">Näytä järjestelmäsovellukset</string>
     <string name="split_tunneling_description">Valitse sovellukset, jotka haluat sulkea pois VPN-tunnelista.</string>
-    <string name="split_tunneling_disabled_description">Sovelluskohtainen yhdistäminen on poistettu käytöstä.</string>
     <string name="start_tunnel_error">Tunneliyhteyden muodostaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="submit_button">Lähetä</string>
     <string name="switch_location">Vaihda sijaintia</string>

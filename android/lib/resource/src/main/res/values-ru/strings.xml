@@ -32,7 +32,6 @@
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Чтобы включить автоподключение, нажмите на переключатель возле опции &lt;b&gt;Постоянная VPN&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_second_slide_top_text">В системных настройках Android автоподключение называется «Постоянная VPN». Эта опция обеспечивает постоянное подключение к туннелю VPN и автоподключение после перезапуска.</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. Чтобы включить режим блокировки, нажмите на переключатель возле &lt;b&gt;Блокировать соединения без VPN&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">Режим блокировки блокирует весь доступ к Интернету, если туннель VPN отключен вручную. &lt;br/&gt;&lt;b&gt;Внимание: эта опция блокирует приложения с раздельным туннелированием и функцию обмена данными в локальной сети&lt;/b&gt;.</string>
     <string name="auto_connect_footer">Автоматически подключаться к серверу при запуске приложения.</string>
     <string name="automatic">Автоматически</string>
     <string name="back">Назад</string>
@@ -183,7 +182,6 @@
     <string name="payment_status_pending">Ожидается оплата в Google Play</string>
     <string name="port">Порт</string>
     <string name="privacy_disclaimer_body_first_paragraph">Чтобы удостовериться, что вы используете наиболее безопасную версию приложения, и сообщить вам о возможных проблемах в ней, приложение автоматически проверяет свою версию. При этом на серверы Mullvad передаются данные о версии приложения и системы Android. Mullvad ведет учет количества пользователей с определенными версиями приложения и ОС Android. Эти данные не хранятся и не используются каким бы то ни было образом, позволяющим вас идентифицировать.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Если используется функция раздельного туннелирования, то приложение запрашивает в системе список всех установленных приложений. Этот список запрашивается только на  экране настройки раздельного туннелирования. Список установленных приложений никогда не передается за пределы устройства.</string>
     <string name="privacy_disclaimer_title">Конфиденциальность</string>
     <string name="privacy_policy_label">Политика конфиденциальности</string>
     <string name="problem_report_description">Чтобы помощь была эффективнее, к этому сообщению будет прикреплен файл журнала из приложения. Ваши данные останутся защищенными и конфиденциальными: они обезличиваются и отправляются по зашифрованному каналу.</string>
@@ -229,7 +227,6 @@
     <string name="show_account_number">Показать номер учетной записи</string>
     <string name="show_system_apps">Показывать системные приложения</string>
     <string name="split_tunneling_description">Выберите приложения, которые нужно исключить из туннеля VPN.</string>
-    <string name="split_tunneling_disabled_description">Раздельное туннелирование отключено.</string>
     <string name="start_tunnel_error">Не удалось запустить туннельное подключение. Отправьте сообщение о проблеме.</string>
     <string name="submit_button">Отправить</string>
     <string name="switch_location">Сменить местоположение</string>

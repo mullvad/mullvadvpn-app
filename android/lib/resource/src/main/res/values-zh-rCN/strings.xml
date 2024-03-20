@@ -32,7 +32,6 @@
     <string name="auto_connect_carousel_second_slide_bottom_text">2. 要启用自动连接，请点击&lt;b&gt;始终开启的 VPN&lt;/b&gt; 旁边的开关。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自动连接在 Android 系统设置中称为“始终开启的 VPN”，此功能可确保您始终连接到 VPN 隧道并在重新启动后自动连接。</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. 要启用锁定模式，请点击&lt;b&gt;在没有 VPN 的情况下阻止连接&lt;/b&gt;旁边的开关。</string>
-    <string name="auto_connect_carousel_third_slide_top_text">如果手动断开 VPN 隧道，锁定模式会阻止所有互联网访问。&lt;br/&gt;&lt;b&gt;警告：此设置会阻止拆分应用和“本地网络共享”功能&lt;/b&gt;。</string>
     <string name="auto_connect_footer">在应用启动时自动连接到服务器。</string>
     <string name="automatic">自动</string>
     <string name="back">返回</string>
@@ -183,7 +182,6 @@
     <string name="payment_status_pending">Google Play 付款待处理</string>
     <string name="port">端口</string>
     <string name="privacy_disclaimer_body_first_paragraph">为确保您使用的是最安全的版本并通知您当前运行的版本存在的任何问题，应用会自动执行版本检查。此操作会将应用版本和 Android 系统版本发送到 Mullvad 服务器。Mullvad 会统计使用的应用版本和 Android 版本。数据永远不会通过任何可以识别您身份的方式存储或使用。</string>
-    <string name="privacy_disclaimer_body_second_paragraph">如果使用拆分隧道功能，应用会向您的系统查询所有已安装应用程序的列表。此列表仅在拆分隧道视图中检索。有关已安装应用程序的信息永远不会离开设备。</string>
     <string name="privacy_disclaimer_title">隐私</string>
     <string name="privacy_policy_label">隐私政策</string>
     <string name="problem_report_description">为了更有效地帮助您，您应用的日志文件将被附加到此消息。您的数据将保持安全和私密，因为所有数据在发送之前都将通过加密通道进行匿名处理。</string>
@@ -229,7 +227,6 @@
     <string name="show_account_number">显示帐号</string>
     <string name="show_system_apps">显示系统应用</string>
     <string name="split_tunneling_description">选择您想要从 VPN 隧道中排除的应用。</string>
-    <string name="split_tunneling_disabled_description">拆分隧道被禁用。</string>
     <string name="start_tunnel_error">无法启动隧道连接。请发送问题报告。</string>
     <string name="submit_button">提交</string>
     <string name="switch_location">切换位置</string>

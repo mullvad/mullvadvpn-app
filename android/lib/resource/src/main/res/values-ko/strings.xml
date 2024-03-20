@@ -32,7 +32,6 @@
     <string name="auto_connect_carousel_second_slide_bottom_text">2. 자동 연결을 활성화하려면 &lt;b&gt;상시 접속 VPN&lt;/b&gt; 옆에 있는 토글을 클릭합니다.</string>
     <string name="auto_connect_carousel_second_slide_top_text">자동 연결은 Android 시스템 설정에서 상시 접속 VPN이라고 하며 VPN 터널에 지속적으로 연결되고 다시 시작한 후 자동 연결되게 해줍니다.</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. 잠금 모드를 활성화하려면 &lt;b&gt;VPN 없이 연결 차단&lt;/b&gt; 옆에 있는 토글을 클릭합니다.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">VPN 터널이 수동으로 연결 해제되면 잠금 모드는 모든 인터넷 액세스를 차단합니다. &lt;br/&gt;&lt;b&gt;경고: 이 설정은 분할 앱과 로컬 네트워크 공유 기능을 차단합니다&lt;/b&gt;.</string>
     <string name="auto_connect_footer">앱이 시작되면 자동으로 서버에 연결합니다.</string>
     <string name="automatic">자동</string>
     <string name="back">뒤로</string>
@@ -183,7 +182,6 @@
     <string name="payment_status_pending">Google Play 결제 보류 중</string>
     <string name="port">포트</string>
     <string name="privacy_disclaimer_body_first_paragraph">가장 안전한 버전인지 확인하고 현재 실행 중인 버전에 문제가 있으면 알려드리기 위해 앱에서 자동으로 버전 확인을 수행합니다. 그러면 앱 버전과 Android 시스템 버전이 Mullvad 서버로 전송됩니다. Mullvad는 사용된 앱 버전 및 Android 버전 수에 대한 카운터를 유지합니다. 이 데이터는 귀하를 식별할 수 있는 어떤 방식으로도 저장되거나 사용되지 않습니다.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">분할 터널링 기능을 사용하는 경우, 이 앱은 설치된 모든 애플리케이션 목록을 시스템에 쿼리합니다. 이 목록은 분할 터널링 보기에서만 검색됩니다. 설치된 애플리케이션 목록은 장치에서 전송되지 않습니다.</string>
     <string name="privacy_disclaimer_title">개인 정보 보호</string>
     <string name="privacy_policy_label">개인정보 보호정책</string>
     <string name="problem_report_description">보다 효과적인 문제 해결을 위해 앱의 로그 파일이 이 메시지에 첨부됩니다. 사용자 데이터는 암호화된 채널을 통해 전송되기 전에 익명 처리되므로 안전하고 비공개로 유지됩니다.</string>
@@ -229,7 +227,6 @@
     <string name="show_account_number">계정 번호 표시</string>
     <string name="show_system_apps">시스템 앱 표시</string>
     <string name="split_tunneling_description">VPN 터널에서 제외할 앱을 선택하세요.</string>
-    <string name="split_tunneling_disabled_description">분할 터널링이 비활성화되었습니다.</string>
     <string name="start_tunnel_error">터널 연결을 시작할 수 없습니다. 문제 보고서를 보내주세요.</string>
     <string name="submit_button">제출</string>
     <string name="switch_location">위치 전환</string>

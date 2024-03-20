@@ -32,7 +32,6 @@
     <string name="auto_connect_carousel_second_slide_bottom_text">2. အော်တို ချိတ်ဆက်မှု ဖွင့်ရန် &lt;b&gt;အမြဲဖွင့် VPN&lt;/b&gt; ဘေးရှိ ဖွင့်/ပိတ် ခလုတ်ကို နှိပ်ပါ။</string>
     <string name="auto_connect_carousel_second_slide_top_text">Android စနစ် ဆက်တင်တွင် အော်တိုချိတ်ဆက်မှုကို အမြဲဖွင့် VPN ဟုခေါ်ပြီး VPN Tunnel ကို အမြဲချိတ်ဆက်ထားကြောင်း သေချာစေပြီး အစမှ ပြန်ဖွင့်ပြီးနောက် အော်တို ချိတ်ဆက်ပါသည်။</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. လော့ခ်ဒေါင်းစနစ်ကို ဖွင့်ရန် &lt;b&gt;VPN မပါဘဲ ချိတ်ဆက်မှုများ ပိတ်ဆို့ရန်&lt;/b&gt; ဘေးရှိ ဖွင့်/ပိတ် ခလုတ်ကို နှိပ်ပါ။.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">VPN Tunnel ကို ချိတ်ဆက်မှုမှ ကိုယ်တိုင် ဖြုတ်လိုက်ပါက လော့ခ်ဒေါင်းစနစ်သည် အင်တာနက် ရယူသုံးစွဲခွင့် အာလုံးကို ပိတ်ဆို့ပါသည်။ &lt;br/&gt;&lt;b&gt;သတိပြုရန်- ဤဆက်တင်သည် Split အက်ပ်များနှင့် ဒေသတွင်း ကွန်ရက် ဝေမျှမှု လုပ်ဆောင်ချက်ကို ပိတ်ဆို့ပါမည်&lt;/b&gt;။</string>
     <string name="auto_connect_footer">အက်ပ် စတင်ဆောင်ရွက်ချိန်တွင် ဆာဗာနှင့် အော်တို ချိတ်ဆက်သွားပါမည်။</string>
     <string name="automatic">အလိုအလျောက်</string>
     <string name="back">နောက်သို့</string>
@@ -183,7 +182,6 @@
     <string name="payment_status_pending">Google Play ပေးချေမှုကို ဆိုင်းငံ့ထားဆဲ</string>
     <string name="port">ပေါ့တ်</string>
     <string name="privacy_disclaimer_body_first_paragraph">အလုံခြုံဆုံး ဗားရှင်းကို ရရှိကြောင်း သေချာစေရန်နှင့် လုပ်ဆောင်နေသည့် လက်ရှိဗားရှင်းနှင့်ပတ်သက်သော ပြဿနာများအကြောင်း သင့်အား အသိပေးရန် အက်ပ်သည် ဗားရှင်း စစ်ဆေးမှုများကို အော်တိုလုပ်ဆောင်ပါသည်။ ၎င်းသည် Mullvad ဆာဗာများသို့ အက်ပ် ဗားရှင်းနှင့် Android စနစ်ဗားရှင်းတို့ကို ပေးပို့ပါသည်။ အသုံးပြုထားသည့် အက်ပ် ဗားရှင်းများနှင့် Android ဗားရှင်းများ၏ အရေအတွက်ကို Mullvad က ရေတွက်ထားပါသည်။ ဒေတာကို မည်သည့်အခါမျှ မသိမ်းဆည်းထားပါ သို့မဟုတ် သင့်အား ခွဲခြားဖော်ထုတ်နိုင်သော မည်သည့်နည်းလမ်းတွင်မျှ အသုံးမပြုထားပါ။</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Split Tunneling လုပ်ဆောင်ချက်ကို အသုံးပြုထားပါက အက်ပ်သည် ထည့်သွင်းထားသော အက်ပလီကေးရှင်းများအားလုံး၏ စာရင်းကို မေးမြန်းပါသည်။ ဤစာရင်းကို Split Tunneling ပြသမှုတွင်သာ ပြန်ရယူပါသည်။ ထည့်သွင်းထားသော အက်ပလီကေးရှင်းများ၏ စာရင်းကို စက်မှ မည်သည့်အခါမျှ မပေးပို့ပါ။</string>
     <string name="privacy_disclaimer_title">ကိုယ်ရေးအချက်အလက် လုံခြုံရေး</string>
     <string name="privacy_policy_label">ကိုယ်ပိုင်အချက်အလက် မူဝါဒ</string>
     <string name="problem_report_description">သင့်အား ပိုမိုထိရောက်စွာ ကူညီနိုင်ရန် သင့်အက်ပ်၏ မှတ်တမ်းဖိုင်ကို ဤမက်ဆေ့ချ်နှင့်အတူ တွဲပေးသွားပါမည်။ ကုဒ်ပြောင်းဝှက်ထားသည့် ချန်နယ်မှတစ်ဆင့် မပေးပို့မီ သင့်ဒေတာများကို အမည်မဖော်ဘဲ ထားမည်ဖြစ်သောကြောင့် လျှို့ဝှက်လုံခြုံလျက် ရှိနေပါမည်။</string>
@@ -229,7 +227,6 @@
     <string name="show_account_number">အကောင့်နံပါတ်ကို ပြရန်</string>
     <string name="show_system_apps">စနစ်အက်ပ်များ ပြရန်</string>
     <string name="split_tunneling_description">VPN Tunnel မှ ဖယ်ထုတ်လိုသည့် အက်ပ်များကို ရွေးချယ်ပါ။</string>
-    <string name="split_tunneling_disabled_description">Split Tunneling ကို ပိတ်ထားပါသည်။</string>
     <string name="start_tunnel_error">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
     <string name="submit_button">ပေးပို့ရန်</string>
     <string name="switch_location">တည်နေရာ ပြောင်းရန်</string>

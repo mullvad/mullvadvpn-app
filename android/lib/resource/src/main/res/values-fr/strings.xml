@@ -32,7 +32,6 @@
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Pour activer la connexion automatique, cliquez sur l\'interrupteur situé à côté de &lt;b&gt;VPN toujours actif&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_second_slide_top_text">La connexion automatique est appelée VPN toujours actif dans les paramètres du système Android et elle s\'assure que vous êtes constamment connecté au tunnel VPN et se connecte automatiquement après le redémarrage.</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. Pour activer le mode Verrouillage, cliquez sur l\'interrupteur situé à côté de &lt;b&gt;Bloquer les connexions sans VPN&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">Le mode Verrouillage bloque tout accès à Internet si le tunnel VPN est déconnecté manuellement. &lt;br/&gt;&lt;b&gt;Avertissement : Ce paramètre bloque les applications fractionnées et la fonctionnalité de partage du réseau local&lt;/b&gt;.</string>
     <string name="auto_connect_footer">Connexion automatique à un serveur dès le démarrage de l\'application.</string>
     <string name="automatic">Automatique</string>
     <string name="back">Retour</string>
@@ -183,7 +182,6 @@
     <string name="payment_status_pending">Paiement Google Play en attente</string>
     <string name="port">Port</string>
     <string name="privacy_disclaimer_body_first_paragraph">Pour vous assurer que vous disposez de la version la plus sécurisée et pour vous informer de tout problème lié à la version en cours d\'exécution, l\'application effectue automatiquement des vérifications de version. Elle envoie ainsi la version de l\'application et la version du système Android aux serveurs de Mullvad. Mullvad tient des compteurs sur le nombre de versions d\'applications et de versions d\'Android utilisées. Les données ne sont jamais stockées ou utilisées de manière à vous identifier.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Si la fonctionnalité de split tunneling est utilisée, l\'application demande à votre système la liste de toutes les applications installées. Cette liste n\'est récupérée que dans la vue de split tunneling. La liste des applications installées n\'est jamais envoyée par l\'appareil.</string>
     <string name="privacy_disclaimer_title">Confidentialité</string>
     <string name="privacy_policy_label">Politique de confidentialité</string>
     <string name="problem_report_description">Pour mieux vous aider, le fichier journal de l\'application est joint à ce message. Vos données restent privées et en sécurité dans la mesure où elles sont rendues anonymes avant d\'être envoyées via un canal chiffré.</string>
@@ -229,7 +227,6 @@
     <string name="show_account_number">Afficher le numéro de compte</string>
     <string name="show_system_apps">Afficher les applications système</string>
     <string name="split_tunneling_description">Choisissez les applications que vous souhaitez exclure du tunnel VPN.</string>
-    <string name="split_tunneling_disabled_description">Le split tunneling est désactivé.</string>
     <string name="start_tunnel_error">Impossible de démarrer la connexion au tunnel. Veuillez envoyer un rapport de problème.</string>
     <string name="submit_button">Envoyer</string>
     <string name="switch_location">Changer de localisation</string>

@@ -32,7 +32,6 @@
     <string name="auto_connect_carousel_second_slide_bottom_text">2. Para ativar a ligação automática, clique no botão de alternar junto a &lt;b&gt;VPN sempre ligada&lt;/b&gt;.</string>
     <string name="auto_connect_carousel_second_slide_top_text">A ligação automática é designada por VPN sempre ligada nas definições do sistema Android e assegura que está constantemente ligado ao túnel VPN e ligar-se-á automaticamente após o reinício.</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">3. Para ativar o modo de bloqueio, clique no botão de alternar junto a &lt;b&gt;Bloquear ligações sem VPN&lt;/b&gt;.</string>
-    <string name="auto_connect_carousel_third_slide_top_text">O modo de bloqueio bloqueia todo o acesso à internet se o túnel VPN for desligado manualmente. &lt;br/&gt;&lt;b&gt;Aviso: esta definição bloqueia as apps divididas e a funcionalidade de partilha de rede local&lt;/b&gt;.</string>
     <string name="auto_connect_footer">Liga-se automaticamente a um servidor quando a app inicia.</string>
     <string name="automatic">Automático</string>
     <string name="back">Retroceder</string>
@@ -183,7 +182,6 @@
     <string name="payment_status_pending">Pagamento Google Play pendente</string>
     <string name="port">Porta</string>
     <string name="privacy_disclaimer_body_first_paragraph">Para se certificar de que tem a versão mais segura e para o informar de quaisquer problemas com a versão atual em execução, a app efetua verificações de versão automaticamente. Esta envia a versão da app e a versão do sistema Android para os servidores da Mullvad. A Mullvad mantém um registo do número de versões da app e de versões do Android utilizadas. Os dados nunca são armazenados ou utilizados de forma a identificar o utilizador.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Se for utilizada a funcionalidade de divisão do túnel, a app consulta o seu sistema para obter uma lista de todas as aplicações instaladas. Esta lista só é recuperada na vista de divisão do túnel. A lista de aplicações instaladas nunca é enviada pelo dispositivo.</string>
     <string name="privacy_disclaimer_title">Privacidade</string>
     <string name="privacy_policy_label">Política de privacidade</string>
     <string name="problem_report_description">Para ajudarmos de forma mais eficaz, o ficheiro de registo da sua aplicação será anexado a esta mensagem. Os seus dados permanecerão seguros e privados, pois são tornados anónimos antes de serem enviados através de um canal encriptado.</string>
@@ -229,7 +227,6 @@
     <string name="show_account_number">Mostrar número de conta</string>
     <string name="show_system_apps">Mostrar aplicações do sistema</string>
     <string name="split_tunneling_description">Escolha as aplicações que deseja excluir do túnel VPN.</string>
-    <string name="split_tunneling_disabled_description">A divisão do túnel está desativada.</string>
     <string name="start_tunnel_error">Não foi possível iniciar a ligação de túnel. Envie um relatório do problema.</string>
     <string name="submit_button">Enviar</string>
     <string name="switch_location">Alterar local</string>
