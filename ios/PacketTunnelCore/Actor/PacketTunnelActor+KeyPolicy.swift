@@ -24,18 +24,20 @@ extension PacketTunnelActor {
      */
     func cacheActiveKey(lastKeyRotation: Date?) {
         // There should be a way to rationalise these two identical functions into one.
-        func connectionStateMutator(_ connState: inout ConnectionOrBlockedState) {
-            guard connState.keyPolicy == .useCurrent, let currentKey = connState.currentKey else { return }
+        state.mutateAssociatedData { stateData in
+            guard 
+                stateData.keyPolicy == .useCurrent,
+                let currentKey = stateData.currentKey
+            else { return }
             // Key policy is preserved between states and key rotation may still happen while in blocked state.
             // Therefore perform the key switch as normal with one exception that it shouldn't reconnect the tunnel
             // automatically.
-            connState.lastKeyRotation = lastKeyRotation
-
+            stateData.lastKeyRotation = lastKeyRotation
+            
             // Move currentKey into keyPolicy.
-            connState.keyPolicy = .usePrior(currentKey, startKeySwitchTask())
-            connState.currentKey = nil
+            stateData.keyPolicy = .usePrior(currentKey, startKeySwitchTask())
+            stateData.currentKey = nil
         }
-        state.mutateConnectionOrBlockedState(connectionStateMutator)
     }
 
     /**

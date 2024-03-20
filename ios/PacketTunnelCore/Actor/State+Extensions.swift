@@ -78,7 +78,7 @@ extension State {
         }
     }
 
-    var connectionState: ConnectionState? {
+    var connectionData: State.ConnectionData? {
         switch self {
         case
             let .connecting(connState),
@@ -89,25 +89,25 @@ extension State {
         }
     }
 
-    var blockedState: BlockedState? {
+    var blockedData: State.BlockingData? {
         switch self {
         case let .error(blockedState): blockedState
         default: nil
         }
     }
 
-    var connectionOrErrorState: ConnectionOrBlockedState? {
-        self.connectionState ?? self.blockedState
+    var associatedData: StateAssociatedData? {
+        self.connectionData ?? self.blockedData
     }
 
     var keyPolicy: KeyPolicy? {
-        connectionOrErrorState?.keyPolicy
+        associatedData?.keyPolicy
     }
 
     /// Return a copy of this state with the associated value (if appropriate) replaced with a new value.
     /// If the value does not apply, this just returns the state as is, ignoring it.
 
-    internal func replacingConnectionState(with newValue: ConnectionState) -> State {
+    internal func replacingConnectionData(with newValue: State.ConnectionData) -> State {
         switch self {
         case .connecting: .connecting(newValue)
         case .connected: .connected(newValue)
@@ -120,19 +120,21 @@ extension State {
     /// Apply a mutating function to the connection/error state's associated data if this state has one,
     /// and replace its value. If not, this is a no-op.
     /// - parameter modifier: A function that takes an `inout ConnectionOrBlockedState` and modifies it
-    mutating func mutateConnectionOrBlockedState(_ modifier: (inout ConnectionOrBlockedState) -> Void) {
+    mutating func mutateAssociatedData(_ modifier: (inout StateAssociatedData) -> Void) {
         switch self {
         case let .connecting(connState),
              let .connected(connState),
              let .reconnecting(connState),
              let .disconnecting(connState):
-            var connOrErrorState: ConnectionOrBlockedState = connState
-            modifier(&connOrErrorState)
-            self = self.replacingConnectionState(with: connOrErrorState as! ConnectionState)
+            var associatedData: StateAssociatedData = connState
+            modifier(&associatedData)
+            self = self.replacingConnectionData(with: associatedData as! ConnectionData)
+            
         case let .error(blockedState):
-            var connOrErrorState: ConnectionOrBlockedState = blockedState
-            modifier(&connOrErrorState)
-            self = .error(connOrErrorState as! BlockedState)
+            var associatedData: StateAssociatedData = blockedState
+            modifier(&associatedData)
+            self = .error(associatedData as! BlockingData)
+            
         default:
             break
         }
@@ -141,7 +143,7 @@ extension State {
     /// Apply a mutating function to the state's key policy
     /// - parameter modifier: A function that takes an `inout KeyPolicy` and modifies it
     mutating func mutateKeyPolicy(_ modifier: (inout KeyPolicy) -> Void) {
-        self.mutateConnectionOrBlockedState { modifier(&$0.keyPolicy) }
+        self.mutateAssociatedData { modifier(&$0.keyPolicy) }
     }
 }
 
@@ -188,8 +190,8 @@ extension BlockedStateReason {
     }
 }
 
-extension BlockedState: Equatable {
-    static func == (lhs: BlockedState, rhs: BlockedState) -> Bool {
+extension State.BlockingData: Equatable {
+    static func == (lhs: State.BlockingData, rhs: State.BlockingData) -> Bool {
         lhs.reason == rhs.reason
             && lhs.relayConstraints == rhs.relayConstraints
             && lhs.currentKey == rhs.currentKey

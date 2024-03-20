@@ -294,7 +294,7 @@ extension PacketTunnelActor {
         nextRelay: NextRelay,
         settings: Settings,
         reason: ReconnectReason
-    ) throws -> ConnectionState? {
+    ) throws -> State.ConnectionData? {
         var keyPolicy: KeyPolicy = .useCurrent
         var networkReachability = defaultPathObserver.defaultPath?.networkReachability ?? .undetermined
         var lastKeyRotation: Date?
@@ -333,7 +333,7 @@ extension PacketTunnelActor {
             return nil
         }
         let selectedRelay = try callRelaySelector(nil, 0)
-        return ConnectionState(
+        return State.ConnectionData(
             selectedRelay: selectedRelay,
             relayConstraints: settings.relayConstraints,
             currentKey: settings.privateKey,
@@ -351,7 +351,7 @@ extension PacketTunnelActor {
         nextRelay: NextRelay,
         settings: Settings,
         reason: ReconnectReason
-    ) throws -> ConnectionState? {
+    ) throws -> State.ConnectionData? {
         guard let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings, reason: reason)
         else { return nil }
 
@@ -362,7 +362,7 @@ extension PacketTunnelActor {
         )
 
         let transportLayer = protocolObfuscator.transportLayer.map { $0 } ?? .udp
-        return ConnectionState(
+        return State.ConnectionData(
             selectedRelay: connectionState.selectedRelay,
             relayConstraints: connectionState.relayConstraints,
             currentKey: settings.privateKey,
