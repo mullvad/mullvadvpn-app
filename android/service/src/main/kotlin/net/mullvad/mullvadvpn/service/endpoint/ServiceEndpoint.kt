@@ -46,6 +46,8 @@ class ServiceEndpoint(
     val appVersionInfoCache = AppVersionInfoCache(this)
     val authTokenCache = AuthTokenCache(this)
     val customDns = CustomDns(this)
+    val relayOverrides = RelayOverrides(this)
+    val jsonSettings = JsonSettings(this)
     val relayListListener = RelayListListener(this)
     val splitTunneling = SplitTunneling(SplitTunnelingPersistence(context), this)
     val voucherRedeemer = VoucherRedeemer(this, accountCache)
@@ -83,6 +85,8 @@ class ServiceEndpoint(
         voucherRedeemer.onDestroy()
         playPurchaseHandler.onDestroy()
         customLists.onDestroy()
+        relayOverrides.onDestroy()
+        jsonSettings.onDestroy()
     }
 
     internal fun sendEvent(event: Event) {

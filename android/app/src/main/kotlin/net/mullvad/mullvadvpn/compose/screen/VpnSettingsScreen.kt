@@ -61,6 +61,7 @@ import net.mullvad.mullvadvpn.compose.destinations.MalwareInfoDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.MtuDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.ObfuscationInfoDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.QuantumResistanceInfoDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.ServerIpOverridesDestination
 import net.mullvad.mullvadvpn.compose.destinations.UdpOverTcpPortInfoDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.WireguardCustomPortDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.WireguardPortInfoDialogDestination
@@ -219,6 +220,9 @@ fun VpnSettings(
         navigateToLocalNetworkSharingInfo = {
             navigator.navigate(LocalNetworkSharingInfoDialogDestination) { launchSingleTop = true }
         },
+        navigateToServerIpOverrides = {
+            navigator.navigate(ServerIpOverridesDestination) { launchSingleTop = true }
+        },
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
         onToggleBlockAds = vm::onToggleBlockAds,
         onToggleBlockMalware = vm::onToggleBlockMalware,
@@ -267,6 +271,7 @@ fun VpnSettingsScreen(
     navigateToWireguardPortInfo: (availablePortRanges: List<PortRange>) -> Unit = {},
     navigateToLocalNetworkSharingInfo: () -> Unit = {},
     navigateToWireguardPortDialog: () -> Unit = {},
+    navigateToServerIpOverrides: () -> Unit = {},
     onToggleBlockTrackers: (Boolean) -> Unit = {},
     onToggleBlockAds: (Boolean) -> Unit = {},
     onToggleBlockMalware: (Boolean) -> Unit = {},
@@ -614,6 +619,16 @@ fun VpnSettingsScreen(
                 MtuSubtitle(modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
             }
+
+            item { ServerIpOverrides(navigateToServerIpOverrides) }
         }
     }
+}
+
+@Composable
+private fun ServerIpOverrides(onServerIpOverridesClick: () -> Unit) {
+    NavigationComposeCell(
+        title = stringResource(id = R.string.server_ip_overrides),
+        onClick = onServerIpOverridesClick
+    )
 }

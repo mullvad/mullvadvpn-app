@@ -2055,6 +2055,9 @@ msgstr ""
 msgid "All applications"
 msgstr ""
 
+msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
+msgstr ""
+
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr ""
 
@@ -2148,6 +2151,12 @@ msgstr ""
 msgid "Excluded applications"
 msgstr ""
 
+msgid "Failed to apply patch"
+msgstr ""
+
+msgid "File"
+msgstr ""
+
 msgid "Go to VPN settings"
 msgstr ""
 
@@ -2163,7 +2172,19 @@ msgstr ""
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr ""
 
+msgid "Import new overrides by"
+msgstr ""
+
+msgid "Import successful, overrides active"
+msgstr ""
+
+msgid "Importing new overrides might replace some previously imported overrides."
+msgstr ""
+
 msgid "Install Mullvad VPN (%s) to stay up to date"
+msgstr ""
+
+msgid "Invalid or missing value \"%s\""
 msgstr ""
 
 msgid "List name"
@@ -2205,6 +2226,21 @@ msgstr ""
 msgid "Not found"
 msgstr ""
 
+msgid "Overrides active"
+msgstr ""
+
+msgid "Overrides cleared"
+msgstr ""
+
+msgid "Overrides inactive"
+msgstr ""
+
+msgid "Paste or write overrides to be imported"
+msgstr ""
+
+msgid "Patch not matching specification"
+msgstr ""
+
 msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
 msgstr ""
 
@@ -2217,16 +2253,31 @@ msgstr ""
 msgid "Privacy policy"
 msgstr ""
 
+msgid "Recursion limit"
+msgstr ""
+
 msgid "Remove"
 msgstr ""
 
 msgid "Remove custom port"
 msgstr ""
 
+msgid "Reset"
+msgstr ""
+
+msgid "Reset all overrides"
+msgstr ""
+
+msgid "Reset overrides"
+msgstr ""
+
 msgid "Reset to default"
 msgstr ""
 
 msgid "Secured"
+msgstr ""
+
+msgid "Server Ip overrides"
 msgstr ""
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
@@ -2248,6 +2299,9 @@ msgid "Split tunneling is disabled."
 msgstr ""
 
 msgid "Submit"
+msgstr ""
+
+msgid "Text"
 msgstr ""
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
@@ -2280,10 +2334,16 @@ msgstr ""
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr ""
 
+msgid "Unable to parse patch"
+msgstr ""
+
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr ""
 
 msgid "Undo"
+msgstr ""
+
+msgid "Unknown or prohibited key \"%s\""
 msgstr ""
 
 msgid "Unsecured"

@@ -37,7 +37,7 @@ private fun PreviewMullvadModalBottomSheet() {
                     title = "Select",
                 )
             },
-            closeBottomSheet = {}
+            onDismissRequest = {}
         )
     }
 }
@@ -49,13 +49,13 @@ fun MullvadModalBottomSheet(
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer,
     onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface,
-    closeBottomSheet: () -> Unit,
+    onDismissRequest: () -> Unit,
     sheetContent: @Composable ColumnScope.() -> Unit
 ) {
     // This is to avoid weird colors in the status bar and the navigation bar
     val paddingValues = BottomSheetDefaults.windowInsets.asPaddingValues()
     ModalBottomSheet(
-        onDismissRequest = closeBottomSheet,
+        onDismissRequest = onDismissRequest,
         sheetState = sheetState,
         containerColor = backgroundColor,
         modifier = modifier,

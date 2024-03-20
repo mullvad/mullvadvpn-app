@@ -68,4 +68,8 @@ class SettingsListener(private val connection: Messenger, eventDispatcher: Event
 
         settings = newSettings
     }
+
+    fun applySettingsPatch(json: String) {
+        connection.send(Request.ApplyJsonSettings(json).message)
+    }
 }

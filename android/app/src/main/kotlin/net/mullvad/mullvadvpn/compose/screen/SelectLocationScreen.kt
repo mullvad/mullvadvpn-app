@@ -545,7 +545,7 @@ private fun CustomListsBottomSheet(
 ) {
     MullvadModalBottomSheet(
         sheetState = sheetState,
-        closeBottomSheet = { closeBottomSheet(false) },
+        onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG)
     ) { ->
         HeaderCell(
@@ -556,21 +556,16 @@ private fun CustomListsBottomSheet(
         IconCell(
             iconId = R.drawable.icon_add,
             title = stringResource(id = R.string.new_list),
+            titleColor = onBackgroundColor,
             onClick = {
                 onCreateCustomList()
                 closeBottomSheet(true)
             },
-            background = Color.Unspecified,
-            titleColor = onBackgroundColor
+            background = Color.Unspecified
         )
         IconCell(
             iconId = R.drawable.icon_edit,
             title = stringResource(id = R.string.edit_lists),
-            onClick = {
-                onEditCustomLists()
-                closeBottomSheet(true)
-            },
-            background = Color.Unspecified,
             titleColor =
                 onBackgroundColor.copy(
                     alpha =
@@ -580,6 +575,11 @@ private fun CustomListsBottomSheet(
                             AlphaInactive
                         }
                 ),
+            onClick = {
+                onEditCustomLists()
+                closeBottomSheet(true)
+            },
+            background = Color.Unspecified,
             enabled = bottomSheetState.editListEnabled
         )
     }
@@ -598,7 +598,7 @@ private fun LocationBottomSheet(
 ) {
     MullvadModalBottomSheet(
         sheetState = sheetState,
-        closeBottomSheet = { closeBottomSheet(false) },
+        onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
     ) { ->
         HeaderCell(
@@ -609,13 +609,6 @@ private fun LocationBottomSheet(
         customLists.forEach {
             val enabled = it.canAddLocation(item)
             IconCell(
-                background = Color.Unspecified,
-                titleColor =
-                    if (enabled) {
-                        onBackgroundColor
-                    } else {
-                        MaterialTheme.colorScheme.onSecondary
-                    },
                 iconId = null,
                 title =
                     if (enabled) {
@@ -623,22 +616,29 @@ private fun LocationBottomSheet(
                     } else {
                         stringResource(id = R.string.location_added, it.name)
                     },
+                titleColor =
+                    if (enabled) {
+                        onBackgroundColor
+                    } else {
+                        MaterialTheme.colorScheme.onSecondary
+                    },
                 onClick = {
                     onAddLocationToList(item, it)
                     closeBottomSheet(true)
                 },
+                background = Color.Unspecified,
                 enabled = enabled
             )
         }
         IconCell(
             iconId = R.drawable.icon_add,
             title = stringResource(id = R.string.new_list),
+            titleColor = onBackgroundColor,
             onClick = {
                 onCreateCustomList(item)
                 closeBottomSheet(true)
             },
-            background = Color.Unspecified,
-            titleColor = onBackgroundColor
+            background = Color.Unspecified
         )
     }
 }
@@ -656,39 +656,39 @@ private fun EditCustomListBottomSheet(
 ) {
     MullvadModalBottomSheet(
         sheetState = sheetState,
-        closeBottomSheet = { closeBottomSheet(false) }
+        onDismissRequest = { closeBottomSheet(false) }
     ) {
         HeaderCell(text = customList.name, background = Color.Unspecified)
         IconCell(
             iconId = R.drawable.icon_edit,
             title = stringResource(id = R.string.edit_name),
+            titleColor = onBackgroundColor,
             onClick = {
                 onEditName(customList)
                 closeBottomSheet(true)
             },
-            background = Color.Unspecified,
-            titleColor = onBackgroundColor
+            background = Color.Unspecified
         )
         IconCell(
             iconId = R.drawable.icon_add,
             title = stringResource(id = R.string.edit_locations),
+            titleColor = onBackgroundColor,
             onClick = {
                 onEditLocations(customList)
                 closeBottomSheet(true)
             },
-            background = Color.Unspecified,
-            titleColor = onBackgroundColor
+            background = Color.Unspecified
         )
         HorizontalDivider(color = onBackgroundColor)
         IconCell(
             iconId = R.drawable.icon_delete,
             title = stringResource(id = R.string.delete),
+            titleColor = onBackgroundColor,
             onClick = {
                 onDeleteCustomList(customList)
                 closeBottomSheet(true)
             },
-            background = Color.Unspecified,
-            titleColor = onBackgroundColor
+            background = Color.Unspecified
         )
     }
 }
