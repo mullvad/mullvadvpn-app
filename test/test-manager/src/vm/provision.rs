@@ -106,6 +106,11 @@ fn blocking_ssh(
     ssh_send_file_path(&session, &source, temp_dir)
         .context("Failed to send test runner to remote")?;
 
+    // Transfer connection-checker
+    let source = local_runner_dir.join("connection-checker");
+    ssh_send_file_path(&session, &source, temp_dir)
+        .context("Failed to send connection-checker to remote")?;
+
     // Transfer app packages
     ssh_send_file_path(&session, &local_app_manifest.current_app_path, temp_dir)
         .context("Failed to send current app package to remote")?;

@@ -134,7 +134,7 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<QemuInstance> 
 
     // Configure OVMF. Currently, this is enabled implicitly if using a TPM
     let ovmf_handle = if vm_config.tpm {
-        let handle = OvmfHandle::new().await?;
+        let handle = OvmfHandle::new(vm_config).await?;
         handle.append_qemu_args(&mut qemu_cmd);
         Some(handle)
     } else {
@@ -202,32 +202,50 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<QemuInstance> 
 /// Used to set up UEFI and append options to the QEMU command
 struct OvmfHandle {
     temp_vars: TempFile,
+    ovmf_code_path: String,
 }
 
 impl OvmfHandle {
-    pub async fn new() -> Result<Self> {
-        const OVMF_VARS_PATH: &str = "/usr/share/OVMF/OVMF_VARS.secboot.fd";
+    pub async fn new(config: &VmConfig) -> Result<Self> {
+        const DEFAULT_OVMF_VARS_PATH: &str = "/usr/share/OVMF/OVMF_VARS.secboot.fd";
+        const DEFAULT_OVMF_CODE_PATH: &str = "/usr/share/OVMF/OVMF_CODE.secboot.fd";
+
+        let ovmf_code_path = config
+            .ovmf_code_path
+            .as_deref()
+            .unwrap_or(DEFAULT_OVMF_CODE_PATH)
+            .to_owned();
+
+        let ovmf_vars_path = config
+            .ovmf_vars_path
+            .as_deref()
+            .unwrap_or(DEFAULT_OVMF_VARS_PATH);
 
         // Create a local copy of OVMF_VARS
         let temp_vars_path = random_tempfile_name();
-        fs::copy(OVMF_VARS_PATH, &temp_vars_path)
+        fs::copy(ovmf_vars_path, &temp_vars_path)
             .await
             .map_err(Error::CopyOvmfVars)?;
 
         let temp_vars = TempFile::from_existing(temp_vars_path, async_tempfile::Ownership::Owned)
             .await
             .map_err(|_| Error::WrapOvmfVars)?;
-        Ok(OvmfHandle { temp_vars })
+
+        Ok(OvmfHandle {
+            temp_vars,
+            ovmf_code_path,
+        })
     }
 
     pub fn append_qemu_args(&self, qemu_cmd: &mut Command) {
-        const OVMF_CODE_PATH: &str = "/usr/share/OVMF/OVMF_CODE.secboot.fd";
-
         qemu_cmd.args([
             "-global",
             "driver=cfi.pflash01,property=secure,value=on",
             "-drive",
-            &format!("if=pflash,format=raw,unit=0,file={OVMF_CODE_PATH},readonly=on"),
+            &format!(
+                "if=pflash,format=raw,unit=0,file={},readonly=on",
+                self.ovmf_code_path
+            ),
             "-drive",
             &format!(
                 "if=pflash,format=raw,unit=1,file={}",

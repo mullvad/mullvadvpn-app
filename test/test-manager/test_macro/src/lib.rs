@@ -1,6 +1,7 @@
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
-use syn::{AttributeArgs, Lit, Meta, NestedMeta};
+use syn::{AttributeArgs, Lit, Meta, NestedMeta, Result};
+use test_rpc::meta::Os;
 
 /// Register an `async` function to be run by `test-manager`.
 ///
@@ -52,7 +53,7 @@ use syn::{AttributeArgs, Lit, Meta, NestedMeta};
 /// pub async fn test_function(
 ///     rpc: ServiceClient,
 ///     mut mullvad_client: mullvad_management_interface::MullvadProxyClient,
-/// ) -> Result<(), Error> {
+/// ) -> anyhow::Result<()> {
 ///     Ok(())
 /// }
 /// ```
@@ -67,7 +68,7 @@ use syn::{AttributeArgs, Lit, Meta, NestedMeta};
 /// pub async fn test_function(
 ///     rpc: ServiceClient,
 ///     mut mullvad_client: mullvad_management_interface::MullvadProxyClient,
-/// ) -> Result<(), Error> {
+/// ) -> anyhow::Result<()> {
 ///     Ok(())
 /// }
 /// ```
@@ -76,7 +77,10 @@ pub fn test_function(attributes: TokenStream, code: TokenStream) -> TokenStream 
     let function: syn::ItemFn = syn::parse(code).unwrap();
     let attributes = syn::parse_macro_input!(attributes as AttributeArgs);
 
-    let test_function = parse_marked_test_function(&attributes, &function);
+    let test_function = match parse_marked_test_function(&attributes, &function) {
+        Ok(tf) => tf,
+        Err(e) => return e.into_compile_error().into(),
+    };
 
     let register_test = create_test(test_function);
 
@@ -88,73 +92,91 @@ pub fn test_function(attributes: TokenStream, code: TokenStream) -> TokenStream 
     .into()
 }
 
-fn parse_marked_test_function(attributes: &AttributeArgs, function: &syn::ItemFn) -> TestFunction {
-    let macro_parameters = get_test_macro_parameters(attributes);
+/// Shorthand for `return syn::Error::new(...)`.
+macro_rules! bail {
+    ($span:expr, $($tt:tt)*) => {{
+        return ::core::result::Result::Err(::syn::Error::new(
+            ::syn::spanned::Spanned::span(&$span),
+            ::core::format_args!($($tt)*),
+        ))
+    }};
+}
 
-    let function_parameters = get_test_function_parameters(&function.sig.inputs);
+fn parse_marked_test_function(
+    attributes: &AttributeArgs,
+    function: &syn::ItemFn,
+) -> Result<TestFunction> {
+    let macro_parameters = get_test_macro_parameters(attributes)?;
+    let function_parameters = get_test_function_parameters(&function.sig.inputs)?;
 
-    TestFunction {
+    Ok(TestFunction {
         name: function.sig.ident.clone(),
         function_parameters,
         macro_parameters,
-    }
+    })
 }
 
-fn get_test_macro_parameters(attributes: &syn::AttributeArgs) -> MacroParameters {
+fn get_test_macro_parameters(attributes: &syn::AttributeArgs) -> Result<MacroParameters> {
     let mut priority = None;
     let mut cleanup = true;
     let mut always_run = false;
     let mut must_succeed = false;
-    let mut target_os = None;
+    let mut targets = vec![];
 
     for attribute in attributes {
-        if let NestedMeta::Meta(Meta::NameValue(nv)) = attribute {
-            if nv.path.is_ident("priority") {
-                match &nv.lit {
-                    Lit::Int(lit_int) => {
-                        priority = Some(lit_int.base10_parse().unwrap());
-                    }
-                    _ => panic!("'priority' should have an integer value"),
-                }
-            } else if nv.path.is_ident("always_run") {
-                match &nv.lit {
-                    Lit::Bool(lit_bool) => {
-                        always_run = lit_bool.value();
-                    }
-                    _ => panic!("'always_run' should have a bool value"),
-                }
-            } else if nv.path.is_ident("must_succeed") {
-                match &nv.lit {
-                    Lit::Bool(lit_bool) => {
-                        must_succeed = lit_bool.value();
-                    }
-                    _ => panic!("'must_succeed' should have a bool value"),
-                }
-            } else if nv.path.is_ident("cleanup") {
-                match &nv.lit {
-                    Lit::Bool(lit_bool) => {
-                        cleanup = lit_bool.value();
-                    }
-                    _ => panic!("'cleanup' should have a bool value"),
-                }
-            } else if nv.path.is_ident("target_os") {
-                match &nv.lit {
-                    Lit::Str(lit_str) => {
-                        target_os = Some(lit_str.value());
-                    }
-                    _ => panic!("'target_os' should have a string value"),
-                }
+        // we only use name-value attributes
+        let NestedMeta::Meta(Meta::NameValue(nv)) = attribute else {
+            bail!(attribute, "unknown attribute");
+        };
+        let lit = &nv.lit;
+
+        if nv.path.is_ident("priority") {
+            match lit {
+                Lit::Int(lit_int) => priority = Some(lit_int.base10_parse().unwrap()),
+                _ => bail!(nv, "'priority' should have an integer value"),
             }
+        } else if nv.path.is_ident("always_run") {
+            match lit {
+                Lit::Bool(lit_bool) => always_run = lit_bool.value(),
+                _ => bail!(nv, "'always_run' should have a bool value"),
+            }
+        } else if nv.path.is_ident("must_succeed") {
+            match lit {
+                Lit::Bool(lit_bool) => must_succeed = lit_bool.value(),
+                _ => bail!(nv, "'must_succeed' should have a bool value"),
+            }
+        } else if nv.path.is_ident("cleanup") {
+            match lit {
+                Lit::Bool(lit_bool) => cleanup = lit_bool.value(),
+                _ => bail!(nv, "'cleanup' should have a bool value"),
+            }
+        } else if nv.path.is_ident("target_os") {
+            let Lit::Str(lit_str) = lit else {
+                bail!(nv, "'target_os' should have a string value");
+            };
+
+            let target = match lit_str.value().parse() {
+                Ok(os) => os,
+                Err(e) => bail!(lit_str, "{e}"),
+            };
+
+            if targets.contains(&target) {
+                bail!(nv, "Duplicate target");
+            }
+
+            targets.push(target);
+        } else {
+            bail!(nv, "unknown attribute");
         }
     }
 
-    MacroParameters {
+    Ok(MacroParameters {
         priority,
         cleanup,
         always_run,
         must_succeed,
-        target_os,
-    }
+        targets,
+    })
 }
 
 fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
@@ -162,17 +184,14 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
         Some(priority) => quote! { Some(#priority) },
         None => quote! { None },
     };
-    let target_os = match test_function.macro_parameters.target_os.as_deref() {
-        Some("linux") => quote! { Some(::test_rpc::meta::Os::Linux) },
-        Some("macos") => quote! { Some(::test_rpc::meta::Os::Macos) },
-        Some("windows") => quote! { Some(::test_rpc::meta::Os::Windows) },
-        Some(target_os) => {
-            return quote! {
-                compile_error!("invalid target_os: {:?}", #target_os);
-            };
-        }
-        None => quote! { None },
-    };
+    let targets: proc_macro2::TokenStream = (test_function.macro_parameters.targets.iter())
+        .map(|&os| match os {
+            Os::Linux => quote! { ::test_rpc::meta::Os::Linux, },
+            Os::Macos => quote! { ::test_rpc::meta::Os::Macos, },
+            Os::Windows => quote! { ::test_rpc::meta::Os::Windows, },
+        })
+        .collect();
+
     let should_cleanup = test_function.macro_parameters.cleanup;
     let always_run = test_function.macro_parameters.always_run;
     let must_succeed = test_function.macro_parameters.must_succeed;
@@ -193,7 +212,7 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
                     use std::any::Any;
                     let mullvad_client = mullvad_client.downcast::<#mullvad_client_type>().expect("invalid mullvad client");
                     Box::pin(async move {
-                        #func_name(test_context, rpc, *mullvad_client).await
+                        #func_name(test_context, rpc, *mullvad_client).await.map_err(Into::into)
                     })
                 }
             }
@@ -202,9 +221,9 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
             quote! {
                 |test_context: crate::tests::TestContext,
                 rpc: test_rpc::ServiceClient,
-                mullvad_client: Box<dyn std::any::Any + Send>| {
+                _mullvad_client: Box<dyn std::any::Any + Send>| {
                     Box::pin(async move {
-                        #func_name(test_context, rpc).await
+                        #func_name(test_context, rpc).await.map_err(Into::into)
                     })
                 }
             }
@@ -215,7 +234,7 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
         inventory::submit!(crate::tests::test_metadata::TestMetadata {
             name: stringify!(#func_name),
             command: stringify!(#func_name),
-            target_os: #target_os,
+            targets: &[#targets],
             mullvad_client_version: #function_mullvad_version,
             func: #wrapper_closure,
             priority: #test_function_priority,
@@ -237,7 +256,7 @@ struct MacroParameters {
     cleanup: bool,
     always_run: bool,
     must_succeed: bool,
-    target_os: Option<String>,
+    targets: Vec<Os>,
 }
 
 enum MullvadClient {
@@ -269,36 +288,38 @@ struct FunctionParameters {
 }
 
 fn get_test_function_parameters(
-    inputs: &syn::punctuated::Punctuated<syn::FnArg, syn::Token![,]>,
-) -> FunctionParameters {
-    if inputs.len() > 2 {
-        match inputs[2].clone() {
-            syn::FnArg::Typed(pat_type) => {
-                let mullvad_client = match &*pat_type.ty {
-                    syn::Type::Path(syn::TypePath { path, .. }) => {
-                        match path.segments[0].ident.to_string().as_str() {
-                            "mullvad_management_interface" | "MullvadProxyClient" => {
-                                let mullvad_client_version =
-                                    quote! { test_rpc::mullvad_daemon::MullvadClientVersion::New };
-                                MullvadClient::New {
-                                    mullvad_client_type: pat_type.ty,
-                                    mullvad_client_version,
-                                }
-                            }
-                            _ => panic!("cannot infer mullvad client type"),
-                        }
-                    }
-                    _ => panic!("unexpected 'mullvad_client' type"),
-                };
-                FunctionParameters { mullvad_client }
-            }
-            syn::FnArg::Receiver(_) => panic!("unexpected 'mullvad_client' arg"),
-        }
-    } else {
-        FunctionParameters {
+    args: &syn::punctuated::Punctuated<syn::FnArg, syn::Token![,]>,
+) -> Result<FunctionParameters> {
+    if args.len() <= 2 {
+        return Ok(FunctionParameters {
             mullvad_client: MullvadClient::None {
-                mullvad_client_version: quote! { test_rpc::mullvad_daemon::MullvadClientVersion::None },
+                mullvad_client_version: quote! {
+                    test_rpc::mullvad_daemon::MullvadClientVersion::None
+                },
             },
-        }
+        });
     }
+
+    let arg = args[2].clone();
+    let syn::FnArg::Typed(pat_type) = arg else {
+        bail!(arg, "unexpected 'mullvad_client' arg");
+    };
+
+    let syn::Type::Path(syn::TypePath { path, .. }) = &*pat_type.ty else {
+        bail!(pat_type, "unexpected 'mullvad_client' type");
+    };
+
+    let mullvad_client = match path.segments[0].ident.to_string().as_str() {
+        "mullvad_management_interface" | "MullvadProxyClient" => {
+            let mullvad_client_version =
+                quote! { test_rpc::mullvad_daemon::MullvadClientVersion::New };
+            MullvadClient::New {
+                mullvad_client_type: pat_type.ty,
+                mullvad_client_version,
+            }
+        }
+        _ => bail!(pat_type, "cannot infer mullvad client type"),
+    };
+
+    Ok(FunctionParameters { mullvad_client })
 }

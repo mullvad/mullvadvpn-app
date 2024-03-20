@@ -17,9 +17,12 @@ if [[ $TARGET == x86_64-unknown-linux-gnu ]]; then
         -e CARGO_HOME=/root/.cargo/registry \
         -e CARGO_TARGET_DIR=/src/test/target \
         mullvadvpn-app-tests \
-        /bin/bash -c "cd /src/test/; cargo build --bin test-runner --release --target ${TARGET}"
+        /bin/bash -c "cd /src/test/; cargo build --bin test-runner --bin connection-checker --release --target ${TARGET}"
 else
-    cargo build --bin test-runner --release --target "${TARGET}"
+    cargo build \
+        --bin test-runner \
+        --bin connection-checker \
+        --release --target "${TARGET}"
 fi
 
 # Only build runner image for Windows

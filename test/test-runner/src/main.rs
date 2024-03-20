@@ -1,10 +1,14 @@
-use futures::{pin_mut, SinkExt, StreamExt};
+use futures::{pin_mut, select, select_biased, FutureExt, SinkExt, StreamExt};
 use logging::LOGGER;
 use std::{
     collections::{BTreeMap, HashMap},
     net::{IpAddr, SocketAddr},
     path::{Path, PathBuf},
+    process::Stdio,
+    sync::Arc,
+    time::Duration,
 };
+use util::OnDrop;
 
 use tarpc::{context, server::Channel};
 use test_rpc::{
@@ -12,12 +16,14 @@ use test_rpc::{
     net::SockHandleId,
     package::Package,
     transport::GrpcForwarder,
-    AppTrace, Service,
+    AppTrace, Service, SpawnOpts,
 };
 use tokio::{
-    io::{AsyncReadExt, AsyncWriteExt},
-    process::Command,
-    sync::broadcast::error::TryRecvError,
+    io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader},
+    process::{ChildStdin, ChildStdout, Command},
+    sync::{broadcast::error::TryRecvError, oneshot, Mutex},
+    task,
+    time::sleep,
 };
 use tokio_util::codec::{Decoder, LengthDelimitedCodec};
 
@@ -27,9 +33,23 @@ mod logging;
 mod net;
 mod package;
 mod sys;
+mod util;
 
-#[derive(Clone)]
-pub struct TestServer(pub ());
+#[derive(Clone, Default)]
+pub struct TestServer(Arc<Mutex<State>>);
+
+#[derive(Default)]
+struct State {
+    spawned_procs: HashMap<u32, SpawnedProcess>,
+}
+
+struct SpawnedProcess {
+    stdout: Option<ChildStdout>,
+    stdin: Option<ChildStdin>,
+
+    #[allow(dead_code)]
+    abort_handle: OnDrop,
+}
 
 #[tarpc::server]
 impl Service for TestServer {
@@ -319,6 +339,192 @@ impl Service for TestServer {
     async fn make_device_json_old(self, _: context::Context) -> Result<(), test_rpc::Error> {
         app::make_device_json_old().await
     }
+
+    async fn spawn(self, _: context::Context, opts: SpawnOpts) -> Result<u32, test_rpc::Error> {
+        let mut cmd = Command::new(&opts.path);
+        cmd.args(&opts.args);
+
+        // Make sure that PATH is updated
+        // TODO: We currently do not need this on non-Windows
+        #[cfg(target_os = "windows")]
+        cmd.env("PATH", sys::get_system_path_var()?);
+
+        cmd.envs(opts.env);
+
+        if opts.attach_stdin {
+            cmd.stdin(Stdio::piped());
+        } else {
+            cmd.stdin(Stdio::null());
+        }
+
+        if opts.attach_stdout {
+            cmd.stdout(Stdio::piped());
+        }
+
+        cmd.stderr(Stdio::piped());
+
+        let mut child = cmd.kill_on_drop(true).spawn().map_err(|error| {
+            log::error!("Failed to spawn {}: {error}", opts.path);
+            test_rpc::Error::Syscall
+        })?;
+
+        let pid = child
+            .id()
+            .expect("Child hasn't been polled to completion yet");
+
+        log::info!("spawned {} (args={:?}) (pid={pid})", opts.path, opts.args);
+
+        let (abort_tx, abort_rx) = oneshot::channel();
+        let abort_handle = || {
+            let _ = abort_tx.send(());
+        };
+
+        let spawned_process = SpawnedProcess {
+            stdout: child.stdout.take(),
+            stdin: child.stdin.take(),
+            abort_handle: OnDrop::new(Box::new(abort_handle)),
+        };
+
+        let mut state = self.0.lock().await;
+        state.spawned_procs.insert(pid, spawned_process);
+        drop(state);
+
+        // spawn a task to log child stdout
+        if let Some(stderr) = child.stderr.take() {
+            task::spawn(async move {
+                let mut stderr = BufReader::new(stderr);
+                let mut line = String::new();
+                loop {
+                    match stderr.read_line(&mut line).await {
+                        Ok(0) => break,
+                        Ok(_) => {
+                            let trimmed = line.trim_end_matches(&['\r', '\n']);
+                            log::info!("child stderr (pid={pid}): {trimmed}");
+                            line.clear();
+                        }
+                        Err(e) => {
+                            log::error!("failed to read child stderr (pid={pid}): {e}");
+                            break;
+                        }
+                    }
+                }
+            });
+        }
+
+        // spawn a task to monitor if the child exits
+        task::spawn(async move {
+            select! {
+                result = child.wait().fuse() => match result {
+                    Err(e) => {
+                        log::error!("failed to await child process (pid={pid}): {e}");
+                    }
+                    Ok(status) => {
+                        log::info!("child process (pid={pid}) exited with status: {status}");
+                    }
+                },
+
+                _ = abort_rx.fuse() => {
+                    if let Err(e) = child.kill().await {
+                        log::error!("failed to kill child process (pid={pid}): {e}");
+                    }
+                }
+            }
+
+            let mut state = self.0.lock().await;
+            state.spawned_procs.remove(&pid);
+        });
+
+        Ok(pid)
+    }
+
+    async fn read_child_stdout(
+        self,
+        _: context::Context,
+        pid: u32,
+    ) -> Result<Option<String>, test_rpc::Error> {
+        let mut state = self.0.lock().await;
+        let child = state
+            .spawned_procs
+            .get_mut(&pid)
+            .ok_or(test_rpc::Error::UnknownPid(pid))?;
+
+        let Some(stdout) = child.stdout.as_mut() else {
+            return Ok(None);
+        };
+
+        let mut buf = vec![0u8; 512];
+
+        let n = select_biased! {
+            result = stdout.read(&mut buf).fuse() => result
+                .map_err(|e| format!("Failed to read from child stdout: {e}"))
+                .map_err(test_rpc::Error::Other)?,
+
+            _ = sleep(Duration::from_millis(500)).fuse() => return Ok(Some(String::new())),
+        };
+
+        // check for EOF
+        if n == 0 {
+            child.stdout = None;
+            return Ok(None);
+        }
+
+        buf.truncate(n);
+        let output = String::from_utf8(buf)
+            .map_err(|_| test_rpc::Error::Other("Child wrote non UTF-8 to stdout".into()))?;
+
+        Ok(Some(output))
+    }
+
+    async fn write_child_stdin(
+        self,
+        _: context::Context,
+        pid: u32,
+        data: String,
+    ) -> Result<(), test_rpc::Error> {
+        let mut state = self.0.lock().await;
+        let child = state
+            .spawned_procs
+            .get_mut(&pid)
+            .ok_or(test_rpc::Error::UnknownPid(pid))?;
+
+        let Some(stdin) = child.stdin.as_mut() else {
+            return Err(test_rpc::Error::Other("Child stdin is closed.".into()));
+        };
+
+        stdin
+            .write_all(data.as_bytes())
+            .await
+            .map_err(|e| format!("Error writing to child stdin: {e}"))
+            .map_err(test_rpc::Error::Other)?;
+
+        log::debug!("wrote {} bytes to pid {pid}", data.len());
+
+        Ok(())
+    }
+
+    async fn close_child_stdin(self, _: context::Context, pid: u32) -> Result<(), test_rpc::Error> {
+        let mut state = self.0.lock().await;
+        let child = state
+            .spawned_procs
+            .get_mut(&pid)
+            .ok_or(test_rpc::Error::UnknownPid(pid))?;
+
+        child.stdin = None;
+
+        Ok(())
+    }
+
+    async fn kill_child(self, _: context::Context, pid: u32) -> Result<(), test_rpc::Error> {
+        let mut state = self.0.lock().await;
+        let child = state
+            .spawned_procs
+            .remove(&pid)
+            .ok_or(test_rpc::Error::UnknownPid(pid))?;
+
+        drop(child); // I swear officer, it's not what you think!
+
+        Ok(())
+    }
 }
 
 fn get_pipe_status() -> ServiceStatus {
@@ -364,7 +570,7 @@ async fn main() -> Result<(), Error> {
         ));
 
         let server = tarpc::server::BaseChannel::with_defaults(runner_transport);
-        server.execute(TestServer(()).serve()).await;
+        server.execute(TestServer::default().serve()).await;
 
         log::error!("Restarting server since it stopped");
     }
