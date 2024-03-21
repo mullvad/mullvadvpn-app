@@ -151,7 +151,7 @@ impl Default for RuntimeParameters {
 ///
 /// The second one is a custom config, where [`SelectorConfig::relay_settings`] is [`RelaySettings::Custom`].
 /// For this variant, the endpoint where the client should connect to is already specified inside of the variant,
-/// so in practice the relay selector becomes superflous. Also, there exists no mapping to [`RelayQueryBuilder`].
+/// so in practice the relay selector becomes superfluous. Also, there exists no mapping to [`RelayQueryBuilder`].
 #[derive(Debug, Clone)]
 enum SpecializedSelectorConfig<'a> {
     // This variant implements `From<NormalSelectorConfig> for RelayQuery`
