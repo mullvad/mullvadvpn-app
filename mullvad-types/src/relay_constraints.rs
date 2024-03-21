@@ -393,7 +393,7 @@ pub type Provider = String;
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct Providers {
-    pub providers: HashSet<Provider>,
+    providers: HashSet<Provider>,
 }
 
 /// Returned if the iterator contained no providers.
@@ -415,6 +415,11 @@ impl Providers {
 
     pub fn into_vec(self) -> Vec<Provider> {
         self.providers.into_iter().collect()
+    }
+
+    /// Access the underlying set of [providers][`Provider`]
+    pub fn providers(&self) -> &HashSet<Provider> {
+        &self.providers
     }
 }
 

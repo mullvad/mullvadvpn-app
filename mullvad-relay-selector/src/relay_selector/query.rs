@@ -458,7 +458,7 @@ impl Intersection for Providers {
     where
         Self: Sized,
     {
-        Providers::new(self.providers.intersection(&other.providers)).ok()
+        Providers::new(self.providers().intersection(other.providers())).ok()
     }
 }
 
