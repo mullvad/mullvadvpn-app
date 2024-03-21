@@ -34,7 +34,14 @@ export interface NotificationSender {
 export interface NotificationControllerDelegate {
   openApp(): void;
   openLink(url: string, withAuth?: boolean): Promise<void>;
-  showNotificationIcon(value: boolean): void;
+  /**
+   * We have experienced issues where the
+   * notification dot wasn't removed and logging the reason for it to be showing we can narrow the
+   * causes down.
+   *
+   * @param reason Used for debug purposes, it is currently all relevant notification messages..
+   */
+  showNotificationIcon(value: boolean, reason?: string): void;
 }
 
 enum NotificationSuppressReason {
@@ -278,21 +285,19 @@ export default class NotificationController {
   }
 
   private updateNotificationIcon() {
-    for (const notification of this.activeNotifications) {
-      if (notification.specification.severity >= SystemNotificationSeverityType.medium) {
-        this.notificationControllerDelegate.showNotificationIcon(true);
-        return;
-      }
-    }
+    const activeNotifications = [...this.activeNotifications].map(
+      (notification) => notification.specification,
+    );
+    const notifications = [...activeNotifications, ...this.dismissedNotifications].filter(
+      (notification) => notification.severity >= SystemNotificationSeverityType.medium,
+    );
 
-    for (const notification of this.dismissedNotifications) {
-      if (notification.severity >= SystemNotificationSeverityType.medium) {
-        this.notificationControllerDelegate.showNotificationIcon(true);
-        return;
-      }
+    if (notifications.length > 0) {
+      const reason = notifications.map((notification) => `"${notification.message}"`).join(',');
+      this.notificationControllerDelegate.showNotificationIcon(true, reason);
+    } else {
+      this.notificationControllerDelegate.showNotificationIcon(false);
     }
-
-    this.notificationControllerDelegate.showNotificationIcon(false);
   }
 
   private evaluateNotification(
