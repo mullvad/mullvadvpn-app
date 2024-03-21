@@ -125,6 +125,7 @@ class MtuDialogTest {
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 testMtuDialog(
+                    mtuInitial = VALID_DUMMY_MTU_VALUE,
                     onResetMtu = mockedClickHandler,
                 )
             }
