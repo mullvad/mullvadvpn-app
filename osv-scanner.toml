@@ -1,0 +1,52 @@
+# List of ignored known vulnerabilities
+#
+# A vulnerability should only be ignored if it cannot be upgraded to a fixed version, or if
+# upgrading it has significant other downsides.
+#
+# Every ignored vulnerability entry must have an `ignoreUntil`.
+# * It is not allowed to ignore a vulnerability indefinitely.
+# * The default should be to ignore a vulnerability for three months.
+# * A vulnerability can be ignored for up to a year at most (Use extremely sparsely).
+# * If anything above three months is used, write a short comment about why this ignore is longer.
+#
+# Try to use the "original" identifier as `id`. This means the identifier used by the original
+# vulnerability database it originates from. These are usually listed as "Aliases" on osv.dev.
+# Feel free to add more identifiers as comments after the `id`.
+#
+# In the `reason` field explain why this vulnerability does not affect us,
+# and why we can't change to an unaffected version.
+#
+# Write a comment above each entry specifying what dependency it is about and what type of
+# vulnerability it is. The other fields do not convey this.
+#
+# Remove the ignore as soon as we upgrade or otherwise get rid of the vulnerable dependency from
+# our product.
+#
+# When an `ignoreUntil` expire and start yielding errors on a previously ignored issue, follow
+# these steps:
+# 1. Try to upgrade away from the vulnerable versions and get rid of the ignore.
+# 2. Update any outdated info in this ignore.
+# 3. Bump the `ignoreUntil` following the same rules as when initially adding an ignore entry.
+
+# Example entry:
+#
+# ```
+# # libbaz remote code execution in get_date() function
+# [[IgnoredVulns]]
+# id = "CVE-2020-12345" # GHSA-abcd-efgh-1234
+# ignoreUntil = 2024-12-05 # Ignored for six months at a time. Unlikely to be fixed, but also unlikely to be an issue for us.
+# reason = """
+# The vulnerable code path is currently not triggered by us or our dependencies.
+# `renderer-helper` currently depend on this version of libbaz, preventing us from upgrading to a fixed version.
+# """
+# ```
+
+# KyberSlash timing attack against Kyber PQ KEM
+[[IgnoredVulns]]
+id = "RUSTSEC-2023-0079"
+ignoreUntil = 2024-12-05 # Ignored for six months at a time. This class of timing based attacks are not exploitable in our protocol design
+reason = """
+KyberSlash is not exploitable in our usage of it:
+https://mullvad.net/en/blog/mullvads-usage-of-kyber-is-not-affected-by-kyberslash
+And no patched version is available.
+"""
