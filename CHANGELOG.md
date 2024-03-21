@@ -30,10 +30,14 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.
 
-### macOS
+#### macOS
 - Fix bug that caused high CPU usage.
 - Fix bugs that caused the log to be filled with socket errors, by handling closed sockets
   gracefully.
+
+### Fixed
+- Fix map scaling issues when changing display scale settings and when running under Wayland on
+  Linux.
 
 ### Security
 #### Android
