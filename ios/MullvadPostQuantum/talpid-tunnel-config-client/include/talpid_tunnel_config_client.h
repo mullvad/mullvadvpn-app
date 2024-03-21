@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+void cancel_post_quantum_key_exchange(const void *sender);
+
 /**
  * Callback to call when the TCP connection has written data.
  */
@@ -17,10 +19,10 @@ void handle_recv(const uint8_t *data, uintptr_t data_len, const void *sender);
  * Entry point for exchanging post quantum keys on iOS.
  * The TCP connection must be created to go through the tunnel.
  */
-int32_t negotiate_post_quantum_key(const uint8_t *public_key,
-                                   const uint8_t *ephemeral_public_key,
-                                   const void *packet_tunnel,
-                                   const void *tcp_connection);
+const void *negotiate_post_quantum_key(const uint8_t *public_key,
+                                       const uint8_t *ephemeral_public_key,
+                                       const void *packet_tunnel,
+                                       const void *tcp_connection);
 
 /**
  * Called when there is data to send on the TCP connection.
