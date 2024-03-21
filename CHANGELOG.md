@@ -49,19 +49,21 @@ Line wrap the file at 100 chars.                                              Th
 - Fix pointless API access method rotations for concurrent requests.
 - Fix daemon rotating logs on startup even if another daemon is already running.
 
-#### macOS
-- Fix bug that caused high CPU usage.
-- Fix bugs that caused the log to be filled with socket errors, by handling closed sockets
-  gracefully.
-
-### Fixed
-- Fix map scaling issues when changing display scale settings and when running under Wayland on
-  Linux.
-
 ### Security
 #### Android
 - Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
 - Add protection against some tapjacking vulnerabilities.
+
+
+## [2024.1] - 2024-03-21
+### Fixed
+- Fix map scaling issues when changing display scale settings and when running under Wayland on
+  Linux.
+
+#### macOS
+- Fix bug that caused high CPU usage.
+- Fix bugs that caused the log to be filled with socket errors, by handling closed sockets
+  gracefully.
 
 
 ## [2024.1-beta2] - 2024-02-19
