@@ -1,4 +1,5 @@
 Add option to configure custom API access methods.
 [linux] Quantum resistance will now be enabled if "Auto" is selected.
 [macOS] Fixed a number of bugs that could cause the connection to fail.
+[macOS] Fixed bug that could result in high CPU usage.
 Improved CLI support for custom bridges.
