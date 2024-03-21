@@ -292,6 +292,11 @@ impl ServiceClient {
         Ok(())
     }
 
+    /// Set environment variables specified by `env` and restart the Mullvad daemon.
+    ///
+    /// # Returns
+    /// - `Result::Ok` if the daemon was successfully restarted.
+    /// - `Result::Err(Error)` if the daemon could not be restarted and is thus no longer running.
     pub async fn set_daemon_environment<Env, K, V>(&self, env: Env) -> Result<(), Error>
     where
         Env: IntoIterator<Item = (K, V)>,
