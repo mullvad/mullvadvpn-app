@@ -3,6 +3,7 @@ use super::helpers::{
 };
 use super::{config::TEST_CONFIG, Error, TestContext};
 use crate::network_monitor::{start_packet_monitor, MonitorOptions};
+use crate::tests::helpers::login_with_retries;
 
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::relay_constraints::{
@@ -768,5 +769,36 @@ pub async fn test_local_socks_bridge(
         "detected no traffic to entry server",
     );
 
+    Ok(())
+}
+
+/// Verify that the app can connect to a VPN server and get working internet when the API is down.
+/// As long as the user has managed to log in to the app, establishing a tunnel should work even if the API is down (This includes actually being down, not just censored).
+///
+/// The test procedure is as follows:
+///     1. The app is logged in
+///     2. The app is killed
+///     3. The API is "removed" (override API IP/host to something bogus)
+///     4. The app is restarted
+///     5. Verify that it starts as intended and a tunnel can be established
+#[test_function]
+pub async fn test_establish_tunnel_without_api(
+    ctx: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    // 1
+    login_with_retries(&mut mullvad_client).await?;
+    // 2
+    rpc.stop_mullvad_daemon().await?;
+    // 3
+    let borked_env = [("MULLVAD_API_ADDR", "1.3.3.7:421")];
+    // 4
+    log::debug!("Restarting the daemon with the following overrides: {borked_env:?}");
+    let mut mullvad_client =
+        helpers::restart_daemon_with(&rpc, &ctx, mullvad_client, borked_env).await?;
+    // 5
+    connect_and_wait(&mut mullvad_client).await?;
+    // Profit
     Ok(())
 }

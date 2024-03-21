@@ -1,3 +1,5 @@
+use crate::tests::helpers::{login_with_retries, THROTTLE_RETRY_DELAY};
+
 use super::config::TEST_CONFIG;
 use super::{helpers, ui, Error, TestContext};
 use mullvad_api::DevicesProxy;
@@ -9,8 +11,6 @@ use std::time::Duration;
 use talpid_types::net::wireguard;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
-
-const THROTTLE_RETRY_DELAY: Duration = Duration::from_secs(120);
 
 /// Log in and create a new device for the account.
 #[test_function(always_run = true, must_succeed = true, priority = -100)]
@@ -239,32 +239,6 @@ pub fn new_device_client() -> DevicesProxy {
         .expect("failed to create api runtime");
     let rest_handle = api.mullvad_rest_handle(ApiConnectionMode::Direct.into_provider());
     DevicesProxy::new(rest_handle)
-}
-
-/// Log in and retry if it fails due to throttling
-pub async fn login_with_retries(
-    mullvad_client: &mut MullvadProxyClient,
-) -> Result<(), mullvad_management_interface::Error> {
-    loop {
-        match mullvad_client
-            .login_account(TEST_CONFIG.account_number.clone())
-            .await
-        {
-            Err(mullvad_management_interface::Error::Rpc(status))
-                if status.message().to_uppercase().contains("THROTTLED") =>
-            {
-                // Work around throttling errors by sleeping
-                log::debug!(
-                    "Login failed due to throttling. Sleeping for {} seconds",
-                    THROTTLE_RETRY_DELAY.as_secs()
-                );
-
-                tokio::time::sleep(THROTTLE_RETRY_DELAY).await;
-            }
-            Err(err) => break Err(err),
-            Ok(_) => break Ok(()),
-        }
-    }
 }
 
 pub async fn list_devices_with_retries(
