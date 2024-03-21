@@ -1,0 +1,23 @@
+---
+name: Scan for vulnerabilities (OSV)
+on:
+  pull_request:
+    paths:
+      - .github/workflows/osv-scanner.yml
+      - Cargo.lock
+      - test/Cargo.lock
+      - gui/package-lock.json
+  schedule:
+    # At 06:20 UTC every day. Will create an issue if a CVE is found.
+    - cron: '20 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  # Require writing security events to upload SARIF file to security tab
+  security-events: write
+  # Only need to read contents
+  contents: read
+
+jobs:
+  security-scan:
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-unified-workflow.yml@v1.7.1"
