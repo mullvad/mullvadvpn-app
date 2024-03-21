@@ -96,7 +96,6 @@ public enum NetworkReachability: Equatable, Codable {
     case undetermined, reachable, unreachable
 }
 
-// perhaps this should have a better name?
 protocol StateAssociatedData {
     var currentKey: PrivateKey? { get set }
     var keyPolicy: KeyPolicy { get set }
