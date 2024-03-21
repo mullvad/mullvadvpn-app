@@ -38,6 +38,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Change default obfuscation setting to `auto`.
 - Migrate obfuscation settings for existing users from `off` to `auto`.
+- Change [default retry connection attempts][`relay selector defaults`].
+
+[`relay selector defaults`]: docs/relay-selector.md#default-constraints-for-tunnel-endpoints
 
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.
