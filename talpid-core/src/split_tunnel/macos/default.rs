@@ -12,9 +12,6 @@ pub enum Error {
     /// Failed to get default gateways
     #[error("Failed to get default gateways")]
     GetDefaultGateways(#[source] talpid_routing::Error),
-    /// Failed to get interface addresses
-    #[error("Failed to get interface addresses")]
-    GetInterfaceAddresses(#[source] nix::Error),
     /// Found no suitable default interface
     #[error("Found no suitable default interface")]
     NoDefaultInterface,
