@@ -128,11 +128,13 @@ extension State {
              let .disconnecting(connState):
             var associatedData: StateAssociatedData = connState
             modifier(&associatedData)
+            // swiftlint:disable:next force_cast
             self = self.replacingConnectionData(with: associatedData as! ConnectionData)
 
         case let .error(blockedState):
             var associatedData: StateAssociatedData = blockedState
             modifier(&associatedData)
+            // swiftlint:disable:next force_cast
             self = .error(associatedData as! BlockingData)
 
         default:
