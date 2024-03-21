@@ -109,39 +109,39 @@ extension State {
     struct ConnectionData: Equatable, StateAssociatedData {
         /// Current selected relay.
         public var selectedRelay: SelectedRelay
-        
+
         /// Last relay constraints read from settings.
         /// This is primarily used by packet tunnel for updating constraints in tunnel provider.
         public var relayConstraints: RelayConstraints
-        
+
         /// Last WG key read from settings.
         /// Can be `nil` if moved to `keyPolicy`.
         public var currentKey: PrivateKey?
-        
+
         /// Policy describing the current key that should be used by the tunnel.
         public var keyPolicy: KeyPolicy
-        
+
         /// Whether network connectivity outside of tunnel is available.
         public var networkReachability: NetworkReachability
-        
+
         /// Connection attempt counter.
         /// Reset to zero once connection is established.
         public var connectionAttemptCount: UInt
-        
+
         /// Last time packet tunnel rotated the key.
         public var lastKeyRotation: Date?
-        
+
         /// Increment connection attempt counter by one, wrapping to zero on overflow.
         public mutating func incrementAttemptCount() {
             let (value, isOverflow) = connectionAttemptCount.addingReportingOverflow(1)
             connectionAttemptCount = isOverflow ? 0 : value
         }
-        
+
         /// The actual endpoint fed to WireGuard, can be a local endpoint if obfuscation is used.
         public let connectedEndpoint: MullvadEndpoint
         /// Via which transport protocol was the connection made to the relay
         public let transportLayer: TransportLayer
-        
+
         /// The remote port that was chosen to connect to `connectedEndpoint`
         public let remotePort: UInt16
     }
@@ -177,7 +177,6 @@ extension State {
         public var priorState: StatePriorToBlockedState
     }
 }
-
 
 /// Reason why packet tunnel entered error state.
 public enum BlockedStateReason: String, Codable, Equatable {

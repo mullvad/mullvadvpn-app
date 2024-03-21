@@ -25,7 +25,7 @@ extension PacketTunnelActor {
     func cacheActiveKey(lastKeyRotation: Date?) {
         // There should be a way to rationalise these two identical functions into one.
         state.mutateAssociatedData { stateData in
-            guard 
+            guard
                 stateData.keyPolicy == .useCurrent,
                 let currentKey = stateData.currentKey
             else { return }
@@ -33,7 +33,7 @@ extension PacketTunnelActor {
             // Therefore perform the key switch as normal with one exception that it shouldn't reconnect the tunnel
             // automatically.
             stateData.lastKeyRotation = lastKeyRotation
-            
+
             // Move currentKey into keyPolicy.
             stateData.keyPolicy = .usePrior(currentKey, startKeySwitchTask())
             stateData.currentKey = nil
