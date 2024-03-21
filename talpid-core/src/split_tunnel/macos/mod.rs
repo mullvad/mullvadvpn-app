@@ -105,14 +105,11 @@ impl Handle {
     /// Set paths to exclude
     pub async fn set_exclude_paths(&mut self, paths: Vec<PathBuf>) -> Result<(), Error> {
         match &mut self.state {
+            // If there are currently no paths and no process monitor, initialize it
             State::NoExclusions {
                 route_manager,
                 vpn_interface,
-            } => {
-                if paths.is_empty() {
-                    return Ok(());
-                }
-
+            } if !paths.is_empty() => {
                 log::debug!("Initializing process monitor");
 
                 let route_manager = route_manager.clone();
@@ -141,25 +138,28 @@ impl Handle {
 
                 self.set_tunnel(vpn_interface).await
             }
+            // If 'paths' is empty, do nothing
+            State::NoExclusions { .. } => Ok(()),
+            // If split tunneling is already initialized, or only the process monitor is, update the paths only
             State::Initialized { process, .. } | State::HasProcessMonitor { process, .. } => {
                 process.states().exclude_paths(paths);
                 Ok(())
             }
+            // If 'paths' is empty, transition out of the failed state
             State::Failed {
                 route_manager,
                 vpn_interface,
-            } => {
-                if paths.is_empty() {
-                    log::debug!("Transitioning out of split tunnel error state");
+            } if paths.is_empty() => {
+                log::debug!("Transitioning out of split tunnel error state");
 
-                    self.state = State::NoExclusions {
-                        route_manager: route_manager.clone(),
-                        vpn_interface: vpn_interface.clone(),
-                    };
-                    return Ok(());
-                }
-                Err(Error::Unavailable)
+                self.state = State::NoExclusions {
+                    route_manager: route_manager.clone(),
+                    vpn_interface: vpn_interface.clone(),
+                };
+                return Ok(());
             }
+            // Otherwise, remain in the failed state
+            State::Failed { .. } => Err(Error::Unavailable),
         }
     }
 
@@ -169,10 +169,7 @@ impl Handle {
         new_vpn_interface: Option<VpnInterface>,
     ) -> Result<(), Error> {
         match &mut self.state {
-            State::NoExclusions { vpn_interface, .. } => {
-                *vpn_interface = new_vpn_interface;
-                Ok(())
-            }
+            // If split tunneling is already initialized, just update the interfaces
             State::Initialized { route_manager, .. } => {
                 // Try to update the default interface first
                 // If this fails, remain in the current state and just fail
@@ -216,11 +213,8 @@ impl Handle {
                     }
                 }
             }
-            State::HasProcessMonitor { route_manager, .. } => {
-                if new_vpn_interface.is_none() {
-                    return Ok(());
-                }
-
+            // If there is a process monitor, initialize split tunneling
+            State::HasProcessMonitor { route_manager, .. } if new_vpn_interface.is_some() => {
                 // Try to update the default interface first
                 // If this fails, remain in the current state and just fail
                 let default_interface = default::get_default_interface(route_manager).await?;
@@ -271,9 +265,12 @@ impl Handle {
                     }
                 }
             }
-            State::Failed { vpn_interface, .. } => {
+            // No-op there's a process monitor but we didn't get a VPN interface
+            State::HasProcessMonitor { .. } => Ok(()),
+            // If there are no paths to exclude, or split tunneling failed, remain in the current state
+            State::NoExclusions { vpn_interface, .. } | State::Failed { vpn_interface, .. } => {
                 *vpn_interface = new_vpn_interface;
-                Err(Error::Unavailable)
+                Ok(())
             }
         }
     }
