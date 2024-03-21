@@ -13,7 +13,7 @@ extension ObservedState {
     public var relayConstraints: RelayConstraints? {
         switch self {
         case let .connecting(connState), let .connected(connState), let .reconnecting(connState),
-             let .negotiatingPostQuantumKey(connState):
+             let .negotiatingPostQuantumKey(connState, _):
             connState.relayConstraints
 
         case let .error(blockedState):
