@@ -1,4 +1,4 @@
-use super::{config::TEST_CONFIG, Error, WAIT_FOR_TUNNEL_STATE_TIMEOUT};
+use super::{config::TEST_CONFIG, Error, TestContext, WAIT_FOR_TUNNEL_STATE_TIMEOUT};
 use crate::network_monitor::{
     self, start_packet_monitor, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor,
 };
@@ -21,6 +21,8 @@ use std::{
 };
 use talpid_types::net::wireguard::{PeerConfig, PrivateKey, TunnelConfig};
 use test_rpc::{package::Package, AmIMullvad, ServiceClient};
+
+pub const THROTTLE_RETRY_DELAY: Duration = Duration::from_secs(120);
 
 #[macro_export]
 macro_rules! assert_tunnel_state {
@@ -199,19 +201,44 @@ pub async fn ping_sized_with_timeout(
         .map_err(Error::Rpc)
 }
 
+/// Log in and retry if it fails due to throttling
+pub async fn login_with_retries(
+    mullvad_client: &mut MullvadProxyClient,
+) -> Result<(), mullvad_management_interface::Error> {
+    loop {
+        match mullvad_client
+            .login_account(TEST_CONFIG.account_number.clone())
+            .await
+        {
+            Err(mullvad_management_interface::Error::Rpc(status))
+                if status.message().to_uppercase().contains("THROTTLED") =>
+            {
+                // Work around throttling errors by sleeping
+                log::debug!(
+                    "Login failed due to throttling. Sleeping for {} seconds",
+                    THROTTLE_RETRY_DELAY.as_secs()
+                );
+
+                tokio::time::sleep(THROTTLE_RETRY_DELAY).await;
+            }
+            Err(err) => break Err(err),
+            Ok(_) => break Ok(()),
+        }
+    }
+}
+
 /// Try to connect to a Mullvad Tunnel.
 ///
-/// If that fails to begin to connect, [`Error::DaemonError`] is returned. If it fails to connect
-/// after that, the daemon ends up in the [`TunnelState::Error`] state, and
-/// [`Error::UnexpectedErrorState`] is returned.
+/// # Returns
+/// - `Result::Ok` if the daemon successfully connected to a tunnel
+/// - `Result::Err` if:
+///     - The daemon failed to even begin connecting. Then [`Error::Rpc`] is returned.
+///     - The daemon started to connect but ended up in the [`TunnelState::Error`] state.
+///     Then [`Error::UnexpectedErrorState`] is returned
 pub async fn connect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Result<(), Error> {
     log::info!("Connecting");
 
-    mullvad_client
-        .connect_tunnel()
-        .await
-        .map_err(|error| Error::Daemon(format!("failed to begin connecting: {}", error)))?;
-
+    mullvad_client.connect_tunnel().await?;
     let new_state = wait_for_tunnel_state(mullvad_client.clone(), |state| {
         matches!(
             state,
@@ -231,11 +258,8 @@ pub async fn connect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Result
 
 pub async fn disconnect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Result<(), Error> {
     log::info!("Disconnecting");
+    mullvad_client.disconnect_tunnel().await?;
 
-    mullvad_client
-        .disconnect_tunnel()
-        .await
-        .map_err(|error| Error::Daemon(format!("failed to begin disconnecting: {}", error)))?;
     wait_for_tunnel_state(mullvad_client.clone(), |state| {
         matches!(state, TunnelState::Disconnected { .. })
     })
@@ -306,6 +330,30 @@ where
             None => break Err(Error::Daemon(String::from("Lost daemon event stream"))),
         }
     }
+}
+
+/// Set environment variables specified by `env` and restart the Mullvad daemon.
+/// Returns a new [rpc client][`MullvadProxyClient`], since the old client *probably*
+/// can't communicate with the new daemon.
+///
+/// # Note
+/// This is just a thin wrapper around [`ServiceClient::set_daemon_environment`] which also
+/// invalidates the old [`MullvadProxyClient`].
+pub async fn restart_daemon_with<K, V, Env>(
+    rpc: &ServiceClient,
+    test_context: &TestContext,
+    _: MullvadProxyClient, // Just consume the old proxy client
+    env: Env,
+) -> Result<MullvadProxyClient, Error>
+where
+    Env: IntoIterator<Item = (K, V)>,
+    K: Into<String>,
+    V: Into<String>,
+{
+    rpc.set_daemon_environment(env).await?;
+    // Need to create a new `mullvad_client` here after the restart
+    // otherwise we *probably* can't communicate with the daemon.
+    Ok(test_context.rpc_provider.new_client().await)
 }
 
 pub async fn geoip_lookup_with_retries(rpc: &ServiceClient) -> Result<AmIMullvad, Error> {
@@ -409,6 +457,11 @@ pub fn unreachable_wireguard_tunnel() -> talpid_types::net::wireguard::Connectio
     }
 }
 
+/// Return the current `MULLVAD_API_HOST` et al.
+///
+/// # Note
+/// This is independent of the running daemon's environment.
+/// It is solely dependant on the current value of [`TEST_CONFIG`].
 pub fn get_app_env() -> HashMap<String, String> {
     use mullvad_api::env;
     use std::net::ToSocketAddrs;
@@ -420,10 +473,10 @@ pub fn get_app_env() -> HashMap<String, String> {
         .next()
         .unwrap();
 
-    let api_host_env = (env::API_HOST_VAR.to_string(), api_host);
-    let api_addr_env = (env::API_ADDR_VAR.to_string(), api_addr.to_string());
-
-    [api_host_env, api_addr_env].into_iter().collect()
+    HashMap::from_iter(vec![
+        (env::API_HOST_VAR.to_string(), api_host),
+        (env::API_ADDR_VAR.to_string(), api_addr.to_string()),
+    ])
 }
 
 /// Return a filtered version of the daemon's relay list.
