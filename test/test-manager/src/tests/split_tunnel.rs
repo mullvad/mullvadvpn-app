@@ -19,6 +19,17 @@ const CHECKER_FILENAME_WINDOWS: &str = "connection-checker.exe";
 const CHECKER_FILENAME_UNIX: &str = "connection-checker";
 const LEAK_DESTINATION: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1, 1, 1, 1)), 1337);
 
+const AM_I_MULLVAD_TIMEOUT_MS: u64 = 10000;
+const LEAK_TIMEOUT_MS: u64 = 500;
+
+/// Timeout of [ConnCheckerHandle::check_connection].
+const CONN_CHECKER_TIMEOUT: Duration = Duration::from_millis(
+    AM_I_MULLVAD_TIMEOUT_MS // https://am.i.mullvad.net timeout
+    + LEAK_TIMEOUT_MS // leak-tcp timeout
+    + LEAK_TIMEOUT_MS // leak-icmp timeout
+    + 1000, // plus some extra grace time
+);
+
 /// Test that split tunneling works by asserting the following:
 /// - Splitting a process shouldn't do anything if tunnel is not connected.
 /// - A split process should never push traffic through the tunnel.
@@ -146,12 +157,12 @@ impl ConnChecker {
             args: [
                 "--interactive",
                 "--timeout",
-                "10000",
+                &AM_I_MULLVAD_TIMEOUT_MS.to_string(),
                 // try to leak traffic to LEAK_DESTINATION
                 "--leak",
                 &LEAK_DESTINATION.to_string(),
                 "--leak-timeout",
-                "500",
+                &LEAK_TIMEOUT_MS.to_string(),
                 "--leak-tcp",
                 "--leak-udp",
                 "--leak-icmp",
@@ -300,7 +311,7 @@ impl ConnCheckerHandle<'_> {
     /// Try to a single line of output from the spawned process
     async fn read_stdout_line(&mut self) -> anyhow::Result<String> {
         // Add a timeout to avoid waiting forever.
-        timeout(Duration::from_secs(8), async {
+        timeout(CONN_CHECKER_TIMEOUT, async {
             let mut line = String::new();
 
             // tarpc doesn't support streams, so we poll the checker process in a loop instead
