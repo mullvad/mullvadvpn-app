@@ -37,14 +37,12 @@ class AccessMethodIterator {
     }
 
     private func refreshCacheIfNeeded() {
-        /// Validating the index of `lastReachableApiAccessCache` after any changes in `AccessMethodRepository`
-        if let firstIndex = enabledConfigurations.firstIndex(where: { $0.id == self.lastReachableApiAccessId }) {
+        // Validating the index of `lastReachableApiAccessCache` after any changes in `AccessMethodRepository`
+        if let firstIndex = enabledConfigurations.firstIndex(where: { $0.id == lastReachableApiAccessId }) {
             index = firstIndex
-        } else {
-            /// When `firstIndex` is `nil`, that means the current configuration is not valid anymore
-            /// Invalidating cache by replacing the `current` to the next enabled access method
-            dataSource.saveLastReachable(pick())
         }
+
+        dataSource.saveLastReachable(pick())
     }
 
     func rotate() {
