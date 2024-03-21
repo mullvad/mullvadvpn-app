@@ -11,7 +11,8 @@ import NetworkExtension
 import TalpidTunnelConfigClientProxy
 import WireGuardKitTypes
 
-public struct PostQuantumKeyNegotiatior {
+public class PostQuantumKeyNegotiatior {
+    private var cancellationToken: UnsafeRawPointer!
     public init() {}
 
     public func negotiateKey(
@@ -23,13 +24,26 @@ public struct PostQuantumKeyNegotiatior {
     ) {
         let packetTunnelPointer = Unmanaged.passUnretained(packetTunnel).toOpaque()
         let opaqueConnection = Unmanaged.passUnretained(tcpConnection).toOpaque()
+        NSLog("\(#function) passing raw pointer \(opaqueConnection)")
 
         // TODO: Any non 0 return is considered a failure, and should be handled gracefully
-        negotiate_post_quantum_key(
+        let token = negotiate_post_quantum_key(
             devicePublicKey.rawValue.map { $0 },
             presharedKey.rawValue.map { $0 },
             packetTunnelPointer,
             opaqueConnection
         )
+        guard token?.hashValue != 0.hashValue else {
+            // Handle failure here
+            return
+        }
+
+        cancellationToken = token
+    }
+
+    public func cancelKeyNegotiation() {
+        if let cancellationToken, cancellationToken.hashValue != 0.hashValue {
+            cancel_post_quantum_key_exchange(cancellationToken)
+        }
     }
 }

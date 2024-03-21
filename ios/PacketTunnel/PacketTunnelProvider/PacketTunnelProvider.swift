@@ -29,6 +29,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var adapter: WgAdapter!
     private var relaySelector: RelaySelectorWrapper!
 
+    // Post Quantum Key required variables
+    private var inTunnelTCPConnection: NWTCPConnection!
+    private var tcpConnectionObserver: NSKeyValueObservation!
+    private var quantumKeyNegotiatior: PostQuantumKeyNegotiatior!
+
     override init() {
         Self.configureLogging()
 
@@ -305,15 +310,55 @@ extension PacketTunnelProvider {
                     // Cache last connection attempt to filter out repeating calls.
                     lastConnectionAttempt = connectionAttempt
 
-                case .negotiatingPostQuantumKey:
-                    // TODO: Call the key negotiatior here ?
-                    break
+                case let .negotiatingPostQuantumKey(_, privateKey):
+                    // Break the tunnel connection to avoid leaking traffic
+//                    reasserting = true
+                    startPostQuantumKeyNegotation(with: privateKey)
 
                 case .initial, .connected, .disconnecting, .disconnected, .error:
                     break
                 }
             }
         }
+    }
+
+    private func startPostQuantumKeyNegotation(with privateKey: PrivateKey) {
+        quantumKeyNegotiatior?.cancelKeyNegotiation()
+
+        let keyNegotiatior = PostQuantumKeyNegotiatior()
+        let gatewayAddress = "10.64.0.1"
+        let IPv4Gateway = IPv4Address(gatewayAddress)!
+        let gatewayEndpoint = NWHostEndpoint(hostname: gatewayAddress, port: "1337")
+        let tcpConnection = createTCPConnectionThroughTunnel(
+            to: gatewayEndpoint,
+            enableTLS: false,
+            tlsParameters: nil,
+            delegate: nil
+        )
+
+        let postQuantumSharedKey = PrivateKey() // This will become the new private key of the device
+        let observer = tcpConnection.observe(\.isViable, options: [
+            .initial,
+            .new,
+        ]) { [weak self] observedConnection, _ in
+            guard let self else { return }
+            if observedConnection.isViable == true {
+                keyNegotiatior.negotiateKey(
+                    gatewayIP: IPv4Gateway,
+                    devicePublicKey: privateKey.publicKey,
+                    presharedKey: postQuantumSharedKey.publicKey,
+                    packetTunnel: self,
+                    tcpConnection: tcpConnection
+                )
+                self.tcpConnectionObserver.invalidate()
+            }
+        }
+
+        inTunnelTCPConnection = tcpConnection
+        tcpConnectionObserver = observer
+        quantumKeyNegotiatior = keyNegotiatior
+        // Re-establish the tunnel connection to let the TCP connection flow through
+//        reasserting = false
     }
 
     private func stopObservingActorState() {
@@ -353,6 +398,11 @@ extension PacketTunnelProvider {
 
 extension PacketTunnelProvider: PostQuantumKeyReceiving {
     func receivePostQuantumKey(_ key: PreSharedKey) {
+        tcpConnectionObserver?.invalidate()
+        inTunnelTCPConnection.cancel()
+        tcpConnectionObserver = nil
+        inTunnelTCPConnection = nil
+
         actor.replacePreSharedKey(key)
     }
 }

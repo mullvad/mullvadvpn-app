@@ -10,13 +10,14 @@ import Combine
 import Foundation
 import MullvadTypes
 import Network
+import WireGuardKitTypes
 
 /// A serializable representation of internal state.
 public enum ObservedState: Equatable, Codable {
     case initial
     case connecting(ObservedConnectionState)
     case reconnecting(ObservedConnectionState)
-    case negotiatingPostQuantumKey(ObservedConnectionState)
+    case negotiatingPostQuantumKey(ObservedConnectionState, PrivateKey)
     case connected(ObservedConnectionState)
     case disconnecting(ObservedConnectionState)
     case disconnected
@@ -76,8 +77,8 @@ extension State {
             return .reconnecting(connState.observedConnectionState)
         case let .disconnecting(connState):
             return .disconnecting(connState.observedConnectionState)
-        case let .negotiatingPostQuantumKey(connState):
-            return .negotiatingPostQuantumKey(connState.observedConnectionState)
+        case let .negotiatingPostQuantumKey(connState, privateKey):
+            return .negotiatingPostQuantumKey(connState.observedConnectionState, privateKey)
         case .disconnected:
             return .disconnected
         case let .error(blockedState):
