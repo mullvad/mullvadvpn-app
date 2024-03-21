@@ -2,7 +2,11 @@ use fern::{
     colors::{Color, ColoredLevelConfig},
     Output,
 };
-use std::{fmt, io, path::PathBuf};
+use std::{
+    fmt, io,
+    path::PathBuf,
+    sync::atomic::{AtomicBool, Ordering},
+};
 use talpid_core::logging::rotate_log;
 
 #[derive(thiserror::Error, Debug)]
@@ -62,6 +66,15 @@ const LINE_SEPARATOR: &str = "\r\n";
 
 const DATE_TIME_FORMAT_STR: &str = "[%Y-%m-%d %H:%M:%S%.3f]";
 
+/// Whether a [log] logger has been initialized.
+// the log crate doesn't provide a nice way to tell if a logger has been initialized :(
+static LOG_ENABLED: AtomicBool = AtomicBool::new(false);
+
+/// Check whether logging has been enabled, i.e. if [init_logger] has been called successfully.
+pub fn is_enabled() -> bool {
+    LOG_ENABLED.load(Ordering::SeqCst)
+}
+
 pub fn init_logger(
     log_level: log::LevelFilter,
     log_file: Option<&PathBuf>,
@@ -111,6 +124,9 @@ pub fn init_logger(
         top_dispatcher = top_dispatcher.chain(logger);
     }
     top_dispatcher.apply().map_err(Error::SetLoggerError)?;
+
+    LOG_ENABLED.store(true, Ordering::SeqCst);
+
     Ok(())
 }
 

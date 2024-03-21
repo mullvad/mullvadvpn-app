@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Args, Parser};
 use once_cell::sync::Lazy;
 
 static ENV_DESC: Lazy<String> = Lazy::new(|| {
@@ -36,10 +36,18 @@ struct Cli {
     #[arg(long)]
     disable_stdout_timestamps: bool,
 
+    #[command(flatten)]
+    command: CommandFlags,
+}
+
+#[derive(Debug, Args)]
+#[group(multiple = false, required = false)]
+pub struct CommandFlags {
     /// Run as a system service
     #[cfg(target_os = "windows")]
     #[arg(long)]
     run_as_service: bool,
+
     /// Register Mullvad daemon as a system service
     #[cfg(target_os = "windows")]
     #[arg(long)]
@@ -61,14 +69,53 @@ pub struct Config {
     pub log_level: log::LevelFilter,
     pub log_to_file: bool,
     pub log_stdout_timestamps: bool,
-    #[cfg(target_os = "windows")]
-    pub run_as_service: bool,
-    #[cfg(target_os = "windows")]
-    pub register_service: bool,
-    #[cfg(target_os = "macos")]
-    pub launch_daemon_status: bool,
+
+    pub command: Command,
+}
+
+#[derive(Debug)]
+pub enum Command {
+    /// Run the standalone daemon.
+    Daemon,
+
+    /// Initialize firewall to be used during early boot and exit
     #[cfg(target_os = "linux")]
-    pub initialize_firewall_and_exit: bool,
+    InitializeEarlyBootFirewall,
+
+    /// Run the daemon as a system service.
+    #[cfg(target_os = "windows")]
+    RunAsService,
+
+    /// Register Mullvad daemon as a system service.
+    #[cfg(target_os = "windows")]
+    RegisterService,
+
+    /// Check the status of the launch daemon. The exit code represents the current status.
+    #[cfg(target_os = "macos")]
+    LaunchDaemonStatus,
+}
+
+impl From<CommandFlags> for Command {
+    fn from(f: CommandFlags) -> Self {
+        let command_flags = [
+            #[cfg(target_os = "linux")]
+            (
+                f.initialize_early_boot_firewall,
+                Command::InitializeEarlyBootFirewall,
+            ),
+            #[cfg(target_os = "windows")]
+            (f.run_as_service, Command::RunAsService),
+            #[cfg(target_os = "windows")]
+            (f.register_service, Command::RegisterService),
+            #[cfg(target_os = "macos")]
+            (f.launch_daemon_status, Command::LaunchDaemonStatus),
+        ];
+
+        command_flags
+            .into_iter()
+            .find_map(|(flag, command)| flag.then_some(command))
+            .unwrap_or(Command::Daemon)
+    }
 }
 
 pub fn get_config() -> &'static Config {
@@ -89,13 +136,6 @@ fn create_config() -> Config {
         log_level,
         log_to_file: !app.disable_log_to_file,
         log_stdout_timestamps: !app.disable_stdout_timestamps,
-        #[cfg(target_os = "windows")]
-        run_as_service: app.run_as_service,
-        #[cfg(target_os = "windows")]
-        register_service: app.register_service,
-        #[cfg(target_os = "macos")]
-        launch_daemon_status: app.launch_daemon_status,
-        #[cfg(target_os = "linux")]
-        initialize_firewall_and_exit: app.initialize_early_boot_firewall,
+        command: app.command.into(),
     }
 }
