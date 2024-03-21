@@ -4,7 +4,7 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-source scripts/utils/host
+source "$SCRIPT_DIR/scripts/utils/host"
 
 ENV_TARGET=${1:-$HOST}
 
