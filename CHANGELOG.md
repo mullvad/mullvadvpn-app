@@ -30,6 +30,13 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.
 
+### Security
+#### Android
+- Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
+
+
+## [2024.1] - 2024-03-21
+### Changed
 #### macOS
 - Fix bug that caused high CPU usage.
 - Fix bugs that caused the log to be filled with socket errors, by handling closed sockets
@@ -38,10 +45,6 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix map scaling issues when changing display scale settings and when running under Wayland on
   Linux.
-
-### Security
-#### Android
-- Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
 
 
 ## [2024.1-beta2] - 2024-02-19
