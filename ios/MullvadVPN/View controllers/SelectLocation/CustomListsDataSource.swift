@@ -85,18 +85,21 @@ class CustomListsDataSource: LocationDataSourceProtocol {
         return switch location {
         case let .country(countryCode):
             rootNode
-                .countryFor(code: countryCode)?.copy(withParent: parentNode)
+                .countryFor(code: countryCode)?
+                .copy(withParent: parentNode)
 
         case let .city(countryCode, cityCode):
             rootNode
-                .countryFor(code: countryCode)?.copy(withParent: parentNode)
-                .cityFor(codes: [countryCode, cityCode])
+                .countryFor(code: countryCode)?
+                .cityFor(codes: [countryCode, cityCode])?
+                .copy(withParent: parentNode)
 
         case let .hostname(countryCode, cityCode, hostCode):
             rootNode
-                .countryFor(code: countryCode)?.copy(withParent: parentNode)
+                .countryFor(code: countryCode)?
                 .cityFor(codes: [countryCode, cityCode])?
-                .hostFor(code: hostCode)
+                .hostFor(code: hostCode)?
+                .copy(withParent: parentNode)
         }
     }
 }
