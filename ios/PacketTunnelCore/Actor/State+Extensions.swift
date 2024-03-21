@@ -129,12 +129,12 @@ extension State {
             var associatedData: StateAssociatedData = connState
             modifier(&associatedData)
             self = self.replacingConnectionData(with: associatedData as! ConnectionData)
-            
+
         case let .error(blockedState):
             var associatedData: StateAssociatedData = blockedState
             modifier(&associatedData)
             self = .error(associatedData as! BlockingData)
-            
+
         default:
             break
         }
