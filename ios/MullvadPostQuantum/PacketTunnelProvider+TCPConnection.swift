@@ -19,6 +19,7 @@ func tcpConnectionSend(
     dataLength: UInt,
     sender: UnsafeMutableRawPointer
 ) {
+    NSLog("\(#function) receiving raw pointer \(connection)")
     let tcpConnection = Unmanaged<NWTCPConnection>.fromOpaque(connection).takeUnretainedValue()
     let rawData = Data(bytes: data, count: Int(dataLength))
 
@@ -38,6 +39,7 @@ func tcpConnectionReceive(
     connection: UnsafeMutableRawPointer,
     sender: UnsafeMutableRawPointer
 ) {
+    NSLog("\(#function) receiving raw pointer \(connection)")
     let tcpConnection = Unmanaged<NWTCPConnection>.fromOpaque(connection).takeUnretainedValue()
     tcpConnection.readMinimumLength(0, maximumLength: Int(UInt16.max)) { data, maybeError in
         if let data {
@@ -54,6 +56,13 @@ func tcpConnectionReceive(
 func receivePostQuantumKey(rawPacketTunnel: UnsafeMutableRawPointer, rawPresharedKey: UnsafeMutableRawPointer) {
     let packetTunnel = Unmanaged<NEPacketTunnelProvider>.fromOpaque(rawPacketTunnel).takeUnretainedValue()
     // TODO: The `rawPresharedKey` pointer might be null, this means the key exchanged failed, and we should try from the start again
+
+    guard rawPresharedKey.hashValue != 0.hashValue else {
+        // Fail here
+        print("no key for you")
+        return
+    }
+
     let presharedKey = Data(bytes: rawPresharedKey, count: 32)
     if let postQuantumKeyReceiver = packetTunnel as? PostQuantumKeyReceiving,
        let key = PreSharedKey(rawValue: presharedKey) {

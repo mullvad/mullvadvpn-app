@@ -1,8 +1,11 @@
 use std::ptr;
+use std::rc::Weak;
 
 use libc::c_void;
+use tokio::sync::mpsc;
 
 use std::io;
+use std::sync::Arc;
 
 mod ios_ffi;
 pub use ios_ffi::negotiate_post_quantum_key;
@@ -21,15 +24,17 @@ pub unsafe fn run_ios_runtime(
     ephemeral_pub_key: [u8; 32],
     packet_tunnel: *const c_void,
     tcp_connection: *const c_void,
-) -> i32 {
+) -> *const c_void {
     match IOSRuntime::new(pub_key, ephemeral_pub_key, packet_tunnel, tcp_connection) {
         Ok(runtime) => {
+            let weak_cancel_token = Arc::downgrade(&runtime.cancel_token_tx);
+            let token = weak_cancel_token.into_raw() as _;
             runtime.run();
-            0
+            token
         }
         Err(err) => {
             log::error!("Failed to create runtime {}", err);
-            err.raw_os_error().unwrap_or(-1)
+            std::ptr::null()
         }
     }
 }
@@ -48,6 +53,8 @@ struct IOSRuntime {
     pub_key: [u8; 32],
     ephemeral_public_key: [u8; 32],
     packet_tunnel: SwiftContext,
+    cancel_token_tx: Arc<mpsc::UnboundedSender<()>>,
+    cancel_token_rx: mpsc::UnboundedReceiver<()>,
 }
 
 impl IOSRuntime {
@@ -67,11 +74,15 @@ impl IOSRuntime {
             tcp_connection,
         };
 
+        let (tx, rx) = mpsc::unbounded_channel();
+
         Ok(Self {
             runtime,
             pub_key,
             ephemeral_public_key,
             packet_tunnel: context,
+            cancel_token_tx: Arc::new(tx),
+            cancel_token_rx: rx,
         })
     }
 
@@ -96,7 +107,11 @@ impl IOSRuntime {
     }
 
     fn run_service_inner(self) {
-        let Self { runtime, .. } = self;
+        let Self {
+            runtime,
+            mut cancel_token_rx,
+            ..
+        } = self;
 
         let packet_tunnel_ptr = self.packet_tunnel.packet_tunnel;
         runtime.block_on(async move {
@@ -110,21 +125,26 @@ impl IOSRuntime {
                     return;
                 }
             };
-            let preshared_key = talpid_tunnel_config_client::push_pq_inner(
-                &mut async_provider,
-                PublicKey::from(self.pub_key),
-                PublicKey::from(self.ephemeral_public_key),
-            )
-            .await;
+            tokio::select! {
+                preshared_key = talpid_tunnel_config_client::push_pq_inner(
+                    &mut async_provider,
+                    PublicKey::from(self.pub_key),
+                    PublicKey::from(self.ephemeral_public_key),
+                ) =>  {
+                    match preshared_key {
+                        Ok(key) => unsafe {
+                            let bytes = key.as_bytes();
+                            swift_post_quantum_key_ready(packet_tunnel_ptr, bytes.as_ptr());
+                        },
+                        Err(_) => unsafe {
+                            swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null_mut());
+                        },
+                    }
+                }
 
-            match preshared_key {
-                Ok(key) => unsafe {
-                    let bytes = key.as_bytes();
-                    swift_post_quantum_key_ready(packet_tunnel_ptr, bytes.as_ptr());
-                },
-                Err(_) => unsafe {
-                    swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null_mut());
-                },
+                _ = cancel_token_rx.recv() => {
+                    // The swift runtime pre emptively cancelled the key exchange, nothing to do here.
+                }
             }
         });
     }

@@ -155,7 +155,7 @@ extension PacketTunnelActor {
     private func stop() async {
         switch state {
         case let .connected(connState), let .connecting(connState), let .reconnecting(connState),
-             let .negotiatingPostQuantumKey(connState):
+             let .negotiatingPostQuantumKey(connState, _):
             state = .disconnecting(connState)
             tunnelMonitor.stop()
 
@@ -237,16 +237,30 @@ extension PacketTunnelActor {
     ) async throws {
         let settings: Settings = try settingsReader.read()
 
+        guard settings.quantumResistance == .off || settings.quantumResistance == .automatic else {
+            if let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings, reason: reason) {
+                let activeKey = activeKey(from: connectionState, in: settings)
+
+                let configurationBuilder = ConfigurationBuilder(
+                    privateKey: activeKey,
+                    interfaceAddresses: settings.interfaceAddresses,
+                    dns: settings.dnsServers,
+                    endpoint: connectionState.connectedEndpoint,
+                    allowedIPs: [
+                        IPAddressRange(from: "10.64.0.1/8")!,
+                    ]
+                )
+
+                try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
+                state = .negotiatingPostQuantumKey(connectionState, activeKey)
+            }
+            return
+        }
+
         guard let connectionState = try obfuscateConnection(nextRelay: nextRelay, settings: settings, reason: reason),
               let targetState = state.targetStateForReconnect else { return }
 
-        let activeKey: PrivateKey
-        switch connectionState.keyPolicy {
-        case .useCurrent:
-            activeKey = settings.privateKey
-        case let .usePrior(priorKey, _):
-            activeKey = priorKey
-        }
+        let activeKey = activeKey(from: connectionState, in: settings)
 
         switch targetState {
         case .connecting:
@@ -321,7 +335,7 @@ extension PacketTunnelActor {
                 connectionState.incrementAttemptCount()
             }
             fallthrough
-        case var .connected(connectionState), var .negotiatingPostQuantumKey(connectionState):
+        case var .connected(connectionState), var .negotiatingPostQuantumKey(connectionState, _):
             let selectedRelay = try callRelaySelector(
                 connectionState.selectedRelay,
                 connectionState.connectionAttemptCount
@@ -350,6 +364,15 @@ extension PacketTunnelActor {
             transportLayer: .udp,
             remotePort: selectedRelay.endpoint.ipv4Relay.port
         )
+    }
+
+    private func activeKey(from state: State.ConnectionData, in settings: Settings) -> PrivateKey {
+        switch state.keyPolicy {
+        case .useCurrent:
+            settings.privateKey
+        case let .usePrior(priorKey, _):
+            priorKey
+        }
     }
 
     private func obfuscateConnection(
