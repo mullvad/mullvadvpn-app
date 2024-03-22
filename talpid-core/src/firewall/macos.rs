@@ -373,9 +373,7 @@ impl Firewall {
         tunnel_interface: &str,
         allowed_traffic: &AllowedTunnelTraffic,
     ) -> Result<Vec<pfctl::FilterRule>> {
-        self.get_allow_tunnel_rules_inner(tunnel_interface, allowed_traffic, || {
-            Self::get_tcp_flags()
-        })
+        self.get_allow_tunnel_rules_inner(tunnel_interface, allowed_traffic, Self::get_tcp_flags())
     }
 
     fn get_allow_established_tunnel_rules(
@@ -383,26 +381,28 @@ impl Firewall {
         tunnel_interface: &str,
         allowed_traffic: &AllowedTunnelTraffic,
     ) -> Result<Vec<pfctl::FilterRule>> {
-        self.get_allow_tunnel_rules_inner(tunnel_interface, allowed_traffic, || {
+        self.get_allow_tunnel_rules_inner(
+            tunnel_interface,
+            allowed_traffic,
             pfctl::TcpFlags::new(
                 &[pfctl::TcpFlag::Syn, pfctl::TcpFlag::Ack],
                 &[pfctl::TcpFlag::Syn, pfctl::TcpFlag::Ack],
-            )
-        })
+            ),
+        )
     }
 
     fn get_allow_tunnel_rules_inner(
         &self,
         tunnel_interface: &str,
         allowed_traffic: &AllowedTunnelTraffic,
-        get_tcp_flags: impl FnOnce() -> pfctl::TcpFlags,
+        tcp_flags: pfctl::TcpFlags,
     ) -> Result<Vec<pfctl::FilterRule>> {
         let mut base_rule = &mut self.create_rule_builder(FilterRuleAction::Pass);
         base_rule
             .quick(true)
             .interface(tunnel_interface)
             .keep_state(pfctl::StatePolicy::Keep)
-            .tcp_flags(get_tcp_flags());
+            .tcp_flags(tcp_flags);
 
         Ok(match allowed_traffic {
             AllowedTunnelTraffic::One(endpoint) => {
