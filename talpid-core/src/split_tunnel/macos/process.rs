@@ -1,9 +1,9 @@
-use libc::{proc_bsdinfo, proc_listallpids, proc_pidinfo, proc_pidpath, PROC_PIDTBSDINFO};
+use libc::{proc_listallpids, proc_pidpath};
 use serde::Deserialize;
 use std::{
     collections::HashMap,
     ffi::c_void,
-    io, mem,
+    io,
     path::PathBuf,
     process::Stdio,
     ptr,
@@ -138,20 +138,11 @@ impl ProcessStates {
             exclude_paths: vec![],
         };
 
-        let procs = list_pids().map_err(Error::InitializePids)?;
+        let processes = list_pids().map_err(Error::InitializePids)?;
 
-        for pid in procs {
+        for pid in processes {
             let path = process_path(pid).map_err(|error| Error::FindProcessPath(error, pid))?;
-            let ppid = process_info(pid)
-                .map(|info| info.pbi_ppid)
-                .unwrap_or_else(|error| {
-                    log::error!("Failed to obtain parent pid for {pid}: {error}");
-                    0
-                });
-
-            states
-                .processes
-                .insert(pid, ProcessInfo::included(path, ppid));
+            states.processes.insert(pid, ProcessInfo::included(path));
         }
 
         Ok(ProcessStates {
@@ -207,7 +198,7 @@ impl InnerProcessStates {
 
     // For new processes, inherit all exclusion state from the parent, if there is one.
     // Otherwise, look up excluded paths
-    fn handle_fork(&mut self, ppid: u32, exec_path: PathBuf, msg: ESForkEvent) {
+    fn handle_fork(&mut self, parent_pid: u32, exec_path: PathBuf, msg: ESForkEvent) {
         let pid = msg.child.audit_token.pid;
 
         if self.processes.contains_key(&pid) {
@@ -215,20 +206,18 @@ impl InnerProcessStates {
         }
 
         // Inherit exclusion status from parent
-        let mut base_info = match self.processes.get(&ppid) {
+        let base_info = match self.processes.get(&parent_pid) {
             Some(parent_info) => parent_info.to_owned(),
             None => {
-                log::error!("{pid}: Unknown parent pid {ppid}!");
-                ProcessInfo::included(exec_path, ppid)
+                log::error!("{pid}: Unknown parent pid {parent_pid}!");
+                ProcessInfo::included(exec_path)
             }
         };
 
-        // no exec yet; only pid and ppid change
-        base_info.ppid = ppid;
-
+        // no exec yet; only pid and parent pid change
         if base_info.is_excluded() {
             println!(
-                "{pid} excluded (inherited from {ppid}) (exclude paths: {:?}",
+                "{pid} excluded (inherited from {parent_pid}) (exclude paths: {:?}",
                 base_info.excluded_by_paths
             );
         }
@@ -302,45 +291,22 @@ fn process_path(pid: u32) -> io::Result<PathBuf> {
     ))
 }
 
-fn process_info(pid: u32) -> io::Result<proc_bsdinfo> {
-    let mut info: proc_bsdinfo = unsafe { std::mem::zeroed() };
-
-    let result = unsafe {
-        proc_pidinfo(
-            pid as i32,
-            PROC_PIDTBSDINFO,
-            0,
-            &mut info as *mut _ as *mut c_void,
-            mem::size_of::<proc_bsdinfo>() as i32,
-        )
-    };
-    if result == -1 {
-        return Err(io::Error::last_os_error());
-    }
-
-    Ok(info)
-}
-
 #[derive(Debug, Clone)]
 struct ProcessInfo {
     exec_path: PathBuf,
-    ppid: u32,
-    excluded_by_pid: bool,
-    excluded_by_paths: Arc<[PathBuf]>,
+    excluded_by_paths: Vec<PathBuf>,
 }
 
 impl ProcessInfo {
-    fn included(exec_path: PathBuf, ppid: u32) -> Self {
+    fn included(exec_path: PathBuf) -> Self {
         ProcessInfo {
             exec_path,
-            ppid,
-            excluded_by_pid: false,
-            excluded_by_paths: Arc::from([]),
+            excluded_by_paths: vec![],
         }
     }
 
     fn is_excluded(&self) -> bool {
-        self.excluded_by_pid || !self.excluded_by_paths.is_empty()
+        !self.excluded_by_paths.is_empty()
     }
 }
 
@@ -364,7 +330,7 @@ struct ESExecEvent {
 enum ESEvent {
     Fork(ESForkEvent),
     Exec(ESExecEvent),
-    Exit(serde_json::Value),
+    Exit,
 }
 
 #[derive(Debug, Deserialize)]
