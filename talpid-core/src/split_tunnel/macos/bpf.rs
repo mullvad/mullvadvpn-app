@@ -287,6 +287,10 @@ impl AsyncRead for BpfStream {
     }
 }
 
+/// Parse BPF header from an arbitrarily sized buffer, which may also contain payloads. If the
+/// buffer cannot be interpreted as a header, for whatever reason, the function returns `None`.
+/// On success, return a reference to the header as well as the start of the next BPF packet in
+/// `data`, if one exists.
 pub fn parse_bpf_header(data: &[u8]) -> Option<(&bpf_hdr, usize)> {
     if data.len() < mem::size_of::<bpf_hdr>() {
         return None;
