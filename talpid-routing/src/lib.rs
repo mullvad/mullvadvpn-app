@@ -33,6 +33,7 @@ pub use imp::{Error, RouteManagerHandle};
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub struct MacAddress(pub [u8; 6]);
 
+#[cfg(target_os = "macos")]
 impl MacAddress {
     /// Consume bytes that make up the link address
     pub fn into_bytes(self) -> [u8; 6] {
