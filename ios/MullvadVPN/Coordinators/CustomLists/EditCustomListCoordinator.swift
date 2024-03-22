@@ -19,33 +19,34 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
     let navigationController: UINavigationController
     let customListInteractor: CustomListInteractorProtocol
     let customList: CustomList
+    let nodes: [LocationNode]
+    let subject: CurrentValueSubject<CustomListViewModel, Never>
 
     var presentedViewController: UIViewController {
         navigationController
     }
 
-    var didFinish: ((FinishAction, CustomList) -> Void)?
+    var didFinish: ((EditCustomListCoordinator, FinishAction, CustomList) -> Void)?
 
     init(
         navigationController: UINavigationController,
         customListInteractor: CustomListInteractorProtocol,
-        customList: CustomList
+        customList: CustomList,
+        nodes: [LocationNode]
     ) {
         self.navigationController = navigationController
         self.customListInteractor = customListInteractor
         self.customList = customList
+        self.nodes = nodes
+        self.subject = CurrentValueSubject(CustomListViewModel(
+            id: customList.id,
+            name: customList.name,
+            locations: customList.locations,
+            tableSections: [.name, .editLocations, .deleteList]
+        ))
     }
 
     func start() {
-        let subject = CurrentValueSubject<CustomListViewModel, Never>(
-            CustomListViewModel(
-                id: customList.id,
-                name: customList.name,
-                locations: customList.locations,
-                tableSections: [.name, .editLocations, .deleteList]
-            )
-        )
-
         let controller = CustomListViewController(
             interactor: customListInteractor,
             subject: subject,
@@ -66,14 +67,33 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
 
 extension EditCustomListCoordinator: CustomListViewControllerDelegate {
     func customListDidSave(_ list: CustomList) {
-        didFinish?(.save, list)
+        didFinish?(self, .save, list)
     }
 
     func customListDidDelete(_ list: CustomList) {
-        didFinish?(.delete, list)
+        didFinish?(self, .delete, list)
     }
 
-    func showLocations() {
-        // TODO: Show view controller for locations.
+    func showLocations(_ list: CustomList) {
+        let coordinator = EditLocationsCoordinator(
+            navigationController: navigationController,
+            nodes: nodes,
+            customList: list
+        )
+
+        coordinator.didFinish = { [weak self] locationsCoordinator, customList in
+            guard let self else { return }
+            subject.send(CustomListViewModel(
+                id: customList.id,
+                name: customList.name,
+                locations: customList.locations,
+                tableSections: subject.value.tableSections
+            ))
+            locationsCoordinator.removeFromParent()
+        }
+
+        coordinator.start()
+
+        coordinator.addChild(coordinator)
     }
 }
