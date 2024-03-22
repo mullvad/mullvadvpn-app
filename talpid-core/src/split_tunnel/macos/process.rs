@@ -44,9 +44,6 @@ impl ProcessMonitor {
     pub async fn spawn() -> Result<ProcessMonitorHandle, Error> {
         let states = ProcessStates::new()?;
 
-        let excluded_paths = vec![];
-        states.exclude_paths(excluded_paths);
-
         let mut cmd = tokio::process::Command::new("/usr/bin/eslogger");
         cmd.args(["exec", "fork", "exit"])
             .kill_on_drop(true)
