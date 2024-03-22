@@ -760,14 +760,15 @@ fn enable_forwarding_for_family(ipv4: bool) -> io::Result<()> {
     let mut val: c_int = 1;
 
     let option = if ipv4 {
-        b"net.inet.ip.forwarding\0".as_ptr()
+        c"net.inet.ip.forwarding"
     } else {
-        b"net.inet6.ip6.forwarding\0".as_ptr()
+        c"net.inet6.ip6.forwarding"
     };
 
+    // SAFETY: The strings are null-terminated.
     let result = unsafe {
         sysctlbyname(
-            option as _,
+            option.as_ptr(),
             ptr::null_mut(),
             ptr::null_mut(),
             &mut val as *mut _ as _,
