@@ -1,7 +1,7 @@
 use futures::ready;
 use libc::{
-    bpf_hdr, ifreq, BIOCGBLEN, BIOCGDLT, BIOCGSTATS, BIOCIMMEDIATE, BIOCSBLEN, BIOCSETIF,
-    BIOCSHDRCMPLT, BIOCSSEESENT, BPF_ALIGNMENT, EBUSY, F_GETFL, F_SETFL, O_NONBLOCK,
+    bpf_hdr, ifreq, BIOCGBLEN, BIOCGDLT, BIOCIMMEDIATE, BIOCSBLEN, BIOCSETIF, BIOCSHDRCMPLT,
+    BIOCSSEESENT, BPF_ALIGNMENT, EBUSY, F_GETFL, F_SETFL, O_NONBLOCK,
 };
 use std::{
     ffi::{c_int, c_uint},
@@ -14,7 +14,7 @@ use std::{
 };
 use tokio::io::{unix::AsyncFd, AsyncRead, Interest, ReadBuf};
 
-use super::bindings::{bpf_stat, BIOCSWANTPKTAP};
+use super::bindings::BIOCSWANTPKTAP;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -56,11 +56,6 @@ macro_rules! ioctl {
 
 pub struct Bpf {
     file: File,
-}
-
-pub struct Stats {
-    pub dropped: u32,
-    pub recv: u32,
 }
 
 pub struct ReadHalf(File);
@@ -117,16 +112,6 @@ impl Bpf {
             return Err(Error::SetFileFlags(io::Error::last_os_error()));
         }
         Ok(())
-    }
-
-    pub fn get_stats(&self) -> Result<Stats, Error> {
-        let mut raw_stats: bpf_stat = unsafe { mem::zeroed() };
-        unsafe { ioctl!(self.file.as_raw_fd(), BIOCGSTATS, &mut raw_stats) }?;
-
-        Ok(Stats {
-            dropped: raw_stats.bs_drop,
-            recv: raw_stats.bs_recv,
-        })
     }
 
     /// Set BIOCSETIF
