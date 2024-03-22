@@ -133,7 +133,7 @@ impl Firewall {
 
                 if let Some(tunnel) = tunnel {
                     if let Some(redirect_interface) = redirect_interface {
-                        try_enable_forwarding();
+                        enable_forwarding();
 
                         if !allowed_tunnel_traffic.all() {
                             log::warn!("Split tunneling does not respect the 'allowed tunnel traffic' setting");
@@ -183,7 +183,7 @@ impl Firewall {
                 }
 
                 if let Some(redirect_interface) = redirect_interface {
-                    try_enable_forwarding();
+                    enable_forwarding();
 
                     rules.extend(self.get_allow_established_tunnel_rules(
                         &tunnel.interface,
@@ -741,7 +741,7 @@ enum RuleLogging {
     All,
 }
 
-fn try_enable_forwarding() {
+fn enable_forwarding() {
     if let Err(error) = enable_forwarding_for_family(true) {
         log::error!("Failed to enable forwarding (IPv4): {error}");
     }
