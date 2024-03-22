@@ -321,8 +321,8 @@ impl<'a> BpfIterMut<'a> {
             ..offset + (hdr.bh_hdrlen as usize + hdr.bh_caplen as usize)];
 
         // Each packet starts on a word boundary after the previous header and capture
-        self.current_packet_offset =
-            offset + usize::try_from(bpf_wordalign(hdr.bh_hdrlen as u32 + hdr.bh_caplen as u32)).unwrap();
+        self.current_packet_offset = offset
+            + usize::try_from(bpf_wordalign(hdr.bh_hdrlen as u32 + hdr.bh_caplen as u32)).unwrap();
 
         Some(payload)
     }
