@@ -210,7 +210,6 @@ impl Write for Bpf {
 
     fn flush(&mut self) -> io::Result<()> {
         // no-op
-        // TODO: verify
         Ok(())
     }
 }
@@ -222,7 +221,6 @@ impl Write for &Bpf {
 
     fn flush(&mut self) -> io::Result<()> {
         // no-op
-        // TODO: verify
         Ok(())
     }
 }
@@ -240,7 +238,6 @@ impl Write for WriteHalf {
 
     fn flush(&mut self) -> io::Result<()> {
         // no-op
-        // TODO: verify
         Ok(())
     }
 }
