@@ -103,11 +103,15 @@ skip-tree = []
 unknown-registry = "deny"
 unknown-git = "deny"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
-# If we need to temporarily depend on a git repository in our Rust dependency tree,
-# it has to be added here. We should try to keep this list minimal. Having git
-# dependencies is not recommended.
-# TODO: Remove git dependency for hickory-dns after new release
-allow-git = ["https://github.com/hickory-dns/hickory-dns"]
+
+# We should never depend on git repositories outside our own github organization.
+# We can't say anything about their availability. They might go away at any point
+# in time. Instead of using third party git repositories, always fork the repository
+# into our github organization and depend on that.
+#
+# But if possible, always avoid git dependencies and try to have the developers publish
+# releases to crates.io instead.
+allow-git = []
 
 [sources.allow-org]
 # 1 or more github.com organizations to allow git sources for
