@@ -493,21 +493,23 @@ struct SharedTunnelStateValues {
 }
 
 impl SharedTunnelStateValues {
+    /// Return whether an split tunnel interface was created
     #[cfg(target_os = "macos")]
     pub fn set_exclude_paths(&mut self, paths: Vec<OsString>) -> Result<bool, split_tunnel::Error> {
         let had_interface = self.split_tunnel.interface().is_some();
-        if let Err(error) = self.runtime.block_on(
-            self.split_tunnel
-                .set_exclude_paths(paths.into_iter().map(PathBuf::from).collect()),
-        ) {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to set split tunnel paths")
-            );
-            return Err(error);
-        }
+        self.runtime
+            .block_on(
+                self.split_tunnel
+                    .set_exclude_paths(paths.into_iter().map(PathBuf::from).collect()),
+            )
+            .map_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to set split tunnel paths")
+                );
+                error
+            })?;
         let has_interface = self.split_tunnel.interface().is_some();
-        // return whether an ST utun was created
         Ok(!had_interface && has_interface)
     }
 
