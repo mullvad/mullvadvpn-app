@@ -346,26 +346,11 @@ async fn redirect_packets_for_pktap_stream(
                     let Ok(read_n) = result else {
                         break tun_writer;
                     };
-                    let mut read_data = &mut readbuf[0..read_n];
+                    let read_data = &mut readbuf[0..read_n];
 
-                    loop {
-                        let (header, new_offset) = {
-                            let Some((header, new_offset)) = bpf::parse_bpf_header(read_data) else {
-                                break;
-                            };
-                            (header.clone(), new_offset)
-                        };
-                        let bpf_payload = &mut read_data[header.bh_hdrlen as usize
-                            ..(header.bh_hdrlen as usize + header.bh_caplen as usize)];
-
-                        handle_incoming_data(&mut tun_writer, bpf_payload, vpn_v4, vpn_v6).await;
-
-                        if new_offset < read_data.len() {
-                            let read_len = read_data.len();
-                            read_data = &mut read_data[new_offset..read_len];
-                        } else {
-                            break;
-                        }
+                    let mut iter = bpf::BpfIterMut::new(read_data);
+                    while let Some(payload) = iter.next() {
+                        handle_incoming_data(&mut tun_writer, payload, vpn_v4, vpn_v6).await;
                     }
                 }
                 Ok(()) | Err(_) = abort_rx.recv() => {
