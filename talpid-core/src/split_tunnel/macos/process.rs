@@ -325,7 +325,6 @@ fn process_info(pid: u32) -> io::Result<proc_bsdinfo> {
 struct ProcessInfo {
     exec_path: PathBuf,
     ppid: u32,
-    // inherited: bool,
     excluded_by_pid: bool,
     excluded_by_paths: Arc<[PathBuf]>,
 }
