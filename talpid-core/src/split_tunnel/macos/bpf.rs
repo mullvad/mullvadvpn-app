@@ -287,7 +287,7 @@ impl AsyncRead for BpfStream {
     }
 }
 
-pub fn parse_bpf_header<'a>(data: &'a [u8]) -> Option<(&'a bpf_hdr, usize)> {
+pub fn parse_bpf_header(data: &[u8]) -> Option<(&bpf_hdr, usize)> {
     if data.len() < mem::size_of::<bpf_hdr>() {
         return None;
     }
