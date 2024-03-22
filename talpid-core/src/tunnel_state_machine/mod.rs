@@ -354,7 +354,7 @@ impl TunnelStateMachine {
                 args.settings
                     .exclude_paths
                     .iter()
-                    .map(|p| p.into())
+                    .map(PathBuf::from)
                     .collect(),
             )
             .await
@@ -489,7 +489,7 @@ impl SharedTunnelStateValues {
         let had_interface = self.split_tunnel.interface().is_some();
         if let Err(error) = self.runtime.block_on(
             self.split_tunnel
-                .set_exclude_paths(paths.into_iter().map(|p| p.into()).collect()),
+                .set_exclude_paths(paths.into_iter().map(PathBuf::from).collect()),
         ) {
             log::error!(
                 "{}",
