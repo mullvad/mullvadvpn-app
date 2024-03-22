@@ -165,18 +165,15 @@ impl ProcessStates {
 
         for (_pid, info) in &mut inner.processes {
             // Remove no-longer excluded paths from exclusion list
-            let mut new_exclude_paths: Vec<_> = info
+            let mut new_exclude_paths: HashSet<_> = info
                 .excluded_by_paths
-                .iter()
-                .filter(|old_path| paths.contains(old_path.as_path()))
+                .intersection(&paths)
                 .cloned()
                 .collect();
 
             // Check if own path is excluded
-            if paths.contains(&info.exec_path) {
-                if !new_exclude_paths.contains(&info.exec_path) {
-                    new_exclude_paths.push(info.exec_path.to_owned());
-                }
+            if paths.contains(&info.exec_path) && !new_exclude_paths.contains(&info.exec_path) {
+                new_exclude_paths.insert(info.exec_path.to_owned());
             }
 
             info.excluded_by_paths = new_exclude_paths;
@@ -250,10 +247,7 @@ impl InnerProcessStates {
 
         // Exclude if path is excluded
         if self.exclude_paths.contains(&info.exec_path) {
-            let mut new_paths = info.excluded_by_paths.to_vec();
-            new_paths.push(info.exec_path.to_owned());
-            info.excluded_by_paths = new_paths;
-
+            info.excluded_by_paths.insert(info.exec_path.to_owned());
             log::trace!("Excluding {pid} by path: {}", info.exec_path.display());
         }
     }
@@ -308,14 +302,14 @@ fn process_path(pid: u32) -> io::Result<PathBuf> {
 #[derive(Debug, Clone)]
 struct ProcessInfo {
     exec_path: PathBuf,
-    excluded_by_paths: Vec<PathBuf>,
+    excluded_by_paths: HashSet<PathBuf>,
 }
 
 impl ProcessInfo {
     fn included(exec_path: PathBuf) -> Self {
         ProcessInfo {
             exec_path,
-            excluded_by_paths: vec![],
+            excluded_by_paths: HashSet::new(),
         }
     }
 
