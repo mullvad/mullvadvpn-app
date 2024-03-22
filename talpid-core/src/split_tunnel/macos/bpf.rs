@@ -291,17 +291,46 @@ impl AsyncRead for BpfStream {
 /// buffer cannot be interpreted as a header, for whatever reason, the function returns `None`.
 /// On success, return a reference to the header as well as the start of the next BPF packet in
 /// `data`, if one exists.
-pub fn parse_bpf_header(data: &[u8]) -> Option<(&bpf_hdr, usize)> {
-    if data.len() < mem::size_of::<bpf_hdr>() {
-        return None;
-    }
-    let bpf_header: &bpf_hdr = unsafe { &*(data.as_ptr() as *const u8 as *const bpf_hdr) };
-    Some((
-        bpf_header,
-        bpf_wordalign(bpf_header.bh_hdrlen as u32 + bpf_header.bh_caplen as u32) as usize,
-    ))
+pub struct BpfIterMut<'a> {
+    data: &'a mut [u8],
+    current_packet_offset: usize,
 }
 
+impl<'a> BpfIterMut<'a> {
+    /// Return a new iterator over BPF packets
+    pub fn new(data: &'a mut [u8]) -> Self {
+        Self {
+            data,
+            current_packet_offset: 0,
+        }
+    }
+
+    /// Return the next BPF payload, or None
+    pub fn next(&mut self) -> Option<&mut [u8]> {
+        let offset = self.current_packet_offset;
+        if self.data.len() < offset + mem::size_of::<bpf_hdr>() {
+            return None;
+        }
+
+        let hdr = unsafe { &*(self.data.as_ptr() as *const u8 as *const bpf_hdr) };
+
+        if offset + hdr.bh_hdrlen as usize + hdr.bh_caplen as usize > self.data.len() {
+            return None;
+        }
+
+        // SAFETY: This is within the bounds of 'data'
+        let payload = &mut self.data[offset + hdr.bh_hdrlen as usize
+            ..offset + (hdr.bh_hdrlen as usize + hdr.bh_caplen as usize)];
+
+        // Each packet starts on a word boundary after the previous header and capture
+        self.current_packet_offset =
+            usize::try_from(bpf_wordalign(hdr.bh_hdrlen as u32 + hdr.bh_caplen as u32)).unwrap();
+
+        Some(payload)
+    }
+}
+
+/// Compute the next word boundary given `n`
 const fn bpf_wordalign(n: u32) -> u32 {
     const ALIGNMENT: u32 = BPF_ALIGNMENT as u32;
     return (n + (ALIGNMENT - 1)) & (!(ALIGNMENT - 1));
