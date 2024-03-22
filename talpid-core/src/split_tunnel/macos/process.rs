@@ -1,7 +1,6 @@
 use libc::{proc_listallpids, proc_pidpath};
 use serde::Deserialize;
 use std::collections::HashSet;
-use std::path::Path;
 use std::{
     collections::HashMap,
     ffi::c_void,
