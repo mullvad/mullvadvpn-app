@@ -10,7 +10,6 @@ on:
       - wireguard/libwg/go.sum
       - ci/keys/**
       - ci/verify-locked-down-signatures.sh
-      - ios/requirements.txt
       - ios/MullvadVPN.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
       - android/gradlew
       - android/gradlew.bat
