@@ -21,6 +21,9 @@ pub enum Error {
     /// Failed to open BPF device
     #[error("Failed to open BPF device")]
     OpenBpfDevice(#[source] io::Error),
+    /// Failed to duplicate BPF fd
+    #[error("Failed to duplicate BPF device")]
+    Duplicate(#[source] io::Error),
     /// No free BPF device found
     #[error("No free BPF device found")]
     NoFreeBpfDeviceFound,
@@ -71,9 +74,9 @@ impl Bpf {
         })
     }
 
-    pub fn split(self) -> (ReadHalf, WriteHalf) {
-        let dup = self.file.try_clone().unwrap();
-        (ReadHalf(dup), WriteHalf(self.file))
+    pub fn split(self) -> Result<(ReadHalf, WriteHalf), Error> {
+        let dup = self.file.try_clone().map_err(Error::Duplicate)?;
+        Ok((ReadHalf(dup), WriteHalf(self.file)))
     }
 
     fn open_device() -> Result<File, Error> {
