@@ -42,14 +42,17 @@ pub struct Handle {
 }
 
 enum State {
+    /// The initial state: no paths have been provided
     NoExclusions {
         route_manager: RouteManagerHandle,
         vpn_interface: Option<VpnInterface>,
     },
-    HasProcessMonitor {
+    /// There is a process monitor (and paths) but no split tunnel utun yet
+    ProcessMonitorOnly {
         route_manager: RouteManagerHandle,
         process: process::ProcessMonitorHandle,
     },
+    /// There is a split tunnel utun as well as paths to exclude
     Initialized {
         route_manager: RouteManagerHandle,
         process: process::ProcessMonitorHandle,
@@ -77,7 +80,7 @@ impl Handle {
     /// Shut down split tunnel
     pub async fn shutdown(self) {
         match self.state {
-            State::HasProcessMonitor { mut process, .. } => {
+            State::ProcessMonitorOnly { mut process, .. } => {
                 process.shutdown().await;
             }
             State::Initialized {
@@ -131,7 +134,7 @@ impl Handle {
                 let process = process::ProcessMonitor::spawn().await?;
                 process.states().exclude_paths(paths);
 
-                self.state = State::HasProcessMonitor {
+                self.state = State::ProcessMonitorOnly {
                     route_manager,
                     process,
                 };
@@ -141,7 +144,7 @@ impl Handle {
             // If 'paths' is empty, do nothing
             State::NoExclusions { .. } => Ok(()),
             // If split tunneling is already initialized, or only the process monitor is, update the paths only
-            State::Initialized { process, .. } | State::HasProcessMonitor { process, .. } => {
+            State::Initialized { process, .. } | State::ProcessMonitorOnly { process, .. } => {
                 process.states().exclude_paths(paths);
                 Ok(())
             }
@@ -214,13 +217,13 @@ impl Handle {
                 }
             }
             // If there is a process monitor, initialize split tunneling
-            State::HasProcessMonitor { route_manager, .. } if new_vpn_interface.is_some() => {
+            State::ProcessMonitorOnly { route_manager, .. } if new_vpn_interface.is_some() => {
                 // Try to update the default interface first
                 // If this fails, remain in the current state and just fail
                 let default_interface = default::get_default_interface(route_manager).await?;
 
                 let route_manager = route_manager.clone();
-                let State::HasProcessMonitor {
+                let State::ProcessMonitorOnly {
                     route_manager,
                     mut process,
                 } = std::mem::replace(
@@ -266,7 +269,7 @@ impl Handle {
                 }
             }
             // No-op there's a process monitor but we didn't get a VPN interface
-            State::HasProcessMonitor { .. } => Ok(()),
+            State::ProcessMonitorOnly { .. } => Ok(()),
             // If there are no paths to exclude, or split tunneling failed, remain in the current state
             State::NoExclusions { vpn_interface, .. } | State::Failed { vpn_interface, .. } => {
                 *vpn_interface = new_vpn_interface;
