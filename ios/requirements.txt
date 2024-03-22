@@ -1,6 +1,0 @@
-nslocalized==0.2.0 \
-    --hash=sha256:46d6f776b26e9da0e0d0c759d99782884882cade59d5c935005a85cba654db9e
-## The following requirements were added by pip freeze:
-six==1.16.0 \
-    --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
-    --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
