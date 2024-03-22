@@ -294,7 +294,7 @@ async fn redirect_packets_for_pktap_stream(
 
     log::trace!("Default BPF reader buffer size: {:?}", readbuf.len());
 
-    let (default_read, mut default_write) = default_dev.split();
+    let (default_read, mut default_write) = default_dev.split().map_err(Error::ConfigDefaultBpf)?;
     let mut default_stream =
         bpf::BpfStream::from_read_half(default_read).map_err(Error::CreateDefaultBpf)?;
 
