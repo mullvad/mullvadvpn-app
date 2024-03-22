@@ -530,20 +530,19 @@ impl SharedTunnelStateValues {
             v4_address,
             v6_address,
         };
-        if let Err(error) = self
-            .runtime
+        self.runtime
             .block_on(self.split_tunnel.set_tunnel(Some(vpn_interface)))
-        {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to set VPN interface for split tunnel")
-            );
-            if error.is_offline() {
-                return Err(ErrorStateCause::IsOffline);
-            }
-            return Err(ErrorStateCause::SplitTunnelError);
-        }
-        Ok(())
+            .map_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to set VPN interface for split tunnel")
+                );
+                if error.is_offline() {
+                    ErrorStateCause::IsOffline
+                } else {
+                    ErrorStateCause::SplitTunnelError
+                }
+            })
     }
 
     pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<(), ErrorStateCause> {
