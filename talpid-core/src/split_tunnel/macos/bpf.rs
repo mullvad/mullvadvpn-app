@@ -97,6 +97,7 @@ impl Bpf {
     }
 
     pub fn set_nonblocking(&self, enabled: bool) -> Result<(), Error> {
+        // SAFETY: The fd is valid for the lifetime of `self`
         let mut flags = unsafe { libc::fcntl(self.as_raw_fd(), F_GETFL) };
         if flags == -1 {
             return Err(Error::GetFileFlags(io::Error::last_os_error()));
@@ -107,6 +108,7 @@ impl Bpf {
             flags &= !O_NONBLOCK;
         }
 
+        // SAFETY: The fd is valid for the lifetime of `self`
         let result = unsafe { libc::fcntl(self.as_raw_fd(), F_SETFL, flags) };
         if result == -1 {
             return Err(Error::SetFileFlags(io::Error::last_os_error()));
@@ -124,11 +126,13 @@ impl Bpf {
         }
 
         unsafe {
+            // SAFETY: `name_bytes` cannot exceed the size of `ifr_name`
             std::ptr::copy_nonoverlapping(
                 name_bytes.as_ptr(),
                 &mut ifr.ifr_name as *mut _ as *mut _,
                 name_bytes.len(),
             );
+            // SAFETY: The fd is valid for the lifetime of `self`, and `ifr` has a valid interface
             ioctl!(self.file.as_raw_fd(), BIOCSETIF, &ifr)
         }
     }
@@ -136,27 +140,32 @@ impl Bpf {
     /// Enable or disable immediate mode (BIOCIMMEDIATE)
     pub fn set_immediate(&self, enable: bool) -> Result<(), Error> {
         let enable: c_int = if enable { 1 } else { 0 };
+        // SAFETY: The fd is valid for the lifetime of `self`
         unsafe { ioctl!(self.file.as_raw_fd(), BIOCIMMEDIATE, &enable) }
     }
 
     // See locally sent packets (BIOCSSEESENT)
     pub fn set_see_sent(&self, enable: bool) -> Result<(), Error> {
         let enable: c_int = if enable { 1 } else { 0 };
+        // SAFETY: The fd is valid for the lifetime of `self`
         unsafe { ioctl!(self.file.as_raw_fd(), BIOCSSEESENT, &enable) }
     }
 
     /// Enable or disable locally sent messages (BIOCSHDRCMPLT)
     pub fn set_header_complete(&self, enable: bool) -> Result<(), Error> {
         let enable: c_int = if enable { 1 } else { 0 };
+        // SAFETY: The fd is valid for the lifetime of `self`
         unsafe { ioctl!(self.file.as_raw_fd(), BIOCSHDRCMPLT, &enable) }
     }
 
     pub fn set_want_pktap(&self, enable: bool) -> Result<(), Error> {
         let enable: c_int = if enable { 1 } else { 0 };
+        // SAFETY: The fd is valid for the lifetime of `self`
         unsafe { ioctl!(self.file.as_raw_fd(), BIOCSWANTPKTAP, &enable) }
     }
 
     pub fn set_buffer_size(&self, mut buffer_size: c_uint) -> Result<usize, Error> {
+        // SAFETY: The fd is valid for the lifetime of `self`
         unsafe {
             ioctl!(self.file.as_raw_fd(), BIOCSBLEN, &mut buffer_size)?;
         }
@@ -165,6 +174,7 @@ impl Bpf {
 
     pub fn required_buffer_size(&self) -> Result<usize, Error> {
         let mut buf_size = 0i32;
+        // SAFETY: The fd is valid for the lifetime of `self`
         unsafe {
             ioctl!(self.file.as_raw_fd(), BIOCGBLEN, &mut buf_size)?;
         }
@@ -173,6 +183,7 @@ impl Bpf {
 
     pub fn dlt(&self) -> Result<u32, Error> {
         let mut dlt = 0;
+        // SAFETY: The fd is valid for the lifetime of `self`
         unsafe {
             ioctl!(self.file.as_raw_fd(), BIOCGDLT, &mut dlt)?;
         }
