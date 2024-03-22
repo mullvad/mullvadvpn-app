@@ -538,7 +538,7 @@ impl ConnectingState {
                 }
 
                 #[cfg(target_os = "macos")]
-                if let Err(error) = shared_values.maybe_enable_split_tunnel(&metadata) {
+                if let Err(error) = shared_values.enable_split_tunnel(&metadata) {
                     return self.disconnect(shared_values, AfterDisconnect::Block(error));
                 }
 

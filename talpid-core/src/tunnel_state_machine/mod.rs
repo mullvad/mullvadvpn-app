@@ -505,7 +505,7 @@ impl SharedTunnelStateValues {
     }
 
     #[cfg(target_os = "macos")]
-    pub fn maybe_enable_split_tunnel(
+    pub fn enable_split_tunnel(
         &mut self,
         metadata: &TunnelMetadata,
     ) -> Result<(), ErrorStateCause> {
