@@ -1,3 +1,10 @@
+//! This module keeps tracks of maintains a list of processes, and keeps it up to date by observing
+//! the syscalls `fork`, `exec`, and `exit`.
+//! Each process has an exclusion state, based on which paths the process monitor is instructed to
+//! exclude.
+//! The module currently relies on the `eslogger` tool to do so, which in turn relies on the
+//! Endpoint Security framework.
+
 use libc::{proc_listallpids, proc_pidpath};
 use serde::Deserialize;
 use std::collections::HashSet;
@@ -63,6 +70,8 @@ impl ProcessMonitor {
             let mut lines = reader.lines();
 
             while let Ok(Some(line)) = lines.next_line().await {
+                // Each line from eslogger is a JSON object, one of several types of messages;
+                // see `ESMessage`
                 let val: ESMessage = match serde_json::from_str(&line) {
                     Ok(val) => val,
                     Err(error) => {
@@ -309,21 +318,29 @@ impl ProcessInfo {
     }
 }
 
+/// `fork` event details
 #[derive(Debug, Deserialize)]
 struct ESForkChild {
     audit_token: ESAuditToken,
 }
 
+/// `fork` event returned by `eslogger`
 #[derive(Debug, Deserialize)]
 struct ESForkEvent {
     child: ESForkChild,
 }
 
+/// `exec` event returned by `eslogger`
 #[derive(Debug, Deserialize)]
 struct ESExecEvent {
     dyld_exec_path: String,
 }
 
+/// Event that triggered the message returned by `eslogger`.
+/// See the `es_events_t` struct for more information:
+/// https://developer.apple.com/documentation/endpointsecurity/es_message_t/3228969-event?language=objc
+/// A list of all event types can be found here:
+/// https://developer.apple.com/documentation/endpointsecurity/es_event_type_t/es_event_type_notify_fork?language=objc
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "lowercase")]
 enum ESEvent {
@@ -332,22 +349,34 @@ enum ESEvent {
     Exit {},
 }
 
+/// Message containing the path to the image of the process.
+/// This message is analogous to the `executable` field of `es_process_t`:
+/// https://developer.apple.com/documentation/endpointsecurity/es_process_t/3228975-audit_token?language=objc
 #[derive(Debug, Deserialize)]
 struct ESExecutable {
     path: PathBuf,
 }
 
+/// Message containing the process identifier of the process.
+/// This message is analogous to the `audit_token` field of `es_process_t`:
+/// https://developer.apple.com/documentation/endpointsecurity/es_process_t/3228975-audit_token?language=objc
 #[derive(Debug, Deserialize)]
 struct ESAuditToken {
     pid: u32,
 }
 
+/// Process information for the message returned by `eslogger`.
+/// This message is analogous to the `es_process_t` struct:
+/// https://developer.apple.com/documentation/endpointsecurity/es_process_t?language=objc
 #[derive(Debug, Deserialize)]
 struct ESProcess {
     audit_token: ESAuditToken,
     executable: ESExecutable,
 }
 
+/// This struct represents each message returned by eslogger
+/// This message is analogous to the `es_message_t` struct:
+/// https://developer.apple.com/documentation/endpointsecurity/es_message_t?language=objc
 #[derive(Debug, Deserialize)]
 struct ESMessage {
     event: ESEvent,
