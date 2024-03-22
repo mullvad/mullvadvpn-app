@@ -259,13 +259,15 @@ impl InnerProcessStates {
 
 /// Obtain a list of all pids
 fn list_pids() -> io::Result<Vec<u32>> {
+    // SAFETY: Passing in null and 0 returns the number of processes
     let num_pids = unsafe { proc_listallpids(ptr::null_mut(), 0) };
     if num_pids <= 0 {
         return Err(io::Error::last_os_error());
     }
     let mut pids = vec![0u32; usize::try_from(num_pids).unwrap()];
 
-    let buf_sz = (u32::BITS as usize / 8 * (num_pids as usize)) as i32;
+    let buf_sz = (num_pids as usize * std::mem::size_of::<u32>()) as i32;
+    // SAFETY: 'pids' is large enough to contain 'num_pids' processes
     let num_pids = unsafe { proc_listallpids(pids.as_mut_ptr() as *mut c_void, buf_sz) };
     if num_pids == -1 {
         return Err(io::Error::last_os_error());
@@ -278,6 +280,7 @@ fn list_pids() -> io::Result<Vec<u32>> {
 
 fn process_path(pid: u32) -> io::Result<PathBuf> {
     let mut buffer = [0u8; libc::MAXPATHLEN as usize];
+    // SAFETY: `proc_pidpath` returns at most `buffer.len()` bytes
     let buf_len = unsafe {
         proc_pidpath(
             pid as i32,
