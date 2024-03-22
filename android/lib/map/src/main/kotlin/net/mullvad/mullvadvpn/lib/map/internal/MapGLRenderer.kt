@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.Globe
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.LocationMarker
-import net.mullvad.mullvadvpn.model.COMPLETE_ANGLE
+import net.mullvad.mullvadvpn.model.toRadians
 
 internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.Renderer {
 
@@ -78,8 +78,6 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
             marker.draw(projectionMatrix, viewMatrix, it.latLong, it.size)
         }
     }
-
-    private fun Float.toRadians() = this * Math.PI.toFloat() / (COMPLETE_ANGLE / 2)
 
     private fun toOffsetY(cameraPosition: CameraPosition): Float {
         val percent = cameraPosition.verticalBias

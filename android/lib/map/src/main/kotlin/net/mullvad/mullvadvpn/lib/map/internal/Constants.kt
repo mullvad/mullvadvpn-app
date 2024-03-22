@@ -4,9 +4,10 @@ internal const val VERTEX_COMPONENT_SIZE = 3
 internal const val COLOR_COMPONENT_SIZE = 4
 internal const val MATRIX_SIZE = 16
 
-// Constant what will talk the distance in LatLng multiply it to determine the animation duration,
+// Constant what will take the distance in km between two LatLong, multiply it to determine the
+// animation duration,
 // the result is then confined to the MIN_ANIMATION_MILLIS and MAX_ANIMATION_MILLIS
-internal const val DISTANCE_DURATION_SCALE_FACTOR = 20
+internal const val DISTANCE_DURATION_SCALE_FACTOR = 0.4f
 internal const val MIN_ANIMATION_MILLIS = 1300
 internal const val MAX_ANIMATION_MILLIS = 2500
 // The cut off where we go from a short animation (camera pans) to a far animation (camera pans +
