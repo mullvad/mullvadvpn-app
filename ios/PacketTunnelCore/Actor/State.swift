@@ -62,6 +62,9 @@ enum State: Equatable {
     /// The actor should remain in this state until the very first connection is established, i.e determined by tunnel monitor.
     case connecting(ConnectionData)
 
+    /// The postquantum key is in the process of being negotiated; there is a physical connection, but traffic is not being allowed beyond the key negotiation servers
+    case negotiatingKey(ConnectionData)
+
     /// Tunnel is connected.
     case connected(ConnectionData)
 
@@ -216,7 +219,7 @@ public enum BlockedStateReason: String, Codable, Equatable {
 
 /// Legal states that can precede error state.
 enum StatePriorToBlockedState: Equatable {
-    case initial, connecting, connected, reconnecting
+    case initial, negotiatingKey, connecting, connected, reconnecting
 }
 
 /// Target state the actor should transition into upon request to either start (connect) or reconnect.

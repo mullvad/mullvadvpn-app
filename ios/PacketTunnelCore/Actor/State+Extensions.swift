@@ -21,14 +21,14 @@ extension State {
         case .connecting:
             return .connecting
 
-        case .connected, .reconnecting:
+        case .connected, .reconnecting, .negotiatingKey:
             return .reconnecting
 
         case let .error(blockedState):
             switch blockedState.priorState {
             case .initial, .connecting:
                 return .connecting
-            case .connected, .reconnecting:
+            case .connected, .reconnecting, .negotiatingKey:
                 return .reconnecting
             }
 
@@ -41,7 +41,10 @@ extension State {
 
     func logFormat() -> String {
         switch self {
-        case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
+        case let .connecting(connState), 
+            let .connected(connState),
+            let .reconnecting(connState),
+            let .negotiatingKey(connState):
             let hostname = connState.selectedRelay.hostname
 
             return """
@@ -75,6 +78,8 @@ extension State {
             "Initial"
         case .error:
             "Error"
+        case .negotiatingKey:
+            "Negotiating key"
         }
     }
 

@@ -154,7 +154,10 @@ extension PacketTunnelActor {
     /// Stop the tunnel.
     private func stop() async {
         switch state {
-        case let .connected(connState), let .connecting(connState), let .reconnecting(connState):
+        case let .connected(connState),
+            let .connecting(connState),
+            let .reconnecting(connState),
+            let .negotiatingKey(connState):
             state = .disconnecting(connState)
             tunnelMonitor.stop()
 
@@ -189,7 +192,7 @@ extension PacketTunnelActor {
     private func reconnect(to nextRelay: NextRelay, reason: ReconnectReason) async {
         do {
             switch state {
-            case .connecting, .connected, .reconnecting, .error:
+            case .connecting, .connected, .reconnecting, .negotiatingKey, .error:
                 switch reason {
                 case .connectionLoss:
                     // Tunnel monitor is already paused at this point. Avoid calling stop() to prevent the reset of
@@ -316,7 +319,7 @@ extension PacketTunnelActor {
                 connectionState.incrementAttemptCount()
             }
             fallthrough
-        case var .connected(connectionState):
+        case var .connected(connectionState),  var .negotiatingKey(connectionState):
             let selectedRelay = try callRelaySelector(
                 connectionState.selectedRelay,
                 connectionState.connectionAttemptCount
