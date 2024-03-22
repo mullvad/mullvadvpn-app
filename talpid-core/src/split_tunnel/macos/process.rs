@@ -333,7 +333,7 @@ struct ESExecEvent {
 enum ESEvent {
     Fork(ESForkEvent),
     Exec(ESExecEvent),
-    Exit,
+    Exit(serde_json::Value),
 }
 
 #[derive(Debug, Deserialize)]
