@@ -94,13 +94,8 @@ impl Bpf {
                     log::trace!("Opened BPF device: /dev/bpf{dev_num}");
                     return Ok(file);
                 }
-                Err(error) => {
-                    if error.raw_os_error() == Some(EBUSY) {
-                        // This BPF device is in use
-                        continue;
-                    }
-                    return Err(Error::OpenBpfDevice(error));
-                }
+                Err(_e) if _e.raw_os_error() == Some(EBUSY) => continue,
+                Err(error) => return Err(Error::OpenBpfDevice(error)),
             }
         }
         Err(Error::NoFreeBpfDeviceFound)
