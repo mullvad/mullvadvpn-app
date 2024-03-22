@@ -1,5 +1,7 @@
 use libc::{proc_listallpids, proc_pidpath};
 use serde::Deserialize;
+use std::collections::HashSet;
+use std::path::Path;
 use std::{
     collections::HashMap,
     ffi::c_void,
@@ -127,7 +129,7 @@ pub enum ExclusionStatus {
 #[derive(Debug)]
 struct InnerProcessStates {
     processes: HashMap<u32, ProcessInfo>,
-    exclude_paths: Vec<PathBuf>,
+    exclude_paths: HashSet<PathBuf>,
 }
 
 impl ProcessStates {
@@ -135,7 +137,7 @@ impl ProcessStates {
     fn new() -> Result<Self, Error> {
         let mut states = InnerProcessStates {
             processes: HashMap::new(),
-            exclude_paths: vec![],
+            exclude_paths: HashSet::new(),
         };
 
         let processes = list_pids().map_err(Error::InitializePids)?;
@@ -150,7 +152,7 @@ impl ProcessStates {
         })
     }
 
-    pub fn exclude_paths(&self, paths: Vec<PathBuf>) {
+    pub fn exclude_paths(&self, paths: HashSet<PathBuf>) {
         let mut inner = self.inner.lock().unwrap();
 
         for (_pid, info) in &mut inner.processes {
@@ -158,7 +160,7 @@ impl ProcessStates {
             let mut new_exclude_paths: Vec<_> = info
                 .excluded_by_paths
                 .iter()
-                .filter(|old_path| paths.contains(old_path))
+                .filter(|old_path| paths.contains(old_path.as_path()))
                 .cloned()
                 .collect();
 
@@ -169,7 +171,7 @@ impl ProcessStates {
                 }
             }
 
-            info.excluded_by_paths = Arc::from(new_exclude_paths);
+            info.excluded_by_paths = new_exclude_paths;
         }
 
         inner.exclude_paths = paths;
@@ -233,6 +235,7 @@ impl InnerProcessStates {
 
         info.exec_path = PathBuf::from(msg.dyld_exec_path);
 
+        // If the path is already excluded, no need to add it again
         if info.excluded_by_paths.contains(&info.exec_path) {
             return;
         }
@@ -241,7 +244,7 @@ impl InnerProcessStates {
         if self.exclude_paths.contains(&info.exec_path) {
             let mut new_paths = info.excluded_by_paths.to_vec();
             new_paths.push(info.exec_path.to_owned());
-            info.excluded_by_paths = Arc::from(new_paths);
+            info.excluded_by_paths = new_paths;
 
             log::trace!("Excluding {pid} by path: {}", info.exec_path.display());
         }
