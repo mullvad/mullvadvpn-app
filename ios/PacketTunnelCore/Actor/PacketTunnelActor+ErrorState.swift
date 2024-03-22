@@ -70,9 +70,6 @@ extension PacketTunnelActor {
         case let .connected(connState):
             return mapConnectionState(connState, reason: reason, priorState: .connected)
 
-        case let .negotiatingKey(connState):
-            return mapConnectionState(connState, reason: reason, priorState: .negotiatingKey)
-
         case let .connecting(connState):
             return mapConnectionState(connState, reason: reason, priorState: .connecting)
 

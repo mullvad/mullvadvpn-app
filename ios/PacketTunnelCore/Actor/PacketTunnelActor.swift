@@ -155,9 +155,9 @@ extension PacketTunnelActor {
     private func stop() async {
         switch state {
         case let .connected(connState),
-            let .connecting(connState),
-            let .reconnecting(connState),
-            let .negotiatingPostQuantumKey(connState):
+             let .connecting(connState),
+             let .reconnecting(connState),
+             let .negotiatingPostQuantumKey(connState):
             state = .disconnecting(connState)
             tunnelMonitor.stop()
 

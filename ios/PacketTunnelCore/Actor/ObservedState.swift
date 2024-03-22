@@ -70,8 +70,6 @@ extension State {
             return .initial
         case let .connecting(connState):
             return .connecting(connState.observedConnectionState)
-        case let .negotiatingKey(connState):
-            return .negotiatingKey(connState.observedConnectionState)
         case let .connected(connState):
             return .connected(connState.observedConnectionState)
         case let .reconnecting(connState):

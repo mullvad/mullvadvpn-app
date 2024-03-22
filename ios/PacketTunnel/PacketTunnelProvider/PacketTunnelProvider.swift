@@ -108,7 +108,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 if connectionState.connectionAttemptCount > 1 {
                     return
                 }
-            case .negotiatingKey:
+            case .negotiatingPostQuantumKey:
                 try await startPostQuantumKeyExchange()
                 return
             default:

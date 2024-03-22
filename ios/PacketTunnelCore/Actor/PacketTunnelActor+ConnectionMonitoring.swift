@@ -42,7 +42,7 @@ extension PacketTunnelActor {
             connState.connectionAttemptCount = 0
             // TODO: switch here on whether we need to do PQ negotiation
             let isPostQuantum = true
-            state = isPostQuantum ? .negotiatingKey(connState) : .connected(connState)
+            state = isPostQuantum ? .negotiatingPostQuantumKey(connState) : .connected(connState)
 
         case .initial, .connected, .disconnecting, .disconnected, .error, .negotiatingPostQuantumKey:
             break
@@ -52,7 +52,7 @@ extension PacketTunnelActor {
     /// Tell the tunnel to reconnect providing the correct reason to ensure that the attempt counter is incremented before reconnect.
     private func onHandleConnectionRecovery() async {
         switch state {
-        case .connecting, .reconnecting, .connected, .negotiatingKey:
+        case .connecting, .reconnecting, .connected:
             commandChannel.send(.reconnect(.random, reason: .connectionLoss))
 
         case .initial, .disconnected, .disconnecting, .error, .negotiatingPostQuantumKey:
