@@ -77,6 +77,10 @@ extension LocationNode {
     static func combineNodeCodes(_ codes: [String]) -> String {
         codes.joined(separator: "-")
     }
+
+    var flattened: [LocationNode] {
+        children + children.flatMap { $0.flattened }
+    }
 }
 
 extension LocationNode {

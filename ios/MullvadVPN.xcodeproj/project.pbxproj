@@ -810,6 +810,7 @@
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
 		E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */; };
+		F006CCFC2B99CC8400C6C2AC /* EditLocationsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F006CCFB2B99CC8400C6C2AC /* EditLocationsCoordinator.swift */; };
 		F0164EBA2B4456D30020268D /* AccessMethodRepositoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EB92B4456D30020268D /* AccessMethodRepositoryStub.swift */; };
 		F0164EBC2B482E430020268D /* AppStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EBB2B482E430020268D /* AppStorage.swift */; };
 		F0164EBE2B4BFF940020268D /* ShadowsocksLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */; };
@@ -817,6 +818,9 @@
 		F0164ED12B4F2DCB0020268D /* AccessMethodIterator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */; };
 		F028A56A2A34D4E700C0CAA3 /* RedeemVoucherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */; };
 		F028A56C2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A56B2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift */; };
+		F02F41A02B9723AF00625A4F /* AddLocationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419A2B9723AE00625A4F /* AddLocationsViewController.swift */; };
+		F02F41A12B9723AF00625A4F /* AddLocationsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419B2B9723AE00625A4F /* AddLocationsDataSource.swift */; };
+		F02F41A22B9723AF00625A4F /* AddLocationsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419C2B9723AF00625A4F /* AddLocationsCoordinator.swift */; };
 		F02F41A42B9723AF00625A4F /* AddLocationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419E2B9723AF00625A4F /* AddLocationCellViewModel.swift */; };
 		F02F41A52B9723AF00625A4F /* AddLocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419F2B9723AF00625A4F /* AddLocationCell.swift */; };
 		F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */; };
@@ -1960,6 +1964,7 @@
 		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* String+AccountFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+AccountFormatting.swift"; sourceTree = "<group>"; };
 		E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusActivityView.swift; sourceTree = "<group>"; };
+		F006CCFB2B99CC8400C6C2AC /* EditLocationsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditLocationsCoordinator.swift; sourceTree = "<group>"; };
 		F0164EB92B4456D30020268D /* AccessMethodRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodRepositoryStub.swift; sourceTree = "<group>"; };
 		F0164EBB2B482E430020268D /* AppStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorage.swift; sourceTree = "<group>"; };
 		F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksLoader.swift; sourceTree = "<group>"; };
@@ -1967,6 +1972,9 @@
 		F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodIterator.swift; sourceTree = "<group>"; };
 		F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewController.swift; sourceTree = "<group>"; };
 		F028A56B2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCreditSucceededViewController.swift; sourceTree = "<group>"; };
+		F02F419A2B9723AE00625A4F /* AddLocationsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsViewController.swift; sourceTree = "<group>"; };
+		F02F419B2B9723AE00625A4F /* AddLocationsDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsDataSource.swift; sourceTree = "<group>"; };
+		F02F419C2B9723AF00625A4F /* AddLocationsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsCoordinator.swift; sourceTree = "<group>"; };
 		F02F419E2B9723AF00625A4F /* AddLocationCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationCellViewModel.swift; sourceTree = "<group>"; };
 		F02F419F2B9723AF00625A4F /* AddLocationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationCell.swift; sourceTree = "<group>"; };
 		F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncreasedHitButton.swift; sourceTree = "<group>"; };
@@ -3498,6 +3506,9 @@
 				7A6389D72B7E3BD6008E77E1 /* AddCustomListCoordinator.swift */,
 				F02F419F2B9723AF00625A4F /* AddLocationCell.swift */,
 				F02F419E2B9723AF00625A4F /* AddLocationCellViewModel.swift */,
+				F02F419C2B9723AF00625A4F /* AddLocationsCoordinator.swift */,
+				F02F419B2B9723AE00625A4F /* AddLocationsDataSource.swift */,
+				F02F419A2B9723AE00625A4F /* AddLocationsViewController.swift */,
 				7A6389D22B7E3BD6008E77E1 /* CustomListCellConfiguration.swift */,
 				7A6389D42B7E3BD6008E77E1 /* CustomListDataSourceConfiguration.swift */,
 				7A6389DA2B7E3BD6008E77E1 /* CustomListInteractor.swift */,
@@ -3507,6 +3518,7 @@
 				7A6389E62B7E42BE008E77E1 /* CustomListViewController.swift */,
 				7A6389D32B7E3BD6008E77E1 /* CustomListViewModel.swift */,
 				7A6389E42B7E4247008E77E1 /* EditCustomListCoordinator.swift */,
+				F006CCFB2B99CC8400C6C2AC /* EditLocationsCoordinator.swift */,
 				7AB2B66F2BA1EB8C00B03E3B /* ListCustomListCoordinator.swift */,
 				7AB2B66E2BA1EB8C00B03E3B /* ListCustomListViewController.swift */,
 			);
@@ -5208,6 +5220,7 @@
 				58EE2E3B272FF814003BFF93 /* SettingsDataSourceDelegate.swift in Sources */,
 				5823FA5426CE49F700283BF8 /* TunnelObserver.swift in Sources */,
 				5888AD87227B17950051EB06 /* LocationViewController.swift in Sources */,
+				F006CCFC2B99CC8400C6C2AC /* EditLocationsCoordinator.swift in Sources */,
 				58293FB3251241B4005D0BB5 /* CustomTextView.swift in Sources */,
 				586A950E290125F3007BAF2B /* ProductsRequestOperation.swift in Sources */,
 				7AF9BE902A39F26000DBFEDB /* Collection+Sorting.swift in Sources */,
@@ -5285,6 +5298,7 @@
 				5878A26F2907E7E00096FC88 /* ProblemReportInteractor.swift in Sources */,
 				7AB4CCBB2B691BBB006037F5 /* IPOverrideInteractor.swift in Sources */,
 				7A3353912AAA014400F0A71C /* SimulatorVPNConnection.swift in Sources */,
+				F02F41A22B9723AF00625A4F /* AddLocationsCoordinator.swift in Sources */,
 				F028A56A2A34D4E700C0CAA3 /* RedeemVoucherViewController.swift in Sources */,
 				7A5869C52B5A899C00640D27 /* MethodSettingsCellConfiguration.swift in Sources */,
 				58E11188292FA11F009FCA84 /* SettingsMigrationUIHandler.swift in Sources */,
@@ -5419,11 +5433,13 @@
 				5827B0C52B14D3E800CCBBA1 /* NSDiffableDataSourceSnapshot+Reconfigure.swift in Sources */,
 				58A8EE5E2976DB00009C0F8D /* StorePaymentManagerError+Display.swift in Sources */,
 				58A8EE5A2976BFBB009C0F8D /* SKError+Localized.swift in Sources */,
+				F02F41A12B9723AF00625A4F /* AddLocationsDataSource.swift in Sources */,
 				58EFC76E2AFB3BDA00E9F4CB /* ListAccessMethodCoordinator.swift in Sources */,
 				5827B0B92B14A1C700CCBBA1 /* MethodTestingStatusCellContentConfiguration.swift in Sources */,
 				7A42DEC92A05164100B209BE /* SettingsInputCell.swift in Sources */,
 				5803B4B22940A48700C23744 /* TunnelStore.swift in Sources */,
 				586A950F29012BEE007BAF2B /* AddressCacheTracker.swift in Sources */,
+				F02F41A02B9723AF00625A4F /* AddLocationsViewController.swift in Sources */,
 				587B753D2666468F00DEF7E9 /* NotificationController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
