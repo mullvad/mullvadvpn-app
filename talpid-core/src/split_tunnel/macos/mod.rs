@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::path::PathBuf;
 use talpid_routing::RouteManagerHandle;
 
@@ -106,7 +107,7 @@ impl Handle {
     }
 
     /// Set paths to exclude
-    pub async fn set_exclude_paths(&mut self, paths: Vec<PathBuf>) -> Result<(), Error> {
+    pub async fn set_exclude_paths(&mut self, paths: HashSet<PathBuf>) -> Result<(), Error> {
         match &mut self.state {
             // If there are currently no paths and no process monitor, initialize it
             State::NoExclusions {
