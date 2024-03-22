@@ -159,7 +159,7 @@ impl ConnectingState {
         let peer_endpoint = AllowedEndpoint { endpoint, clients };
 
         #[cfg(target_os = "macos")]
-        let redirect_interface = shared_values.split_tunnel.interface().map(|s| s.to_owned());
+        let redirect_interface = shared_values.split_tunnel.interface().map(str::to_owned);
 
         let policy = FirewallPolicy::Connecting {
             peer_endpoint,
