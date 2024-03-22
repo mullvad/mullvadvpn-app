@@ -95,6 +95,7 @@ impl From<DefaultRoute> for RouteMessage {
         } else {
             Family::V6.default_network()
         };
+        // The route message requires a socket address. The port is ignored in this case.
         let router_addr = SocketAddr::from((route.router_ip, 0));
         RouteMessage::new_route(Destination::Network(network))
             .set_gateway_addr(router_addr)
