@@ -118,6 +118,7 @@ impl Bpf {
 
     /// Set BIOCSETIF
     pub fn set_interface(&self, name: &str) -> Result<(), Error> {
+        // SAFETY: It is valid for this C struct to be zeroed. We fill in the details later
         let mut ifr: ifreq = unsafe { std::mem::zeroed() };
 
         let name_bytes = name.as_bytes();
