@@ -22,7 +22,7 @@ jobs:
           accessToken: ${{ secrets.GITHUB_TOKEN }} # only required if checkAllCommitMessages is true
 
       - name: Check against guidelines
-        uses: mristin/opinionated-commit-message@623037eb118a24335513cd7c4b2d4adabf292a8d
+        uses: mullvad/opinionated-commit-message@e310131b14110bed10e8572566259b863080bba5
         with:
           # Commit messages are allowed to be subject only, no body
           allow-one-liners: 'true'
