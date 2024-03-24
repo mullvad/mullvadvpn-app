@@ -32,7 +32,7 @@ pub trait Intersection: Sized {
     fn intersection(self, other: Self) -> Option<Self>;
 }
 
-pub use intersection_derive::IntersectionDerive;
+pub use intersection_derive::Intersection;
 
 macro_rules! impl_intersection_partialeq {
     ($ty:ty) => {
