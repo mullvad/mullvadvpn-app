@@ -1,12 +1,13 @@
 extern crate proc_macro;
 
-use proc_macro2::TokenStream;
+use proc_macro::TokenStream;
+use proc_macro2::TokenStream as TokenStream2;
 use quote::{quote, TokenStreamExt};
-use syn::{parse_macro_input, spanned::Spanned, DeriveInput};
+use syn::{parse_macro_input, spanned::Spanned, DeriveInput, Error};
 
 // FIXME: rename to Intersection
 #[proc_macro_derive(IntersectionDerive)]
-pub fn derive_answer_fn(item: proc_macro::TokenStream) -> proc_macro::TokenStream {
+pub fn derive_answer_fn(item: TokenStream) -> TokenStream {
     let input = parse_macro_input!(item as DeriveInput);
 
     match &input.data {
@@ -14,11 +15,11 @@ pub fn derive_answer_fn(item: proc_macro::TokenStream) -> proc_macro::TokenStrea
         syn::Data::Enum(_) => todo!(),
         syn::Data::Union(_) => todo!(),
     }
-    .unwrap_or_else(|e| e.into_compile_error())
+    .unwrap_or_else(Error::into_compile_error)
     .into()
 }
 
-fn derive_for_struct(input: &DeriveInput, data: &syn::DataStruct) -> syn::Result<TokenStream> {
+fn derive_for_struct(input: &DeriveInput, data: &syn::DataStruct) -> syn::Result<TokenStream2> {
     let my_type = &input.ident;
     let mut field_conversions = quote! {};
     for field in &data.fields {
