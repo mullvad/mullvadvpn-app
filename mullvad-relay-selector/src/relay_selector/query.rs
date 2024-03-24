@@ -28,7 +28,6 @@
 //! queries and ensure that queries are built in a type-safe manner, reducing the risk
 //! of runtime errors and improving code readability.
 
-use intersection_derive::IntersectionDerive;
 use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
@@ -72,7 +71,7 @@ use talpid_types::net::{proxy::CustomProxy, IpVersion, TunnelType};
 /// This example demonstrates creating a `RelayQuery` which can then be passed
 /// to the [`crate::RelaySelector`] to find a relay that matches the criteria.
 /// See [`builder`] for more info on how to construct queries.
-#[derive(Debug, Clone, Eq, PartialEq, IntersectionDerive)]
+#[derive(Debug, Clone, Eq, PartialEq, Intersection)]
 pub struct RelayQuery {
     pub location: Constraint<LocationConstraint>,
     pub providers: Constraint<Providers>,
@@ -132,7 +131,7 @@ impl From<RelayQuery> for RelayConstraints {
 /// as a [`Constraint`], which allow us to implement [`Intersection`] in a straight forward manner.
 /// Notice that [obfuscation][`SelectedObfuscation`] is not a [`Constraint`], but it is trivial
 /// to define [`Intersection`] on it, so it is fine.
-#[derive(Debug, Clone, Eq, PartialEq, IntersectionDerive)]
+#[derive(Debug, Clone, Eq, PartialEq, Intersection)]
 pub struct WireguardRelayQuery {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
@@ -179,7 +178,7 @@ impl From<WireguardRelayQuery> for WireguardConstraints {
 /// This struct is meant to be that type in the "universe of relay queries". The difference
 /// between them may seem subtle, but in a [`OpenVpnRelayQuery`] every field is represented
 /// as a [`Constraint`], which allow us to implement [`Intersection`] in a straight forward manner.
-#[derive(Debug, Clone, Eq, PartialEq, IntersectionDerive)]
+#[derive(Debug, Clone, Eq, PartialEq, Intersection)]
 pub struct OpenVpnRelayQuery {
     pub port: Constraint<TransportPort>,
     pub bridge_settings: Constraint<BridgeQuery>,
