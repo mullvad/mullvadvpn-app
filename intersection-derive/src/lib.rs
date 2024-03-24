@@ -5,9 +5,8 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::{quote, TokenStreamExt};
 use syn::{parse_macro_input, spanned::Spanned, DeriveInput, Error};
 
-// FIXME: rename to Intersection
-#[proc_macro_derive(IntersectionDerive)]
-pub fn derive_answer_fn(item: TokenStream) -> TokenStream {
+#[proc_macro_derive(Intersection)]
+pub fn intersection_derive(item: TokenStream) -> TokenStream {
     let input = parse_macro_input!(item as DeriveInput);
 
     match &input.data {

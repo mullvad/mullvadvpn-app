@@ -8,7 +8,6 @@ use crate::{
     relay_list::Relay,
     CustomTunnelEndpoint, Intersection,
 };
-use intersection_derive::IntersectionDerive;
 #[cfg(target_os = "android")]
 use jnix::{jni::objects::JObject, FromJava, IntoJava, JnixEnv};
 use serde::{Deserialize, Serialize};
@@ -672,7 +671,7 @@ impl fmt::Display for SelectedObfuscation {
     }
 }
 
-#[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize, IntersectionDerive)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize, Intersection)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[serde(rename_all = "snake_case")]
@@ -732,7 +731,7 @@ pub struct ObfuscationSettings {
 }
 
 /// Limits the set of bridge servers to use in `mullvad-daemon`.
-#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize, IntersectionDerive)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize, Intersection)]
 #[serde(default)]
 #[serde(rename_all = "snake_case")]
 pub struct BridgeConstraints {
