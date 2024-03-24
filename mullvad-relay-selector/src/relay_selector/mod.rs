@@ -739,13 +739,13 @@ impl RelaySelector {
                 let exit = helpers::random(exits, entry).ok_or(Error::NoRelay)?;
                 Some((exit, entry))
             }
-            ([exit], entrys) if entrys.contains(exit) => {
-                let entry = helpers::random(entrys, exit).ok_or(Error::NoRelay)?;
+            ([exit], entries) if entries.contains(exit) => {
+                let entry = helpers::random(entries, exit).ok_or(Error::NoRelay)?;
                 Some((exit, entry))
             }
-            (exits, entrys) => {
+            (exits, entries) => {
                 let exit = helpers::pick_random_relay(exits).ok_or(Error::NoRelay)?;
-                let entry = helpers::random(entrys, exit).ok_or(Error::NoRelay)?;
+                let entry = helpers::random(entries, exit).ok_or(Error::NoRelay)?;
                 Some((exit, entry))
             }
         }
