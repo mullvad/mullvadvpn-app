@@ -1435,8 +1435,8 @@ mod test {
         );
     }
 
-    /// Test whether the relay selector selects wireguard often enough, given no special constraints.
-    /// A Wireguard relay must be used to verify that the device is valid.
+    /// Test whether the relay selector selects wireguard often enough, given no special
+    /// constraints. A Wireguard relay must be used to verify that the device is valid.
     #[test]
     fn test_validates_by_default() {
         use mullvad_relay_selector::{RelaySelector, SelectorConfig};
