@@ -502,7 +502,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 }
 
                 SettingsManager.resetStore(completely: true)
+
                 self.accessMethodRepository.reloadWithDefaultsAfterDataRemoval()
+                try? self.relayCacheTracker.refreshCachedRelays()
             }
 
             FirstTimeLaunch.setHasFinished()
