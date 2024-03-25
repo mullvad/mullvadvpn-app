@@ -9,8 +9,6 @@ db-urls = ["https://github.com/rustsec/advisory-db"]
 ignore = [
     # Ignored audit issues. This list should be kept short, and effort should be
     # put into removing items from the list.
-    # RUSTSEC-2023-0081 - `safemem` is unmaintained: https://github.com/ebarnard/rust-plist/pull/134
-    "RUSTSEC-2023-0081"
 ]
 
 #severity-threshold =
