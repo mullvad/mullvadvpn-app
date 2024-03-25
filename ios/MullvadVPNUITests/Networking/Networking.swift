@@ -63,18 +63,6 @@ class Networking {
         throw NetworkingError.internalError(reason: "Failed to determine device's IP address")
     }
 
-    /// Get configured ad serving domain as URL object
-    private static func getAdServingDomainURL() -> URL? {
-        guard let adServingDomain = Bundle(for: BaseUITestCase.self)
-            .infoDictionary?["AdServingDomain"] as? String,
-            let adServingDomainURL = URL(string: adServingDomain) else {
-            XCTFail("Ad serving domain not configured")
-            return nil
-        }
-
-        return adServingDomainURL
-    }
-
     /// Get configured ad serving domain
     private static func getAdServingDomain() throws -> String {
         guard let adServingDomain = Bundle(for: Networking.self)
