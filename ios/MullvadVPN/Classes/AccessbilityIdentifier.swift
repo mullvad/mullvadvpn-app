@@ -21,6 +21,7 @@ public enum AccessibilityIdentifier: String {
     case deleteButton
     case disconnectButton
     case revokedDeviceLoginButton
+    case dnsSettingsEditButton
     case infoButton
     case learnAboutPrivacyButton
     case loginBarButton
@@ -40,6 +41,9 @@ public enum AccessibilityIdentifier: String {
 
     // Cells
     case vpnSettingsCell
+    case dnsSettingsAddServerCell
+    case dnsSettingsUseCustomDNSCell
+    case preferencesCell
     case versionCell
     case problemReportCell
     case faqCell
@@ -84,6 +88,7 @@ public enum AccessibilityIdentifier: String {
     case customSwitch
     case customWireGuardPortTextField
     case dnsContentBlockersHeaderView
+    case dnsSettingsEnterIPAddressTextField
     case loginTextField
     case selectLocationSearchTextField
     case problemReportEmailTextField
@@ -95,6 +100,7 @@ public enum AccessibilityIdentifier: String {
     case ipOverrides
     case wireGuardCustomPort
     case wireGuardObfuscationAutomatic
+    case wireGuardObfuscationPort
     case wireGuardObfuscationOff
     case wireGuardObfuscationOn
     case wireGuardPort
