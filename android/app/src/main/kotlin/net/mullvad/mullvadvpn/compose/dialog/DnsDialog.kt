@@ -112,7 +112,7 @@ fun DnsDialog(
         viewModel::onDnsInputChange,
         onSaveDnsClick = viewModel::onSaveDnsClick,
         onRemoveDnsClick = viewModel::onRemoveDnsClick,
-        onDismiss = { resultNavigator.navigateBack(false) }
+        onDismiss = { resultNavigator.navigateBack(result = false) }
     )
 }
 

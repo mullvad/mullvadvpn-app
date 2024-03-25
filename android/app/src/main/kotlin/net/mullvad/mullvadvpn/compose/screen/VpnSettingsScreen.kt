@@ -80,6 +80,7 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -138,12 +139,11 @@ fun VpnSettings(
     val vm = koinViewModel<VpnSettingsViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
-    dnsDialogResult.onNavResult {
-        when (it) {
-            NavResult.Canceled -> {
-                vm.onDnsDialogDismissed()
-            }
-            is NavResult.Value -> {}
+    dnsDialogResult.OnNavResultValue { result ->
+        if (result) {
+            vm.showApplySettingChangesWarningToast()
+        } else {
+            vm.onDnsDialogDismissed()
         }
     }
 
