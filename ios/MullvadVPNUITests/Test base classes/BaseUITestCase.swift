@@ -111,6 +111,11 @@ class BaseUITestCase: XCTestCase {
             ChangeLogAlert(app)
                 .tapOkay()
         }
+
+        // Ensure changelog is no longer shown
+        _ = app
+            .otherElements[AccessibilityIdentifier.changeLogAlert.rawValue]
+            .waitForNonExistence(timeout: Self.shortTimeout)
     }
 
     /// Login with specified account number. It is a prerequisite that the login page is currently shown.
