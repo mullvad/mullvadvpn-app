@@ -12,6 +12,7 @@ on:
       - ios/.swiftformat
       - ios/**/*.swift
       - ios/**/*.xctestplan
+      - Cargo.toml
   workflow_dispatch:
 jobs:
   test:
