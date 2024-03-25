@@ -132,24 +132,30 @@ impl Firewall {
                 rules.append(&mut self.get_block_dns_rules()?);
 
                 if let Some(tunnel) = tunnel {
-                    if let Some(redirect_interface) = redirect_interface {
-                        enable_forwarding();
+                    match redirect_interface {
+                        Some(redirect_interface) => {
+                            enable_forwarding();
 
-                        if !allowed_tunnel_traffic.all() {
-                            log::warn!("Split tunneling does not respect the 'allowed tunnel traffic' setting");
+                            if !allowed_tunnel_traffic.all() {
+                                log::warn!("Split tunneling does not respect the 'allowed tunnel traffic' setting");
+                            }
+                            rules.extend(self.get_allow_established_tunnel_rules(
+                                &tunnel.interface,
+                                allowed_tunnel_traffic,
+                            )?);
+                            rules.append(
+                                &mut self.get_split_tunnel_rules(
+                                    &tunnel.interface,
+                                    redirect_interface,
+                                )?,
+                            );
                         }
-                        rules.extend(self.get_allow_established_tunnel_rules(
-                            &tunnel.interface,
-                            allowed_tunnel_traffic,
-                        )?);
-                        rules.append(
-                            &mut self
-                                .get_split_tunnel_rules(&tunnel.interface, redirect_interface)?,
-                        );
-                    } else {
-                        rules.extend(
-                            self.get_allow_tunnel_rules(&tunnel.interface, allowed_tunnel_traffic)?,
-                        );
+                        None => {
+                            rules.extend(self.get_allow_tunnel_rules(
+                                &tunnel.interface,
+                                allowed_tunnel_traffic,
+                            )?);
+                        }
                     }
                 }
 
