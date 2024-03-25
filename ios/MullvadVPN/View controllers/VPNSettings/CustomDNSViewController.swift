@@ -47,7 +47,9 @@ class CustomDNSViewController: UITableViewController, VPNSettingsDataSourceDeleg
             value: "DNS settings",
             comment: ""
         )
+
         navigationItem.rightBarButtonItem = editButtonItem
+        navigationItem.rightBarButtonItem?.accessibilityIdentifier = .dnsSettingsEditButton
 
         interactor.tunnelSettingsDidChange = { [weak self] newSettings in
             self?.dataSource?.update(from: newSettings)
