@@ -140,6 +140,11 @@ impl<T: Set<U>, U> Set<Constraint<U>> for Constraint<T> {
         }
     }
 }
+impl<T> From<T> for Constraint<T> {
+    fn from(value: T) -> Self {
+        Constraint::Only(value)
+    }
+}
 
 impl<T> From<Option<T>> for Constraint<T> {
     fn from(value: Option<T>) -> Self {
@@ -227,6 +232,18 @@ impl RelaySettings {
                 }
             ),
         }
+    }
+}
+
+impl From<CustomTunnelEndpoint> for RelaySettings {
+    fn from(value: CustomTunnelEndpoint) -> Self {
+        Self::CustomTunnelEndpoint(value)
+    }
+}
+
+impl From<RelayConstraints> for RelaySettings {
+    fn from(value: RelayConstraints) -> Self {
+        Self::Normal(value)
     }
 }
 
