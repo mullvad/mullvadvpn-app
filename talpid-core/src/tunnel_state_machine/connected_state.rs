@@ -328,34 +328,34 @@ impl ConnectedState {
                 shared_values.bypass_socket(fd, done_tx);
                 SameState(self)
             }
-            #[cfg(any(target_os = "windows", target_os = "macos"))]
+            #[cfg(target_os = "windows")]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                #[cfg(target_os = "windows")]
                 shared_values.split_tunnel.set_paths(&paths, result_tx);
-                #[cfg(target_os = "macos")]
-                {
-                    match shared_values.set_exclude_paths(paths) {
-                        Ok(added_device) => {
-                            let _ = result_tx.send(Ok(()));
+                SameState(self)
+            }
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
+                match shared_values.set_exclude_paths(paths) {
+                    Ok(added_device) => {
+                        let _ = result_tx.send(Ok(()));
 
-                            if added_device {
-                                if let Err(error) = self.set_firewall_policy(shared_values) {
-                                    return self.disconnect(
-                                        shared_values,
-                                        AfterDisconnect::Block(
-                                            ErrorStateCause::SetFirewallPolicyError(error),
-                                        ),
-                                    );
-                                }
+                        if added_device {
+                            if let Err(error) = self.set_firewall_policy(shared_values) {
+                                return self.disconnect(
+                                    shared_values,
+                                    AfterDisconnect::Block(
+                                        ErrorStateCause::SetFirewallPolicyError(error),
+                                    ),
+                                );
                             }
                         }
-                        Err(error) => {
-                            let _ = result_tx.send(Err(error));
-                            return self.disconnect(
-                                shared_values,
-                                AfterDisconnect::Block(ErrorStateCause::SplitTunnelError),
-                            );
-                        }
+                    }
+                    Err(error) => {
+                        let _ = result_tx.send(Err(error));
+                        return self.disconnect(
+                            shared_values,
+                            AfterDisconnect::Block(ErrorStateCause::SplitTunnelError),
+                        );
                     }
                 }
                 SameState(self)
