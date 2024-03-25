@@ -28,6 +28,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add ability to import server IP overrides in GUI.
 - Add custom bridge settings in GUI.
 
+#### macOS
+- Add support for split tunneling (beta).
+
 ### Changed
 - Change default obfuscation setting to `auto`.
 - Migrate obfuscation settings for existing users from `off` to `auto`.
