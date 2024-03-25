@@ -75,11 +75,13 @@ impl DisconnectingState {
                     shared_values.bypass_socket(fd, done_tx);
                     AfterDisconnect::Nothing
                 }
-                #[cfg(any(target_os = "windows", target_os = "macos"))]
+                #[cfg(target_os = "windows")]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    #[cfg(target_os = "windows")]
                     shared_values.split_tunnel.set_paths(&paths, result_tx);
-                    #[cfg(target_os = "macos")]
+                    AfterDisconnect::Nothing
+                }
+                #[cfg(target_os = "macos")]
+                Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                     let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
                     AfterDisconnect::Nothing
                 }
@@ -124,11 +126,13 @@ impl DisconnectingState {
                     shared_values.bypass_socket(fd, done_tx);
                     AfterDisconnect::Block(reason)
                 }
-                #[cfg(any(target_os = "windows", target_os = "macos"))]
+                #[cfg(target_os = "windows")]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    #[cfg(target_os = "windows")]
                     shared_values.split_tunnel.set_paths(&paths, result_tx);
-                    #[cfg(target_os = "macos")]
+                    AfterDisconnect::Block(reason)
+                }
+                #[cfg(target_os = "macos")]
+                Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                     let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
                     AfterDisconnect::Block(reason)
                 }
@@ -174,11 +178,13 @@ impl DisconnectingState {
                     shared_values.bypass_socket(fd, done_tx);
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
-                #[cfg(any(target_os = "windows", target_os = "macos"))]
+                #[cfg(target_os = "windows")]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    #[cfg(target_os = "windows")]
                     shared_values.split_tunnel.set_paths(&paths, result_tx);
-                    #[cfg(target_os = "macos")]
+                    AfterDisconnect::Reconnect(retry_attempt)
+                }
+                #[cfg(target_os = "macos")]
+                Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                     let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
