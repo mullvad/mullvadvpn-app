@@ -15,7 +15,7 @@ const LEAK_DESTINATION: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1,
 /// - Splitting a process shouldn't do anything if tunnel is not connected.
 /// - A split process should never push traffic through the tunnel.
 /// - Splitting/unsplitting should work regardless if process is running.
-#[test_function(target_os = "linux", target_os = "windows")]
+#[test_function]
 pub async fn test_split_tunnel(
     _ctx: TestContext,
     rpc: ServiceClient,
