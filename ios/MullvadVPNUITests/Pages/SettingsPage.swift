@@ -39,28 +39,4 @@ class SettingsPage: Page {
 
         return self
     }
-
-    @discardableResult func tapDNSSettingsCell() -> Self {
-        app.tables
-            .cells[AccessibilityIdentifier.dnsSettings]
-            .tap()
-
-        return self
-    }
-
-    @discardableResult func tapDNSContentBlockingHeaderExpandButton() -> Self {
-        let headerView = app.otherElements[AccessibilityIdentifier.dnsContentBlockersHeaderView]
-        let expandButton = headerView.buttons[AccessibilityIdentifier.collapseButton]
-        expandButton.tap()
-
-        return self
-    }
-
-    @discardableResult func tapBlockAdsSwitch() -> Self {
-        app.cells[AccessibilityIdentifier.blockAdvertising]
-            .switches[AccessibilityIdentifier.customSwitch]
-            .tap()
-
-        return self
-    }
 }

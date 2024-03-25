@@ -13,10 +13,6 @@ import XCTest
 class ConnectivityTests: LoggedOutUITestCase {
     let firewallAPIClient = FirewallAPIClient()
 
-    override func setUpWithError() throws {
-        super.setUp()
-    }
-
     override func tearDownWithError() throws {
         super.tearDown()
         firewallAPIClient.removeRules()

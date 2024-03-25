@@ -161,6 +161,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
             cell.setOn(viewModel.effectiveEnableCustomDNS, animated: false)
             cell.accessibilityHint = viewModel.customDNSPrecondition
                 .localizedDescription(isEditing: isEditing)
+            cell.accessibilityIdentifier = .dnsSettingsUseCustomDNSCell
             cell.action = { [weak self] isOn in
                 self?.delegate?.didChangeState(for: .useCustomDNS, isOn: isOn)
             }
@@ -174,6 +175,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
                 value: "Add a server",
                 comment: ""
             )
+            cell.accessibilityIdentifier = .dnsSettingsAddServerCell
             cell.action = { [weak self] in
                 self?.delegate?.addDNSEntry()
             }

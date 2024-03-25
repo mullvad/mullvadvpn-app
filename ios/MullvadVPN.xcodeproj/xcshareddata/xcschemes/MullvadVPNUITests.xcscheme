@@ -19,6 +19,18 @@
          <TestPlanReference
             reference = "container:TestPlans/MullvadVPNUITestsSmoke.xctestplan">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:TestPlans/MullvadVPNUITestsVerifyDNSSettingsChanged.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:TestPlans/MullvadVPNUITestsChangeSettings.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:TestPlans/MullvadVPNUITestsVerifySettingsChanged.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:TestPlans/MullvadVPNUITestsChangeDNSSettings.xctestplan">
+         </TestPlanReference>
       </TestPlans>
       <Testables>
          <TestableReference

@@ -167,7 +167,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 value: portString,
                 comment: ""
             )
-            cell.accessibilityIdentifier = "\(item.accessibilityIdentifier.rawValue) (\(portString))"
+            cell.accessibilityIdentifier = "\(item.accessibilityIdentifier.rawValue)\(portString)"
             cell.applySubCellStyling()
 
         #if DEBUG

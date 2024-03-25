@@ -13,15 +13,17 @@
 5. Install yeetd
  - `wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg`
  - `sudo installer -pkg yeetd-normal.pkg -target yeetd`
-6. Install Homebrew and dependencies
+6. Install ios-deploy
+  - `brew install ios-deploy`
+7. Install Homebrew and dependencies
   - `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
   - `brew install xcbeautify wget swiftlint`
-7. Install Ruby
+8. Install Ruby
   - `\curl -sSL https://get.rvm.io | bash`
-8. Install Rust and add iOS targets
+9. Install Rust and add iOS targets
   - `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
   - `rustup target install aarch64-apple-ios aarch64-apple-ios-sim`
-9. Install Go 1.19
+10. Install Go 1.19
   - `brew install go@1.19`
 
 ## GitHub runner setup
@@ -32,3 +34,15 @@
   - `IOS_NO_TIME_ACCOUNT_NUMBER` - Production server account with time added to it
   - `IOS_TEST_DEVICE_IDENTIFIER_UUID` - unique identifier for the test device. Create new identifier with `uuidgen`.
   - `IOS_TEST_DEVICE_UDID` - the iOS device's UDID.
+
+## Test plans
+There are a few different test plans which are mainly to be triggered by GitHub action workflows but can also be triggered manually with Xcode:
+* `MullvadVPNUITestsAll` - All tests except settings migration tests which are in separate test plan and workflow
+* `MullvadVPNUITestsSmoke` - A few tests for smoke testing when merge:ing to `main`
+
+And also the following test plans which are used for testing settings migration(`ios-end-to-end-tests-settings-migration`):
+
+* `MullvadVPNUITestsChangeDNSSettings` - Change settings for using custom DNS
+* `MullvadVPNUITestsVerifyDNSSettingsChanged` - Verify custom DNS settings still changed
+* `MullvadVPNUITestsChangeSettings` - Change all settings except custom DNS setting
+* `MullvadVPNUITestsVerifySettingsChanged` - Verify all settings except custom DNS setting still changed

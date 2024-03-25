@@ -1,0 +1,59 @@
+name: 'iOS end to end tests action'
+description: 'Prepares and runs end to end tests on iOS device'
+inputs:
+  ios_device_pin_code:
+    description: 'iOS Device Pin Code'
+    required: true
+  test_device_identifier_uuid:
+    description: 'Test Device Identifier UUID'
+    required: true
+  has_time_account_number:
+    description: 'Has Time Account Number'
+    required: true
+  no_time_account_number:
+    description: 'No Time Account Number'
+    required: true
+  test_device_udid:
+    description: 'Test Device UDID'
+    required: true
+  xcode_test_plan:
+    description: 'Xcode Test Plan to run'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Configure Xcode project
+      run: |
+        for file in *.xcconfig.template ; do cp $file ${file//.template/} ; done
+          sed -i "" "/^HAS_TIME_ACCOUNT_NUMBER/d" UITests.xcconfig
+          sed -i "" "/^NO_TIME_ACCOUNT_NUMBER/d" UITests.xcconfig
+          sed -i "" \
+            "/IOS_DEVICE_PIN_CODE =/ s/= .*/= $IOS_DEVICE_PIN_CODE/" \
+            UITests.xcconfig
+          sed -i "" \
+            "/TEST_DEVICE_IDENTIFIER_UUID =/ s/= .*/= $TEST_DEVICE_IDENTIFIER_UUID/" \
+            UITests.xcconfig
+          echo -e "\nHAS_TIME_ACCOUNT_NUMBER = $HAS_TIME_ACCOUNT_NUMBER" >> UITests.xcconfig
+          echo "NO_TIME_ACCOUNT_NUMBER = $NO_TIME_ACCOUNT_NUMBER" >> UITests.xcconfig
+      shell: bash
+      working-directory: ios/Configurations
+      env:
+        IOS_DEVICE_PIN_CODE: ${{ inputs.ios_device_pin_code }}
+        TEST_DEVICE_IDENTIFIER_UUID: ${{ inputs.test_device_identifier_uuid }}
+        HAS_TIME_ACCOUNT_NUMBER: ${{ inputs.has_time_account_number }}
+        NO_TIME_ACCOUNT_NUMBER: ${{ inputs.no_time_account_number }}
+
+    - name: Run end-to-end-tests
+      run: |
+        set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+          -project MullvadVPN.xcodeproj \
+          -scheme MullvadVPNUITests \
+          -testPlan $XCODE_TEST_PLAN \
+          -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
+          clean test 2>&1 | xcbeautify --report junit --report-path test-report
+      shell: bash
+      working-directory: ios/
+      env:
+        XCODE_TEST_PLAN: ${{ inputs.xcode_test_plan }}
+        TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
