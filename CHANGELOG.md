@@ -41,6 +41,9 @@ Line wrap the file at 100 chars.                                              Th
   dropped packets and does not take fragmentation into account.
 - Add ability to import server IP overrides in GUI.
 
+#### macOS
+- Add support for split tunneling (beta).
+
 ### Changed
 - Change default obfuscation setting to `auto`.
 - Migrate obfuscation settings for existing users from `off` to `auto`.
