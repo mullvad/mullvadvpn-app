@@ -311,6 +311,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 user_pass_file_path: user_pass_file_path.clone(),
                 proxy_auth_file_path: proxy_auth_file_path.clone(),
                 abort_server_tx: event_server_abort_tx,
+                #[cfg(any(target_os = "macos", target_os = "windows"))]
                 proxy: params.proxy.clone(),
                 route_manager,
                 #[cfg(target_os = "linux")]
@@ -776,7 +777,9 @@ mod event_server {
         task::{Context, Poll},
     };
     use talpid_tunnel::TunnelMetadata;
-    use talpid_types::{net::proxy::CustomProxy, ErrorExt};
+    #[cfg(any(target_os = "macos", target_os = "windows"))]
+    use talpid_types::net::proxy::CustomProxy;
+    use talpid_types::ErrorExt;
     use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
     use tonic::{
         transport::{server::Connected, Server},
@@ -816,6 +819,7 @@ mod event_server {
         pub user_pass_file_path: super::PathBuf,
         pub proxy_auth_file_path: Option<super::PathBuf>,
         pub abort_server_tx: triggered::Trigger,
+        #[cfg(any(target_os = "macos", target_os = "windows"))]
         pub proxy: Option<CustomProxy>,
         pub route_manager: talpid_routing::RouteManagerHandle,
         #[cfg(target_os = "linux")]
