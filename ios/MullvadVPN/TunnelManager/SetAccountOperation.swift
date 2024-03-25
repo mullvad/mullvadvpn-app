@@ -161,8 +161,6 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
         completion: @escaping (Result<Void, Error>) -> Void
     ) {
         deleteAccount(accountNumber: accountNumber) { [self] result in
-            interactor.setSettings(LatestTunnelSettings(), persist: true)
-
             if result.isSuccess {
                 interactor.removeLastUsedAccount()
             }
@@ -230,9 +228,6 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
                 privateKey: newDevice.privateKey
             )
         )
-
-        // Reset tunnel settings.
-        interactor.setSettings(LatestTunnelSettings(), persist: true)
 
         // Transition device state to logged in.
         interactor.setDeviceState(.loggedIn(accountData, storedDeviceData), persist: true)
