@@ -167,6 +167,7 @@ impl ConnectingState {
             allow_lan: shared_values.allow_lan,
             allowed_endpoint: shared_values.allowed_endpoint.clone(),
             allowed_tunnel_traffic,
+            #[cfg(target_os = "macos")]
             redirect_interface,
         };
         shared_values
