@@ -16,7 +16,7 @@ jobs:
     name: Settings migration end to end tests
     runs-on: [self-hosted, macOS, ios-test]
     env:
-      OLD_APP_COMMIT_HASH: fbd13034f2a7dadaa9a404bea62345bd8d65165b
+      OLD_APP_COMMIT_HASH: 7b646ebd8e08bb5f2061d0a1db4484e3818c311b
     steps:
       - name: Update Rust toolchain
         run: rustup update
