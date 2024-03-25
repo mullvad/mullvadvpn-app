@@ -34,7 +34,7 @@ const CONN_CHECKER_TIMEOUT: Duration = Duration::from_millis(
 /// - Splitting a process shouldn't do anything if tunnel is not connected.
 /// - A split process should never push traffic through the tunnel.
 /// - Splitting/unsplitting should work regardless if process is running.
-#[test_function(target_os = "linux", target_os = "windows")]
+#[test_function]
 pub async fn test_split_tunnel(
     _ctx: TestContext,
     rpc: ServiceClient,
@@ -190,13 +190,12 @@ impl ConnChecker {
 
         match TEST_CONFIG.os {
             Os::Linux => { /* linux programs can't be split in the management interface until they are spawned */ }
-            Os::Windows => {
+            Os::Windows | Os::Macos => {
                 self.mullvad_client
                     .add_split_tunnel_app(&self.executable_path)
                     .await?;
                 self.mullvad_client.set_split_tunnel_state(true).await?;
             }
-            Os::Macos => unimplemented!("MacOS"),
         }
 
         Ok(())
@@ -209,13 +208,12 @@ impl ConnChecker {
 
         match TEST_CONFIG.os {
             Os::Linux => {}
-            Os::Windows => {
+            Os::Windows | Os::Macos => {
                 self.mullvad_client.set_split_tunnel_state(false).await?;
                 self.mullvad_client
                     .remove_split_tunnel_app(&self.executable_path)
                     .await?;
             }
-            Os::Macos => unimplemented!("MacOS"),
         }
 
         Ok(())
