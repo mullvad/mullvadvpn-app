@@ -446,6 +446,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             comment: ""
         )
 
+        header.accessibilityIdentifier = .wireGuardPortsCell
         header.titleLabel.text = title
         header.accessibilityCustomActionName = title
         header.infoButtonHandler = { [weak self] in
@@ -488,6 +489,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             comment: ""
         )
 
+        header.accessibilityIdentifier = .wireGuardObfuscationCell
         header.titleLabel.text = title
         header.accessibilityCustomActionName = title
         header.didCollapseHandler = { [weak self] header in
@@ -516,6 +518,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             comment: ""
         )
 
+        header.accessibilityIdentifier = .udpOverTCPPortCell
         header.titleLabel.text = title
         header.accessibilityCustomActionName = title
         header.didCollapseHandler = { [weak self] header in
@@ -545,6 +548,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             comment: ""
         )
 
+        header.accessibilityIdentifier = .quantumResistantTunnelCell
         header.titleLabel.text = title
         header.accessibilityCustomActionName = title
         header.didCollapseHandler = { [weak self] header in

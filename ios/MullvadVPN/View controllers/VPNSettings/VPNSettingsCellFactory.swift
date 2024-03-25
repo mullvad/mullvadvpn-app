@@ -97,6 +97,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
 
+            cell.textField.accessibilityIdentifier = .customWireGuardPortTextField
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.applySubCellStyling()
 
