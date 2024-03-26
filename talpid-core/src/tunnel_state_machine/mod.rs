@@ -293,7 +293,8 @@ impl TunnelStateMachine {
         .map_err(Error::InitSplitTunneling)?;
 
         #[cfg(target_os = "macos")]
-        let split_tunnel = split_tunnel::SplitTunnel::spawn(route_manager.clone()).await;
+        let split_tunnel =
+            split_tunnel::SplitTunnel::spawn(args.command_tx.clone(), route_manager.clone()).await;
 
         let fw_args = FirewallArguments {
             initial_state: if args.settings.block_when_disconnected || !args.settings.reset_firewall
