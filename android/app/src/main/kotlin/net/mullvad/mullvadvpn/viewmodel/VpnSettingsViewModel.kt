@@ -125,7 +125,9 @@ class VpnSettingsViewModel(
     }
 
     fun onToggleCustomDns(enable: Boolean) {
-        repository.setDnsState(if (enable) DnsState.Custom else DnsState.Default)
+        viewModelScope.launch {
+            repository.setDnsState(if (enable) DnsState.Custom else DnsState.Default)
+        }
         if (enable && vmState.value.customDnsList.isEmpty()) {
             viewModelScope.launch { _uiSideEffect.send(VpnSettingsSideEffect.NavigateToDnsDialog) }
         } else if (vmState.value.customDnsList.isNotEmpty()) {
@@ -176,8 +178,10 @@ class VpnSettingsViewModel(
     }
 
     fun onStopEvent() {
-        if (vmState.value.customDnsList.isEmpty()) {
-            repository.setDnsState(DnsState.Default)
+        viewModelScope.launch {
+            if (vmState.value.customDnsList.isEmpty()) {
+                repository.setDnsState(DnsState.Default)
+            }
         }
     }
 
