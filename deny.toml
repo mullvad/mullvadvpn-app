@@ -43,15 +43,14 @@ ignore = [
 # More documentation for the licenses section can be found here:
 # https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html
 [licenses]
-# The lint level for crates which do not have a detectable license
-unlicensed = "deny"
+version = 2 # https://github.com/EmbarkStudios/cargo-deny/pull/611
 
-# Adding a license here has to be done carefully. Should not be changed
-# by individual developers.
+# Adding a license here has to be done carefully. Should only be done by team leads.
 allow = [
     "GPL-3.0",
     "Apache-2.0",
     "MIT",
+    "MPL-2.0",
     "WTFPL",
     "ISC",
     "BSD-3-Clause",
@@ -62,15 +61,6 @@ allow = [
     "Unicode-DFS-2016"
 ]
 
-deny = []
-
-copyleft = "allow"
-allow-osi-fsf-free = "neither"
-default = "deny"
-confidence-threshold = 0.8
-
-exceptions = []
-
 [[licenses.clarify]]
 name = "ring"
 expression = "LicenseRef-ring"
@@ -80,7 +70,6 @@ license-files = [
 
 [licenses.private]
 ignore = false
-registries = []
 
 
 # This section is considered when running `cargo deny check bans`.

@@ -31,26 +31,21 @@ ignore = [
 [licenses]
 version = 2 # https://github.com/EmbarkStudios/cargo-deny/pull/611
 
-# Adding a license here has to be done carefully. Should not be changed
-# by individual developers.
+# Adding a license here has to be done carefully. Should only be done by team leads.
 allow = [
     "GPL-3.0",
     "Apache-2.0",
     "MIT",
+    "MPL-2.0",
     "WTFPL",
     "ISC",
     "BSD-3-Clause",
     "BSD-2-Clause",
     "CC0-1.0",
-    "MPL-2.0",
     # https://github.com/briansmith/ring/issues/902
     "LicenseRef-ring",
     "Unicode-DFS-2016"
 ]
-
-confidence-threshold = 0.8
-
-exceptions = []
 
 [[licenses.clarify]]
 name = "ring"
@@ -61,7 +56,6 @@ license-files = [
 
 [licenses.private]
 ignore = false
-registries = []
 
 # This section is considered when running `cargo deny check bans`.
 # More documentation about the 'bans' section can be found here:
