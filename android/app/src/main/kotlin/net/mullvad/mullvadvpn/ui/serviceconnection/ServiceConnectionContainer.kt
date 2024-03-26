@@ -27,13 +27,11 @@ class ServiceConnectionContainer(
 
     val authTokenCache = AuthTokenCache(connection, dispatcher)
     val deviceDataSource = ServiceConnectionDeviceDataSource(connection, dispatcher)
-    val settingsListener = SettingsListener(connection, dispatcher)
 
     val splitTunneling = SplitTunneling(connection, dispatcher)
     val voucherRedeemer = VoucherRedeemer(connection, dispatcher)
     val vpnPermission = VpnPermission(connection, dispatcher)
 
-    val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
     val customDns = CustomDns(connection)
 
     private var listenerId: Int? = null
@@ -59,10 +57,7 @@ class ServiceConnectionContainer(
         dispatcher.onDestroy()
 
         authTokenCache.onDestroy()
-        settingsListener.onDestroy()
         voucherRedeemer.onDestroy()
-
-        appVersionInfoCache.onDestroy()
     }
 
     private fun registerListener(connection: Messenger) {

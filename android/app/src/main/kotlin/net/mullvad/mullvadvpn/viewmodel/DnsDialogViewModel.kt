@@ -116,14 +116,11 @@ class DnsDialogViewModel(
 
             val address = InetAddress.getByName(uiState.value.ipAddress)
 
-            repository.updateCustomDnsList {
-                it.toMutableList().apply {
-                    if (index != null) {
-                        set(index, address)
-                    } else {
-                        add(address)
-                    }
-                }
+            if (index != null) {
+                repository.setCustomDns(index, address)
+            } else {
+                // TODO
+                //add(address)
             }
 
             _uiSideEffect.send(DnsDialogSideEffect.Complete)
@@ -131,9 +128,7 @@ class DnsDialogViewModel(
 
     fun onRemoveDnsClick() =
         viewModelScope.launch(dispatcher) {
-            repository.updateCustomDnsList {
-                it.filter { it.hostAddress != uiState.value.ipAddress }
-            }
+            repository.deleteCustomDns(InetAddress.getByName(uiState.value.ipAddress))
             _uiSideEffect.send(DnsDialogSideEffect.Complete)
         }
 

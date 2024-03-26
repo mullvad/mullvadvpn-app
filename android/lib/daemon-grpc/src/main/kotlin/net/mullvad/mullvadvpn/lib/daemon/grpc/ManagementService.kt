@@ -3,8 +3,10 @@ package net.mullvad.mullvadvpn.lib.daemon.grpc
 import android.net.LocalSocketAddress
 import android.net.Uri
 import android.util.Log
+import com.google.protobuf.BoolValue
 import com.google.protobuf.Empty
 import com.google.protobuf.StringValue
+import com.google.protobuf.UInt32Value
 import io.grpc.Status
 import io.grpc.StatusException
 import io.grpc.android.UdsChannelBuilder
@@ -23,14 +25,17 @@ import mullvad_daemon.management_interface.ManagementInterface.*
 import mullvad_daemon.management_interface.ManagementInterface.DnsOptions.DnsState
 import mullvad_daemon.management_interface.ManagementInterface.ObfuscationSettings.SelectedObfuscation
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
+import mullvad_daemon.management_interface.copy
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory as ModelAccountHistory
 import net.mullvad.mullvadvpn.model.AccountState
+import net.mullvad.mullvadvpn.model.AppVersionInfo as ModelAppVersionInfo
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.CustomDnsOptions as ModelCustomDnsOptions
 import net.mullvad.mullvadvpn.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.model.CustomListsSettings
+import net.mullvad.mullvadvpn.model.DefaultDnsOptions as ModelDefaultDnsOptions
 import net.mullvad.mullvadvpn.model.Device as ModelDevice
 import net.mullvad.mullvadvpn.model.DnsOptions as ModelDnsOptions
 import net.mullvad.mullvadvpn.model.DnsState as ModelDnsState
@@ -114,6 +119,9 @@ class ManagementService(
 
     val settings: Flow<ModelSettings> =
         _mutableStateFlow.mapNotNull { it.settings }.map { it.toModelSettings() }
+
+    val versionInfo: Flow<ModelAppVersionInfo> =
+        _mutableStateFlow.mapNotNull { it.versionInfo }.map { it.toModelAppVersionInfo() }
 
     suspend fun start() {
         scope.launch { _mutableStateFlow.update { getInitialServiceState() } }
@@ -238,6 +246,60 @@ class ManagementService(
             Log.e("ManagementService", "createAccount error: ${e.message}")
             AccountCreationResult.Failure
         }
+
+    suspend fun setDnsOptions(dnsOptions: ModelDnsOptions) {
+        managementService.setDnsOptions(dnsOptions.toDnsOptions())
+    }
+
+    suspend fun setDnsState(dnsState: ModelDnsState) {
+        val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
+        val newDnsState = dnsState.toDnsState()
+        managementService.setDnsOptions(currentDnsOptions.copy { this.state = newDnsState })
+    }
+
+    suspend fun setCustomDns(index: Int, address: InetAddress) {
+        val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
+        managementService.setDnsOptions(
+            currentDnsOptions.also { it.customOptions.addressesList[index] = address.toString() }
+        )
+    }
+
+    suspend fun deleteCustomDns(address: InetAddress) {
+        val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
+        val currentCustomDnsOptions = currentDnsOptions.customOptions
+        val newCustomDnsOptions =
+            CustomDnsOptions.newBuilder()
+                .addAllAddresses(
+                    currentCustomDnsOptions.addressesList.filter { it != address.toString() }
+                )
+                .build()
+        managementService.setDnsOptions(
+            currentDnsOptions.copy { this.customOptions = newCustomDnsOptions }
+        )
+    }
+
+    suspend fun setWireguardMtu(value: Int) {
+        managementService.setWireguardMtu(UInt32Value.of(value))
+    }
+
+    suspend fun setWireguardQuantumResistant(value: ModelQuantumResistantState) {
+        managementService.setQuantumResistantTunnel(value.toQuantumResistantState())
+    }
+
+    suspend fun setObfuscationOptions(value: ModelObfuscationSettings) {
+        managementService.setObfuscationSettings(value.toObfuscationSettings())
+    }
+
+    suspend fun setAutoConnect(isEnabled: Boolean) {
+        managementService.setAutoConnect(BoolValue.of(isEnabled))
+    }
+
+    suspend fun setAllowLan(allow: Boolean) {
+        managementService.setAllowLan(BoolValue.of(allow))
+    }
+
+    suspend fun getCurrentVersion(): String =
+        managementService.getCurrentVersion(Empty.getDefaultInstance()).value
 }
 
 fun TunnelState.toTunnelState(): ModelTunnelState =
@@ -522,3 +584,63 @@ fun DefaultDnsOptions.toDefaultDnsOptions() =
 
 fun CustomDnsOptions.toCustomDnsOptions() =
     ModelCustomDnsOptions(this.addressesList.map { InetAddress.getByName(it) })
+
+fun ModelDnsOptions.toDnsOptions(): DnsOptions =
+    DnsOptions.newBuilder()
+        .setState(this.state.toDnsState())
+        .setCustomOptions(this.customOptions.toCustomOptions())
+        .setDefaultOptions(this.defaultOptions.toDefaultOptions())
+        .build()
+
+fun ModelDnsState.toDnsState(): DnsState =
+    when (this) {
+        ModelDnsState.Default -> DnsState.DEFAULT
+        ModelDnsState.Custom -> DnsState.CUSTOM
+    }
+
+fun ModelCustomDnsOptions.toCustomOptions(): CustomDnsOptions =
+    CustomDnsOptions.newBuilder().addAllAddresses(this.addresses.map { it.toString() }).build()
+
+fun ModelDefaultDnsOptions.toDefaultOptions(): DefaultDnsOptions =
+    DefaultDnsOptions.newBuilder()
+        .setBlockAds(this.blockAds)
+        .setBlockGambling(this.blockGambling)
+        .setBlockMalware(this.blockMalware)
+        .setBlockTrackers(this.blockTrackers)
+        .setBlockAdultContent(this.blockAdultContent)
+        .setBlockSocialMedia(this.blockSocialMedia)
+        .build()
+
+fun ModelQuantumResistantState.toQuantumResistantState(): QuantumResistantState =
+    QuantumResistantState.newBuilder()
+        .setState(
+            when (this) {
+                ModelQuantumResistantState.Auto -> QuantumResistantState.State.AUTO
+                ModelQuantumResistantState.On -> QuantumResistantState.State.ON
+                ModelQuantumResistantState.Off -> QuantumResistantState.State.OFF
+            }
+        )
+        .build()
+
+fun ModelObfuscationSettings.toObfuscationSettings(): ObfuscationSettings =
+    ObfuscationSettings.newBuilder()
+        .setSelectedObfuscation(this.selectedObfuscation.toSelectedObfuscation())
+        .setUdp2Tcp(this.udp2tcp.toUdp2TcpObfuscationSettings())
+        .build()
+
+fun ModelSelectedObfuscation.toSelectedObfuscation(): SelectedObfuscation =
+    when (this) {
+        ModelSelectedObfuscation.Udp2Tcp -> SelectedObfuscation.UDP2TCP
+        ModelSelectedObfuscation.Auto -> SelectedObfuscation.AUTO
+        ModelSelectedObfuscation.Off -> SelectedObfuscation.OFF
+    }
+
+fun ModelUdp2TcpObfuscationSettings.toUdp2TcpObfuscationSettings(): Udp2TcpObfuscationSettings =
+    when (val port = this.port) {
+        is Constraint.Any -> Udp2TcpObfuscationSettings.newBuilder().clearPort().build()
+        is Constraint.Only ->
+            Udp2TcpObfuscationSettings.newBuilder().setPort(port.value.value).build()
+    }
+
+fun AppVersionInfo.toModelAppVersionInfo(): ModelAppVersionInfo =
+    ModelAppVersionInfo(supported = this.supported, suggestedUpgrade = this.suggestedUpgrade)

@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.CustomDnsOptions
@@ -15,76 +16,51 @@ import net.mullvad.mullvadvpn.model.DnsState
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.Settings
-import net.mullvad.mullvadvpn.ui.serviceconnection.customDns
-import net.mullvad.mullvadvpn.ui.serviceconnection.settingsListener
 
 class SettingsRepository(
     private val managementService: ManagementService,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     val settingsUpdates: StateFlow<Settings?> =
-        managementService.settings.stateIn(
-            CoroutineScope(dispatcher),
-            SharingStarted.WhileSubscribed(),
-            null
-        )
+        managementService.settings
+            .onStart { managementService.getSettings() }
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), null)
 
-    fun setDnsOptions(
+    suspend fun setDnsOptions(
         isCustomDnsEnabled: Boolean,
         dnsList: List<InetAddress>,
         contentBlockersOptions: DefaultDnsOptions
     ) {
-        updateDnsSettings {
+        managementService.setDnsOptions(
             DnsOptions(
                 state = if (isCustomDnsEnabled) DnsState.Custom else DnsState.Default,
                 customOptions = CustomDnsOptions(ArrayList(dnsList)),
                 defaultOptions = contentBlockersOptions
             )
-        }
+        )
     }
 
-    fun setDnsState(
+    suspend fun setDnsState(
         state: DnsState,
     ) {
-        updateDnsSettings { it.copy(state = state) }
+        managementService.setDnsState(state)
     }
 
-    fun updateCustomDnsList(update: (List<InetAddress>) -> List<InetAddress>) {
-        updateDnsSettings { dnsOptions ->
-            val newDnsList = ArrayList(update(dnsOptions.customOptions.addresses.map { it }))
-            dnsOptions.copy(
-                state = if (newDnsList.isEmpty()) DnsState.Default else DnsState.Custom,
-                customOptions =
-                    CustomDnsOptions(
-                        addresses = newDnsList,
-                    )
-            )
-        }
-    }
+    suspend fun deleteCustomDns(address: InetAddress) = managementService.deleteCustomDns(address)
 
-    private fun updateDnsSettings(lambda: (DnsOptions) -> DnsOptions) {
-        settingsUpdates.value?.tunnelOptions?.dnsOptions?.let {
-          //  serviceConnectionManager.customDns()?.setDnsOptions(lambda(it))
-        }
-    }
+    suspend fun setCustomDns(index: Int, address: InetAddress) =
+        managementService.setCustomDns(index, address)
 
-    fun setWireguardMtu(value: Int?) {
-//j        serviceConnectionManager.settingsListener()?.wireguardMtu = value
-    }
+    suspend fun setWireguardMtu(value: Int?) = managementService.setWireguardMtu(value ?: 0)
 
-    fun setWireguardQuantumResistant(value: QuantumResistantState) {
-  //      serviceConnectionManager.settingsListener()?.wireguardQuantumResistant = value
-    }
+    suspend fun setWireguardQuantumResistant(value: QuantumResistantState) =
+        managementService.setWireguardQuantumResistant(value)
 
-    fun setObfuscationOptions(value: ObfuscationSettings) {
-   //     serviceConnectionManager.settingsListener()?.obfuscationSettings = value
-    }
+    suspend fun setObfuscationOptions(value: ObfuscationSettings) =
+        managementService.setObfuscationOptions(value)
 
-    fun setAutoConnect(isEnabled: Boolean) {
-    //    serviceConnectionManager.settingsListener()?.autoConnect = isEnabled
-    }
+    suspend fun setAutoConnect(isEnabled: Boolean) = managementService.setAutoConnect(isEnabled)
 
-    fun setLocalNetworkSharing(isEnabled: Boolean) {
-//        serviceConnectionManager.settingsListener()?.allowLan = isEnabled
-    }
+    suspend fun setLocalNetworkSharing(isEnabled: Boolean) =
+        managementService.setAllowLan(isEnabled)
 }

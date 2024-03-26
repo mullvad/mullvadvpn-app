@@ -1,55 +1,23 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
-import kotlin.properties.Delegates.observable
-import net.mullvad.mullvadvpn.lib.ipc.Event
-import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
-import net.mullvad.mullvadvpn.model.AppVersionInfo
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import net.mullvad.mullvadvpn.BuildConfig
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.ui.VersionInfo
 
-class AppVersionInfoCache(
-    eventDispatcher: EventDispatcher,
-    private val settingsListener: SettingsListener
-) {
-    private var appVersionInfo by
-        observable<AppVersionInfo?>(null) { _, _, _ -> onUpdate?.invoke() }
-
-    val isSupported
-        get() = appVersionInfo?.supported ?: true
-
-    val isOutdated
-        get() = appVersionInfo?.suggestedUpgrade != null
-
-    val upgradeVersion
-        get() = appVersionInfo?.suggestedUpgrade
-
-    var onUpdate by observable<(() -> Unit)?>(null) { _, _, callback -> callback?.invoke() }
-
-    var showBetaReleases by
-        observable(false) { _, wasShowing, shouldShow ->
-            if (shouldShow != wasShowing) {
-                onUpdate?.invoke()
-            }
+class AppVersionInfoCache(private val managementService: ManagementService) {
+    fun versionInfo(): Flow<VersionInfo> =
+        combine(
+            managementService.versionInfo,
+            managementService.settings.map { it.showBetaReleases }
+        ) { appVersionInfo, showBetaReleases ->
+            VersionInfo(
+                currentVersion = BuildConfig.VERSION_NAME,
+                upgradeVersion = appVersionInfo.suggestedUpgrade,
+                isOutdated = appVersionInfo.suggestedUpgrade != null,
+                isSupported = appVersionInfo.supported,
+            )
         }
-        private set
-
-    var version: String? = null
-        private set
-
-    init {
-        eventDispatcher.apply {
-            registerHandler(Event.CurrentVersion::class) { event -> version = event.version }
-
-            registerHandler(Event.AppVersionInfo::class) { event ->
-                appVersionInfo = event.versionInfo
-            }
-        }
-
-        settingsListener.settingsNotifier.subscribe(this) { maybeSettings ->
-            maybeSettings?.let { settings -> showBetaReleases = settings.showBetaReleases }
-        }
-    }
-
-    fun onDestroy() {
-        settingsListener.settingsNotifier.unsubscribe(this)
-        onUpdate = null
-    }
 }

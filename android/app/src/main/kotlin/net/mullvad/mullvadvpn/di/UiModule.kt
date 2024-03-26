@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.ProblemReportRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -147,6 +148,7 @@ val uiModule = module {
     single { ProblemReportRepository() }
 
     single { ConnectionProxy(get()) }
+    single { AppVersionInfoCache(get()) }
 
     // View models
     viewModel { AccountViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
