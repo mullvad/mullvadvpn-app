@@ -56,7 +56,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private var pendingAction by
         observable<PendingAction?>(null) { _, _, _ ->
-            endpoint.settingsListener.settings?.let { settings -> handlePendingAction(settings) }
+            //endpoint.settingsListener.settings?.let { settings -> handlePendingAction(settings) }
         }
 
     private lateinit var apiEndpointConfiguration: ApiEndpointConfiguration
@@ -93,7 +93,7 @@ class MullvadVpnService : TalpidVpnService() {
             AccountExpiryNotification(
                 this,
                 daemonInstance.intermittentDaemon,
-                endpoint.accountCache
+                //endpoint.accountCache
             )
 
         // Remove any leftover tunnel state persistence data

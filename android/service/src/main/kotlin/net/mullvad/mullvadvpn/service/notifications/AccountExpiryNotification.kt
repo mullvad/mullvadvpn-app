@@ -19,14 +19,13 @@ import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.R
 import net.mullvad.mullvadvpn.service.constant.IS_PLAY_BUILD
-import net.mullvad.mullvadvpn.service.endpoint.AccountCache
 import org.joda.time.DateTime
 import org.joda.time.Duration
 
 class AccountExpiryNotification(
     val context: Context,
     val daemon: Intermittent<MullvadDaemon>,
-    val accountCache: AccountCache
+    //val accountCache: AccountCache
 ) {
 
     private val jobTracker = JobTracker()
@@ -54,11 +53,11 @@ class AccountExpiryNotification(
         }
 
     init {
-        accountCache.onAccountExpiryChange.subscribe(this) { expiry -> accountExpiry = expiry }
+        //accountCache.onAccountExpiryChange.subscribe(this) { expiry -> accountExpiry = expiry }
     }
 
     fun onDestroy() {
-        accountCache.onAccountExpiryChange.unsubscribe(this)
+        //accountCache.onAccountExpiryChange.unsubscribe(this)
     }
 
     // Suppressing since the permission check is done by calling a common util in another module.
@@ -67,7 +66,7 @@ class AccountExpiryNotification(
         val expiryDate = expiry.date()
         val durationUntilExpiry = expiryDate?.remainingTime()
 
-        if (accountCache.isNewAccount.not() && durationUntilExpiry?.isCloseToExpiry() == true) {
+        if (/*accountCache.isNewAccount.not() &&*/ durationUntilExpiry?.isCloseToExpiry() == true) {
             if (context.isNotificationPermissionMissing().not()) {
                 val notification = build(expiryDate, durationUntilExpiry)
                 channel.notificationManager.notify(NOTIFICATION_ID, notification)

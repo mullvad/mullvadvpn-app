@@ -40,15 +40,11 @@ class ServiceEndpoint(
     val vpnPermission = VpnPermission(context, this)
 
     val connectionProxy = ConnectionProxy(vpnPermission, this)
-    val settingsListener = SettingsListener(this)
 
-    val accountCache = AccountCache(this)
-    val appVersionInfoCache = AppVersionInfoCache(this)
     val authTokenCache = AuthTokenCache(this)
-    val customDns = CustomDns(this)
     val relayListListener = RelayListListener(this)
     val splitTunneling = SplitTunneling(SplitTunnelingPersistence(context), this)
-    val voucherRedeemer = VoucherRedeemer(this, accountCache)
+    val voucherRedeemer = VoucherRedeemer(this)
 
     private val playPurchaseHandler = PlayPurchaseHandler(this)
     private val customLists = CustomLists(this)
@@ -71,14 +67,10 @@ class ServiceEndpoint(
         dispatcher.onDestroy()
         commands.close()
 
-        accountCache.onDestroy()
-        appVersionInfoCache.onDestroy()
         authTokenCache.onDestroy()
         connectionProxy.onDestroy()
-        customDns.onDestroy()
         deviceRepositoryBackend.onDestroy()
         relayListListener.onDestroy()
-        settingsListener.onDestroy()
         splitTunneling.onDestroy()
         voucherRedeemer.onDestroy()
         playPurchaseHandler.onDestroy()
@@ -125,11 +117,7 @@ class ServiceEndpoint(
             val initialEvents =
                 mutableListOf(
                     Event.TunnelStateChange(connectionProxy.state),
-                    Event.AccountHistoryEvent(accountCache.onAccountHistoryChange.latestEvent),
-                    Event.SettingsUpdate(settingsListener.settings),
                     Event.SplitTunnelingUpdate(splitTunneling.onChange.latestEvent),
-                    Event.CurrentVersion(appVersionInfoCache.currentVersion),
-                    Event.AppVersionInfo(appVersionInfoCache.appVersionInfo),
                     Event.NewRelayList(relayListListener.relayList),
                     Event.AuthToken(authTokenCache.authToken),
                     Event.ListenerReady(messenger, listenerId)
