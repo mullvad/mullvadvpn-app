@@ -1,6 +1,8 @@
 use std::collections::HashSet;
 use std::path::PathBuf;
 use talpid_routing::RouteManagerHandle;
+use talpid_types::ErrorExt;
+use tokio::sync::{mpsc, oneshot};
 
 use self::process::ExclusionStatus;
 
@@ -37,9 +39,33 @@ impl Error {
     }
 }
 
-/// Handle for interacting with the split tunnel module
-pub struct Handle {
+/// Split tunneling actor
+pub struct SplitTunnel {
     state: State,
+    rx: mpsc::UnboundedReceiver<Message>,
+}
+
+enum Message {
+    GetInterface {
+        result_tx: oneshot::Sender<Option<String>>,
+    },
+    Shutdown {
+        result_tx: oneshot::Sender<()>,
+    },
+    SetExcludePaths {
+        result_tx: oneshot::Sender<Result<(), Error>>,
+        paths: HashSet<PathBuf>,
+    },
+    SetTunnel {
+        result_tx: oneshot::Sender<Result<(), Error>>,
+        new_vpn_interface: Option<VpnInterface>,
+    },
+}
+
+/// Handle for interacting with the split tunnel module
+#[derive(Clone)]
+pub struct Handle {
+    tx: mpsc::UnboundedSender<Message>,
 }
 
 enum State {
@@ -68,18 +94,104 @@ enum State {
 }
 
 impl Handle {
-    /// Create split tunneling handle
-    pub async fn new(route_manager: RouteManagerHandle) -> Handle {
-        Self {
+    /// Shut down split tunnel
+    pub async fn shutdown(&self) {
+        let (result_tx, result_rx) = oneshot::channel();
+        let _ = self.tx.send(Message::Shutdown { result_tx });
+        if let Err(error) = result_rx.await {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Split tunnel is already down")
+            );
+        }
+    }
+
+    /// Return name of split tunnel interface
+    pub async fn interface(&self) -> Option<String> {
+        let (result_tx, result_rx) = oneshot::channel();
+        let _ = self.tx.send(Message::GetInterface { result_tx });
+        result_rx.await.ok()?
+    }
+
+    /// Set paths to exclude
+    pub async fn set_exclude_paths(&self, paths: HashSet<PathBuf>) -> Result<(), Error> {
+        let (result_tx, result_rx) = oneshot::channel();
+        let _ = self.tx.send(Message::SetExcludePaths { result_tx, paths });
+        result_rx.await.map_err(|_| Error::Unavailable)?
+    }
+
+    /// Set VPN tunnel interface
+    pub async fn set_tunnel(&self, new_vpn_interface: Option<VpnInterface>) -> Result<(), Error> {
+        let (result_tx, result_rx) = oneshot::channel();
+        let _ = self.tx.send(Message::SetTunnel {
+            result_tx,
+            new_vpn_interface,
+        });
+        result_rx.await.map_err(|_| Error::Unavailable)?
+    }
+}
+
+impl SplitTunnel {
+    /// Initialize split tunneling
+    pub async fn spawn(route_manager: RouteManagerHandle) -> Handle {
+        let (tx, rx) = mpsc::unbounded_channel();
+        let split_tunnel = Self {
             state: State::NoExclusions {
                 route_manager,
                 vpn_interface: None,
             },
+            rx,
+        };
+
+        tokio::spawn(Self::run(split_tunnel));
+
+        Handle { tx }
+    }
+
+    async fn run(mut self) {
+        loop {
+            tokio::select! {
+                message = self.rx.recv() => {
+                    let Some(message) = message else {
+                        // Shut down split tunnel
+                        break
+                    };
+
+                    match message {
+                        Message::GetInterface {
+                            result_tx,
+                        } => {
+                            let _ = result_tx.send(self.interface().map(str::to_owned));
+                        }
+                        Message::Shutdown {
+                            result_tx,
+                        } => {
+                            // Shut down; early exit
+                            let _ = result_tx.send(self.shutdown().await);
+                            return;
+                        }
+                        Message::SetExcludePaths {
+                            result_tx,
+                            paths,
+                        } => {
+                            let _ = result_tx.send(self.set_exclude_paths(paths).await);
+                        }
+                        Message::SetTunnel {
+                            result_tx,
+                            new_vpn_interface,
+                        } => {
+                            let _ = result_tx.send(self.set_tunnel(new_vpn_interface).await);
+                        }
+                    }
+                }
+            }
         }
+
+        self.shutdown().await;
     }
 
     /// Shut down split tunnel
-    pub async fn shutdown(self) {
+    async fn shutdown(self) {
         match self.state {
             State::ProcessMonitorOnly { mut process, .. } => {
                 process.shutdown().await;
@@ -99,7 +211,7 @@ impl Handle {
     }
 
     /// Return name of split tunnel interface
-    pub fn interface(&self) -> Option<&str> {
+    fn interface(&self) -> Option<&str> {
         match &self.state {
             State::Initialized { tun_handle, .. } => Some(tun_handle.name()),
             _ => None,
@@ -107,7 +219,7 @@ impl Handle {
     }
 
     /// Set paths to exclude
-    pub async fn set_exclude_paths(&mut self, paths: HashSet<PathBuf>) -> Result<(), Error> {
+    async fn set_exclude_paths(&mut self, paths: HashSet<PathBuf>) -> Result<(), Error> {
         match &mut self.state {
             // If there are currently no paths and no process monitor, initialize it
             State::NoExclusions {
@@ -168,10 +280,7 @@ impl Handle {
     }
 
     /// Set VPN tunnel interface
-    pub async fn set_tunnel(
-        &mut self,
-        new_vpn_interface: Option<VpnInterface>,
-    ) -> Result<(), Error> {
+    async fn set_tunnel(&mut self, new_vpn_interface: Option<VpnInterface>) -> Result<(), Error> {
         match &mut self.state {
             // If split tunneling is already initialized, just update the interfaces
             State::Initialized { route_manager, .. } => {
