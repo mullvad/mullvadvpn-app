@@ -44,7 +44,7 @@ class SettingsListener(endpoint: ServiceEndpoint) {
         daemon.registerListener(this) { newDaemon ->
             if (newDaemon != null) {
                 registerListener(newDaemon)
-                fetchInitialSettings(newDaemon)
+                //fetchInitialSettings(newDaemon)
             }
         }
 
