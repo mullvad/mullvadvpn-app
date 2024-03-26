@@ -63,7 +63,7 @@ func receivePostQuantumKey(rawPacketTunnel: UnsafeMutableRawPointer, rawPreshare
     }
 
     let presharedKey = Data(bytes: rawPresharedKey, count: 32)
-       if let key = PreSharedKey(rawValue: presharedKey) {
+    if let key = PreSharedKey(rawValue: presharedKey) {
         postQuantumKeyReceiver.receivePostQuantumKey(key)
     }
 }

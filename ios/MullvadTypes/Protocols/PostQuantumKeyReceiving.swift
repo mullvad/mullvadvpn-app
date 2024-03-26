@@ -16,12 +16,3 @@ public protocol PostQuantumKeyReceiving {
 public enum PostQuantumKeyReceivingError: Error {
     case invalidKey
 }
-
-public extension PostQuantumKeyReceiving {
-    func receivePostQuantumKey(_ keyData: Data) throws {
-        guard let key = PreSharedKey(rawValue: keyData) else {
-            throw PostQuantumKeyReceivingError.invalidKey
-        }
-        receivePostQuantumKey(key)
-    }
-}
