@@ -24,7 +24,6 @@ public class PostQuantumKeyNegotiatior {
     ) {
         let packetTunnelPointer = Unmanaged.passUnretained(packetTunnel).toOpaque()
         let opaqueConnection = Unmanaged.passUnretained(tcpConnection).toOpaque()
-        NSLog("\(#function) passing raw pointer \(opaqueConnection)")
 
         // TODO: Any non 0 return is considered a failure, and should be handled gracefully
         let token = negotiate_post_quantum_key(
