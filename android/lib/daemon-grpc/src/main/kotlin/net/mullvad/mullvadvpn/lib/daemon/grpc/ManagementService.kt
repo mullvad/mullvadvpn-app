@@ -20,15 +20,29 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementInterface.*
+import mullvad_daemon.management_interface.ManagementInterface.ObfuscationSettings.SelectedObfuscation
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory as ModelAccountHistory
 import net.mullvad.mullvadvpn.model.AccountState
+import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.Device as ModelDevice
 import net.mullvad.mullvadvpn.model.GeoIpLocation as ModelGeoIpLocation
+import net.mullvad.mullvadvpn.model.GeographicLocationConstraint as ModelGeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.LocationConstraint as ModelLocationConstraint
 import net.mullvad.mullvadvpn.model.LoginResult
+import net.mullvad.mullvadvpn.model.ObfuscationSettings as ModelObfuscationSettings
+import net.mullvad.mullvadvpn.model.Ownership as ModelOwnership
+import net.mullvad.mullvadvpn.model.Port
+import net.mullvad.mullvadvpn.model.Providers
+import net.mullvad.mullvadvpn.model.RelayConstraints as ModelRelayConstraint
+import net.mullvad.mullvadvpn.model.RelaySettings as ModelRelaySettings
+import net.mullvad.mullvadvpn.model.SelectedObfuscation as ModelSelectedObfuscation
+import net.mullvad.mullvadvpn.model.Settings as ModelSettings
 import net.mullvad.mullvadvpn.model.TunnelState as ModelTunnelState
+import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings as ModelUdp2TcpObfuscationSettings
+import net.mullvad.mullvadvpn.model.WireguardConstraints as ModelWireguardConstraints
 import net.mullvad.talpid.net.Endpoint as ModelEndpoint
 import net.mullvad.talpid.net.ObfuscationEndpoint as ModelObfuscationEndpoint
 import net.mullvad.talpid.net.ObfuscationType as ModelObfuscationType
@@ -39,7 +53,6 @@ import net.mullvad.talpid.tunnel.ErrorState as ModelErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause as ModelErrorStateCause
 import net.mullvad.talpid.tunnel.FirewallPolicyError as ModelFirewallPolicyError
 import net.mullvad.talpid.tunnel.ParameterGenerationError as ModelParameterGenerationError
-import net.mullvad.mullvadvpn.model.Settings as ModelSettings
 import org.joda.time.Instant
 
 class ManagementService(
@@ -90,8 +103,8 @@ class ManagementService(
     val tunnelState: Flow<ModelTunnelState> =
         _mutableStateFlow.mapNotNull { it.tunnelState }.map { it.toTunnelState() }
 
-    val settings: Flow<ModelSettings> =
-        _mutableStateFlow.mapNotNull { it.settings }.map { it.toSettings() }
+    val settings: Flow<ModelSettings> = TODO()
+    //        _mutableStateFlow.mapNotNull { it.settings }.map { it.to() }
 
     suspend fun start() {
         scope.launch { _mutableStateFlow.update { getInitialServiceState() } }
@@ -353,4 +366,95 @@ fun ManagementInterface.ErrorState.GenerationError.toParameterGenerationError():
             ModelParameterGenerationError.CustomTunnelHostResultionError
         ErrorState.GenerationError.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized parameter generation error")
+    }
+
+fun ManagementInterface.Settings.toModelSettings(): ModelSettings =
+    ModelSettings(
+        relaySettings = relaySettings.toModelRelaySettings(),
+        obfuscationSettings = obfuscationSettings.toObfuscationSettings(),
+        customLists = TODO(),
+        allowLan = allowLan,
+        autoConnect = autoConnect,
+        tunnelOptions = TODO(),
+        showBetaReleases = showBetaReleases
+    )
+
+fun ManagementInterface.RelaySettings.toModelRelaySettings(): ModelRelaySettings =
+    when (endpointCase) {
+        RelaySettings.EndpointCase.CUSTOM -> ModelRelaySettings.CustomTunnelEndpoint
+        RelaySettings.EndpointCase.NORMAL ->
+            ModelRelaySettings.Normal(this.normal.toRelayLocationConstraint())
+        RelaySettings.EndpointCase.ENDPOINT_NOT_SET ->
+            throw IllegalArgumentException("RelaySettings endpoint not set")
+    }
+
+fun NormalRelaySettings.toRelayLocationConstraint(): ModelRelayConstraint =
+    ModelRelayConstraint(
+        location = location.toLocationConstraint(),
+        providers = providersList.toProviderConstraint(),
+        ownership = ownership.toOwnershipConstraint(),
+        wireguardConstraints = wireguardConstraints.toWireguardConstraints()
+    )
+
+fun LocationConstraint.toLocationConstraint(): Constraint<ModelLocationConstraint> =
+    when (typeCase) {
+        LocationConstraint.TypeCase.CUSTOM_LIST ->
+            Constraint.Only(ModelLocationConstraint.CustomList(customList))
+        LocationConstraint.TypeCase.LOCATION ->
+            Constraint.Only(
+                ModelLocationConstraint.Location(location.toGeographicLocationConstraint())
+            )
+        LocationConstraint.TypeCase.TYPE_NOT_SET -> Constraint.Any()
+    }
+
+fun GeographicLocationConstraint.toGeographicLocationConstraint():
+    ModelGeographicLocationConstraint =
+    when {
+        hasHostname() && hasCity() ->
+            ModelGeographicLocationConstraint.Hostname(country, city, hostname)
+        hasCity() -> ModelGeographicLocationConstraint.City(country, city)
+        else -> ModelGeographicLocationConstraint.Country(country)
+    }
+
+fun List<String>.toProviderConstraint(): Constraint<Providers> =
+    if (isEmpty()) Constraint.Any() else Constraint.Only(Providers(HashSet(this)))
+
+fun WireguardConstraints.toWireguardConstraints(): ModelWireguardConstraints =
+    ModelWireguardConstraints(
+        port =
+            if (hasPort()) {
+                Constraint.Any()
+            } else {
+                Constraint.Only(Port(port))
+            },
+    )
+
+fun Ownership.toOwnershipConstraint(): Constraint<ModelOwnership> =
+    when (this) {
+        Ownership.ANY -> Constraint.Any()
+        Ownership.MULLVAD_OWNED -> Constraint.Only(ModelOwnership.MullvadOwned)
+        Ownership.RENTED -> Constraint.Only(ModelOwnership.Rented)
+        Ownership.UNRECOGNIZED -> throw IllegalArgumentException("Unrecognized ownership")
+    }
+
+fun ObfuscationSettings.toObfuscationSettings(): ModelObfuscationSettings =
+    ModelObfuscationSettings(
+        selectedObfuscation = selectedObfuscation.toSelectedObfuscation(),
+        udp2tcp = this.udp2Tcp.toUdp2TcpObfuscationSettings()
+    )
+
+fun SelectedObfuscation.toSelectedObfuscation(): ModelSelectedObfuscation =
+    when (this) {
+        SelectedObfuscation.AUTO -> ModelSelectedObfuscation.Auto
+        SelectedObfuscation.OFF -> ModelSelectedObfuscation.Off
+        SelectedObfuscation.UDP2TCP -> ModelSelectedObfuscation.Udp2Tcp
+        SelectedObfuscation.UNRECOGNIZED ->
+            throw IllegalArgumentException("Unrecognized selected obfuscation")
+    }
+
+fun Udp2TcpObfuscationSettings.toUdp2TcpObfuscationSettings(): ModelUdp2TcpObfuscationSettings =
+    if (this.hasPort()) {
+        ModelUdp2TcpObfuscationSettings(Constraint.Only(Port(port)))
+    } else {
+        ModelUdp2TcpObfuscationSettings(Constraint.Any())
     }
