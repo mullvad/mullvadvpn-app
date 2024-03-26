@@ -72,7 +72,6 @@ multiple-versions = "warn"
 wildcards = "warn"
 highlight = "all"
 
-allow = []
 deny = [
     # We are using Rustls for TLS. We don't want to accidentally pull in
     # anything OpenSSL related
@@ -81,12 +80,8 @@ deny = [
     { name = "openssl-probe" },
     { name = "clap", version = "2" },
     { name = "clap", version = "3" },
-    # `atty` is an unmaintained crate with a CVE: RUSTSEC-2021-0145
-    { name = "atty" },
     { name = "time", version = "0.1"},
 ]
-skip = []
-skip-tree = []
 
 
 # This section is considered when running `cargo deny check sources`.
