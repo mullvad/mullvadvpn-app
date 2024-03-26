@@ -73,20 +73,8 @@ class MullvadDaemon(
         connect(daemonInterfaceAddress)
     }
 
-    fun createNewAccount(): String? {
-        return createNewAccount(daemonInterfaceAddress)
-    }
-
     fun disconnect() {
         disconnect(daemonInterfaceAddress)
-    }
-
-    fun getAccountData(accountToken: String): GetAccountDataResult {
-        return getAccountData(daemonInterfaceAddress, accountToken)
-    }
-
-    fun getAccountHistory(): String? {
-        return getAccountHistory(daemonInterfaceAddress)
     }
 
     fun getWwwAuthToken(): String {
@@ -109,23 +97,9 @@ class MullvadDaemon(
         return getState(daemonInterfaceAddress)
     }
 
-    fun getVersionInfo(): AppVersionInfo? {
-        return getVersionInfo(daemonInterfaceAddress)
-    }
-
     fun reconnect() {
         reconnect(daemonInterfaceAddress)
     }
-
-    fun clearAccountHistory() {
-        clearAccountHistory(daemonInterfaceAddress)
-    }
-
-    /*
-
-    fun logoutAccount() = logoutAccount(daemonInterfaceAddress)
-
-     */
 
     fun getAndEmitDeviceList(accountToken: String): List<Device>? {
         return listDevices(daemonInterfaceAddress, accountToken).also { deviceList ->
@@ -154,22 +128,6 @@ class MullvadDaemon(
         return removeDevice(daemonInterfaceAddress, accountToken, deviceId)
     }
 
-    fun setAllowLan(allowLan: Boolean) {
-        setAllowLan(daemonInterfaceAddress, allowLan)
-    }
-
-    fun setAutoConnect(autoConnect: Boolean) {
-        setAutoConnect(daemonInterfaceAddress, autoConnect)
-    }
-
-    fun setDnsOptions(dnsOptions: DnsOptions) {
-        setDnsOptions(daemonInterfaceAddress, dnsOptions)
-    }
-
-    fun setWireguardMtu(wireguardMtu: Int?) {
-        setWireguardMtu(daemonInterfaceAddress, wireguardMtu)
-    }
-
     fun shutdown() {
         shutdown(daemonInterfaceAddress)
     }
@@ -188,14 +146,6 @@ class MullvadDaemon(
 
     fun setRelaySettings(update: RelaySettings) {
         setRelaySettings(daemonInterfaceAddress, update)
-    }
-
-    fun setObfuscationSettings(settings: ObfuscationSettings?) {
-        setObfuscationSettings(daemonInterfaceAddress, settings)
-    }
-
-    fun setQuantumResistant(quantumResistant: QuantumResistantState) {
-        setQuantumResistantTunnel(daemonInterfaceAddress, quantumResistant)
     }
 
     fun createCustomList(name: String): CreateCustomListResult =
@@ -239,16 +189,7 @@ class MullvadDaemon(
 
     private external fun connect(daemonInterfaceAddress: Long)
 
-    private external fun createNewAccount(daemonInterfaceAddress: Long): String?
-
     private external fun disconnect(daemonInterfaceAddress: Long)
-
-    private external fun getAccountData(
-        daemonInterfaceAddress: Long,
-        accountToken: String
-    ): GetAccountDataResult
-
-    private external fun getAccountHistory(daemonInterfaceAddress: Long): String?
 
     private external fun getWwwAuthToken(daemonInterfaceAddress: Long): String?
 
@@ -260,13 +201,7 @@ class MullvadDaemon(
 
     private external fun getState(daemonInterfaceAddress: Long): TunnelState?
 
-    private external fun getVersionInfo(daemonInterfaceAddress: Long): AppVersionInfo?
-
     private external fun reconnect(daemonInterfaceAddress: Long)
-
-    private external fun clearAccountHistory(daemonInterfaceAddress: Long)
-
-    private external fun logoutAccount(daemonInterfaceAddress: Long)
 
     private external fun listDevices(
         daemonInterfaceAddress: Long,
@@ -285,14 +220,6 @@ class MullvadDaemon(
         deviceId: String
     ): RemoveDeviceResult
 
-    private external fun setAllowLan(daemonInterfaceAddress: Long, allowLan: Boolean)
-
-    private external fun setAutoConnect(daemonInterfaceAddress: Long, alwaysOn: Boolean)
-
-    private external fun setDnsOptions(daemonInterfaceAddress: Long, dnsOptions: DnsOptions)
-
-    private external fun setWireguardMtu(daemonInterfaceAddress: Long, wireguardMtu: Int?)
-
     private external fun shutdown(daemonInterfaceAddress: Long)
 
     private external fun submitVoucher(
@@ -308,16 +235,6 @@ class MullvadDaemon(
     ): PlayPurchaseVerifyResult
 
     private external fun setRelaySettings(daemonInterfaceAddress: Long, update: RelaySettings)
-
-    private external fun setObfuscationSettings(
-        daemonInterfaceAddress: Long,
-        settings: ObfuscationSettings?
-    )
-
-    private external fun setQuantumResistantTunnel(
-        daemonInterfaceAddress: Long,
-        quantumResistant: QuantumResistantState
-    )
 
     // Used by JNI
 
