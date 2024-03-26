@@ -6,6 +6,7 @@ on:
       - .github/workflows/verify-locked-down-signatures.yml
       - Cargo.lock
       - deny.toml
+      - test/deny.toml
       - gui/package-lock.json
       - wireguard/libwg/go.sum
       - ci/keys/**
