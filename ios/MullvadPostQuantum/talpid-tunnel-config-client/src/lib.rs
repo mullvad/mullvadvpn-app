@@ -1,5 +1,4 @@
 use std::ptr;
-use std::rc::Weak;
 
 use libc::c_void;
 use tokio::sync::mpsc;
@@ -19,6 +18,8 @@ use talpid_types::net::wireguard::PublicKey;
 use tonic::transport::Endpoint;
 use tower::service_fn;
 
+/// # Safety
+/// This function is safe to call
 pub unsafe fn run_ios_runtime(
     pub_key: [u8; 32],
     ephemeral_pub_key: [u8; 32],
