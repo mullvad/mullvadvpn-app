@@ -32,7 +32,7 @@ public class PostQuantumKeyNegotiatior {
             packetTunnelPointer,
             opaqueConnection
         )
-        guard token?.hashValue != 0.hashValue else {
+        guard let token else {
             // Handle failure here
             return
         }

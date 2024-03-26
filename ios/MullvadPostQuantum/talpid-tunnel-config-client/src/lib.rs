@@ -121,7 +121,7 @@ impl IOSRuntime {
                 Err(error) => {
                     log::error!("Failed to create iOS TCP client: {error}");
                     unsafe {
-                        swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null_mut());
+                        swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null());
                     }
                     return;
                 }
@@ -138,7 +138,7 @@ impl IOSRuntime {
                             swift_post_quantum_key_ready(packet_tunnel_ptr, bytes.as_ptr());
                         },
                         Err(_) => unsafe {
-                            swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null_mut());
+                            swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null());
                         },
                     }
                 }
