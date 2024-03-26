@@ -14,15 +14,11 @@ targets = [
 # https://embarkstudios.github.io/cargo-deny/checks/advisories/cfg.html
 [advisories]
 version = 2 # https://github.com/EmbarkStudios/cargo-deny/pull/611
-db-path = "~/.cargo/advisory-db"
-db-urls = ["https://github.com/rustsec/advisory-db"]
-
+yanked = "deny"
 ignore = [
     # Ignored audit issues. This list should be kept short, and effort should be
     # put into removing items from the list.
 ]
-
-#severity-threshold =
 
 
 # This section is considered when running `cargo deny check licenses`

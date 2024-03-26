@@ -21,22 +21,14 @@ targets = [
 # More documentation for the advisories section can be found here:
 # https://embarkstudios.github.io/cargo-deny/checks/advisories/cfg.html
 [advisories]
-db-path = "~/.cargo/advisory-db"
-db-urls = ["https://github.com/rustsec/advisory-db"]
-
-vulnerability = "deny"
-unmaintained = "warn"
+version = 2 # https://github.com/EmbarkStudios/cargo-deny/pull/611
 yanked = "deny"
-notice = "deny"
-
 ignore = [
     # Ignored audit issues. This list should be kept short, and effort should be
     # put into removing items from the list.
     # RUSTSEC-2023-0079 - KyberSlash in `pqc_kyber`.
     "RUSTSEC-2023-0079"
 ]
-
-#severity-threshold =
 
 
 # This section is considered when running `cargo deny check licenses`
