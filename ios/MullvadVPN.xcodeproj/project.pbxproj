@@ -821,8 +821,6 @@
 		F02F41A02B9723AF00625A4F /* AddLocationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419A2B9723AE00625A4F /* AddLocationsViewController.swift */; };
 		F02F41A12B9723AF00625A4F /* AddLocationsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419B2B9723AE00625A4F /* AddLocationsDataSource.swift */; };
 		F02F41A22B9723AF00625A4F /* AddLocationsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419C2B9723AF00625A4F /* AddLocationsCoordinator.swift */; };
-		F02F41A42B9723AF00625A4F /* AddLocationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419E2B9723AF00625A4F /* AddLocationCellViewModel.swift */; };
-		F02F41A52B9723AF00625A4F /* AddLocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419F2B9723AF00625A4F /* AddLocationCell.swift */; };
 		F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */; };
 		F04413612BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
 		F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
@@ -1975,8 +1973,6 @@
 		F02F419A2B9723AE00625A4F /* AddLocationsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsViewController.swift; sourceTree = "<group>"; };
 		F02F419B2B9723AE00625A4F /* AddLocationsDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsDataSource.swift; sourceTree = "<group>"; };
 		F02F419C2B9723AF00625A4F /* AddLocationsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsCoordinator.swift; sourceTree = "<group>"; };
-		F02F419E2B9723AF00625A4F /* AddLocationCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationCellViewModel.swift; sourceTree = "<group>"; };
-		F02F419F2B9723AF00625A4F /* AddLocationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationCell.swift; sourceTree = "<group>"; };
 		F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncreasedHitButton.swift; sourceTree = "<group>"; };
 		F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListLocationNodeBuilder.swift; sourceTree = "<group>"; };
 		F04F95A02B21D24400431E08 /* shadowsocks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shadowsocks.h; sourceTree = "<group>"; };
@@ -3504,8 +3500,6 @@
 			isa = PBXGroup;
 			children = (
 				7A6389D72B7E3BD6008E77E1 /* AddCustomListCoordinator.swift */,
-				F02F419F2B9723AF00625A4F /* AddLocationCell.swift */,
-				F02F419E2B9723AF00625A4F /* AddLocationCellViewModel.swift */,
 				F02F419C2B9723AF00625A4F /* AddLocationsCoordinator.swift */,
 				F02F419B2B9723AE00625A4F /* AddLocationsDataSource.swift */,
 				F02F419A2B9723AE00625A4F /* AddLocationsViewController.swift */,
@@ -5169,7 +5163,6 @@
 				582BB1B1229569620055B6EF /* UINavigationBar+Appearance.swift in Sources */,
 				7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */,
 				58ACF6492655365700ACE4B7 /* VPNSettingsViewController.swift in Sources */,
-				F02F41A52B9723AF00625A4F /* AddLocationCell.swift in Sources */,
 				7ABE318D2A1CDD4500DF4963 /* UIFont+Weight.swift in Sources */,
 				58C774BE29A7A249003A1A56 /* CustomNavigationController.swift in Sources */,
 				E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */,
@@ -5426,7 +5419,6 @@
 				7A6389DB2B7E3BD6008E77E1 /* CustomListCellConfiguration.swift in Sources */,
 				F09A297C2A9F8A9B00EA3B6F /* VoucherTextField.swift in Sources */,
 				7A5869B72B56B41500640D27 /* IPOverrideTextViewController.swift in Sources */,
-				F02F41A42B9723AF00625A4F /* AddLocationCellViewModel.swift in Sources */,
 				58ACF64B26553C3F00ACE4B7 /* SettingsSwitchCell.swift in Sources */,
 				7AF9BE952A40461100DBFEDB /* RelayFilterView.swift in Sources */,
 				7A09C98129D99215000C2CAC /* String+FuzzyMatch.swift in Sources */,
