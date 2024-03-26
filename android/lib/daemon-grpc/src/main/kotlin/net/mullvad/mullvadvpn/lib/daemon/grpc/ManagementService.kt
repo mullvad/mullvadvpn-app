@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementInterface.*
+import mullvad_daemon.management_interface.ManagementInterface.DnsOptions.DnsState
 import mullvad_daemon.management_interface.ManagementInterface.ObfuscationSettings.SelectedObfuscation
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
 import net.mullvad.mullvadvpn.model.AccountCreationResult
@@ -27,7 +28,12 @@ import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory as ModelAccountHistory
 import net.mullvad.mullvadvpn.model.AccountState
 import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.CustomDnsOptions as ModelCustomDnsOptions
+import net.mullvad.mullvadvpn.model.CustomList as ModelCustomList
+import net.mullvad.mullvadvpn.model.CustomListsSettings
 import net.mullvad.mullvadvpn.model.Device as ModelDevice
+import net.mullvad.mullvadvpn.model.DnsOptions as ModelDnsOptions
+import net.mullvad.mullvadvpn.model.DnsState as ModelDnsState
 import net.mullvad.mullvadvpn.model.GeoIpLocation as ModelGeoIpLocation
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint as ModelGeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.LocationConstraint as ModelLocationConstraint
@@ -36,13 +42,16 @@ import net.mullvad.mullvadvpn.model.ObfuscationSettings as ModelObfuscationSetti
 import net.mullvad.mullvadvpn.model.Ownership as ModelOwnership
 import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.Providers
+import net.mullvad.mullvadvpn.model.QuantumResistantState as ModelQuantumResistantState
 import net.mullvad.mullvadvpn.model.RelayConstraints as ModelRelayConstraint
 import net.mullvad.mullvadvpn.model.RelaySettings as ModelRelaySettings
 import net.mullvad.mullvadvpn.model.SelectedObfuscation as ModelSelectedObfuscation
 import net.mullvad.mullvadvpn.model.Settings as ModelSettings
+import net.mullvad.mullvadvpn.model.TunnelOptions as ModelTunnelOptions
 import net.mullvad.mullvadvpn.model.TunnelState as ModelTunnelState
 import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings as ModelUdp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints as ModelWireguardConstraints
+import net.mullvad.mullvadvpn.model.WireguardTunnelOptions as ModelWireguardTunnelOptions
 import net.mullvad.talpid.net.Endpoint as ModelEndpoint
 import net.mullvad.talpid.net.ObfuscationEndpoint as ModelObfuscationEndpoint
 import net.mullvad.talpid.net.ObfuscationType as ModelObfuscationType
@@ -103,8 +112,8 @@ class ManagementService(
     val tunnelState: Flow<ModelTunnelState> =
         _mutableStateFlow.mapNotNull { it.tunnelState }.map { it.toTunnelState() }
 
-    val settings: Flow<ModelSettings> = TODO()
-    //        _mutableStateFlow.mapNotNull { it.settings }.map { it.to() }
+    val settings: Flow<ModelSettings> =
+        _mutableStateFlow.mapNotNull { it.settings }.map { it.toModelSettings() }
 
     suspend fun start() {
         scope.launch { _mutableStateFlow.update { getInitialServiceState() } }
@@ -372,10 +381,10 @@ fun ManagementInterface.Settings.toModelSettings(): ModelSettings =
     ModelSettings(
         relaySettings = relaySettings.toModelRelaySettings(),
         obfuscationSettings = obfuscationSettings.toObfuscationSettings(),
-        customLists = TODO(),
+        customLists = CustomListsSettings(customLists.customListsList.map { it.toCustomList() }),
         allowLan = allowLan,
         autoConnect = autoConnect,
-        tunnelOptions = TODO(),
+        tunnelOptions = tunnelOptions.toTunnelOptions(),
         showBetaReleases = showBetaReleases
     )
 
@@ -458,3 +467,58 @@ fun Udp2TcpObfuscationSettings.toUdp2TcpObfuscationSettings(): ModelUdp2TcpObfus
     } else {
         ModelUdp2TcpObfuscationSettings(Constraint.Any())
     }
+
+fun CustomList.toCustomList(): ModelCustomList =
+    ModelCustomList(
+        id = id,
+        name = name,
+        locations = locationsList.map { it.toGeographicLocationConstraint() }
+    )
+
+fun TunnelOptions.toTunnelOptions(): ModelTunnelOptions =
+    ModelTunnelOptions(
+        wireguard = wireguard.toWireguardTunnelOptions(),
+        dnsOptions = dnsOptions.toDnsOptions()
+    )
+
+private fun TunnelOptions.WireguardOptions.toWireguardTunnelOptions(): ModelWireguardTunnelOptions =
+    ModelWireguardTunnelOptions(
+        mtu = if (hasMtu()) mtu else null,
+        quantumResistant = this.quantumResistant.toQuantumResistantState(),
+    )
+
+fun QuantumResistantState.toQuantumResistantState(): ModelQuantumResistantState =
+    when (state) {
+        QuantumResistantState.State.AUTO -> ModelQuantumResistantState.Auto
+        QuantumResistantState.State.ON -> ModelQuantumResistantState.On
+        QuantumResistantState.State.OFF -> ModelQuantumResistantState.Off
+        QuantumResistantState.State.UNRECOGNIZED ->
+            throw IllegalArgumentException("Unrecognized quantum resistant state")
+    }
+
+fun DnsOptions.toDnsOptions(): ModelDnsOptions =
+    ModelDnsOptions(
+        state = this.state.toDnsState(),
+        defaultOptions = defaultOptions.toDefaultDnsOptions(),
+        customOptions = customOptions.toCustomDnsOptions()
+    )
+
+fun DnsState.toDnsState(): ModelDnsState =
+    when (this) {
+        DnsState.DEFAULT -> ModelDnsState.Default
+        DnsState.CUSTOM -> ModelDnsState.Custom
+        DnsState.UNRECOGNIZED -> throw IllegalArgumentException("Unrecognized dns state")
+    }
+
+fun DefaultDnsOptions.toDefaultDnsOptions() =
+    net.mullvad.mullvadvpn.model.DefaultDnsOptions(
+        blockAds = blockAds,
+        blockMalware = blockMalware,
+        blockAdultContent = blockAdultContent,
+        blockGambling = blockGambling,
+        blockSocialMedia = blockSocialMedia,
+        blockTrackers = blockTrackers
+    )
+
+fun CustomDnsOptions.toCustomDnsOptions() =
+    ModelCustomDnsOptions(this.addressesList.map { InetAddress.getByName(it) })
