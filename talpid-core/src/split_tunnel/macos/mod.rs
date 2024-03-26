@@ -1,6 +1,8 @@
 use std::collections::HashSet;
 use std::path::PathBuf;
+use std::sync::Weak;
 use talpid_routing::RouteManagerHandle;
+use talpid_types::tunnel::ErrorStateCause;
 use talpid_types::ErrorExt;
 use tokio::sync::{mpsc, oneshot};
 
@@ -13,6 +15,7 @@ mod default;
 mod process;
 mod tun;
 
+use crate::tunnel_state_machine::TunnelCommand;
 pub use tun::VpnInterface;
 
 /// Errors caused by split tunneling
@@ -42,6 +45,7 @@ impl Error {
 /// Split tunneling actor
 pub struct SplitTunnel {
     state: State,
+    tunnel_tx: Weak<futures::channel::mpsc::UnboundedSender<TunnelCommand>>,
     rx: mpsc::UnboundedReceiver<Message>,
 }
 
@@ -84,6 +88,7 @@ enum State {
         route_manager: RouteManagerHandle,
         process: process::ProcessMonitorHandle,
         tun_handle: tun::SplitTunnelHandle,
+        vpn_interface: Option<VpnInterface>,
     },
     /// State entered when anything at all fails. Users can force a transition out of this state
     /// by disabling/clearing the paths to use.
@@ -91,6 +96,26 @@ enum State {
         route_manager: RouteManagerHandle,
         vpn_interface: Option<VpnInterface>,
     },
+}
+
+impl State {
+    fn process_monitor(&mut self) -> Option<&mut process::ProcessMonitorHandle> {
+        match self {
+            State::ProcessMonitorOnly { process, .. } | State::Initialized { process, .. } => {
+                Some(process)
+            }
+            _ => None,
+        }
+    }
+
+    fn route_manager(&self) -> &RouteManagerHandle {
+        match self {
+            State::NoExclusions { route_manager, .. }
+            | State::ProcessMonitorOnly { route_manager, .. }
+            | State::Initialized { route_manager, .. }
+            | State::Failed { route_manager, .. } => route_manager,
+        }
+    }
 }
 
 impl Handle {
@@ -133,13 +158,17 @@ impl Handle {
 
 impl SplitTunnel {
     /// Initialize split tunneling
-    pub async fn spawn(route_manager: RouteManagerHandle) -> Handle {
+    pub async fn spawn(
+        tunnel_tx: Weak<futures::channel::mpsc::UnboundedSender<TunnelCommand>>,
+        route_manager: RouteManagerHandle,
+    ) -> Handle {
         let (tx, rx) = mpsc::unbounded_channel();
         let split_tunnel = Self {
             state: State::NoExclusions {
                 route_manager,
                 vpn_interface: None,
             },
+            tunnel_tx,
             rx,
         };
 
@@ -150,7 +179,40 @@ impl SplitTunnel {
 
     async fn run(mut self) {
         loop {
+            let process_monitor_stopped = async {
+                match self.state.process_monitor() {
+                    Some(process) => process.wait().await,
+                    None => futures::future::pending().await,
+                }
+            };
+
             tokio::select! {
+                // Handle process monitor being stopped
+                result = process_monitor_stopped => {
+                    match result {
+                        Ok(()) => log::error!("Process monitor stopped unexpectedly with no error"),
+                        Err(error) => {
+                            log::error!("{}", error.display_chain_with_msg("Process monitor stopped unexpectedly"));
+                        }
+                    }
+
+                    let route_manager = self.state.route_manager();
+
+                    match &self.state {
+                        // Enter the error state if split tunneling is active. Otherwise, we might make incorrect
+                        // decisions for new processes
+                        State::Initialized { vpn_interface, .. } if vpn_interface.is_some() => {
+                            if let Some(tunnel_tx) = self.tunnel_tx.upgrade() {
+                                let _ = tunnel_tx.unbounded_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
+                            }
+                        }
+                        _ => (),
+                    }
+
+                    self.state = State::Failed { route_manager: route_manager.clone(), vpn_interface: None };
+                }
+
+                // Handle messages
                 message = self.rx.recv() => {
                     let Some(message) = message else {
                         // Shut down split tunnel
@@ -301,6 +363,7 @@ impl SplitTunnel {
                     route_manager,
                     mut process,
                     tun_handle,
+                    vpn_interface: _,
                 } = prev_state
                 else {
                     unreachable!("unexpected state")
@@ -309,7 +372,7 @@ impl SplitTunnel {
                 log::debug!("Updating split tunnel device");
 
                 match tun_handle
-                    .set_interfaces(default_interface, new_vpn_interface)
+                    .set_interfaces(default_interface, new_vpn_interface.clone())
                     .await
                 {
                     Ok(tun_handle) => {
@@ -317,6 +380,7 @@ impl SplitTunnel {
                             route_manager,
                             process,
                             tun_handle,
+                            vpn_interface: new_vpn_interface,
                         };
                         Ok(())
                     }
@@ -350,8 +414,10 @@ impl SplitTunnel {
                 log::debug!("Initializing split tunnel device");
 
                 let states = process.states().clone();
-                let result =
-                    tun::create_split_tunnel(default_interface, new_vpn_interface, move |packet| {
+                let result = tun::create_split_tunnel(
+                    default_interface,
+                    new_vpn_interface.clone(),
+                    move |packet| {
                         match states.get_process_status(packet.header.pth_pid as u32) {
                             ExclusionStatus::Excluded => tun::RoutingDecision::DefaultInterface,
                             ExclusionStatus::Included => tun::RoutingDecision::VpnTunnel,
@@ -360,8 +426,9 @@ impl SplitTunnel {
                                 tun::RoutingDecision::Drop
                             }
                         }
-                    })
-                    .await;
+                    },
+                )
+                .await;
 
                 match result {
                     Ok(tun_handle) => {
@@ -369,6 +436,7 @@ impl SplitTunnel {
                             route_manager,
                             process,
                             tun_handle,
+                            vpn_interface: new_vpn_interface,
                         };
                         Ok(())
                     }
