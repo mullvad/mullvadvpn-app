@@ -103,7 +103,6 @@ skip-tree = []
 [sources]
 unknown-registry = "deny"
 unknown-git = "deny"
-allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 
 # We should never depend on git repositories outside our own github organization.
 # We can't say anything about their availability. They might go away at any point
