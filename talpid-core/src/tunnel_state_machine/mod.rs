@@ -359,7 +359,10 @@ impl TunnelStateMachine {
             )
             .await
         {
-            log::debug!("Failed to set initial split tunnel paths: {error}");
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to set initial split tunnel paths")
+            );
         }
 
         let mut shared_values = SharedTunnelStateValues {
