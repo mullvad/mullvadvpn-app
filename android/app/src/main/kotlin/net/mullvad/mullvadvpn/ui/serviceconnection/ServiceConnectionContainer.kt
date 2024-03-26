@@ -26,7 +26,6 @@ class ServiceConnectionContainer(
     val events = dispatcher.parsedMessages.filterIsInstance<Event>()
 
     val authTokenCache = AuthTokenCache(connection, dispatcher)
-    val connectionProxy = ConnectionProxy(connection, dispatcher)
     val deviceDataSource = ServiceConnectionDeviceDataSource(connection, dispatcher)
     val settingsListener = SettingsListener(connection, dispatcher)
 
@@ -60,7 +59,6 @@ class ServiceConnectionContainer(
         dispatcher.onDestroy()
 
         authTokenCache.onDestroy()
-        connectionProxy.onDestroy()
         settingsListener.onDestroy()
         voucherRedeemer.onDestroy()
 

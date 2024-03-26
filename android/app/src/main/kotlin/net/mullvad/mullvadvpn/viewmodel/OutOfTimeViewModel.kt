@@ -25,7 +25,6 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
-import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
@@ -37,6 +36,7 @@ class OutOfTimeViewModel(
     private val deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentUseCase,
     private val outOfTimeUseCase: OutOfTimeUseCase,
+    private val connectionProxy: ConnectionProxy,
     private val pollAccountExpiry: Boolean = true,
     private val isPlayBuild: Boolean
 ) : ViewModel() {
@@ -55,7 +55,7 @@ class OutOfTimeViewModel(
             }
             .flatMapLatest { serviceConnection ->
                 combine(
-                    serviceConnection.connectionProxy.tunnelStateFlow(),
+                    connectionProxy.tunnelState,
                     deviceRepository.deviceState,
                     paymentUseCase.paymentAvailability,
                 ) { tunnelState, deviceState, paymentAvailability ->
@@ -80,9 +80,6 @@ class OutOfTimeViewModel(
         fetchPaymentAvailability()
     }
 
-    private fun ConnectionProxy.tunnelStateFlow(): Flow<TunnelState> =
-        callbackFlowFromNotifier(this.onStateChange)
-
     fun onSitePaymentClick() {
         viewModelScope.launch {
             _uiSideEffect.send(
@@ -94,7 +91,7 @@ class OutOfTimeViewModel(
     }
 
     fun onDisconnectClick() {
-        viewModelScope.launch { serviceConnectionManager.connectionProxy()?.disconnect() }
+        viewModelScope.launch { connectionProxy.disconnect() }
     }
 
     private fun verifyPurchases() {
