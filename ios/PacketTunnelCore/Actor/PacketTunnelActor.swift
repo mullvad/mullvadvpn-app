@@ -247,7 +247,7 @@ extension PacketTunnelActor {
                     dns: settings.dnsServers,
                     endpoint: connectionState.connectedEndpoint,
                     allowedIPs: [
-                        IPAddressRange(from: "10.64.0.1/8")!,
+                        IPAddressRange(from: "10.64.0.1/32")!,
                     ]
                 )
 
