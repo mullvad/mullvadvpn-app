@@ -21,8 +21,8 @@ import net.mullvad.mullvadvpn.relaylist.Provider
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
+import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -31,7 +31,8 @@ class SelectLocationViewModel(
     private val serviceConnectionManager: ServiceConnectionManager,
     private val relayListUseCase: RelayListUseCase,
     private val relayListFilterUseCase: RelayListFilterUseCase,
-    private val customListActionUseCase: CustomListActionUseCase
+    private val customListActionUseCase: CustomListActionUseCase,
+    private val connectionProxy: ConnectionProxy
 ) : ViewModel() {
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
 
@@ -89,10 +90,12 @@ class SelectLocationViewModel(
     }
 
     fun selectRelay(relayItem: RelayItem) {
-        val locationConstraint = relayItem.toLocationConstraint()
-        relayListUseCase.updateSelectedRelayLocation(locationConstraint)
-        serviceConnectionManager.connectionProxy()?.connect()
-        _uiSideEffect.trySend(SelectLocationSideEffect.CloseScreen)
+        viewModelScope.launch {
+            val locationConstraint = relayItem.toLocationConstraint()
+            relayListUseCase.updateSelectedRelayLocation(locationConstraint)
+            connectionProxy.connect()
+            _uiSideEffect.trySend(SelectLocationSideEffect.CloseScreen)
+        }
     }
 
     fun onSearchTermInput(searchTerm: String) {

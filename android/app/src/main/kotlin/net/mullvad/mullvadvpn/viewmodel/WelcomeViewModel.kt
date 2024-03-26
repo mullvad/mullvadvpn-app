@@ -41,6 +41,7 @@ class WelcomeViewModel(
     private val deviceRepository: DeviceRepository,
     private val serviceConnectionManager: ServiceConnectionManager,
     private val paymentUseCase: PaymentUseCase,
+    private val connectionProxy: ConnectionProxy,
     private val pollAccountExpiry: Boolean = true,
     private val isPlayBuild: Boolean
 ) : ViewModel() {
@@ -58,7 +59,7 @@ class WelcomeViewModel(
             }
             .flatMapLatest { serviceConnection ->
                 combine(
-                    serviceConnection.connectionProxy.tunnelUiStateFlow(),
+                    connectionProxy.tunnelState,
                     deviceRepository.deviceState.debounce {
                         it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS)
                     },
@@ -92,9 +93,6 @@ class WelcomeViewModel(
             .filter { it.minusHours(MIN_HOURS_PAST_ACCOUNT_EXPIRY).isAfterNow }
             .onEach { paymentUseCase.resetPurchaseResult() }
             .map { UiSideEffect.OpenConnectScreen }
-
-    private fun ConnectionProxy.tunnelUiStateFlow(): Flow<TunnelState> =
-        callbackFlowFromNotifier(this.onUiStateChange)
 
     fun onSitePaymentClick() {
         viewModelScope.launch {

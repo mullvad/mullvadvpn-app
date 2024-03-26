@@ -60,6 +60,7 @@ dependencies {
     val coroutinesVersion = "1.7.3"
     implementation(project(Dependencies.Mullvad.modelLib))
     implementation(project(Dependencies.Mullvad.commonLib))
+    implementation(project(Dependencies.Mullvad.talpidLib))
 
     implementation(Dependencies.jodaTime)
     implementation(Dependencies.Kotlin.stdlib)
