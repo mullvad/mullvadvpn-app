@@ -64,27 +64,27 @@ class SettingsRepository(
 
     private fun updateDnsSettings(lambda: (DnsOptions) -> DnsOptions) {
         settingsUpdates.value?.tunnelOptions?.dnsOptions?.let {
-            serviceConnectionManager.customDns()?.setDnsOptions(lambda(it))
+          //  serviceConnectionManager.customDns()?.setDnsOptions(lambda(it))
         }
     }
 
     fun setWireguardMtu(value: Int?) {
-        serviceConnectionManager.settingsListener()?.wireguardMtu = value
+//j        serviceConnectionManager.settingsListener()?.wireguardMtu = value
     }
 
     fun setWireguardQuantumResistant(value: QuantumResistantState) {
-        serviceConnectionManager.settingsListener()?.wireguardQuantumResistant = value
+  //      serviceConnectionManager.settingsListener()?.wireguardQuantumResistant = value
     }
 
     fun setObfuscationOptions(value: ObfuscationSettings) {
-        serviceConnectionManager.settingsListener()?.obfuscationSettings = value
+   //     serviceConnectionManager.settingsListener()?.obfuscationSettings = value
     }
 
     fun setAutoConnect(isEnabled: Boolean) {
-        serviceConnectionManager.settingsListener()?.autoConnect = isEnabled
+    //    serviceConnectionManager.settingsListener()?.autoConnect = isEnabled
     }
 
     fun setLocalNetworkSharing(isEnabled: Boolean) {
-        serviceConnectionManager.settingsListener()?.allowLan = isEnabled
+//        serviceConnectionManager.settingsListener()?.allowLan = isEnabled
     }
 }
