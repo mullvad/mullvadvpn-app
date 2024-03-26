@@ -1,8 +1,20 @@
+[graph]
+# cargo deny will only evaluate dependencies pulled in by these
+# targets (the ones we ship Rust code to)
 targets = [
+    # Desktop
     { triple = "x86_64-unknown-linux-gnu" },
     { triple = "x86_64-pc-windows-gnu" },
     { triple = "x86_64-apple-darwin" },
-    { triple = "aarch64-apple-darwin" }
+    { triple = "aarch64-apple-darwin" },
+    # Android
+    { triple = "x86_64-linux-android" },
+    { triple = "i686-linux-android" },
+    { triple = "aarch64-linux-android" },
+    { triple = "armv7-linux-androideabi" },
+    # iOS
+    { triple = "x86_64-apple-ios" },
+    { triple = "aarch64-apple-ios" },
 ]
 
 # This section is considered when running `cargo deny check advisories`

@@ -1,3 +1,14 @@
+[graph]
+# cargo deny will only evaluate dependencies pulled in by these
+# targets (the ones we run the test runner on)
+targets = [
+    { triple = "x86_64-unknown-linux-gnu" },
+    { triple = "x86_64-pc-windows-gnu" },
+    { triple = "x86_64-apple-darwin" },
+    { triple = "aarch64-apple-darwin" }
+]
+
+
 # This section is considered when running `cargo deny check advisories`
 # More documentation for the advisories section can be found here:
 # https://embarkstudios.github.io/cargo-deny/checks/advisories/cfg.html
@@ -86,11 +97,3 @@ allow-git = []
 [sources.allow-org]
 # 1 or more github.com organizations to allow git sources for
 github = ["mullvad"]
-
-[graph]
-targets = [
-    { triple = "x86_64-unknown-linux-gnu" },
-    { triple = "x86_64-pc-windows-gnu" },
-    { triple = "x86_64-apple-darwin" },
-    { triple = "aarch64-apple-darwin" }
-]
