@@ -67,8 +67,7 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
     //
     log::debug!("Entering blocking error state");
 
-    // TODO: Update this to `rpc.exec("mullvad", ["debug", "block-connection"])` when 2023.6 is released.
-    rpc.exec("mullvad", ["relay", "set", "location", "xx"])
+    rpc.exec("mullvad", ["debug", "block-connection"])
         .await
         .expect("Failed to set relay location");
     rpc.exec("mullvad", ["connect"])
