@@ -5,6 +5,7 @@
 //! The module currently relies on the `eslogger` tool to do so, which in turn relies on the
 //! Endpoint Security framework.
 
+use futures::channel::oneshot;
 use libc::{proc_listallpids, proc_pidpath};
 use serde::Deserialize;
 use std::collections::HashSet;
@@ -18,19 +19,19 @@ use std::{
     sync::{Arc, Mutex},
     time::Duration,
 };
-use tokio::{
-    io::{AsyncBufReadExt, BufReader},
-    process::Child,
-    task::JoinHandle,
-};
+use tokio::io::{AsyncBufReadExt, BufReader};
 
 const SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(3);
+const EARLY_FAIL_TIMEOUT: Duration = Duration::from_secs(1);
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to start eslogger listener
     #[error("Failed to start eslogger")]
     StartMonitor(#[source] io::Error),
+    /// eslogger failed
+    #[error("eslogger returned an error")]
+    MonitorFailed(#[source] io::Error),
     /// Failed to list processes
     #[error("Failed to list processes")]
     InitializePids(#[source] io::Error),
@@ -43,8 +44,7 @@ pub struct ProcessMonitor(());
 
 #[derive(Debug)]
 pub struct ProcessMonitorHandle {
-    proc: Child,
-    parser_task: Option<JoinHandle<()>>,
+    stop_proc_tx: Option<oneshot::Sender<oneshot::Sender<()>>>,
     states: ProcessStates,
 }
 
@@ -65,29 +65,71 @@ impl ProcessMonitor {
 
         let states_clone = states.clone();
 
-        let parser_task = tokio::spawn(async move {
-            let reader = BufReader::new(stdout);
-            let mut lines = reader.lines();
+        let (stop_proc_tx, stop_rx): (_, oneshot::Receiver<oneshot::Sender<_>>) =
+            oneshot::channel();
 
-            while let Ok(Some(line)) = lines.next_line().await {
-                // Each line from eslogger is a JSON object, one of several types of messages;
-                // see `ESMessage`
-                let val: ESMessage = match serde_json::from_str(&line) {
-                    Ok(val) => val,
-                    Err(error) => {
-                        log::error!("Failed to parse eslogger message: {error}");
-                        continue;
+        let task = tokio::spawn(async move {
+            tokio::spawn(async move {
+                let reader = BufReader::new(stdout);
+                let mut lines = reader.lines();
+
+                while let Ok(Some(line)) = lines.next_line().await {
+                    // Each line from eslogger is a JSON object, one of several types of messages;
+                    // see `ESMessage`
+                    let val: ESMessage = match serde_json::from_str(&line) {
+                        Ok(val) => val,
+                        Err(error) => {
+                            log::error!("Failed to parse eslogger message: {error}");
+                            continue;
+                        }
+                    };
+
+                    let mut inner = states_clone.inner.lock().unwrap();
+                    inner.handle_message(val);
+                }
+            });
+
+            let result = tokio::select! {
+                result = proc.wait() => {
+                    match result {
+                        Ok(status) => {
+                            Err(Error::MonitorFailed(io::Error::new(io::ErrorKind::Other, format!("eslogger stopped unexpectedly: {status}"))))
+                        }
+                        Err(error) => Err(Error::MonitorFailed(error)),
                     }
-                };
+                }
+                Ok(response_tx) = stop_rx => {
+                    if let Err(error) = proc.kill().await {
+                        log::error!("Failed to kill eslogger: {error}");
+                    }
+                    if tokio::time::timeout(SHUTDOWN_TIMEOUT, proc.wait())
+                        .await
+                        .is_err()
+                    {
+                        log::error!("Failed to wait for ST process handler");
+                    }
+                    let _ = response_tx.send(());
 
-                let mut inner = states_clone.inner.lock().unwrap();
-                inner.handle_message(val);
-            }
+                    Ok(())
+                }
+            };
+
+            log::debug!("Process monitor stopped");
+
+            result
         });
 
+        match tokio::time::timeout(EARLY_FAIL_TIMEOUT, task).await {
+            // On timeout, all is well
+            Err(_) => (),
+            // The process returned an error
+            Ok(Ok(Err(error))) => return Err(error),
+            Ok(Ok(Ok(()))) => unreachable!("process monitor stopped prematurely"),
+            Ok(Err(_)) => unreachable!("process monitor panicked"),
+        }
+
         Ok(ProcessMonitorHandle {
-            proc,
-            parser_task: Some(parser_task),
+            stop_proc_tx: Some(stop_proc_tx),
             states,
         })
     }
@@ -95,21 +137,13 @@ impl ProcessMonitor {
 
 impl ProcessMonitorHandle {
     pub async fn shutdown(&mut self) {
-        log::debug!("Stopping process monitor");
-
-        let Some(parser_task) = self.parser_task.take() else {
+        let Some(stop_tx) = self.stop_proc_tx.take() else {
             return;
         };
 
-        if let Err(error) = self.proc.kill().await {
-            log::error!("Failed to kill eslogger: {error}");
-        }
-        if tokio::time::timeout(SHUTDOWN_TIMEOUT, parser_task)
-            .await
-            .is_err()
-        {
-            log::error!("Failed to wait for ST process handler");
-        }
+        let (tx, rx) = oneshot::channel();
+        let _ = stop_tx.send(tx);
+        let _ = rx.await;
     }
 
     pub fn states(&self) -> &ProcessStates {
