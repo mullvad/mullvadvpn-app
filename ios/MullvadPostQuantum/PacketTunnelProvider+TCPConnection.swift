@@ -14,12 +14,12 @@ import WireGuardKitTypes
 
 @_cdecl("swift_nw_tcp_connection_send")
 func tcpConnectionSend(
-    connection: UnsafeMutableRawPointer,
+    connection: UnsafeMutableRawPointer?,
     data: UnsafeMutableRawPointer,
     dataLength: UInt,
-    sender: UnsafeMutableRawPointer
+    sender: UnsafeMutableRawPointer?
 ) {
-    NSLog("\(#function) receiving raw pointer \(connection)")
+    guard let connection, let sender else { return }
     let tcpConnection = Unmanaged<NWTCPConnection>.fromOpaque(connection).takeUnretainedValue()
     let rawData = Data(bytes: data, count: Int(dataLength))
 
@@ -36,10 +36,10 @@ func tcpConnectionSend(
 
 @_cdecl("swift_nw_tcp_connection_read")
 func tcpConnectionReceive(
-    connection: UnsafeMutableRawPointer,
-    sender: UnsafeMutableRawPointer
+    connection: UnsafeMutableRawPointer?,
+    sender: UnsafeMutableRawPointer?
 ) {
-    NSLog("\(#function) receiving raw pointer \(connection)")
+    guard let connection, let sender else { return }
     let tcpConnection = Unmanaged<NWTCPConnection>.fromOpaque(connection).takeUnretainedValue()
     tcpConnection.readMinimumLength(0, maximumLength: Int(UInt16.max)) { data, maybeError in
         if let data {
@@ -53,11 +53,11 @@ func tcpConnectionReceive(
 }
 
 @_cdecl("swift_post_quantum_key_ready")
-func receivePostQuantumKey(rawPacketTunnel: UnsafeMutableRawPointer, rawPresharedKey: UnsafeMutableRawPointer) {
+func receivePostQuantumKey(rawPacketTunnel: UnsafeMutableRawPointer?, rawPresharedKey: UnsafeMutableRawPointer?) {
+    guard let rawPacketTunnel else { return }
     let packetTunnel = Unmanaged<NEPacketTunnelProvider>.fromOpaque(rawPacketTunnel).takeUnretainedValue()
     guard let postQuantumKeyReceiver = packetTunnel as? PostQuantumKeyReceiving else { return }
-
-    guard rawPresharedKey.hashValue != 0.hashValue else {
+    guard let rawPresharedKey else {
         postQuantumKeyReceiver.receivePostQuantumKey(.none)
         return
     }
