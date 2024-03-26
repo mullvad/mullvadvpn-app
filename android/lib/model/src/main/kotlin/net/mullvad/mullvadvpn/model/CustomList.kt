@@ -7,5 +7,5 @@ import kotlinx.parcelize.Parcelize
 data class CustomList(
     val id: String,
     val name: String,
-    val locations: ArrayList<GeographicLocationConstraint>
+    val locations: List<GeographicLocationConstraint>
 ) : Parcelable
