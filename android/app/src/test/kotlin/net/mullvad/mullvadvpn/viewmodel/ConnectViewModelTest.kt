@@ -168,7 +168,7 @@ class ConnectViewModelTest {
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)
             val result = awaitItem()
-            assertEquals(tunnelRealStateTestItem, result.tunnelRealState)
+            assertEquals(tunnelRealStateTestItem, result.tunnelState)
         }
     }
 
