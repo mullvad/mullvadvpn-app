@@ -18,6 +18,8 @@ void handle_recv(const uint8_t *data, uintptr_t data_len, const void *sender);
 /**
  * Entry point for exchanging post quantum keys on iOS.
  * The TCP connection must be created to go through the tunnel.
+ * # Safety
+ * This function is safe to call
  */
 const void *negotiate_post_quantum_key(const uint8_t *public_key,
                                        const uint8_t *ephemeral_public_key,
