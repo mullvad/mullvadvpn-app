@@ -55,17 +55,15 @@ func tcpConnectionReceive(
 @_cdecl("swift_post_quantum_key_ready")
 func receivePostQuantumKey(rawPacketTunnel: UnsafeMutableRawPointer, rawPresharedKey: UnsafeMutableRawPointer) {
     let packetTunnel = Unmanaged<NEPacketTunnelProvider>.fromOpaque(rawPacketTunnel).takeUnretainedValue()
-    // TODO: The `rawPresharedKey` pointer might be null, this means the key exchanged failed, and we should try from the start again
+    guard let postQuantumKeyReceiver = packetTunnel as? PostQuantumKeyReceiving else { return }
 
     guard rawPresharedKey.hashValue != 0.hashValue else {
-        // Fail here
-        print("no key for you")
+        postQuantumKeyReceiver.receivePostQuantumKey(.none)
         return
     }
 
     let presharedKey = Data(bytes: rawPresharedKey, count: 32)
-    if let postQuantumKeyReceiver = packetTunnel as? PostQuantumKeyReceiving,
-       let key = PreSharedKey(rawValue: presharedKey) {
+       if let key = PreSharedKey(rawValue: presharedKey) {
         postQuantumKeyReceiver.receivePostQuantumKey(key)
     }
 }
