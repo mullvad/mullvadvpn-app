@@ -185,8 +185,8 @@ fun ConnectScreen(
     val scrollState = rememberScrollState()
 
     ScaffoldWithTopBarAndDeviceName(
-        topBarColor = state.tunnelUiState.topBarColor(),
-        iconTintColor = state.tunnelUiState.iconTintColor(),
+        topBarColor = state.tunnelState.topBarColor(),
+        iconTintColor = state.tunnelState.iconTintColor(),
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
         deviceName = state.deviceName,
@@ -264,12 +264,12 @@ private fun MapColumn(
     val baseZoom =
         animateFloatAsState(
             targetValue =
-                if (state.tunnelRealState is TunnelState.Connected) SECURE_ZOOM else UNSECURE_ZOOM,
+                if (state.tunnelState is TunnelState.Connected) SECURE_ZOOM else UNSECURE_ZOOM,
             animationSpec = tween(SECURE_ZOOM_ANIMATION_MILLIS),
             label = "baseZoom"
         )
 
-    val markers = state.tunnelRealState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
+    val markers = state.tunnelState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
 
     AnimatedMap(
         modifier = Modifier.padding(top = it.calculateTopPadding()),
@@ -308,7 +308,7 @@ private fun MapColumn(
 @Composable
 private fun ConnectionInfo(state: ConnectUiState) {
     ConnectionStatusText(
-        state = state.tunnelRealState,
+        state = state.tunnelState,
         modifier = Modifier.padding(horizontal = Dimens.sideMargin)
     )
     Text(
@@ -373,7 +373,7 @@ private fun ButtonPanel(
     )
     Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
     ConnectionButton(
-        state = state.tunnelUiState,
+        state = state.tunnelState,
         modifier =
             Modifier.padding(horizontal = Dimens.sideMargin)
                 .padding(bottom = Dimens.screenVerticalMargin)

@@ -33,12 +33,10 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
-import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
-import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.daysFromNow
 import net.mullvad.mullvadvpn.util.toInAddress
@@ -55,6 +53,7 @@ class ConnectViewModel(
     private val relayListUseCase: RelayListUseCase,
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val paymentUseCase: PaymentUseCase,
+    private val connectionProxy: ConnectionProxy,
     private val isPlayBuild: Boolean
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
@@ -79,45 +78,42 @@ class ConnectViewModel(
                 combine(
                     relayListUseCase.selectedRelayItem(),
                     inAppNotificationController.notifications,
-                    serviceConnection.connectionProxy.tunnelUiStateFlow(),
-                    serviceConnection.connectionProxy.tunnelRealStateFlow(),
-                    serviceConnection.connectionProxy.lastKnownDisconnectedLocation(),
+                    connectionProxy.tunnelState,
+                    connectionProxy.lastKnownDisconnectedLocation(),
                     accountRepository.accountExpiry,
                     deviceRepository.deviceState.map { it.deviceName() }
                 ) {
                     selectedRelayItem,
                     notifications,
-                    tunnelUiState,
-                    tunnelRealState,
+                    tunnelState,
                     lastKnownDisconnectedLocation,
                     accountExpiry,
                     deviceName ->
                     ConnectUiState(
                         location =
-                            when (tunnelRealState) {
+                            when (tunnelState) {
                                 is TunnelState.Disconnected ->
-                                    tunnelRealState.location() ?: lastKnownDisconnectedLocation
+                                    tunnelState.location() ?: lastKnownDisconnectedLocation
                                 is TunnelState.Connecting ->
-                                    tunnelRealState.location ?: selectedRelayItem?.location()
-                                is TunnelState.Connected -> tunnelRealState.location
+                                    tunnelState.location ?: selectedRelayItem?.location()
+                                is TunnelState.Connected -> tunnelState.location
                                 is TunnelState.Disconnecting -> lastKnownDisconnectedLocation
                                 is TunnelState.Error -> null
                             },
                         selectedRelayItem = selectedRelayItem,
-                        tunnelUiState = tunnelUiState,
-                        tunnelRealState = tunnelRealState,
+                        tunnelState = tunnelState,
                         inAddress =
-                            when (tunnelRealState) {
-                                is TunnelState.Connected -> tunnelRealState.endpoint.toInAddress()
-                                is TunnelState.Connecting -> tunnelRealState.endpoint?.toInAddress()
+                            when (tunnelState) {
+                                is TunnelState.Connected -> tunnelState.endpoint.toInAddress()
+                                is TunnelState.Connecting -> tunnelState.endpoint?.toInAddress()
                                 else -> null
                             },
-                        outAddress = tunnelRealState.location()?.toOutAddress() ?: "",
+                        outAddress = tunnelState.location()?.toOutAddress() ?: "",
                         showLocation =
-                            when (tunnelUiState) {
+                            when (tunnelState) {
                                 is TunnelState.Disconnected -> true
                                 is TunnelState.Disconnecting -> {
-                                    when (tunnelUiState.actionAfterDisconnect) {
+                                    when (tunnelState.actionAfterDisconnect) {
                                         ActionAfterDisconnect.Nothing -> false
                                         ActionAfterDisconnect.Block -> true
                                         ActionAfterDisconnect.Reconnect -> false
@@ -145,33 +141,27 @@ class ConnectViewModel(
         }
     }
 
-    private fun ConnectionProxy.tunnelUiStateFlow(): Flow<TunnelState> =
-        callbackFlowFromNotifier(this.onUiStateChange)
-
-    private fun ConnectionProxy.tunnelRealStateFlow(): Flow<TunnelState> =
-        callbackFlowFromNotifier(this.onStateChange)
-
     private fun ConnectionProxy.lastKnownDisconnectedLocation(): Flow<GeoIpLocation?> =
-        tunnelRealStateFlow()
+        tunnelState
             .filterIsInstance<TunnelState.Disconnected>()
             .filter { it.location != null }
             .map { it.location }
             .onStart { emit(null) }
 
     fun onDisconnectClick() {
-        serviceConnectionManager.connectionProxy()?.disconnect()
+        viewModelScope.launch { connectionProxy.disconnect() }
     }
 
     fun onReconnectClick() {
-        serviceConnectionManager.connectionProxy()?.reconnect()
+        viewModelScope.launch { connectionProxy.reconnect() }
     }
 
     fun onConnectClick() {
-        serviceConnectionManager.connectionProxy()?.connect()
+        viewModelScope.launch { connectionProxy.connect() }
     }
 
     fun onCancelClick() {
-        serviceConnectionManager.connectionProxy()?.disconnect()
+        viewModelScope.launch { connectionProxy.disconnect() }
     }
 
     fun onManageAccountClick() {
