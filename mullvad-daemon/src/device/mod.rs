@@ -1361,7 +1361,7 @@ impl TunnelStateChangeHandler {
 
     /// Check if a device check should be triggered based on the current `wireguard_retry_attempt`
     const fn should_check_device_validity_on_attempt(wireguard_retry_attempt: usize) -> bool {
-        wireguard_retry_attempt >= WG_DEVICE_CHECK_THRESHOLD - 1
+        wireguard_retry_attempt >= WG_DEVICE_CHECK_THRESHOLD
     }
 
     fn should_continue_retries(err: &Error) -> bool {
@@ -1381,11 +1381,15 @@ mod test {
 
     const TIMEOUT_ERROR: Error = Error::OtherRestError(mullvad_api::rest::Error::TimeoutError);
 
-    /// Verify that a device check is triggered 'when expected'
+    /// Verify that a device check is triggered 'when expected', i.e. when the current attempt
+    /// has reached the threshold as specified by [`WG_DEVICE_CHECK_THRESHOLD`]
     #[test]
     fn test_device_check_by_retry_attempt() {
-        const ATTEMPT: usize = WG_DEVICE_CHECK_THRESHOLD - 1;
-        assert!(TunnelStateChangeHandler::should_check_device_validity_on_attempt(ATTEMPT));
+        assert!(
+            TunnelStateChangeHandler::should_check_device_validity_on_attempt(
+                WG_DEVICE_CHECK_THRESHOLD
+            )
+        );
     }
 
     /// Starting a new connection loop should resume device validity checks
@@ -1405,15 +1409,18 @@ mod test {
     /// Retries should stop when a device check succeeds
     #[test]
     fn test_device_check_on_success() {
-        const ATTEMPT: usize = WG_DEVICE_CHECK_THRESHOLD - 1;
         let can_retry = Arc::new(AtomicBool::new(true));
 
-        let did_run =
-            TunnelStateChangeHandler::should_check_device_validity(ATTEMPT, can_retry.clone());
+        let did_run = TunnelStateChangeHandler::should_check_device_validity(
+            WG_DEVICE_CHECK_THRESHOLD,
+            can_retry.clone(),
+        );
         assert!(did_run, "expected device check to run");
 
-        let did_run =
-            TunnelStateChangeHandler::should_check_device_validity(ATTEMPT, can_retry.clone());
+        let did_run = TunnelStateChangeHandler::should_check_device_validity(
+            WG_DEVICE_CHECK_THRESHOLD,
+            can_retry.clone(),
+        );
         assert!(
             !did_run,
             "expected device check to give up after successful check"
