@@ -32,6 +32,9 @@ pub enum Error {
     /// eslogger failed
     #[error("eslogger returned an error")]
     MonitorFailed(#[source] io::Error),
+    /// Monitor task panicked
+    #[error("Monitor task panicked")]
+    MonitorTaskPanicked(#[source] tokio::task::JoinError),
     /// Failed to list processes
     #[error("Failed to list processes")]
     InitializePids(#[source] io::Error),
@@ -45,6 +48,7 @@ pub struct ProcessMonitor(());
 #[derive(Debug)]
 pub struct ProcessMonitorHandle {
     stop_proc_tx: Option<oneshot::Sender<oneshot::Sender<()>>>,
+    proc_task: tokio::task::JoinHandle<Result<(), Error>>,
     states: ProcessStates,
 }
 
@@ -68,7 +72,7 @@ impl ProcessMonitor {
         let (stop_proc_tx, stop_rx): (_, oneshot::Receiver<oneshot::Sender<_>>) =
             oneshot::channel();
 
-        let task = tokio::spawn(async move {
+        let mut proc_task = tokio::spawn(async move {
             tokio::spawn(async move {
                 let reader = BufReader::new(stdout);
                 let mut lines = reader.lines();
@@ -119,7 +123,7 @@ impl ProcessMonitor {
             result
         });
 
-        match tokio::time::timeout(EARLY_FAIL_TIMEOUT, task).await {
+        match tokio::time::timeout(EARLY_FAIL_TIMEOUT, &mut proc_task).await {
             // On timeout, all is well
             Err(_) => (),
             // The process returned an error
@@ -130,6 +134,7 @@ impl ProcessMonitor {
 
         Ok(ProcessMonitorHandle {
             stop_proc_tx: Some(stop_proc_tx),
+            proc_task,
             states,
         })
     }
@@ -144,6 +149,12 @@ impl ProcessMonitorHandle {
         let (tx, rx) = oneshot::channel();
         let _ = stop_tx.send(tx);
         let _ = rx.await;
+    }
+
+    pub async fn wait(&mut self) -> Result<(), Error> {
+        (&mut self.proc_task)
+            .await
+            .map_err(Error::MonitorTaskPanicked)?
     }
 
     pub fn states(&self) -> &ProcessStates {
