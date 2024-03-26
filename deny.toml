@@ -1,22 +1,28 @@
+[graph]
+# cargo deny will only evaluate dependencies pulled in by these
+# targets (the ones we ship Rust code to)
 targets = [
+    # Desktop
     { triple = "x86_64-unknown-linux-gnu" },
     { triple = "x86_64-pc-windows-gnu" },
     { triple = "x86_64-apple-darwin" },
-    { triple = "aarch64-apple-darwin" }
+    { triple = "aarch64-apple-darwin" },
+    # Android
+    { triple = "x86_64-linux-android" },
+    { triple = "i686-linux-android" },
+    { triple = "aarch64-linux-android" },
+    { triple = "armv7-linux-androideabi" },
+    # iOS
+    { triple = "x86_64-apple-ios" },
+    { triple = "aarch64-apple-ios" },
 ]
 
 # This section is considered when running `cargo deny check advisories`
 # More documentation for the advisories section can be found here:
 # https://embarkstudios.github.io/cargo-deny/checks/advisories/cfg.html
 [advisories]
-db-path = "~/.cargo/advisory-db"
-db-urls = ["https://github.com/rustsec/advisory-db"]
-
-vulnerability = "deny"
-unmaintained = "warn"
+version = 2 # https://github.com/EmbarkStudios/cargo-deny/pull/611
 yanked = "deny"
-notice = "deny"
-
 ignore = [
     # Ignored audit issues. This list should be kept short, and effort should be
     # put into removing items from the list.
@@ -24,22 +30,19 @@ ignore = [
     "RUSTSEC-2023-0079"
 ]
 
-#severity-threshold =
-
 
 # This section is considered when running `cargo deny check licenses`
 # More documentation for the licenses section can be found here:
 # https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html
 [licenses]
-# The lint level for crates which do not have a detectable license
-unlicensed = "deny"
+version = 2 # https://github.com/EmbarkStudios/cargo-deny/pull/611
 
-# Adding a license here has to be done carefully. Should not be changed
-# by individual developers.
+# Adding a license here has to be done carefully. Should only be done by team leads.
 allow = [
     "GPL-3.0",
     "Apache-2.0",
     "MIT",
+    "MPL-2.0",
     "WTFPL",
     "ISC",
     "BSD-3-Clause",
@@ -50,15 +53,6 @@ allow = [
     "Unicode-DFS-2016"
 ]
 
-deny = []
-
-copyleft = "allow"
-allow-osi-fsf-free = "neither"
-default = "deny"
-confidence-threshold = 0.8
-
-exceptions = []
-
 [[licenses.clarify]]
 name = "ring"
 expression = "LicenseRef-ring"
@@ -68,7 +62,6 @@ license-files = [
 
 [licenses.private]
 ignore = false
-registries = []
 
 
 # This section is considered when running `cargo deny check bans`.
@@ -79,7 +72,6 @@ multiple-versions = "warn"
 wildcards = "warn"
 highlight = "all"
 
-allow = []
 deny = [
     # We are using Rustls for TLS. We don't want to accidentally pull in
     # anything OpenSSL related
@@ -88,12 +80,8 @@ deny = [
     { name = "openssl-probe" },
     { name = "clap", version = "2" },
     { name = "clap", version = "3" },
-    # `atty` is an unmaintained crate with a CVE: RUSTSEC-2021-0145
-    { name = "atty" },
     { name = "time", version = "0.1"},
 ]
-skip = []
-skip-tree = []
 
 
 # This section is considered when running `cargo deny check sources`.
@@ -102,7 +90,6 @@ skip-tree = []
 [sources]
 unknown-registry = "deny"
 unknown-git = "deny"
-allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 
 # We should never depend on git repositories outside our own github organization.
 # We can't say anything about their availability. They might go away at any point
