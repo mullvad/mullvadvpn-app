@@ -39,7 +39,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
                 for: indexPath
                 // swiftlint:disable:next force_cast
             ) as! LocationCell
-            cell.configureCell(item: itemIdentifier)
+            cell.configure(item: itemIdentifier, behavior: .select)
             return cell
         }
 
@@ -307,7 +307,11 @@ extension LocationDataSource: UITableViewDelegate {
 }
 
 extension LocationDataSource: LocationCellDelegate {
-    func toggle(cell: LocationCell) {
+    func toggleSelection(cell: LocationCell) {
+        print("Just put a print statement // Marco")
+    }
+
+    func toggleExpanding(cell: LocationCell) {
         guard let indexPath = tableView.indexPath(for: cell),
               let item = itemIdentifier(for: indexPath) else { return }
 
@@ -321,7 +325,7 @@ extension LocationDataSource: LocationCellDelegate {
         if !isExpanded {
             locationList.addSubNodes(from: item, at: indexPath)
         } else {
-            locationList.recursivelyRemoveSubNodes(from: item.node)
+            locationList.removeSubNodes(from: item.node)
         }
 
         let list = sections.enumerated().map { index, section in
@@ -366,32 +370,6 @@ extension LocationDataSource {
     private func scrollToSelectedRelay() {
         indexPathForSelectedRelay().flatMap {
             tableView.scrollToRow(at: $0, at: .middle, animated: false)
-        }
-    }
-}
-
-private extension [LocationCellViewModel] {
-    mutating func addSubNodes(from item: LocationCellViewModel, at indexPath: IndexPath) {
-        let section = LocationSection.allCases[indexPath.section]
-        let row = indexPath.row + 1
-
-        let locations = item.node.children.map {
-            LocationCellViewModel(section: section, node: $0, indentationLevel: item.indentationLevel + 1)
-        }
-
-        if row < count {
-            insert(contentsOf: locations, at: row)
-        } else {
-            append(contentsOf: locations)
-        }
-    }
-
-    mutating func recursivelyRemoveSubNodes(from node: LocationNode) {
-        for node in node.children {
-            node.showsChildren = false
-            removeAll(where: { node == $0.node })
-
-            recursivelyRemoveSubNodes(from: node)
         }
     }
 }
