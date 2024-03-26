@@ -14,12 +14,13 @@ import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class TunnelStateNotificationUseCase(
     private val serviceConnectionManager: ServiceConnectionManager,
+    private val connectionProxy: ConnectionProxy
 ) {
     fun notifications(): Flow<List<InAppNotification>> =
         serviceConnectionManager.connectionState
             .flatMapReadyConnectionOrDefault(flowOf(emptyList())) {
-                it.container.connectionProxy
-                    .tunnelUiStateFlow()
+                connectionProxy
+                    .tunnelState
                     .distinctUntilChanged()
                     .map(::tunnelStateNotification)
                     .map(::listOfNotNull)
@@ -41,7 +42,4 @@ class TunnelStateNotificationUseCase(
             is TunnelState.Connected,
             is TunnelState.Disconnected -> null
         }
-
-    private fun ConnectionProxy.tunnelUiStateFlow(): Flow<TunnelState> =
-        callbackFlowFromNotifier(this.onUiStateChange)
 }

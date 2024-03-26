@@ -6,9 +6,6 @@ fun ServiceConnectionManager.appVersionInfoCache() =
 fun ServiceConnectionManager.authTokenCache() =
     this.connectionState.value.readyContainer()?.authTokenCache
 
-fun ServiceConnectionManager.connectionProxy() =
-    this.connectionState.value.readyContainer()?.connectionProxy
-
 fun ServiceConnectionManager.deviceDataSource() =
     this.connectionState.value.readyContainer()?.deviceDataSource
 

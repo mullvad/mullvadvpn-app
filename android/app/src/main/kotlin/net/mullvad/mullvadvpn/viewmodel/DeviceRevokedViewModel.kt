@@ -15,8 +15,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.repository.AccountRepository
+import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.talpid.util.callbackFlowFromSubscription
 
 // TODO: Refactor ConnectionProxy to be easily injectable rather than injecting
@@ -24,14 +24,15 @@ import net.mullvad.talpid.util.callbackFlowFromSubscription
 class DeviceRevokedViewModel(
     private val serviceConnectionManager: ServiceConnectionManager,
     private val accountRepository: AccountRepository,
+    private val connectionProxy: ConnectionProxy,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
     val uiState =
         serviceConnectionManager.connectionState
-            .map { connectionState -> connectionState.readyContainer()?.connectionProxy }
+            .map { connectionState -> connectionProxy }
             .flatMapLatest { proxy ->
-                proxy?.onUiStateChange?.callbackFlowFromSubscription(this)?.map {
+                proxy.tunnelState.map {
                     if (it.isSecured()) {
                         DeviceRevokedUiState.SECURED
                     } else {
@@ -49,12 +50,16 @@ class DeviceRevokedViewModel(
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     fun onGoToLoginClicked() {
-        serviceConnectionManager.connectionProxy()?.let { proxy ->
+        /*serviceConnectionManager.connectionProxy()?.let { proxy ->
             if (proxy.state.isSecured()) {
                 proxy.disconnect()
             }
+        }*/
+
+        viewModelScope.launch {
+            connectionProxy.disconnect()
+            accountRepository.logout()
         }
-        viewModelScope.launch { accountRepository.logout() }
 
         viewModelScope.launch { _uiSideEffect.send(DeviceRevokedSideEffect.NavigateToLogin) }
     }

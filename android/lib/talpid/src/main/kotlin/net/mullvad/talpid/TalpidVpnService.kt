@@ -2,6 +2,7 @@ package net.mullvad.talpid
 
 import android.net.VpnService
 import android.os.ParcelFileDescriptor
+import android.util.Log
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
@@ -43,6 +44,7 @@ open class TalpidVpnService : VpnService() {
     }
 
     fun getTun(config: TunConfig): CreateTunResult {
+        Log.d("LOLZ", "createTun $config")
         synchronized(this) {
             val tunStatus = activeTunStatus
 
@@ -61,10 +63,12 @@ open class TalpidVpnService : VpnService() {
     }
 
     fun createTun() {
+        Log.d("LOLZ", "createTun")
         synchronized(this) { activeTunStatus = createTun(currentTunConfig) }
     }
 
     fun recreateTunIfOpen(config: TunConfig) {
+        Log.d("LOLZ", "recreateTunIfOpen $config")
         synchronized(this) {
             if (tunIsOpen) {
                 currentTunConfig = config
@@ -74,6 +78,7 @@ open class TalpidVpnService : VpnService() {
     }
 
     fun closeTun() {
+        Log.d("LOLZ", "closeTun")
         synchronized(this) { activeTunStatus = null }
     }
 
