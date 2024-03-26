@@ -64,7 +64,7 @@ class MullvadDaemon(
             apiEndpoint = apiEndpointConfiguration.apiEndpoint()
         )
 
-        onSettingsChange.notify(getSettings())
+        //onSettingsChange.notify(getSettings())
 
         onTunnelStateChange.notify(getState() ?: TunnelState.Disconnected())
     }
