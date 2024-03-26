@@ -3,15 +3,19 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import { messages } from '../../../shared/gettext';
+import { useSelector } from '../../redux/store';
 import * as Cell from '../cell';
+import ImageView from '../ImageView';
 import InfoButton from '../InfoButton';
+import RelayStatusIndicator from '../RelayStatusIndicator';
 import {
   getButtonColor,
+  StyledHoverInfoButton,
   StyledLocationRowButton,
-  StyledLocationRowContainer,
+  StyledLocationRowContainerWithMargin,
   StyledLocationRowIcon,
   StyledLocationRowLabel,
-} from './LocationRow';
+} from './LocationRowButton';
 import { SpecialBridgeLocationType, SpecialLocation } from './select-location-types';
 
 interface SpecialLocationsProps<T> {
@@ -30,21 +34,19 @@ export default function SpecialLocationList<T>({ source, ...props }: SpecialLoca
   );
 }
 
-const StyledLocationRowContainerWithMargin = styled(StyledLocationRowContainer)({
-  marginBottom: 1,
-});
-
 const StyledSpecialLocationIcon = styled(Cell.Icon)({
   flex: 0,
   marginLeft: '2px',
   marginRight: '8px',
 });
 
-const StyledSpecialLocationInfoButton = styled(InfoButton)({
+const sideButton: React.CSSProperties = {
   margin: 0,
   padding: '0 25px',
-  backgroundColor: colors.blue,
-});
+};
+
+const StyledSpecialLocationInfoButton = styled(InfoButton)({ ...sideButton });
+const StyledSpecialLocationSideButton = styled(ImageView)({ ...sideButton });
 
 interface SpecialLocationRowProps<T> {
   source: SpecialLocation<T>;
@@ -80,18 +82,12 @@ export function AutomaticLocationRow(
   return (
     <StyledLocationRowContainerWithMargin ref={selectedRef}>
       <StyledLocationRowButton onClick={props.onSelect} $level={0} {...background}>
-        {icon && (
-          <StyledSpecialLocationIcon
-            source={icon}
-            tintColor={colors.white}
-            height={22}
-            width={22}
-          />
-        )}
+        <StyledSpecialLocationIcon source={icon} tintColor={colors.white} height={22} width={22} />
         <StyledLocationRowLabel>{props.source.label}</StyledLocationRowLabel>
       </StyledLocationRowButton>
       <StyledLocationRowIcon
         as={StyledSpecialLocationInfoButton}
+        title={messages.gettext('Automatic')}
         message={messages.pgettext(
           'select-location-view',
           'The app selects a random bridge server, but servers have a higher probability the closer they are to you.',
@@ -118,13 +114,38 @@ export function CustomExitLocationRow(props: SpecialLocationRowInnerProps<undefi
 export function CustomBridgeLocationRow(
   props: SpecialLocationRowInnerProps<SpecialBridgeLocationType>,
 ) {
+  const relaySettings = useSelector((state) => state.settings.relaySettings);
+  const bridgeConfigured =
+    'customTunnelEndpoint' in relaySettings && relaySettings.customTunnelEndpoint !== undefined;
+  const icon = bridgeConfigured ? 'icon-edit' : 'icon-add';
+
   const selectedRef = props.source.selected ? props.selectedElementRef : undefined;
   const background = getButtonColor(props.source.selected, 0, props.source.disabled);
   return (
     <StyledLocationRowContainerWithMargin ref={selectedRef}>
-      <StyledLocationRowButton $level={0} {...background}>
+      <StyledLocationRowButton
+        as="button"
+        $level={0}
+        disabled={props.source.disabled}
+        {...background}>
+        <RelayStatusIndicator active selected={props.source.selected} />
         <StyledLocationRowLabel>{props.source.label}</StyledLocationRowLabel>
       </StyledLocationRowButton>
+      <StyledHoverInfoButton
+        {...background}
+        $isLast
+        title={messages.pgettext('select-location-view', 'Custom bridge')}
+        message={messages.pgettext(
+          'select-location-view',
+          'A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work.',
+        )}
+      />
+      <StyledLocationRowIcon
+        as={StyledSpecialLocationSideButton}
+        {...background}
+        source={icon}
+        width={18}
+      />
     </StyledLocationRowContainerWithMargin>
   );
 }

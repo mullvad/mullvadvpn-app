@@ -266,17 +266,15 @@ function SelectLocationContent() {
 
   if (locationType === LocationType.exit) {
     // Add "Custom" item if a custom relay is selected
-    const specialList: Array<SpecialLocation<undefined>> =
-      relaySettings === undefined
-        ? [
-            {
-              label: messages.gettext('Custom'),
-              value: undefined,
-              selected: true,
-              component: CustomExitLocationRow,
-            },
-          ]
-        : [];
+    const specialList: Array<SpecialLocation<undefined>> = [];
+    if (relaySettings === undefined) {
+      specialList.push({
+        label: messages.gettext('Custom'),
+        value: undefined,
+        selected: true,
+        component: CustomExitLocationRow,
+      });
+    }
 
     const specialLocations = filterSpecialLocations(searchTerm, specialList);
     return (

@@ -12,7 +12,7 @@ import * as Cell from '../cell';
 import { measurements } from '../common-styles';
 import { BackAction } from '../KeyboardNavigation';
 import SimpleInput from '../SimpleInput';
-import { StyledLocationRowIcon } from './LocationRow';
+import { StyledLocationRowIcon } from './LocationRowButton';
 import { useRelayListContext } from './RelayListContext';
 import RelayLocationList from './RelayLocationList';
 import { useScrollPositionContext } from './ScrollPositionContext';

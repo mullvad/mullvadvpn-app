@@ -1,8 +1,6 @@
 import React, { useCallback, useRef } from 'react';
 import { sprintf } from 'sprintf-js';
-import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
 import {
   compareRelayLocation,
   compareRelayLocationGeographical,
@@ -16,10 +14,17 @@ import { useSelector } from '../../redux/store';
 import Accordion from '../Accordion';
 import * as Cell from '../cell';
 import ChevronButton from '../ChevronButton';
-import { measurements, normalText } from '../common-styles';
-import ImageView from '../ImageView';
 import RelayStatusIndicator from '../RelayStatusIndicator';
 import { AddToListDialog, DeleteConfirmDialog, EditListDialog } from './CustomListDialogs';
+import {
+  getButtonColor,
+  StyledHoverIcon,
+  StyledHoverIconButton,
+  StyledLocationRowButton,
+  StyledLocationRowContainer,
+  StyledLocationRowIcon,
+  StyledLocationRowLabel,
+} from './LocationRowButton';
 import {
   CitySpecification,
   CountrySpecification,
@@ -27,110 +32,6 @@ import {
   LocationSpecification,
   RelaySpecification,
 } from './select-location-types';
-
-interface IButtonColorProps {
-  $backgroundColor: string;
-  $backgroundColorHover: string;
-}
-
-const buttonColor = (props: IButtonColorProps) => {
-  return {
-    backgroundColor: props.$backgroundColor,
-    '&&:not(:disabled):hover': {
-      backgroundColor: props.$backgroundColorHover,
-    },
-  };
-};
-
-export const StyledLocationRowContainer = styled(Cell.Container)({
-  display: 'flex',
-  padding: 0,
-  background: 'none',
-});
-
-export const StyledLocationRowButton = styled(Cell.Row)<IButtonColorProps & { $level: number }>(
-  buttonColor,
-  (props) => {
-    const paddingLeft = (props.$level + 1) * 16 + 2;
-
-    return {
-      display: 'flex',
-      flex: 1,
-      overflow: 'hidden',
-      border: 'none',
-      padding: `0 10px 0 ${paddingLeft}px`,
-      margin: 0,
-    };
-  },
-);
-
-export const StyledLocationRowIcon = styled.button<IButtonColorProps>(buttonColor, {
-  position: 'relative',
-  alignSelf: 'stretch',
-  paddingLeft: measurements.viewMargin,
-  paddingRight: measurements.viewMargin,
-
-  '&&::before': {
-    content: '""',
-    position: 'absolute',
-    margin: 'auto',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    height: '50%',
-    width: '1px',
-    backgroundColor: colors.darkBlue,
-  },
-});
-
-export const StyledLocationRowLabel = styled(Cell.Label)(normalText, {
-  flex: 1,
-  minWidth: 0,
-  fontWeight: 400,
-  lineHeight: '24px',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-});
-
-const StyledHoverIconButton = styled.button<IButtonColorProps & { $isLast?: boolean }>(
-  buttonColor,
-  (props) => ({
-    flex: 0,
-    display: 'none',
-    padding: '0 10px',
-    paddingRight: props.$isLast ? '17px' : '10px',
-    margin: 0,
-    border: 0,
-    height: measurements.rowMinHeight,
-    appearance: 'none',
-
-    '&&:last-child': {
-      paddingRight: '25px',
-    },
-
-    '&&:not(:disabled):hover': {
-      backgroundColor: props.$backgroundColor,
-    },
-    [`${StyledLocationRowContainer}:hover &&`]: {
-      display: 'block',
-    },
-    [`${StyledLocationRowButton}:hover ~ &&`]: {
-      backgroundColor: props.$backgroundColorHover,
-    },
-  }),
-);
-
-const StyledHoverIcon = styled(ImageView).attrs({
-  width: 18,
-  height: 18,
-  tintColor: colors.white60,
-  tintHoverColor: colors.white,
-})({
-  [`${StyledHoverIconButton}:hover &&`]: {
-    backgroundColor: colors.white,
-  },
-});
 
 interface IProps<C extends LocationSpecification> {
   source: C;
@@ -335,24 +236,6 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
 // This is to avoid unnecessary rerenders since most of the subtree is hidden and would result in
 // a lot more work than necessary
 export default React.memo(LocationRow, compareProps);
-
-export function getButtonColor(selected: boolean, level: number, disabled?: boolean) {
-  let backgroundColor = colors.blue60;
-  if (selected) {
-    backgroundColor = colors.green;
-  } else if (level === 1) {
-    backgroundColor = colors.blue40;
-  } else if (level === 2) {
-    backgroundColor = colors.blue20;
-  } else if (level === 3) {
-    backgroundColor = colors.blue10;
-  }
-
-  return {
-    $backgroundColor: backgroundColor,
-    $backgroundColorHover: selected || disabled ? backgroundColor : colors.blue80,
-  };
-}
 
 function compareProps<C extends LocationSpecification>(
   oldProps: IProps<C>,
