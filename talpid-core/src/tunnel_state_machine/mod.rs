@@ -293,7 +293,7 @@ impl TunnelStateMachine {
         .map_err(Error::InitSplitTunneling)?;
 
         #[cfg(target_os = "macos")]
-        let mut split_tunnel = split_tunnel::Handle::new(route_manager.clone()).await;
+        let split_tunnel = split_tunnel::SplitTunnel::spawn(route_manager.clone()).await;
 
         let fw_args = FirewallArguments {
             initial_state: if args.settings.block_when_disconnected || !args.settings.reset_firewall
@@ -429,6 +429,7 @@ impl TunnelStateMachine {
 
         log::debug!("Tunnel state machine exited");
 
+        runtime.block_on(self.shared_values.split_tunnel.shutdown());
         runtime.block_on(self.shared_values.route_manager.stop());
     }
 }
@@ -491,21 +492,21 @@ impl SharedTunnelStateValues {
     /// Return whether an split tunnel interface was created
     #[cfg(target_os = "macos")]
     pub fn set_exclude_paths(&mut self, paths: Vec<OsString>) -> Result<bool, split_tunnel::Error> {
-        let had_interface = self.split_tunnel.interface().is_some();
-        self.runtime
-            .block_on(
-                self.split_tunnel
-                    .set_exclude_paths(paths.into_iter().map(PathBuf::from).collect()),
-            )
-            .map_err(|error| {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to set split tunnel paths")
-                );
-                error
-            })?;
-        let has_interface = self.split_tunnel.interface().is_some();
-        Ok(!had_interface && has_interface)
+        self.runtime.block_on(async {
+            let had_interface = self.split_tunnel.interface().await.is_some();
+            self.split_tunnel
+                .set_exclude_paths(paths.into_iter().map(PathBuf::from).collect())
+                .await
+                .map_err(|error| {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to set split tunnel paths")
+                    );
+                    error
+                })?;
+            let has_interface = self.split_tunnel.interface().await.is_some();
+            Ok(!had_interface && has_interface)
+        })
     }
 
     #[cfg(target_os = "macos")]
