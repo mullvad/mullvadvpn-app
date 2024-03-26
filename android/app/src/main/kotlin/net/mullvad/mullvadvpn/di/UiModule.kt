@@ -24,6 +24,7 @@ import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.ProblemReportRepository
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
@@ -118,7 +119,7 @@ val uiModule = module {
     single { CustomListsRepository(get(), get(), get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
-    single { TunnelStateNotificationUseCase(get()) }
+    single { TunnelStateNotificationUseCase(get(), get()) }
     single { VersionNotificationUseCase(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS) }
     single { NewDeviceNotificationUseCase(get()) }
     single { PortRangeUseCase(get()) }
@@ -150,31 +151,46 @@ val uiModule = module {
 
     single { ProblemReportRepository() }
 
+    single { ConnectionProxy(get()) }
+
     // View models
     viewModel { AccountViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
     viewModel {
-        ConnectViewModel(get(), get(), get(), get(), get(), get(), get(), get(), IS_PLAY_BUILD)
+        ConnectViewModel(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            IS_PLAY_BUILD
+        )
     }
     viewModel { DeviceListViewModel(get(), get()) }
-    viewModel { DeviceRevokedViewModel(get(), get()) }
+    viewModel { DeviceRevokedViewModel(get(), get(), get()) }
     viewModel { MtuDialogViewModel(get()) }
     viewModel { parameters ->
         DnsDialogViewModel(get(), get(), parameters.getOrNull(), parameters.getOrNull())
     }
     viewModel { LoginViewModel(get(), get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
-    viewModel { SelectLocationViewModel(get(), get(), get(), get()) }
+    viewModel { SelectLocationViewModel(get(), get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
-    viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
+    viewModel { WelcomeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
-    viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
+    viewModel {
+        OutOfTimeViewModel(get(), get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD)
+    }
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get()) }
     viewModel { parameters -> CreateCustomListDialogViewModel(parameters.get(), get()) }
