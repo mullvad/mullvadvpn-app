@@ -276,17 +276,15 @@ extension PacketTunnelProvider {
             .initial,
             .new,
         ]) { [weak self] observedConnection, _ in
-            guard let self else { return }
-            if observedConnection.isViable == true {
-                keyNegotiatior.negotiateKey(
-                    gatewayIP: IPv4Gateway,
-                    devicePublicKey: privateKey.publicKey,
-                    presharedKey: postQuantumSharedKey.publicKey,
-                    packetTunnel: self,
-                    tcpConnection: tcpConnection
-                )
-                self.tcpConnectionObserver.invalidate()
-            }
+            guard let self, observedConnection.isViable else { return }
+            keyNegotiatior.negotiateKey(
+                gatewayIP: IPv4Gateway,
+                devicePublicKey: privateKey.publicKey,
+                presharedKey: postQuantumSharedKey.publicKey,
+                packetTunnel: self,
+                tcpConnection: tcpConnection
+            )
+            self.tcpConnectionObserver.invalidate()
         }
 
         inTunnelTCPConnection = tcpConnection
