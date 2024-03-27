@@ -165,8 +165,6 @@ pub async fn create_split_tunnel(
     let tun_name = tun_device.get_ref().name().to_owned();
 
     // Add IPv6 address
-    // TODO: Only add IPv6 address if there's either a tun or a non-tun IPv6 route
-    // FIXME: Solve cleanly rather than using subcmd
     let output = tokio::process::Command::new("ifconfig")
         .args([&tun_name, "inet6", &ST_IFACE_IPV6.to_string(), "alias"])
         .output()
