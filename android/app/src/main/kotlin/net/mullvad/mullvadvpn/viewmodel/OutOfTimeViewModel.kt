@@ -4,13 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -18,21 +14,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
-import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.util.toPaymentState
 
 class OutOfTimeViewModel(
     private val accountRepository: AccountRepository,
-    private val serviceConnectionManager: ServiceConnectionManager,
     private val deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentUseCase,
     private val outOfTimeUseCase: OutOfTimeUseCase,
@@ -45,27 +35,17 @@ class OutOfTimeViewModel(
     val uiSideEffect = merge(_uiSideEffect.receiveAsFlow(), notOutOfTimeEffect())
 
     val uiState =
-        serviceConnectionManager.connectionState
-            .flatMapLatest { state ->
-                if (state is ServiceConnectionState.ConnectedReady) {
-                    flowOf(state.container)
-                } else {
-                    emptyFlow()
-                }
-            }
-            .flatMapLatest { serviceConnection ->
-                combine(
-                    connectionProxy.tunnelState,
-                    deviceRepository.deviceState,
-                    paymentUseCase.paymentAvailability,
-                ) { tunnelState, deviceState, paymentAvailability ->
-                    OutOfTimeUiState(
-                        tunnelState = tunnelState,
-                        deviceName = deviceState.deviceName() ?: "",
-                        showSitePayment = !isPlayBuild,
-                        billingPaymentState = paymentAvailability?.toPaymentState(),
-                    )
-                }
+        combine(
+                connectionProxy.tunnelState,
+                deviceRepository.deviceState,
+                paymentUseCase.paymentAvailability,
+            ) { tunnelState, deviceState, paymentAvailability ->
+                OutOfTimeUiState(
+                    tunnelState = tunnelState,
+                    deviceName = deviceState.deviceName() ?: "",
+                    showSitePayment = !isPlayBuild,
+                    billingPaymentState = paymentAvailability?.toPaymentState(),
+                )
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), OutOfTimeUiState())
 
@@ -84,7 +64,7 @@ class OutOfTimeViewModel(
         viewModelScope.launch {
             _uiSideEffect.send(
                 UiSideEffect.OpenAccountView(
-                    serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
+                    TODO() // serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
                 )
             )
         }

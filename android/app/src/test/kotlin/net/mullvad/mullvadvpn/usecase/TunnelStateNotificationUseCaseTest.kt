@@ -32,7 +32,7 @@ class TunnelStateNotificationUseCaseTest {
     private val mockConnectionProxy: ConnectionProxy = mockk()
 
     private val serviceConnectionState =
-        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
+        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
     private lateinit var tunnelStateNotificationUseCase: TunnelStateNotificationUseCase
 
     private val eventNotifierTunnelUiState = EventNotifier<TunnelState>(TunnelState.Disconnected())

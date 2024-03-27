@@ -3,53 +3,46 @@ package net.mullvad.mullvadvpn.repository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withTimeoutOrNull
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.model.DeviceList
 import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.ui.serviceconnection.deviceDataSource
 
 class DeviceRepository(
-    private val serviceConnectionManager: ServiceConnectionManager,
+    private val managementService: ManagementService,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     private val cachedDeviceList = MutableStateFlow<DeviceList>(DeviceList.Unavailable)
 
-    val deviceState =
-        serviceConnectionManager.connectionState
-            .flatMapLatest { state ->
-                if (state is ServiceConnectionState.ConnectedReady) {
-                    state.container.deviceDataSource.deviceStateUpdates
-                } else {
-                    flowOf(DeviceState.Unknown)
-                }
-            }
-            .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, DeviceState.Initial)
+    val deviceState: StateFlow<DeviceState> =
+        managementService.deviceState.stateIn(
+            CoroutineScope(dispatcher),
+            SharingStarted.Eagerly,
+            DeviceState.Initial
+        )
 
-    private val deviceListEvents =
-        serviceConnectionManager.connectionState.flatMapLatest { state ->
-            if (state is ServiceConnectionState.ConnectedReady) {
-                state.container.deviceDataSource.deviceListUpdates
-            } else {
-                emptyFlow()
-            }
-        }
+    private val deviceListEvents: Flow<DeviceListEvent> by lazy { TODO() }
+    //        serviceConnectionManager.connectionState.flatMapLatest { state ->
+    //            if (state is ServiceConnectionState.ConnectedReady) {
+    //                state.container.deviceDataSource.deviceListUpdates
+    //            } else {
+    //                emptyFlow()
+    //            }
+    //        }
 
-    val deviceList =
+    val deviceList by lazy {
         deviceListEvents
             .map {
                 if (it is DeviceListEvent.Available) {
@@ -65,28 +58,29 @@ class DeviceRepository(
                 }
             }
             .shareIn(CoroutineScope(Dispatchers.IO), SharingStarted.WhileSubscribed())
+    }
 
-    val deviceRemovalEvent: SharedFlow<Event.DeviceRemovalEvent> =
-        serviceConnectionManager.connectionState
-            .flatMapLatest { state ->
-                if (state is ServiceConnectionState.ConnectedReady) {
-                    state.container.deviceDataSource.deviceRemovalResult
-                } else {
-                    emptyFlow()
-                }
-            }
-            .shareIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed())
+    val deviceRemovalEvent: SharedFlow<Event.DeviceRemovalEvent> by lazy { TODO() }
+    //        serviceConnectionManager.connectionState
+    //            .flatMapLatest { state ->
+    //                if (state is ServiceConnectionState.ConnectedReady) {
+    //                    state.container.deviceDataSource.deviceRemovalResult
+    //                } else {
+    //                    emptyFlow()
+    //                }
+    //            }
+    //            .shareIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed())
 
     fun refreshDeviceState() {
-        serviceConnectionManager.deviceDataSource()?.refreshDevice()
+        //        serviceConnectionManager.deviceDataSource()?.refreshDevice()
     }
 
     fun removeDevice(accountToken: String, deviceId: String) {
-        serviceConnectionManager.deviceDataSource()?.removeDevice(accountToken, deviceId)
+        //        serviceConnectionManager.deviceDataSource()?.removeDevice(accountToken, deviceId)
     }
 
     fun refreshDeviceList(accountToken: String) {
-        serviceConnectionManager.deviceDataSource()?.refreshDeviceList(accountToken)
+        //        serviceConnectionManager.deviceDataSource()?.refreshDeviceList(accountToken)
     }
 
     fun clearCache() {
