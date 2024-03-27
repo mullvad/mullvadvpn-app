@@ -9,8 +9,8 @@
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
-@testable import MullvadVPN
 import Operations
+@testable import PacketTunnel
 import PacketTunnelCore
 import WireGuardKitTypes
 import XCTest

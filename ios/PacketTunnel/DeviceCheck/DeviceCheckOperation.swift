@@ -11,7 +11,6 @@ import MullvadLogging
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
-@testable import MullvadVPN
 import Operations
 import PacketTunnelCore
 import WireGuardKitTypes
