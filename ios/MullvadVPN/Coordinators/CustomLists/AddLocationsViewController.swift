@@ -28,26 +28,7 @@ class AddLocationsViewController: UIViewController {
         tableView.rowHeight = 56
         tableView.indicatorStyle = .white
         tableView.accessibilityIdentifier = .addLocationsView
-        tableView.allowsMultipleSelection = true
-        tableView.tableHeaderView = nil
-        tableView.sectionHeaderHeight = .zero
         return tableView
-    }()
-
-    private lazy var backBarButton: UIBarButtonItem = {
-        let backBarButton = UIBarButtonItem(
-            primaryAction: UIAction(
-                image: UIImage(resource: .iconBack),
-                handler: { [weak self] _ in
-                    guard let self else { return }
-                    delegate?.didBack()
-                    navigationController?.popViewController(animated: true)
-                }
-            )
-        )
-        backBarButton.style = .done
-
-        return backBarButton
     }()
 
     init(
@@ -67,9 +48,16 @@ class AddLocationsViewController: UIViewController {
         super.viewDidLoad()
         tableView.backgroundColor = view.backgroundColor
         view.backgroundColor = .secondaryColor
-        navigationItem.leftBarButtonItem = backBarButton
         addConstraints()
         setUpDataSource()
+    }
+
+    override func didMove(toParent parent: UIViewController?) {
+        super.didMove(toParent: parent)
+
+        if parent == nil {
+            delegate?.didBack()
+        }
     }
 
     private func addConstraints() {
@@ -81,7 +69,7 @@ class AddLocationsViewController: UIViewController {
     private func setUpDataSource() {
         dataSource = AddLocationsDataSource(
             tableView: tableView,
-            allLocations: nodes.copy(),
+            allLocationNodes: nodes.copy(),
             customList: customList
         )
 

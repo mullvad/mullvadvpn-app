@@ -16,7 +16,7 @@ class InMemoryCustomListRepository: CustomListRepositoryProtocol {
         CustomList(
             id: UUID(uuidString: "F17948CB-18E2-4F84-82CD-5780F94216DB")!,
             name: "Netflix",
-            locations: [.city("al", "tia")]
+            locations: [.hostname("al", "tia", "al-tia-wg-001")]
         ),
         CustomList(
             id: UUID(uuidString: "4104C603-B35D-4A64-8865-96C0BF33D57F")!,
