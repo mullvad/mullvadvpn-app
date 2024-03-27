@@ -2,7 +2,7 @@ use futures::channel::oneshot;
 use hyper::{Client, Uri};
 use once_cell::sync::Lazy;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use std::net::SocketAddr;
+use std::{net::SocketAddr, time::Duration};
 use tokio_rustls::rustls::ClientConfig;
 
 use crate::{AmIMullvad, Error};
@@ -72,10 +72,10 @@ impl Drop for SockHandle {
     }
 }
 
-pub async fn geoip_lookup(mullvad_host: String) -> Result<AmIMullvad, Error> {
+pub async fn geoip_lookup(mullvad_host: String, timeout: Duration) -> Result<AmIMullvad, Error> {
     let uri = Uri::try_from(format!("https://ipv4.am.i.{mullvad_host}/json"))
         .map_err(|_| Error::InvalidUrl)?;
-    http_get(uri).await
+    http_get_with_timeout(uri, timeout).await
 }
 
 pub async fn http_get<T: DeserializeOwned>(url: Uri) -> Result<T, Error> {
@@ -104,6 +104,15 @@ pub async fn http_get<T: DeserializeOwned>(url: Uri) -> Result<T, Error> {
         log::error!("Failed to deserialize response: {}", error);
         Error::DeserializeBody
     })
+}
+
+pub async fn http_get_with_timeout<T: DeserializeOwned>(
+    url: Uri,
+    timeout: Duration,
+) -> Result<T, Error> {
+    tokio::time::timeout(timeout, http_get(url))
+        .await
+        .map_err(|_| Error::HttpRequest("Request timed out".into()))?
 }
 
 fn read_cert_store() -> tokio_rustls::rustls::RootCertStore {
