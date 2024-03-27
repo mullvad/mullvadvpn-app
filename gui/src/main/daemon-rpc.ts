@@ -359,41 +359,7 @@ export class DaemonRpc {
     grpcBridgeSettings.setNormal(normalSettings);
 
     if (bridgeSettings.custom) {
-      const customProxy = new grpcTypes.CustomProxy();
-
-      const customSettings = bridgeSettings.custom;
-
-      if ('local' in customSettings) {
-        const local = customSettings.local;
-        const socks5Local = new grpcTypes.Socks5Local();
-        socks5Local.setLocalPort(local.localPort);
-        socks5Local.setRemoteIp(local.remoteIp);
-        socks5Local.setRemotePort(local.remotePort);
-        customProxy.setSocks5local(socks5Local);
-      }
-      if ('remote' in customSettings) {
-        const remote = customSettings.remote;
-        const socks5Remote = new grpcTypes.Socks5Remote();
-        if (remote.auth) {
-          const auth = new grpcTypes.SocksAuth();
-          auth.setUsername(remote.auth.username);
-          auth.setPassword(remote.auth.password);
-          socks5Remote.setAuth(auth);
-        }
-        socks5Remote.setIp(remote.ip);
-        socks5Remote.setPort(remote.port);
-        customProxy.setSocks5remote(socks5Remote);
-      }
-      if ('shadowsocks' in customSettings) {
-        const shadowsocks = customSettings.shadowsocks;
-        const shadowOut = new grpcTypes.Shadowsocks();
-        shadowOut.setCipher(shadowsocks.cipher);
-        shadowOut.setIp(shadowsocks.ip);
-        shadowOut.setPort(shadowsocks.port);
-        shadowOut.setPassword(shadowsocks.password);
-        customProxy.setShadowsocks(shadowOut);
-      }
-
+      const customProxy = convertToCustomProxy(bridgeSettings.custom);
       grpcBridgeSettings.setCustom(customProxy);
     }
 
@@ -1278,41 +1244,9 @@ function convertFromBridgeSettings(bridgeSettings: grpcTypes.BridgeSettings): Br
     ownership,
   };
 
-  let custom = undefined;
-
-  if (bridgeSettingsObject.custom) {
-    const localSettings = bridgeSettingsObject.custom.socks5local;
-    if (localSettings) {
-      custom = {
-        local: {
-          localPort: localSettings.localPort,
-          remoteIp: localSettings.remoteIp,
-          remotePort: localSettings.remotePort,
-        },
-      };
-    }
-    const remoteSettings = bridgeSettingsObject.custom.socks5remote;
-    if (remoteSettings) {
-      custom = {
-        remote: {
-          ip: remoteSettings.ip,
-          port: remoteSettings.port,
-          auth: remoteSettings.auth && { ...remoteSettings.auth },
-        },
-      };
-    }
-    const shadowsocksSettings = bridgeSettingsObject.custom.shadowsocks;
-    if (shadowsocksSettings) {
-      custom = {
-        shadowsocks: {
-          ip: shadowsocksSettings.ip,
-          port: shadowsocksSettings.port,
-          password: shadowsocksSettings.password,
-          cipher: shadowsocksSettings.cipher,
-        },
-      };
-    }
-  }
+  const custom = bridgeSettings.hasCustom()
+    ? convertFromCustomProxy(bridgeSettings.getCustom()!)
+    : undefined;
 
   return { type, normal, custom };
 }
@@ -1949,49 +1883,49 @@ function convertFromAccessMethod(method: grpcTypes.AccessMethod): AccessMethod {
     case grpcTypes.AccessMethod.AccessMethodCase.BRIDGES:
       return { type: 'bridges' };
     case grpcTypes.AccessMethod.AccessMethodCase.CUSTOM: {
-      const proxy = method.getCustom()!;
-      switch (proxy.getProxyMethodCase()) {
-        case grpcTypes.CustomProxy.ProxyMethodCase.SOCKS5LOCAL: {
-          const socks5Local = proxy.getSocks5local()!;
-          return {
-            type: 'socks5-local',
-            remoteIp: socks5Local.getRemoteIp(),
-            remotePort: socks5Local.getRemotePort(),
-            remoteTransportProtocol: convertFromTransportProtocol(
-              socks5Local.getRemoteTransportProtocol(),
-            ),
-            localPort: socks5Local.getLocalPort(),
-          };
-        }
-        case grpcTypes.CustomProxy.ProxyMethodCase.SOCKS5REMOTE: {
-          const socks5Remote = proxy.getSocks5remote()!;
-          const auth = socks5Remote.getAuth();
-          return {
-            type: 'socks5-remote',
-            ip: socks5Remote.getIp(),
-            port: socks5Remote.getPort(),
-            authentication: auth === undefined ? undefined : convertFromSocksAuth(auth),
-          };
-        }
-        case grpcTypes.CustomProxy.ProxyMethodCase.SHADOWSOCKS: {
-          const shadowsocks = proxy.getShadowsocks()!;
-          return {
-            type: 'shadowsocks',
-            ip: shadowsocks.getIp(),
-            port: shadowsocks.getPort(),
-            password: shadowsocks.getPassword(),
-            cipher: shadowsocks.getCipher(),
-          };
-        }
-        case grpcTypes.CustomProxy.ProxyMethodCase.PROXY_METHOD_NOT_SET:
-          throw new Error('Custom method not set, which should always be set');
-      }
-      // This break is required to prevent eslint from complainting about fallthrough, even though
-      // all cases are covered above.
-      break;
+      return convertFromCustomProxy(method.getCustom()!);
     }
     case grpcTypes.AccessMethod.AccessMethodCase.ACCESS_METHOD_NOT_SET:
       throw new Error('Access method not set, which should always be set');
+  }
+}
+
+function convertFromCustomProxy(proxy: grpcTypes.CustomProxy): CustomProxy {
+  switch (proxy.getProxyMethodCase()) {
+    case grpcTypes.CustomProxy.ProxyMethodCase.SOCKS5LOCAL: {
+      const socks5Local = proxy.getSocks5local()!;
+      return {
+        type: 'socks5-local',
+        remoteIp: socks5Local.getRemoteIp(),
+        remotePort: socks5Local.getRemotePort(),
+        remoteTransportProtocol: convertFromTransportProtocol(
+          socks5Local.getRemoteTransportProtocol(),
+        ),
+        localPort: socks5Local.getLocalPort(),
+      };
+    }
+    case grpcTypes.CustomProxy.ProxyMethodCase.SOCKS5REMOTE: {
+      const socks5Remote = proxy.getSocks5remote()!;
+      const auth = socks5Remote.getAuth();
+      return {
+        type: 'socks5-remote',
+        ip: socks5Remote.getIp(),
+        port: socks5Remote.getPort(),
+        authentication: auth === undefined ? undefined : convertFromSocksAuth(auth),
+      };
+    }
+    case grpcTypes.CustomProxy.ProxyMethodCase.SHADOWSOCKS: {
+      const shadowsocks = proxy.getShadowsocks()!;
+      return {
+        type: 'shadowsocks',
+        ip: shadowsocks.getIp(),
+        port: shadowsocks.getPort(),
+        password: shadowsocks.getPassword(),
+        cipher: shadowsocks.getCipher(),
+      };
+    }
+    case grpcTypes.CustomProxy.ProxyMethodCase.PROXY_METHOD_NOT_SET:
+      throw new Error('Custom method not set, which should always be set');
   }
 }
 
