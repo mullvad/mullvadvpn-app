@@ -23,7 +23,7 @@ const EARLY_BOOT_LOG_FILENAME: &str = "early-boot-fw.log";
 
 fn main() {
     let runtime = new_runtime_builder().build().unwrap_or_else(|e| {
-        eprintln!("{}", e.display_chain().to_string());
+        eprintln!("{}", e.display_chain());
         std::process::exit(1);
     });
 
