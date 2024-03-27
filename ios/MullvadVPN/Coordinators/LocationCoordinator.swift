@@ -15,8 +15,8 @@ import UIKit
 class LocationCoordinator: Coordinator, Presentable, Presenting {
     private let tunnelManager: TunnelManager
     private let relayCacheTracker: RelayCacheTracker
+    private let customListRepository: CustomListRepositoryProtocol
     private var cachedRelays: CachedRelays?
-    private var customListRepository: CustomListRepositoryProtocol
 
     let navigationController: UINavigationController
 

@@ -6,7 +6,6 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import MullvadSettings
 import MullvadTypes
 import Routing
