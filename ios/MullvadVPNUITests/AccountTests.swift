@@ -15,8 +15,6 @@ class AccountTests: LoggedOutUITestCase {
         try super.setUpWithError()
     }
 
-    override func tearDownWithError() throws {}
-
     func testCreateAccount() throws {
         LoginPage(app)
             .tapCreateAccountButton()
@@ -71,6 +69,43 @@ class AccountTests: LoggedOutUITestCase {
             .tapAccountNumberSubmitButton()
             .verifyFailIconShown()
             .waitForPageToBeShown() // Verify still on login page
+    }
+
+    func testLoginToAccountWithTooManyDevices() throws {
+        // Setup
+        let temporaryAccountNumber = try MullvadAPIWrapper().createAccount()
+        try MullvadAPIWrapper().addDevices(5, account: temporaryAccountNumber)
+
+        // Teardown
+        addTeardownBlock {
+            do {
+                try MullvadAPIWrapper().deleteAccount(temporaryAccountNumber)
+            } catch {
+                XCTFail("Failed to delete account using app API")
+            }
+        }
+
+        LoginPage(app)
+            .tapAccountNumberTextField()
+            .enterText(temporaryAccountNumber)
+            .tapAccountNumberSubmitButton()
+
+        DeviceManagementPage(app)
+            .tapRemoveDeviceButton(cellIndex: 0)
+
+        DeviceManagementLogOutDeviceConfirmationAlert(app)
+            .tapYesLogOutDeviceButton()
+
+        DeviceManagementPage(app)
+            .tapContinueWithLoginButton()
+
+        // First taken back to login page and automatically being logged in
+        LoginPage(app)
+            .verifySuccessIconShown()
+            .verifyDeviceLabelShown()
+
+        // And then taken to out of time page because this account don't have any time added to it
+        OutOfTimePage(app)
     }
 
     func testLogOut() throws {
