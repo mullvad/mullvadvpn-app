@@ -12,7 +12,7 @@ import TalpidTunnelConfigClientProxy
 import WireGuardKitTypes
 
 public class PostQuantumKeyNegotiatior {
-    private var cancellationToken: UnsafeRawPointer!
+    private var cancellationToken: UnsafeRawPointer?
     public init() {}
 
     public func negotiateKey(
@@ -41,8 +41,7 @@ public class PostQuantumKeyNegotiatior {
     }
 
     public func cancelKeyNegotiation() {
-        if let cancellationToken, cancellationToken.hashValue != 0.hashValue {
-            cancel_post_quantum_key_exchange(cancellationToken)
-        }
+        guard let cancellationToken else { return }
+        cancel_post_quantum_key_exchange(cancellationToken)
     }
 }
