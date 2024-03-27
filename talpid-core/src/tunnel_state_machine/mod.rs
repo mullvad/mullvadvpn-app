@@ -204,7 +204,7 @@ pub enum TunnelCommand {
     Connect,
     /// Close tunnel connection.
     Disconnect,
-    /// Disconnect any open tunnel and block all network access
+    /// Block all network access unless tunnel is disconnecting or disconnected
     Block(ErrorStateCause),
     /// Bypass a socket, allowing traffic to flow through outside the tunnel.
     #[cfg(target_os = "android")]

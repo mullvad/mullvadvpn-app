@@ -68,8 +68,9 @@ impl DisconnectingState {
                     AfterDisconnect::Nothing
                 }
                 Some(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
-                Some(TunnelCommand::Disconnect) | None => AfterDisconnect::Nothing,
-                Some(TunnelCommand::Block(reason)) => AfterDisconnect::Block(reason),
+                Some(TunnelCommand::Disconnect) | Some(TunnelCommand::Block(_)) | None => {
+                    AfterDisconnect::Nothing
+                }
                 #[cfg(target_os = "android")]
                 Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
                     shared_values.bypass_socket(fd, done_tx);
