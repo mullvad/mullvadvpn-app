@@ -12,12 +12,15 @@ import MullvadSettings
 import MullvadTypes
 import UIKit
 
-final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, LocationCellViewModel> {
+final class LocationDataSource:
+    UITableViewDiffableDataSource<LocationSection, LocationCellViewModel>,
+    LocationDiffableDataSourceProtocol {
     private var currentSearchString = ""
-    private let tableView: UITableView
     private var dataSources: [LocationDataSourceProtocol] = []
     private var selectedItem: LocationCellViewModel?
     private var hasFilter = false
+    let tableView: UITableView
+    let sections: [LocationSection]
 
     var didSelectRelayLocations: ((UserSelectedRelays) -> Void)?
     var didTapEditCustomLists: (() -> Void)?
@@ -28,6 +31,10 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
         customLists: LocationDataSourceProtocol
     ) {
         self.tableView = tableView
+
+        let sections: [LocationSection] = LocationSection.allCases
+        self.sections = sections
+
         #if DEBUG
         self.dataSources.append(customLists)
         #endif
@@ -35,10 +42,9 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
 
         super.init(tableView: tableView) { _, indexPath, itemIdentifier in
             let cell = tableView.dequeueReusableView(
-                withIdentifier: LocationSection.allCases[indexPath.section],
+                withIdentifier: sections[indexPath.section],
                 for: indexPath
-                // swiftlint:disable:next force_cast
-            ) as! LocationCell
+            ) as! LocationCell // swiftlint:disable:this force_cast
             cell.configure(item: itemIdentifier, behavior: .select)
             return cell
         }
@@ -71,7 +77,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
     func filterRelays(by searchString: String, scrollToSelected: Bool = true) {
         currentSearchString = searchString
 
-        let list = LocationSection.allCases.enumerated().map { index, section in
+        let list = sections.enumerated().map { index, section in
             dataSources[index]
                 .search(by: searchString)
                 .flatMap { node in
@@ -109,33 +115,16 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
         filterRelays(by: currentSearchString, scrollToSelected: false)
     }
 
-    private func indexPathForSelectedRelay() -> IndexPath? {
-        selectedItem.flatMap { indexPath(for: $0) }
+    func nodeShowsChildren(_ node: LocationNode) -> Bool {
+        node.showsChildren
     }
 
-    private func updateDataSnapshot(
-        with list: [[LocationCellViewModel]],
-        reloadExisting: Bool = false,
-        animated: Bool = false,
-        completion: (() -> Void)? = nil
-    ) {
-        var snapshot = NSDiffableDataSourceSnapshot<LocationSection, LocationCellViewModel>()
-        let sections = LocationSection.allCases
+    func nodeShouldBeSelected(_ node: LocationNode) -> Bool {
+        false
+    }
 
-        snapshot.appendSections(sections)
-        for (index, section) in sections.enumerated() {
-            let items = list[index]
-
-            snapshot.appendItems(items, toSection: section)
-
-            if reloadExisting {
-                snapshot.reconfigureOrReloadItems(items)
-            }
-        }
-
-        DispatchQueue.main.async {
-            self.apply(snapshot, animatingDifferences: animated, completion: completion)
-        }
+    private func indexPathForSelectedRelay() -> IndexPath? {
+        selectedItem.flatMap { indexPath(for: $0) }
     }
 
     private func mapSelectedItem(from selectedRelays: UserSelectedRelays?) {
@@ -165,11 +154,13 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
 
         let rootNode = selectedItem.node.root
 
+        // Exit early if no changes to the node tree are necessary.
         guard selectedItem.node != rootNode else {
             completion?()
             return
         }
 
+        // Make sure we have an index path for the selected item.
         guard let indexPath = indexPath(for: LocationCellViewModel(
             section: selectedItem.section,
             node: rootNode
@@ -180,16 +171,18 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
             node.showsChildren = true
         }
 
+        // Construct node tree.
         let nodesToAdd = recursivelyCreateCellViewModelTree(
             for: rootNode,
             in: selectedItem.section,
             indentationLevel: 1
         )
 
+        // Insert the new node tree below the select item.
         var snapshotItems = snapshot().itemIdentifiers(inSection: selectedItem.section)
         snapshotItems.insert(contentsOf: nodesToAdd, at: indexPath.row + 1)
 
-        let list = LocationSection.allCases.enumerated().map { index, section in
+        let list = sections.enumerated().map { index, section in
             index == indexPath.section
                 ? snapshotItems
                 : snapshot().itemIdentifiers(inSection: section)
@@ -203,36 +196,6 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
         )
     }
 
-    private func recursivelyCreateCellViewModelTree(
-        for node: LocationNode,
-        in section: LocationSection,
-        indentationLevel: Int
-    ) -> [LocationCellViewModel] {
-        var viewModels = [LocationCellViewModel]()
-
-        for childNode in node.children where !childNode.isHiddenFromSearch {
-            viewModels.append(
-                LocationCellViewModel(
-                    section: section,
-                    node: childNode,
-                    indentationLevel: indentationLevel
-                )
-            )
-
-            if childNode.showsChildren {
-                viewModels.append(
-                    contentsOf: recursivelyCreateCellViewModelTree(
-                        for: childNode,
-                        in: section,
-                        indentationLevel: indentationLevel + 1
-                    )
-                )
-            }
-        }
-
-        return viewModels
-    }
-
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // swiftlint:disable:next force_cast
         let cell = super.tableView(tableView, cellForRowAt: indexPath) as! LocationCell
@@ -243,7 +206,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
 
 extension LocationDataSource: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        switch LocationSection.allCases[section] {
+        switch sections[section] {
         case .allLocations:
             return LocationSectionHeaderView(
                 configuration: LocationSectionHeaderView.Configuration(name: LocationSection.allLocations.description)
@@ -265,7 +228,7 @@ extension LocationDataSource: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        switch LocationSection.allCases[section] {
+        switch sections[section] {
         case .allLocations:
             return .zero
         case .customLists:
@@ -304,64 +267,6 @@ extension LocationDataSource: UITableViewDelegate {
 
         didSelectRelayLocations?(relayLocations)
     }
-}
-
-extension LocationDataSource: LocationCellDelegate {
-    func toggleSelection(cell: LocationCell) {
-        print("Just put a print statement // Marco")
-    }
-
-    func toggleExpanding(cell: LocationCell) {
-        guard let indexPath = tableView.indexPath(for: cell),
-              let item = itemIdentifier(for: indexPath) else { return }
-
-        let sections = LocationSection.allCases
-        let section = sections[indexPath.section]
-        let isExpanded = item.node.showsChildren
-        var locationList = snapshot().itemIdentifiers(inSection: section)
-
-        item.node.showsChildren = !isExpanded
-
-        if !isExpanded {
-            locationList.addSubNodes(from: item, at: indexPath)
-        } else {
-            locationList.removeSubNodes(from: item.node)
-        }
-
-        let list = sections.enumerated().map { index, section in
-            index == indexPath.section
-                ? locationList
-                : snapshot().itemIdentifiers(inSection: section)
-        }
-
-        updateDataSnapshot(with: list, reloadExisting: true, completion: {
-            self.scroll(to: item, animated: true)
-        })
-    }
-}
-
-extension LocationDataSource {
-    private func scroll(to item: LocationCellViewModel, animated: Bool) {
-        guard
-            let visibleIndexPaths = tableView.indexPathsForVisibleRows,
-            let indexPath = indexPath(for: item)
-        else { return }
-
-        if item.node.children.count > visibleIndexPaths.count {
-            tableView.scrollToRow(at: indexPath, at: .top, animated: animated)
-        } else {
-            if let last = item.node.children.last {
-                if let lastInsertedIndexPath = self.indexPath(for: LocationCellViewModel(
-                    section: LocationSection.allCases[indexPath.section],
-                    node: last
-                )),
-                    let lastVisibleIndexPath = visibleIndexPaths.last,
-                    lastInsertedIndexPath >= lastVisibleIndexPath {
-                    tableView.scrollToRow(at: lastInsertedIndexPath, at: .bottom, animated: animated)
-                }
-            }
-        }
-    }
 
     private func scrollToTop(animated: Bool) {
         tableView.setContentOffset(.zero, animated: animated)
@@ -371,5 +276,22 @@ extension LocationDataSource {
         indexPathForSelectedRelay().flatMap {
             tableView.scrollToRow(at: $0, at: .middle, animated: false)
         }
+    }
+}
+
+extension LocationDataSource: LocationCellDelegate {
+    func toggleExpanding(cell: LocationCell) {
+        guard let indexPath = tableView.indexPath(for: cell),
+              let item = itemIdentifier(for: indexPath) else { return }
+
+        let items = toggledItems(for: cell)
+
+        updateDataSnapshot(with: items, reloadExisting: true, completion: {
+            self.scroll(to: item, animated: true)
+        })
+    }
+
+    func toggleSelecting(cell: LocationCell) {
+        // No op.
     }
 }

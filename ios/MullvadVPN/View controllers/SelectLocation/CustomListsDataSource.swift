@@ -26,17 +26,9 @@ class CustomListsDataSource: LocationDataSourceProtocol {
     /// Constructs a collection of node trees by copying each matching counterpart
     /// from the complete list of nodes created in ``AllLocationDataSource``.
     func reload(allLocationNodes: [LocationNode], isFiltered: Bool) {
-        nodes = repository.fetchAll().compactMap { customList in
-            let listNode = CustomListLocationNode(
-                name: customList.name,
-                code: customList.name.lowercased(),
-                locations: customList.locations,
-                customList: customList
-            )
-
-            listNode.children = customList.locations.compactMap { location in
-                copy(location, from: allLocationNodes, withParent: listNode)
-            }
+        nodes = repository.fetchAll().compactMap { list in
+            let customListWrapper = CustomListLocationNodeBuilder(customList: list, allLocations: allLocationNodes)
+            let listNode = customListWrapper.customListLocationNode
 
             listNode.forEachDescendant { node in
                 // Each item in a section in a diffable data source needs to be unique.
