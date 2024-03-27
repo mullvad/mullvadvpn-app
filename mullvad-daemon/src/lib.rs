@@ -1896,19 +1896,17 @@ where
         settings: Settings,
         update: ExcludedPathsUpdate,
     ) {
-        let new_list = match update {
-            ExcludedPathsUpdate::SetPaths(ref paths) => paths.iter(),
-            ExcludedPathsUpdate::SetState(_) => settings.split_tunnel.apps.iter(),
-        };
-        let new_state = match update {
-            ExcludedPathsUpdate::SetPaths(_) => settings.split_tunnel.enable_exclusions,
-            ExcludedPathsUpdate::SetState(state) => state,
-        };
-
-        let tunnel_list = if new_state {
-            new_list.map(OsString::from).collect()
-        } else {
-            vec![]
+        let tunnel_list = match update {
+            ExcludedPathsUpdate::SetPaths(ref paths) if settings.split_tunnel.enable_exclusions => {
+                paths.iter().map(OsString::from).collect()
+            }
+            ExcludedPathsUpdate::SetState(true) => settings
+                .split_tunnel
+                .apps
+                .iter()
+                .map(OsString::from)
+                .collect(),
+            _ => vec![],
         };
 
         let (result_tx, result_rx) = oneshot::channel();
