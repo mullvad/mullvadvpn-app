@@ -94,7 +94,8 @@ class AccountExpiryNotification(
     private suspend fun build(expiry: DateTime, remainingTime: Duration): Notification {
         val url =
             jobTracker.runOnBackground {
-                Uri.parse("$buyMoreTimeUrl?token=${daemon.await().getWwwAuthToken()}")
+                TODO("Fetch api token from gRPC")
+                Uri.parse("$buyMoreTimeUrl?token=TODO()}")
             }
         val intent =
             if (IS_PLAY_BUILD) {

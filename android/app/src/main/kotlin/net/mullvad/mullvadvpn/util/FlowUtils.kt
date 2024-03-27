@@ -16,25 +16,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.talpid.util.EventNotifier
 
-fun <R> Flow<ServiceConnectionState>.flatMapReadyConnectionOrDefault(
-    default: Flow<R>,
-    transform: (value: ServiceConnectionState.ConnectedReady) -> Flow<R>
-): Flow<R> {
-    return flatMapLatest { state ->
-        if (state is ServiceConnectionState.ConnectedReady) {
-            transform.invoke(state)
-        } else {
-            default
-        }
-    }
-}
-
-fun <T> callbackFlowFromNotifier(notifier: EventNotifier<T>) = callbackFlow {
-    val handler: (T) -> Unit = { value -> trySend(value) }
-    notifier.subscribe(this, handler)
-    awaitClose { notifier.unsubscribe(this) }
-}
-
 inline fun <T1, T2, T3, T4, T5, T6, R> combine(
     flow: Flow<T1>,
     flow2: Flow<T2>,

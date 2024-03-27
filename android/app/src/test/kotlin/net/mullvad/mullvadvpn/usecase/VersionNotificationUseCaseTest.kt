@@ -31,7 +31,7 @@ class VersionNotificationUseCaseTest {
     private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
 
     private val serviceConnectionState =
-        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
+        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
     private val versionInfo =
         MutableStateFlow(
             VersionInfo(

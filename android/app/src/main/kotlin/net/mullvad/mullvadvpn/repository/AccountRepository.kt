@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
-import net.mullvad.mullvadvpn.model.AccountState
+import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.LoginResult
 
 class AccountRepository(
@@ -25,7 +25,7 @@ class AccountRepository(
         managementService.deviceState.stateIn(
             scope = scope,
             SharingStarted.Eagerly,
-            AccountState.Unrecognized
+            DeviceState.Unknown
         )
 
     private val _mutableAccountHistory: MutableStateFlow<AccountHistory> =
@@ -53,10 +53,10 @@ class AccountRepository(
     }
 
     suspend fun getAccountExpiry(): AccountExpiry {
-        if (accountState.value !is AccountState.LoggedIn) return AccountExpiry.Missing
+        if (accountState.value !is DeviceState.LoggedIn) return AccountExpiry.Missing
         val accountExpiry =
             managementService.getAccountExpiry(
-                (accountState.value as AccountState.LoggedIn).accountToken
+                (accountState.value as DeviceState.LoggedIn).accountToken
             )
         _mutableAccountExpiry.update { accountExpiry }
         return accountExpiry

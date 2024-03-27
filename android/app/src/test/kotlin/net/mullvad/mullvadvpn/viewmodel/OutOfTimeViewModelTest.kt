@@ -47,7 +47,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class OutOfTimeViewModelTest {
 
     private val serviceConnectionStateFlow =
-        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
+        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
     private val accountExpiryStateFlow = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
     private val deviceStateFlow = MutableStateFlow<DeviceState>(DeviceState.Initial)
     private val paymentAvailabilityFlow = MutableStateFlow<PaymentAvailability?>(null)

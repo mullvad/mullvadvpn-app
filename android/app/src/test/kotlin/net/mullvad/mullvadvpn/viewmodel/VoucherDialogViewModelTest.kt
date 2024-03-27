@@ -34,7 +34,7 @@ class VoucherDialogViewModelTest {
     private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
     private val mockVoucherSubmission: VoucherSubmission = mockk()
     private val serviceConnectionState =
-        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
+        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
 
     private val mockVoucherRedeemer: VoucherRedeemer = mockk()
     private val mockResources: Resources = mockk()

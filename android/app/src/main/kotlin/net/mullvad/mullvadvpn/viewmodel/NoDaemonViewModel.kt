@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import android.os.Bundle
+import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -39,7 +40,9 @@ class NoDaemonViewModel(serviceConnectionManager: ServiceConnectionManager) :
                 event,
                 connEvent,
                 destination ->
-                toDaemonState(event, connEvent, destination)
+                toDaemonState(event, connEvent, destination).also {
+                    Log.d("NoDaemonViewModel", "DaemonState: $it")
+                }
             }
             .map { state ->
                 when (state) {
@@ -77,9 +80,10 @@ class NoDaemonViewModel(serviceConnectionManager: ServiceConnectionManager) :
         return if (lifecycleEvent.targetState.isAtLeast(Lifecycle.State.STARTED)) {
             // If we are started we want to show the overlay if we are not connected to daemon
             when (serviceState) {
-                is ServiceConnectionState.ConnectedNotReady,
-                ServiceConnectionState.Disconnected -> DaemonState.Show
-                is ServiceConnectionState.ConnectedReady -> DaemonState.Hidden.Connected
+                // TODO Add gRPC layer
+                ServiceConnectionState.Binding,
+                ServiceConnectionState.Unbound -> DaemonState.Show
+                is ServiceConnectionState.Bound -> DaemonState.Hidden.Connected
             }
         } else {
             // If we are stopped we intentionally stop service and don't care about showing overlay.
