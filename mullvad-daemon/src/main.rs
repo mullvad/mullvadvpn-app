@@ -22,7 +22,12 @@ const DAEMON_LOG_FILENAME: &str = "daemon.log";
 const EARLY_BOOT_LOG_FILENAME: &str = "early-boot-fw.log";
 
 fn main() {
-    let exit_code = match run() {
+    let runtime = new_runtime_builder().build().unwrap_or_else(|e| {
+        eprintln!("{}", e.display_chain().to_string());
+        std::process::exit(1);
+    });
+
+    let exit_code = match runtime.block_on(run()) {
         Ok(_) => 0,
         Err(error) => {
             if logging::is_enabled() {
@@ -39,37 +44,33 @@ fn main() {
     std::process::exit(exit_code);
 }
 
-fn run() -> Result<(), String> {
+async fn run() -> Result<(), String> {
     let config = cli::get_config();
-
-    let runtime = new_runtime_builder()
-        .build()
-        .map_err(|e| e.display_chain().to_string())?;
 
     match config.command {
         cli::Command::Daemon => {
             // uniqueness check must happen before logging initializaton,
             // as initializing logs will rotate any existing log file.
-            runtime.block_on(assert_unique())?;
+            assert_unique().await?;
             let log_dir = init_daemon_logging(config)?;
             log::trace!("Using configuration: {:?}", config);
 
-            runtime.block_on(run_standalone(log_dir))
+            run_standalone(log_dir).await
         }
 
         #[cfg(target_os = "linux")]
         cli::Command::InitializeEarlyBootFirewall => {
             init_early_boot_logging(config);
 
-            runtime
-                .block_on(crate::early_boot_firewall::initialize_firewall())
+            crate::early_boot_firewall::initialize_firewall()
+                .await
                 .map_err(|err| format!("{err}"))
         }
 
         #[cfg(target_os = "windows")]
         cli::Command::RunAsService => {
             init_logger(config, None)?;
-            runtime.block_on(assert_unique())?;
+            assert_unique().await?;
             system_service::run()
         }
 
