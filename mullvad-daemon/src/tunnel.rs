@@ -44,11 +44,8 @@ pub enum Error {
     #[error("Not logged in on a valid device")]
     NoAuthDetails,
 
-    #[error("No relay available")]
-    NoRelayAvailable,
-
-    #[error("No bridge available")]
-    NoBridgeAvailable,
+    #[error("Failed to select a matching relay")]
+    SelectRelay(#[from] mullvad_relay_selector::Error),
 
     #[error("Failed to resolve hostname for custom relay")]
     ResolveCustomHostname,
@@ -148,11 +145,7 @@ impl InnerParametersGenerator {
         let data = self.device().await?;
         let selected_relay = self
             .relay_selector
-            .get_relay(retry_attempt as usize, RuntimeParameters { ipv6 })
-            .map_err(|err| match err {
-                mullvad_relay_selector::Error::NoBridge => Error::NoBridgeAvailable,
-                _ => Error::NoRelayAvailable,
-            })?;
+            .get_relay(retry_attempt as usize, RuntimeParameters { ipv6 })?;
 
         match selected_relay {
             #[cfg(not(target_os = "android"))]
@@ -287,7 +280,9 @@ impl TunnelParametersGenerator for ParametersGenerator {
                 .generate(retry_attempt, ipv6)
                 .await
                 .map_err(|error| match error {
-                    Error::NoBridgeAvailable => ParameterGenerationError::NoMatchingBridgeRelay,
+                    Error::SelectRelay(mullvad_relay_selector::Error::NoBridge) => {
+                        ParameterGenerationError::NoMatchingBridgeRelay
+                    }
                     Error::ResolveCustomHostname => {
                         ParameterGenerationError::CustomTunnelHostResultionError
                     }
