@@ -29,6 +29,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var adapter: WgAdapter!
     private var relaySelector: RelaySelectorWrapper!
 
+    // Post Quantum Key required variables
+    private var inTunnelTCPConnection: NWTCPConnection!
+    private var tcpConnectionObserver: NSKeyValueObservation!
+    private var quantumKeyNegotiatior: PostQuantumKeyNegotiatior!
+
     override init() {
         Self.configureLogging()
 
@@ -108,82 +113,17 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 if connectionState.connectionAttemptCount > 1 {
                     return
                 }
+            case .negotiatingPostQuantumKey:
+                // When negotiating post quantun keys, allow the connection to go through immediately.
+                // Otherwise, the in-tunnel TCP connection will never become ready as the OS doesn't let
+                // any traffic through until this function returns, which would prevent negotiating keys
+                // from an unconnected state.
+                return
             default:
                 break
             }
         }
     }
-
-    // MARK: - Uncomment the next three functions to test Post Quantum Key exchange
-
-//    override func startTunnel(options: [String: NSObject]? = nil) async throws {
-//        let startOptions = parseStartOptions(options ?? [:])
-//
-//        startObservingActorState()
-//
-//        try await startPostQuantumKeyExchange()
-//    }
-//
-//    func selectGothenburgRelay() throws -> MullvadEndpoint {
-//        let constraints = RelayConstraints(
-//            locations: .only(UserSelectedRelays(locations: [.city("se", "got")]))
-//        )
-//        let relay = try relaySelector.selectRelay(with: constraints, connectionAttemptFailureCount: 0)
-//        return relay.endpoint
-//    }
-//
-//    var pqTCPConnection: NWTCPConnection?
-//
-//    func startPostQuantumKeyExchange() async throws {
-//        let settingsReader = SettingsReader()
-//        let settings: Settings = try settingsReader.read()
-//        let privateKey = settings.privateKey
-//        let postQuantumSharedKey = PrivateKey() // This will become the new private key of the device
-//
-//        let IPv4Gateway = IPv4Address("10.64.0.1")!
-//        let gothenburgRelay = try selectGothenburgRelay()
-//
-//        let configurationBuilder = ConfigurationBuilder(
-//            privateKey: settings.privateKey,
-//            interfaceAddresses: settings.interfaceAddresses,
-//            dns: settings.dnsServers,
-//            endpoint: gothenburgRelay,
-//            allowedIPs: [
-//                IPAddressRange(from: "10.64.0.1/8")!,
-//            ]
-//        )
-//
-//        try await adapter.start(configuration: configurationBuilder.makeConfiguration())
-//
-//        let negotiator = PostQuantumKeyNegotiatior()
-//        let gatewayEndpoint = NWHostEndpoint(hostname: "10.64.0.1", port: "1337")
-//
-//        pqTCPConnection = createTCPConnectionThroughTunnel(
-//            to: gatewayEndpoint,
-//            enableTLS: false,
-//            tlsParameters: nil,
-//            delegate: nil
-//        )
-//        guard let pqTCPConnection else { return }
-//
-//        // This will work as long as there is a detached, top-level task here.
-//        // It might be due to the async runtime environment for `override func startTunnel(options: [String: NSObject]? = nil) async throws`
-//        // There is a strong chance that the function's async availability was not properly declared by Apple.
-//        Task.detached {
-//            for await isViable in pqTCPConnection.viability where isViable == true {
-//                negotiator.negotiateKey(
-//                    gatewayIP: IPv4Gateway,
-//                    devicePublicKey: privateKey.publicKey,
-//                    presharedKey: postQuantumSharedKey.publicKey,
-//                    packetTunnel: self,
-//                    tcpConnection: self.pqTCPConnection!
-//                )
-//                break
-//            }
-//        }
-//    }
-
-    // MARK: - End testing Post Quantum key exchange
 
     override func stopTunnel(with reason: NEProviderStopReason) async {
         providerLogger.debug("stopTunnel: \(reason)")
@@ -305,15 +245,53 @@ extension PacketTunnelProvider {
                     // Cache last connection attempt to filter out repeating calls.
                     lastConnectionAttempt = connectionAttempt
 
-                case .negotiatingKey:
-                    // TODO: Call the key negotiatior here ?
-                    break
+                case let .negotiatingPostQuantumKey(_, privateKey):
+                    // Break the tunnel connection to avoid leaking traffic
+//                    reasserting = true
+                    startPostQuantumKeyNegotation(with: privateKey)
 
                 case .initial, .connected, .disconnecting, .disconnected, .error:
                     break
                 }
             }
         }
+    }
+
+    private func startPostQuantumKeyNegotation(with privateKey: PrivateKey) {
+        quantumKeyNegotiatior?.cancelKeyNegotiation()
+
+        let keyNegotiatior = PostQuantumKeyNegotiatior()
+        let gatewayAddress = "10.64.0.1"
+        let IPv4Gateway = IPv4Address(gatewayAddress)!
+        let gatewayEndpoint = NWHostEndpoint(hostname: gatewayAddress, port: "1337")
+        let tcpConnection = createTCPConnectionThroughTunnel(
+            to: gatewayEndpoint,
+            enableTLS: false,
+            tlsParameters: nil,
+            delegate: nil
+        )
+
+        let postQuantumSharedKey = PrivateKey() // This will become the new private key of the device
+        let observer = tcpConnection.observe(\.isViable, options: [
+            .initial,
+            .new,
+        ]) { [weak self] observedConnection, _ in
+            guard let self, observedConnection.isViable else { return }
+            keyNegotiatior.negotiateKey(
+                gatewayIP: IPv4Gateway,
+                devicePublicKey: privateKey.publicKey,
+                presharedKey: postQuantumSharedKey.publicKey,
+                packetTunnel: self,
+                tcpConnection: tcpConnection
+            )
+            self.tcpConnectionObserver.invalidate()
+        }
+
+        inTunnelTCPConnection = tcpConnection
+        tcpConnectionObserver = observer
+        quantumKeyNegotiatior = keyNegotiatior
+        // Re-establish the tunnel connection to let the TCP connection flow through
+//        reasserting = false
     }
 
     private func stopObservingActorState() {
@@ -352,7 +330,18 @@ extension PacketTunnelProvider {
 }
 
 extension PacketTunnelProvider: PostQuantumKeyReceiving {
-    func receivePostQuantumKey(_ key: PreSharedKey) {
-        actor.replacePreSharedKey(key)
+    func receivePostQuantumKey(_ key: PreSharedKey?) {
+        quantumKeyNegotiatior?.cancelKeyNegotiation()
+        tcpConnectionObserver?.invalidate()
+        inTunnelTCPConnection.cancel()
+        tcpConnectionObserver = nil
+        inTunnelTCPConnection = nil
+        quantumKeyNegotiatior = nil
+
+        if let key {
+            actor.replacePreSharedKey(key)
+        } else {
+            actor.reconnect(to: .current)
+        }
     }
 }

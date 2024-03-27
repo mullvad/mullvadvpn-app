@@ -10,18 +10,9 @@ import Foundation
 import WireGuardKitTypes
 
 public protocol PostQuantumKeyReceiving {
-    func receivePostQuantumKey(_ key: PreSharedKey)
+    func receivePostQuantumKey(_ key: PreSharedKey?)
 }
 
 public enum PostQuantumKeyReceivingError: Error {
     case invalidKey
-}
-
-public extension PostQuantumKeyReceiving {
-    func receivePostQuantumKey(_ keyData: Data) throws {
-        guard let key = PreSharedKey(rawValue: keyData) else {
-            throw PostQuantumKeyReceivingError.invalidKey
-        }
-        receivePostQuantumKey(key)
-    }
 }

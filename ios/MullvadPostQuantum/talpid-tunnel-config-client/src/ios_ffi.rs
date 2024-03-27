@@ -3,9 +3,20 @@ use tokio::sync::mpsc;
 
 use super::run_ios_runtime;
 
-use std::sync::Once;
+use std::{rc::Weak, sync::Once};
 static INIT_LOGGING: Once = Once::new();
 
+#[allow(clippy::let_underscore_future)]
+#[no_mangle]
+pub unsafe extern "C" fn cancel_post_quantum_key_exchange(sender: *const c_void) {
+    // Try to take the value, if there is a value, we can safely send the message, otherwise, assume it has been dropped and nothing happens
+    let send_tx: Weak<mpsc::Sender<()>> = unsafe { Weak::from_raw(sender as _) };
+    if let Some(tx) = send_tx.upgrade() {
+        // # Safety
+        // Clippy warns of a non-binding let on a future, this future is being awaited on.
+        _ = tx.send(());
+    }
+}
 /// Callback to call when the TCP connection has written data.
 #[no_mangle]
 pub unsafe extern "C" fn handle_sent(bytes_sent: usize, sender: *const c_void) {
@@ -26,13 +37,15 @@ pub unsafe extern "C" fn handle_recv(data: *const u8, data_len: usize, sender: *
 
 /// Entry point for exchanging post quantum keys on iOS.
 /// The TCP connection must be created to go through the tunnel.
+/// # Safety
+/// This function is safe to call
 #[no_mangle]
 pub unsafe extern "C" fn negotiate_post_quantum_key(
     public_key: *const u8,
     ephemeral_public_key: *const u8,
-    packet_tunnel: *const libc::c_void,
-    tcp_connection: *const libc::c_void,
-) -> i32 {
+    packet_tunnel: *const c_void,
+    tcp_connection: *const c_void,
+) -> *const c_void {
     INIT_LOGGING.call_once(|| {
         let _ = oslog::OsLogger::new("net.mullvad.MullvadVPN.TTCC")
             .level_filter(log::LevelFilter::Trace)
