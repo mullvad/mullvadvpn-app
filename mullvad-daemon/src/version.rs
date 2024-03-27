@@ -5,6 +5,10 @@ pub fn is_beta_version() -> bool {
     mullvad_version::VERSION.contains("beta")
 }
 
+pub fn is_dev_version() -> bool {
+    mullvad_version::VERSION.contains("dev")
+}
+
 pub fn log_version() {
     log::info!(
         "Starting {} - {} {}",

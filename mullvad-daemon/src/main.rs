@@ -83,6 +83,10 @@ fn run() -> Result<(), String> {
 
         #[cfg(target_os = "macos")]
         cli::Command::LaunchDaemonStatus => {
+            if version::is_dev_version() {
+                eprintln!("Note: This command may not work on non-notarized builds.");
+            }
+
             std::process::exit(macos_launch_daemon::get_status() as i32);
         }
     }
