@@ -13,7 +13,6 @@ import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
-import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
@@ -80,7 +79,6 @@ import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
-import org.koin.dsl.bind
 import org.koin.dsl.module
 
 @SuppressLint("SdCardPath")
@@ -92,14 +90,14 @@ val uiModule = module {
     single<PackageManager> { androidContext().packageManager }
     single<String>(named(SELF_PACKAGE_NAME)) { androidContext().packageName }
 
-    viewModel { SplitTunnelingViewModel(get(), get(), Dispatchers.Default) }
+    viewModel { SplitTunnelingViewModel(get(), Dispatchers.Default) }
     single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
 
     single { (messenger: Messenger, dispatcher: EventDispatcher) ->
         SplitTunneling(messenger, dispatcher)
     }
 
-    single { ServiceConnectionManager(androidContext()) } bind MessageHandler::class
+    single { ServiceConnectionManager(androidContext()) }
     single { InetAddressValidator.getInstance() }
     single { androidContext().resources }
     single { androidContext().assets }
@@ -118,14 +116,15 @@ val uiModule = module {
     single { MullvadProblemReport(get()) }
     single { RelayOverridesRepository(get(), get()) }
     single { CustomListsRepository(get(), get(), get()) }
+    single { CustomListsRepository(get(), get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
-    single { TunnelStateNotificationUseCase(get(), get()) }
+    single { TunnelStateNotificationUseCase(get()) }
     single { VersionNotificationUseCase(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS) }
     single { NewDeviceNotificationUseCase(get()) }
     single { PortRangeUseCase(get()) }
     single { RelayListUseCase(get(), get()) }
-    single { OutOfTimeUseCase(get(), get(), MainScope()) }
+    single { OutOfTimeUseCase(get(), MainScope()) }
     single { ConnectivityUseCase(get()) }
     single { SystemVpnSettingsUseCase(androidContext()) }
     single { CustomListActionUseCase(get(), get()) }
@@ -136,7 +135,7 @@ val uiModule = module {
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 
     single { RelayListFilterUseCase(get(), get()) }
-    single { RelayListListener(get()) }
+    single { RelayListListener() }
 
     // Will be resolved using from either of the two PaymentModule.kt classes.
     single { PaymentProvider(get()) }
@@ -156,13 +155,12 @@ val uiModule = module {
     single { AppVersionInfoCache(get()) }
 
     // View models
-    viewModel { AccountViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
+    viewModel { AccountViewModel(get(), get(), get(), IS_PLAY_BUILD) }
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
     viewModel {
         ConnectViewModel(
-            get(),
             get(),
             get(),
             get(),
@@ -184,8 +182,8 @@ val uiModule = module {
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel { SelectLocationViewModel(get(), get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
-    viewModel { SplashViewModel(get(), get(), get()) }
-    viewModel { VoucherDialogViewModel(get(), get()) }
+    viewModel { SplashViewModel(get(), get()) }
+    viewModel { VoucherDialogViewModel(get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { ReportProblemViewModel(get(), get()) }
