@@ -3848,13 +3848,11 @@ version = "0.0.0"
 dependencies = [
  "cbindgen",
  "classic-mceliece-rust",
- "futures",
  "libc",
  "log",
  "oslog",
  "pqc_kyber",
  "prost",
- "rand 0.8.5",
  "talpid-tunnel-config-client",
  "talpid-types",
  "tokio",
