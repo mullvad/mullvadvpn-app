@@ -6,36 +6,40 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import MullvadSettings
 import MullvadTypes
 import UIKit
 
-class AddLocationsDataSource: UITableViewDiffableDataSource<LocationSection, LocationCellViewModel> {
-    private let tableView: UITableView
-    private let nodes: [LocationNode]
+class AddLocationsDataSource:
+    UITableViewDiffableDataSource<LocationSection, LocationCellViewModel>,
+    LocationDiffableDataSourceProtocol {
     private var customListLocationNode: CustomListLocationNode
+    private let nodes: [LocationNode]
     var didUpdateCustomList: ((CustomListLocationNode) -> Void)?
+    let tableView: UITableView
+    let sections: [LocationSection]
 
     init(
         tableView: UITableView,
-        allLocations: [LocationNode],
+        allLocationNodes: [LocationNode],
         customList: CustomList
     ) {
         self.tableView = tableView
-        self.nodes = allLocations
+        self.nodes = allLocationNodes
 
         self.customListLocationNode = CustomListLocationNodeBuilder(
             customList: customList,
             allLocations: self.nodes
         ).customListLocationNode
 
+        let sections: [LocationSection] = [.customLists]
+        self.sections = sections
+
         super.init(tableView: tableView) { _, indexPath, itemIdentifier in
             let cell = tableView.dequeueReusableView(
-                withIdentifier: LocationSection.allCases[indexPath.section],
+                withIdentifier: sections[indexPath.section],
                 for: indexPath
-                // swiftlint:disable:next force_cast
-            ) as! LocationCell
+            ) as! LocationCell // swiftlint:disable:this force_cast
             cell.configure(item: itemIdentifier, behavior: .add)
             cell.selectionStyle = .none
             return cell
@@ -45,6 +49,14 @@ class AddLocationsDataSource: UITableViewDiffableDataSource<LocationSection, Loc
         tableView.registerReusableViews(from: LocationSection.self)
         defaultRowAnimation = .fade
         reloadWithSelectedLocations()
+    }
+
+    func nodeShowsChildren(_ node: LocationNode) -> Bool {
+        isLocationInCustomList(node: node)
+    }
+
+    func nodeShouldBeSelected(_ node: LocationNode) -> Bool {
+        customListLocationNode.children.contains(node)
     }
 
     private func reloadWithSelectedLocations() {
@@ -62,9 +74,13 @@ class AddLocationsDataSource: UITableViewDiffableDataSource<LocationSection, Loc
                 return
             }
 
-            // Walk tree backwards to determine which nodes should be expanded.
-            node.forEachAncestor { node in
-                node.showsChildren = true
+            // Only parents with partially selected children should be expanded.
+            node.forEachDescendant { descendantNode in
+                if customListLocationNode.children.contains(descendantNode) {
+                    descendantNode.forEachAncestor { descendantParentNode in
+                        descendantParentNode.showsChildren = true
+                    }
+                }
             }
 
             locationsList.append(contentsOf: recursivelyCreateCellViewModelTree(
@@ -73,53 +89,7 @@ class AddLocationsDataSource: UITableViewDiffableDataSource<LocationSection, Loc
                 indentationLevel: 1
             ))
         }
-        updateDataSnapshot(with: locationsList)
-    }
-
-    private func updateDataSnapshot(
-        with list: [LocationCellViewModel],
-        animated: Bool = false,
-        completion: (() -> Void)? = nil
-    ) {
-        var snapshot = NSDiffableDataSourceSnapshot<LocationSection, LocationCellViewModel>()
-
-        snapshot.appendSections([.customLists])
-        snapshot.appendItems(list, toSection: .customLists)
-
-        apply(snapshot, animatingDifferences: animated, completion: completion)
-    }
-
-    private func recursivelyCreateCellViewModelTree(
-        for node: LocationNode,
-        in section: LocationSection,
-        indentationLevel: Int
-    ) -> [LocationCellViewModel] {
-        var viewModels = [LocationCellViewModel]()
-        for childNode in node.children {
-            viewModels.append(
-                LocationCellViewModel(
-                    section: .customLists,
-                    node: childNode,
-                    indentationLevel: indentationLevel,
-                    isSelected: customListLocationNode.children.contains(childNode)
-                )
-            )
-
-            let indentationLevel = indentationLevel + 1
-
-            // Walk tree forward to determine which nodes should be expanded.
-            if isLocationInCustomList(node: childNode) {
-                viewModels.append(
-                    contentsOf: recursivelyCreateCellViewModelTree(
-                        for: childNode,
-                        in: section,
-                        indentationLevel: indentationLevel
-                    )
-                )
-            }
-        }
-
-        return viewModels
+        updateDataSnapshot(with: [locationsList])
     }
 
     private func isLocationInCustomList(node: LocationNode) -> Bool {
@@ -146,26 +116,23 @@ extension AddLocationsDataSource: UITableViewDelegate {
 
 extension AddLocationsDataSource: LocationCellDelegate {
     func toggleExpanding(cell: LocationCell) {
-        guard let indexPath = tableView.indexPath(for: cell),
-              let item = itemIdentifier(for: indexPath) else { return }
-        let isExpanded = item.node.showsChildren
-
-        item.node.showsChildren = !isExpanded
-
-        var locationList = snapshot().itemIdentifiers
-
-        if !isExpanded {
-            locationList.addSubNodes(from: item, at: indexPath)
-        } else {
-            locationList.removeSubNodes(from: item.node)
+        let items = toggledItems(for: cell).first!.map { item in
+            var item = item
+            if containsChild(parent: customListLocationNode, child: item.node) {
+                item.isSelected = true
+            }
+            return item
         }
 
-        updateDataSnapshot(with: locationList, animated: true, completion: {
-            self.scroll(to: item, animated: true)
+        updateDataSnapshot(with: [items], reloadExisting: true, completion: {
+            if let indexPath = self.tableView.indexPath(for: cell),
+               let item = self.itemIdentifier(for: indexPath) {
+                self.scroll(to: item, animated: true)
+            }
         })
     }
 
-    func toggleSelection(cell: LocationCell) {
+    func toggleSelecting(cell: LocationCell) {
         guard let index = tableView.indexPath(for: cell)?.row else { return }
 
         var locationList = snapshot().itemIdentifiers
@@ -181,33 +148,9 @@ extension AddLocationsDataSource: LocationCellDelegate {
         } else {
             customListLocationNode.remove(selectedLocation: item.node, with: locationList)
         }
-        updateDataSnapshot(with: locationList, completion: {
+        updateDataSnapshot(with: [locationList], completion: {
             self.didUpdateCustomList?(self.customListLocationNode)
         })
-    }
-}
-
-extension AddLocationsDataSource {
-    private func scroll(to item: LocationCellViewModel, animated: Bool) {
-        guard
-            let visibleIndexPaths = tableView.indexPathsForVisibleRows,
-            let indexPath = indexPath(for: item)
-        else { return }
-
-        if item.node.children.count > visibleIndexPaths.count {
-            tableView.scrollToRow(at: indexPath, at: .top, animated: animated)
-        } else {
-            if let last = item.node.children.last {
-                if let lastInsertedIndexPath = self.indexPath(for: LocationCellViewModel(
-                    section: .customLists,
-                    node: last
-                )),
-                    let lastVisibleIndexPath = visibleIndexPaths.last,
-                    lastInsertedIndexPath >= lastVisibleIndexPath {
-                    tableView.scrollToRow(at: lastInsertedIndexPath, at: .bottom, animated: animated)
-                }
-            }
-        }
     }
 }
 

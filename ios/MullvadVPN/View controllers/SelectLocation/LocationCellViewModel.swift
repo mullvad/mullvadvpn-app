@@ -12,7 +12,7 @@ struct LocationCellViewModel: Hashable {
     let section: LocationSection
     let node: LocationNode
     var indentationLevel = 0
-    var isSelected: Bool = false
+    var isSelected = false
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(section)
@@ -21,8 +21,8 @@ struct LocationCellViewModel: Hashable {
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.node == rhs.node &&
-        lhs.section == rhs.section &&
-        lhs.isSelected == rhs.isSelected
+            lhs.section == rhs.section &&
+            lhs.isSelected == rhs.isSelected
     }
 }
 
