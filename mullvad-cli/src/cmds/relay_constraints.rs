@@ -1,7 +1,8 @@
 use clap::Args;
 use mullvad_types::{
+    constraints::Constraint,
     location::{CityCode, CountryCode, Hostname},
-    relay_constraints::{Constraint, GeographicLocationConstraint, LocationConstraint},
+    relay_constraints::{GeographicLocationConstraint, LocationConstraint},
 };
 
 #[derive(Args, Debug, Clone)]
