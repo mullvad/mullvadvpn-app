@@ -212,6 +212,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
                         comment: ""
                     ),
                     style: .destructive,
+                    accessibilityId: .logOutDeviceConfirmButton,
                     handler: {
                         completion(true)
                     }
@@ -224,6 +225,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
                         comment: ""
                     ),
                     style: .default,
+                    accessibilityId: .logOutDeviceCancelButton,
                     handler: {
                         completion(false)
                     }

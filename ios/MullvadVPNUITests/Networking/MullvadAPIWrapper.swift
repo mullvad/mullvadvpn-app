@@ -6,6 +6,7 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+import CryptoKit
 import Foundation
 import XCTest
 
@@ -48,15 +49,13 @@ class MullvadAPIWrapper {
         return port
     }
 
-    /// Generate a mock WireGuard key
+    /// Generate a mock public WireGuard key
     private func generateMockWireGuardKey() -> Data {
-        var bytes = [UInt8]()
+        let privateKey = Curve25519.KeyAgreement.PrivateKey()
+        let publicKey = privateKey.publicKey
+        let publicKeyData = publicKey.rawRepresentation
 
-        for _ in 0 ..< 44 {
-            bytes.append(UInt8.random(in: 0 ..< 255))
-        }
-
-        return Data(bytes)
+        return publicKeyData
     }
 
     func createAccount() -> String {
@@ -85,6 +84,13 @@ class MullvadAPIWrapper {
             try mullvadAPI.addDevice(forAccount: account, publicKey: devicePublicKey)
         } catch {
             throw MullvadAPIError.requestError
+        }
+    }
+
+    /// Add multiple devices to specified account. Dummy WireGuard keys will be generated.
+    func addDevices(_ numberOfDevices: Int, account: String) throws {
+        for _ in 0 ..< numberOfDevices {
+            try self.addDevice(account)
         }
     }
 
