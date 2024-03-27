@@ -8,22 +8,13 @@
 
 import UIKit
 
-//protocol LocationCellDelegate: AnyObject {
-//    func toggle(cell: LocationCell)
-//}
-
 protocol LocationCellDelegate: AnyObject {
     func toggleExpanding(cell: LocationCell)
-    func toggleSelection(cell: LocationCell)
+    func toggleSelecting(cell: LocationCell)
 }
 
 class LocationCell: UITableViewCell {
     weak var delegate: LocationCellDelegate?
-
-    private let container: UIStackView = {
-        let view = UIStackView()
-        return view
-    }()
 
     private let locationLabel: UILabel = {
         let label = UILabel()
@@ -64,8 +55,16 @@ class LocationCell: UITableViewCell {
         return button
     }()
 
-    private var behavior: LocationCellBehavior = .select
+    private var locationLabelLeadingMargin: CGFloat {
+        switch behavior {
+        case .add:
+            0
+        case .select:
+            12
+        }
+    }
 
+    private var behavior: LocationCellBehavior = .select
     private let chevronDown = UIImage(resource: .iconChevronDown)
     private let chevronUp = UIImage(resource: .iconChevronUp)
 
@@ -152,7 +151,7 @@ class LocationCell: UITableViewCell {
 
         updateCollapseImage()
         updateAccessibilityCustomActions()
-//        updateDisabled()
+        updateDisabled()
         updateBackgroundColor()
         setLayoutMargins()
 
@@ -161,9 +160,9 @@ class LocationCell: UITableViewCell {
             statusIndicator,
             locationLabel,
             collapseButton,
-            checkboxButton
+            checkboxButton,
         ]) {
-            tickImageView.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor)
+            tickImageView.pinEdgesToSuperviewMargins(PinnableEdges([.leading(0)]))
             tickImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
 
             statusIndicator.widthAnchor.constraint(equalToConstant: 16)
@@ -171,29 +170,24 @@ class LocationCell: UITableViewCell {
             statusIndicator.centerXAnchor.constraint(equalTo: tickImageView.centerXAnchor)
             statusIndicator.centerYAnchor.constraint(equalTo: tickImageView.centerYAnchor)
 
-            checkboxButton.pinEdgeToSuperviewMargin(.leading(.zero))
-            checkboxButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
-            checkboxButton.widthAnchor
-                .constraint(
-                    equalToConstant: 44.0
-                )
-            checkboxButton.heightAnchor.constraint(equalTo: checkboxButton.widthAnchor, multiplier: 1, constant: 0)
-
-            locationLabel.leadingAnchor.constraint(
-                equalTo: statusIndicator.trailingAnchor,
-                constant: 12
+            checkboxButton.pinEdgesToSuperview(PinnableEdges([.top(0), .bottom(0)]))
+            checkboxButton.trailingAnchor.constraint(equalTo: locationLabel.leadingAnchor, constant: 14)
+            checkboxButton.widthAnchor.constraint(
+                equalToConstant: UIMetrics.contentLayoutMargins.leading + UIMetrics.contentLayoutMargins.trailing + 24
             )
 
+            locationLabel.pinEdgesToSuperviewMargins(PinnableEdges([.top(0), .bottom(0)]))
+            locationLabel.leadingAnchor.constraint(
+                equalTo: statusIndicator.trailingAnchor,
+                constant: locationLabelLeadingMargin
+            )
             locationLabel.trailingAnchor.constraint(lessThanOrEqualTo: collapseButton.leadingAnchor)
                 .withPriority(.defaultHigh)
-            locationLabel.pinEdgesToSuperviewMargins(PinnableEdges([.top(.zero), .bottom(.zero)]))
 
-            collapseButton.widthAnchor
-                .constraint(
-                    equalToConstant: UIMetrics.contentLayoutMargins.leading + UIMetrics
-                        .contentLayoutMargins.trailing + 24.0
-                )
-            collapseButton.pinEdgesToSuperviewMargins(.all().excluding(.leading))
+            collapseButton.widthAnchor.constraint(
+                equalToConstant: UIMetrics.contentLayoutMargins.leading + UIMetrics.contentLayoutMargins.trailing + 24
+            )
+            collapseButton.pinEdgesToSuperview(.all().excluding(.leading))
         }
     }
 
@@ -305,18 +299,19 @@ class LocationCell: UITableViewCell {
     }
 
     @objc private func toggleCheckboxButton(_ sender: UIControl) {
-        delegate?.toggleSelection(cell: self)
+        delegate?.toggleSelecting(cell: self)
     }
 }
 
-enum LocationCellBehavior {
-    case add
-    case select
-}
-
 extension LocationCell {
+    enum LocationCellBehavior {
+        case add
+        case select
+    }
+
     func configure(item: LocationCellViewModel, behavior: LocationCellBehavior) {
         accessibilityIdentifier = item.node.code
+        isDisabled = !item.node.isActive
         locationLabel.text = item.node.name
         showsCollapseControl = !item.node.children.isEmpty
         isExpanded = item.node.showsChildren

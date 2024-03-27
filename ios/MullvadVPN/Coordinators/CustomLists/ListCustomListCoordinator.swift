@@ -92,7 +92,7 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
         }
 
         tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) { [weak self] in
-            self?.tunnelManager.startTunnel()
+            self?.tunnelManager.reconnectTunnel(selectNewRelay: true)
         }
     }
 

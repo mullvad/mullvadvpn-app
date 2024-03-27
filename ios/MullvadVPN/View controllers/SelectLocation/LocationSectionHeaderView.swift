@@ -74,7 +74,9 @@ class LocationSectionHeaderView: UIView, UIContentView {
 
     private func applyAppearance() {
         backgroundColor = .primaryColor
-        directionalLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 24)
+
+        let leadingInset = UIMetrics.locationCellLayoutMargins.leading + 6
+        directionalLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: leadingInset, bottom: 8, trailing: 24)
     }
 }
 
