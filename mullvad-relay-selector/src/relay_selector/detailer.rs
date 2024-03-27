@@ -14,10 +14,14 @@ use mullvad_types::{
     constraints::Constraint,
     endpoint::MullvadWireguardEndpoint,
     relay_constraints::TransportPort,
-    relay_list::{OpenVpnEndpoint, OpenVpnEndpointData, Relay, WireguardEndpointData},
+    relay_list::{
+        OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData, WireguardEndpointData,
+    },
 };
 use talpid_types::net::{
-    all_of_the_internet, wireguard::PeerConfig, Endpoint, IpVersion, TransportProtocol,
+    all_of_the_internet,
+    wireguard::{PeerConfig, PublicKey},
+    Endpoint, IpVersion, TransportProtocol,
 };
 
 use super::{
@@ -31,6 +35,8 @@ pub enum Error {
     NoOpenVpnEndpoint,
     #[error("No bridge endpoint could be derived")]
     NoBridgeEndpoint,
+    #[error("OpenVPN relays and bridges does not have a public key. Expected a Wireguard relay")]
+    MissingPublicKey,
     #[error("The selected relay does not support IPv6")]
     NoIPv6(Box<Relay>),
     #[error("Invalid port argument: port {0} is not in any valid Wireguard port range")]
@@ -70,7 +76,7 @@ fn wireguard_singlehop_endpoint(
         SocketAddr::new(host, port)
     };
     let peer_config = PeerConfig {
-        public_key: exit.endpoint_data.unwrap_wireguard_ref().public_key.clone(),
+        public_key: get_public_key(exit)?.clone(),
         endpoint,
         allowed_ips: all_of_the_internet(),
         // This will be filled in later, not the relay selector's problem
@@ -106,7 +112,7 @@ fn wireguard_multihop_endpoint(
         SocketAddr::from((ip, port))
     };
     let exit = PeerConfig {
-        public_key: exit.endpoint_data.unwrap_wireguard_ref().public_key.clone(),
+        public_key: get_public_key(exit)?.clone(),
         endpoint: exit_endpoint,
         // The exit peer should be able to route incoming VPN traffic to the rest of
         // the internet.
@@ -121,11 +127,7 @@ fn wireguard_multihop_endpoint(
         SocketAddr::from((host, port))
     };
     let entry = PeerConfig {
-        public_key: entry
-            .endpoint_data
-            .unwrap_wireguard_ref()
-            .public_key
-            .clone(),
+        public_key: get_public_key(entry)?.clone(),
         endpoint: entry_endpoint,
         // The entry peer should only be able to route incoming VPN traffic to the
         // exit peer.
@@ -174,6 +176,15 @@ fn get_port_for_wireguard_relay(
                 Err(Error::PortNotInRange(port))
             }
         }
+    }
+}
+
+/// Read the [`PublicKey`] of a relay. This will only succeed if [relay][`Relay`] is a
+/// [Wireguard][`RelayEndpointData::Wireguard`] relay.
+fn get_public_key(relay: &Relay) -> Result<&PublicKey, Error> {
+    match &relay.endpoint_data {
+        RelayEndpointData::Wireguard(endpoint) => Ok(&endpoint.public_key),
+        RelayEndpointData::Openvpn | RelayEndpointData::Bridge => Err(Error::MissingPublicKey),
     }
 }
 
