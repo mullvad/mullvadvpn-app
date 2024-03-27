@@ -1,10 +1,10 @@
 use super::{
-    ConnectingState, ErrorState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
+    ConnectingState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelCommandReceiver, TunnelState, TunnelStateTransition,
 };
-#[cfg(target_os = "macos")]
-use crate::dns;
 use crate::firewall::FirewallPolicy;
+#[cfg(target_os = "macos")]
+use crate::{dns, tunnel_state_machine::ErrorState};
 use futures::StreamExt;
 #[cfg(target_os = "macos")]
 use std::net::Ipv4Addr;
