@@ -110,16 +110,14 @@ pub struct VpnInterface {
 }
 
 pub struct SplitTunnelHandle {
-    redir_handle: Option<RedirectHandle>,
+    redir_handle: RedirectHandle,
     tun_name: String,
 }
 
 impl SplitTunnelHandle {
-    pub async fn shutdown(mut self) -> Result<(), Error> {
+    pub async fn shutdown(self) -> Result<(), Error> {
         log::debug!("Shutting down split tunnel");
-
-        let handle = self.redir_handle.take().unwrap();
-        let _ = handle.stop().await?;
+        let _ = self.redir_handle.stop().await?;
         Ok(())
     }
 
@@ -132,19 +130,17 @@ impl SplitTunnelHandle {
         default_interface: DefaultInterface,
         vpn_interface: Option<VpnInterface>,
     ) -> Result<Self, Error> {
-        let handle = self.redir_handle.take().unwrap();
-        let (st_utun, pktap_stream, classify, _default_interface, _) = handle.stop().await?;
+        let (st_utun, pktap_stream, classify, _default_interface, _) =
+            self.redir_handle.stop().await?;
 
-        self.redir_handle = Some(
-            redirect_packets_for_pktap_stream(
-                st_utun,
-                pktap_stream,
-                default_interface,
-                vpn_interface,
-                classify,
-            )
-            .await?,
-        );
+        self.redir_handle = redirect_packets_for_pktap_stream(
+            st_utun,
+            pktap_stream,
+            default_interface,
+            vpn_interface,
+            classify,
+        )
+        .await?;
 
         Ok(self)
     }
@@ -187,7 +183,7 @@ pub async fn create_split_tunnel(
         redirect_packets(tun_device, default_interface, vpn_interface, classify).await?;
 
     Ok(SplitTunnelHandle {
-        redir_handle: Some(redir_handle),
+        redir_handle,
         tun_name,
     })
 }
