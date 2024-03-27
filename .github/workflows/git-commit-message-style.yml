@@ -9,6 +9,7 @@ jobs:
     name: Check commit message style
     runs-on: ubuntu-latest
     steps:
+      # Make sure there are no whitespaces other than space, tab and newline in a commit message.
       - name: Check for unicode whitespaces
         uses: gsactions/commit-message-checker@v2
         with:
@@ -21,6 +22,8 @@ jobs:
           checkAllCommitMessages: 'true' # optional: this checks all commits associated with a pull request
           accessToken: ${{ secrets.GITHUB_TOKEN }} # only required if checkAllCommitMessages is true
 
+      # Git commit messages should follow our guidelines. This action enforces that.
+      # Guidelines:  https://github.com/mullvad/coding-guidelines/blob/main/README.md#git
       - name: Check against guidelines
         uses: mristin/opinionated-commit-message@f3b9cec249cabffbae7cd564542fd302cc576827 #v3.1.1
         with:
