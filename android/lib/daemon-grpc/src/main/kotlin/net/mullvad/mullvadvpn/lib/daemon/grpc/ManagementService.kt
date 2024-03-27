@@ -15,9 +15,11 @@ import java.net.InetSocketAddress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import mullvad_daemon.management_interface.ManagementInterface
@@ -29,7 +31,6 @@ import mullvad_daemon.management_interface.copy
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory as ModelAccountHistory
-import net.mullvad.mullvadvpn.model.AccountState
 import net.mullvad.mullvadvpn.model.AppVersionInfo as ModelAppVersionInfo
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.CustomDnsOptions as ModelCustomDnsOptions
@@ -37,6 +38,7 @@ import net.mullvad.mullvadvpn.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.model.CustomListsSettings
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions as ModelDefaultDnsOptions
 import net.mullvad.mullvadvpn.model.Device as ModelDevice
+import net.mullvad.mullvadvpn.model.DeviceState as ModelDeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions as ModelDnsOptions
 import net.mullvad.mullvadvpn.model.DnsState as ModelDnsState
 import net.mullvad.mullvadvpn.model.GeoIpLocation as ModelGeoIpLocation
@@ -92,13 +94,13 @@ class ManagementService(
         MutableStateFlow(ManagementServiceState())
     val state: StateFlow<ManagementServiceState> = _mutableStateFlow
 
-    val deviceState: Flow<AccountState> =
+    val deviceState: Flow<ModelDeviceState> =
         _mutableStateFlow
             .mapNotNull { it.device }
             .map {
                 when (it.state) {
                     DeviceState.State.LOGGED_IN ->
-                        AccountState.LoggedIn(
+                        ModelDeviceState.LoggedIn(
                             device =
                                 ModelDevice(
                                     it.device.device.id,
@@ -108,11 +110,12 @@ class ManagementService(
                                 ),
                             accountToken = it.device.accountToken
                         )
-                    DeviceState.State.LOGGED_OUT -> AccountState.LoggedOut
-                    DeviceState.State.REVOKED -> AccountState.Revoked
-                    DeviceState.State.UNRECOGNIZED -> AccountState.Unrecognized
+                    DeviceState.State.LOGGED_OUT -> ModelDeviceState.LoggedOut
+                    DeviceState.State.REVOKED -> ModelDeviceState.Revoked
+                    DeviceState.State.UNRECOGNIZED -> ModelDeviceState.Unknown
                 }
             }
+            .stateIn(scope, SharingStarted.Eagerly, ModelDeviceState.Unknown)
 
     val tunnelState: Flow<ModelTunnelState> =
         _mutableStateFlow.mapNotNull { it.tunnelState }.map { it.toTunnelState() }
@@ -124,9 +127,9 @@ class ManagementService(
         _mutableStateFlow.mapNotNull { it.versionInfo }.map { it.toModelAppVersionInfo() }
 
     suspend fun start() {
-        scope.launch { _mutableStateFlow.update { getInitialServiceState() } }
         scope.launch {
             managementService.eventsListen(Empty.getDefaultInstance()).collect { event ->
+                Log.d("ManagementService", "Event: $event")
                 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
                 when (event.eventCase) {
                     DaemonEvent.EventCase.TUNNEL_STATE ->
@@ -145,6 +148,7 @@ class ManagementService(
                 }
             }
         }
+        scope.launch { _mutableStateFlow.update { getInitialServiceState() } }
     }
 
     suspend fun getDevice(): DeviceState = managementService.getDevice(Empty.getDefaultInstance())
