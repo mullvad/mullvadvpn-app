@@ -94,6 +94,6 @@ extension EditCustomListCoordinator: CustomListViewControllerDelegate {
 
         coordinator.start()
 
-        coordinator.addChild(coordinator)
+        addChild(coordinator)
     }
 }
