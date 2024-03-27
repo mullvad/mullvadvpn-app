@@ -22,11 +22,9 @@ jobs:
           accessToken: ${{ secrets.GITHUB_TOKEN }} # only required if checkAllCommitMessages is true
 
       - name: Check against guidelines
-        uses: mristin/opinionated-commit-message@v3.1.0
+        uses: mristin/opinionated-commit-message@f3b9cec249cabffbae7cd564542fd302cc576827 #v3.1.1
         with:
           # Commit messages are allowed to be subject only, no body
           allow-one-liners: 'true'
           # This action defaults to 50 char subjects, but 72 is fine.
           max-subject-line-length: '72'
-          # The action's wordlist is a bit short. Add more accepted verbs
-          additional-verbs: 'restart, coalesce'
