@@ -17,6 +17,7 @@ import {
   ApiAccessMethodSettings,
   AuthFailedError,
   BridgeSettings,
+  BridgesMethod,
   BridgeState,
   BridgeType,
   ConnectionConfig,
@@ -27,6 +28,7 @@ import {
   DaemonEvent,
   DeviceEvent,
   DeviceState,
+  DirectMethod,
   EndpointObfuscationType,
   ErrorState,
   ErrorStateCause,
@@ -1910,15 +1912,14 @@ function convertFromApiAccessMethodSettings(
 ): ApiAccessMethodSettings {
   const direct = convertFromApiAccessMethodSetting(
     ensureExists(accessMethods.getDirect(), "no 'Direct' access method was found"),
-  );
+  ) as AccessMethodSetting<DirectMethod>;
   const bridges = convertFromApiAccessMethodSetting(
     ensureExists(accessMethods.getMullvadBridges(), "no 'Mullvad Bridges' access method was found"),
-  );
-  const custom =
-    accessMethods
-      .getCustomList()
-      .filter((setting) => setting.hasId() && setting.hasAccessMethod())
-      .map(convertFromApiAccessMethodSetting) ?? [];
+  ) as AccessMethodSetting<BridgesMethod>;
+  const custom = (accessMethods
+    .getCustomList()
+    .filter((setting) => setting.hasId() && setting.hasAccessMethod())
+    .map(convertFromApiAccessMethodSetting) ?? []) as Array<AccessMethodSetting<CustomProxy>>;
 
   return {
     direct,
