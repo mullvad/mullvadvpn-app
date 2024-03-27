@@ -168,15 +168,6 @@ pub enum RelayEndpointData {
     Wireguard(WireguardRelayEndpointData),
 }
 
-impl RelayEndpointData {
-    pub fn unwrap_wireguard_ref(&self) -> &WireguardRelayEndpointData {
-        if let RelayEndpointData::Wireguard(wg) = &self {
-            return wg;
-        }
-        panic!("not a wireguard endpoint");
-    }
-}
-
 /// Data needed to connect to OpenVPN endpoints.
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct OpenVpnEndpointData {
