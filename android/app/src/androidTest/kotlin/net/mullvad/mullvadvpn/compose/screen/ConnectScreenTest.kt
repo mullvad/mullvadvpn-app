@@ -79,7 +79,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connecting(null, null),
                             tunnelState = TunnelState.Connecting(null, null),
                             inAddress = null,
                             outAddress = "",
@@ -113,8 +112,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
-                            tunnelUiState =
-                                TunnelState.Connecting(endpoint = mockTunnelEndpoint, null),
                             tunnelState =
                                 TunnelState.Connecting(endpoint = mockTunnelEndpoint, null),
                             inAddress = null,
@@ -148,7 +145,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
                             tunnelState = TunnelState.Connected(mockTunnelEndpoint, null),
                             inAddress = null,
                             outAddress = "",
@@ -180,7 +176,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
                             tunnelState = TunnelState.Connected(mockTunnelEndpoint, null),
                             inAddress = null,
                             outAddress = "",
@@ -213,8 +208,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = mockSelectedLocation,
-                            tunnelUiState =
-                                TunnelState.Disconnecting(ActionAfterDisconnect.Nothing),
                             tunnelState =
                                 TunnelState.Disconnecting(ActionAfterDisconnect.Nothing),
                             inAddress = null,
@@ -248,7 +241,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = mockSelectedLocation,
-                            tunnelUiState = TunnelState.Disconnected(),
                             tunnelState = TunnelState.Disconnected(),
                             inAddress = null,
                             outAddress = "",
@@ -281,10 +273,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = mockSelectedLocation,
-                            tunnelUiState =
-                                TunnelState.Error(
-                                    ErrorState(ErrorStateCause.StartTunnelError, true)
-                                ),
                             tunnelState =
                                 TunnelState.Error(
                                     ErrorState(ErrorStateCause.StartTunnelError, true)
@@ -324,10 +312,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = mockSelectedLocation,
-                            tunnelUiState =
-                                TunnelState.Error(
-                                    ErrorState(ErrorStateCause.StartTunnelError, false)
-                                ),
                             tunnelState =
                                 TunnelState.Error(
                                     ErrorState(ErrorStateCause.StartTunnelError, false)
@@ -365,8 +349,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
-                            tunnelUiState =
-                                TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect),
                             tunnelState =
                                 TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect),
                             inAddress = null,
@@ -402,7 +384,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = mockSelectedLocation,
-                            tunnelUiState = TunnelState.Disconnecting(ActionAfterDisconnect.Block),
                             tunnelState =
                                 TunnelState.Disconnecting(ActionAfterDisconnect.Block),
                             inAddress = null,
@@ -438,7 +419,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = mockSelectedLocation,
-                            tunnelUiState = TunnelState.Disconnected(),
                             tunnelState = TunnelState.Disconnected(),
                             inAddress = null,
                             outAddress = "",
@@ -472,7 +452,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
                             tunnelState = TunnelState.Connected(mockTunnelEndpoint, null),
                             inAddress = null,
                             outAddress = "",
@@ -506,7 +485,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
                             tunnelState = TunnelState.Connected(mockTunnelEndpoint, null),
                             inAddress = null,
                             outAddress = "",
@@ -539,7 +517,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Disconnected(),
                             tunnelState = TunnelState.Disconnected(),
                             inAddress = null,
                             outAddress = "",
@@ -572,7 +549,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connecting(null, null),
                             tunnelState = TunnelState.Connecting(null, null),
                             inAddress = null,
                             outAddress = "",
@@ -613,7 +589,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = mockLocation,
                             selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
                             tunnelState = TunnelState.Connected(mockTunnelEndpoint, null),
                             inAddress = mockInAddress,
                             outAddress = mockOutAddress,
@@ -654,7 +629,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connecting(null, null),
                             tunnelState = TunnelState.Connecting(null, null),
                             inAddress = null,
                             outAddress = "",
@@ -690,7 +664,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connecting(null, null),
                             tunnelState = TunnelState.Connecting(null, null),
                             inAddress = null,
                             outAddress = "",
@@ -723,7 +696,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connecting(null, null),
                             tunnelState = TunnelState.Connecting(null, null),
                             inAddress = null,
                             outAddress = "",
@@ -761,7 +733,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connecting(null, null),
                             tunnelState = TunnelState.Connecting(null, null),
                             inAddress = null,
                             outAddress = "",
@@ -795,7 +766,6 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connecting(null, null),
                             tunnelState = TunnelState.Connecting(null, null),
                             inAddress = null,
                             outAddress = "",

@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.app.Activity
 import android.content.Intent
 import android.net.VpnService
 import android.os.Bundle
@@ -12,9 +11,6 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.di.paymentModule
@@ -23,12 +19,8 @@ import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermis
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.repository.AccountRepository
-import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
@@ -40,12 +32,9 @@ class MainActivity : ComponentActivity() {
             // handling the callback value.
         }
 
-    private lateinit var accountRepository: AccountRepository
-    private lateinit var deviceRepository: DeviceRepository
     private lateinit var privacyDisclaimerRepository: PrivacyDisclaimerRepository
     private lateinit var serviceConnectionManager: ServiceConnectionManager
-    private lateinit var changelogViewModel: ChangelogViewModel
-    private lateinit var serviceConnectionViewModel: NoDaemonViewModel
+    private lateinit var noDaemonViewModel: NoDaemonViewModel
     private lateinit var managementService: ManagementService
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,15 +44,12 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         getKoin().apply {
-            accountRepository = get()
-            deviceRepository = get()
             privacyDisclaimerRepository = get()
             serviceConnectionManager = get()
-            changelogViewModel = get()
-            serviceConnectionViewModel = get()
+            noDaemonViewModel = get()
             managementService = get()
         }
-        lifecycle.addObserver(serviceConnectionViewModel)
+        lifecycle.addObserver(noDaemonViewModel)
 
         super.onCreate(savedInstanceState)
 
@@ -78,25 +64,19 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
-                    startServiceSuspend(waitForConnectedReady = false)
+                    startServiceSuspend()
                     startManagementService()
                 }
             }
         }
     }
 
-    suspend fun startServiceSuspend(waitForConnectedReady: Boolean = true) {
+    fun startServiceSuspend() {
         requestNotificationPermissionIfMissing(requestNotificationPermissionLauncher)
         serviceConnectionManager.bind(
-            vpnPermissionRequestHandler = ::requestVpnPermission,
+            //vpnPermissionRequestHandler = ::requestVpnPermission,
             apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
         )
-        if (waitForConnectedReady) {
-            // Ensure we wait until the service is ready
-            serviceConnectionManager.connectionState
-                .filterIsInstance<ServiceConnectionState.ConnectedReady>()
-                .first()
-        }
     }
 
     suspend fun startManagementService() {
@@ -109,7 +89,7 @@ class MainActivity : ComponentActivity() {
 
         // Ensure we are responding to the correct request
         if (requestCode == REQUEST_VPN_PERMISSION_RESULT_CODE) {
-            serviceConnectionManager.onVpnPermissionResult(resultCode == Activity.RESULT_OK)
+//        serviceConnectionManager.onVpnPermissionResult(resultCode == Activity.RESULT_OK)
         }
     }
 
@@ -121,7 +101,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         serviceConnectionManager.onDestroy()
-        lifecycle.removeObserver(serviceConnectionViewModel)
+        lifecycle.removeObserver(noDaemonViewModel)
         super.onDestroy()
     }
 

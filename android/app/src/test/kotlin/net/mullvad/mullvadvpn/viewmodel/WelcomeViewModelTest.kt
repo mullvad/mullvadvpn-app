@@ -44,7 +44,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class WelcomeViewModelTest {
 
     private val serviceConnectionStateFlow =
-        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
+        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
     private val deviceStateFlow = MutableStateFlow<DeviceState>(DeviceState.Initial)
     private val accountExpiryStateFlow = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
     private val purchaseResultFlow = MutableStateFlow<PurchaseResult?>(null)

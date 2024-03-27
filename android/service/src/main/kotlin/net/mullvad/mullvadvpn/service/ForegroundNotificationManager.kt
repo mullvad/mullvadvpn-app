@@ -16,12 +16,11 @@ import net.mullvad.mullvadvpn.lib.common.util.Intermittent
 import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.service.endpoint.ConnectionProxy
 import net.mullvad.mullvadvpn.service.notifications.TunnelStateNotification
 
 class ForegroundNotificationManager(
     val service: MullvadVpnService,
-    val connectionProxy: ConnectionProxy,
+//    val connectionProxy: ConnectionProxy,
     val intermittentDaemon: Intermittent<MullvadDaemon>
 ) {
     private sealed class UpdaterMessage {
@@ -40,11 +39,11 @@ class ForegroundNotificationManager(
     private var loggedIn by
         observable(false) { _, _, _ -> updater.trySendBlocking(UpdaterMessage.UpdateAction()) }
 
-    private val tunnelState
-        get() = connectionProxy.onStateChange.latestEvent
+//    private val tunnelState
+//        get() = connectionProxy.onStateChange.latestEvent
 
-    private val shouldBeOnForeground
-        get() = lockedToForeground || !(tunnelState is TunnelState.Disconnected)
+//    private val shouldBeOnForeground
+//        get() = lockedToForeground || !(tunnelState is TunnelState.Disconnected)
 
     var onForeground = false
         private set
@@ -55,18 +54,18 @@ class ForegroundNotificationManager(
         }
 
     init {
-        connectionProxy.onStateChange.subscribe(this) { newState ->
-            updater.trySendBlocking(UpdaterMessage.NewTunnelState(newState))
-        }
-
-        intermittentDaemon.registerListener(this) { daemon ->
-            jobTracker.newBackgroundJob("notificationLoggedInJob") {
-                daemon
-                    ?.deviceStateUpdates
-                    ?.onStart { daemon.getAndEmitDeviceState()?.let { emit(it) } }
-                    ?.collect { deviceState -> loggedIn = deviceState is DeviceState.LoggedIn }
-            }
-        }
+//        connectionProxy.onStateChange.subscribe(this) { newState ->
+//            updater.trySendBlocking(UpdaterMessage.NewTunnelState(newState))
+//        }
+//
+//        intermittentDaemon.registerListener(this) { daemon ->
+//            jobTracker.newBackgroundJob("notificationLoggedInJob") {
+//                daemon
+//                    ?.deviceStateUpdates
+//                    ?.onStart { daemon.getAndEmitDeviceState()?.let { emit(it) } }
+//                    ?.collect { deviceState -> loggedIn = deviceState is DeviceState.LoggedIn }
+//            }
+//        }
 
         updater.trySendBlocking(UpdaterMessage.UpdateNotification())
     }
@@ -74,7 +73,7 @@ class ForegroundNotificationManager(
     fun onDestroy() {
         jobTracker.cancelAllJobs()
         intermittentDaemon.unregisterListener(this)
-        connectionProxy.onStateChange.unsubscribe(this)
+//        connectionProxy.onStateChange.unsubscribe(this)
         updater.close()
     }
 
@@ -113,14 +112,14 @@ class ForegroundNotificationManager(
     }
 
     fun updateNotification() {
-        if (shouldBeOnForeground != onForeground) {
-            if (shouldBeOnForeground) {
-                showOnForeground()
-            } else {
-                service.stopForeground(Service.STOP_FOREGROUND_DETACH)
-                onForeground = false
-            }
-        }
+//        if (shouldBeOnForeground != onForeground) {
+//            if (shouldBeOnForeground) {
+//                showOnForeground()
+//            } else {
+//                service.stopForeground(Service.STOP_FOREGROUND_DETACH)
+//                onForeground = false
+//            }
+//        }
     }
 
     fun cancelNotification() {
