@@ -29,4 +29,4 @@ jobs:
           # This action defaults to 50 char subjects, but 72 is fine.
           max-subject-line-length: '72'
           # The action's wordlist is a bit short. Add more accepted verbs
-          additional-verbs: 'restart, coalesce, tidy'
+          additional-verbs: 'tidy'
