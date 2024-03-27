@@ -15,9 +15,7 @@ talpid-tunnel-config-client = { path = "../../../talpid-tunnel-config-client" }
 talpid-types = { path = "../../../talpid-types" }
 
 log = { workspace = true }
-rand = "0.8"
 tonic = { workspace = true }
-futures = "0.3"
 tower = { workspace = true }
 prost = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
