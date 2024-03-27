@@ -114,16 +114,22 @@ pub const fn filter_openvpn(relay: &Relay) -> bool {
 }
 
 /// Returns whether the relay matches the tunnel constraint `filter`
+#[cfg(not(target_os = "android"))]
 pub const fn filter_tunnel_type(filter: &Constraint<TunnelType>, relay: &Relay) -> bool {
     match filter {
         Constraint::Any => true,
         Constraint::Only(typ) => match typ {
-            // Do not keep OpenVPN relays on Android
-            TunnelType::OpenVpn if cfg!(target_os = "android") => false,
             TunnelType::OpenVpn => filter_openvpn(relay),
             TunnelType::Wireguard => filter_wireguard(relay),
         },
     }
+}
+
+/// Returns whether the relay matches the tunnel constraint `filter`
+#[cfg(target_os = "android")]
+pub const fn filter_tunnel_type(_: &Constraint<TunnelType>, relay: &Relay) -> bool {
+    // Only keep Wireguard relays on Android (i.e. filter out OpenVPN relays)
+    filter_wireguard(relay)
 }
 
 /// Returns whether the relay is a Wireguard relay.

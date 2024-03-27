@@ -964,6 +964,7 @@ impl RelaySelector {
 
     /// # Returns
     /// A randomly selected relay that meets the specified constraints, or `None` if no suitable relay is found.
+    #[cfg(not(target_os = "android"))]
     fn choose_openvpn_relay(
         query: &RelayQuery,
         config: &NormalSelectorConfig<'_>,
