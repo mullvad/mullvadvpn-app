@@ -3,7 +3,7 @@ use super::helpers::{
 };
 use super::{config::TEST_CONFIG, Error, TestContext};
 use crate::network_monitor::{start_packet_monitor, MonitorOptions};
-use crate::tests::helpers::login_with_retries;
+use crate::tests::helpers::{login_with_retries, ConnChecker};
 
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
