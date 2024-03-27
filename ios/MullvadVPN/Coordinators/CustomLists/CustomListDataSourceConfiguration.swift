@@ -63,6 +63,22 @@ class CustomListDataSourceConfiguration: NSObject {
 }
 
 extension CustomListDataSourceConfiguration: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return nil
+    }
+
+    // Header height shenanigans to avoid extra spacing in testing sections when testing is NOT ongoing.
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        let sectionIdentifier = dataSource.snapshot().sectionIdentifiers[section]
+
+        return switch sectionIdentifier {
+        case .name:
+            16
+        default:
+            UITableView.automaticDimension
+        }
+    }
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         UIMetrics.SettingsCell.customListsCellHeight
     }
