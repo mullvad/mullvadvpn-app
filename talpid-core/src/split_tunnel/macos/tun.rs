@@ -130,18 +130,10 @@ impl SplitTunnelHandle {
         default_interface: DefaultInterface,
         vpn_interface: Option<VpnInterface>,
     ) -> Result<Self, Error> {
-        let (st_utun, pktap_stream, classify, _default_interface, _) =
-            self.redir_handle.stop().await?;
-
-        self.redir_handle = redirect_packets_for_pktap_stream(
-            st_utun,
-            pktap_stream,
-            default_interface,
-            vpn_interface,
-            classify,
-        )
-        .await?;
-
+        self.redir_handle = self
+            .redir_handle
+            .set_interfaces(default_interface, vpn_interface)
+            .await?;
         Ok(self)
     }
 }
@@ -189,11 +181,12 @@ pub async fn create_split_tunnel(
 type PktapStream = std::pin::Pin<Box<dyn Stream<Item = Result<PktapPacket, Error>> + Send>>;
 
 struct RedirectHandle {
+    /// A sender that gracefully stops the other tasks (`ingress_task`, and `classify_task`)
     abort_tx: broadcast::Sender<()>,
-    ingress_task: tokio::task::JoinHandle<(
-        tokio::io::ReadHalf<tun::AsyncDevice>,
-        tokio::io::WriteHalf<tun::AsyncDevice>,
-    )>,
+    /// Task that handles incoming packets. On completion, it returns a handle for the ST utun
+    ingress_task: tokio::task::JoinHandle<tun::AsyncDevice>,
+    /// Task that handles outgoing packets. On completion, it returns a handle for the pktap, as
+    /// well as the function used to classify packets
     classify_task: tokio::task::JoinHandle<
         Result<
             (
@@ -203,39 +196,43 @@ struct RedirectHandle {
             Error,
         >,
     >,
-    default_interface: DefaultInterface,
-    vpn_interface: Option<VpnInterface>,
 }
 
 impl RedirectHandle {
-    pub async fn stop(
+    pub async fn stop(self) -> Result<(), Error> {
+        let _ = self.abort_tx.send(());
+        let _ = self.ingress_task.await.map_err(|_| Error::StopRedirect)?;
+        let _ = self
+            .classify_task
+            .await
+            .map_err(|_| Error::StopRedirect)??;
+        Ok(())
+    }
+
+    pub async fn set_interfaces(
         self,
-    ) -> Result<
-        (
-            tun::AsyncDevice,
-            PktapStream,
-            Box<dyn Fn(&PktapPacket) -> RoutingDecision + Send + 'static>,
-            DefaultInterface,
-            Option<VpnInterface>,
-        ),
-        Error,
-    > {
+        default_interface: DefaultInterface,
+        vpn_interface: Option<VpnInterface>,
+    ) -> Result<Self, Error> {
         let _ = self.abort_tx.send(());
 
-        let (tun_reader, tun_writer) = self.ingress_task.await.map_err(|_| Error::StopRedirect)?;
+        let st_utun = self.ingress_task.await.map_err(|_| Error::StopRedirect)?;
 
         let (pktap_stream, classify) = self
             .classify_task
             .await
             .map_err(|_| Error::StopRedirect)??;
 
-        Ok((
-            tun_reader.unsplit(tun_writer),
+        let new_handle = redirect_packets_for_pktap_stream(
+            st_utun,
             pktap_stream,
+            default_interface,
+            vpn_interface,
             classify,
-            self.default_interface,
-            self.vpn_interface,
-        ))
+        )
+        .await?;
+
+        Ok(new_handle)
     }
 }
 
@@ -313,10 +310,7 @@ async fn redirect_packets_for_pktap_stream(
     let vpn_v4 = vpn_interface.as_ref().and_then(|iface| iface.v4_address);
     let vpn_v6 = vpn_interface.as_ref().and_then(|iface| iface.v6_address);
 
-    let ingress_task: tokio::task::JoinHandle<(
-        tokio::io::ReadHalf<tun::AsyncDevice>,
-        tokio::io::WriteHalf<tun::AsyncDevice>,
-    )> = tokio::spawn(async move {
+    let ingress_task: tokio::task::JoinHandle<tun::AsyncDevice> = tokio::spawn(async move {
         let mut garbage: Vec<u8> = vec![0u8; 8 * 1024 * 1024];
         let dummy_read = tokio::spawn(async move {
             loop {
@@ -357,11 +351,8 @@ async fn redirect_packets_for_pktap_stream(
 
         log::debug!("Stopping ST utun ingress");
 
-        (tun_reader, tun_writer)
+        tun_reader.unsplit(tun_writer)
     });
-
-    let default_interface_clone = default_interface.clone();
-    let vpn_interface_clone = vpn_interface.clone();
 
     let classify_task = tokio::spawn(async move {
         loop {
@@ -392,8 +383,6 @@ async fn redirect_packets_for_pktap_stream(
         abort_tx,
         ingress_task,
         classify_task,
-        default_interface: default_interface_clone,
-        vpn_interface: vpn_interface_clone,
     })
 }
 
