@@ -205,10 +205,7 @@ impl TunnelState for DisconnectedState {
                 SameState(self)
             }
             Some(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
-            Some(TunnelCommand::Block(reason)) => {
-                Self::reset_dns(shared_values);
-                NewState(ErrorState::enter(shared_values, reason))
-            }
+            Some(TunnelCommand::Block(_reason)) => SameState(self),
             #[cfg(target_os = "android")]
             Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
                 shared_values.bypass_socket(fd, done_tx);
