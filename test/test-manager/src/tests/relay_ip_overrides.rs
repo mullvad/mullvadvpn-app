@@ -72,7 +72,6 @@ pub async fn test_wireguard_ip_override(
     let _remove_nft_rule_on_drop = block_route(guest_ip, relay_ip).await?;
 
     log::info!("checking that the connection does not work while blocked");
-    // FIXME: this fails because of rpc timeouts, which is sort of fine but not ideal
     ensure!(
         helpers::geoip_lookup_with_retries(&rpc).await.is_err(),
         "Assert that relay is blocked by firewall rule"
@@ -129,7 +128,6 @@ pub async fn test_openvpn_ip_override(
     let _remove_nft_rule_on_drop = block_route(guest_ip, relay_ip).await?;
 
     log::info!("checking that the connection does not work while blocked");
-    // FIXME: this fails because of rpc timeouts, which is sort of fine but not ideal
     ensure!(
         helpers::geoip_lookup_with_retries(&rpc).await.is_err(),
         "Assert that relay is blocked by firewall rule"
@@ -212,7 +210,6 @@ pub async fn test_bridge_ip_override(
     let _remove_nft_rule_on_drop = block_route(guest_ip, relay_ip).await?;
 
     log::info!("checking that the connection does not work while blocked");
-    // FIXME: this fails because of rpc timeouts, which is sort of fine but not ideal
     ensure!(
         helpers::geoip_lookup_with_retries(&rpc).await.is_err(),
         "Assert that relay is blocked by firewall rule"
