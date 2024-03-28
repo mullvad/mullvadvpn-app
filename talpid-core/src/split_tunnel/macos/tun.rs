@@ -670,15 +670,10 @@ fn capture_outbound_packets(
     let cap = cap.setnonblock().map_err(Error::EnableNonblock)?;
     let stream = cap
         .stream(PktapCodec::new(utun_iface.to_owned()))
-        .map_err(Error::CreateStream)?;
+        .map_err(Error::CreateStream)?
+        .filter_map(|pkt| async { pkt.map_err(Error::GetNextPacket).transpose() });
 
-    Ok(stream.filter_map(|pkt| async {
-        match pkt {
-            Ok(Some(pkt)) => Some(Ok(pkt)),
-            Ok(None) => None,
-            Err(error) => Some(Err(Error::GetNextPacket(error))),
-        }
-    }))
+    Ok(stream)
 }
 
 struct PktapCodec {
