@@ -236,9 +236,9 @@ impl RedirectHandle {
     }
 }
 
-/// Create a utun interface that monitors outgoing traffic on `monitor_interface` (likely
-/// `vpn_interface`). A routing decision is made for each packet using `classify`. Based on
-/// this, a packet is forced out on either `default_interface` or `monitor_interface`.
+/// Create a utun interface that monitors outgoing traffic on `tun_device`. A routing decision is
+/// made for each packet using `classify`. Based on this, a packet is forced out on either
+/// `default_interface` or `vpn_interface`.
 ///
 /// # Note
 ///
@@ -261,6 +261,14 @@ async fn redirect_packets(
     .await
 }
 
+/// Monitor outgoing traffic on `tun_device` using `pktap_stream`. A routing decision is made for
+/// each packet using `classify`. Based on this, a packet is forced out on either
+/// `default_interface` or `vpn_interface`.
+///
+/// # Note
+///
+/// `classify` receives an Ethernet frame. The Ethernet header is not valid at this point, however.
+/// Only the IP header and payload are.
 async fn redirect_packets_for_pktap_stream(
     tun_device: tun::AsyncDevice,
     mut pktap_stream: PktapStream,
