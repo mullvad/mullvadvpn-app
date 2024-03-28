@@ -114,7 +114,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                     return
                 }
             case .negotiatingPostQuantumKey:
-                // When negotiating post quantun keys, allow the connection to go through immediately.
+                // When negotiating post quantum keys, allow the connection to go through immediately.
                 // Otherwise, the in-tunnel TCP connection will never become ready as the OS doesn't let
                 // any traffic through until this function returns, which would prevent negotiating keys
                 // from an unconnected state.
