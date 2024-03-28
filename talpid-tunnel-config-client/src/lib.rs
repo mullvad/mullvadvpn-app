@@ -77,7 +77,7 @@ impl std::error::Error for Error {
     }
 }
 
-type RelayConfigService = proto::post_quantum_secure_client::PostQuantumSecureClient<Channel>;
+pub type RelayConfigService = proto::post_quantum_secure_client::PostQuantumSecureClient<Channel>;
 
 /// Port used by the tunnel config service.
 pub const CONFIG_SERVICE_PORT: u16 = 1337;
@@ -102,10 +102,18 @@ pub async fn push_pq_key(
     wg_pubkey: PublicKey,
     wg_psk_pubkey: PublicKey,
 ) -> Result<PresharedKey, Error> {
+    let mut client = new_client(service_address).await?;
+    push_pq_inner(&mut client, wg_pubkey, wg_psk_pubkey).await
+}
+
+pub async fn push_pq_inner(
+    client: &mut RelayConfigService,
+    wg_pubkey: PublicKey,
+    wg_psk_pubkey: PublicKey,
+) -> Result<PresharedKey, Error> {
     let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
     let kyber_keypair = kyber::keypair(&mut rand::thread_rng());
 
-    let mut client = new_client(service_address).await?;
     let response = client
         .psk_exchange_v1(proto::PskRequestV1 {
             wg_pubkey: wg_pubkey.as_bytes().to_vec(),

@@ -27,7 +27,8 @@ import WireGuardKitTypes
  */
 public actor PacketTunnelActor {
     var state: State = .initial {
-        didSet {
+        didSet(oldValue) {
+            guard state != oldValue else { return }
             logger.debug("\(state.logFormat())")
             observedState = state.observedState
         }
@@ -42,7 +43,7 @@ public actor PacketTunnelActor {
     let tunnelMonitor: TunnelMonitorProtocol
     let defaultPathObserver: DefaultPathObserverProtocol
     let blockedStateErrorMapper: BlockedStateErrorMapperProtocol
-    let relaySelector: RelaySelectorProtocol
+    public let relaySelector: RelaySelectorProtocol
     let settingsReader: SettingsReaderProtocol
     let protocolObfuscator: ProtocolObfuscation
 
@@ -153,7 +154,10 @@ extension PacketTunnelActor {
     /// Stop the tunnel.
     private func stop() async {
         switch state {
-        case let .connected(connState), let .connecting(connState), let .reconnecting(connState):
+        case let .connected(connState),
+             let .connecting(connState),
+             let .reconnecting(connState),
+             let .negotiatingPostQuantumKey(connState):
             state = .disconnecting(connState)
             tunnelMonitor.stop()
 
@@ -188,6 +192,10 @@ extension PacketTunnelActor {
     private func reconnect(to nextRelay: NextRelay, reason: ReconnectReason) async {
         do {
             switch state {
+            case .negotiatingPostQuantumKey:
+                // There is no connection monitoring going on when exchanging keys.
+                // The procedure starts from scratch for each reconnection attempts.
+                try await tryStart(nextRelay: nextRelay, reason: reason)
             case .connecting, .connected, .reconnecting, .error:
                 switch reason {
                 case .connectionLoss:
@@ -293,7 +301,7 @@ extension PacketTunnelActor {
         nextRelay: NextRelay,
         settings: Settings,
         reason: ReconnectReason
-    ) throws -> ConnectionState? {
+    ) throws -> State.ConnectionData? {
         var keyPolicy: KeyPolicy = .useCurrent
         var networkReachability = defaultPathObserver.defaultPath?.networkReachability ?? .undetermined
         var lastKeyRotation: Date?
@@ -315,7 +323,7 @@ extension PacketTunnelActor {
                 connectionState.incrementAttemptCount()
             }
             fallthrough
-        case var .connected(connectionState):
+        case var .connected(connectionState), var .negotiatingPostQuantumKey(connectionState):
             let selectedRelay = try callRelaySelector(
                 connectionState.selectedRelay,
                 connectionState.connectionAttemptCount
@@ -332,7 +340,7 @@ extension PacketTunnelActor {
             return nil
         }
         let selectedRelay = try callRelaySelector(nil, 0)
-        return ConnectionState(
+        return State.ConnectionData(
             selectedRelay: selectedRelay,
             relayConstraints: settings.relayConstraints,
             currentKey: settings.privateKey,
@@ -350,7 +358,7 @@ extension PacketTunnelActor {
         nextRelay: NextRelay,
         settings: Settings,
         reason: ReconnectReason
-    ) throws -> ConnectionState? {
+    ) throws -> State.ConnectionData? {
         guard let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings, reason: reason)
         else { return nil }
 
@@ -361,7 +369,7 @@ extension PacketTunnelActor {
         )
 
         let transportLayer = protocolObfuscator.transportLayer.map { $0 } ?? .udp
-        return ConnectionState(
+        return State.ConnectionData(
             selectedRelay: connectionState.selectedRelay,
             relayConstraints: connectionState.relayConstraints,
             currentKey: settings.privateKey,

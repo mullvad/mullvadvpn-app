@@ -9,6 +9,8 @@ then
     exit 1
 fi
 
+
+
 # what to pass to cargo build -p, e.g. your_lib_ffi
 FFI_TARGET=$1
 
@@ -30,13 +32,17 @@ if [[ "$CONFIGURATION" == "MockRelease" ]]; then
   RELFLAG=--release
 fi
 
-if [[ -n "${DEVELOPER_SDK_DIR:-}" ]]; then
-  # Assume we're in Xcode, which means we're probably cross-compiling.
-  # In this case, we need to add an extra library search path for build scripts and proc-macros,
-  # which run on the host instead of the target.
-  # (macOS Big Sur does not have linkable libraries in /usr/lib/.)
-  export LIBRARY_PATH="${DEVELOPER_SDK_DIR}/MacOSX.sdk/usr/lib:${LIBRARY_PATH:-}"
-fi
+# For whatever reason, Xcode includes its toolchain paths in the PATH variable such as
+#
+# /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+# /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/appleinternal/bin
+# /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/bin
+# /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec
+# When this happens, cargo will be tricked into building for the wrong architecture, which will lead to linker issues down the line.
+# cargo does not need to know about all this, therefore, set the path to the bare minimum
+export PATH="${HOME}/.cargo/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:"
+# Since some of the dependencies come from homebrew, add it manually as well
+export PATH="${PATH}:/opt/homebrew/bin:"
 
 IS_SIMULATOR=0
 if [ "${LLVM_TARGET_TRIPLE_SUFFIX-}" = "-simulator" ]; then

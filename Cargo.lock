@@ -3815,6 +3815,7 @@ dependencies = [
 name = "talpid-tunnel-config-client"
 version = "0.0.0"
 dependencies = [
+ "cbindgen",
  "classic-mceliece-rust",
  "libc",
  "log",
@@ -3827,6 +3828,28 @@ dependencies = [
  "tonic-build",
  "tower",
  "windows-sys 0.48.0",
+ "zeroize",
+]
+
+[[package]]
+name = "talpid-tunnel-config-client-proxy"
+version = "0.0.0"
+dependencies = [
+ "cbindgen",
+ "classic-mceliece-rust",
+ "futures",
+ "libc",
+ "log",
+ "oslog",
+ "pqc_kyber",
+ "prost",
+ "rand 0.8.5",
+ "talpid-tunnel-config-client",
+ "talpid-types",
+ "tokio",
+ "tonic",
+ "tonic-build",
+ "tower",
  "zeroize",
 ]
 

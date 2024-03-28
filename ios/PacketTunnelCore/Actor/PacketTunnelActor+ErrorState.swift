@@ -54,10 +54,10 @@ extension PacketTunnelActor {
      - Returns: New blocked state that should be assigned to error state, otherwise `nil` when actor is past or at `disconnecting` phase or
                 when actor is already in the error state and no changes need to be made.
      */
-    private func makeBlockedState(reason: BlockedStateReason) -> BlockedState? {
+    private func makeBlockedState(reason: BlockedStateReason) -> State.BlockingData? {
         switch state {
         case .initial:
-            return BlockedState(
+            return State.BlockingData(
                 reason: reason,
                 relayConstraints: nil,
                 currentKey: nil,
@@ -84,7 +84,8 @@ extension PacketTunnelActor {
                 return nil
             }
 
-        case .disconnecting, .disconnected:
+        // Post quantum key exchange cannot enter the blocked state
+        case .disconnecting, .disconnected, .negotiatingPostQuantumKey:
             return nil
         }
     }
@@ -93,11 +94,11 @@ extension PacketTunnelActor {
      Map connection state to blocked state.
      */
     private func mapConnectionState(
-        _ connState: ConnectionState,
+        _ connState: State.ConnectionData,
         reason: BlockedStateReason,
         priorState: StatePriorToBlockedState
-    ) -> BlockedState {
-        BlockedState(
+    ) -> State.BlockingData {
+        State.BlockingData(
             reason: reason,
             relayConstraints: connState.relayConstraints,
             currentKey: connState.currentKey,

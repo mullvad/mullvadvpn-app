@@ -34,14 +34,14 @@ final class ProtocolObfuscatorTests: XCTestCase {
     }
 
     func testObfuscateOffDoesNotChangeEndpoint() {
-        let settings = settings(.off, obfuscationPort: .automatic)
+        let settings = settings(.off, obfuscationPort: .automatic, quantumResistance: .automatic)
         let nonObfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings)
 
         XCTAssertEqual(endpoint, nonObfuscatedEndpoint)
     }
 
     func testObfuscateOnPort80() throws {
-        let settings = settings(.on, obfuscationPort: .port80)
+        let settings = settings(.on, obfuscationPort: .port80, quantumResistance: .automatic)
         let obfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
@@ -49,7 +49,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
     }
 
     func testObfuscateOnPort5001() throws {
-        let settings = settings(.on, obfuscationPort: .port5001)
+        let settings = settings(.on, obfuscationPort: .port5001, quantumResistance: .automatic)
         let obfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
@@ -57,7 +57,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
     }
 
     func testObfuscateOnPortAutomaticIsPort80OnEvenRetryAttempts() throws {
-        let settings = settings(.on, obfuscationPort: .automatic)
+        let settings = settings(.on, obfuscationPort: .automatic, quantumResistance: .automatic)
         let obfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings, retryAttempts: 2)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
@@ -65,7 +65,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
     }
 
     func testObfuscateOnPortAutomaticIsPort5001OnOddRetryAttempts() throws {
-        let settings = settings(.on, obfuscationPort: .automatic)
+        let settings = settings(.on, obfuscationPort: .automatic, quantumResistance: .automatic)
         let obfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings, retryAttempts: 3)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
@@ -73,7 +73,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
     }
 
     func testObfuscateAutomaticIsPort80EveryThirdAttempts() throws {
-        let settings = settings(.automatic, obfuscationPort: .automatic)
+        let settings = settings(.automatic, obfuscationPort: .automatic, quantumResistance: .automatic)
         let obfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings, retryAttempts: 6)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
@@ -81,7 +81,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
     }
 
     func testObfuscateAutomaticIsPort5001EveryFourthAttempts() throws {
-        let settings = settings(.automatic, obfuscationPort: .automatic)
+        let settings = settings(.automatic, obfuscationPort: .automatic, quantumResistance: .automatic)
         let obfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings, retryAttempts: 7)
         let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
 
@@ -100,7 +100,8 @@ final class ProtocolObfuscatorTests: XCTestCase {
 
     private func settings(
         _ obfuscationState: WireGuardObfuscationState,
-        obfuscationPort: WireGuardObfuscationPort
+        obfuscationPort: WireGuardObfuscationPort,
+        quantumResistance: TunnelQuantumResistance
     ) -> Settings {
         Settings(
             privateKey: PrivateKey(),
@@ -110,7 +111,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
             obfuscation: WireGuardObfuscationSettings(
                 state: obfuscationState,
                 port: obfuscationPort
-            )
+            ), quantumResistance: quantumResistance
         )
     }
 }

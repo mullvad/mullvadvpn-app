@@ -57,9 +57,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case wireGuardPorts
         case wireGuardObfuscation
         case wireGuardObfuscationPort
-        #if DEBUG
         case quantumResistance
-        #endif
     }
 
     enum Item: Hashable {
@@ -71,11 +69,9 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case wireGuardObfuscationOn
         case wireGuardObfuscationOff
         case wireGuardObfuscationPort(_ port: UInt16)
-        #if DEBUG
         case quantumResistanceAutomatic
         case quantumResistanceOn
         case quantumResistanceOff
-        #endif
 
         static var wireGuardPorts: [Item] {
             let defaultPorts = VPNSettingsViewModel.defaultWireGuardPorts.map {
@@ -92,11 +88,9 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             [.wireGuardObfuscationPort(0), wireGuardObfuscationPort(80), wireGuardObfuscationPort(5001)]
         }
 
-        #if DEBUG
         static var quantumResistance: [Item] {
             [.quantumResistanceAutomatic, .quantumResistanceOn, .quantumResistanceOff]
         }
-        #endif
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
@@ -116,14 +110,12 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return .wireGuardObfuscationOff
             case .wireGuardObfuscationPort:
                 return .wireGuardObfuscationAutomatic
-            #if DEBUG
             case .quantumResistanceAutomatic:
                 return .quantumResistanceAutomatic
             case .quantumResistanceOn:
                 return .quantumResistanceOn
             case .quantumResistanceOff:
                 return .quantumResistanceOff
-            #endif
             }
         }
 
@@ -141,10 +133,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return .wireGuardObfuscation
             case .wireGuardObfuscationPort:
                 return .wireGuardObfuscationPort
-            #if DEBUG
             case .quantumResistanceAutomatic, .quantumResistanceOn, .quantumResistanceOff:
                 return .quantumResistance
-            #endif
             }
         }
     }
@@ -167,30 +157,20 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .off: .wireGuardObfuscationOff
         case .on: .wireGuardObfuscationOn
         }
-        #if DEBUG
         let quantumResistanceItem: Item = switch viewModel.quantumResistance {
         case .automatic: .quantumResistanceAutomatic
         case .off: .quantumResistanceOff
         case .on: .quantumResistanceOn
         }
-        #endif
 
         let obfuscationPortItem: Item = .wireGuardObfuscationPort(viewModel.obfuscationPort.portValue)
 
-        #if DEBUG
         return [
             wireGuardPortItem,
             obfuscationStateItem,
             obfuscationPortItem,
             quantumResistanceItem,
         ].compactMap { indexPath(for: $0) }
-        #else
-        return [
-            wireGuardPortItem,
-            obfuscationStateItem,
-            obfuscationPortItem,
-        ].compactMap { indexPath(for: $0) }
-        #endif
     }
 
     init(tableView: UITableView) {
@@ -299,7 +279,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             selectObfuscationPort(port)
             delegate?.didChangeViewModel(viewModel)
 
-        #if DEBUG
         case .quantumResistanceAutomatic:
             selectQuantumResistance(.automatic)
             delegate?.didChangeViewModel(viewModel)
@@ -309,7 +288,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .quantumResistanceOff:
             selectQuantumResistance(.off)
             delegate?.didChangeViewModel(viewModel)
-        #endif
         default:
             break
         }
@@ -347,11 +325,9 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .wireGuardObfuscationPort:
             configureObfuscationPortHeader(view)
             return view
-        #if DEBUG
         case .quantumResistance:
             configureQuantumResistanceHeader(view)
             return view
-        #endif
 
         default:
             return nil
@@ -539,7 +515,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         }
     }
 
-    #if DEBUG
     private func configureQuantumResistanceHeader(_ header: SettingsHeaderView) {
         let title = NSLocalizedString(
             "QUANTUM_RESISTANCE_HEADER_LABEL",
@@ -568,7 +543,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             self.map { $0.delegate?.showInfo(for: .quantumResistance) }
         }
     }
-    #endif
 
     private func selectRow(at indexPath: IndexPath?, animated: Bool = false) {
         tableView?.selectRow(at: indexPath, animated: animated, scrollPosition: .none)

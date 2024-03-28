@@ -40,9 +40,11 @@ extension PacketTunnelActor {
         case var .connecting(connState), var .reconnecting(connState):
             // Reset connection attempt once successfully connected.
             connState.connectionAttemptCount = 0
-            state = .connected(connState)
+            // TODO: switch here on whether we need to do PQ negotiation
+            let isPostQuantum = true
+            state = isPostQuantum ? .negotiatingPostQuantumKey(connState) : .connected(connState)
 
-        case .initial, .connected, .disconnecting, .disconnected, .error:
+        case .initial, .connected, .disconnecting, .disconnected, .error, .negotiatingPostQuantumKey:
             break
         }
     }
@@ -53,7 +55,7 @@ extension PacketTunnelActor {
         case .connecting, .reconnecting, .connected:
             commandChannel.send(.reconnect(.random, reason: .connectionLoss))
 
-        case .initial, .disconnected, .disconnecting, .error:
+        case .initial, .disconnected, .disconnecting, .error, .negotiatingPostQuantumKey:
             break
         }
     }

@@ -50,10 +50,8 @@ enum TunnelState: Equatable, CustomStringConvertible {
     /// Connecting the tunnel.
     case connecting(SelectedRelay?)
 
-    #if DEBUG
     /// Negotiating a key for post-quantum resistance
     case negotiatingKey(SelectedRelay)
-    #endif
 
     /// Connected the tunnel
     case connected(SelectedRelay)
@@ -99,10 +97,8 @@ enum TunnelState: Equatable, CustomStringConvertible {
             "waiting for connectivity"
         case let .error(blockedStateReason):
             "error state: \(blockedStateReason)"
-        #if DEBUG
         case let .negotiatingKey(tunnelRelay):
             "negotiating key with \(tunnelRelay.hostname)"
-        #endif
         }
     }
 
@@ -113,23 +109,17 @@ enum TunnelState: Equatable, CustomStringConvertible {
             true
         case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork), .error:
             false
-        #if DEBUG
         case .negotiatingKey:
             false
-        #endif
         }
     }
 
     var relay: SelectedRelay? {
         switch self {
-        case let .connected(relay), let .reconnecting(relay):
+        case let .connected(relay), let .reconnecting(relay), let .negotiatingKey(relay):
             relay
         case let .connecting(relay):
             relay
-        #if DEBUG
-        case let .negotiatingKey(relay):
-            relay
-        #endif
         case .disconnecting, .disconnected, .waitingForConnectivity, .pendingReconnect, .error:
             nil
         }

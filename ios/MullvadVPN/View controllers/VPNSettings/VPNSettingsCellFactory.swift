@@ -170,7 +170,6 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             cell.accessibilityIdentifier = "\(item.accessibilityIdentifier.rawValue) (\(portString))"
             cell.applySubCellStyling()
 
-        #if DEBUG
         case .quantumResistanceAutomatic:
             guard let cell = cell as? SelectableSettingsCell else { return }
 
@@ -205,7 +204,6 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             )
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.applySubCellStyling()
-        #endif
         }
     }
 }

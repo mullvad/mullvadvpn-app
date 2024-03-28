@@ -988,13 +988,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         guard tunnelManager.deviceState.isLoggedIn else { return false }
 
         switch tunnelManager.tunnelStatus.state {
-        case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error:
+        case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error, .negotiatingKey:
             tunnelManager.reconnectTunnel(selectNewRelay: true)
-
-        #if DEBUG
-        case .negotiatingKey:
-            tunnelManager.reconnectTunnel(selectNewRelay: true)
-        #endif
 
         case .disconnecting, .disconnected:
             tunnelManager.startTunnel()

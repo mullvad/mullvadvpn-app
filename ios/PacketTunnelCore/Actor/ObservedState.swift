@@ -16,9 +16,7 @@ public enum ObservedState: Equatable, Codable {
     case initial
     case connecting(ObservedConnectionState)
     case reconnecting(ObservedConnectionState)
-    #if DEBUG
-    case negotiatingKey(ObservedConnectionState)
-    #endif
+    case negotiatingPostQuantumKey(ObservedConnectionState)
     case connected(ObservedConnectionState)
     case disconnecting(ObservedConnectionState)
     case disconnected
@@ -78,6 +76,8 @@ extension State {
             return .reconnecting(connState.observedConnectionState)
         case let .disconnecting(connState):
             return .disconnecting(connState.observedConnectionState)
+        case let .negotiatingPostQuantumKey(connState):
+            return .negotiatingPostQuantumKey(connState.observedConnectionState)
         case .disconnected:
             return .disconnected
         case let .error(blockedState):
@@ -86,8 +86,8 @@ extension State {
     }
 }
 
-extension ConnectionState {
-    /// Map `ConnectionState` to `ObservedConnectionState`.
+extension State.ConnectionData {
+    /// Map `State.ConnectionData` to `ObservedConnectionState`.
     var observedConnectionState: ObservedConnectionState {
         ObservedConnectionState(
             selectedRelay: selectedRelay,
@@ -101,8 +101,8 @@ extension ConnectionState {
     }
 }
 
-extension BlockedState {
-    /// Map `BlockedState` to `ObservedBlockedState`
+extension State.BlockingData {
+    /// Map `State.BlockingData` to `ObservedBlockedState`
     var observedBlockedState: ObservedBlockedState {
         return ObservedBlockedState(reason: reason, relayConstraints: relayConstraints)
     }

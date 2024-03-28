@@ -18,7 +18,7 @@ extension State {
         case .initial:
             return .connecting
 
-        case .connecting:
+        case .connecting, .negotiatingPostQuantumKey:
             return .connecting
 
         case .connected, .reconnecting:
@@ -28,7 +28,7 @@ extension State {
             switch blockedState.priorState {
             case .initial, .connecting:
                 return .connecting
-            case .connected, .reconnecting:
+            case .connected, .reconnecting, .negotiatingKey:
                 return .reconnecting
             }
 
@@ -41,7 +41,9 @@ extension State {
 
     func logFormat() -> String {
         switch self {
-        case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
+        case let .connecting(connState),
+             let .connected(connState),
+             let .reconnecting(connState):
             let hostname = connState.selectedRelay.hostname
 
             return """
@@ -54,28 +56,100 @@ extension State {
         case let .error(blockedState):
             return "\(name): \(blockedState.reason)"
 
-        case .initial, .disconnecting, .disconnected:
+        case .initial, .disconnecting, .disconnected, .negotiatingPostQuantumKey:
             return name
         }
     }
 
     var name: String {
         switch self {
+        case .negotiatingPostQuantumKey:
+            "Negotiating Post Quantum Key"
         case .connected:
-            return "Connected"
+            "Connected"
         case .connecting:
-            return "Connecting"
+            "Connecting"
         case .reconnecting:
-            return "Reconnecting"
+            "Reconnecting"
         case .disconnecting:
-            return "Disconnecting"
+            "Disconnecting"
         case .disconnected:
-            return "Disconnected"
+            "Disconnected"
         case .initial:
-            return "Initial"
+            "Initial"
         case .error:
-            return "Error"
+            "Error"
         }
+    }
+
+    var connectionData: State.ConnectionData? {
+        switch self {
+        case
+            let .connecting(connState),
+            let .connected(connState),
+            let .reconnecting(connState),
+            let .disconnecting(connState): connState
+        default: nil
+        }
+    }
+
+    var blockedData: State.BlockingData? {
+        switch self {
+        case let .error(blockedState): blockedState
+        default: nil
+        }
+    }
+
+    var associatedData: StateAssociatedData? {
+        self.connectionData ?? self.blockedData
+    }
+
+    var keyPolicy: KeyPolicy? {
+        associatedData?.keyPolicy
+    }
+
+    /// Return a copy of this state with the associated value (if appropriate) replaced with a new value.
+    /// If the value does not apply, this just returns the state as is, ignoring it.
+
+    internal func replacingConnectionData(with newValue: State.ConnectionData) -> State {
+        switch self {
+        case .connecting: .connecting(newValue)
+        case .connected: .connected(newValue)
+        case .reconnecting: .reconnecting(newValue)
+        case .disconnecting: .disconnecting(newValue)
+        default: self
+        }
+    }
+
+    /// Apply a mutating function to the connection/error state's associated data if this state has one,
+    /// and replace its value. If not, this is a no-op.
+    /// - parameter modifier: A function that takes an `inout ConnectionOrBlockedState` and modifies it
+    mutating func mutateAssociatedData(_ modifier: (inout StateAssociatedData) -> Void) {
+        switch self {
+        case let .connecting(connState),
+             let .connected(connState),
+             let .reconnecting(connState),
+             let .disconnecting(connState):
+            var associatedData: StateAssociatedData = connState
+            modifier(&associatedData)
+            // swiftlint:disable:next force_cast
+            self = self.replacingConnectionData(with: associatedData as! ConnectionData)
+
+        case let .error(blockedState):
+            var associatedData: StateAssociatedData = blockedState
+            modifier(&associatedData)
+            // swiftlint:disable:next force_cast
+            self = .error(associatedData as! BlockingData)
+
+        default:
+            break
+        }
+    }
+
+    /// Apply a mutating function to the state's key policy
+    /// - parameter modifier: A function that takes an `inout KeyPolicy` and modifies it
+    mutating func mutateKeyPolicy(_ modifier: (inout KeyPolicy) -> Void) {
+        self.mutateAssociatedData { modifier(&$0.keyPolicy) }
     }
 }
 
@@ -86,6 +160,16 @@ extension KeyPolicy {
             return "current"
         case .usePrior:
             return "prior"
+        }
+    }
+}
+
+extension KeyPolicy: Equatable {
+    static func == (lhs: KeyPolicy, rhs: KeyPolicy) -> Bool {
+        switch (lhs, rhs) {
+        case (.useCurrent, .useCurrent): true
+        case let (.usePrior(priorA, _), .usePrior(priorB, _)): priorA == priorB
+        default: false
         }
     }
 }
@@ -109,5 +193,17 @@ extension BlockedStateReason {
              .tunnelAdapter, .unknown, .deviceLoggedOut, .outdatedSchema, .invalidRelayPublicKey:
             return false
         }
+    }
+}
+
+extension State.BlockingData: Equatable {
+    static func == (lhs: State.BlockingData, rhs: State.BlockingData) -> Bool {
+        lhs.reason == rhs.reason
+            && lhs.relayConstraints == rhs.relayConstraints
+            && lhs.currentKey == rhs.currentKey
+            && lhs.keyPolicy == rhs.keyPolicy
+            && lhs.networkReachability == rhs.networkReachability
+            && lhs.lastKeyRotation == rhs.lastKeyRotation
+            && lhs.priorState == rhs.priorState
     }
 }

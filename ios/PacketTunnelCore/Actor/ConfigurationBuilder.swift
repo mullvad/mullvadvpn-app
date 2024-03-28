@@ -21,14 +21,28 @@ public struct PublicKeyError: LocalizedError {
 }
 
 /// Struct building tunnel adapter configuration.
-struct ConfigurationBuilder {
+public struct ConfigurationBuilder {
     var privateKey: PrivateKey
     var interfaceAddresses: [IPAddressRange]
     var dns: SelectedDNSServers?
     var endpoint: MullvadEndpoint?
     var allowedIPs: [IPAddressRange]
 
-    func makeConfiguration() throws -> TunnelAdapterConfiguration {
+    public init(
+        privateKey: PrivateKey,
+        interfaceAddresses: [IPAddressRange],
+        dns: SelectedDNSServers? = nil,
+        endpoint: MullvadEndpoint? = nil,
+        allowedIPs: [IPAddressRange]
+    ) {
+        self.privateKey = privateKey
+        self.interfaceAddresses = interfaceAddresses
+        self.dns = dns
+        self.endpoint = endpoint
+        self.allowedIPs = allowedIPs
+    }
+
+    public func makeConfiguration() throws -> TunnelAdapterConfiguration {
         return TunnelAdapterConfiguration(
             privateKey: privateKey,
             interfaceAddresses: interfaceAddresses,
