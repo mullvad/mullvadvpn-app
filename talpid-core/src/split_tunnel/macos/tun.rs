@@ -745,7 +745,7 @@ fn pktap_capture() -> Result<pcap::Capture<pcap::Inactive>, Error> {
 
     let mut errbuf = [0u8; PCAP_ERRBUF_SIZE as usize];
 
-    let pcap = unsafe { pcap_create(b"pktap\0".as_ptr() as *const _, errbuf.as_mut_ptr() as _) };
+    let pcap = unsafe { pcap_create(c"pktap".as_ptr(), errbuf.as_mut_ptr() as _) };
     if pcap.is_null() {
         let errstr = CStr::from_bytes_until_nul(&errbuf)
             .unwrap()
