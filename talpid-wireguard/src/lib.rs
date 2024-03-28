@@ -48,7 +48,7 @@ mod connectivity_check;
 mod logging;
 mod ping_monitor;
 mod stats;
-#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[cfg(unix)]
 mod unix;
 #[cfg(wireguard_go)]
 mod wireguard_go;
@@ -57,7 +57,6 @@ pub(crate) mod wireguard_kernel;
 #[cfg(windows)]
 mod wireguard_nt;
 
-#[cfg(not(target_os = "android"))]
 mod mtu_detection;
 
 #[cfg(wireguard_go)]
@@ -261,7 +260,7 @@ impl WireguardMonitor {
     >(
         mut config: Config,
         psk_negotiation: bool,
-        #[cfg(not(target_os = "android"))] detect_mtu: bool,
+        detect_mtu: bool,
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
@@ -381,7 +380,6 @@ impl WireguardMonitor {
                 .await?;
             }
 
-            #[cfg(not(target_os = "android"))]
             if detect_mtu {
                 let config = config.clone();
                 let iface_name = iface_name.clone();
