@@ -9,9 +9,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -23,7 +20,6 @@ import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.lib.common.util.parseAsDateTime
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceList
-import net.mullvad.mullvadvpn.model.RemoveDeviceResult
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 
 typealias DeviceId = String
@@ -71,15 +67,18 @@ class DeviceListViewModel(
             withContext(dispatcher) {
                 val result =
                     withTimeoutOrNull(DEVICE_REMOVAL_TIMEOUT_MILLIS) {
-                        deviceRepository.deviceRemovalEvent
-                            .onSubscription {
-                                setLoadingDevice(deviceIdToRemove)
-                                deviceRepository.removeDevice(accountToken, deviceIdToRemove)
-                            }
-                            .filter { (deviceId, result) ->
-                                deviceId == deviceIdToRemove && result == RemoveDeviceResult.Ok
-                            }
-                            .first()
+                        TODO()
+                        //                        deviceRepository.deviceRemovalEvent
+                        //                            .onSubscription {
+                        //                                setLoadingDevice(deviceIdToRemove)
+                        //
+                        // deviceRepository.removeDevice(accountToken, deviceIdToRemove)
+                        //                            }
+                        //                            .filter { (deviceId, result) ->
+                        //                                deviceId == deviceIdToRemove && result ==
+                        // RemoveDeviceResult.Ok
+                        //                            }
+                        //                            .first()
                     }
 
                 clearLoadingDevice(deviceIdToRemove)

@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.model.DeviceList
 import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.DeviceState
@@ -60,16 +59,7 @@ class DeviceRepository(
             .shareIn(CoroutineScope(Dispatchers.IO), SharingStarted.WhileSubscribed())
     }
 
-    val deviceRemovalEvent: SharedFlow<Event.DeviceRemovalEvent> by lazy { TODO() }
-    //        serviceConnectionManager.connectionState
-    //            .flatMapLatest { state ->
-    //                if (state is ServiceConnectionState.ConnectedReady) {
-    //                    state.container.deviceDataSource.deviceRemovalResult
-    //                } else {
-    //                    emptyFlow()
-    //                }
-    //            }
-    //            .shareIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed())
+    val deviceRemovalEvent: SharedFlow<Any> by lazy { TODO() }
 
     fun refreshDeviceState() {
         //        serviceConnectionManager.deviceDataSource()?.refreshDevice()
