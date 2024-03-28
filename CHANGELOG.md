@@ -315,6 +315,9 @@ Identical to `android/2023.8-beta2`.
 - Add account view button in main view in the desktop app.
 - Add time left and device name in the header bar in the desktop app.
 
+#### Linux
+- Add wayland support on KDE and GNOME.
+
 ### Changed
 - In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a
   unified `mullvad tunnel get` command and removing individual `get` subcommands like
