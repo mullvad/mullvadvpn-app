@@ -4,6 +4,7 @@ pub mod config;
 mod dns;
 mod helpers;
 mod install;
+mod relay_ip_overrides;
 mod settings;
 mod software;
 mod split_tunnel;

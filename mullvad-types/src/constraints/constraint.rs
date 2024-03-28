@@ -112,6 +112,12 @@ impl<T> From<Option<T>> for Constraint<T> {
     }
 }
 
+impl<T> From<T> for Constraint<T> {
+    fn from(value: T) -> Self {
+        Constraint::Only(value)
+    }
+}
+
 impl<T: Copy> Copy for Constraint<T> {}
 
 impl<T: fmt::Debug + Clone + FromStr> FromStr for Constraint<T> {

@@ -51,6 +51,18 @@ impl RelaySettings {
     }
 }
 
+impl From<CustomTunnelEndpoint> for RelaySettings {
+    fn from(value: CustomTunnelEndpoint) -> Self {
+        Self::CustomTunnelEndpoint(value)
+    }
+}
+
+impl From<RelayConstraints> for RelaySettings {
+    fn from(value: RelayConstraints) -> Self {
+        Self::Normal(value)
+    }
+}
+
 pub struct RelaySettingsFormatter<'a> {
     pub settings: &'a RelaySettings,
     pub custom_lists: &'a CustomListsSettings,

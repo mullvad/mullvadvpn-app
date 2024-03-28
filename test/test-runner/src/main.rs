@@ -6,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
     process::Stdio,
     sync::Arc,
-    time::Duration,
+    time::{Duration, SystemTime},
 };
 use util::OnDrop;
 
@@ -171,10 +171,18 @@ impl Service for TestServer {
 
     async fn geoip_lookup(
         self,
-        _: context::Context,
+        ctx: context::Context,
         mullvad_host: String,
     ) -> Result<test_rpc::AmIMullvad, test_rpc::Error> {
-        test_rpc::net::geoip_lookup(mullvad_host).await
+        let timeout = ctx
+            .deadline
+            .duration_since(SystemTime::now())
+            .ok()
+            // account for some time to send the RPC response
+            .and_then(|d| d.checked_sub(Duration::from_millis(500)))
+            .unwrap_or_default();
+
+        test_rpc::net::geoip_lookup(mullvad_host, timeout).await
     }
 
     async fn resolve_hostname(
