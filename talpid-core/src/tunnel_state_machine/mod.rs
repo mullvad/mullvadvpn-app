@@ -538,11 +538,13 @@ impl SharedTunnelStateValues {
         };
         self.runtime
             .block_on(self.split_tunnel.set_tunnel(Some(vpn_interface)))
-            .map_err(|error| {
+            .inspect_err(|error| {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to set VPN interface for split tunnel")
-                );
+                )
+            })
+            .map_err(|error| {
                 if error.is_offline() {
                     ErrorStateCause::IsOffline
                 } else {
