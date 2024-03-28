@@ -22,7 +22,7 @@ use std::{
 use tokio::io::{AsyncBufReadExt, BufReader};
 
 const SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(3);
-const EARLY_FAIL_TIMEOUT: Duration = Duration::from_secs(1);
+const EARLY_FAIL_TIMEOUT: Duration = Duration::from_millis(500);
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
