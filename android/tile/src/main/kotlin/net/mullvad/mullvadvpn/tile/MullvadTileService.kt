@@ -14,8 +14,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
@@ -132,13 +130,16 @@ class MullvadTileService : TileService() {
     }
 
     @OptIn(FlowPreview::class)
-    private fun CoroutineScope.launchListenToTunnelState() = launch {
-        ServiceConnection(this@MullvadTileService, this)
-            .tunnelState
-            .debounce(300L)
-            .map { (tunnelState, connectionState) -> mapToTileState(tunnelState, connectionState) }
-            .collect { updateTileState(it) }
-    }
+    private fun CoroutineScope.launchListenToTunnelState() =
+        launch {
+            // TODO()
+            //        ServiceConnection(this@MullvadTileService, this)
+            //            .tunnelState
+            //            .debounce(300L)
+            //            .map { (tunnelState, connectionState) -> mapToTileState(tunnelState,
+            // connectionState) }
+            //            .collect { updateTileState(it) }
+        }
 
     private fun mapToTileState(
         tunnelState: TunnelState,

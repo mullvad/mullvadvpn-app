@@ -17,7 +17,6 @@ import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.talpid.util.callbackFlowFromSubscription
 
 // TODO: Refactor ConnectionProxy to be easily injectable rather than injecting
 //  ServiceConnectionManager here.

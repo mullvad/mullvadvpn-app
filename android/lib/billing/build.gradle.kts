@@ -49,9 +49,6 @@ dependencies {
     //Model
     implementation(project(Dependencies.Mullvad.modelLib))
 
-    //IPC
-    implementation(project(Dependencies.Mullvad.ipcLib))
-
     //Payment library
     implementation(project(Dependencies.Mullvad.paymentLib))
 

@@ -1,4 +1,3 @@
-
 plugins {
     id(Dependencies.Plugin.androidLibraryId)
     id(Dependencies.Plugin.kotlinAndroidId)
@@ -52,9 +51,7 @@ android {
     }
     packaging { resources { excludes.add("META-INF/*") } }
 
-    buildFeatures {
-        buildConfig = true
-    }
+    buildFeatures { buildConfig = true }
 }
 
 /*
@@ -88,14 +85,14 @@ protobuf {
 */
 
 dependencies {
-
     implementation(project(Dependencies.Mullvad.commonLib))
     implementation(project(Dependencies.Mullvad.endpointLib))
-    implementation(project(Dependencies.Mullvad.ipcLib))
     implementation(project(Dependencies.Mullvad.modelLib))
     implementation(project(Dependencies.Mullvad.talpidLib))
+    implementation(project(Dependencies.Mullvad.daemonGrpc))
 
     implementation(Dependencies.jodaTime)
+    implementation(Dependencies.AndroidX.lifecycleService)
     implementation(Dependencies.Koin.core)
     implementation(Dependencies.Koin.android)
     implementation(Dependencies.Kotlin.stdlib)
