@@ -25,7 +25,7 @@ use mullvad_types::{
         OpenVpnConstraints, RelayConstraints, RelayOverride, RelaySettings, ResolvedBridgeSettings,
         SelectedObfuscation, WireguardConstraints,
     },
-    relay_list::{Relay, RelayList},
+    relay_list::{Relay, RelayEndpointData, RelayList},
     settings::Settings,
     CustomTunnelEndpoint,
 };
@@ -201,8 +201,37 @@ pub enum GetRelay {
 /// will actually be routed to the broader internet.
 #[derive(Clone, Debug)]
 pub enum WireguardConfig {
+    /// Strongly prefer to instantiate this variant using [`WireguardConfig::singlehop`] as that
+    /// will assert that the relay is of the expected type.
     Singlehop { exit: Relay },
+    /// Strongly prefer to instantiate this variant using [`WireguardConfig::multihop`] as that
+    /// will assert that the entry & exit relays are of the expected type.
     Multihop { exit: Relay, entry: Relay },
+}
+
+impl WireguardConfig {
+    const fn singlehop(exit: Relay) -> Self {
+        // FIXME: This assert would be better to encode at the type level.
+        assert!(matches!(
+            exit.endpoint_data,
+            RelayEndpointData::Wireguard(_)
+        ));
+        Self::Singlehop { exit }
+    }
+
+    const fn multihop(exit: Relay, entry: Relay) -> Self {
+        // FIXME: This assert would be better to encode at the type level.
+        assert!(matches!(
+            exit.endpoint_data,
+            RelayEndpointData::Wireguard(_)
+        ));
+        // FIXME: This assert would be better to encode at the type level.
+        assert!(matches!(
+            entry.endpoint_data,
+            RelayEndpointData::Wireguard(_)
+        ));
+        Self::Multihop { exit, entry }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -454,7 +483,7 @@ impl RelaySelector {
             }
             SpecializedSelectorConfig::Normal(pure_config) => {
                 let parsed_relays = &self.parsed_relays.lock().unwrap();
-                Self::get_relay_inner(&query, parsed_relays, &pure_config)
+                Self::get_relay_inner(query, parsed_relays, &pure_config)
             }
         }
     }
@@ -522,7 +551,7 @@ impl RelaySelector {
                     runtime_params,
                     user_preferences,
                 );
-                Self::get_relay_inner(&query, parsed_relays, &normal_config)
+                Self::get_relay_inner(query, parsed_relays, &normal_config)
             }
         }
     }
@@ -568,7 +597,7 @@ impl RelaySelector {
     /// * An `Err` if no suitable bridge is found
     #[cfg(not(target_os = "android"))]
     fn get_relay_inner(
-        query: &RelayQuery,
+        query: RelayQuery,
         parsed_relays: &ParsedRelays,
         config: &NormalSelectorConfig<'_>,
     ) -> Result<GetRelay, Error> {
@@ -585,7 +614,7 @@ impl RelaySelector {
                     let mut new_query = query.clone();
                     new_query.tunnel_protocol = Constraint::Only(tunnel_type);
                     // If a suitable relay is found, short-circuit and return it
-                    if let Ok(relay) = Self::get_relay_inner(&new_query, parsed_relays, config) {
+                    if let Ok(relay) = Self::get_relay_inner(new_query, parsed_relays, config) {
                         return Ok(relay);
                     }
                 }
@@ -596,14 +625,23 @@ impl RelaySelector {
 
     #[cfg(target_os = "android")]
     fn get_relay_inner(
-        query: &RelayQuery,
+        mut query: RelayQuery,
         parsed_relays: &ParsedRelays,
         config: &NormalSelectorConfig<'_>,
     ) -> Result<GetRelay, Error> {
+        // FIXME: A bit of defensive programming - calling `get_wiregurad_relay` with a query that doesn't
+        // specify Wireguard as the desired tunnel type is not valid and will lead to unwanted
+        // behavior. This should be seen as a workaround, and it would be nicer to lift this
+        // invariant to be checked by the type system instead.
+        query.tunnel_protocol = Constraint::Only(TunnelType::Wireguard);
         Self::get_wireguard_relay(query, config, parsed_relays)
     }
 
     /// Derive a valid Wireguard relay configuration from `query`.
+    ///
+    /// # Note
+    /// This function should *only* be called with a Wireguard query.
+    /// It will panic if the tunnel type is not specified as Wireguard.
     ///
     /// # Returns
     /// * An `Err` if no exit relay can be chosen
@@ -613,18 +651,22 @@ impl RelaySelector {
     ///
     /// [`MullvadEndpoint`]: mullvad_types::endpoint::MullvadEndpoint
     fn get_wireguard_relay(
-        query: &RelayQuery,
+        query: RelayQuery,
         config: &NormalSelectorConfig<'_>,
         parsed_relays: &ParsedRelays,
     ) -> Result<GetRelay, Error> {
+        assert_eq!(
+            query.tunnel_protocol,
+            Constraint::Only(TunnelType::Wireguard)
+        );
         let inner = if !query.wireguard_constraints.multihop() {
-            Self::get_wireguard_singlehop_config(query, config, parsed_relays)?
+            Self::get_wireguard_singlehop_config(&query, config, parsed_relays)?
         } else {
-            Self::get_wireguard_multihop_config(query, config, parsed_relays)?
+            Self::get_wireguard_multihop_config(&query, config, parsed_relays)?
         };
-        let endpoint = Self::get_wireguard_endpoint(query, parsed_relays, &inner)?;
+        let endpoint = Self::get_wireguard_endpoint(&query, parsed_relays, &inner)?;
         let obfuscator =
-            Self::get_wireguard_obfuscator(query, inner.clone(), &endpoint, parsed_relays)?;
+            Self::get_wireguard_obfuscator(&query, inner.clone(), &endpoint, parsed_relays)?;
 
         Ok(GetRelay::Wireguard {
             endpoint,
@@ -646,7 +688,8 @@ impl RelaySelector {
         let candidates =
             filter_matching_relay_list(query, parsed_relays.relays(), config.custom_lists);
         helpers::pick_random_relay(&candidates)
-            .map(|exit| WireguardConfig::Singlehop { exit: exit.clone() })
+            .cloned()
+            .map(WireguardConfig::singlehop)
             .ok_or(Error::NoRelay)
     }
 
@@ -700,10 +743,7 @@ impl RelaySelector {
         }
         .ok_or(Error::NoRelay)?;
 
-        Ok(WireguardConfig::Multihop {
-            exit: exit.clone(),
-            entry: entry.clone(),
-        })
+        Ok(WireguardConfig::multihop(exit.clone(), entry.clone()))
     }
 
     /// Constructs a [`MullvadEndpoint`] with details for how to connect to `relay`.
@@ -754,6 +794,10 @@ impl RelaySelector {
 
     /// Derive a valid OpenVPN relay configuration from `query`.
     ///
+    /// # Note
+    /// This function should *only* be called with an OpenVPN query.
+    /// It will panic if the tunnel type is not specified as OpenVPN.
+    ///
     /// # Returns
     /// * An `Err` if no exit relay can be chosen
     /// * An `Err` if no entry bridge can be chosen (if bridge mode is enabled on `query`)
@@ -763,16 +807,19 @@ impl RelaySelector {
     /// [`MullvadEndpoint`]: mullvad_types::endpoint::MullvadEndpoint
     #[cfg(not(target_os = "android"))]
     fn get_openvpn_relay(
-        query: &RelayQuery,
+        query: RelayQuery,
         config: &NormalSelectorConfig<'_>,
         parsed_relays: &ParsedRelays,
     ) -> Result<GetRelay, Error> {
+        assert_eq!(query.tunnel_protocol, Constraint::Only(TunnelType::OpenVpn));
         let exit =
-            Self::choose_openvpn_relay(query, config, parsed_relays).ok_or(Error::NoRelay)?;
-        let endpoint = Self::get_openvpn_endpoint(query, &exit, parsed_relays)?;
+            Self::choose_openvpn_relay(&query, config, parsed_relays).ok_or(Error::NoRelay)?;
+        let endpoint = Self::get_openvpn_endpoint(&query, &exit, parsed_relays)?;
         let bridge =
-            Self::get_openvpn_bridge(query, &exit, &endpoint.protocol, parsed_relays, config)?;
+            Self::get_openvpn_bridge(&query, &exit, &endpoint.protocol, parsed_relays, config)?;
 
+        // FIXME: This assert would be better to encode at the type level.
+        assert!(matches!(exit.endpoint_data, RelayEndpointData::Openvpn));
         Ok(GetRelay::OpenVpn {
             endpoint,
             exit,
@@ -964,6 +1011,7 @@ impl RelaySelector {
 
     /// # Returns
     /// A randomly selected relay that meets the specified constraints, or `None` if no suitable relay is found.
+    #[cfg(not(target_os = "android"))]
     fn choose_openvpn_relay(
         query: &RelayQuery,
         config: &NormalSelectorConfig<'_>,

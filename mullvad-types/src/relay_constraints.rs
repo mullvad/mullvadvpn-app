@@ -265,7 +265,7 @@ impl GeographicLocationConstraint {
         GeographicLocationConstraint::Hostname(country.into(), city.into(), hostname.into())
     }
 
-    // TODO(markus): Document
+    /// Check if `self` is _just_ a country. See [`GeographicLocationConstraint`] for more details.
     pub fn is_country(&self) -> bool {
         matches!(self, GeographicLocationConstraint::Country(_))
     }
