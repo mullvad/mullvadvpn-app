@@ -9,6 +9,7 @@ pub mod query;
 use chrono::{DateTime, Local};
 use itertools::Itertools;
 use once_cell::sync::Lazy;
+use rand::{seq::IteratorRandom, thread_rng};
 use std::{
     path::Path,
     sync::{Arc, Mutex},
@@ -729,25 +730,25 @@ impl RelaySelector {
             config.custom_lists,
         );
 
-        // This algorithm gracefully handles a particular edge case that arise when a constraint on
-        // the exit relay is more specific than on the entry relay which forces the relay selector
-        // to choose one specific relay. The relay selector could end up selecting that specific
-        // relay as the entry relay, thus leaving no remaining exit relay candidates or vice versa.
+        fn pick_random_excluding<'a>(list: &'a [Relay], exclude: &'a Relay) -> Option<&'a Relay> {
+            list.iter()
+                .filter(|&a| a != exclude)
+                .choose(&mut thread_rng())
+        }
+        // We avoid picking the same relay for entry and exit by choosing one and excluding it when
+        // choosing the other.
         let (exit, entry) = match (exit_candidates.as_slice(), entry_candidates.as_slice()) {
-            ([exit], [entry]) if exit == entry => None,
+            // In the case where there is only one exit to choose from, we have to pick it before
+            // the entry
             (exits, [entry]) if exits.contains(entry) => {
-                let exit = helpers::random(exits, entry).ok_or(Error::NoRelay)?;
-                Some((exit, entry))
+                pick_random_excluding(exits, entry).map(|exit| (exit, entry))
             }
+            // Vice versa for the case of only one entry
             ([exit], entries) if entries.contains(exit) => {
-                let entry = helpers::random(entries, exit).ok_or(Error::NoRelay)?;
-                Some((exit, entry))
+                pick_random_excluding(entries, exit).map(|entry| (exit, entry))
             }
-            (exits, entries) => {
-                let exit = helpers::pick_random_relay(exits).ok_or(Error::NoRelay)?;
-                let entry = helpers::random(entries, exit).ok_or(Error::NoRelay)?;
-                Some((exit, entry))
-            }
+            (exits, entries) => helpers::pick_random_relay(exits)
+                .and_then(|exit| pick_random_excluding(entries, exit).map(|entry| (exit, entry))),
         }
         .ok_or(Error::NoRelay)?;
 
