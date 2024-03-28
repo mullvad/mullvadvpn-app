@@ -127,31 +127,35 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         return relayFilterCoordinator
     }
 
-    private func showAddCustomList() {
+    private func showAddCustomList(nodes: [LocationNode]) {
         let coordinator = AddCustomListCoordinator(
             navigationController: CustomNavigationController(),
-            interactor: CustomListInteractor(repository: customListRepository)
+            interactor: CustomListInteractor(
+                repository: customListRepository
+            ),
+            nodes: nodes
         )
 
-        coordinator.didFinish = {
-            coordinator.dismiss(animated: true)
-            self.locationViewController?.refreshCustomLists()
+        coordinator.didFinish = { [weak self] addCustomListCoordinator in
+            addCustomListCoordinator.dismiss(animated: true)
+            self?.locationViewController?.refreshCustomLists()
         }
 
         coordinator.start()
         presentChild(coordinator, animated: true)
     }
 
-    private func showEditCustomLists() {
+    private func showEditCustomLists(nodes: [LocationNode]) {
         let coordinator = ListCustomListCoordinator(
             navigationController: CustomNavigationController(),
             interactor: CustomListInteractor(repository: customListRepository),
-            tunnelManager: tunnelManager
+            tunnelManager: tunnelManager,
+            nodes: nodes
         )
 
-        coordinator.didFinish = {
-            coordinator.dismiss(animated: true)
-            self.locationViewController?.refreshCustomLists()
+        coordinator.didFinish = { [weak self] listCustomListCoordinator in
+            listCustomListCoordinator.dismiss(animated: true)
+            self?.locationViewController?.refreshCustomLists()
         }
 
         coordinator.start()
@@ -181,7 +185,7 @@ extension LocationCoordinator: RelayCacheTrackerObserver {
 }
 
 extension LocationCoordinator: LocationViewControllerDelegate {
-    func didRequestRouteToCustomLists(_ controller: LocationViewController) {
+    func didRequestRouteToCustomLists(_ controller: LocationViewController, nodes: [LocationNode]) {
         let actionSheet = UIAlertController(
             title: NSLocalizedString(
                 "CUSTOM_LIST_ACTION_SHEET_TITLE",
@@ -190,7 +194,7 @@ extension LocationCoordinator: LocationViewControllerDelegate {
                 comment: ""
             ),
             message: nil,
-            preferredStyle: .actionSheet
+            preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
         )
 
         actionSheet.addAction(UIAlertAction(
@@ -201,12 +205,11 @@ extension LocationCoordinator: LocationViewControllerDelegate {
                 comment: ""
             ),
             style: .default,
-            handler: { _ in
-                self.showAddCustomList()
+            handler: { [weak self] _ in
+                self?.showAddCustomList(nodes: nodes)
             }
         ))
-
-        actionSheet.addAction(UIAlertAction(
+        let editAction = UIAlertAction(
             title: NSLocalizedString(
                 "CUSTOM_LIST_ACTION_SHEET_EDIT_LISTS_BUTTON",
                 tableName: "CustomLists",
@@ -214,10 +217,13 @@ extension LocationCoordinator: LocationViewControllerDelegate {
                 comment: ""
             ),
             style: .default,
-            handler: { _ in
-                self.showEditCustomLists()
+            handler: { [weak self] _ in
+                self?.showEditCustomLists(nodes: nodes)
             }
-        ))
+        )
+        editAction.isEnabled = !customListRepository.fetchAll().isEmpty
+
+        actionSheet.addAction(editAction)
 
         actionSheet.addAction(UIAlertAction(
             title: NSLocalizedString(

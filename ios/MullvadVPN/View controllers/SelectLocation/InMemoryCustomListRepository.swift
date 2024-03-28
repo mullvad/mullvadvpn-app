@@ -16,7 +16,7 @@ class InMemoryCustomListRepository: CustomListRepositoryProtocol {
         CustomList(
             id: UUID(uuidString: "F17948CB-18E2-4F84-82CD-5780F94216DB")!,
             name: "Netflix",
-            locations: [.city("al", "tia")]
+            locations: [.hostname("al", "tia", "al-tia-wg-001")]
         ),
         CustomList(
             id: UUID(uuidString: "4104C603-B35D-4A64-8865-96C0BF33D57F")!,
@@ -29,7 +29,7 @@ class InMemoryCustomListRepository: CustomListRepositoryProtocol {
         ),
     ]
 
-    func save(list: MullvadSettings.CustomList) throws {
+    func save(list: CustomList) throws {
         if let index = customRelayLists.firstIndex(where: { $0.id == list.id }) {
             customRelayLists[index] = list
         } else if customRelayLists.contains(where: { $0.name == list.name }) {
