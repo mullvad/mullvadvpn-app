@@ -7,20 +7,27 @@ import com.google.protobuf.BoolValue
 import com.google.protobuf.Empty
 import com.google.protobuf.StringValue
 import com.google.protobuf.UInt32Value
+import io.grpc.ConnectivityState
+import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusException
 import io.grpc.android.UdsChannelBuilder
 import java.net.InetAddress
 import java.net.InetSocketAddress
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementInterface.AfterDisconnect
@@ -98,6 +105,7 @@ import net.mullvad.talpid.tunnel.ErrorStateCause as ModelErrorStateCause
 import net.mullvad.talpid.tunnel.FirewallPolicyError as ModelFirewallPolicyError
 import net.mullvad.talpid.tunnel.ParameterGenerationError as ModelParameterGenerationError
 import org.joda.time.Instant
+import java.util.concurrent.TimeUnit
 
 class ManagementService(
     rpcSocketPath: String,
@@ -115,6 +123,28 @@ class ManagementService(
 
     private val channel =
         UdsChannelBuilder.forPath(rpcSocketPath, LocalSocketAddress.Namespace.FILESYSTEM).build()
+    val connectionState: StateFlow<GrpcConnectivityState> =
+        channel
+            .connectivityFlow()
+            .map(ConnectivityState::toDomain)
+            .onEach { Log.d("ManagementService", "Connection state: $it") }
+            .stateIn(scope, SharingStarted.Eagerly, channel.getState(false).toDomain())
+
+    private fun ManagedChannel.connectivityFlow(): Flow<ConnectivityState> {
+        return callbackFlow {
+            var currentState = getState(false)
+            send(currentState)
+
+            while (isActive) {
+                currentState =
+                    suspendCoroutine<ConnectivityState> {
+                        notifyWhenStateChanged(currentState) { it.resume(getState(false)) }
+                    }
+                send(currentState)
+            }
+        }
+    }
+
     private val managementService =
         ManagementServiceGrpcKt.ManagementServiceCoroutineStub(channel).withWaitForReady()
 
@@ -156,24 +186,28 @@ class ManagementService(
 
     suspend fun start() {
         scope.launch {
-            managementService.eventsListen(Empty.getDefaultInstance()).collect { event ->
-                Log.d("ManagementService", "Event: $event")
-                @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
-                when (event.eventCase) {
-                    DaemonEvent.EventCase.TUNNEL_STATE ->
-                        _mutableStateFlow.update { it.copy(tunnelState = event.tunnelState) }
-                    DaemonEvent.EventCase.SETTINGS ->
-                        _mutableStateFlow.update { it.copy(settings = event.settings) }
-                    DaemonEvent.EventCase.RELAY_LIST ->
-                        _mutableStateFlow.update { it.copy(relayList = event.relayList) }
-                    DaemonEvent.EventCase.VERSION_INFO ->
-                        _mutableStateFlow.update { it.copy(versionInfo = event.versionInfo) }
-                    DaemonEvent.EventCase.DEVICE ->
-                        _mutableStateFlow.update { it.copy(device = event.device.newState) }
-                    DaemonEvent.EventCase.REMOVE_DEVICE -> {}
-                    DaemonEvent.EventCase.EVENT_NOT_SET -> {}
-                    DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
+            try {
+                managementService.eventsListen(Empty.getDefaultInstance()).collect { event ->
+                    Log.d("ManagementService", "Event: $event")
+                    @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
+                    when (event.eventCase) {
+                        DaemonEvent.EventCase.TUNNEL_STATE ->
+                            _mutableStateFlow.update { it.copy(tunnelState = event.tunnelState) }
+                        DaemonEvent.EventCase.SETTINGS ->
+                            _mutableStateFlow.update { it.copy(settings = event.settings) }
+                        DaemonEvent.EventCase.RELAY_LIST ->
+                            _mutableStateFlow.update { it.copy(relayList = event.relayList) }
+                        DaemonEvent.EventCase.VERSION_INFO ->
+                            _mutableStateFlow.update { it.copy(versionInfo = event.versionInfo) }
+                        DaemonEvent.EventCase.DEVICE ->
+                            _mutableStateFlow.update { it.copy(device = event.device.newState) }
+                        DaemonEvent.EventCase.REMOVE_DEVICE -> {}
+                        DaemonEvent.EventCase.EVENT_NOT_SET -> {}
+                        DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e("ManagementService", "Error in eventsListen: ${e.message}")
             }
         }
         scope.launch { _mutableStateFlow.update { getInitialServiceState() } }
@@ -664,3 +698,24 @@ fun ModelUdp2TcpObfuscationSettings.toDomain(): Udp2TcpObfuscationSettings =
 
 fun AppVersionInfo.toDomain(): ModelAppVersionInfo =
     ModelAppVersionInfo(supported = this.supported, suggestedUpgrade = this.suggestedUpgrade)
+
+fun ConnectivityState.toDomain(): GrpcConnectivityState =
+    when (this) {
+        ConnectivityState.CONNECTING -> GrpcConnectivityState.Connecting
+        ConnectivityState.READY -> GrpcConnectivityState.Ready
+        ConnectivityState.IDLE -> GrpcConnectivityState.Idle
+        ConnectivityState.TRANSIENT_FAILURE -> GrpcConnectivityState.TransientFailure
+        ConnectivityState.SHUTDOWN -> GrpcConnectivityState.Shutdown
+    }
+
+sealed interface GrpcConnectivityState {
+    data object Connecting : GrpcConnectivityState
+
+    data object Ready : GrpcConnectivityState
+
+    data object Idle : GrpcConnectivityState
+
+    data object TransientFailure : GrpcConnectivityState
+
+    data object Shutdown : GrpcConnectivityState
+}

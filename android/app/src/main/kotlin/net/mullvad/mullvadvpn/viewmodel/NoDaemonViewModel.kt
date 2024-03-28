@@ -81,7 +81,6 @@ class NoDaemonViewModel(serviceConnectionManager: ServiceConnectionManager) :
             // If we are started we want to show the overlay if we are not connected to daemon
             when (serviceState) {
                 // TODO Add gRPC layer
-                ServiceConnectionState.Binding,
                 ServiceConnectionState.Unbound -> DaemonState.Show
                 is ServiceConnectionState.Bound -> DaemonState.Hidden.Connected
             }
