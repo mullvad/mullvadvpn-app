@@ -7,10 +7,15 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.di.paymentModule
@@ -53,7 +58,13 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
-        setContent { AppTheme { MullvadApp() } }
+        setContent {
+            AppTheme {
+                    MullvadApp()
+                    val currentState = managementService.connectionState.collectAsState()
+                    Text(text = currentState.value.toString(), style = MaterialTheme.typography.titleLarge)
+            }
+        }
 
         // This is to protect against tapjacking attacks
         window.decorView.filterTouchesWhenObscured = true
@@ -67,6 +78,7 @@ class MainActivity : ComponentActivity() {
                     startServiceSuspend()
                     startManagementService()
                 }
+
             }
         }
     }
@@ -80,6 +92,7 @@ class MainActivity : ComponentActivity() {
     }
 
     suspend fun startManagementService() {
+        delay(100)
         managementService.start()
     }
 

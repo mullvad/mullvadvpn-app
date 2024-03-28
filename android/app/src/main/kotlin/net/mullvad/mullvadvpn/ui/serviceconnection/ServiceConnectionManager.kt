@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import android.content.ComponentName
 import android.content.Context
+import android.content.Context.BIND_AUTO_CREATE
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
@@ -24,57 +25,54 @@ class ServiceConnectionManager(private val context: Context) {
         object : android.content.ServiceConnection {
             override fun onServiceConnected(className: ComponentName, binder: IBinder) {
                 Log.d("ServiceConnectionManager", "Service is bound")
-                _connectionState.value = ServiceConnectionState.Bound
+                // Start gRPC
             }
 
             override fun onServiceDisconnected(className: ComponentName) {
                 Log.d("ServiceConnectionManager", "Service is unbound")
-                _connectionState.value = ServiceConnectionState.Unbound
+                // Stop gRPC
             }
 
             override fun onBindingDied(name: ComponentName?) {
-                super.onBindingDied(name)
-                _connectionState.value = ServiceConnectionState.Unbound
-                Log.d("ServiceConnectionManager", "Service is unbound")
+                Log.d("ServiceConnectionManager", "Service is onBindingDied")
             }
 
             override fun onNullBinding(name: ComponentName?) {
-                super.onNullBinding(name)
                 Log.d("ServiceConnectionManager", "onNullBinding")
                 throw RuntimeException("Received onNullBinding, why u do this to me?")
             }
         }
 
     fun bind(apiEndpointConfiguration: ApiEndpointConfiguration?) {
-        synchronized(this) {
-            if (_connectionState.value is ServiceConnectionState.Unbound) {
-                _connectionState.value = ServiceConnectionState.Binding
-                //            this.vpnPermissionRequestHandler = vpnPermissionRequestHandler
-                val intent = Intent(context, MullvadVpnService::class.java)
+        if (_connectionState.value is ServiceConnectionState.Unbound) {
+            //            this.vpnPermissionRequestHandler = vpnPermissionRequestHandler
+            val intent = Intent(context, MullvadVpnService::class.java)
 
-                if (BuildConfig.DEBUG && apiEndpointConfiguration != null) {
-                    intent.putApiEndpointConfigurationExtra(apiEndpointConfiguration)
-                }
-
-                context.startService(intent)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    context.bindService(
-                        intent,
-                        serviceConnection,
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
-                    )
-                } else {
-                    context.bindService(intent, serviceConnection, 0)
-                }
+            if (BuildConfig.DEBUG && apiEndpointConfiguration != null) {
+                intent.putApiEndpointConfigurationExtra(apiEndpointConfiguration)
             }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                context.bindService(
+                    intent,
+                    serviceConnection,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED or BIND_AUTO_CREATE
+                )
+            } else {
+                context.bindService(intent, serviceConnection, BIND_AUTO_CREATE)
+            }
+            _connectionState.value = ServiceConnectionState.Bound
+        } else {
+            throw IllegalStateException("Service is already bound")
         }
     }
 
     fun unbind() {
-        synchronized(this) {
-            if (_connectionState.value is ServiceConnectionState.Bound) {
-                context.unbindService(serviceConnection)
-            }
+        if (_connectionState.value is ServiceConnectionState.Bound) {
+            context.unbindService(serviceConnection)
+            _connectionState.value = ServiceConnectionState.Unbound
+        } else {
+            throw IllegalStateException("Service is already bound")
         }
     }
 
