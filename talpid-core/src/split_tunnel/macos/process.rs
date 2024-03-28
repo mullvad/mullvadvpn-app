@@ -311,9 +311,10 @@ fn list_pids() -> io::Result<Vec<u32>> {
     if num_pids <= 0 {
         return Err(io::Error::last_os_error());
     }
-    let mut pids = vec![0u32; usize::try_from(num_pids).unwrap()];
+    let num_pids = usize::try_from(num_pids).unwrap();
+    let mut pids = vec![0u32; num_pids];
 
-    let buf_sz = (num_pids as usize * std::mem::size_of::<u32>()) as i32;
+    let buf_sz = (num_pids * std::mem::size_of::<u32>()) as i32;
     // SAFETY: 'pids' is large enough to contain 'num_pids' processes
     let num_pids = unsafe { proc_listallpids(pids.as_mut_ptr() as *mut c_void, buf_sz) };
     if num_pids == -1 {
