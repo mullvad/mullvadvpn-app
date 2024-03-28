@@ -11,6 +11,7 @@ use std::{
 };
 
 use super::data::{Destination, RouteMessage};
+use system_configuration::core_foundation::string::CFStringRef;
 use system_configuration::{
     core_foundation::{
         array::CFArray,
@@ -212,62 +213,29 @@ impl PrimaryInterfaceMonitor {
     }
 
     fn get_primary_interface(&self, family: Family) -> Option<NetworkServiceDetails> {
-        let global_name = if family == Family::V4 {
+        let key = if family == Family::V4 {
             STATE_IPV4_KEY
         } else {
             STATE_IPV6_KEY
         };
-        let global_dict = self
+        let ip_dict = self
             .store
-            .get(CFString::new(global_name))
+            .get(key)
             .and_then(|v| v.downcast_into::<CFDictionary>())?;
-        let name = global_dict
-            .find(unsafe { kSCDynamicStorePropNetPrimaryInterface }.to_void())
-            .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
-            .and_then(|s| s.downcast::<CFString>())
-            .map(|s| s.to_string())
-            .or_else(|| {
-                log::debug!("Missing name for primary interface ({family})");
-                None
-            })?;
-
-        let router_key = if family == Family::V4 {
-            unsafe { kSCPropNetIPv4Router.to_void() }
-        } else {
-            unsafe { kSCPropNetIPv6Router.to_void() }
-        };
-
-        let router_ip = global_dict
-            .find(router_key)
-            .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
-            .and_then(|s| s.downcast::<CFString>())
-            .and_then(|ip| ip.to_string().parse().ok())
-            .or_else(|| {
-                log::debug!("Missing router IP for primary interface \"{name}\"");
-                None
-            })?;
-
-        let ip_key = if family == Family::V4 {
-            unsafe { kSCPropNetIPv4Addresses.to_void() }
-        } else {
-            unsafe { kSCPropNetIPv6Addresses.to_void() }
-        };
-
-        let first_ip = global_dict
-            .find(ip_key)
-            .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
-            .and_then(|s| s.downcast::<CFArray>())
-            .and_then(|ips| {
-                ips.get(0)
-                    .map(|ip| unsafe { CFType::wrap_under_get_rule(*ip) })
-            })
-            .and_then(|s| s.downcast::<CFString>())
-            .and_then(|ip| ip.to_string().parse().ok())
-            .or_else(|| {
-                log::debug!("Missing IP for primary interface \"{name}\"");
-                None
-            })?;
-
+        let name =
+            get_dict_elem_as_string(&ip_dict, unsafe { kSCDynamicStorePropNetPrimaryInterface })
+                .or_else(|| {
+                    log::debug!("Missing name for primary interface ({family})");
+                    None
+                })?;
+        let router_ip = get_service_router_ip(&ip_dict, family).or_else(|| {
+            log::debug!("Missing router IP for primary interface ({name}, {family})");
+            None
+        })?;
+        let first_ip = get_service_first_ip(&ip_dict, family).or_else(|| {
+            log::debug!("Missing IP for primary interface ({name}, {family})");
+            None
+        })?;
         Some(NetworkServiceDetails {
             name,
             router_ip,
@@ -276,67 +244,33 @@ impl PrimaryInterfaceMonitor {
     }
 
     fn network_services(&self, family: Family) -> Vec<NetworkServiceDetails> {
-        let router_key = if family == Family::V4 {
-            unsafe { kSCPropNetIPv4Router.to_void() }
-        } else {
-            unsafe { kSCPropNetIPv6Router.to_void() }
-        };
-
         SCNetworkSet::new(&self.prefs)
             .service_order()
             .iter()
             .filter_map(|service_id| {
                 let service_id_s = service_id.to_string();
-                let key = if family == Family::V4 {
+                let service_key = if family == Family::V4 {
                     format!("State:/Network/Service/{service_id_s}/IPv4")
                 } else {
                     format!("State:/Network/Service/{service_id_s}/IPv6")
                 };
-
                 let ip_dict = self
                     .store
-                    .get(CFString::new(&key))
+                    .get(CFString::new(&service_key))
                     .and_then(|v| v.downcast_into::<CFDictionary>())?;
-                let name = ip_dict
-                    .find(unsafe { kSCPropInterfaceName }.to_void())
-                    .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
-                    .and_then(|s| s.downcast::<CFString>())
-                    .map(|s| s.to_string())
+                let name = get_dict_elem_as_string(&ip_dict, unsafe { kSCPropInterfaceName })
                     .or_else(|| {
-                        log::debug!("Missing name for service {service_id_s} ({family})");
+                        log::debug!("Missing name for service {service_key} ({family})");
                         None
                     })?;
-                let router_ip = ip_dict
-                    .find(router_key)
-                    .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
-                    .and_then(|s| s.downcast::<CFString>())
-                    .and_then(|ip| ip.to_string().parse().ok())
-                    .or_else(|| {
-                        log::debug!("Missing router IP for {service_id_s} ({name}, {family})");
-                        None
-                    })?;
-
-                let ip_key = if family == Family::V4 {
-                    unsafe { kSCPropNetIPv4Addresses.to_void() }
-                } else {
-                    unsafe { kSCPropNetIPv6Addresses.to_void() }
-                };
-
-                let first_ip = ip_dict
-                    .find(ip_key)
-                    .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
-                    .and_then(|s| s.downcast::<CFArray>())
-                    .and_then(|ips| {
-                        ips.get(0)
-                            .map(|ip| unsafe { CFType::wrap_under_get_rule(*ip) })
-                    })
-                    .and_then(|s| s.downcast::<CFString>())
-                    .and_then(|ip| ip.to_string().parse().ok())
-                    .or_else(|| {
-                        log::debug!("Missing IP for primary interface \"{name}\"");
-                        None
-                    })?;
-
+                let router_ip = get_service_router_ip(&ip_dict, family).or_else(|| {
+                    log::debug!("Missing router IP for {service_key} ({name}, {family})");
+                    None
+                })?;
+                let first_ip = get_service_first_ip(&ip_dict, family).or_else(|| {
+                    log::debug!("Missing IP for \"{service_key}\" ({name}, {family})");
+                    None
+                })?;
                 Some(NetworkServiceDetails {
                     name,
                     router_ip,
@@ -405,4 +339,39 @@ fn is_routable_v6(addr: &Ipv6Addr) -> bool {
 
 fn is_link_local_v6(addr: &Ipv6Addr) -> bool {
     (addr.segments()[0] & 0xffc0) == 0xfe80
+}
+
+fn get_service_router_ip(ip_dict: &CFDictionary, family: Family) -> Option<IpAddr> {
+    let router_key = if family == Family::V4 {
+        unsafe { kSCPropNetIPv4Router }
+    } else {
+        unsafe { kSCPropNetIPv6Router }
+    };
+    get_dict_elem_as_string(ip_dict, router_key).and_then(|ip| ip.parse().ok())
+}
+
+fn get_service_first_ip(ip_dict: &CFDictionary, family: Family) -> Option<IpAddr> {
+    let ip_key = if family == Family::V4 {
+        unsafe { kSCPropNetIPv4Addresses }
+    } else {
+        unsafe { kSCPropNetIPv6Addresses }
+    };
+    ip_dict
+        .find(ip_key.to_void())
+        .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+        .and_then(|s| s.downcast::<CFArray>())
+        .and_then(|ips| {
+            ips.get(0)
+                .map(|ip| unsafe { CFType::wrap_under_get_rule(*ip) })
+        })
+        .and_then(|s| s.downcast::<CFString>())
+        .map(|s| s.to_string())
+        .and_then(|ip| ip.parse().ok())
+}
+
+fn get_dict_elem_as_string(dict: &CFDictionary, key: CFStringRef) -> Option<String> {
+    dict.find(key.to_void())
+        .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+        .and_then(|s| s.downcast::<CFString>())
+        .map(|s| s.to_string())
 }
