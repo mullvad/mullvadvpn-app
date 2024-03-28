@@ -43,43 +43,6 @@ extension PacketTunnelActor {
 
         let newReachability = networkPath.networkReachability
 
-        func mutateConnectionState(_ connState: inout ConnectionState) -> Bool {
-            if connState.networkReachability != newReachability {
-                connState.networkReachability = newReachability
-                return true
-            }
-            return false
-        }
-
-        switch state {
-        case var .connecting(connState):
-            if mutateConnectionState(&connState) {
-                state = .connecting(connState)
-            }
-
-        case var .connected(connState):
-            if mutateConnectionState(&connState) {
-                state = .connected(connState)
-            }
-
-        case var .reconnecting(connState):
-            if mutateConnectionState(&connState) {
-                state = .reconnecting(connState)
-            }
-
-        case var .disconnecting(connState):
-            if mutateConnectionState(&connState) {
-                state = .disconnecting(connState)
-            }
-
-        case var .error(blockedState):
-            if blockedState.networkReachability != newReachability {
-                blockedState.networkReachability = newReachability
-                state = .error(blockedState)
-            }
-
-        case .initial, .disconnected:
-            break
-        }
+        state.mutateAssociatedData { $0.networkReachability = newReachability }
     }
 }
