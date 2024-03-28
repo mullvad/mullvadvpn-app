@@ -18,24 +18,51 @@ use talpid_types::net::wireguard::PublicKey;
 use tonic::transport::Endpoint;
 use tower::service_fn;
 
+#[repr(C)]
+pub struct PostQuantumCancelToken {
+    // Must keep a pointer to a valid std::sync::Arc<tokio::mpsc::UnboundedSender>
+    pub context: *mut c_void,
+}
+
+impl PostQuantumCancelToken {
+    /// #Safety
+    /// This function can only be called when the context pointer is valid.
+    unsafe fn cancel(&self) {
+        // Try to take the value, if there is a value, we can safely send the message, otherwise, assume it has been dropped and nothing happens
+        let send_tx: Arc<mpsc::UnboundedSender<()>> = unsafe { Arc::from_raw(self.context as _) };
+        let _ = send_tx.send(());
+        std::mem::forget(send_tx);
+    }
+}
+
+impl Drop for PostQuantumCancelToken {
+    fn drop(&mut self) {
+        let _: Arc<mpsc::UnboundedSender<()>> = unsafe { Arc::from_raw(self.context as _) };
+    }
+}
+unsafe impl Send for PostQuantumCancelToken {}
+
 /// # Safety
-/// This function is safe to call
+/// packet_tunnel and tcp_connection must be valid pointers to a packet tunnel and a TCP connection instances.
+///
 pub unsafe fn run_ios_runtime(
     pub_key: [u8; 32],
     ephemeral_pub_key: [u8; 32],
     packet_tunnel: *const c_void,
     tcp_connection: *const c_void,
-) -> *const c_void {
-    match IOSRuntime::new(pub_key, ephemeral_pub_key, packet_tunnel, tcp_connection) {
+) -> Result<PostQuantumCancelToken, i32> {
+    match unsafe { IOSRuntime::new(pub_key, ephemeral_pub_key, packet_tunnel, tcp_connection) } {
         Ok(runtime) => {
-            let weak_cancel_token = Arc::downgrade(&runtime.cancel_token_tx);
-            let token = weak_cancel_token.into_raw() as _;
+            let token = runtime.cancel_token_tx.clone();
+
             runtime.run();
-            token
+            Ok(PostQuantumCancelToken {
+                context: Arc::into_raw(token) as *mut _,
+            })
         }
         Err(err) => {
             log::error!("Failed to create runtime {}", err);
-            std::ptr::null()
+            Err(-1)
         }
     }
 }
