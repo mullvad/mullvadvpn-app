@@ -1189,13 +1189,6 @@
 			remoteGlobalIDString = 5840231E2A406BF5007B27AC;
 			remoteInfo = TunnelObfuscation;
 		};
-		F04F959E2B21D02700431E08 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 58CE5E58224146200008646E /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 06799ABB28F98E1D00ACD94E;
-			remoteInfo = MullvadREST;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -4053,7 +4046,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				F04F959F2B21D02700431E08 /* PBXTargetDependency */,
 				A91614D32B108F4D00F416EB /* PBXTargetDependency */,
 			);
 			name = TunnelObfuscation;
@@ -5982,11 +5974,6 @@
 			isa = PBXTargetDependency;
 			target = 5840231E2A406BF5007B27AC /* TunnelObfuscation */;
 			targetProxy = A9EC20F12A5D79ED0040D56E /* PBXContainerItemProxy */;
-		};
-		F04F959F2B21D02700431E08 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 06799ABB28F98E1D00ACD94E /* MullvadREST */;
-			targetProxy = F04F959E2B21D02700431E08 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
