@@ -15,6 +15,11 @@ enum NetworkingError: Error {
     case internalError(reason: String)
 }
 
+struct DNSServerEntry: Decodable {
+    let organization: String
+    let mullvad_dns: Bool
+}
+
 /// Class with methods for verifying network connectivity
 class Networking {
     /// Get IP address of the iOS device under test
@@ -164,5 +169,61 @@ class Networking {
     /// Verify that an ad serving domain is NOT reachable by making sure a connection can not be established on port 80
     public static func verifyCannotReachAdServingDomain() throws {
         XCTAssertFalse(try Self.canConnectSocket(host: try Self.getAdServingDomain(), port: "80"))
+    }
+
+    /// Verify that the expected DNS server is used by verifying provider name and whether it is a Mullvad DNS server or not
+    public static func verifyDNSServerProvider(_ providerName: String, isMullvad: Bool) throws {
+        guard let mullvadDNSLeakURL = URL(string: "https://am.i.mullvad.net/dnsleak") else {
+            throw NetworkingError.internalError(reason: "Failed to create URL object")
+        }
+
+        var request = URLRequest(url: mullvadDNSLeakURL)
+        request.setValue("application/json", forHTTPHeaderField: "accept")
+
+        var requestData: Data?
+        var requestResponse: URLResponse?
+        var requestError: Error?
+        let completionHandlerInvokedExpectation = XCTestExpectation(
+            description: "Completion handler for the request is invoked"
+        )
+
+        do {
+            let dataTask = URLSession.shared.dataTask(with: request) { data, response, error in
+                requestData = data
+                requestResponse = response
+                requestError = error
+                completionHandlerInvokedExpectation.fulfill()
+            }
+
+            dataTask.resume()
+
+            let waitResult = XCTWaiter.wait(for: [completionHandlerInvokedExpectation], timeout: 30)
+
+            if waitResult != .completed {
+                XCTFail("Failed to verify DNS server provider - timeout")
+            } else {
+                if let response = requestResponse as? HTTPURLResponse {
+                    if response.statusCode != 200 {
+                        XCTFail("Failed to verify DNS server provider - unexpected server response")
+                    }
+                }
+
+                if let error = requestError {
+                    XCTFail("Failed to verify DNS server provider - encountered error \(error.localizedDescription)")
+                }
+
+                if let requestData = requestData {
+                    let dnsServerEntries = try JSONDecoder().decode([DNSServerEntry].self, from: requestData)
+                    XCTAssertGreaterThanOrEqual(dnsServerEntries.count, 1)
+
+                    for dnsServerEntry in dnsServerEntries {
+                        XCTAssertEqual(dnsServerEntry.organization, providerName)
+                        XCTAssertEqual(dnsServerEntry.mullvad_dns, isMullvad)
+                    }
+                }
+            }
+        } catch {
+            XCTFail("Failed to verify DNS server provider - couldn't serialize JSON")
+        }
     }
 }
