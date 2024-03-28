@@ -1,5 +1,7 @@
-#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[cfg(target_os = "linux")]
 use crate::Route;
+#[cfg(target_os = "macos")]
+pub use crate::{imp::imp::DefaultRoute, Gateway};
 
 use super::RequiredRoute;
 
@@ -70,6 +72,7 @@ impl Error {
 type Fwmark = u32;
 
 /// Commands for the underlying route manager object.
+#[cfg(target_os = "linux")]
 #[derive(Debug)]
 pub(crate) enum RouteManagerCommand {
     AddRoutes(
@@ -78,27 +81,45 @@ pub(crate) enum RouteManagerCommand {
     ),
     ClearRoutes,
     Shutdown(oneshot::Sender<()>),
-    #[cfg(target_os = "macos")]
-    RefreshRoutes,
-    #[cfg(target_os = "macos")]
-    NewDefaultRouteListener(oneshot::Sender<mpsc::UnboundedReceiver<DefaultRouteEvent>>),
-    #[cfg(target_os = "macos")]
-    GetDefaultRoutes(oneshot::Sender<(Option<Route>, Option<Route>)>),
-    #[cfg(target_os = "linux")]
     CreateRoutingRules(bool, oneshot::Sender<Result<(), PlatformError>>),
-    #[cfg(target_os = "linux")]
     ClearRoutingRules(oneshot::Sender<Result<(), PlatformError>>),
-    #[cfg(target_os = "linux")]
     NewChangeListener(oneshot::Sender<mpsc::UnboundedReceiver<CallbackMessage>>),
-    #[cfg(target_os = "linux")]
     GetMtuForRoute(IpAddr, oneshot::Sender<Result<u16, PlatformError>>),
     /// Attempt to fetch a route for the given destination with an optional firewall mark.
-    #[cfg(target_os = "linux")]
     GetDestinationRoute(
         IpAddr,
         Option<Fwmark>,
         oneshot::Sender<Result<Option<Route>, PlatformError>>,
     ),
+}
+
+/// Commands for the underlying route manager object.
+#[cfg(target_os = "android")]
+#[derive(Debug)]
+pub(crate) enum RouteManagerCommand {
+    AddRoutes(
+        HashSet<RequiredRoute>,
+        oneshot::Sender<Result<(), PlatformError>>,
+    ),
+    ClearRoutes,
+    Shutdown(oneshot::Sender<()>),
+}
+
+/// Commands for the underlying route manager object.
+#[cfg(target_os = "macos")]
+#[derive(Debug)]
+pub(crate) enum RouteManagerCommand {
+    AddRoutes(
+        HashSet<RequiredRoute>,
+        oneshot::Sender<Result<(), PlatformError>>,
+    ),
+    ClearRoutes,
+    Shutdown(oneshot::Sender<()>),
+    RefreshRoutes,
+    NewDefaultRouteListener(oneshot::Sender<mpsc::UnboundedReceiver<DefaultRouteEvent>>),
+    GetDefaultRoutes(oneshot::Sender<(Option<DefaultRoute>, Option<DefaultRoute>)>),
+    /// Return gateway for V4 and V6
+    GetDefaultGateway(oneshot::Sender<(Option<Gateway>, Option<Gateway>)>),
 }
 
 /// Event that is sent when a preferred non-tunnel default route is
@@ -196,10 +217,22 @@ impl RouteManagerHandle {
 
     /// Get current non-tunnel default routes.
     #[cfg(target_os = "macos")]
-    pub async fn get_default_routes(&self) -> Result<(Option<Route>, Option<Route>), Error> {
+    pub async fn get_default_routes(
+        &self,
+    ) -> Result<(Option<DefaultRoute>, Option<DefaultRoute>), Error> {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RouteManagerCommand::GetDefaultRoutes(response_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+        response_rx.await.map_err(|_| Error::ManagerChannelDown)
+    }
+
+    /// Get default gateway
+    #[cfg(target_os = "macos")]
+    pub async fn get_default_gateway(&self) -> Result<(Option<Gateway>, Option<Gateway>), Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::GetDefaultGateway(response_tx))
             .map_err(|_| Error::RouteManagerDown)?;
         response_rx.await.map_err(|_| Error::ManagerChannelDown)
     }

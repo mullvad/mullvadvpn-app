@@ -152,12 +152,19 @@ impl ConnectedState {
 
         let peer_endpoint = AllowedEndpoint { endpoint, clients };
 
+        #[cfg(target_os = "macos")]
+        let redirect_interface = shared_values
+            .runtime
+            .block_on(shared_values.split_tunnel.interface());
+
         FirewallPolicy::Connected {
             peer_endpoint,
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
             #[cfg(not(target_os = "android"))]
             dns_servers: self.get_dns_servers(shared_values),
+            #[cfg(target_os = "macos")]
+            redirect_interface,
         }
     }
 
@@ -323,9 +330,36 @@ impl ConnectedState {
                 shared_values.bypass_socket(fd, done_tx);
                 SameState(self)
             }
-            #[cfg(windows)]
+            #[cfg(target_os = "windows")]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 shared_values.split_tunnel.set_paths(&paths, result_tx);
+                SameState(self)
+            }
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
+                match shared_values.set_exclude_paths(paths) {
+                    Ok(added_device) => {
+                        let _ = result_tx.send(Ok(()));
+
+                        if added_device {
+                            if let Err(error) = self.set_firewall_policy(shared_values) {
+                                return self.disconnect(
+                                    shared_values,
+                                    AfterDisconnect::Block(
+                                        ErrorStateCause::SetFirewallPolicyError(error),
+                                    ),
+                                );
+                            }
+                        }
+                    }
+                    Err(error) => {
+                        let _ = result_tx.send(Err(error));
+                        return self.disconnect(
+                            shared_values,
+                            AfterDisconnect::Block(ErrorStateCause::SplitTunnelError),
+                        );
+                    }
+                }
                 SameState(self)
             }
         }

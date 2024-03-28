@@ -43,17 +43,17 @@ Some definitions of terms used later to describe behavior:
 *: On platforms where we have custom firewall integration. This is currently on desktop operating
   systems, and not mobile.
 
-### Windows and Linux
+### Desktop platforms (Windows, Linux, and macOS)
 
-| In-app DNS setting | Normal & Excluded app |
-|-|-|
-| **Default DNS** | In tunnel (to relay) |
-| **Private custom DNS** (e.g. 10.0.1.1) | LAN (to 10.0.1.1) |
-| **Public custom DNS** (e.g. 8.8.8.8) | In tunnel (to 8.8.8.8) |
+| In-app DNS setting | Normal & Excluded app                          |
+|-|------------------------------------------------|
+| **Default DNS** | In tunnel (to relay)                           |
+| **Private custom DNS** (e.g. 10.0.1.1) | LAN (to 10.0.1.1)<br/>**macOS**: Not supported |
+| **Public custom DNS** (e.g. 8.8.8.8) | In tunnel (to 8.8.8.8)                         |
 
-In other words: Normal and excluded processes always behave the same. This is because DNS is
-typically handled by a service, e.g. DNS cache on Windows or systemd-resolved's resolver on Linux,
-which is not an excluded process.
+In other words: Normal and excluded processes behave the same. This is because DNS is typically
+handled by a service, e.g. DNS cache on Windows or systemd-resolved's resolver on Linux, which is
+not an excluded process.
 
 For the sake of simplicity and consistency, requests to public custom DNS resolvers are also sent
 inside the tunnel when using a plain old static `resolv.conf`, even though it is technically

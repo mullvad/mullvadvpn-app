@@ -4,7 +4,7 @@ use talpid_types::ErrorExt;
 
 impl From<&mullvad_types::settings::Settings> for proto::Settings {
     fn from(settings: &mullvad_types::settings::Settings) -> Self {
-        #[cfg(windows)]
+        #[cfg(any(target_os = "windows", target_os = "macos"))]
         let split_tunnel = {
             let mut converted_list = vec![];
             for path in settings.split_tunnel.apps.clone().iter() {
@@ -21,7 +21,7 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
                 apps: converted_list,
             })
         };
-        #[cfg(not(windows))]
+        #[cfg(not(any(target_os = "windows", target_os = "macos")))]
         let split_tunnel = None;
 
         Self {
@@ -155,7 +155,7 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "missing api access methods settings",
                 ))?;
-        #[cfg(windows)]
+        #[cfg(any(target_os = "windows", target_os = "macos"))]
         let split_tunnel = settings
             .split_tunnel
             .ok_or(FromProtobufTypeError::InvalidArgument(
@@ -180,7 +180,7 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
                 .map(mullvad_types::relay_constraints::RelayOverride::try_from)
                 .collect::<Result<Vec<_>, _>>()?,
             show_beta_releases: settings.show_beta_releases,
-            #[cfg(windows)]
+            #[cfg(any(target_os = "windows", target_os = "macos"))]
             split_tunnel: mullvad_types::settings::SplitTunnelSettings::from(split_tunnel),
             obfuscation_settings: mullvad_types::relay_constraints::ObfuscationSettings::try_from(
                 obfuscation_settings,
@@ -215,7 +215,7 @@ pub fn try_bridge_state_from_i32(
     }
 }
 
-#[cfg(windows)]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 impl From<proto::SplitTunnelSettings> for mullvad_types::settings::SplitTunnelSettings {
     fn from(value: proto::SplitTunnelSettings) -> Self {
         mullvad_types::settings::SplitTunnelSettings {

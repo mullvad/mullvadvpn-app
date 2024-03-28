@@ -35,6 +35,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add the ability to create and manage custom lists of relays.
 - Add Server IP overrides feature.
 
+#### macOS
+- Add support for split tunneling (beta).
+
 ### Changed
 - Change default obfuscation setting to `auto`.
 - Migrate obfuscation settings for existing users from `off` to `auto`.
