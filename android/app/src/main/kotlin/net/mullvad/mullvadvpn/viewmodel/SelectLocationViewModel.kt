@@ -28,7 +28,6 @@ import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 
 class SelectLocationViewModel(
-    private val serviceConnectionManager: ServiceConnectionManager,
     private val relayListUseCase: RelayListUseCase,
     private val relayListFilterUseCase: RelayListFilterUseCase,
     private val customListActionUseCase: CustomListActionUseCase,
