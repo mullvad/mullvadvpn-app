@@ -25,7 +25,7 @@ open class LifecycleVpnService : VpnService(), LifecycleOwner {
     @CallSuper
     override fun onBind(intent: Intent?): IBinder? {
         dispatcher.onServicePreSuperOnBind()
-        return null
+        return super.onBind(intent)
     }
 
     @Deprecated("Deprecated in Java")

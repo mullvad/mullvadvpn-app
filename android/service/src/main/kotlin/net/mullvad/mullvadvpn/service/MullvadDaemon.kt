@@ -46,9 +46,9 @@ class MullvadDaemon(
         apiEndpoint: ApiEndpoint?
     )
 
-    private external fun deinitialize()
+    external fun deinitialize()
 
-    private external fun shutdown()
+    external fun shutdown()
 
     // Used by JNI
     @Suppress("unused")
