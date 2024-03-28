@@ -502,7 +502,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 }
 
                 SettingsManager.resetStore(completely: true)
+
                 self.accessMethodRepository.reloadWithDefaultsAfterDataRemoval()
+                // At app startup, the relay cache tracker will get populated with a list of overriden IPs.
+                // The overriden IPs will get wiped, therefore, the cache needs to be pruned as well.
+                try? self.relayCacheTracker.refreshCachedRelays()
             }
 
             FirstTimeLaunch.setHasFinished()
