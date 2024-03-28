@@ -1,22 +1,26 @@
 use libc::c_void;
 use tokio::sync::mpsc;
 
+use crate::PostQuantumCancelToken;
+
 use super::run_ios_runtime;
 
-use std::{rc::Weak, sync::Once};
+use std::sync::Once;
 static INIT_LOGGING: Once = Once::new();
 
-#[allow(clippy::let_underscore_future)]
 #[no_mangle]
-pub unsafe extern "C" fn cancel_post_quantum_key_exchange(sender: *const c_void) {
-    // Try to take the value, if there is a value, we can safely send the message, otherwise, assume it has been dropped and nothing happens
-    let send_tx: Weak<mpsc::Sender<()>> = unsafe { Weak::from_raw(sender as _) };
-    if let Some(tx) = send_tx.upgrade() {
-        // # Safety
-        // Clippy warns of a non-binding let on a future, this future is being awaited on.
-        _ = tx.send(());
-    }
+pub unsafe extern "C" fn cancel_post_quantum_key_exchange(sender: *const PostQuantumCancelToken) {
+    let sender = unsafe { &*sender };
+    sender.cancel();
 }
+
+#[no_mangle]
+pub unsafe extern "C" fn drop_post_quantum_key_exchange_token(
+    sender: *const PostQuantumCancelToken,
+) {
+    let _sender = unsafe { std::ptr::read(sender) };
+}
+
 /// Callback to call when the TCP connection has written data.
 #[no_mangle]
 pub unsafe extern "C" fn handle_sent(bytes_sent: usize, sender: *const c_void) {
@@ -45,7 +49,8 @@ pub unsafe extern "C" fn negotiate_post_quantum_key(
     ephemeral_public_key: *const u8,
     packet_tunnel: *const c_void,
     tcp_connection: *const c_void,
-) -> *const c_void {
+    cancel_token: *mut PostQuantumCancelToken,
+) -> i32 {
     INIT_LOGGING.call_once(|| {
         let _ = oslog::OsLogger::new("net.mullvad.MullvadVPN.TTCC")
             .level_filter(log::LevelFilter::Trace)
@@ -56,10 +61,18 @@ pub unsafe extern "C" fn negotiate_post_quantum_key(
     let eph_pub_key_copy: [u8; 32] =
         unsafe { std::ptr::read(ephemeral_public_key as *const [u8; 32]) };
 
-    run_ios_runtime(
-        pub_key_copy,
-        eph_pub_key_copy,
-        packet_tunnel,
-        tcp_connection,
-    )
+    match unsafe {
+        run_ios_runtime(
+            pub_key_copy,
+            eph_pub_key_copy,
+            packet_tunnel,
+            tcp_connection,
+        )
+    } {
+        Ok(token) => {
+            unsafe { std::ptr::write(cancel_token, token) };
+            0
+        }
+        Err(err) => err,
+    }
 }

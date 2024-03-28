@@ -3,7 +3,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-void cancel_post_quantum_key_exchange(const void *sender);
+typedef struct PostQuantumCancelToken {
+  void *context;
+} PostQuantumCancelToken;
+
+void cancel_post_quantum_key_exchange(const struct PostQuantumCancelToken *sender);
+
+void drop_post_quantum_key_exchange_token(const struct PostQuantumCancelToken *sender);
 
 /**
  * Callback to call when the TCP connection has written data.
@@ -21,10 +27,11 @@ void handle_recv(const uint8_t *data, uintptr_t data_len, const void *sender);
  * # Safety
  * This function is safe to call
  */
-const void *negotiate_post_quantum_key(const uint8_t *public_key,
-                                       const uint8_t *ephemeral_public_key,
-                                       const void *packet_tunnel,
-                                       const void *tcp_connection);
+int32_t negotiate_post_quantum_key(const uint8_t *public_key,
+                                   const uint8_t *ephemeral_public_key,
+                                   const void *packet_tunnel,
+                                   const void *tcp_connection,
+                                   struct PostQuantumCancelToken *cancel_token);
 
 /**
  * Called when there is data to send on the TCP connection.
