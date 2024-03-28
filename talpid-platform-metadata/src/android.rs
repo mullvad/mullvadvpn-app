@@ -10,10 +10,11 @@ pub fn version() -> String {
     let manufacturer =
         get_prop("ro.product.manufacturer").unwrap_or_else(|| "Unknown brand".to_owned());
     let product = get_prop("ro.product.model").unwrap_or_else(|| "Unknown model".to_owned());
+    let user = get_prop("ro.build.user").unwrap_or_else(|| "".to_owned());
 
     format!(
-        "Android {} (API: {}) - {} {}",
-        version, api_level, manufacturer, product
+        "Android {} (API: {}) - {} {} {}",
+        version, api_level, manufacturer, product, user,
     )
 }
 
