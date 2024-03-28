@@ -1,12 +1,8 @@
 package net.mullvad.mullvadvpn.repository
 
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
-import net.mullvad.mullvadvpn.lib.ipc.Event
-import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomList
-import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
@@ -30,16 +26,17 @@ class CustomListsRepository(
         TODO()
     }
 
-    fun deleteCustomList(id: String): Unit = TODO()// messageHandler.trySendRequest(Request.DeleteCustomList(id))
+    fun deleteCustomList(id: String): Unit =
+        TODO() // messageHandler.trySendRequest(Request.DeleteCustomList(id))
 
     private suspend fun updateCustomList(customList: CustomList): UpdateCustomListResult {
-//        val result = messageHandler.trySendRequest(Request.UpdateCustomList(customList))
-//
-//        return if (result) {
-//            messageHandler.events<Event.UpdateCustomListResultEvent>().first().result
-//        } else {
-//            UpdateCustomListResult.Error(CustomListsError.OtherError)
-//        }
+        //        val result = messageHandler.trySendRequest(Request.UpdateCustomList(customList))
+        //
+        //        return if (result) {
+        //            messageHandler.events<Event.UpdateCustomListResultEvent>().first().result
+        //        } else {
+        //            UpdateCustomListResult.Error(CustomListsError.OtherError)
+        //        }
         TODO()
     }
 

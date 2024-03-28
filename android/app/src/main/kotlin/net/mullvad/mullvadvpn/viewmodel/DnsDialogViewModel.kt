@@ -120,7 +120,7 @@ class DnsDialogViewModel(
                 repository.setCustomDns(index, address)
             } else {
                 // TODO
-                //add(address)
+                // add(address)
             }
 
             _uiSideEffect.send(DnsDialogSideEffect.Complete)
