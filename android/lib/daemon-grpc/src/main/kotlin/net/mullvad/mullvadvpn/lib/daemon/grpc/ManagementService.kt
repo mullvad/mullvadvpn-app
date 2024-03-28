@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementInterface.AfterDisconnect
 import mullvad_daemon.management_interface.ManagementInterface.AppVersionInfo
 import mullvad_daemon.management_interface.ManagementInterface.CustomDnsOptions
@@ -43,6 +42,7 @@ import mullvad_daemon.management_interface.ManagementInterface.DnsOptions.DnsSta
 import mullvad_daemon.management_interface.ManagementInterface.Endpoint
 import mullvad_daemon.management_interface.ManagementInterface.ErrorState
 import mullvad_daemon.management_interface.ManagementInterface.GeoIpLocation
+import mullvad_daemon.management_interface.ManagementInterface.GeographicLocationConstraint
 import mullvad_daemon.management_interface.ManagementInterface.LocationConstraint
 import mullvad_daemon.management_interface.ManagementInterface.NormalRelaySettings
 import mullvad_daemon.management_interface.ManagementInterface.ObfuscationEndpoint
@@ -105,7 +105,6 @@ import net.mullvad.talpid.tunnel.ErrorStateCause as ModelErrorStateCause
 import net.mullvad.talpid.tunnel.FirewallPolicyError as ModelFirewallPolicyError
 import net.mullvad.talpid.tunnel.ParameterGenerationError as ModelParameterGenerationError
 import org.joda.time.Instant
-import java.util.concurrent.TimeUnit
 
 class ManagementService(
     rpcSocketPath: String,
@@ -366,6 +365,15 @@ class ManagementService(
 
     suspend fun getCurrentVersion(): String =
         managementService.getCurrentVersion(Empty.getDefaultInstance()).value
+
+    suspend fun setRelayLocation(location: ModelLocationConstraint) {
+        val currentRelaySettings = getSettings().relaySettings
+        val newRelaySettings =
+            currentRelaySettings.copy {
+                this.normal = this.normal.copy { this.location = location.fromDomain() }
+            }
+        managementService.setRelaySettings(newRelaySettings)
+    }
 }
 
 fun TunnelState.toDomain(): ModelTunnelState =
@@ -540,7 +548,7 @@ fun LocationConstraint.toDomain(): Constraint<ModelLocationConstraint> =
         LocationConstraint.TypeCase.TYPE_NOT_SET -> Constraint.Any()
     }
 
-fun ManagementInterface.GeographicLocationConstraint.toDomain(): ModelGeographicLocationConstraint =
+fun GeographicLocationConstraint.toDomain(): ModelGeographicLocationConstraint =
     when {
         hasHostname() && hasCity() ->
             ModelGeographicLocationConstraint.Hostname(country, city, hostname)
@@ -706,6 +714,31 @@ fun ConnectivityState.toDomain(): GrpcConnectivityState =
         ConnectivityState.IDLE -> GrpcConnectivityState.Idle
         ConnectivityState.TRANSIENT_FAILURE -> GrpcConnectivityState.TransientFailure
         ConnectivityState.SHUTDOWN -> GrpcConnectivityState.Shutdown
+    }
+
+fun ModelLocationConstraint.fromDomain(): LocationConstraint =
+    when (this) {
+        is ModelLocationConstraint.CustomList ->
+            LocationConstraint.newBuilder().setCustomList(this.listId).build()
+        is ModelLocationConstraint.Location ->
+            LocationConstraint.newBuilder().setLocation(this.location.fromDomain()).build()
+    }
+
+fun ModelGeographicLocationConstraint.fromDomain(): GeographicLocationConstraint =
+    when (this) {
+        is ModelGeographicLocationConstraint.Country ->
+            GeographicLocationConstraint.newBuilder().setCountry(this.countryCode).build()
+        is ModelGeographicLocationConstraint.City ->
+            GeographicLocationConstraint.newBuilder()
+                .setCountry(this.countryCode)
+                .setCity(this.cityCode)
+                .build()
+        is ModelGeographicLocationConstraint.Hostname ->
+            GeographicLocationConstraint.newBuilder()
+                .setCountry(this.countryCode)
+                .setCity(this.cityCode)
+                .setHostname(this.hostname)
+                .build()
     }
 
 sealed interface GrpcConnectivityState {
