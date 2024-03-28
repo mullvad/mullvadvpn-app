@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.os.Messenger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
@@ -12,7 +11,6 @@ import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
@@ -27,7 +25,6 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
@@ -93,10 +90,6 @@ val uiModule = module {
     viewModel { SplitTunnelingViewModel(get(), Dispatchers.Default) }
     single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
 
-    single { (messenger: Messenger, dispatcher: EventDispatcher) ->
-        SplitTunneling(messenger, dispatcher)
-    }
-
     single { ServiceConnectionManager(androidContext()) }
     single { InetAddressValidator.getInstance() }
     single { androidContext().resources }
@@ -160,17 +153,7 @@ val uiModule = module {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
     viewModel {
-        ConnectViewModel(
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            IS_PLAY_BUILD
-        )
+        ConnectViewModel(get(), get(), get(), get(), get(), get(), get(), get(), IS_PLAY_BUILD)
     }
     viewModel { DeviceListViewModel(get(), get()) }
     viewModel { DeviceRevokedViewModel(get(), get(), get()) }
