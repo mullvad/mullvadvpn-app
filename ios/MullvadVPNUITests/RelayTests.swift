@@ -163,4 +163,34 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .verifyConnectingToPort("4001")
             .tapDisconnectButton()
     }
+
+    func testCustomDNS() throws {
+        let dnsServerIPAddress = "8.8.8.8"
+        let dnsServerProviderName = "GOOGLE"
+
+        TunnelControlPage(app)
+            .tapSecureConnectionButton()
+
+        allowAddVPNConfigurations()
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapDNSSettingsCell()
+
+        DNSSettingsPage(app)
+            .tapEditButton()
+            .tapAddAServer()
+            .tapEnterIPAddressTextField()
+            .enterText(dnsServerIPAddress)
+            .dismissKeyboard()
+            .tapUseCustomDNSSwitch()
+            .tapDoneButton()
+
+        try Networking.verifyDNSServerProvider(dnsServerProviderName, isMullvad: false)
+    }
 }
