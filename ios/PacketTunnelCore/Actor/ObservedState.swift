@@ -86,8 +86,8 @@ extension State {
     }
 }
 
-extension ConnectionState {
-    /// Map `ConnectionState` to `ObservedConnectionState`.
+extension State.ConnectionData {
+    /// Map `State.ConnectionData` to `ObservedConnectionState`.
     var observedConnectionState: ObservedConnectionState {
         ObservedConnectionState(
             selectedRelay: selectedRelay,
@@ -101,8 +101,8 @@ extension ConnectionState {
     }
 }
 
-extension BlockedState {
-    /// Map `BlockedState` to `ObservedBlockedState`
+extension State.BlockingData {
+    /// Map `State.BlockingData` to `ObservedBlockedState`
     var observedBlockedState: ObservedBlockedState {
         return ObservedBlockedState(reason: reason, relayConstraints: relayConstraints)
     }
