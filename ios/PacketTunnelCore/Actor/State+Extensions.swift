@@ -86,6 +86,7 @@ extension State {
             let .connecting(connState),
             let .connected(connState),
             let .reconnecting(connState),
+            let .negotiatingPostQuantumKey(connState, _),
             let .disconnecting(connState): connState
         default: nil
         }
@@ -115,6 +116,7 @@ extension State {
         case .connected: .connected(newValue)
         case .reconnecting: .reconnecting(newValue)
         case .disconnecting: .disconnecting(newValue)
+        case let .negotiatingPostQuantumKey(_, privateKey): .negotiatingPostQuantumKey(newValue, privateKey)
         default: self
         }
     }
