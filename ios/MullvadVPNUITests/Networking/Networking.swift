@@ -153,4 +153,59 @@ class Networking {
     public static func verifyCannotReachAdServingDomain() throws {
         XCTAssertFalse(try Self.canConnectSocket(host: try Self.getAdServingDomain(), port: "80"))
     }
+
+    public static func verifyConnectedThroughMullvad() {
+        let mullvadConnectionJsonEndpoint = "https://am.i.mullvad.net/json"
+        guard let url = URL(string: mullvadConnectionJsonEndpoint) else {
+            XCTFail("Failed to unwrap URL")
+            return
+        }
+
+        let request = URLRequest(url: url)
+        let completionHandlerInvokedExpectation = XCTestExpectation(
+            description: "Completion handler for the request is invoked"
+        )
+
+        let dataTask = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let response = response as? HTTPURLResponse {
+                if response.statusCode != 200 {
+                    XCTFail("Request to connection check API failed - unexpected server response")
+                }
+            }
+
+            if let error = error {
+                XCTFail("Request to connection check API failed - encountered error \(error.localizedDescription)")
+            }
+
+            guard let data = data else {
+                XCTFail("Unexpectedly didn't receive any data")
+                return
+            }
+
+            do {
+                let jsonObject = try JSONSerialization.jsonObject(with: data)
+
+                if let dictionary = jsonObject as? [String: Any] {
+                    guard let isConnectedThroughMullvad = dictionary["mullvad_exit_ip"] as? Bool else {
+                        XCTFail("Unexpected JSON format")
+                        return
+                    }
+
+                    XCTAssertTrue(isConnectedThroughMullvad)
+                }
+            } catch {
+                XCTFail("Failed to verify whether connected through Mullvad or not")
+            }
+
+            completionHandlerInvokedExpectation.fulfill()
+        }
+
+        dataTask.resume()
+
+        let waitResult = XCTWaiter.wait(for: [completionHandlerInvokedExpectation], timeout: 30)
+
+        if waitResult != .completed {
+            XCTFail("Request to connection check API failed - timeout")
+        }
+    }
 }
