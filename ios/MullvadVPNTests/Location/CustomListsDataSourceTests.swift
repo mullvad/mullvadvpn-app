@@ -75,7 +75,7 @@ class CustomListsDataSourceTests: XCTestCase {
 extension CustomListsDataSourceTests {
     private func setUpDataSource() {
         dataSource = CustomListsDataSource(repository: CustomListsRepositoryStub(customLists: customLists))
-        dataSource.reload(allLocationNodes: allLocationNodes)
+        dataSource.reload(allLocationNodes: allLocationNodes, isFiltered: false)
     }
 
     private func createAllLocationNodes() {
