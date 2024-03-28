@@ -85,14 +85,12 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
                 return
             }
 
-            DispatchQueue.main.async {
-                if searchString.isEmpty {
-                    self.setSelectedItem(self.selectedItem, animated: false, completion: {
-                        self.scrollToSelectedRelay()
-                    })
-                } else {
-                    self.scrollToTop(animated: false)
-                }
+            if searchString.isEmpty {
+                self.setSelectedItem(self.selectedItem, animated: false, completion: {
+                    self.scrollToSelectedRelay()
+                })
+            } else {
+                self.scrollToTop(animated: false)
             }
         }
     }
@@ -134,7 +132,9 @@ final class LocationDataSource: UITableViewDiffableDataSource<LocationSection, L
             }
         }
 
-        apply(snapshot, animatingDifferences: animated, completion: completion)
+        DispatchQueue.main.async {
+            self.apply(snapshot, animatingDifferences: animated, completion: completion)
+        }
     }
 
     private func registerClasses() {
