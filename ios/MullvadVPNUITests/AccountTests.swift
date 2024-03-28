@@ -9,10 +9,27 @@
 import XCTest
 
 class AccountTests: LoggedOutUITestCase {
+    /// Temporary account number used in a test. Will be deleted in teardown.
+    var temporaryAccountNumber: String?
+
     override func setUpWithError() throws {
         continueAfterFailure = false
 
         try super.setUpWithError()
+    }
+
+    override func tearDown() {
+        super.tearDown()
+
+        if temporaryAccountNumber != nil, let accountNumber = temporaryAccountNumber {
+            temporaryAccountNumber = nil
+
+            do {
+                try MullvadAPIWrapper().deleteAccount(accountNumber)
+            } catch {
+                XCTFail("Failed to delete account using app API")
+            }
+        }
     }
 
     override func tearDownWithError() throws {}
@@ -71,6 +88,39 @@ class AccountTests: LoggedOutUITestCase {
             .tapAccountNumberSubmitButton()
             .verifyFailIconShown()
             .waitForPageToBeShown() // Verify still on login page
+    }
+
+    func testLoginToAccountWithTooManyDevices() throws {
+        temporaryAccountNumber = try MullvadAPIWrapper().createAccount()
+
+        guard let temporaryAccountNumber = temporaryAccountNumber else {
+            XCTFail("Failed to create account using API")
+            return
+        }
+
+        try MullvadAPIWrapper().addDevices(5, account: temporaryAccountNumber)
+
+        LoginPage(app)
+            .tapAccountNumberTextField()
+            .enterText(temporaryAccountNumber)
+            .tapAccountNumberSubmitButton()
+
+        DeviceManagementPage(app)
+            .tapRemoveDeviceButton(cellIndex: 0)
+
+        DeviceManagementLogOutDeviceConfirmationAlert(app)
+            .tapYesLogOutDeviceButton()
+
+        DeviceManagementPage(app)
+            .tapContinueWithLoginButton()
+
+        // First taken back to login page and automatically being logged in
+        LoginPage(app)
+            .verifySuccessIconShown()
+            .verifyDeviceLabelShown()
+
+        // And then taken to out of time page because this account don't have any time added to it
+        OutOfTimePage(app)
     }
 
     func testLogOut() throws {

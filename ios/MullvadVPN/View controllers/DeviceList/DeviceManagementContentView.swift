@@ -69,6 +69,7 @@ class DeviceManagementContentView: UIView {
             for: .normal
         )
         button.isEnabled = false
+        button.accessibilityIdentifier = .continueWithLoginButton
         return button
     }()
 
@@ -112,6 +113,8 @@ class DeviceManagementContentView: UIView {
         addViews()
         constraintViews()
         updateView()
+
+        accessibilityIdentifier = .deviceManagementView
     }
 
     private func addViews() {
