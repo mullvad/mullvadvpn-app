@@ -529,6 +529,7 @@ async fn handle_incoming_data_v4(
 ) {
     if ip.get_destination() == vpn_addr {
         // Drop attempt to send packets to tun IP on the real interface
+        log::trace!("Dropping packet to VPN IP on default interface");
         return;
     }
 
@@ -550,6 +551,7 @@ async fn handle_incoming_data_v6(
 ) {
     if ip.get_destination() == vpn_addr {
         // Drop attempt to send packets to tun IP on the real interface
+        log::trace!("Dropping packet to VPN IP on default interface");
         return;
     }
 
