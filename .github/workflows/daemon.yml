@@ -51,7 +51,7 @@ jobs:
 
   build-linux:
     needs: prepare-linux
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8core
     container:
       image: ${{ needs.prepare-linux.outputs.container_image }}
 
@@ -81,7 +81,7 @@ jobs:
         run: ./ci/check-rust.sh
 
   build-macos:
-    runs-on: macos-latest
+    runs-on: macos-latest-xlarge
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -106,7 +106,7 @@ jobs:
         run: ./ci/check-rust.sh
 
   build-windows:
-    runs-on: windows-latest
+    runs-on: windows-latest-8core
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
