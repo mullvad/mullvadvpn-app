@@ -1,0 +1,3 @@
+[[IgnoredVulns]]
+id = "RUSTSEC-2023-0079"
+reason = "KyberSlash is not exploitable in our usage of it: https://mullvad.net/en/blog/mullvads-usage-of-kyber-is-not-affected-by-kyberslash"
