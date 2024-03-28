@@ -3,6 +3,8 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import { messages } from '../../../shared/gettext';
+import { useHistory } from '../../lib/history';
+import { RoutePath } from '../../lib/routes';
 import { useSelector } from '../../redux/store';
 import * as Cell from '../cell';
 import ImageView from '../ImageView';
@@ -40,13 +42,8 @@ const StyledSpecialLocationIcon = styled(Cell.Icon)({
   marginRight: '8px',
 });
 
-const sideButton: React.CSSProperties = {
-  margin: 0,
-  padding: '0 25px',
-};
-
-const StyledSpecialLocationInfoButton = styled(InfoButton)({ ...sideButton });
-const StyledSpecialLocationSideButton = styled(ImageView)({ ...sideButton });
+const StyledSpecialLocationInfoButton = styled(InfoButton)({ padding: '0 25px', margin: 0 });
+const StyledSpecialLocationSideButton = styled(ImageView)({ padding: '0 3px' });
 
 interface SpecialLocationRowProps<T> {
   source: SpecialLocation<T>;
@@ -114,13 +111,16 @@ export function CustomExitLocationRow(props: SpecialLocationRowInnerProps<undefi
 export function CustomBridgeLocationRow(
   props: SpecialLocationRowInnerProps<SpecialBridgeLocationType>,
 ) {
-  const relaySettings = useSelector((state) => state.settings.relaySettings);
-  const bridgeConfigured =
-    'customTunnelEndpoint' in relaySettings && relaySettings.customTunnelEndpoint !== undefined;
-  const icon = bridgeConfigured ? 'icon-edit' : 'icon-add';
+  const history = useHistory();
+
+  const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
+  const icon = bridgeSettings.custom !== undefined ? 'icon-edit' : 'icon-add';
 
   const selectedRef = props.source.selected ? props.selectedElementRef : undefined;
   const background = getButtonColor(props.source.selected, 0, props.source.disabled);
+
+  const navigate = useCallback(() => history.push(RoutePath.editCustomBridge), [history.push]);
+
   return (
     <StyledLocationRowContainerWithMargin ref={selectedRef}>
       <StyledLocationRowButton
@@ -140,12 +140,14 @@ export function CustomBridgeLocationRow(
           'A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work.',
         )}
       />
-      <StyledLocationRowIcon
-        as={StyledSpecialLocationSideButton}
-        {...background}
-        source={icon}
-        width={18}
-      />
+      <StyledLocationRowIcon {...background} onClick={navigate}>
+        <StyledSpecialLocationSideButton
+          source={icon}
+          width={18}
+          tintColor={colors.white}
+          tintHoverColor={colors.white80}
+        />
+      </StyledLocationRowIcon>
     </StyledLocationRowContainerWithMargin>
   );
 }

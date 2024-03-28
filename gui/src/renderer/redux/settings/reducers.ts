@@ -6,6 +6,7 @@ import {
   BridgeState,
   BridgeType,
   CustomLists,
+  CustomProxy,
   IDnsOptions,
   IpVersion,
   IWireguardEndpointData,
@@ -13,7 +14,6 @@ import {
   ObfuscationSettings,
   ObfuscationType,
   Ownership,
-  ProxySettings,
   RelayEndpointType,
   RelayLocation,
   RelayOverride,
@@ -42,6 +42,8 @@ export type NormalRelaySettingsRedux = {
 
 export type NormalBridgeSettingsRedux = {
   location: LiftedConstraint<RelayLocation>;
+  providers: string[];
+  ownership: Ownership;
 };
 
 export type RelaySettingsRedux =
@@ -59,7 +61,7 @@ export type RelaySettingsRedux =
 export type BridgeSettingsRedux = {
   type: BridgeType;
   normal: NormalBridgeSettingsRedux;
-  custom?: ProxySettings;
+  custom?: CustomProxy;
 };
 
 export interface IRelayLocationRelayRedux {
@@ -150,6 +152,8 @@ const initialState: ISettingsReduxState = {
     type: 'normal',
     normal: {
       location: 'any',
+      providers: [],
+      ownership: Ownership.any,
     },
     custom: undefined,
   },

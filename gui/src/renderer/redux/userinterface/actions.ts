@@ -1,5 +1,6 @@
 import { MacOsScrollbarVisibility } from '../../../shared/ipc-schema';
 import { IChangelog } from '../../../shared/ipc-types';
+import { LocationType } from '../../components/select-location/select-location-types';
 
 export interface IUpdateLocaleAction {
   type: 'UPDATE_LOCALE';
@@ -50,6 +51,11 @@ export interface ISetIsPerformingPostUpgrade {
   isPerformingPostUpgrade: boolean;
 }
 
+export interface ISetSelectLocationView {
+  type: 'SET_SELECT_LOCATION_VIEW';
+  selectLocationView: LocationType;
+}
+
 export type UserInterfaceAction =
   | IUpdateLocaleAction
   | IUpdateWindowArrowPositionAction
@@ -60,7 +66,8 @@ export type UserInterfaceAction =
   | ISetDaemonAllowed
   | ISetChangelog
   | ISetForceShowChanges
-  | ISetIsPerformingPostUpgrade;
+  | ISetIsPerformingPostUpgrade
+  | ISetSelectLocationView;
 
 function updateLocale(locale: string): IUpdateLocaleAction {
   return {
@@ -133,6 +140,13 @@ function setIsPerformingPostUpgrade(isPerformingPostUpgrade: boolean): ISetIsPer
   };
 }
 
+function setSelectLocationView(selectLocationView: LocationType): ISetSelectLocationView {
+  return {
+    type: 'SET_SELECT_LOCATION_VIEW',
+    selectLocationView,
+  };
+}
+
 export default {
   updateLocale,
   updateWindowArrowPosition,
@@ -144,4 +158,5 @@ export default {
   setChangelog,
   setForceShowChanges,
   setIsPerformingPostUpgrade,
+  setSelectLocationView,
 };

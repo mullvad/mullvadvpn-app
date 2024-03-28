@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 
-import BridgeSettingsBuilder from '../../shared/bridge-settings-builder';
 import { CustomProxy } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
+import { convertToBridgeSettings } from '../lib/bridge-helper';
 import { useHistory } from '../lib/history';
 import { useSelector } from '../redux/store';
 import { SettingsForm } from './cell/SettingsForm';
@@ -32,12 +32,13 @@ function CustomBridgeForm() {
       ? messages.pgettext('custom-bridge', 'Add custom bridge')
       : messages.pgettext('custom-bridge', 'Edit custom bridge');
 
-  const onSave = useCallback((newBridge: CustomProxy) => {
-    const bridgeUpdate = new BridgeSettingsBuilder().location.fromRaw(location).build();
-    bridgeUpdate.custom = bridgeSettings.custom;
-    updateBridgeSettings(bridgeUpdate);
-    history.pop();
-  }, []);
+  const onSave = useCallback(
+    (newBridge: CustomProxy) => {
+      void updateBridgeSettings(convertToBridgeSettings({ ...bridgeSettings, custom: newBridge }));
+      history.pop();
+    },
+    [bridgeSettings, history.pop],
+  );
 
   return (
     <BackAction action={history.pop}>

@@ -62,6 +62,7 @@ export const StyledLocationRowIcon = styled.button<ButtonColorProps>(buttonColor
   alignSelf: 'stretch',
   paddingLeft: measurements.viewMargin,
   paddingRight: measurements.viewMargin,
+  border: 0,
 
   '&&::before': {
     content: '""',

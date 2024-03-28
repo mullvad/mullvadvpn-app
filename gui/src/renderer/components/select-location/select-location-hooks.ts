@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 
-import BridgeSettingsBuilder from '../../../shared/bridge-settings-builder';
 import {
   BridgeSettings,
   RelayLocation,
@@ -9,6 +8,7 @@ import {
 } from '../../../shared/daemon-rpc-types';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
+import { convertToBridgeSettings } from '../../lib/bridge-helper';
 import { useRelaySettingsModifier } from '../../lib/constraint-updater';
 import { useHistory } from '../../lib/history';
 import { useSelector } from '../../redux/store';
@@ -105,9 +105,11 @@ export function useOnSelectBridgeLocation() {
 
   const onSelectRelay = useCallback(
     (location: RelayLocation) => {
-      const bridgeUpdate = new BridgeSettingsBuilder().location.fromRaw(location).build();
-      bridgeUpdate.custom = bridgeSettings.custom;
-      return setLocation(bridgeUpdate);
+      return setLocation({
+        ...bridgeSettings,
+        type: 'normal',
+        normal: { ...bridgeSettings.normal, location: wrapConstraint(location) },
+      });
     },
     [bridgeSettings],
   );
@@ -115,10 +117,14 @@ export function useOnSelectBridgeLocation() {
   const onSelectSpecial = useCallback((location: SpecialBridgeLocationType) => {
     switch (location) {
       default: // TODO
-      case SpecialBridgeLocationType.closestToExit: {
-        const bridgeUpdate = new BridgeSettingsBuilder().location.any().build();
-        return setLocation(bridgeUpdate);
-      }
+      case SpecialBridgeLocationType.closestToExit:
+        return setLocation({
+          ...bridgeSettings,
+          type: 'normal',
+          normal: { ...bridgeSettings.normal, location: 'any' },
+        });
+      case SpecialBridgeLocationType.custom:
+        return setLocation(convertToBridgeSettings({ ...bridgeSettings, type: 'custom' }));
     }
   }, []);
 
