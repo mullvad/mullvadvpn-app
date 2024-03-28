@@ -8,23 +8,10 @@ use mullvad_types::{
     relay_constraints::Udp2TcpObfuscationSettings,
     relay_list::{BridgeEndpointData, Relay, RelayEndpointData},
 };
-use rand::{
-    seq::{IteratorRandom, SliceRandom},
-    thread_rng, Rng,
-};
+use rand::{seq::SliceRandom, thread_rng, Rng};
 use talpid_types::net::{obfuscation::ObfuscatorConfig, proxy::CustomProxy};
 
 use crate::SelectedObfuscator;
-
-/// Pick a random element out of `from`, excluding the element `exclude` from the selection.
-pub fn random<'a, A: PartialEq>(
-    from: impl IntoIterator<Item = &'a A>,
-    exclude: &A,
-) -> Option<&'a A> {
-    from.into_iter()
-        .filter(|&a| a != exclude)
-        .choose(&mut thread_rng())
-}
 
 /// Picks a relay using [pick_random_relay_fn], using the `weight` member of each relay
 /// as the weight function.
@@ -49,16 +36,16 @@ pub fn pick_random_relay_weighted<RelayType>(
         // Pick a random number in the range 1..=total_weight. This choses the relay with a
         // non-zero weight.
         //
-        //                                rng(1..=total_weight)
-        //                                |
-        //                                v
-        //   _____________________________i___________________________________________________
-        // 0|_____________|__________________________|___________|_____|___________|__________| total_weight
-        //  ^             ^                          ^                             ^          ^
-        //  |             |                          |                             |          |
-        //  ------------------------------------------                             ------------
-        //         |                    |                                                |
-        //   weight(relay 0)       weight(relay 1)        ..       ..       ..     weight(relay n)
+        //                           rng(1..=total_weight)
+        //                           |
+        //                           v
+        //   ________________________i_______________________________________________
+        // 0|_____________|____________________|___________|_____|________|__________| total_weight
+        //  ^             ^                    ^                          ^          ^
+        //  |             |                    |                          |          |
+        //  ------------------------------------                          ------------
+        //         |                  |                                         |
+        //   weight(relay 0)     weight(relay 1)    ..       ..     ..    weight(relay n)
         let mut i: u64 = rng.gen_range(1..=total_weight);
         Some(
             relays
