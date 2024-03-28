@@ -10,4 +10,5 @@ import Foundation
 
 protocol IPOverrideViewControllerDelegate: AnyObject {
     func presentImportTextController()
+    func presentAbout()
 }

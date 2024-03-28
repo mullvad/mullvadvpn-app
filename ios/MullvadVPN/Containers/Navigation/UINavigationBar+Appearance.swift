@@ -32,7 +32,7 @@ extension UINavigationBar {
 
     private func makeNavigationBarAppearance(isTransparent: Bool) -> UINavigationBarAppearance {
         let backIndicatorImage = UIImage(named: "IconBack")?.withTintColor(
-            UIColor.NavigationBar.backButtonIndicatorColor,
+            UIColor.NavigationBar.buttonColor,
             renderingMode: .alwaysOriginal
         )
         let backIndicatorTransitionMask = UIImage(named: "IconBackTransitionMask")

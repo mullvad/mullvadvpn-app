@@ -38,7 +38,12 @@ struct ListCellContentConfiguration: UIContentConfiguration, Equatable {
     let tertiaryTextProperties = TertiaryTextProperties()
 
     /// Content view layout margins.
-    var directionalLayoutMargins: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.apiAccessInsetLayoutMargins
+    var directionalLayoutMargins = NSDirectionalEdgeInsets(
+        top: 8,
+        leading: 24,
+        bottom: 8,
+        trailing: 24
+    )
 
     func makeContentView() -> UIView & UIContentView {
         return ListCellContentView(configuration: self)
