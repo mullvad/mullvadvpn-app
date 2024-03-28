@@ -1,8 +1,8 @@
 package net.mullvad.talpid
 
-import android.net.VpnService
 import android.os.ParcelFileDescriptor
 import android.util.Log
+import androidx.annotation.CallSuper
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
@@ -10,7 +10,7 @@ import kotlin.properties.Delegates.observable
 import net.mullvad.talpid.tun_provider.TunConfig
 import net.mullvad.talpid.util.TalpidSdkUtils.setMeteredIfSupported
 
-open class TalpidVpnService : VpnService() {
+open class TalpidVpnService : LifecycleVpnService() {
     private var activeTunStatus by
         observable<CreateTunResult?>(null) { _, oldTunStatus, _ ->
             val oldTunFd =
@@ -35,11 +35,15 @@ open class TalpidVpnService : VpnService() {
 
     val connectivityListener = ConnectivityListener()
 
+    @CallSuper
     override fun onCreate() {
+        super.onCreate()
         connectivityListener.register(this)
     }
 
+    @CallSuper
     override fun onDestroy() {
+        super.onDestroy()
         connectivityListener.unregister()
     }
 

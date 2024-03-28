@@ -208,8 +208,7 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = mockSelectedLocation,
-                            tunnelState =
-                                TunnelState.Disconnecting(ActionAfterDisconnect.Nothing),
+                            tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing),
                             inAddress = null,
                             outAddress = "",
                             showLocation = true,
@@ -384,8 +383,7 @@ class ConnectScreenTest {
                         ConnectUiState(
                             location = null,
                             selectedRelayItem = mockSelectedLocation,
-                            tunnelState =
-                                TunnelState.Disconnecting(ActionAfterDisconnect.Block),
+                            tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Block),
                             inAddress = null,
                             outAddress = "",
                             showLocation = true,

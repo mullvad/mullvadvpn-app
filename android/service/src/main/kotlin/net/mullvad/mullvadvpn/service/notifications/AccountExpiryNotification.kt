@@ -25,7 +25,7 @@ import org.joda.time.Duration
 class AccountExpiryNotification(
     val context: Context,
     val daemon: Intermittent<MullvadDaemon>,
-    //val accountCache: AccountCache
+    // val accountCache: AccountCache
 ) {
 
     private val jobTracker = JobTracker()
@@ -53,11 +53,11 @@ class AccountExpiryNotification(
         }
 
     init {
-        //accountCache.onAccountExpiryChange.subscribe(this) { expiry -> accountExpiry = expiry }
+        // accountCache.onAccountExpiryChange.subscribe(this) { expiry -> accountExpiry = expiry }
     }
 
     fun onDestroy() {
-        //accountCache.onAccountExpiryChange.unsubscribe(this)
+        // accountCache.onAccountExpiryChange.unsubscribe(this)
     }
 
     // Suppressing since the permission check is done by calling a common util in another module.

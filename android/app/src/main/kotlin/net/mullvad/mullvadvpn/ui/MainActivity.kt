@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
         // Tell the system that we will draw behind the status bar and navigation bar
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        getKoin().apply {
+        with(getKoin()) {
             privacyDisclaimerRepository = get()
             serviceConnectionManager = get()
             noDaemonViewModel = get()
@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
     fun startServiceSuspend() {
         requestNotificationPermissionIfMissing(requestNotificationPermissionLauncher)
         serviceConnectionManager.bind(
-            //vpnPermissionRequestHandler = ::requestVpnPermission,
+            // vpnPermissionRequestHandler = ::requestVpnPermission,
             apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
         )
     }
@@ -81,7 +81,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-//        serviceConnectionManager.onVpnPermissionResult(resultCode == Activity.RESULT_OK)
+        //        serviceConnectionManager.onVpnPermissionResult(resultCode == Activity.RESULT_OK)
     }
 
     override fun onStop() {

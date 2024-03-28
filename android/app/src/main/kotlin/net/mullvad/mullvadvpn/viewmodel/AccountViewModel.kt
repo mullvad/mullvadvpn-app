@@ -55,7 +55,7 @@ class AccountViewModel(
         viewModelScope.launch {
             _uiSideEffect.send(
                 UiSideEffect.OpenAccountManagementPageInBrowser(
-                    TODO() //serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
+                    TODO() // serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
                 )
             )
         }

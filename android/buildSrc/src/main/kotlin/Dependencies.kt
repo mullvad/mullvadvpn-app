@@ -28,6 +28,7 @@ object Dependencies {
             "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.AndroidX.lifecycle}"
         const val lifecycleRuntimeCompose =
             "androidx.lifecycle:lifecycle-runtime-compose:${Versions.AndroidX.lifecycle}"
+        const val lifecycleService = "androidx.lifecycle:lifecycle-service:${Versions.AndroidX.lifecycle}"
         const val espressoCore =
             "androidx.test.espresso:espresso-core:${Versions.AndroidX.espresso}"
         const val testCore = "androidx.test:core:${Versions.AndroidX.test}"
@@ -94,7 +95,6 @@ object Dependencies {
 
         const val commonLib = ":lib:common"
         const val endpointLib = ":lib:endpoint"
-        const val ipcLib = ":lib:ipc"
         const val modelLib = ":lib:model"
         const val resourceLib = ":lib:resource"
         const val talpidLib = ":lib:talpid"

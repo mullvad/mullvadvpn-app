@@ -1,9 +1,6 @@
 package net.mullvad.mullvadvpn.repository
 
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
-import net.mullvad.mullvadvpn.lib.ipc.Event
-import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.CustomListsError
@@ -18,26 +15,27 @@ class CustomListsRepository(
     private val relayListListener: RelayListListener
 ) {
     suspend fun createCustomList(name: String): CreateCustomListResult {
-//        val result = messageHandler.trySendRequest(Request.CreateCustomList(name))
-//
-//        return if (result) {
-//            messageHandler.events<Event.CreateCustomListResultEvent>().first().result
-//        } else {
-//            CreateCustomListResult.Error(CustomListsError.OtherError)
-//        }
+        //        val result = messageHandler.trySendRequest(Request.CreateCustomList(name))
+        //
+        //        return if (result) {
+        //            messageHandler.events<Event.CreateCustomListResultEvent>().first().result
+        //        } else {
+        //            CreateCustomListResult.Error(CustomListsError.OtherError)
+        //        }
         TODO()
     }
 
-    fun deleteCustomList(id: String): Unit = TODO()// messageHandler.trySendRequest(Request.DeleteCustomList(id))
+    fun deleteCustomList(id: String): Unit =
+        TODO() // messageHandler.trySendRequest(Request.DeleteCustomList(id))
 
     private suspend fun updateCustomList(customList: CustomList): UpdateCustomListResult {
-//        val result = messageHandler.trySendRequest(Request.UpdateCustomList(customList))
-//
-//        return if (result) {
-//            messageHandler.events<Event.UpdateCustomListResultEvent>().first().result
-//        } else {
-//            UpdateCustomListResult.Error(CustomListsError.OtherError)
-//        }
+        //        val result = messageHandler.trySendRequest(Request.UpdateCustomList(customList))
+        //
+        //        return if (result) {
+        //            messageHandler.events<Event.UpdateCustomListResultEvent>().first().result
+        //        } else {
+        //            UpdateCustomListResult.Error(CustomListsError.OtherError)
+        //        }
         TODO()
     }
 

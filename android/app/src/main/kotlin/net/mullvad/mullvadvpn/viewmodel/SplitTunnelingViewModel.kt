@@ -12,8 +12,8 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-//import net.mullvad.mullvadvpn.ui.serviceconnection.splitTunneling
+
+// import net.mullvad.mullvadvpn.ui.serviceconnection.splitTunneling
 
 class SplitTunnelingViewModel(
     private val appsProvider: ApplicationsProvider,
@@ -57,25 +57,25 @@ class SplitTunnelingViewModel(
     }
 
     override fun onCleared() {
-//        serviceConnectionManager.splitTunneling()?.persist()
+        //        serviceConnectionManager.splitTunneling()?.persist()
         super.onCleared()
     }
 
     fun onEnableSplitTunneling(isEnabled: Boolean) {
         viewModelScope.launch(dispatcher) {
-//            serviceConnectionManager.splitTunneling()?.enableSplitTunneling(isEnabled)
+            //            serviceConnectionManager.splitTunneling()?.enableSplitTunneling(isEnabled)
         }
     }
 
     fun onIncludeAppClick(packageName: String) {
         viewModelScope.launch(dispatcher) {
-//            serviceConnectionManager.splitTunneling()?.includeApp(packageName)
+            //            serviceConnectionManager.splitTunneling()?.includeApp(packageName)
         }
     }
 
     fun onExcludeAppClick(packageName: String) {
         viewModelScope.launch(dispatcher) {
-//            serviceConnectionManager.splitTunneling()?.excludeApp(packageName)
+            //            serviceConnectionManager.splitTunneling()?.excludeApp(packageName)
         }
     }
 
