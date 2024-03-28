@@ -12,8 +12,9 @@ import TalpidTunnelConfigClientProxy
 import WireGuardKitTypes
 
 public class PostQuantumKeyNegotiatior {
-    private var cancellationToken: UnsafeRawPointer?
     public init() {}
+
+    var cancelToken: PostQuantumCancelToken?
 
     public func negotiateKey(
         gatewayIP: IPv4Address,
@@ -24,24 +25,30 @@ public class PostQuantumKeyNegotiatior {
     ) {
         let packetTunnelPointer = Unmanaged.passUnretained(packetTunnel).toOpaque()
         let opaqueConnection = Unmanaged.passUnretained(tcpConnection).toOpaque()
+        var cancelToken = PostQuantumCancelToken()
 
         // TODO: Any non 0 return is considered a failure, and should be handled gracefully
-        let token = negotiate_post_quantum_key(
+        let result = negotiate_post_quantum_key(
             devicePublicKey.rawValue.map { $0 },
             presharedKey.rawValue.map { $0 },
             packetTunnelPointer,
-            opaqueConnection
+            opaqueConnection,
+            &cancelToken
         )
-        guard let token else {
+        guard result == 0 else {
             // Handle failure here
             return
         }
-
-        cancellationToken = token
+        self.cancelToken = cancelToken
     }
 
     public func cancelKeyNegotiation() {
-        guard let cancellationToken else { return }
-        cancel_post_quantum_key_exchange(cancellationToken)
+        guard var cancelToken else { return }
+        cancel_post_quantum_key_exchange(&cancelToken)
+    }
+
+    deinit {
+        guard var cancelToken else { return }
+        drop_post_quantum_key_exchange_token(&cancelToken)
     }
 }
