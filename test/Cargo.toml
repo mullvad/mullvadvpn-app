@@ -20,8 +20,16 @@ members = [
 # Security
 non_ascii_idents = "forbid"
 
-# Modern, easy to read style and opinionated best practices
+# Deny old style Rust
 rust_2018_idioms = "deny"
+macro_use_extern_crate = "deny"
+absolute_paths_not_starting_with_crate = "deny"
+
+# Easy to read style and opinionated best practices
+explicit_outlives_requirements = "warn"
+missing_abi = "deny"
+unused_lifetimes = "warn"
+unused_macro_rules = "warn"
 
 [workspace.lints.clippy]
 unused_async = "deny"
