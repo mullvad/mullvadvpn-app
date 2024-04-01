@@ -140,7 +140,7 @@ public enum RelaySelector {
         _ constraints: RelayConstraints,
         relays: [RelayWithLocation<T>]
     ) -> [RelayWithLocation<T>] {
-        return relays.filter { relayWithLocation -> Bool in
+        let filteredRelays = relays.filter { relayWithLocation -> Bool in
             switch constraints.filter {
             case .any:
                 break
@@ -162,6 +162,30 @@ public enum RelaySelector {
         }.filter { relayWithLocation -> Bool in
             relayWithLocation.relay.active
         }
+
+        filteredRelays.filter { relayWithLocation in
+            switch constraints.locations {
+            case .any:
+                return true
+            case let .only(relayConstraint):
+                // At least one location must match the relay under test.
+                return relayConstraint.locations.contains { location in
+                    relayWithLocation.matches(location: location)
+                }
+            }
+            if case let .country(countryCode) = constraints.locations. {
+
+            }
+            return true
+        }
+
+//        filteredRelays.filter { relayWithLocation in
+//            if case let .country(countryCode) = relayWithLocation {
+//
+//            }
+//        }
+
+        return relayWithLocations
     }
 
     /// Produce a port that is either user provided or randomly selected, satisfying the given constraints.
@@ -301,10 +325,9 @@ struct RelayWithLocation<T: AnyRelay> {
     let serverLocation: Location
 
     func matches(location: RelayLocation) -> Bool {
-        switch location {
+        return switch location {
         case let .country(countryCode):
-            serverLocation.countryCode == countryCode &&
-                relay.includeInCountry
+            serverLocation.countryCode == countryCode
 
         case let .city(countryCode, cityCode):
             serverLocation.countryCode == countryCode &&
