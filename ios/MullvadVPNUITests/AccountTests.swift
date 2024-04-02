@@ -89,4 +89,16 @@ class AccountTests: LoggedOutUITestCase {
         XCTAssertEqual(try MullvadAPIWrapper().getDevices(newAccountNumber).count, 0)
         try MullvadAPIWrapper().deleteAccount(newAccountNumber)
     }
+
+    func testTimeLeft() throws {
+        login(accountNumber: hasTimeAccountNumber)
+
+        let accountExpiry = try MullvadAPIWrapper().getAccountExpiry(hasTimeAccountNumber)
+
+        HeaderBar(app)
+            .tapAccountButton()
+
+        AccountPage(app)
+            .verifyPaidUntil(accountExpiry)
+    }
 }
