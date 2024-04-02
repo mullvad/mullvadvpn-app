@@ -26,7 +26,10 @@ fn derive_for_struct(input: &DeriveInput, data: &syn::DataStruct) -> syn::Result
     let mut field_conversions = quote! {};
     for field in &data.fields {
         let Some(name) = &field.ident else {
-            return Err(syn::Error::new(field.span(), "Pls no tuple struct"));
+            return Err(syn::Error::new(
+                field.span(),
+                "Tuple structs are not currently supported",
+            ));
         };
 
         field_conversions.append_all(quote! {
@@ -35,7 +38,6 @@ fn derive_for_struct(input: &DeriveInput, data: &syn::DataStruct) -> syn::Result
     }
 
     Ok(quote! {
-        // TODO: use absolute path
         impl Intersection for #my_type {
             fn intersection(self, other: Self) -> ::core::option::Option<Self> {
                 ::core::option::Option::Some(Self {
