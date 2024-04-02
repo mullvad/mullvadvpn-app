@@ -8,7 +8,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.model.CustomListsError
+import net.mullvad.mullvadvpn.model.CreateCustomListError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsException
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -43,7 +43,7 @@ class EditCustomListNameDialogViewModelTest {
     @Test
     fun `when failing to creating a list should update ui state with error`() = runTest {
         // Arrange
-        val expectedError = CustomListsError.CustomListExists
+        val expectedError = CreateCustomListError.CustomListExists
         val customListId = "id2"
         val customListName = "list2"
         val viewModel = createViewModel(customListId, customListName)
@@ -63,7 +63,7 @@ class EditCustomListNameDialogViewModelTest {
     fun `given error state when calling clear error then should update to state without error`() =
         runTest {
             // Arrange
-            val expectedError = CustomListsError.CustomListExists
+            val expectedError = CreateCustomListError.CustomListExists
             val customListId = "id"
             val customListName = "list"
             val viewModel = createViewModel(customListId, customListName)
