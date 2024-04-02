@@ -30,9 +30,9 @@ final class TaskSleepTests: XCTestCase {
     /// cancel a `DispatchSourceTimer` in a `Task` trying to call `resume` on its continuation handler more than once
     func testSuccessfulEventHandlerRemovesCancellation() async throws {
         for _ in 0 ... 20 {
-            var task = recoveryTask()
+            let task = recoveryTask()
             try await Task.sleep(duration: .milliseconds(10))
-            task.doAnythingToSilenceAWarning()
+            task.callDummyFunctionToForceConcurrencyWait()
         }
     }
 
@@ -46,5 +46,10 @@ final class TaskSleepTests: XCTestCase {
 }
 
 private extension AutoCancellingTask {
-    func doAnythingToSilenceAWarning() {}
+    /// This function is here to silence a warning about unused variables in `testSuccessfulEventHandlerRemovesCancellation`
+    /// The following construct `_ = recoveryTask()` cannot be used as the resulting `AutoCancellingTask`
+    /// would immediately get `deinit`ed, changing the test scenario.
+    /// A dummy function is needed to make sure the task is not cancelled before concurrency is forced
+    /// by having a call to `Task.sleep`
+    func callDummyFunctionToForceConcurrencyWait() {}
 }
