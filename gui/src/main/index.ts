@@ -470,7 +470,7 @@ class ApplicationMain
     const wasConnected = this.daemonRpc.isConnected;
     IpcMainEventChannel.navigation.notifyReset?.();
     this.daemonRpc.disconnect();
-    this.onDaemonDisconnected(wasConnected);
+    this.onDaemonDisconnected(wasConnected, undefined, true);
   };
 
   private onResume = () => {
@@ -620,7 +620,7 @@ class ApplicationMain
     }
   };
 
-  private onDaemonDisconnected = (wasConnected: boolean, error?: Error) => {
+  private onDaemonDisconnected = (wasConnected: boolean, error?: Error, planned?: boolean) => {
     if (this.daemonEventListener) {
       this.daemonRpc.unsubscribeDaemonEventListener(this.daemonEventListener);
     }
@@ -631,7 +631,7 @@ class ApplicationMain
       SystemNotificationCategory.tunnelState,
     );
 
-    if (this.tunnelState.tunnelState.state !== 'disconnected') {
+    if (this.tunnelState.tunnelState.state !== 'disconnected' && !planned) {
       this.notificationController.notifyDaemonDisconnected(
         this.userInterface?.isWindowVisible() ?? false,
         this.settings.gui.enableSystemNotifications,
