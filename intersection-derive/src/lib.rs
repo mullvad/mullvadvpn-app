@@ -10,16 +10,21 @@ use syn::{parse_macro_input, spanned::Spanned, DeriveInput, Error};
 /// type or `None` if any of the intersections failed.
 ///
 /// Derive intersection on [`RelayQuery`]
-/// ```rust
+/// ```rust, ignore
 /// #[derive(Intersection)]
 /// struct RelayQuery {
-///     ...
+///     pub location: Constraint<LocationConstraint>,
+///     pub providers: Constraint<Providers>,
+///     pub ownership: Constraint<Ownership>,
+///     pub tunnel_protocol: Constraint<TunnelType>,
+///     pub wireguard_constraints: WireguardRelayQuery,
+///     pub openvpn_constraints: OpenVpnRelayQuery,
 /// }
 /// ```
 ///
 /// produces an implementation like this:
 ///
-/// ```rust
+/// ```rust, ignore
 /// impl Intersection for RelayQuery {
 ///     fn intersection(self, other: Self) -> Option<Self>
 ///     where
