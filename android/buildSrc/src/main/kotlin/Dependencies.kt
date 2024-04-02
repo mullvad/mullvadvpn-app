@@ -41,6 +41,10 @@ object Dependencies {
             "androidx.test:orchestrator:${Versions.AndroidX.testOrchestrator}"
     }
 
+    object Arrow {
+        const val core = "io.arrow-kt:arrow-core:${Versions.Arrow.base}"
+    }
+
     object Compose {
         const val constrainLayout =
             "androidx.constraintlayout:constraintlayout-compose:${Versions.Compose.constrainLayout}"
@@ -61,6 +65,10 @@ object Dependencies {
         const val uiToolingPreview =
             "androidx.compose.ui:ui-tooling-preview:${Versions.Compose.base}"
         const val uiUtil = "androidx.compose.ui:ui-util:${Versions.Compose.base}"
+    }
+
+    object Grpc {
+
     }
 
     object Koin {

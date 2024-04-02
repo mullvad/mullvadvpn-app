@@ -180,7 +180,7 @@ fun SelectLocation(
         onBackClick = navigator::navigateUp,
         onFilterClick = { navigator.navigate(FilterScreenDestination, true) },
         onCreateCustomList = { relayItem ->
-            navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.code ?: "")) {
+            navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.location())) {
                 launchSingleTop = true
             }
         },
@@ -812,7 +812,7 @@ private suspend fun SnackbarHostState.showResultSnackbar(
 private fun CustomListResult.message(context: Context): String =
     when (this) {
         is CustomListResult.Created ->
-            context.getString(R.string.location_was_added_to_list, locationName, name)
+            context.getString(R.string.location_was_added_to_list, locationNames.first(), name)
         is CustomListResult.Deleted -> context.getString(R.string.delete_custom_list_message, name)
         is CustomListResult.Renamed -> context.getString(R.string.name_was_changed_to, name)
         is CustomListResult.LocationsChanged ->

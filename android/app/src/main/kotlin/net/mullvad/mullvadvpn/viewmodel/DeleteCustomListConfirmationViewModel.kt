@@ -7,10 +7,11 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 
 class DeleteCustomListConfirmationViewModel(
-    private val customListId: String,
+    private val customListId: CustomListId,
     private val customListActionUseCase: CustomListActionUseCase
 ) : ViewModel() {
     private val _uiSideEffect = Channel<DeleteCustomListConfirmationSideEffect>(Channel.BUFFERED)
@@ -18,11 +19,16 @@ class DeleteCustomListConfirmationViewModel(
 
     fun deleteCustomList() {
         viewModelScope.launch {
-            val result =
-                customListActionUseCase
-                    .performAction(CustomListAction.Delete(customListId))
-                    .getOrThrow()
-            _uiSideEffect.send(DeleteCustomListConfirmationSideEffect.ReturnWithResult(result))
+            customListActionUseCase
+                .performAction(CustomListAction.Delete(customListId))
+                .fold(
+                    { TODO("We should totally handle this") },
+                    {
+                        _uiSideEffect.send(
+                            DeleteCustomListConfirmationSideEffect.ReturnWithResult(it)
+                        )
+                    }
+                )
         }
     }
 }

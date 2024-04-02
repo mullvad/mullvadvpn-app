@@ -344,6 +344,8 @@ dependencies {
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
 
+    implementation(Dependencies.Arrow.core)
+
     // UI tooling
     implementation(Dependencies.Compose.uiToolingPreview)
     debugImplementation(Dependencies.Compose.uiTooling)

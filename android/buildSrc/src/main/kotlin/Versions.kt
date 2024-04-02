@@ -34,6 +34,10 @@ object Versions {
         const val uiautomator = "2.3.0"
     }
 
+    object Arrow {
+        const val base = "1.2.3"
+    }
+
     object Compose {
         const val destinations = "1.10.2"
         const val base = "1.6.3"

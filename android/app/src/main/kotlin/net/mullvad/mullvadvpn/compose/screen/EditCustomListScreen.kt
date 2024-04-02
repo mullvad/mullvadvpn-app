@@ -44,6 +44,7 @@ import net.mullvad.mullvadvpn.compose.test.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.relaylist.RelayItem
@@ -58,7 +59,7 @@ private fun PreviewEditCustomListScreen() {
         EditCustomListScreen(
             state =
                 EditCustomListState.Content(
-                    id = "id",
+                    id = CustomListId("id"),
                     name = "Custom list",
                     locations =
                         listOf(
@@ -85,7 +86,7 @@ private fun PreviewEditCustomListScreen() {
 fun EditCustomList(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<CustomListResult.Deleted>,
-    customListId: String,
+    customListId: CustomListId,
     confirmDeleteListResultRecipient:
         ResultRecipient<DeleteCustomListDestination, CustomListResult.Deleted>
 ) {
@@ -131,8 +132,8 @@ fun EditCustomList(
 fun EditCustomListScreen(
     state: EditCustomListState,
     onDeleteList: (name: String) -> Unit = {},
-    onNameClicked: (id: String, name: String) -> Unit = { _, _ -> },
-    onLocationsClicked: (String) -> Unit = {},
+    onNameClicked: (id: CustomListId, name: String) -> Unit = { _, _ -> },
+    onLocationsClicked: (CustomListId) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val title =
