@@ -13,7 +13,7 @@ pub enum Error {
     #[error("Failed to read config")]
     Read(io::Error),
     #[error("Failed to parse config")]
-    InvalidConfig(serde_json::Error),
+    InvalidConfig(#[from] serde_json::Error),
     #[error("Failed to write config")]
     Write(io::Error),
 }
