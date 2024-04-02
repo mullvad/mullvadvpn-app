@@ -1,9 +1,12 @@
+//! This `proc-macro` crate exports the [`Intersection`] derive macro, see it's documentation for
+//! explanations of how it works.
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{quote, TokenStreamExt};
 use syn::{parse_macro_input, spanned::Spanned, DeriveInput, Error};
+
 /// Derive macro for the [`Intersection`] trait on structs.
 ///
 /// The macro applies the intersection on each struct field separately, and returns the resulting
