@@ -1,9 +1,12 @@
+//! This `proc-macro` crate exports the [`Intersection`] derive macro, see it's documentation for
+//! explanations of how it works.
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{quote, TokenStreamExt};
 use syn::{parse_macro_input, spanned::Spanned, DeriveInput, Error};
+
 /// Derive macro for the [`Intersection`] trait on structs.
 ///
 /// The macro applies the intersection on each struct field separately, and returns the resulting
@@ -68,7 +71,7 @@ fn derive_for_struct(input: &DeriveInput, data: &syn::DataStruct) -> syn::Result
         };
 
         field_conversions.append_all(quote! {
-            #name: self.#name.intersection(other.#name)?,
+            #name: Intersection::intersection(self.#name, other.#name)?,
         })
     }
 
@@ -76,7 +79,7 @@ fn derive_for_struct(input: &DeriveInput, data: &syn::DataStruct) -> syn::Result
         // TODO: use absolute path
         impl Intersection for #my_type {
             fn intersection(self, other: Self) -> ::core::option::Option<Self> {
-                Some(Self {
+                ::core::option::Option::Some(Self {
                     #field_conversions
                 })
             }
