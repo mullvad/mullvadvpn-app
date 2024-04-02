@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.CustomListsError
+import net.mullvad.mullvadvpn.model.CreateCustomListError
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.UpdateCustomListResult
 import net.mullvad.mullvadvpn.relaylist.RelayItem
@@ -87,9 +87,9 @@ class CustomListActionUseCaseTest {
         val name = CustomListName.fromString("test")
         val locationCode = "AB"
         val action = CustomListAction.Create(name = name, locations = listOf(locationCode))
-        val expectedError = CustomListsError.CustomListExists
+        val expectedError = CreateCustomListError.CustomListExists
         coEvery { mockCustomListsRepository.createCustomList(name) } returns
-            CreateCustomListResult.Error(CustomListsError.CustomListExists)
+            CreateCustomListResult.Error(CreateCustomListError.CustomListExists)
 
         // Act
         val result = customListActionUseCase.performAction(action)
@@ -108,7 +108,7 @@ class CustomListActionUseCaseTest {
         val newName = CustomListName.fromString("test2")
         val customListId = "1"
         val action =
-            CustomListAction.Rename(customListId = customListId, name = name, newName = newName)
+            CustomListAction.Rename(id = customListId, name = name, newName = newName)
         val expectedResult = Result.success(CustomListResult.Renamed(undo = action.not()))
         coEvery {
             mockCustomListsRepository.updateCustomListName(id = customListId, name = newName)
@@ -128,8 +128,8 @@ class CustomListActionUseCaseTest {
         val newName = CustomListName.fromString("test2")
         val customListId = "1"
         val action =
-            CustomListAction.Rename(customListId = customListId, name = name, newName = newName)
-        val expectedError = CustomListsError.CustomListExists
+            CustomListAction.Rename(id = customListId, name = name, newName = newName)
+        val expectedError = CreateCustomListError.CustomListExists
         coEvery {
             mockCustomListsRepository.updateCustomListName(id = customListId, name = newName)
         } returns UpdateCustomListResult.Error(expectedError)
@@ -153,7 +153,7 @@ class CustomListActionUseCaseTest {
         val name = CustomListName.fromString("test")
         val customListId = "1"
         val locationCode = "AB"
-        val action = CustomListAction.Delete(customListId = customListId)
+        val action = CustomListAction.Delete(id = customListId)
         val expectedResult =
             Result.success(
                 CustomListResult.Deleted(
@@ -188,7 +188,7 @@ class CustomListActionUseCaseTest {
         val customList = CustomList(id = customListId, name = name.value, locations = oldLocations)
         val action =
             CustomListAction.UpdateLocations(
-                customListId = customListId,
+                id = customListId,
                 locations = newLocationCodes
             )
         val expectedResult =

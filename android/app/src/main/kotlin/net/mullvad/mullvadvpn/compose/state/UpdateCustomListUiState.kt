@@ -1,5 +1,5 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.model.CustomListsError
+import net.mullvad.mullvadvpn.model.ModifyCustomListError
 
-data class UpdateCustomListUiState(val name: String = "", val error: CustomListsError? = null)
+data class UpdateCustomListUiState(val name: String = "", val error: ModifyCustomListError? = null)

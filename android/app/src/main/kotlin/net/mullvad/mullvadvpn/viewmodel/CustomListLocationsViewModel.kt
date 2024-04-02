@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
+import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
@@ -23,7 +24,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.util.firstOrNullWithTimeout
 
 class CustomListLocationsViewModel(
-    private val customListId: String,
+    private val customListId: CustomListId,
     private val newList: Boolean,
     private val relayListUseCase: RelayListUseCase,
     private val customListActionUseCase: CustomListActionUseCase
@@ -77,22 +78,30 @@ class CustomListLocationsViewModel(
     fun save() {
         viewModelScope.launch {
             _selectedLocations.value?.let { selectedLocations ->
-                val result =
-                    customListActionUseCase.performAction(
+                customListActionUseCase
+                    .performAction(
                         CustomListAction.UpdateLocations(
                             customListId,
-                            selectedLocations.calculateLocationsToSave().map { it.code }
+                            selectedLocations.calculateLocationsToSave().mapNotNull {
+                                it.location()
+                            }
                         )
                     )
-                _uiSideEffect.tryEmit(
-                    // This is so that we don't show a snackbar after returning to the select
-                    // location screen
-                    if (newList) {
-                        CustomListLocationsSideEffect.CloseScreen
-                    } else {
-                        CustomListLocationsSideEffect.ReturnWithResult(result.getOrThrow())
-                    }
-                )
+                    .fold(
+                        { TODO("We probably should of handled this") },
+                        {
+                            _uiSideEffect.tryEmit(
+                                // This is so that we don't show a snackbar after returning to
+                                // the select
+                                // location screen
+                                if (newList) {
+                                    CustomListLocationsSideEffect.CloseScreen
+                                } else {
+                                    CustomListLocationsSideEffect.ReturnWithResult(it)
+                                }
+                            )
+                        }
+                    )
             }
         }
     }
@@ -109,7 +118,7 @@ class CustomListLocationsViewModel(
         viewModelScope.launch { _searchTerm.emit(searchTerm) }
     }
 
-    private suspend fun awaitCustomListById(id: String): RelayItem.CustomList? =
+    private suspend fun awaitCustomListById(id: CustomListId): RelayItem.CustomList? =
         relayListUseCase
             .customLists()
             .mapNotNull { customList -> customList.getById(id) }

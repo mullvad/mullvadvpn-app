@@ -47,6 +47,7 @@ import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
@@ -65,7 +66,7 @@ fun CustomListLocations(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<CustomListResult.LocationsChanged>,
     discardChangesResultRecipient: ResultRecipient<DiscardChangesDialogDestination, Boolean>,
-    customListId: String,
+    customListId: CustomListId,
     newList: Boolean,
 ) {
     val customListsViewModel =
@@ -108,7 +109,6 @@ fun CustomListLocations(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CustomListLocationsScreen(
     state: CustomListLocationsUiState,

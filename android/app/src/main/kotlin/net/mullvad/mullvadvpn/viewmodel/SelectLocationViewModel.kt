@@ -22,7 +22,6 @@ import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -131,14 +130,16 @@ class SelectLocationViewModel(
 
     fun addLocationToList(item: RelayItem, customList: RelayItem.CustomList) {
         viewModelScope.launch {
-            val newLocations = (customList.locations + item).map { it.code }
-            val result =
-                customListActionUseCase.performAction(
-                    CustomListAction.UpdateLocations(customList.id, newLocations)
+            // If this is null then something is seriously wrong
+            val newLocation = item.location()!!
+            val newLocations =
+                (customList.locations.map { it.location() } + newLocation).filterNotNull()
+            customListActionUseCase
+                .performAction(CustomListAction.UpdateLocations(customList.id, newLocations))
+                .fold(
+                    { TODO("We should probably handle this error") },
+                    { _uiSideEffect.send(SelectLocationSideEffect.LocationAddedToCustomList(it)) }
                 )
-            _uiSideEffect.send(
-                SelectLocationSideEffect.LocationAddedToCustomList(result.getOrThrow())
-            )
         }
     }
 

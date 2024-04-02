@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.relaylist
 
 import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.GeoIpLocation
+import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 
 sealed interface RelayItem {
@@ -18,7 +18,7 @@ sealed interface RelayItem {
     data class CustomList(
         val customListName: CustomListName,
         override val expanded: Boolean,
-        val id: String,
+        val id: CustomListId,
         val locations: List<RelayItem>,
     ) : RelayItem {
         override val name: String = customListName.value
@@ -28,7 +28,7 @@ sealed interface RelayItem {
         override val hasChildren
             get() = locations.isNotEmpty()
 
-        override val code = id
+        override val code = id.value
     }
 
     data class Country(
@@ -72,12 +72,12 @@ sealed interface RelayItem {
         override val expanded = false
     }
 
-    fun location(): GeoIpLocation? {
+    fun location(): GeographicLocationConstraint? {
         return when (this) {
             is CustomList -> null
-            is Country -> location.location
-            is City -> location.location
-            is Relay -> location.location
+            is Country -> location
+            is City -> location
+            is Relay -> location
         }
     }
 }

@@ -262,6 +262,8 @@ fun RelayList.getGeographicLocationConstraintByCode(code: String): GeographicLoc
     return null
 }
 
-fun List<RelayItem.Country>.getRelayItemsByCodes(codes: List<String>): List<RelayItem> =
-    this.filter { codes.contains(it.code) } +
-        this.flatMap { it.descendants() }.filter { codes.contains(it.code) }
+fun List<RelayItem.Country>.getRelayItemsByCodes(
+    codes: List<GeographicLocationConstraint>
+): List<RelayItem> =
+    this.filter { codes.contains(it.location) } +
+        this.flatMap { it.descendants() }.filter { codes.contains(it.location()) }

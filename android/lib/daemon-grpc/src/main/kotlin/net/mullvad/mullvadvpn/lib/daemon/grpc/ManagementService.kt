@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.daemon.grpc
 import android.net.LocalSocketAddress
 import android.net.Uri
 import android.util.Log
+import arrow.core.Either
 import com.google.protobuf.BoolValue
 import com.google.protobuf.Empty
 import com.google.protobuf.StringValue
@@ -68,10 +69,14 @@ import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory as ModelAccountHistory
 import net.mullvad.mullvadvpn.model.AppVersionInfo as ModelAppVersionInfo
 import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.CreateCustomListError
 import net.mullvad.mullvadvpn.model.CustomDnsOptions as ModelCustomDnsOptions
 import net.mullvad.mullvadvpn.model.CustomList as ModelCustomList
+import net.mullvad.mullvadvpn.model.CustomListId
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.CustomListsSettings
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions as ModelDefaultDnsOptions
+import net.mullvad.mullvadvpn.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.model.Device as ModelDevice
 import net.mullvad.mullvadvpn.model.DeviceState as ModelDeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions as ModelDnsOptions
@@ -92,6 +97,7 @@ import net.mullvad.mullvadvpn.model.Settings as ModelSettings
 import net.mullvad.mullvadvpn.model.TunnelOptions as ModelTunnelOptions
 import net.mullvad.mullvadvpn.model.TunnelState as ModelTunnelState
 import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings as ModelUdp2TcpObfuscationSettings
+import net.mullvad.mullvadvpn.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.model.WireguardConstraints as ModelWireguardConstraints
 import net.mullvad.mullvadvpn.model.WireguardTunnelOptions as ModelWireguardTunnelOptions
 import net.mullvad.talpid.net.Endpoint as ModelEndpoint
@@ -374,6 +380,34 @@ class ManagementService(
             }
         managementService.setRelaySettings(newRelaySettings)
     }
+
+    suspend fun createCustomList(
+        name: CustomListName
+    ): Either<CreateCustomListError, CustomListId> =
+        Either.catch { managementService.createCustomList(StringValue.of(name.value)) }
+            .map { CustomListId(it.value) }
+            .mapLeft {
+                if (it is StatusException) {
+                    when (it.status.code) {
+                        Status.Code.ALREADY_EXISTS -> CreateCustomListError.CustomListAlreadyExists
+                        else -> CreateCustomListError.Unknown(it)
+                    }
+                } else {
+                    throw it
+                }
+            }
+
+    suspend fun updateCustomList(customList: ModelCustomList): Either<UpdateCustomListError, Unit> =
+        Either.catch { managementService.updateCustomList(customList.fromDomain()) }
+            .mapLeft(UpdateCustomListError::Unknown)
+            .mapEmpty()
+
+    suspend fun deleteCustomList(id: CustomListId): Either<DeleteCustomListError, Unit> =
+        Either.catch { managementService.deleteCustomList(StringValue.of(id.value)) }
+            .mapLeft(DeleteCustomListError::Unknown)
+            .mapEmpty()
+
+    private fun <A> Either<A, Empty>.mapEmpty() = map {}
 }
 
 fun TunnelState.toDomain(): ModelTunnelState =
@@ -520,6 +554,7 @@ fun Settings.toDomain(): ModelSettings =
         allowLan = allowLan,
         autoConnect = autoConnect,
         tunnelOptions = tunnelOptions.toDomain(),
+        relayOverrides = ArrayList(),
         showBetaReleases = showBetaReleases
     )
 
@@ -542,7 +577,7 @@ fun NormalRelaySettings.toDomain(): ModelRelayConstraint =
 fun LocationConstraint.toDomain(): Constraint<ModelLocationConstraint> =
     when (typeCase) {
         LocationConstraint.TypeCase.CUSTOM_LIST ->
-            Constraint.Only(ModelLocationConstraint.CustomList(customList))
+            Constraint.Only(ModelLocationConstraint.CustomList(CustomListId(customList)))
         LocationConstraint.TypeCase.LOCATION ->
             Constraint.Only(ModelLocationConstraint.Location(location.toDomain()))
         LocationConstraint.TypeCase.TYPE_NOT_SET -> Constraint.Any()
@@ -600,7 +635,11 @@ fun Udp2TcpObfuscationSettings.toDomain(): ModelUdp2TcpObfuscationSettings =
     }
 
 fun CustomList.toDomain(): ModelCustomList =
-    ModelCustomList(id = id, name = name, locations = locationsList.map { it.toDomain() })
+    ModelCustomList(
+        id = CustomListId(id),
+        name = CustomListName.fromString(name),
+        locations = locationsList.map { it.toDomain() }
+    )
 
 fun TunnelOptions.toDomain(): ModelTunnelOptions =
     ModelTunnelOptions(wireguard = wireguard.toDomain(), dnsOptions = dnsOptions.toDomain())
@@ -719,7 +758,7 @@ fun ConnectivityState.toDomain(): GrpcConnectivityState =
 fun ModelLocationConstraint.fromDomain(): LocationConstraint =
     when (this) {
         is ModelLocationConstraint.CustomList ->
-            LocationConstraint.newBuilder().setCustomList(this.listId).build()
+            LocationConstraint.newBuilder().setCustomList(this.listId.value).build()
         is ModelLocationConstraint.Location ->
             LocationConstraint.newBuilder().setLocation(this.location.fromDomain()).build()
     }
@@ -740,6 +779,13 @@ fun ModelGeographicLocationConstraint.fromDomain(): GeographicLocationConstraint
                 .setHostname(this.hostname)
                 .build()
     }
+
+private fun ModelCustomList.fromDomain(): CustomList =
+    CustomList.newBuilder()
+        .setId(this.id.value)
+        .setName(this.name.value)
+        .addAllLocations(this.locations.map { it.fromDomain() })
+        .build()
 
 sealed interface GrpcConnectivityState {
     data object Connecting : GrpcConnectivityState

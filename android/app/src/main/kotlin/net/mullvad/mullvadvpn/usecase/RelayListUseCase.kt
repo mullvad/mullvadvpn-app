@@ -20,7 +20,7 @@ class RelayListUseCase(
     private val settingsRepository: SettingsRepository
 ) {
 
-    fun updateSelectedRelayLocation(value: LocationConstraint) {
+    suspend fun updateSelectedRelayLocation(value: LocationConstraint) {
         relayListListener.updateSelectedRelayLocation(value)
     }
 
