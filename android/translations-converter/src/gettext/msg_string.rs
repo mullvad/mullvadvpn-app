@@ -78,7 +78,7 @@ where
     }
 }
 
-impl<'l, 'r> Add<&'r MsgString> for &'l MsgString {
+impl<'r> Add<&'r MsgString> for &MsgString {
     type Output = MsgString;
 
     fn add(self, other: &'r MsgString) -> Self::Output {

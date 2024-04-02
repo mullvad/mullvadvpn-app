@@ -106,11 +106,11 @@ fn set_dns_inner(
     Ok(())
 }
 
-fn config_interface<'a>(
+fn config_interface(
     transaction: &Transaction,
     guid: &str,
     service: &str,
-    nameservers: impl Iterator<Item = &'a IpAddr>,
+    nameservers: impl Iterator<Item = &IpAddr>,
 ) -> io::Result<()> {
     let nameservers = nameservers
         .map(|addr| addr.to_string())

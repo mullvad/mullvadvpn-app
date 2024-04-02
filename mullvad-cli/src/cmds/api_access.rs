@@ -439,7 +439,7 @@ mod pp {
         }
     }
 
-    impl<'a> std::fmt::Display for ApiAccessMethodFormatter<'a> {
+    impl std::fmt::Display for ApiAccessMethodFormatter<'_> {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             let write_status = |f: &mut std::fmt::Formatter<'_>, enabled: bool| {
                 if enabled {
