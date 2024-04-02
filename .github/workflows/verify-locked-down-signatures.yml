@@ -4,7 +4,10 @@ on:
   pull_request:
     paths:
       - .github/workflows/verify-locked-down-signatures.yml
+      - Cargo.toml
+      - test/Cargo.toml
       - Cargo.lock
+      - test/Cargo.lock
       - deny.toml
       - test/deny.toml
       - gui/package-lock.json
