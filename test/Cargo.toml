@@ -30,6 +30,7 @@ explicit_outlives_requirements = "warn"
 missing_abi = "deny"
 unused_lifetimes = "warn"
 unused_macro_rules = "warn"
+single_use_lifetimes = "warn"
 
 [workspace.lints.clippy]
 unused_async = "deny"

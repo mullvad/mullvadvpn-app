@@ -5,13 +5,13 @@ pub trait IsNull {
     fn is_null(&self) -> bool;
 }
 
-impl<'a> IsNull for JObject<'a> {
+impl IsNull for JObject<'_> {
     fn is_null(&self) -> bool {
         self.deref().is_null()
     }
 }
 
-impl<'a> IsNull for JString<'a> {
+impl IsNull for JString<'_> {
     fn is_null(&self) -> bool {
         self.deref().is_null()
     }

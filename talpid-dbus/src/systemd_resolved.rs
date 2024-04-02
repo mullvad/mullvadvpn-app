@@ -294,10 +294,7 @@ impl SystemdResolved {
             .map(|result: (dbus::Path<'static>,)| result.0)
     }
 
-    fn get_link_dns<'a, 'b: 'a>(
-        &'a self,
-        link_object_path: &'b dbus::Path<'static>,
-    ) -> Result<Vec<IpAddr>> {
+    fn get_link_dns(&self, link_object_path: &dbus::Path<'static>) -> Result<Vec<IpAddr>> {
         let servers: Vec<(i32, Vec<u8>)> = self
             .as_link_object(link_object_path.clone())
             .get(LINK_INTERFACE, DNS_SERVERS)
@@ -309,9 +306,9 @@ impl SystemdResolved {
             .collect())
     }
 
-    fn set_link_dns<'a, 'b: 'a>(
-        &'a self,
-        link_object_path: &'b dbus::Path<'static>,
+    fn set_link_dns(
+        &self,
+        link_object_path: &dbus::Path<'static>,
         servers: &[IpAddr],
     ) -> Result<()> {
         let servers = servers
@@ -367,9 +364,9 @@ impl SystemdResolved {
         }).map_err(Error::DBusRpcError)
     }
 
-    fn get_link_dns_domains<'a, 'b: 'a>(
-        &'a self,
-        link_object_path: &'b dbus::Path<'static>,
+    fn get_link_dns_domains(
+        &self,
+        link_object_path: &dbus::Path<'static>,
     ) -> Result<Vec<(String, bool)>> {
         let domains: Vec<(String, bool)> = self
             .as_link_object(link_object_path.clone())
@@ -396,9 +393,9 @@ impl SystemdResolved {
         }
     }
 
-    fn set_link_dns_domains<'a, 'b: 'a>(
-        &'a self,
-        link_object_path: &'b dbus::Path<'static>,
+    fn set_link_dns_domains(
+        &self,
+        link_object_path: &dbus::Path<'static>,
         domains: &[(&str, bool)],
     ) -> Result<()> {
         Proxy::new(
