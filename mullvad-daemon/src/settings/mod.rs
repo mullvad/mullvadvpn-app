@@ -351,7 +351,7 @@ pub struct SettingsSummary<'a> {
     settings: &'a Settings,
 }
 
-impl<'a> Display for SettingsSummary<'a> {
+impl Display for SettingsSummary<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let bool_to_label = |state| {
             if state {
@@ -458,7 +458,7 @@ impl<'a> Display for SettingsSummary<'a> {
     }
 }
 
-impl<'a> SettingsSummary<'a> {
+impl SettingsSummary<'_> {
     fn fmt_option<T: Display>(f: &mut fmt::Formatter<'_>, val: Option<T>) -> fmt::Result {
         if let Some(inner) = &val {
             inner.fmt(f)

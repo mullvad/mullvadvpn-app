@@ -216,7 +216,7 @@ impl<'a> GeographicLocationConstraintFormatter<'a> {
     }
 }
 
-impl<'a> std::fmt::Display for GeographicLocationConstraintFormatter<'a> {
+impl std::fmt::Display for GeographicLocationConstraintFormatter<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         let unwrap_country = |country: Option<String>, constraint: &str| {
             country.unwrap_or(format!("{constraint} <invalid country>"))

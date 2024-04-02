@@ -93,24 +93,24 @@ fn set_dns_inner(
         transaction,
         &guid_str,
         "Tcpip",
-        servers.iter().filter(|addr| addr.is_ipv4()),
+        servers.iter().copied().filter(|addr| addr.is_ipv4()),
     )?;
 
     config_interface(
         transaction,
         &guid_str,
         "Tcpip6",
-        servers.iter().filter(|addr| addr.is_ipv6()),
+        servers.iter().copied().filter(|addr| addr.is_ipv6()),
     )?;
 
     Ok(())
 }
 
-fn config_interface<'a>(
+fn config_interface(
     transaction: &Transaction,
     guid: &str,
     service: &str,
-    nameservers: impl Iterator<Item = &'a IpAddr>,
+    nameservers: impl Iterator<Item = IpAddr>,
 ) -> io::Result<()> {
     let nameservers = nameservers
         .map(|addr| addr.to_string())
