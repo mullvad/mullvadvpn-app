@@ -23,7 +23,6 @@ extension PacketTunnelActor {
      - Parameter lastKeyRotation: date when last key rotation took place.
      */
     func cacheActiveKey(lastKeyRotation: Date?) {
-        // There should be a way to rationalise these two identical functions into one.
         state.mutateAssociatedData { stateData in
             guard
                 stateData.keyPolicy == .useCurrent,
