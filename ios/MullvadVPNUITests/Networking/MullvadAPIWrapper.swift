@@ -88,9 +88,11 @@ class MullvadAPIWrapper {
         }
     }
 
-    func getAccountExpiry(_ account: String) throws -> UInt64 {
+    func getAccountExpiry(_ account: String) throws -> Date {
         do {
-            return try mullvadAPI.getExpiry(forAccount: account)
+            let accountExpiryTimestamp = Double(try mullvadAPI.getExpiry(forAccount: account))
+            let accountExpiryDate = Date(timeIntervalSince1970: accountExpiryTimestamp)
+            return accountExpiryDate
         } catch {
             throw MullvadAPIError.requestError
         }

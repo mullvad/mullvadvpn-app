@@ -52,6 +52,7 @@ public enum AccessibilityIdentifier: String {
     case quantumResistantTunnelCell
 
     // Labels
+    case accountPagePaidUntilLabel
     case headerDeviceNameLabel
     case connectionStatusLabel
     case welcomeAccountNumberLabel
