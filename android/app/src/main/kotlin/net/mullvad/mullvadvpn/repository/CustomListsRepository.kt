@@ -1,76 +1,58 @@
 package net.mullvad.mullvadvpn.repository
 
+import arrow.core.Either
+import arrow.core.raise.either
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
-import net.mullvad.mullvadvpn.model.CreateCustomListResult
+import kotlinx.coroutines.withTimeout
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.CustomList
+import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
-import net.mullvad.mullvadvpn.model.UpdateCustomListResult
-import net.mullvad.mullvadvpn.relaylist.getGeographicLocationConstraintByCode
-import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
-import net.mullvad.mullvadvpn.util.firstOrNullWithTimeout
+import net.mullvad.mullvadvpn.model.GetCustomListError
+import net.mullvad.mullvadvpn.model.ModifyCustomListError
 
 class CustomListsRepository(
     private val settingsRepository: SettingsRepository,
-    private val relayListListener: RelayListListener
+    private val managementService: ManagementService
 ) {
-    suspend fun createCustomList(name: CustomListName): CreateCustomListResult {
-//        val result = messageHandler.trySendRequest(Request.CreateCustomList(name.value))
-//
-//        return if (result) {
-//            messageHandler.events<Event.CreateCustomListResultEvent>().first().result
-//        } else {
-//            CreateCustomListResult.Error(CustomListsError.OtherError)
-//        }
-        TODO()
+    suspend fun createCustomList(name: CustomListName) = managementService.createCustomList(name)
+
+    suspend fun deleteCustomList(id: CustomListId) = managementService.deleteCustomList(id)
+
+    private suspend fun updateCustomList(customList: CustomList) =
+        managementService.updateCustomList(customList)
+
+    suspend fun updateCustomListName(
+        id: CustomListId,
+        name: CustomListName
+    ): Either<ModifyCustomListError, Unit> = either {
+        val customList = getCustomListById(id).bind()
+        updateCustomList(customList.copy(name = name)).bind()
     }
 
-    fun deleteCustomList(id: String): Unit =
-        TODO() // messageHandler.trySendRequest(Request.DeleteCustomList(id))
-
-    private suspend fun updateCustomList(customList: CustomList): UpdateCustomListResult {
-        //        val result = messageHandler.trySendRequest(Request.UpdateCustomList(customList))
-        //
-        //        return if (result) {
-        //            messageHandler.events<Event.UpdateCustomListResultEvent>().first().result
-        //        } else {
-        //            UpdateCustomListResult.Error(CustomListsError.OtherError)
-        //        }
-        TODO()
+    suspend fun updateCustomListLocations(
+        id: CustomListId,
+        locations: List<GeographicLocationConstraint>
+    ): Either<ModifyCustomListError, Unit> = either {
+        val customList = getCustomListById(id).bind()
+        updateCustomList(customList.copy(locations = locations)).bind()
     }
 
-    suspend fun updateCustomListLocationsFromCodes(
-        id: String,
-        locationCodes: List<String>
-    ): UpdateCustomListResult =
-        updateCustomListLocations(
-            id = id,
-            locations =
-                ArrayList(locationCodes.mapNotNull { getGeographicLocationConstraintByCode(it) })
-        )
-
-    suspend fun updateCustomListName(id: String, name: CustomListName): UpdateCustomListResult =
-        getCustomListById(id)?.let { updateCustomList(it.copy(name = name.value)) }
-            ?: UpdateCustomListResult.Error(CustomListsError.OtherError)
-
-    private suspend fun updateCustomListLocations(
-        id: String,
-        locations: ArrayList<GeographicLocationConstraint>
-    ): UpdateCustomListResult =
-        awaitCustomListById(id)?.let { updateCustomList(it.copy(locations = locations)) }
-            ?: UpdateCustomListResult.Error(CustomListsError.OtherError)
-
-    private suspend fun awaitCustomListById(id: String): CustomList? =
-        settingsRepository.settingsUpdates
-            .mapNotNull { settings -> settings?.customLists?.customLists?.find { it.id == id } }
-            .firstOrNullWithTimeout(GET_CUSTOM_LIST_TIMEOUT_MS)
-
-    fun getCustomListById(id: String): CustomList? =
-        settingsRepository.settingsUpdates.value?.customLists?.customLists?.find { it.id == id }
-
-    private fun getGeographicLocationConstraintByCode(code: String): GeographicLocationConstraint? =
-        relayListListener.relayListEvents.value.getGeographicLocationConstraintByCode(code)
+    suspend fun getCustomListById(
+        id: CustomListId
+    ): Either<GetCustomListError, CustomList> =
+        Either.catch {
+                withTimeout(GET_CUSTOM_LIST_TIMEOUT_MS) {
+                    settingsRepository.settingsUpdates
+                        .mapNotNull { settings ->
+                            settings?.customLists?.customLists?.find { it.id == id }
+                        }
+                        .first()
+                }
+            }
+            .mapLeft { GetCustomListError }
 
     companion object {
         private const val GET_CUSTOM_LIST_TIMEOUT_MS = 5000L

@@ -6,10 +6,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.EditCustomListState
+import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 
 class EditCustomListViewModel(
-    private val customListId: String,
+    private val customListId: CustomListId,
     relayListUseCase: RelayListUseCase
 ) : ViewModel() {
     val uiState =

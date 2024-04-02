@@ -67,16 +67,14 @@ dependencies {
     implementation(Dependencies.KotlinX.coroutinesAndroid)
 
     implementation("io.grpc:grpc-okhttp:$grpcVersion")
-    //    implementation("io.grpc:grpc-netty:1.57.2")
-    //    api("io.grpc:grpc-stub:$grpcVersion")
-    implementation("io.grpc:grpc-stub:$grpcVersion")
+//    implementation("io.grpc:grpc-stub:$grpcVersion")
     implementation("io.grpc:grpc-android:$grpcVersion")
     implementation("io.grpc:grpc-kotlin-stub:$grpcKotlinVersion")
-    //    api("io.grpc:grpc-protobuf:$grpcVersion")
     implementation("io.grpc:grpc-protobuf-lite:$grpcVersion")
     implementation("com.google.protobuf:protobuf-kotlin-lite:$protobufVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
 
+    implementation(Dependencies.Arrow.core)
     //    api("com.google.protobuf:protobuf-java-util:$protobufVersion")
     //    api("com.google.protobuf:protobuf-kotlin:$protobufVersion")
 }

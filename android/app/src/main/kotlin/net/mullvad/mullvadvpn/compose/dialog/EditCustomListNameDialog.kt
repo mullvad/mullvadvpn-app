@@ -24,6 +24,10 @@ import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
 import net.mullvad.mullvadvpn.compose.test.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.model.CustomListId
+import net.mullvad.mullvadvpn.model.GetCustomListError
+import net.mullvad.mullvadvpn.model.ModifyCustomListError
+import net.mullvad.mullvadvpn.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -39,7 +43,7 @@ private fun PreviewEditCustomListNameDialog() {
 @Destination(style = DestinationStyle.Dialog::class)
 fun EditCustomListName(
     backNavigator: ResultBackNavigator<CustomListResult.Renamed>,
-    customListId: String,
+    customListId: CustomListId,
     initialName: String
 ) {
     val vm: EditCustomListNameDialogViewModel =
@@ -81,7 +85,7 @@ fun EditCustomListNameDialog(
             CustomListNameTextField(
                 name = name.value,
                 isValidName = isValidName,
-                error = state.error,
+                error = state.error?.errorString(),
                 onSubmit = updateName,
                 onValueChanged = {
                     name.value = it
@@ -105,3 +109,13 @@ fun EditCustomListNameDialog(
         }
     )
 }
+
+@Composable
+private fun ModifyCustomListError.errorString() =
+    stringResource(
+        when (this) {
+            is UpdateCustomListError.NameAlreadyExists -> R.string.custom_list_error_list_exists
+            GetCustomListError,
+            is UpdateCustomListError.Unknown -> R.string.error_occurred
+        }
+    )
