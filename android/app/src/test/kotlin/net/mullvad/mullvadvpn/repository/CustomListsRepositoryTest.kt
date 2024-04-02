@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.lib.ipc.events
 import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.CustomListsError
+import net.mullvad.mullvadvpn.model.CreateCustomListError
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.Settings
@@ -106,7 +106,7 @@ class CustomListsRepositoryTest {
     fun `create custom list should return lists exists when lists exists error event is received`() =
         runTest {
             // Arrange
-            val expectedResult = CreateCustomListResult.Error(CustomListsError.CustomListExists)
+            val expectedResult = CreateCustomListResult.Error(CreateCustomListError.CustomListExists)
             val customListName = "CUSTOM"
             every {
                 mockMessageHandler.trySendRequest(Request.CreateCustomList(customListName))
@@ -157,7 +157,7 @@ class CustomListsRepositoryTest {
         runTest {
             // Arrange
             val customListId = "1"
-            val expectedResult = UpdateCustomListResult.Error(CustomListsError.CustomListExists)
+            val expectedResult = UpdateCustomListResult.Error(CreateCustomListError.CustomListExists)
             val customListName = "CUSTOM"
             val mockSettings: Settings = mockk()
             val mockCustomList: CustomList = mockk()
@@ -246,7 +246,7 @@ class CustomListsRepositoryTest {
     fun `update custom list locations should return other error when list does not exist`() =
         runTest {
             // Arrange
-            val expectedResult = UpdateCustomListResult.Error(CustomListsError.OtherError)
+            val expectedResult = UpdateCustomListResult.Error(CreateCustomListError.OtherError)
             val mockCustomList: CustomList = mockk()
             val mockSettings: Settings = mockk()
             val customListId = "1"

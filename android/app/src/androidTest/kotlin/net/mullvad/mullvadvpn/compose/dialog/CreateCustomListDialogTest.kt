@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.compose.test.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
-import net.mullvad.mullvadvpn.model.CustomListsError
+import net.mullvad.mullvadvpn.model.CreateCustomListError
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -44,7 +44,7 @@ class CreateCustomListDialogTest {
     fun givenCustomListExistsShouldShowCustomListExitsErrorText() =
         composeExtension.use {
             // Arrange
-            val state = CreateCustomListUiState(error = CustomListsError.CustomListExists)
+            val state = CreateCustomListUiState(error = CreateCustomListError.CustomListExists)
             setContentWithTheme { CreateCustomListDialog(state = state) }
 
             // Assert
@@ -56,7 +56,7 @@ class CreateCustomListDialogTest {
     fun givenOtherCustomListErrorShouldShowAnErrorOccurredErrorText() =
         composeExtension.use {
             // Arrange
-            val state = CreateCustomListUiState(error = CustomListsError.OtherError)
+            val state = CreateCustomListUiState(error = CreateCustomListError.OtherError)
             setContentWithTheme { CreateCustomListDialog(state = state) }
 
             // Assert

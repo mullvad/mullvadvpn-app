@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
+import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
@@ -128,7 +129,7 @@ val uiModule = module {
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 
     single { RelayListFilterUseCase(get(), get()) }
-    single { RelayListListener() }
+    single { RelayListListener(get()) }
 
     // Will be resolved using from either of the two PaymentModule.kt classes.
     single { PaymentProvider(get()) }
@@ -163,7 +164,7 @@ val uiModule = module {
     }
     viewModel { LoginViewModel(get(), get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
-    viewModel { SelectLocationViewModel(get(), get(), get(), get(), get()) }
+    viewModel { SelectLocationViewModel(get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
@@ -176,7 +177,7 @@ val uiModule = module {
     }
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get()) }
-    viewModel { parameters -> CreateCustomListDialogViewModel(parameters.get(), get()) }
+    viewModel { (location: GeographicLocationConstraint?) -> CreateCustomListDialogViewModel(location, get()) }
     viewModel { parameters ->
         CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get())
     }
