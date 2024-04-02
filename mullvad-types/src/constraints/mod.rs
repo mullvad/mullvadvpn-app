@@ -5,10 +5,7 @@ mod constraint;
 // Re-export bits & pieces from `constraints.rs` as needed
 pub use constraint::Constraint;
 
-/// A limited variant of Sets.
-pub trait Set<T> {
-    fn is_subset(&self, other: &T) -> bool;
-}
+use crate::relay_constraints;
 
 pub trait Match<T> {
     fn matches(&self, other: &T) -> bool;
