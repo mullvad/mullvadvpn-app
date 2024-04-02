@@ -40,7 +40,12 @@ members = [
     "tunnel-obfuscation",
 ]
 
+# Keep all lints in sync with `test/Cargo.toml`
 [workspace.lints.rust]
+# Security
+non_ascii_idents = "forbid"
+
+# Modern, easy to read style and opinionated best practices
 rust_2018_idioms = "deny"
 
 [workspace.lints.clippy]
