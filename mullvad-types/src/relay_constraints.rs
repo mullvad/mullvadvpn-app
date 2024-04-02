@@ -2,7 +2,7 @@
 //! updated as well.
 
 use crate::{
-    constraints::{Constraint, Match, Set},
+    constraints::{Constraint, Match},
     custom_list::{CustomListsSettings, Id},
     location::{CityCode, CountryCode, Hostname},
     relay_list::Relay,
@@ -290,51 +290,6 @@ impl Match<Relay> for GeographicLocationConstraint {
                         && relay.hostname == *hostname
                 })
             }
-        }
-    }
-}
-
-impl Set<GeographicLocationConstraint> for GeographicLocationConstraint {
-    /// Returns whether `self` is equal to or a subset of `other`.
-    fn is_subset(&self, other: &Self) -> bool {
-        match self {
-            GeographicLocationConstraint::Country(_) => self == other,
-            GeographicLocationConstraint::City(ref country, ref _city) => match other {
-                GeographicLocationConstraint::Country(ref other_country) => {
-                    country == other_country
-                }
-                GeographicLocationConstraint::City(..) => self == other,
-                _ => false,
-            },
-            GeographicLocationConstraint::Hostname(ref country, ref city, ref _hostname) => {
-                match other {
-                    GeographicLocationConstraint::Country(ref other_country) => {
-                        country == other_country
-                    }
-                    GeographicLocationConstraint::City(ref other_country, ref other_city) => {
-                        country == other_country && city == other_city
-                    }
-                    GeographicLocationConstraint::Hostname(..) => self == other,
-                }
-            }
-        }
-    }
-}
-
-impl Set<Constraint<Vec<GeographicLocationConstraint>>>
-    for Constraint<Vec<GeographicLocationConstraint>>
-{
-    fn is_subset(&self, other: &Self) -> bool {
-        match self {
-            Constraint::Any => other.is_any(),
-            Constraint::Only(locations) => match other {
-                Constraint::Any => true,
-                Constraint::Only(other_locations) => locations.iter().all(|location| {
-                    other_locations
-                        .iter()
-                        .any(|other_location| location.is_subset(other_location))
-                }),
-            },
         }
     }
 }
