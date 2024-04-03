@@ -2,6 +2,8 @@
 //! immediately instead of after the socket times out.
 
 use futures::channel::oneshot;
+use futures::future::Fuse;
+use futures::FutureExt;
 use hyper::client::connect::{Connected, Connection};
 use std::{
     future::Future,
@@ -41,7 +43,7 @@ impl AbortableStreamHandle {
 
 pub struct AbortableStream<S: Unpin> {
     stream: S,
-    shutdown_rx: oneshot::Receiver<()>,
+    shutdown_rx: Fuse<oneshot::Receiver<()>>,
 }
 
 impl<S> AbortableStream<S>
@@ -56,7 +58,7 @@ where
         (
             Self {
                 stream,
-                shutdown_rx: rx,
+                shutdown_rx: rx.fuse(),
             },
             stream_handle,
         )
