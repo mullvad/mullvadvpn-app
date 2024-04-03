@@ -197,6 +197,7 @@ fun SelectLocation(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Suppress("LongMethod")
 @Composable
 fun SelectLocationScreen(
@@ -331,7 +332,14 @@ fun SelectLocationScreen(
                                         BottomSheetState.ShowEditCustomListBottomSheet(customList)
                                 }
                             )
-                            item { Spacer(modifier = Modifier.height(Dimens.mediumPadding)) }
+                            item {
+                                Spacer(
+                                    modifier =
+                                        Modifier.height(Dimens.mediumPadding)
+                                            .animateItemPlacement()
+                                            .animateContentSize()
+                                )
+                            }
                         }
                         if (state.countries.isNotEmpty()) {
                             relayList(
@@ -377,7 +385,10 @@ private fun LazyListScope.customLists(
         ThreeDotCell(
             text = stringResource(R.string.custom_lists),
             onClickDots = onShowCustomListBottomSheet,
-            modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG)
+            modifier =
+                Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG)
+                    .animateItemPlacement()
+                    .animateContentSize()
         )
     }
     if (customLists.isNotEmpty()) {
@@ -400,11 +411,17 @@ private fun LazyListScope.customLists(
             )
         }
         item {
-            SwitchComposeSubtitleCell(text = stringResource(R.string.to_add_locations_to_a_list))
+            SwitchComposeSubtitleCell(
+                text = stringResource(R.string.to_add_locations_to_a_list),
+                modifier = Modifier.animateItemPlacement().animateContentSize()
+            )
         }
     } else {
         item(contentType = ContentType.EMPTY_TEXT) {
-            SwitchComposeSubtitleCell(text = stringResource(R.string.to_create_a_custom_list))
+            SwitchComposeSubtitleCell(
+                text = stringResource(R.string.to_create_a_custom_list),
+                modifier = Modifier.animateItemPlacement().animateContentSize()
+            )
         }
     }
 }
@@ -421,6 +438,7 @@ private fun LazyListScope.relayList(
     ) {
         HeaderCell(
             text = stringResource(R.string.all_locations),
+            modifier = Modifier.animateItemPlacement().animateContentSize()
         )
     }
     items(
