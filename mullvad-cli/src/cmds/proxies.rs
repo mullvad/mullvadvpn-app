@@ -182,7 +182,7 @@ pub mod pp {
         pub custom_proxy: &'a CustomProxy,
     }
 
-    impl<'a> std::fmt::Display for CustomProxyFormatter<'a> {
+    impl std::fmt::Display for CustomProxyFormatter<'_> {
         fn fmt(&self, _: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             match self.custom_proxy {
                 CustomProxy::Shadowsocks(shadowsocks) => {

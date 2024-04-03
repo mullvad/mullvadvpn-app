@@ -982,7 +982,7 @@ impl<'a> RouteSockAddrIterator<'a> {
     }
 }
 
-impl<'a> Iterator for RouteSockAddrIterator<'a> {
+impl Iterator for RouteSockAddrIterator<'_> {
     type Item = Result<RouteSocketAddress>;
 
     fn next(&mut self) -> Option<Self::Item> {

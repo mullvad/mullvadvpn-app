@@ -56,7 +56,7 @@ pub struct RelaySettingsFormatter<'a> {
     pub custom_lists: &'a CustomListsSettings,
 }
 
-impl<'a> fmt::Display for RelaySettingsFormatter<'a> {
+impl fmt::Display for RelaySettingsFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.settings {
             RelaySettings::CustomTunnelEndpoint(endpoint) => {
@@ -96,7 +96,7 @@ impl From<GeographicLocationConstraint> for LocationConstraint {
     }
 }
 
-impl<'a> fmt::Display for LocationConstraintFormatter<'a> {
+impl fmt::Display for LocationConstraintFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.constraint {
             LocationConstraint::Location(location) => write!(f, "{}", location),
@@ -131,7 +131,7 @@ pub struct RelayConstraintsFormatter<'a> {
     pub custom_lists: &'a CustomListsSettings,
 }
 
-impl<'a> fmt::Display for RelayConstraintsFormatter<'a> {
+impl fmt::Display for RelayConstraintsFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(
             f,
@@ -526,7 +526,7 @@ pub struct WireguardConstraintsFormatter<'a> {
     pub custom_lists: &'a CustomListsSettings,
 }
 
-impl<'a> fmt::Display for WireguardConstraintsFormatter<'a> {
+impl fmt::Display for WireguardConstraintsFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.constraints.port {
             Constraint::Any => write!(f, "any port")?,
@@ -730,7 +730,7 @@ pub struct BridgeConstraintsFormatter<'a> {
     pub custom_lists: &'a CustomListsSettings,
 }
 
-impl<'a> fmt::Display for BridgeConstraintsFormatter<'a> {
+impl fmt::Display for BridgeConstraintsFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.constraints.location {
             Constraint::Any => write!(f, "any location")?,

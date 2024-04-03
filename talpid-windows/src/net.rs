@@ -144,7 +144,7 @@ pub struct IpNotifierHandle<'a> {
 
 unsafe impl Send for IpNotifierHandle<'_> {}
 
-impl<'a> Drop for IpNotifierHandle<'a> {
+impl Drop for IpNotifierHandle<'_> {
     fn drop(&mut self) {
         unsafe { CancelMibChangeNotify2(self.handle) };
     }
