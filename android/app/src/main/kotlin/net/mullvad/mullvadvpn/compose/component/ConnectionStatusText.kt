@@ -100,7 +100,7 @@ private fun ErrorText(isBlocking: Boolean, modifier: Modifier) {
                 id = if (isBlocking) R.string.blocked_connection else R.string.error_state
             ),
         color =
-            if (isBlocking) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.error,
+            if (isBlocking) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.error,
         style = MaterialTheme.typography.connectionStatus,
         modifier = modifier
     )
