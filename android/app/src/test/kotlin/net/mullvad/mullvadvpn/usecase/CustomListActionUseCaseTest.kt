@@ -9,10 +9,9 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.model.CreateCustomListError
 import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomList
-import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.CreateCustomListError
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.UpdateCustomListResult
 import net.mullvad.mullvadvpn.relaylist.RelayItem
@@ -107,8 +106,7 @@ class CustomListActionUseCaseTest {
         val name = CustomListName.fromString("test")
         val newName = CustomListName.fromString("test2")
         val customListId = "1"
-        val action =
-            CustomListAction.Rename(id = customListId, name = name, newName = newName)
+        val action = CustomListAction.Rename(id = customListId, name = name, newName = newName)
         val expectedResult = Result.success(CustomListResult.Renamed(undo = action.not()))
         coEvery {
             mockCustomListsRepository.updateCustomListName(id = customListId, name = newName)
@@ -127,8 +125,7 @@ class CustomListActionUseCaseTest {
         val name = CustomListName.fromString("test")
         val newName = CustomListName.fromString("test2")
         val customListId = "1"
-        val action =
-            CustomListAction.Rename(id = customListId, name = name, newName = newName)
+        val action = CustomListAction.Rename(id = customListId, name = name, newName = newName)
         val expectedError = CreateCustomListError.CustomListExists
         coEvery {
             mockCustomListsRepository.updateCustomListName(id = customListId, name = newName)
@@ -187,10 +184,7 @@ class CustomListActionUseCaseTest {
         val customListId = "1"
         val customList = CustomList(id = customListId, name = name.value, locations = oldLocations)
         val action =
-            CustomListAction.UpdateLocations(
-                id = customListId,
-                locations = newLocationCodes
-            )
+            CustomListAction.UpdateLocations(id = customListId, locations = newLocationCodes)
         val expectedResult =
             Result.success(
                 CustomListResult.LocationsChanged(

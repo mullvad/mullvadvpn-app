@@ -6,10 +6,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.model.CreateCustomListError
-import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.DeleteCustomListError
-import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.GetCustomListError
 import net.mullvad.mullvadvpn.model.ModifyCustomListError
 import net.mullvad.mullvadvpn.relaylist.getRelayItemsByCodes

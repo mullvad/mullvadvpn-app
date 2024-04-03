@@ -27,8 +27,10 @@ sealed interface CustomListAction : Parcelable {
     }
 
     @Parcelize
-    data class UpdateLocations(val id: CustomListId, val locations: List<GeographicLocationConstraint> = emptyList()) :
-        CustomListAction {
+    data class UpdateLocations(
+        val id: CustomListId,
+        val locations: List<GeographicLocationConstraint> = emptyList()
+    ) : CustomListAction {
         fun not(locations: List<GeographicLocationConstraint>): UpdateLocations =
             UpdateLocations(id = id, locations = locations)
     }

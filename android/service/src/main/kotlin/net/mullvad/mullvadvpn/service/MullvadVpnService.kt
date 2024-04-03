@@ -82,7 +82,6 @@ class MullvadVpnService : TalpidVpnService() {
                 null
             }
 
-
         //        daemonInstance.apply {
         //            intermittentDaemon.registerListener(this@MullvadVpnService) { daemon ->
         //                handleDaemonInstance(daemon)
