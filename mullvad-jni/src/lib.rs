@@ -276,7 +276,7 @@ fn spawn_daemon(
     command_channel: DaemonCommandChannel,
     android_context: AndroidContext,
 ) -> Result<(), Error> {
-    let listener = JniEventListener::spawn(env, this).map_err(Error::SpawnJniEventListener)?;
+//    let listener = JniEventListener::spawn(env, this).map_err(Error::SpawnJniEventListener)?;
     let daemon_object = env
         .new_global_ref(*this)
         .map_err(Error::CreateGlobalReference)?;
@@ -317,7 +317,7 @@ fn spawn_daemon(
             resource_dir.clone(),
             resource_dir,
             cache_dir,
-            listener,
+            event_listener,
             command_channel,
             android_context,
         ));
