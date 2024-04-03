@@ -140,7 +140,12 @@ public enum RelaySelector {
         _ constraints: RelayConstraints,
         relays: [RelayWithLocation<T>]
     ) -> [RelayWithLocation<T>] {
+        // Filter on active status, filter, and location.
         let filteredRelays = relays.filter { relayWithLocation -> Bool in
+            guard relayWithLocation.relay.active else {
+                return false
+            }
+
             switch constraints.filter {
             case .any:
                 break
@@ -150,42 +155,38 @@ public enum RelaySelector {
                 }
             }
 
-            switch constraints.locations {
+            return switch constraints.locations {
             case .any:
-                return true
+                true
             case let .only(relayConstraint):
                 // At least one location must match the relay under test.
-                return relayConstraint.locations.contains { location in
+                relayConstraint.locations.contains { location in
                     relayWithLocation.matches(location: location)
                 }
             }
-        }.filter { relayWithLocation -> Bool in
-            relayWithLocation.relay.active
         }
 
-        filteredRelays.filter { relayWithLocation in
-            switch constraints.locations {
+        // Filter on country inclusion.
+        let includeInCountryFilteredRelays = filteredRelays.filter { relayWithLocation in
+            return switch constraints.locations {
             case .any:
-                return true
+                true
             case let .only(relayConstraint):
-                // At least one location must match the relay under test.
-                return relayConstraint.locations.contains { location in
-                    relayWithLocation.matches(location: location)
+                relayConstraint.locations.contains { location in
+                    if case .country = location {
+                        return relayWithLocation.relay.includeInCountry
+                    }
+                    return false
                 }
             }
-            if case let .country(countryCode) = constraints.locations. {
-
-            }
-            return true
         }
 
-//        filteredRelays.filter { relayWithLocation in
-//            if case let .country(countryCode) = relayWithLocation {
-//
-//            }
-//        }
-
-        return relayWithLocations
+        // If no relays should be included in the matched country, instead accept all.
+        if includeInCountryFilteredRelays.isEmpty {
+            return filteredRelays
+        } else {
+            return includeInCountryFilteredRelays
+        }
     }
 
     /// Produce a port that is either user provided or randomly selected, satisfying the given constraints.
