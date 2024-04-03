@@ -16,7 +16,6 @@ import net.mullvad.mullvadvpn.service.notifications.TunnelStateNotification
 
 class ForegroundNotificationManager(
     val vpnService: VpnService,
-    managementService: ManagementService
 ) {
     private sealed class UpdaterMessage {
         class UpdateNotification : UpdaterMessage()
