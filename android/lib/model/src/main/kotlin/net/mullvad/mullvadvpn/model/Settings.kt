@@ -11,6 +11,6 @@ data class Settings(
     val allowLan: Boolean,
     val autoConnect: Boolean,
     val tunnelOptions: TunnelOptions,
-    val relayOverrides: ArrayList<RelayOverride>,
+    val relayOverrides: List<RelayOverride>,
     val showBetaReleases: Boolean,
 ) : Parcelable
