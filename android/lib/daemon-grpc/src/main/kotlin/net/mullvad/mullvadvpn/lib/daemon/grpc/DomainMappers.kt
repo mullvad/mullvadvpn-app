@@ -29,6 +29,7 @@ import net.mullvad.mullvadvpn.model.RelayEndpointType
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelayListCity
 import net.mullvad.mullvadvpn.model.RelayListCountry
+import net.mullvad.mullvadvpn.model.RelayOverride
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.model.Settings
@@ -200,7 +201,15 @@ internal fun ManagementInterface.Settings.toDomain(): Settings =
         allowLan = allowLan,
         autoConnect = autoConnect,
         tunnelOptions = tunnelOptions.toDomain(),
+        relayOverrides = relayOverridesList.map { it.toDomain() },
         showBetaReleases = showBetaReleases
+    )
+
+internal fun ManagementInterface.RelayOverride.toDomain(): RelayOverride =
+    RelayOverride(
+        hostname = hostname,
+        ipv4AddressIn = if (hasIpv4AddrIn()) InetAddress.getByName(ipv4AddrIn) else null,
+        ipv6AddressIn = if (hasIpv6AddrIn()) InetAddress.getByName(ipv6AddrIn) else null
     )
 
 internal fun ManagementInterface.RelaySettings.toDomain(): RelaySettings =

@@ -9,9 +9,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -22,7 +20,6 @@ import net.mullvad.mullvadvpn.model.SettingsPatchError
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 
 class ServerIpOverridesViewModel(
     private val serviceConnectionManager: ServiceConnectionManager,
@@ -61,14 +58,18 @@ class ServerIpOverridesViewModel(
         // and we disconnect from daemon in paused state)
         val connResult =
             withTimeoutOrNull(5.seconds) {
-                serviceConnectionManager.connectionState
-                    .filterIsInstance(ServiceConnectionState.ConnectedReady::class)
-                    .first()
+                TODO("Call management service")
+                //                serviceConnectionManager.connectionState
+                //
+                // .filterIsInstance(ServiceConnectionState.ConnectedReady::class)
+                //                    .first()
             }
         if (connResult != null) {
             // Apply patch
-            val result = settingsRepository.applySettingsPatch(json)
-            _uiSideEffect.send(ServerIpOverridesUiSideEffect.ImportResult(result.error))
+            //            val result = settingsRepository.applySettingsPatch(json)
+            TODO("Ensure patch was applied")
+            //
+            // _uiSideEffect.send(ServerIpOverridesUiSideEffect.ImportResult(result.error))
         } else {
             // Service never came online, at this point we should already display daemon overlay
         }

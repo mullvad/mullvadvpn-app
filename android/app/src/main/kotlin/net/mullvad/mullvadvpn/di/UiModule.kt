@@ -106,10 +106,10 @@ val uiModule = module {
             androidContext().getSharedPreferences(APP_PREFERENCES_NAME, Context.MODE_PRIVATE)
         )
     }
-    single { SettingsRepository(get(), get()) }
+    single { SettingsRepository(get()) }
     single { MullvadProblemReport(get()) }
-    single { RelayOverridesRepository(get(), get()) }
-    single { CustomListsRepository(get(), get(), get()) }
+    single { RelayOverridesRepository(get()) }
+    single { CustomListsRepository(get(), get()) }
     single { CustomListsRepository(get(), get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }

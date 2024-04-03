@@ -103,7 +103,8 @@ class MainActivity : ComponentActivity() {
 
         // Ensure we are responding to the correct request
         if (requestCode == REQUEST_VPN_PERMISSION_RESULT_CODE) {
-//        serviceConnectionManager.onVpnPermissionResult(resultCode == Activity.RESULT_OK)
+            //        serviceConnectionManager.onVpnPermissionResult(resultCode ==
+            // Activity.RESULT_OK)
         }
     }
 
