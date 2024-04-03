@@ -197,13 +197,14 @@ final class PacketTunnelActorTests: XCTestCase {
         }
 
         var isFirstReadAttempt = true
+        let privateKey = PrivateKey()
         let settingsReader = SettingsReaderStub {
             if isFirstReadAttempt {
                 isFirstReadAttempt = false
                 throw POSIXError(.EPERM)
             } else {
                 return Settings(
-                    privateKey: PrivateKey(),
+                    privateKey: privateKey,
                     interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
                     relayConstraints: RelayConstraints(),
                     dnsServers: .gateway,
