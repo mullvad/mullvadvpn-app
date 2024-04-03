@@ -21,6 +21,7 @@ use pnet::{
     },
     util::MacAddr,
 };
+use std::ffi::c_uint;
 use std::{
     ffi::CStr,
     io::{self, IoSlice, Write},
@@ -36,6 +37,8 @@ use tun::Device;
 /// IP address used by the ST utun
 const ST_IFACE_IPV4: Ipv4Addr = Ipv4Addr::new(10, 123, 123, 123);
 const ST_IFACE_IPV6: Ipv6Addr = Ipv6Addr::new(0xfd, 0x12, 0x12, 0x12, 0xfe, 0xfe, 0xfe, 0xfe);
+
+const DEFAULT_BUFFER_SIZE: c_uint = 16 * 1024 * 1024;
 
 /// Errors related to split tunneling.
 #[derive(thiserror::Error, Debug)]
@@ -181,13 +184,13 @@ pub async fn create_split_tunnel(
 type PktapStream = std::pin::Pin<Box<dyn Stream<Item = Result<PktapPacket, Error>> + Send>>;
 
 struct RedirectHandle {
-    /// A sender that gracefully stops the other tasks (`ingress_task`, and `classify_task`)
+    /// A sender that gracefully stops the other tasks (`ingress_task`, and `egress_task`)
     abort_tx: broadcast::Sender<()>,
     /// Task that handles incoming packets. On completion, it returns a handle for the ST utun
     ingress_task: tokio::task::JoinHandle<tun::AsyncDevice>,
     /// Task that handles outgoing packets. On completion, it returns a handle for the pktap, as
     /// well as the function used to classify packets
-    classify_task: tokio::task::JoinHandle<
+    egress_task: tokio::task::JoinHandle<
         Result<
             (
                 PktapStream,
@@ -202,10 +205,7 @@ impl RedirectHandle {
     pub async fn stop(self) -> Result<(), Error> {
         let _ = self.abort_tx.send(());
         let _ = self.ingress_task.await.map_err(|_| Error::StopRedirect)?;
-        let _ = self
-            .classify_task
-            .await
-            .map_err(|_| Error::StopRedirect)??;
+        let _ = self.egress_task.await.map_err(|_| Error::StopRedirect)??;
         Ok(())
     }
 
@@ -218,10 +218,8 @@ impl RedirectHandle {
 
         let st_utun = self.ingress_task.await.map_err(|_| Error::StopRedirect)?;
 
-        let (pktap_stream, classify) = self
-            .classify_task
-            .await
-            .map_err(|_| Error::StopRedirect)??;
+        let (pktap_stream, classify) =
+            self.egress_task.await.map_err(|_| Error::StopRedirect)??;
 
         let new_handle = redirect_packets_for_pktap_stream(
             st_utun,
@@ -236,7 +234,7 @@ impl RedirectHandle {
     }
 }
 
-/// Create a utun interface that monitors outgoing traffic on `tun_device`. A routing decision is
+/// Monitor outgoing traffic on `st_tun_device` using a pktap. A routing decision is
 /// made for each packet using `classify`. Based on this, a packet is forced out on either
 /// `default_interface` or `vpn_interface`.
 ///
@@ -245,14 +243,14 @@ impl RedirectHandle {
 /// `classify` receives an Ethernet frame. The Ethernet header is not valid at this point, however.
 /// Only the IP header and payload are.
 async fn redirect_packets(
-    tun_device: tun::AsyncDevice,
+    st_tun_device: tun::AsyncDevice,
     default_interface: DefaultInterface,
     vpn_interface: Option<VpnInterface>,
     classify: impl Fn(&PktapPacket) -> RoutingDecision + Send + 'static,
 ) -> Result<RedirectHandle, Error> {
-    let pktap_stream = capture_outbound_packets(tun_device.get_ref().name())?;
+    let pktap_stream = capture_outbound_packets(st_tun_device.get_ref().name())?;
     redirect_packets_for_pktap_stream(
-        tun_device,
+        st_tun_device,
         Box::pin(pktap_stream),
         default_interface,
         vpn_interface,
@@ -261,7 +259,7 @@ async fn redirect_packets(
     .await
 }
 
-/// Monitor outgoing traffic on `tun_device` using `pktap_stream`. A routing decision is made for
+/// Monitor outgoing traffic on `st_tun_device` using `pktap_stream`. A routing decision is made for
 /// each packet using `classify`. Based on this, a packet is forced out on either
 /// `default_interface` or `vpn_interface`.
 ///
@@ -270,15 +268,15 @@ async fn redirect_packets(
 /// `classify` receives an Ethernet frame. The Ethernet header is not valid at this point, however.
 /// Only the IP header and payload are.
 async fn redirect_packets_for_pktap_stream(
-    tun_device: tun::AsyncDevice,
-    mut pktap_stream: PktapStream,
+    st_tun_device: tun::AsyncDevice,
+    pktap_stream: PktapStream,
     default_interface: DefaultInterface,
     vpn_interface: Option<VpnInterface>,
-    mut classify: Box<dyn Fn(&PktapPacket) -> RoutingDecision + Send + 'static>,
+    classify: Box<dyn Fn(&PktapPacket) -> RoutingDecision + Send + 'static>,
 ) -> Result<RedirectHandle, Error> {
     let default_dev = bpf::Bpf::open().map_err(Error::CreateDefaultBpf)?;
-    let buffer_size = default_dev
-        .set_buffer_size(16 * 1024 * 1024)
+    let read_buffer_size = default_dev
+        .set_buffer_size(DEFAULT_BUFFER_SIZE)
         .map_err(Error::ConfigDefaultBpf)?;
     default_dev
         .set_interface(&default_interface.name)
@@ -289,20 +287,118 @@ async fn redirect_packets_for_pktap_stream(
     default_dev
         .set_see_sent(false)
         .map_err(Error::ConfigDefaultBpf)?;
-    let mut readbuf = vec![0u8; buffer_size];
 
-    log::trace!("Default BPF reader buffer size: {:?}", readbuf.len());
-
-    let (default_read, mut default_write) = default_dev.split().map_err(Error::ConfigDefaultBpf)?;
-    let mut default_stream =
+    let (default_read, default_write) = default_dev.split().map_err(Error::ConfigDefaultBpf)?;
+    let default_stream =
         bpf::BpfStream::from_read_half(default_read).map_err(Error::CreateDefaultBpf)?;
 
-    let (mut tun_reader, mut tun_writer) = tokio::io::split(tun_device);
+    let (abort_tx, abort_rx) = broadcast::channel(5);
 
-    let (abort_tx, mut abort_rx) = broadcast::channel(5);
-    let mut abort_read_rx = abort_tx.subscribe();
-    let mut egress_abort_rx = abort_tx.subscribe();
+    let ingress_task: tokio::task::JoinHandle<tun::AsyncDevice> = tokio::spawn(run_ingress_task(
+        st_tun_device,
+        default_stream,
+        read_buffer_size,
+        vpn_interface.clone(),
+        abort_rx,
+    ));
 
+    let egress_abort_rx = abort_tx.subscribe();
+    let egress_task = tokio::spawn(run_egress_task(
+        pktap_stream,
+        classify,
+        default_interface,
+        default_write,
+        vpn_interface,
+        egress_abort_rx,
+    ));
+
+    Ok(RedirectHandle {
+        abort_tx,
+        ingress_task,
+        egress_task,
+    })
+}
+
+/// Read incoming packets on the default interface and send them back to the ST utun.
+async fn run_ingress_task(
+    st_tun_device: tun::AsyncDevice,
+    mut default_read: bpf::BpfStream,
+    read_buffer_size: usize,
+    vpn_interface: Option<VpnInterface>,
+    mut abort_rx: broadcast::Receiver<()>,
+) -> tun::AsyncDevice {
+    let mut read_buffer = vec![0u8; read_buffer_size];
+    log::trace!("Default BPF reader buffer size: {:?}", read_buffer.len());
+
+    let vpn_v4 = vpn_interface.as_ref().and_then(|iface| iface.v4_address);
+    let vpn_v6 = vpn_interface.and_then(|iface| iface.v6_address);
+
+    let (mut tun_reader, mut tun_writer) = tokio::io::split(st_tun_device);
+
+    let mut abort_read_rx = abort_rx.resubscribe();
+
+    // Swallow all data written to the tun by reading from it
+    // Do this to prevent the read buffer from filling up and preventing writes
+    let mut garbage: Vec<u8> = vec![0u8; 8 * 1024 * 1024];
+    let dummy_read = tokio::spawn(async move {
+        loop {
+            tokio::select! {
+                result = tun_reader.read(&mut garbage) => {
+                    if result.is_err() {
+                        break;
+                    }
+                }
+                Ok(()) | Err(_) = abort_read_rx.recv() => {
+                    break;
+                }
+            }
+        }
+        tun_reader
+    });
+
+    // Write data incoming on the default interface to the ST utun
+    let tun_writer = loop {
+        tokio::select! {
+            result = default_read.read(&mut read_buffer) => {
+                let Ok(read_n) = result else {
+                    break tun_writer;
+                };
+                let read_data = &mut read_buffer[0..read_n];
+
+                let mut iter = bpf::BpfIterMut::new(read_data);
+                while let Some(payload) = iter.next() {
+                    handle_incoming_data(&mut tun_writer, payload, vpn_v4, vpn_v6).await;
+                }
+            }
+            Ok(()) | Err(_) = abort_rx.recv() => {
+                break tun_writer;
+            }
+        }
+    };
+
+    let tun_reader = dummy_read.await.unwrap();
+
+    log::debug!("Stopping ST utun ingress");
+
+    tun_reader.unsplit(tun_writer)
+}
+
+/// Read outgoing packets and send them out on either the default interface or VPN interface,
+/// based on the result of `classify`.
+async fn run_egress_task(
+    mut pktap_stream: PktapStream,
+    mut classify: Box<dyn Fn(&PktapPacket) -> RoutingDecision + Send + 'static>,
+    default_interface: DefaultInterface,
+    mut default_write: bpf::WriteHalf,
+    vpn_interface: Option<VpnInterface>,
+    mut abort_rx: broadcast::Receiver<()>,
+) -> Result<
+    (
+        PktapStream,
+        Box<dyn Fn(&PktapPacket) -> RoutingDecision + Send + 'static>,
+    ),
+    Error,
+> {
     let mut vpn_dev = if let Some(ref vpn_interface) = vpn_interface {
         let vpn_dev = bpf::Bpf::open().map_err(Error::CreateVpnBpf)?;
         vpn_dev
@@ -315,83 +411,28 @@ async fn redirect_packets_for_pktap_stream(
         None
     };
 
-    let vpn_v4 = vpn_interface.as_ref().and_then(|iface| iface.v4_address);
-    let vpn_v6 = vpn_interface.as_ref().and_then(|iface| iface.v6_address);
+    loop {
+        tokio::select! {
+            packet = pktap_stream.next() => {
+                let mut packet = packet.ok_or_else(|| {
+                    log::debug!("packet stream closed");
+                    Error::PktapStreamStopped
+                })??;
 
-    let ingress_task: tokio::task::JoinHandle<tun::AsyncDevice> = tokio::spawn(async move {
-        let mut garbage: Vec<u8> = vec![0u8; 8 * 1024 * 1024];
-        let dummy_read = tokio::spawn(async move {
-            loop {
-                tokio::select! {
-                    result = tun_reader.read(&mut garbage) => {
-                        if result.is_err() {
-                            break;
-                        }
-                    }
-                    Ok(()) | Err(_) = abort_read_rx.recv() => {
-                        break;
-                    }
-                }
+                let vpn_device = match (vpn_interface.as_ref(), vpn_dev.as_mut()) {
+                    (Some(interface), Some(device)) => Some((interface, device)),
+                    (None, None) => None,
+                    _ => unreachable!("missing tun interface or addresses"),
+                };
+
+                classify = classify_and_send(classify, &mut packet, &default_interface, &mut default_write, vpn_device).await;
             }
-            tun_reader
-        });
-
-        let tun_writer = loop {
-            tokio::select! {
-                result = default_stream.read(&mut readbuf) => {
-                    let Ok(read_n) = result else {
-                        break tun_writer;
-                    };
-                    let read_data = &mut readbuf[0..read_n];
-
-                    let mut iter = bpf::BpfIterMut::new(read_data);
-                    while let Some(payload) = iter.next() {
-                        handle_incoming_data(&mut tun_writer, payload, vpn_v4, vpn_v6).await;
-                    }
-                }
-                Ok(()) | Err(_) = abort_rx.recv() => {
-                    break tun_writer;
-                }
-            }
-        };
-
-        let tun_reader = dummy_read.await.unwrap();
-
-        log::debug!("Stopping ST utun ingress");
-
-        tun_reader.unsplit(tun_writer)
-    });
-
-    let classify_task = tokio::spawn(async move {
-        loop {
-            tokio::select! {
-                packet = pktap_stream.next() => {
-                    let mut packet = packet.ok_or_else(|| {
-                        log::debug!("packet stream closed");
-                        Error::PktapStreamStopped
-                    })??;
-
-                    let vpn_device = match (vpn_interface.as_ref(), vpn_dev.as_mut()) {
-                        (Some(interface), Some(device)) => Some((interface, device)),
-                        (None, None) => None,
-                        _ => unreachable!("missing tun interface or addresses"),
-                    };
-
-                    classify = classify_and_send(classify, &mut packet, &default_interface, &mut default_write, vpn_device).await;
-                }
-                Ok(()) | Err(_) = egress_abort_rx.recv() => {
-                    log::debug!("stopping packet processing");
-                    break Ok((pktap_stream, classify));
-                }
+            Ok(()) | Err(_) = abort_rx.recv() => {
+                log::debug!("stopping packet processing");
+                break Ok((pktap_stream, classify));
             }
         }
-    });
-
-    Ok(RedirectHandle {
-        abort_tx,
-        ingress_task,
-        classify_task,
-    })
+    }
 }
 
 async fn classify_and_send(
