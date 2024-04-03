@@ -126,8 +126,8 @@ fun SplitTunnelingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             state = lazyListState
         ) {
+            description()
             enabledToggle(enabled = state.enabled, onEnableSplitTunneling = onEnableSplitTunneling)
-            description(enabled = state.enabled)
             spacer()
             when (state) {
                 is SplitTunnelingUiState.Loading -> {
@@ -161,14 +161,13 @@ private fun LazyListScope.enabledToggle(
     }
 }
 
-private fun LazyListScope.description(enabled: Boolean) {
+private fun LazyListScope.description() {
     item(key = CommonContentKey.DESCRIPTION, contentType = ContentType.DESCRIPTION) {
         SwitchComposeSubtitleCell(
             text =
-                if (enabled) {
-                    stringResource(id = R.string.split_tunneling_description)
-                } else {
-                    stringResource(id = R.string.split_tunneling_disabled_description)
+                buildString {
+                    appendLine(stringResource(id = R.string.split_tunneling_description))
+                    append(stringResource(id = R.string.split_tunneling_description_warning))
                 }
         )
     }
