@@ -4,5 +4,5 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class RelayListCity(val name: String, val code: String, val relays: ArrayList<Relay>) :
+data class RelayListCity(val name: String, val code: String, val relays: List<Relay>) :
     Parcelable

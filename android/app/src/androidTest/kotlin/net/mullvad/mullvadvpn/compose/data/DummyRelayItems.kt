@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.compose.data
 
 import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.PortRange
-import net.mullvad.mullvadvpn.model.RelayEndpointData
+import net.mullvad.mullvadvpn.model.RelayEndpointType
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelayListCity
 import net.mullvad.mullvadvpn.model.RelayListCountry
@@ -15,7 +15,7 @@ private val DUMMY_RELAY_1 =
     net.mullvad.mullvadvpn.model.Relay(
         hostname = "Relay host 1",
         active = true,
-        endpointData = RelayEndpointData.Wireguard(WireguardRelayEndpointData),
+        endpointType = RelayEndpointType.Wireguard(WireguardRelayEndpointData),
         owned = true,
         provider = "PROVIDER"
     )
@@ -23,7 +23,7 @@ private val DUMMY_RELAY_2 =
     net.mullvad.mullvadvpn.model.Relay(
         hostname = "Relay host 2",
         active = true,
-        endpointData = RelayEndpointData.Wireguard(WireguardRelayEndpointData),
+        endpointType = RelayEndpointType.Wireguard(WireguardRelayEndpointData),
         owned = true,
         provider = "PROVIDER"
     )
