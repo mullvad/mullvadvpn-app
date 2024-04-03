@@ -154,7 +154,8 @@
     <string name="select_location">Select location</string>
     <string name="filter">Filter</string>
     <string name="select_location_description">While connected, your real location is masked with a private and secure location in the selected region.</string>
-    <string name="split_tunneling_description">Choose the apps you want to exclude from the VPN tunnel.</string>
+    <string name="split_tunneling_description">Lets you select apps that should access the Internet directly without going through the VPN tunnel.</string>
+    <string name="split_tunneling_description_warning">Attention: Split tunneling is a privacy risk.</string>
     <string name="enable">Enable</string>
     <string name="enable_custom_dns">Use custom DNS server</string>
     <string name="add_a_server">Add a server</string>
@@ -279,7 +280,6 @@
     <string name="loading_connecting">Connecting...</string>
     <string name="loading_verifying">Verifying purchase...</string>
     <string name="copied_logs_to_clipboard">Copied logs to clipboard</string>
-    <string name="split_tunneling_disabled_description">Split tunneling is disabled.</string>
     <string name="auto_connect_legacy">Auto-connect (legacy)</string>
     <string name="auto_connect_footer_legacy"><![CDATA[Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above.]]></string>
     <string name="custom_lists">Custom lists</string>

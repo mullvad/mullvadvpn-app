@@ -40,7 +40,7 @@ class SplitTunnelingScreenTest {
 
             // Assert
             onNodeWithText(TITLE).assertExists()
-            onNodeWithText(DESCRIPTION).assertExists()
+            onNodeWithText(DESCRIPTION, substring = true).assertExists()
             onNodeWithText(EXCLUDED_APPLICATIONS).assertDoesNotExist()
             onNodeWithText(SHOW_SYSTEM_APPS).assertDoesNotExist()
             onNodeWithText(ALL_APPLICATIONS).assertDoesNotExist()
@@ -76,7 +76,7 @@ class SplitTunnelingScreenTest {
 
             // Assert
             onNodeWithText(TITLE).assertExists()
-            onNodeWithText(DESCRIPTION).assertExists()
+            onNodeWithText(DESCRIPTION, substring = true).assertExists()
             onNodeWithText(EXCLUDED_APPLICATIONS).assertExists()
             onNodeWithText(EXCLUDED_APP_NAME).assertExists()
             onNodeWithText(SHOW_SYSTEM_APPS).assertExists()
@@ -108,7 +108,7 @@ class SplitTunnelingScreenTest {
 
             // Assert
             onNodeWithText(TITLE).assertExists()
-            onNodeWithText(DESCRIPTION).assertExists()
+            onNodeWithText(DESCRIPTION, substring = true).assertExists()
             onNodeWithText(EXCLUDED_APPLICATIONS).assertDoesNotExist()
             onNodeWithText(EXCLUDED_APP_NAME).assertDoesNotExist()
             onNodeWithText(SHOW_SYSTEM_APPS).assertExists()
@@ -233,7 +233,8 @@ class SplitTunnelingScreenTest {
         private const val INCLUDED_APP_PACKAGE_NAME = "included-pkg"
         private const val INCLUDED_APP_NAME = "Included Name"
         private const val TITLE = "Split tunneling"
-        private const val DESCRIPTION = "Choose the apps you want to exclude from the VPN tunnel."
+        private const val DESCRIPTION =
+            "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
         private const val EXCLUDED_APPLICATIONS = "Excluded applications"
         private const val SHOW_SYSTEM_APPS = "Show system apps"
         private const val ALL_APPLICATIONS = "All applications"
