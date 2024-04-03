@@ -177,7 +177,9 @@ val uiModule = module {
     }
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get()) }
-    viewModel { (location: GeographicLocationConstraint?) -> CreateCustomListDialogViewModel(location, get()) }
+    viewModel { (location: GeographicLocationConstraint?) ->
+        CreateCustomListDialogViewModel(location, get())
+    }
     viewModel { parameters ->
         CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get())
     }

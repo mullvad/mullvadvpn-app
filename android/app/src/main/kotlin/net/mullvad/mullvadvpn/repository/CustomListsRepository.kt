@@ -40,9 +40,7 @@ class CustomListsRepository(
         updateCustomList(customList.copy(locations = locations)).bind()
     }
 
-    suspend fun getCustomListById(
-        id: CustomListId
-    ): Either<GetCustomListError, CustomList> =
+    suspend fun getCustomListById(id: CustomListId): Either<GetCustomListError, CustomList> =
         Either.catch {
                 withTimeout(GET_CUSTOM_LIST_TIMEOUT_MS) {
                     settingsRepository.settingsUpdates
