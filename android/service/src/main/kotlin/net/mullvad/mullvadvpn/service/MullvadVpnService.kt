@@ -46,7 +46,7 @@ class MullvadVpnService : TalpidVpnService() {
         with(getKoin()) { managementService = get() }
 
         lifecycleScope.launch { managementService.start() }
-        notificationManager = ForegroundNotificationManager(this, managementService)
+        notificationManager = ForegroundNotificationManager(this)
 
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 

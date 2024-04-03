@@ -35,7 +35,8 @@ class MullvadDaemon(
 
     fun onDestroy() {
         onDaemonStopped = null
-        shutdown()
+        // TODO: Stop ManagementService
+        shutdown(daemonInterfaceAddress)
         deinitialize()
     }
 
@@ -48,7 +49,7 @@ class MullvadDaemon(
 
     external fun deinitialize()
 
-    external fun shutdown()
+    external fun shutdown(daemonInterfaceAddress: Long)
 
     // Used by JNI
     @Suppress("unused")

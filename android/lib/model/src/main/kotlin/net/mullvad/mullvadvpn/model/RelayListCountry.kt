@@ -7,5 +7,5 @@ import kotlinx.parcelize.Parcelize
 data class RelayListCountry(
     val name: String,
     val code: String,
-    val cities: ArrayList<RelayListCity>
+    val cities: List<RelayListCity>
 ) : Parcelable
