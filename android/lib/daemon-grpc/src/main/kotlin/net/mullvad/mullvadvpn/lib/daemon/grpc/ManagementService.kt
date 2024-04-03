@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.lib.daemon.grpc
 
 import android.net.LocalSocketAddress
-import android.net.Uri
 import android.util.Log
 import arrow.core.Either
 import com.google.protobuf.BoolValue
@@ -14,7 +13,6 @@ import io.grpc.Status
 import io.grpc.StatusException
 import io.grpc.android.UdsChannelBuilder
 import java.net.InetAddress
-import java.net.InetSocketAddress
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.CoroutineScope
@@ -30,86 +28,39 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import mullvad_daemon.management_interface.ManagementInterface.AfterDisconnect
+import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementInterface.AppVersionInfo
 import mullvad_daemon.management_interface.ManagementInterface.CustomDnsOptions
-import mullvad_daemon.management_interface.ManagementInterface.CustomList
+import mullvad_daemon.management_interface.ManagementInterface.CustomRelaySettings
 import mullvad_daemon.management_interface.ManagementInterface.DaemonEvent
-import mullvad_daemon.management_interface.ManagementInterface.DefaultDnsOptions
 import mullvad_daemon.management_interface.ManagementInterface.DeviceEvent
 import mullvad_daemon.management_interface.ManagementInterface.DeviceState
-import mullvad_daemon.management_interface.ManagementInterface.DnsOptions
-import mullvad_daemon.management_interface.ManagementInterface.DnsOptions.DnsState
-import mullvad_daemon.management_interface.ManagementInterface.Endpoint
-import mullvad_daemon.management_interface.ManagementInterface.ErrorState
-import mullvad_daemon.management_interface.ManagementInterface.GeoIpLocation
-import mullvad_daemon.management_interface.ManagementInterface.GeographicLocationConstraint
-import mullvad_daemon.management_interface.ManagementInterface.LocationConstraint
-import mullvad_daemon.management_interface.ManagementInterface.NormalRelaySettings
-import mullvad_daemon.management_interface.ManagementInterface.ObfuscationEndpoint
-import mullvad_daemon.management_interface.ManagementInterface.ObfuscationSettings
-import mullvad_daemon.management_interface.ManagementInterface.ObfuscationSettings.SelectedObfuscation
-import mullvad_daemon.management_interface.ManagementInterface.ObfuscationType
-import mullvad_daemon.management_interface.ManagementInterface.Ownership
-import mullvad_daemon.management_interface.ManagementInterface.QuantumResistantState
 import mullvad_daemon.management_interface.ManagementInterface.RelayList
-import mullvad_daemon.management_interface.ManagementInterface.RelaySettings
 import mullvad_daemon.management_interface.ManagementInterface.Settings
-import mullvad_daemon.management_interface.ManagementInterface.TransportProtocol
-import mullvad_daemon.management_interface.ManagementInterface.TunnelEndpoint
-import mullvad_daemon.management_interface.ManagementInterface.TunnelOptions
-import mullvad_daemon.management_interface.ManagementInterface.TunnelOptions.WireguardOptions
 import mullvad_daemon.management_interface.ManagementInterface.TunnelState
-import mullvad_daemon.management_interface.ManagementInterface.Udp2TcpObfuscationSettings
-import mullvad_daemon.management_interface.ManagementInterface.WireguardConstraints
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
 import mullvad_daemon.management_interface.copy
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory as ModelAccountHistory
 import net.mullvad.mullvadvpn.model.AppVersionInfo as ModelAppVersionInfo
-import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.CreateCustomListError
-import net.mullvad.mullvadvpn.model.CustomDnsOptions as ModelCustomDnsOptions
 import net.mullvad.mullvadvpn.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.CustomListsSettings
-import net.mullvad.mullvadvpn.model.DefaultDnsOptions as ModelDefaultDnsOptions
 import net.mullvad.mullvadvpn.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.model.Device as ModelDevice
 import net.mullvad.mullvadvpn.model.DeviceState as ModelDeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions as ModelDnsOptions
 import net.mullvad.mullvadvpn.model.DnsState as ModelDnsState
-import net.mullvad.mullvadvpn.model.GeoIpLocation as ModelGeoIpLocation
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint as ModelGeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.LocationConstraint as ModelLocationConstraint
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.ObfuscationSettings as ModelObfuscationSettings
-import net.mullvad.mullvadvpn.model.Ownership as ModelOwnership
-import net.mullvad.mullvadvpn.model.Port
-import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.QuantumResistantState as ModelQuantumResistantState
-import net.mullvad.mullvadvpn.model.RelayConstraints as ModelRelayConstraint
-import net.mullvad.mullvadvpn.model.RelaySettings as ModelRelaySettings
-import net.mullvad.mullvadvpn.model.SelectedObfuscation as ModelSelectedObfuscation
+import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings as ModelSettings
-import net.mullvad.mullvadvpn.model.TunnelOptions as ModelTunnelOptions
 import net.mullvad.mullvadvpn.model.TunnelState as ModelTunnelState
-import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings as ModelUdp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.model.UpdateCustomListError
-import net.mullvad.mullvadvpn.model.WireguardConstraints as ModelWireguardConstraints
-import net.mullvad.mullvadvpn.model.WireguardTunnelOptions as ModelWireguardTunnelOptions
-import net.mullvad.talpid.net.Endpoint as ModelEndpoint
-import net.mullvad.talpid.net.ObfuscationEndpoint as ModelObfuscationEndpoint
-import net.mullvad.talpid.net.ObfuscationType as ModelObfuscationType
-import net.mullvad.talpid.net.TransportProtocol as ModelTransportProtocol
-import net.mullvad.talpid.net.TunnelEndpoint as ModelTunnelEndpoint
-import net.mullvad.talpid.tunnel.ActionAfterDisconnect
-import net.mullvad.talpid.tunnel.ErrorState as ModelErrorState
-import net.mullvad.talpid.tunnel.ErrorStateCause as ModelErrorStateCause
-import net.mullvad.talpid.tunnel.FirewallPolicyError as ModelFirewallPolicyError
-import net.mullvad.talpid.tunnel.ParameterGenerationError as ModelParameterGenerationError
 import org.joda.time.Instant
 
 class ManagementService(
@@ -128,6 +79,7 @@ class ManagementService(
 
     private val channel =
         UdsChannelBuilder.forPath(rpcSocketPath, LocalSocketAddress.Namespace.FILESYSTEM).build()
+
     val connectionState: StateFlow<GrpcConnectivityState> =
         channel
             .connectivityFlow()
@@ -188,6 +140,9 @@ class ManagementService(
 
     val versionInfo: Flow<ModelAppVersionInfo> =
         _mutableStateFlow.mapNotNull { it.versionInfo }.map { it.toDomain() }
+
+    val relayList: Flow<net.mullvad.mullvadvpn.model.RelayList> =
+        _mutableStateFlow.mapNotNull { it.relayList?.toDomain() }
 
     suspend fun start() {
         scope.launch {
@@ -357,8 +312,29 @@ class ManagementService(
         managementService.setQuantumResistantTunnel(value.toDomain())
     }
 
+    // Todo needs to be more advanced
+    suspend fun setRelaySettings(value: RelaySettings) {
+        managementService.setRelaySettings(value.fromDomain())
+    }
+
+    fun RelaySettings.fromDomain(): ManagementInterface.RelaySettings =
+        ManagementInterface.RelaySettings.newBuilder()
+            .apply {
+                when (this@fromDomain) {
+                    RelaySettings.CustomTunnelEndpoint ->
+                        setCustom(CustomRelaySettings.newBuilder().build())
+                    is RelaySettings.Normal ->
+                        setNormal(
+                            ManagementInterface.NormalRelaySettings.newBuilder()
+                                .setLocation(this@fromDomain.relayConstraints.location.fromDomain())
+                                .build()
+                        )
+                }
+            }
+            .build()
+
     suspend fun setObfuscationOptions(value: ModelObfuscationSettings) {
-        managementService.setObfuscationSettings(value.toObfuscationSettings())
+        managementService.setObfuscationSettings(value.fromDomain())
     }
 
     suspend fun setAutoConnect(isEnabled: Boolean) {
@@ -410,383 +386,6 @@ class ManagementService(
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 }
 
-fun TunnelState.toDomain(): ModelTunnelState =
-    when (stateCase!!) {
-        TunnelState.StateCase.DISCONNECTED ->
-            ModelTunnelState.Disconnected(
-                location = disconnected.disconnectedLocation.toDomain(),
-            )
-        TunnelState.StateCase.CONNECTING ->
-            ModelTunnelState.Connecting(
-                endpoint = connecting.relayInfo.tunnelEndpoint.toDomain(),
-                location = connecting.relayInfo.location.toDomain(),
-            )
-        TunnelState.StateCase.CONNECTED ->
-            ModelTunnelState.Connected(
-                endpoint = connected.relayInfo.tunnelEndpoint.toDomain(),
-                location = connected.relayInfo.location.toDomain(),
-            )
-        TunnelState.StateCase.DISCONNECTING ->
-            ModelTunnelState.Disconnecting(
-                actionAfterDisconnect = disconnecting.afterDisconnect.toDomain(),
-            )
-        TunnelState.StateCase.ERROR ->
-            ModelTunnelState.Error(errorState = error.errorState.toDomain())
-        TunnelState.StateCase.STATE_NOT_SET ->
-            ModelTunnelState.Disconnected(
-                location = disconnected.disconnectedLocation.toDomain(),
-            )
-    }
-
-fun GeoIpLocation.toDomain(): ModelGeoIpLocation =
-    ModelGeoIpLocation(
-        ipv4 = InetAddress.getByName(this.ipv4),
-        ipv6 = InetAddress.getByName(this.ipv6),
-        country = this.country,
-        city = this.city,
-        latitude = this.latitude,
-        longitude = this.longitude,
-        hostname = this.hostname
-    )
-
-fun TunnelEndpoint.toDomain(): ModelTunnelEndpoint =
-    ModelTunnelEndpoint(
-        endpoint =
-            with(address.split(":")) {
-                ModelEndpoint(
-                    address = InetSocketAddress(this[0], this[1].toInt()),
-                    protocol = this@toDomain.protocol.toDomain()
-                )
-            },
-        quantumResistant = this.quantumResistant,
-        obfuscation = this.obfuscation.toDomain()
-    )
-
-fun ObfuscationEndpoint.toDomain(): ModelObfuscationEndpoint =
-    ModelObfuscationEndpoint(
-        endpoint =
-            ModelEndpoint(
-                address = InetSocketAddress(address, port),
-                protocol = this.protocol.toDomain()
-            ),
-        obfuscationType = this.obfuscationType.toDomain()
-    )
-
-fun ObfuscationType.toDomain(): ModelObfuscationType =
-    when (this) {
-        ObfuscationType.UDP2TCP -> ModelObfuscationType.Udp2Tcp
-        ObfuscationType.UNRECOGNIZED ->
-            throw IllegalArgumentException("Unrecognized obfuscation type")
-    }
-
-fun Endpoint.toDomain(): ModelEndpoint =
-    ModelEndpoint(
-        address = with(Uri.parse(this.address)) { InetSocketAddress(host, port) },
-        protocol = this.protocol.toDomain()
-    )
-
-fun TransportProtocol.toDomain(): ModelTransportProtocol =
-    when (this) {
-        TransportProtocol.TCP -> ModelTransportProtocol.Tcp
-        TransportProtocol.UDP -> ModelTransportProtocol.Udp
-        TransportProtocol.UNRECOGNIZED ->
-            throw IllegalArgumentException("Unrecognized transport protocol")
-    }
-
-fun AfterDisconnect.toDomain(): ActionAfterDisconnect =
-    when (this) {
-        AfterDisconnect.NOTHING -> ActionAfterDisconnect.Nothing
-        AfterDisconnect.RECONNECT -> ActionAfterDisconnect.Reconnect
-        AfterDisconnect.BLOCK -> ActionAfterDisconnect.Block
-        AfterDisconnect.UNRECOGNIZED ->
-            throw IllegalArgumentException("Unrecognized action after disconnect")
-    }
-
-fun ErrorState.toDomain(): ModelErrorState =
-    ModelErrorState(
-        cause =
-            when (cause!!) {
-                ErrorState.Cause.AUTH_FAILED ->
-                    ModelErrorStateCause.AuthFailed(authFailedError.name)
-                ErrorState.Cause.IPV6_UNAVAILABLE -> ModelErrorStateCause.Ipv6Unavailable
-                ErrorState.Cause.SET_FIREWALL_POLICY_ERROR ->
-                    ModelErrorStateCause.SetFirewallPolicyError(policyError.toDomain())
-                ErrorState.Cause.SET_DNS_ERROR -> ModelErrorStateCause.SetDnsError
-                ErrorState.Cause.START_TUNNEL_ERROR -> ModelErrorStateCause.StartTunnelError
-                ErrorState.Cause.TUNNEL_PARAMETER_ERROR ->
-                    ModelErrorStateCause.TunnelParameterError(parameterError.toDomain())
-                ErrorState.Cause.IS_OFFLINE -> ModelErrorStateCause.IsOffline
-                ErrorState.Cause.VPN_PERMISSION_DENIED -> ModelErrorStateCause.VpnPermissionDenied
-                ErrorState.Cause.SPLIT_TUNNEL_ERROR -> ModelErrorStateCause.StartTunnelError
-                ErrorState.Cause.UNRECOGNIZED,
-                ErrorState.Cause.CREATE_TUNNEL_DEVICE ->
-                    throw IllegalArgumentException("Unrecognized error state cause")
-            },
-        isBlocking = this.hasBlockingError()
-    )
-
-fun ErrorState.FirewallPolicyError.toDomain(): ModelFirewallPolicyError =
-    when (this.type!!) {
-        ErrorState.FirewallPolicyError.ErrorType.GENERIC -> ModelFirewallPolicyError.Generic
-        ErrorState.FirewallPolicyError.ErrorType.LOCKED,
-        ErrorState.FirewallPolicyError.ErrorType.UNRECOGNIZED ->
-            throw IllegalArgumentException("Unrecognized firewall policy error")
-    }
-
-fun ErrorState.GenerationError.toDomain(): ModelParameterGenerationError =
-    when (this) {
-        ErrorState.GenerationError.NO_MATCHING_RELAY ->
-            ModelParameterGenerationError.NoMatchingRelay
-        ErrorState.GenerationError.NO_MATCHING_BRIDGE_RELAY ->
-            ModelParameterGenerationError.NoMatchingBridgeRelay
-        ErrorState.GenerationError.NO_WIREGUARD_KEY -> ModelParameterGenerationError.NoWireguardKey
-        ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR ->
-            ModelParameterGenerationError.CustomTunnelHostResultionError
-        ErrorState.GenerationError.UNRECOGNIZED ->
-            throw IllegalArgumentException("Unrecognized parameter generation error")
-    }
-
-fun Settings.toDomain(): ModelSettings =
-    ModelSettings(
-        relaySettings = relaySettings.toDomain(),
-        obfuscationSettings = obfuscationSettings.toDomain(),
-        customLists = CustomListsSettings(customLists.customListsList.map { it.toDomain() }),
-        allowLan = allowLan,
-        autoConnect = autoConnect,
-        tunnelOptions = tunnelOptions.toDomain(),
-        relayOverrides = ArrayList(),
-        showBetaReleases = showBetaReleases
-    )
-
-fun RelaySettings.toDomain(): ModelRelaySettings =
-    when (endpointCase) {
-        RelaySettings.EndpointCase.CUSTOM -> ModelRelaySettings.CustomTunnelEndpoint
-        RelaySettings.EndpointCase.NORMAL -> ModelRelaySettings.Normal(this.normal.toDomain())
-        RelaySettings.EndpointCase.ENDPOINT_NOT_SET ->
-            throw IllegalArgumentException("RelaySettings endpoint not set")
-    }
-
-fun NormalRelaySettings.toDomain(): ModelRelayConstraint =
-    ModelRelayConstraint(
-        location = location.toDomain(),
-        providers = providersList.toDomain(),
-        ownership = ownership.toDomain(),
-        wireguardConstraints = wireguardConstraints.toDomain()
-    )
-
-fun LocationConstraint.toDomain(): Constraint<ModelLocationConstraint> =
-    when (typeCase) {
-        LocationConstraint.TypeCase.CUSTOM_LIST ->
-            Constraint.Only(ModelLocationConstraint.CustomList(CustomListId(customList)))
-        LocationConstraint.TypeCase.LOCATION ->
-            Constraint.Only(ModelLocationConstraint.Location(location.toDomain()))
-        LocationConstraint.TypeCase.TYPE_NOT_SET -> Constraint.Any()
-    }
-
-fun GeographicLocationConstraint.toDomain(): ModelGeographicLocationConstraint =
-    when {
-        hasHostname() && hasCity() ->
-            ModelGeographicLocationConstraint.Hostname(country, city, hostname)
-        hasCity() -> ModelGeographicLocationConstraint.City(country, city)
-        else -> ModelGeographicLocationConstraint.Country(country)
-    }
-
-fun List<String>.toDomain(): Constraint<Providers> =
-    if (isEmpty()) Constraint.Any() else Constraint.Only(Providers(HashSet(this)))
-
-fun WireguardConstraints.toDomain(): ModelWireguardConstraints =
-    ModelWireguardConstraints(
-        port =
-            if (hasPort()) {
-                Constraint.Any()
-            } else {
-                Constraint.Only(Port(port))
-            },
-    )
-
-fun Ownership.toDomain(): Constraint<ModelOwnership> =
-    when (this) {
-        Ownership.ANY -> Constraint.Any()
-        Ownership.MULLVAD_OWNED -> Constraint.Only(ModelOwnership.MullvadOwned)
-        Ownership.RENTED -> Constraint.Only(ModelOwnership.Rented)
-        Ownership.UNRECOGNIZED -> throw IllegalArgumentException("Unrecognized ownership")
-    }
-
-fun ObfuscationSettings.toDomain(): ModelObfuscationSettings =
-    ModelObfuscationSettings(
-        selectedObfuscation = selectedObfuscation.toDomain(),
-        udp2tcp = this.udp2Tcp.toDomain()
-    )
-
-fun SelectedObfuscation.toDomain(): ModelSelectedObfuscation =
-    when (this) {
-        SelectedObfuscation.AUTO -> ModelSelectedObfuscation.Auto
-        SelectedObfuscation.OFF -> ModelSelectedObfuscation.Off
-        SelectedObfuscation.UDP2TCP -> ModelSelectedObfuscation.Udp2Tcp
-        SelectedObfuscation.UNRECOGNIZED ->
-            throw IllegalArgumentException("Unrecognized selected obfuscation")
-    }
-
-fun Udp2TcpObfuscationSettings.toDomain(): ModelUdp2TcpObfuscationSettings =
-    if (this.hasPort()) {
-        ModelUdp2TcpObfuscationSettings(Constraint.Only(Port(port)))
-    } else {
-        ModelUdp2TcpObfuscationSettings(Constraint.Any())
-    }
-
-fun CustomList.toDomain(): ModelCustomList =
-    ModelCustomList(
-        id = CustomListId(id),
-        name = CustomListName.fromString(name),
-        locations = locationsList.map { it.toDomain() }
-    )
-
-fun TunnelOptions.toDomain(): ModelTunnelOptions =
-    ModelTunnelOptions(wireguard = wireguard.toDomain(), dnsOptions = dnsOptions.toDomain())
-
-private fun WireguardOptions.toDomain(): ModelWireguardTunnelOptions =
-    ModelWireguardTunnelOptions(
-        mtu = if (hasMtu()) mtu else null,
-        quantumResistant = this.quantumResistant.toDomain(),
-    )
-
-fun QuantumResistantState.toDomain(): ModelQuantumResistantState =
-    when (state) {
-        QuantumResistantState.State.AUTO -> ModelQuantumResistantState.Auto
-        QuantumResistantState.State.ON -> ModelQuantumResistantState.On
-        QuantumResistantState.State.OFF -> ModelQuantumResistantState.Off
-        QuantumResistantState.State.UNRECOGNIZED ->
-            throw IllegalArgumentException("Unrecognized quantum resistant state")
-    }
-
-fun DnsOptions.toDomain(): ModelDnsOptions =
-    ModelDnsOptions(
-        state = this.state.toDomain(),
-        defaultOptions = defaultOptions.toDomain(),
-        customOptions = customOptions.toDomain()
-    )
-
-fun DnsState.toDomain(): ModelDnsState =
-    when (this) {
-        DnsState.DEFAULT -> ModelDnsState.Default
-        DnsState.CUSTOM -> ModelDnsState.Custom
-        DnsState.UNRECOGNIZED -> throw IllegalArgumentException("Unrecognized dns state")
-    }
-
-fun DefaultDnsOptions.toDomain() =
-    ModelDefaultDnsOptions(
-        blockAds = blockAds,
-        blockMalware = blockMalware,
-        blockAdultContent = blockAdultContent,
-        blockGambling = blockGambling,
-        blockSocialMedia = blockSocialMedia,
-        blockTrackers = blockTrackers
-    )
-
-fun CustomDnsOptions.toDomain() =
-    ModelCustomDnsOptions(this.addressesList.map { InetAddress.getByName(it) })
-
-fun ModelDnsOptions.toDomain(): DnsOptions =
-    DnsOptions.newBuilder()
-        .setState(this.state.toDomain())
-        .setCustomOptions(this.customOptions.toCustomOptions())
-        .setDefaultOptions(this.defaultOptions.toDefaultOptions())
-        .build()
-
-fun ModelDnsState.toDomain(): DnsState =
-    when (this) {
-        ModelDnsState.Default -> DnsState.DEFAULT
-        ModelDnsState.Custom -> DnsState.CUSTOM
-    }
-
-fun ModelCustomDnsOptions.toCustomOptions(): CustomDnsOptions =
-    CustomDnsOptions.newBuilder().addAllAddresses(this.addresses.map { it.toString() }).build()
-
-fun ModelDefaultDnsOptions.toDefaultOptions(): DefaultDnsOptions =
-    DefaultDnsOptions.newBuilder()
-        .setBlockAds(blockAds)
-        .setBlockGambling(blockGambling)
-        .setBlockMalware(blockMalware)
-        .setBlockTrackers(blockTrackers)
-        .setBlockAdultContent(blockAdultContent)
-        .setBlockSocialMedia(blockSocialMedia)
-        .build()
-
-fun ModelQuantumResistantState.toDomain(): QuantumResistantState =
-    QuantumResistantState.newBuilder()
-        .setState(
-            when (this) {
-                ModelQuantumResistantState.Auto -> QuantumResistantState.State.AUTO
-                ModelQuantumResistantState.On -> QuantumResistantState.State.ON
-                ModelQuantumResistantState.Off -> QuantumResistantState.State.OFF
-            }
-        )
-        .build()
-
-fun ModelObfuscationSettings.toObfuscationSettings(): ObfuscationSettings =
-    ObfuscationSettings.newBuilder()
-        .setSelectedObfuscation(this.selectedObfuscation.toDomain())
-        .setUdp2Tcp(this.udp2tcp.toDomain())
-        .build()
-
-fun ModelSelectedObfuscation.toDomain(): SelectedObfuscation =
-    when (this) {
-        ModelSelectedObfuscation.Udp2Tcp -> SelectedObfuscation.UDP2TCP
-        ModelSelectedObfuscation.Auto -> SelectedObfuscation.AUTO
-        ModelSelectedObfuscation.Off -> SelectedObfuscation.OFF
-    }
-
-fun ModelUdp2TcpObfuscationSettings.toDomain(): Udp2TcpObfuscationSettings =
-    when (val port = this.port) {
-        is Constraint.Any -> Udp2TcpObfuscationSettings.newBuilder().clearPort().build()
-        is Constraint.Only ->
-            Udp2TcpObfuscationSettings.newBuilder().setPort(port.value.value).build()
-    }
-
-fun AppVersionInfo.toDomain(): ModelAppVersionInfo =
-    ModelAppVersionInfo(supported = this.supported, suggestedUpgrade = this.suggestedUpgrade)
-
-fun ConnectivityState.toDomain(): GrpcConnectivityState =
-    when (this) {
-        ConnectivityState.CONNECTING -> GrpcConnectivityState.Connecting
-        ConnectivityState.READY -> GrpcConnectivityState.Ready
-        ConnectivityState.IDLE -> GrpcConnectivityState.Idle
-        ConnectivityState.TRANSIENT_FAILURE -> GrpcConnectivityState.TransientFailure
-        ConnectivityState.SHUTDOWN -> GrpcConnectivityState.Shutdown
-    }
-
-fun ModelLocationConstraint.fromDomain(): LocationConstraint =
-    when (this) {
-        is ModelLocationConstraint.CustomList ->
-            LocationConstraint.newBuilder().setCustomList(this.listId.value).build()
-        is ModelLocationConstraint.Location ->
-            LocationConstraint.newBuilder().setLocation(this.location.fromDomain()).build()
-    }
-
-fun ModelGeographicLocationConstraint.fromDomain(): GeographicLocationConstraint =
-    when (this) {
-        is ModelGeographicLocationConstraint.Country ->
-            GeographicLocationConstraint.newBuilder().setCountry(this.countryCode).build()
-        is ModelGeographicLocationConstraint.City ->
-            GeographicLocationConstraint.newBuilder()
-                .setCountry(this.countryCode)
-                .setCity(this.cityCode)
-                .build()
-        is ModelGeographicLocationConstraint.Hostname ->
-            GeographicLocationConstraint.newBuilder()
-                .setCountry(this.countryCode)
-                .setCity(this.cityCode)
-                .setHostname(this.hostname)
-                .build()
-    }
-
-private fun ModelCustomList.fromDomain(): CustomList =
-    CustomList.newBuilder()
-        .setId(this.id.value)
-        .setName(this.name.value)
-        .addAllLocations(this.locations.map { it.fromDomain() })
-        .build()
-
 sealed interface GrpcConnectivityState {
     data object Connecting : GrpcConnectivityState
 
@@ -797,4 +396,21 @@ sealed interface GrpcConnectivityState {
     data object TransientFailure : GrpcConnectivityState
 
     data object Shutdown : GrpcConnectivityState
+}
+
+sealed interface ServiceConnectionState {
+    data class Connected(val serviceState: ServiceState) : ServiceConnectionState
+
+    data class Connecting(val lastKnownState: ServiceState?) : ServiceConnectionState
+
+    data class Disconnected(val lastKnownState: ServiceState?, val error: ServiceConnectError?) :
+        ServiceConnectionState
+}
+
+data class ServiceState(val settings: ModelSettings, val accountState: ModelSettings)
+
+sealed interface ServiceConnectError {
+    data object Timeout : ServiceConnectError
+
+    data class Connection(val message: String) : ServiceConnectError
 }

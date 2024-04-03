@@ -5,7 +5,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.Constraint
@@ -21,18 +20,18 @@ class RelayListListener(
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     val relayListEvents: StateFlow<RelayList> =
-        emptyFlow<RelayList>()
-            .stateIn(
-                CoroutineScope(dispatcher),
-                SharingStarted.WhileSubscribed(),
-                defaultRelayList()
-            )
+        managementService.relayList.stateIn(
+            CoroutineScope(dispatcher),
+            SharingStarted.WhileSubscribed(),
+            defaultRelayList()
+        )
 
     suspend fun updateSelectedRelayLocation(value: LocationConstraint) {
         managementService.setRelayLocation(value)
     }
 
     fun updateSelectedWireguardConstraints(value: WireguardConstraints) {
+//        managementService.se
         //        messageHandler.trySendRequest(Request.SetWireguardConstraints(value))
     }
 
