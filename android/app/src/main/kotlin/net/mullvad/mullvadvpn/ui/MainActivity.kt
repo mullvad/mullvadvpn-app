@@ -7,7 +7,6 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
@@ -60,9 +59,12 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             AppTheme {
-                    MullvadApp()
-                    val currentState = managementService.connectionState.collectAsState()
-                    Text(text = currentState.value.toString(), style = MaterialTheme.typography.titleLarge)
+                MullvadApp()
+                val currentState = managementService.connectionState.collectAsState()
+                Text(
+                    text = currentState.value.toString(),
+                    style = MaterialTheme.typography.titleLarge
+                )
             }
         }
 
@@ -78,7 +80,6 @@ class MainActivity : ComponentActivity() {
                     startServiceSuspend()
                     startManagementService()
                 }
-
             }
         }
     }
