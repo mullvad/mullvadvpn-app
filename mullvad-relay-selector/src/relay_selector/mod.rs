@@ -738,12 +738,12 @@ impl RelaySelector {
         // We avoid picking the same relay for entry and exit by choosing one and excluding it when
         // choosing the other.
         let (exit, entry) = match (exit_candidates.as_slice(), entry_candidates.as_slice()) {
-            // In the case where there is only one exit to choose from, we have to pick it before
-            // the entry
+            // In the case where there is only one entry to choose from, we have to pick it before
+            // the exit
             (exits, [entry]) if exits.contains(entry) => {
                 pick_random_excluding(exits, entry).map(|exit| (exit, entry))
             }
-            // Vice versa for the case of only one entry
+            // Vice versa for the case of only one exit
             ([exit], entries) if entries.contains(exit) => {
                 pick_random_excluding(entries, exit).map(|entry| (exit, entry))
             }
