@@ -29,7 +29,10 @@ pub enum Error {
     /// Failed to start eslogger listener
     #[error("Failed to start eslogger")]
     StartMonitor(#[source] io::Error),
-    /// eslogger failed
+    /// The app requires TCC approval from the user.
+    #[error("The app needs TCC approval from the user for Full Disk Access")]
+    NeedFullDiskPermissions,
+    /// eslogger failed due to an unknown error
     #[error("eslogger returned an error")]
     MonitorFailed(#[source] io::Error),
     /// Monitor task panicked
@@ -61,11 +64,12 @@ impl ProcessMonitor {
             .kill_on_drop(true)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
-            .stderr(Stdio::null());
+            .stderr(Stdio::piped());
 
         let mut proc = cmd.spawn().map_err(Error::StartMonitor)?;
 
         let stdout = proc.stdout.take().unwrap();
+        let stderr = proc.stderr.take().unwrap();
 
         let states_clone = states.clone();
 
@@ -92,11 +96,27 @@ impl ProcessMonitor {
                     inner.handle_message(val);
                 }
             });
+            let last_stderr = tokio::spawn(async move {
+                let reader = BufReader::new(stderr);
+                let mut lines = reader.lines();
+                let mut last_error = None;
+
+                while let Ok(Some(line)) = lines.next_line().await {
+                    last_error = Some(line);
+                }
+                last_error
+            });
 
             let result = tokio::select! {
                 result = proc.wait() => {
                     match result {
                         Ok(status) => {
+                            if let Ok(Some(last_error)) = last_stderr.await {
+                                log::error!("eslogger error: {last_error}");
+                                if let Some(error) = parse_eslogger_error(&last_error) {
+                                    return Err(error);
+                                }
+                            }
                             Err(Error::MonitorFailed(io::Error::new(io::ErrorKind::Other, format!("eslogger stopped unexpectedly: {status}"))))
                         }
                         Err(error) => Err(Error::MonitorFailed(error)),
@@ -427,4 +447,12 @@ struct ESProcess {
 struct ESMessage {
     event: ESEvent,
     process: ESProcess,
+}
+
+fn parse_eslogger_error(stderr_str: &str) -> Option<Error> {
+    if stderr_str.contains("ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED") {
+        Some(Error::NeedFullDiskPermissions)
+    } else {
+        None
+    }
 }
