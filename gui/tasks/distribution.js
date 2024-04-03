@@ -31,6 +31,7 @@ const config = {
     { from: distAssets('ca.crt'), to: '.' },
     { from: buildAssets('relays.json'), to: '.' },
     { from: root('CHANGELOG.md'), to: '.' },
+    { from: '../dist-assets/geo', to: './geo' },
   ],
 
   directories: {
