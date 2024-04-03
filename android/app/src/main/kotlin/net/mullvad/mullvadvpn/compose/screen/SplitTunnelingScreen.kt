@@ -41,6 +41,7 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.constant.NEWLINE_STRING
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
@@ -126,8 +127,8 @@ fun SplitTunnelingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             state = lazyListState
         ) {
+            description()
             enabledToggle(enabled = state.enabled, onEnableSplitTunneling = onEnableSplitTunneling)
-            description(enabled = state.enabled)
             spacer()
             when (state) {
                 is SplitTunnelingUiState.Loading -> {
@@ -161,15 +162,14 @@ private fun LazyListScope.enabledToggle(
     }
 }
 
-private fun LazyListScope.description(enabled: Boolean) {
+private fun LazyListScope.description() {
     item(key = CommonContentKey.DESCRIPTION, contentType = ContentType.DESCRIPTION) {
         SwitchComposeSubtitleCell(
-            text =
-                if (enabled) {
-                    stringResource(id = R.string.split_tunneling_description)
-                } else {
-                    stringResource(id = R.string.split_tunneling_disabled_description)
-                }
+            text = buildString {
+                append(stringResource(id = R.string.split_tunneling_description))
+                append(NEWLINE_STRING)
+                append(stringResource(id = R.string.split_tunneling_description_warning))
+            }
         )
     }
 }
