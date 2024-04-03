@@ -319,6 +319,7 @@ fun SelectLocationScreen(
                             customLists(
                                 customLists = state.filteredCustomLists,
                                 selectedItem = state.selectedItem,
+                                backgroundColor = backgroundColor,
                                 onSelectRelay = onSelectRelay,
                                 onShowCustomListBottomSheet = {
                                     bottomSheetState =
@@ -367,6 +368,7 @@ private fun LazyListScope.loading() {
 private fun LazyListScope.customLists(
     customLists: List<RelayItem.CustomList>,
     selectedItem: RelayItem?,
+    backgroundColor: Color,
     onSelectRelay: (item: RelayItem) -> Unit,
     onShowCustomListBottomSheet: () -> Unit,
     onShowEditBottomSheet: (RelayItem.CustomList) -> Unit
@@ -400,11 +402,17 @@ private fun LazyListScope.customLists(
             )
         }
         item {
-            SwitchComposeSubtitleCell(text = stringResource(R.string.to_add_locations_to_a_list))
+            SwitchComposeSubtitleCell(
+                text = stringResource(R.string.to_add_locations_to_a_list),
+                modifier = Modifier.background(backgroundColor)
+            )
         }
     } else {
         item(contentType = ContentType.EMPTY_TEXT) {
-            SwitchComposeSubtitleCell(text = stringResource(R.string.to_create_a_custom_list))
+            SwitchComposeSubtitleCell(
+                text = stringResource(R.string.to_create_a_custom_list),
+                modifier = Modifier.background(backgroundColor)
+            )
         }
     }
 }
