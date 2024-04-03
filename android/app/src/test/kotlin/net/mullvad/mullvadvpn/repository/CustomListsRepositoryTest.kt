@@ -11,11 +11,11 @@ import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
 import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.lib.ipc.events
+import net.mullvad.mullvadvpn.model.CreateCustomListError
 import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomList
-import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.CreateCustomListError
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.UpdateCustomListResult
@@ -106,7 +106,8 @@ class CustomListsRepositoryTest {
     fun `create custom list should return lists exists when lists exists error event is received`() =
         runTest {
             // Arrange
-            val expectedResult = CreateCustomListResult.Error(CreateCustomListError.CustomListExists)
+            val expectedResult =
+                CreateCustomListResult.Error(CreateCustomListError.CustomListExists)
             val customListName = "CUSTOM"
             every {
                 mockMessageHandler.trySendRequest(Request.CreateCustomList(customListName))
@@ -157,7 +158,8 @@ class CustomListsRepositoryTest {
         runTest {
             // Arrange
             val customListId = "1"
-            val expectedResult = UpdateCustomListResult.Error(CreateCustomListError.CustomListExists)
+            val expectedResult =
+                UpdateCustomListResult.Error(CreateCustomListError.CustomListExists)
             val customListName = "CUSTOM"
             val mockSettings: Settings = mockk()
             val mockCustomList: CustomList = mockk()
