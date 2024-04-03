@@ -17,6 +17,7 @@ public enum AccessibilityIdentifier: String {
     case cancelButton
     case connectionPanelButton
     case collapseButton
+    case expandButton
     case createAccountButton
     case deleteButton
     case disconnectButton
@@ -53,7 +54,8 @@ public enum AccessibilityIdentifier: String {
 
     // Labels
     case headerDeviceNameLabel
-    case connectionStatusLabel
+    case connectionStatusConnectedLabel
+    case connectionStatusNotConnectedLabel
     case welcomeAccountNumberLabel
     case connectionPanelDetailLabel
 

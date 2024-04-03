@@ -19,9 +19,10 @@ class TunnelControlPage: Page {
     /// Poll the "in address row" label for its updated values and output an array of ConnectionAttempt objects representing the connection attempts that have been communicated through the UI.
     /// - Parameters:
     ///   - attemptsCount: number of connection attempts to look for
-    ///   - timeout: timeout after this many seconds if attemptsCount haven't been reached yet
+    ///   - timeout: return the attemps found so far after this many seconds if `attemptsCount` haven't been reached yet
     private func waitForConnectionAttempts(_ attemptsCount: Int, timeout: TimeInterval) -> [ConnectionAttempt] {
         var connectionAttempts: [ConnectionAttempt] = []
+        var lastConnectionAttempt: ConnectionAttempt?
         let startTime = Date()
         let pollingInterval = TimeInterval(0.5) // How often to check for changes
 
@@ -52,8 +53,9 @@ class TunnelControlPage: Page {
                     protocolName: protocolName
                 )
 
-                if connectionAttempts.contains(connectionAttempt) == false {
+                if connectionAttempt != lastConnectionAttempt {
                     connectionAttempts.append(connectionAttempt)
+                    lastConnectionAttempt = connectionAttempt
 
                     if connectionAttempts.count == attemptsCount {
                         break
@@ -87,8 +89,13 @@ class TunnelControlPage: Page {
         return self
     }
 
+    @discardableResult func tapCancelButton() -> Self {
+        app.buttons[AccessibilityIdentifier.cancelButton].tap()
+        return self
+    }
+
     @discardableResult func waitForSecureConnectionLabel() -> Self {
-        _ = app.staticTexts[AccessibilityIdentifier.connectionStatusLabel]
+        _ = app.staticTexts[AccessibilityIdentifier.connectionStatusConnectedLabel]
             .waitForExistence(timeout: BaseUITestCase.defaultTimeout)
         return self
     }
@@ -125,6 +132,43 @@ class TunnelControlPage: Page {
             }
         } else {
             XCTFail("Unexpected number of connection attempts")
+        }
+
+        return self
+    }
+
+    /// Verify that connection attempts are made in the correct order
+    @discardableResult func verifyConnectionAttemptsOrder() -> Self {
+        let connectionAttempts = waitForConnectionAttempts(4, timeout: 50)
+        XCTAssertEqual(connectionAttempts.count, 4)
+
+        if connectionAttempts.last?.protocolName == "UDP" {
+            // If last attempt is over UDP it means we have encountered the UI bug where only one UDP attempt is shown and then the two TCP attempts
+            for (attemptIndex, attempt) in connectionAttempts.enumerated() {
+                if attemptIndex == 0 {
+                    XCTAssertEqual(attempt.protocolName, "UDP")
+                } else if attemptIndex == 1 {
+                    XCTAssertEqual(attempt.protocolName, "TCP")
+                    XCTAssertEqual(attempt.port, "80")
+                } else if attemptIndex == 2 {
+                    XCTAssertEqual(attempt.protocolName, "TCP")
+                    XCTAssertEqual(attempt.port, "5001")
+                } // Ignore the 4th attempt which is the first attempt of new attempt cycle
+            }
+        } else {
+            for (attemptIndex, attempt) in connectionAttempts.enumerated() {
+                if attemptIndex == 0 {
+                    XCTAssertEqual(attempt.protocolName, "UDP")
+                } else if attemptIndex == 1 {
+                    XCTAssertEqual(attempt.protocolName, "UDP")
+                } else if attemptIndex == 2 {
+                    XCTAssertEqual(attempt.protocolName, "TCP")
+                    XCTAssertEqual(attempt.port, "80")
+                } else if attemptIndex == 3 {
+                    XCTAssertEqual(attempt.protocolName, "TCP")
+                    XCTAssertEqual(attempt.port, "5001")
+                }
+            }
         }
 
         return self

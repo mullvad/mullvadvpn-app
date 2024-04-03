@@ -51,6 +51,27 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapDisconnectButton()
     }
 
+    func testConnectionRetryLogic() throws {
+        FirewallAPIClient().removeRules()
+        removeFirewallRulesInTearDown = true
+
+        // First get relay IP address
+        let relayIPAddress = getGot001WireGuardRelayIPAddress()
+
+        // Run actual test
+        try FirewallAPIClient().createRule(
+            FirewallRule.makeBlockAllTrafficRule(toIPAddress: relayIPAddress)
+        )
+
+        TunnelControlPage(app)
+            .tapSecureConnectionButton()
+
+        // Should be two UDP connection attempts but sometimes only one is shown in the UI
+        TunnelControlPage(app)
+            .verifyConnectionAttemptsOrder()
+            .tapCancelButton()
+    }
+
     func testWireGuardOverTCPManually() throws {
         HeaderBar(app)
             .tapSettingsButton()
@@ -82,29 +103,11 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
     /// Test automatic switching to TCP is functioning when UDP traffic to relay is blocked. This test first connects to a realy to get the IP address of it, in order to block UDP traffic to this relay.
     func testWireGuardOverTCPAutomatically() throws {
-        let wireGuardGot001RelayName = "se-got-wg-001"
-
         FirewallAPIClient().removeRules()
         removeFirewallRulesInTearDown = true
 
         // First get relay IP address
-        TunnelControlPage(app)
-            .tapSelectLocationButton()
-
-        SelectLocationPage(app)
-            .tapLocationCellExpandCollapseButton(withName: "Sweden")
-            .tapLocationCellExpandCollapseButton(withName: "Gothenburg")
-            .tapLocationCell(withName: wireGuardGot001RelayName)
-
-        allowAddVPNConfigurationsIfAsked()
-
-        let relayIPAddress = TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
-            .tapRelayStatusExpandCollapseButton()
-            .getInIPAddressFromConnectionStatus()
-
-        TunnelControlPage(app)
-            .tapDisconnectButton()
+        let relayIPAddress = getGot001WireGuardRelayIPAddress()
 
         // Run actual test
         try FirewallAPIClient().createRule(
@@ -158,5 +161,36 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapRelayStatusExpandCollapseButton()
             .verifyConnectingToPort("4001")
             .tapDisconnectButton()
+    }
+
+    /// Get got001 WireGuard relay IP address by connecting to it and checking which IP address the app connects to. Assumes user is logged on and at tunnel control page.
+    private func getGot001WireGuardRelayIPAddress() -> String {
+        let wireGuardGot001RelayName = "se-got-wg-001"
+
+        TunnelControlPage(app)
+            .tapSelectLocationButton()
+
+        if SelectLocationPage(app).locationCellIsExpanded("Sweden") {
+            // Already expanded - just make sure correct relay is selected
+            SelectLocationPage(app)
+                .tapLocationCell(withName: wireGuardGot001RelayName)
+        } else {
+            SelectLocationPage(app)
+                .tapLocationCellExpandButton(withName: "Sweden")
+                .tapLocationCellExpandButton(withName: "Gothenburg")
+                .tapLocationCell(withName: wireGuardGot001RelayName)
+        }
+
+        allowAddVPNConfigurationsIfAsked()
+
+        let relayIPAddress = TunnelControlPage(app)
+            .waitForSecureConnectionLabel()
+            .tapRelayStatusExpandCollapseButton()
+            .getInIPAddressFromConnectionStatus()
+
+        TunnelControlPage(app)
+            .tapDisconnectButton()
+
+        return relayIPAddress
     }
 }
