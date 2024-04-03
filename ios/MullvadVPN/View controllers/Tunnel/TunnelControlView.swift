@@ -121,8 +121,6 @@ final class TunnelControlView: UIView {
         accessibilityContainerType = .semanticGroup
         accessibilityIdentifier = .tunnelControlView
 
-        secureLabel.accessibilityIdentifier = .connectionStatusLabel
-
         addSubviews()
         addButtonHandlers()
     }
@@ -187,6 +185,13 @@ final class TunnelControlView: UIView {
     private func updateSecureLabel(tunnelState: TunnelState) {
         secureLabel.text = tunnelState.localizedTitleForSecureLabel.uppercased()
         secureLabel.textColor = tunnelState.textColorForSecureLabel
+
+        switch tunnelState {
+        case .connected:
+            secureLabel.accessibilityIdentifier = .connectionStatusConnectedLabel
+        default:
+            secureLabel.accessibilityIdentifier = .connectionStatusNotConnectedLabel
+        }
     }
 
     private func updateButtonTitles(tunnelState: TunnelState) {

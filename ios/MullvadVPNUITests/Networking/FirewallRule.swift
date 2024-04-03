@@ -45,6 +45,16 @@ struct FirewallRule {
         )
     }
 
+    public static func makeBlockAllTrafficRule(toIPAddress: String) throws -> FirewallRule {
+        let deviceIPAddress = try Networking.getIPAddress()
+
+        return FirewallRule(
+            fromIPAddress: deviceIPAddress,
+            toIPAddress: toIPAddress,
+            protocols: [.ICMP, .TCP, .UDP]
+        )
+    }
+
     public static func makeBlockUDPTrafficRule(toIPAddress: String) throws -> FirewallRule {
         let deviceIPAddress = try Networking.getIPAddress()
 

@@ -55,6 +55,7 @@ final class LocationViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.accessibilityIdentifier = .selectLocationView
         view.backgroundColor = .secondaryColor
 
         navigationItem.title = NSLocalizedString(
