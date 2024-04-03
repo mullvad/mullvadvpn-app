@@ -767,9 +767,7 @@ class ApplicationMain
     }));
 
     IpcMainEventChannel.map.handleGetData(async () => ({
-      landContourIndices: await fs.promises.readFile(
-        path.join(GEO_DIR, 'land_contour_indices.gl'),
-      ),
+      landContourIndices: await fs.promises.readFile(path.join(GEO_DIR, 'land_contour_indices.gl')),
       landPositions: await fs.promises.readFile(path.join(GEO_DIR, 'land_positions.gl')),
       landTriangleIndices: await fs.promises.readFile(
         path.join(GEO_DIR, 'land_triangle_indices.gl'),
