@@ -12,7 +12,8 @@ extension XCUIElement {
     func waitForNonExistence(timeout: TimeInterval) -> Bool {
         let predicate = NSPredicate(format: "exists == FALSE")
         let expectation = XCTNSPredicateExpectation(predicate: predicate, object: self)
-        _ = XCTWaiter.wait(for: [expectation], timeout: timeout)
+
+        _ = XCTWaiter().wait(for: [expectation], timeout: timeout)
         return !exists
     }
 }
