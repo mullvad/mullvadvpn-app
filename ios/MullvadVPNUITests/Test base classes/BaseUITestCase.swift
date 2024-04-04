@@ -12,6 +12,8 @@ import XCTest
 class BaseUITestCase: XCTestCase {
     let app = XCUIApplication()
     static let defaultTimeout = 5.0
+    static let longTimeout = 15.0
+    static let veryLongTimeout = 60.0
     static let shortTimeout = 1.0
 
     // swiftlint:disable force_cast
@@ -25,27 +27,32 @@ class BaseUITestCase: XCTestCase {
         .infoDictionary?["IOSDevicePinCode"] as! String
     // swiftlint:enable force_cast
 
-    /// Handle iOS add VPN configuration permission alert - allow and enter device PIN code
-    func allowAddVPNConfigurations() {
-        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-
-        let alertAllowButton = springboard.buttons.element(boundBy: 0)
-        if alertAllowButton.waitForExistence(timeout: Self.defaultTimeout) {
-            alertAllowButton.tap()
-        }
-
-        if iOSDevicePinCode.isEmpty == false {
-            _ = springboard.buttons["1"].waitForExistence(timeout: Self.defaultTimeout)
-            springboard.typeText(iOSDevicePinCode)
-        }
-    }
-
     /// Handle iOS add VPN configuration permission alert if presented, otherwise ignore
     func allowAddVPNConfigurationsIfAsked() {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
 
         if springboard.buttons["Allow"].waitForExistence(timeout: Self.shortTimeout) {
-            allowAddVPNConfigurations()
+            let alertAllowButton = springboard.buttons.element(boundBy: 0)
+            if alertAllowButton.waitForExistence(timeout: Self.defaultTimeout) {
+                alertAllowButton.tap()
+            }
+
+            if iOSDevicePinCode.isEmpty == false {
+                _ = springboard.buttons["1"].waitForExistence(timeout: Self.defaultTimeout)
+                springboard.typeText(iOSDevicePinCode)
+            }
+        }
+    }
+
+    /// Handle iOS local network access permission alert if presented, otherwise ignore
+    func allowLocalNetworkAccessIfAsked() {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+
+        if springboard.buttons["Allow"].waitForExistence(timeout: Self.shortTimeout) {
+            let alertAllowButton = springboard.buttons["Allow"]
+            if alertAllowButton.waitForExistence(timeout: Self.defaultTimeout) {
+                alertAllowButton.tap()
+            }
         }
     }
 

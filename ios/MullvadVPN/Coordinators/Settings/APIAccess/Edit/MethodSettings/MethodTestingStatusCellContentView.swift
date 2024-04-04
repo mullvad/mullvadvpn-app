@@ -136,6 +136,16 @@ class MethodTestingStatusCellContentView: UIView, UIContentView {
             progressView.startAnimating()
         }
 
+        // Set accessibility identifier for the text label based on the status it is indicating
+        switch actualConfiguration.status {
+        case .reachable:
+            textLabel.accessibilityIdentifier = .addAccessMethodTestStatusReachableLabel
+        case .unreachable:
+            textLabel.accessibilityIdentifier = .addAccessMethodTestStatusUnreachableLabel
+        case .testing:
+            textLabel.accessibilityIdentifier = .addAccessMethodTestStatusTestingLabel
+        }
+
         // Text label is always the last one, so only add it into the stack if it's not there yet.
         if textLabel.superview == nil {
             horizontalStackView.addArrangedSubview(textLabel)
