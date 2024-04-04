@@ -82,15 +82,6 @@ enum State: Equatable {
     case error(BlockingData)
 }
 
-/// Policy describing what WG key to use for tunnel communication.
-enum KeyPolicy {
-    /// Use current key stored in device data.
-    case useCurrent
-
-    /// Use prior key until timer fires.
-    case usePrior(_ priorKey: PrivateKey, _ timerTask: AutoCancellingTask)
-}
-
 /// Enum describing network availability.
 public enum NetworkReachability: Equatable, Codable {
     case undetermined, reachable, unreachable
@@ -98,12 +89,21 @@ public enum NetworkReachability: Equatable, Codable {
 
 protocol StateAssociatedData {
     var currentKey: PrivateKey? { get set }
-    var keyPolicy: KeyPolicy { get set }
+    var keyPolicy: State.KeyPolicy { get set }
     var networkReachability: NetworkReachability { get set }
     var lastKeyRotation: Date? { get set }
 }
 
 extension State {
+    /// Policy describing what WG key to use for tunnel communication.
+    enum KeyPolicy {
+        /// Use current key stored in device data.
+        case useCurrent
+
+        /// Use prior key until timer fires.
+        case usePrior(_ priorKey: PrivateKey, _ timerTask: AutoCancellingTask)
+    }
+
     /// Data associated with states that hold connection data.
     struct ConnectionData: Equatable, StateAssociatedData {
         /// Current selected relay.

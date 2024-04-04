@@ -305,7 +305,7 @@ extension PacketTunnelActor {
         settings: Settings,
         reason: ReconnectReason
     ) throws -> State.ConnectionData? {
-        var keyPolicy: KeyPolicy = .useCurrent
+        var keyPolicy: State.KeyPolicy = .useCurrent
         var networkReachability = defaultPathObserver.defaultPath?.networkReachability ?? .undetermined
         var lastKeyRotation: Date?
 

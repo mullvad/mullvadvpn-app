@@ -154,7 +154,7 @@ extension State {
     }
 }
 
-extension KeyPolicy {
+extension State.KeyPolicy {
     func logFormat() -> String {
         switch self {
         case .useCurrent:
@@ -165,8 +165,8 @@ extension KeyPolicy {
     }
 }
 
-extension KeyPolicy: Equatable {
-    static func == (lhs: KeyPolicy, rhs: KeyPolicy) -> Bool {
+extension State.KeyPolicy: Equatable {
+    static func == (lhs: State.KeyPolicy, rhs: State.KeyPolicy) -> Bool {
         switch (lhs, rhs) {
         case (.useCurrent, .useCurrent): true
         case let (.usePrior(priorA, _), .usePrior(priorB, _)): priorA == priorB
