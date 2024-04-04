@@ -168,10 +168,7 @@ pub async fn create_split_tunnel(
         .await
         .map_err(Error::AddIpv6Address)?;
     if !output.status.success() {
-        return Err(Error::AddIpv6Address(io::Error::new(
-            io::ErrorKind::Other,
-            "ifconfig failed",
-        )));
+        return Err(Error::AddIpv6Address(io::Error::other("ifconfig failed")));
     }
 
     let redir_handle =
