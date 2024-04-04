@@ -21,7 +21,8 @@
         "BaseUITestCase",
         "LoggedInWithTimeUITestCase",
         "LoggedInWithoutTimeUITestCase",
-        "LoggedOutUITestCase"
+        "LoggedOutUITestCase",
+        "SettingsMigrationTests"
       ],
       "target" : {
         "containerPath" : "container:MullvadVPN.xcodeproj",
