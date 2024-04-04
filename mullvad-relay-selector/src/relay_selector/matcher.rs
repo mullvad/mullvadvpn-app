@@ -35,10 +35,10 @@ pub fn filter_matching_relay_list<'a, R: Iterator<Item = &'a Relay> + Clone>(
             .filter(|relay| filter_on_providers(&query.providers, relay));
 
     // The last filtering to be done is on the `include_in_country` attribute found on each
-    // relay. When the location constraint is based on country, a relay which has `include_in_country`
-    // set to true should always be prioritized over relays which has this flag set to false.
-    // We should only consider relays with `include_in_country` set to false if there are no
-    // other candidates left.
+    // relay. When the location constraint is based on country, a relay which has
+    // `include_in_country` set to true should always be prioritized over relays which has this
+    // flag set to false. We should only consider relays with `include_in_country` set to false
+    // if there are no other candidates left.
     match &locations {
         Constraint::Any => shortlist.cloned().collect(),
         Constraint::Only(locations) => {
