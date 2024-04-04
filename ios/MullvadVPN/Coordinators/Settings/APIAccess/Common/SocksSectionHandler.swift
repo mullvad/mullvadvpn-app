@@ -38,6 +38,7 @@ struct SocksSectionHandler {
         contentConfiguration.inputText = subject.value.socks.server
         contentConfiguration.textFieldProperties = .withSmartFeaturesDisabled()
         contentConfiguration.editingEvents.onChange = subject.bindTextAction(to: \.socks.server)
+        cell.accessibilityIdentifier = .socks5ServerCell
         cell.contentConfiguration = contentConfiguration
     }
 
@@ -52,6 +53,7 @@ struct SocksSectionHandler {
         if case .phone = cell.traitCollection.userInterfaceIdiom {
             contentConfiguration.textFieldProperties.keyboardType = .numberPad
         }
+        cell.accessibilityIdentifier = .socks5PortCell
         cell.contentConfiguration = contentConfiguration
     }
 
@@ -60,6 +62,7 @@ struct SocksSectionHandler {
         contentConfiguration.text = itemIdentifier.text
         contentConfiguration.isOn = subject.value.socks.authenticate
         contentConfiguration.onChange = subject.bindSwitchAction(to: \.socks.authenticate)
+        contentConfiguration.accessibilityIdentifier = .socks5AuthenticationSwitch
         cell.contentConfiguration = contentConfiguration
     }
 

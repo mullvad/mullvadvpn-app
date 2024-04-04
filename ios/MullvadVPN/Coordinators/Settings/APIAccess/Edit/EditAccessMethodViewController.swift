@@ -43,6 +43,7 @@ class EditAccessMethodViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.accessibilityIdentifier = .editAccessMethodView
         view.backgroundColor = .secondaryColor
         tableView.backgroundColor = .secondaryColor
         navigationItem.largeTitleDisplayMode = .never
@@ -197,6 +198,7 @@ class EditAccessMethodViewController: UITableViewController {
 
     private func configureEnableMethod(_ cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
         var contentConfiguration = SwitchCellContentConfiguration()
+        contentConfiguration.accessibilityIdentifier = .accessMethodEnableSwitch
         contentConfiguration.text = itemIdentifier.text
         contentConfiguration.isOn = subject.value.isEnabled
         contentConfiguration.onChange = UIAction { [weak self] action in
