@@ -12,6 +12,8 @@ import XCTest
 class BaseUITestCase: XCTestCase {
     let app = XCUIApplication()
     static let defaultTimeout = 5.0
+    static let longTimeout = 15.0
+    static let veryLongTimeout = 60.0
     static let shortTimeout = 1.0
 
     // swiftlint:disable force_cast
@@ -48,6 +50,24 @@ class BaseUITestCase: XCTestCase {
 
         if springboard.buttons["Allow"].waitForExistence(timeout: Self.shortTimeout) {
             allowAddVPNConfigurations()
+        }
+    }
+
+    func allowLocalNetworkAccess() {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+
+        let alertAllowButton = springboard.buttons["Allow"]
+        if alertAllowButton.waitForExistence(timeout: Self.defaultTimeout) {
+            alertAllowButton.tap()
+        }
+    }
+
+    /// Handle iOS local network access permission alert if presented, otherwise ignore
+    func allowLocalNetworkAccessIfAsked() {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+
+        if springboard.buttons["Allow"].waitForExistence(timeout: Self.shortTimeout) {
+            allowLocalNetworkAccess()
         }
     }
 

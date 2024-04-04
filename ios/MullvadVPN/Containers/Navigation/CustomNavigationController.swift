@@ -26,6 +26,7 @@ class CustomNavigationController: UINavigationController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        navigationItem.backBarButtonItem?.accessibilityIdentifier = "asdasd"
 
         // Navigation bar updates the prompt color on layout so we have to force our own appearance on each layout pass.
         navigationBar.overridePromptColor()
