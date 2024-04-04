@@ -43,11 +43,13 @@ class LoginPage: Page {
 
     @discardableResult public func verifySuccessIconShown() -> Self {
         _ = app.images.element(matching: .image, identifier: "IconSuccess")
+            .waitForExistence(timeout: BaseUITestCase.defaultTimeout)
         return self
     }
 
     @discardableResult public func verifyFailIconShown() -> Self {
-        _ = app.images.element(matching: .image, identifier: "IconFail").waitForExistence(timeout: 15)
+        _ = app.images.element(matching: .image, identifier: "IconFail")
+            .waitForExistence(timeout: BaseUITestCase.longTimeout)
         return self
     }
 }

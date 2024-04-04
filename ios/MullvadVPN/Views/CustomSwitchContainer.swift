@@ -31,6 +31,12 @@ class CustomSwitchContainer: UIView {
         }
     }
 
+    override var accessibilityIdentifier: String? {
+        didSet {
+            control.accessibilityIdentifier = accessibilityIdentifier
+        }
+    }
+
     override var intrinsicContentSize: CGSize {
         controlSize()
     }

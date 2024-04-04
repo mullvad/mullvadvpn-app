@@ -76,10 +76,13 @@ class MethodSettingsViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.accessibilityIdentifier = .addAccessMethodTableView
         view.directionalLayoutMargins = UIMetrics.contentLayoutMargins
         view.backgroundColor = .secondaryColor
 
         navigationItem.rightBarButtonItem = saveBarButton
+        navigationItem.rightBarButtonItem?.accessibilityIdentifier = .accessMethodAddButton
+        navigationItem.rightBarButtonItem?.isAccessibilityElement = true
         isModalInPresentation = true
 
         configureTableView()
@@ -307,6 +310,7 @@ class MethodSettingsViewController: UITableViewController {
         case .failed:
             let presentation = AlertPresentation(
                 id: "api-access-methods-testing-status-failed-alert",
+                accessibilityIdentifier: .accessMethodUnreachableAlert,
                 icon: .warning,
                 message: NSLocalizedString(
                     "METHOD_SETTINGS_SAVE_PROMPT",
@@ -323,6 +327,7 @@ class MethodSettingsViewController: UITableViewController {
                             comment: ""
                         ),
                         style: .default,
+                        accessibilityId: .accessMethodUnreachableSaveButton,
                         handler: { [weak self] in
                             self?.onSave()
                         }
@@ -334,7 +339,8 @@ class MethodSettingsViewController: UITableViewController {
                             value: "Back to editing",
                             comment: ""
                         ),
-                        style: .default
+                        style: .default,
+                        accessibilityId: .accessMethodUnreachableBackButton
                     ),
                 ]
             )

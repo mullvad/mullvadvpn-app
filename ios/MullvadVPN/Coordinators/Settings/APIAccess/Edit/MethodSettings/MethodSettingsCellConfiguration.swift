@@ -111,6 +111,7 @@ class MethodSettingsCellConfiguration {
         contentConfiguration.inputText = subject.value.name
         contentConfiguration.editingEvents.onChange = subject.bindTextAction(to: \.name)
 
+        cell.accessibilityIdentifier = .accessMethodNameTextField
         cell.setDisabled(isTesting)
         cell.contentConfiguration = contentConfiguration
     }
@@ -153,6 +154,7 @@ class MethodSettingsCellConfiguration {
             cell.disclosureType = .chevron
         }
 
+        cell.accessibilityIdentifier = .accessMethodProtocolSelectionCell
         cell.setDisabled(isTesting)
     }
 
