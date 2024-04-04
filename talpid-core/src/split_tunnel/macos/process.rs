@@ -117,7 +117,7 @@ impl ProcessMonitor {
                                     return Err(error);
                                 }
                             }
-                            Err(Error::MonitorFailed(io::Error::new(io::ErrorKind::Other, format!("eslogger stopped unexpectedly: {status}"))))
+                            Err(Error::MonitorFailed(io::Error::other(format!("eslogger stopped unexpectedly: {status}"))))
                         }
                         Err(error) => Err(Error::MonitorFailed(error)),
                     }
