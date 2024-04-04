@@ -291,7 +291,7 @@ async fn redirect_packets_for_pktap_stream(
     let default_stream =
         bpf::BpfStream::from_read_half(default_read).map_err(Error::CreateDefaultBpf)?;
 
-    let (abort_tx, abort_rx) = broadcast::channel(5);
+    let (abort_tx, abort_rx) = broadcast::channel(1);
 
     let ingress_task: tokio::task::JoinHandle<tun::AsyncDevice> = tokio::spawn(run_ingress_task(
         st_tun_device,
