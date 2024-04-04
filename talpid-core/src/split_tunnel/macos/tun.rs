@@ -2,7 +2,9 @@
 //! either the default interface or a VPN tunnel interface.
 
 use super::{
-    bindings::{pcap_create, pcap_set_want_pktap, pktap_header, PCAP_ERRBUF_SIZE},
+    bindings::{
+        pcap_create, pcap_set_want_pktap, pktap_header, PCAP_ERRBUF_SIZE, PTH_FLAG_DIR_OUT,
+    },
     bpf,
     default::DefaultInterface,
 };
@@ -705,8 +707,10 @@ fn capture_outbound_packets(
         .open()
         .map_err(Error::CaptureSplitTunnelDevice)?;
 
-    cap.direction(pcap::Direction::Out)
-        .map_err(Error::SetDirection)?;
+    // TODO: This is unsupported on macOS 13 and lower, so we determine the direction using the
+    //       pktap header flags. Once macOS 13 is no longer supported, this can be uncommented.
+    //cap.direction(pcap::Direction::Out)
+    //    .map_err(Error::SetDirection)?;
 
     let cap = cap.setnonblock().map_err(Error::EnableNonblock)?;
     let stream = cap
@@ -751,6 +755,14 @@ impl PacketCodec for PktapCodec {
         } else {
             return None;
         };
+
+        // TODO: `Capture::direction` is unsupported on macOS 13 and lower, so we determine the
+        //       direction using the pktap header. Once macOS 13 is no longer supported, this can
+        //       be removed.
+        if header.pth_flags ^ PTH_FLAG_DIR_OUT == 0 {
+            // Ignore incoming packets
+            return None;
+        }
 
         let iface = unsafe { CStr::from_ptr(header.pth_ifname.as_ptr() as *const _) };
         if iface.to_bytes() != self.interface.as_bytes() {
