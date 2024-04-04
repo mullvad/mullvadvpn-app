@@ -13,4 +13,7 @@ fun PackageManager.getApplicationIconBitmapOrNull(packageName: String): Bitmap? 
     } catch (e: IllegalArgumentException) {
         // IllegalArgumentException is thrown if the application has an invalid icon
         null
+    } catch (e: OutOfMemoryError) {
+        // OutOfMemoryError is thrown if the icon is too large
+        null
     }
