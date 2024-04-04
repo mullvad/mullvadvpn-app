@@ -173,7 +173,7 @@ extension State {
         public var recoveryTask: AutoCancellingTask?
 
         /// Prior state of the actor before entering blocked state
-        public var priorState: StatePriorToBlockedState
+        public var priorState: PriorState
     }
 }
 
@@ -214,9 +214,11 @@ public enum BlockedStateReason: String, Codable, Equatable {
     case unknown
 }
 
-/// Legal states that can precede error state.
-enum StatePriorToBlockedState: Equatable {
-    case initial, connecting, connected, reconnecting
+extension State.BlockingData {
+    /// Legal states that can precede error state.
+    enum PriorState: Equatable {
+        case initial, connecting, connected, reconnecting
+    }
 }
 
 /// Target state the actor should transition into upon request to either start (connect) or reconnect.

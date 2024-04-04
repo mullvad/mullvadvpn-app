@@ -95,7 +95,7 @@ extension PacketTunnelActor {
     private func mapConnectionState(
         _ connState: State.ConnectionData,
         reason: BlockedStateReason,
-        priorState: StatePriorToBlockedState
+        priorState: State.BlockingData.PriorState
     ) -> State.BlockingData {
         State.BlockingData(
             reason: reason,
