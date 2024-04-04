@@ -37,5 +37,5 @@ pub fn extra_metadata() -> HashMap<String, String> {
 }
 
 fn get_prop(property: &str) -> Option<String> {
-    command_stdout_lossy("getprop", &[property])
+    command_stdout_lossy("getprop", &[property]).ok()
 }
