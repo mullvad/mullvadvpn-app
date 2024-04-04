@@ -135,6 +135,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
     private func logOut() {
         let presentation = AlertPresentation(
             id: "account-logout-alert",
+            accessibilityIdentifier: .logOutSpinnerAlertView,
             icon: .spinner,
             message: nil,
             buttons: []

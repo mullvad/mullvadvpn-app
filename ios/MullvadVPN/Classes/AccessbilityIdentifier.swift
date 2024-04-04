@@ -10,7 +10,11 @@ import UIKit
 
 public enum AccessibilityIdentifier: String {
     // Buttons
+    case addAccessMethodButton
+    case accessMethodAddButton
     case accountButton
+    case accessMethodUnreachableBackButton
+    case accessMethodUnreachableSaveButton
     case agreeButton
     case alertOkButton
     case applyButton
@@ -56,6 +60,7 @@ public enum AccessibilityIdentifier: String {
 
     // Cells
     case deviceCell
+    case accessMethodProtocolSelectionCell
     case vpnSettingsCell
     case dnsSettingsAddServerCell
     case dnsSettingsUseCustomDNSCell
@@ -83,8 +88,13 @@ public enum AccessibilityIdentifier: String {
     case customListLocationCell
 
     // Labels
-    case accountPagePaidUntilLabel
     case accountPageDeviceNameLabel
+    case socks5ServerCell
+    case socks5PortCell
+    case accountPagePaidUntilLabel
+    case addAccessMethodTestStatusReachableLabel
+    case addAccessMethodTestStatusTestingLabel
+    case addAccessMethodTestStatusUnreachableLabel
     case headerDeviceNameLabel
     case connectionStatusConnectedLabel
     case connectionStatusNotConnectedLabel
@@ -92,11 +102,17 @@ public enum AccessibilityIdentifier: String {
     case connectionPanelDetailLabel
 
     // Views
+    case accessMethodProtocolPickerView
+    case accessMethodUnreachableAlert
     case accountView
+    case addLocationsView
+    case addAccessMethodTableView
+    case apiAccessView
     case alertContainerView
     case alertTitle
     case changeLogAlert
     case deviceManagementView
+    case editAccessMethodView
     case headerBarView
     case loginView
     case outOfTimeView
@@ -120,17 +136,24 @@ public enum AccessibilityIdentifier: String {
     case editCustomListEditLocationsTableView
 
     // Other UI elements
+    case accessMethodEnableSwitch
+    case accessMethodNameTextField
+    case logOutSpinnerAlertView
     case connectionPanelInAddressRow
     case connectionPanelOutAddressRow
     case customSwitch
     case customWireGuardPortTextField
     case dnsContentBlockersHeaderView
     case dnsSettingsEnterIPAddressTextField
+    case loginStatusIconAuthenticating
+    case loginStatusIconFailure
+    case loginStatusIconSuccess
     case loginTextField
     case selectLocationSearchTextField
     case problemReportEmailTextField
     case problemReportMessageTextView
     case deleteAccountTextField
+    case socks5AuthenticationSwitch
 
     // DNS settings
     case dnsSettings

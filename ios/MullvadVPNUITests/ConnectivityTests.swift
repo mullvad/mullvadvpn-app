@@ -13,10 +13,6 @@ import XCTest
 class ConnectivityTests: LoggedOutUITestCase {
     let firewallAPIClient = FirewallAPIClient()
 
-    override func tearDownWithError() throws {
-        super.tearDown()
-    }
-
     /// Verifies that the app still functions when API has been blocked
     func testAPIConnectionViaBridges() throws {
         addTeardownBlock {
@@ -97,16 +93,117 @@ class ConnectivityTests: LoggedOutUITestCase {
 
         verifyDeviceHasBeenRemoved(deviceName: deviceName, accountNumber: hasTimeAccountNumber)
     }
-}
 
-private func verifyDeviceHasBeenRemoved(deviceName: String, accountNumber: String) {
-    do {
-        let devices = try MullvadAPIWrapper().getDevices(accountNumber)
+    // swiftlint:disable function_body_length
+    /// Test that the app is functioning when API is down. To simulate API being down we create a dummy access method
+    func testAppStillFunctioningWhenAPIDown() throws {
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
 
-        for device in devices where device.name == deviceName {
-            XCTFail("Device has not been removed which tells us that the logout was not successful")
+            SettingsPage(self.app)
+                .tapAPIAccessCell()
+
+            self.toggleAllAccessMethodsEnabledSwitchesIfOff()
         }
-    } catch {
-        XCTFail("Failed to get devices from app API")
+
+        // Setup. Create a dummy access method to simulate API being down(unreachable)
+        LoginPage(app)
+            .tapAccountNumberTextField()
+            .enterText(self.hasTimeAccountNumber)
+            .tapAccountNumberSubmitButton()
+
+        TunnelControlPage(app)
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapAPIAccessCell()
+
+        toggleAllAccessMethodsEnabledSwitches()
+
+        APIAccessPage(app)
+            .tapAddButton()
+
+        allowLocalNetworkAccessIfAsked()
+
+        AddAccessMethodPage(app)
+            .tapNameCell()
+            .enterText("Disable-access-dummy")
+            .tapTypeCell()
+            .tapSOCKS5TypeValueCell()
+            .tapServerCell()
+            .enterText("123.123.123.123")
+            .dismissKeyboard()
+            .tapPortCell()
+            .enterText("123")
+            .dismissKeyboard()
+            .tapAddButton()
+            .waitForAPIUnreachableLabel()
+
+        AddAccessMethodAPIUnreachableAlert(app)
+            .tapSaveButton()
+
+        SettingsPage(app)
+            .swipeDownToDismissModal()
+
+        // Actual test. Make sure it is possible to connect to a relay
+        TunnelControlPage(app)
+            .tapSecureConnectionButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForSecureConnectionLabel()
+
+        HeaderBar(app)
+            .tapAccountButton()
+
+        // Log out will take long because API cannot be reached
+        AccountPage(app)
+            .tapLogOutButton()
+            .waitForSpinnerNoLongerShown()
+
+        // Verify API cannot be reached by doing a login attempt which should fail
+        LoginPage(app)
+            .tapAccountNumberTextField()
+            .enterText(self.hasTimeAccountNumber)
+            .tapAccountNumberSubmitButton()
+            .verifyFailIconShown()
+    }
+
+    private func verifyDeviceHasBeenRemoved(deviceName: String, accountNumber: String) {
+        do {
+            let devices = try MullvadAPIWrapper().getDevices(accountNumber)
+
+            for device in devices where device.name == deviceName {
+                XCTFail("Device has not been removed which tells us that the logout was not successful")
+            }
+        } catch {
+            XCTFail("Failed to get devices from app API")
+        }
+    }
+
+    // swiftlint:enable function_body_length
+
+    /// Toggle enabled switch for all existing access methods. It is a precondition that the app is currently showing API access view.
+    private func toggleAllAccessMethodsEnabledSwitches() {
+        for cell in APIAccessPage(app).getAccessMethodCells() {
+            cell.tap()
+            EditAccessMethodPage(app)
+                .tapEnableMethodSwitch()
+                .tapBackButton()
+        }
+    }
+
+    /// Toggle enabled switch for all existing access methods if the switch is in off state. It is a precondition that the app is currently showing API access view.
+    private func toggleAllAccessMethodsEnabledSwitchesIfOff() {
+        for cell in APIAccessPage(app).getAccessMethodCells() {
+            cell.tap()
+            EditAccessMethodPage(app)
+                .tapEnableMethodSwitchIfOff()
+                .tapBackButton()
+        }
     }
 }
