@@ -283,15 +283,12 @@ extension LocationDataSource: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if let item = itemIdentifier(for: indexPath),
-           item == selectedItem {
-            cell.setSelected(true, animated: false)
+        if let item = itemIdentifier(for: indexPath), item == selectedItem {
+            tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
         }
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: false)
-
         guard let item = itemIdentifier(for: indexPath) else { return }
 
         var customListSelection: UserSelectedRelays.CustomListSelection?

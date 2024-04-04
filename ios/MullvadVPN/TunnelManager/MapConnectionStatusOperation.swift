@@ -50,27 +50,27 @@ class MapConnectionStatusOperation: AsyncOperation {
             fetchTunnelStatus(tunnel: tunnel) { observedState in
                 switch observedState {
                 case let .connected(connectionState):
-                    connectionState.isNetworkReachable
+                    return connectionState.isNetworkReachable
                         ? .connected(connectionState.selectedRelay)
                         : .waitingForConnectivity(.noConnection)
                 case let .connecting(connectionState):
-                    connectionState.isNetworkReachable
+                    return connectionState.isNetworkReachable
                         ? .connecting(connectionState.selectedRelay)
                         : .waitingForConnectivity(.noConnection)
                 #if DEBUG
                 case let .negotiatingKey(connectionState):
-                    connectionState.isNetworkReachable
+                    return connectionState.isNetworkReachable
                         ? .negotiatingKey(connectionState.selectedRelay)
                         : .waitingForConnectivity(.noConnection)
                 #endif
                 case let .reconnecting(connectionState):
-                    connectionState.isNetworkReachable
+                    return connectionState.isNetworkReachable
                         ? .reconnecting(connectionState.selectedRelay)
                         : .waitingForConnectivity(.noConnection)
                 case let .error(blockedState):
-                    .error(blockedState.reason)
+                    return .error(blockedState.reason)
                 case .initial, .disconnecting, .disconnected:
-                    .none
+                    return .none
                 }
             }
             return
