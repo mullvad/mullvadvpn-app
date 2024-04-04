@@ -189,7 +189,8 @@ impl ConnChecker {
         self.split = true;
 
         match TEST_CONFIG.os {
-            Os::Linux => { /* linux programs can't be split in the management interface until they are spawned */ }
+            Os::Linux => { /* linux programs can't be split in the management interface until they are spawned */
+            }
             Os::Windows | Os::Macos => {
                 self.mullvad_client
                     .add_split_tunnel_app(&self.executable_path)
