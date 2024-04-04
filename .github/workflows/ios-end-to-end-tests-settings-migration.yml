@@ -16,7 +16,7 @@ jobs:
     name: Settings migration end to end tests
     runs-on: [self-hosted, macOS, ios-test]
     env:
-      OLD_APP_COMMIT_HASH: fbd13034f2a7dadaa9a404bea62345bd8d65165b
+      OLD_APP_COMMIT_HASH: f741bf159d5719301e4d1fd099b3d353457532fd
     steps:
       - name: Configure Rust
         uses: actions-rs/toolchain@v1
