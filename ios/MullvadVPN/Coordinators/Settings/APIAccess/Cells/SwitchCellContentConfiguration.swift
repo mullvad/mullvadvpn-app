@@ -15,6 +15,8 @@ struct SwitchCellContentConfiguration: UIContentConfiguration, Equatable {
         var color = UIColor.Cell.titleTextColor
     }
 
+    var accessibilityIdentifier: AccessibilityIdentifier?
+
     /// Text label.
     var text: String?
 

@@ -24,6 +24,14 @@ class SettingsPage: Page {
         return self
     }
 
+    @discardableResult func tapAPIAccessCell() -> Self {
+        app
+            .cells[AccessibilityIdentifier.apiAccessCell]
+            .tap()
+
+        return self
+    }
+
     @discardableResult func tapVPNSettingsCell() -> Self {
         app.tables[AccessibilityIdentifier.settingsTableView]
             .cells[AccessibilityIdentifier.vpnSettingsCell]
