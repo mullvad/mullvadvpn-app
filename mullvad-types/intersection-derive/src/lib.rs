@@ -44,6 +44,12 @@ mod inner {
                 ));
             };
 
+            // TODO(Sebastian): Here, and in the `quote` below, we are referring to `Intersection`
+            // with its relative name, which will fail if the user renames the trait
+            // when importing, e.g. `use mullvad_types::Intersection as SomethingElse`.
+            // This is a know limitation of procural macros (declarative macros can use the `$crate`
+            // syntax). If the issue arises then it can be solve using the
+            // <https://crates.io/crates/proc-macro-crate> crate. Add it if necessary.
             field_conversions.append_all(quote! {
                 #name: Intersection::intersection(self.#name, other.#name)?,
             })
