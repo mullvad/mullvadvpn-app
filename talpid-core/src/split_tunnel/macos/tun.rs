@@ -770,15 +770,15 @@ impl PacketCodec for PktapCodec {
         // concurrency is needed). Allocating the frame here is purely done for efficiency reasons.
         let mut frame = MutableEthernetPacket::owned(vec![0u8; 14 + data.len() - 4]).unwrap();
 
-        let raw_family = i32::from_ne_bytes(data[0..4].try_into().unwrap());
-        let ethertype = match raw_family {
+        let (raw_family, payload) = data.split_first_chunk()?;
+        let ethertype = match i32::from_ne_bytes(*raw_family) {
             AF_INET => EtherTypes::Ipv4,
             AF_INET6 => EtherTypes::Ipv6,
             _ => return None,
         };
 
         frame.set_ethertype(ethertype);
-        frame.set_payload(&data[4..]);
+        frame.set_payload(payload);
 
         Some(PktapPacket {
             header: header.to_owned(),
