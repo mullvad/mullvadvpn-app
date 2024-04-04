@@ -235,7 +235,7 @@ impl RedirectHandle {
 
 /// Monitor outgoing traffic on `st_tun_device` using a pktap. A routing decision is
 /// made for each packet using `classify`. Based on this, a packet is forced out on either
-/// `default_interface` or `vpn_interface`.
+/// `default_interface` or `vpn_interface`, or dropped.
 ///
 /// # Note
 ///
@@ -260,7 +260,7 @@ async fn redirect_packets(
 
 /// Monitor outgoing traffic on `st_tun_device` using `pktap_stream`. A routing decision is made for
 /// each packet using `classify`. Based on this, a packet is forced out on either
-/// `default_interface` or `vpn_interface`.
+/// `default_interface` or `vpn_interface`, or dropped.
 ///
 /// # Note
 ///
