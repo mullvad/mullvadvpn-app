@@ -221,11 +221,6 @@ extension State.BlockingData {
     }
 }
 
-/// Target state the actor should transition into upon request to either start (connect) or reconnect.
-enum TargetStateForReconnect {
-    case reconnecting, connecting
-}
-
 /// Describes which relay the tunnel should connect to next.
 public enum NextRelay: Equatable, Codable {
     /// Select next relay randomly.

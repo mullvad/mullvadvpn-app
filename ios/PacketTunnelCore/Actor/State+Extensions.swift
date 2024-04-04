@@ -11,6 +11,11 @@ import MullvadTypes
 import WireGuardKitTypes
 
 extension State {
+    /// Target state the actor should transition into upon request to either start (connect) or reconnect.
+    enum TargetStateForReconnect {
+        case reconnecting, connecting
+    }
+
     /// Returns the target state to which the actor state should transition when requested to reconnect.
     /// It returns `nil` when reconnection is not supported such as when already `.disconnecting` or `.disconnected` states.
     var targetStateForReconnect: TargetStateForReconnect? {
