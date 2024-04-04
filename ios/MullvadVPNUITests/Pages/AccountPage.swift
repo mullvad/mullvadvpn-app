@@ -68,7 +68,12 @@ class AccountPage: Page {
         }
 
         XCTAssertEqual(strippedDate, paidUntilLabelDate)
+        return self
+    }
 
+    @discardableResult func waitForSpinnerNoLongerShown() -> Self {
+        app.otherElements[AccessibilityIdentifier.logOutSpinnerAlertView]
+            .waitForNonExistence(timeout: BaseUITestCase.veryLongTimeout)
         return self
     }
 }
