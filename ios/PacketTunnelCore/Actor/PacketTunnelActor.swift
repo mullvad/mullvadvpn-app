@@ -124,6 +124,16 @@ public actor PacketTunnelActor {
 // MARK: -
 
 extension PacketTunnelActor {
+    /// Describes the reason for reconnection request.
+    enum ReconnectReason {
+        /// Initiated by user.
+        case userInitiated
+
+        /// Initiated by tunnel monitor due to loss of connectivity.
+        /// Actor will increment the connection attempt counter before picking next relay.
+        case connectionLoss
+    }
+
     /**
      Start the tunnel.
 
