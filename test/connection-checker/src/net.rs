@@ -31,15 +31,20 @@ pub fn send_tcp(opt: &Opt, destination: SocketAddr) -> eyre::Result<()> {
     sock.connect_timeout(&socket2::SockAddr::from(destination), timeout)
         .wrap_err(eyre!("Failed to connect to {destination}"))?;
 
+    let payload = opt
+        .payload
+        .as_ref()
+        .map(String::as_bytes)
+        .unwrap_or(PAYLOAD);
     let mut stream = std::net::TcpStream::from(sock);
     stream
-        .write_all(PAYLOAD)
+        .write_all(payload)
         .wrap_err(eyre!("Failed to send message to {destination}"))?;
 
     Ok(())
 }
 
-pub fn send_udp(_opt: &Opt, destination: SocketAddr) -> Result<(), eyre::Error> {
+pub fn send_udp(opt: &Opt, destination: SocketAddr) -> Result<(), eyre::Error> {
     let bind_addr: SocketAddr = SocketAddr::new(Ipv4Addr::new(0, 0, 0, 0).into(), 0);
 
     eprintln!("Leaking UDP packets to {destination}");
@@ -54,11 +59,15 @@ pub fn send_udp(_opt: &Opt, destination: SocketAddr) -> Result<(), eyre::Error> 
     sock.bind(&socket2::SockAddr::from(bind_addr))
         .wrap_err(eyre!("Failed to bind UDP socket to {bind_addr}"))?;
 
-    //log::debug!("Send message from {bind_addr} to {destination}/UDP");
+    let payload = opt
+        .payload
+        .as_ref()
+        .map(String::as_bytes)
+        .unwrap_or(PAYLOAD);
 
     let std_socket = std::net::UdpSocket::from(sock);
     std_socket
-        .send_to(PAYLOAD, destination)
+        .send_to(payload, destination)
         .wrap_err(eyre!("Failed to send message to {destination}"))?;
 
     Ok(())

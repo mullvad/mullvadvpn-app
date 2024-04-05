@@ -715,6 +715,9 @@ pub struct ConnChecker {
 
     /// Whether the process should be split when spawned. Needed on Linux.
     split: bool,
+
+    /// Some arbitrary payload
+    payload: Option<String>,
 }
 
 pub struct ConnCheckerHandle<'a> {
@@ -756,7 +759,13 @@ impl ConnChecker {
             leak_destination,
             split: false,
             executable_path,
+            payload: None,
         }
+    }
+
+    /// Set a custom magic payload that the connection checker binary should use when leak-testing.
+    pub fn payload(&mut self, payload: impl Into<String>) {
+        self.payload = Some(payload.into())
     }
 
     /// Spawn the connecton checker process and return a handle to it.
@@ -766,18 +775,14 @@ impl ConnChecker {
     pub async fn spawn(&mut self) -> anyhow::Result<ConnCheckerHandle<'_>> {
         log::debug!("spawning connection checker");
 
-        let opts = SpawnOpts {
-            attach_stdin: true,
-            attach_stdout: true,
-            args: [
+        let opts = {
+            let mut args = [
                 "--interactive",
                 "--timeout",
                 &AM_I_MULLVAD_TIMEOUT_MS.to_string(),
                 // try to leak traffic to LEAK_DESTINATION
                 "--leak",
                 &self.leak_destination.to_string(),
-                //TODO(markus): Remove
-                //&LEAK_DESTINATION.to_string(),
                 "--leak-timeout",
                 &LEAK_TIMEOUT_MS.to_string(),
                 "--leak-tcp",
@@ -785,8 +790,19 @@ impl ConnChecker {
                 "--leak-icmp",
             ]
             .map(String::from)
-            .to_vec(),
-            ..SpawnOpts::new(&self.executable_path)
+            .to_vec();
+
+            if let Some(payload) = &self.payload {
+                args.push("--payload".to_string());
+                args.push(payload.clone());
+            };
+
+            SpawnOpts {
+                attach_stdin: true,
+                attach_stdout: true,
+                args,
+                ..SpawnOpts::new(&self.executable_path)
+            }
         };
 
         let pid = self.rpc.spawn(opts).await?;
