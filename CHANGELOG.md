@@ -46,6 +46,12 @@ Line wrap the file at 100 chars.                                              Th
 - Fix incorrectly showing "App lost contact with system service" notification on suspend.
 
 
+## [android/2024.1] - 2024-04-05
+### Fixed
+#### Android
+- Fix 3D map animation distance calculation.
+
+
 ## [2024.1] - 2024-03-21
 ### Fixed
 - Fix map scaling issues when changing display scale settings and when running under Wayland on
