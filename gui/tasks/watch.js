@@ -20,7 +20,10 @@ function watchHtml() {
 }
 
 function watchStaticAssets() {
-  return watch(['assets/**'], series(assets.copyStaticAssets, electron.reloadRenderer));
+  return watch(
+    ['assets/**', '../dist-assets/geo/*.gl'],
+    series(assets.copyStaticAssets, assets.copyGeoData, electron.reloadRenderer),
+  );
 }
 
 watchMainScripts.displayName = 'watch-main-scripts';
