@@ -153,8 +153,9 @@ impl Codec {
     }
 }
 
-#[derive(Debug)]
-pub struct MonitorUnexpectedlyStopped(());
+#[derive(Debug, thiserror::Error)]
+#[error("Packet monitor stopped unexpectedly")]
+pub struct MonitorUnexpectedlyStopped;
 
 pub struct PacketMonitor {
     handle: tokio::task::JoinHandle<Result<MonitorResult, MonitorUnexpectedlyStopped>>,
@@ -306,7 +307,7 @@ async fn start_packet_monitor_for_interface(
                         }
                         _ => {
                             log::error!("lost packet stream");
-                            break Err(MonitorUnexpectedlyStopped(()));
+                            break Err(MonitorUnexpectedlyStopped);
                         }
                     }
                 }

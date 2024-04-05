@@ -823,7 +823,7 @@ pub async fn test_mul_02_002(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), anyhow::Error> {
+) -> anyhow::Result<()> {
     // Step 0 - Disconnect from any active tunnel connection
     helpers::disconnect_and_wait(&mut mullvad_client).await?;
     // Step 1 - Choose a relay
@@ -878,7 +878,7 @@ pub async fn test_mul_02_002(
     let rogue_packet_monitor =
         start_packet_monitor(identify_rogue_packet, MonitorOptions::default()).await;
     conn_artist.check_connection().await?;
-    let monitor_result = rogue_packet_monitor.into_result().await.unwrap();
+    let monitor_result = rogue_packet_monitor.into_result().await?;
 
     log::info!("Checking that the identifiable payload was not detected");
     ensure!(
