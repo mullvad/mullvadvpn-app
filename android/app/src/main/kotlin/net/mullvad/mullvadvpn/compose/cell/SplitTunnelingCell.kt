@@ -28,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
+import net.mullvad.mullvadvpn.compose.util.isBelowMaxBitmapSize
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha40
@@ -75,7 +76,9 @@ fun SplitTunnelingCell(
     LaunchedEffect(packageName) {
         launch(Dispatchers.IO) {
             val bitmap = onResolveIcon(packageName ?: "")
-            icon = bitmap?.asImageBitmap()
+            if (bitmap != null && bitmap.isBelowMaxBitmapSize()) {
+                icon = bitmap.asImageBitmap()
+            }
         }
     }
     BaseCell(

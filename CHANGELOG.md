@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 #### Android
 - Fix 3D map animation distance calculation.
+- Fix crash in Split Tunneling screen caused by apps provding icons bigger than 100MB.
 
 
 ## [android/2024.1-beta1] - 2024-03-18
