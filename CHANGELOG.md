@@ -37,6 +37,12 @@ Line wrap the file at 100 chars.                                              Th
 - Fix daemon rotating logs on startup even if another daemon is already running.
 
 
+## [android/2024.1] - 2024-04-05
+### Fixed
+#### Android
+- Fix 3D map animation distance calculation.
+
+
 ## [android/2024.1-beta1] - 2024-03-18
 ### Added
 #### Android
