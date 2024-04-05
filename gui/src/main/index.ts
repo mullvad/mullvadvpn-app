@@ -767,15 +767,13 @@ class ApplicationMain
     }));
 
     IpcMainEventChannel.map.handleGetData(async () => ({
-      landContourIndices: await fs.promises.readFile(
-        path.join(GEO_DIR, 'land_contour_indices.bin'),
-      ),
-      landPositions: await fs.promises.readFile(path.join(GEO_DIR, 'land_positions.bin')),
+      landContourIndices: await fs.promises.readFile(path.join(GEO_DIR, 'land_contour_indices.gl')),
+      landPositions: await fs.promises.readFile(path.join(GEO_DIR, 'land_positions.gl')),
       landTriangleIndices: await fs.promises.readFile(
-        path.join(GEO_DIR, 'land_triangle_indices.bin'),
+        path.join(GEO_DIR, 'land_triangle_indices.gl'),
       ),
-      oceanIndices: await fs.promises.readFile(path.join(GEO_DIR, 'ocean_indices.bin')),
-      oceanPositions: await fs.promises.readFile(path.join(GEO_DIR, 'ocean_positions.bin')),
+      oceanIndices: await fs.promises.readFile(path.join(GEO_DIR, 'ocean_indices.gl')),
+      oceanPositions: await fs.promises.readFile(path.join(GEO_DIR, 'ocean_positions.gl')),
     }));
 
     IpcMainEventChannel.tunnel.handleConnect(this.connectTunnel);
