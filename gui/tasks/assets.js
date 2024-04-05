@@ -20,14 +20,20 @@ function copyLocales() {
   return src('locales/**/*.po').pipe(dest('build/locales'));
 }
 
+function copyGeoData() {
+  return src('../dist-assets/geo/*.gl').pipe(dest('build/assets/geo'));
+}
+
 copyStaticAssets.displayName = 'copy-static-assets';
 copyConfig.displayName = 'copy-config';
 copyCss.displayName = 'copy-css';
 copyHtml.displayName = 'copy-html';
 copyLocales.displayName = 'copy-locales';
+copyGeoData.displayName = 'copy-geo-data';
 
-exports.copyAll = parallel(copyStaticAssets, copyConfig, copyCss, copyHtml, copyLocales);
+exports.copyAll = parallel(copyStaticAssets, copyConfig, copyCss, copyHtml, copyLocales, copyGeoData);
 exports.copyStaticAssets = copyStaticAssets;
 exports.copyCss = copyCss;
 exports.copyHtml = copyHtml;
 exports.copyConfig = copyConfig;
+exports.copyGeoData = copyGeoData;
