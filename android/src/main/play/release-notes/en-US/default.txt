@@ -1,4 +1,4 @@
-Migrate obfuscation settings for existing users from `off` to `auto`.
+Migrate obfuscation settings for existing users from "off" to "auto".
 Add 3D map to the connect screen.
 Add support for all screen orientations.
 Add possibility to filter locations by provider.
