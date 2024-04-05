@@ -23,7 +23,7 @@ on:
     - cron: '0 0 * * *'
 jobs:
   test:
-    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
+    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     name: End to end tests
     runs-on: [self-hosted, macOS, ios-test]
     steps:
