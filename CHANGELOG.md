@@ -52,6 +52,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix pointless API access method rotations for concurrent requests.
 - Fix daemon rotating logs on startup even if another daemon is already running.
 
+#### Android
+
+- Fix crash in Split Tunneling screen caused by apps provding icons bigger than 100MB.
+
 ### Security
 #### Android
 - Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
