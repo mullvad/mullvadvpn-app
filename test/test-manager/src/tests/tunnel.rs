@@ -827,15 +827,13 @@ pub async fn test_mul_02_002(
     // Step 0 - Disconnect from any active tunnel connection
     helpers::disconnect_and_wait(&mut mullvad_client).await?;
     // Step 1 - Choose a relay
-    let relay_constraints = RelayQueryBuilder::new()
-        .openvpn()
-        .transport_protocol(TransportProtocol::Tcp)
-        .port(443)
-        .into_constraint();
-
-    set_relay_settings(
+    helpers::constrain_to_relay(
         &mut mullvad_client,
-        RelaySettings::Normal(relay_constraints),
+        RelayQueryBuilder::new()
+            .openvpn()
+            .transport_protocol(TransportProtocol::Tcp)
+            .port(443)
+            .build(),
     )
     .await?;
 
@@ -845,7 +843,7 @@ pub async fn test_mul_02_002(
         bail!("Expected tunnel state to be `Connected` - instead it was {tunnel_state:?}");
     };
     helpers::disconnect_and_wait(&mut mullvad_client).await?;
-    let gateway = endpoint.endpoint.address;
+    let target_endpoint = endpoint.endpoint.address;
 
     // Step 2 - Start a network monitor snooping the outbound network interface for some
     // identifiable payload
@@ -862,7 +860,7 @@ pub async fn test_mul_02_002(
         start_packet_monitor(identify_rogue_packet, MonitorOptions::default()).await;
 
     // Step 3 - Start the rogue program which will try to leak traffic to the chosen relay endpoint
-    let mut checker = ConnChecker::new(rpc.clone(), mullvad_client.clone(), gateway);
+    let mut checker = ConnChecker::new(rpc.clone(), mullvad_client.clone(), target_endpoint);
     let mut conn_artist = checker.spawn().await?;
     // Before proceeding, assert that the method of detecting identifiable packets work.
     conn_artist.check_connection().await?;

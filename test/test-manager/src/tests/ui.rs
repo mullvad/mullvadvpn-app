@@ -2,8 +2,7 @@ use super::config::TEST_CONFIG;
 use super::helpers;
 use super::{Error, TestContext};
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::relay_constraints::{RelayConstraints, RelaySettings};
-use mullvad_types::relay_list::{Relay, RelayEndpointData};
+use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use std::{
     collections::BTreeMap,
     fmt::Debug,
@@ -85,25 +84,14 @@ pub async fn test_ui_tunnel_settings(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     // tunnel-state.spec precondition: a single WireGuard relay should be selected
     log::info!("Select WireGuard relay");
-    let entry = helpers::filter_relays(&mut mullvad_client, |relay: &Relay| {
-        relay.active && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-    })
-    .await?
-    .pop()
-    .unwrap();
-
-    // The test expects us to be disconnected and logged in but to have a specific relay selected
-    let relay_settings = RelaySettings::Normal(RelayConstraints {
-        location: helpers::into_constraint(&entry),
-        ..Default::default()
-    });
-
-    helpers::set_relay_settings(&mut mullvad_client, relay_settings)
-        .await
-        .expect("failed to update relay settings");
+    let entry = helpers::constrain_to_relay(
+        &mut mullvad_client,
+        RelayQueryBuilder::new().wireguard().build(),
+    )
+    .await?;
 
     let ui_result = run_test_env(
         &rpc,
