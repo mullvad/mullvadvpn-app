@@ -22,7 +22,7 @@ private enum CellReuseIdentifier: String, CaseIterable, CellIdentifierProtocol {
 
     var cellClass: AnyClass {
         switch self {
-        case .default: BasicCell.self
+        default: BasicCell.self
         }
     }
 }
@@ -34,6 +34,21 @@ class ListCustomListViewController: UIViewController {
     private var dataSource: DataSource?
     private var fetchedItems: [CustomList] = []
     private var tableView = UITableView(frame: .zero, style: .plain)
+
+    private let emptyListLabel: UILabel = {
+        let textLabel = UILabel()
+        textLabel.font = .preferredFont(forTextStyle: .title2)
+        textLabel.textColor = .secondaryTextColor
+        textLabel.textAlignment = .center
+        textLabel.numberOfLines = .zero
+        textLabel.lineBreakStrategy = []
+        textLabel.text = NSLocalizedString(
+            "CustomList",
+            value: "No custom list to display",
+            comment: ""
+        )
+        return textLabel
+    }()
 
     var didSelectItem: ((CustomList) -> Void)?
     var didFinish: (() -> Void)?
@@ -60,7 +75,7 @@ class ListCustomListViewController: UIViewController {
 
     func updateDataSource(reloadExisting: Bool, animated: Bool = true) {
         fetchedItems = interactor.fetchAll()
-
+        tableView.backgroundView = fetchedItems.isEmpty ? emptyListLabel : nil
         var snapshot = NSDiffableDataSourceSnapshot<SectionIdentifier, ItemIdentifier>()
         snapshot.appendSections([.default])
 
@@ -87,9 +102,8 @@ class ListCustomListViewController: UIViewController {
         tableView.backgroundColor = .secondaryColor
         tableView.separatorColor = .secondaryColor
         tableView.separatorInset = .zero
-        tableView.contentInset.top = 16
+        tableView.separatorStyle = .singleLine
         tableView.rowHeight = UIMetrics.SettingsCell.customListsCellHeight
-
         tableView.registerReusableViews(from: CellReuseIdentifier.self)
     }
 
@@ -126,7 +140,6 @@ class ListCustomListViewController: UIViewController {
     ) -> UITableViewCell {
         let cell = tableView.dequeueReusableView(withIdentifier: CellReuseIdentifier.default, for: indexPath)
         let item = fetchedItems[indexPath.row]
-
         var contentConfiguration = ListCellContentConfiguration()
         contentConfiguration.text = item.name
         cell.contentConfiguration = contentConfiguration
@@ -138,7 +151,6 @@ class ListCustomListViewController: UIViewController {
         if let cell = cell as? CustomCellDisclosureHandling {
             cell.disclosureType = .chevron
         }
-
         return cell
     }
 }

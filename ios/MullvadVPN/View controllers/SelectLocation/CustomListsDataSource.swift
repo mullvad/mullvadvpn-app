@@ -26,17 +26,9 @@ class CustomListsDataSource: LocationDataSourceProtocol {
     /// Constructs a collection of node trees by copying each matching counterpart
     /// from the complete list of nodes created in ``AllLocationDataSource``.
     func reload(allLocationNodes: [LocationNode], isFiltered: Bool) {
-        nodes = repository.fetchAll().compactMap { customList in
-            let listNode = CustomListLocationNode(
-                name: customList.name,
-                code: customList.name.lowercased(),
-                locations: customList.locations,
-                customList: customList
-            )
-
-            listNode.children = customList.locations.compactMap { location in
-                copy(location, from: allLocationNodes, withParent: listNode)
-            }
+        nodes = repository.fetchAll().compactMap { list in
+            let customListWrapper = CustomListLocationNodeBuilder(customList: list, allLocations: allLocationNodes)
+            let listNode = customListWrapper.customListLocationNode
 
             listNode.forEachDescendant { node in
                 // Each item in a section in a diffable data source needs to be unique.
@@ -73,33 +65,5 @@ class CustomListsDataSource: LocationDataSourceProtocol {
 
     func customList(by id: UUID) -> CustomList? {
         repository.fetch(by: id)
-    }
-
-    private func copy(
-        _ location: RelayLocation,
-        from allLocationNodes: [LocationNode],
-        withParent parentNode: LocationNode
-    ) -> LocationNode? {
-        let rootNode = RootLocationNode(children: allLocationNodes)
-
-        return switch location {
-        case let .country(countryCode):
-            rootNode
-                .countryFor(code: countryCode)?
-                .copy(withParent: parentNode)
-
-        case let .city(countryCode, cityCode):
-            rootNode
-                .countryFor(code: countryCode)?
-                .cityFor(codes: [countryCode, cityCode])?
-                .copy(withParent: parentNode)
-
-        case let .hostname(countryCode, cityCode, hostCode):
-            rootNode
-                .countryFor(code: countryCode)?
-                .cityFor(codes: [countryCode, cityCode])?
-                .hostFor(code: hostCode)?
-                .copy(withParent: parentNode)
-        }
     }
 }

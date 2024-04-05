@@ -9,7 +9,8 @@
 import UIKit
 
 protocol LocationCellDelegate: AnyObject {
-    func toggle(cell: LocationCell)
+    func toggleExpanding(cell: LocationCell)
+    func toggleSelecting(cell: LocationCell)
 }
 
 class LocationCell: UITableViewCell {
@@ -38,6 +39,14 @@ class LocationCell: UITableViewCell {
         return imageView
     }()
 
+    private let checkboxButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(systemName: "checkmark.square.fill"), for: .selected)
+        button.setImage(UIImage(systemName: "square"), for: .normal)
+        button.tintColor = .white
+        return button
+    }()
+
     private let collapseButton: UIButton = {
         let button = UIButton(type: .custom)
         button.accessibilityIdentifier = .collapseButton
@@ -46,6 +55,16 @@ class LocationCell: UITableViewCell {
         return button
     }()
 
+    private var locationLabelLeadingMargin: CGFloat {
+        switch behavior {
+        case .add:
+            0
+        case .select:
+            12
+        }
+    }
+
+    private var behavior: LocationCellBehavior = .select
     private let chevronDown = UIImage(resource: .iconChevronDown)
     private let chevronUp = UIImage(resource: .iconChevronUp)
 
@@ -106,7 +125,7 @@ class LocationCell: UITableViewCell {
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
-        updateTickImage()
+        updateLeadingImage()
         updateStatusIndicatorColor()
     }
 
@@ -122,6 +141,7 @@ class LocationCell: UITableViewCell {
         selectedBackgroundView = UIView()
         selectedBackgroundView?.backgroundColor = UIColor.Cell.Background.selected
 
+        checkboxButton.addTarget(self, action: #selector(toggleCheckboxButton(_:)), for: .touchUpInside)
         collapseButton.addTarget(self, action: #selector(handleCollapseButton(_:)), for: .touchUpInside)
 
         [locationLabel, tickImageView, statusIndicator, collapseButton].forEach { subview in
@@ -135,38 +155,53 @@ class LocationCell: UITableViewCell {
         updateBackgroundColor()
         setLayoutMargins()
 
-        NSLayoutConstraint.activate([
-            tickImageView.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
-            tickImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+        contentView.addConstrainedSubviews([
+            tickImageView,
+            statusIndicator,
+            locationLabel,
+            collapseButton,
+            checkboxButton,
+        ]) {
+            tickImageView.pinEdgesToSuperviewMargins(PinnableEdges([.leading(0)]))
+            tickImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
 
-            statusIndicator.widthAnchor.constraint(equalToConstant: 16),
-            statusIndicator.heightAnchor.constraint(equalTo: statusIndicator.widthAnchor),
-            statusIndicator.centerXAnchor.constraint(equalTo: tickImageView.centerXAnchor),
-            statusIndicator.centerYAnchor.constraint(equalTo: tickImageView.centerYAnchor),
+            statusIndicator.widthAnchor.constraint(equalToConstant: 16)
+            statusIndicator.heightAnchor.constraint(equalTo: statusIndicator.widthAnchor)
+            statusIndicator.centerXAnchor.constraint(equalTo: tickImageView.centerXAnchor)
+            statusIndicator.centerYAnchor.constraint(equalTo: tickImageView.centerYAnchor)
 
+            checkboxButton.pinEdgesToSuperview(PinnableEdges([.top(0), .bottom(0)]))
+            checkboxButton.trailingAnchor.constraint(equalTo: locationLabel.leadingAnchor, constant: 14)
+            checkboxButton.widthAnchor.constraint(
+                equalToConstant: UIMetrics.contentLayoutMargins.leading + UIMetrics.contentLayoutMargins.trailing + 24
+            )
+
+            locationLabel.pinEdgesToSuperviewMargins(PinnableEdges([.top(0), .bottom(0)]))
             locationLabel.leadingAnchor.constraint(
                 equalTo: statusIndicator.trailingAnchor,
-                constant: 12
-            ),
+                constant: locationLabelLeadingMargin
+            )
             locationLabel.trailingAnchor.constraint(lessThanOrEqualTo: collapseButton.leadingAnchor)
-                .withPriority(.defaultHigh),
-            locationLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
-            locationLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
+                .withPriority(.defaultHigh)
 
-            collapseButton.widthAnchor
-                .constraint(
-                    equalToConstant: UIMetrics.contentLayoutMargins.leading + UIMetrics
-                        .contentLayoutMargins.trailing + 24
-                ),
-            collapseButton.topAnchor.constraint(equalTo: contentView.topAnchor),
-            collapseButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            collapseButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-        ])
+            collapseButton.widthAnchor.constraint(
+                equalToConstant: UIMetrics.contentLayoutMargins.leading + UIMetrics.contentLayoutMargins.trailing + 24
+            )
+            collapseButton.pinEdgesToSuperview(.all().excluding(.leading))
+        }
     }
 
-    private func updateTickImage() {
-        statusIndicator.isHidden = isSelected
-        tickImageView.isHidden = !isSelected
+    private func updateLeadingImage() {
+        switch behavior {
+        case .add:
+            checkboxButton.isHidden = false
+            statusIndicator.isHidden = true
+            tickImageView.isHidden = true
+        case .select:
+            checkboxButton.isHidden = true
+            statusIndicator.isHidden = isSelected
+            tickImageView.isHidden = !isSelected
+        }
     }
 
     private func updateStatusIndicatorColor() {
@@ -221,11 +256,11 @@ class LocationCell: UITableViewCell {
     }
 
     @objc private func handleCollapseButton(_ sender: UIControl) {
-        delegate?.toggle(cell: self)
+        delegate?.toggleExpanding(cell: self)
     }
 
     @objc private func toggleCollapseAccessibilityAction() -> Bool {
-        delegate?.toggle(cell: self)
+        delegate?.toggleExpanding(cell: self)
         return true
     }
 
@@ -262,13 +297,32 @@ class LocationCell: UITableViewCell {
             accessibilityCustomActions = nil
         }
     }
+
+    @objc private func toggleCheckboxButton(_ sender: UIControl) {
+        delegate?.toggleSelecting(cell: self)
+    }
 }
 
 extension LocationCell {
-    func configureCell(item: LocationCellViewModel) {
+    enum LocationCellBehavior {
+        case add
+        case select
+    }
+
+    func configure(item: LocationCellViewModel, behavior: LocationCellBehavior) {
         accessibilityIdentifier = item.node.code
+        isDisabled = !item.node.isActive
         locationLabel.text = item.node.name
         showsCollapseControl = !item.node.children.isEmpty
         isExpanded = item.node.showsChildren
+        checkboxButton.isSelected = item.isSelected
+        checkboxButton.tintColor = item.isSelected ? .successColor : .white
+
+        setBehavior(behavior)
+    }
+
+    private func setBehavior(_ newBehavior: LocationCellBehavior) {
+        self.behavior = newBehavior
+        updateLeadingImage()
     }
 }

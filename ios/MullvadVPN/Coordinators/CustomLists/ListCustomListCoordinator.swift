@@ -16,47 +16,52 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
     let interactor: CustomListInteractorProtocol
     let tunnelManager: TunnelManager
     let listViewController: ListCustomListViewController
+    let nodes: [LocationNode]
 
     var presentedViewController: UIViewController {
         navigationController
     }
 
-    var didFinish: (() -> Void)?
+    var didFinish: ((ListCustomListCoordinator) -> Void)?
 
     init(
         navigationController: UINavigationController,
         interactor: CustomListInteractorProtocol,
-        tunnelManager: TunnelManager
+        tunnelManager: TunnelManager,
+        nodes: [LocationNode]
     ) {
         self.navigationController = navigationController
         self.interactor = interactor
         self.tunnelManager = tunnelManager
+        self.nodes = nodes
 
         listViewController = ListCustomListViewController(interactor: interactor)
     }
 
     func start() {
-        listViewController.didFinish = didFinish
-        listViewController.didSelectItem = {
-            self.edit(list: $0)
+        listViewController.didFinish = { [weak self] in
+            guard let self else { return }
+            didFinish?(self)
+        }
+        listViewController.didSelectItem = { [weak self] in
+            self?.edit(list: $0)
         }
 
         navigationController.pushViewController(listViewController, animated: false)
     }
 
     private func edit(list: CustomList) {
-        // Remove previous edit coordinator to prevent accumulation.
-        childCoordinators.filter { $0 is EditCustomListCoordinator }.forEach { $0.removeFromParent() }
-
         let coordinator = EditCustomListCoordinator(
             navigationController: navigationController,
             customListInteractor: interactor,
-            customList: list
+            customList: list,
+            nodes: nodes
         )
 
-        coordinator.didFinish = { action, list in
-            self.popToList()
-            coordinator.removeFromParent()
+        coordinator.didFinish = { [weak self] editCustomListCoordinator, action, list in
+            guard let self else { return }
+            popToList()
+            editCustomListCoordinator.removeFromParent()
 
             self.updateRelayConstraints(for: action, in: list)
             self.listViewController.updateDataSource(reloadExisting: action == .save)
@@ -86,8 +91,8 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
             relayConstraints.locations = .only(UserSelectedRelays(locations: []))
         }
 
-        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
-            self.tunnelManager.startTunnel()
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) { [weak self] in
+            self?.tunnelManager.reconnectTunnel(selectNewRelay: true)
         }
     }
 
