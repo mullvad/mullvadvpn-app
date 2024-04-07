@@ -9,7 +9,7 @@
 import UIKit
 
 /// Custom navigation controller that applies the custom appearance to itself.
-class CustomNavigationController: UINavigationController {
+class CustomNavigationController: InterceptibleNavigationController {
     override var childForStatusBarHidden: UIViewController? {
         topViewController
     }

@@ -6,6 +6,7 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+import Combine
 import MullvadSettings
 import MullvadTypes
 import Routing
@@ -14,9 +15,9 @@ import UIKit
 class AddLocationsCoordinator: Coordinator, Presentable, Presenting {
     private let navigationController: UINavigationController
     private let nodes: [LocationNode]
-    private var customList: CustomList
+    private var subject: CurrentValueSubject<CustomListViewModel, Never>
 
-    var didFinish: ((AddLocationsCoordinator, CustomList) -> Void)?
+    var didFinish: ((AddLocationsCoordinator) -> Void)?
 
     var presentedViewController: UIViewController {
         navigationController
@@ -25,17 +26,17 @@ class AddLocationsCoordinator: Coordinator, Presentable, Presenting {
     init(
         navigationController: UINavigationController,
         nodes: [LocationNode],
-        customList: CustomList
+        subject: CurrentValueSubject<CustomListViewModel, Never>
     ) {
         self.navigationController = navigationController
         self.nodes = nodes
-        self.customList = customList
+        self.subject = subject
     }
 
     func start() {
         let controller = AddLocationsViewController(
             allLocationsNodes: nodes,
-            customList: customList
+            subject: subject
         )
         controller.delegate = self
 
@@ -51,11 +52,7 @@ class AddLocationsCoordinator: Coordinator, Presentable, Presenting {
 }
 
 extension AddLocationsCoordinator: AddLocationsViewControllerDelegate {
-    func didUpdateSelectedLocations(locations: [RelayLocation]) {
-        customList.locations = locations
-    }
-
     func didBack() {
-        didFinish?(self, customList)
+        didFinish?(self)
     }
 }

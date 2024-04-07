@@ -27,6 +27,13 @@ class CustomListViewController: UIViewController {
     private let alertPresenter: AlertPresenter
     private var validationErrors: Set<CustomListFieldValidationError> = []
 
+    private var customListHasUnsavedChanges: Bool {
+        guard let customList = interactor.fetchAll().first(where: { $0.id == subject.value.id }) else {
+            return false
+        }
+        return customList != subject.value.customList
+    }
+
     private lazy var cellConfiguration: CustomListCellConfiguration = {
         CustomListCellConfiguration(tableView: tableView, subject: subject)
     }()
@@ -91,7 +98,35 @@ class CustomListViewController: UIViewController {
     }
 
     private func configureNavigationItem() {
+        if let navigationController = navigationController as? InterceptibleNavigationController {
+            interceptNavigation(navigationController)
+        }
+
         navigationItem.rightBarButtonItem = saveBarButton
+    }
+
+    private func interceptNavigation(_ navigationController: InterceptibleNavigationController) {
+        navigationController.shouldPopViewController = { [weak self] viewController in
+            guard
+                let self,
+                viewController is Self,
+                customListHasUnsavedChanges
+            else { return true }
+
+            self.onUnsavedChanges()
+            return false
+        }
+
+        navigationController.shouldPopToViewController = { [weak self] viewController in
+            guard
+                let self,
+                viewController is ListCustomListViewController,
+                customListHasUnsavedChanges
+            else { return true }
+
+            self.onUnsavedChanges()
+            return false
+        }
     }
 
     private func configureTableView() {
@@ -186,6 +221,53 @@ class CustomListViewController: UIViewController {
                         "CUSTOM_LISTS_CANCEL_BUTTON",
                         tableName: "CustomLists",
                         value: "Cancel",
+                        comment: ""
+                    ),
+                    style: .default
+                ),
+            ]
+        )
+
+        alertPresenter.showAlert(presentation: presentation, animated: true)
+    }
+
+    @objc private func onUnsavedChanges() {
+        let message = NSMutableAttributedString(
+            markdownString: NSLocalizedString(
+                "CUSTOM_LISTS_UNSAVED_CHANGES_PROMPT",
+                tableName: "CustomLists",
+                value: "You have unsaved changes.",
+                comment: ""
+            ),
+            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
+        )
+
+        let presentation = AlertPresentation(
+            id: "api-custom-lists-unsaved-changes-alert",
+            icon: .alert,
+            attributedMessage: message,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "CUSTOM_LISTS_DISCARD_CHANGES_BUTTON",
+                        tableName: "CustomLists",
+                        value: "Discard changes",
+                        comment: ""
+                    ),
+                    style: .destructive,
+                    handler: {
+                        // Reset subject/view model to no longer having unsaved changes.
+                        if let list = self.interactor.fetchAll().first(where: { $0.id == self.subject.value.id }) {
+                            self.subject.value.update(with: list)
+                        }
+                        self.delegate?.customListDidSave(self.subject.value.customList)
+                    }
+                ),
+                AlertAction(
+                    title: NSLocalizedString(
+                        "CUSTOM_LISTS_BACK_TO_EDITING_BUTTON",
+                        tableName: "CustomLists",
+                        value: "Back to editing",
                         comment: ""
                     ),
                     style: .default
