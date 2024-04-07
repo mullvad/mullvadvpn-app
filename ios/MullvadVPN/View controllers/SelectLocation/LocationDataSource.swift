@@ -71,7 +71,7 @@ final class LocationDataSource:
         filterRelays(by: currentSearchString)
     }
 
-    func filterRelays(by searchString: String, scrollToSelected: Bool = true) {
+    func filterRelays(by searchString: String) {
         currentSearchString = searchString
 
         let list = sections.enumerated().map { index, section in
@@ -84,11 +84,6 @@ final class LocationDataSource:
         }
 
         updateDataSnapshot(with: list, reloadExisting: !searchString.isEmpty) {
-            guard scrollToSelected else {
-                self.setSelectedItem(self.selectedItem, animated: false)
-                return
-            }
-
             if searchString.isEmpty {
                 self.setSelectedItem(self.selectedItem, animated: false, completion: {
                     self.scrollToSelectedRelay()
@@ -99,23 +94,54 @@ final class LocationDataSource:
         }
     }
 
+    /// Refreshes the custom list section and keeps all modifications intact (selection and expanded states).
     func refreshCustomLists(selectedRelays: UserSelectedRelays?) {
-        let allLocationsDataSource =
-            dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource
-
-        let customListsDataSource =
+        guard let allLocationsDataSource =
+            dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource,
+            let customListsDataSource =
             dataSources.first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource
+        else {
+            return
+        }
 
-        customListsDataSource?.reload(allLocationNodes: allLocationsDataSource?.nodes ?? [], isFiltered: hasFilter)
+        // Take a "snapshot" of the currently expanded nodes.
+        let expandedNodes = customListsDataSource.nodes
+            .flatMap { [$0] + $0.flattened }
+            .filter { $0.showsChildren }
 
+        // Reload data source with (possibly) updated custom lists.
+        customListsDataSource.reload(allLocationNodes: allLocationsDataSource.nodes, isFiltered: hasFilter)
+
+        // Reapply current selection.
         mapSelectedItem(from: selectedRelays)
-        filterRelays(by: currentSearchString, scrollToSelected: false)
+
+        // Reapply current search filter.
+        let searchResultNodes = dataSources[0].search(by: currentSearchString)
+
+        // Reapply expanded status and override nodes being hidden by search filter.
+        RootLocationNode(children: searchResultNodes).forEachDescendant { node in
+            node.showsChildren = expandedNodes.contains(node)
+            node.isHiddenFromSearch = false
+        }
+
+        // Construct node tree.
+        let list = searchResultNodes.flatMap { node in
+            let rootNode = RootLocationNode(children: [node])
+            return recursivelyCreateCellViewModelTree(for: rootNode, in: .customLists, indentationLevel: 0)
+        }
+
+        updateDataSnapshot(with: [
+            list,
+            snapshot().itemIdentifiers(inSection: .allLocations),
+        ], reloadExisting: true)
     }
 
+    // Called from `LocationDiffableDataSourceProtocol`.
     func nodeShowsChildren(_ node: LocationNode) -> Bool {
         node.showsChildren
     }
 
+    // Called from `LocationDiffableDataSourceProtocol`.
     func nodeShouldBeSelected(_ node: LocationNode) -> Bool {
         false
     }
@@ -136,11 +162,19 @@ final class LocationDataSource:
             if let customListSelection = selectedRelays.customListSelection,
                let customList = customListsDataSource?.customList(by: customListSelection.listId),
                let selectedNode = customListsDataSource?.node(by: selectedRelays, for: customList) {
-                selectedItem = LocationCellViewModel(section: .customLists, node: selectedNode)
+                selectedItem = LocationCellViewModel(
+                    section: .customLists,
+                    node: selectedNode,
+                    indentationLevel: selectedNode.hierarchyLevel
+                )
                 // Look for a matching all locations node.
             } else if let location = selectedRelays.locations.first,
                       let selectedNode = allLocationsDataSource?.node(by: location) {
-                selectedItem = LocationCellViewModel(section: .allLocations, node: selectedNode)
+                selectedItem = LocationCellViewModel(
+                    section: .allLocations,
+                    node: selectedNode,
+                    indentationLevel: selectedNode.hierarchyLevel
+                )
             }
         }
     }
@@ -175,7 +209,7 @@ final class LocationDataSource:
             indentationLevel: 1
         )
 
-        // Insert the new node tree below the select item.
+        // Insert the new node tree below the selected item.
         var snapshotItems = snapshot().itemIdentifiers(inSection: selectedItem.section)
         snapshotItems.insert(contentsOf: nodesToAdd, at: indexPath.row + 1)
 
@@ -243,7 +277,7 @@ extension LocationDataSource: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if let item = itemIdentifier(for: indexPath), item == selectedItem {
-            tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+            cell.setSelected(true, animated: false)
         }
     }
 
