@@ -17,12 +17,14 @@ struct LocationCellViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(section)
         hasher.combine(node)
+        hasher.combine(indentationLevel)
     }
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.node == rhs.node &&
             lhs.section == rhs.section &&
-            lhs.isSelected == rhs.isSelected
+            lhs.isSelected == rhs.isSelected &&
+            lhs.indentationLevel == rhs.indentationLevel
     }
 }
 

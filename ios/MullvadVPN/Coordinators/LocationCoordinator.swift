@@ -147,7 +147,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
     private func showEditCustomLists(nodes: [LocationNode]) {
         let coordinator = ListCustomListCoordinator(
-            navigationController: CustomNavigationController(),
+            navigationController: InterceptibleNavigationController(),
             interactor: CustomListInteractor(repository: customListRepository),
             tunnelManager: tunnelManager,
             nodes: nodes
