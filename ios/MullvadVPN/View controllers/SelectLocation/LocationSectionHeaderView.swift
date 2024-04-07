@@ -54,10 +54,9 @@ class LocationSectionHeaderView: UIView, UIContentView {
         addConstrainedSubviews([nameLabel, actionButton]) {
             nameLabel.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
 
-            actionButton.pinEdgesToSuperviewMargins(PinnableEdges([.trailing(.zero)]))
-            actionButton.widthAnchor.constraint(equalToConstant: 24)
-            actionButton.heightAnchor.constraint(equalTo: actionButton.widthAnchor, multiplier: 1)
-            actionButton.centerYAnchor.constraint(equalTo: self.centerYAnchor)
+            actionButton.pinEdgesToSuperview(PinnableEdges([.trailing(8)]))
+            actionButton.heightAnchor.constraint(equalTo: heightAnchor)
+            actionButton.widthAnchor.constraint(equalTo: actionButton.heightAnchor)
 
             actionButton.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: 16)
         }

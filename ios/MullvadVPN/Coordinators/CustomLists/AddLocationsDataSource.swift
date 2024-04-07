@@ -6,6 +6,7 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+import Combine
 import MullvadSettings
 import MullvadTypes
 import UIKit
@@ -15,20 +16,21 @@ class AddLocationsDataSource:
     LocationDiffableDataSourceProtocol {
     private var customListLocationNode: CustomListLocationNode
     private let nodes: [LocationNode]
-    var didUpdateCustomList: ((CustomListLocationNode) -> Void)?
+    private let subject: CurrentValueSubject<CustomListViewModel, Never>
     let tableView: UITableView
     let sections: [LocationSection]
 
     init(
         tableView: UITableView,
         allLocationNodes: [LocationNode],
-        customList: CustomList
+        subject: CurrentValueSubject<CustomListViewModel, Never>
     ) {
         self.tableView = tableView
         self.nodes = allLocationNodes
+        self.subject = subject
 
         self.customListLocationNode = CustomListLocationNodeBuilder(
-            customList: customList,
+            customList: subject.value.customList,
             allLocations: self.nodes
         ).customListLocationNode
 
@@ -149,7 +151,10 @@ extension AddLocationsDataSource: LocationCellDelegate {
             customListLocationNode.remove(selectedLocation: item.node, with: locationList)
         }
         updateDataSnapshot(with: [locationList], completion: {
-            self.didUpdateCustomList?(self.customListLocationNode)
+            let locations = self.customListLocationNode.children.reduce([]) { partialResult, locationNode in
+                partialResult + locationNode.locations
+            }
+            self.subject.value.locations = locations
         })
     }
 }

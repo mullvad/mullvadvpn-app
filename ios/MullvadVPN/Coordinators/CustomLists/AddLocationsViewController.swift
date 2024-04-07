@@ -6,19 +6,19 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+import Combine
 import MullvadSettings
 import MullvadTypes
 import UIKit
 
 protocol AddLocationsViewControllerDelegate: AnyObject {
-    func didUpdateSelectedLocations(locations: [RelayLocation])
     func didBack()
 }
 
 class AddLocationsViewController: UIViewController {
     private var dataSource: AddLocationsDataSource?
     private let nodes: [LocationNode]
-    private let customList: CustomList
+    private let subject: CurrentValueSubject<CustomListViewModel, Never>
 
     weak var delegate: AddLocationsViewControllerDelegate?
     private let tableView: UITableView = {
@@ -33,10 +33,10 @@ class AddLocationsViewController: UIViewController {
 
     init(
         allLocationsNodes: [LocationNode],
-        customList: CustomList
+        subject: CurrentValueSubject<CustomListViewModel, Never>
     ) {
         self.nodes = allLocationsNodes
-        self.customList = customList
+        self.subject = subject
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -70,17 +70,8 @@ class AddLocationsViewController: UIViewController {
         dataSource = AddLocationsDataSource(
             tableView: tableView,
             allLocationNodes: nodes.copy(),
-            customList: customList
+            subject: subject
         )
-
-        dataSource?.didUpdateCustomList = { [weak self] customListLocationNode in
-            guard let self else { return }
-            delegate?.didUpdateSelectedLocations(
-                locations: customListLocationNode.children.reduce([]) { partialResult, locationNode in
-                    partialResult + locationNode.locations
-                }
-            )
-        }
     }
 }
 
