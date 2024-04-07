@@ -45,6 +45,12 @@ extension LocationNode {
         parent?.root ?? self
     }
 
+    var hierarchyLevel: Int {
+        var level = 0
+        forEachAncestor { _ in level += 1 }
+        return level
+    }
+
     func countryFor(code: String) -> LocationNode? {
         self.code == code ? self : children.first(where: { $0.code == code })
     }

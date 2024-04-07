@@ -84,17 +84,10 @@ extension AddCustomListCoordinator: CustomListViewControllerDelegate {
         let coordinator = AddLocationsCoordinator(
             navigationController: navigationController,
             nodes: nodes,
-            customList: list
+            subject: subject
         )
 
-        coordinator.didFinish = { [weak self] locationsCoordinator, customList in
-            guard let self else { return }
-            subject.send(CustomListViewModel(
-                id: customList.id,
-                name: customList.name,
-                locations: customList.locations,
-                tableSections: subject.value.tableSections
-            ))
+        coordinator.didFinish = { locationsCoordinator in
             locationsCoordinator.removeFromParent()
         }
 
