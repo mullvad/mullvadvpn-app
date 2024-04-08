@@ -1,6 +1,5 @@
 import fs from 'fs/promises';
 
-import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
 import { ISettings } from '../shared/daemon-rpc-types';
 import { ICurrentAppVersionInfo } from '../shared/ipc-types';
 import log from '../shared/logging';
@@ -44,9 +43,12 @@ export default class Settings implements Readonly<ISettings> {
     IpcMainEventChannel.settings.handleSetBridgeState(async (bridgeState) => {
       await this.daemonRpc.setBridgeState(bridgeState);
 
-      // Reset bridge constraints to `any` when the state is set to auto or off
-      if (bridgeState === 'auto' || bridgeState === 'off') {
-        await this.daemonRpc.setBridgeSettings(new BridgeSettingsBuilder().location.any().build());
+      // Reset bridge constraints to `any` when the state is set to auto or off if not custom
+      if (bridgeState !== 'on' && this.bridgeSettings.type === 'normal') {
+        await this.daemonRpc.setBridgeSettings({
+          ...this.bridgeSettings,
+          normal: { ...this.bridgeSettings.normal, location: 'any' },
+        });
       }
     });
     IpcMainEventChannel.settings.handleSetOpenVpnMssfix((mssfix?: number) =>
