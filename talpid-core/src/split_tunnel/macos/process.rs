@@ -19,6 +19,7 @@ use std::{
     sync::{Arc, Mutex},
     time::Duration,
 };
+use talpid_platform_metadata::MacosVersion;
 use tokio::io::{AsyncBufReadExt, BufReader};
 
 const SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(3);
@@ -26,6 +27,12 @@ const EARLY_FAIL_TIMEOUT: Duration = Duration::from_millis(500);
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
+    /// Failed to detect macOS version
+    #[error("Failed to detect macOS version")]
+    DetectMacosVersion(#[source] io::Error),
+    /// Only macOS 13 and later is supported
+    #[error("Unsupported macOS version")]
+    UnsupportedMacosVersion,
     /// Failed to start eslogger listener
     #[error("Failed to start eslogger")]
     StartMonitor(#[source] io::Error),
@@ -57,6 +64,7 @@ pub struct ProcessMonitorHandle {
 
 impl ProcessMonitor {
     pub async fn spawn() -> Result<ProcessMonitorHandle, Error> {
+        check_os_version_support()?;
         let states = ProcessStates::new()?;
 
         let mut cmd = tokio::process::Command::new("/usr/bin/eslogger");
@@ -455,4 +463,19 @@ fn parse_eslogger_error(stderr_str: &str) -> Option<Error> {
     } else {
         None
     }
+}
+
+/// Check whether the current macOS version is supported, and return an error otherwise
+fn check_os_version_support() -> Result<(), Error> {
+    match MacosVersion::new().map_err(Error::DetectMacosVersion) {
+        Ok(version) => {
+            if version.major_version() <= 12 {
+                return Err(Error::UnsupportedMacosVersion);
+            }
+        }
+        Err(error) => {
+            log::error!("Failed to detect macOS version: {error}");
+        }
+    }
+    Ok(())
 }

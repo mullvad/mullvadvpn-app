@@ -20,6 +20,7 @@ log = { workspace = true }
 once_cell = { workspace = true }
 parking_lot = "0.12.0"
 rand = "0.8.5"
+talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 talpid-routing = { path = "../talpid-routing" }
 talpid-tunnel = { path = "../talpid-tunnel" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
