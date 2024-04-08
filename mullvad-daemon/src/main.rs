@@ -69,8 +69,8 @@ async fn run() -> Result<(), String> {
 
         #[cfg(target_os = "windows")]
         cli::Command::RunAsService => {
-            init_logger(config, None)?;
             assert_unique().await?;
+            let _ = init_daemon_logging(config)?;
             system_service::run()
         }
 
