@@ -244,6 +244,9 @@ mod service {
 
         /// Kill a process spawned through [Service::spawn].
         async fn kill_child(pid: u32) -> Result<(), Error>;
+
+        /// Returns operating system details
+        async fn get_os_version() -> Result<meta::OsVersion, Error>;
     }
 }
 

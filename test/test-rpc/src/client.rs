@@ -378,4 +378,10 @@ impl ServiceClient {
             .close_child_stdin(tarpc::context::current(), pid)
             .await?
     }
+
+    pub async fn get_os_version(&self) -> Result<meta::OsVersion, Error> {
+        self.client
+            .get_os_version(tarpc::context::current())
+            .await?
+    }
 }

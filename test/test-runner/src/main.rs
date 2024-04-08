@@ -12,6 +12,7 @@ use util::OnDrop;
 
 use tarpc::{context, server::Channel};
 use test_rpc::{
+    meta::OsVersion,
     mullvad_daemon::{ServiceStatus, SOCKET_PATH},
     net::SockHandleId,
     package::Package,
@@ -532,6 +533,10 @@ impl Service for TestServer {
         drop(child); // I swear officer, it's not what you think!
 
         Ok(())
+    }
+
+    async fn get_os_version(self, _: context::Context) -> Result<OsVersion, test_rpc::Error> {
+        sys::get_os_version()
     }
 }
 

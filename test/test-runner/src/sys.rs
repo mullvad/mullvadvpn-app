@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 #[cfg(target_os = "windows")]
 use std::io;
+use test_rpc::meta::OsVersion;
 use test_rpc::mullvad_daemon::Verbosity;
 
 #[cfg(target_os = "windows")]
@@ -582,4 +583,39 @@ async fn wait_for_service_state(awaited_state: ServiceState) -> Result<(), test_
         tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
     }
     Ok(())
+}
+
+#[cfg(target_os = "macos")]
+pub fn get_os_version() -> Result<OsVersion, test_rpc::Error> {
+    use test_rpc::meta::MacosVersion;
+
+    let version = talpid_platform_metadata::MacosVersion::new()
+        .inspect_err(|error| {
+            log::error!("Failed to obtain OS version: {error}");
+        })
+        .map_err(|_| test_rpc::Error::Syscall)?;
+
+    Ok(OsVersion::Macos(MacosVersion {
+        major: version.major_version(),
+    }))
+}
+
+#[cfg(target_os = "windows")]
+pub fn get_os_version() -> Result<OsVersion, test_rpc::Error> {
+    use test_rpc::meta::WindowsVersion;
+
+    let version = talpid_platform_metadata::WindowsVersion::new()
+        .inspect_err(|error| {
+            log::error!("Failed to obtain OS version: {error}");
+        })
+        .map_err(|_| test_rpc::Error::Syscall)?;
+
+    Ok(OsVersion::Windows(WindowsVersion {
+        major: version.release_version().0,
+    }))
+}
+
+#[cfg(target_os = "linux")]
+pub fn get_os_version() -> Result<OsVersion, test_rpc::Error> {
+    Ok(OsVersion::Linux)
 }

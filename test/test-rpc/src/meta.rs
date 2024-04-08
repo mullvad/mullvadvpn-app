@@ -1,6 +1,24 @@
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum OsVersion {
+    Linux,
+    Macos(MacosVersion),
+    Windows(WindowsVersion),
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct MacosVersion {
+    pub major: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct WindowsVersion {
+    pub major: u32,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 #[serde(rename_all = "snake_case")]
 pub enum Os {
