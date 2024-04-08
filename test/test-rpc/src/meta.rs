@@ -9,6 +9,16 @@ pub enum OsVersion {
     Windows(WindowsVersion),
 }
 
+impl std::fmt::Display for OsVersion {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            OsVersion::Linux => f.write_str("Linux"),
+            OsVersion::Macos(version) => write!(f, "macOS {}", version.major),
+            OsVersion::Windows(version) => write!(f, "Windows {}", version.major),
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
 pub struct MacosVersion {
     pub major: u32,

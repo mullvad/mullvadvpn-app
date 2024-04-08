@@ -49,6 +49,8 @@ pub async fn run(
     let mullvad_client =
         mullvad_daemon::new_rpc_client(connection_handle, mullvad_daemon_transport);
 
+    print_os_version(&client).await;
+
     let mut tests: Vec<_> = inventory::iter::<tests::TestMetadata>()
         .filter(|test| test.should_run_on_os(TEST_CONFIG.os))
         .collect();
@@ -218,5 +220,16 @@ where
         test_name,
         error_messages: output,
         result,
+    }
+}
+
+async fn print_os_version(client: &ServiceClient) {
+    match client.get_os_version().await {
+        Ok(version) => {
+            log::debug!("Guest OS version: {version}");
+        }
+        Err(error) => {
+            log::debug!("Failed to obtain guest OS version: {error}");
+        }
     }
 }
