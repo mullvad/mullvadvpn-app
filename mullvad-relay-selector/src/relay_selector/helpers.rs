@@ -3,13 +3,11 @@
 use std::net::SocketAddr;
 
 use mullvad_types::{
-    constraints::Constraint,
-    endpoint::MullvadWireguardEndpoint,
-    relay_constraints::Udp2TcpObfuscationSettings,
-    relay_list::{BridgeEndpointData, Relay, RelayEndpointData},
+    constraints::Constraint, endpoint::MullvadWireguardEndpoint,
+    relay_constraints::Udp2TcpObfuscationSettings, relay_list::Relay,
 };
 use rand::{seq::SliceRandom, thread_rng, Rng};
-use talpid_types::net::{obfuscation::ObfuscatorConfig, proxy::CustomProxy};
+use talpid_types::net::obfuscation::ObfuscatorConfig;
 
 use crate::SelectedObfuscator;
 
@@ -57,27 +55,6 @@ pub fn pick_random_relay_weighted<RelayType>(
                 .expect("At least one relay must've had a weight above 0"),
         )
     }
-}
-
-/// Picks a random bridge from a relay.
-pub fn pick_random_bridge(data: &BridgeEndpointData, relay: &Relay) -> Option<CustomProxy> {
-    if relay.endpoint_data != RelayEndpointData::Bridge {
-        return None;
-    }
-    data.shadowsocks
-        .choose(&mut rand::thread_rng())
-        .inspect(|shadowsocks_endpoint| {
-            log::info!(
-                "Selected Shadowsocks bridge {} at {}:{}/{}",
-                relay.hostname,
-                relay.ipv4_addr_in,
-                shadowsocks_endpoint.port,
-                shadowsocks_endpoint.protocol
-            );
-        })
-        .map(|shadowsocks_endpoint| {
-            shadowsocks_endpoint.to_proxy_settings(relay.ipv4_addr_in.into())
-        })
 }
 
 pub fn get_udp2tcp_obfuscator(
