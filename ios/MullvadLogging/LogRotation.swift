@@ -10,48 +10,67 @@ import Foundation
 import MullvadTypes
 
 public enum LogRotation {
+    private struct LogData {
+        var path: URL
+        var size: UInt64
+        var creationDate: Date
+    }
+
     public enum Error: LocalizedError, WrappingError {
-        case noSourceLogFile
-        case moveSourceLogFile(Swift.Error)
+        case rotateLogFiles(Swift.Error)
 
         public var errorDescription: String? {
             switch self {
-            case .noSourceLogFile:
-                return "Source log file does not exist."
-            case .moveSourceLogFile:
-                return "Failure to move the source log file to backup."
+            case .rotateLogFiles:
+                return "Failure to rotate the source log file to backup."
             }
         }
 
         public var underlyingError: Swift.Error? {
             switch self {
-            case .noSourceLogFile:
-                return nil
-            case let .moveSourceLogFile(error):
+            case let .rotateLogFiles(error):
                 return error
             }
         }
     }
 
-    public static func rotateLog(logsDirectory: URL, logFileName: String) throws {
-        let source = logsDirectory.appendingPathComponent(logFileName)
-        let backup = source.deletingPathExtension().appendingPathExtension("old.log")
+    public static func rotateLogs(logsDirectory: URL) throws {
+        let fileManager = FileManager.default
 
         do {
-            _ = try FileManager.default.replaceItemAt(backup, withItemAt: source)
-        } catch {
-            // FileManager returns a very obscure error chain so we need to traverse it to find
-            // the root cause of the error.
-            for case let fileError as CocoaError in error.underlyingErrorChain {
-                // .fileNoSuchFile is returned when both backup and source log files do not exist
-                // .fileReadNoSuchFile is returned when backup exists but source log file does not
-                if fileError.code == .fileNoSuchFile || fileError.code == .fileReadNoSuchFile,
-                   fileError.url == source {
-                    throw Error.noSourceLogFile
+            // Filter out all log files in directory.
+            let logPaths: [URL] = (try fileManager.contentsOfDirectory(
+                atPath: logsDirectory.relativePath
+            )).compactMap { file in
+                if file.split(separator: ".").last == "log" {
+                    logsDirectory.appendingPathComponent(file)
+                } else {
+                    nil
                 }
             }
 
-            throw Error.moveSourceLogFile(error)
+            // Convert logs into objects with necessary meta data.
+            let logs = try logPaths.map { logPath in
+                let attributes = try fileManager.attributesOfItem(atPath: logPath.relativePath)
+                let size = (attributes[.size] as? UInt64) ?? 0
+                let creationDate = (attributes[.creationDate] as? Date) ?? Date.distantPast
+
+                return LogData(path: logPath, size: size, creationDate: creationDate)
+            }.sorted { log1, log2 in
+                log1.creationDate > log2.creationDate
+            }
+
+            // From newest to oldest, delete all logs outside maximum capacity. Currently 5 MB.
+            var fileSizes = UInt64.zero
+            for log in logs {
+                fileSizes += log.size
+
+                if fileSizes > 5_242_880 { // 5 MB
+                    try fileManager.removeItem(at: log.path)
+                }
+            }
+        } catch {
+            throw Error.rotateLogFiles(error)
         }
     }
 }

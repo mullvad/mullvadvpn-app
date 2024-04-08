@@ -47,17 +47,9 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
             }
     }
 
-    func addLogFile(fileURL: URL, includeLogBackup: Bool) {
-        addSingleLogFile(fileURL)
-        if includeLogBackup {
-            let oldLogFileURL = fileURL.deletingPathExtension().appendingPathExtension("old.log")
-            addSingleLogFile(oldLogFileURL)
-        }
-    }
-
-    func addLogFiles(fileURLs: [URL], includeLogBackups: Bool) {
+    func addLogFiles(fileURLs: [URL]) {
         for fileURL in fileURLs {
-            addLogFile(fileURL: fileURL, includeLogBackup: includeLogBackups)
+            addSingleLogFile(fileURL)
         }
     }
 

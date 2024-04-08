@@ -24,7 +24,6 @@ public struct LoggerBuilder {
     public init() {}
 
     public mutating func addFileOutput(fileURL: URL) {
-        let logFileName = fileURL.lastPathComponent
         let logsDirectoryURL = fileURL.deletingLastPathComponent()
 
         try? FileManager.default.createDirectory(
@@ -34,7 +33,7 @@ public struct LoggerBuilder {
         )
 
         do {
-            try LogRotation.rotateLog(logsDirectory: logsDirectoryURL, logFileName: logFileName)
+            try LogRotation.rotateLogs(logsDirectory: logsDirectoryURL)
         } catch {
             logRotationErrors.append(error)
         }

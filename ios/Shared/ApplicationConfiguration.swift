@@ -21,9 +21,25 @@ enum ApplicationConfiguration {
         FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: securityGroupIdentifier)!
     }
 
-    /// Returns URL for log file associated with application target and located within shared container.
-    static func logFileURL(for target: ApplicationTarget) -> URL {
-        containerURL.appendingPathComponent("\(target.bundleIdentifier).log", isDirectory: false)
+    /// Returns URL for new log file associated with application target and located within shared container.
+    static func newLogFileURL(for target: ApplicationTarget) -> URL {
+        containerURL.appendingPathComponent(
+            "\(target.bundleIdentifier)_\(Date().logFormatDeviceLog()).log",
+            isDirectory: false
+        )
+    }
+
+    /// Returns URLs for log files associated with application target and located within shared container.
+    static func logFileURLs(for target: ApplicationTarget) -> [URL] {
+        let containerUrl = containerURL
+
+        return (try? FileManager.default.contentsOfDirectory(atPath: containerURL.relativePath))?.compactMap { file in
+            if file.split(separator: ".").last == "log" {
+                containerUrl.appendingPathComponent(file)
+            } else {
+                nil
+            }
+        }.sorted { $0.relativePath > $1.relativePath } ?? []
     }
 
     /// Privacy policy URL.
