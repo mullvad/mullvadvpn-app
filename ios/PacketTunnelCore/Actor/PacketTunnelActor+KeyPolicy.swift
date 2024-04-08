@@ -36,11 +36,7 @@ extension PacketTunnelActor {
             // Move currentKey into keyPolicy.
             stateData.keyPolicy = .usePrior(currentKey, startKeySwitchTask())
             stateData.currentKey = nil
-
         }
-
-        _ = state.mutateConnectionState(connectionStateMutator) ||
-            state.mutateBlockedState(blockedStateMutator)
     }
 
     /**

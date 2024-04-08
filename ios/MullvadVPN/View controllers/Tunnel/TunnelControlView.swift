@@ -454,7 +454,7 @@ final class TunnelControlView: UIView {
 private extension TunnelState {
     var textColorForSecureLabel: UIColor {
         switch self {
-        case .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .negotiatingKey:
+        case .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .negotiatingPostQuantumKey:
             .white
 
         case .connected:
@@ -484,7 +484,7 @@ private extension TunnelState {
             )
 
         // TODO: Is this the correct message here ?
-        case .negotiatingKey:
+        case .negotiatingPostQuantumKey:
             NSLocalizedString(
                 "TUNNEL_STATE_NEGOTIATING_KEY",
                 tableName: "Main",
@@ -567,7 +567,8 @@ private extension TunnelState {
                 comment: ""
             )
 
-        case .negotiatingKey:
+        // TODO: Is this correct ?
+        case .negotiatingPostQuantumKey:
             NSLocalizedString(
                 "SWITCH_LOCATION_BUTTON_TITLE",
                 tableName: "Main",
@@ -587,7 +588,8 @@ private extension TunnelState {
                 comment: ""
             )
 
-        case .negotiatingKey:
+        // TODO: Is this correct ?
+        case .negotiatingPostQuantumKey:
             NSLocalizedString(
                 "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL",
                 tableName: "Main",
@@ -672,7 +674,7 @@ private extension TunnelState {
                  .waitingForConnectivity(.noConnection):
                 [.selectLocation, .cancel]
 
-            case .negotiatingKey:
+            case .negotiatingPostQuantumKey:
                 [.selectLocation, .cancel]
 
             case .connected, .reconnecting, .error:
@@ -688,7 +690,7 @@ private extension TunnelState {
                  .waitingForConnectivity(.noConnection):
                 [.cancel]
 
-            case .negotiatingKey:
+            case .negotiatingPostQuantumKey:
                 [.cancel]
             case .connected, .reconnecting, .error:
                 [.disconnect]

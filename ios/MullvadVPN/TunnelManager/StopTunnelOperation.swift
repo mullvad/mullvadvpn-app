@@ -35,7 +35,8 @@ class StopTunnelOperation: ResultOperation<Void> {
 
             finish(result: .success(()))
 
-        case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error, .negotiatingKey:
+        case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error,
+             .negotiatingPostQuantumKey:
             doShutDownTunnel()
 
         case .disconnected, .disconnecting, .pendingReconnect, .waitingForConnectivity(.noNetwork):
