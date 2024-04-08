@@ -42,6 +42,8 @@ export type NormalRelaySettingsRedux = {
 
 export type NormalBridgeSettingsRedux = {
   location: LiftedConstraint<RelayLocation>;
+  providers: string[];
+  ownership: Ownership;
 };
 
 export type RelaySettingsRedux =
@@ -150,6 +152,8 @@ const initialState: ISettingsReduxState = {
     type: 'normal',
     normal: {
       location: 'any',
+      providers: [],
+      ownership: Ownership.any,
     },
     custom: undefined,
   },
