@@ -6,6 +6,7 @@ import {
   BridgeState,
   BridgeType,
   CustomLists,
+  CustomProxy,
   IDnsOptions,
   IpVersion,
   IWireguardEndpointData,
@@ -13,7 +14,6 @@ import {
   ObfuscationSettings,
   ObfuscationType,
   Ownership,
-  ProxySettings,
   RelayEndpointType,
   RelayLocation,
   RelayOverride,
@@ -61,7 +61,7 @@ export type RelaySettingsRedux =
 export type BridgeSettingsRedux = {
   type: BridgeType;
   normal: NormalBridgeSettingsRedux;
-  custom?: ProxySettings;
+  custom?: CustomProxy;
 };
 
 export interface IRelayLocationRelayRedux {
