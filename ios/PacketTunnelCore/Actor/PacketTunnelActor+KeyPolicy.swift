@@ -90,7 +90,7 @@ extension PacketTunnelActor {
      - Parameter keyPolicy: a reference to key policy held either in connection state or blocked state struct.
      - Returns: `true` when the policy was modified, otherwise `false`.
      */
-    private func setCurrentKeyPolicy(_ keyPolicy: inout KeyPolicy) {
+    private func setCurrentKeyPolicy(_ keyPolicy: inout State.KeyPolicy) {
         if case .usePrior = keyPolicy {
             keyPolicy = .useCurrent
         }

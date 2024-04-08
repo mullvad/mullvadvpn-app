@@ -82,15 +82,6 @@ enum State: Equatable {
     case error(BlockingData)
 }
 
-/// Policy describing what WG key to use for tunnel communication.
-enum KeyPolicy {
-    /// Use current key stored in device data.
-    case useCurrent
-
-    /// Use prior key until timer fires.
-    case usePrior(_ priorKey: PrivateKey, _ timerTask: AutoCancellingTask)
-}
-
 /// Enum describing network availability.
 public enum NetworkReachability: Equatable, Codable {
     case undetermined, reachable, unreachable
@@ -98,12 +89,21 @@ public enum NetworkReachability: Equatable, Codable {
 
 protocol StateAssociatedData {
     var currentKey: PrivateKey? { get set }
-    var keyPolicy: KeyPolicy { get set }
+    var keyPolicy: State.KeyPolicy { get set }
     var networkReachability: NetworkReachability { get set }
     var lastKeyRotation: Date? { get set }
 }
 
 extension State {
+    /// Policy describing what WG key to use for tunnel communication.
+    enum KeyPolicy {
+        /// Use current key stored in device data.
+        case useCurrent
+
+        /// Use prior key until timer fires.
+        case usePrior(_ priorKey: PrivateKey, _ timerTask: AutoCancellingTask)
+    }
+
     /// Data associated with states that hold connection data.
     struct ConnectionData: Equatable, StateAssociatedData {
         /// Current selected relay.
@@ -173,7 +173,7 @@ extension State {
         public var recoveryTask: AutoCancellingTask?
 
         /// Prior state of the actor before entering blocked state
-        public var priorState: StatePriorToBlockedState
+        public var priorState: PriorState
     }
 }
 
@@ -214,14 +214,11 @@ public enum BlockedStateReason: String, Codable, Equatable {
     case unknown
 }
 
-/// Legal states that can precede error state.
-enum StatePriorToBlockedState: Equatable {
-    case initial, connecting, connected, reconnecting
-}
-
-/// Target state the actor should transition into upon request to either start (connect) or reconnect.
-enum TargetStateForReconnect {
-    case reconnecting, connecting
+extension State.BlockingData {
+    /// Legal states that can precede error state.
+    enum PriorState: Equatable {
+        case initial, connecting, connected, reconnecting
+    }
 }
 
 /// Describes which relay the tunnel should connect to next.
@@ -234,14 +231,4 @@ public enum NextRelay: Equatable, Codable {
 
     /// Use pre-selected relay.
     case preSelected(SelectedRelay)
-}
-
-/// Describes the reason for reconnection request.
-enum ReconnectReason {
-    /// Initiated by user.
-    case userInitiated
-
-    /// Initiated by tunnel monitor due to loss of connectivity.
-    /// Actor will increment the connection attempt counter before picking next relay.
-    case connectionLoss
 }
