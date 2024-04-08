@@ -15,9 +15,9 @@ class RelayOverridesRepository(
     private val managementService: ManagementService,
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
-    fun clearAllOverrides() {
-        //        messageHandler.trySendRequest(Request.ClearAllRelayOverrides)
-    }
+    suspend fun clearAllOverrides() = managementService.clearAllRelayOverrides()
+
+    suspend fun applySettingsPatch(json: String) = managementService.applySettingsPatch(json)
 
     val relayOverrides: StateFlow<List<RelayOverride>?> =
         managementService.settings
