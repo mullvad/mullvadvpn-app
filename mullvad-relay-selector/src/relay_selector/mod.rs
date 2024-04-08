@@ -954,7 +954,7 @@ impl RelaySelector {
                 .cloned()
                 .ok_or(Error::NoRelay),
         }?;
-        let endpoint = helpers::pick_random_bridge(bridge_data, &bridge).ok_or(Error::NoBridge)?;
+        let endpoint = detailer::bridge_endpoint(bridge_data, &bridge).ok_or(Error::NoBridge)?;
         Ok((endpoint, bridge))
     }
 
