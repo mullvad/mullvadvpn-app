@@ -49,7 +49,6 @@ class LocationCell: UITableViewCell {
 
     private let collapseButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.accessibilityIdentifier = .collapseButton
         button.isAccessibilityElement = false
         button.tintColor = .white
         return button
@@ -267,6 +266,7 @@ class LocationCell: UITableViewCell {
     private func updateCollapseImage() {
         let image = isExpanded ? chevronUp : chevronDown
 
+        collapseButton.accessibilityIdentifier = isExpanded ? .collapseButton : .expandButton
         collapseButton.setImage(image, for: .normal)
     }
 

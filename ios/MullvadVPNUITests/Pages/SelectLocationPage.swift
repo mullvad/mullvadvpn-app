@@ -22,14 +22,19 @@ class SelectLocationPage: Page {
         return self
     }
 
-    @discardableResult func tapLocationCellExpandCollapseButton(withName name: String) -> Self {
+    @discardableResult func tapLocationCellExpandButton(withName name: String) -> Self {
         let table = app.tables[AccessibilityIdentifier.selectLocationTableView]
         let matchingCells = table.cells.containing(.any, identifier: name)
         let buttons = matchingCells.buttons
-        let expandButton = buttons[AccessibilityIdentifier.collapseButton]
+        let expandButton = buttons[AccessibilityIdentifier.expandButton]
 
         expandButton.tap()
 
         return self
+    }
+
+    func locationCellIsExpanded(_ name: String) -> Bool {
+        let matchingCells = app.cells.containing(.any, identifier: name)
+        return matchingCells.buttons[AccessibilityIdentifier.expandButton].exists ? false : true
     }
 }
