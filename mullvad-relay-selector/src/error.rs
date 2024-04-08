@@ -28,6 +28,9 @@ pub enum Error {
         relay: EndpointErrorDetails,
     },
 
+    #[error("No candidates remain")]
+    NoCandidates,
+
     #[error("Failure in serialization of the relay list")]
     Serialize(#[from] serde_json::Error),
 
