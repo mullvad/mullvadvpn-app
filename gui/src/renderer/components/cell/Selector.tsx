@@ -25,6 +25,7 @@ interface CommonSelectorProps<T, U> {
   value: T | U;
   selectedCellRef?: React.Ref<HTMLElement>;
   className?: string;
+  infoTitle?: string;
   details?: React.ReactElement;
   expandable?: { expandable: boolean; id: string };
   disabled?: boolean;
@@ -82,7 +83,7 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
       </AriaLabel>
       {props.details && (
         <AriaDetails>
-          <InfoButton>{props.details}</InfoButton>
+          <InfoButton title={props.infoTitle}>{props.details}</InfoButton>
         </AriaDetails>
       )}
     </>
