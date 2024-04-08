@@ -4,7 +4,11 @@ import { ICustomList, RelayLocation } from '../../../shared/daemon-rpc-types';
 import { hasValue } from '../../../shared/utils';
 import { searchMatch } from '../../lib/filter-locations';
 import { useSelector } from '../../redux/store';
-import { useDisabledLocation, useSelectedLocation } from './RelayListContext';
+import {
+  useDisabledLocation,
+  usePreventDueToCustomBridgeSelected,
+  useSelectedLocation,
+} from './RelayListContext';
 import { isCustomListDisabled, isExpanded, isSelected } from './select-location-helpers';
 import {
   CitySpecification,
@@ -26,6 +30,8 @@ export function useCustomListsRelayList(
   const { searchTerm } = useSelectLocationContext();
   const customLists = useSelector((state) => state.settings.customLists);
 
+  const preventDueToCustomBridgeSelected = usePreventDueToCustomBridgeSelected();
+
   // Populate all custom lists with the real location trees for the list locations.
   return useMemo(
     () =>
@@ -34,6 +40,7 @@ export function useCustomListsRelayList(
           list,
           relayList,
           searchTerm,
+          preventDueToCustomBridgeSelected,
           selectedLocation,
           disabledLocation,
           expandedLocations,
@@ -48,6 +55,7 @@ function prepareCustomList(
   list: ICustomList,
   fullRelayList: GeographicalRelayList,
   searchTerm: string,
+  preventDueToCustomBridgeSelected: boolean,
   selectedLocation?: RelayLocation,
   disabledLocation?: { location: RelayLocation; reason: DisabledReason },
   expandedLocations?: Array<RelayLocation>,
@@ -64,7 +72,7 @@ function prepareCustomList(
     disabled: disabledReason !== undefined,
     disabledReason,
     expanded: isExpanded(location, expandedLocations),
-    selected: isSelected(location, selectedLocation),
+    selected: preventDueToCustomBridgeSelected ? false : isSelected(location, selectedLocation),
     visible: searchMatch(searchTerm, list.name),
     locations,
   };
