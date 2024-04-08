@@ -189,7 +189,7 @@ val uiModule = module {
     }
     viewModel { CustomListsViewModel(get(), get()) }
     viewModel { parameters -> DeleteCustomListConfirmationViewModel(parameters.get(), get()) }
-    viewModel { ServerIpOverridesViewModel(get(), get(), get(), get()) }
+    viewModel { ServerIpOverridesViewModel(get(), get()) }
     viewModel { ResetServerIpOverridesConfirmationViewModel(get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
