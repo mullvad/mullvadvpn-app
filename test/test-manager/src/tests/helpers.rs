@@ -76,7 +76,7 @@ pub async fn reboot(rpc: &mut ServiceClient) -> Result<(), Error> {
     Ok(())
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct ProbeResult {
     tcp: usize,
     udp: usize,
@@ -121,7 +121,7 @@ pub async fn send_guest_probes(
     rpc: ServiceClient,
     interface: String,
     destination: SocketAddr,
-) -> Result<ProbeResult, Error> {
+) -> ProbeResult {
     const MONITOR_DURATION: Duration = Duration::from_secs(8);
 
     let pktmon = start_packet_monitor(
@@ -162,7 +162,7 @@ pub async fn send_guest_probes(
         }
     }
 
-    Ok(result)
+    result
 }
 
 /// Send one probe per transport protocol to `destination` without running a packet monitor
