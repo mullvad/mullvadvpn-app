@@ -2,6 +2,7 @@ use anyhow::Context;
 use mullvad_management_interface::MullvadProxyClient;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use test_macro::test_function;
+use test_rpc::meta::OsVersion;
 use test_rpc::ServiceClient;
 
 use super::{
@@ -15,12 +16,22 @@ const LEAK_DESTINATION: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1,
 /// - Splitting a process shouldn't do anything if tunnel is not connected.
 /// - A split process should never push traffic through the tunnel.
 /// - Splitting/unsplitting should work regardless if process is running.
-#[test_function(target_os = "linux", target_os = "windows")]
+#[test_function]
 pub async fn test_split_tunnel(
     _ctx: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    // Skip test on macOS 12, since the feature is unsupported
+    match rpc.get_os_version().await.context("Detect OS version")? {
+        OsVersion::Macos(version) if version.major <= 12 => {
+            // TODO: Skip test cleanly, e.g. by returning a result `Pass | Skip`
+            log::info!("Skipping test on macOS 12");
+            return Ok(());
+        }
+        _ => (),
+    }
+
     let mut checker = ConnChecker::new(rpc.clone(), mullvad_client.clone(), LEAK_DESTINATION);
 
     // Test that program is behaving when we are disconnected
@@ -53,6 +64,7 @@ pub async fn test_split_tunnel(
 
     // Test running a split program
     checker.split().await?;
+
     checker
         .spawn()
         .await?
