@@ -236,6 +236,10 @@ extension LocationDataSource: UITableViewDelegate {
         }
     }
 
+    func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
+        itemIdentifier(for: indexPath)?.node.isActive ?? false
+    }
+
     func tableView(_ tableView: UITableView, indentationLevelForRowAt indexPath: IndexPath) -> Int {
         itemIdentifier(for: indexPath)?.indentationLevel ?? 0
     }
