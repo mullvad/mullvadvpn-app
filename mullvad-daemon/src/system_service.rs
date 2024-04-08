@@ -1,5 +1,5 @@
 use crate::cli;
-use mullvad_daemon::{runtime::new_runtime_builder, DaemonShutdownHandle};
+use mullvad_daemon::{runtime::new_multi_thread, DaemonShutdownHandle};
 use once_cell::sync::Lazy;
 use std::{
     env,
@@ -98,7 +98,7 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
 
     let log_dir = crate::get_log_dir(cli::get_config()).expect("Log dir should be available here");
 
-    let runtime = new_runtime_builder().build();
+    let runtime = new_multi_thread().build();
     let runtime = match runtime {
         Err(error) => {
             log::error!("{}", error.display_chain());
