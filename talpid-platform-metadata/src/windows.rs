@@ -80,20 +80,28 @@ impl WindowsVersion {
             return "Server".to_owned();
         }
 
+        match self.release_version() {
+            (major, 0) => major.to_string(),
+            (major, minor) => format!("{major}.{minor}"),
+        }
+    }
+
+    /// Release version. E.g. `(10, 0)` for Windows 10, or `(8, 0)` for Windows 8.1.
+    pub fn release_version(&self) -> (u32, u32) {
         // Check https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_versions#Personal_computer_versions 'Release version' column
         // for the correct NT versions for specific windows releases.
         match (self.major_version(), self.minor_version()) {
-            (6, 1) => "7".into(),
-            (6, 2) => "8".into(),
-            (6, 3) => "8.1".into(),
+            (6, 1) => (7, 0),
+            (6, 2) => (8, 0),
+            (6, 3) => (8, 1),
             (10, 0) => {
                 if self.build_number() < 22000 {
-                    "10".into()
+                    (10, 0)
                 } else {
-                    "11".into()
+                    (11, 0)
                 }
             }
-            (major, minor) => format!("{}.{}", major, minor),
+            (major, minor) => (major, minor),
         }
     }
 
