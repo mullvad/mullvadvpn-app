@@ -813,6 +813,10 @@ impl ConnChecker {
                 .await?;
         }
 
+        // TODO: The ST process monitor is a bit racy on macOS, such that processes aren't
+        //       immediately recognized. This is a workaround until fixed.
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+
         Ok(ConnCheckerHandle { pid, checker: self })
     }
 
@@ -823,13 +827,12 @@ impl ConnChecker {
 
         match TEST_CONFIG.os {
             Os::Linux => { /* linux programs can't be split until they are spawned */ }
-            Os::Windows => {
+            Os::Macos | Os::Windows => {
                 self.mullvad_client
                     .add_split_tunnel_app(&self.executable_path)
                     .await?;
                 self.mullvad_client.set_split_tunnel_state(true).await?;
             }
-            Os::Macos => unimplemented!("MacOS"),
         }
 
         Ok(())
@@ -842,13 +845,12 @@ impl ConnChecker {
 
         match TEST_CONFIG.os {
             Os::Linux => {}
-            Os::Windows => {
+            Os::Macos | Os::Windows => {
                 self.mullvad_client.set_split_tunnel_state(false).await?;
                 self.mullvad_client
                     .remove_split_tunnel_app(&self.executable_path)
                     .await?;
             }
-            Os::Macos => unimplemented!("MacOS"),
         }
 
         Ok(())
