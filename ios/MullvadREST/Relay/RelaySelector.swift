@@ -140,7 +140,12 @@ public enum RelaySelector {
         _ constraints: RelayConstraints,
         relays: [RelayWithLocation<T>]
     ) -> [RelayWithLocation<T>] {
-        return relays.filter { relayWithLocation -> Bool in
+        // Filter on active status, filter, and location.
+        let filteredRelays = relays.filter { relayWithLocation -> Bool in
+            guard relayWithLocation.relay.active else {
+                return false
+            }
+
             switch constraints.filter {
             case .any:
                 break
@@ -150,17 +155,37 @@ public enum RelaySelector {
                 }
             }
 
-            switch constraints.locations {
+            return switch constraints.locations {
             case .any:
-                return true
+                true
             case let .only(relayConstraint):
                 // At least one location must match the relay under test.
-                return relayConstraint.locations.contains { location in
+                relayConstraint.locations.contains { location in
                     relayWithLocation.matches(location: location)
                 }
             }
-        }.filter { relayWithLocation -> Bool in
-            relayWithLocation.relay.active
+        }
+
+        // Filter on country inclusion.
+        let includeInCountryFilteredRelays = filteredRelays.filter { relayWithLocation in
+            return switch constraints.locations {
+            case .any:
+                true
+            case let .only(relayConstraint):
+                relayConstraint.locations.contains { location in
+                    if case .country = location {
+                        return relayWithLocation.relay.includeInCountry
+                    }
+                    return false
+                }
+            }
+        }
+
+        // If no relays should be included in the matched country, instead accept all.
+        if includeInCountryFilteredRelays.isEmpty {
+            return filteredRelays
+        } else {
+            return includeInCountryFilteredRelays
         }
     }
 
@@ -301,10 +326,9 @@ struct RelayWithLocation<T: AnyRelay> {
     let serverLocation: Location
 
     func matches(location: RelayLocation) -> Bool {
-        switch location {
+        return switch location {
         case let .country(countryCode):
-            serverLocation.countryCode == countryCode &&
-                relay.includeInCountry
+            serverLocation.countryCode == countryCode
 
         case let .city(countryCode, cityCode):
             serverLocation.countryCode == countryCode &&
