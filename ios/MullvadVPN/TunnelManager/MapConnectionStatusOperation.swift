@@ -57,9 +57,9 @@ class MapConnectionStatusOperation: AsyncOperation {
                     return connectionState.isNetworkReachable
                         ? .connecting(connectionState.selectedRelay)
                         : .waitingForConnectivity(.noConnection)
-                case let .negotiatingPostQuantumKey(connectionState):
-                    connectionState.isNetworkReachable
-                        ? .negotiatingPostQuantumKey(connectionState.selectedRelay)
+                case let .negotiatingPostQuantumKey(connectionState, privateKey):
+                    return connectionState.isNetworkReachable
+                        ? .negotiatingPostQuantumKey(connectionState.selectedRelay, privateKey)
                         : .waitingForConnectivity(.noConnection)
                 case let .reconnecting(connectionState):
                     return connectionState.isNetworkReachable
