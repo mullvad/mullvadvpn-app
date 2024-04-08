@@ -1,9 +1,10 @@
 use log::{Level, LevelFilter, Metadata, Record, SetLoggerError};
 use once_cell::sync::Lazy;
-use std::ffi::OsStr;
-use std::path::{Path, PathBuf};
-use test_rpc::logging::Error;
-use test_rpc::logging::{LogFile, LogOutput, Output};
+use std::{
+    ffi::OsStr,
+    path::{Path, PathBuf},
+};
+use test_rpc::logging::{Error, LogFile, LogOutput, Output};
 use tokio::{
     fs::File,
     io::{self, AsyncBufReadExt, BufReader},

@@ -1,9 +1,9 @@
-use super::config::TEST_CONFIG;
-use super::helpers;
-use super::{Error, TestContext};
+use super::{config::TEST_CONFIG, helpers, Error, TestContext};
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::relay_constraints::{RelayConstraints, RelaySettings};
-use mullvad_types::relay_list::{Relay, RelayEndpointData};
+use mullvad_types::{
+    relay_constraints::{RelayConstraints, RelaySettings},
+    relay_list::{Relay, RelayEndpointData},
+};
 use std::{
     collections::BTreeMap,
     fmt::Debug,
@@ -58,7 +58,7 @@ pub async fn run_test_env<
         .collect();
 
     // env may contain sensitive info
-    //log::info!("Running UI tests: {params:?}, env: {env:?}");
+    // log::info!("Running UI tests: {params:?}, env: {env:?}");
     log::info!("Running UI tests: {params:?}");
 
     let result = rpc

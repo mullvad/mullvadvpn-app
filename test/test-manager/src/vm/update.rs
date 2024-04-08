@@ -1,5 +1,7 @@
-use crate::config::{OsType, PackageType, Provisioner, VmConfig};
-use crate::vm::ssh::SSHSession;
+use crate::{
+    config::{OsType, PackageType, Provisioner, VmConfig},
+    vm::ssh::SSHSession,
+};
 use anyhow::{Context, Result};
 use std::fmt;
 

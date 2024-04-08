@@ -52,7 +52,7 @@ pub fn send_udp(_opt: &Opt, destination: SocketAddr) -> Result<(), eyre::Error> 
     sock.bind(&socket2::SockAddr::from(bind_addr))
         .wrap_err(eyre!("Failed to bind UDP socket to {bind_addr}"))?;
 
-    //log::debug!("Send message from {bind_addr} to {destination}/UDP");
+    // log::debug!("Send message from {bind_addr} to {destination}/UDP");
 
     let std_socket = std::net::UdpSocket::from(sock);
     std_socket

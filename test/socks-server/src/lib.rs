@@ -1,6 +1,5 @@
 use futures::StreamExt;
-use std::io;
-use std::net::SocketAddr;
+use std::{io, net::SocketAddr};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

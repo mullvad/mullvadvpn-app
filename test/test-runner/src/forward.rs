@@ -1,11 +1,14 @@
 use once_cell::sync::Lazy;
-use std::collections::HashMap;
-use std::net::SocketAddr;
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::{Arc, Mutex};
+use std::{
+    collections::HashMap,
+    net::SocketAddr,
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc, Mutex,
+    },
+};
 use test_rpc::net::SockHandleId;
-use tokio::net::TcpListener;
-use tokio::net::TcpStream;
+use tokio::net::{TcpListener, TcpStream};
 
 static SERVERS: Lazy<Mutex<HashMap<SockHandleId, Handle>>> =
     Lazy::new(|| Mutex::new(HashMap::new()));

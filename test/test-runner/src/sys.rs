@@ -13,11 +13,13 @@ use windows_service::{
 
 #[cfg(target_os = "windows")]
 pub fn reboot() -> Result<(), test_rpc::Error> {
-    use windows_sys::Win32::System::Shutdown::{
-        ExitWindowsEx, EWX_REBOOT, SHTDN_REASON_FLAG_PLANNED, SHTDN_REASON_MAJOR_APPLICATION,
-        SHTDN_REASON_MINOR_OTHER,
+    use windows_sys::Win32::{
+        System::Shutdown::{
+            ExitWindowsEx, EWX_REBOOT, SHTDN_REASON_FLAG_PLANNED, SHTDN_REASON_MAJOR_APPLICATION,
+            SHTDN_REASON_MINOR_OTHER,
+        },
+        UI::WindowsAndMessaging::EWX_FORCEIFHUNG,
     };
-    use windows_sys::Win32::UI::WindowsAndMessaging::EWX_FORCEIFHUNG;
 
     grant_shutdown_privilege()?;
 
@@ -51,18 +53,17 @@ pub fn reboot() -> Result<(), test_rpc::Error> {
 
 #[cfg(target_os = "windows")]
 fn grant_shutdown_privilege() -> Result<(), test_rpc::Error> {
-    use windows_sys::Win32::Foundation::CloseHandle;
-    use windows_sys::Win32::Foundation::HANDLE;
-    use windows_sys::Win32::Foundation::LUID;
-    use windows_sys::Win32::Security::AdjustTokenPrivileges;
-    use windows_sys::Win32::Security::LookupPrivilegeValueW;
-    use windows_sys::Win32::Security::LUID_AND_ATTRIBUTES;
-    use windows_sys::Win32::Security::SE_PRIVILEGE_ENABLED;
-    use windows_sys::Win32::Security::TOKEN_ADJUST_PRIVILEGES;
-    use windows_sys::Win32::Security::TOKEN_PRIVILEGES;
-    use windows_sys::Win32::System::SystemServices::SE_SHUTDOWN_NAME;
-    use windows_sys::Win32::System::Threading::GetCurrentProcess;
-    use windows_sys::Win32::System::Threading::OpenProcessToken;
+    use windows_sys::Win32::{
+        Foundation::{CloseHandle, HANDLE, LUID},
+        Security::{
+            AdjustTokenPrivileges, LookupPrivilegeValueW, LUID_AND_ATTRIBUTES,
+            SE_PRIVILEGE_ENABLED, TOKEN_ADJUST_PRIVILEGES, TOKEN_PRIVILEGES,
+        },
+        System::{
+            SystemServices::SE_SHUTDOWN_NAME,
+            Threading::{GetCurrentProcess, OpenProcessToken},
+        },
+    };
 
     let mut privileges = TOKEN_PRIVILEGES {
         PrivilegeCount: 1,
@@ -457,8 +458,7 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
 
 #[cfg(target_os = "windows")]
 pub fn get_system_path_var() -> Result<String, test_rpc::Error> {
-    use winreg::enums::*;
-    use winreg::*;
+    use winreg::{enums::*, *};
 
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
     let key = hklm
