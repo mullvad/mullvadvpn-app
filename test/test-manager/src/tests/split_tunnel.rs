@@ -8,7 +8,10 @@ use std::{
     time::Duration,
 };
 use test_macro::test_function;
-use test_rpc::{meta::Os, ServiceClient, SpawnOpts};
+use test_rpc::{
+    meta::{Os, OsVersion},
+    ServiceClient, SpawnOpts,
+};
 use tokio::time::{sleep, timeout};
 
 use crate::network_monitor::{start_packet_monitor, MonitorOptions};
@@ -40,6 +43,16 @@ pub async fn test_split_tunnel(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    // Skip test on macOS 12, since the feature is unsupported
+    match rpc.get_os_version().await.context("Detect OS version")? {
+        OsVersion::Macos(version) if version.major <= 12 => {
+            // TODO: Skip test cleanly, e.g. by returning a result `Pass | Skip`
+            log::info!("Skipping test on macOS 12");
+            return Ok(());
+        }
+        _ => (),
+    }
+
     let mut checker = ConnChecker::new(rpc.clone(), mullvad_client.clone());
 
     // Test that program is behaving when we are disconnected
