@@ -1,12 +1,15 @@
-use crate::config::{OsType, Provisioner, VmConfig};
-use crate::package;
+use crate::{
+    config::{OsType, Provisioner, VmConfig},
+    package,
+};
 use anyhow::{bail, Context, Result};
 use ssh2::Session;
-use std::fs::File;
-use std::io::{self, Read};
-use std::net::IpAddr;
-use std::net::TcpStream;
-use std::{net::SocketAddr, path::Path};
+use std::{
+    fs::File,
+    io::{self, Read},
+    net::{IpAddr, SocketAddr, TcpStream},
+    path::Path,
+};
 
 pub async fn provision(
     config: &VmConfig,

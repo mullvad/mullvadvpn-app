@@ -18,7 +18,7 @@ use test_rpc::meta::Os;
 /// defined in [`mullvad_management_interface::MullvadProxyClient`] are
 /// available on `mullvad_client`.
 ///
-///# Arguments
+/// # Arguments
 ///
 /// The `test_function` macro takes 4 optional arguments
 ///

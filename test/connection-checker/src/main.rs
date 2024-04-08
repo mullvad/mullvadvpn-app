@@ -4,8 +4,10 @@ use reqwest::blocking::Client;
 use serde::Deserialize;
 use std::{io::stdin, time::Duration};
 
-use connection_checker::cli::Opt;
-use connection_checker::net::{send_ping, send_tcp, send_udp};
+use connection_checker::{
+    cli::Opt,
+    net::{send_ping, send_tcp, send_udp},
+};
 
 fn main() -> eyre::Result<()> {
     let opt = Opt::parse();

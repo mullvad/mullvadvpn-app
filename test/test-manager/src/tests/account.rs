@@ -1,13 +1,13 @@
 use crate::tests::helpers::{login_with_retries, THROTTLE_RETRY_DELAY};
 
-use super::config::TEST_CONFIG;
-use super::{helpers, ui, Error, TestContext};
+use super::{config::TEST_CONFIG, helpers, ui, Error, TestContext};
 use mullvad_api::DevicesProxy;
 use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
-use mullvad_types::device::{Device, DeviceState};
-use mullvad_types::states::TunnelState;
-use std::net::ToSocketAddrs;
-use std::time::Duration;
+use mullvad_types::{
+    device::{Device, DeviceState},
+    states::TunnelState,
+};
+use std::{net::ToSocketAddrs, time::Duration};
 use talpid_types::net::wireguard;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
@@ -19,7 +19,6 @@ pub async fn test_login(
     _rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    //
     // Instruct daemon to log in
     //
 

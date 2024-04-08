@@ -4,8 +4,10 @@ use super::{
     helpers::{self, AbortOnDrop},
     TestContext,
 };
-use crate::vm;
-use crate::vm::network::linux::{NON_TUN_GATEWAY, TEST_SUBNET};
+use crate::{
+    vm,
+    vm::network::linux::{NON_TUN_GATEWAY, TEST_SUBNET},
+};
 use anyhow::{anyhow, bail, ensure, Context};
 use futures::FutureExt;
 use mullvad_management_interface::MullvadProxyClient;
