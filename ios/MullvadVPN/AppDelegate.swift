@@ -353,7 +353,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func configureLogging() {
         var loggerBuilder = LoggerBuilder()
-        loggerBuilder.addFileOutput(fileURL: ApplicationConfiguration.logFileURL(for: .mainApp))
+        loggerBuilder.addFileOutput(fileURL: ApplicationConfiguration.newLogFileURL(for: .mainApp))
         #if DEBUG
         loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)
         #endif
