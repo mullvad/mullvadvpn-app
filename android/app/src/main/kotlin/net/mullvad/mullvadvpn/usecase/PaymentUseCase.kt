@@ -1,9 +1,11 @@
 package net.mullvad.mullvadvpn.usecase
 
 import android.app.Activity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.transform
 import net.mullvad.mullvadvpn.constant.VERIFICATION_BACK_OFF_FACTOR
 import net.mullvad.mullvadvpn.constant.VERIFICATION_INITIAL_BACK_OFF_MILLISECONDS
 import net.mullvad.mullvadvpn.constant.VERIFICATION_MAX_ATTEMPTS
@@ -35,7 +37,15 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
     override val purchaseResult = _purchaseResult.asStateFlow()
 
     override suspend fun purchaseProduct(productId: ProductId, activityProvider: () -> Activity) {
-        paymentRepository.purchaseProduct(productId, activityProvider).collect(_purchaseResult)
+        paymentRepository
+            .purchaseProduct(productId, activityProvider)
+            .transform {
+                emit(it)
+                if (it.shouldDelayLoading()) {
+                    delay(EXTRA_LOADING_DELAY_MS)
+                }
+            }
+            .collect(_purchaseResult)
     }
 
     override suspend fun queryPaymentAvailability() {
@@ -63,6 +73,13 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
                     onSuccessfulVerification()
                 }
             }
+    }
+
+    private fun PurchaseResult?.shouldDelayLoading() =
+        this is PurchaseResult.FetchingProducts || this is PurchaseResult.VerificationStarted
+
+    companion object {
+        const val EXTRA_LOADING_DELAY_MS = 300L
     }
 }
 
