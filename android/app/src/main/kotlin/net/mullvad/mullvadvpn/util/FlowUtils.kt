@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.withTimeoutOrNull
@@ -153,4 +154,17 @@ class ExceptionWrapper(val item: Any) : Throwable()
 
 suspend fun <T> Flow<T>.firstOrNullWithTimeout(timeMillis: Long): T? {
     return withTimeoutOrNull(timeMillis) { firstOrNull() }
+}
+
+suspend fun <T> Flow<T>.delayAtLeast(timeMillis: (T) -> Long) = flow {
+    var lastEmittedTime = System.currentTimeMillis()
+    collect {
+        val timeSinceLastEmit = System.currentTimeMillis() - lastEmittedTime
+        val minimumTime = timeMillis(it)
+        if (timeSinceLastEmit < minimumTime) {
+            delay(minimumTime - timeSinceLastEmit)
+        }
+        lastEmittedTime = System.currentTimeMillis()
+        emit(it)
+    }
 }
