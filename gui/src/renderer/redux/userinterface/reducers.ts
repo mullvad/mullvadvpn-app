@@ -1,5 +1,6 @@
 import { MacOsScrollbarVisibility } from '../../../shared/ipc-schema';
 import { IChangelog } from '../../../shared/ipc-types';
+import { LocationType } from '../../components/select-location/select-location-types';
 import { ReduxAction } from '../store';
 
 export interface IUserInterfaceReduxState {
@@ -13,6 +14,7 @@ export interface IUserInterfaceReduxState {
   changelog: IChangelog;
   forceShowChanges: boolean;
   isPerformingPostUpgrade: boolean;
+  selectLocationView: LocationType;
 }
 
 const initialState: IUserInterfaceReduxState = {
@@ -25,6 +27,7 @@ const initialState: IUserInterfaceReduxState = {
   changelog: [],
   forceShowChanges: false,
   isPerformingPostUpgrade: false,
+  selectLocationView: LocationType.exit,
 };
 
 export default function (
@@ -69,6 +72,12 @@ export default function (
       return {
         ...state,
         isPerformingPostUpgrade: action.isPerformingPostUpgrade,
+      };
+
+    case 'SET_SELECT_LOCATION_VIEW':
+      return {
+        ...state,
+        selectLocationView: action.selectLocationView,
       };
 
     default:
