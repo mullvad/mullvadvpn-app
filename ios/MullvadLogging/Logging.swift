@@ -8,6 +8,7 @@
 
 import Foundation
 @_exported import Logging
+import MullvadTypes
 
 private enum LoggerOutput {
     case fileOutput(_ fileOutput: LogFileOutputStream)
@@ -24,7 +25,6 @@ public struct LoggerBuilder {
     public init() {}
 
     public mutating func addFileOutput(fileURL: URL) {
-        let logFileName = fileURL.lastPathComponent
         let logsDirectoryURL = fileURL.deletingLastPathComponent()
 
         try? FileManager.default.createDirectory(
@@ -34,7 +34,10 @@ public struct LoggerBuilder {
         )
 
         do {
-            try LogRotation.rotateLog(logsDirectory: logsDirectoryURL, logFileName: logFileName)
+            try LogRotation.rotateLogs(logDirectory: logsDirectoryURL, options: LogRotation.Options(
+                storageSizeLimit: 5_242_880, // 5 MB
+                oldestAllowedDate: Date(timeIntervalSinceNow: Duration.days(7).timeInterval)
+            ))
         } catch {
             logRotationErrors.append(error)
         }

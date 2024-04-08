@@ -15,4 +15,11 @@ extension Date {
 
         return formatter.string(from: self)
     }
+
+    public func logFormatFilename() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd-MM-yyyy'T'HH:mm:ss"
+
+        return formatter.string(from: self)
+    }
 }
