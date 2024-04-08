@@ -474,6 +474,8 @@ impl RelaySelector {
         let custom_lists = &config.custom_lists;
         Self::get_proxy_settings(parsed_relays, &constraints, near_location, custom_lists)
             .map(|(settings, _relay)| settings)
+            .inspect_err(|error| log::error!("Failed to get bridge: {error}"))
+            .ok()
     }
 
     /// Returns random relay and relay endpoint matching `query`.
@@ -892,14 +894,14 @@ impl RelaySelector {
                 }
                 TransportProtocol::Tcp => {
                     let location = relay.location.as_ref().ok_or(Error::NoRelay)?;
-                    Ok(Self::get_bridge_for(
+                    Self::get_bridge_for(
                         bridge_query,
                         location,
                         // FIXME: This is temporary while talpid-core only supports TCP proxies
                         TransportProtocol::Tcp,
                         parsed_relays,
                         custom_lists,
-                    ))
+                    )
                 }
             }
         }
@@ -911,7 +913,7 @@ impl RelaySelector {
         transport_protocol: TransportProtocol,
         parsed_relays: &ParsedRelays,
         custom_lists: &CustomListsSettings,
-    ) -> Option<SelectedBridge> {
+    ) -> Result<Option<SelectedBridge>, Error> {
         match query {
             BridgeQuery::Normal(settings) => {
                 let bridge_constraints = InternalBridgeConstraints {
@@ -921,16 +923,16 @@ impl RelaySelector {
                     transport_protocol: Constraint::Only(transport_protocol),
                 };
 
-                Self::get_proxy_settings(
+                let (settings, relay) = Self::get_proxy_settings(
                     parsed_relays,
                     &bridge_constraints,
                     Some(location),
                     custom_lists,
-                )
-                .map(|(settings, relay)| SelectedBridge::Normal { settings, relay })
+                )?;
+                Ok(Some(SelectedBridge::Normal { settings, relay }))
             }
-            BridgeQuery::Custom(settings) => settings.clone().map(SelectedBridge::Custom),
-            BridgeQuery::Off | BridgeQuery::Auto => None,
+            BridgeQuery::Custom(settings) => Ok(settings.clone().map(SelectedBridge::Custom)),
+            BridgeQuery::Off | BridgeQuery::Auto => Ok(None),
         }
     }
 
@@ -942,22 +944,24 @@ impl RelaySelector {
         constraints: &InternalBridgeConstraints,
         location: Option<T>,
         custom_lists: &CustomListsSettings,
-    ) -> Option<(CustomProxy, Relay)> {
+    ) -> Result<(CustomProxy, Relay), Error> {
         let bridges = filter_matching_bridges(constraints, parsed_relays.relays(), custom_lists);
+        let bridge_data = &parsed_relays.parsed_list().bridge;
         let bridge = match location {
             Some(location) => Self::get_proximate_bridge(bridges, location),
-            None => helpers::pick_random_relay(&bridges).cloned(),
+            None => helpers::pick_random_relay(&bridges)
+                .cloned()
+                .ok_or(Error::NoRelay),
         }?;
-
-        let bridge_data = &parsed_relays.parsed_list().bridge;
-        helpers::pick_random_bridge(bridge_data, &bridge).map(|endpoint| (endpoint, bridge.clone()))
+        let endpoint = detailer::bridge_endpoint(bridge_data, &bridge).ok_or(Error::NoBridge)?;
+        Ok((endpoint, bridge))
     }
 
     /// Try to get a bridge which is close to `location`.
     fn get_proximate_bridge<T: Into<Coordinates>>(
         relays: Vec<Relay>,
         location: T,
-    ) -> Option<Relay> {
+    ) -> Result<Relay, Error> {
         /// Number of bridges to keep for selection by distance.
         const MIN_BRIDGE_COUNT: usize = 5;
         let location = location.into();
@@ -983,13 +987,15 @@ impl RelaySelector {
         let greatest_distance: f64 = matching_bridges
             .iter()
             .map(|relay| relay.distance)
-            .reduce(f64::max)?;
+            .reduce(f64::max)
+            .ok_or(Error::NoBridge)?;
         // Define the weight function to prioritize bridges which are closer to `location`.
         let weight_fn = |relay: &RelayWithDistance| 1 + (greatest_distance - relay.distance) as u64;
 
         helpers::pick_random_relay_weighted(&matching_bridges, weight_fn)
             .cloned()
             .map(|relay_with_distance| relay_with_distance.relay)
+            .ok_or(Error::NoBridge)
     }
 
     /// Returns the average location of relays that match the given constraints.

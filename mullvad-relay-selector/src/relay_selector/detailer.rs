@@ -15,11 +15,13 @@ use mullvad_types::{
     endpoint::MullvadWireguardEndpoint,
     relay_constraints::TransportPort,
     relay_list::{
-        OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData, WireguardEndpointData,
+        BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData,
+        WireguardEndpointData,
     },
 };
 use talpid_types::net::{
     all_of_the_internet,
+    proxy::CustomProxy,
     wireguard::{PeerConfig, PublicKey},
     Endpoint, IpVersion, TransportProtocol,
 };
@@ -292,4 +294,26 @@ fn compatible_openvpn_port_combo(
             }
         },
     }
+}
+
+/// Picks a random bridge from a relay.
+pub fn bridge_endpoint(data: &BridgeEndpointData, relay: &Relay) -> Option<CustomProxy> {
+    use rand::seq::SliceRandom;
+    if relay.endpoint_data != RelayEndpointData::Bridge {
+        return None;
+    }
+    data.shadowsocks
+        .choose(&mut rand::thread_rng())
+        .inspect(|shadowsocks_endpoint| {
+            log::info!(
+                "Selected Shadowsocks bridge {} at {}:{}/{}",
+                relay.hostname,
+                relay.ipv4_addr_in,
+                shadowsocks_endpoint.port,
+                shadowsocks_endpoint.protocol
+            );
+        })
+        .map(|shadowsocks_endpoint| {
+            shadowsocks_endpoint.to_proxy_settings(relay.ipv4_addr_in.into())
+        })
 }
