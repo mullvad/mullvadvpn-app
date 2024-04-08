@@ -9,6 +9,7 @@
 import Foundation
 import MullvadTypes
 import PacketTunnelCore
+import WireGuardKitTypes
 
 /// A struct describing the tunnel status.
 struct TunnelStatus: Equatable, CustomStringConvertible {
@@ -51,7 +52,7 @@ enum TunnelState: Equatable, CustomStringConvertible {
     case connecting(SelectedRelay?)
 
     /// Negotiating a key for post-quantum resistance
-    case negotiatingKey(SelectedRelay)
+    case negotiatingPostQuantumKey(SelectedRelay, PrivateKey)
 
     /// Connected the tunnel
     case connected(SelectedRelay)
@@ -97,7 +98,7 @@ enum TunnelState: Equatable, CustomStringConvertible {
             "waiting for connectivity"
         case let .error(blockedStateReason):
             "error state: \(blockedStateReason)"
-        case let .negotiatingKey(tunnelRelay):
+        case let .negotiatingPostQuantumKey(tunnelRelay, _):
             "negotiating key with \(tunnelRelay.hostname)"
         }
     }
@@ -109,14 +110,14 @@ enum TunnelState: Equatable, CustomStringConvertible {
             true
         case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork), .error:
             false
-        case .negotiatingKey:
+        case .negotiatingPostQuantumKey:
             false
         }
     }
 
     var relay: SelectedRelay? {
         switch self {
-        case let .connected(relay), let .reconnecting(relay), let .negotiatingKey(relay):
+        case let .connected(relay), let .reconnecting(relay), let .negotiatingPostQuantumKey(relay, _):
             relay
         case let .connecting(relay):
             relay

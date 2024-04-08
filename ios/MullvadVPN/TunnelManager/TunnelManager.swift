@@ -675,7 +675,7 @@ final class TunnelManager: StorePaymentObserver {
             // while the tunnel process is trying to connect.
             startPollingTunnelStatus(interval: establishingTunnelStatusPollInterval)
 
-        case .negotiatingKey:
+        case .negotiatingPostQuantumKey:
             // No need to poll the tunnel while negotiating post quantum keys, assume the connection will work
             break
 

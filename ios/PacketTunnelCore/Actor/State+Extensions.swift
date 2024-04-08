@@ -95,7 +95,6 @@ extension State {
             let .disconnecting(connState): connState
         default: nil
         }
-        return modified
     }
 
     var blockedData: State.BlockingData? {
@@ -149,7 +148,6 @@ extension State {
 
         default:
             break
-
         }
     }
 
