@@ -25,9 +25,10 @@ mod imp;
 pub use self::imp::Error;
 
 /// When "allow local network" is enabled the app will allow traffic to and from these networks.
-pub(crate) static ALLOWED_LAN_NETS: Lazy<[IpNetwork; 6]> = Lazy::new(|| {
+pub(crate) static ALLOWED_LAN_NETS: Lazy<[IpNetwork; 7]> = Lazy::new(|| {
     [
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap()),
+        IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(100, 64, 0, 0), 10).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(172, 16, 0, 0), 12).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(192, 168, 0, 0), 16).unwrap()),
         IpNetwork::V4(Ipv4Network::new(Ipv4Addr::new(169, 254, 0, 0), 16).unwrap()),
