@@ -5,10 +5,7 @@ use super::{
     },
     ui, Error, TestContext,
 };
-use crate::{
-    assert_tunnel_state, tests::helpers::ping_sized_with_timeout,
-    vm::network::DUMMY_LAN_INTERFACE_IP,
-};
+use crate::{assert_tunnel_state, tests::helpers::ping_sized_with_timeout};
 
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
@@ -20,10 +17,7 @@ use mullvad_types::{
     states::TunnelState,
     CustomTunnelEndpoint,
 };
-use std::{
-    net::{IpAddr, SocketAddr},
-    time::Duration,
-};
+use std::{net::SocketAddr, time::Duration};
 use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
@@ -143,7 +137,7 @@ pub async fn test_disconnected_state(
         .expect("failed to obtain non-tun interface");
 
     let detected_probes =
-        send_guest_probes(rpc.clone(), non_tunnel_interface, inet_destination).await?;
+        send_guest_probes(rpc.clone(), non_tunnel_interface, inet_destination).await;
     assert!(
         detected_probes.all(),
         "did not see (all) outgoing packets to destination: {detected_probes:?}",
@@ -181,9 +175,11 @@ pub async fn test_connecting_state(
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     let inet_destination = "1.1.1.1:1337".parse().unwrap();
-    let lan_destination: SocketAddr = SocketAddr::new(IpAddr::V4(DUMMY_LAN_INTERFACE_IP), 1337);
+    // Take care not to use some bogus IP in the guest's subnet, lest we just send ARP requests
+    // These will fail if there's no actual host present
+    let lan_destination = "10.1.2.3:1234".parse().unwrap();
     let inet_dns = "1.1.1.1:53".parse().unwrap();
-    let lan_dns: SocketAddr = SocketAddr::new(IpAddr::V4(DUMMY_LAN_INTERFACE_IP), 53);
+    let lan_dns = "10.1.2.3:53".parse().unwrap();
 
     log::info!("Verify tunnel state: disconnected");
     assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
@@ -225,25 +221,25 @@ pub async fn test_connecting_state(
 
     assert!(
         send_guest_probes(rpc.clone(), non_tunnel_interface.clone(), inet_destination)
-            .await?
+            .await
             .none(),
         "observed unexpected outgoing packets (inet)"
     );
     assert!(
         send_guest_probes(rpc.clone(), non_tunnel_interface.clone(), lan_destination)
-            .await?
+            .await
             .none(),
         "observed unexpected outgoing packets (lan)"
     );
     assert!(
         send_guest_probes(rpc.clone(), non_tunnel_interface.clone(), inet_dns)
-            .await?
+            .await
             .none(),
         "observed unexpected outgoing packets (DNS, inet)"
     );
     assert!(
         send_guest_probes(rpc.clone(), non_tunnel_interface, lan_dns)
-            .await?
+            .await
             .none(),
         "observed unexpected outgoing packets (DNS, lan)"
     );
@@ -262,9 +258,11 @@ pub async fn test_error_state(
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     let inet_destination = "1.1.1.1:1337".parse().unwrap();
-    let lan_destination: SocketAddr = SocketAddr::new(IpAddr::V4(DUMMY_LAN_INTERFACE_IP), 1337);
+    // Take care not to use some bogus IP in the guest's subnet, lest we just send ARP requests
+    // These will fail if there's no actual host present
+    let lan_destination = "10.1.2.3:1234".parse().unwrap();
     let inet_dns = "1.1.1.1:53".parse().unwrap();
-    let lan_dns: SocketAddr = SocketAddr::new(IpAddr::V4(DUMMY_LAN_INTERFACE_IP), 53);
+    let lan_dns = "10.1.2.3:53".parse().unwrap();
 
     log::info!("Verify tunnel state: disconnected");
     assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
@@ -303,25 +301,25 @@ pub async fn test_error_state(
 
     assert!(
         send_guest_probes(rpc.clone(), default_interface.clone(), inet_destination)
-            .await?
+            .await
             .none(),
         "observed unexpected outgoing packets (inet)"
     );
     assert!(
         send_guest_probes(rpc.clone(), default_interface.clone(), lan_destination)
-            .await?
+            .await
             .none(),
         "observed unexpected outgoing packets (lan)"
     );
     assert!(
         send_guest_probes(rpc.clone(), default_interface.clone(), inet_dns)
-            .await?
+            .await
             .none(),
         "observed unexpected outgoing packets (DNS, inet)"
     );
     assert!(
         send_guest_probes(rpc.clone(), default_interface, lan_dns)
-            .await?
+            .await
             .none(),
         "observed unexpected outgoing packets (DNS, lan)"
     );
@@ -389,7 +387,7 @@ pub async fn test_connected_state(
         .await
         .expect("failed to find non-tun interface");
 
-    let detected_probes = send_guest_probes(rpc.clone(), nontun_iface, inet_destination).await?;
+    let detected_probes = send_guest_probes(rpc.clone(), nontun_iface, inet_destination).await;
     assert!(
         detected_probes.none(),
         "observed unexpected outgoing packets: {detected_probes:?}"
