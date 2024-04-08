@@ -37,6 +37,11 @@ const StyledSmallButton = styled.button<{ $color?: SmallButtonColor; disabled?: 
       borderRadius: '4px',
       marginLeft: '12px',
 
+      [`${SmallButtonGroupStart} &&`]: {
+        marginLeft: 0,
+        marginRight: '12px',
+      },
+
       [`${StyledSmallButtonGrid} &&`]: {
         marginLeft: 0,
       },
@@ -66,6 +71,12 @@ export const SmallButtonGroup = styled.div<{ $noMarginTop?: boolean }>((props) =
   margin: '0 23px',
   marginTop: props.$noMarginTop ? 0 : '30px',
 }));
+
+export const SmallButtonGroupStart = styled(SmallButtonGroup)({
+  flex: 1,
+  justifyContent: 'start',
+  margin: 0,
+});
 
 const StyledSmallButtonGrid = styled.div<{ $columns: number }>((props) => ({
   display: 'grid',
