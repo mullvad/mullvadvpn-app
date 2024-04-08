@@ -44,6 +44,7 @@ import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory as ModelAccountHistory
 import net.mullvad.mullvadvpn.model.AppVersionInfo as ModelAppVersionInfo
+import net.mullvad.mullvadvpn.model.ClearAllOverridesError
 import net.mullvad.mullvadvpn.model.CreateCustomListError
 import net.mullvad.mullvadvpn.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.model.CustomListId
@@ -59,6 +60,7 @@ import net.mullvad.mullvadvpn.model.ObfuscationSettings as ModelObfuscationSetti
 import net.mullvad.mullvadvpn.model.QuantumResistantState as ModelQuantumResistantState
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings as ModelSettings
+import net.mullvad.mullvadvpn.model.SettingsPatchError
 import net.mullvad.mullvadvpn.model.TunnelState as ModelTunnelState
 import net.mullvad.mullvadvpn.model.UpdateCustomListError
 import org.joda.time.Instant
@@ -84,7 +86,7 @@ class ManagementService(
         channel
             .connectivityFlow()
             .map(ConnectivityState::toDomain)
-            .onEach { Log.d("ManagementService", "Connection state: $it") }
+            .onEach { Log.d(TAG, "Connection state: $it") }
             .stateIn(scope, SharingStarted.Eagerly, channel.getState(false).toDomain())
 
     private fun ManagedChannel.connectivityFlow(): Flow<ConnectivityState> {
@@ -167,7 +169,7 @@ class ManagementService(
                     }
                 }
             } catch (e: Exception) {
-                Log.e("ManagementService", "Error in eventsListen: ${e.message}")
+                Log.e(TAG, "Error in eventsListen: ${e.message}")
             }
         }
         scope.launch { _mutableStateFlow.update { getInitialServiceState() } }
@@ -269,7 +271,7 @@ class ManagementService(
                 managementService.createNewAccount(Empty.getDefaultInstance())
             AccountCreationResult.Success(accountTokenStringValue.value)
         } catch (e: StatusException) {
-            Log.e("ManagementService", "createAccount error: ${e.message}")
+            Log.e(TAG, "createAccount error: ${e.message}")
             AccountCreationResult.Failure
         }
 
@@ -383,7 +385,35 @@ class ManagementService(
             .mapLeft(DeleteCustomListError::Unknown)
             .mapEmpty()
 
+    suspend fun clearAllRelayOverrides(): Either<ClearAllOverridesError, Unit> =
+        Either.catch { managementService.clearAllRelayOverrides(Empty.getDefaultInstance()) }
+            .mapLeft(ClearAllOverridesError::Unknown)
+            .mapEmpty()
+
+    suspend fun applySettingsPatch(json: String): Either<SettingsPatchError, Unit> =
+        Either.catch { managementService.applyJsonSettings(StringValue.of(json)) }
+            .mapLeft {
+                if (it is StatusException) {
+                    Log.d(
+                        TAG,
+                        "applySettingsPatch error: ${it.status.description} ${it.status.code}"
+                    )
+                    when (it.status.code) {
+                        // Currently we only get invalid argument errors from daemon via gRPC
+                        Status.Code.INVALID_ARGUMENT -> SettingsPatchError.ParsePatch
+                        else -> SettingsPatchError.ApplyPatch
+                    }
+                } else {
+                    throw it
+                }
+            }
+            .mapEmpty()
+
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
+
+    companion object {
+        private const val TAG = "ManagementService"
+    }
 }
 
 sealed interface GrpcConnectivityState {

@@ -119,11 +119,16 @@ fun ServerIpOverrides(
 
     // On successful clear of overrides, show snackbar
     val scope = rememberCoroutineScope()
-    clearOverridesResult.OnNavResultValue {
+    clearOverridesResult.OnNavResultValue { result ->
         scope.launch {
             snackbarHostState.showSnackbarImmediately(
                 this,
-                message = context.getString(R.string.overrides_cleared),
+                message =
+                    if (result) {
+                        context.getString(R.string.overrides_cleared)
+                    } else {
+                        context.getString(R.string.error_occurred)
+                    },
                 actionLabel = null
             )
         }
