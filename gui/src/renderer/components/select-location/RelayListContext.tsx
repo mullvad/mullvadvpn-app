@@ -135,6 +135,15 @@ function useRelayList(
   const selectedLocation = useSelectedLocation();
   const disabledLocation = useDisabledLocation();
 
+  const preventDueToCustomBridgeSelected = usePreventDueToCustomBridgeSelected();
+
+  const isLocationSelected = useCallback(
+    (location: RelayLocation) => {
+      return preventDueToCustomBridgeSelected ? false : isSelected(location, selectedLocation);
+    },
+    [preventDueToCustomBridgeSelected, selectedLocation],
+  );
+
   return useMemo(() => {
     return relayList
       .map((country) => {
@@ -149,7 +158,7 @@ function useRelayList(
           disabled: countryDisabledReason !== undefined,
           disabledReason: countryDisabledReason,
           expanded: isExpanded(countryLocation, expandedLocations),
-          selected: isSelected(countryLocation, selectedLocation),
+          selected: isLocationSelected(countryLocation),
           cities: country.cities
             .map((city) => {
               const cityLocation: RelayLocation = { country: country.code, city: city.code };
@@ -164,7 +173,7 @@ function useRelayList(
                 disabled: cityDisabledReason !== undefined,
                 disabledReason: cityDisabledReason,
                 expanded: isExpanded(cityLocation, expandedLocations),
-                selected: isSelected(cityLocation, selectedLocation),
+                selected: isLocationSelected(cityLocation),
                 relays: city.relays
                   .map((relay) => {
                     const relayLocation: RelayLocation = {
@@ -183,7 +192,7 @@ function useRelayList(
                       location: relayLocation,
                       disabled: relayDisabledReason !== undefined,
                       disabledReason: relayDisabledReason,
-                      selected: isSelected(relayLocation, selectedLocation),
+                      selected: isLocationSelected(relayLocation),
                     };
                   })
                   .sort((a, b) => a.hostname.localeCompare(b.hostname, locale, { numeric: true })),
@@ -193,7 +202,17 @@ function useRelayList(
         };
       })
       .sort((a, b) => a.label.localeCompare(b.label, locale));
-  }, [locale, expandedLocations, relayList, selectedLocation, disabledLocation]);
+  }, [locale, expandedLocations, relayList, disabledLocation, isLocationSelected]);
+}
+
+export function usePreventDueToCustomBridgeSelected(): boolean {
+  const relaySettings = useNormalRelaySettings();
+  const { locationType } = useSelectLocationContext();
+  const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
+  const isBridgeSelection =
+    relaySettings?.tunnelProtocol === 'openvpn' && locationType === LocationType.entry;
+
+  return isBridgeSelection && bridgeSettings.type === 'custom';
 }
 
 // Return all RelayLocations that should be expanded
