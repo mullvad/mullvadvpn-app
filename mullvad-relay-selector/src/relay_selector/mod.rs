@@ -958,10 +958,8 @@ impl RelaySelector {
         relays: Vec<Relay>,
         location: T,
     ) -> Option<Relay> {
-        /// Minimum number of bridges to keep for selection when filtering by distance.
+        /// Number of bridges to keep for selection by distance.
         const MIN_BRIDGE_COUNT: usize = 5;
-        /// Max distance of bridges to consider for selection (km).
-        const MAX_BRIDGE_DISTANCE: f64 = 1500f64;
         let location = location.into();
 
         #[derive(Clone)]
@@ -971,7 +969,7 @@ impl RelaySelector {
         }
 
         // Filter out all candidate bridges.
-        let matching_relays: Vec<RelayWithDistance> = relays
+        let matching_bridges: Vec<RelayWithDistance> = relays
             .into_iter()
             .map(|relay| RelayWithDistance {
                 distance: relay.location.as_ref().unwrap().distance_from(&location),
@@ -979,18 +977,17 @@ impl RelaySelector {
             })
             .sorted_unstable_by_key(|relay| relay.distance as usize)
             .take(MIN_BRIDGE_COUNT)
-            .filter(|relay| relay.distance <= MAX_BRIDGE_DISTANCE)
             .collect();
 
         // Calculate the maximum distance from `location` among the candidates.
-        let greatest_distance: f64 = matching_relays
+        let greatest_distance: f64 = matching_bridges
             .iter()
             .map(|relay| relay.distance)
             .reduce(f64::max)?;
         // Define the weight function to prioritize bridges which are closer to `location`.
         let weight_fn = |relay: &RelayWithDistance| 1 + (greatest_distance - relay.distance) as u64;
 
-        helpers::pick_random_relay_weighted(&matching_relays, weight_fn)
+        helpers::pick_random_relay_weighted(&matching_bridges, weight_fn)
             .cloned()
             .map(|relay_with_distance| relay_with_distance.relay)
     }
