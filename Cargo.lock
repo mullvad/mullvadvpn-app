@@ -3808,6 +3808,7 @@ dependencies = [
  "system-configuration",
  "talpid-dbus",
  "talpid-openvpn",
+ "talpid-platform-metadata",
  "talpid-routing",
  "talpid-time",
  "talpid-tunnel",
