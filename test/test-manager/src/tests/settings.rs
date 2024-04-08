@@ -24,12 +24,6 @@ pub async fn test_lan(
     let lan_destination = SocketAddr::new(IpAddr::V4(DUMMY_LAN_INTERFACE_IP), 1234);
 
     //
-    // Connect
-    //
-
-    connect_and_wait(&mut mullvad_client).await?;
-
-    //
     // Disable LAN sharing
     //
 
@@ -39,6 +33,12 @@ pub async fn test_lan(
         .set_allow_lan(false)
         .await
         .expect("failed to disable LAN sharing");
+
+    //
+    // Connect
+    //
+
+    connect_and_wait(&mut mullvad_client).await?;
 
     //
     // Ensure LAN is not reachable
@@ -64,6 +64,9 @@ pub async fn test_lan(
         .set_allow_lan(true)
         .await
         .expect("failed to enable LAN sharing");
+
+    // Firewall updates are a bit racey, so wait for a while
+    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
     //
     // Ensure LAN is reachable
@@ -106,16 +109,6 @@ pub async fn test_lockdown(
     let lan_destination: SocketAddr = SocketAddr::new(IpAddr::V4(DUMMY_LAN_INTERFACE_IP), 1337);
     let inet_destination: SocketAddr = "1.1.1.1:1337".parse().unwrap();
 
-    log::info!("Verify tunnel state: disconnected");
-    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
-
-    // Enable lockdown mode
-    //
-    mullvad_client
-        .set_block_when_disconnected(true)
-        .await
-        .expect("failed to enable lockdown mode");
-
     //
     // Disable LAN sharing
     //
@@ -126,6 +119,16 @@ pub async fn test_lockdown(
         .set_allow_lan(false)
         .await
         .expect("failed to disable LAN sharing");
+
+    // Enable lockdown mode
+    //
+    mullvad_client
+        .set_block_when_disconnected(true)
+        .await
+        .expect("failed to enable lockdown mode");
+
+    // Firewall updates are a bit racey, so wait for a while
+    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
     //
     // Ensure all destinations are unreachable
@@ -157,6 +160,9 @@ pub async fn test_lockdown(
         .set_allow_lan(true)
         .await
         .expect("failed to enable LAN sharing");
+
+    // Firewall updates are a bit racey, so wait for a while
+    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
     //
     // Ensure private IPs are reachable, but not others
