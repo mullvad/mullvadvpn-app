@@ -64,19 +64,20 @@ pub fn pick_random_bridge(data: &BridgeEndpointData, relay: &Relay) -> Option<Cu
     if relay.endpoint_data != RelayEndpointData::Bridge {
         return None;
     }
-    let shadowsocks_endpoint = data.shadowsocks.choose(&mut rand::thread_rng());
-    if let Some(shadowsocks_endpoint) = shadowsocks_endpoint {
-        log::info!(
-            "Selected Shadowsocks bridge {} at {}:{}/{}",
-            relay.hostname,
-            relay.ipv4_addr_in,
-            shadowsocks_endpoint.port,
-            shadowsocks_endpoint.protocol
-        );
-        Some(shadowsocks_endpoint.to_proxy_settings(relay.ipv4_addr_in.into()))
-    } else {
-        None
-    }
+    data.shadowsocks
+        .choose(&mut rand::thread_rng())
+        .inspect(|shadowsocks_endpoint| {
+            log::info!(
+                "Selected Shadowsocks bridge {} at {}:{}/{}",
+                relay.hostname,
+                relay.ipv4_addr_in,
+                shadowsocks_endpoint.port,
+                shadowsocks_endpoint.protocol
+            );
+        })
+        .map(|shadowsocks_endpoint| {
+            shadowsocks_endpoint.to_proxy_settings(relay.ipv4_addr_in.into())
+        })
 }
 
 pub fn get_udp2tcp_obfuscator(
