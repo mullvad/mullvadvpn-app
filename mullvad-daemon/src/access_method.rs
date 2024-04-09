@@ -128,6 +128,17 @@ where
         Ok(())
     }
 
+    /// Remove all custom [`AccessMethodSetting`].
+    pub async fn clear_custom_api_access_methods(&mut self) -> Result<(), Error> {
+        self.settings
+            .update(|settings: &mut Settings| {
+                settings.api_access_methods.clear_custom();
+            })
+            .await?;
+
+        Ok(())
+    }
+
     /// Return the [`AccessMethodSetting`] which is currently used to access the
     /// Mullvad API.
     pub async fn get_current_access_method(&self) -> Result<AccessMethodSetting, Error> {
