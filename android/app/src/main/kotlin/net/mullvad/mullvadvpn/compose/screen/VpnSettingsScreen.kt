@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.content.Context
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -19,6 +20,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -31,7 +33,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
@@ -49,6 +50,7 @@ import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NormalSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
+import net.mullvad.mullvadvpn.compose.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.component.textResource
@@ -133,42 +135,46 @@ private fun PreviewVpnSettings() {
 @Composable
 fun VpnSettings(
     navigator: DestinationsNavigator,
-    dnsDialogResult: ResultRecipient<DnsDialogDestination, Boolean>,
-    customWgPortResult: ResultRecipient<WireguardCustomPortDialogDestination, Int?>
+    dnsDialogResult: ResultRecipient<DnsDialogDestination, DnsDialogResult>,
+    customWgPortResult: ResultRecipient<WireguardCustomPortDialogDestination, Int?>,
+    mtuDialogResult: ResultRecipient<MtuDialogDestination, Boolean>,
 ) {
     val vm = koinViewModel<VpnSettingsViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     dnsDialogResult.OnNavResultValue { result ->
-        if (result) {
-            vm.showApplySettingChangesWarningToast()
-        } else {
-            vm.onDnsDialogDismissed()
-        }
-    }
-
-    customWgPortResult.onNavResult {
-        when (it) {
-            NavResult.Canceled -> {}
-            is NavResult.Value -> {
-                val port = it.value
-
-                if (port != null) {
-                    vm.onWireguardPortSelected(Constraint.Only(Port(port)))
-                } else {
-                    vm.resetCustomPort()
-                }
+        when (result) {
+            DnsDialogResult.Success -> vm.showApplySettingChangesWarningToast()
+            DnsDialogResult.Cancel -> vm.onDnsDialogDismissed()
+            DnsDialogResult.Error -> {
+                vm.showGenericErrorToast()
+                vm.onDnsDialogDismissed()
             }
         }
     }
 
+    customWgPortResult.OnNavResultValue { port ->
+        if (port != null) {
+            vm.onWireguardPortSelected(Constraint.Only(Port(port)))
+        } else {
+            vm.resetCustomPort()
+        }
+    }
+
+    mtuDialogResult.OnNavResultValue { result ->
+        if (!result) {
+            vm.showGenericErrorToast()
+        }
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
     LaunchedEffectCollect(vm.uiSideEffect) {
         when (it) {
             is VpnSettingsSideEffect.ShowToast ->
                 launch {
                     snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar(message = it.message)
+                    snackbarHostState.showSnackbar(message = it.message(context))
                 }
             VpnSettingsSideEffect.NavigateToDnsDialog ->
                 navigator.navigate(DnsDialogDestination(null, null)) { launchSingleTop = true }
@@ -632,3 +638,10 @@ private fun ServerIpOverrides(onServerIpOverridesClick: () -> Unit) {
         onClick = onServerIpOverridesClick
     )
 }
+
+private fun VpnSettingsSideEffect.ShowToast.message(context: Context) =
+    when (this) {
+        VpnSettingsSideEffect.ShowToast.ApplySettingsWarning ->
+            context.getString(R.string.settings_changes_effect_warning_short)
+        VpnSettingsSideEffect.ShowToast.GenericError -> context.getString(R.string.error_occurred)
+    }

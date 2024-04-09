@@ -168,7 +168,7 @@ val uiModule = module {
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
-    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
+    viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }

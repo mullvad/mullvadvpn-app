@@ -21,18 +21,28 @@ class MtuDialogViewModel(
     fun onSaveClick(mtuValue: Int) =
         viewModelScope.launch(dispatcher) {
             if (mtuValue.isValidMtu()) {
-                repository.setWireguardMtu(mtuValue)
+                repository
+                    .setWireguardMtu(mtuValue)
+                    .fold(
+                        { _uiSideEffect.send(MtuDialogSideEffect.Error) },
+                        { _uiSideEffect.send(MtuDialogSideEffect.Complete) }
+                    )
             }
-            _uiSideEffect.send(MtuDialogSideEffect.Complete)
         }
 
     fun onRestoreClick() =
         viewModelScope.launch(dispatcher) {
-            repository.setWireguardMtu(null)
-            _uiSideEffect.send(MtuDialogSideEffect.Complete)
+            repository
+                .setWireguardMtu(null)
+                .fold(
+                    { _uiSideEffect.send(MtuDialogSideEffect.Error) },
+                    { _uiSideEffect.send(MtuDialogSideEffect.Complete) }
+                )
         }
 }
 
 sealed interface MtuDialogSideEffect {
     data object Complete : MtuDialogSideEffect
+
+    data object Error : MtuDialogSideEffect
 }
