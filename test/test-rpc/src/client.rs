@@ -314,6 +314,20 @@ impl ServiceClient {
         Ok(())
     }
 
+    /// Get the current daemon's environment variables.
+    ///
+    /// # Returns
+    /// - `Result::Ok(env)` if the current environment variables could be read.
+    /// - `Result::Err(Error)` if communication with the daemon failed or the environment values
+    /// could not be parsed.
+    pub async fn get_daemon_environment(&self) -> Result<HashMap<String, String>, Error> {
+        let mut ctx = tarpc::context::current();
+        ctx.deadline = SystemTime::now().checked_add(LOG_LEVEL_TIMEOUT).unwrap();
+        let env = self.client.get_daemon_environment(ctx).await??;
+
+        Ok(env)
+    }
+
     pub async fn copy_file(&self, src: String, dest: String) -> Result<(), Error> {
         log::debug!("Copying \"{src}\" to \"{dest}\"");
         self.client

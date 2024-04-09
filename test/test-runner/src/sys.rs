@@ -4,12 +4,21 @@ use std::io;
 use test_rpc::{meta::OsVersion, mullvad_daemon::Verbosity};
 
 #[cfg(target_os = "windows")]
-use std::ffi::OsString;
+use std::{ffi::OsString, path::Path};
 #[cfg(target_os = "windows")]
 use windows_service::{
     service::{ServiceAccess, ServiceInfo},
     service_manager::{ServiceManager, ServiceManagerAccess},
 };
+
+#[cfg(target_os = "linux")]
+const SYSTEMD_OVERRIDE_FILE: &str = "/etc/systemd/system/mullvad-daemon.service.d/override.conf";
+
+#[cfg(target_os = "macos")]
+const PLIST_OVERRIDE_FILE: &str = "/Library/LaunchDaemons/net.mullvad.daemon.plist";
+
+#[cfg(target_os = "windows")]
+const MULLVAD_WIN_REGISTRY: &str = r"SYSTEM\CurrentControlSet\Services\Mullvad VPN";
 
 #[cfg(target_os = "windows")]
 pub fn reboot() -> Result<(), test_rpc::Error> {
@@ -154,9 +163,6 @@ pub fn reboot() -> Result<(), test_rpc::Error> {
 #[cfg(target_os = "linux")]
 pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test_rpc::Error> {
     use tokio::io::AsyncWriteExt;
-    const SYSTEMD_OVERRIDE_FILE: &str =
-        "/etc/systemd/system/mullvad-daemon.service.d/override.conf";
-
     log::debug!("Setting log level");
 
     let verbosity = match verbosity_level {
@@ -389,17 +395,54 @@ pub async fn set_daemon_log_level(_verbosity_level: Verbosity) -> Result<(), tes
 }
 
 #[cfg(target_os = "linux")]
+#[derive(Debug)]
+struct EnvVar {
+    var: String,
+    value: String,
+}
+
+#[cfg(target_os = "linux")]
+impl EnvVar {
+    fn from_systemd_string(s: &str) -> Result<Self, &'static str> {
+        // Here, we are only concerned with parsing a line that starts with "Environment".
+        let error = "Failed to parse systemd env-config";
+        let mut input = s.trim().split('=');
+        let pre = input.next().ok_or(error)?;
+        match pre {
+            "Environment" => {
+                // Proccess the input just a bit more - remove the leading and trailing quote (").
+                let var = input
+                    .next()
+                    .ok_or(error)?
+                    .trim_start_matches('"')
+                    .to_string();
+                let value = input.next().ok_or(error)?.trim_end_matches('"').to_string();
+                Ok(EnvVar { var, value })
+            }
+            _ => Err(error),
+        }
+    }
+
+    fn to_systemd_string(&self) -> String {
+        format!(
+            "Environment=\"{key}={value}\"",
+            key = self.var,
+            value = self.value
+        )
+    }
+}
+
+#[cfg(target_os = "linux")]
 pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), test_rpc::Error> {
     use std::fmt::Write;
     use tokio::io::AsyncWriteExt;
 
-    const SYSTEMD_OVERRIDE_FILE: &str = "/etc/systemd/system/mullvad-daemon.service.d/env.conf";
-
     let mut override_content = String::new();
     override_content.push_str("[Service]\n");
 
-    for (k, v) in env {
-        writeln!(&mut override_content, "Environment=\"{k}={v}\"").unwrap();
+    for var in env.into_iter().map(|(var, value)| EnvVar { var, value }) {
+        writeln!(&mut override_content, "{}", var.to_systemd_string())
+            .map_err(|err| test_rpc::Error::Service(err.to_string()))?;
     }
 
     let override_path = std::path::Path::new(SYSTEMD_OVERRIDE_FILE);
@@ -409,15 +452,10 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
             .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
     }
 
-    let mut file = tokio::fs::OpenOptions::new()
-        .create(true)
-        .truncate(true)
-        .write(true)
-        .open(override_path)
+    tokio::fs::File::create(override_path)
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
-
-    file.write_all(override_content.as_bytes())
+        .map_err(|e| test_rpc::Error::Service(e.to_string()))?
+        .write_all(override_content.as_bytes())
         .await
         .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
 
@@ -440,13 +478,25 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
 #[cfg(target_os = "windows")]
 pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), test_rpc::Error> {
     // Set environment globally (not for service) to prevent it from being lost on upgrade
-    for (k, v) in env {
+    for (k, v) in env.clone() {
         tokio::process::Command::new("setx")
             .arg("/m")
             .args([k, v])
             .status()
             .await
             .map_err(|e| test_rpc::Error::Registry(e.to_string()))?;
+    }
+    // Persist the changed environment variables, such that we can retrieve them at will.
+    use winreg::{enums::*, RegKey};
+    let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+    let path = Path::new(MULLVAD_WIN_REGISTRY).join("Environment");
+    let (registry, _) = hklm.create_subkey(&path).map_err(|error| {
+        test_rpc::Error::Registry(format!("Failed to open Mullvad VPN subkey: {}", error))
+    })?;
+    for (k, v) in env {
+        registry.set_value(k, &v).map_err(|error| {
+            test_rpc::Error::Registry(format!("Failed to set Environment var: {}", error))
+        })?;
     }
 
     // Restart service
@@ -464,7 +514,7 @@ pub fn get_system_path_var() -> Result<String, test_rpc::Error> {
     let key = hklm
         .open_subkey("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment")
         .map_err(|error| {
-            test_rpc::Error::Registry(format!("Failed to open environment subkey: {}", error))
+            test_rpc::Error::Registry(format!("Failed to open Environment subkey: {}", error))
         })?;
 
     let path: String = key
@@ -476,14 +526,11 @@ pub fn get_system_path_var() -> Result<String, test_rpc::Error> {
 
 #[cfg(target_os = "macos")]
 pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), test_rpc::Error> {
-    const PLIST_PATH: &str = "/Library/LaunchDaemons/net.mullvad.daemon.plist";
-
     tokio::task::spawn_blocking(|| {
-        let mut parsed_plist: plist::Value = plist::from_file(PLIST_PATH)
+        let mut parsed_plist = plist::Value::from_file(PLIST_OVERRIDE_FILE)
             .map_err(|error| test_rpc::Error::Service(format!("failed to parse plist: {error}")))?;
 
         let mut vars = plist::Dictionary::new();
-
         for (k, v) in env {
             // Set environment globally (not for service) to prevent it from being lost on upgrade
             std::process::Command::new("launchctl")
@@ -503,10 +550,7 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
                 plist::Value::Dictionary(vars),
             );
 
-        let daemon_plist = std::fs::OpenOptions::new()
-            .write(true)
-            .truncate(true)
-            .open(PLIST_PATH)
+        let daemon_plist = std::fs::File::create(PLIST_OVERRIDE_FILE)
             .map_err(|e| test_rpc::Error::Service(format!("failed to open plist: {e}")))?;
 
         parsed_plist
@@ -532,12 +576,116 @@ async fn set_launch_daemon_state(on: bool) -> Result<(), test_rpc::Error> {
         .args([
             if on { "load" } else { "unload" },
             "-w",
-            "/Library/LaunchDaemons/net.mullvad.daemon.plist",
+            PLIST_OVERRIDE_FILE,
         ])
         .status()
         .await
         .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
     Ok(())
+}
+
+#[cfg(target_os = "linux")]
+pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rpc::Error> {
+    use tokio::fs::File;
+    use tokio::io::AsyncReadExt;
+
+    let mut file = File::open(SYSTEMD_OVERRIDE_FILE)
+        .await
+        .map_err(|err| test_rpc::Error::FileSystem(err.to_string()))?;
+    let text = {
+        let mut buf = String::new();
+        file.read_to_string(&mut buf)
+            .await
+            .map_err(|err| test_rpc::Error::FileSystem(err.to_string()))?;
+        buf
+    };
+
+    let env: HashMap<String, String> = parse_systemd_env_file(&text)
+        .into_iter()
+        .map(|EnvVar { var, value }| (var, value))
+        .collect();
+    Ok(env)
+}
+
+/// Parse a systemd env-file. `input` is assumed to be the entire text content of a systemd-env file.
+///
+/// Example systemd-env file:
+/// ```
+/// [Service]
+/// Environment="VAR1=pGNqduRFkB4K9C2vijOmUDa2kPtUhArN"
+/// Environment="VAR2=JP8YLOc2bsNlrGuD6LVTq7L36obpjzxd"
+/// ```
+#[cfg(target_os = "linux")]
+fn parse_systemd_env_file(input: &str) -> impl IntoIterator<Item = EnvVar> + '_ {
+    input
+        .lines()
+        // Skip the [Service] line
+        .skip(1)
+        .map(EnvVar::from_systemd_string)
+        .filter_map(|env_var| env_var.ok())
+        .inspect(|env_var| log::trace!("Parsed {env_var:?}"))
+}
+
+#[cfg(target_os = "windows")]
+#[allow(clippy::unused_async)]
+pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rpc::Error> {
+    use winreg::{enums::*, RegKey};
+
+    let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+    let key = hklm.open_subkey(MULLVAD_WIN_REGISTRY).map_err(|error| {
+        test_rpc::Error::Registry(format!("Failed to open Mullvad VPN subkey: {}", error))
+    })?;
+
+    let trim = |string: String| {
+        string
+            .trim_start_matches('"')
+            .trim_end_matches('"')
+            .to_owned()
+    };
+    let env = key
+        .open_subkey("Environment")
+        .map_err(|error| {
+            test_rpc::Error::Registry(format!("Failed to open Environment subkey: {}", error))
+        })?
+        .enum_values()
+        .filter_map(|x| x.inspect_err(|err| log::trace!("{err}")).ok())
+        // The Strings will be quoted (surrounded by "") when read from the registry - we should
+        // trim that!
+        .map(|(k, v)| (trim(k), trim(v.to_string())))
+        .collect();
+
+    Ok(env)
+}
+
+#[cfg(target_os = "macos")]
+pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rpc::Error> {
+    let plist = tokio::task::spawn_blocking(|| {
+        let parsed_plist = plist::Value::from_file(PLIST_OVERRIDE_FILE)
+            .map_err(|error| test_rpc::Error::Service(format!("failed to parse plist: {error}")))?;
+
+        Ok::<plist::Value, test_rpc::Error>(parsed_plist)
+    })
+    .await
+    .unwrap()?;
+
+    let plist_tree = plist
+        .as_dictionary()
+        .ok_or_else(|| test_rpc::Error::Service("plist missing dict".to_owned()))?;
+    let Some(env_vars) = plist_tree.get("EnvironmentVariables") else {
+        // `EnvironmentVariables` does not exist in plist file, so there are no env variables to parse.
+        return Ok(HashMap::new());
+    };
+    let env_vars = env_vars.as_dictionary().ok_or_else(|| {
+        test_rpc::Error::Service("`EnvironmentVariables` is not a dict".to_owned())
+    })?;
+
+    let env = env_vars
+        .clone()
+        .into_iter()
+        .filter_map(|(key, value)| Some((key, value.into_string()?)))
+        .collect();
+
+    Ok(env)
 }
 
 #[cfg(target_os = "linux")]
@@ -617,4 +765,32 @@ pub fn get_os_version() -> Result<OsVersion, test_rpc::Error> {
 #[cfg(target_os = "linux")]
 pub fn get_os_version() -> Result<OsVersion, test_rpc::Error> {
     Ok(OsVersion::Linux)
+}
+
+#[cfg(test)]
+mod test {
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn parse_systemd_environment_variables() {
+        use super::parse_systemd_env_file;
+        // Define an example systemd environment file
+        let systemd_file = "
+        [Service]
+        Environment=\"var1=value1\"
+        Environment=\"var2=value2\"
+        ";
+
+        // Parse the "file"
+        let env_vars: Vec<_> = parse_systemd_env_file(systemd_file).into_iter().collect();
+
+        // Assert that the environment variables it defines are parsed as expected.
+        assert_eq!(env_vars.len(), 2);
+        let first = env_vars.first().unwrap();
+        assert_eq!(first.var, "var1");
+        assert_eq!(first.value, "value1");
+        let second = env_vars.get(1).unwrap();
+        assert_eq!(second.var, "var2");
+        assert_eq!(second.value, "value2");
+    }
 }

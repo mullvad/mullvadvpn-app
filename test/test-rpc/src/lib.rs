@@ -213,6 +213,9 @@ mod service {
         /// service.
         async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), Error>;
 
+        /// Get the environment variables for the running daemon service.
+        async fn get_daemon_environment() -> Result<HashMap<String, String>, Error>;
+
         /// Copy a file from `src` to `dest` on the test runner.
         async fn copy_file(src: String, dest: String) -> Result<(), Error>;
 
