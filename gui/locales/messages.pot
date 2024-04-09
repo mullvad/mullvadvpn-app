@@ -2067,6 +2067,9 @@ msgstr ""
 msgid "Always-on VPN might be enabled for another app"
 msgstr ""
 
+msgid "Attention: Split tunneling is a privacy risk."
+msgstr ""
+
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
 msgstr ""
 
@@ -2187,6 +2190,9 @@ msgstr ""
 msgid "Invalid or missing value \"%s\""
 msgstr ""
 
+msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
+msgstr ""
+
 msgid "List name"
 msgstr ""
 
@@ -2293,9 +2299,6 @@ msgid "Shows current VPN tunnel status"
 msgstr ""
 
 msgid "Shows reminders when the account time is about to expire"
-msgstr ""
-
-msgid "Split tunneling is disabled."
 msgstr ""
 
 msgid "Submit"
