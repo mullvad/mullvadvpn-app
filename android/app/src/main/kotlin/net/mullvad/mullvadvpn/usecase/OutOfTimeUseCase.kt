@@ -10,14 +10,20 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
-import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 
-class OutOfTimeUseCase(private val repository: AccountRepository, scope: CoroutineScope) {
+class OutOfTimeUseCase(
+    private val managementService: ManagementService,
+    private val repository: AccountRepository,
+    scope: CoroutineScope
+) {
 
     val isOutOfTime: StateFlow<Boolean?> =
         combine(pastAccountExpiry(), isTunnelBlockedBecauseOutOfTime()) {
@@ -37,11 +43,10 @@ class OutOfTimeUseCase(private val repository: AccountRepository, scope: Corouti
             else -> null
         }
 
-    private fun isTunnelBlockedBecauseOutOfTime(): Flow<Boolean> = flowOf(false)
-    //        messageHandler
-    //            .events<Event.TunnelStateChange>()
-    //            .map { it.tunnelState.isTunnelErrorStateDueToExpiredAccount() }
-    //            .onStart { emit(false) }
+    private fun isTunnelBlockedBecauseOutOfTime(): Flow<Boolean> =
+        managementService.tunnelState
+            .map { it.isTunnelErrorStateDueToExpiredAccount() }
+            .onStart { emit(false) }
 
     private fun TunnelState.isTunnelErrorStateDueToExpiredAccount(): Boolean {
         return ((this as? TunnelState.Error)?.errorState?.cause as? ErrorStateCause.AuthFailed)
@@ -49,11 +54,11 @@ class OutOfTimeUseCase(private val repository: AccountRepository, scope: Corouti
     }
 
     private fun pastAccountExpiry(): Flow<Boolean?> =
-        repository.accountExpiry
+        repository.accountData
             .flatMapLatest {
-                if (it is AccountExpiry.Available) {
+                if (it != null) {
                     flow {
-                        val millisUntilExpiry = it.expiryDateTime.millis - DateTime.now().millis
+                        val millisUntilExpiry = it.expiryDate.millis - DateTime.now().millis
                         if (millisUntilExpiry > 0) {
                             emit(false)
                             delay(millisUntilExpiry)
