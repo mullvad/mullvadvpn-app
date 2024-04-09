@@ -59,6 +59,9 @@ enum Commands {
         keep_changes: bool,
     },
 
+    /// List all tests and their priority.
+    ListTests,
+
     /// Spawn a runner instance and run tests
     RunTests {
         /// Name of the runner config
@@ -196,6 +199,17 @@ async fn main() -> Result<()> {
 
             instance.wait().await;
 
+            Ok(())
+        }
+        Commands::ListTests => {
+            println!("priority\tname");
+            for test in tests::get_tests() {
+                println!(
+                    "{priority:8}\t{name}",
+                    name = test.name,
+                    priority = test.priority.unwrap_or(0),
+                );
+            }
             Ok(())
         }
         Commands::RunTests {
