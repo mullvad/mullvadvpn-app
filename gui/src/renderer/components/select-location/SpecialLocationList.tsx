@@ -6,10 +6,9 @@ import { messages } from '../../../shared/gettext';
 import { useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
 import { useSelector } from '../../redux/store';
-import * as Cell from '../cell';
 import ImageView from '../ImageView';
 import InfoButton from '../InfoButton';
-import RelayStatusIndicator from '../RelayStatusIndicator';
+import { SpecialLocationIndicator } from '../RelayStatusIndicator';
 import {
   getButtonColor,
   StyledHoverInfoButton,
@@ -35,12 +34,6 @@ export default function SpecialLocationList<T>({ source, ...props }: SpecialLoca
     </>
   );
 }
-
-const StyledSpecialLocationIcon = styled(Cell.Icon)({
-  flex: 0,
-  marginLeft: '2px',
-  marginRight: '8px',
-});
 
 const StyledSpecialLocationInfoButton = styled(InfoButton)({ padding: '0 25px', margin: 0 });
 const StyledSpecialLocationSideButton = styled(ImageView)({ padding: '0 3px' });
@@ -73,13 +66,12 @@ export interface SpecialLocationRowInnerProps<T>
 export function AutomaticLocationRow(
   props: SpecialLocationRowInnerProps<SpecialBridgeLocationType>,
 ) {
-  const icon = props.source.selected ? 'icon-tick' : 'icon-nearest';
   const selectedRef = props.source.selected ? props.selectedElementRef : undefined;
   const background = getButtonColor(props.source.selected, 0, props.source.disabled);
   return (
     <StyledLocationRowContainerWithMargin ref={selectedRef}>
       <StyledLocationRowButton onClick={props.onSelect} $level={0} {...background}>
-        <StyledSpecialLocationIcon source={icon} tintColor={colors.white} height={22} width={22} />
+        <SpecialLocationIndicator />
         <StyledLocationRowLabel>{props.source.label}</StyledLocationRowLabel>
       </StyledLocationRowButton>
       <StyledLocationRowIcon
@@ -129,7 +121,7 @@ export function CustomBridgeLocationRow(
         $level={0}
         disabled={props.source.disabled}
         {...background}>
-        <RelayStatusIndicator active selected={props.source.selected} />
+        <SpecialLocationIndicator />
         <StyledLocationRowLabel>{props.source.label}</StyledLocationRowLabel>
       </StyledLocationRowButton>
       <StyledHoverInfoButton
