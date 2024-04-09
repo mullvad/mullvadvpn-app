@@ -309,6 +309,13 @@ impl Service for TestServer {
         sys::set_daemon_environment(env).await
     }
 
+    async fn get_daemon_environment(
+        self,
+        _: context::Context,
+    ) -> Result<HashMap<String, String>, test_rpc::Error> {
+        sys::get_daemon_environment().await
+    }
+
     async fn copy_file(
         self,
         _: context::Context,
