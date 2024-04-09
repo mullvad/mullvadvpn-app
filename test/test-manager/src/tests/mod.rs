@@ -13,7 +13,7 @@ mod tunnel;
 mod tunnel_state;
 mod ui;
 
-use crate::mullvad_daemon::RpcClientProvider;
+use crate::mullvad_daemon::{MullvadClientArgument, RpcClientProvider};
 use anyhow::Context;
 pub use test_metadata::TestMetadata;
 use test_rpc::ServiceClient;
@@ -30,11 +30,8 @@ pub struct TestContext {
     pub rpc_provider: RpcClientProvider,
 }
 
-pub type TestWrapperFunction = fn(
-    TestContext,
-    ServiceClient,
-    Box<dyn std::any::Any + Send>,
-) -> BoxFuture<'static, anyhow::Result<()>>;
+pub type TestWrapperFunction =
+    fn(TestContext, ServiceClient, MullvadClientArgument) -> BoxFuture<'static, anyhow::Result<()>>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

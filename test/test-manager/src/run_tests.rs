@@ -1,6 +1,6 @@
 use crate::{
     logging::{panic_as_string, TestOutput},
-    mullvad_daemon,
+    mullvad_daemon::{self, MullvadClientArgument},
     summary::{self, maybe_log_test_result},
     tests,
     tests::{config::TEST_CONFIG, TestContext},
@@ -82,9 +82,9 @@ pub async fn run(
     let logger = super::logging::Logger::get_or_init();
 
     for test in tests {
-        let mclient = test_context
+        let mullvad_client = test_context
             .rpc_provider
-            .as_type(test.mullvad_client_version)
+            .mullvad_client(test.mullvad_client_version)
             .await;
 
         log::info!("Running {}", test.name);
@@ -96,7 +96,7 @@ pub async fn run(
 
         let test_result = run_test(
             client.clone(),
-            mclient,
+            mullvad_client,
             &test.func,
             test.name,
             test_context.clone(),
@@ -177,15 +177,15 @@ pub async fn run(
     final_result
 }
 
-pub async fn run_test<F, R, MullvadClient>(
+pub async fn run_test<F, R>(
     runner_rpc: ServiceClient,
-    mullvad_rpc: MullvadClient,
+    mullvad_rpc: MullvadClientArgument,
     test: &F,
     test_name: &'static str,
     test_context: super::tests::TestContext,
 ) -> TestOutput
 where
-    F: Fn(super::tests::TestContext, ServiceClient, MullvadClient) -> R,
+    F: Fn(super::tests::TestContext, ServiceClient, MullvadClientArgument) -> R,
     R: Future<Output = anyhow::Result<()>>,
 {
     let _flushed = runner_rpc.try_poll_output().await;
