@@ -1,6 +1,8 @@
 import { useCallback } from 'react';
 
 import {
+  BridgeSettings,
+  IBridgeConstraints,
   IOpenVpnConstraints,
   IRelaySettingsNormal,
   IWireguardConstraints,
@@ -8,7 +10,12 @@ import {
   wrapConstraint,
 } from '../../shared/daemon-rpc-types';
 import { useAppContext } from '../context';
-import { NormalRelaySettingsRedux } from '../redux/settings/reducers';
+import {
+  BridgeSettingsRedux,
+  NormalBridgeSettingsRedux,
+  NormalRelaySettingsRedux,
+} from '../redux/settings/reducers';
+import { useSelector } from '../redux/store';
 import { useNormalRelaySettings } from './utilityHooks';
 
 export function wrapRelaySettingsOrDefault(
@@ -59,7 +66,7 @@ export function wrapRelaySettingsOrDefault(
   };
 }
 
-type UpdateFunction = (
+type RelaySettingsUpdateFunction = (
   settings: IRelaySettingsNormal<IOpenVpnConstraints, IWireguardConstraints>,
 ) => IRelaySettingsNormal<IOpenVpnConstraints, IWireguardConstraints>;
 
@@ -67,7 +74,7 @@ export function useRelaySettingsModifier() {
   const relaySettings = useNormalRelaySettings();
 
   return useCallback(
-    (fn: UpdateFunction) => {
+    (fn: RelaySettingsUpdateFunction) => {
       const settings = wrapRelaySettingsOrDefault(relaySettings);
       return fn(settings);
     },
@@ -80,10 +87,72 @@ export function useRelaySettingsUpdater() {
   const modifyRelaySettings = useRelaySettingsModifier();
 
   return useCallback(
-    async (fn: UpdateFunction) => {
+    async (fn: RelaySettingsUpdateFunction) => {
       const modifiedSettings = modifyRelaySettings(fn);
       await setRelaySettings({ normal: modifiedSettings });
     },
     [setRelaySettings, modifyRelaySettings],
+  );
+}
+
+export function wrapBridgeSettingsOrDefault(bridgeSettings?: BridgeSettingsRedux): BridgeSettings {
+  if (bridgeSettings) {
+    return {
+      type: bridgeSettings.type,
+      normal: wrapNormalBridgeSettingsOrDefault(bridgeSettings.normal),
+      custom: bridgeSettings.custom,
+    };
+  }
+
+  return {
+    type: 'normal',
+    normal: wrapNormalBridgeSettingsOrDefault(),
+  };
+}
+
+function wrapNormalBridgeSettingsOrDefault(
+  bridgeSettings?: NormalBridgeSettingsRedux,
+): IBridgeConstraints {
+  if (bridgeSettings) {
+    const location = wrapConstraint(bridgeSettings.location);
+
+    return {
+      location,
+      providers: [...bridgeSettings.providers],
+      ownership: bridgeSettings.ownership,
+    };
+  }
+
+  return {
+    location: 'any',
+    providers: [],
+    ownership: Ownership.any,
+  };
+}
+
+type BridgeSettingsUpdateFunction = (settings: BridgeSettings) => BridgeSettings;
+
+export function useBridgeSettingsModifier() {
+  const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
+
+  return useCallback(
+    (fn: BridgeSettingsUpdateFunction) => {
+      const settings = wrapBridgeSettingsOrDefault(bridgeSettings);
+      return fn(settings);
+    },
+    [bridgeSettings],
+  );
+}
+
+export function useBridgeSettingsUpdater() {
+  const { updateBridgeSettings } = useAppContext();
+  const modifyBridgeSettings = useBridgeSettingsModifier();
+
+  return useCallback(
+    async (fn: BridgeSettingsUpdateFunction) => {
+      const modifiedSettings = modifyBridgeSettings(fn);
+      await updateBridgeSettings(modifiedSettings);
+    },
+    [updateBridgeSettings, modifyBridgeSettings],
   );
 }
