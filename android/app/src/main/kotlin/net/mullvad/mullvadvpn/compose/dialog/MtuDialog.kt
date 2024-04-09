@@ -16,6 +16,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
+import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
@@ -35,24 +37,25 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewMtuDialog() {
-    AppTheme { MtuDialog(mtuInitial = 1234, EmptyDestinationsNavigator) }
+    AppTheme { MtuDialog(mtuInitial = 1234, EmptyResultBackNavigator()) }
 }
 
 @Destination(style = DestinationStyle.Dialog::class)
 @Composable
-fun MtuDialog(mtuInitial: Int?, navigator: DestinationsNavigator) {
+fun MtuDialog(mtuInitial: Int?, navigator: ResultBackNavigator<Boolean>) {
     val viewModel = koinViewModel<MtuDialogViewModel>()
 
     LaunchedEffectCollect(viewModel.uiSideEffect) {
         when (it) {
-            MtuDialogSideEffect.Complete -> navigator.navigateUp()
+            MtuDialogSideEffect.Complete -> navigator.navigateBack(result = true)
+            MtuDialogSideEffect.Error -> navigator.navigateBack(result = false)
         }
     }
     MtuDialog(
         mtuInitial = mtuInitial,
         onSaveMtu = viewModel::onSaveClick,
         onResetMtu = viewModel::onRestoreClick,
-        onDismiss = navigator::navigateUp
+        onDismiss = navigator::navigateBack
     )
 }
 
