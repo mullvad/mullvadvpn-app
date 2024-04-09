@@ -59,8 +59,17 @@ pub enum Error {
     TcpForward,
     #[error("Unknown process ID: {0}")]
     UnknownPid(u32),
+    #[error("Failed to join tokio task: {0}")]
+    TokioJoinError(String),
     #[error("{0}")]
     Other(String),
+}
+
+impl Error {
+    /// Convenient mapping from a Tokio error to the test_rpc Error type.
+    pub fn from_tokio_join_error(error: tokio::task::JoinError) -> Error {
+        Error::TokioJoinError(error.to_string())
+    }
 }
 
 /// Response from am.i.mullvad.net
@@ -212,6 +221,9 @@ mod service {
         /// Set environment variables for the daemon service. This will restart the daemon system
         /// service.
         async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), Error>;
+
+        /// Get the environment variables for the running daemon service.
+        async fn get_daemon_environment() -> Result<HashMap<String, String>, Error>;
 
         /// Copy a file from `src` to `dest` on the test runner.
         async fn copy_file(src: String, dest: String) -> Result<(), Error>;
