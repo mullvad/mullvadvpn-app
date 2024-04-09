@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.Relay
 import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelayEndpointType
+import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelayListCity
 import net.mullvad.mullvadvpn.model.RelayListCountry
@@ -477,14 +478,11 @@ internal fun CustomList.fromDomain(): ManagementInterface.CustomList =
         .addAllLocations(this.locations.map { it.fromDomain() })
         .build()
 
-internal fun ManagementInterface.RelayList.toDomain(): RelayList =
-    RelayList(
-        countries = countriesList.map { it.toDomain() },
-        wireguardEndpointData =
-            WireguardEndpointData(
-                portRanges = this.wireguard.portRangesList.map { it.toDomain() },
-            )
-    )
+internal fun ManagementInterface.RelayList.toDomain(): Pair<RelayList, WireguardEndpointData> =
+    countriesList.toDomain() to
+        WireguardEndpointData(
+            portRanges = this.wireguard.portRangesList.map { it.toDomain() },
+        )
 
 internal fun ManagementInterface.RelayListCountry.toDomain(): RelayListCountry =
     RelayListCountry(
@@ -516,3 +514,88 @@ internal fun ManagementInterface.Relay.toDomain(): Relay =
     )
 
 internal fun ManagementInterface.PortRange.toDomain(): PortRange = PortRange(first, last)
+
+internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardConstraints =
+    when (this.port) {
+        is Constraint.Any -> ManagementInterface.WireguardConstraints.newBuilder().build()
+        is Constraint.Only ->
+            ManagementInterface.WireguardConstraints.newBuilder()
+                .setPort((this.port as Constraint.Only<Port>).value.value)
+                .build()
+    }
+
+/**
+ * Convert from a list of ManagementInterface.RelayListCountry to a model.RelayList. Non-wireguard
+ * relays are filtered out. So are also cities that only contains non-wireguard relays and countries
+ * that does not have any cities. Countries, cities and relays are ordered by name.
+ */
+internal fun List<ManagementInterface.RelayListCountry>.toDomain(): RelayList {
+    val relayCountries =
+        this.map { country ->
+                val cities = mutableListOf<RelayItem.Location.City>()
+                val relayCountry =
+                    RelayItem.Location.Country(country.name, country.code, false, cities)
+
+                for (city in country.citiesList) {
+                    val relays = mutableListOf<RelayItem.Location.Relay>()
+                    val relayCity =
+                        RelayItem.Location.City(
+                            name = city.name,
+                            code = city.code,
+                            location = GeographicLocationConstraint.City(country.code, city.code),
+                            expanded = false,
+                            relays = relays
+                        )
+
+                    val validCityRelays =
+                        city.relaysList.filter {
+                            it.endpointType == ManagementInterface.Relay.RelayType.WIREGUARD
+                        }
+
+                    for (relay in validCityRelays) {
+                        relays.add(
+                            RelayItem.Location.Relay(
+                                name = relay.hostname,
+                                location =
+                                    GeographicLocationConstraint.Hostname(
+                                        country.code,
+                                        city.code,
+                                        relay.hostname
+                                    ),
+                                locationName = "${city.name} (${relay.hostname})",
+                                active = relay.active,
+                                provider = relay.provider,
+                                ownership =
+                                    if (relay.owned) {
+                                        Ownership.MullvadOwned
+                                    } else {
+                                        Ownership.Rented
+                                    }
+                            )
+                        )
+                    }
+                    relays.sortWith(RelayNameComparator)
+
+                    if (relays.isNotEmpty()) {
+                        cities.add(relayCity)
+                    }
+                }
+
+                cities.sortBy { it.name }
+                relayCountry
+            }
+            .filter { country -> country.cities.isNotEmpty() }
+            .toMutableList()
+
+    relayCountries.sortBy { it.name }
+
+    return RelayList(relayCountries.toList())
+}
+
+internal fun Ownership.fromDomain(): ManagementInterface.Ownership =
+    when (this) {
+        Ownership.MullvadOwned -> ManagementInterface.Ownership.MULLVAD_OWNED
+        Ownership.Rented -> ManagementInterface.Ownership.RENTED
+    }
+
+internal fun Providers.fromDomain(): List<String> = this.providers.toList()

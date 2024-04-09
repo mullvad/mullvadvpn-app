@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.compose.util
 
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.model.RelayItem
 
 fun generateRelayItemCountry(
     name: String,
@@ -12,7 +12,7 @@ fun generateRelayItemCountry(
     expanded: Boolean = false,
     expandChildren: Boolean = false,
 ) =
-    RelayItem.Country(
+    RelayItem.Location.Country(
         name = name,
         code = name.generateCountryCode(),
         cities =
@@ -35,7 +35,7 @@ fun generateRelayItemCity(
     active: Boolean = true,
     expanded: Boolean = false,
 ) =
-    RelayItem.City(
+    RelayItem.Location.City(
         name = name,
         code = name.generateCityCode(),
         relays =
@@ -57,7 +57,7 @@ fun generateRelayItemRelay(
     hostName: String,
     active: Boolean = true,
 ) =
-    RelayItem.Relay(
+    RelayItem.Location.Relay(
         name = hostName,
         location =
             GeographicLocationConstraint.Hostname(
@@ -67,7 +67,7 @@ fun generateRelayItemRelay(
             ),
         locationName = "$cityCode $hostName",
         active = active,
-        providerName = "Provider",
+        provider = "Provider",
         ownership = Ownership.MullvadOwned,
     )
 

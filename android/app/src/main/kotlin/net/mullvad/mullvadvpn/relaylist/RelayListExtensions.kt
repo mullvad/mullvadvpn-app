@@ -3,70 +3,9 @@ package net.mullvad.mullvadvpn.relaylist
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Relay as DaemonRelay
-import net.mullvad.mullvadvpn.model.RelayList
+import net.mullvad.mullvadvpn.model.RelayItem
 
-/**
- * Convert from a model.RelayList to list of relaylist.RelayCountry Non-wiregaurd relays are
- * filtered out and also relays that do not fit the ownership and provider list So are also cities
- * that only contains non-wireguard relays Countries, cities and relays are ordered by name
- */
-fun RelayList.toRelayCountries(): List<RelayItem.Country> {
-    val relayCountries =
-        this.countries
-            .map { country ->
-                val cities = mutableListOf<RelayItem.City>()
-                val relayCountry = RelayItem.Country(country.name, country.code, false, cities)
-
-                for (city in country.cities) {
-                    val relays = mutableListOf<RelayItem.Relay>()
-                    val relayCity =
-                        RelayItem.City(
-                            name = city.name,
-                            code = city.code,
-                            location = GeographicLocationConstraint.City(country.code, city.code),
-                            expanded = false,
-                            relays = relays
-                        )
-
-                    val validCityRelays = city.relays.filterValidRelays()
-
-                    for (relay in validCityRelays) {
-                        relays.add(
-                            RelayItem.Relay(
-                                name = relay.hostname,
-                                location =
-                                    GeographicLocationConstraint.Hostname(
-                                        country.code,
-                                        city.code,
-                                        relay.hostname
-                                    ),
-                                locationName = "${city.name} (${relay.hostname})",
-                                active = relay.active,
-                                providerName = relay.provider,
-                                ownership =
-                                    if (relay.owned) Ownership.MullvadOwned else Ownership.Rented
-                            )
-                        )
-                    }
-                    relays.sortWith(RelayNameComparator)
-
-                    if (relays.isNotEmpty()) {
-                        cities.add(relayCity)
-                    }
-                }
-
-                cities.sortBy { it.name }
-                relayCountry
-            }
-            .filter { country -> country.cities.isNotEmpty() }
-            .toMutableList()
-
-    relayCountries.sortBy { it.name }
-
-    return relayCountries.toList()
-}
-
-fun List<RelayItem.Country>.findItemForGeographicLocationConstraint(
+fun List<RelayItem.Location.Country>.findItemForGeographicLocationConstraint(
     constraint: GeographicLocationConstraint
 ) =
     when (constraint) {
@@ -94,14 +33,14 @@ fun List<RelayItem.Country>.findItemForGeographicLocationConstraint(
  * expanded If a relay is matched, its parents are added and expanded and itself is also added.
  */
 @Suppress("NestedBlockDepth")
-fun List<RelayItem.Country>.filterOnSearchTerm(
+fun List<RelayItem.Location.Country>.filterOnSearchTerm(
     searchTerm: String,
     selectedItem: RelayItem?
-): List<RelayItem.Country> {
+): List<RelayItem.Location.Country> {
     return if (searchTerm.length >= MIN_SEARCH_LENGTH) {
-        val filteredCountries = mutableMapOf<String, RelayItem.Country>()
+        val filteredCountries = mutableMapOf<String, RelayItem.Location.Country>()
         this.forEach { relayCountry ->
-            val cities = mutableListOf<RelayItem.City>()
+            val cities = mutableListOf<RelayItem.Location.City>()
 
             // Try to match the search term with a country
             // If we match a country, add that country and all cities and relays in that country
@@ -114,7 +53,7 @@ fun List<RelayItem.Country>.filterOnSearchTerm(
 
             // Go through and try to match the search term with every city
             relayCountry.cities.forEach { relayCity ->
-                val relays = mutableListOf<RelayItem.Relay>()
+                val relays = mutableListOf<RelayItem.Location.Relay>()
                 // If we match and we already added the country to the filtered list just expand the
                 // country.
                 // If the country is not currently in the filtered list, add it and expand it.
@@ -174,15 +113,15 @@ private fun List<DaemonRelay>.filterValidRelays(): List<DaemonRelay> = filter {
 }
 
 /** Expand the parent(s), if any, for the current selected item */
-private fun List<RelayItem.Country>.expandItemForSelection(
+private fun List<RelayItem.Location.Country>.expandItemForSelection(
     selectedItem: RelayItem?
-): List<RelayItem.Country> {
+): List<RelayItem.Location.Country> {
     return selectedItem?.let {
         when (selectedItem) {
-            is RelayItem.Country -> {
+            is RelayItem.Location.Country -> {
                 this
             }
-            is RelayItem.City -> {
+            is RelayItem.Location.City -> {
                 this.map { country ->
                     if (country.code == selectedItem.location.countryCode) {
                         country.copy(expanded = true)
@@ -191,7 +130,7 @@ private fun List<RelayItem.Country>.expandItemForSelection(
                     }
                 }
             }
-            is RelayItem.Relay -> {
+            is RelayItem.Location.Relay -> {
                 this.map { country ->
                     if (country.code == selectedItem.location.countryCode) {
                         country.copy(
@@ -215,34 +154,9 @@ private fun List<RelayItem.Country>.expandItemForSelection(
     } ?: this
 }
 
-@Suppress("NestedBlockDepth", "ReturnCount")
-fun RelayList.getGeographicLocationConstraintByCode(code: String): GeographicLocationConstraint? {
-    countries.forEach { country ->
-        val countryCode = country.code
-        if (country.code == code) {
-            return GeographicLocationConstraint.Country(countryCode)
-        }
-        country.cities.forEach { city ->
-            val cityCode = city.code
-            if (city.code == code) {
-                return GeographicLocationConstraint.City(countryCode, city.code)
-            }
-            city.relays.forEach { relay ->
-                if (relay.hostname == code) {
-                    return GeographicLocationConstraint.Hostname(
-                        countryCode,
-                        cityCode,
-                        relay.hostname
-                    )
-                }
-            }
-        }
-    }
-    return null
-}
-
-fun List<RelayItem.Country>.getRelayItemsByCodes(
+fun List<RelayItem.Location.Country>.getRelayItemsByCodes(
     codes: List<GeographicLocationConstraint>
-): List<RelayItem> =
+): List<RelayItem.Location> =
     this.filter { codes.contains(it.location) } +
-        this.flatMap { it.descendants() }.filter { codes.contains(it.location()) }
+        this.flatMap { it.descendants() }
+            .filter { codes.contains(it.location) }

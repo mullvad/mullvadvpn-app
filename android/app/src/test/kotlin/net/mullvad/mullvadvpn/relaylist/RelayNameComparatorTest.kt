@@ -3,6 +3,8 @@ package net.mullvad.mullvadvpn.relaylist
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import net.mullvad.mullvadvpn.model.Ownership
+import net.mullvad.mullvadvpn.lib.daemon.grpc.RelayNameComparator
+import net.mullvad.mullvadvpn.model.RelayItem
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
