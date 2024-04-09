@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.model.RelayItem
 
 @Composable
 fun CustomListCell(

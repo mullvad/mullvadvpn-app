@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.model.Ownership
+import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.MIN_SEARCH_LENGTH
-import net.mullvad.mullvadvpn.relaylist.RelayItem
 
 sealed interface SelectLocationUiState {
 
@@ -14,7 +14,7 @@ sealed interface SelectLocationUiState {
         val selectedProvidersCount: Int?,
         val filteredCustomLists: List<RelayItem.CustomList>,
         val customLists: List<RelayItem.CustomList>,
-        val countries: List<RelayItem.Country>,
+        val countries: List<RelayItem.Location.Country>,
         val selectedItem: RelayItem?
     ) : SelectLocationUiState {
         val hasFilter: Boolean = (selectedProvidersCount != null || selectedOwnership != null)

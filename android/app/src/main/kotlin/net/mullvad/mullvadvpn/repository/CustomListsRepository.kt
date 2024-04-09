@@ -2,8 +2,14 @@ package net.mullvad.mullvadvpn.repository
 
 import arrow.core.Either
 import arrow.core.raise.either
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withTimeout
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.CustomList
@@ -14,9 +20,14 @@ import net.mullvad.mullvadvpn.model.GetCustomListError
 import net.mullvad.mullvadvpn.model.ModifyCustomListError
 
 class CustomListsRepository(
-    private val settingsRepository: SettingsRepository,
-    private val managementService: ManagementService
+    private val managementService: ManagementService,
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
+    val customLists: StateFlow<List<CustomList>?> =
+        managementService.settings
+            .mapNotNull { it.customLists.customLists }
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, null)
+
     suspend fun createCustomList(name: CustomListName) = managementService.createCustomList(name)
 
     suspend fun deleteCustomList(id: CustomListId) = managementService.deleteCustomList(id)
@@ -43,10 +54,8 @@ class CustomListsRepository(
     suspend fun getCustomListById(id: CustomListId): Either<GetCustomListError, CustomList> =
         Either.catch {
                 withTimeout(GET_CUSTOM_LIST_TIMEOUT_MS) {
-                    settingsRepository.settingsUpdates
-                        .mapNotNull { settings ->
-                            settings?.customLists?.customLists?.find { it.id == id }
-                        }
+                    customLists
+                        .mapNotNull { it?.find { customList -> customList.id == id } }
                         .first()
                 }
             }

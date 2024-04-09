@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.relaylist.Provider
-import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
+import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
 class FilterViewModelTest {
-    private val mockRelayListFilterUseCase: RelayListFilterUseCase = mockk(relaxed = true)
+    private val mockRelayListFilterUseCase: AvailableProvidersUseCase = mockk(relaxed = true)
     private lateinit var viewModel: FilterViewModel
     private val selectedOwnership =
         MutableStateFlow<Constraint<Ownership>>(Constraint.Only(Ownership.MullvadOwned))

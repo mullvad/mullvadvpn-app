@@ -46,7 +46,8 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha60
-import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.model.CustomList
+import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.CustomListsViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -116,7 +117,7 @@ fun CustomListsScreen(
     state: CustomListsUiState,
     snackbarHostState: SnackbarHostState,
     addCustomList: () -> Unit = {},
-    openCustomList: (RelayItem.CustomList) -> Unit = {},
+    openCustomList: (CustomList) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     ScaffoldWithMediumTopBar(
@@ -169,12 +170,12 @@ private fun LazyListScope.loading() {
 }
 
 private fun LazyListScope.content(
-    customLists: List<RelayItem.CustomList>,
-    openCustomList: (RelayItem.CustomList) -> Unit
+    customLists: List<CustomList>,
+    openCustomList: (CustomList) -> Unit
 ) {
     itemsWithDivider(
         items = customLists,
-        key = { item: RelayItem.CustomList -> item.id },
+        key = { item: CustomList -> item.id },
         contentType = { ContentType.ITEM }
     ) { customList ->
         NavigationComposeCell(title = customList.name, onClick = { openCustomList(customList) })

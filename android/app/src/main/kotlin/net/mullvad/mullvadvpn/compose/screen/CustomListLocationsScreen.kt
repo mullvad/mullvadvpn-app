@@ -47,7 +47,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -113,7 +113,7 @@ fun CustomListLocationsScreen(
     state: CustomListLocationsUiState,
     onSearchTermInput: (String) -> Unit = {},
     onSaveClick: () -> Unit = {},
-    onRelaySelectionClick: (RelayItem, selected: Boolean) -> Unit = { _, _ -> },
+    onRelaySelectionClick: (RelayItem.Location, selected: Boolean) -> Unit = { _, _ -> },
     onBackClick: () -> Unit = {}
 ) {
     ScaffoldWithSmallTopBar(
@@ -200,7 +200,7 @@ private fun LazyListScope.empty(searchTerm: String) {
 
 private fun LazyListScope.content(
     uiState: CustomListLocationsUiState.Content.Data,
-    onRelaySelectedChanged: (RelayItem, selected: Boolean) -> Unit,
+    onRelaySelectedChanged: (RelayItem.Location, selected: Boolean) -> Unit,
 ) {
     items(
         count = uiState.availableLocations.size,
@@ -211,7 +211,9 @@ private fun LazyListScope.content(
         CheckableRelayLocationCell(
             relay = country,
             modifier = Modifier.animateContentSize(),
-            onRelayCheckedChange = onRelaySelectedChanged,
+            onRelayCheckedChange = { item, isChecked ->
+                onRelaySelectedChanged(item as RelayItem.Location, isChecked)
+            },
             selectedRelays = uiState.selectedLocations,
         )
     }

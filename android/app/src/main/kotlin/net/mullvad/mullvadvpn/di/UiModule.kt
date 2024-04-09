@@ -20,26 +20,31 @@ import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.ProblemReportRepository
+import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
+import net.mullvad.mullvadvpn.repository.SelectedLocationRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
-import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
+import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
-import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
-import net.mullvad.mullvadvpn.usecase.RelayListUseCase
+import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
@@ -109,27 +114,30 @@ val uiModule = module {
     single { SettingsRepository(get()) }
     single { MullvadProblemReport(get()) }
     single { RelayOverridesRepository(get()) }
-    single { CustomListsRepository(get(), get()) }
-    single { CustomListsRepository(get(), get()) }
+    single { CustomListsRepository(get()) }
+    single { RelayListRepository(get()) }
+    single { SelectedLocationRepository(get()) }
+    single { RelayListFilterRepository(get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }
     single { VersionNotificationUseCase(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS) }
     single { NewDeviceNotificationUseCase(get()) }
     single { PortRangeUseCase(get()) }
-    single { RelayListUseCase(get(), get()) }
     single { OutOfTimeUseCase(get(), get(), MainScope()) }
     single { ConnectivityUseCase(get()) }
     single { SystemVpnSettingsUseCase(androidContext()) }
     single { CustomListActionUseCase(get(), get()) }
+    single { SelectedLocationRelayItemUseCase(get(), get(), get()) }
+    single { AvailableProvidersUseCase(get()) }
+    single { CustomListsRelayItemUseCase(get(), get()) }
+    single { CustomListRelayItemsUseCase(get(), get()) }
+    single { FilteredRelayListUseCase(get(), get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
     single { ManagementService("/data/data/net.mullvad.mullvadvpn/rpc-socket", MainScope()) }
 
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
-
-    single { RelayListFilterUseCase(get(), get()) }
-    single { RelayListListener(get()) }
 
     // Will be resolved using from either of the two PaymentModule.kt classes.
     single { PaymentProvider(get()) }
@@ -164,7 +172,7 @@ val uiModule = module {
     }
     viewModel { LoginViewModel(get(), get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
-    viewModel { SelectLocationViewModel(get(), get(), get(), get()) }
+    viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
@@ -174,12 +182,12 @@ val uiModule = module {
     viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }
-    viewModel { FilterViewModel(get()) }
+    viewModel { FilterViewModel(get(), get()) }
     viewModel { (location: GeographicLocationConstraint?) ->
         CreateCustomListDialogViewModel(location, get())
     }
     viewModel { parameters ->
-        CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get())
+        CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get(), get(), get())
     }
     viewModel { parameters -> EditCustomListViewModel(parameters.get(), get()) }
     viewModel { parameters ->
