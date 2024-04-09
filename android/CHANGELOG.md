@@ -20,3 +20,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Removed**: for now removed features.
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
+
+## [Unreleased]
+### Added
+- Add the ability to create and manage custom lists of relays.
+- Add Server IP overrides feature.
