@@ -27,10 +27,6 @@ Line wrap the file at 100 chars.                                              Th
   dropped packets and does not take fragmentation into account.
 - Add ability to import server IP overrides in GUI.
 
-#### Android
-- Add the ability to create and manage custom lists of relays.
-- Add Server IP overrides feature.
-
 ### Changed
 - Change default obfuscation setting to `auto`.
 - Migrate obfuscation settings for existing users from `off` to `auto`.
