@@ -1,3 +1,4 @@
+use fast_socks5::server::{AcceptAuthentication, Socks5Server};
 use futures::StreamExt;
 use std::{io, net::SocketAddr};
 
@@ -13,10 +14,9 @@ pub struct Handle {
 
 /// Spawn a SOCKS server bound to `bind_addr`
 pub async fn spawn(bind_addr: SocketAddr) -> Result<Handle, Error> {
-    let socks_server: fast_socks5::server::Socks5Server =
-        fast_socks5::server::Socks5Server::bind(bind_addr)
-            .await
-            .map_err(Error::StartSocksServer)?;
+    let socks_server: Socks5Server<AcceptAuthentication> = Socks5Server::bind(bind_addr)
+        .await
+        .map_err(Error::StartSocksServer)?;
 
     let handle = tokio::spawn(async move {
         let mut incoming = socks_server.incoming();
