@@ -371,3 +371,5 @@ that is the same as the git tag they receive: `android/<version>`.
 
 #### Android
 - Fix input area sometimes disappearing when returning to the Login screen.
+
+For older non-stable releases, see the main changelog ../CHANGELOG.md
