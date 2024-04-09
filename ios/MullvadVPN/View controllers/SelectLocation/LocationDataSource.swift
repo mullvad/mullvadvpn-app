@@ -35,10 +35,7 @@ final class LocationDataSource:
         let sections: [LocationSection] = LocationSection.allCases
         self.sections = sections
 
-        #if DEBUG
-        self.dataSources.append(customLists)
-        #endif
-        self.dataSources.append(allLocations)
+        self.dataSources.append(contentsOf: [customLists, allLocations])
 
         super.init(tableView: tableView) { _, indexPath, itemIdentifier in
             let cell = tableView.dequeueReusableView(
