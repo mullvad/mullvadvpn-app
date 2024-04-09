@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 
-import BridgeSettingsBuilder from '../../../shared/bridge-settings-builder';
 import {
   BridgeSettings,
   RelayLocation,
@@ -10,8 +9,8 @@ import {
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
 import { useRelaySettingsModifier } from '../../lib/constraint-updater';
+import { useBridgeSettingsModifier } from '../../lib/constraint-updater';
 import { useHistory } from '../../lib/history';
-import { useSelector } from '../../redux/store';
 import { LocationType, SpecialBridgeLocationType } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 
@@ -89,7 +88,7 @@ function useOnSelectLocation() {
 export function useOnSelectBridgeLocation() {
   const { updateBridgeSettings } = useAppContext();
   const { setLocationType } = useSelectLocationContext();
-  const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
+  const bridgeSettingsModifier = useBridgeSettingsModifier();
 
   const setLocation = useCallback(async (bridgeUpdate: BridgeSettings) => {
     if (bridgeUpdate) {
@@ -105,21 +104,38 @@ export function useOnSelectBridgeLocation() {
 
   const onSelectRelay = useCallback(
     (location: RelayLocation) => {
-      const bridgeUpdate = new BridgeSettingsBuilder().location.fromRaw(location).build();
-      bridgeUpdate.custom = bridgeSettings.custom;
-      return setLocation(bridgeUpdate);
+      return setLocation(
+        bridgeSettingsModifier((bridgeSettings) => {
+          bridgeSettings.type = 'normal';
+          bridgeSettings.normal.location = wrapConstraint(location);
+          return bridgeSettings;
+        }),
+      );
     },
-    [bridgeSettings],
+    [bridgeSettingsModifier],
   );
 
-  const onSelectSpecial = useCallback((location: SpecialBridgeLocationType) => {
-    switch (location) {
-      case SpecialBridgeLocationType.closestToExit: {
-        const bridgeUpdate = new BridgeSettingsBuilder().location.any().build();
-        return setLocation(bridgeUpdate);
+  const onSelectSpecial = useCallback(
+    (location: SpecialBridgeLocationType) => {
+      switch (location) {
+        case SpecialBridgeLocationType.closestToExit:
+          return setLocation(
+            bridgeSettingsModifier((bridgeSettings) => {
+              bridgeSettings.normal.location = 'any';
+              return bridgeSettings;
+            }),
+          );
+        case SpecialBridgeLocationType.custom:
+          return setLocation(
+            bridgeSettingsModifier((bridgeSettings) => {
+              bridgeSettings.type = 'custom';
+              return bridgeSettings;
+            }),
+          );
       }
-    }
-  }, []);
+    },
+    [bridgeSettingsModifier],
+  );
 
   return [onSelectRelay, onSelectSpecial] as const;
 }
