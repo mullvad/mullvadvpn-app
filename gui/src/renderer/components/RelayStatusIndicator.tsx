@@ -1,13 +1,19 @@
 import styled from 'styled-components';
+import { Styles } from 'styled-components/dist/types';
 
 import { colors } from '../../config.json';
 import * as Cell from './cell';
 
-const StyledRelayStatus = styled.div<{ $active: boolean }>((props) => ({
+const indicatorStyles: Styles<
+  React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
+> = {
   width: '16px',
   height: '16px',
   borderRadius: '8px',
   margin: '0 12px 0 4px',
+};
+
+const StyledRelayStatus = styled.div<{ $active: boolean }>(indicatorStyles, (props) => ({
   backgroundColor: props.$active ? colors.green90 : colors.red95,
 }));
 
@@ -28,3 +34,7 @@ export default function RelayStatusIndicator(props: IProps) {
     <StyledRelayStatus $active={props.active} />
   );
 }
+
+export const SpecialLocationIndicator = styled.div(indicatorStyles, {
+  backgroundColor: colors.white90,
+});
