@@ -33,4 +33,8 @@ pub struct Opt {
     /// Timeout for leak check network connections (in millis).
     #[clap(long, default_value = "1000")]
     pub leak_timeout: u64,
+
+    /// Junk data for each UDP and TCP packet
+    #[clap(long, requires = "leak", default_value = "Hello there!")]
+    pub payload: String,
 }

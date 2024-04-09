@@ -2,17 +2,23 @@ use super::{config::TEST_CONFIG, Error, TestContext, WAIT_FOR_TUNNEL_STATE_TIMEO
 use crate::network_monitor::{
     self, start_packet_monitor, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor,
 };
+use anyhow::{anyhow, bail, ensure, Context};
 use futures::StreamExt;
 use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
+use mullvad_relay_selector::{
+    query::RelayQuery, GetRelay, RelaySelector, SelectorConfig, WireguardConfig,
+};
 use mullvad_types::{
     constraints::Constraint,
     location::Location,
     relay_constraints::{
-        BridgeSettings, GeographicLocationConstraint, LocationConstraint, RelaySettings,
+        BridgeSettings, GeographicLocationConstraint, LocationConstraint, RelayConstraints,
+        RelaySettings,
     },
-    relay_list::{Relay, RelayList},
+    relay_list::Relay,
     states::TunnelState,
 };
+use pcap::Direction;
 use pnet_packet::ip::IpNextHeaderProtocols;
 use std::{
     collections::HashMap,
@@ -21,9 +27,24 @@ use std::{
     time::Duration,
 };
 use talpid_types::net::wireguard::{PeerConfig, PrivateKey, TunnelConfig};
-use test_rpc::{package::Package, AmIMullvad, ServiceClient};
+use test_rpc::{meta::Os, package::Package, AmIMullvad, ServiceClient, SpawnOpts};
+use tokio::time::sleep;
 
 pub const THROTTLE_RETRY_DELAY: Duration = Duration::from_secs(120);
+
+const CHECKER_FILENAME_WINDOWS: &str = "connection-checker.exe";
+const CHECKER_FILENAME_UNIX: &str = "connection-checker";
+
+const AM_I_MULLVAD_TIMEOUT_MS: u64 = 10000;
+const LEAK_TIMEOUT_MS: u64 = 500;
+
+/// Timeout of [ConnCheckerHandle::check_connection].
+const CONN_CHECKER_TIMEOUT: Duration = Duration::from_millis(
+    AM_I_MULLVAD_TIMEOUT_MS // https://am.i.mullvad.net timeout
+    + LEAK_TIMEOUT_MS // leak-tcp timeout
+    + LEAK_TIMEOUT_MS // leak-icmp timeout
+    + 1000, // plus some extra grace time
+);
 
 #[macro_export]
 macro_rules! assert_tunnel_state {
@@ -231,12 +252,14 @@ pub async fn login_with_retries(
 /// Try to connect to a Mullvad Tunnel.
 ///
 /// # Returns
-/// - `Result::Ok` if the daemon successfully connected to a tunnel
+/// - `Result::Ok(new_state)` if the daemon successfully connected to a tunnel
 /// - `Result::Err` if:
 ///     - The daemon failed to even begin connecting. Then [`Error::Rpc`] is returned.
 ///     - The daemon started to connect but ended up in the [`TunnelState::Error`] state.
 ///     Then [`Error::UnexpectedErrorState`] is returned
-pub async fn connect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Result<(), Error> {
+pub async fn connect_and_wait(
+    mullvad_client: &mut MullvadProxyClient,
+) -> Result<TunnelState, Error> {
     log::info!("Connecting");
 
     mullvad_client.connect_tunnel().await?;
@@ -254,7 +277,7 @@ pub async fn connect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Result
 
     log::info!("Connected");
 
-    Ok(())
+    Ok(new_state)
 }
 
 pub async fn disconnect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Result<(), Error> {
@@ -480,27 +503,49 @@ pub fn get_app_env() -> HashMap<String, String> {
     ])
 }
 
-/// Return a filtered version of the daemon's relay list.
+/// Constrain the daemon to only select the relay selected with `query` when establishing all
+/// future tunnels (until relay settings are updated, see [`set_relay_settings`]). Returns the
+/// selected [`Relay`] for future reference.
 ///
-/// * `mullvad_client` - An interface to the Mullvad daemon.
-/// * `critera` - A function used to determine which relays to return.
-pub async fn filter_relays<Filter>(
+/// # Note
+/// This function does not handle bridges and multihop configurations (currently). There is no
+/// particular reason for this other than it not being needed at the time, so feel free to extend this
+/// function :).
+pub async fn constrain_to_relay(
     mullvad_client: &mut MullvadProxyClient,
-    criteria: Filter,
-) -> Result<Vec<Relay>, Error>
-where
-    Filter: Fn(&Relay) -> bool,
-{
-    let relay_list: RelayList = mullvad_client
-        .get_relay_locations()
-        .await
-        .map_err(|error| Error::Daemon(format!("Failed to obtain relay list: {}", error)))?;
+    query: RelayQuery,
+) -> anyhow::Result<Relay> {
+    /// Convert the result of invoking the relay selector to a relay constraint.
+    fn convert_to_relay_constraints(
+        selected_relay: GetRelay,
+    ) -> anyhow::Result<(Relay, RelayConstraints)> {
+        match selected_relay {
+            GetRelay::Wireguard {
+                inner: WireguardConfig::Singlehop { exit },
+                ..
+            }
+            | GetRelay::OpenVpn { exit, .. } => {
+                let location = into_constraint(&exit)?;
+                let relay_constraints = RelayConstraints {
+                    location,
+                    ..Default::default()
+                };
+                Ok((exit, relay_constraints))
+            }
+            unsupported => bail!("Can not constrain to a {unsupported:?}"),
+        }
+    }
 
-    Ok(relay_list
-        .relays()
-        .filter(|relay| criteria(relay))
-        .cloned()
-        .collect())
+    // Construct a relay selector with up-to-date information from the runnin daemon's relay list
+    let relay_list = mullvad_client.get_relay_locations().await?;
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
+    // Select an(y) appropriate relay for the given query and constrain the daemon to only connect
+    // to that specific relay (when connecting).
+    let relay = relay_selector.get_relay_by_query(query)?;
+    let (exit, relay_constraints) = convert_to_relay_constraints(relay)?;
+    set_relay_settings(mullvad_client, RelaySettings::Normal(relay_constraints)).await?;
+
+    Ok(exit)
 }
 
 /// Convenience function for constructing a constraint from a given [`Relay`].
@@ -508,7 +553,7 @@ where
 /// # Panics
 ///
 /// The relay must have a location set.
-pub fn into_constraint(relay: &Relay) -> Constraint<LocationConstraint> {
+pub fn into_constraint(relay: &Relay) -> anyhow::Result<Constraint<LocationConstraint>> {
     relay
         .location
         .as_ref()
@@ -518,16 +563,12 @@ pub fn into_constraint(relay: &Relay) -> Constraint<LocationConstraint> {
                  city_code,
                  ..
              }| {
-                GeographicLocationConstraint::Hostname(
-                    country_code.to_string(),
-                    city_code.to_string(),
-                    relay.hostname.to_string(),
-                )
+                GeographicLocationConstraint::hostname(country_code, city_code, &relay.hostname)
             },
         )
         .map(LocationConstraint::Location)
         .map(Constraint::Only)
-        .expect("relay is missing location")
+        .ok_or(anyhow!("relay is missing location"))
 }
 
 /// Ping monitoring made easy!
@@ -660,4 +701,302 @@ impl PingerBuilder {
         self.interval = tokio::time::interval(period);
         self
     }
+}
+
+/// This helper spawns a seperate process which checks if we are connected to Mullvad, and tries to
+/// leak traffic outside the tunnel by sending TCP, UDP, and ICMP packets to [LEAK_DESTINATION].
+pub struct ConnChecker {
+    rpc: ServiceClient,
+    mullvad_client: MullvadProxyClient,
+    leak_destination: SocketAddr,
+
+    /// Path to the process binary.
+    executable_path: String,
+
+    /// Whether the process should be split when spawned. Needed on Linux.
+    split: bool,
+
+    /// Some arbitrary payload
+    payload: Option<String>,
+}
+
+pub struct ConnCheckerHandle<'a> {
+    checker: &'a mut ConnChecker,
+
+    /// ID of the spawned process.
+    pid: u32,
+}
+
+pub struct ConnectionStatus {
+    /// True if <https://am.i.mullvad.net/> reported we are connected.
+    am_i_mullvad: bool,
+
+    /// True if we sniffed TCP packets going outside the tunnel.
+    leaked_tcp: bool,
+
+    /// True if we sniffed UDP packets going outside the tunnel.
+    leaked_udp: bool,
+
+    /// True if we sniffed ICMP packets going outside the tunnel.
+    leaked_icmp: bool,
+}
+
+impl ConnChecker {
+    pub fn new(
+        rpc: ServiceClient,
+        mullvad_client: MullvadProxyClient,
+        leak_destination: SocketAddr,
+    ) -> Self {
+        let artifacts_dir = &TEST_CONFIG.artifacts_dir;
+        let executable_path = match TEST_CONFIG.os {
+            Os::Linux | Os::Macos => format!("{artifacts_dir}/{CHECKER_FILENAME_UNIX}"),
+            Os::Windows => format!("{artifacts_dir}\\{CHECKER_FILENAME_WINDOWS}"),
+        };
+
+        Self {
+            rpc,
+            mullvad_client,
+            leak_destination,
+            split: false,
+            executable_path,
+            payload: None,
+        }
+    }
+
+    /// Set a custom magic payload that the connection checker binary should use when leak-testing.
+    pub fn payload(&mut self, payload: impl Into<String>) {
+        self.payload = Some(payload.into())
+    }
+
+    /// Spawn the connecton checker process and return a handle to it.
+    ///
+    /// Dropping the handle will stop the process.
+    /// **NOTE**: The handle must be dropped from a tokio runtime context.
+    pub async fn spawn(&mut self) -> anyhow::Result<ConnCheckerHandle<'_>> {
+        log::debug!("spawning connection checker");
+
+        let opts = {
+            let mut args = [
+                "--interactive",
+                "--timeout",
+                &AM_I_MULLVAD_TIMEOUT_MS.to_string(),
+                // try to leak traffic to LEAK_DESTINATION
+                "--leak",
+                &self.leak_destination.to_string(),
+                "--leak-timeout",
+                &LEAK_TIMEOUT_MS.to_string(),
+                "--leak-tcp",
+                "--leak-udp",
+                "--leak-icmp",
+            ]
+            .map(String::from)
+            .to_vec();
+
+            if let Some(payload) = &self.payload {
+                args.push("--payload".to_string());
+                args.push(payload.clone());
+            };
+
+            SpawnOpts {
+                attach_stdin: true,
+                attach_stdout: true,
+                args,
+                ..SpawnOpts::new(&self.executable_path)
+            }
+        };
+
+        let pid = self.rpc.spawn(opts).await?;
+
+        if self.split && TEST_CONFIG.os == Os::Linux {
+            self.mullvad_client
+                .add_split_tunnel_process(pid as i32)
+                .await?;
+        }
+
+        Ok(ConnCheckerHandle { pid, checker: self })
+    }
+
+    /// Enable split tunneling for the connection checker.
+    pub async fn split(&mut self) -> anyhow::Result<()> {
+        log::debug!("enable split tunnel");
+        self.split = true;
+
+        match TEST_CONFIG.os {
+            Os::Linux => { /* linux programs can't be split until they are spawned */ }
+            Os::Windows => {
+                self.mullvad_client
+                    .add_split_tunnel_app(&self.executable_path)
+                    .await?;
+                self.mullvad_client.set_split_tunnel_state(true).await?;
+            }
+            Os::Macos => unimplemented!("MacOS"),
+        }
+
+        Ok(())
+    }
+
+    /// Disable split tunneling for the connection checker.
+    pub async fn unsplit(&mut self) -> anyhow::Result<()> {
+        log::debug!("disable split tunnel");
+        self.split = false;
+
+        match TEST_CONFIG.os {
+            Os::Linux => {}
+            Os::Windows => {
+                self.mullvad_client.set_split_tunnel_state(false).await?;
+                self.mullvad_client
+                    .remove_split_tunnel_app(&self.executable_path)
+                    .await?;
+            }
+            Os::Macos => unimplemented!("MacOS"),
+        }
+
+        Ok(())
+    }
+}
+
+impl ConnCheckerHandle<'_> {
+    pub async fn split(&mut self) -> anyhow::Result<()> {
+        if TEST_CONFIG.os == Os::Linux {
+            self.checker
+                .mullvad_client
+                .add_split_tunnel_process(self.pid as i32)
+                .await?;
+        }
+
+        self.checker.split().await
+    }
+
+    pub async fn unsplit(&mut self) -> anyhow::Result<()> {
+        if TEST_CONFIG.os == Os::Linux {
+            self.checker
+                .mullvad_client
+                .remove_split_tunnel_process(self.pid as i32)
+                .await?;
+        }
+
+        self.checker.unsplit().await
+    }
+
+    /// Assert that traffic is flowing through the Mullvad tunnel and that no packets are leaked.
+    pub async fn assert_secure(&mut self) -> anyhow::Result<()> {
+        log::info!("checking that connection is secure");
+        let status = self.check_connection().await?;
+        ensure!(status.am_i_mullvad);
+        ensure!(!status.leaked_tcp);
+        ensure!(!status.leaked_udp);
+        ensure!(!status.leaked_icmp);
+
+        Ok(())
+    }
+
+    /// Assert that traffic is NOT flowing through the Mullvad tunnel and that packets ARE leaked.
+    pub async fn assert_insecure(&mut self) -> anyhow::Result<()> {
+        log::info!("checking that connection is not secure");
+        let status = self.check_connection().await?;
+        ensure!(!status.am_i_mullvad);
+        ensure!(status.leaked_tcp);
+        ensure!(status.leaked_udp);
+        ensure!(status.leaked_icmp);
+
+        Ok(())
+    }
+
+    pub async fn check_connection(&mut self) -> anyhow::Result<ConnectionStatus> {
+        // Monitor all pakets going to LEAK_DESTINATION during the check.
+        let leak_destination = self.checker.leak_destination;
+        let monitor = start_packet_monitor(
+            move |packet| packet.destination.ip() == leak_destination.ip(),
+            MonitorOptions {
+                direction: Some(Direction::In),
+                ..MonitorOptions::default()
+            },
+        )
+        .await;
+
+        // Write a newline to the connection checker to prompt it to perform the check.
+        self.checker
+            .rpc
+            .write_child_stdin(self.pid, "Say the line, Bart!\r\n".into())
+            .await?;
+
+        // The checker responds when the check is complete.
+        let line = self.read_stdout_line().await?;
+
+        let monitor_result = monitor
+            .into_result()
+            .await
+            .map_err(|_e| anyhow!("Packet monitor unexpectedly stopped"))?;
+
+        Ok(ConnectionStatus {
+            am_i_mullvad: parse_am_i_mullvad(line)?,
+
+            leaked_tcp: (monitor_result.packets.iter())
+                .any(|pkt| pkt.protocol == IpNextHeaderProtocols::Tcp),
+
+            leaked_udp: (monitor_result.packets.iter())
+                .any(|pkt| pkt.protocol == IpNextHeaderProtocols::Udp),
+
+            leaked_icmp: (monitor_result.packets.iter())
+                .any(|pkt| pkt.protocol == IpNextHeaderProtocols::Icmp),
+        })
+    }
+
+    /// Try to a single line of output from the spawned process
+    async fn read_stdout_line(&mut self) -> anyhow::Result<String> {
+        // Add a timeout to avoid waiting forever.
+        tokio::time::timeout(CONN_CHECKER_TIMEOUT, async {
+            let mut line = String::new();
+
+            // tarpc doesn't support streams, so we poll the checker process in a loop instead
+            loop {
+                let Some(output) = self.checker.rpc.read_child_stdout(self.pid).await? else {
+                    bail!("got EOF from connection checker process");
+                };
+
+                if output.is_empty() {
+                    sleep(Duration::from_millis(500)).await;
+                    continue;
+                }
+
+                line.push_str(&output);
+
+                if line.contains('\n') {
+                    log::info!("output from child process: {output:?}");
+                    return Ok(line);
+                }
+            }
+        })
+        .await
+        .with_context(|| "Timeout reading stdout from connection checker")?
+    }
+}
+
+impl Drop for ConnCheckerHandle<'_> {
+    fn drop(&mut self) {
+        let rpc = self.checker.rpc.clone();
+        let pid = self.pid;
+
+        let Ok(runtime_handle) = tokio::runtime::Handle::try_current() else {
+            log::error!("ConnCheckerHandle dropped outside of a tokio runtime.");
+            return;
+        };
+
+        runtime_handle.spawn(async move {
+            // Make sure child process is stopped when this handle is dropped.
+            // Closing stdin does the trick.
+            let _ = rpc.close_child_stdin(pid).await;
+        });
+    }
+}
+
+/// Parse output from connection-checker. Returns true if connected to Mullvad.
+fn parse_am_i_mullvad(result: String) -> anyhow::Result<bool> {
+    Ok(if result.contains("You are connected") {
+        true
+    } else if result.contains("You are not connected") {
+        false
+    } else {
+        bail!("Unexpected output from connection-checker: {result:?}")
+    })
 }
