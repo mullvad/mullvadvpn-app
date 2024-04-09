@@ -9,7 +9,7 @@ import { filterSpecialLocations } from '../../lib/filter-locations';
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
 import { RoutePath } from '../../lib/routes';
-import { useNormalBridgeSettings, useNormalRelaySettings } from '../../lib/utilityHooks';
+import { useNormalRelaySettings } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
 import * as Cell from '../cell';
 import { useFilteredProviders } from '../Filter';
@@ -34,12 +34,7 @@ import {
   useOnSelectEntryLocation,
   useOnSelectExitLocation,
 } from './select-location-hooks';
-import {
-  LocationType,
-  SpecialBridgeLocationType,
-  SpecialLocation,
-  SpecialLocationIcon,
-} from './select-location-types';
+import { LocationType, SpecialBridgeLocationType, SpecialLocation } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 import {
   StyledClearFilterButton,
@@ -54,6 +49,11 @@ import {
   StyledSearchBar,
 } from './SelectLocationStyles';
 import { SpacePreAllocationView } from './SpacePreAllocationView';
+import {
+  AutomaticLocationRow,
+  CustomBridgeLocationRow,
+  CustomExitLocationRow,
+} from './SpecialLocationList';
 
 export default function SelectLocation() {
   const history = useHistory();
@@ -260,22 +260,21 @@ function SelectLocationContent() {
   const [onSelectBridgeRelay, onSelectBridgeSpecial] = useOnSelectBridgeLocation();
 
   const relaySettings = useNormalRelaySettings();
-  const bridgeSettings = useNormalBridgeSettings();
+  const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
 
   const allowAddToCustomList = useSelector((state) => state.settings.customLists.length > 0);
 
   if (locationType === LocationType.exit) {
     // Add "Custom" item if a custom relay is selected
-    const specialList: Array<SpecialLocation<undefined>> =
-      relaySettings === undefined
-        ? [
-            {
-              label: messages.gettext('Custom'),
-              value: undefined,
-              selected: true,
-            },
-          ]
-        : [];
+    const specialList: Array<SpecialLocation<undefined>> = [];
+    if (relaySettings === undefined) {
+      specialList.push({
+        label: messages.gettext('Custom'),
+        value: undefined,
+        selected: true,
+        component: CustomExitLocationRow,
+      });
+    }
 
     const specialLocations = filterSpecialLocations(searchTerm, specialList);
     return (
@@ -320,14 +319,17 @@ function SelectLocationContent() {
     // Add the "Automatic" item
     const specialList: Array<SpecialLocation<SpecialBridgeLocationType>> = [
       {
+        label: messages.pgettext('select-location-view', 'Custom bridge'),
+        value: SpecialBridgeLocationType.custom,
+        selected: bridgeSettings?.type === 'custom',
+        disabled: bridgeSettings?.custom === undefined,
+        component: CustomBridgeLocationRow,
+      },
+      {
         label: messages.gettext('Automatic'),
-        icon: SpecialLocationIcon.geoLocation,
-        info: messages.pgettext(
-          'select-location-view',
-          'The app selects a random bridge server, but servers have a higher probability the closer they are to you.',
-        ),
         value: SpecialBridgeLocationType.closestToExit,
-        selected: bridgeSettings?.location === 'any',
+        selected: bridgeSettings?.type === 'normal' && bridgeSettings.normal?.location === 'any',
+        component: AutomaticLocationRow,
       },
     ];
 
