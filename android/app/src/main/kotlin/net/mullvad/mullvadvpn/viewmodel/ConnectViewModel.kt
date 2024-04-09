@@ -57,14 +57,14 @@ class ConnectViewModel(
                 inAppNotificationController.notifications,
                 connectionProxy.tunnelState,
                 connectionProxy.lastKnownDisconnectedLocation(),
-                accountRepository.accountExpiry,
+                accountRepository.accountData,
                 deviceRepository.deviceState.map { it.deviceName() }
             ) {
                 selectedRelayItem,
                 notifications,
                 tunnelState,
                 lastKnownDisconnectedLocation,
-                accountExpiry,
+                accountData,
                 deviceName ->
                 ConnectUiState(
                     location =
@@ -102,7 +102,7 @@ class ConnectViewModel(
                         },
                     inAppNotification = notifications.firstOrNull(),
                     deviceName = deviceName,
-                    daysLeftUntilExpiry = accountExpiry.date()?.daysFromNow(),
+                    daysLeftUntilExpiry = accountData?.expiryDate?.daysFromNow(),
                     isPlayBuild = isPlayBuild,
                 )
             }
@@ -112,7 +112,7 @@ class ConnectViewModel(
     init {
         viewModelScope.launch {
             paymentUseCase.verifyPurchases {
-                viewModelScope.launch { accountRepository.getAccountExpiry() }
+                viewModelScope.launch { accountRepository.getAccountAccountData() }
             }
         }
     }

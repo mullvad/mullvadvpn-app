@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountCreationResult
-import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.DeviceListEvent
@@ -116,7 +116,7 @@ class LoginViewModelTest {
             val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
             coEvery { mockedAccountRepository.login(any()) } returns LoginResult.Ok
             coEvery { mockedAccountRepository.accountExpiryState } returns
-                MutableStateFlow(AccountExpiry.Available(DateTime.now().plusDays(3)))
+                MutableStateFlow(AccountData.Available(DateTime.now().plusDays(3)))
 
             // Act, Assert
             uiStates.skipDefaultItem()

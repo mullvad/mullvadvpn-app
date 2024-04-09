@@ -19,7 +19,7 @@ import kotlinx.coroutines.test.setMain
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
 import net.mullvad.mullvadvpn.lib.ipc.events
-import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.talpid.tunnel.ErrorState
@@ -34,7 +34,7 @@ class OutOfTimeUseCaseTest {
     private val mockMessageHandler: MessageHandler = mockk()
 
     private lateinit var events: Channel<Event.TunnelStateChange>
-    private lateinit var expiry: MutableStateFlow<AccountExpiry>
+    private lateinit var expiry: MutableStateFlow<AccountData>
 
     private val dispatcher = StandardTestDispatcher()
     private val scope = TestScope(dispatcher)
@@ -44,7 +44,7 @@ class OutOfTimeUseCaseTest {
     @BeforeEach
     fun setup() {
         events = Channel()
-        expiry = MutableStateFlow(AccountExpiry.Missing)
+        expiry = MutableStateFlow(AccountData.Missing)
         every { mockAccountRepository.accountExpiryState } returns expiry
         every { mockMessageHandler.events<Event.TunnelStateChange>() } returns
             events.receiveAsFlow()
@@ -89,7 +89,7 @@ class OutOfTimeUseCaseTest {
     fun `tunnel is connected should emit false`() =
         scope.runTest {
             // Arrange
-            val expiredAccountExpiry = AccountExpiry.Available(DateTime.now().plusDays(1))
+            val expiredAccountExpiry = AccountData.Available(DateTime.now().plusDays(1))
             val tunnelStateChanges =
                 listOf(
                         TunnelState.Disconnected(),
@@ -118,7 +118,7 @@ class OutOfTimeUseCaseTest {
     fun `account expiry that has expired should emit true`() =
         scope.runTest {
             // Arrange
-            val expiredAccountExpiry = AccountExpiry.Available(DateTime.now().minusDays(1))
+            val expiredAccountExpiry = AccountData.Available(DateTime.now().minusDays(1))
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
                 assertEquals(null, awaitItem())
@@ -131,7 +131,7 @@ class OutOfTimeUseCaseTest {
     fun `account expiry that has not expired should emit false`() =
         scope.runTest {
             // Arrange
-            val notExpiredAccountExpiry = AccountExpiry.Available(DateTime.now().plusDays(1))
+            val notExpiredAccountExpiry = AccountData.Available(DateTime.now().plusDays(1))
 
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
@@ -145,7 +145,7 @@ class OutOfTimeUseCaseTest {
     fun `account that expires without new expiry event should emit true`() =
         runTest(dispatcher) {
             // Arrange
-            val expiredAccountExpiry = AccountExpiry.Available(DateTime.now().plusSeconds(100))
+            val expiredAccountExpiry = AccountData.Available(DateTime.now().plusSeconds(100))
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
                 // Initial event
@@ -167,9 +167,9 @@ class OutOfTimeUseCaseTest {
     @Test
     fun `account that is about to expire but is refilled should emit false`() = runTest {
         // Arrange
-        val initialAccountExpiry = AccountExpiry.Available(DateTime.now().plusSeconds(100))
+        val initialAccountExpiry = AccountData.Available(DateTime.now().plusSeconds(100))
         val updatedExpiry =
-            AccountExpiry.Available(initialAccountExpiry.expiryDateTime.plusDays(30))
+            AccountData.Available(initialAccountExpiry.expiryDateTime.plusDays(30))
 
         // Act, Assert
         outOfTimeUseCase.isOutOfTime.test {
@@ -196,9 +196,9 @@ class OutOfTimeUseCaseTest {
     @Test
     fun `expired account that is refilled should emit false`() = runTest {
         // Arrange
-        val initialAccountExpiry = AccountExpiry.Available(DateTime.now().plusSeconds(100))
+        val initialAccountExpiry = AccountData.Available(DateTime.now().plusSeconds(100))
         val updatedExpiry =
-            AccountExpiry.Available(initialAccountExpiry.expiryDateTime.plusDays(30))
+            AccountData.Available(initialAccountExpiry.expiryDateTime.plusDays(30))
         // Act, Assert
         outOfTimeUseCase.isOutOfTime.test {
             // Initial event

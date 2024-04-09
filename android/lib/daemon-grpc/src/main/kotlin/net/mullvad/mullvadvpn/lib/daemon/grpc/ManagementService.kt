@@ -13,6 +13,7 @@ import io.grpc.Status
 import io.grpc.StatusException
 import io.grpc.android.UdsChannelBuilder
 import java.net.InetAddress
+import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.CoroutineScope
@@ -41,8 +42,8 @@ import mullvad_daemon.management_interface.ManagementInterface.TunnelState
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
 import mullvad_daemon.management_interface.copy
 import net.mullvad.mullvadvpn.model.AccountCreationResult
-import net.mullvad.mullvadvpn.model.AccountExpiry
-import net.mullvad.mullvadvpn.model.AccountHistory as ModelAccountHistory
+import net.mullvad.mullvadvpn.model.AccountData
+import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.AppVersionInfo as ModelAppVersionInfo
 import net.mullvad.mullvadvpn.model.ClearAllOverridesError
 import net.mullvad.mullvadvpn.model.CreateCustomListError
@@ -242,9 +243,9 @@ class ManagementService(
         try {
             val history = managementService.getAccountHistory(Empty.getDefaultInstance())
             if (history.hasToken()) {
-                ModelAccountHistory.Available(history.token.value)
+                AccountToken(history.token.value)
             } else {
-                ModelAccountHistory.Missing
+                null
             }
         } catch (e: StatusException) {
             throw e
@@ -259,14 +260,14 @@ class ManagementService(
             getDevice(),
         )
 
-    suspend fun getAccountExpiry(accountToken: String): AccountExpiry =
+    suspend fun getAccountData(accountToken: String): AccountData? =
         try {
-            val expiry = managementService.getAccountData(StringValue.of(accountToken))
-            if (expiry.hasExpiry()) {
-                AccountExpiry.Available(Instant.ofEpochSecond(expiry.expiry.seconds).toDateTime())
-            } else {
-                AccountExpiry.Missing
-            }
+            val accountData = managementService.getAccountData(StringValue.of(accountToken))
+            accountData.expiry
+            AccountData(
+                UUID.fromString(accountData.id),
+                Instant.ofEpochSecond(accountData.expiry.seconds).toDateTime()
+            )
         } catch (e: StatusException) {
             throw e
         }

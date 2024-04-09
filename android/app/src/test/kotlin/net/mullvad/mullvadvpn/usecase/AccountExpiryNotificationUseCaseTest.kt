@@ -10,7 +10,7 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import org.joda.time.DateTime
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class AccountExpiryNotificationUseCaseTest {
 
-    private val accountExpiry = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
+    private val accountExpiry = MutableStateFlow<AccountData>(AccountData.Missing)
     private lateinit var accountExpiryNotificationUseCase: AccountExpiryNotificationUseCase
 
     @BeforeEach
@@ -53,7 +53,7 @@ class AccountExpiryNotificationUseCaseTest {
         // Arrange, Act, Assert
         accountExpiryNotificationUseCase.notifications().test {
             assertTrue { awaitItem().isEmpty() }
-            val closeToExpiry = AccountExpiry.Available(DateTime.now().plusDays(2))
+            val closeToExpiry = AccountData.Available(DateTime.now().plusDays(2))
             accountExpiry.value = closeToExpiry
 
             assertEquals(
@@ -68,7 +68,7 @@ class AccountExpiryNotificationUseCaseTest {
         // Arrange, Act, Assert
         accountExpiryNotificationUseCase.notifications().test {
             assertTrue { awaitItem().isEmpty() }
-            accountExpiry.value = AccountExpiry.Available(DateTime.now().plusDays(4))
+            accountExpiry.value = AccountData.Available(DateTime.now().plusDays(4))
             expectNoEvents()
         }
     }
