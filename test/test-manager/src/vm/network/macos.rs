@@ -4,9 +4,6 @@ use anyhow::{anyhow, Context, Result};
 use futures::future::{self, Either};
 use tokio::{io::AsyncWriteExt, process::Command};
 
-/// Pingable dummy LAN interface (IP)
-pub const DUMMY_LAN_INTERFACE_IP: Ipv4Addr = Ipv4Addr::new(192, 168, 64, 254);
-
 // Private key of the wireguard remote peer on host.
 const CUSTOM_TUN_REMOTE_PRIVKEY: &str = "gLvQuyqazziyf+pUCAFUgTnWIwn6fPE5MOReOqPEGHU=";
 // Public key of the wireguard remote peer on host.
@@ -50,39 +47,7 @@ pub async fn setup_test_network() -> Result<()> {
         .await
         .context("Failed to create WireGuard interface")?;
 
-    // A bit of trickery to detect when the bridge is available.
-    tokio::spawn(async move {
-        for _ in 0..30 {
-            let Ok(interface) = find_vm_bridge() else {
-                tokio::time::sleep(Duration::from_secs(1)).await;
-                continue;
-            };
-            match create_dummy_interface(interface).await {
-                Ok(_) => log::debug!("Created dummy interface"),
-                Err(error) => log::error!("Failed to create dummy interface: {error}"),
-            }
-            return;
-        }
-        log::error!("Failed to create dummy interface: timed out");
-    });
-
     Ok(())
-}
-
-async fn create_dummy_interface(interface: String) -> Result<()> {
-    let mut cmd = Command::new("/usr/bin/sudo");
-    cmd.args([
-        "/sbin/ifconfig",
-        &interface,
-        "alias",
-        &DUMMY_LAN_INTERFACE_IP.to_string(),
-    ]);
-    let output = cmd.output().await.context("Create dummy interface")?;
-    if output.status.success() {
-        Ok(())
-    } else {
-        Err(anyhow!("ifconfig failed: {:?}", output.status.code()))
-    }
 }
 
 /// A hack to find the Tart bridge interface using `NON_TUN_GATEWAY`.
