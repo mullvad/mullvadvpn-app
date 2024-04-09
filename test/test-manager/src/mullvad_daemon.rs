@@ -51,14 +51,17 @@ pub struct RpcClientProvider {
     service: DummyService,
 }
 
+pub enum MullvadClientArgument {
+    WithClient(MullvadProxyClient),
+    None,
+}
+
 impl RpcClientProvider {
-    pub async fn as_type(
-        &self,
-        client_type: MullvadClientVersion,
-    ) -> Box<dyn std::any::Any + Send> {
+    /// Whether a [test case](test_macro::test_function) needs a [`MullvadProxyClient`].
+    pub async fn mullvad_client(&self, client_type: MullvadClientVersion) -> MullvadClientArgument {
         match client_type {
-            MullvadClientVersion::New => Box::new(self.new_client().await),
-            MullvadClientVersion::None => Box::new(()),
+            MullvadClientVersion::New => MullvadClientArgument::WithClient(self.new_client().await),
+            MullvadClientVersion::None => MullvadClientArgument::None,
         }
     }
 

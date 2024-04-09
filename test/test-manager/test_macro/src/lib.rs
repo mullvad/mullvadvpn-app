@@ -199,20 +199,18 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
     let func_name = test_function.name;
     let function_mullvad_version = test_function.function_parameters.mullvad_client.version();
     let wrapper_closure = match test_function.function_parameters.mullvad_client {
-        MullvadClient::New {
-            mullvad_client_type,
-            ..
-        } => {
-            let mullvad_client_type = *mullvad_client_type;
+        MullvadClient::New { .. } => {
             quote! {
                 |test_context: crate::tests::TestContext,
                 rpc: test_rpc::ServiceClient,
-                mullvad_client: Box<dyn std::any::Any + Send>,|
+                mullvad_client: crate::mullvad_daemon::MullvadClientArgument|
                 {
-                    use std::any::Any;
-                    let mullvad_client = mullvad_client.downcast::<#mullvad_client_type>().expect("invalid mullvad client");
+                    let mullvad_client = match mullvad_client {
+                        crate::mullvad_daemon::MullvadClientArgument::WithClient(client) => client,
+                        crate::mullvad_daemon::MullvadClientArgument::None => unreachable!("invalid mullvad client")
+                    };
                     Box::pin(async move {
-                        #func_name(test_context, rpc, *mullvad_client).await.map_err(Into::into)
+                        #func_name(test_context, rpc, mullvad_client).await.map_err(Into::into)
                     })
                 }
             }
@@ -221,7 +219,7 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
             quote! {
                 |test_context: crate::tests::TestContext,
                 rpc: test_rpc::ServiceClient,
-                _mullvad_client: Box<dyn std::any::Any + Send>| {
+                _mullvad_client: crate::mullvad_daemon::MullvadClientArgument| {
                     Box::pin(async move {
                         #func_name(test_context, rpc).await.map_err(Into::into)
                     })
@@ -264,7 +262,6 @@ enum MullvadClient {
         mullvad_client_version: proc_macro2::TokenStream,
     },
     New {
-        mullvad_client_type: Box<syn::Type>,
         mullvad_client_version: proc_macro2::TokenStream,
     },
 }
@@ -314,7 +311,6 @@ fn get_test_function_parameters(
             let mullvad_client_version =
                 quote! { test_rpc::mullvad_daemon::MullvadClientVersion::New };
             MullvadClient::New {
-                mullvad_client_type: pat_type.ty,
                 mullvad_client_version,
             }
         }
