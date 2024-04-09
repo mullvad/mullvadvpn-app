@@ -362,14 +362,14 @@ internal fun ManagementInterface.DefaultDnsOptions.toDomain() =
 internal fun ManagementInterface.CustomDnsOptions.toDomain() =
     CustomDnsOptions(this.addressesList.map { InetAddress.getByName(it) })
 
-internal fun DnsOptions.toDomain(): ManagementInterface.DnsOptions =
+internal fun DnsOptions.fromDomain(): ManagementInterface.DnsOptions =
     ManagementInterface.DnsOptions.newBuilder()
-        .setState(this.state.toDomain())
+        .setState(this.state.fromDomain())
         .setCustomOptions(this.customOptions.fromDomain())
         .setDefaultOptions(this.defaultOptions.fromDomain())
         .build()
 
-internal fun DnsState.toDomain(): ManagementInterface.DnsOptions.DnsState =
+internal fun DnsState.fromDomain(): ManagementInterface.DnsOptions.DnsState =
     when (this) {
         DnsState.Default -> ManagementInterface.DnsOptions.DnsState.DEFAULT
         DnsState.Custom -> ManagementInterface.DnsOptions.DnsState.CUSTOM

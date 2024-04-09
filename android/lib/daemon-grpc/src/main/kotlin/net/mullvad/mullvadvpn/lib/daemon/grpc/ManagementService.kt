@@ -59,6 +59,12 @@ import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.ObfuscationSettings as ModelObfuscationSettings
 import net.mullvad.mullvadvpn.model.QuantumResistantState as ModelQuantumResistantState
 import net.mullvad.mullvadvpn.model.RelaySettings
+import net.mullvad.mullvadvpn.model.SetAllowLanError
+import net.mullvad.mullvadvpn.model.SetAutoConnectError
+import net.mullvad.mullvadvpn.model.SetDnsOptionsError
+import net.mullvad.mullvadvpn.model.SetObfuscationOptionsError
+import net.mullvad.mullvadvpn.model.SetWireguardMtuError
+import net.mullvad.mullvadvpn.model.SetWireguardQuantumResistantError
 import net.mullvad.mullvadvpn.model.Settings as ModelSettings
 import net.mullvad.mullvadvpn.model.SettingsPatchError
 import net.mullvad.mullvadvpn.model.TunnelState as ModelTunnelState
@@ -275,44 +281,70 @@ class ManagementService(
             AccountCreationResult.Failure
         }
 
-    suspend fun setDnsOptions(dnsOptions: ModelDnsOptions) {
-        managementService.setDnsOptions(dnsOptions.toDomain())
-    }
+    suspend fun setDnsOptions(dnsOptions: ModelDnsOptions): Either<SetDnsOptionsError, Unit> =
+        Either.catch { managementService.setDnsOptions(dnsOptions.fromDomain()) }
+            .mapLeft(SetDnsOptionsError::Unknown)
+            .mapEmpty()
 
-    suspend fun setDnsState(dnsState: ModelDnsState) {
-        val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
-        val newDnsState = dnsState.toDomain()
-        managementService.setDnsOptions(currentDnsOptions.copy { this.state = newDnsState })
-    }
+    suspend fun setDnsState(dnsState: ModelDnsState): Either<SetDnsOptionsError, Unit> =
+        Either.catch {
+                val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
+                val newDnsState = dnsState.fromDomain()
+                managementService.setDnsOptions(currentDnsOptions.copy { this.state = newDnsState })
+            }
+            .mapLeft(SetDnsOptionsError::Unknown)
+            .mapEmpty()
 
-    suspend fun setCustomDns(index: Int, address: InetAddress) {
-        val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
-        managementService.setDnsOptions(
-            currentDnsOptions.also { it.customOptions.addressesList[index] = address.toString() }
-        )
-    }
-
-    suspend fun deleteCustomDns(address: InetAddress) {
-        val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
-        val currentCustomDnsOptions = currentDnsOptions.customOptions
-        val newCustomDnsOptions =
-            CustomDnsOptions.newBuilder()
-                .addAllAddresses(
-                    currentCustomDnsOptions.addressesList.filter { it != address.toString() }
+    suspend fun setCustomDns(index: Int, address: InetAddress): Either<SetDnsOptionsError, Unit> =
+        Either.catch {
+                val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
+                managementService.setDnsOptions(
+                    currentDnsOptions.copy {
+                        customOptions.copy {
+                            this.addresses.apply {
+                                if (index == -1) {
+                                    add(address.toString())
+                                } else {
+                                    set(index, address.toString())
+                                }
+                            }
+                        }
+                    }
                 )
-                .build()
-        managementService.setDnsOptions(
-            currentDnsOptions.copy { this.customOptions = newCustomDnsOptions }
-        )
-    }
+            }
+            .mapLeft(SetDnsOptionsError::Unknown)
+            .mapEmpty()
 
-    suspend fun setWireguardMtu(value: Int) {
-        managementService.setWireguardMtu(UInt32Value.of(value))
-    }
+    suspend fun deleteCustomDns(address: InetAddress): Either<SetDnsOptionsError, Unit> =
+        Either.catch {
+                val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
+                val currentCustomDnsOptions = currentDnsOptions.customOptions
+                val newCustomDnsOptions =
+                    CustomDnsOptions.newBuilder()
+                        .addAllAddresses(
+                            currentCustomDnsOptions.addressesList.filter {
+                                it != address.toString()
+                            }
+                        )
+                        .build()
+                managementService.setDnsOptions(
+                    currentDnsOptions.copy { this.customOptions = newCustomDnsOptions }
+                )
+            }
+            .mapLeft(SetDnsOptionsError::Unknown)
+            .mapEmpty()
 
-    suspend fun setWireguardQuantumResistant(value: ModelQuantumResistantState) {
-        managementService.setQuantumResistantTunnel(value.toDomain())
-    }
+    suspend fun setWireguardMtu(value: Int): Either<SetWireguardMtuError, Unit> =
+        Either.catch { managementService.setWireguardMtu(UInt32Value.of(value)) }
+            .mapLeft(SetWireguardMtuError::Unknown)
+            .mapEmpty()
+
+    suspend fun setWireguardQuantumResistant(
+        value: ModelQuantumResistantState
+    ): Either<SetWireguardQuantumResistantError, Unit> =
+        Either.catch { managementService.setQuantumResistantTunnel(value.toDomain()) }
+            .mapLeft(SetWireguardQuantumResistantError::Unknown)
+            .mapEmpty()
 
     // Todo needs to be more advanced
     suspend fun setRelaySettings(value: RelaySettings) {
@@ -335,17 +367,22 @@ class ManagementService(
             }
             .build()
 
-    suspend fun setObfuscationOptions(value: ModelObfuscationSettings) {
-        managementService.setObfuscationSettings(value.fromDomain())
-    }
+    suspend fun setObfuscationOptions(
+        value: ModelObfuscationSettings
+    ): Either<SetObfuscationOptionsError, Unit> =
+        Either.catch { managementService.setObfuscationSettings(value.fromDomain()) }
+            .mapLeft(SetObfuscationOptionsError::Unknown)
+            .mapEmpty()
 
-    suspend fun setAutoConnect(isEnabled: Boolean) {
-        managementService.setAutoConnect(BoolValue.of(isEnabled))
-    }
+    suspend fun setAutoConnect(isEnabled: Boolean): Either<SetAutoConnectError, Unit> =
+        Either.catch { managementService.setAutoConnect(BoolValue.of(isEnabled)) }
+            .mapLeft(SetAutoConnectError::Unknown)
+            .mapEmpty()
 
-    suspend fun setAllowLan(allow: Boolean) {
-        managementService.setAllowLan(BoolValue.of(allow))
-    }
+    suspend fun setAllowLan(allow: Boolean): Either<SetAllowLanError, Unit> =
+        Either.catch { managementService.setAllowLan(BoolValue.of(allow)) }
+            .mapLeft(SetAllowLanError::Unknown)
+            .mapEmpty()
 
     suspend fun getCurrentVersion(): String =
         managementService.getCurrentVersion(Empty.getDefaultInstance()).value

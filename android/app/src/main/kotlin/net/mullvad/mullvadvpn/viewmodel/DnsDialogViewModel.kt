@@ -22,6 +22,8 @@ import org.apache.commons.validator.routines.InetAddressValidator
 
 sealed interface DnsDialogSideEffect {
     data object Complete : DnsDialogSideEffect
+
+    data object Error : DnsDialogSideEffect
 }
 
 data class DnsDialogViewModelState(
@@ -117,19 +119,24 @@ class DnsDialogViewModel(
             val address = InetAddress.getByName(uiState.value.ipAddress)
 
             if (index != null) {
-                repository.setCustomDns(index, address)
-            } else {
-                // TODO
-                // add(address)
-            }
-
-            _uiSideEffect.send(DnsDialogSideEffect.Complete)
+                    repository.setCustomDns(index = index, address = address)
+                } else {
+                    repository.setCustomDns(address = address)
+                }
+                .fold(
+                    { _uiSideEffect.send(DnsDialogSideEffect.Error) },
+                    { _uiSideEffect.send(DnsDialogSideEffect.Complete) }
+                )
         }
 
     fun onRemoveDnsClick() =
         viewModelScope.launch(dispatcher) {
-            repository.deleteCustomDns(InetAddress.getByName(uiState.value.ipAddress))
-            _uiSideEffect.send(DnsDialogSideEffect.Complete)
+            repository
+                .deleteCustomDns(InetAddress.getByName(uiState.value.ipAddress))
+                .fold(
+                    { _uiSideEffect.send(DnsDialogSideEffect.Error) },
+                    { _uiSideEffect.send(DnsDialogSideEffect.Complete) }
+                )
         }
 
     private fun String.isValidIp(): Boolean {
