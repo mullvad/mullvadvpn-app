@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
-import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -32,13 +31,13 @@ class AccountViewModel(
     val uiState: StateFlow<AccountUiState> =
         combine(
                 deviceRepository.deviceState,
-                accountRepository.accountExpiry,
+                accountRepository.accountData,
                 paymentUseCase.paymentAvailability
-            ) { deviceState, accountExpiry, paymentAvailability ->
+            ) { deviceState, accountData, paymentAvailability ->
                 AccountUiState(
                     deviceName = deviceState.deviceName() ?: "",
                     accountNumber = deviceState.token() ?: "",
-                    accountExpiry = accountExpiry.date(),
+                    accountExpiry = accountData?.expiryDate,
                     showSitePayment = !isPlayBuild,
                     billingPaymentState = paymentAvailability?.toPaymentState()
                 )
@@ -104,7 +103,7 @@ class AccountViewModel(
     }
 
     private fun updateAccountExpiry() {
-        viewModelScope.launch { accountRepository.getAccountExpiry() }
+        viewModelScope.launch { accountRepository.getAccountAccountData() }
     }
 
     sealed class UiSideEffect {
@@ -128,7 +127,7 @@ data class AccountUiState(
             AccountUiState(
                 deviceName = DeviceState.Unknown.deviceName(),
                 accountNumber = DeviceState.Unknown.token(),
-                accountExpiry = AccountExpiry.Missing.date(),
+                accountExpiry = null,
                 showSitePayment = false,
                 billingPaymentState = PaymentState.Loading,
             )

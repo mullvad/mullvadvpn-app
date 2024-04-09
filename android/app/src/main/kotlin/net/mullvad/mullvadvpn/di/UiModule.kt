@@ -118,7 +118,7 @@ val uiModule = module {
     single { NewDeviceNotificationUseCase(get()) }
     single { PortRangeUseCase(get()) }
     single { RelayListUseCase(get(), get()) }
-    single { OutOfTimeUseCase(get(), MainScope()) }
+    single { OutOfTimeUseCase(get(), get(), MainScope()) }
     single { ConnectivityUseCase(get()) }
     single { SystemVpnSettingsUseCase(androidContext()) }
     single { CustomListActionUseCase(get(), get()) }
@@ -169,12 +169,10 @@ val uiModule = module {
     viewModel { SplashViewModel(get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
-    viewModel { WelcomeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
+    viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
-    viewModel {
-        OutOfTimeViewModel(get(), get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD)
-    }
+    viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get()) }
     viewModel { (location: GeographicLocationConstraint?) ->
