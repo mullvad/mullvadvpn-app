@@ -28,10 +28,6 @@ Line wrap the file at 100 chars.                                              Th
 - Add ability to import server IP overrides in GUI.
 
 #### Android
-- Add support for all screen orientations.
-- Add toggle for enabling or disabling split tunneling.
-- Add auto connect and lockdown mode guide on platforms that has system vpn settings.
-- Add 3D map to Connect screen.
 - Add the ability to create and manage custom lists of relays.
 - Add Server IP overrides feature.
 
@@ -42,11 +38,6 @@ Line wrap the file at 100 chars.                                              Th
 
 [`relay selector defaults`]: docs/relay-selector.md#default-constraints-for-tunnel-endpoints
 
-#### Android
-- Migrate to Compose Navigation which also improves screen transition animations.
-- Increase focus highlight opacity.
-- Set auto-connect setting as legacy on platforms with system vpn settings.
-
 ### Fixed
 - Continual excessive attempts to update the API IP were made after testing access methods.
 - Fix pointless API access method rotations for concurrent requests.
@@ -54,13 +45,11 @@ Line wrap the file at 100 chars.                                              Th
 - Fix missing redirect to out of time-view when running out of time.
 - Fix incorrectly showing "App lost contact with system service" notification on suspend.
 
-#### Android
-- Fix crash in Split Tunneling screen caused by apps provding icons bigger than 100MB.
 
-### Security
+## [android/2024.1] - 2024-04-05
+### Fixed
 #### Android
-- Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
-- Add protection against some tapjacking vulnerabilities.
+- Fix 3D map animation distance calculation.
 
 
 ## [2024.1] - 2024-03-21
@@ -72,6 +61,37 @@ Line wrap the file at 100 chars.                                              Th
 - Fix bug that caused high CPU usage.
 - Fix bugs that caused the log to be filled with socket errors, by handling closed sockets
   gracefully.
+
+
+## [android/2024.1-beta1] - 2024-03-18
+### Added
+#### Android
+- Add 3D map to the connect screen.
+- Add support for all screen orientations.
+- Add possibility to filter locations by provider.
+- Add toggle for enabling or disabling split tunneling.
+- Add auto-connect and lockdown guide on platforms with system vpn settings.
+
+### Changed
+#### Android
+- Migrate to Compose Navigation which also improves screen transition animations.
+- Increase focus highlight opacity.
+- Set auto-connect setting as legacy on platforms with system vpn settings.
+- Change default obfuscation setting to `auto`.
+- Migrate obfuscation settings for existing users from `off` to `auto`.
+- Update support email address to new email address, support@mullvadvpn.net.
+
+### Fixed
+#### Android
+- Improve DPAD navigation.
+- Upgrade wireguard-go. This might improve connectivity on some devices such as chromebooks.
+- Fix connectivity issues that would occur when using quantum-resistant tunnels with an incorrectly
+  configured MTU.
+
+### Security
+#### Android
+- Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
+- Add protection against some tapjacking vulnerabilities.
 
 
 ## [2024.1-beta2] - 2024-02-19
