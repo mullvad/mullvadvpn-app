@@ -1,9 +1,7 @@
 use mullvad_daemon::{
     logging,
     management_interface::{ManagementInterfaceEventBroadcaster, ManagementInterfaceServer},
-    rpc_uniqueness_check,
-    runtime::new_runtime_builder,
-    version, Daemon, DaemonCommandChannel, DaemonCommandSender,
+    rpc_uniqueness_check, runtime, version, Daemon, DaemonCommandChannel, DaemonCommandSender,
 };
 use std::{path::PathBuf, thread, time::Duration};
 use talpid_types::ErrorExt;
@@ -22,11 +20,7 @@ const DAEMON_LOG_FILENAME: &str = "daemon.log";
 const EARLY_BOOT_LOG_FILENAME: &str = "early-boot-fw.log";
 
 fn main() {
-    let runtime = new_runtime_builder().build().unwrap_or_else(|e| {
-        eprintln!("{}", e.display_chain());
-        std::process::exit(1);
-    });
-
+    let runtime = new_runtime();
     let exit_code = match runtime.block_on(run()) {
         Ok(_) => 0,
         Err(error) => {
@@ -42,6 +36,19 @@ fn main() {
 
     log::debug!("Process exiting with code {}", exit_code);
     std::process::exit(exit_code);
+}
+
+fn new_runtime() -> tokio::runtime::Runtime {
+    let mut builder = match cli::get_config().command {
+        #[cfg(target_os = "windows")]
+        cli::Command::RunAsService | cli::Command::RegisterService => runtime::new_current_thread(),
+        _ => runtime::new_multi_thread(),
+    };
+
+    builder.build().unwrap_or_else(|e| {
+        eprintln!("{}", e.display_chain());
+        std::process::exit(1);
+    })
 }
 
 async fn run() -> Result<(), String> {
@@ -69,8 +76,8 @@ async fn run() -> Result<(), String> {
 
         #[cfg(target_os = "windows")]
         cli::Command::RunAsService => {
-            init_logger(config, None)?;
             assert_unique().await?;
+            let _ = init_daemon_logging(config)?;
             system_service::run()
         }
 

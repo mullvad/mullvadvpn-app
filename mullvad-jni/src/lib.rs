@@ -19,7 +19,7 @@ use jnix::{
 };
 use mullvad_api::{rest::Error as RestError, StatusCode};
 use mullvad_daemon::{
-    device, exception_logging, logging, runtime::new_runtime_builder,
+    device, exception_logging, logging, runtime::new_multi_thread,
     settings::patch::Error as PatchError, version, Daemon, DaemonCommandChannel,
 };
 use mullvad_types::{
@@ -551,7 +551,7 @@ fn spawn_daemon(
         .map_err(Error::CreateGlobalReference)?;
     let (tx, rx) = mpsc::channel();
 
-    let runtime = new_runtime_builder()
+    let runtime = new_multi_thread()
         .build()
         .map_err(Error::InitializeTokioRuntime)?;
 
