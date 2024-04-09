@@ -26,7 +26,6 @@ import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.model.WireguardTunnelOptions
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
-import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

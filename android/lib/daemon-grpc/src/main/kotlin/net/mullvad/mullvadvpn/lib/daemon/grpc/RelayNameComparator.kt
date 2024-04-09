@@ -1,7 +1,9 @@
-package net.mullvad.mullvadvpn.relaylist
+package net.mullvad.mullvadvpn.lib.daemon.grpc
 
-internal object RelayNameComparator : Comparator<RelayItem.Relay> {
-    override fun compare(o1: RelayItem.Relay, o2: RelayItem.Relay): Int {
+import net.mullvad.mullvadvpn.model.RelayItem
+
+internal object RelayNameComparator : Comparator<RelayItem.Location.Relay> {
+    override fun compare(o1: RelayItem.Location.Relay, o2: RelayItem.Location.Relay): Int {
         val partitions1 = o1.name.split(regex)
         val partitions2 = o2.name.split(regex)
         return if (partitions1.size > partitions2.size) partitions1 compareWith partitions2

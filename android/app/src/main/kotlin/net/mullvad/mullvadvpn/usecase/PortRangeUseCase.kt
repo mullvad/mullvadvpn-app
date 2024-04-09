@@ -4,11 +4,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.model.PortRange
-import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
+import net.mullvad.mullvadvpn.repository.RelayListRepository
 
-class PortRangeUseCase(private val relayListListener: RelayListListener) {
+class PortRangeUseCase(private val relayListRepository: RelayListRepository) {
     fun portRanges(): Flow<List<PortRange>> =
-        relayListListener.relayListEvents
-            .map { it?.wireguardEndpointData?.portRanges ?: emptyList() }
-            .distinctUntilChanged()
+        relayListRepository.wireguardEndpointData.map { it.portRanges }.distinctUntilChanged()
 }

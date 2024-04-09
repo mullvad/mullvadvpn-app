@@ -46,6 +46,7 @@ import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.AppVersionInfo as ModelAppVersionInfo
 import net.mullvad.mullvadvpn.model.ClearAllOverridesError
+import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.CreateCustomListError
 import net.mullvad.mullvadvpn.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.model.CustomListId
@@ -58,18 +59,25 @@ import net.mullvad.mullvadvpn.model.DnsState as ModelDnsState
 import net.mullvad.mullvadvpn.model.LocationConstraint as ModelLocationConstraint
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.ObfuscationSettings as ModelObfuscationSettings
+import net.mullvad.mullvadvpn.model.Ownership as ModelOwnership
+import net.mullvad.mullvadvpn.model.Providers as ModelProviders
 import net.mullvad.mullvadvpn.model.QuantumResistantState as ModelQuantumResistantState
+import net.mullvad.mullvadvpn.model.RelayList as ModelRelayList
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.SetAllowLanError
 import net.mullvad.mullvadvpn.model.SetAutoConnectError
 import net.mullvad.mullvadvpn.model.SetDnsOptionsError
 import net.mullvad.mullvadvpn.model.SetObfuscationOptionsError
+import net.mullvad.mullvadvpn.model.SetRelayLocationError
+import net.mullvad.mullvadvpn.model.SetWireguardConstraintsError
 import net.mullvad.mullvadvpn.model.SetWireguardMtuError
 import net.mullvad.mullvadvpn.model.SetWireguardQuantumResistantError
 import net.mullvad.mullvadvpn.model.Settings as ModelSettings
 import net.mullvad.mullvadvpn.model.SettingsPatchError
 import net.mullvad.mullvadvpn.model.TunnelState as ModelTunnelState
 import net.mullvad.mullvadvpn.model.UpdateCustomListError
+import net.mullvad.mullvadvpn.model.WireguardConstraints as ModelWireguardConstraints
+import net.mullvad.mullvadvpn.model.WireguardEndpointData as ModelWireguardEndpointData
 import org.joda.time.Instant
 
 class ManagementService(
@@ -150,8 +158,11 @@ class ManagementService(
     val versionInfo: Flow<ModelAppVersionInfo> =
         _mutableStateFlow.mapNotNull { it.versionInfo }.map { it.toDomain() }
 
-    val relayList: Flow<net.mullvad.mullvadvpn.model.RelayList> =
-        _mutableStateFlow.mapNotNull { it.relayList?.toDomain() }
+    val relayList: Flow<ModelRelayList> =
+        _mutableStateFlow.mapNotNull { it.relayList?.toDomain()?.first }
+
+    val wireguardEndpointData: Flow<ModelWireguardEndpointData> =
+        _mutableStateFlow.mapNotNull { it.relayList?.toDomain()?.second }
 
     suspend fun start() {
         scope.launch {
@@ -388,14 +399,19 @@ class ManagementService(
     suspend fun getCurrentVersion(): String =
         managementService.getCurrentVersion(Empty.getDefaultInstance()).value
 
-    suspend fun setRelayLocation(location: ModelLocationConstraint) {
-        val currentRelaySettings = getSettings().relaySettings
-        val newRelaySettings =
-            currentRelaySettings.copy {
-                this.normal = this.normal.copy { this.location = location.fromDomain() }
+    suspend fun setRelayLocation(
+        location: ModelLocationConstraint
+    ): Either<SetRelayLocationError, Unit> =
+        Either.catch {
+                val currentRelaySettings = getSettings().relaySettings
+                val newRelaySettings =
+                    currentRelaySettings.copy {
+                        this.normal = this.normal.copy { this.location = location.fromDomain() }
+                    }
+                managementService.setRelaySettings(newRelaySettings)
             }
-        managementService.setRelaySettings(newRelaySettings)
-    }
+            .mapLeft(SetRelayLocationError::Unknown)
+            .mapEmpty()
 
     suspend fun createCustomList(
         name: CustomListName
@@ -445,6 +461,94 @@ class ManagementService(
                     throw it
                 }
             }
+            .mapEmpty()
+
+    suspend fun setWireguardConstraints(
+        value: ModelWireguardConstraints
+    ): Either<SetWireguardConstraintsError, Unit> =
+        Either.catch {
+                val relaySettings = getSettings().relaySettings
+                relaySettings.copy {
+                    this.normal =
+                        this.normal.copy { this.wireguardConstraints = value.fromDomain() }
+                }
+                managementService.setRelaySettings(relaySettings)
+            }
+            .mapLeft(SetWireguardConstraintsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setOwnershipAndProviders(
+        ownership: Constraint<ModelOwnership>,
+        providers: Constraint<ModelProviders>
+    ): Either<SetWireguardConstraintsError, Unit> =
+        Either.catch {
+                val relaySettings =
+                    ManagementInterface.RelaySettings.newBuilder(getSettings().relaySettings)
+                        .setNormal(
+                            ManagementInterface.NormalRelaySettings.newBuilder()
+                                .setOwnership(
+                                    if (ownership is Constraint.Only) {
+                                        ownership.value.fromDomain()
+                                    } else {
+                                        ManagementInterface.Ownership.ANY
+                                    }
+                                )
+                                .addAllProviders(
+                                    if (providers is Constraint.Only) {
+                                        providers.value.fromDomain()
+                                    } else {
+                                        emptyList()
+                                    }
+                                )
+                        )
+                        .build()
+                managementService.setRelaySettings(relaySettings)
+            }
+            .mapLeft(SetWireguardConstraintsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setOwnership(
+        ownership: Constraint<ModelOwnership>
+    ): Either<SetWireguardConstraintsError, Unit> =
+        Either.catch {
+                val relaySettings = getSettings().relaySettings
+                relaySettings.copy {
+                    this.normal =
+                        this.normal.copy {
+                            this.ownership =
+                                if (ownership is Constraint.Only) {
+                                    ownership.value.fromDomain()
+                                } else {
+                                    ManagementInterface.Ownership.ANY
+                                }
+                        }
+                }
+                managementService.setRelaySettings(relaySettings)
+            }
+            .mapLeft(SetWireguardConstraintsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setProviders(
+        providers: Constraint<ModelProviders>
+    ): Either<SetWireguardConstraintsError, Unit> =
+        Either.catch {
+                val relaySettings = getSettings().relaySettings
+                relaySettings.copy {
+                    this.normal =
+                        this.normal.copy {
+                            this.providers.clear()
+                            this.providers.addAll(
+                                if (providers is Constraint.Only) {
+                                    providers.value.fromDomain()
+                                } else {
+                                    emptyList()
+                                }
+                            )
+                        }
+                }
+                managementService.setRelaySettings(relaySettings)
+            }
+            .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}

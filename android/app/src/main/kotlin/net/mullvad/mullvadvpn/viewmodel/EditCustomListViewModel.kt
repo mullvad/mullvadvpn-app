@@ -7,18 +7,17 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.EditCustomListState
 import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.usecase.RelayListUseCase
+import net.mullvad.mullvadvpn.repository.CustomListsRepository
 
 class EditCustomListViewModel(
     private val customListId: CustomListId,
-    relayListUseCase: RelayListUseCase
+    customListsRepository: CustomListsRepository
 ) : ViewModel() {
     val uiState =
-        relayListUseCase
-            .customLists()
+        customListsRepository.customLists
             .map { customLists ->
                 customLists
-                    .find { it.id == customListId }
+                    ?.find { it.id == customListId }
                     ?.let {
                         EditCustomListState.Content(
                             id = it.id,

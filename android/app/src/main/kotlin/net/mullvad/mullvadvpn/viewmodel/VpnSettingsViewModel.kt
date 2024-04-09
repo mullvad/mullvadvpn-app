@@ -30,9 +30,9 @@ import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
+import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
-import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
 import net.mullvad.mullvadvpn.util.isCustom
 
@@ -49,7 +49,7 @@ sealed interface VpnSettingsSideEffect {
 class VpnSettingsViewModel(
     private val repository: SettingsRepository,
     portRangeUseCase: PortRangeUseCase,
-    private val relayListUseCase: RelayListUseCase,
+    private val relayListRepository: RelayListRepository,
     private val systemVpnSettingsUseCase: SystemVpnSettingsUseCase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
@@ -229,16 +229,22 @@ class VpnSettingsViewModel(
         if (port.isCustom()) {
             customPort.update { port }
         }
-        relayListUseCase.updateSelectedWireguardConstraints(WireguardConstraints(port = port))
+        viewModelScope.launch {
+            relayListRepository.updateSelectedWireguardConstraints(
+                WireguardConstraints(port = port)
+            )
+        }
     }
 
     fun resetCustomPort() {
         customPort.update { null }
         // If custom port was selected, update selection to be any.
         if (vmState.value.selectedWireguardPort.isCustom()) {
-            relayListUseCase.updateSelectedWireguardConstraints(
-                WireguardConstraints(port = Constraint.Any())
-            )
+            viewModelScope.launch {
+                relayListRepository.updateSelectedWireguardConstraints(
+                    WireguardConstraints(port = Constraint.Any())
+                )
+            }
         }
     }
 
