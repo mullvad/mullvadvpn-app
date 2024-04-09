@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.usecase.customlists
 import arrow.core.Either
 import arrow.core.raise.either
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.model.CreateCustomListError
@@ -11,11 +12,11 @@ import net.mullvad.mullvadvpn.model.GetCustomListError
 import net.mullvad.mullvadvpn.model.ModifyCustomListError
 import net.mullvad.mullvadvpn.relaylist.getRelayItemsByCodes
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
-import net.mullvad.mullvadvpn.usecase.RelayListUseCase
+import net.mullvad.mullvadvpn.repository.RelayListRepository
 
 class CustomListActionUseCase(
     private val customListsRepository: CustomListsRepository,
-    private val relayListUseCase: RelayListUseCase
+    private val relayListRepository: RelayListRepository
 ) {
     suspend fun performAction(action: CustomListAction): Either<Any, CustomListResult> {
         return when (action) {
@@ -57,8 +58,8 @@ class CustomListActionUseCase(
                     .mapLeft(CreateCustomListWithLocationsError::Update)
                     .bind()
 
-                relayListUseCase
-                    .relayList()
+                relayListRepository.relayList
+                    .map { it.countries }
                     .firstOrNull()
                     ?.getRelayItemsByCodes(action.locations)
                     ?.map { it.name }

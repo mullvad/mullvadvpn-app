@@ -5,8 +5,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -17,32 +15,45 @@ import net.mullvad.mullvadvpn.compose.state.toNullableOwnership
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.Ownership
+import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.Provider
-import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
+import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.repository.SelectedLocationRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
-import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
-import net.mullvad.mullvadvpn.usecase.RelayListUseCase
+import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
+import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
+import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.util.combine
 
 class SelectLocationViewModel(
-    private val relayListUseCase: RelayListUseCase,
-    private val relayListFilterUseCase: RelayListFilterUseCase,
+    private val relayListFilterRepository: RelayListFilterRepository,
+    availableProvidersUseCase: AvailableProvidersUseCase,
+    customListsRelayItemUseCase: CustomListsRelayItemUseCase,
+    selectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase,
     private val customListActionUseCase: CustomListActionUseCase,
-    private val connectionProxy: ConnectionProxy
+    private val connectionProxy: ConnectionProxy,
+    filteredRelayListUseCase: FilteredRelayListUseCase,
+    private val selectedLocationRepository: SelectedLocationRepository
 ) : ViewModel() {
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
 
     val uiState =
         combine(
-                relayListUseCase.relayListWithSelection(),
+                filteredRelayListUseCase.filteredRelayList(),
+                customListsRelayItemUseCase.customListsRelayItems(),
+                selectedLocationRelayItemUseCase.selectedRelayItem(),
                 _searchTerm,
-                relayListFilterUseCase.selectedOwnership(),
-                relayListFilterUseCase.availableProviders(),
-                relayListFilterUseCase.selectedProviders(),
+                relayListFilterRepository.selectedOwnership,
+                availableProvidersUseCase.availableProviders(),
+                relayListFilterRepository.selectedProviders,
             ) {
-                (customLists, relayCountries, selectedItem),
+                relayCountries,
+                customLists,
+                selectedItem,
                 searchTerm,
                 selectedOwnership,
                 allProviders,
@@ -83,14 +94,10 @@ class SelectLocationViewModel(
     private val _uiSideEffect = Channel<SelectLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    init {
-        viewModelScope.launch { relayListUseCase.fetchRelayList() }
-    }
-
     fun selectRelay(relayItem: RelayItem) {
         viewModelScope.launch {
             val locationConstraint = relayItem.toLocationConstraint()
-            relayListUseCase.updateSelectedRelayLocation(locationConstraint)
+            selectedLocationRepository.updateSelectedRelayLocation(locationConstraint)
             connectionProxy.connect()
             _uiSideEffect.trySend(SelectLocationSideEffect.CloseScreen)
         }
@@ -112,32 +119,25 @@ class SelectLocationViewModel(
 
     fun removeOwnerFilter() {
         viewModelScope.launch {
-            relayListFilterUseCase.updateOwnershipAndProviderFilter(
-                Constraint.Any(),
-                relayListFilterUseCase.selectedProviders().first(),
-            )
+            relayListFilterRepository.updateSelectedOwnership(Constraint.Any())
         }
     }
 
     fun removeProviderFilter() {
         viewModelScope.launch {
-            relayListFilterUseCase.updateOwnershipAndProviderFilter(
-                relayListFilterUseCase.selectedOwnership().first(),
-                Constraint.Any(),
-            )
+            relayListFilterRepository.updateSelectedProviders(Constraint.Any())
         }
     }
 
-    fun addLocationToList(item: RelayItem, customList: RelayItem.CustomList) {
+    fun addLocationToList(item: RelayItem.Location, customList: RelayItem.CustomList) {
         viewModelScope.launch {
             // If this is null then something is seriously wrong
-            val newLocation = item.location()!!
-            val newLocations =
-                (customList.locations.map { it.location() } + newLocation).filterNotNull()
+            val newLocation = item.location
+            val newLocations = (customList.locations.map { it.location } + newLocation)
             customListActionUseCase
                 .performAction(CustomListAction.UpdateLocations(customList.id, newLocations))
                 .fold(
-                    { TODO("We should probably handle this error") },
+                    { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
                     { _uiSideEffect.send(SelectLocationSideEffect.LocationAddedToCustomList(it)) }
                 )
         }
@@ -157,4 +157,6 @@ sealed interface SelectLocationSideEffect {
 
     data class LocationAddedToCustomList(val result: CustomListResult.LocationsChanged) :
         SelectLocationSideEffect
+
+    data object GenericError : SelectLocationSideEffect
 }

@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.model.RelayItem
 
 sealed interface CustomListLocationsUiState {
     val newList: Boolean
@@ -22,7 +22,7 @@ sealed interface CustomListLocationsUiState {
 
         data class Data(
             override val newList: Boolean = false,
-            val availableLocations: List<RelayItem.Country> = emptyList(),
+            val availableLocations: List<RelayItem.Location.Country> = emptyList(),
             val selectedLocations: Set<RelayItem> = emptySet(),
             override val searchTerm: String = "",
             override val saveEnabled: Boolean = false,

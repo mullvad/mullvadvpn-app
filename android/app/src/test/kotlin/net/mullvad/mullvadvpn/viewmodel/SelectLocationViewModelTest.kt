@@ -27,14 +27,14 @@ import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.relaylist.Provider
-import net.mullvad.mullvadvpn.relaylist.RelayItem
-import net.mullvad.mullvadvpn.relaylist.RelayList
+import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
-import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
+import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import org.junit.jupiter.api.AfterEach
@@ -45,7 +45,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class SelectLocationViewModelTest {
 
-    private val mockRelayListFilterUseCase: RelayListFilterUseCase = mockk(relaxed = true)
+    private val mockRelayListFilterUseCase: AvailableProvidersUseCase = mockk(relaxed = true)
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private lateinit var viewModel: SelectLocationViewModel
     private val relayListWithSelectionFlow =

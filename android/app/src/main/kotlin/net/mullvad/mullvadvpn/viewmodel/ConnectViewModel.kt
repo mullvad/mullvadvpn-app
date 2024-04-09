@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
+import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -27,7 +28,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import net.mullvad.mullvadvpn.usecase.RelayListUseCase
+import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
 import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.daysFromNow
 import net.mullvad.mullvadvpn.util.toInAddress
@@ -40,7 +41,7 @@ class ConnectViewModel(
     private val deviceRepository: DeviceRepository,
     private val inAppNotificationController: InAppNotificationController,
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
-    private val relayListUseCase: RelayListUseCase,
+    private val selectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase,
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val paymentUseCase: PaymentUseCase,
     private val connectionProxy: ConnectionProxy,
@@ -53,7 +54,7 @@ class ConnectViewModel(
 
     val uiState: StateFlow<ConnectUiState> =
         combine(
-                relayListUseCase.selectedRelayItem(),
+                selectedLocationRelayItemUseCase.selectedRelayItem(),
                 inAppNotificationController.notifications,
                 connectionProxy.tunnelState,
                 connectionProxy.lastKnownDisconnectedLocation(),
@@ -72,7 +73,10 @@ class ConnectViewModel(
                             is TunnelState.Disconnected ->
                                 tunnelState.location() ?: lastKnownDisconnectedLocation
                             is TunnelState.Connecting ->
-                                tunnelState.location ?: selectedRelayItem?.location()?.location
+                                tunnelState.location
+                                    ?: (selectedRelayItem as? RelayItem.Location)
+                                        ?.location
+                                        ?.location
                             is TunnelState.Connected -> tunnelState.location
                             is TunnelState.Disconnecting -> lastKnownDisconnectedLocation
                             is TunnelState.Error -> null

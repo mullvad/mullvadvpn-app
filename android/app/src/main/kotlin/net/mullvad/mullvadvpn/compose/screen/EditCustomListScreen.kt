@@ -46,7 +46,6 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
-import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -62,15 +61,10 @@ private fun PreviewEditCustomListScreen() {
                     name = "Custom list",
                     locations =
                         listOf(
-                            RelayItem.Relay(
-                                "Relay",
-                                "Relay",
-                                true,
-                                GeographicLocationConstraint.Hostname(
-                                    "hostname",
-                                    "hostname",
-                                    "hostname"
-                                )
+                            GeographicLocationConstraint.Hostname(
+                                "hostname",
+                                "hostname",
+                                "hostname"
                             )
                         )
                 )
