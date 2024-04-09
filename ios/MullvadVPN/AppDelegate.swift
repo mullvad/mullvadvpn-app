@@ -357,7 +357,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         #if DEBUG
         loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)
         #endif
-        loggerBuilder.install(header: "TODO: Add version info here")
+        loggerBuilder.install(header: "MullvadVPN version \(Bundle.main.productVersion)")
 
         logger = Logger(label: "AppDelegate")
 
