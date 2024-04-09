@@ -63,7 +63,7 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
         }
         config::Display::Local => (),
         config::Display::Vnc => {
-            //tart_cmd.args(["--vnc-experimental", "--no-graphics"]);
+            // tart_cmd.args(["--vnc-experimental", "--no-graphics"]);
             tart_cmd.args(["--vnc", "--no-graphics"]);
         }
     }

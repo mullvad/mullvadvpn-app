@@ -1,16 +1,15 @@
-use crate::summary::{self, maybe_log_test_result};
-use crate::tests::{config::TEST_CONFIG, TestContext};
 use crate::{
     logging::{panic_as_string, TestOutput},
-    mullvad_daemon, tests, vm,
+    mullvad_daemon,
+    summary::{self, maybe_log_test_result},
+    tests,
+    tests::{config::TEST_CONFIG, TestContext},
+    vm,
 };
 use anyhow::{Context, Result};
 use futures::FutureExt;
-use std::future::Future;
-use std::panic;
-use std::time::Duration;
-use test_rpc::logging::Output;
-use test_rpc::{mullvad_daemon::MullvadClientVersion, ServiceClient};
+use std::{future::Future, panic, time::Duration};
+use test_rpc::{logging::Output, mullvad_daemon::MullvadClientVersion, ServiceClient};
 
 /// The baud rate of the serial connection between the test manager and the test runner.
 /// There is a known issue with setting a baud rate at all or macOS, and the workaround

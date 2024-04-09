@@ -1,9 +1,14 @@
-use super::helpers::{
-    self, connect_and_wait, disconnect_and_wait, set_bridge_settings, set_relay_settings,
+use super::{
+    config::TEST_CONFIG,
+    helpers::{
+        self, connect_and_wait, disconnect_and_wait, set_bridge_settings, set_relay_settings,
+    },
+    Error, TestContext,
 };
-use super::{config::TEST_CONFIG, Error, TestContext};
-use crate::network_monitor::{start_packet_monitor, MonitorOptions};
-use crate::tests::helpers::login_with_retries;
+use crate::{
+    network_monitor::{start_packet_monitor, MonitorOptions},
+    tests::helpers::login_with_retries,
+};
 
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
@@ -22,9 +27,7 @@ use talpid_types::net::{
     TransportProtocol, TunnelType,
 };
 use test_macro::test_function;
-use test_rpc::meta::Os;
-use test_rpc::mullvad_daemon::ServiceStatus;
-use test_rpc::ServiceClient;
+use test_rpc::{meta::Os, mullvad_daemon::ServiceStatus, ServiceClient};
 
 use pnet_packet::ip::IpNextHeaderProtocols;
 
@@ -168,7 +171,6 @@ pub async fn test_udp2tcp_tunnel(
         _ => panic!("unexpected tunnel state"),
     };
 
-    //
     // Set up packet monitor
     //
 
@@ -181,7 +183,6 @@ pub async fn test_udp2tcp_tunnel(
     )
     .await;
 
-    //
     // Verify that we can reach stuff
     //
 
@@ -200,8 +201,7 @@ pub async fn test_udp2tcp_tunnel(
 }
 
 /// Test whether bridge mode works. This fails if:
-/// * No outgoing traffic to the bridge/entry relay is
-///   observed from the SUT.
+/// * No outgoing traffic to the bridge/entry relay is observed from the SUT.
 /// * The conncheck reports an unexpected exit relay.
 #[test_function]
 pub async fn test_bridge(
@@ -209,7 +209,6 @@ pub async fn test_bridge(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    //
     // Enable bridge mode
     //
     log::info!("Updating bridge settings");
@@ -233,7 +232,6 @@ pub async fn test_bridge(
     .await
     .expect("failed to update relay settings");
 
-    //
     // Connect to VPN
     //
 
@@ -264,7 +262,6 @@ pub async fn test_bridge(
     )
     .await;
 
-    //
     // Verify exit IP
     //
 
@@ -275,7 +272,6 @@ pub async fn test_bridge(
         "expected Mullvad exit IP"
     );
 
-    //
     // Verify entry IP
     //
 
@@ -311,7 +307,6 @@ pub async fn test_multihop(
     .await
     .expect("failed to update relay settings");
 
-    //
     // Connect
     //
 
@@ -334,7 +329,6 @@ pub async fn test_multihop(
         exit_addr = exit.address
     );
 
-    //
     // Record outgoing packets to the entry relay
     //
 
@@ -344,7 +338,6 @@ pub async fn test_multihop(
     )
     .await;
 
-    //
     // Verify exit IP
     //
 
@@ -353,7 +346,6 @@ pub async fn test_multihop(
         "expected Mullvad exit IP"
     );
 
-    //
     // Verify entry IP
     //
 
@@ -468,7 +460,6 @@ pub async fn test_quantum_resistant_tunnel(
         .await
         .expect("Failed to disable PQ tunnels");
 
-    //
     // PQ disabled: Find no "preshared key"
     //
 
@@ -490,7 +481,6 @@ pub async fn test_quantum_resistant_tunnel(
         .await
         .expect("Failed to enable PQ tunnels");
 
-    //
     // PQ enabled: Find "preshared key"
     //
 
@@ -614,7 +604,6 @@ pub async fn test_remote_socks_bridge(
     .await
     .expect("failed to update relay settings");
 
-    //
     // Connect to VPN
     //
 
@@ -643,7 +632,6 @@ pub async fn test_remote_socks_bridge(
     )
     .await;
 
-    //
     // Verify exit IP
     //
 
@@ -654,7 +642,6 @@ pub async fn test_remote_socks_bridge(
         "expected Mullvad exit IP"
     );
 
-    //
     // Verify entry IP
     //
 
@@ -717,7 +704,6 @@ pub async fn test_local_socks_bridge(
     .await
     .expect("failed to update relay settings");
 
-    //
     // Connect to VPN
     //
 
@@ -746,7 +732,6 @@ pub async fn test_local_socks_bridge(
     )
     .await;
 
-    //
     // Verify exit IP
     //
 
@@ -757,7 +742,6 @@ pub async fn test_local_socks_bridge(
         "expected Mullvad exit IP"
     );
 
-    //
     // Verify entry IP
     //
 
@@ -773,7 +757,8 @@ pub async fn test_local_socks_bridge(
 }
 
 /// Verify that the app can connect to a VPN server and get working internet when the API is down.
-/// As long as the user has managed to log in to the app, establishing a tunnel should work even if the API is down (This includes actually being down, not just censored).
+/// As long as the user has managed to log in to the app, establishing a tunnel should work even if
+/// the API is down (This includes actually being down, not just censored).
 ///
 /// The test procedure is as follows:
 ///     1. The app is logged in

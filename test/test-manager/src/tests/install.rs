@@ -1,14 +1,13 @@
-use super::config::TEST_CONFIG;
-use super::helpers::{
-    connect_and_wait, get_app_env, get_package_desc, wait_for_tunnel_state, Pinger,
+use super::{
+    config::TEST_CONFIG,
+    helpers::{connect_and_wait, get_app_env, get_package_desc, wait_for_tunnel_state, Pinger},
+    Error, TestContext,
 };
-use super::{Error, TestContext};
 
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{constraints::Constraint, relay_constraints};
 use test_macro::test_function;
-use test_rpc::meta::Os;
-use test_rpc::{mullvad_daemon::ServiceStatus, ServiceClient};
+use test_rpc::{meta::Os, mullvad_daemon::ServiceStatus, ServiceClient};
 
 use std::time::Duration;
 
@@ -57,12 +56,11 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
 
     // Login to test preservation of device/account
     // TODO: Cannot do this now because overriding the API is impossible for releases
-    //mullvad_client
+    // mullvad_client
     //    .login_account(TEST_CONFIG.account_number.clone())
     //    .await
     //    .expect("login failed");
 
-    //
     // Start blocking
     //
     log::debug!("Entering blocking error state");
@@ -95,7 +93,6 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
     .await
     .map_err(|_error| Error::Daemon(String::from("Failed to enter blocking error state")))?;
 
-    //
     // Begin monitoring outgoing traffic and pinging
     //
     let pinger = Pinger::start(&rpc).await;
@@ -113,7 +110,6 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
         return Err(Error::DaemonNotRunning);
     }
 
-    //
     // Check if any traffic was observed
     //
     let guest_ip = pinger.guest_ip;
@@ -157,17 +153,15 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
 
     // check if account history was preserved
     // TODO: Cannot check account history because overriding the API is impossible for releases
-    /*
-    let history = mullvad_client
-        .get_account_history(())
-        .await
-        .expect("failed to obtain account history");
-    assert_eq!(
-        history.into_inner().token,
-        Some(TEST_CONFIG.account_number.clone()),
-        "lost account history"
-    );
-    */
+    // let history = mullvad_client
+    // .get_account_history(())
+    // .await
+    // .expect("failed to obtain account history");
+    // assert_eq!(
+    // history.into_inner().token,
+    // Some(TEST_CONFIG.account_number.clone()),
+    // "lost account history"
+    // );
 
     Ok(())
 }

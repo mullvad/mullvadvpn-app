@@ -1,6 +1,5 @@
 use super::TestWrapperFunction;
-use test_rpc::meta::Os;
-use test_rpc::mullvad_daemon::MullvadClientVersion;
+use test_rpc::{meta::Os, mullvad_daemon::MullvadClientVersion};
 
 pub struct TestMetadata {
     pub name: &'static str,

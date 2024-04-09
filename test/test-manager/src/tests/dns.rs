@@ -17,14 +17,16 @@ use super::{
     helpers::{self, connect_and_wait, set_relay_settings},
     Error, TestContext,
 };
-use crate::network_monitor::{
-    start_packet_monitor_until, start_tunnel_packet_monitor_until, Direction, IpHeaderProtocols,
-    MonitorOptions,
-};
-use crate::vm::network::{
-    CUSTOM_TUN_GATEWAY, CUSTOM_TUN_LOCAL_PRIVKEY, CUSTOM_TUN_LOCAL_TUN_ADDR,
-    CUSTOM_TUN_REMOTE_PUBKEY, CUSTOM_TUN_REMOTE_REAL_ADDR, CUSTOM_TUN_REMOTE_REAL_PORT,
-    CUSTOM_TUN_REMOTE_TUN_ADDR, NON_TUN_GATEWAY,
+use crate::{
+    network_monitor::{
+        start_packet_monitor_until, start_tunnel_packet_monitor_until, Direction,
+        IpHeaderProtocols, MonitorOptions,
+    },
+    vm::network::{
+        CUSTOM_TUN_GATEWAY, CUSTOM_TUN_LOCAL_PRIVKEY, CUSTOM_TUN_LOCAL_TUN_ADDR,
+        CUSTOM_TUN_REMOTE_PUBKEY, CUSTOM_TUN_REMOTE_REAL_ADDR, CUSTOM_TUN_REMOTE_REAL_PORT,
+        CUSTOM_TUN_REMOTE_TUN_ADDR, NON_TUN_GATEWAY,
+    },
 };
 
 /// How long to wait for expected "DNS queries" to appear
@@ -130,7 +132,6 @@ async fn leak_test_dns(
     use_tun: bool,
     whitelisted_dest: IpAddr,
 ) -> Result<(), Error> {
-    //
     // Connect to local wireguard relay
     //
 
@@ -158,7 +159,6 @@ async fn leak_test_dns(
     log::debug!("Tunnel (guest) IP: {tunnel_ip}");
     log::debug!("Non-tunnel (guest) IP: {nontun_ip}");
 
-    //
     // Spoof DNS packets
     //
 
@@ -260,7 +260,6 @@ async fn leak_test_dns(
     });
 
     if use_tun {
-        //
         // Examine tunnel traffic
         //
 
@@ -281,7 +280,6 @@ async fn leak_test_dns(
             );
         }
 
-        //
         // Examine non-tunnel traffic
         //
 
@@ -297,7 +295,6 @@ async fn leak_test_dns(
         probes.abort();
         let _ = probes.await;
 
-        //
         // Examine tunnel traffic
         //
 
@@ -308,7 +305,6 @@ async fn leak_test_dns(
             "expected no tunnel packets on port 53"
         );
 
-        //
         // Examine non-tunnel traffic
         //
 

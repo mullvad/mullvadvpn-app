@@ -1,8 +1,10 @@
 /// A very thin wrapper on top of `ssh2`.
 use anyhow::{Context, Result};
 use ssh2::Session;
-use std::io::Read;
-use std::net::{IpAddr, SocketAddr, TcpStream};
+use std::{
+    io::Read,
+    net::{IpAddr, SocketAddr, TcpStream},
+};
 
 /// Default `ssh` port.
 const PORT: u16 = 22;
