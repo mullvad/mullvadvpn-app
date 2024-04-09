@@ -938,12 +938,25 @@ So there might be warnings when installing this for a while.
 This release is for desktop only.
 
 ### Added
+- Enable isolation of the Electron renderer process to protect against potentially malicious third
+  party dependencies.
 - Preserve log of old daemon instance when upgrading on Desktop.
+- Enable isolation of the Electron renderer process to protect against potentially malicious third
+  party dependencies.
+- Add 51820 to list of WireGuard ports in app settings.
+- Add option to connect to WireGuard relays over IPv6.
+- Add Burmese translations.
 
 #### Linux
 - Always enable `src_valid_mark` config option when connecting to allow policty based routing.
 
 ### Changed
+- Update Electron from 11.0.2 to 11.2.1 which includes a newer Chromium version and
+  security patches.
+- Allow provider constraint to specify multiple hosting providers.
+- Only download a new relay list if it has been modified.
+- Connect to the API only via TLS 1.3
+- Shrink account history capactity from 3 account entries to 1.
 - Allow whitespace in account token in CLI.
 - Read account token from standard input unless given as an argument in CLI.
 - Make WireGuard automatic key rotation interval mandatory and between 1 and 7 days.
@@ -952,12 +965,24 @@ This release is for desktop only.
 - Upgrade wireguard-go to version 20210225140808 (Windows: v0.3.8)
 - Settings format updated to `v3`.
 
+#### Windows
+- Upgrade Wintun from 0.9.2 to 0.10.1.
+
 ### Fixed
+- Fix delay in showing/hiding update notification when toggling beta program.
+- Improve responsiveness when reconnecting after some failed connection attempts.
 - Fix GUI not showing correct view if disconnected from the daemon during app startup.
 - Fix incorrectly displayed "inconsistent version" text in settings if disconnected from daemon on
   startup.
 
+#### Windows
+- Fix "cannot find the file" error while creating a Wintun adapter by upgrading Wintun.
+- Retry when creating a WireGuard tunnel fails due to no default routes being found.
+
 #### Linux
+- Stop using NM for managing DNS if it's newer than 1.26.
+- Fix DNS issues where NM would overwrite Mullvad tunnel's DNS config in systemd-resolved.
+- Fix issues with hosts where the firewall is doing reverse path filtering.
 - Further improve offline monitor to properly receive `ENETUNREACH`.
 
 ### Security
