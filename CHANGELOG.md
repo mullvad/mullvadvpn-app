@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add automatic MTU detection for desktop platforms. This currently only uses information about
   dropped packets and does not take fragmentation into account.
 - Add ability to import server IP overrides in GUI.
+- Add custom bridge settings in GUI.
 
 #### Android
 - Add support for all screen orientations.
