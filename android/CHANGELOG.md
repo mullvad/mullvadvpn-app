@@ -347,8 +347,6 @@ This release is for Android only. From now on, Android releases will have this n
 that is the same as the git tag they receive: `android/<version>`.
 
 ### Added
-- Enable isolation of the Electron renderer process to protect against potentially malicious third
-  party dependencies.
 - Add 51820 to list of WireGuard ports in app settings.
 - Add option to connect to WireGuard relays over IPv6.
 - Add Burmese translations.
@@ -360,8 +358,6 @@ that is the same as the git tag they receive: `android/<version>`.
 - Style StatucBar and NavigationBar to make our app a bit more beautiful.
 
 ### Changed
-- Update Electron from 11.0.2 to 11.2.1 which includes a newer Chromium version and
-  security patches.
 - Allow provider constraint to specify multiple hosting providers.
 - Only download a new relay list if it has been modified.
 - Connect to the API only via TLS 1.3
@@ -370,21 +366,8 @@ that is the same as the git tag they receive: `android/<version>`.
 #### Android
 - WireGuard key is now rotated sooner: every four days instead of seven.
 
-#### Windows
-- Upgrade Wintun from 0.9.2 to 0.10.1.
-
 ### Fixed
-- Fix delay in showing/hiding update notification when toggling beta program.
 - Improve responsiveness when reconnecting after some failed connection attempts.
-
-#### Windows
-- Fix "cannot find the file" error while creating a Wintun adapter by upgrading Wintun.
-- Retry when creating a WireGuard tunnel fails due to no default routes being found.
-
-#### Linux
-- Stop using NM for managing DNS if it's newer than 1.26.
-- Fix DNS issues where NM would overwrite Mullvad tunnel's DNS config in systemd-resolved.
-- Fix issues with hosts where the firewall is doing reverse path filtering.
 
 #### Android
 - Fix input area sometimes disappearing when returning to the Login screen.
