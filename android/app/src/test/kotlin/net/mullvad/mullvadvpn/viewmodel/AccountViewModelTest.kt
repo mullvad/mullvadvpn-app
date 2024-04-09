@@ -21,7 +21,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.model.AccountAndDevice
-import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.AccountRepository
@@ -47,7 +47,7 @@ class AccountViewModelTest {
     private val deviceState: MutableStateFlow<DeviceState> = MutableStateFlow(DeviceState.Initial)
     private val paymentAvailability = MutableStateFlow<PaymentAvailability?>(null)
     private val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
-    private val accountExpiryState = MutableStateFlow(AccountExpiry.Missing)
+    private val accountExpiryState = MutableStateFlow(AccountData.Missing)
 
     private val dummyAccountAndDevice: AccountAndDevice =
         AccountAndDevice(

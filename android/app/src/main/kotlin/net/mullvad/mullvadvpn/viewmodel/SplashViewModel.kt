@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_TIMEOUT_MS
-import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
@@ -53,26 +52,22 @@ class SplashViewModel(
 
     // We know the user is logged in, but we need to find out if their account has expired
     private suspend fun getLoggedInStartDestination(): SplashUiSideEffect {
-        val expiry =
-            viewModelScope.async {
-                accountRepository.accountExpiry.first { it !is AccountExpiry.Missing }
-            }
+        val expiry = viewModelScope.async { accountRepository.accountData.filterNotNull().first() }
 
-        val accountExpiry = select {
+        val accountData = select {
             expiry.onAwait { it }
             // If we don't get a response within 1 second, assume the account expiry is Missing
-            onTimeout(ACCOUNT_EXPIRY_TIMEOUT_MS) { AccountExpiry.Missing }
+            onTimeout(ACCOUNT_EXPIRY_TIMEOUT_MS) { null }
         }
 
-        return when (accountExpiry) {
-            is AccountExpiry.Available -> {
-                if (accountExpiry.expiryDateTime.isBeforeNow) {
-                    SplashUiSideEffect.NavigateToOutOfTime
-                } else {
-                    SplashUiSideEffect.NavigateToConnect
-                }
+        return if (accountData != null) {
+            if (accountData.expiryDate.isBeforeNow) {
+                SplashUiSideEffect.NavigateToOutOfTime
+            } else {
+                SplashUiSideEffect.NavigateToConnect
             }
-            AccountExpiry.Missing -> SplashUiSideEffect.NavigateToConnect
+        } else {
+            SplashUiSideEffect.NavigateToConnect
         }
     }
 }

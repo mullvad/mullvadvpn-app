@@ -11,9 +11,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -26,7 +27,6 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.constant.LOGIN_TIMEOUT_MILLIS
 import net.mullvad.mullvadvpn.model.AccountCreationResult
-import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.repository.AccountRepository
@@ -61,22 +61,32 @@ class LoginViewModel(
     private val _uiSideEffect = Channel<LoginUiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
+    val _mutableAccountHistory: MutableStateFlow<AccountToken?> = MutableStateFlow(null)
+
     private val _uiState =
         combine(
             _loginInput,
-            accountRepository.accountHistory,
+            _mutableAccountHistory,
             _loginState,
-        ) { loginInput, accountHistoryState, loginState ->
-            LoginUiState(
-                loginInput,
-                accountHistoryState.accountToken()?.let(::AccountToken),
-                loginState
-            )
+        ) { loginInput, historyAccountToken, loginState ->
+            LoginUiState(loginInput, historyAccountToken, loginState)
         }
-    val uiState: StateFlow<LoginUiState> =
-        _uiState.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), LoginUiState.INITIAL)
 
-    fun clearAccountHistory() = viewModelScope.launch { accountRepository.clearAccountHistory() }
+    val uiState: StateFlow<LoginUiState> =
+        _uiState
+            .onStart {
+                viewModelScope.launch {
+                    _mutableAccountHistory.update { accountRepository.fetchAccountHistory() }
+                }
+            }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), LoginUiState.INITIAL)
+
+    fun clearAccountHistory() =
+        viewModelScope.launch {
+            accountRepository.clearAccountHistory()
+            _mutableAccountHistory.update { null }
+            _mutableAccountHistory.update { accountRepository.fetchAccountHistory() }
+        }
 
     fun createAccount() {
         _loginState.value = Loading.CreatingAccount
@@ -104,9 +114,9 @@ class LoginViewModel(
                         newDeviceNotificationUseCase.newDeviceCreated()
                         launch {
                             val isOutOfTimeDeferred = async {
-                                accountRepository.accountExpiry
-                                    .filterIsInstance<AccountExpiry.Available>()
-                                    .map { it.expiryDateTime.isBeforeNow }
+                                accountRepository.accountData
+                                    .filterNotNull()
+                                    .map { it.expiryDate.isBeforeNow }
                                     .first()
                             }
                             delay(1000)

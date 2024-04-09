@@ -21,7 +21,7 @@ import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
-import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
@@ -48,7 +48,7 @@ class OutOfTimeViewModelTest {
 
     private val serviceConnectionStateFlow =
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
-    private val accountExpiryStateFlow = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
+    private val accountExpiryStateFlow = MutableStateFlow<AccountData>(AccountData.Missing)
     private val deviceStateFlow = MutableStateFlow<DeviceState>(DeviceState.Initial)
     private val paymentAvailabilityFlow = MutableStateFlow<PaymentAvailability?>(null)
     private val purchaseResultFlow = MutableStateFlow<PurchaseResult?>(null)

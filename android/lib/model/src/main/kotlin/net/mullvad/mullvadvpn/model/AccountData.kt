@@ -1,3 +1,9 @@
 package net.mullvad.mullvadvpn.model
 
-data class AccountData(val expiry: String)
+import org.joda.time.DateTime
+import java.util.UUID
+
+data class AccountData(
+    val id: UUID,
+    val expiryDate: DateTime,
+)

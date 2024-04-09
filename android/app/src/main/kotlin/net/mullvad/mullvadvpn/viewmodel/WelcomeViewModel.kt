@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -68,9 +68,9 @@ class WelcomeViewModel(
     }
 
     private fun hasAddedTimeEffect() =
-        accountRepository.accountExpiry
-            .mapNotNull { it.date() }
-            .filter { it.minusHours(MIN_HOURS_PAST_ACCOUNT_EXPIRY).isAfterNow }
+        accountRepository.accountData
+            .filterNotNull()
+            .filter { it.expiryDate.minusHours(MIN_HOURS_PAST_ACCOUNT_EXPIRY).isAfterNow }
             .onEach { paymentUseCase.resetPurchaseResult() }
             .map { UiSideEffect.OpenConnectScreen }
 
@@ -113,7 +113,7 @@ class WelcomeViewModel(
     }
 
     private suspend fun updateAccountExpiry() {
-        accountRepository.getAccountExpiry()
+        accountRepository.getAccountAccountData()
     }
 
     sealed interface UiSideEffect {
