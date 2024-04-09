@@ -129,6 +129,9 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
+msgid "Enable"
+msgstr ""
+
 msgid "Enable anyway"
 msgstr ""
 
@@ -221,6 +224,8 @@ msgstr ""
 msgid "TCP"
 msgstr ""
 
+#. Warning shown in dialog to users when they enable setting that increases
+#. network latency (decreases performance).
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr ""
@@ -623,6 +628,10 @@ msgctxt "connection-info"
 msgid "%(relay)s via %(entry)s"
 msgstr ""
 
+msgctxt "connection-info"
+msgid "%(relay)s via Custom bridge"
+msgstr ""
+
 #. The tunnel type line displayed below the hostname line on the main screen
 #. Available placeholders:
 #. %(tunnelType)s - the tunnel type, i.e OpenVPN
@@ -637,6 +646,22 @@ msgstr ""
 
 msgctxt "connection-info"
 msgid "Out"
+msgstr ""
+
+msgctxt "custom-bridge"
+msgid "Add custom bridge"
+msgstr ""
+
+msgctxt "custom-bridge"
+msgid "Delete custom bridge?"
+msgstr ""
+
+msgctxt "custom-bridge"
+msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
+msgstr ""
+
+msgctxt "custom-bridge"
+msgid "Edit custom bridge"
 msgstr ""
 
 #. Text displayed above button which logs out another device.
@@ -1147,6 +1172,10 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr ""
 
+msgctxt "openvpn-settings-view"
+msgid "Enable bridge mode?"
+msgstr ""
+
 #. This is used as a description for the bridge mode
 #. setting.
 #. Available placeholders:
@@ -1191,6 +1220,12 @@ msgstr ""
 #. available.
 msgctxt "openvpn-settings-view"
 msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
+msgstr ""
+
+#. This text is shown beneath the bridge mode setting to instruct users how to
+#. configure the feature further.
+msgctxt "openvpn-settings-view"
+msgid "To select a specific bridge server, go to the Select location view."
 msgstr ""
 
 msgctxt "openvpn-settings-view"
@@ -1256,6 +1291,10 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr ""
 
+msgctxt "select-location-view"
+msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
+msgstr ""
+
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1273,6 +1312,10 @@ msgstr ""
 
 msgctxt "select-location-view"
 msgid "Country"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Custom bridge"
 msgstr ""
 
 msgctxt "select-location-view"
@@ -2140,9 +2183,6 @@ msgid "Edit locations"
 msgstr ""
 
 msgid "Edit name"
-msgstr ""
-
-msgid "Enable"
 msgstr ""
 
 msgid "Enter MTU"
