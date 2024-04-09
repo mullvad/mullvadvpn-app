@@ -663,6 +663,16 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
+    async fn clear_custom_api_access_methods(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("clear_custom_api_access_methods");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ClearCustomApiAccessMethods(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
     /// Return the [`types::AccessMethodSetting`] which the daemon is using to
     /// connect to the Mullvad API.
     async fn get_current_api_access_method(

@@ -292,6 +292,8 @@ pub enum DaemonCommand {
     SetApiAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
     /// Edit an API access method
     UpdateApiAccessMethod(ResponseTx<(), Error>, AccessMethodSetting),
+    /// Remove all custom API access methods
+    ClearCustomApiAccessMethods(ResponseTx<(), Error>),
     /// Get the currently used API access method
     GetCurrentAccessMethod(ResponseTx<AccessMethodSetting, Error>),
     /// Test an API access method
@@ -1260,6 +1262,7 @@ where
             }
             RemoveApiAccessMethod(tx, method) => self.on_remove_api_access_method(tx, method).await,
             UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
+            ClearCustomApiAccessMethods(tx) => self.on_clear_custom_api_access_methods(tx).await,
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
             TestApiAccessMethodById(tx, method) => self.on_test_api_access_method(tx, method).await,
@@ -2480,6 +2483,14 @@ where
             .await
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "update_api_access_method response");
+    }
+
+    async fn on_clear_custom_api_access_methods(&mut self, tx: ResponseTx<(), Error>) {
+        let result = self
+            .clear_custom_api_access_methods()
+            .await
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "clear_custom_api_access_methods response");
     }
 
     fn on_get_current_api_access_method(&mut self, tx: ResponseTx<AccessMethodSetting, Error>) {
