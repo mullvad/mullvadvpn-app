@@ -13,14 +13,16 @@ mod tunnel;
 mod tunnel_state;
 mod ui;
 
-use crate::mullvad_daemon::{MullvadClientArgument, RpcClientProvider};
+use crate::{
+    mullvad_daemon::{MullvadClientArgument, RpcClientProvider},
+    tests::helpers::get_app_env,
+};
 use anyhow::Context;
 pub use test_metadata::TestMetadata;
 use test_rpc::ServiceClient;
 
 use futures::future::BoxFuture;
 
-use mullvad_management_interface::MullvadProxyClient;
 use std::time::Duration;
 
 const WAIT_FOR_TUNNEL_STATE_TIMEOUT: Duration = Duration::from_secs(40);
@@ -69,10 +71,16 @@ pub fn get_tests() -> Vec<&'static TestMetadata> {
 }
 
 /// Restore settings to the defaults.
-pub async fn cleanup_after_test(mullvad_client: &mut MullvadProxyClient) -> anyhow::Result<()> {
+pub async fn cleanup_after_test(
+    rpc: ServiceClient,
+    rpc_provider: &RpcClientProvider,
+) -> anyhow::Result<()> {
     log::debug!("Cleaning up daemon in test cleanup");
+    // Check if daemon should be restarted
+    restart_daemon(rpc).await?;
+    let mut mullvad_client = rpc_provider.new_client().await;
 
-    helpers::disconnect_and_wait(mullvad_client).await?;
+    helpers::disconnect_and_wait(&mut mullvad_client).await?;
 
     let default_settings = mullvad_types::settings::Settings::default();
 
@@ -127,5 +135,20 @@ pub async fn cleanup_after_test(mullvad_client: &mut MullvadProxyClient) -> anyh
         .await
         .context("Could not clear PQ options in cleanup")?;
 
+    Ok(())
+}
+
+/// Conditonally restart the running daemon
+///
+/// If the daemon was started with non-standard environment variables, subsequent tests may break
+/// due to assuming a default configuration. In that case, reset the environment variables and
+/// restart.
+async fn restart_daemon(rpc: ServiceClient) -> anyhow::Result<()> {
+    let current_env = rpc.get_daemon_environment().await?;
+    let default_env = get_app_env();
+    if current_env != default_env {
+        log::debug!("Restarting daemon due changed environment variables. Values since last test {current_env:?}");
+        rpc.set_daemon_environment(default_env).await?;
+    }
     Ok(())
 }
