@@ -64,7 +64,7 @@ class AllLocationDataSource: LocationDataSourceProtocol {
                 name: serverLocation.country,
                 code: LocationNode.combineNodeCodes([countryCode]),
                 locations: [location],
-                isActive: relay.active
+                isActive: true // Defaults to true, updated when children are populated.
             )
 
             if !rootNode.children.contains(countryNode) {
@@ -77,7 +77,7 @@ class AllLocationDataSource: LocationDataSourceProtocol {
                 name: serverLocation.city,
                 code: LocationNode.combineNodeCodes([countryCode, cityCode]),
                 locations: [location],
-                isActive: relay.active
+                isActive: true // Defaults to true, updated when children are populated.
             )
 
             if let countryNode = rootNode.countryFor(code: countryCode),
@@ -101,6 +101,14 @@ class AllLocationDataSource: LocationDataSourceProtocol {
                 hostNode.parent = cityNode
                 cityNode.children.append(hostNode)
                 cityNode.children.sort()
+
+                cityNode.isActive = cityNode.children.contains(where: { hostNode in
+                    hostNode.isActive
+                })
+
+                countryNode.isActive = countryNode.children.contains(where: { cityNode in
+                    cityNode.isActive
+                })
             }
         }
     }
