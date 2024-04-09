@@ -94,6 +94,12 @@ pub async fn cleanup_after_test(mullvad_client: &mut MullvadProxyClient) -> anyh
         settings_version: _, // N/A
     } = Default::default();
 
+    let _ = api_access_methods;
+    mullvad_client
+        .clear_custom_access_methods()
+        .await
+        .context("Could not clear custom api access methods")?;
+
     mullvad_client
         .set_relay_settings(relay_settings)
         .await

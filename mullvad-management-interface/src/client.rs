@@ -575,6 +575,14 @@ impl MullvadProxyClient {
             .map(drop)
     }
 
+    pub async fn clear_custom_access_methods(&mut self) -> Result<()> {
+        self.0
+            .clear_custom_api_access_methods(())
+            .await
+            .map_err(Error::Rpc)
+            .map(drop)
+    }
+
     /// Set the [`AccessMethod`] which [`ApiConnectionModeProvider`] should
     /// pick.
     ///
