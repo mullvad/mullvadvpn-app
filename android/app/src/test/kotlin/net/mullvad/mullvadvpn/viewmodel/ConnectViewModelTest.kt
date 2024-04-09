@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -64,7 +64,7 @@ class ConnectViewModelTest {
                 isSupported = true
             )
         )
-    private val accountExpiryState = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
+    private val accountExpiryState = MutableStateFlow<AccountData>(AccountData.Missing)
     private val deviceState = MutableStateFlow<DeviceState>(DeviceState.Initial)
     private val notifications = MutableStateFlow<List<InAppNotification>>(emptyList())
 

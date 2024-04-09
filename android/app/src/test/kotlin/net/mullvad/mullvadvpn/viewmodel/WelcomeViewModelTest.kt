@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.model.AccountAndDevice
-import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -46,7 +46,7 @@ class WelcomeViewModelTest {
     private val serviceConnectionStateFlow =
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
     private val deviceStateFlow = MutableStateFlow<DeviceState>(DeviceState.Initial)
-    private val accountExpiryStateFlow = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
+    private val accountExpiryStateFlow = MutableStateFlow<AccountData>(AccountData.Missing)
     private val purchaseResultFlow = MutableStateFlow<PurchaseResult?>(null)
     private val paymentAvailabilityFlow = MutableStateFlow<PaymentAvailability?>(null)
 
@@ -159,7 +159,7 @@ class WelcomeViewModelTest {
     @Test
     fun `when user has added time then uiSideEffect should emit OpenConnectScreen`() = runTest {
         // Arrange
-        accountExpiryStateFlow.emit(AccountExpiry.Available(DateTime().plusDays(1)))
+        accountExpiryStateFlow.emit(AccountData.Available(DateTime().plusDays(1)))
 
         // Act, Assert
         viewModel.uiSideEffect.test {
