@@ -44,6 +44,7 @@
 		449EB9FD2B95F8AD00DFA4EB /* DeviceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449EB9FC2B95F8AD00DFA4EB /* DeviceMock.swift */; };
 		449EB9FF2B95FF2500DFA4EB /* AccountMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449EB9FE2B95FF2500DFA4EB /* AccountMock.swift */; };
 		449EBA262B975B9700DFA4EB /* PostQuantumKeyReceiving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449EBA252B975B9700DFA4EB /* PostQuantumKeyReceiving.swift */; };
+		44B02E3B2BC5732D008EDF34 /* LoggingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */; };
 		44DD7D242B6CFFD70005F67F /* StartTunnelOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */; };
 		44DD7D272B6D18FB0005F67F /* MockTunnelInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */; };
 		44DD7D292B7113CA0005F67F /* MockTunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D282B7113CA0005F67F /* MockTunnel.swift */; };
@@ -1328,6 +1329,7 @@
 		449EB9FC2B95F8AD00DFA4EB /* DeviceMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceMock.swift; sourceTree = "<group>"; };
 		449EB9FE2B95FF2500DFA4EB /* AccountMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountMock.swift; sourceTree = "<group>"; };
 		449EBA252B975B9700DFA4EB /* PostQuantumKeyReceiving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostQuantumKeyReceiving.swift; sourceTree = "<group>"; };
+		44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoggingTests.swift; sourceTree = "<group>"; };
 		44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartTunnelOperationTests.swift; sourceTree = "<group>"; };
 		44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnelInteractor.swift; sourceTree = "<group>"; };
 		44DD7D282B7113CA0005F67F /* MockTunnel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnel.swift; sourceTree = "<group>"; };
@@ -2948,7 +2950,6 @@
 				7A83A0C52B29A750008B5CE7 /* APIAccessMethodsTests.swift */,
 				A900E9BD2ACC654100C95F67 /* APIProxy+Stubs.swift */,
 				A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */,
-				01168B192BBEE7F800D5F382 /* LoggingTests.swift */,
 				5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */,
 				58915D622A25F8400066445B /* DeviceCheckOperationTests.swift */,
 				A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */,
@@ -2963,6 +2964,7 @@
 				7AB4CCB82B69097E006037F5 /* IPOverrideTests.swift */,
 				7A516C3B2B712F0B00BBD33D /* IPOverrideWrapperTests.swift */,
 				7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */,
+				44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */,
 				A9B6AC172ADE8F4300F7802A /* MigrationManagerTests.swift */,
 				58C3FA652A38549D006A450A /* MockFileCache.swift */,
 				F09D04B42AE93CB6003D4F89 /* OutgoingConnectionProxy+Stub.swift */,
@@ -4980,6 +4982,7 @@
 				7AA513862BC91C6B00D081A4 /* LogRotationTests.swift in Sources */,
 				F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */,
 				A9A5FA302ACB05160083449F /* InputTextFormatterTests.swift in Sources */,
+				44B02E3B2BC5732D008EDF34 /* LoggingTests.swift in Sources */,
 				F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */,
 				449EB9FF2B95FF2500DFA4EB /* AccountMock.swift in Sources */,
 				7ADCB2DA2B6A730400C88F89 /* IPOverrideRepositoryStub.swift in Sources */,
@@ -5113,7 +5116,6 @@
 				7A3FD1B52AD4465A0042BEA6 /* AppMessageHandlerTests.swift in Sources */,
 				58C7A4702A8649ED0060C66F /* PingerTests.swift in Sources */,
 				A97D25B22B0CB02D00946B2D /* ProtocolObfuscatorTests.swift in Sources */,
-				01168B1A2BBEE7F800D5F382 /* LoggingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
