@@ -25,5 +25,6 @@ export enum RoutePath {
   problemReport = '/settings/support/problem-report',
   debug = '/settings/debug',
   selectLocation = '/select-location',
+  editCustomBridge = '/select-location/edit-custom-bridge',
   filter = '/select-location/filter',
 }
