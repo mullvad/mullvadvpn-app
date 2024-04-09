@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui.serviceconnection
+package net.mullvad.mullvadvpn.repository
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -15,37 +15,30 @@ import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.model.WireguardEndpointData
 
-class RelayListListener(
+class RelayListRepository(
     private val managementService: ManagementService,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    val relayListEvents: StateFlow<RelayList> =
+    val relayList: StateFlow<RelayList> =
         managementService.relayList.stateIn(
             CoroutineScope(dispatcher),
             SharingStarted.WhileSubscribed(),
             defaultRelayList()
         )
 
-    suspend fun updateSelectedRelayLocation(value: LocationConstraint) {
-        managementService.setRelayLocation(value)
-    }
+    val wireguardEndpointData: StateFlow<WireguardEndpointData> =
+        managementService.wireguardEndpointData.stateIn(
+            CoroutineScope(dispatcher),
+            SharingStarted.WhileSubscribed(),
+            defaultWireguardEndpointData()
+        )
 
-    fun updateSelectedWireguardConstraints(value: WireguardConstraints) {
-        //        managementService.se
-        //        messageHandler.trySendRequest(Request.SetWireguardConstraints(value))
-    }
+    suspend fun updateSelectedWireguardConstraints(value: WireguardConstraints) =
+        managementService.setWireguardConstraints(value)
 
-    fun updateSelectedOwnershipAndProviderFilter(
-        ownership: Constraint<Ownership>,
-        providers: Constraint<Providers>
-    ) {
-        //        messageHandler.trySendRequest(Request.SetOwnershipAndProviders(ownership,
-        // providers))
-    }
 
-    fun fetchRelayList() {
-        //        messageHandler.trySendRequest(Request.FetchRelayList)
-    }
 
-    private fun defaultRelayList() = RelayList(ArrayList(), WireguardEndpointData(ArrayList()))
+    private fun defaultRelayList() = RelayList(emptyList())
+
+    private fun defaultWireguardEndpointData() = WireguardEndpointData(emptyList())
 }

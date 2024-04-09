@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.SAVE_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.model.RelayItem
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension

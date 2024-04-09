@@ -88,7 +88,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.canAddLocation
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
@@ -102,7 +102,8 @@ private fun PreviewSelectLocationScreen() {
             searchTerm = "",
             selectedOwnership = null,
             selectedProvidersCount = 0,
-            countries = listOf(RelayItem.Country("Country 1", "Code 1", false, emptyList())),
+            countries =
+                listOf(RelayItem.Location.Country("Country 1", "Code 1", false, emptyList())),
             selectedItem = null,
             customLists = emptyList(),
             filteredCustomLists = emptyList()
@@ -152,6 +153,15 @@ fun SelectLocation(
                         onUndo = vm::performAction
                     )
                 }
+            }
+            SelectLocationSideEffect.GenericError -> {
+                launch {
+                    snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.error_occurred),
+                        duration = SnackbarDuration.Short
+                    )
+                }
+            }
         }
     }
 
@@ -180,7 +190,7 @@ fun SelectLocation(
         onBackClick = navigator::navigateUp,
         onFilterClick = { navigator.navigate(FilterScreenDestination, true) },
         onCreateCustomList = { relayItem ->
-            navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.location())) {
+            navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.location)) {
                 launchSingleTop = true
             }
         },
@@ -215,13 +225,13 @@ fun SelectLocationScreen(
     onSearchTermInput: (searchTerm: String) -> Unit = {},
     onBackClick: () -> Unit = {},
     onFilterClick: () -> Unit = {},
-    onCreateCustomList: (location: RelayItem?) -> Unit = {},
+    onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
     onEditCustomLists: () -> Unit = {},
     removeOwnershipFilter: () -> Unit = {},
     removeProviderFilter: () -> Unit = {},
-    onAddLocationToList: (location: RelayItem, customList: RelayItem.CustomList) -> Unit = { _, _ ->
+    onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit = { _, _ ->
     },
-    onRemoveLocationFromList: (location: RelayItem, customList: RelayItem.CustomList) -> Unit =
+    onRemoveLocationFromList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
         { _, _ ->
         },
     onEditCustomListName: (RelayItem.CustomList) -> Unit = {},
@@ -456,10 +466,10 @@ private fun LazyListScope.customLists(
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.relayList(
-    countries: List<RelayItem.Country>,
+    countries: List<RelayItem.Location.Country>,
     selectedItem: RelayItem?,
     onSelectRelay: (item: RelayItem) -> Unit,
-    onShowLocationBottomSheet: (item: RelayItem) -> Unit,
+    onShowLocationBottomSheet: (item: RelayItem.Location) -> Unit,
 ) {
     item(
         contentType = ContentType.HEADER,
@@ -478,7 +488,7 @@ private fun LazyListScope.relayList(
             relay = country,
             selectedItem = selectedItem,
             onSelectRelay = onSelectRelay,
-            onLongClick = onShowLocationBottomSheet,
+            onLongClick = { onShowLocationBottomSheet(it as RelayItem.Location) },
             modifier = Modifier.animateContentSize().animateItemPlacement(),
         )
     }
@@ -488,7 +498,7 @@ private fun LazyListScope.relayList(
 @Composable
 private fun BottomSheets(
     bottomSheetState: BottomSheetState?,
-    onCreateCustomList: (RelayItem?) -> Unit,
+    onCreateCustomList: (RelayItem.Location?) -> Unit,
     onEditCustomLists: () -> Unit,
     onAddLocationToList: (RelayItem, RelayItem.CustomList) -> Unit,
     onRemoveLocationFromList: (RelayItem, RelayItem.CustomList) -> Unit,
@@ -566,9 +576,9 @@ private fun BottomSheets(
 private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int =
     if (this is SelectLocationUiState.Content) {
         when (selectedItem) {
-            is RelayItem.Country,
-            is RelayItem.City,
-            is RelayItem.Relay ->
+            is RelayItem.Location.Country,
+            is RelayItem.Location.City,
+            is RelayItem.Location.Relay ->
                 countries.indexOfFirst { it.code == selectedItem.countryCode() } +
                     customLists.size +
                     EXTRA_ITEMS_LOCATION
@@ -583,9 +593,9 @@ private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int =
 
 private fun RelayItem.countryCode(): String =
     when (this) {
-        is RelayItem.Country -> this.code
-        is RelayItem.City -> this.location.countryCode
-        is RelayItem.Relay -> this.location.countryCode
+        is RelayItem.Location.Country -> this.code
+        is RelayItem.Location.City -> this.location.countryCode
+        is RelayItem.Location.Relay -> this.location.countryCode
         is RelayItem.CustomList ->
             throw IllegalArgumentException("Custom list does not have a country code")
     }
@@ -604,7 +614,7 @@ private fun CustomListsBottomSheet(
         sheetState = sheetState,
         onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG)
-    ) { ->
+    ) {
         HeaderCell(
             text = stringResource(id = R.string.edit_custom_lists),
             background = Color.Unspecified
@@ -648,9 +658,9 @@ private fun LocationBottomSheet(
     onBackgroundColor: Color,
     sheetState: SheetState,
     customLists: List<RelayItem.CustomList>,
-    item: RelayItem,
-    onCreateCustomList: (relayItem: RelayItem) -> Unit,
-    onAddLocationToList: (location: RelayItem, customList: RelayItem.CustomList) -> Unit,
+    item: RelayItem.Location,
+    onCreateCustomList: (relayItem: RelayItem.Location) -> Unit,
+    onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit
 ) {
     MullvadModalBottomSheet(
@@ -861,7 +871,7 @@ sealed interface BottomSheetState {
 
     data class ShowLocationBottomSheet(
         val customLists: List<RelayItem.CustomList>,
-        val item: RelayItem
+        val item: RelayItem.Location
     ) : BottomSheetState
 
     data class ShowEditCustomListBottomSheet(val customList: RelayItem.CustomList) :
