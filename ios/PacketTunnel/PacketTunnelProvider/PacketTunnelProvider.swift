@@ -167,7 +167,7 @@ extension PacketTunnelProvider {
         #if DEBUG
         loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
         #endif
-        loggerBuilder.install()
+        loggerBuilder.install(header: "PacketTunnel version \(Bundle.main.productVersion)")
     }
 
     private func parseStartOptions(_ options: [String: NSObject]) -> StartOptions {
