@@ -31,12 +31,4 @@ enum LocationSection: String, Hashable, CustomStringConvertible, CaseIterable, C
     var cellClass: AnyClass {
         LocationCell.self
     }
-
-    static var allCases: [LocationSection] {
-        #if DEBUG
-        return [.customLists, .allLocations]
-        #else
-        return [.allLocations]
-        #endif
-    }
 }
