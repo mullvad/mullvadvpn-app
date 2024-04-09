@@ -1,50 +1,30 @@
 //! Integration tests for API access methods.
-use super::{Error, TestContext};
+//!
+//! The tested access methods are:
+//! * Shadowsocks
+//! * SOCKS5 in remote mode
+//!
+//! These tests rely on working proxies to exist *somewhere* for all tested protocols.
+//! If the proxies themselves are bad/not running, this test will fail due to issues
+//! that are out of the test manager's control.
+use anyhow::{anyhow, ensure, Context};
+
 use mullvad_management_interface::MullvadProxyClient;
+use talpid_types::net::proxy::CustomProxy;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
-/// Assert that custom access methods may be used to access the Mullvad API.
-///
-/// The tested access methods are:
-/// * Shadowsocks
-/// * Socks5 in remote mode
-///
-/// # Note
-///
-/// This tests assume that there exists working proxies *somewhere* for all
-/// tested protocols. If the proxies themselves are bad/not running, this test
-/// will fail due to issues that are out of the test manager's control.
+use super::TestContext;
+
+/// Assert that API traffic can be proxied via a custom Shadowsocks proxy.
 #[test_function]
-pub async fn test_custom_access_methods(
+async fn test_access_method_shadowsocks(
     _: TestContext,
     _rpc: ServiceClient,
-    mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
-    log::info!("Testing Shadowsocks access method");
-    test_shadowsocks(mullvad_client.clone()).await?;
-    log::info!("Testing SOCKS5 (Remote) access method");
-    test_socks_remote(mullvad_client.clone()).await?;
-    Ok(())
-}
-
-macro_rules! assert_access_method_works {
-    ($mullvad_client:expr, $access_method:expr) => {
-        let successful = $mullvad_client
-            .test_custom_api_access_method($access_method.clone().into())
-            .await
-            .expect("Failed to test custom API access method");
-
-        assert!(
-            successful,
-            "Failed while testing access method - {:?}",
-            $access_method
-        );
-    };
-}
-
-async fn test_shadowsocks(mut mullvad_client: MullvadProxyClient) -> Result<(), Error> {
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
     use mullvad_relay_selector::{RelaySelector, SelectorConfig};
+    log::info!("Testing Shadowsocks access method");
     // Set up all the parameters needed to create a custom Shadowsocks access method.
     //
     // Since Mullvad's bridge servers host Shadowsocks relays, we can simply
@@ -53,22 +33,48 @@ async fn test_shadowsocks(mut mullvad_client: MullvadProxyClient) -> Result<(), 
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
     let access_method = relay_selector
         .get_bridge_forced()
-        .expect("`test_shadowsocks` needs at least one shadowsocks relay to execute. Found none in relay list.");
-    assert_access_method_works!(mullvad_client, access_method);
+        .context("`test_shadowsocks` needs at least one shadowsocks relay to execute. Found none in relay list.")?;
+    log::info!("Selected shadowsocks bridge: {access_method:?}");
+    assert_access_method_works(mullvad_client, access_method.clone())
+        .await
+        .with_context(|| anyhow!("Access method {access_method:?} did not work!"))?;
     Ok(())
 }
 
-async fn test_socks_remote(mut mullvad_client: MullvadProxyClient) -> Result<(), Error> {
+/// Assert that API traffic can be proxied via a custom SOCKS5 proxy.
+#[test_function]
+async fn test_access_method_socks5_remote(
+    _: TestContext,
+    _rpc: ServiceClient,
+    mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
     use crate::vm::network::{NON_TUN_GATEWAY, SOCKS5_PORT};
     use std::net::SocketAddr;
-    use talpid_types::net::proxy::{CustomProxy, Socks5Remote};
+    use talpid_types::net::proxy::Socks5Remote;
+    log::info!("Testing SOCKS5 (Remote) access method");
     // Set up all the parameters needed to create a custom SOCKS5 access method.
     //
     // The remote SOCKS5 proxy is assumed to be running on the test manager. On
     // which port it listens to is defined as a constant in the `test-manager`
     // crate.
     let endpoint = SocketAddr::from((NON_TUN_GATEWAY, SOCKS5_PORT));
-    let access_method = CustomProxy::from(Socks5Remote::new(endpoint));
-    assert_access_method_works!(mullvad_client, access_method);
+    let access_method = Socks5Remote::new(endpoint);
+    log::info!("Testing SOCKS5-proxy: {access_method:?}");
+    assert_access_method_works(mullvad_client, access_method.clone())
+        .await
+        .with_context(|| anyhow!("Access method {access_method:?} did not work!"))?;
+    Ok(())
+}
+
+async fn assert_access_method_works(
+    mut mullvad_client: MullvadProxyClient,
+    access_method: impl Into<CustomProxy> + std::fmt::Debug,
+) -> anyhow::Result<()> {
+    let successful = mullvad_client
+        .test_custom_api_access_method(access_method.into())
+        .await
+        .context("Failed to test custom API access method")?;
+
+    ensure!(successful, "Failed while testing access method");
     Ok(())
 }
