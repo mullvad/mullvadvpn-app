@@ -199,7 +199,7 @@ impl Summary {
 /// be parsed, we should not abort the entire summarization.
 pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
     // Collect test details
-    let tests: Vec<_> = inventory::iter::<crate::tests::TestMetadata>().collect();
+    let tests = crate::tests::get_tests();
 
     let mut summaries = vec![];
     let mut failed_to_parse = vec![];

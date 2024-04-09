@@ -2,8 +2,7 @@ use crate::{
     logging::{panic_as_string, TestOutput},
     mullvad_daemon,
     summary::{self, maybe_log_test_result},
-    tests,
-    tests::{config::TEST_CONFIG, TestContext},
+    tests::{self, config::TEST_CONFIG, get_tests, TestContext},
     vm,
 };
 use anyhow::{Context, Result};
@@ -50,10 +49,9 @@ pub async fn run(
 
     print_os_version(&client).await;
 
-    let mut tests: Vec<_> = inventory::iter::<tests::TestMetadata>()
-        .filter(|test| test.should_run_on_os(TEST_CONFIG.os))
-        .collect();
-    tests.sort_by_key(|test| test.priority.unwrap_or(0));
+    let mut tests = get_tests();
+
+    tests.retain(|test| test.should_run_on_os(TEST_CONFIG.os));
 
     if !test_filters.is_empty() {
         tests.retain(|test| {
