@@ -107,8 +107,8 @@ pub async fn run(
             // Try to reset the daemon state if the test failed OR if the test doesn't explicitly
             // disabled cleanup.
             if test.cleanup || matches!(test_result.result, Err(_) | Ok(Err(_))) {
-                let mut client = test_context.rpc_provider.new_client().await;
-                crate::tests::cleanup_after_test(&mut client).await?;
+                crate::tests::cleanup_after_test(client.clone(), &test_context.rpc_provider)
+                    .await?;
             }
         }
 
