@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import android.content.res.Resources
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,7 +18,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
@@ -39,14 +37,17 @@ import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
 import net.mullvad.mullvadvpn.util.isCustom
 
 sealed interface VpnSettingsSideEffect {
-    data class ShowToast(val message: String) : VpnSettingsSideEffect
+    sealed interface ShowToast : VpnSettingsSideEffect {
+        data object ApplySettingsWarning : ShowToast
+
+        data object GenericError : ShowToast
+    }
 
     data object NavigateToDnsDialog : VpnSettingsSideEffect
 }
 
 class VpnSettingsViewModel(
     private val repository: SettingsRepository,
-    private val resources: Resources,
     portRangeUseCase: PortRangeUseCase,
     private val relayListUseCase: RelayListUseCase,
     private val systemVpnSettingsUseCase: SystemVpnSettingsUseCase,
@@ -111,11 +112,19 @@ class VpnSettingsViewModel(
     }
 
     fun onToggleAutoConnect(isEnabled: Boolean) {
-        viewModelScope.launch(dispatcher) { repository.setAutoConnect(isEnabled) }
+        viewModelScope.launch(dispatcher) {
+            repository.setAutoConnect(isEnabled).onLeft {
+                _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
+            }
+        }
     }
 
     fun onToggleLocalNetworkSharing(isEnabled: Boolean) {
-        viewModelScope.launch(dispatcher) { repository.setLocalNetworkSharing(isEnabled) }
+        viewModelScope.launch(dispatcher) {
+            repository.setLocalNetworkSharing(isEnabled).onLeft {
+                _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
+            }
+        }
     }
 
     fun onDnsDialogDismissed() {
@@ -126,12 +135,20 @@ class VpnSettingsViewModel(
 
     fun onToggleCustomDns(enable: Boolean) {
         viewModelScope.launch {
-            repository.setDnsState(if (enable) DnsState.Custom else DnsState.Default)
-        }
-        if (enable && vmState.value.customDnsList.isEmpty()) {
-            viewModelScope.launch { _uiSideEffect.send(VpnSettingsSideEffect.NavigateToDnsDialog) }
-        } else if (vmState.value.customDnsList.isNotEmpty()) {
-            showApplySettingChangesWarningToast()
+            repository
+                .setDnsState(if (enable) DnsState.Custom else DnsState.Default)
+                .fold(
+                    { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) },
+                    {
+                        if (enable && vmState.value.customDnsList.isEmpty()) {
+                            viewModelScope.launch {
+                                _uiSideEffect.send(VpnSettingsSideEffect.NavigateToDnsDialog)
+                            }
+                        } else if (vmState.value.customDnsList.isNotEmpty()) {
+                            showApplySettingChangesWarningToast()
+                        }
+                    }
+                )
         }
     }
 
@@ -180,25 +197,31 @@ class VpnSettingsViewModel(
     fun onStopEvent() {
         viewModelScope.launch {
             if (vmState.value.customDnsList.isEmpty()) {
-                repository.setDnsState(DnsState.Default)
+                repository.setDnsState(DnsState.Default).onLeft {
+                    _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
+                }
             }
         }
     }
 
     fun onSelectObfuscationSetting(selectedObfuscation: SelectedObfuscation) {
         viewModelScope.launch(dispatcher) {
-            repository.setObfuscationOptions(
-                ObfuscationSettings(
-                    selectedObfuscation = selectedObfuscation,
-                    udp2tcp = Udp2TcpObfuscationSettings(Constraint.Any())
+            repository
+                .setObfuscationOptions(
+                    ObfuscationSettings(
+                        selectedObfuscation = selectedObfuscation,
+                        udp2tcp = Udp2TcpObfuscationSettings(Constraint.Any())
+                    )
                 )
-            )
+                .onLeft { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) }
         }
     }
 
     fun onSelectQuantumResistanceSetting(quantumResistant: QuantumResistantState) {
         viewModelScope.launch(dispatcher) {
-            repository.setWireguardQuantumResistant(quantumResistant)
+            repository.setWireguardQuantumResistant(quantumResistant).onLeft {
+                _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
+            }
         }
     }
 
@@ -221,11 +244,13 @@ class VpnSettingsViewModel(
 
     private fun updateDefaultDnsOptionsViaRepository(contentBlockersOption: DefaultDnsOptions) =
         viewModelScope.launch(dispatcher) {
-            repository.setDnsOptions(
-                isCustomDnsEnabled = vmState.value.isCustomDnsEnabled,
-                dnsList = vmState.value.customDnsList.map { it.address }.asInetAddressList(),
-                contentBlockersOptions = contentBlockersOption
-            )
+            repository
+                .setDnsOptions(
+                    isCustomDnsEnabled = vmState.value.isCustomDnsEnabled,
+                    dnsList = vmState.value.customDnsList.map { it.address }.asInetAddressList(),
+                    contentBlockersOptions = contentBlockersOption
+                )
+                .onLeft { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) }
         }
 
     private fun List<String>.asInetAddressList(): List<InetAddress> {
@@ -268,12 +293,12 @@ class VpnSettingsViewModel(
 
     fun showApplySettingChangesWarningToast() {
         viewModelScope.launch {
-            _uiSideEffect.send(
-                VpnSettingsSideEffect.ShowToast(
-                    resources.getString(R.string.settings_changes_effect_warning_short)
-                )
-            )
+            _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.ApplySettingsWarning)
         }
+    }
+
+    fun showGenericErrorToast() {
+        viewModelScope.launch { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) }
     }
 
     companion object {

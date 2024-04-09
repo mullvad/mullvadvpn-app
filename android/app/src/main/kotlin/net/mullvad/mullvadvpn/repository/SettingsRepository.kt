@@ -30,7 +30,7 @@ class SettingsRepository(
         isCustomDnsEnabled: Boolean,
         dnsList: List<InetAddress>,
         contentBlockersOptions: DefaultDnsOptions
-    ) {
+    ) =
         managementService.setDnsOptions(
             DnsOptions(
                 state = if (isCustomDnsEnabled) DnsState.Custom else DnsState.Default,
@@ -38,17 +38,14 @@ class SettingsRepository(
                 defaultOptions = contentBlockersOptions
             )
         )
-    }
 
     suspend fun setDnsState(
         state: DnsState,
-    ) {
-        managementService.setDnsState(state)
-    }
+    ) = managementService.setDnsState(state)
 
     suspend fun deleteCustomDns(address: InetAddress) = managementService.deleteCustomDns(address)
 
-    suspend fun setCustomDns(index: Int, address: InetAddress) =
+    suspend fun setCustomDns(index: Int = -1, address: InetAddress) =
         managementService.setCustomDns(index, address)
 
     suspend fun setWireguardMtu(value: Int?) = managementService.setWireguardMtu(value ?: 0)
