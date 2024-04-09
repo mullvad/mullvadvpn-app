@@ -74,8 +74,8 @@ class MullvadVPNScreenshots: XCTestCase {
         if cityCell.exists {
             cityCell.tap()
         } else {
-            _ = countryCell.buttons[AccessibilityIdentifier.collapseButton.rawValue].waitForExistence(timeout: 5)
-            countryCell.buttons[AccessibilityIdentifier.collapseButton.rawValue].tap()
+            _ = countryCell.buttons[AccessibilityIdentifier.expandButton.rawValue].waitForExistence(timeout: 5)
+            countryCell.buttons[AccessibilityIdentifier.expandButton.rawValue].tap()
             cityCell.tap()
         }
 
@@ -87,7 +87,7 @@ class MullvadVPNScreenshots: XCTestCase {
         // Re-open Select location controller (iPhone only)
         if case .phone = UIDevice.current.userInterfaceIdiom {
             app.buttons[AccessibilityIdentifier.selectLocationButton.rawValue].tap()
-            cityCell.buttons[AccessibilityIdentifier.collapseButton.rawValue].tap()
+            cityCell.buttons[AccessibilityIdentifier.expandButton.rawValue].tap()
             snapshot("SelectLocation")
 
             // Tap the "Filter" button and expand each relay filter
