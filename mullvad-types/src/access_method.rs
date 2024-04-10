@@ -77,6 +77,7 @@ impl Settings {
     /// Clear all custom access methods.
     pub fn clear_custom(&mut self) {
         self.custom.clear();
+        self.ensure_consistent_state();
     }
 
     /// Check that `self` contains atleast one enabled access methods. If not,
