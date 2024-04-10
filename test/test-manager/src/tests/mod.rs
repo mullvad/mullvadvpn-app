@@ -64,6 +64,13 @@ pub enum Error {
     Other(String),
 }
 
+/// Get a list of all tests, sorted by priority.
+pub fn get_tests() -> Vec<&'static TestMetadata> {
+    let mut tests: Vec<_> = inventory::iter::<TestMetadata>().collect();
+    tests.sort_by_key(|test| test.priority.unwrap_or(0));
+    tests
+}
+
 /// Restore settings to the defaults.
 pub async fn cleanup_after_test(mullvad_client: &mut MullvadProxyClient) -> anyhow::Result<()> {
     log::debug!("Cleaning up daemon in test cleanup");
