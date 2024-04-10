@@ -1,16 +1,21 @@
 package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.model.Device
-import net.mullvad.mullvadvpn.model.ListDevicesError
+import net.mullvad.mullvadvpn.model.DeviceId
+import net.mullvad.mullvadvpn.model.GetDeviceListError
 
 sealed interface DeviceListUiState {
-
     data object Loading : DeviceListUiState
 
-    data class Error(val listDevicesError: ListDevicesError) : DeviceListUiState
+    data class Error(val error: GetDeviceListError) : DeviceListUiState
 
-    data class Content(val deviceUiItems: List<DeviceListItemUiState>) : DeviceListUiState {
-        val hasTooManyDevices: Boolean = deviceUiItems.size >= MAXIMUM_DEVICES
+    data class Content(val devices: List<Device>, val loadingDevices: List<DeviceId> = emptyList()) :
+        DeviceListUiState {
+        val hasTooManyDevices = devices.size >= MAXIMUM_DEVICES
+    }
+
+    companion object {
+        val INITIAL: DeviceListUiState = Loading
     }
 }
 
