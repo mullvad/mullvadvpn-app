@@ -941,8 +941,6 @@ This release is for desktop only.
 - Enable isolation of the Electron renderer process to protect against potentially malicious third
   party dependencies.
 - Preserve log of old daemon instance when upgrading on Desktop.
-- Enable isolation of the Electron renderer process to protect against potentially malicious third
-  party dependencies.
 - Add 51820 to list of WireGuard ports in app settings.
 - Add option to connect to WireGuard relays over IPv6.
 - Add Burmese translations.
