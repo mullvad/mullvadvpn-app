@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.service.notifications
 
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -8,13 +7,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.core.app.NotificationCompat
-import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.Intermittent
 import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionMissing
-import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.R
 import net.mullvad.mullvadvpn.service.constant.IS_PLAY_BUILD
@@ -60,34 +56,35 @@ class AccountExpiryNotification(
     }
 
     // Suppressing since the permission check is done by calling a common util in another module.
-//    @SuppressLint("MissingPermission")
-//    private suspend fun update(accountData: AccountData?) {
-//        val durationUntilExpiry = accountData?.expiryDate?.remainingTime()
-//
-//        if (/*accountCache.isNewAccount.not() &&*/ durationUntilExpiry?.isCloseToExpiry() == true) {
-//            if (context.isNotificationPermissionMissing().not()) {
-//                val notification = build(expiryDate, durationUntilExpiry)
-//                channel.notificationManager.notify(NOTIFICATION_ID, notification)
-//            }
-//            jobTracker.newUiJob("scheduleUpdate") { scheduleUpdate() }
-//        } else {
-//            channel.notificationManager.cancel(NOTIFICATION_ID)
-//            jobTracker.cancelJob("scheduleUpdate")
-//        }
-//    }
-//
-//    private fun DateTime.remainingTime(): Duration {
-//        return Duration(DateTime.now(), this)
-//    }
+    //    @SuppressLint("MissingPermission")
+    //    private suspend fun update(accountData: AccountData?) {
+    //        val durationUntilExpiry = accountData?.expiryDate?.remainingTime()
+    //
+    //        if (/*accountCache.isNewAccount.not() &&*/ durationUntilExpiry?.isCloseToExpiry() ==
+    // true) {
+    //            if (context.isNotificationPermissionMissing().not()) {
+    //                val notification = build(expiryDate, durationUntilExpiry)
+    //                channel.notificationManager.notify(NOTIFICATION_ID, notification)
+    //            }
+    //            jobTracker.newUiJob("scheduleUpdate") { scheduleUpdate() }
+    //        } else {
+    //            channel.notificationManager.cancel(NOTIFICATION_ID)
+    //            jobTracker.cancelJob("scheduleUpdate")
+    //        }
+    //    }
+    //
+    //    private fun DateTime.remainingTime(): Duration {
+    //        return Duration(DateTime.now(), this)
+    //    }
 
     private fun Duration.isCloseToExpiry(): Boolean {
         return isShorterThan(REMAINING_TIME_FOR_REMINDERS)
     }
-//
-//    private suspend fun scheduleUpdate() {
-//        delay(TIME_BETWEEN_CHECKS)
-//        update(accountExpiry)
-//    }
+    //
+    //    private suspend fun scheduleUpdate() {
+    //        delay(TIME_BETWEEN_CHECKS)
+    //        update(accountExpiry)
+    //    }
 
     private suspend fun build(expiry: DateTime, remainingTime: Duration): Notification {
         val url =
