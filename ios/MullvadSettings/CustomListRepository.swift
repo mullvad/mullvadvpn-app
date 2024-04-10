@@ -39,11 +39,15 @@ public struct CustomListRepository: CustomListRepositoryProtocol {
     public func save(list: CustomList) throws {
         var lists = fetchAll()
 
-        if let index = lists.firstIndex(where: { $0.id == list.id }) {
+        let persistedListWithSameName = lists.first {
+            $0.name.localizedCaseInsensitiveCompare(list.name) == .orderedSame
+        }
+
+        if let persistedListWithSameName, persistedListWithSameName.id != list.id {
+            throw CustomRelayListError.duplicateName
+        } else if let index = lists.firstIndex(where: { $0.id == list.id }) {
             lists[index] = list
             try write(lists)
-        } else if lists.contains(where: { $0.name == list.name }) {
-            throw CustomRelayListError.duplicateName
         } else {
             lists.append(list)
             try write(lists)
