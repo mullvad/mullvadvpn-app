@@ -47,18 +47,19 @@ import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
 import net.mullvad.mullvadvpn.compose.destinations.RemoveDeviceConfirmationDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
-import net.mullvad.mullvadvpn.compose.state.DeviceListItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.lib.common.util.parseAsDateTime
+import net.mullvad.mullvadvpn.compose.util.generateDevices
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemSubText
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
+import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.Device
+import net.mullvad.mullvadvpn.model.DeviceId
 import net.mullvad.mullvadvpn.util.formatDate
 import net.mullvad.mullvadvpn.viewmodel.DeviceListSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
@@ -68,66 +69,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 @Preview
 private fun PreviewDeviceListScreenTooManyDevices() {
-    AppTheme {
-        DeviceListScreen(
-            state =
-                DeviceListUiState.Content(
-                    deviceUiItems =
-                        listOf(
-                            DeviceListItemUiState(
-                                device =
-                                    Device(
-                                        id = "ID1",
-                                        name = "Name1",
-                                        pubkey = ByteArray(10),
-                                        created = "2012-12-12 12:12:12 UTC"
-                                    ),
-                                isLoading = false
-                            ),
-                            DeviceListItemUiState(
-                                device =
-                                    Device(
-                                        id = "ID2",
-                                        name = "Name2",
-                                        pubkey = ByteArray(10),
-                                        created = "2012-12-12 12:12:12 UTC"
-                                    ),
-                                isLoading = false
-                            ),
-                            DeviceListItemUiState(
-                                device =
-                                    Device(
-                                        id = "ID3",
-                                        name = "Name3",
-                                        pubkey = ByteArray(10),
-                                        created = "2012-12-12 12:12:12 UTC"
-                                    ),
-                                isLoading = false
-                            ),
-                            DeviceListItemUiState(
-                                device =
-                                    Device(
-                                        id = "ID4",
-                                        name = "Name4",
-                                        pubkey = ByteArray(10),
-                                        created = "2012-12-12 12:12:12 UTC"
-                                    ),
-                                isLoading = false
-                            ),
-                            DeviceListItemUiState(
-                                device =
-                                    Device(
-                                        id = "ID5",
-                                        name = "Name5",
-                                        pubkey = ByteArray(10),
-                                        created = "2012-12-12 12:12:12 UTC"
-                                    ),
-                                isLoading = true
-                            )
-                        )
-                )
-        )
-    }
+    AppTheme { DeviceListScreen(state = DeviceListUiState.Content(devices = generateDevices(4))) }
 }
 
 @Composable
@@ -137,19 +79,7 @@ private fun PreviewDeviceListScreenNotTooManyDevices() {
         DeviceListScreen(
             state =
                 DeviceListUiState.Content(
-                    deviceUiItems =
-                        listOf(
-                            DeviceListItemUiState(
-                                device =
-                                    Device(
-                                        id = "ID",
-                                        name = "Name",
-                                        pubkey = ByteArray(10),
-                                        created = "2012-12-12 12:12:12 UTC"
-                                    ),
-                                isLoading = false
-                            )
-                        )
+                    devices = listOf(),
                 )
         )
     }
@@ -158,7 +88,7 @@ private fun PreviewDeviceListScreenNotTooManyDevices() {
 @Composable
 @Preview
 private fun PreviewDeviceListScreenEmpty() {
-    AppTheme { DeviceListScreen(state = DeviceListUiState.Content(deviceUiItems = emptyList())) }
+    AppTheme { DeviceListScreen(state = DeviceListUiState.Content(devices = emptyList())) }
 }
 
 @Composable
@@ -172,9 +102,13 @@ private fun PreviewDeviceListLoading() {
 fun DeviceList(
     navigator: DestinationsNavigator,
     accountToken: String,
-    confirmRemoveResultRecipient: ResultRecipient<RemoveDeviceConfirmationDialogDestination, String>
+    confirmRemoveResultRecipient:
+        ResultRecipient<RemoveDeviceConfirmationDialogDestination, DeviceId>
 ) {
-    val viewModel = koinViewModel<DeviceListViewModel>(parameters = { parametersOf(accountToken) })
+    val viewModel =
+        koinViewModel<DeviceListViewModel>(
+            parameters = { parametersOf(AccountToken(accountToken)) }
+        )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     confirmRemoveResultRecipient.onNavResult {
@@ -183,7 +117,7 @@ fun DeviceList(
                 /* Do nothing */
             }
             is NavResult.Value -> {
-                viewModel.removeDevice(accountToken = accountToken, deviceIdToRemove = it.value)
+                viewModel.removeDevice(deviceIdToRemove = it.value)
             }
         }
     }
@@ -195,14 +129,6 @@ fun DeviceList(
         minActiveState = Lifecycle.State.RESUMED
     ) { sideEffect ->
         when (sideEffect) {
-            DeviceListSideEffect.FailedToGetDeviceList -> {
-                launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar(
-                        message = context.getString(R.string.error_occurred)
-                    )
-                }
-            }
             DeviceListSideEffect.FailedToRemoveDevice -> {
                 launch {
                     snackbarHostState.currentSnackbarData?.dismiss()
@@ -271,14 +197,14 @@ fun DeviceListScreen(
                     }
             ) {
                 when (state) {
-                    DeviceListUiState.Loading -> DeviceListLoading()
                     is DeviceListUiState.Content ->
                         DeviceListContent(
                             state = state,
                             navigateToRemoveDeviceConfirmationDialog =
                                 navigateToRemoveDeviceConfirmationDialog
                         )
-                    is DeviceListUiState.Error -> DeviceListError(state = state)
+                    is DeviceListUiState.Error -> TODO("Handle error fetching list, should show error and offer retry")
+                    DeviceListUiState.Loading -> DeviceListLoading()
                 }
             }
             DeviceListButtonPanel(state, onContinueWithLogin, onBackClick)
@@ -300,13 +226,14 @@ private fun ColumnScope.DeviceListContent(
 ) {
     DeviceListHeader(state = state)
 
-    state.deviceUiItems.forEachIndexed { index, deviceUiState ->
+    state.devices.forEachIndexed { index, device ->
         DeviceListItem(
-            deviceUiState = deviceUiState,
+            device = device,
+            isLoading = state.loadingDevices.contains(device.id),
         ) {
-            navigateToRemoveDeviceConfirmationDialog(deviceUiState.device)
+            navigateToRemoveDeviceConfirmationDialog(device)
         }
-        if (state.deviceUiItems.lastIndex != index) {
+        if (state.devices.lastIndex != index) {
             HorizontalDivider()
         }
     }
@@ -376,26 +303,20 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState.Content) {
 }
 
 @Composable
-private fun DeviceListItem(
-    deviceUiState: DeviceListItemUiState,
-    onDeviceRemovalClicked: () -> Unit
-) {
+private fun DeviceListItem(device: Device, isLoading: Boolean, onDeviceRemovalClicked: () -> Unit) {
     BaseCell(
         isRowEnabled = false,
         headlineContent = {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = deviceUiState.device.displayName(),
+                    text = device.displayName(),
                     style = MaterialTheme.typography.listItemText,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text =
-                        deviceUiState.device.created.parseAsDateTime()?.let { creationDate ->
-                            stringResource(id = R.string.created_x, creationDate.formatDate())
-                        } ?: "",
+                    text = stringResource(id = R.string.created_x, device.created.formatDate()),
                     style = MaterialTheme.typography.listItemSubText,
                     color =
                         MaterialTheme.colorScheme.onPrimary
@@ -405,7 +326,7 @@ private fun DeviceListItem(
             }
         },
         bodyView = {
-            if (deviceUiState.isLoading) {
+            if (isLoading) {
                 MullvadCircularProgressIndicatorMedium(
                     modifier = Modifier.padding(Dimens.smallPadding)
                 )
@@ -421,15 +342,6 @@ private fun DeviceListItem(
             }
         },
         endPadding = Dimens.smallPadding,
-    )
-}
-
-@Composable
-private fun ColumnScope.DeviceListError(state: DeviceListUiState.Error) {
-    // TODO Design this?
-    DeviceListContent(
-        state = DeviceListUiState.Content(emptyList()),
-        navigateToRemoveDeviceConfirmationDialog = {}
     )
 }
 
@@ -451,7 +363,7 @@ private fun DeviceListButtonPanel(
         VariantButton(
             text = stringResource(id = R.string.continue_login),
             onClick = onContinueWithLogin,
-            isEnabled = state is DeviceListUiState.Content && state.hasTooManyDevices.not(),
+            isEnabled = state is DeviceListUiState.Content && !state.hasTooManyDevices,
             background = MaterialTheme.colorScheme.secondary
         )
 

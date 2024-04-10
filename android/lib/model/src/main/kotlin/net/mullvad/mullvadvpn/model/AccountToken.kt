@@ -1,3 +1,6 @@
 package net.mullvad.mullvadvpn.model
 
-@JvmInline value class AccountToken(val value: String)
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@JvmInline @Parcelize value class AccountToken(val value: String) : Parcelable
