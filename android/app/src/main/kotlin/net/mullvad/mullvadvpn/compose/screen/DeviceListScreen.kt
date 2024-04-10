@@ -203,7 +203,8 @@ fun DeviceListScreen(
                             navigateToRemoveDeviceConfirmationDialog =
                                 navigateToRemoveDeviceConfirmationDialog
                         )
-                    is DeviceListUiState.Error -> TODO("Handle error fetching list, should show error and offer retry")
+                    is DeviceListUiState.Error ->
+                        TODO("Handle error fetching list, should show error and offer retry")
                     DeviceListUiState.Loading -> DeviceListLoading()
                 }
             }

@@ -7,10 +7,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.LocationConstraint
-import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.model.WireguardEndpointData
@@ -35,8 +31,6 @@ class RelayListRepository(
 
     suspend fun updateSelectedWireguardConstraints(value: WireguardConstraints) =
         managementService.setWireguardConstraints(value)
-
-
 
     private fun defaultRelayList() = RelayList(emptyList())
 

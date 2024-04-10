@@ -497,10 +497,13 @@ class ManagementService(
         providers: Constraint<ModelProviders>
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
+                val oldSettings = getSettings()
                 val relaySettings =
-                    ManagementInterface.RelaySettings.newBuilder(getSettings().relaySettings)
+                    ManagementInterface.RelaySettings.newBuilder(oldSettings.relaySettings)
                         .setNormal(
-                            ManagementInterface.NormalRelaySettings.newBuilder()
+                            ManagementInterface.NormalRelaySettings.newBuilder(
+                                    oldSettings.relaySettings.normal
+                                )
                                 .setOwnership(
                                     if (ownership is Constraint.Only) {
                                         ownership.value.fromDomain()
@@ -508,6 +511,7 @@ class ManagementService(
                                         ManagementInterface.Ownership.ANY
                                     }
                                 )
+                                .clearProviders()
                                 .addAllProviders(
                                     if (providers is Constraint.Only) {
                                         providers.value.fromDomain()
@@ -526,18 +530,18 @@ class ManagementService(
         ownership: Constraint<ModelOwnership>
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
-                val relaySettings = getSettings().relaySettings
-                relaySettings.copy {
-                    this.normal =
-                        this.normal.copy {
-                            this.ownership =
-                                if (ownership is Constraint.Only) {
-                                    ownership.value.fromDomain()
-                                } else {
-                                    ManagementInterface.Ownership.ANY
-                                }
-                        }
-                }
+                val relaySettings =
+                    getSettings().relaySettings.copy {
+                        this.normal =
+                            this.normal.copy {
+                                this.ownership =
+                                    if (ownership is Constraint.Only) {
+                                        ownership.value.fromDomain()
+                                    } else {
+                                        ManagementInterface.Ownership.ANY
+                                    }
+                            }
+                    }
                 managementService.setRelaySettings(relaySettings)
             }
             .mapLeft(SetWireguardConstraintsError::Unknown)
@@ -547,20 +551,20 @@ class ManagementService(
         providers: Constraint<ModelProviders>
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
-                val relaySettings = getSettings().relaySettings
-                relaySettings.copy {
-                    this.normal =
-                        this.normal.copy {
-                            this.providers.clear()
-                            this.providers.addAll(
-                                if (providers is Constraint.Only) {
-                                    providers.value.fromDomain()
-                                } else {
-                                    emptyList()
-                                }
-                            )
-                        }
-                }
+                val relaySettings =
+                    getSettings().relaySettings.copy {
+                        this.normal =
+                            this.normal.copy {
+                                this.providers.clear()
+                                this.providers.addAll(
+                                    if (providers is Constraint.Only) {
+                                        providers.value.fromDomain()
+                                    } else {
+                                        emptyList()
+                                    }
+                                )
+                            }
+                    }
                 managementService.setRelaySettings(relaySettings)
             }
             .mapLeft(SetWireguardConstraintsError::Unknown)
