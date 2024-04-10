@@ -31,7 +31,6 @@ import kotlinx.coroutines.launch
 import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementInterface.AppVersionInfo
 import mullvad_daemon.management_interface.ManagementInterface.CustomDnsOptions
-import mullvad_daemon.management_interface.ManagementInterface.CustomRelaySettings
 import mullvad_daemon.management_interface.ManagementInterface.DaemonEvent
 import mullvad_daemon.management_interface.ManagementInterface.DeviceEvent
 import mullvad_daemon.management_interface.ManagementInterface.RelayList
@@ -315,15 +314,13 @@ class ManagementService(
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
                 managementService.setDnsOptions(
                     currentDnsOptions.copy {
-                        customOptions.copy {
-                            this.addresses.apply {
-                                if (index == -1) {
-                                    add(address.toString())
-                                } else {
-                                    set(index, address.toString())
-                                }
-                            }
+                        val builder = currentDnsOptions.customOptions.toBuilder()
+                        if (index == -1) {
+                            builder.addAddresses(address.hostAddress)
+                        } else {
+                            builder.setAddresses(index, address.hostAddress)
                         }
+                        this.customOptions = builder.build()
                     }
                 )
             }
@@ -338,7 +335,7 @@ class ManagementService(
                     CustomDnsOptions.newBuilder()
                         .addAllAddresses(
                             currentCustomDnsOptions.addressesList.filter {
-                                it != address.toString()
+                                it != address.hostAddress
                             }
                         )
                         .build()
@@ -365,22 +362,6 @@ class ManagementService(
     suspend fun setRelaySettings(value: RelaySettings) {
         managementService.setRelaySettings(value.fromDomain())
     }
-
-    fun RelaySettings.fromDomain(): ManagementInterface.RelaySettings =
-        ManagementInterface.RelaySettings.newBuilder()
-            .apply {
-                when (this@fromDomain) {
-                    RelaySettings.CustomTunnelEndpoint ->
-                        setCustom(CustomRelaySettings.newBuilder().build())
-                    is RelaySettings.Normal ->
-                        setNormal(
-                            ManagementInterface.NormalRelaySettings.newBuilder()
-                                .setLocation(this@fromDomain.relayConstraints.location.fromDomain())
-                                .build()
-                        )
-                }
-            }
-            .build()
 
     suspend fun setObfuscationOptions(
         value: ModelObfuscationSettings
