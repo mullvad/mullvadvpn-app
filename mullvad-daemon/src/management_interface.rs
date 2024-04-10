@@ -324,6 +324,7 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
+<<<<<<< HEAD
     #[cfg(target_os = "windows")]
     async fn set_daita_settings(
         &self,
@@ -344,6 +345,8 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(not(target_os = "android"))]
+=======
+>>>>>>> d1d0a4a64 (Fix custom dns options)
     async fn set_dns_options(&self, request: Request<types::DnsOptions>) -> ServiceResult<()> {
         let options = DnsOptions::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
         log::debug!("set_dns_options({:?})", options);
@@ -351,11 +354,6 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetDnsOptions(tx, options))?;
         self.wait_for_result(rx).await??;
-        Ok(Response::new(()))
-    }
-
-    #[cfg(target_os = "android")]
-    async fn set_dns_options(&self, _: Request<types::DnsOptions>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
