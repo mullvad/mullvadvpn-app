@@ -168,8 +168,7 @@ class OutOfTimeUseCaseTest {
     fun `account that is about to expire but is refilled should emit false`() = runTest {
         // Arrange
         val initialAccountExpiry = AccountData.Available(DateTime.now().plusSeconds(100))
-        val updatedExpiry =
-            AccountData.Available(initialAccountExpiry.expiryDateTime.plusDays(30))
+        val updatedExpiry = AccountData.Available(initialAccountExpiry.expiryDateTime.plusDays(30))
 
         // Act, Assert
         outOfTimeUseCase.isOutOfTime.test {
@@ -197,8 +196,7 @@ class OutOfTimeUseCaseTest {
     fun `expired account that is refilled should emit false`() = runTest {
         // Arrange
         val initialAccountExpiry = AccountData.Available(DateTime.now().plusSeconds(100))
-        val updatedExpiry =
-            AccountData.Available(initialAccountExpiry.expiryDateTime.plusDays(30))
+        val updatedExpiry = AccountData.Available(initialAccountExpiry.expiryDateTime.plusDays(30))
         // Act, Assert
         outOfTimeUseCase.isOutOfTime.test {
             // Initial event
