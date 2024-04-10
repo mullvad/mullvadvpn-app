@@ -279,6 +279,8 @@ pub enum DaemonCommand {
     DeleteCustomList(ResponseTx<(), Error>, mullvad_types::custom_list::Id),
     /// Update a custom list with a given id
     UpdateCustomList(ResponseTx<(), Error>, CustomList),
+    /// Remove all custom lists
+    ClearCustomLists(ResponseTx<(), Error>),
     /// Add API access methods
     AddApiAccessMethod(
         ResponseTx<mullvad_types::access_method::Id, Error>,
@@ -1255,6 +1257,7 @@ where
             CreateCustomList(tx, name) => self.on_create_custom_list(tx, name).await,
             DeleteCustomList(tx, id) => self.on_delete_custom_list(tx, id).await,
             UpdateCustomList(tx, update) => self.on_update_custom_list(tx, update).await,
+            ClearCustomLists(tx) => self.on_clear_custom_lists(tx).await,
             GetVersionInfo(tx) => self.on_get_version_info(tx),
             AddApiAccessMethod(tx, name, enabled, access_method) => {
                 self.on_add_access_method(tx, name, enabled, access_method)
@@ -2433,6 +2436,11 @@ where
     async fn on_update_custom_list(&mut self, tx: ResponseTx<(), Error>, new_list: CustomList) {
         let result = self.update_custom_list(new_list).await;
         Self::oneshot_send(tx, result, "update_custom_list response");
+    }
+
+    async fn on_clear_custom_lists(&mut self, tx: ResponseTx<(), Error>) {
+        let result = self.clear_custom_lists().await;
+        Self::oneshot_send(tx, result, "clear_custom_lists response");
     }
 
     async fn on_add_access_method(

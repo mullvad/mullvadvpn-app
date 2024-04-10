@@ -31,6 +31,7 @@ pub enum CustomList {
         /// A custom list
         name: String,
     },
+    // TODO: Add `clear` command?
 }
 
 #[derive(Subcommand, Debug)]
