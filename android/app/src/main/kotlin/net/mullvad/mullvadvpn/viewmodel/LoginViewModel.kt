@@ -131,26 +131,10 @@ class LoginViewModel(
                     }
                     LoginResult.InvalidAccount -> Idle(LoginError.InvalidCredentials)
                     LoginResult.MaxDevicesReached -> {
-                        // TODO this refresh process should be handled by DeviceListScreen.
-                        val refreshResult =
-                            deviceRepository.refreshAndAwaitDeviceListWithTimeout(
-                                accountToken = accountToken,
-                                shouldClearCache = true,
-                                shouldOverrideCache = true,
-                                timeoutMillis = 5000L
-                            )
-
-                        if (refreshResult.isAvailable()) {
-                            // Navigate to device list
-
-                            _uiSideEffect.send(
-                                LoginUiSideEffect.TooManyDevices(AccountToken(accountToken))
-                            )
-                            Idle()
-                        } else {
-                            // Failed to fetch devices list
-                            Idle(LoginError.Unknown(result.toString()))
-                        }
+                        _uiSideEffect.send(
+                            LoginUiSideEffect.TooManyDevices(AccountToken(accountToken))
+                        )
+                        Idle()
                     }
                     else -> Idle(LoginError.Unknown(result.toString()))
                 }

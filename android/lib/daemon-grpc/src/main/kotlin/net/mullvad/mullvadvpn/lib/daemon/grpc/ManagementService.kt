@@ -30,15 +30,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import mullvad_daemon.management_interface.ManagementInterface
-import mullvad_daemon.management_interface.ManagementInterface.AppVersionInfo
-import mullvad_daemon.management_interface.ManagementInterface.CustomDnsOptions
-import mullvad_daemon.management_interface.ManagementInterface.CustomRelaySettings
-import mullvad_daemon.management_interface.ManagementInterface.DaemonEvent
-import mullvad_daemon.management_interface.ManagementInterface.DeviceEvent
-import mullvad_daemon.management_interface.ManagementInterface.DeviceState
-import mullvad_daemon.management_interface.ManagementInterface.RelayList
-import mullvad_daemon.management_interface.ManagementInterface.Settings
-import mullvad_daemon.management_interface.ManagementInterface.TunnelState
+import mullvad_daemon.management_interface.ManagementInterface.*
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
 import mullvad_daemon.management_interface.copy
 import net.mullvad.mullvadvpn.model.AccountCreationResult
@@ -56,6 +48,7 @@ import net.mullvad.mullvadvpn.model.Device as ModelDevice
 import net.mullvad.mullvadvpn.model.DeviceState as ModelDeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions as ModelDnsOptions
 import net.mullvad.mullvadvpn.model.DnsState as ModelDnsState
+import net.mullvad.mullvadvpn.model.ListDevicesError
 import net.mullvad.mullvadvpn.model.LocationConstraint as ModelLocationConstraint
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.ObfuscationSettings as ModelObfuscationSettings
@@ -64,6 +57,8 @@ import net.mullvad.mullvadvpn.model.Providers as ModelProviders
 import net.mullvad.mullvadvpn.model.QuantumResistantState as ModelQuantumResistantState
 import net.mullvad.mullvadvpn.model.RelayList as ModelRelayList
 import net.mullvad.mullvadvpn.model.RelaySettings
+import net.mullvad.mullvadvpn.model.RemoveDeviceError
+import net.mullvad.mullvadvpn.model.RemoveDeviceEvent as ModelRemoveDeviceEvent
 import net.mullvad.mullvadvpn.model.SetAllowLanError
 import net.mullvad.mullvadvpn.model.SetAutoConnectError
 import net.mullvad.mullvadvpn.model.SetDnsOptionsError
@@ -92,6 +87,7 @@ class ManagementService(
         val versionInfo: AppVersionInfo? = null,
         val device: DeviceState? = null,
         val deviceEvent: DeviceEvent? = null,
+        val removeDeviceEvent: RemoveDeviceEvent? = null,
     )
 
     private val channel =
@@ -164,6 +160,9 @@ class ManagementService(
     val wireguardEndpointData: Flow<ModelWireguardEndpointData> =
         _mutableStateFlow.mapNotNull { it.relayList?.toDomain()?.second }
 
+    val removeDeviceEvent: Flow<ModelRemoveDeviceEvent> =
+        _mutableStateFlow.mapNotNull { it.removeDeviceEvent?.toDomain() }
+
     suspend fun start() {
         scope.launch {
             try {
@@ -181,7 +180,11 @@ class ManagementService(
                             _mutableStateFlow.update { it.copy(versionInfo = event.versionInfo) }
                         DaemonEvent.EventCase.DEVICE ->
                             _mutableStateFlow.update { it.copy(device = event.device.newState) }
-                        DaemonEvent.EventCase.REMOVE_DEVICE -> {}
+                        DaemonEvent.EventCase.REMOVE_DEVICE -> {
+                            _mutableStateFlow.update {
+                                it.copy(removeDeviceEvent = event.removeDevice)
+                            }
+                        }
                         DaemonEvent.EventCase.EVENT_NOT_SET -> {}
                         DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
                     }
@@ -371,7 +374,7 @@ class ManagementService(
                         setCustom(CustomRelaySettings.newBuilder().build())
                     is RelaySettings.Normal ->
                         setNormal(
-                            ManagementInterface.NormalRelaySettings.newBuilder()
+                            NormalRelaySettings.newBuilder()
                                 .setLocation(this@fromDomain.relayConstraints.location.fromDomain())
                                 .build()
                         )
@@ -485,12 +488,12 @@ class ManagementService(
                 val relaySettings =
                     ManagementInterface.RelaySettings.newBuilder(getSettings().relaySettings)
                         .setNormal(
-                            ManagementInterface.NormalRelaySettings.newBuilder()
+                            NormalRelaySettings.newBuilder()
                                 .setOwnership(
                                     if (ownership is Constraint.Only) {
                                         ownership.value.fromDomain()
                                     } else {
-                                        ManagementInterface.Ownership.ANY
+                                        Ownership.ANY
                                     }
                                 )
                                 .addAllProviders(
@@ -519,7 +522,7 @@ class ManagementService(
                                 if (ownership is Constraint.Only) {
                                     ownership.value.fromDomain()
                                 } else {
-                                    ManagementInterface.Ownership.ANY
+                                    Ownership.ANY
                                 }
                         }
                 }
@@ -550,6 +553,33 @@ class ManagementService(
             }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
+
+    suspend fun removeDevice(
+        accountToken: String,
+        deviceId: String
+    ): Either<RemoveDeviceError, Unit> =
+        Either.catch {
+                DeviceRemoval.newBuilder()
+                    .setAccountToken(accountToken)
+                    .setDeviceId(deviceId)
+                    .build()
+                    .let { managementService.removeDevice(it) }
+            }
+            .mapLeft {
+                if (it is StatusException) {
+                    when (it.status.code) {
+                        Status.Code.NOT_FOUND -> RemoveDeviceError.NotFound
+                        else -> RemoveDeviceError.RpcError
+                    }
+                } else {
+                    RemoveDeviceError.Unknown(it)
+                }
+            }
+            .mapEmpty()
+
+    suspend fun listDevices(accountToken: String): Either<ListDevicesError, List<ModelDevice>> =
+        Either.catch { managementService.listDevices(StringValue.of(accountToken)).toDomain() }
+            .mapLeft(ListDevicesError::Unknown)
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 
