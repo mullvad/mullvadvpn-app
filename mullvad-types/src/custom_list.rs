@@ -98,6 +98,11 @@ impl CustomListsSettings {
     pub fn remove(&mut self, index: usize) {
         self.custom_lists.remove(index);
     }
+
+    /// Remove all custom lists
+    pub fn clear(&mut self) {
+        self.custom_lists.clear();
+    }
 }
 
 impl IntoIterator for CustomListsSettings {

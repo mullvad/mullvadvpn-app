@@ -171,12 +171,11 @@ pub async fn cleanup_after_test(mullvad_client: &mut MullvadProxyClient) -> anyh
         .await
         .context("Could not clear PQ options in cleanup")?;
 
-    for custom_list in custom_lists {
-        mullvad_client
-            .delete_custom_list(custom_list.name)
-            .await
-            .context("Could not remove custom list")?;
-    }
+    let _ = custom_lists;
+    mullvad_client
+        .clear_custom_lists()
+        .await
+        .context("Could not remove custom list")?;
 
     Ok(())
 }

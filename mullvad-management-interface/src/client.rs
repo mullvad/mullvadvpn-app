@@ -535,6 +535,15 @@ impl MullvadProxyClient {
         Ok(())
     }
 
+    /// Remove all custom lists.
+    pub async fn clear_custom_lists(&mut self) -> Result<()> {
+        self.0
+            .clear_custom_lists(())
+            .await
+            .map_err(map_custom_list_error)?;
+        Ok(())
+    }
+
     pub async fn add_access_method(
         &mut self,
         name: String,

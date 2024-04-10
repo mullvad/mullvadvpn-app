@@ -598,6 +598,16 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
+    async fn clear_custom_lists(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("clear_custom_lists");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ClearCustomLists(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
     // Access Methods
 
     async fn add_api_access_method(
