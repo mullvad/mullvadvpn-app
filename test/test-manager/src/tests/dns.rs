@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Context};
 use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr},
     sync::atomic::{AtomicUsize, Ordering},
@@ -334,7 +335,7 @@ pub async fn test_dns_config_default(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     run_dns_config_tunnel_test(
         &rpc,
         &mut mullvad_client,
@@ -353,7 +354,7 @@ pub async fn test_dns_config_custom_private(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     log::debug!("Setting custom DNS resolver to {NON_TUN_GATEWAY}");
 
     mullvad_client
@@ -365,7 +366,7 @@ pub async fn test_dns_config_custom_private(
             state: settings::DnsState::Custom,
         })
         .await
-        .expect("failed to configure DNS server");
+        .context("failed to configure DNS server")?;
 
     run_dns_config_non_tunnel_test(&rpc, &mut mullvad_client, IpAddr::V4(NON_TUN_GATEWAY)).await
 }
@@ -380,7 +381,7 @@ pub async fn test_dns_config_custom_public(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     let custom_ip = IpAddr::V4(Ipv4Addr::new(1, 3, 3, 7));
 
     log::debug!("Setting custom DNS resolver to {custom_ip}");
@@ -394,7 +395,7 @@ pub async fn test_dns_config_custom_public(
             state: settings::DnsState::Custom,
         })
         .await
-        .expect("failed to configure DNS server");
+        .context("failed to configure DNS server")?;
 
     run_dns_config_tunnel_test(&rpc, &mut mullvad_client, custom_ip).await
 }
@@ -406,7 +407,7 @@ pub async fn test_content_blockers(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     const DNS_BLOCKING_IP_BASE: Ipv4Addr = Ipv4Addr::new(100, 64, 0, 0);
     let content_blockers = [
         (
@@ -498,7 +499,7 @@ pub async fn test_content_blockers(
                 state: settings::DnsState::Default,
             })
             .await
-            .expect("failed to configure DNS server");
+            .context("failed to configure DNS server")?;
 
         run_dns_config_tunnel_test(&rpc, &mut mullvad_client, test_ip).await?;
     }
@@ -510,7 +511,7 @@ async fn run_dns_config_tunnel_test(
     rpc: &ServiceClient,
     mullvad_client: &mut MullvadProxyClient,
     expected_dns_resolver: IpAddr,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     run_dns_config_test(
         rpc,
         || {
@@ -534,7 +535,7 @@ async fn run_dns_config_non_tunnel_test(
     rpc: &ServiceClient,
     mullvad_client: &mut MullvadProxyClient,
     expected_dns_resolver: IpAddr,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     run_dns_config_test(
         rpc,
         || {
@@ -561,33 +562,33 @@ async fn run_dns_config_test<
     create_monitor: impl FnOnce() -> F,
     mullvad_client: &mut MullvadProxyClient,
     expected_dns_resolver: IpAddr,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     match mullvad_client.get_tunnel_state().await {
         // prevent reconnect
         Ok(mullvad_types::states::TunnelState::Connected { .. }) => (),
         _ => {
             connect_local_wg_relay(mullvad_client)
                 .await
-                .expect("failed to connect to custom wg relay");
+                .context("failed to connect to custom wg relay")?;
         }
     }
 
     let nontun_iface = rpc
         .get_default_interface()
         .await
-        .expect("failed to find non-tun interface");
+        .context("failed to find non-tun interface")?;
     let tunnel_iface = helpers::get_tunnel_interface(mullvad_client)
         .await
-        .expect("failed to find tunnel interface");
+        .context("failed to find tunnel interface")?;
 
     let nontun_ip = rpc
         .get_interface_ip(nontun_iface)
         .await
-        .expect("failed to obtain guest IP");
+        .context("failed to obtain guest IP")?;
     let tunnel_ip = rpc
         .get_interface_ip(tunnel_iface)
         .await
-        .expect("failed to obtain tunnel IP");
+        .context("failed to obtain tunnel IP")?;
 
     log::debug!("Tunnel (guest) IP: {tunnel_ip}");
     log::debug!("Non-tunnel (guest) IP: {nontun_ip}");
@@ -612,7 +613,13 @@ async fn run_dns_config_test<
     });
 
     assert_eq!(
-        monitor.wait().await.unwrap().packets[0].destination,
+        monitor
+            .wait()
+            .await?
+            .packets
+            .first()
+            .ok_or(anyhow!("Expected at least one packet, saw none"))?
+            .destination,
         SocketAddr::new(expected_dns_resolver, 53),
         "expected tunnel packet to expected destination {expected_dns_resolver}"
     );
