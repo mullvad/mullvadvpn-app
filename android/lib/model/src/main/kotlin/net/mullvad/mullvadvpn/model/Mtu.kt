@@ -3,4 +3,4 @@ package net.mullvad.mullvadvpn.model
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
-@Parcelize object WireguardRelayEndpointData : Parcelable
+@JvmInline @Parcelize value class Mtu(val value: Int) : Parcelable

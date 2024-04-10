@@ -19,11 +19,11 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
 import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.AccountToken
-import net.mullvad.mullvadvpn.model.LoginResult
+import net.mullvad.mullvadvpn.model.CreateAccountError
+import net.mullvad.mullvadvpn.model.LoginAccountError
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
@@ -97,7 +97,7 @@ class LoginViewModelTest {
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
             val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
             coEvery { mockedAccountRepository.createAccount() } returns
-                AccountCreationResult.Success(DUMMY_ACCOUNT_TOKEN)
+                CreateAccountError.Success(DUMMY_ACCOUNT_TOKEN)
 
             // Act, Assert
             uiStates.skipDefaultItem()
@@ -113,7 +113,7 @@ class LoginViewModelTest {
             // Arrange
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
             val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
-            coEvery { mockedAccountRepository.login(any()) } returns LoginResult.Ok
+            coEvery { mockedAccountRepository.login(any()) } returns LoginAccountError.Ok
             coEvery { mockedAccountRepository.accountExpiryState } returns
                 MutableStateFlow(AccountData.Available(DateTime.now().plusDays(3)))
 
@@ -130,7 +130,8 @@ class LoginViewModelTest {
     fun `given invalid account when logging in then show invalid credentials`() = runTest {
         loginViewModel.uiState.test {
             // Arrange
-            coEvery { mockedAccountRepository.login(any()) } returns LoginResult.InvalidAccount
+            coEvery { mockedAccountRepository.login(any()) } returns
+                LoginAccountError.InvalidAccount
 
             // Act, Assert
             skipDefaultItem()
@@ -156,7 +157,7 @@ class LoginViewModelTest {
                     )
                 } returns DeviceListEvent.Available(DUMMY_ACCOUNT_TOKEN, listOf())
                 coEvery { mockedAccountRepository.login(any()) } returns
-                    LoginResult.MaxDevicesReached
+                    LoginAccountError.MaxDevicesReached
 
                 // Act, Assert
                 uiStates.skipDefaultItem()
@@ -173,7 +174,7 @@ class LoginViewModelTest {
     fun `given RpcError when logging in then show unknown error with message`() = runTest {
         loginViewModel.uiState.test {
             // Arrange
-            coEvery { mockedAccountRepository.login(any()) } returns LoginResult.RpcError
+            coEvery { mockedAccountRepository.login(any()) } returns LoginAccountError.RpcError
 
             // Act, Assert
             skipDefaultItem()
@@ -190,7 +191,7 @@ class LoginViewModelTest {
     fun `given OtherError when logging in then show unknown error with message`() = runTest {
         loginViewModel.uiState.test {
             // Arrange
-            coEvery { mockedAccountRepository.login(any()) } returns LoginResult.OtherError
+            coEvery { mockedAccountRepository.login(any()) } returns LoginAccountError.OtherError
 
             // Act, Assert
             skipDefaultItem()
