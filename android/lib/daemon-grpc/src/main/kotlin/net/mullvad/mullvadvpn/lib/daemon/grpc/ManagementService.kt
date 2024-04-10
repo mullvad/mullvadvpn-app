@@ -55,7 +55,6 @@ import net.mullvad.mullvadvpn.model.DeleteDeviceError
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceId
 import net.mullvad.mullvadvpn.model.DeviceState as ModelDeviceState
-import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions as ModelDnsOptions
 import net.mullvad.mullvadvpn.model.DnsState as ModelDnsState
 import net.mullvad.mullvadvpn.model.GetDeviceListError
@@ -64,6 +63,9 @@ import net.mullvad.mullvadvpn.model.LocationConstraint as ModelLocationConstrain
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.ObfuscationSettings as ModelObfuscationSettings
 import net.mullvad.mullvadvpn.model.Ownership as ModelOwnership
+import net.mullvad.mullvadvpn.model.PlayPurchase
+import net.mullvad.mullvadvpn.model.PlayPurchaseInitError
+import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyError
 import net.mullvad.mullvadvpn.model.Providers as ModelProviders
 import net.mullvad.mullvadvpn.model.QuantumResistantState as ModelQuantumResistantState
 import net.mullvad.mullvadvpn.model.RelayList as ModelRelayList
@@ -563,6 +565,12 @@ class ManagementService(
             }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
+
+    suspend fun initializePlayPurchase(): Either<PlayPurchaseInitError, String> =
+        Either.catch { TODO("Not yet implemented") }.mapLeft { PlayPurchaseInitError.OtherError }
+
+    suspend fun verifyPlayPurchase(purchase: PlayPurchase): Either<PlayPurchaseVerifyError, Unit> =
+        Either.catch { TODO("Not yet implemented") }.mapLeft { PlayPurchaseVerifyError.OtherError }
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 
