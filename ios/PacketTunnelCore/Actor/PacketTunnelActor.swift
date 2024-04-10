@@ -226,7 +226,40 @@ extension PacketTunnelActor {
         }
     }
 
-    private func postQuantumConnect(with key: PreSharedKey) async {}
+    private func postQuantumConnect(with key: PreSharedKey) async {
+        guard
+            let settings: Settings = try? settingsReader.read(),
+            let connectionState = try? obfuscateConnection(nextRelay: .random, settings: settings, reason: .userInitiated),
+            let targetState = state.targetStateForReconnect
+        else { return }
+        let activeKey = activeKey(from: connectionState, in: settings)
+        let configurationBuilder = ConfigurationBuilder(
+            privateKey: activeKey,
+            interfaceAddresses: settings.interfaceAddresses,
+            dns: settings.dnsServers,
+            endpoint: connectionState.connectedEndpoint,
+            allowedIPs: [
+                IPAddressRange(from: "0.0.0.0/0")!,
+                IPAddressRange(from: "::/0")!,
+            ],
+            preSharedKey: key
+        )
+        stopDefaultPathObserver()
+
+        defer {
+            // Restart default path observer and notify the observer with the current path that might have changed while
+            // path observer was paused.
+            startDefaultPathObserver(notifyObserverWithCurrentPath: true)
+        }
+
+        guard let _ = try? await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration()) else {
+            return
+        }
+
+        // Resume tunnel monitoring and use IPv4 gateway as a probe address.
+        tunnelMonitor.start(probeAddress: connectionState.selectedRelay.endpoint.ipv4Gateway)
+
+    }
 
     /**
      Attempt to start the tunnel by performing the following steps:
