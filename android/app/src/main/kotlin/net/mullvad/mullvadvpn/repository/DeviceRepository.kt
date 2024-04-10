@@ -19,11 +19,11 @@ class DeviceRepository(
     private val managementService: ManagementService,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    val deviceState: StateFlow<DeviceState> =
+    val deviceState: StateFlow<DeviceState?> =
         managementService.deviceState.stateIn(
             CoroutineScope(dispatcher),
             SharingStarted.Eagerly,
-            DeviceState.Initial
+            null
         )
 
     suspend fun removeDevice(

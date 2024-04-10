@@ -20,7 +20,7 @@ private fun PreviewWireguardPortInfoDialog() {
     AppTheme {
         WireguardPortInfoDialog(
             EmptyDestinationsNavigator,
-            argument = WireguardPortInfoDialogArgument(listOf(PortRange(1, 2)))
+            argument = WireguardPortInfoDialogArgument(listOf(PortRange(1..2)))
         )
     }
 }

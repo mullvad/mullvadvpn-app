@@ -59,7 +59,7 @@ class ConnectViewModel(
                 connectionProxy.tunnelState,
                 connectionProxy.lastKnownDisconnectedLocation(),
                 accountRepository.accountData,
-                deviceRepository.deviceState.map { it.deviceName() }
+                deviceRepository.deviceState.map { it?.deviceName() }
             ) {
                 selectedRelayItem,
                 notifications,

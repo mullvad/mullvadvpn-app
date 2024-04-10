@@ -1,11 +1,13 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,15 +27,11 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
 import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
 import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
-import net.mullvad.mullvadvpn.constant.LOGIN_TIMEOUT_MILLIS
-import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountToken
-import net.mullvad.mullvadvpn.model.LoginResult
+import net.mullvad.mullvadvpn.model.LoginAccountError
 import net.mullvad.mullvadvpn.repository.AccountRepository
-import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
-import net.mullvad.mullvadvpn.util.awaitWithTimeoutOrNull
 import net.mullvad.mullvadvpn.util.getOrDefault
 
 private const val MINIMUM_LOADING_SPINNER_TIME_MILLIS = 500L
@@ -50,7 +48,6 @@ sealed interface LoginUiSideEffect {
 
 class LoginViewModel(
     private val accountRepository: AccountRepository,
-    private val deviceRepository: DeviceRepository,
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
     private val connectivityUseCase: ConnectivityUseCase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -91,7 +88,12 @@ class LoginViewModel(
     fun createAccount() {
         _loginState.value = Loading.CreatingAccount
         viewModelScope.launch(dispatcher) {
-            accountRepository.createAccount().mapToUiState()?.let { _loginState.value = it }
+            accountRepository
+                .createAccount()
+                .fold(
+                    { _loginState.value = Idle(LoginError.UnableToCreateAccount) },
+                    { _uiSideEffect.send(LoginUiSideEffect.NavigateToWelcome) }
+                )
         }
     }
 
@@ -104,42 +106,45 @@ class LoginViewModel(
         viewModelScope.launch(dispatcher) {
             // Ensure we always take at least MINIMUM_LOADING_SPINNER_TIME_MILLIS to show the
             // loading indicator
-            val loginDeferred = async { accountRepository.login(accountToken) }
+            val result = async { accountRepository.login(AccountToken(accountToken)) }
+
             delay(MINIMUM_LOADING_SPINNER_TIME_MILLIS)
 
+            // TODO Handle timeout in requests
             val uiState =
-                // If timed out will go to the else branch
-                when (val result = loginDeferred.awaitWithTimeoutOrNull(LOGIN_TIMEOUT_MILLIS)) {
-                    LoginResult.Ok -> {
-                        newDeviceNotificationUseCase.newDeviceCreated()
-                        launch {
-                            val isOutOfTimeDeferred = async {
-                                accountRepository.accountData
-                                    .filterNotNull()
-                                    .map { it.expiryDate.isBeforeNow }
-                                    .first()
+                result
+                    .await()
+                    .fold(
+                        { it.toUiState() },
+                        {
+                            newDeviceNotificationUseCase.newDeviceCreated()
+                            launch {
+                                val isOutOfTime = isOutOfTime()
+                                if (isOutOfTime) {
+                                    _uiSideEffect.send(LoginUiSideEffect.NavigateToOutOfTime)
+                                } else {
+                                    _uiSideEffect.send(LoginUiSideEffect.NavigateToConnect)
+                                }
                             }
-                            delay(1000)
-                            val isOutOfTime = isOutOfTimeDeferred.getOrDefault(false)
-                            if (isOutOfTime) {
-                                _uiSideEffect.send(LoginUiSideEffect.NavigateToOutOfTime)
-                            } else {
-                                _uiSideEffect.send(LoginUiSideEffect.NavigateToConnect)
-                            }
+                            Success
                         }
-                        Success
-                    }
-                    LoginResult.InvalidAccount -> Idle(LoginError.InvalidCredentials)
-                    LoginResult.MaxDevicesReached -> {
-                        _uiSideEffect.send(
-                            LoginUiSideEffect.TooManyDevices(AccountToken(accountToken))
-                        )
-                        Idle()
-                    }
-                    else -> Idle(LoginError.Unknown(result.toString()))
-                }
+                    )
+
             _loginState.update { uiState }
         }
+    }
+
+    private suspend fun isOutOfTime(): Boolean = coroutineScope {
+        Log.d("LoginViewModel", "isOutOfTime")
+        val isOutOfTimeDeferred = async {
+            accountRepository.accountData.filterNotNull().map { it.expiryDate.isBeforeNow }.first()
+        }
+        Log.d("LoginViewModel", "isOutOfTimeDeferred: $isOutOfTimeDeferred")
+        delay(1000)
+        Log.d("LoginViewModel", "finished waiting")
+        val result = isOutOfTimeDeferred.getOrDefault(false)
+        Log.d("LoginViewModel", "Result: $result")
+        result
     }
 
     fun onAccountNumberChange(accountNumber: String) {
@@ -148,14 +153,14 @@ class LoginViewModel(
         _loginState.update { if (it is Idle) Idle() else it }
     }
 
-    private suspend fun AccountCreationResult.mapToUiState(): LoginState? {
-        return if (this is AccountCreationResult.Success) {
-            _uiSideEffect.send(LoginUiSideEffect.NavigateToWelcome)
-            null
-        } else {
-            Idle(LoginError.UnableToCreateAccount)
+    private suspend fun LoginAccountError.toUiState(): LoginState =
+        when (this) {
+            LoginAccountError.InvalidAccount -> Idle(LoginError.InvalidCredentials)
+            is LoginAccountError.MaxDevicesReached ->
+                Idle().also { _uiSideEffect.send(LoginUiSideEffect.TooManyDevices(accountToken)) }
+            LoginAccountError.RpcError,
+            is LoginAccountError.Unknown -> Idle(LoginError.Unknown(this.toString()))
         }
-    }
 
     private fun isInternetAvailable(): Boolean {
         return connectivityUseCase.isInternetAvailable()

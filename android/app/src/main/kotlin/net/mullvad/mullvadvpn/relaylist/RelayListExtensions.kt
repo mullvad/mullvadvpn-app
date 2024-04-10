@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.relaylist
 
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
-import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Relay as DaemonRelay
 import net.mullvad.mullvadvpn.model.RelayItem
 
@@ -158,5 +157,4 @@ fun List<RelayItem.Location.Country>.getRelayItemsByCodes(
     codes: List<GeographicLocationConstraint>
 ): List<RelayItem.Location> =
     this.filter { codes.contains(it.location) } +
-        this.flatMap { it.descendants() }
-            .filter { codes.contains(it.location) }
+        this.flatMap { it.descendants() }.filter { codes.contains(it.location) }

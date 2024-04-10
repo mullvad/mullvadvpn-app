@@ -7,8 +7,8 @@ import kotlinx.parcelize.Parcelize
 data class Relay(
     val hostname: String,
     val active: Boolean,
-    val owned: Boolean,
-    val provider: String,
+    val ownership: Ownership,
+    val provider: ProviderId,
     val endpointType: RelayEndpointType
 ) : Parcelable {
     val isWireguardRelay

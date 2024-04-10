@@ -29,9 +29,10 @@ import net.mullvad.mullvadvpn.compose.textfield.CustomPortTextField
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
+import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.util.asString
-import net.mullvad.mullvadvpn.util.isPortInValidRanges
+import net.mullvad.mullvadvpn.util.isPortAnyOfRanges
 
 @Preview
 @Composable
@@ -40,7 +41,7 @@ private fun PreviewWireguardCustomPortDialog() {
         WireguardCustomPortDialog(
             WireguardCustomPortNavArgs(
                 customPort = null,
-                allowedPortRanges = listOf(PortRange(10, 10), PortRange(40, 50)),
+                allowedPortRanges = listOf(PortRange(10..10), PortRange(40..50)),
             ),
             EmptyResultBackNavigator()
         )
@@ -76,6 +77,9 @@ fun WireguardCustomPortDialog(
 ) {
     val port = remember { mutableStateOf(initialPort?.toString() ?: "") }
 
+    val isValidPort =
+        port.value.isNotEmpty() &&
+            allowedPortRanges.isPortAnyOfRanges(Port(port.value.toIntOrNull() ?: 0))
     AlertDialog(
         title = {
             Text(
@@ -87,9 +91,7 @@ fun WireguardCustomPortDialog(
                 PrimaryButton(
                     text = stringResource(id = R.string.custom_port_dialog_submit),
                     onClick = { onSave(port.value.toInt()) },
-                    isEnabled =
-                        port.value.isNotEmpty() &&
-                            allowedPortRanges.isPortInValidRanges(port.value.toIntOrNull() ?: 0)
+                    isEnabled = isValidPort
                 )
                 if (initialPort != null) {
                     NegativeButton(
@@ -105,17 +107,12 @@ fun WireguardCustomPortDialog(
                 CustomPortTextField(
                     value = port.value,
                     onSubmit = { input ->
-                        if (
-                            input.isNotEmpty() &&
-                                allowedPortRanges.isPortInValidRanges(input.toIntOrNull() ?: 0)
-                        ) {
+                        if (isValidPort) {
                             onSave(input.toIntOrNull())
                         }
                     },
                     onValueChanged = { input -> port.value = input },
-                    isValidValue =
-                        port.value.isNotEmpty() &&
-                            allowedPortRanges.isPortInValidRanges(port.value.toIntOrNull() ?: 0),
+                    isValidValue = isValidPort,
                     maxCharLength = 5,
                     modifier = Modifier.testTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).fillMaxWidth()
                 )

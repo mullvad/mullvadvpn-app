@@ -42,7 +42,7 @@ import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.relaylist.Provider
+import net.mullvad.mullvadvpn.model.Provider
 import net.mullvad.mullvadvpn.viewmodel.FilterScreenSideEffect
 import net.mullvad.mullvadvpn.viewmodel.FilterViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -215,7 +215,7 @@ private fun AllProviders(
     onAllProviderCheckChange: (isChecked: Boolean) -> Unit
 ) {
     CheckboxCell(
-        providerName = stringResource(R.string.all_providers),
+        title = stringResource(R.string.all_providers),
         checked = state.isAllProvidersChecked,
         onCheckedChange = { isChecked -> onAllProviderCheckChange(isChecked) }
     )
@@ -228,7 +228,7 @@ private fun Provider(
     onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit
 ) {
     CheckboxCell(
-        providerName = provider.name,
+        title = provider.providerId.value,
         checked = provider in state.selectedProviders,
         onCheckedChange = { checked -> onSelectedProvider(checked, provider) }
     )
