@@ -288,9 +288,9 @@ internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConst
     WireguardConstraints(
         port =
             if (hasPort()) {
-                Constraint.Any()
-            } else {
                 Constraint.Only(Port(port))
+            } else {
+                Constraint.Any()
             },
     )
 
