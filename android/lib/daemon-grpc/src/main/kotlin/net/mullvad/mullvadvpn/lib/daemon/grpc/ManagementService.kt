@@ -470,11 +470,11 @@ class ManagementService(
         value: ModelWireguardConstraints
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
-                val relaySettings = getSettings().relaySettings
-                relaySettings.copy {
-                    this.normal =
-                        this.normal.copy { this.wireguardConstraints = value.fromDomain() }
-                }
+                val relaySettings =
+                    getSettings().relaySettings.copy {
+                        this.normal =
+                            this.normal.copy { this.wireguardConstraints = value.fromDomain() }
+                    }
                 managementService.setRelaySettings(relaySettings)
             }
             .mapLeft(SetWireguardConstraintsError::Unknown)
