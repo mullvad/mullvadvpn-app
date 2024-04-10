@@ -33,7 +33,7 @@ class SettingsRepository(
     ) =
         managementService.setDnsOptions(
             DnsOptions(
-                state = if (isCustomDnsEnabled) DnsState.Custom else DnsState.Default,
+                currentDnsOption = if (isCustomDnsEnabled) DnsState.Custom else DnsState.Default,
                 customOptions = CustomDnsOptions(ArrayList(dnsList)),
                 defaultOptions = contentBlockersOptions
             )

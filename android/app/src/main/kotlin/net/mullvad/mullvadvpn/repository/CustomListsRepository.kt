@@ -25,7 +25,7 @@ class CustomListsRepository(
 ) {
     val customLists: StateFlow<List<CustomList>?> =
         managementService.settings
-            .mapNotNull { it.customLists.customLists }
+            .mapNotNull { it.customLists }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, null)
 
     suspend fun createCustomList(name: CustomListName) = managementService.createCustomList(name)

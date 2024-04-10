@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
-import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
@@ -35,8 +34,8 @@ class AccountViewModel(
                 paymentUseCase.paymentAvailability
             ) { deviceState, accountData, paymentAvailability ->
                 AccountUiState(
-                    deviceName = deviceState.deviceName() ?: "",
-                    accountNumber = deviceState.token()?.value ?: "",
+                    deviceName = deviceState?.deviceName() ?: "",
+                    accountNumber = deviceState?.token()?.value ?: "",
                     accountExpiry = accountData?.expiryDate,
                     showSitePayment = !isPlayBuild,
                     billingPaymentState = paymentAvailability?.toPaymentState()
@@ -125,7 +124,7 @@ data class AccountUiState(
     companion object {
         fun default() =
             AccountUiState(
-                deviceName = DeviceState.Unknown.deviceName(),
+                deviceName = null,
                 accountNumber = null,
                 accountExpiry = null,
                 showSitePayment = false,

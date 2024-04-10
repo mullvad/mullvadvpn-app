@@ -14,9 +14,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.model.VoucherSubmission
-import net.mullvad.mullvadvpn.model.VoucherSubmissionError
-import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
+import net.mullvad.mullvadvpn.model.RedeemVoucherError
+import net.mullvad.mullvadvpn.model.RedeemVoucherSuccess
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
@@ -32,7 +31,7 @@ class VoucherDialogViewModelTest {
 
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
-    private val mockVoucherSubmission: VoucherSubmission = mockk()
+    private val mockVoucherSubmission: RedeemVoucherSuccess = mockk()
     private val serviceConnectionState =
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
 
@@ -85,7 +84,7 @@ class VoucherDialogViewModelTest {
         every { mockResources.getString(any()) } returns dummyStringResource
         every { mockVoucherSubmission.timeAdded } returns 0
         coEvery { mockVoucherRedeemer.submit(voucher) } returns
-            VoucherSubmissionResult.Error(VoucherSubmissionError.OtherError)
+            VoucherSubmissionResult.Error(RedeemVoucherError.OtherError)
 
         // Act, Assert
         viewModel.uiState.test {
@@ -108,7 +107,7 @@ class VoucherDialogViewModelTest {
         every { mockResources.getString(any()) } returns dummyStringResource
         every { mockVoucherSubmission.timeAdded } returns 0
         coEvery { mockVoucherRedeemer.submit(voucher) } returns
-            VoucherSubmissionResult.Ok(VoucherSubmission(0, DUMMY_STRING_RESOURCE))
+            VoucherSubmissionResult.Ok(RedeemVoucherSuccess(0, DUMMY_STRING_RESOURCE))
 
         // Act, Assert
         viewModel.uiState.test {
@@ -131,7 +130,7 @@ class VoucherDialogViewModelTest {
         every { mockResources.getString(any()) } returns dummyStringResource
         every { mockVoucherSubmission.timeAdded } returns 0
         coEvery { mockVoucherRedeemer.submit(voucher) } returns
-            VoucherSubmissionResult.Error(VoucherSubmissionError.OtherError)
+            VoucherSubmissionResult.Error(RedeemVoucherError.OtherError)
 
         // Act, Assert
         viewModel.uiState.test {

@@ -7,7 +7,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -22,8 +21,6 @@ import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
-import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
 import net.mullvad.mullvadvpn.util.toPaymentState
 
 @OptIn(FlowPreview::class)
@@ -41,9 +38,7 @@ class WelcomeViewModel(
     val uiState =
         combine(
                 connectionProxy.tunnelState,
-                deviceRepository.deviceState.debounce {
-                    it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS)
-                },
+                deviceRepository.deviceState.filterNotNull(),
                 paymentUseCase.paymentAvailability,
             ) { tunnelState, deviceState, paymentAvailability ->
                 WelcomeUiState(

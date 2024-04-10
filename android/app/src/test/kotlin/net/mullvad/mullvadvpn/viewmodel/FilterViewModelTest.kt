@@ -60,7 +60,9 @@ class FilterViewModelTest {
         every { mockRelayListFilterUseCase.availableProviders() } returns
             flowOf(dummyListOfAllProviders)
         every { mockRelayListFilterUseCase.selectedProviders() } returns
-            flowOf(Constraint.Only(Providers(mockSelectedProviders.map { it.name }.toHashSet())))
+            flowOf(
+                Constraint.Only(Providers(mockSelectedProviders.map { it.provider }.toHashSet()))
+            )
         viewModel = FilterViewModel(mockRelayListFilterUseCase)
     }
 

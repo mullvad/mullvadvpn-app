@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.relaylist.Provider
+import net.mullvad.mullvadvpn.model.Provider
 
 data class RelayFilterState(
     val selectedOwnership: Ownership? = null,
@@ -15,21 +15,12 @@ data class RelayFilterState(
             Ownership.entries
         } else {
             Ownership.entries.filter { ownership ->
-                selectedProviders.any { provider ->
-                    if (provider.mullvadOwned) {
-                        ownership == Ownership.MullvadOwned
-                    } else {
-                        ownership == Ownership.Rented
-                    }
-                }
+                selectedProviders.any { provider -> provider.ownership == ownership }
             }
         }
     val filteredProvidersByOwnership =
-        when (selectedOwnership) {
-            Ownership.MullvadOwned -> allProviders.filter { it.mullvadOwned }
-            Ownership.Rented -> allProviders.filterNot { it.mullvadOwned }
-            else -> allProviders
-        }
+        if (selectedOwnership == null) allProviders
+        else allProviders.filter { provider -> provider.ownership == selectedOwnership }
 
     val isAllProvidersChecked = allProviders.size == selectedProviders.size
 }
