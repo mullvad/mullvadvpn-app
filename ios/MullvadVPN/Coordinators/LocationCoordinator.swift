@@ -197,6 +197,9 @@ extension LocationCoordinator: LocationViewControllerDelegate {
             preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
         )
 
+        actionSheet.overrideUserInterfaceStyle = .dark
+        actionSheet.view.tintColor = UIColor(red: 0.0, green: 0.59, blue: 1.0, alpha: 1)
+
         actionSheet.addAction(UIAlertAction(
             title: NSLocalizedString(
                 "CUSTOM_LIST_ACTION_SHEET_ADD_LIST_BUTTON",
@@ -235,9 +238,6 @@ extension LocationCoordinator: LocationViewControllerDelegate {
             style: .cancel,
             handler: nil
         ))
-
-        actionSheet.overrideUserInterfaceStyle = .dark
-        actionSheet.view.tintColor = .white
 
         presentationContext.present(actionSheet, animated: true)
     }
