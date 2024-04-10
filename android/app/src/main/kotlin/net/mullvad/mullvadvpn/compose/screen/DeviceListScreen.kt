@@ -16,21 +16,26 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
@@ -45,6 +50,7 @@ import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
 import net.mullvad.mullvadvpn.compose.state.DeviceListItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.util.parseAsDateTime
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -54,8 +60,10 @@ import net.mullvad.mullvadvpn.lib.theme.typeface.listItemSubText
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.util.formatDate
+import net.mullvad.mullvadvpn.viewmodel.DeviceListSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 @Preview
@@ -63,7 +71,7 @@ private fun PreviewDeviceListScreenTooManyDevices() {
     AppTheme {
         DeviceListScreen(
             state =
-                DeviceListUiState(
+                DeviceListUiState.Content(
                     deviceUiItems =
                         listOf(
                             DeviceListItemUiState(
@@ -116,8 +124,7 @@ private fun PreviewDeviceListScreenTooManyDevices() {
                                     ),
                                 isLoading = true
                             )
-                        ),
-                    isLoading = false
+                        )
                 )
         )
     }
@@ -129,7 +136,7 @@ private fun PreviewDeviceListScreenNotTooManyDevices() {
     AppTheme {
         DeviceListScreen(
             state =
-                DeviceListUiState(
+                DeviceListUiState.Content(
                     deviceUiItems =
                         listOf(
                             DeviceListItemUiState(
@@ -142,8 +149,7 @@ private fun PreviewDeviceListScreenNotTooManyDevices() {
                                     ),
                                 isLoading = false
                             )
-                        ),
-                    isLoading = false
+                        )
                 )
         )
     }
@@ -152,17 +158,13 @@ private fun PreviewDeviceListScreenNotTooManyDevices() {
 @Composable
 @Preview
 private fun PreviewDeviceListScreenEmpty() {
-    AppTheme {
-        DeviceListScreen(state = DeviceListUiState(deviceUiItems = emptyList(), isLoading = false))
-    }
+    AppTheme { DeviceListScreen(state = DeviceListUiState.Content(deviceUiItems = emptyList())) }
 }
 
 @Composable
 @Preview
 private fun PreviewDeviceListLoading() {
-    AppTheme {
-        DeviceListScreen(state = DeviceListUiState(deviceUiItems = emptyList(), isLoading = true))
-    }
+    AppTheme { DeviceListScreen(state = DeviceListUiState.Loading) }
 }
 
 @Destination(style = DefaultTransition::class)
@@ -172,7 +174,7 @@ fun DeviceList(
     accountToken: String,
     confirmRemoveResultRecipient: ResultRecipient<RemoveDeviceConfirmationDialogDestination, String>
 ) {
-    val viewModel = koinViewModel<DeviceListViewModel>()
+    val viewModel = koinViewModel<DeviceListViewModel>(parameters = { parametersOf(accountToken) })
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     confirmRemoveResultRecipient.onNavResult {
@@ -186,8 +188,35 @@ fun DeviceList(
         }
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    CollectSideEffectWithLifecycle(
+        viewModel.uiSideEffect,
+        minActiveState = Lifecycle.State.RESUMED
+    ) { sideEffect ->
+        when (sideEffect) {
+            DeviceListSideEffect.FailedToGetDeviceList -> {
+                launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.error_occurred)
+                    )
+                }
+            }
+            DeviceListSideEffect.FailedToRemoveDevice -> {
+                launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.failed_to_remove_device)
+                    )
+                }
+            }
+        }
+    }
+
     DeviceListScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
         onBackClick = navigator::navigateUp,
         onContinueWithLogin = {
             navigator.navigate(LoginDestination(accountToken)) {
@@ -207,6 +236,7 @@ fun DeviceList(
 @Composable
 fun DeviceListScreen(
     state: DeviceListUiState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBackClick: () -> Unit = {},
     onContinueWithLogin: () -> Unit = {},
     onSettingsClicked: () -> Unit = {},
@@ -218,6 +248,7 @@ fun DeviceListScreen(
         iconTintColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClicked,
         onAccountClicked = null,
+        snackbarHostState = snackbarHostState
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(it),
@@ -233,20 +264,21 @@ fun DeviceListScreen(
                         .weight(1f)
                         .fillMaxWidth(),
                 verticalArrangement =
-                    if (state.isLoading) {
+                    if (state is DeviceListUiState.Loading) {
                         Arrangement.Center
                     } else {
                         Arrangement.Top
                     }
             ) {
-                if (state.isLoading) {
-                    DeviceListLoading()
-                } else {
-                    DeviceListContent(
-                        state = state,
-                        navigateToRemoveDeviceConfirmationDialog =
-                            navigateToRemoveDeviceConfirmationDialog
-                    )
+                when (state) {
+                    DeviceListUiState.Loading -> DeviceListLoading()
+                    is DeviceListUiState.Content ->
+                        DeviceListContent(
+                            state = state,
+                            navigateToRemoveDeviceConfirmationDialog =
+                                navigateToRemoveDeviceConfirmationDialog
+                        )
+                    is DeviceListUiState.Error -> DeviceListError(state = state)
                 }
             }
             DeviceListButtonPanel(state, onContinueWithLogin, onBackClick)
@@ -263,7 +295,7 @@ private fun ColumnScope.DeviceListLoading() {
 
 @Composable
 private fun ColumnScope.DeviceListContent(
-    state: DeviceListUiState,
+    state: DeviceListUiState.Content,
     navigateToRemoveDeviceConfirmationDialog: (Device) -> Unit
 ) {
     DeviceListHeader(state = state)
@@ -281,7 +313,7 @@ private fun ColumnScope.DeviceListContent(
 }
 
 @Composable
-private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
+private fun ColumnScope.DeviceListHeader(state: DeviceListUiState.Content) {
     Image(
         painter =
             painterResource(
@@ -393,6 +425,15 @@ private fun DeviceListItem(
 }
 
 @Composable
+private fun ColumnScope.DeviceListError(state: DeviceListUiState.Error) {
+    // TODO Design this?
+    DeviceListContent(
+        state = DeviceListUiState.Content(emptyList()),
+        navigateToRemoveDeviceConfirmationDialog = {}
+    )
+}
+
+@Composable
 private fun DeviceListButtonPanel(
     state: DeviceListUiState,
     onContinueWithLogin: () -> Unit,
@@ -410,7 +451,7 @@ private fun DeviceListButtonPanel(
         VariantButton(
             text = stringResource(id = R.string.continue_login),
             onClick = onContinueWithLogin,
-            isEnabled = state.hasTooManyDevices.not() && state.isLoading.not(),
+            isEnabled = state is DeviceListUiState.Content && state.hasTooManyDevices.not(),
             background = MaterialTheme.colorScheme.secondary
         )
 
