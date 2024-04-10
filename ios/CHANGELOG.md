@@ -22,10 +22,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add ability to create custom lists.
 
 ## [2024.2 - 2024-02-26]
 ### Added
-- Add IP Overrides
+- Add IP Overrides.
 
 ## [2024.1 - 2024-01-06]
 ### Added
