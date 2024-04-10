@@ -36,7 +36,7 @@ class AccountViewModel(
             ) { deviceState, accountData, paymentAvailability ->
                 AccountUiState(
                     deviceName = deviceState.deviceName() ?: "",
-                    accountNumber = deviceState.token() ?: "",
+                    accountNumber = deviceState.token()?.value ?: "",
                     accountExpiry = accountData?.expiryDate,
                     showSitePayment = !isPlayBuild,
                     billingPaymentState = paymentAvailability?.toPaymentState()
@@ -126,7 +126,7 @@ data class AccountUiState(
         fun default() =
             AccountUiState(
                 deviceName = DeviceState.Unknown.deviceName(),
-                accountNumber = DeviceState.Unknown.token(),
+                accountNumber = null,
                 accountExpiry = null,
                 showSitePayment = false,
                 billingPaymentState = PaymentState.Loading,
