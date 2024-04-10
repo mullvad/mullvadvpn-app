@@ -164,7 +164,7 @@ val uiModule = module {
     viewModel {
         ConnectViewModel(get(), get(), get(), get(), get(), get(), get(), get(), IS_PLAY_BUILD)
     }
-    viewModel { DeviceListViewModel(get(), get()) }
+    viewModel { parameters -> DeviceListViewModel(parameters.get(), get()) }
     viewModel { DeviceRevokedViewModel(get(), get(), get()) }
     viewModel { MtuDialogViewModel(get()) }
     viewModel { parameters ->
