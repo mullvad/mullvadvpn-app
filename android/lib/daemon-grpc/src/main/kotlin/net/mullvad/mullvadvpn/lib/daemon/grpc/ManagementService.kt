@@ -384,7 +384,7 @@ class ManagementService(
                         setCustom(CustomRelaySettings.newBuilder().build())
                     is RelaySettings.Normal ->
                         setNormal(
-                            NormalRelaySettings.newBuilder()
+                            ManagementInterface.NormalRelaySettings.newBuilder()
                                 .setLocation(this@fromDomain.relayConstraints.location.fromDomain())
                                 .build()
                         )
@@ -498,12 +498,12 @@ class ManagementService(
                 val relaySettings =
                     ManagementInterface.RelaySettings.newBuilder(getSettings().relaySettings)
                         .setNormal(
-                            NormalRelaySettings.newBuilder()
+                            ManagementInterface.NormalRelaySettings.newBuilder()
                                 .setOwnership(
                                     if (ownership is Constraint.Only) {
                                         ownership.value.fromDomain()
                                     } else {
-                                        Ownership.ANY
+                                        ManagementInterface.Ownership.ANY
                                     }
                                 )
                                 .addAllProviders(
@@ -532,7 +532,7 @@ class ManagementService(
                                 if (ownership is Constraint.Only) {
                                     ownership.value.fromDomain()
                                 } else {
-                                    Ownership.ANY
+                                    ManagementInterface.Ownership.ANY
                                 }
                         }
                 }
