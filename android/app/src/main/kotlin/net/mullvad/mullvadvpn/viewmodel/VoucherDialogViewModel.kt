@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
 import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
-import net.mullvad.mullvadvpn.model.VoucherSubmissionError
+import net.mullvad.mullvadvpn.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.util.VoucherRegexHelper
 
 class VoucherDialogViewModel(private val resources: Resources) : ViewModel() {
@@ -57,15 +57,15 @@ class VoucherDialogViewModel(private val resources: Resources) : ViewModel() {
         viewModelScope.launch { vmState.update { VoucherDialogState.Success(timeAdded) } }
     }
 
-    private fun setError(error: VoucherSubmissionError) {
+    private fun setError(error: RedeemVoucherError) {
         viewModelScope.launch {
             val message =
                 resources.getString(
                     when (error) {
-                        VoucherSubmissionError.InvalidVoucher -> R.string.invalid_voucher
-                        VoucherSubmissionError.VoucherAlreadyUsed -> R.string.voucher_already_used
-                        VoucherSubmissionError.RpcError,
-                        VoucherSubmissionError.OtherError -> R.string.error_occurred
+                        RedeemVoucherError.InvalidVoucher -> R.string.invalid_voucher
+                        RedeemVoucherError.VoucherAlreadyUsed -> R.string.voucher_already_used
+                        RedeemVoucherError.RpcError,
+                        is RedeemVoucherError.Unknown -> R.string.error_occurred
                     }
                 )
             vmState.update { VoucherDialogState.Error(message) }

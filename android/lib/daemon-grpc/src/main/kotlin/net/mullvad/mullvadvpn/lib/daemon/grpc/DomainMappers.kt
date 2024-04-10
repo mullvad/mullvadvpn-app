@@ -11,7 +11,6 @@ import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.CustomListsSettings
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceId
@@ -21,10 +20,13 @@ import net.mullvad.mullvadvpn.model.DnsState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.LocationConstraint
+import net.mullvad.mullvadvpn.model.Mtu
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.PortRange
+import net.mullvad.mullvadvpn.model.Provider
+import net.mullvad.mullvadvpn.model.ProviderId
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.Relay
@@ -43,7 +45,6 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.model.WireguardEndpointData
-import net.mullvad.mullvadvpn.model.WireguardRelayEndpointData
 import net.mullvad.mullvadvpn.model.WireguardTunnelOptions
 import net.mullvad.talpid.net.Endpoint
 import net.mullvad.talpid.net.ObfuscationEndpoint
@@ -203,7 +204,7 @@ internal fun ManagementInterface.Settings.toDomain(): Settings =
     Settings(
         relaySettings = relaySettings.toDomain(),
         obfuscationSettings = obfuscationSettings.toDomain(),
-        customLists = CustomListsSettings(customLists.customListsList.map { it.toDomain() }),
+        customLists = customLists.customListsList.map { it.toDomain() },
         allowLan = allowLan,
         autoConnect = autoConnect,
         tunnelOptions = tunnelOptions.toDomain(),
@@ -274,7 +275,14 @@ internal fun ManagementInterface.GeographicLocationConstraint.toDomain():
     }
 
 internal fun List<String>.toDomain(): Constraint<Providers> =
-    if (isEmpty()) Constraint.Any() else Constraint.Only(Providers(HashSet(this)))
+    if (isEmpty()) Constraint.Any()
+    else Constraint.Only(Providers(this.map { ProviderId(it) }.toSet()))
+
+internal fun Constraint<Providers>.fromDomain(): List<String> =
+    when (this) {
+        is Constraint.Any -> emptyList()
+        is Constraint.Only -> value.providers.map { it.value }
+    }
 
 internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConstraints =
     WireguardConstraints(
@@ -327,7 +335,7 @@ internal fun ManagementInterface.TunnelOptions.toDomain(): TunnelOptions =
 
 internal fun ManagementInterface.TunnelOptions.WireguardOptions.toDomain(): WireguardTunnelOptions =
     WireguardTunnelOptions(
-        mtu = if (hasMtu()) mtu else null,
+        mtu = if (hasMtu()) Mtu(mtu) else null,
         quantumResistant = this.quantumResistant.toDomain(),
     )
 
@@ -342,7 +350,7 @@ internal fun ManagementInterface.QuantumResistantState.toDomain(): QuantumResist
 
 internal fun ManagementInterface.DnsOptions.toDomain(): DnsOptions =
     DnsOptions(
-        state = this.state.toDomain(),
+        currentDnsOption = this.state.toDomain(),
         defaultOptions = defaultOptions.toDomain(),
         customOptions = customOptions.toDomain()
     )
@@ -370,7 +378,7 @@ internal fun ManagementInterface.CustomDnsOptions.toDomain() =
 
 internal fun DnsOptions.fromDomain(): ManagementInterface.DnsOptions =
     ManagementInterface.DnsOptions.newBuilder()
-        .setState(this.state.fromDomain())
+        .setState(this.currentDnsOption.fromDomain())
         .setCustomOptions(this.customOptions.fromDomain())
         .setDefaultOptions(this.defaultOptions.fromDomain())
         .build()
@@ -503,22 +511,19 @@ internal fun ManagementInterface.Relay.toDomain(): Relay =
     Relay(
         hostname = hostname,
         active = active,
-        owned = owned,
-        provider = provider,
+        ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented,
+        provider = ProviderId(provider),
         endpointType =
             when (endpointType) {
                 ManagementInterface.Relay.RelayType.OPENVPN -> RelayEndpointType.Openvpn
                 ManagementInterface.Relay.RelayType.BRIDGE -> RelayEndpointType.Bridge
-                ManagementInterface.Relay.RelayType.WIREGUARD ->
-                    RelayEndpointType.Wireguard(
-                        wireguardRelayEndpointData = WireguardRelayEndpointData
-                    )
+                ManagementInterface.Relay.RelayType.WIREGUARD -> RelayEndpointType.Wireguard
                 ManagementInterface.Relay.RelayType.UNRECOGNIZED ->
                     throw IllegalArgumentException("Unrecognized relay type")
             }
     )
 
-internal fun ManagementInterface.PortRange.toDomain(): PortRange = PortRange(first, last)
+internal fun ManagementInterface.PortRange.toDomain(): PortRange = PortRange(first..last)
 
 internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardConstraints =
     when (this.port) {
@@ -569,13 +574,16 @@ internal fun List<ManagementInterface.RelayListCountry>.toDomain(): RelayList {
                                     ),
                                 locationName = "${city.name} (${relay.hostname})",
                                 active = relay.active,
-                                provider = relay.provider,
-                                ownership =
-                                    if (relay.owned) {
-                                        Ownership.MullvadOwned
-                                    } else {
-                                        Ownership.Rented
-                                    }
+                                provider =
+                                    Provider(
+                                        ProviderId(relay.provider),
+                                        ownership =
+                                            if (relay.owned) {
+                                                Ownership.MullvadOwned
+                                            } else {
+                                                Ownership.Rented
+                                            }
+                                    )
                             )
                         )
                     }
@@ -603,8 +611,6 @@ internal fun Ownership.fromDomain(): ManagementInterface.Ownership =
         Ownership.Rented -> ManagementInterface.Ownership.RENTED
     }
 
-internal fun Providers.fromDomain(): List<String> = this.providers.toList()
-
 internal fun ManagementInterface.Device.toDomain(): Device =
     Device(
         DeviceId.fromString(id),
@@ -619,5 +625,6 @@ internal fun ManagementInterface.DeviceState.toDomain(): DeviceState =
             DeviceState.LoggedIn(AccountToken(this.device.accountToken), device.device.toDomain())
         ManagementInterface.DeviceState.State.LOGGED_OUT -> DeviceState.LoggedOut
         ManagementInterface.DeviceState.State.REVOKED -> DeviceState.Revoked
-        ManagementInterface.DeviceState.State.UNRECOGNIZED -> TODO()
+        ManagementInterface.DeviceState.State.UNRECOGNIZED ->
+            throw IllegalArgumentException("Non valid device state")
     }

@@ -31,7 +31,7 @@ class FilteredRelayListUseCase(
                 val selectedOwnership = ownership.value
                 this.filter { country ->
                     country.cities.any { city ->
-                        city.relays.any { relay -> relay.ownership == selectedOwnership }
+                        city.relays.any { relay -> relay.provider.ownership == selectedOwnership }
                     }
                 }
             }
@@ -47,7 +47,7 @@ class FilteredRelayListUseCase(
                 this.filter { country ->
                     country.cities.any { city ->
                         city.relays.any { relay ->
-                            selectedProviders.providers.contains(relay.provider)
+                            selectedProviders.providers.contains(relay.provider.providerId)
                         }
                     }
                 }

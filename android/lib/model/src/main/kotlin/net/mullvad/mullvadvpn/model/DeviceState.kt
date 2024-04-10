@@ -4,10 +4,6 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 sealed class DeviceState : Parcelable {
-    @Parcelize data object Initial : DeviceState()
-
-    @Parcelize data object Unknown : DeviceState()
-
     @Parcelize
     data class LoggedIn(val accountToken: AccountToken, val device: Device) : DeviceState()
 

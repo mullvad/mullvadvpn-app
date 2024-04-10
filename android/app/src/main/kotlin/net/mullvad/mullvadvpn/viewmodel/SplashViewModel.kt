@@ -36,8 +36,7 @@ class SplashViewModel(
                         is DeviceState.LoggedIn -> ValidStartDeviceState.LoggedIn
                         DeviceState.LoggedOut -> ValidStartDeviceState.LoggedOut
                         DeviceState.Revoked -> ValidStartDeviceState.Revoked
-                        DeviceState.Initial,
-                        DeviceState.Unknown -> null
+                        null -> null
                     }
                 }
                 .filterNotNull()
