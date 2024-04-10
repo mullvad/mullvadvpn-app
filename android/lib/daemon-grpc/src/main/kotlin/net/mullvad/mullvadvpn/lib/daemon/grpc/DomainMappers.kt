@@ -226,6 +226,7 @@ internal fun ManagementInterface.RelaySettings.toDomain(): RelaySettings =
             RelaySettings.Normal(this.normal.toDomain())
         ManagementInterface.RelaySettings.EndpointCase.ENDPOINT_NOT_SET ->
             throw IllegalArgumentException("RelaySettings endpoint not set")
+        else -> throw NullPointerException("RelaySettings endpoint is null")
     }
 
 internal fun ManagementInterface.NormalRelaySettings.toDomain(): RelayConstraints =
@@ -243,6 +244,7 @@ internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<Locat
         ManagementInterface.LocationConstraint.TypeCase.LOCATION ->
             Constraint.Only(LocationConstraint.Location(location.toDomain()))
         ManagementInterface.LocationConstraint.TypeCase.TYPE_NOT_SET -> Constraint.Any()
+        else -> throw IllegalArgumentException("Location constraint type is null")
     }
 
 internal fun Constraint<LocationConstraint>.fromDomain(): ManagementInterface.LocationConstraint =
@@ -346,6 +348,7 @@ internal fun ManagementInterface.QuantumResistantState.toDomain(): QuantumResist
         ManagementInterface.QuantumResistantState.State.OFF -> QuantumResistantState.Off
         ManagementInterface.QuantumResistantState.State.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized quantum resistant state")
+        else -> throw NullPointerException("Quantum resistant state is null")
     }
 
 internal fun ManagementInterface.DnsOptions.toDomain(): DnsOptions =
@@ -391,7 +394,7 @@ internal fun DnsState.fromDomain(): ManagementInterface.DnsOptions.DnsState =
 
 internal fun CustomDnsOptions.fromDomain(): ManagementInterface.CustomDnsOptions =
     ManagementInterface.CustomDnsOptions.newBuilder()
-        .addAllAddresses(this.addresses.map { it.toString() })
+        .addAllAddresses(this.addresses.map { it.hostAddress })
         .build()
 
 internal fun DefaultDnsOptions.fromDomain(): ManagementInterface.DefaultDnsOptions =
@@ -520,6 +523,7 @@ internal fun ManagementInterface.Relay.toDomain(): Relay =
                 ManagementInterface.Relay.RelayType.WIREGUARD -> RelayEndpointType.Wireguard
                 ManagementInterface.Relay.RelayType.UNRECOGNIZED ->
                     throw IllegalArgumentException("Unrecognized relay type")
+                else -> throw NullPointerException("Relay type is null")
             }
     )
 
@@ -627,4 +631,21 @@ internal fun ManagementInterface.DeviceState.toDomain(): DeviceState =
         ManagementInterface.DeviceState.State.REVOKED -> DeviceState.Revoked
         ManagementInterface.DeviceState.State.UNRECOGNIZED ->
             throw IllegalArgumentException("Non valid device state")
+        else -> throw NullPointerException("Device state is null")
     }
+
+internal fun RelaySettings.fromDomain(): ManagementInterface.RelaySettings =
+    ManagementInterface.RelaySettings.newBuilder()
+        .apply {
+            when (this@fromDomain) {
+                RelaySettings.CustomTunnelEndpoint ->
+                    setCustom(ManagementInterface.CustomRelaySettings.newBuilder().build())
+                is RelaySettings.Normal ->
+                    setNormal(
+                        ManagementInterface.NormalRelaySettings.newBuilder()
+                            .setLocation(this@fromDomain.relayConstraints.location.fromDomain())
+                            .build()
+                    )
+            }
+        }
+        .build()
