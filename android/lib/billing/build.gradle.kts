@@ -52,6 +52,12 @@ dependencies {
     //Payment library
     implementation(project(Dependencies.Mullvad.paymentLib))
 
+    //Either
+    implementation(Dependencies.Arrow.core)
+
+    // Management service
+    implementation(project(Dependencies.Mullvad.daemonGrpc))
+
     // Test dependencies
     testRuntimeOnly(Dependencies.junitEngine)
 

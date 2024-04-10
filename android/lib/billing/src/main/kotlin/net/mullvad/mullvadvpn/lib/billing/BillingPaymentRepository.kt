@@ -22,8 +22,6 @@ import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.model.PlayPurchase
-import net.mullvad.mullvadvpn.model.PlayPurchaseInitResult
-import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyResult
 
 class BillingPaymentRepository(
     private val billingRepository: BillingRepository,
@@ -75,13 +73,14 @@ class BillingPaymentRepository(
         // Get transaction id
         emit(PurchaseResult.FetchingObfuscationId)
         val obfuscatedId: String =
-            when (val result = initialisePurchase()) {
-                is PlayPurchaseInitResult.Ok -> result.obfuscatedId
-                else -> {
-                    emit(PurchaseResult.Error.TransactionIdError(productId, null))
-                    return@flow
-                }
-            }
+            initialisePurchase()
+                .fold(
+                    {
+                        emit(PurchaseResult.Error.TransactionIdError(productId, null))
+                        return@flow
+                    },
+                    { it }
+                )
 
         val result =
             billingRepository.startPurchaseFlow(
@@ -115,11 +114,13 @@ class BillingPaymentRepository(
                     emit(PurchaseResult.Completed.Pending)
                 } else {
                     emit(PurchaseResult.VerificationStarted)
-                    if (verifyPurchase(event.purchases.first()) == PlayPurchaseVerifyResult.Ok) {
-                        emit(PurchaseResult.Completed.Success)
-                    } else {
-                        emit(PurchaseResult.Error.VerificationError(null))
-                    }
+                    emit(
+                        verifyPurchase(event.purchases.first())
+                            .fold(
+                                { PurchaseResult.Error.VerificationError(null) },
+                                { PurchaseResult.Completed.Success }
+                            )
+                    )
                 }
             }
             PurchaseEvent.UserCanceled -> emit(event.toPurchaseResult())
@@ -135,13 +136,12 @@ class BillingPaymentRepository(
                 val purchases = purchasesResult.nonPendingPurchases()
                 if (purchases.isNotEmpty()) {
                     emit(VerificationResult.VerificationStarted)
-                    val verificationResult = verifyPurchase(purchases.first())
                     emit(
-                        when (verificationResult) {
-                            is PlayPurchaseVerifyResult.Error ->
-                                VerificationResult.Error.VerificationError(null)
-                            PlayPurchaseVerifyResult.Ok -> VerificationResult.Success
-                        }
+                        verifyPurchase(purchases.first())
+                            .fold(
+                                { VerificationResult.Error.VerificationError(null) },
+                                { VerificationResult.Success }
+                            )
                     )
                 } else {
                     emit(VerificationResult.NothingToVerify)
@@ -152,16 +152,13 @@ class BillingPaymentRepository(
         }
     }
 
-    private suspend fun initialisePurchase(): PlayPurchaseInitResult {
-        return playPurchaseRepository.initializePlayPurchase()
-    }
+    private suspend fun initialisePurchase() = playPurchaseRepository.initializePlayPurchase()
 
-    private suspend fun verifyPurchase(purchase: Purchase): PlayPurchaseVerifyResult {
-        return playPurchaseRepository.verifyPlayPurchase(
+    private suspend fun verifyPurchase(purchase: Purchase) =
+        playPurchaseRepository.verifyPlayPurchase(
             PlayPurchase(
                 productId = purchase.products.first(),
                 purchaseToken = purchase.purchaseToken,
             )
         )
-    }
 }
