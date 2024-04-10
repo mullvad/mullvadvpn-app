@@ -113,8 +113,8 @@ public actor PacketTunnelActor {
                 case let .networkReachability(defaultPath):
                     await handleDefaultPathChange(defaultPath)
 
-                case .replaceDevicePrivateKey:
-                    self.logger.warning("Not yet implemented")
+                case let .replaceDevicePrivateKey(preSharedKey):
+                    await postQuantumConnect(with: preSharedKey)
                 }
             }
         }
@@ -225,6 +225,8 @@ extension PacketTunnelActor {
             await setErrorStateInternal(with: error)
         }
     }
+
+    private func postQuantumConnect(with key: PreSharedKey) async {}
 
     /**
      Attempt to start the tunnel by performing the following steps:
