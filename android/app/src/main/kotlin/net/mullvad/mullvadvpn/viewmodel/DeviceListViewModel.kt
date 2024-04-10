@@ -68,14 +68,9 @@ class DeviceListViewModel(
                     .removeDevice(token, deviceIdToRemove)
                     .fold(
                         {
-                            _uiSideEffect.send(
-                                DeviceListSideEffect.FailedToRemoveDevice
-                            )
+                            _uiSideEffect.send(DeviceListSideEffect.FailedToRemoveDevice)
                             setLoadingState(deviceIdToRemove, false)
-                            deviceRepository.deviceList(token)
-                                .onRight {
-                                    deviceList.value = it
-                                    }
+                            deviceRepository.deviceList(token).onRight { deviceList.value = it }
                             // TODO check if we need to listen for deviceRemovalEvent
                         },
                         { removeDeviceFromState(deviceIdToRemove) }

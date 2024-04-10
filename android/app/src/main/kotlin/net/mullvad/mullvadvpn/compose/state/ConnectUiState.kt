@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.talpid.net.TransportProtocol
 

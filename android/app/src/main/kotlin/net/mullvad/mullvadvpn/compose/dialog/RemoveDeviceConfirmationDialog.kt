@@ -33,10 +33,7 @@ import net.mullvad.mullvadvpn.model.DeviceId
 @Composable
 private fun PreviewRemoveDeviceConfirmationDialog() {
     AppTheme {
-        RemoveDeviceConfirmationDialog(
-            EmptyResultBackNavigator(),
-            device = generateDevice()
-        )
+        RemoveDeviceConfirmationDialog(EmptyResultBackNavigator(), device = generateDevice())
     }
 }
 

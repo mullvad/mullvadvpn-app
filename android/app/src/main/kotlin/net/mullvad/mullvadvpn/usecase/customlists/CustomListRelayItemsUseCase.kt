@@ -8,7 +8,6 @@ import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.getById
 import net.mullvad.mullvadvpn.relaylist.getRelayItemsByCodes
-import net.mullvad.mullvadvpn.relaylist.toRelayItemLists
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 

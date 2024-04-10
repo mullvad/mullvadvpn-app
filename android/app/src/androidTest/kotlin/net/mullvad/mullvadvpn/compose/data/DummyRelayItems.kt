@@ -4,12 +4,12 @@ import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.RelayEndpointType
+import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelayListCity
 import net.mullvad.mullvadvpn.model.RelayListCountry
 import net.mullvad.mullvadvpn.model.WireguardEndpointData
 import net.mullvad.mullvadvpn.model.WireguardRelayEndpointData
-import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.toRelayCountries
 
 private val DUMMY_RELAY_1 =
