@@ -30,7 +30,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import mullvad_daemon.management_interface.ManagementInterface
-import mullvad_daemon.management_interface.ManagementInterface.*
+import mullvad_daemon.management_interface.ManagementInterface.AppVersionInfo
+import mullvad_daemon.management_interface.ManagementInterface.CustomDnsOptions
+import mullvad_daemon.management_interface.ManagementInterface.CustomRelaySettings
+import mullvad_daemon.management_interface.ManagementInterface.DaemonEvent
+import mullvad_daemon.management_interface.ManagementInterface.DeviceEvent
+import mullvad_daemon.management_interface.ManagementInterface.RelayList
+import mullvad_daemon.management_interface.ManagementInterface.Settings
+import mullvad_daemon.management_interface.ManagementInterface.TunnelState
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
 import mullvad_daemon.management_interface.copy
 import net.mullvad.mullvadvpn.model.AccountCreationResult
@@ -44,11 +51,15 @@ import net.mullvad.mullvadvpn.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.DeleteCustomListError
-import net.mullvad.mullvadvpn.model.Device as ModelDevice
+import net.mullvad.mullvadvpn.model.DeleteDeviceError
+import net.mullvad.mullvadvpn.model.Device
+import net.mullvad.mullvadvpn.model.DeviceId
 import net.mullvad.mullvadvpn.model.DeviceState as ModelDeviceState
+import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions as ModelDnsOptions
 import net.mullvad.mullvadvpn.model.DnsState as ModelDnsState
-import net.mullvad.mullvadvpn.model.ListDevicesError
+import net.mullvad.mullvadvpn.model.GetDeviceListError
+import net.mullvad.mullvadvpn.model.GetDeviceStateError
 import net.mullvad.mullvadvpn.model.LocationConstraint as ModelLocationConstraint
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.ObfuscationSettings as ModelObfuscationSettings
@@ -57,8 +68,6 @@ import net.mullvad.mullvadvpn.model.Providers as ModelProviders
 import net.mullvad.mullvadvpn.model.QuantumResistantState as ModelQuantumResistantState
 import net.mullvad.mullvadvpn.model.RelayList as ModelRelayList
 import net.mullvad.mullvadvpn.model.RelaySettings
-import net.mullvad.mullvadvpn.model.RemoveDeviceError
-import net.mullvad.mullvadvpn.model.RemoveDeviceEvent as ModelRemoveDeviceEvent
 import net.mullvad.mullvadvpn.model.SetAllowLanError
 import net.mullvad.mullvadvpn.model.SetAutoConnectError
 import net.mullvad.mullvadvpn.model.SetDnsOptionsError
@@ -85,9 +94,8 @@ class ManagementService(
         val settings: Settings? = null,
         val relayList: RelayList? = null,
         val versionInfo: AppVersionInfo? = null,
-        val device: DeviceState? = null,
+        val device: ManagementInterface.DeviceState? = null,
         val deviceEvent: DeviceEvent? = null,
-        val removeDeviceEvent: RemoveDeviceEvent? = null,
     )
 
     private val channel =
@@ -125,24 +133,7 @@ class ManagementService(
     val deviceState: Flow<ModelDeviceState> =
         _mutableStateFlow
             .mapNotNull { it.device }
-            .map {
-                when (it.state) {
-                    DeviceState.State.LOGGED_IN ->
-                        ModelDeviceState.LoggedIn(
-                            device =
-                                ModelDevice(
-                                    it.device.device.id,
-                                    it.device.device.name,
-                                    it.device.device.pubkey.toByteArray(),
-                                    it.device.device.created.toString(),
-                                ),
-                            accountToken = it.device.accountToken
-                        )
-                    DeviceState.State.LOGGED_OUT -> ModelDeviceState.LoggedOut
-                    DeviceState.State.REVOKED -> ModelDeviceState.Revoked
-                    DeviceState.State.UNRECOGNIZED -> ModelDeviceState.Unknown
-                }
-            }
+            .map(ManagementInterface.DeviceState::toDomain)
             .stateIn(scope, SharingStarted.Eagerly, ModelDeviceState.Unknown)
 
     val tunnelState: Flow<ModelTunnelState> =
@@ -159,9 +150,6 @@ class ManagementService(
 
     val wireguardEndpointData: Flow<ModelWireguardEndpointData> =
         _mutableStateFlow.mapNotNull { it.relayList?.toDomain()?.second }
-
-    val removeDeviceEvent: Flow<ModelRemoveDeviceEvent> =
-        _mutableStateFlow.mapNotNull { it.removeDeviceEvent?.toDomain() }
 
     suspend fun start() {
         scope.launch {
@@ -180,11 +168,7 @@ class ManagementService(
                             _mutableStateFlow.update { it.copy(versionInfo = event.versionInfo) }
                         DaemonEvent.EventCase.DEVICE ->
                             _mutableStateFlow.update { it.copy(device = event.device.newState) }
-                        DaemonEvent.EventCase.REMOVE_DEVICE -> {
-                            _mutableStateFlow.update {
-                                it.copy(removeDeviceEvent = event.removeDevice)
-                            }
-                        }
+                        DaemonEvent.EventCase.REMOVE_DEVICE -> {}
                         DaemonEvent.EventCase.EVENT_NOT_SET -> {}
                         DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
                     }
@@ -196,7 +180,30 @@ class ManagementService(
         scope.launch { _mutableStateFlow.update { getInitialServiceState() } }
     }
 
-    suspend fun getDevice(): DeviceState = managementService.getDevice(Empty.getDefaultInstance())
+    suspend fun getDevice(): Either<GetDeviceStateError, net.mullvad.mullvadvpn.model.DeviceState> =
+        Either.catch { managementService.getDevice(Empty.getDefaultInstance()) }
+            .map { it.toDomain() }
+            .mapLeft { GetDeviceStateError.Unknown(it) }
+
+    suspend fun getDeviceList(token: AccountToken): Either<GetDeviceListError, List<Device>> =
+        Either.catch { managementService.listDevices(StringValue.of(token.value)) }
+            .map { it.devicesList.map(ManagementInterface.Device::toDomain) }
+            .mapLeft { GetDeviceListError.Unknown(it) }
+
+    suspend fun removeDevice(
+        token: AccountToken,
+        deviceId: DeviceId
+    ): Either<DeleteDeviceError, Unit> =
+        Either.catch {
+                managementService.removeDevice(
+                    ManagementInterface.DeviceRemoval.newBuilder()
+                        .setAccountToken(token.value)
+                        .setDeviceId(deviceId.value.toString())
+                        .build()
+                )
+            }
+            .mapEmpty()
+            .mapLeft { DeleteDeviceError.Unknown(it) }
 
     suspend fun getTunnelState(): TunnelState =
         managementService.getTunnelState(Empty.getDefaultInstance())
@@ -211,6 +218,9 @@ class ManagementService(
         managementService.reconnectTunnel(Empty.getDefaultInstance()).value
 
     suspend fun getSettings(): Settings = managementService.getSettings(Empty.getDefaultInstance())
+
+    suspend fun getDeviceState(): ManagementInterface.DeviceState =
+        managementService.getDevice(Empty.getDefaultInstance())
 
     suspend fun getRelayList(): RelayList =
         managementService.getRelayLocations(Empty.getDefaultInstance())
@@ -271,12 +281,12 @@ class ManagementService(
             getSettings(),
             getRelayList(),
             getVersionInfo(),
-            getDevice(),
+            getDeviceState(),
         )
 
-    suspend fun getAccountData(accountToken: String): AccountData? =
+    suspend fun getAccountData(accountToken: AccountToken): AccountData? =
         try {
-            val accountData = managementService.getAccountData(StringValue.of(accountToken))
+            val accountData = managementService.getAccountData(StringValue.of(accountToken.value))
             accountData.expiry
             AccountData(
                 UUID.fromString(accountData.id),
@@ -553,33 +563,6 @@ class ManagementService(
             }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
-
-    suspend fun removeDevice(
-        accountToken: String,
-        deviceId: String
-    ): Either<RemoveDeviceError, Unit> =
-        Either.catch {
-                DeviceRemoval.newBuilder()
-                    .setAccountToken(accountToken)
-                    .setDeviceId(deviceId)
-                    .build()
-                    .let { managementService.removeDevice(it) }
-            }
-            .mapLeft {
-                if (it is StatusException) {
-                    when (it.status.code) {
-                        Status.Code.NOT_FOUND -> RemoveDeviceError.NotFound
-                        else -> RemoveDeviceError.RpcError
-                    }
-                } else {
-                    RemoveDeviceError.Unknown(it)
-                }
-            }
-            .mapEmpty()
-
-    suspend fun listDevices(accountToken: String): Either<ListDevicesError, List<ModelDevice>> =
-        Either.catch { managementService.listDevices(StringValue.of(accountToken)).toDomain() }
-            .mapLeft(ListDevicesError::Unknown)
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 

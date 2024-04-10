@@ -5,6 +5,7 @@ import io.grpc.ConnectivityState
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import mullvad_daemon.management_interface.ManagementInterface
+import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.CustomDnsOptions
@@ -13,6 +14,8 @@ import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.CustomListsSettings
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.model.Device
+import net.mullvad.mullvadvpn.model.DeviceId
+import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.DnsState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
@@ -33,7 +36,6 @@ import net.mullvad.mullvadvpn.model.RelayListCity
 import net.mullvad.mullvadvpn.model.RelayListCountry
 import net.mullvad.mullvadvpn.model.RelayOverride
 import net.mullvad.mullvadvpn.model.RelaySettings
-import net.mullvad.mullvadvpn.model.RemoveDeviceEvent
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelOptions
@@ -53,6 +55,7 @@ import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import net.mullvad.talpid.tunnel.FirewallPolicyError
 import net.mullvad.talpid.tunnel.ParameterGenerationError
+import org.joda.time.Instant
 
 internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
     when (stateCase!!) {
@@ -602,11 +605,19 @@ internal fun Ownership.fromDomain(): ManagementInterface.Ownership =
 
 internal fun Providers.fromDomain(): List<String> = this.providers.toList()
 
-internal fun ManagementInterface.RemoveDeviceEvent.toDomain(): RemoveDeviceEvent =
-    RemoveDeviceEvent(accountToken, newDeviceListList.map { it.toDomain() })
-
 internal fun ManagementInterface.Device.toDomain(): Device =
-    Device(id, name, pubkey.toByteArray(), created.toString())
+    Device(
+        DeviceId.fromString(id),
+        name,
+        pubkey.toByteArray(),
+        Instant.ofEpochSecond(created.seconds).toDateTime()
+    )
 
-internal fun ManagementInterface.DeviceList.toDomain(): List<Device> =
-    devicesList.map { it.toDomain() }
+internal fun ManagementInterface.DeviceState.toDomain(): DeviceState =
+    when (state) {
+        ManagementInterface.DeviceState.State.LOGGED_IN ->
+            DeviceState.LoggedIn(AccountToken(this.device.accountToken), device.device.toDomain())
+        ManagementInterface.DeviceState.State.LOGGED_OUT -> DeviceState.LoggedOut
+        ManagementInterface.DeviceState.State.REVOKED -> DeviceState.Revoked
+        ManagementInterface.DeviceState.State.UNRECOGNIZED -> TODO()
+    }

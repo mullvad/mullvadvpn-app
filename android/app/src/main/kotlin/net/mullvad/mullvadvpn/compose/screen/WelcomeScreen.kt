@@ -61,6 +61,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
+import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -71,7 +72,7 @@ private fun PreviewWelcomeScreen() {
         WelcomeScreen(
             state =
                 WelcomeUiState(
-                    accountNumber = "4444555566667777",
+                    accountNumber = AccountToken("4444555566667777"),
                     deviceName = "Happy Mole",
                     billingPaymentState =
                         PaymentState.PaymentAvailable(
@@ -274,7 +275,7 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: Welcom
     val copiedAccountNumberMessage = stringResource(id = R.string.copied_mullvad_account_number)
     val copyToClipboard = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
     val onCopyToClipboard = {
-        copyToClipboard(state.accountNumber ?: "", copiedAccountNumberMessage)
+        copyToClipboard(state.accountNumber?.value ?: "", copiedAccountNumberMessage)
     }
 
     Row(
@@ -286,7 +287,7 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: Welcom
                 .padding(horizontal = Dimens.sideMargin)
     ) {
         Text(
-            text = state.accountNumber?.groupWithSpaces() ?: "",
+            text = state.accountNumber?.value?.groupWithSpaces() ?: "",
             modifier = Modifier.weight(1f).padding(vertical = Dimens.smallPadding),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onPrimary

@@ -1,6 +1,10 @@
 package net.mullvad.mullvadvpn.compose.util
 
+import java.util.UUID
+import net.mullvad.mullvadvpn.model.Device
+import net.mullvad.mullvadvpn.model.DeviceId
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import org.joda.time.DateTime
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.RelayItem
 
@@ -79,3 +83,18 @@ private fun generateHostname(countryCode: String, cityCode: String, index: Int) 
     "$countryCode-$cityCode-wg-${index+1}"
 
 private const val CITY_CODE_LENGTH = 3
+
+fun generateDevices(count: Int) = List(count) { generateDevice() }
+
+fun generateDevice(
+    id: DeviceId = DeviceId(UUID.randomUUID()),
+    name: String? = null,
+) =
+    Device(
+        id = id,
+        name = name ?: "Device ${id.value.toString().take(DEVICE_SUFFIX_LENGTH)}",
+        byteArrayOf(),
+        DateTime.now()
+    )
+
+private const val DEVICE_SUFFIX_LENGTH = 4

@@ -23,9 +23,11 @@ import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.HtmlText
 import net.mullvad.mullvadvpn.compose.component.textResource
+import net.mullvad.mullvadvpn.compose.util.generateDevice
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.Device
+import net.mullvad.mullvadvpn.model.DeviceId
 
 @Preview
 @Composable
@@ -33,14 +35,14 @@ private fun PreviewRemoveDeviceConfirmationDialog() {
     AppTheme {
         RemoveDeviceConfirmationDialog(
             EmptyResultBackNavigator(),
-            device = Device("test", "test", byteArrayOf(), "test")
+            device = generateDevice()
         )
     }
 }
 
 @Destination(style = DestinationStyle.Dialog::class)
 @Composable
-fun RemoveDeviceConfirmationDialog(navigator: ResultBackNavigator<String>, device: Device) {
+fun RemoveDeviceConfirmationDialog(navigator: ResultBackNavigator<DeviceId>, device: Device) {
     AlertDialog(
         onDismissRequest = navigator::navigateBack,
         icon = {
