@@ -74,7 +74,7 @@ impl Settings {
         updated
     }
 
-    /// Clear all custom access methods.
+    /// Remove all custom access methods.
     pub fn clear_custom(&mut self) {
         self.custom.clear();
         self.ensure_consistent_state();

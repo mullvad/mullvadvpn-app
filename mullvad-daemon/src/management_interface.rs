@@ -664,7 +664,7 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     async fn clear_custom_api_access_methods(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("get_current_api_access_method");
+        log::debug!("clear_custom_api_access_methods");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::ClearCustomApiAccessMethods(tx))?;
         self.wait_for_result(rx)

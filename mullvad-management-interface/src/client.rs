@@ -575,6 +575,7 @@ impl MullvadProxyClient {
             .map(drop)
     }
 
+    /// Remove all custom API access methods.
     pub async fn clear_custom_access_methods(&mut self) -> Result<()> {
         self.0
             .clear_custom_api_access_methods(())

@@ -292,6 +292,7 @@ pub enum DaemonCommand {
     SetApiAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
     /// Edit an API access method
     UpdateApiAccessMethod(ResponseTx<(), Error>, AccessMethodSetting),
+    /// Remove all custom API access methods
     ClearCustomApiAccessMethods(ResponseTx<(), Error>),
     /// Get the currently used API access method
     GetCurrentAccessMethod(ResponseTx<AccessMethodSetting, Error>),
@@ -2489,7 +2490,7 @@ where
             .clear_custom_api_access_methods()
             .await
             .map_err(Error::AccessMethodError);
-        Self::oneshot_send(tx, result, "update_api_access_method response");
+        Self::oneshot_send(tx, result, "clear_custom_api_access_methods response");
     }
 
     fn on_get_current_api_access_method(&mut self, tx: ResponseTx<AccessMethodSetting, Error>) {
