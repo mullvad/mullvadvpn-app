@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.CustomListsSettings
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
+import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.DnsState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
@@ -32,6 +33,7 @@ import net.mullvad.mullvadvpn.model.RelayListCity
 import net.mullvad.mullvadvpn.model.RelayListCountry
 import net.mullvad.mullvadvpn.model.RelayOverride
 import net.mullvad.mullvadvpn.model.RelaySettings
+import net.mullvad.mullvadvpn.model.RemoveDeviceEvent
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelOptions
@@ -599,3 +601,12 @@ internal fun Ownership.fromDomain(): ManagementInterface.Ownership =
     }
 
 internal fun Providers.fromDomain(): List<String> = this.providers.toList()
+
+internal fun ManagementInterface.RemoveDeviceEvent.toDomain(): RemoveDeviceEvent =
+    RemoveDeviceEvent(accountToken, newDeviceListList.map { it.toDomain() })
+
+internal fun ManagementInterface.Device.toDomain(): Device =
+    Device(id, name, pubkey.toByteArray(), created.toString())
+
+internal fun ManagementInterface.DeviceList.toDomain(): List<Device> =
+    devicesList.map { it.toDomain() }
