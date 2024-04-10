@@ -118,11 +118,7 @@ private fun List<DaemonRelay>.filterValidRelays(
         .filter {
             when (ownership) {
                 is Constraint.Any -> true
-                is Constraint.Only ->
-                    when (ownership.value) {
-                        Ownership.MullvadOwned -> it.owned
-                        Ownership.Rented -> !it.owned
-                    }
+                is Constraint.Only -> ownership.value == it.ownership
             }
         }
         .filter { relay ->
@@ -178,6 +174,4 @@ fun List<RelayItem.Location.Country>.getRelayItemsByCodes(
     codes: List<GeographicLocationConstraint>
 ): List<RelayItem.Location> =
     this.filter { codes.contains(it.location) } +
-        this.flatMap { it.descendants() }
-            .filterIsInstance<RelayItem.Location>()
-            .filter { codes.contains(it.location) }
+        this.flatMap { it.descendants() }.filter { codes.contains(it.location) }

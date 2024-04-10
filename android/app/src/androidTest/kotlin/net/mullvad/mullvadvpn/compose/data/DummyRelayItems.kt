@@ -9,7 +9,6 @@ import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelayListCity
 import net.mullvad.mullvadvpn.model.RelayListCountry
 import net.mullvad.mullvadvpn.model.WireguardEndpointData
-import net.mullvad.mullvadvpn.model.WireguardRelayEndpointData
 import net.mullvad.mullvadvpn.relaylist.toRelayCountries
 
 private val DUMMY_RELAY_1 =

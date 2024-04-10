@@ -15,8 +15,8 @@ import net.mullvad.mullvadvpn.compose.state.toNullableOwnership
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.Ownership
+import net.mullvad.mullvadvpn.model.Provider
 import net.mullvad.mullvadvpn.model.RelayItem
-import net.mullvad.mullvadvpn.relaylist.Provider
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
@@ -111,11 +111,8 @@ class SelectLocationViewModel(
         selectedProviders: List<Provider>,
         selectedOwnership: Ownership?
     ): List<Provider> =
-        when (selectedOwnership) {
-            Ownership.MullvadOwned -> selectedProviders.filter { it.mullvadOwned }
-            Ownership.Rented -> selectedProviders.filterNot { it.mullvadOwned }
-            else -> selectedProviders
-        }
+        if (selectedOwnership == null) selectedProviders
+        else selectedProviders.filter { it.ownership == selectedOwnership }
 
     fun removeOwnerFilter() {
         viewModelScope.launch {

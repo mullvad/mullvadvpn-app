@@ -13,7 +13,6 @@ import io.grpc.Status
 import io.grpc.StatusException
 import io.grpc.android.UdsChannelBuilder
 import java.net.InetAddress
-import java.util.UUID
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.CoroutineScope
@@ -40,12 +39,13 @@ import mullvad_daemon.management_interface.ManagementInterface.Settings
 import mullvad_daemon.management_interface.ManagementInterface.TunnelState
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
 import mullvad_daemon.management_interface.copy
-import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountData
+import net.mullvad.mullvadvpn.model.AccountId
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.AppVersionInfo as ModelAppVersionInfo
 import net.mullvad.mullvadvpn.model.ClearAllOverridesError
 import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.CreateAccountError
 import net.mullvad.mullvadvpn.model.CreateCustomListError
 import net.mullvad.mullvadvpn.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.model.CustomListId
@@ -60,13 +60,13 @@ import net.mullvad.mullvadvpn.model.DnsState as ModelDnsState
 import net.mullvad.mullvadvpn.model.GetDeviceListError
 import net.mullvad.mullvadvpn.model.GetDeviceStateError
 import net.mullvad.mullvadvpn.model.LocationConstraint as ModelLocationConstraint
-import net.mullvad.mullvadvpn.model.LoginResult
+import net.mullvad.mullvadvpn.model.LoginAccountError
 import net.mullvad.mullvadvpn.model.ObfuscationSettings as ModelObfuscationSettings
 import net.mullvad.mullvadvpn.model.Ownership as ModelOwnership
 import net.mullvad.mullvadvpn.model.PlayPurchase
 import net.mullvad.mullvadvpn.model.PlayPurchaseInitError
 import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyError
-import net.mullvad.mullvadvpn.model.Providers as ModelProviders
+import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.QuantumResistantState as ModelQuantumResistantState
 import net.mullvad.mullvadvpn.model.RelayList as ModelRelayList
 import net.mullvad.mullvadvpn.model.RelaySettings
@@ -132,11 +132,11 @@ class ManagementService(
         MutableStateFlow(ManagementServiceState())
     val state: StateFlow<ManagementServiceState> = _mutableStateFlow
 
-    val deviceState: Flow<ModelDeviceState> =
+    val deviceState: Flow<ModelDeviceState?> =
         _mutableStateFlow
             .mapNotNull { it.device }
             .map(ManagementInterface.DeviceState::toDomain)
-            .stateIn(scope, SharingStarted.Eagerly, ModelDeviceState.Unknown)
+            .stateIn(scope, SharingStarted.Eagerly, null)
 
     val tunnelState: Flow<ModelTunnelState> =
         _mutableStateFlow.mapNotNull { it.tunnelState }.map { it.toDomain() }
@@ -234,32 +234,22 @@ class ManagementService(
         managementService.logoutAccount(Empty.getDefaultInstance())
     }
 
-    suspend fun loginAccount(accountToken: String): LoginResult {
-        return try {
-            managementService.loginAccount(StringValue.of(accountToken))
-            LoginResult.Ok
-        } catch (e: StatusException) {
-            when (e.status.code) {
-                Status.Code.OK -> TODO()
-                Status.Code.RESOURCE_EXHAUSTED -> LoginResult.MaxDevicesReached
-                Status.Code.UNAVAILABLE -> LoginResult.RpcError
-                Status.Code.UNAUTHENTICATED -> LoginResult.InvalidAccount
-                Status.Code.CANCELLED -> TODO()
-                Status.Code.UNKNOWN -> TODO()
-                Status.Code.INVALID_ARGUMENT -> TODO()
-                Status.Code.DEADLINE_EXCEEDED -> TODO()
-                Status.Code.NOT_FOUND -> TODO()
-                Status.Code.ALREADY_EXISTS -> TODO()
-                Status.Code.PERMISSION_DENIED -> TODO()
-                Status.Code.FAILED_PRECONDITION -> TODO()
-                Status.Code.ABORTED -> TODO()
-                Status.Code.OUT_OF_RANGE -> TODO()
-                Status.Code.UNIMPLEMENTED -> TODO()
-                Status.Code.INTERNAL -> TODO()
-                Status.Code.DATA_LOSS -> TODO()
+    suspend fun loginAccount(accountToken: AccountToken): Either<LoginAccountError, Unit> =
+        Either.catch { managementService.loginAccount(StringValue.of(accountToken.value)) }
+            .mapLeft {
+                when (it) {
+                    is StatusException ->
+                        when (it.status.code) {
+                            Status.Code.UNAUTHENTICATED -> LoginAccountError.InvalidAccount
+                            Status.Code.RESOURCE_EXHAUSTED ->
+                                LoginAccountError.MaxDevicesReached(accountToken)
+                            Status.Code.UNAVAILABLE -> LoginAccountError.RpcError
+                            else -> LoginAccountError.Unknown(it)
+                        }
+                    else -> LoginAccountError.Unknown(it)
+                }
             }
-        }
-    }
+            .mapEmpty()
 
     suspend fun clearAccountHistory(): Unit {
         managementService.clearAccountHistory(Empty.getDefaultInstance())
@@ -291,22 +281,20 @@ class ManagementService(
             val accountData = managementService.getAccountData(StringValue.of(accountToken.value))
             accountData.expiry
             AccountData(
-                UUID.fromString(accountData.id),
+                AccountId.fromString(accountData.id),
                 Instant.ofEpochSecond(accountData.expiry.seconds).toDateTime()
             )
         } catch (e: StatusException) {
             throw e
         }
 
-    suspend fun createAccount(): AccountCreationResult =
-        try {
-            val accountTokenStringValue =
-                managementService.createNewAccount(Empty.getDefaultInstance())
-            AccountCreationResult.Success(accountTokenStringValue.value)
-        } catch (e: StatusException) {
-            Log.e(TAG, "createAccount error: ${e.message}")
-            AccountCreationResult.Failure
-        }
+    suspend fun createAccount(): Either<CreateAccountError, AccountToken> =
+        Either.catch {
+                val accountTokenStringValue =
+                    managementService.createNewAccount(Empty.getDefaultInstance())
+                AccountToken(accountTokenStringValue.value)
+            }
+            .mapLeft { CreateAccountError.Unknown(it) }
 
     suspend fun setDnsOptions(dnsOptions: ModelDnsOptions): Either<SetDnsOptionsError, Unit> =
         Either.catch { managementService.setDnsOptions(dnsOptions.fromDomain()) }
@@ -493,8 +481,8 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun setOwnershipAndProviders(
-        ownership: Constraint<ModelOwnership>,
-        providers: Constraint<ModelProviders>
+        ownershipConstraint: Constraint<ModelOwnership>,
+        providersConstraint: Constraint<Providers>
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val oldSettings = getSettings()
@@ -505,20 +493,14 @@ class ManagementService(
                                     oldSettings.relaySettings.normal
                                 )
                                 .setOwnership(
-                                    if (ownership is Constraint.Only) {
-                                        ownership.value.fromDomain()
+                                    if (ownershipConstraint is Constraint.Only) {
+                                        ownershipConstraint.value.fromDomain()
                                     } else {
                                         ManagementInterface.Ownership.ANY
                                     }
                                 )
                                 .clearProviders()
-                                .addAllProviders(
-                                    if (providers is Constraint.Only) {
-                                        providers.value.fromDomain()
-                                    } else {
-                                        emptyList()
-                                    }
-                                )
+                                .addAllProviders(providersConstraint.fromDomain())
                         )
                         .build()
                 managementService.setRelaySettings(relaySettings)
@@ -548,7 +530,7 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun setProviders(
-        providers: Constraint<ModelProviders>
+        providersConstraint: Constraint<Providers>
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings =
@@ -556,13 +538,7 @@ class ManagementService(
                         this.normal =
                             this.normal.copy {
                                 this.providers.clear()
-                                this.providers.addAll(
-                                    if (providers is Constraint.Only) {
-                                        providers.value.fromDomain()
-                                    } else {
-                                        emptyList()
-                                    }
-                                )
+                                this.providers.addAll(providersConstraint.fromDomain())
                             }
                     }
                 managementService.setRelaySettings(relaySettings)

@@ -5,6 +5,8 @@ import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceId
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.Ownership
+import net.mullvad.mullvadvpn.model.Provider
+import net.mullvad.mullvadvpn.model.ProviderId
 import net.mullvad.mullvadvpn.model.RelayItem
 import org.joda.time.DateTime
 
@@ -71,8 +73,7 @@ fun generateRelayItemRelay(
             ),
         locationName = "$cityCode $hostName",
         active = active,
-        provider = "Provider",
-        ownership = Ownership.MullvadOwned,
+        provider = Provider(ProviderId("Provider"), Ownership.MullvadOwned),
     )
 
 private fun String.generateCountryCode() = (take(1) + takeLast(1)).lowercase()

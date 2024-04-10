@@ -42,7 +42,7 @@ class OutOfTimeViewModel(
             ) { tunnelState, deviceState, paymentAvailability ->
                 OutOfTimeUiState(
                     tunnelState = tunnelState,
-                    deviceName = deviceState.deviceName() ?: "",
+                    deviceName = deviceState?.deviceName() ?: "",
                     showSitePayment = !isPlayBuild,
                     billingPaymentState = paymentAvailability?.toPaymentState(),
                 )
