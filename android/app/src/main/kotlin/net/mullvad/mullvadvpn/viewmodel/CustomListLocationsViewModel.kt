@@ -19,8 +19,8 @@ import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
 import net.mullvad.mullvadvpn.util.firstOrNullWithTimeout
 
 class CustomListLocationsViewModel(

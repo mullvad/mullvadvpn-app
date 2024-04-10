@@ -8,7 +8,8 @@ sealed class DeviceState : Parcelable {
 
     @Parcelize data object Unknown : DeviceState()
 
-    @Parcelize data class LoggedIn(val accountToken: AccountToken, val device: Device) : DeviceState()
+    @Parcelize
+    data class LoggedIn(val accountToken: AccountToken, val device: Device) : DeviceState()
 
     @Parcelize data object LoggedOut : DeviceState()
 
