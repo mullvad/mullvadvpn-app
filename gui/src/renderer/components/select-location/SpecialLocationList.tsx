@@ -100,6 +100,8 @@ export function CustomExitLocationRow(props: SpecialLocationRowInnerProps<undefi
   );
 }
 
+const StyledInfoButton = styled(StyledHoverInfoButton)({ display: 'block' });
+
 export function CustomBridgeLocationRow(
   props: SpecialLocationRowInnerProps<SpecialBridgeLocationType>,
 ) {
@@ -124,7 +126,7 @@ export function CustomBridgeLocationRow(
         <SpecialLocationIndicator />
         <StyledLocationRowLabel>{props.source.label}</StyledLocationRowLabel>
       </StyledLocationRowButton>
-      <StyledHoverInfoButton
+      <StyledInfoButton
         {...background}
         $isLast
         title={messages.pgettext('select-location-view', 'Custom bridge')}
