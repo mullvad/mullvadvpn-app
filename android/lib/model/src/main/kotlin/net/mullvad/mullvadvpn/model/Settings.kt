@@ -1,9 +1,10 @@
 package net.mullvad.mullvadvpn.model
 
 import android.os.Parcelable
+import arrow.optics.optics
 import kotlinx.parcelize.Parcelize
 
-@Parcelize
+@optics
 data class Settings(
     val relaySettings: RelaySettings,
     val obfuscationSettings: ObfuscationSettings,
@@ -13,4 +14,6 @@ data class Settings(
     val tunnelOptions: TunnelOptions,
     val relayOverrides: List<RelayOverride>,
     val showBetaReleases: Boolean,
-) : Parcelable
+) {
+    companion object
+}

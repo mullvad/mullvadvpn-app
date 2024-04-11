@@ -45,8 +45,10 @@ class SettingsRepository(
 
     suspend fun deleteCustomDns(address: InetAddress) = managementService.deleteCustomDns(address)
 
-    suspend fun setCustomDns(index: Int = -1, address: InetAddress) =
+    suspend fun setCustomDns(index: Int, address: InetAddress) =
         managementService.setCustomDns(index, address)
+
+    suspend fun addCustomDns(address: InetAddress) = managementService.addCustomDns(address)
 
     suspend fun setWireguardMtu(value: Int?) = managementService.setWireguardMtu(value ?: 0)
 

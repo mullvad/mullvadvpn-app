@@ -75,6 +75,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
 
     implementation(Dependencies.Arrow.core)
+    implementation(Dependencies.Arrow.optics)
     //    api("com.google.protobuf:protobuf-java-util:$protobufVersion")
     //    api("com.google.protobuf:protobuf-kotlin:$protobufVersion")
 }

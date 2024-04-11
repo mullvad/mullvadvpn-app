@@ -4,7 +4,10 @@ import android.net.Uri
 import io.grpc.ConnectivityState
 import java.net.InetAddress
 import java.net.InetSocketAddress
+import java.util.UUID
 import mullvad_daemon.management_interface.ManagementInterface
+import net.mullvad.mullvadvpn.model.AccountData
+import net.mullvad.mullvadvpn.model.AccountId
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.model.Constraint
@@ -34,8 +37,6 @@ import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelayEndpointType
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.RelayList
-import net.mullvad.mullvadvpn.model.RelayListCity
-import net.mullvad.mullvadvpn.model.RelayListCountry
 import net.mullvad.mullvadvpn.model.RelayOverride
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
@@ -221,9 +222,10 @@ internal fun ManagementInterface.RelayOverride.toDomain(): RelayOverride =
 
 internal fun ManagementInterface.RelaySettings.toDomain(): RelaySettings =
     when (endpointCase) {
-        ManagementInterface.RelaySettings.EndpointCase.CUSTOM -> RelaySettings.CustomTunnelEndpoint
+        ManagementInterface.RelaySettings.EndpointCase.CUSTOM ->
+            throw IllegalArgumentException("CustomTunnelEndpoint is not supported")
         ManagementInterface.RelaySettings.EndpointCase.NORMAL ->
-            RelaySettings.Normal(this.normal.toDomain())
+            RelaySettings(this.normal.toDomain())
         ManagementInterface.RelaySettings.EndpointCase.ENDPOINT_NOT_SET ->
             throw IllegalArgumentException("RelaySettings endpoint not set")
         else -> throw NullPointerException("RelaySettings endpoint is null")
@@ -243,9 +245,9 @@ internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<Locat
             Constraint.Only(LocationConstraint.CustomList(CustomListId(customList)))
         ManagementInterface.LocationConstraint.TypeCase.LOCATION ->
             Constraint.Only(LocationConstraint.Location(location.toDomain()))
-        ManagementInterface.LocationConstraint.TypeCase.TYPE_NOT_SET -> Constraint.Any()
+        ManagementInterface.LocationConstraint.TypeCase.TYPE_NOT_SET -> Constraint.Any
         else -> throw IllegalArgumentException("Location constraint type is null")
-    }
+        }
 
 internal fun Constraint<LocationConstraint>.fromDomain(): ManagementInterface.LocationConstraint =
     when (this) {
@@ -277,7 +279,7 @@ internal fun ManagementInterface.GeographicLocationConstraint.toDomain():
     }
 
 internal fun List<String>.toDomain(): Constraint<Providers> =
-    if (isEmpty()) Constraint.Any()
+    if (isEmpty()) Constraint.Any
     else Constraint.Only(Providers(this.map { ProviderId(it) }.toSet()))
 
 internal fun Constraint<Providers>.fromDomain(): List<String> =
@@ -292,13 +294,13 @@ internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConst
             if (hasPort()) {
                 Constraint.Only(Port(port))
             } else {
-                Constraint.Any()
+                Constraint.Any
             },
     )
 
 internal fun ManagementInterface.Ownership.toDomain(): Constraint<Ownership> =
     when (this) {
-        ManagementInterface.Ownership.ANY -> Constraint.Any()
+        ManagementInterface.Ownership.ANY -> Constraint.Any
         ManagementInterface.Ownership.MULLVAD_OWNED -> Constraint.Only(Ownership.MullvadOwned)
         ManagementInterface.Ownership.RENTED -> Constraint.Only(Ownership.Rented)
         ManagementInterface.Ownership.UNRECOGNIZED ->
@@ -326,7 +328,7 @@ internal fun ManagementInterface.Udp2TcpObfuscationSettings.toDomain(): Udp2TcpO
     if (this.hasPort()) {
         Udp2TcpObfuscationSettings(Constraint.Only(Port(port)))
     } else {
-        Udp2TcpObfuscationSettings(Constraint.Any())
+        Udp2TcpObfuscationSettings(Constraint.Any)
     }
 
 internal fun ManagementInterface.CustomList.toDomain(): CustomList =
@@ -494,21 +496,11 @@ internal fun CustomList.fromDomain(): ManagementInterface.CustomList =
         .addAllLocations(this.locations.map { it.fromDomain() })
         .build()
 
-internal fun ManagementInterface.RelayList.toDomain(): Pair<RelayList, WireguardEndpointData> =
-    countriesList.toDomain() to
-        WireguardEndpointData(
-            portRanges = this.wireguard.portRangesList.map { it.toDomain() },
-        )
+internal fun ManagementInterface.RelayList.toDomain(): RelayList =
+    RelayList(countriesList.toDomain(), wireguard.toDomain())
 
-internal fun ManagementInterface.RelayListCountry.toDomain(): RelayListCountry =
-    RelayListCountry(
-        name = name,
-        code = code,
-        cities = citiesList.map { it.toDomain() },
-    )
-
-internal fun ManagementInterface.RelayListCity.toDomain(): RelayListCity =
-    RelayListCity(name = name, code = code, relays = relaysList.map { it.toDomain() })
+internal fun ManagementInterface.WireguardEndpointData.toDomain(): WireguardEndpointData =
+    WireguardEndpointData(portRangesList.map { it.toDomain() })
 
 internal fun ManagementInterface.Relay.toDomain(): Relay =
     Relay(
@@ -543,7 +535,8 @@ internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardCon
  * relays are filtered out. So are also cities that only contains non-wireguard relays and countries
  * that does not have any cities. Countries, cities and relays are ordered by name.
  */
-internal fun List<ManagementInterface.RelayListCountry>.toDomain(): RelayList {
+internal fun List<ManagementInterface.RelayListCountry>.toDomain():
+    List<RelayItem.Location.Country> {
     val relayCountries =
         this.map { country ->
                 val cities = mutableListOf<RelayItem.Location.City>()
@@ -606,7 +599,7 @@ internal fun List<ManagementInterface.RelayListCountry>.toDomain(): RelayList {
 
     relayCountries.sortBy { it.name }
 
-    return RelayList(relayCountries.toList())
+    return relayCountries.toList()
 }
 
 internal fun Ownership.fromDomain(): ManagementInterface.Ownership =
@@ -636,16 +629,15 @@ internal fun ManagementInterface.DeviceState.toDomain(): DeviceState =
 
 internal fun RelaySettings.fromDomain(): ManagementInterface.RelaySettings =
     ManagementInterface.RelaySettings.newBuilder()
-        .apply {
-            when (this@fromDomain) {
-                RelaySettings.CustomTunnelEndpoint ->
-                    setCustom(ManagementInterface.CustomRelaySettings.newBuilder().build())
-                is RelaySettings.Normal ->
-                    setNormal(
-                        ManagementInterface.NormalRelaySettings.newBuilder()
-                            .setLocation(this@fromDomain.relayConstraints.location.fromDomain())
-                            .build()
-                    )
-            }
-        }
+        .setNormal(
+            ManagementInterface.NormalRelaySettings.newBuilder()
+                .setLocation(this@fromDomain.relayConstraints.location.fromDomain())
+                .build()
+        )
         .build()
+
+internal fun ManagementInterface.AccountData.toDomain(): AccountData =
+    AccountData(
+        AccountId(UUID.fromString(id)),
+        expiryDate = Instant.ofEpochSecond(expiry.seconds).toDateTime()
+    )

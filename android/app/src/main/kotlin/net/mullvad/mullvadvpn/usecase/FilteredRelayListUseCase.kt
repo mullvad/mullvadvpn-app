@@ -18,7 +18,7 @@ class FilteredRelayListUseCase(
             relayListFilterRepository.selectedOwnership,
             relayListFilterRepository.selectedProviders
         ) { relayList, selectedOwnership, selectedProviders ->
-            relayList.countries
+            relayList
                 .filterOnOwnership(selectedOwnership)
                 .filterOnProviders(selectedProviders)
         }
