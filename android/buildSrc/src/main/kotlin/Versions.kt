@@ -46,6 +46,12 @@ object Versions {
         const val material3 = "1.2.1"
     }
 
+    object Grpc {
+        const val grpcVersion = "1.63.0"
+        const val grpcKotlinVersion = "1.4.1"
+        const val protobufVersion = "3.25.3"
+    }
+
     object Plugin {
         // The androidAapt plugin version must be in sync with the android plugin version.
         // Required for Gradle metadata verification to work properly, see:
