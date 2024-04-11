@@ -7,6 +7,7 @@
 
 use futures::channel::oneshot;
 use libc::{proc_listallpids, proc_pidpath};
+use once_cell::sync::Lazy;
 use serde::Deserialize;
 use std::collections::HashSet;
 use std::{
@@ -25,14 +26,19 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 const SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(3);
 const EARLY_FAIL_TIMEOUT: Duration = Duration::from_millis(500);
 
+static MIN_OS_VERSION: Lazy<MacosVersion> =
+    Lazy::new(|| MacosVersion::from_raw_version("13.0.0").unwrap());
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to detect macOS version
     #[error("Failed to detect macOS version")]
     DetectMacosVersion(#[source] io::Error),
     /// Only macOS 13 and later is supported
-    #[error("Unsupported macOS version")]
-    UnsupportedMacosVersion,
+    #[error("Unsupported macOS version: {actual}, expected at least {}", *MIN_OS_VERSION)]
+    UnsupportedMacosVersion {
+        actual: talpid_platform_metadata::MacosVersion,
+    },
     /// Failed to start eslogger listener
     #[error("Failed to start eslogger")]
     StartMonitor(#[source] io::Error),
@@ -468,14 +474,33 @@ fn parse_eslogger_error(stderr_str: &str) -> Option<Error> {
 /// Check whether the current macOS version is supported, and return an error otherwise
 fn check_os_version_support() -> Result<(), Error> {
     match MacosVersion::new().map_err(Error::DetectMacosVersion) {
-        Ok(version) => {
-            if version.major_version() <= 12 {
-                return Err(Error::UnsupportedMacosVersion);
-            }
-        }
+        Ok(version) => check_os_version_support_inner(version),
         Err(error) => {
             log::error!("Failed to detect macOS version: {error}");
+            Ok(())
         }
     }
-    Ok(())
+}
+
+fn check_os_version_support_inner(version: MacosVersion) -> Result<(), Error> {
+    if version >= *MIN_OS_VERSION {
+        Ok(())
+    } else {
+        Err(Error::UnsupportedMacosVersion { actual: version })
+    }
+}
+
+#[test]
+fn test_min_os_version() {
+    assert!(check_os_version_support_inner(MIN_OS_VERSION.clone()).is_ok());
+
+    // test unsupported version
+    assert!(
+        check_os_version_support_inner(MacosVersion::from_raw_version("12.1").unwrap()).is_err()
+    );
+
+    // test supported version
+    assert!(
+        check_os_version_support_inner(MacosVersion::from_raw_version("13.0").unwrap()).is_ok()
+    );
 }
