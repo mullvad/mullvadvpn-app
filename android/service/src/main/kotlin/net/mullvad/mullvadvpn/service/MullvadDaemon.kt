@@ -18,9 +18,6 @@ class MullvadDaemon(
     var onDaemonStopped: (() -> Unit)? = null
 
     init {
-        // This should be done by the daemon
-        File("/data/data/net.mullvad.mullvadvpn/rpc-socket").delete()
-
         System.loadLibrary("mullvad_jni")
 
         prepareFiles(vpnService)
