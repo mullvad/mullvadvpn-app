@@ -34,22 +34,6 @@ class ListCustomListViewController: UIViewController {
     private var dataSource: DataSource?
     private var fetchedItems: [CustomList] = []
     private var tableView = UITableView(frame: .zero, style: .plain)
-
-    private let emptyListLabel: UILabel = {
-        let textLabel = UILabel()
-        textLabel.font = .preferredFont(forTextStyle: .title2)
-        textLabel.textColor = .secondaryTextColor
-        textLabel.textAlignment = .center
-        textLabel.numberOfLines = .zero
-        textLabel.lineBreakStrategy = []
-        textLabel.text = NSLocalizedString(
-            "CustomList",
-            value: "No custom list to display",
-            comment: ""
-        )
-        return textLabel
-    }()
-
     var didSelectItem: ((CustomList) -> Void)?
     var didFinish: (() -> Void)?
 
@@ -75,7 +59,6 @@ class ListCustomListViewController: UIViewController {
 
     func updateDataSource(reloadExisting: Bool, animated: Bool = true) {
         fetchedItems = interactor.fetchAll()
-        tableView.backgroundView = fetchedItems.isEmpty ? emptyListLabel : nil
         var snapshot = NSDiffableDataSourceSnapshot<SectionIdentifier, ItemIdentifier>()
         snapshot.appendSections([.default])
 

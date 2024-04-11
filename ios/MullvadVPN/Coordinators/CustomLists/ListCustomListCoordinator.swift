@@ -62,9 +62,7 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
             guard let self else { return }
             popToList()
             editCustomListCoordinator.removeFromParent()
-
             self.updateRelayConstraints(for: action, in: list)
-            self.listViewController.updateDataSource(reloadExisting: action == .save)
         }
 
         coordinator.start()
@@ -97,9 +95,13 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
     }
 
     private func popToList() {
-        guard let listController = navigationController.viewControllers
-            .first(where: { $0 is ListCustomListViewController }) else { return }
-
-        navigationController.popToViewController(listController, animated: true)
+        if interactor.fetchAll().isEmpty {
+            navigationController.dismiss(animated: true)
+            didFinish?(self)
+        } else if let listController = navigationController.viewControllers
+            .first(where: { $0 is ListCustomListViewController }) {
+            navigationController.popToViewController(listController, animated: true)
+            listViewController.updateDataSource(reloadExisting: true, animated: false)
+        }
     }
 }
