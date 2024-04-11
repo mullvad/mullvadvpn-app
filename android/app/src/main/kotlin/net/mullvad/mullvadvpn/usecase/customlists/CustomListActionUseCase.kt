@@ -59,7 +59,6 @@ class CustomListActionUseCase(
                     .bind()
 
                 relayListRepository.relayList
-                    .map { it.countries }
                     .firstOrNull()
                     ?.getRelayItemsByCodes(action.locations)
                     ?.map { it.name }

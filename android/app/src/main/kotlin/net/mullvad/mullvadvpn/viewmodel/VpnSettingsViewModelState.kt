@@ -51,7 +51,7 @@ data class VpnSettingsViewModelState(
                 contentBlockersOptions = DefaultDnsOptions(),
                 selectedObfuscation = SelectedObfuscation.Auto,
                 quantumResistant = QuantumResistantState.Off,
-                selectedWireguardPort = Constraint.Any(),
+                selectedWireguardPort = Constraint.Any,
                 customWireguardPort = null,
                 availablePortRanges = emptyList(),
                 systemVpnSettingsAvailable = false

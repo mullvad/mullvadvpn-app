@@ -1,9 +1,11 @@
 package net.mullvad.mullvadvpn.model
 
 import android.os.Parcelable
+import arrow.optics.optics
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
+@optics
 data class DefaultDnsOptions(
     val blockAds: Boolean = false,
     val blockTrackers: Boolean = false,
@@ -20,4 +22,6 @@ data class DefaultDnsOptions(
             blockGambling ||
             blockSocialMedia
     }
+
+    companion object
 }

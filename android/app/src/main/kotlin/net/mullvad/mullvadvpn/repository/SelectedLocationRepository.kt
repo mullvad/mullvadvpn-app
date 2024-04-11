@@ -17,8 +17,8 @@ class SelectedLocationRepository(
 ) {
     val selectedLocation: StateFlow<Constraint<LocationConstraint>> =
         managementService.settings
-            .map { it.relaySettings.relayConstraints()?.location ?: Constraint.Any() }
-            .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any())
+            .map { it.relaySettings.relayConstraints.location }
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
 
     suspend fun updateSelectedRelayLocation(value: LocationConstraint) =
         managementService.setRelayLocation(value)

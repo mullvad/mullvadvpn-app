@@ -18,17 +18,13 @@ class RelayListFilterRepository(
 ) {
     val selectedOwnership: StateFlow<Constraint<Ownership>> =
         managementService.settings
-            .map { settings ->
-                settings.relaySettings.relayConstraints()?.ownership ?: Constraint.Any()
-            }
-            .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any())
+            .map { settings -> settings.relaySettings.relayConstraints.ownership }
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
 
     val selectedProviders: StateFlow<Constraint<Providers>> =
         managementService.settings
-            .map { settings ->
-                settings.relaySettings.relayConstraints()?.providers ?: Constraint.Any()
-            }
-            .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any())
+            .map { settings -> settings.relaySettings.relayConstraints.providers }
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
 
     suspend fun updateSelectedOwnershipAndProviderFilter(
         ownership: Constraint<Ownership>,

@@ -518,8 +518,8 @@ fun VpnSettingsScreen(
             itemWithDivider {
                 SelectableCell(
                     title = stringResource(id = R.string.automatic),
-                    isSelected = state.selectedWireguardPort is Constraint.Any,
-                    onCellClicked = { onWireguardPortSelected(Constraint.Any()) }
+                    isSelected = state.selectedWireguardPort == Constraint.Any,
+                    onCellClicked = { onWireguardPortSelected(Constraint.Any) }
                 )
             }
 
