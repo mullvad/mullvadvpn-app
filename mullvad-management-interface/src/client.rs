@@ -535,6 +535,7 @@ impl MullvadProxyClient {
         Ok(())
     }
 
+    /// Remove all custom lists.
     pub async fn clear_custom_lists(&mut self) -> Result<()> {
         self.0
             .clear_custom_lists(())

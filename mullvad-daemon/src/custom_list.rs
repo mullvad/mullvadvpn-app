@@ -10,6 +10,9 @@ impl<L> Daemon<L>
 where
     L: EventListener + Clone + Send + 'static,
 {
+    /// Create a new custom list.
+    ///
+    /// Returns an error if the name is not unique.
     pub async fn create_custom_list(&mut self, name: String) -> Result<Id, crate::Error> {
         if self
             .settings
@@ -33,6 +36,9 @@ where
         Ok(id)
     }
 
+    /// Update a custom list.
+    ///
+    /// Returns an error if the list doesn't exist.
     pub async fn delete_custom_list(&mut self, id: Id) -> Result<(), Error> {
         let Some(list_index) = self
             .settings
@@ -66,6 +72,11 @@ where
         Ok(())
     }
 
+    /// Update a custom list.
+    ///
+    /// Returns an error if...
+    /// - there is no existing list with the same ID,
+    /// - or the existing list has a different name.
     pub async fn update_custom_list(&mut self, new_list: CustomList) -> Result<(), Error> {
         let Some((list_index, old_list)) = self
             .settings
@@ -110,6 +121,7 @@ where
         Ok(())
     }
 
+    /// Remove all custom lists.
     pub async fn clear_custom_lists(&mut self) -> Result<(), Error> {
         let settings_changed = self
             .settings
