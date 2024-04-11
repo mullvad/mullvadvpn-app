@@ -488,7 +488,7 @@ private extension TunnelState {
             NSLocalizedString(
                 "TUNNEL_STATE_NEGOTIATING_KEY",
                 tableName: "Main",
-                value: "Negotiating key",
+                value: "Creating quantum secure connection",
                 comment: ""
             )
 
