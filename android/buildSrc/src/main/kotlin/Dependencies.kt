@@ -28,7 +28,8 @@ object Dependencies {
             "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.AndroidX.lifecycle}"
         const val lifecycleRuntimeCompose =
             "androidx.lifecycle:lifecycle-runtime-compose:${Versions.AndroidX.lifecycle}"
-        const val lifecycleService = "androidx.lifecycle:lifecycle-service:${Versions.AndroidX.lifecycle}"
+        const val lifecycleService =
+            "androidx.lifecycle:lifecycle-service:${Versions.AndroidX.lifecycle}"
         const val espressoCore =
             "androidx.test.espresso:espresso-core:${Versions.AndroidX.espresso}"
         const val testCore = "androidx.test:core:${Versions.AndroidX.test}"
@@ -70,7 +71,12 @@ object Dependencies {
     }
 
     object Grpc {
-
+        const val grpcOkHttp = "io.grpc:grpc-okhttp:${Versions.Grpc.grpcVersion}"
+        const val grpcAndroid = "io.grpc:grpc-android:${Versions.Grpc.grpcVersion}"
+        const val grpcKotlinStub = "io.grpc:grpc-kotlin-stub:${Versions.Grpc.grpcKotlinVersion}"
+        const val protobufLite = "io.grpc:grpc-protobuf-lite:${Versions.Grpc.grpcVersion}"
+        const val protobufKotlinLite =
+            "com.google.protobuf:protobuf-kotlin-lite:${Versions.Grpc.protobufVersion}"
     }
 
     object Koin {
@@ -87,6 +93,8 @@ object Dependencies {
     }
 
     object KotlinX {
+        const val coroutinesCore =
+            "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinx}"
         const val coroutinesAndroid =
             "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.kotlinx}"
         const val coroutinesTest =
@@ -141,6 +149,5 @@ object Dependencies {
         const val playPublisher =
             "com.github.triplet.gradle:play-publisher:${Versions.Plugin.playPublisher}"
         const val playPublisherId = "com.github.triplet.play"
-
     }
 }

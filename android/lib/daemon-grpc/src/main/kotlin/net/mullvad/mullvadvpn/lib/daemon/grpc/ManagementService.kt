@@ -10,6 +10,7 @@ import com.google.protobuf.BoolValue
 import com.google.protobuf.Empty
 import com.google.protobuf.StringValue
 import com.google.protobuf.UInt32Value
+import io.grpc.CallOptions
 import io.grpc.ConnectivityState
 import io.grpc.ManagedChannel
 import io.grpc.Status
@@ -18,6 +19,7 @@ import io.grpc.android.UdsChannelBuilder
 import java.net.InetAddress
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.time.measureTimedValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -159,7 +161,7 @@ class ManagementService(
         scope.launch {
             try {
                 managementService.eventsListen(Empty.getDefaultInstance()).collect { event ->
-                    Log.d("ManagementService", "Event: $event")
+                //    Log.d("ManagementService", "Event: $event")
                     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
                     when (event.eventCase) {
                         ManagementInterface.DaemonEvent.EventCase.TUNNEL_STATE ->
@@ -227,6 +229,8 @@ class ManagementService(
 
     suspend fun disconnect(): Boolean =
         managementService.disconnectTunnel(Empty.getDefaultInstance()).value
+
+    suspend fun test() = managementService.getAccountData(StringValue.of("s"))
 
     suspend fun reconnect(): Boolean =
         managementService.reconnectTunnel(Empty.getDefaultInstance()).value
@@ -307,9 +311,12 @@ class ManagementService(
 
     suspend fun setDnsState(dnsState: ModelDnsState): Either<SetDnsOptionsError, Unit> =
         Either.catch {
-                val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
-                val updated = DnsOptions.currentDnsOption.set(currentDnsOptions, dnsState)
-                managementService.setDnsOptions(updated.fromDomain())
+                val currentDnsOptions = measureTimedValue { getSettings().tunnelOptions.dnsOptions }
+                Log.d(TAG, "Time to get currentDnsOptions: ${currentDnsOptions.duration}")
+                val updated = DnsOptions.currentDnsOption.set(currentDnsOptions.value, dnsState)
+                measureTimedValue { managementService.setDnsOptions(updated.fromDomain()) }
+                    .also { Log.d(TAG, "Time to set DnsState: ${currentDnsOptions.duration}") }
+                    .value
             }
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
