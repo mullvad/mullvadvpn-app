@@ -19,7 +19,7 @@ use jnix::{
 };
 use mullvad_api::{rest::Error as RestError, StatusCode};
 use mullvad_daemon::{
-    device, exception_logging, logging, runtime::new_multi_thread,
+    cleanup_old_rpc_socket, device, exception_logging, logging, runtime::new_multi_thread,
     settings::patch::Error as PatchError, version, Daemon, DaemonCommandChannel,
 };
 use mullvad_types::{
@@ -573,6 +573,9 @@ fn spawn_daemon(
                 log::warn!("Ignoring API settings (already initialized)");
             }
         }
+
+        // TODO: Move
+        runtime.block_on(cleanup_old_rpc_socket());
 
         let daemon = runtime.block_on(Daemon::start(
             Some(resource_dir.clone()),
