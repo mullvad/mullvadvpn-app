@@ -458,7 +458,7 @@ internal fun ConnectivityState.toDomain(): GrpcConnectivityState =
         ConnectivityState.SHUTDOWN -> GrpcConnectivityState.Shutdown
     }
 
-fun LocationConstraint.fromDomain(): ManagementInterface.LocationConstraint =
+internal fun LocationConstraint.fromDomain(): ManagementInterface.LocationConstraint =
     when (this) {
         is LocationConstraint.CustomList ->
             ManagementInterface.LocationConstraint.newBuilder()
