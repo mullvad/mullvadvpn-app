@@ -32,6 +32,7 @@ mullvad-relay-selector = { path = "../mullvad-relay-selector" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-api = { path = "../mullvad-api" }
 mullvad-fs = { path = "../mullvad-fs" }
+mullvad-paths = { path = "../mullvad-paths" }
 mullvad-version = { path = "../mullvad-version" }
 talpid-core = { path = "../talpid-core" }
 talpid-future = { path = "../talpid-future" }
@@ -42,7 +43,6 @@ talpid-types = { path = "../talpid-types" }
 clap = { workspace = true }
 log-panics = "2.0.0"
 mullvad-management-interface = { path = "../mullvad-management-interface" }
-mullvad-paths = { path = "../mullvad-paths" }
 
 [dev-dependencies]
 talpid-time = { path = "../talpid-time", features = ["test"] }
