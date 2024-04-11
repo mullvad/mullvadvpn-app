@@ -128,16 +128,6 @@ export function wrapConstraint<T>(
 }
 
 export type ProxyType = 'shadowsocks' | 'custom';
-export function proxyTypeToString(proxy: ProxyType): string {
-  switch (proxy) {
-    case 'shadowsocks':
-      return 'Shadowsocks bridge';
-    case 'custom':
-      return 'custom bridge';
-    default:
-      return '';
-  }
-}
 
 export enum Ownership {
   any,
@@ -352,35 +342,6 @@ export interface IDnsOptions {
   };
 }
 
-export type ProxySettings =
-  | { local: ILocalProxySettings }
-  | { remote: IRemoteProxySettings }
-  | { shadowsocks: IShadowsocksProxySettings };
-
-export interface ILocalProxySettings {
-  localPort: number;
-  remoteIp: string;
-  remotePort: number;
-}
-
-export interface IRemoteProxySettings {
-  ip: string;
-  port: number;
-  auth?: IRemoteProxyAuth;
-}
-
-export interface IRemoteProxyAuth {
-  username: string;
-  password: string;
-}
-
-export interface IShadowsocksProxySettings {
-  ip: string;
-  port: number;
-  password: string;
-  cipher: string;
-}
-
 export interface IAppVersionInfo {
   supported: boolean;
   suggestedUpgrade?: string;
@@ -471,7 +432,7 @@ export type BridgeType = 'normal' | 'custom';
 export interface BridgeSettings {
   type: BridgeType;
   normal: IBridgeConstraints;
-  custom?: ProxySettings;
+  custom?: CustomProxy;
 }
 
 export interface ISocketAddress {
@@ -488,7 +449,7 @@ export interface SocksAuth {
   password: string;
 }
 
-export type Socks5LocalAccessMethod = {
+export type Socks5LocalCustomProxy = {
   type: 'socks5-local';
   remoteIp: string;
   remotePort: number;
@@ -496,14 +457,14 @@ export type Socks5LocalAccessMethod = {
   localPort: number;
 };
 
-export type Socks5RemoteAccessMethod = {
+export type Socks5RemoteCustomProxy = {
   type: 'socks5-remote';
   ip: string;
   port: number;
   authentication?: SocksAuth;
 };
 
-export type ShadowsocksAccessMethod = {
+export type ShadowsocksCustomProxy = {
   type: 'shadowsocks';
   ip: string;
   port: number;
@@ -511,33 +472,29 @@ export type ShadowsocksAccessMethod = {
   cipher: string;
 };
 
-export type CustomProxy =
-  | Socks5LocalAccessMethod
-  | Socks5RemoteAccessMethod
-  | ShadowsocksAccessMethod;
+export type CustomProxy = Socks5LocalCustomProxy | Socks5RemoteCustomProxy | ShadowsocksCustomProxy;
+export type NamedCustomProxy = CustomProxy & { name: string };
 
-export type AccessMethod =
-  | {
-      type: 'direct';
-    }
-  | {
-      type: 'bridges';
-    }
-  | CustomProxy;
+export type DirectMethod = { type: 'direct' };
+export type BridgesMethod = { type: 'bridges' };
+export type AccessMethod = DirectMethod | BridgesMethod | CustomProxy;
 
-export type NewAccessMethodSetting = AccessMethod & {
-  name: string;
+export type NamedAccessMethod<T extends AccessMethod> = T & { name: string };
+
+export type NewAccessMethodSetting<T extends AccessMethod = AccessMethod> = NamedAccessMethod<T> & {
   enabled: boolean;
 };
 
-export type AccessMethodSetting = NewAccessMethodSetting & {
+export type AccessMethodSetting<
+  T extends AccessMethod = AccessMethod
+> = NewAccessMethodSetting<T> & {
   id: string;
 };
 
 export type ApiAccessMethodSettings = {
-  direct: AccessMethodSetting;
-  mullvadBridges: AccessMethodSetting;
-  custom: Array<AccessMethodSetting>;
+  direct: AccessMethodSetting<DirectMethod>;
+  mullvadBridges: AccessMethodSetting<BridgesMethod>;
+  custom: Array<AccessMethodSetting<CustomProxy>>;
 };
 
 export interface RelayOverride {

@@ -1,5 +1,8 @@
 import React, { useContext, useMemo, useState } from 'react';
 
+import useActions from '../../lib/actionsHook';
+import { useSelector } from '../../redux/store';
+import userInterface from '../../redux/userinterface/actions';
 import { RelayListContextProvider } from './RelayListContext';
 import { ScrollPositionContextProvider } from './ScrollPositionContext';
 import { LocationType } from './select-location-types';
@@ -20,13 +23,14 @@ export function useSelectLocationContext() {
 }
 
 export default function SelectLocationContainer() {
-  const [locationType, setLocationType] = useState(LocationType.exit);
+  const locationType = useSelector((state) => state.userInterface.selectLocationView);
+  const { setSelectLocationView } = useActions(userInterface);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const value = useMemo(() => ({ locationType, setLocationType, searchTerm, setSearchTerm }), [
-    locationType,
-    searchTerm,
-  ]);
+  const value = useMemo(
+    () => ({ locationType, setLocationType: setSelectLocationView, searchTerm, setSearchTerm }),
+    [locationType, searchTerm],
+  );
 
   return (
     <selectLocationContext.Provider value={value}>

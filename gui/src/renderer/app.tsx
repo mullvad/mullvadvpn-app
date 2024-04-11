@@ -657,6 +657,8 @@ export default class AppRenderer {
       type: bridgeSettings.type,
       normal: {
         location: liftConstraint(bridgeSettings.normal.location),
+        providers: bridgeSettings.normal.providers,
+        ownership: bridgeSettings.normal.ownership,
       },
       custom: bridgeSettings.custom,
     });

@@ -18,13 +18,12 @@ import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { useBoolean } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
-import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector, { SelectorItem } from './cell/Selector';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
-import { ModalAlert, ModalAlertType } from './Modal';
+import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import {
   NavigationBar,
   NavigationContainer,
@@ -33,6 +32,7 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
+import { SmallButton } from './SmallButton';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
@@ -308,6 +308,8 @@ function BridgeModeSelector() {
     await setBridgeState('on');
   }, [hideConfirmationDialog, setBridgeState]);
 
+  const footerText = bridgeModeFooterText(bridgeState === 'on', tunnelProtocol, transportProtocol);
+
   return (
     <>
       <AriaInputGroup>
@@ -317,31 +319,57 @@ function BridgeModeSelector() {
               // TRANSLATORS: The title for the shadowsocks bridge selector section.
               messages.pgettext('openvpn-settings-view', 'Bridge mode')
             }
+            infoTitle={messages.pgettext('openvpn-settings-view', 'Bridge mode')}
+            details={
+              <>
+                <ModalMessage>
+                  {sprintf(
+                    // TRANSLATORS: This is used as a description for the bridge mode
+                    // TRANSLATORS: setting.
+                    // TRANSLATORS: Available placeholders:
+                    // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
+                    messages.pgettext(
+                      'openvpn-settings-view',
+                      'Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder.',
+                    ),
+                    { openvpn: strings.openvpn },
+                  )}
+                </ModalMessage>
+                <ModalMessage>
+                  {messages.gettext('This setting increases latency. Use only if needed.')}
+                </ModalMessage>
+              </>
+            }
             items={options}
             value={bridgeState}
             onSelect={onSelectBridgeState}
             automaticValue={'auto' as const}
           />
         </StyledSelectorContainer>
-        <Cell.CellFooter>
-          <AriaDescription>
-            <Cell.CellFooterText>
-              {bridgeModeFooterText(tunnelProtocol, transportProtocol)}
-            </Cell.CellFooterText>
-          </AriaDescription>
-        </Cell.CellFooter>
+        {footerText !== undefined && (
+          <Cell.CellFooter>
+            <AriaDescription>
+              <Cell.CellFooterText>{footerText}</Cell.CellFooterText>
+            </AriaDescription>
+          </Cell.CellFooter>
+        )}
       </AriaInputGroup>
       <ModalAlert
         isOpen={confirmationDialogVisible}
         type={ModalAlertType.caution}
-        message={messages.gettext('This setting increases latency. Use only if needed.')}
-        buttons={[
-          <AppButton.RedButton key="confirm" onClick={confirmBridgeState}>
-            {messages.gettext('Enable anyway')}
-          </AppButton.RedButton>,
-          <AppButton.BlueButton key="back" onClick={hideConfirmationDialog}>
-            {messages.gettext('Back')}
-          </AppButton.BlueButton>,
+        title={messages.pgettext('openvpn-settings-view', 'Enable bridge mode?')}
+        message={
+          // TRANSLATORS: Warning shown in dialog to users when they enable setting that increases
+          // TRANSLATORS: network latency (decreases performance).
+          messages.gettext('This setting increases latency. Use only if needed.')
+        }
+        gridButtons={[
+          <SmallButton key="cancel" onClick={hideConfirmationDialog}>
+            {messages.gettext('Cancel')}
+          </SmallButton>,
+          <SmallButton key="confirm" onClick={confirmBridgeState}>
+            {messages.gettext('Enable')}
+          </SmallButton>,
         ]}
         close={hideConfirmationDialog}
       />
@@ -350,10 +378,18 @@ function BridgeModeSelector() {
 }
 
 function bridgeModeFooterText(
+  bridgeModeOn: boolean,
   tunnelProtocol: TunnelProtocol | null,
   transportProtocol: RelayProtocol | null,
-) {
-  if (tunnelProtocol !== 'openvpn') {
+): React.ReactNode | void {
+  if (bridgeModeOn) {
+    // TRANSLATORS: This text is shown beneath the bridge mode setting to instruct users how to
+    // TRANSLATORS: configure the feature further.
+    return messages.pgettext(
+      'openvpn-settings-view',
+      'To select a specific bridge server, go to the Select location view.',
+    );
+  } else if (tunnelProtocol !== 'openvpn') {
     return formatHtml(
       sprintf(
         // TRANSLATORS: This is used to instruct users how to make the bridge mode setting
@@ -390,18 +426,6 @@ function bridgeModeFooterText(
           tcp: messages.gettext('TCP'),
         },
       ),
-    );
-  } else {
-    return sprintf(
-      // TRANSLATORS: This is used as a description for the bridge mode
-      // TRANSLATORS: setting.
-      // TRANSLATORS: Available placeholders:
-      // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
-      messages.pgettext(
-        'openvpn-settings-view',
-        'Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder.',
-      ),
-      { openvpn: strings.openvpn },
     );
   }
 }

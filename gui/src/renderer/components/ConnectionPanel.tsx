@@ -6,7 +6,6 @@ import { colors } from '../../config.json';
 import {
   EndpointObfuscationType,
   ProxyType,
-  proxyTypeToString,
   RelayProtocol,
   TunnelType,
   tunnelTypeToString,
@@ -164,10 +163,9 @@ export default class ConnectionPanel extends React.Component<IProps> {
           entry: this.props.entryHostname,
         },
       );
-    } else if (this.props.bridgeInfo?.ip) {
-      return sprintf(messages.pgettext('connection-info', '%(relay)s via %(entry)s'), {
+    } else if (this.props.bridgeInfo !== undefined) {
+      return sprintf(messages.pgettext('connection-info', '%(relay)s via Custom bridge'), {
         relay: this.props.hostname,
-        entry: this.props.bridgeInfo.ip,
       });
     } else {
       return this.props.hostname || '';
@@ -181,7 +179,7 @@ export default class ConnectionPanel extends React.Component<IProps> {
       const tunnelType = tunnelTypeToString(inAddress.tunnelType);
 
       if (bridgeInfo) {
-        const bridgeType = proxyTypeToString(bridgeInfo.bridgeType);
+        const bridgeType = this.bridgeType();
 
         return sprintf(
           // TRANSLATORS: The tunnel type line displayed below the hostname line on the main screen
@@ -199,6 +197,14 @@ export default class ConnectionPanel extends React.Component<IProps> {
       }
     } else {
       return '';
+    }
+  }
+
+  private bridgeType() {
+    if (this.props.bridgeHostname && this.props.bridgeInfo?.bridgeType === 'shadowsocks') {
+      return 'Shadowsocks bridge';
+    } else {
+      return 'Custom bridge';
     }
   }
 }
