@@ -94,6 +94,11 @@ const mapStateToProps = (state: IReduxState) => {
       ? tunnelEndpointToObfuscationEndpoint(status.details.endpoint)
       : undefined;
 
+  const daita =
+    ((status.state === 'connected' || status.state === 'connecting') &&
+      status.details?.endpoint.daita) ??
+    false;
+
   return {
     isOpen: state.userInterface.connectionPanelVisible,
     hostname: state.connection.hostname,
@@ -104,6 +109,7 @@ const mapStateToProps = (state: IReduxState) => {
     bridgeInfo,
     outAddress,
     obfuscationEndpoint,
+    daita,
   };
 };
 
