@@ -35,11 +35,13 @@ android {
 }
 
 protobuf {
-    protoc { artifact = "com.google.protobuf:protoc:3.24.1" }
+    protoc { artifact = "com.google.protobuf:protoc:${Versions.Grpc.protobufVersion}" }
     plugins {
-        create("java") { artifact = "io.grpc:protoc-gen-grpc-java:1.57.2" }
-        create("grpc") { artifact = "io.grpc:protoc-gen-grpc-java:1.57.2" }
-        create("grpckt") { artifact = "io.grpc:protoc-gen-grpc-kotlin:1.4.0:jdk8@jar" }
+        create("java") { artifact = "io.grpc:protoc-gen-grpc-java:${Versions.Grpc.grpcVersion}" }
+        create("grpc") { artifact = "io.grpc:protoc-gen-grpc-java:${Versions.Grpc.grpcVersion}" }
+        create("grpckt") {
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:${Versions.Grpc.grpcKotlinVersion}:jdk8@jar"
+        }
     }
     generateProtoTasks {
         all().forEach {
@@ -54,28 +56,21 @@ protobuf {
 }
 
 dependencies {
-    val grpcVersion = "1.57.2"
-    val grpcKotlinVersion = "1.4.0" // CURRENT_GRPC_KOTLIN_VERSION
-    val protobufVersion = "3.24.1"
-    val coroutinesVersion = "1.7.3"
     implementation(project(Dependencies.Mullvad.modelLib))
     implementation(project(Dependencies.Mullvad.commonLib))
     implementation(project(Dependencies.Mullvad.talpidLib))
 
     implementation(Dependencies.jodaTime)
     implementation(Dependencies.Kotlin.stdlib)
+    implementation(Dependencies.KotlinX.coroutinesCore)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
 
-    implementation("io.grpc:grpc-okhttp:$grpcVersion")
-//    implementation("io.grpc:grpc-stub:$grpcVersion")
-    implementation("io.grpc:grpc-android:$grpcVersion")
-    implementation("io.grpc:grpc-kotlin-stub:$grpcKotlinVersion")
-    implementation("io.grpc:grpc-protobuf-lite:$grpcVersion")
-    implementation("com.google.protobuf:protobuf-kotlin-lite:$protobufVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+    implementation(Dependencies.Grpc.grpcOkHttp)
+    implementation(Dependencies.Grpc.grpcAndroid)
+    implementation(Dependencies.Grpc.grpcKotlinStub)
+    implementation(Dependencies.Grpc.protobufLite)
+    implementation(Dependencies.Grpc.protobufKotlinLite)
 
     implementation(Dependencies.Arrow.core)
     implementation(Dependencies.Arrow.optics)
-    //    api("com.google.protobuf:protobuf-java-util:$protobufVersion")
-    //    api("com.google.protobuf:protobuf-kotlin:$protobufVersion")
 }
