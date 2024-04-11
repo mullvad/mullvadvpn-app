@@ -16,8 +16,7 @@ use mullvad_types::{
     version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
-use std::path::Path;
-use std::str::FromStr;
+use std::{path::Path, str::FromStr};
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 use tonic::{Code, Status};
@@ -29,6 +28,7 @@ pub type Result<T> = std::result::Result<T, super::Error>;
 #[derive(Debug, Clone)]
 pub struct MullvadProxyClient(crate::ManagementServiceClient);
 
+#[derive(Debug)]
 pub enum DaemonEvent {
     TunnelState(TunnelState),
     Settings(Settings),
