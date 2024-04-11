@@ -22,7 +22,7 @@ class SelectedLocationRelayItemUseCase(
             relayListRepository.relayList,
             selectedLocationRepository.selectedLocation
         ) { customLists, relayList, selectedLocation ->
-            findSelectedRelayItem(selectedLocation, relayList.countries, customLists ?: emptyList())
+            findSelectedRelayItem(selectedLocation, relayList, customLists ?: emptyList())
         }
 
     private fun findSelectedRelayItem(

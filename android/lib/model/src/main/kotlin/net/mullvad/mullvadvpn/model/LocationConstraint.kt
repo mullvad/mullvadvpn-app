@@ -1,11 +1,22 @@
 package net.mullvad.mullvadvpn.model
 
 import android.os.Parcelable
+import arrow.optics.optics
 import kotlinx.parcelize.Parcelize
 
+@optics
 sealed class LocationConstraint : Parcelable {
     @Parcelize
-    data class Location(val location: GeographicLocationConstraint) : LocationConstraint()
+    @optics
+    data class Location(val location: GeographicLocationConstraint) : LocationConstraint() {
+        companion object
+    }
 
-    @Parcelize data class CustomList(val listId: CustomListId) : LocationConstraint()
+    @Parcelize
+    @optics
+    data class CustomList(val listId: CustomListId) : LocationConstraint() {
+        companion object
+    }
+
+    companion object
 }

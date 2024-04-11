@@ -25,11 +25,11 @@ import net.mullvad.mullvadvpn.model.DnsState
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.QuantumResistantState
-import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
+import net.mullvad.mullvadvpn.model.relayConstraints
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
@@ -75,7 +75,7 @@ class VpnSettingsViewModel(
                     selectedObfuscation =
                         settings?.selectedObfuscationSettings() ?: SelectedObfuscation.Off,
                     quantumResistant = settings?.quantumResistant() ?: QuantumResistantState.Off,
-                    selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any(),
+                    selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any,
                     customWireguardPort = customWgPort,
                     availablePortRanges = portRanges,
                     systemVpnSettingsAvailable =
@@ -210,7 +210,7 @@ class VpnSettingsViewModel(
                 .setObfuscationOptions(
                     ObfuscationSettings(
                         selectedObfuscation = selectedObfuscation,
-                        udp2tcp = Udp2TcpObfuscationSettings(Constraint.Any())
+                        udp2tcp = Udp2TcpObfuscationSettings(Constraint.Any)
                     )
                 )
                 .onLeft { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) }
@@ -242,7 +242,7 @@ class VpnSettingsViewModel(
         if (vmState.value.selectedWireguardPort.isCustom()) {
             viewModelScope.launch {
                 relayListRepository.updateSelectedWireguardConstraints(
-                    WireguardConstraints(port = Constraint.Any())
+                    WireguardConstraints(port = Constraint.Any)
                 )
             }
         }
@@ -288,11 +288,7 @@ class VpnSettingsViewModel(
     private fun Settings.selectedObfuscationSettings() = obfuscationSettings.selectedObfuscation
 
     private fun Settings.getWireguardPort() =
-        when (relaySettings) {
-            RelaySettings.CustomTunnelEndpoint -> Constraint.Any()
-            is RelaySettings.Normal ->
-                (relaySettings as RelaySettings.Normal).relayConstraints.wireguardConstraints.port
-        }
+        relaySettings.relayConstraints.wireguardConstraints.port
 
     private fun InetAddress.isLocalAddress(): Boolean {
         return isLinkLocalAddress || isSiteLocalAddress

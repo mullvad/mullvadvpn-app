@@ -33,7 +33,7 @@ data class VpnSettingsUiState(
             contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
             selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
             quantumResistant: QuantumResistantState = QuantumResistantState.Off,
-            selectedWireguardPort: Constraint<Port> = Constraint.Any(),
+            selectedWireguardPort: Constraint<Port> = Constraint.Any,
             customWireguardPort: Constraint.Only<Port>? = null,
             availablePortRanges: List<PortRange> = emptyList(),
             systemVpnSettingsAvailable: Boolean = false,
