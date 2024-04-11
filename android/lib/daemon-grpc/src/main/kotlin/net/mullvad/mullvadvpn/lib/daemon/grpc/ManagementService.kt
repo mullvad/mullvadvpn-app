@@ -3,6 +3,9 @@ package net.mullvad.mullvadvpn.lib.daemon.grpc
 import android.net.LocalSocketAddress
 import android.util.Log
 import arrow.core.Either
+import arrow.optics.copy
+import arrow.optics.dsl.index
+import arrow.optics.typeclasses.Index
 import com.google.protobuf.BoolValue
 import com.google.protobuf.Empty
 import com.google.protobuf.StringValue
@@ -29,17 +32,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import mullvad_daemon.management_interface.ManagementInterface
-import mullvad_daemon.management_interface.ManagementInterface.AppVersionInfo
-import mullvad_daemon.management_interface.ManagementInterface.CustomDnsOptions
-import mullvad_daemon.management_interface.ManagementInterface.DaemonEvent
-import mullvad_daemon.management_interface.ManagementInterface.DeviceEvent
-import mullvad_daemon.management_interface.ManagementInterface.RelayList
-import mullvad_daemon.management_interface.ManagementInterface.Settings
-import mullvad_daemon.management_interface.ManagementInterface.TunnelState
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
-import mullvad_daemon.management_interface.copy
 import net.mullvad.mullvadvpn.model.AccountData
-import net.mullvad.mullvadvpn.model.AccountId
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.AppVersionInfo as ModelAppVersionInfo
 import net.mullvad.mullvadvpn.model.ClearAllOverridesError
@@ -52,10 +46,14 @@ import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.model.DeleteDeviceError
 import net.mullvad.mullvadvpn.model.Device
+import net.mullvad.mullvadvpn.model.DeviceEvent
 import net.mullvad.mullvadvpn.model.DeviceId
 import net.mullvad.mullvadvpn.model.DeviceState as ModelDeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions as ModelDnsOptions
+import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.DnsState as ModelDnsState
+import net.mullvad.mullvadvpn.model.GetAccountDataError
+import net.mullvad.mullvadvpn.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.model.GetDeviceListError
 import net.mullvad.mullvadvpn.model.GetDeviceStateError
 import net.mullvad.mullvadvpn.model.LocationConstraint as ModelLocationConstraint
@@ -67,6 +65,8 @@ import net.mullvad.mullvadvpn.model.PlayPurchaseInitError
 import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyError
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.QuantumResistantState as ModelQuantumResistantState
+import net.mullvad.mullvadvpn.model.RelayConstraints
+import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.RelayList as ModelRelayList
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.SetAllowLanError
@@ -83,7 +83,14 @@ import net.mullvad.mullvadvpn.model.TunnelState as ModelTunnelState
 import net.mullvad.mullvadvpn.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.model.WireguardConstraints as ModelWireguardConstraints
 import net.mullvad.mullvadvpn.model.WireguardEndpointData as ModelWireguardEndpointData
-import org.joda.time.Instant
+import net.mullvad.mullvadvpn.model.addresses
+import net.mullvad.mullvadvpn.model.currentDnsOption
+import net.mullvad.mullvadvpn.model.customOptions
+import net.mullvad.mullvadvpn.model.location
+import net.mullvad.mullvadvpn.model.ownership
+import net.mullvad.mullvadvpn.model.providers
+import net.mullvad.mullvadvpn.model.relayConstraints
+import net.mullvad.mullvadvpn.model.wireguardConstraints
 
 class ManagementService(
     rpcSocketPath: String,
@@ -91,11 +98,11 @@ class ManagementService(
 ) {
 
     data class ManagementServiceState(
-        val tunnelState: TunnelState? = null,
-        val settings: Settings? = null,
-        val relayList: RelayList? = null,
-        val versionInfo: AppVersionInfo? = null,
-        val device: ManagementInterface.DeviceState? = null,
+        val tunnelState: ModelTunnelState? = null,
+        val settings: ModelSettings? = null,
+        val relayList: ModelRelayList? = null,
+        val versionInfo: ModelAppVersionInfo? = null,
+        val device: ModelDeviceState? = null,
         val deviceEvent: DeviceEvent? = null,
     )
 
@@ -132,25 +139,19 @@ class ManagementService(
     val state: StateFlow<ManagementServiceState> = _mutableStateFlow
 
     val deviceState: Flow<ModelDeviceState?> =
-        _mutableStateFlow
-            .mapNotNull { it.device }
-            .map(ManagementInterface.DeviceState::toDomain)
-            .stateIn(scope, SharingStarted.Eagerly, null)
+        _mutableStateFlow.mapNotNull { it.device }.stateIn(scope, SharingStarted.Eagerly, null)
 
-    val tunnelState: Flow<ModelTunnelState> =
-        _mutableStateFlow.mapNotNull { it.tunnelState }.map { it.toDomain() }
+    val tunnelState: Flow<ModelTunnelState> = _mutableStateFlow.mapNotNull { it.tunnelState }
 
-    val settings: Flow<ModelSettings> =
-        _mutableStateFlow.mapNotNull { it.settings }.map { it.toDomain() }
+    val settings: Flow<ModelSettings> = _mutableStateFlow.mapNotNull { it.settings }
 
-    val versionInfo: Flow<ModelAppVersionInfo> =
-        _mutableStateFlow.mapNotNull { it.versionInfo }.map { it.toDomain() }
+    val versionInfo: Flow<ModelAppVersionInfo> = _mutableStateFlow.mapNotNull { it.versionInfo }
 
-    val relayList: Flow<ModelRelayList> =
-        _mutableStateFlow.mapNotNull { it.relayList?.toDomain()?.first }
+    val relayCountries: Flow<List<RelayItem.Location.Country>> =
+        _mutableStateFlow.mapNotNull { it.relayList?.countries }
 
     val wireguardEndpointData: Flow<ModelWireguardEndpointData> =
-        _mutableStateFlow.mapNotNull { it.relayList?.toDomain()?.second }
+        _mutableStateFlow.mapNotNull { it.relayList?.wireguardEndpointData }
 
     suspend fun start() {
         scope.launch {
@@ -159,19 +160,29 @@ class ManagementService(
                     Log.d("ManagementService", "Event: $event")
                     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
                     when (event.eventCase) {
-                        DaemonEvent.EventCase.TUNNEL_STATE ->
-                            _mutableStateFlow.update { it.copy(tunnelState = event.tunnelState) }
-                        DaemonEvent.EventCase.SETTINGS ->
-                            _mutableStateFlow.update { it.copy(settings = event.settings) }
-                        DaemonEvent.EventCase.RELAY_LIST ->
-                            _mutableStateFlow.update { it.copy(relayList = event.relayList) }
-                        DaemonEvent.EventCase.VERSION_INFO ->
-                            _mutableStateFlow.update { it.copy(versionInfo = event.versionInfo) }
-                        DaemonEvent.EventCase.DEVICE ->
-                            _mutableStateFlow.update { it.copy(device = event.device.newState) }
-                        DaemonEvent.EventCase.REMOVE_DEVICE -> {}
-                        DaemonEvent.EventCase.EVENT_NOT_SET -> {}
-                        DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
+                        ManagementInterface.DaemonEvent.EventCase.TUNNEL_STATE ->
+                            _mutableStateFlow.update {
+                                it.copy(tunnelState = event.tunnelState.toDomain())
+                            }
+                        ManagementInterface.DaemonEvent.EventCase.SETTINGS ->
+                            _mutableStateFlow.update {
+                                it.copy(settings = event.settings.toDomain())
+                            }
+                        ManagementInterface.DaemonEvent.EventCase.RELAY_LIST ->
+                            _mutableStateFlow.update {
+                                it.copy(relayList = event.relayList.toDomain())
+                            }
+                        ManagementInterface.DaemonEvent.EventCase.VERSION_INFO ->
+                            _mutableStateFlow.update {
+                                it.copy(versionInfo = event.versionInfo.toDomain())
+                            }
+                        ManagementInterface.DaemonEvent.EventCase.DEVICE ->
+                            _mutableStateFlow.update {
+                                it.copy(device = event.device.newState.toDomain())
+                            }
+                        ManagementInterface.DaemonEvent.EventCase.REMOVE_DEVICE -> {}
+                        ManagementInterface.DaemonEvent.EventCase.EVENT_NOT_SET -> {}
+                        ManagementInterface.DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
                     }
                 }
             } catch (e: Exception) {
@@ -206,8 +217,8 @@ class ManagementService(
             .mapEmpty()
             .mapLeft { DeleteDeviceError.Unknown(it) }
 
-    suspend fun getTunnelState(): TunnelState =
-        managementService.getTunnelState(Empty.getDefaultInstance())
+    suspend fun getTunnelState(): ModelTunnelState =
+        managementService.getTunnelState(Empty.getDefaultInstance()).toDomain()
 
     suspend fun connect(): Boolean =
         managementService.connectTunnel(Empty.getDefaultInstance()).value
@@ -218,16 +229,17 @@ class ManagementService(
     suspend fun reconnect(): Boolean =
         managementService.reconnectTunnel(Empty.getDefaultInstance()).value
 
-    suspend fun getSettings(): Settings = managementService.getSettings(Empty.getDefaultInstance())
+    suspend fun getSettings(): ModelSettings =
+        managementService.getSettings(Empty.getDefaultInstance()).toDomain()
 
-    suspend fun getDeviceState(): ManagementInterface.DeviceState =
-        managementService.getDevice(Empty.getDefaultInstance())
+    suspend fun getDeviceState(): ModelDeviceState =
+        managementService.getDevice(Empty.getDefaultInstance()).toDomain()
 
-    suspend fun getRelayList(): RelayList =
-        managementService.getRelayLocations(Empty.getDefaultInstance())
+    suspend fun getRelayList(): ModelRelayList =
+        managementService.getRelayLocations(Empty.getDefaultInstance()).toDomain()
 
-    suspend fun getVersionInfo(): AppVersionInfo =
-        managementService.getVersionInfo(Empty.getDefaultInstance())
+    suspend fun getVersionInfo(): ModelAppVersionInfo =
+        managementService.getVersionInfo(Empty.getDefaultInstance()).toDomain()
 
     suspend fun logoutAccount(): Unit {
         managementService.logoutAccount(Empty.getDefaultInstance())
@@ -235,16 +247,12 @@ class ManagementService(
 
     suspend fun loginAccount(accountToken: AccountToken): Either<LoginAccountError, Unit> =
         Either.catch { managementService.loginAccount(StringValue.of(accountToken.value)) }
-            .mapLeft {
-                when (it) {
-                    is StatusException ->
-                        when (it.status.code) {
-                            Status.Code.UNAUTHENTICATED -> LoginAccountError.InvalidAccount
-                            Status.Code.RESOURCE_EXHAUSTED ->
-                                LoginAccountError.MaxDevicesReached(accountToken)
-                            Status.Code.UNAVAILABLE -> LoginAccountError.RpcError
-                            else -> LoginAccountError.Unknown(it)
-                        }
+            .mapLeftStatus {
+                when (it.status.code) {
+                    Status.Code.UNAUTHENTICATED -> LoginAccountError.InvalidAccount
+                    Status.Code.RESOURCE_EXHAUSTED ->
+                        LoginAccountError.MaxDevicesReached(accountToken)
+                    Status.Code.UNAVAILABLE -> LoginAccountError.RpcError
                     else -> LoginAccountError.Unknown(it)
                 }
             }
@@ -254,17 +262,16 @@ class ManagementService(
         managementService.clearAccountHistory(Empty.getDefaultInstance())
     }
 
-    suspend fun getAccountHistory() =
-        try {
-            val history = managementService.getAccountHistory(Empty.getDefaultInstance())
-            if (history.hasToken()) {
-                AccountToken(history.token.value)
-            } else {
-                null
+    suspend fun getAccountHistory(): Either<GetAccountHistoryError, AccountToken?> =
+        Either.catch {
+                val history = managementService.getAccountHistory(Empty.getDefaultInstance())
+                if (history.hasToken()) {
+                    AccountToken(history.token.value)
+                } else {
+                    null
+                }
             }
-        } catch (e: StatusException) {
-            throw e
-        }
+            .mapLeftStatus { GetAccountHistoryError.Unknown(it) }
 
     private suspend fun getInitialServiceState() =
         ManagementServiceState(
@@ -275,17 +282,13 @@ class ManagementService(
             getDeviceState(),
         )
 
-    suspend fun getAccountData(accountToken: AccountToken): AccountData? =
-        try {
-            val accountData = managementService.getAccountData(StringValue.of(accountToken.value))
-            accountData.expiry
-            AccountData(
-                AccountId.fromString(accountData.id),
-                Instant.ofEpochSecond(accountData.expiry.seconds).toDateTime()
-            )
-        } catch (e: StatusException) {
-            throw e
-        }
+    suspend fun getAccountData(
+        accountToken: AccountToken
+    ): Either<GetAccountDataError, AccountData> =
+        Either.catch {
+                managementService.getAccountData(StringValue.of(accountToken.value)).toDomain()
+            }
+            .mapLeft { GetAccountDataError.Unknown(it) }
 
     suspend fun createAccount(): Either<CreateAccountError, AccountToken> =
         Either.catch {
@@ -303,8 +306,8 @@ class ManagementService(
     suspend fun setDnsState(dnsState: ModelDnsState): Either<SetDnsOptionsError, Unit> =
         Either.catch {
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
-                val newDnsState = dnsState.fromDomain()
-                managementService.setDnsOptions(currentDnsOptions.copy { this.state = newDnsState })
+                val updated = DnsOptions.currentDnsOption.set(currentDnsOptions, dnsState)
+                managementService.setDnsOptions(updated.fromDomain())
             }
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
@@ -312,17 +315,22 @@ class ManagementService(
     suspend fun setCustomDns(index: Int, address: InetAddress): Either<SetDnsOptionsError, Unit> =
         Either.catch {
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
-                managementService.setDnsOptions(
-                    currentDnsOptions.copy {
-                        val builder = currentDnsOptions.customOptions.toBuilder()
-                        if (index == -1) {
-                            builder.addAddresses(address.hostAddress)
-                        } else {
-                            builder.setAddresses(index, address.hostAddress)
-                        }
-                        this.customOptions = builder.build()
-                    }
-                )
+                val updatedDnsOptions =
+                    DnsOptions.customOptions.addresses
+                        .index(Index.list(), index)
+                        .set(currentDnsOptions, address)
+
+                managementService.setDnsOptions(updatedDnsOptions.fromDomain())
+            }
+            .mapLeft(SetDnsOptionsError::Unknown)
+            .mapEmpty()
+
+    suspend fun addCustomDns(address: InetAddress): Either<SetDnsOptionsError, Unit> =
+        Either.catch {
+                val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
+                val updatedDnsOptions =
+                    DnsOptions.customOptions.addresses.modify(currentDnsOptions) { it + address }
+                managementService.setDnsOptions(updatedDnsOptions.fromDomain())
             }
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
@@ -330,18 +338,9 @@ class ManagementService(
     suspend fun deleteCustomDns(address: InetAddress): Either<SetDnsOptionsError, Unit> =
         Either.catch {
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
-                val currentCustomDnsOptions = currentDnsOptions.customOptions
-                val newCustomDnsOptions =
-                    CustomDnsOptions.newBuilder()
-                        .addAllAddresses(
-                            currentCustomDnsOptions.addressesList.filter {
-                                it != address.hostAddress
-                            }
-                        )
-                        .build()
-                managementService.setDnsOptions(
-                    currentDnsOptions.copy { this.customOptions = newCustomDnsOptions }
-                )
+                val updatedDnsOptions =
+                    DnsOptions.customOptions.addresses.modify(currentDnsOptions) { it - address }
+                managementService.setDnsOptions(updatedDnsOptions.fromDomain())
             }
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
@@ -388,11 +387,12 @@ class ManagementService(
     ): Either<SetRelayLocationError, Unit> =
         Either.catch {
                 val currentRelaySettings = getSettings().relaySettings
-                val newRelaySettings =
-                    currentRelaySettings.copy {
-                        this.normal = this.normal.copy { this.location = location.fromDomain() }
-                    }
-                managementService.setRelaySettings(newRelaySettings)
+                val updatedRelaySettings =
+                    RelaySettings.relayConstraints.location.set(
+                        currentRelaySettings,
+                        Constraint.Only(location)
+                    )
+                managementService.setRelaySettings(updatedRelaySettings.fromDomain())
             }
             .mapLeft(SetRelayLocationError::Unknown)
             .mapEmpty()
@@ -402,14 +402,10 @@ class ManagementService(
     ): Either<CreateCustomListError, CustomListId> =
         Either.catch { managementService.createCustomList(StringValue.of(name.value)) }
             .map { CustomListId(it.value) }
-            .mapLeft {
-                if (it is StatusException) {
-                    when (it.status.code) {
-                        Status.Code.ALREADY_EXISTS -> CreateCustomListError.CustomListAlreadyExists
-                        else -> CreateCustomListError.Unknown(it)
-                    }
-                } else {
-                    throw it
+            .mapLeftStatus {
+                when (it.status.code) {
+                    Status.Code.ALREADY_EXISTS -> CreateCustomListError.CustomListAlreadyExists
+                    else -> CreateCustomListError.Unknown(it)
                 }
             }
 
@@ -430,19 +426,12 @@ class ManagementService(
 
     suspend fun applySettingsPatch(json: String): Either<SettingsPatchError, Unit> =
         Either.catch { managementService.applyJsonSettings(StringValue.of(json)) }
-            .mapLeft {
-                if (it is StatusException) {
-                    Log.d(
-                        TAG,
-                        "applySettingsPatch error: ${it.status.description} ${it.status.code}"
-                    )
-                    when (it.status.code) {
-                        // Currently we only get invalid argument errors from daemon via gRPC
-                        Status.Code.INVALID_ARGUMENT -> SettingsPatchError.ParsePatch
-                        else -> SettingsPatchError.ApplyPatch
-                    }
-                } else {
-                    throw it
+            .mapLeftStatus {
+                Log.d(TAG, "applySettingsPatch error: ${it.status.description} ${it.status.code}")
+                when (it.status.code) {
+                    // Currently we only get invalid argument errors from daemon via gRPC
+                    Status.Code.INVALID_ARGUMENT -> SettingsPatchError.ParsePatch
+                    else -> SettingsPatchError.ApplyPatch
                 }
             }
             .mapEmpty()
@@ -451,12 +440,10 @@ class ManagementService(
         value: ModelWireguardConstraints
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
-                val relaySettings =
-                    getSettings().relaySettings.copy {
-                        this.normal =
-                            this.normal.copy { this.wireguardConstraints = value.fromDomain() }
-                    }
-                managementService.setRelaySettings(relaySettings)
+                val relaySettings = getSettings().relaySettings
+                val updated =
+                    RelaySettings.relayConstraints.wireguardConstraints.set(relaySettings, value)
+                managementService.setRelaySettings(updated.fromDomain())
             }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
@@ -466,25 +453,15 @@ class ManagementService(
         providersConstraint: Constraint<Providers>
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
-                val oldSettings = getSettings()
-                val relaySettings =
-                    ManagementInterface.RelaySettings.newBuilder(oldSettings.relaySettings)
-                        .setNormal(
-                            ManagementInterface.NormalRelaySettings.newBuilder(
-                                    oldSettings.relaySettings.normal
-                                )
-                                .setOwnership(
-                                    if (ownershipConstraint is Constraint.Only) {
-                                        ownershipConstraint.value.fromDomain()
-                                    } else {
-                                        ManagementInterface.Ownership.ANY
-                                    }
-                                )
-                                .clearProviders()
-                                .addAllProviders(providersConstraint.fromDomain())
-                        )
-                        .build()
-                managementService.setRelaySettings(relaySettings)
+                val relaySettings = getSettings().relaySettings
+                val updated =
+                    relaySettings.copy {
+                        inside(RelaySettings.relayConstraints) {
+                            RelayConstraints.providers set providersConstraint
+                            RelayConstraints.ownership set ownershipConstraint
+                        }
+                    }
+                managementService.setRelaySettings(updated.fromDomain())
             }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
@@ -493,19 +470,9 @@ class ManagementService(
         ownership: Constraint<ModelOwnership>
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
-                val relaySettings =
-                    getSettings().relaySettings.copy {
-                        this.normal =
-                            this.normal.copy {
-                                this.ownership =
-                                    if (ownership is Constraint.Only) {
-                                        ownership.value.fromDomain()
-                                    } else {
-                                        ManagementInterface.Ownership.ANY
-                                    }
-                            }
-                    }
-                managementService.setRelaySettings(relaySettings)
+                val relaySettings = getSettings().relaySettings
+                val updated = RelaySettings.relayConstraints.ownership.set(relaySettings, ownership)
+                managementService.setRelaySettings(updated.fromDomain())
             }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
@@ -514,15 +481,10 @@ class ManagementService(
         providersConstraint: Constraint<Providers>
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
-                val relaySettings =
-                    getSettings().relaySettings.copy {
-                        this.normal =
-                            this.normal.copy {
-                                this.providers.clear()
-                                this.providers.addAll(providersConstraint.fromDomain())
-                            }
-                    }
-                managementService.setRelaySettings(relaySettings)
+                val relaySettings = getSettings().relaySettings
+                val updated =
+                    RelaySettings.relayConstraints.providers.set(relaySettings, providersConstraint)
+                managementService.setRelaySettings(updated.fromDomain())
             }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
@@ -534,6 +496,16 @@ class ManagementService(
         Either.catch { TODO("Not yet implemented") }.mapLeft { PlayPurchaseVerifyError.OtherError }
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
+
+    private inline fun <B, C> Either<Throwable, B>.mapLeftStatus(
+        f: (StatusException) -> C
+    ): Either<C, B> = mapLeft {
+        if (it is StatusException) {
+            f(it)
+        } else {
+            throw it
+        }
+    }
 
     companion object {
         private const val TAG = "ManagementService"

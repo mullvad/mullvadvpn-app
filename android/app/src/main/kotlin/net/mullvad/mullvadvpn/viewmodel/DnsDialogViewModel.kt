@@ -121,7 +121,7 @@ class DnsDialogViewModel(
             if (index != null) {
                     repository.setCustomDns(index = index, address = address)
                 } else {
-                    repository.setCustomDns(address = address)
+                    repository.addCustomDns(address = address)
                 }
                 .fold(
                     { _uiSideEffect.send(DnsDialogSideEffect.Error) },
