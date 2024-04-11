@@ -36,6 +36,8 @@ public actor PacketTunnelActor {
 
     @Published internal(set) public var observedState: ObservedState = .initial
 
+    public static var newPQPrivateKey: PrivateKey!
+
     let logger = Logger(label: "PacketTunnelActor")
 
     let timings: PacketTunnelActorTimings
@@ -203,7 +205,8 @@ extension PacketTunnelActor {
             case .negotiatingPostQuantumKey:
                 // There is no connection monitoring going on when exchanging keys.
                 // The procedure starts from scratch for each reconnection attempts.
-                try await tryStart(nextRelay: nextRelay, reason: reason)
+//                try await tryStart(nextRelay: nextRelay, reason: reason)
+                break // DO nothing at all for the moment
             case .connecting, .connected, .reconnecting, .error:
                 switch reason {
                 case .connectionLoss:
@@ -229,12 +232,18 @@ extension PacketTunnelActor {
     private func postQuantumConnect(with key: PreSharedKey) async {
         guard
             let settings: Settings = try? settingsReader.read(),
-            let connectionState = try? obfuscateConnection(nextRelay: .random, settings: settings, reason: .userInitiated),
+            let connectionState = try? obfuscateConnection(
+                nextRelay: .random,
+                settings: settings,
+                reason: .userInitiated
+            ),
             let targetState = state.targetStateForReconnect
         else { return }
+
         let activeKey = activeKey(from: connectionState, in: settings)
         let configurationBuilder = ConfigurationBuilder(
-            privateKey: activeKey,
+            //            privateKey: activeKey,
+            privateKey: Self.newPQPrivateKey,
             interfaceAddresses: settings.interfaceAddresses,
             dns: settings.dnsServers,
             endpoint: connectionState.connectedEndpoint,
@@ -246,19 +255,22 @@ extension PacketTunnelActor {
         )
         stopDefaultPathObserver()
 
+        switch targetState {
+        case .connecting:
+            state = .connecting(connectionState)
+        case .reconnecting:
+            state = .reconnecting(connectionState)
+        }
+
         defer {
             // Restart default path observer and notify the observer with the current path that might have changed while
             // path observer was paused.
-            startDefaultPathObserver(notifyObserverWithCurrentPath: true)
+            startDefaultPathObserver(notifyObserverWithCurrentPath: false)
         }
 
-        guard let _ = try? await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration()) else {
-            return
-        }
-
+        try? await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
         tunnelMonitor.start(probeAddress: connectionState.selectedRelay.endpoint.ipv4Gateway)
-
     }
 
     /**

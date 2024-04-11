@@ -272,6 +272,7 @@ extension PacketTunnelProvider {
         )
 
         let postQuantumSharedKey = PrivateKey() // This will become the new private key of the device
+        PacketTunnelActor.newPQPrivateKey = postQuantumSharedKey
         let observer = tcpConnection.observe(\.isViable, options: [
             .initial,
             .new,
