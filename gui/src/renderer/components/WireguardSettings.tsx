@@ -591,7 +591,7 @@ function DaitaSettings() {
               {sprintf(
                 messages.pgettext(
                   'wireguard-settings-view',
-                  '%(daita)s (%(daitaFull)s) hides patterns in the encrypted VPN traffic. It does this by padding all packets to the same size, and by inserting extra noise traffic into the stream. This makes it significantly harder for an observer on the network to identify what services you are talking to.',
+                  '%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size.',
                 ),
                 { daita: strings.daita, daitaFull: strings.daitaFull },
               )}
@@ -600,7 +600,7 @@ function DaitaSettings() {
               {sprintf(
                 messages.pgettext(
                   'wireguard-settings-view',
-                  'This feature cause significant performance and network overhead. We do not recommend enabling it unless you know you need it. We also do not recommend enabling %(daita)s on a metered internet connection.',
+                  'Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s.',
                 ),
                 { daita: strings.daita },
               )}
@@ -614,13 +614,6 @@ function DaitaSettings() {
       <ModalAlert
         isOpen={confirmationDialogVisible}
         type={ModalAlertType.caution}
-        message={
-          // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
-          messages.pgettext(
-            'wireguard-settings-view',
-            "This feature isn't available on all servers. You might need to change location after enabling.",
-          )
-        }
         buttons={[
           <AppButton.BlueButton key="confirm" onClick={confirmDaita}>
             {messages.gettext('Enable anyway')}
@@ -629,8 +622,26 @@ function DaitaSettings() {
             {messages.gettext('Back')}
           </AppButton.BlueButton>,
         ]}
-        close={hideConfirmationDialog}
-      />
+        close={hideConfirmationDialog}>
+        <ModalMessage>
+          {
+            // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
+            messages.pgettext(
+              'wireguard-settings-view',
+              "This feature isn't available on all servers. You might need to change location after enabling.",
+            )
+          }
+        </ModalMessage>
+        <ModalMessage>
+          {sprintf(
+            messages.pgettext(
+              'wireguard-settings-view',
+              'Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s.',
+            ),
+            { daita: strings.daita },
+          )}
+        </ModalMessage>
+      </ModalAlert>
     </>
   );
 }
