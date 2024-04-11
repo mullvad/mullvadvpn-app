@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import android.content.res.Resources
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,14 +8,14 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
 import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.model.RedeemVoucherError
+import net.mullvad.mullvadvpn.repository.VoucherRepository
 import net.mullvad.mullvadvpn.util.VoucherRegexHelper
 
-class VoucherDialogViewModel(private val resources: Resources) : ViewModel() {
+class VoucherDialogViewModel(private val voucherRepository: VoucherRepository) : ViewModel() {
 
     private val vmState = MutableStateFlow<VoucherDialogState>(VoucherDialogState.Default)
     private val voucherInput = MutableStateFlow("")
@@ -30,14 +29,12 @@ class VoucherDialogViewModel(private val resources: Resources) : ViewModel() {
     fun onRedeem(voucherCode: String) {
         vmState.update { VoucherDialogState.Verifying }
         viewModelScope.launch {
-            TODO()
-            //            when (val result =
-            // serviceConnectionManager.voucherRedeemer()?.submit(voucherCode)) {
-            //                is VoucherSubmissionResult.Ok ->
-            // handleAddedTime(result.submission.timeAdded)
-            //                is VoucherSubmissionResult.Error -> setError(result.error)
-            //                null -> vmState.update { VoucherDialogState.Default }
-            //            }
+            voucherRepository
+                .submitVoucher(voucherCode)
+                .fold(
+                    { error -> setError(error) },
+                    { success -> handleAddedTime(success.timeAdded) }
+                )
         }
     }
 
@@ -58,17 +55,6 @@ class VoucherDialogViewModel(private val resources: Resources) : ViewModel() {
     }
 
     private fun setError(error: RedeemVoucherError) {
-        viewModelScope.launch {
-            val message =
-                resources.getString(
-                    when (error) {
-                        RedeemVoucherError.InvalidVoucher -> R.string.invalid_voucher
-                        RedeemVoucherError.VoucherAlreadyUsed -> R.string.voucher_already_used
-                        RedeemVoucherError.RpcError,
-                        is RedeemVoucherError.Unknown -> R.string.error_occurred
-                    }
-                )
-            vmState.update { VoucherDialogState.Error(message) }
-        }
+        viewModelScope.launch { vmState.update { VoucherDialogState.Error(error) } }
     }
 }
