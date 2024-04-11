@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.compose.state
 
+import net.mullvad.mullvadvpn.model.RedeemVoucherError
+
 data class VoucherDialogUiState(
     val voucherInput: String = "",
     val voucherState: VoucherDialogState = VoucherDialogState.Default
@@ -17,5 +19,5 @@ sealed interface VoucherDialogState {
 
     data class Success(val addedTime: Long) : VoucherDialogState
 
-    data class Error(val errorMessage: String) : VoucherDialogState
+    data class Error(val error: RedeemVoucherError) : VoucherDialogState
 }

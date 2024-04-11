@@ -32,6 +32,7 @@ import net.mullvad.mullvadvpn.model.Provider
 import net.mullvad.mullvadvpn.model.ProviderId
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.QuantumResistantState
+import net.mullvad.mullvadvpn.model.RedeemVoucherSuccess
 import net.mullvad.mullvadvpn.model.Relay
 import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelayEndpointType
@@ -247,7 +248,7 @@ internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<Locat
             Constraint.Only(LocationConstraint.Location(location.toDomain()))
         ManagementInterface.LocationConstraint.TypeCase.TYPE_NOT_SET -> Constraint.Any
         else -> throw IllegalArgumentException("Location constraint type is null")
-        }
+    }
 
 internal fun Constraint<LocationConstraint>.fromDomain(): ManagementInterface.LocationConstraint =
     when (this) {
@@ -640,4 +641,10 @@ internal fun ManagementInterface.AccountData.toDomain(): AccountData =
     AccountData(
         AccountId(UUID.fromString(id)),
         expiryDate = Instant.ofEpochSecond(expiry.seconds).toDateTime()
+    )
+
+internal fun ManagementInterface.VoucherSubmission.toDomain(): RedeemVoucherSuccess =
+    RedeemVoucherSuccess(
+        timeAdded = secondsAdded,
+        newExpiry = Instant.ofEpochSecond(newExpiry.seconds).toDateTime()
     )
