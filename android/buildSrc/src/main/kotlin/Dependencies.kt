@@ -43,6 +43,8 @@ object Dependencies {
 
     object Arrow {
         const val core = "io.arrow-kt:arrow-core:${Versions.Arrow.base}"
+        const val optics = "io.arrow-kt:arrow-optics:${Versions.Arrow.base}"
+        const val opticsKsp = "io.arrow-kt:arrow-optics-ksp-plugin:${Versions.Arrow.base}"
     }
 
     object Compose {
@@ -139,5 +141,6 @@ object Dependencies {
         const val playPublisher =
             "com.github.triplet.gradle:play-publisher:${Versions.Plugin.playPublisher}"
         const val playPublisherId = "com.github.triplet.play"
+
     }
 }

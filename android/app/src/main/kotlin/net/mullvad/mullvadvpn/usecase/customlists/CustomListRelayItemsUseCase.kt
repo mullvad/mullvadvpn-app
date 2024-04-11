@@ -20,7 +20,7 @@ class CustomListRelayItemsUseCase(
     ): Flow<List<RelayItem.Location>> =
         combine(
             customListsRepository.customLists.mapNotNull { it?.getById(customListId) },
-            relayListRepository.relayList.map { it.countries }
+            relayListRepository.relayList
         ) { customList, countries ->
             countries.getRelayItemsByCodes(customList.locations)
         }

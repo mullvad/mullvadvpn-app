@@ -14,6 +14,6 @@ class CustomListsRelayItemUseCase(
         combine(customListsRepository.customLists, relayListRepository.relayList) {
             customLists,
             relayList ->
-            customLists?.toRelayItemLists(relayList.countries) ?: emptyList()
+            customLists?.toRelayItemLists(relayList) ?: emptyList()
         }
 }

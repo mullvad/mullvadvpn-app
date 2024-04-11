@@ -10,7 +10,7 @@ class AvailableProvidersUseCase(private val relayListRepository: RelayListReposi
 
     fun availableProviders(): Flow<List<Provider>> =
         relayListRepository.relayList.map { relayList ->
-            relayList.countries
+            relayList
                 .flatMap(RelayItem.Location.Country::cities)
                 .flatMap(RelayItem.Location.City::relays)
                 .map(RelayItem.Location.Relay::provider)

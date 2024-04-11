@@ -45,9 +45,9 @@ class AccountRepository(
         val accountData =
             if (accountState.value !is DeviceState.LoggedIn) null
             else {
-                managementService.getAccountData(
-                    (accountState.value as DeviceState.LoggedIn).accountToken
-                )
+                managementService
+                    .getAccountData((accountState.value as DeviceState.LoggedIn).accountToken)
+                    .getOrNull()
             }
         _mutableAccountData.update { accountData }
         return accountData
