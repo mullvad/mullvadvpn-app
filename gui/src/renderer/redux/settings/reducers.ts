@@ -42,8 +42,9 @@ export type NormalRelaySettingsRedux = {
 
 export type NormalBridgeSettingsRedux = {
   location: LiftedConstraint<RelayLocation>;
-  // Providers and ownership are used to filter bridges and as bridge constraints for the daemon.
+  /** Providers are used to filter bridges and as bridge constraints for the daemon. */
   providers: string[];
+  /** Ownership is used to filter bridges and as bridge constraints for the daemon. */
   ownership: Ownership;
 };
 
