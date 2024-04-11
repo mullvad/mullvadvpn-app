@@ -65,6 +65,8 @@ import net.mullvad.mullvadvpn.model.PlayPurchaseInitError
 import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyError
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.QuantumResistantState as ModelQuantumResistantState
+import net.mullvad.mullvadvpn.model.RedeemVoucherError
+import net.mullvad.mullvadvpn.model.RedeemVoucherSuccess
 import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.RelayList as ModelRelayList
@@ -488,6 +490,19 @@ class ManagementService(
             }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
+
+    suspend fun submitVoucher(voucher: String): Either<RedeemVoucherError, RedeemVoucherSuccess> =
+        Either.catch { managementService.submitVoucher(StringValue.of(voucher)).toDomain() }
+            .mapLeftStatus {
+                when (it.status.code) {
+                    Status.Code.INVALID_ARGUMENT,
+                    Status.Code.NOT_FOUND -> RedeemVoucherError.InvalidVoucher
+                    Status.Code.ALREADY_EXISTS,
+                    Status.Code.RESOURCE_EXHAUSTED -> RedeemVoucherError.VoucherAlreadyUsed
+                    Status.Code.UNAVAILABLE -> RedeemVoucherError.RpcError
+                    else -> RedeemVoucherError.Unknown(it)
+                }
+            }
 
     suspend fun initializePlayPurchase(): Either<PlayPurchaseInitError, String> =
         Either.catch { TODO("Not yet implemented") }.mapLeft { PlayPurchaseInitError.OtherError }
