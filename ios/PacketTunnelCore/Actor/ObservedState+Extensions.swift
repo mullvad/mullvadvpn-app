@@ -31,7 +31,7 @@ extension ObservedState {
         case .connecting:
             "Connecting"
         case .negotiatingPostQuantumKey:
-            "Negotiating key"
+            "Negotiating Post Quantum Secure Key"
         case .reconnecting:
             "Reconnecting"
         case .disconnecting:
