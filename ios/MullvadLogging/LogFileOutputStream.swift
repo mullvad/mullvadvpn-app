@@ -19,6 +19,7 @@ class LogFileOutputStream: TextOutputStream {
     private let fileURL: URL
     private let encoding: String.Encoding
     private let maxBufferCapacity: Int
+    private let fileHeader: String
 
     private var state: State = .closed {
         didSet {
@@ -44,10 +45,11 @@ class LogFileOutputStream: TextOutputStream {
         case waitingToReopen
     }
 
-    init(fileURL: URL, encoding: String.Encoding = .utf8, maxBufferCapacity: Int = 16 * 1024) {
+    init(fileURL: URL, header: String, encoding: String.Encoding = .utf8, maxBufferCapacity: Int = 16 * 1024) {
         self.fileURL = fileURL
         self.encoding = encoding
         self.maxBufferCapacity = maxBufferCapacity
+        self.fileHeader = header
     }
 
     deinit {
@@ -66,7 +68,7 @@ class LogFileOutputStream: TextOutputStream {
         switch state {
         case .closed:
             do {
-                let fileHandle = try openFile()
+                let fileHandle = try openFileWithHeader(fileHeader)
                 state = .opened(fileHandle)
                 try write(fileHandle: fileHandle, data: data)
             } catch {
@@ -137,15 +139,22 @@ class LogFileOutputStream: TextOutputStream {
         timer = nil
     }
 
+    private func openFileWithHeader(_ header: String) throws -> FileHandle {
+        let fileHandle = try openFile()
+
+        let messageData =
+            "\(header)\n"
+                .data(using: encoding, allowLossyConversion: true)!
+        try write(fileHandle: fileHandle, data: messageData)
+
+        return fileHandle
+    }
+
     private func reopenFile() {
         do {
-            let fileHandle = try openFile()
-
             // Write a message indicating that the file was reopened.
-            let messageData =
-                "<Log file re-opened after failure. Buffered \(buffer.count) bytes of messages>\n"
-                    .data(using: encoding, allowLossyConversion: true)!
-            try write(fileHandle: fileHandle, data: messageData)
+            let fileHandle =
+                try openFileWithHeader("<Log file re-opened after failure. Buffered \(buffer.count) bytes of messages>")
 
             // Write all buffered messages.
             if !buffer.isEmpty {

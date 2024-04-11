@@ -160,14 +160,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
 extension PacketTunnelProvider {
     private static func configureLogging() {
-        var loggerBuilder = LoggerBuilder()
+        var loggerBuilder = LoggerBuilder(header: "PacketTunnel version \(Bundle.main.productVersion)")
         let pid = ProcessInfo.processInfo.processIdentifier
         loggerBuilder.metadata["pid"] = .string("\(pid)")
         loggerBuilder.addFileOutput(fileURL: ApplicationConfiguration.logFileURL(for: .packetTunnel))
         #if DEBUG
         loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
         #endif
-        loggerBuilder.install(header: "PacketTunnel version \(Bundle.main.productVersion)")
+        loggerBuilder.install()
     }
 
     private func parseStartOptions(_ options: [String: NSObject]) -> StartOptions {

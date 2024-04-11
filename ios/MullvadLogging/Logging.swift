@@ -20,8 +20,11 @@ public struct LoggerBuilder {
 
     public var metadata: Logger.Metadata = [:]
     public var logLevel: Logger.Level = .debug
+    public var header: String
 
-    public init() {}
+    public init(header: String) {
+        self.header = header
+    }
 
     public mutating func addFileOutput(fileURL: URL) {
         let logFileName = fileURL.lastPathComponent
@@ -39,19 +42,18 @@ public struct LoggerBuilder {
             logRotationErrors.append(error)
         }
 
-        outputs.append(.fileOutput(LogFileOutputStream(fileURL: fileURL)))
+        outputs.append(.fileOutput(LogFileOutputStream(fileURL: fileURL, header: header)))
     }
 
     public mutating func addOSLogOutput(subsystem: String) {
         outputs.append(.osLogOutput(subsystem))
     }
 
-    public func install(header: String) {
+    public func install() {
         LoggingSystem.bootstrap { label -> LogHandler in
             let logHandlers: [LogHandler] = outputs.map { output in
                 switch output {
                 case let .fileOutput(stream):
-                    stream.write("\(header)\n")
                     return CustomFormatLogHandler(label: label, streams: [stream])
 
                 case let .osLogOutput(subsystem):
