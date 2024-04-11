@@ -35,7 +35,8 @@ class AccountRepository(
         getAccountAccountData()
     }
 
-    suspend fun fetchAccountHistory(): AccountToken? = managementService.getAccountHistory()
+    suspend fun fetchAccountHistory(): AccountToken? =
+        managementService.getAccountHistory().getOrNull()
 
     suspend fun clearAccountHistory() = managementService.clearAccountHistory()
 
