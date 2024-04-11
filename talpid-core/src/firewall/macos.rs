@@ -147,10 +147,6 @@ impl Firewall {
                             if !allowed_tunnel_traffic.all() {
                                 log::warn!("Split tunneling does not respect the 'allowed tunnel traffic' setting");
                             }
-                            rules.extend(self.get_allow_established_tunnel_rules(
-                                &tunnel.interface,
-                                allowed_tunnel_traffic,
-                            )?);
                             rules.append(
                                 &mut self.get_split_tunnel_rules(
                                     &tunnel.interface,
@@ -199,10 +195,6 @@ impl Firewall {
                 if let Some(redirect_interface) = redirect_interface {
                     enable_forwarding();
 
-                    rules.extend(self.get_allow_established_tunnel_rules(
-                        &tunnel.interface,
-                        &AllowedTunnelTraffic::All,
-                    )?);
                     rules.append(
                         &mut self.get_split_tunnel_rules(&tunnel.interface, redirect_interface)?,
                     );
@@ -390,21 +382,6 @@ impl Firewall {
         self.get_allow_tunnel_rules_inner(tunnel_interface, allowed_traffic, Self::get_tcp_flags())
     }
 
-    fn get_allow_established_tunnel_rules(
-        &self,
-        tunnel_interface: &str,
-        allowed_traffic: &AllowedTunnelTraffic,
-    ) -> Result<Vec<pfctl::FilterRule>> {
-        self.get_allow_tunnel_rules_inner(
-            tunnel_interface,
-            allowed_traffic,
-            pfctl::TcpFlags::new(
-                &[pfctl::TcpFlag::Syn, pfctl::TcpFlag::Ack],
-                &[pfctl::TcpFlag::Syn, pfctl::TcpFlag::Ack],
-            ),
-        )
-    }
-
     fn get_allow_tunnel_rules_inner(
         &self,
         tunnel_interface: &str,
@@ -515,10 +492,17 @@ impl Firewall {
         from_interface: &str,
         to_interface: &str,
     ) -> Result<Vec<pfctl::FilterRule>> {
+        let tunnel_rule = self
+            .create_rule_builder(FilterRuleAction::Pass)
+            .quick(true)
+            .direction(pfctl::Direction::In)
+            .keep_state(pfctl::StatePolicy::None)
+            .interface(from_interface)
+            .build()?;
         let allow_rule = self
             .create_rule_builder(FilterRuleAction::Pass)
             .quick(true)
-            .direction(pfctl::Direction::Any)
+            .direction(pfctl::Direction::Out)
             .keep_state(pfctl::StatePolicy::Keep)
             .interface(to_interface)
             .build()?;
@@ -533,7 +517,7 @@ impl Firewall {
             .tcp_flags(Self::get_tcp_flags())
             .interface(from_interface)
             .build()?;
-        Ok(vec![allow_rule, redir_rule])
+        Ok(vec![tunnel_rule, allow_rule, redir_rule])
     }
 
     fn get_allow_dhcp_client_rules(&self) -> Result<Vec<pfctl::FilterRule>> {
