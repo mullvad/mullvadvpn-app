@@ -360,8 +360,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         loggerBuilder.install()
 
         logger = Logger(label: "AppDelegate")
-
-        loggerBuilder.logLevel = .debug
     }
 
     private func addApplicationNotifications(application: UIApplication) {

@@ -19,17 +19,7 @@ class MullvadLoggingTests: XCTestCase {
 
         // Add a teardown block to delete any file at `fileURL`.
         addTeardownBlock {
-            do {
-                let fileManager = FileManager.default
-                // Check that the file exists before trying to delete it.
-                if fileManager.fileExists(atPath: fileURL.path) {
-                    // Perform the deletion.
-                    try fileManager.removeItem(at: fileURL)
-                }
-            } catch {
-                // Treat any errors during file deletion as a test failure.
-                XCTFail("Error while deleting temporary file: \(error)")
-            }
+            try? FileManager.default.removeItem(at: fileURL)
         }
 
         // Return the temporary file URL for use in a test method.
