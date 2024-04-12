@@ -601,12 +601,14 @@ impl RouteManagerImpl {
     async fn add_route_with_record(&mut self, route: RouteMessage) -> Result<()> {
         let destination = RouteDestination::try_from(&route).map_err(Error::InvalidData)?;
 
-        self.routing_table
+        let add_result = self.routing_table
             .add_route(&route)
             .await
             .map_err(Error::AddRoute)?;
 
-        self.applied_routes.insert(destination, route);
+        if add_result == watch::AddResult::Ok {
+            self.applied_routes.insert(destination, route);
+        }
         Ok(())
     }
 
