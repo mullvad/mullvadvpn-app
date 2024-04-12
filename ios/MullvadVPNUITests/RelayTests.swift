@@ -26,6 +26,19 @@ class RelayTests: LoggedInWithTimeUITestCase {
         }
     }
 
+    func testAppConnection() throws {
+        TunnelControlPage(app)
+            .tapSecureConnectionButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForSecureConnectionLabel()
+
+        try Networking.verifyCanAccessInternet()
+        Networking.verifyConnectedThroughMullvad()
+    }
+
     func testAdBlockingViaDNS() throws {
         HeaderBar(app)
             .tapSettingsButton()
@@ -205,7 +218,12 @@ class RelayTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .tapSecureConnectionButton()
 
-        allowAddVPNConfigurations()
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForSecureConnectionLabel()
+
+        try Networking.verifyCanAccessInternet()
 
         HeaderBar(app)
             .tapSettingsButton()
