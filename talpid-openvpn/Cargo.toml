@@ -39,6 +39,7 @@ talpid-windows = { path = "../talpid-windows" }
 workspace = true
 features = [
     "Win32_Foundation",
+    "Win32_System_Com",
     "Win32_System_LibraryLoader",
     "Win32_System_Registry",
     "Win32_NetworkManagement_Ndis",
