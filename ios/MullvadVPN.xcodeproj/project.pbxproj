@@ -540,7 +540,7 @@
 		7A6F2FAB2AFD3097006D0856 /* CustomDNSCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FAA2AFD3097006D0856 /* CustomDNSCellFactory.swift */; };
 		7A6F2FAD2AFD3DA7006D0856 /* CustomDNSViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FAC2AFD3DA7006D0856 /* CustomDNSViewController.swift */; };
 		7A6F2FAF2AFE36E7006D0856 /* VPNSettingsInfoButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FAE2AFE36E7006D0856 /* VPNSettingsInfoButtonItem.swift */; };
-		7A7907332BC0280A00B61F81 /* InterceptibleNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7907322BC0280A00B61F81 /* InterceptibleNavigationController.swift */; };
+		7A7907332BC0280A00B61F81 /* InterceptableNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7907322BC0280A00B61F81 /* InterceptableNavigationController.swift */; };
 		7A7AD28D29DC677800480EF1 /* FirstTimeLaunch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */; };
 		7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */; };
 		7A83A0C62B29A750008B5CE7 /* APIAccessMethodsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A83A0C52B29A750008B5CE7 /* APIAccessMethodsTests.swift */; };
@@ -1806,7 +1806,7 @@
 		7A6F2FAA2AFD3097006D0856 /* CustomDNSCellFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDNSCellFactory.swift; sourceTree = "<group>"; };
 		7A6F2FAC2AFD3DA7006D0856 /* CustomDNSViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDNSViewController.swift; sourceTree = "<group>"; };
 		7A6F2FAE2AFE36E7006D0856 /* VPNSettingsInfoButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsInfoButtonItem.swift; sourceTree = "<group>"; };
-		7A7907322BC0280A00B61F81 /* InterceptibleNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterceptibleNavigationController.swift; sourceTree = "<group>"; };
+		7A7907322BC0280A00B61F81 /* InterceptableNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterceptableNavigationController.swift; sourceTree = "<group>"; };
 		7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstTimeLaunch.swift; sourceTree = "<group>"; };
 		7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootConfiguration.swift; sourceTree = "<group>"; };
 		7A83A0C52B29A750008B5CE7 /* APIAccessMethodsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIAccessMethodsTests.swift; sourceTree = "<group>"; };
@@ -2696,7 +2696,7 @@
 				58138E60294871C600684F0C /* DeviceDataThrottling.swift */,
 				7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */,
 				582AE30F2440A6CA00E6733A /* InputTextFormatter.swift */,
-				7A7907322BC0280A00B61F81 /* InterceptibleNavigationController.swift */,
+				7A7907322BC0280A00B61F81 /* InterceptableNavigationController.swift */,
 				58DFF7D12B0256A300F864E0 /* MarkdownStylingOptions.swift */,
 				58CC40EE24A601900019D96E /* ObserverList.swift */,
 			);
@@ -5466,7 +5466,7 @@
 				7A42DEC92A05164100B209BE /* SettingsInputCell.swift in Sources */,
 				5803B4B22940A48700C23744 /* TunnelStore.swift in Sources */,
 				586A950F29012BEE007BAF2B /* AddressCacheTracker.swift in Sources */,
-				7A7907332BC0280A00B61F81 /* InterceptibleNavigationController.swift in Sources */,
+				7A7907332BC0280A00B61F81 /* InterceptableNavigationController.swift in Sources */,
 				F02F41A02B9723AF00625A4F /* AddLocationsViewController.swift in Sources */,
 				587B753D2666468F00DEF7E9 /* NotificationController.swift in Sources */,
 			);
