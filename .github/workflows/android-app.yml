@@ -138,7 +138,7 @@ jobs:
   build-native:
     name: Build native
     needs: prepare
-    runs-on: ubuntu-latest-large
+    runs-on: ubuntu-latest
     container:
       image: "${{ needs.prepare.outputs.container_image }}"
     strategy:
@@ -249,7 +249,7 @@ jobs:
   build-app:
     name: Build app
     needs: [prepare, generate-debug-keystore]
-    runs-on: ubuntu-latest-large
+    runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare.outputs.container_image }}
     steps:
@@ -341,7 +341,7 @@ jobs:
   build-instrumented-tests:
     name: Build instrumented test packages
     needs: [prepare, generate-debug-keystore]
-    runs-on: ubuntu-latest-large
+    runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare.outputs.container_image }}
     strategy:
