@@ -36,8 +36,6 @@ public actor PacketTunnelActor {
 
     @Published internal(set) public var observedState: ObservedState = .initial
 
-    public static var newPQPrivateKey: PrivateKey!
-
     let logger = Logger(label: "PacketTunnelActor")
 
     let timings: PacketTunnelActorTimings
@@ -116,7 +114,7 @@ public actor PacketTunnelActor {
                     await handleDefaultPathChange(defaultPath)
 
                 case let .replaceDevicePrivateKey(preSharedKey, ephemeralKey):
-                    await postQuantumConnect(with: preSharedKey)
+                    await postQuantumConnect(with: preSharedKey, privateKey: ephemeralKey)
                 }
             }
         }
@@ -229,7 +227,7 @@ extension PacketTunnelActor {
         }
     }
 
-    private func postQuantumConnect(with key: PreSharedKey) async {
+    private func postQuantumConnect(with key: PreSharedKey, privateKey: PrivateKey) async {
         guard
             let settings: Settings = try? settingsReader.read(),
             let connectionState = try? obfuscateConnection(
@@ -243,7 +241,7 @@ extension PacketTunnelActor {
         let activeKey = activeKey(from: connectionState, in: settings)
         let configurationBuilder = ConfigurationBuilder(
             //            privateKey: activeKey,
-            privateKey: Self.newPQPrivateKey,
+            privateKey: privateKey,
             interfaceAddresses: settings.interfaceAddresses,
             dns: settings.dnsServers,
             endpoint: connectionState.connectedEndpoint,
