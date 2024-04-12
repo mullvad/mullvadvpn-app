@@ -37,6 +37,15 @@ pub struct RoutingTable {
     socket: routing_socket::RoutingSocket,
 }
 
+/// Result of successfully adding a route
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub enum AddResult {
+    /// A new route was created
+    Ok,
+    /// The route already exists
+    AlreadyExists,
+}
+
 impl RoutingTable {
     pub fn new() -> Result<Self> {
         let socket = routing_socket::RoutingSocket::new().map_err(Error::RoutingSocket)?;
@@ -63,14 +72,14 @@ impl RoutingTable {
         data::RouteSocketMessage::parse_message(msg_buf).map_err(Error::InvalidMessage)
     }
 
-    pub async fn add_route(&mut self, message: &RouteMessage) -> Result<()> {
+    pub async fn add_route(&mut self, message: &RouteMessage) -> Result<AddResult> {
         if let Ok(destination) = message.destination_ip() {
             if Some(destination.ip()) == message.gateway_ip() {
                 // Workaround that allows us to reach a wg peer on our router.
                 // If we don't do this, adding the route fails due to errno 49
                 // ("Can't assign requested address").
                 log::warn!("Ignoring route because the destination equals its gateway");
-                return Ok(());
+                return Ok(AddResult::AlreadyExists);
             }
         }
 
@@ -79,11 +88,11 @@ impl RoutingTable {
             .await;
 
         match msg {
-            Ok(RouteSocketMessage::AddRoute(_route)) => Ok(()),
+            Ok(RouteSocketMessage::AddRoute(_route)) => Ok(AddResult::Ok),
             Err(Error::Send(routing_socket::Error::Write(err)))
                 if err.kind() == io::ErrorKind::AlreadyExists =>
             {
-                Ok(())
+                Ok(AddResult::AlreadyExists)
             }
             Ok(anything_else) => {
                 log::error!("Unexpected route message: {anything_else:?}");
