@@ -257,22 +257,29 @@ extension PacketTunnelProvider {
         }
     }
 
-    private func startPostQuantumKeyNegotation(with privateKey: PrivateKey) {
-        quantumKeyNegotiatior?.cancelKeyNegotiation()
-
-        let keyNegotiatior = PostQuantumKeyNegotiatior()
-        let gatewayAddress = "10.64.0.1"
-        let IPv4Gateway = IPv4Address(gatewayAddress)!
+    func createTCPConnectionForPQPSK(_ gatewayAddress: String) -> NWTCPConnection {
         let gatewayEndpoint = NWHostEndpoint(hostname: gatewayAddress, port: "1337")
-        let tcpConnection = createTCPConnectionThroughTunnel(
+        return createTCPConnectionThroughTunnel(
             to: gatewayEndpoint,
             enableTLS: false,
             tlsParameters: nil,
             delegate: nil
         )
+    }
 
-        let postQuantumSharedKey = PrivateKey() // This will become the new private key of the device
-        PacketTunnelActor.newPQPrivateKey = postQuantumSharedKey
+    private func startPostQuantumKeyNegotation(with privateKey: PrivateKey) {
+        quantumKeyNegotiatior?.cancelKeyNegotiation()
+
+        let keyNegotiatior = PostQuantumKeyNegotiatior()
+
+        let gatewayAddress = "10.64.0.1"
+        let IPv4Gateway = IPv4Address(gatewayAddress)!
+        let tcpConnection = createTCPConnectionForPQPSK(gatewayAddress)
+
+        // TODO: Pass the private key to rust directly
+        // It will derive the public key, and give us back both the preshared key, and the ephemeral private key
+        let ephemeralSharedKey = PrivateKey() // This will become the new private key of the device
+        PacketTunnelActor.newPQPrivateKey = ephemeralSharedKey
         let observer = tcpConnection.observe(\.isViable, options: [
             .initial,
             .new,
@@ -281,7 +288,7 @@ extension PacketTunnelProvider {
             keyNegotiatior.negotiateKey(
                 gatewayIP: IPv4Gateway,
                 devicePublicKey: privateKey.publicKey,
-                presharedKey: postQuantumSharedKey.publicKey,
+                presharedKey: ephemeralSharedKey.publicKey,
                 packetTunnel: self,
                 tcpConnection: tcpConnection
             )
