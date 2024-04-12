@@ -12,15 +12,15 @@ use talpid_types::net::{
 
 use mullvad_relay_selector::{
     query::{builder::RelayQueryBuilder, BridgeQuery, OpenVpnRelayQuery},
-    Error, GetRelay, RelaySelector, RuntimeParameters, SelectorConfig, WireguardConfig,
-    RETRY_ORDER,
+    AdditionalRelayConstraints, AdditionalWireguardConstraints, Error, GetRelay, RelaySelector,
+    RuntimeParameters, SelectorConfig, WireguardConfig, RETRY_ORDER,
 };
 use mullvad_types::{
     constraints::Constraint,
     endpoint::MullvadEndpoint,
     relay_constraints::{
-        BridgeConstraints, BridgeState, GeographicLocationConstraint, Ownership, Providers,
-        SelectedObfuscation, TransportPort,
+        BridgeConstraints, BridgeState, GeographicLocationConstraint, LocationConstraint,
+        Ownership, Providers, SelectedObfuscation, TransportPort,
     },
     relay_list::{
         BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData,
