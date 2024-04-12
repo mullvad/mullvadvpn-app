@@ -36,6 +36,7 @@ extension PacketTunnelActor {
         /// Network reachability events.
         case networkReachability(NetworkPath)
 
+        // TODO: Add the device's ephemeral new private key here
         /// Update the device private key, as per post-quantum protocols
         case replaceDevicePrivateKey(PreSharedKey)
 
