@@ -2,11 +2,13 @@ package net.mullvad.mullvadvpn.repository
 
 import arrow.core.Either
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.AccountToken
@@ -21,8 +23,22 @@ class AccountRepository(
     val accountState =
         managementService.deviceState.stateIn(scope = scope, SharingStarted.Eagerly, null)
 
-    private val _mutableAccountData: MutableStateFlow<AccountData?> = MutableStateFlow(null)
-    val accountData: StateFlow<AccountData?> = _mutableAccountData
+    private val _mutableAccountData: MutableSharedFlow<AccountData> = MutableSharedFlow()
+
+    val accountData: StateFlow<AccountData?> =
+        merge(
+                accountState.filterNotNull().map { deviceState ->
+                    when (deviceState) {
+                        is DeviceState.LoggedIn -> {
+                            managementService.getAccountData(deviceState.accountToken).getOrNull()
+                        }
+                        DeviceState.LoggedOut,
+                        DeviceState.Revoked -> null
+                    }
+                },
+                _mutableAccountData
+            )
+            .stateIn(scope = scope, SharingStarted.Eagerly, null)
 
     suspend fun createAccount(): Either<CreateAccountError, AccountToken> =
         managementService.createAccount()
@@ -50,7 +66,9 @@ class AccountRepository(
                     .getAccountData((accountState.value as DeviceState.LoggedIn).accountToken)
                     .getOrNull()
             }
-        _mutableAccountData.update { accountData }
+        if (accountData != null) {
+            _mutableAccountData.emit(accountData)
+        }
         return accountData
     }
 }
