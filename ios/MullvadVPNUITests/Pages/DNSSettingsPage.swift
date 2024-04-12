@@ -60,6 +60,16 @@ class DNSSettingsPage: Page {
         return self
     }
 
+    @discardableResult func tapBlockAdsSwitchIfOn() -> Self {
+        let blockAdsSwitch = app.cells[AccessibilityIdentifier.blockAdvertising]
+            .switches[AccessibilityIdentifier.customSwitch]
+
+        if blockAdsSwitch.value as? String == "1" {
+            tapBlockAdsSwitch()
+        }
+        return self
+    }
+
     @discardableResult func tapBlockTrackerSwitch() -> Self {
         app.cells[AccessibilityIdentifier.blockTracking]
             .switches[AccessibilityIdentifier.customSwitch]

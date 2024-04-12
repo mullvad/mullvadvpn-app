@@ -58,7 +58,7 @@ class AccountTests: LoggedOutUITestCase {
     func testLogin() throws {
         LoginPage(app)
             .tapAccountNumberTextField()
-            .enterText(self.noTimeAccountNumber)
+            .enterText(hasTimeAccountNumber)
             .tapAccountNumberSubmitButton()
             .verifySuccessIconShown()
             .verifyDeviceLabelShown()
