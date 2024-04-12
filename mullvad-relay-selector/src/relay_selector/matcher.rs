@@ -8,7 +8,7 @@ use mullvad_types::{
         GeographicLocationConstraint, InternalBridgeConstraints, LocationConstraint, Ownership,
         Providers,
     },
-    relay_list::{Relay, RelayEndpointData},
+    relay_list::{Relay, RelayEndpointData, WireguardRelayEndpointData},
 };
 use talpid_types::net::TunnelType;
 
@@ -32,7 +32,9 @@ pub fn filter_matching_relay_list<'a, R: Iterator<Item = &'a Relay> + Clone>(
             // Filter by ownership
             .filter(|relay| filter_on_ownership(&query.ownership, relay))
             // Filter by providers
-            .filter(|relay| filter_on_providers(&query.providers, relay));
+            .filter(|relay| filter_on_providers(&query.providers, relay))
+            // Filter by DAITA support
+            .filter(|relay| filter_on_daita(&query.wireguard_constraints.daita, relay));
 
     // The last filtering to be done is on the `include_in_country` attribute found on each
     // relay. When the location constraint is based on country, a relay which has
@@ -76,7 +78,7 @@ pub fn filter_matching_bridges<'a, R: Iterator<Item = &'a Relay> + Clone>(
             .filter(|relay| filter_on_location(&locations, relay))
             // Filter by ownership
             .filter(|relay| filter_on_ownership(&constraints.ownership, relay))
-            // Filter by constraints
+            // Filter by providers
             .filter(|relay| filter_on_providers(&constraints.providers, relay))
             .cloned()
             .collect()
@@ -106,6 +108,19 @@ pub fn filter_on_ownership(filter: &Constraint<Ownership>, relay: &Relay) -> boo
 /// Returns whether `relay` satisfy the providers constraint posed by `filter`.
 pub fn filter_on_providers(filter: &Constraint<Providers>, relay: &Relay) -> bool {
     filter.matches(relay)
+}
+
+/// Returns whether `relay` satisfy the daita constraint posed by `filter`.
+pub fn filter_on_daita(filter: &Constraint<bool>, relay: &Relay) -> bool {
+    match (filter, &relay.endpoint_data) {
+        // Only a subset of relays support DAITA, so filter out ones that don't.
+        (
+            Constraint::Only(true),
+            RelayEndpointData::Wireguard(WireguardRelayEndpointData { daita, .. }),
+        ) => *daita,
+        // If we don't require DAITA, any relay works.
+        _ => true,
+    }
 }
 
 /// Returns whether the relay is an OpenVPN relay.

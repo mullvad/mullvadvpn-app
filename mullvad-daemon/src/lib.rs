@@ -37,7 +37,9 @@ use futures::{
     StreamExt,
 };
 use geoip::GeoIpHandler;
-use mullvad_relay_selector::{AdditionalRelayConstraints, AdditionalWireguardConstraints, RelaySelector, SelectorConfig};
+use mullvad_relay_selector::{
+    AdditionalRelayConstraints, AdditionalWireguardConstraints, RelaySelector, SelectorConfig,
+};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 #[cfg(target_os = "windows")]
