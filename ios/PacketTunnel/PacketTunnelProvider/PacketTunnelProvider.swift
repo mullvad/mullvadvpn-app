@@ -288,7 +288,7 @@ extension PacketTunnelProvider {
             keyNegotiatior.negotiateKey(
                 gatewayIP: IPv4Gateway,
                 devicePublicKey: privateKey.publicKey,
-                presharedKey: ephemeralSharedKey.publicKey,
+                presharedKey: ephemeralSharedKey,
                 packetTunnel: self,
                 tcpConnection: tcpConnection
             )
@@ -338,7 +338,7 @@ extension PacketTunnelProvider {
 }
 
 extension PacketTunnelProvider: PostQuantumKeyReceiving {
-    func receivePostQuantumKey(_ key: PreSharedKey?) {
+    func receivePostQuantumKey(_ key: PreSharedKey?, ephemeralKey: PrivateKey) {
         quantumKeyNegotiatior?.cancelKeyNegotiation()
         tcpConnectionObserver?.invalidate()
         inTunnelTCPConnection.cancel()
@@ -347,7 +347,7 @@ extension PacketTunnelProvider: PostQuantumKeyReceiving {
         quantumKeyNegotiatior = nil
 
         if let key {
-            actor.replacePreSharedKey(key)
+            actor.replacePreSharedKey(key, ephemeralKey: ephemeralKey)
         } else {
             actor.reconnect(to: .current)
         }

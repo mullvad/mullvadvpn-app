@@ -115,7 +115,7 @@ public actor PacketTunnelActor {
                 case let .networkReachability(defaultPath):
                     await handleDefaultPathChange(defaultPath)
 
-                case let .replaceDevicePrivateKey(preSharedKey):
+                case let .replaceDevicePrivateKey(preSharedKey, ephemeralKey):
                     await postQuantumConnect(with: preSharedKey)
                 }
             }

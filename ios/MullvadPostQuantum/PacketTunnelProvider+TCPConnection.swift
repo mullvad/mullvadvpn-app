@@ -53,17 +53,26 @@ func tcpConnectionReceive(
 }
 
 @_cdecl("swift_post_quantum_key_ready")
-func receivePostQuantumKey(rawPacketTunnel: UnsafeMutableRawPointer?, rawPresharedKey: UnsafeMutableRawPointer?) {
-    guard let rawPacketTunnel else { return }
+func receivePostQuantumKey(
+    rawPacketTunnel: UnsafeMutableRawPointer?,
+    rawPresharedKey: UnsafeMutableRawPointer?,
+    rawEphemeralKey: UnsafeMutableRawPointer?
+) {
+    guard
+        let rawPacketTunnel,
+        let rawEphemeralKey,
+        let ephemeralKey = PrivateKey(rawValue: Data(bytes: rawEphemeralKey, count: 32))
+    else { return }
     let packetTunnel = Unmanaged<NEPacketTunnelProvider>.fromOpaque(rawPacketTunnel).takeUnretainedValue()
+
     guard let postQuantumKeyReceiver = packetTunnel as? PostQuantumKeyReceiving else { return }
     guard let rawPresharedKey else {
-        postQuantumKeyReceiver.receivePostQuantumKey(.none)
+        postQuantumKeyReceiver.receivePostQuantumKey(.none, ephemeralKey: ephemeralKey)
         return
     }
 
     let presharedKey = Data(bytes: rawPresharedKey, count: 32)
     if let key = PreSharedKey(rawValue: presharedKey) {
-        postQuantumKeyReceiver.receivePostQuantumKey(key)
+        postQuantumKeyReceiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
     }
 }
