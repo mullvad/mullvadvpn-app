@@ -704,8 +704,6 @@ where
             settings_event_listener.notify_settings(settings.to_owned());
         });
 
-        let app_version_info = version_check::load_cache(&cache_dir).await;
-
         let initial_selector_config = new_selector_config(&settings);
         let relay_selector = RelaySelector::new(
             initial_selector_config,
@@ -868,9 +866,10 @@ where
             api_availability.clone(),
             cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
-            app_version_info.clone(),
             settings.show_beta_releases,
-        );
+        )
+        .await;
+        let app_version_info = version_updater.last_app_version_info().cloned();
         tokio::spawn(version_updater.run());
 
         // Attempt to download a fresh relay list
