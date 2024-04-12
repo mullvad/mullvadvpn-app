@@ -198,9 +198,13 @@ function getTestingDialogSubTitle(type: ModalAlertType, newMethod: boolean, name
             ),
             { name },
           )
-        : messages.pgettext(
-            'api-access-methods-view',
-            'Clicking “Save” changes the in use method.',
+        : sprintf(
+            // TRANSLATORS: %(save)s - Will be replaced with the translation for the word "Save".
+            messages.pgettext(
+              'api-access-methods-view',
+              'Clicking “%(save)s” changes the in use method.',
+            ),
+            { save: messages.gettext('Save') },
           );
     default:
       return undefined;
