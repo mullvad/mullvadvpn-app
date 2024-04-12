@@ -56,8 +56,8 @@ extension PacketTunnelActor {
      - Parameter key: the new key
      */
 
-    nonisolated public func replacePreSharedKey(_ key: PreSharedKey) {
-        commandChannel.send(.replaceDevicePrivateKey(key))
+    nonisolated public func replacePreSharedKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
+        commandChannel.send(.replaceDevicePrivateKey(key, ephemeralKey: ephemeralKey))
     }
 
     /**

@@ -19,7 +19,7 @@ public class PostQuantumKeyNegotiatior {
     public func negotiateKey(
         gatewayIP: IPv4Address,
         devicePublicKey: PublicKey,
-        presharedKey: PublicKey,
+        presharedKey: PrivateKey,
         packetTunnel: NEPacketTunnelProvider,
         tcpConnection: NWTCPConnection
     ) {
