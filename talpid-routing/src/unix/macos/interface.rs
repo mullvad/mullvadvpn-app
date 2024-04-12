@@ -24,8 +24,8 @@ use system_configuration::{
     network_configuration::SCNetworkSet,
     preferences::SCPreferences,
     sys::schema_definitions::{
-        kSCDynamicStorePropNetPrimaryInterface, kSCPropInterfaceName, kSCPropNetIPv4Addresses,
-        kSCPropNetIPv4Router, kSCPropNetIPv6Addresses, kSCPropNetIPv6Router,
+        kSCDynamicStorePropNetPrimaryInterface, kSCPropInterfaceName, kSCPropNetIPv4Router,
+        kSCPropNetIPv6Router,
     },
 };
 
@@ -168,19 +168,15 @@ impl PrimaryInterfaceMonitor {
         let (iface, index) = ifaces
             .into_iter()
             .filter_map(|iface| {
-                let index = if_nametoindex(iface.name.as_str()).map_err(|error| {
-                    log::error!("Failed to retrieve interface index for \"{}\": {error}", iface.name);
-                    error
-                }).ok()?;
-
-                let active = is_active_interface(&iface.name, family).unwrap_or_else(|error| {
-                    log::error!("is_active_interface() returned an error for interface \"{}\", assuming active. Error: {error}", iface.name);
-                    true
-                });
-                if !active {
-                    log::debug!("Skipping inactive interface {}, router IP {}", iface.name, iface.router_ip);
-                    return None;
-                }
+                let index = if_nametoindex(iface.name.as_str())
+                    .map_err(|error| {
+                        log::error!(
+                            "Failed to retrieve interface index for \"{}\": {error}",
+                            iface.name
+                        );
+                        error
+                    })
+                    .ok()?;
                 Some((iface, index))
             })
             .next()?;
@@ -232,10 +228,11 @@ impl PrimaryInterfaceMonitor {
             log::debug!("Missing router IP for primary interface ({name}, {family})");
             None
         })?;
-        let first_ip = get_service_first_ip(&ip_dict, family).or_else(|| {
+        let first_ip = find_first_ip(&name, family).or_else(|| {
             log::debug!("Missing IP for primary interface ({name}, {family})");
             None
         })?;
+
         Some(NetworkServiceDetails {
             name,
             router_ip,
@@ -267,7 +264,7 @@ impl PrimaryInterfaceMonitor {
                     log::debug!("Missing router IP for {service_key} ({name}, {family})");
                     None
                 })?;
-                let first_ip = get_service_first_ip(&ip_dict, family).or_else(|| {
+                let first_ip = find_first_ip(&name, family).or_else(|| {
                     log::debug!("Missing IP for \"{service_key}\" ({name}, {family})");
                     None
                 })?;
@@ -307,26 +304,30 @@ pub fn get_interface_link_addresses() -> io::Result<BTreeMap<String, SockaddrSto
     Ok(gateway_link_addrs)
 }
 
-/// Return whether the given interface has an assigned (unicast) IP address.
-fn is_active_interface(interface_name: &str, family: Family) -> io::Result<bool> {
+/// Return the first assigned (unicast) IP address for the given interface
+fn find_first_ip(interface_name: &str, family: Family) -> Option<IpAddr> {
     let required_link_flags: InterfaceFlags = InterfaceFlags::IFF_UP | InterfaceFlags::IFF_RUNNING;
-    let has_ip_addr = nix::ifaddrs::getifaddrs()?
+    nix::ifaddrs::getifaddrs()
+        .ok()?
         .filter(|addr| (addr.flags & required_link_flags) == required_link_flags)
         .filter(|addr| addr.interface_name == interface_name)
-        .any(|addr| {
-            if let Some(addr) = addr.address {
-                // Check if family matches; ignore if link-local address
-                match family {
-                    Family::V4 => matches!(addr.as_sockaddr_in(), Some(addr_in) if is_routable_v4(&addr_in.ip())),
-                    Family::V6 => {
-                        matches!(addr.as_sockaddr_in6(), Some(addr_in) if is_routable_v6(&addr_in.ip()))
-                    }
-                }
-            } else {
-                false
-            }
-        });
-    Ok(has_ip_addr)
+        .filter_map(|addr| addr.address)
+        .find_map(|addr| match family {
+            Family::V4 => addr
+                .as_sockaddr_in()
+                .map(|addr_in| IpAddr::from(addr_in.ip())),
+            Family::V6 => addr
+                .as_sockaddr_in6()
+                .map(|addr_in| IpAddr::from(addr_in.ip())),
+        })
+        .filter(is_routable)
+}
+
+fn is_routable(addr: &IpAddr) -> bool {
+    match addr {
+        IpAddr::V4(ip) => is_routable_v4(ip),
+        IpAddr::V6(ip) => is_routable_v6(ip),
+    }
 }
 
 fn is_routable_v4(addr: &Ipv4Addr) -> bool {
@@ -348,25 +349,6 @@ fn get_service_router_ip(ip_dict: &CFDictionary, family: Family) -> Option<IpAdd
         unsafe { kSCPropNetIPv6Router }
     };
     get_dict_elem_as_string(ip_dict, router_key).and_then(|ip| ip.parse().ok())
-}
-
-fn get_service_first_ip(ip_dict: &CFDictionary, family: Family) -> Option<IpAddr> {
-    let ip_key = if family == Family::V4 {
-        unsafe { kSCPropNetIPv4Addresses }
-    } else {
-        unsafe { kSCPropNetIPv6Addresses }
-    };
-    ip_dict
-        .find(ip_key.to_void())
-        .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
-        .and_then(|s| s.downcast::<CFArray>())
-        .and_then(|ips| {
-            ips.get(0)
-                .map(|ip| unsafe { CFType::wrap_under_get_rule(*ip) })
-        })
-        .and_then(|s| s.downcast::<CFString>())
-        .map(|s| s.to_string())
-        .and_then(|ip| ip.parse().ok())
 }
 
 fn get_dict_elem_as_string(dict: &CFDictionary, key: CFStringRef) -> Option<String> {
