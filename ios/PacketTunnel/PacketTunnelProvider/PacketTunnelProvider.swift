@@ -279,7 +279,6 @@ extension PacketTunnelProvider {
         // TODO: Pass the private key to rust directly
         // It will derive the public key, and give us back both the preshared key, and the ephemeral private key
         let ephemeralSharedKey = PrivateKey() // This will become the new private key of the device
-        PacketTunnelActor.newPQPrivateKey = ephemeralSharedKey
         let observer = tcpConnection.observe(\.isViable, options: [
             .initial,
             .new,
