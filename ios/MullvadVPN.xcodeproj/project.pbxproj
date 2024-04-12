@@ -696,6 +696,7 @@
 		A944F2632B8DEFDB00473F4C /* MullvadPostQuantum.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A944F25C2B8DEFDB00473F4C /* MullvadPostQuantum.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A944F26A2B8DF32900473F4C /* PostQuantumKeyNegotiatior.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB4F9C2B7FAB21002A2D7A /* PostQuantumKeyNegotiatior.swift */; };
 		A944F2722B8E02F600473F4C /* libtalpid_tunnel_config_client_proxy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A944F2712B8E02E800473F4C /* libtalpid_tunnel_config_client_proxy.a */; };
+		A948809B2BC9308D0090A44C /* PostQuantumKeyExchangeActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A948809A2BC9308D0090A44C /* PostQuantumKeyExchangeActor.swift */; };
 		A94D691A2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E22AA72AE9003D1918 /* WireGuardKitTypes */; };
 		A94D691B2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E72AA7399D003D1918 /* WireGuardKitTypes */; };
 		A95EEE362B722CD600A8A39B /* TunnelMonitorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */; };
@@ -2004,6 +2005,7 @@
 		A944F25E2B8DEFDB00473F4C /* MullvadPostQuantum.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadPostQuantum.h; sourceTree = "<group>"; };
 		A944F2712B8E02E800473F4C /* libtalpid_tunnel_config_client_proxy.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtalpid_tunnel_config_client_proxy.a; path = "../target/aarch64-apple-ios/debug/libtalpid_tunnel_config_client_proxy.a"; sourceTree = "<group>"; };
 		A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTests.swift; sourceTree = "<group>"; };
+		A948809A2BC9308D0090A44C /* PostQuantumKeyExchangeActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostQuantumKeyExchangeActor.swift; sourceTree = "<group>"; };
 		A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorState.swift; sourceTree = "<group>"; };
 		A95EEE372B722DFC00A8A39B /* PingStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingStats.swift; sourceTree = "<group>"; };
 		A9630E3B2B8E0E7B00A65999 /* talpid_tunnel_config_client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = talpid_tunnel_config_client.h; path = "talpid-tunnel-config-client/include/talpid_tunnel_config_client.h"; sourceTree = "<group>"; };
@@ -3470,6 +3472,7 @@
 				58F3F3682AA08E2200D3B0A4 /* PacketTunnelProvider */,
 				58915D662A25F9F20066445B /* DeviceCheck */,
 				588395612A9DF497008B63F6 /* WireGuardAdapter */,
+				A948809A2BC9308D0090A44C /* PostQuantumKeyExchangeActor.swift */,
 			);
 			path = PacketTunnel;
 			sourceTree = "<group>";
@@ -5791,6 +5794,7 @@
 				58F3F36A2AA08E3C00D3B0A4 /* PacketTunnelProvider.swift in Sources */,
 				58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */,
 				58C7A45B2A8640030060C66F /* PacketTunnelPathObserver.swift in Sources */,
+				A948809B2BC9308D0090A44C /* PostQuantumKeyExchangeActor.swift in Sources */,
 				580D6B8E2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift in Sources */,
 				06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */,
 				583FE02429C1ACB3006E85F9 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
