@@ -185,7 +185,7 @@ final class LocationDataSource:
 
         let rootNode = selectedItem.node.root
 
-        // Exit early if no changes to the node tree are necessary.
+        // Exit early if no changes to the node tree should be made.
         guard selectedItem.node != rootNode else {
             completion?()
             return

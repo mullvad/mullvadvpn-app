@@ -31,7 +31,7 @@ class CustomListViewController: UIViewController {
         return interactor.fetchAll().first(where: { $0.id == subject.value.id })
     }
 
-    private var hasUnsavedChanges: Bool {
+    var hasUnsavedChanges: Bool {
         persistedCustomList != subject.value.customList
     }
 
@@ -83,12 +83,12 @@ class CustomListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        navigationItem.rightBarButtonItem = saveBarButton
         view.directionalLayoutMargins = UIMetrics.contentLayoutMargins
         view.backgroundColor = .secondaryColor
         isModalInPresentation = true
 
         addSubviews()
-        configureNavigationItem()
         configureDataSource()
         configureTableView()
 
@@ -96,39 +96,6 @@ class CustomListViewController: UIViewController {
             self?.saveBarButton.isEnabled = !viewModel.name.isEmpty
             self?.validationErrors.removeAll()
         }.store(in: &cancellables)
-    }
-
-    private func configureNavigationItem() {
-        if let navigationController = navigationController as? InterceptibleNavigationController {
-            interceptNavigation(navigationController)
-        }
-
-        navigationController?.interactivePopGestureRecognizer?.delegate = self
-        navigationItem.rightBarButtonItem = saveBarButton
-    }
-
-    private func interceptNavigation(_ navigationController: InterceptibleNavigationController) {
-        navigationController.shouldPopViewController = { [weak self] viewController in
-            guard
-                let self,
-                viewController is Self,
-                hasUnsavedChanges
-            else { return true }
-
-            self.onUnsavedChanges()
-            return false
-        }
-
-        navigationController.shouldPopToViewController = { [weak self] viewController in
-            guard
-                let self,
-                viewController is ListCustomListViewController,
-                hasUnsavedChanges
-            else { return true }
-
-            self.onUnsavedChanges()
-            return false
-        }
     }
 
     private func configureTableView() {
@@ -231,69 +198,5 @@ class CustomListViewController: UIViewController {
         )
 
         alertPresenter.showAlert(presentation: presentation, animated: true)
-    }
-
-    @objc private func onUnsavedChanges() {
-        let message = NSMutableAttributedString(
-            markdownString: NSLocalizedString(
-                "CUSTOM_LISTS_UNSAVED_CHANGES_PROMPT",
-                tableName: "CustomLists",
-                value: "You have unsaved changes.",
-                comment: ""
-            ),
-            options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
-        )
-
-        let presentation = AlertPresentation(
-            id: "api-custom-lists-unsaved-changes-alert",
-            icon: .alert,
-            attributedMessage: message,
-            buttons: [
-                AlertAction(
-                    title: NSLocalizedString(
-                        "CUSTOM_LISTS_DISCARD_CHANGES_BUTTON",
-                        tableName: "CustomLists",
-                        value: "Discard changes",
-                        comment: ""
-                    ),
-                    style: .destructive,
-                    handler: {
-                        // Reset subject/view model to no longer having unsaved changes.
-                        if let persistedCustomList = self.persistedCustomList {
-                            self.subject.value.update(with: persistedCustomList)
-                        }
-                        self.delegate?.customListDidSave(self.subject.value.customList)
-                    }
-                ),
-                AlertAction(
-                    title: NSLocalizedString(
-                        "CUSTOM_LISTS_BACK_TO_EDITING_BUTTON",
-                        tableName: "CustomLists",
-                        value: "Back to editing",
-                        comment: ""
-                    ),
-                    style: .default
-                ),
-            ]
-        )
-
-        alertPresenter.showAlert(presentation: presentation, animated: true)
-    }
-}
-
-extension CustomListViewController: UIGestureRecognizerDelegate {
-    // For some reason, intercepting `popViewController(animated: Bool)` in `InterceptibleNavigationController`
-    // by SWIPING back leads to weird behaviour where subsequent navigation seem to happen systemwise but not
-    // UI-wise. This leads to the UI freezing up, and the only remedy is to restart the app.
-    //
-    // To get around this issue we can intercept the back swipe gesture and manually perform the transition
-    // instead, thereby bypassing the inner mechanisms that seem to go out of sync.
-    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        guard gestureRecognizer == navigationController?.interactivePopGestureRecognizer else {
-            return true
-        }
-
-        navigationController?.popViewController(animated: true)
-        return false
     }
 }
