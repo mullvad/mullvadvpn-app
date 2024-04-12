@@ -27,6 +27,22 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testAdBlockingViaDNS() throws {
+        // Undo enabling block ads in teardown
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapVPNSettingsCell()
+
+            VPNSettingsPage(self.app)
+                .tapDNSSettingsCell()
+
+            DNSSettingsPage(self.app)
+                .tapDNSContentBlockersHeaderExpandButton()
+                .tapBlockAdsSwitch()
+        }
+
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -44,7 +60,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .tapSecureConnectionButton()
 
-        allowAddVPNConfigurations() // Allow adding VPN configurations iOS permission
+        allowAddVPNConfigurationsIfAsked() // Allow adding VPN configurations iOS permission
 
         TunnelControlPage(app)
             .waitForSecureConnectionLabel()
@@ -205,7 +221,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .tapSecureConnectionButton()
 
-        allowAddVPNConfigurations()
+        allowAddVPNConfigurationsIfAsked()
 
         HeaderBar(app)
             .tapSettingsButton()

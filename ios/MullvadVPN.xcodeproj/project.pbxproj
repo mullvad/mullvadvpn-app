@@ -637,7 +637,6 @@
 		8556EB562B9B0AC500D26DD4 /* RevokedDevicePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8556EB552B9B0AC500D26DD4 /* RevokedDevicePage.swift */; };
 		855D9F5B2B63E56B00D7C64D /* ProblemReportPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 855D9F5A2B63E56B00D7C64D /* ProblemReportPage.swift */; };
 		8587A05D2B84D43100152938 /* ChangeLogAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8587A05C2B84D43100152938 /* ChangeLogAlert.swift */; };
-		8590896C2B61763B003AF5F5 /* LoggedInWithoutTimeUITestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 859089682B61763B003AF5F5 /* LoggedInWithoutTimeUITestCase.swift */; };
 		8590896F2B61763B003AF5F5 /* LoggedOutUITestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8590896B2B61763B003AF5F5 /* LoggedOutUITestCase.swift */; };
 		85A42B862BB1D627007BABF7 /* XCUIElement+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A42B852BB1D627007BABF7 /* XCUIElement+Extensions.swift */; };
 		85B267612B849ADB0098E3CD /* mullvad-api.h in Headers */ = {isa = PBXBuildFile; fileRef = 85B267602B849ADB0098E3CD /* mullvad-api.h */; };
@@ -1896,7 +1895,6 @@
 		8556EB552B9B0AC500D26DD4 /* RevokedDevicePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevokedDevicePage.swift; sourceTree = "<group>"; };
 		855D9F5A2B63E56B00D7C64D /* ProblemReportPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportPage.swift; sourceTree = "<group>"; };
 		8587A05C2B84D43100152938 /* ChangeLogAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogAlert.swift; sourceTree = "<group>"; };
-		859089682B61763B003AF5F5 /* LoggedInWithoutTimeUITestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoggedInWithoutTimeUITestCase.swift; sourceTree = "<group>"; };
 		859089692B61763B003AF5F5 /* LoggedInWithTimeUITestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoggedInWithTimeUITestCase.swift; sourceTree = "<group>"; };
 		8590896A2B61763B003AF5F5 /* BaseUITestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseUITestCase.swift; sourceTree = "<group>"; };
 		8590896B2B61763B003AF5F5 /* LoggedOutUITestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoggedOutUITestCase.swift; sourceTree = "<group>"; };
@@ -3603,7 +3601,6 @@
 			isa = PBXGroup;
 			children = (
 				8590896A2B61763B003AF5F5 /* BaseUITestCase.swift */,
-				859089682B61763B003AF5F5 /* LoggedInWithoutTimeUITestCase.swift */,
 				859089692B61763B003AF5F5 /* LoggedInWithTimeUITestCase.swift */,
 				8590896B2B61763B003AF5F5 /* LoggedOutUITestCase.swift */,
 				8518F6372B60157E009EB113 /* LoggedInWithoutTimeUITestCase.swift */,
@@ -5638,7 +5635,6 @@
 				852969362B4E9724007EAD4C /* AccessbilityIdentifier.swift in Sources */,
 				85E3BDE52B70E18C00FA71FD /* Networking.swift in Sources */,
 				85C7A2E92B89024B00035D5A /* SettingsTests.swift in Sources */,
-				8590896C2B61763B003AF5F5 /* LoggedInWithoutTimeUITestCase.swift in Sources */,
 				8590896F2B61763B003AF5F5 /* LoggedOutUITestCase.swift in Sources */,
 				85557B202B5FBBD700795FE1 /* AccountPage.swift in Sources */,
 				852969352B4E9270007EAD4C /* LoginPage.swift in Sources */,
