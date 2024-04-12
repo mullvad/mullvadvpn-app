@@ -26,6 +26,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add the ability to create and manage custom lists of relays.
 - Add Server IP overrides feature.
 
+### Security
+- Downgrade Joda-Time to address CVE-2024-23080.
 
 ## [android/2024.1] - 2024-04-05
 ### Fixed
