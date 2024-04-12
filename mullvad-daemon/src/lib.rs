@@ -279,6 +279,8 @@ pub enum DaemonCommand {
     DeleteCustomList(ResponseTx<(), Error>, mullvad_types::custom_list::Id),
     /// Update a custom list with a given id
     UpdateCustomList(ResponseTx<(), Error>, CustomList),
+    /// Remove all custom lists
+    ClearCustomLists(ResponseTx<(), Error>),
     /// Add API access methods
     AddApiAccessMethod(
         ResponseTx<mullvad_types::access_method::Id, Error>,
@@ -292,6 +294,8 @@ pub enum DaemonCommand {
     SetApiAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
     /// Edit an API access method
     UpdateApiAccessMethod(ResponseTx<(), Error>, AccessMethodSetting),
+    /// Remove all custom API access methods
+    ClearCustomApiAccessMethods(ResponseTx<(), Error>),
     /// Get the currently used API access method
     GetCurrentAccessMethod(ResponseTx<AccessMethodSetting, Error>),
     /// Test an API access method
@@ -1253,6 +1257,7 @@ where
             CreateCustomList(tx, name) => self.on_create_custom_list(tx, name).await,
             DeleteCustomList(tx, id) => self.on_delete_custom_list(tx, id).await,
             UpdateCustomList(tx, update) => self.on_update_custom_list(tx, update).await,
+            ClearCustomLists(tx) => self.on_clear_custom_lists(tx).await,
             GetVersionInfo(tx) => self.on_get_version_info(tx),
             AddApiAccessMethod(tx, name, enabled, access_method) => {
                 self.on_add_access_method(tx, name, enabled, access_method)
@@ -1260,6 +1265,7 @@ where
             }
             RemoveApiAccessMethod(tx, method) => self.on_remove_api_access_method(tx, method).await,
             UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
+            ClearCustomApiAccessMethods(tx) => self.on_clear_custom_api_access_methods(tx).await,
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
             TestApiAccessMethodById(tx, method) => self.on_test_api_access_method(tx, method).await,
@@ -2432,6 +2438,11 @@ where
         Self::oneshot_send(tx, result, "update_custom_list response");
     }
 
+    async fn on_clear_custom_lists(&mut self, tx: ResponseTx<(), Error>) {
+        let result = self.clear_custom_lists().await;
+        Self::oneshot_send(tx, result, "clear_custom_lists response");
+    }
+
     async fn on_add_access_method(
         &mut self,
         tx: ResponseTx<mullvad_types::access_method::Id, Error>,
@@ -2480,6 +2491,14 @@ where
             .await
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "update_api_access_method response");
+    }
+
+    async fn on_clear_custom_api_access_methods(&mut self, tx: ResponseTx<(), Error>) {
+        let result = self
+            .clear_custom_api_access_methods()
+            .await
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "clear_custom_api_access_methods response");
     }
 
     fn on_get_current_api_access_method(&mut self, tx: ResponseTx<AccessMethodSetting, Error>) {

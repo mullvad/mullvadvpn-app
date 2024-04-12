@@ -535,6 +535,15 @@ impl MullvadProxyClient {
         Ok(())
     }
 
+    /// Remove all custom lists.
+    pub async fn clear_custom_lists(&mut self) -> Result<()> {
+        self.0
+            .clear_custom_lists(())
+            .await
+            .map_err(map_custom_list_error)?;
+        Ok(())
+    }
+
     pub async fn add_access_method(
         &mut self,
         name: String,
@@ -570,6 +579,15 @@ impl MullvadProxyClient {
     ) -> Result<()> {
         self.0
             .update_api_access_method(types::AccessMethodSetting::from(access_method_update))
+            .await
+            .map_err(Error::Rpc)
+            .map(drop)
+    }
+
+    /// Remove all custom API access methods.
+    pub async fn clear_custom_access_methods(&mut self) -> Result<()> {
+        self.0
+            .clear_custom_api_access_methods(())
             .await
             .map_err(Error::Rpc)
             .map(drop)

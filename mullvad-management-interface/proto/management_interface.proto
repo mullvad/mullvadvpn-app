@@ -73,12 +73,14 @@ service ManagementService {
   rpc CreateCustomList(google.protobuf.StringValue) returns (google.protobuf.StringValue) {}
   rpc DeleteCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc UpdateCustomList(CustomList) returns (google.protobuf.Empty) {}
+  rpc ClearCustomLists(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
   // Access methods
   rpc AddApiAccessMethod(NewAccessMethodSetting) returns (UUID) {}
   rpc RemoveApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
   rpc SetApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
   rpc UpdateApiAccessMethod(AccessMethodSetting) returns (google.protobuf.Empty) {}
+  rpc ClearCustomApiAccessMethods(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc GetCurrentApiAccessMethod(google.protobuf.Empty) returns (AccessMethodSetting) {}
   rpc TestCustomApiAccessMethod(CustomProxy) returns (google.protobuf.BoolValue) {}
   rpc TestApiAccessMethodById(UUID) returns (google.protobuf.BoolValue) {}
