@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadSettings
+import MullvadTypes
 
 struct CustomListLocationNodeBuilder {
     let customList: CustomList
@@ -18,6 +19,7 @@ struct CustomListLocationNodeBuilder {
             name: customList.name,
             code: customList.name.lowercased(),
             locations: customList.locations,
+            isActive: !customList.locations.isEmpty,
             customList: customList
         )
 
@@ -44,6 +46,33 @@ struct CustomListLocationNodeBuilder {
                     .copy(withParent: listNode)
             }
         }
+
+        listNode.sort()
         return listNode
     }
+}
+
+private extension CustomListLocationNode {
+    func sort() {
+        let sortedChildren = Dictionary(grouping: children, by: {
+            return switch RelayLocation(dashSeparatedString: $0.code)! {
+            case .country:
+                LocationGroup.country
+            case .city:
+                LocationGroup.city
+            case .hostname:
+                LocationGroup.host
+            }
+        })
+        .sorted(by: { $0.key < $1.key })
+        .reduce([]) {
+            return $0 + $1.value.sorted(by: { $0.name < $1.name })
+        }
+
+        children = sortedChildren
+    }
+}
+
+private enum LocationGroup: CaseIterable, Comparable {
+    case country, city, host
 }
