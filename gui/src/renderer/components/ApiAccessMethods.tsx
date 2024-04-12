@@ -200,11 +200,15 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
     const items: Array<ContextMenuItem> = [
       {
         type: 'item' as const,
-        label: 'Use',
+        label: messages.gettext('Use'),
         disabled: props.inUse,
         onClick: setApiAccessMethod,
       },
-      { type: 'item' as const, label: 'Test', onClick: () => testApiAccessMethod(props.method.id) },
+      {
+        type: 'item' as const,
+        label: messages.gettext('Test'),
+        onClick: () => testApiAccessMethod(props.method.id),
+      },
     ];
 
     // Edit and Delete shouldn't be available for direct and bridges.
@@ -213,7 +217,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
         { type: 'separator' as const },
         {
           type: 'item' as const,
-          label: 'Edit',
+          label: messages.gettext('Edit'),
           onClick: () =>
             history.push(
               generateRoutePath(RoutePath.editApiAccessMethods, { id: props.method.id }),
@@ -221,7 +225,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
         },
         {
           type: 'item' as const,
-          label: 'Delete',
+          label: messages.gettext('Delete'),
           onClick: showRemoveConfirmation,
         },
       );

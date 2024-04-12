@@ -129,6 +129,9 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
+msgid "Edit"
+msgstr ""
+
 msgid "Enable"
 msgstr ""
 
@@ -224,6 +227,9 @@ msgstr ""
 msgid "TCP"
 msgstr ""
 
+msgid "Test"
+msgstr ""
+
 #. Warning shown in dialog to users when they enable setting that increases
 #. network latency (decreases performance).
 #. Warning text in a dialog that is displayed after a setting is toggled.
@@ -246,6 +252,9 @@ msgid "Unblock"
 msgstr ""
 
 msgid "UNSECURED CONNECTION"
+msgstr ""
+
+msgid "Use"
 msgstr ""
 
 msgid "Username"
@@ -383,8 +392,9 @@ msgctxt "api-access-methods-view"
 msgid "Authentication"
 msgstr ""
 
+#. %(save)s - Will be replaced with the translation for the word "Save".
 msgctxt "api-access-methods-view"
-msgid "Clicking “Save” changes the in use method."
+msgid "Clicking “%(save)s” changes the in use method."
 msgstr ""
 
 msgctxt "api-access-methods-view"
