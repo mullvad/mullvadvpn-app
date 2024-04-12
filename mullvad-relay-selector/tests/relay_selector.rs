@@ -12,15 +12,15 @@ use talpid_types::net::{
 
 use mullvad_relay_selector::{
     query::{builder::RelayQueryBuilder, BridgeQuery, OpenVpnRelayQuery},
-    AdditionalRelayConstraints, AdditionalWireguardConstraints, Error, GetRelay, RelaySelector,
-    RuntimeParameters, SelectorConfig, WireguardConfig, RETRY_ORDER,
+    Error, GetRelay, RelaySelector, RuntimeParameters, SelectorConfig, WireguardConfig,
+    RETRY_ORDER,
 };
 use mullvad_types::{
     constraints::Constraint,
     endpoint::MullvadEndpoint,
     relay_constraints::{
-        BridgeConstraints, BridgeState, GeographicLocationConstraint, LocationConstraint,
-        Ownership, Providers, SelectedObfuscation, TransportPort,
+        BridgeConstraints, BridgeState, GeographicLocationConstraint, Ownership, Providers,
+        SelectedObfuscation, TransportPort,
     },
     relay_list::{
         BridgeEndpointData, OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayEndpointData,
@@ -181,6 +181,19 @@ fn unwrap_relay(get_result: GetRelay) -> Relay {
     }
 }
 
+fn unwrap_entry_relay(get_result: GetRelay) -> Relay {
+    match get_result {
+        GetRelay::Wireguard { inner, .. } => match inner {
+            crate::WireguardConfig::Singlehop { exit } => exit,
+            crate::WireguardConfig::Multihop { entry, .. } => entry,
+        },
+        GetRelay::OpenVpn { exit, .. } => exit,
+        GetRelay::Custom(custom) => {
+            panic!("Can not extract regular relay from custom relay: {custom}")
+        }
+    }
+}
+
 fn unwrap_endpoint(get_result: GetRelay) -> MullvadEndpoint {
     match get_result {
         GetRelay::Wireguard { endpoint, .. } => MullvadEndpoint::Wireguard(endpoint),
@@ -200,6 +213,13 @@ fn tunnel_type(relay: &Relay) -> TunnelType {
 
 fn default_relay_selector() -> RelaySelector {
     RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone())
+}
+
+fn supports_daita(relay: &Relay) -> bool {
+    match relay.endpoint_data {
+        RelayEndpointData::Wireguard(WireguardRelayEndpointData { daita, .. }) => daita,
+        _ => false,
+    }
 }
 
 /// This is not an actual test. Rather, it serves as a reminder that if [`RETRY_ORDER`] is modified,
@@ -1121,5 +1141,158 @@ fn openvpn_bridge_with_automatic_transport_protocol() {
     for _ in 0..100 {
         let relay = relay_selector.get_relay_by_query(query.clone());
         assert!(relay.is_err())
+    }
+}
+
+/// Return only entry relays that support DAITA when DAITA filtering is enabled. All relays that
+/// support DAITA also support NOT DAITA. Thus, disabling it should not cause any WireGuard relays
+/// to be filtered out.
+#[test]
+fn test_daita() {
+    let relay_list = RelayList {
+        etag: None,
+        countries: vec![RelayListCountry {
+            name: "Sweden".to_string(),
+            code: "se".to_string(),
+            cities: vec![RelayListCity {
+                name: "Gothenburg".to_string(),
+                code: "got".to_string(),
+                latitude: 57.70887,
+                longitude: 11.97456,
+                relays: vec![
+                    Relay {
+                        hostname: "se9-wireguard".to_string(),
+                        ipv4_addr_in: "185.213.154.68".parse().unwrap(),
+                        ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                        include_in_country: true,
+                        active: true,
+                        owned: true,
+                        provider: "31173".to_string(),
+                        weight: 1,
+                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
+                            public_key: PublicKey::from_base64(
+                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                            )
+                            .unwrap(),
+                            daita: false,
+                        }),
+                        location: None,
+                    },
+                    Relay {
+                        hostname: "se10-wireguard".to_string(),
+                        ipv4_addr_in: "185.213.154.69".parse().unwrap(),
+                        ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
+                        include_in_country: true,
+                        active: true,
+                        owned: false,
+                        provider: "31173".to_string(),
+                        weight: 1,
+                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
+                            public_key: PublicKey::from_base64(
+                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                            )
+                            .unwrap(),
+                            daita: true,
+                        }),
+                        location: None,
+                    },
+                ],
+            }],
+        }],
+        openvpn: OpenVpnEndpointData { ports: vec![] },
+        bridge: BridgeEndpointData {
+            shadowsocks: vec![],
+        },
+        wireguard: WireguardEndpointData {
+            port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
+            ipv4_gateway: "10.64.0.1".parse().unwrap(),
+            ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
+            udp2tcp_ports: vec![],
+        },
+    };
+
+    let daita_supporting_relay =
+        GeographicLocationConstraint::hostname("se", "got", "se10-wireguard");
+    let nondaita_supporting_relay =
+        GeographicLocationConstraint::hostname("se", "got", "se9-wireguard");
+
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
+
+    // Only pick relays that support DAITA
+    let query = RelayQueryBuilder::new().wireguard().daita().build();
+    let relay = unwrap_entry_relay(relay_selector.get_relay_by_query(query).unwrap());
+    assert!(
+        supports_daita(&relay),
+        "Selector supported relay that does not support DAITA: {relay:?}"
+    );
+
+    // Fail when only non-DAITA relays match constraints
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .daita()
+        .location(nondaita_supporting_relay.clone())
+        .build();
+    relay_selector
+        .get_relay_by_query(query)
+        .expect_err("Expected to find no matching relay");
+
+    // DAITA-supporting relays can be picked even when it is disabled
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .location(daita_supporting_relay.clone())
+        .build();
+    relay_selector
+        .get_relay_by_query(query)
+        .expect("Expected DAITA-supporting relay to work without DAITA");
+
+    // Non DAITA-supporting relays can be picked when it is disabled
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .location(nondaita_supporting_relay.clone())
+        .build();
+    relay_selector
+        .get_relay_by_query(query)
+        .expect("Expected DAITA-supporting relay to work without DAITA");
+
+    // Entry relay must support daita
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .daita()
+        .multihop()
+        .build();
+    let relay = relay_selector.get_relay_by_query(query).unwrap();
+    match relay {
+        GetRelay::Wireguard {
+            inner: WireguardConfig::Multihop { exit: _, entry },
+            ..
+        } => {
+            assert!(supports_daita(&entry), "entry relay must support DAITA");
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
+        ),
+    }
+
+    // Exit relay does not have to support daita
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .daita()
+        .multihop()
+        .location(nondaita_supporting_relay)
+        .build();
+    let relay = relay_selector.get_relay_by_query(query).unwrap();
+    match relay {
+        GetRelay::Wireguard {
+            inner: WireguardConfig::Multihop { exit, entry: _ },
+            ..
+        } => {
+            assert!(
+                !supports_daita(&exit),
+                "expected non DAITA-supporting exit relay, got {exit:?}"
+            );
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
+        ),
     }
 }
