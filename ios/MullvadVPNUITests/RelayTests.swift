@@ -40,6 +40,22 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testAdBlockingViaDNS() throws {
+        // Undo enabling block ads in teardown
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapVPNSettingsCell()
+
+            VPNSettingsPage(self.app)
+                .tapDNSSettingsCell()
+
+            DNSSettingsPage(self.app)
+                .tapDNSContentBlockersHeaderExpandButton()
+                .tapBlockAdsSwitchIfOn()
+        }
+
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -57,7 +73,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .tapSecureConnectionButton()
 
-        allowAddVPNConfigurations() // Allow adding VPN configurations iOS permission
+        allowAddVPNConfigurationsIfAsked() // Allow adding VPN configurations iOS permission
 
         TunnelControlPage(app)
             .waitForSecureConnectionLabel()
@@ -90,6 +106,18 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testWireGuardOverTCPManually() throws {
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapVPNSettingsCell()
+
+            VPNSettingsPage(self.app)
+                .tapWireGuardObfuscationExpandButton()
+                .tapWireGuardObfuscationOffCell()
+        }
+
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -168,6 +196,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .enterText("4001")
             .dismissKeyboard()
             .swipeDownToDismissModal()
+            .swipeDownToDismissModal() // After editing text field the table is first responder for the first swipe so we need to swipe twice to swipe the modal
 
         TunnelControlPage(app)
             .tapSecureConnectionButton()
