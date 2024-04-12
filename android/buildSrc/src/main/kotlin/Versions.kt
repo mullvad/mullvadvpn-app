@@ -1,6 +1,6 @@
 object Versions {
     const val commonsValidator = "1.8.0"
-    const val jodaTime = "2.12.7"
+    const val jodaTime = "2.12.4"
     const val junit = "5.10.2"
     const val jvmTarget = "17"
     const val konsist = "0.14.0"
