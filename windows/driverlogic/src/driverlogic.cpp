@@ -4,7 +4,7 @@
 #include "service.h"
 #include "log.h"
 #include "wintun.h"
-#include "wireguard.h"
+#include "wireguard_dll.h"
 #include "devenum.h"
 #include <string>
 #include <libcommon/error.h>
