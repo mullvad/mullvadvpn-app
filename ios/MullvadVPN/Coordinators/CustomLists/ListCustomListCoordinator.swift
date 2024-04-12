@@ -65,6 +65,12 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
             self.updateRelayConstraints(for: action, in: list)
         }
 
+        coordinator.didCancel = { [weak self] editCustomListCoordinator in
+            guard let self else { return }
+            popToList()
+            editCustomListCoordinator.removeFromParent()
+        }
+
         coordinator.start()
         addChild(coordinator)
     }
