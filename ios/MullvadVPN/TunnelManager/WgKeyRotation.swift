@@ -18,7 +18,7 @@ import WireGuardKitTypes
 struct WgKeyRotation {
     /// Private key rotation interval counted from the time when the key was successfully pushed
     /// to the backend.
-    public static let rotationInterval: Duration = .days(14)
+    public static let rotationInterval: Duration = .days(30)
 
     /// Private key rotation retry interval counted from the time when the last rotation
     /// attempt took place.
