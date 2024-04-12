@@ -107,23 +107,6 @@ pub async fn request_ephemeral_peer(
     enable_post_quantum: bool,
     enable_daita: bool,
 ) -> Result<EphemeralPeer, Error> {
-    request_ephemeral_peer_with_opts(
-        service_address,
-        parent_pubkey,
-        ephemeral_pubkey,
-        enable_post_quantum,
-        enable_daita,
-    )
-    .await
-}
-
-pub async fn request_ephemeral_peer_with_opts(
-    service_address: IpAddr,
-    parent_pubkey: PublicKey,
-    ephemeral_pubkey: PublicKey,
-    enable_post_quantum: bool,
-    enable_daita: bool,
-) -> Result<EphemeralPeer, Error> {
     let (pq_request, kem_secrets) = if enable_post_quantum {
         let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
         let kyber_keypair = kyber::keypair(&mut rand::thread_rng());
