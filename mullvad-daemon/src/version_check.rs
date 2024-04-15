@@ -343,12 +343,13 @@ impl VersionUpdater {
         }
     }
 
-    /// Wait until [VersionUpdater::last_app_version_info] becomes stale and needs to be refreshed.
+    /// Get the time left until [Self::last_app_version_info] becomes stale, and should be
+    /// refreshed, or [Duration::ZERO] if it already is stale.
     ///
     /// This happens [UPDATE_INTERVAL] after the last version query.
-    fn wait_until_version_is_stale(&self) -> Pin<Box<impl FusedFuture<Output = ()>>> {
+    fn time_until_version_is_stale(&self) -> Duration {
         let now = SystemTime::now();
-        let time_until_stale = self
+        self
             .last_app_version_info
             .as_ref()
             .map(|(_, last_update_time)| last_update_time)
@@ -356,7 +357,18 @@ impl VersionUpdater {
             .map(|time_since_last_update| UPDATE_INTERVAL.saturating_sub(time_since_last_update))
             // if there is no last_app_version_info, or if clocks are being weird,
             // assume that the version is stale
-            .unwrap_or(Duration::ZERO);
+            .unwrap_or(Duration::ZERO)
+    }
+
+    fn version_is_stale(&self) -> bool {
+        self.time_until_version_is_stale().is_zero()
+    }
+
+    /// Wait until [Self::last_app_version_info] becomes stale and needs to be refreshed.
+    ///
+    /// This happens [UPDATE_INTERVAL] after the last version query.
+    fn wait_until_version_is_stale(&self) -> Pin<Box<impl FusedFuture<Output = ()>>> {
+        let time_until_stale = self.time_until_version_is_stale();
 
         // Boxed, pinned, and fused.
         // Alternate title: "We don't want to deal with the borrow checker."
@@ -387,45 +399,52 @@ impl VersionUpdater {
 
         loop {
             futures::select! {
-                command = rx.next() => {
-                    match command {
-                        Some(VersionUpdaterCommand::SetShowBetaReleases(show_beta_releases)) => {
-                            self.show_beta_releases = show_beta_releases;
+                command = rx.next() => match command {
+                    Some(VersionUpdaterCommand::SetShowBetaReleases(show_beta_releases)) => {
+                        self.show_beta_releases = show_beta_releases;
 
-                            if let Some(last_app_version_info) = self
-                                .last_app_version_info()
-                                .cloned()
-                            {
-                                let suggested_upgrade = Self::suggested_upgrade(
-                                    &APP_VERSION,
-                                    &Some(last_app_version_info.latest_stable.clone()),
-                                    &last_app_version_info.latest_beta,
-                                    self.show_beta_releases || is_beta_version(),
-                                );
+                        if let Some(last_app_version_info) = self
+                            .last_app_version_info()
+                            .cloned()
+                        {
+                            let suggested_upgrade = Self::suggested_upgrade(
+                                &APP_VERSION,
+                                &Some(last_app_version_info.latest_stable.clone()),
+                                &last_app_version_info.latest_beta,
+                                self.show_beta_releases || is_beta_version(),
+                            );
 
-                                self.update_version_info(AppVersionInfo {
-                                    supported: last_app_version_info.supported,
-                                    latest_stable: last_app_version_info.latest_stable,
-                                    latest_beta: last_app_version_info.latest_beta,
-                                    suggested_upgrade,
-                                }).await;
-                            }
+                            self.update_version_info(AppVersionInfo {
+                                supported: last_app_version_info.supported,
+                                latest_stable: last_app_version_info.latest_stable,
+                                latest_beta: last_app_version_info.latest_beta,
+                                suggested_upgrade,
+                            }).await;
                         }
-                        Some(VersionUpdaterCommand::RunVersionCheck(done_tx)) => {
-                            if self.update_sender.is_closed() {
-                                return;
-                            }
+                    }
 
-                            if !self.is_running_version_check() {
-                                version_check = self.query_app_version().fuse();
-                            }
-
-                            self.run_version_check_responders.push(done_tx);
-                        }
-                        // time to shut down
-                        None => {
+                    Some(VersionUpdaterCommand::RunVersionCheck(done_tx)) => {
+                        if self.update_sender.is_closed() {
                             return;
                         }
+                        match (self.version_is_stale(), self.last_app_version_info()) {
+                            (false, Some(version_info)) => {
+                                // if the version_info isn't stale, return it immediately.
+                                let _ = done_tx.send(version_info.clone());
+                            }
+                            _ => {
+                                // otherwise, start a foreground query to get the latest version_info.
+                                if !self.is_running_version_check() {
+                                    version_check = self.query_app_version().fuse();
+                                }
+                                self.run_version_check_responders.push(done_tx);
+                            }
+                        }
+                    }
+
+                    // time to shut down
+                    None => {
+                        return;
                     }
                 },
 
