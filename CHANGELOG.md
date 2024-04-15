@@ -23,10 +23,14 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add custom bridge settings in GUI.
+
+
+## [2024.2-beta1] - 2024-04-15
+### Added
 - Add automatic MTU detection for desktop platforms. This currently only uses information about
   dropped packets and does not take fragmentation into account.
 - Add ability to import server IP overrides in GUI.
-- Add custom bridge settings in GUI.
 
 ### Changed
 - Change default obfuscation setting to `auto`.
