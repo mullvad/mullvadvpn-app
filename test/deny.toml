@@ -40,7 +40,8 @@ allow = [
     "CC0-1.0",
     # https://github.com/briansmith/ring/issues/902
     "LicenseRef-ring",
-    "Unicode-DFS-2016"
+    "Unicode-DFS-2016",
+    "Zlib"
 ]
 
 [[licenses.clarify]]
