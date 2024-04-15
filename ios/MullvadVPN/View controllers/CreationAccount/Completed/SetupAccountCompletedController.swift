@@ -36,7 +36,7 @@ class SetupAccountCompletedController: UIViewController, RootContainment {
         true
     }
 
-    weak var delegate: SetupAccountCompletedControllerDelegate?
+    weak var delegate: (any SetupAccountCompletedControllerDelegate)?
 
     override func viewDidLoad() {
         super.viewDidLoad()

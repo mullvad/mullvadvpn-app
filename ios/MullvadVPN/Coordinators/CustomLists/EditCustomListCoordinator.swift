@@ -17,7 +17,7 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
     }
 
     let navigationController: UINavigationController
-    let customListInteractor: CustomListInteractorProtocol
+    let customListInteractor: any CustomListInteractorProtocol
     let customList: CustomList
     let nodes: [LocationNode]
     let subject: CurrentValueSubject<CustomListViewModel, Never>
@@ -30,7 +30,7 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
 
     init(
         navigationController: UINavigationController,
-        customListInteractor: CustomListInteractorProtocol,
+        customListInteractor: any CustomListInteractorProtocol,
         customList: CustomList,
         nodes: [LocationNode]
     ) {

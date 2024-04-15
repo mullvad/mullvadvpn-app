@@ -12,9 +12,9 @@ import MullvadTypes
 
 final class TunnelViewControllerInteractor {
     private let tunnelManager: TunnelManager
-    private let outgoingConnectionService: OutgoingConnectionServiceHandling
-    private var tunnelObserver: TunnelObserver?
-    private var outgoingConnectionTask: Task<Void, Error>?
+    private let outgoingConnectionService: any OutgoingConnectionServiceHandling
+    private var tunnelObserver: (any TunnelObserver)?
+    private var outgoingConnectionTask: Task<Void, any Error>?
 
     var didUpdateTunnelStatus: ((TunnelStatus) -> Void)?
     var didUpdateDeviceState: ((_ deviceState: DeviceState, _ previousDeviceState: DeviceState) -> Void)?
@@ -34,7 +34,7 @@ final class TunnelViewControllerInteractor {
 
     init(
         tunnelManager: TunnelManager,
-        outgoingConnectionService: OutgoingConnectionServiceHandling
+        outgoingConnectionService: any OutgoingConnectionServiceHandling
     ) {
         self.tunnelManager = tunnelManager
         self.outgoingConnectionService = outgoingConnectionService

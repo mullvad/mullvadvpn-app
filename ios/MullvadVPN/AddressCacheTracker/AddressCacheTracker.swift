@@ -24,7 +24,7 @@ final class AddressCacheTracker {
     private let application: UIApplication
 
     /// REST API proxy.
-    private let apiProxy: APIQuerying
+    private let apiProxy: any APIQuerying
 
     /// Address cache.
     private let store: REST.AddressCache
@@ -36,7 +36,7 @@ final class AddressCacheTracker {
     private var lastFailureAttemptDate: Date?
 
     /// Timer used for scheduling periodic updates.
-    private var timer: DispatchSourceTimer?
+    private var timer: (any DispatchSourceTimer)?
 
     /// Operation queue.
     private let operationQueue = AsyncOperationQueue.makeSerial()
@@ -45,7 +45,7 @@ final class AddressCacheTracker {
     private let nslock = NSLock()
 
     /// Designated initializer
-    init(application: UIApplication, apiProxy: APIQuerying, store: REST.AddressCache) {
+    init(application: UIApplication, apiProxy: any APIQuerying, store: REST.AddressCache) {
         self.application = application
         self.apiProxy = apiProxy
         self.store = store
@@ -84,8 +84,8 @@ final class AddressCacheTracker {
         timer = nil
     }
 
-    func updateEndpoints(completionHandler: ((Result<Bool, Error>) -> Void)? = nil) -> Cancellable {
-        let operation = ResultBlockOperation<Bool> { finish -> Cancellable in
+    func updateEndpoints(completionHandler: ((Result<Bool, any Error>) -> Void)? = nil) -> any Cancellable {
+        let operation = ResultBlockOperation<Bool> { finish -> any Cancellable in
             guard self.nextScheduleDate() <= Date() else {
                 finish(.success(false))
                 return AnyCancellable()
@@ -121,7 +121,7 @@ final class AddressCacheTracker {
         return _nextScheduleDate()
     }
 
-    private func setEndpoints(from result: Result<[AnyIPEndpoint], Error>) {
+    private func setEndpoints(from result: Result<[AnyIPEndpoint], any Error>) {
         nslock.lock()
         defer { nslock.unlock() }
 

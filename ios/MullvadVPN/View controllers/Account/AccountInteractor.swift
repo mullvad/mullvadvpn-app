@@ -16,18 +16,18 @@ import StoreKit
 final class AccountInteractor {
     private let storePaymentManager: StorePaymentManager
     let tunnelManager: TunnelManager
-    let accountsProxy: RESTAccountHandling
+    let accountsProxy: any RESTAccountHandling
 
     var didReceivePaymentEvent: ((StorePaymentEvent) -> Void)?
     var didReceiveDeviceState: ((DeviceState) -> Void)?
 
-    private var tunnelObserver: TunnelObserver?
-    private var paymentObserver: StorePaymentObserver?
+    private var tunnelObserver: (any TunnelObserver)?
+    private var paymentObserver: (any StorePaymentObserver)?
 
     init(
         storePaymentManager: StorePaymentManager,
         tunnelManager: TunnelManager,
-        accountsProxy: RESTAccountHandling
+        accountsProxy: any RESTAccountHandling
     ) {
         self.storePaymentManager = storePaymentManager
         self.tunnelManager = tunnelManager
@@ -63,8 +63,8 @@ final class AccountInteractor {
 
     func restorePurchases(
         for accountNumber: String,
-        completionHandler: @escaping (Result<REST.CreateApplePaymentResponse, Error>) -> Void
-    ) -> Cancellable {
+        completionHandler: @escaping (Result<REST.CreateApplePaymentResponse, any Error>) -> Void
+    ) -> any Cancellable {
         storePaymentManager.restorePurchases(
             for: accountNumber,
             completionHandler: completionHandler
@@ -73,8 +73,8 @@ final class AccountInteractor {
 
     func requestProducts(
         with productIdentifiers: Set<StoreSubscription>,
-        completionHandler: @escaping (Result<SKProductsResponse, Error>) -> Void
-    ) -> Cancellable {
+        completionHandler: @escaping (Result<SKProductsResponse, any Error>) -> Void
+    ) -> any Cancellable {
         storePaymentManager.requestProducts(
             with: productIdentifiers,
             completionHandler: completionHandler

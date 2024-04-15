@@ -10,11 +10,11 @@ import Foundation
 import Operations
 
 class StopTunnelOperation: ResultOperation<Void> {
-    private let interactor: TunnelInteractor
+    private let interactor: any TunnelInteractor
 
     init(
         dispatchQueue: DispatchQueue,
-        interactor: TunnelInteractor,
+        interactor: any TunnelInteractor,
         completionHandler: @escaping CompletionHandler
     ) {
         self.interactor = interactor

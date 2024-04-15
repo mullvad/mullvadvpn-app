@@ -207,12 +207,12 @@ class FormSheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDel
         forPresented presented: UIViewController,
         presenting: UIViewController,
         source: UIViewController
-    ) -> UIViewControllerAnimatedTransitioning? {
+    ) -> (any UIViewControllerAnimatedTransitioning)? {
         FormSheetPresentationAnimator()
     }
 
     func animationController(forDismissed dismissed: UIViewController)
-        -> UIViewControllerAnimatedTransitioning? {
+        -> (any UIViewControllerAnimatedTransitioning)? {
         FormSheetPresentationAnimator()
     }
 
@@ -230,12 +230,12 @@ class FormSheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDel
 }
 
 class FormSheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitioning {
-    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?)
+    func transitionDuration(using transitionContext: (any UIViewControllerContextTransitioning)?)
         -> TimeInterval {
         (transitionContext?.isAnimated ?? true) ? UIMetrics.FormSheetTransition.duration.timeInterval : 0
     }
 
-    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+    func animateTransition(using transitionContext: any UIViewControllerContextTransitioning) {
         let destination = transitionContext.viewController(forKey: .to)
 
         if destination?.isBeingPresented ?? false {
@@ -245,7 +245,7 @@ class FormSheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitio
         }
     }
 
-    private func animatePresentation(_ transitionContext: UIViewControllerContextTransitioning) {
+    private func animatePresentation(_ transitionContext: any UIViewControllerContextTransitioning) {
         let duration = transitionDuration(using: transitionContext)
         let containerView = transitionContext.containerView
         let destinationView = transitionContext.view(forKey: .to)!
@@ -274,7 +274,7 @@ class FormSheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitio
         }
     }
 
-    private func animateDismissal(_ transitionContext: UIViewControllerContextTransitioning) {
+    private func animateDismissal(_ transitionContext: any UIViewControllerContextTransitioning) {
         let duration = transitionDuration(using: transitionContext)
         let containerView = transitionContext.containerView
         let sourceView = transitionContext.view(forKey: .from)!

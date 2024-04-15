@@ -45,7 +45,7 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
         return persistentTunnels
     }
 
-    func loadPersistentTunnels(completion: @escaping (Error?) -> Void) {
+    func loadPersistentTunnels(completion: @escaping ((any Error)?) -> Void) {
         TunnelProviderManagerType.loadAllFromPreferences { managers, error in
             self.lock.lock()
             defer {

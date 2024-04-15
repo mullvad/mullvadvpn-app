@@ -115,7 +115,7 @@ class RootContainerViewController: UIViewController {
         viewControllers.last
     }
 
-    weak var delegate: RootContainerViewControllerDelegate?
+    weak var delegate: (any RootContainerViewControllerDelegate)?
 
     override var childForStatusBarStyle: UIViewController? {
         topViewController
@@ -487,7 +487,7 @@ class RootContainerViewController: UIViewController {
         let viewControllersToRemove = viewControllers.filter { !newViewControllers.contains($0) }
 
         // hide in-App notificationBanner when the container decides to keep it invisible
-        isNavigationBarHidden = (targetViewController as? RootContainment)?.prefersNotificationBarHidden ?? false
+        isNavigationBarHidden = (targetViewController as? any RootContainment)?.prefersNotificationBarHidden ?? false
 
         configureViewControllers(
             viewControllersToAdd: viewControllersToAdd,
@@ -741,20 +741,20 @@ class RootContainerViewController: UIViewController {
     }
 
     private func updateHeaderBarStyleFromChildPreferences(animated: Bool) {
-        if let conforming = topViewController as? RootContainment {
+        if let conforming = topViewController as? any RootContainment {
             setHeaderBarPresentation(conforming.preferredHeaderBarPresentation, animated: animated)
         }
     }
 
     private func updateDeviceInfoBarHiddenFromChildPreferences() {
-        if let conforming = topViewController as? RootContainment {
+        if let conforming = topViewController as? any RootContainment {
             headerBarView.isDeviceInfoHidden = conforming.prefersDeviceInfoBarHidden
         }
     }
 
     private func updateNotificationBarHiddenFromChildPreferences() {
         if let notificationController,
-           let conforming = topViewController as? RootContainment {
+           let conforming = topViewController as? any RootContainment {
             if conforming.prefersNotificationBarHidden {
                 removeNotificationController(notificationController)
             } else {
@@ -766,7 +766,7 @@ class RootContainerViewController: UIViewController {
     private func updateHeaderBarHiddenFromChildPreferences(animated: Bool) {
         guard overrideHeaderBarHidden == nil else { return }
 
-        if let conforming = topViewController as? RootContainment {
+        if let conforming = topViewController as? any RootContainment {
             setHeaderBarHidden(conforming.prefersHeaderBarHidden, animated: animated)
         }
     }

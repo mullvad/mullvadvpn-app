@@ -90,7 +90,7 @@ class SetupAccountCompletedContentView: UIView {
         return stackView
     }()
 
-    weak var delegate: SetupAccountCompletedContentViewDelegate?
+    weak var delegate: (any SetupAccountCompletedContentViewDelegate)?
 
     override init(frame: CGRect) {
         super.init(frame: frame)

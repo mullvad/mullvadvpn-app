@@ -12,10 +12,10 @@ import MullvadTypes
 
 final class RedeemVoucherInteractor {
     private let tunnelManager: TunnelManager
-    private let accountsProxy: RESTAccountHandling
+    private let accountsProxy: any RESTAccountHandling
     private let shouldVerifyVoucherAsAccount: Bool
 
-    private var tasks: [Cancellable] = []
+    private var tasks: [any Cancellable] = []
     private var preferredAccountNumber: String?
 
     var showLogoutDialog: (() -> Void)?
@@ -23,7 +23,7 @@ final class RedeemVoucherInteractor {
 
     init(
         tunnelManager: TunnelManager,
-        accountsProxy: RESTAccountHandling,
+        accountsProxy: any RESTAccountHandling,
         verifyVoucherAsAccount: Bool
     ) {
         self.tunnelManager = tunnelManager
@@ -33,7 +33,7 @@ final class RedeemVoucherInteractor {
 
     func redeemVoucher(
         code: String,
-        completion: @escaping ((Result<REST.SubmitVoucherResponse, Error>) -> Void)
+        completion: @escaping ((Result<REST.SubmitVoucherResponse, any Error>) -> Void)
     ) {
         tasks.append(tunnelManager.redeemVoucher(code) { [weak self] result in
             guard let self else { return }

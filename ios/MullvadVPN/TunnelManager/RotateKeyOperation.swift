@@ -16,11 +16,11 @@ import WireGuardKitTypes
 
 class RotateKeyOperation: ResultOperation<Void> {
     private let logger = Logger(label: "RotateKeyOperation")
-    private let interactor: TunnelInteractor
-    private let devicesProxy: DeviceHandling
-    private var task: Cancellable?
+    private let interactor: any TunnelInteractor
+    private let devicesProxy: any DeviceHandling
+    private var task: (any Cancellable)?
 
-    init(dispatchQueue: DispatchQueue, interactor: TunnelInteractor, devicesProxy: DeviceHandling) {
+    init(dispatchQueue: DispatchQueue, interactor: any TunnelInteractor, devicesProxy: any DeviceHandling) {
         self.interactor = interactor
         self.devicesProxy = devicesProxy
 
@@ -98,7 +98,7 @@ class RotateKeyOperation: ResultOperation<Void> {
         }
     }
 
-    private func handleError(_ error: Error) {
+    private func handleError(_ error: any Error) {
         if !error.isOperationCancellationError {
             logger.error(error: error, message: "Failed to rotate device key.")
         }

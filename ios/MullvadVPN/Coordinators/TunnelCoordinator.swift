@@ -13,7 +13,7 @@ class TunnelCoordinator: Coordinator, Presenting {
     private let tunnelManager: TunnelManager
     private let controller: TunnelViewController
 
-    private var tunnelObserver: TunnelObserver?
+    private var tunnelObserver: (any TunnelObserver)?
 
     var presentationContext: UIViewController {
         controller
@@ -27,7 +27,7 @@ class TunnelCoordinator: Coordinator, Presenting {
 
     init(
         tunnelManager: TunnelManager,
-        outgoingConnectionService: OutgoingConnectionServiceHandling
+        outgoingConnectionService: any OutgoingConnectionServiceHandling
     ) {
         self.tunnelManager = tunnelManager
 

@@ -53,7 +53,7 @@ class MethodTestingStatusCellContentView: UIView, UIContentView {
         return stackView
     }()
 
-    var configuration: UIContentConfiguration {
+    var configuration: any UIContentConfiguration {
         get {
             actualConfiguration
         }
@@ -69,7 +69,7 @@ class MethodTestingStatusCellContentView: UIView, UIContentView {
 
     private var actualConfiguration: MethodTestingStatusCellContentConfiguration
 
-    func supports(_ configuration: UIContentConfiguration) -> Bool {
+    func supports(_ configuration: any UIContentConfiguration) -> Bool {
         configuration is MethodTestingStatusCellContentConfiguration
     }
 

@@ -15,7 +15,7 @@ protocol CustomListInteractorProtocol {
 }
 
 struct CustomListInteractor: CustomListInteractorProtocol {
-    let repository: CustomListRepositoryProtocol
+    let repository: any CustomListRepositoryProtocol
 
     func fetchAll() -> [CustomList] {
         repository.fetchAll()

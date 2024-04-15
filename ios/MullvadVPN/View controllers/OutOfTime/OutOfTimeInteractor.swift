@@ -18,13 +18,13 @@ final class OutOfTimeInteractor {
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
 
-    private var tunnelObserver: TunnelObserver?
-    private var paymentObserver: StorePaymentObserver?
+    private var tunnelObserver: (any TunnelObserver)?
+    private var paymentObserver: (any StorePaymentObserver)?
 
     private let logger = Logger(label: "OutOfTimeInteractor")
 
     private let accountUpdateTimerInterval: Duration = .minutes(1)
-    private var accountUpdateTimer: DispatchSourceTimer?
+    private var accountUpdateTimer: (any DispatchSourceTimer)?
 
     var didReceivePaymentEvent: ((StorePaymentEvent) -> Void)?
     var didReceiveTunnelStatus: ((TunnelStatus) -> Void)?
@@ -78,9 +78,9 @@ final class OutOfTimeInteractor {
         for accountNumber: String,
         completionHandler: @escaping (Result<
             REST.CreateApplePaymentResponse,
-            Error
+            any Error
         >) -> Void
-    ) -> Cancellable {
+    ) -> any Cancellable {
         storePaymentManager.restorePurchases(
             for: accountNumber,
             completionHandler: completionHandler
@@ -89,8 +89,8 @@ final class OutOfTimeInteractor {
 
     func requestProducts(
         with productIdentifiers: Set<StoreSubscription>,
-        completionHandler: @escaping (Result<SKProductsResponse, Error>) -> Void
-    ) -> Cancellable {
+        completionHandler: @escaping (Result<SKProductsResponse, any Error>) -> Void
+    ) -> any Cancellable {
         storePaymentManager.requestProducts(
             with: productIdentifiers,
             completionHandler: completionHandler

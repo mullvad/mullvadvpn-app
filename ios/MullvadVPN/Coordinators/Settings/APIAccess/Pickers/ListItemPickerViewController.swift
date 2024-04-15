@@ -93,11 +93,11 @@ class ListItemPickerViewController<DataSource: ListItemDataSourceProtocol>: UITa
         let cell = tableView.dequeueReusableView(withIdentifier: CellIdentifier.default, for: indexPath)
         cell.contentConfiguration = configuration
 
-        if let cell = cell as? CustomCellDisclosureHandling {
+        if let cell = cell as? any CustomCellDisclosureHandling {
             cell.disclosureType = item.id == selectedItemID ? .tick : .none
         }
 
-        if let cell = cell as? DynamicBackgroundConfiguration {
+        if let cell = cell as? any DynamicBackgroundConfiguration {
             cell.setAutoAdaptingBackgroundConfiguration(.mullvadListPlainCell(), selectionType: .dimmed)
         }
 

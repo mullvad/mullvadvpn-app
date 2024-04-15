@@ -12,7 +12,7 @@ import MullvadTypes
 import Operations
 
 final class ProblemReportInteractor {
-    private let apiProxy: APIQuerying
+    private let apiProxy: any APIQuerying
     private let tunnelManager: TunnelManager
 
     private lazy var consolidatedLog: ConsolidatedApplicationLog = {
@@ -31,7 +31,7 @@ final class ProblemReportInteractor {
         return report
     }()
 
-    init(apiProxy: APIQuerying, tunnelManager: TunnelManager) {
+    init(apiProxy: any APIQuerying, tunnelManager: TunnelManager) {
         self.apiProxy = apiProxy
         self.tunnelManager = tunnelManager
     }
@@ -39,8 +39,8 @@ final class ProblemReportInteractor {
     func sendReport(
         email: String,
         message: String,
-        completion: @escaping (Result<Void, Error>) -> Void
-    ) -> Cancellable {
+        completion: @escaping (Result<Void, any Error>) -> Void
+    ) -> any Cancellable {
         let request = REST.ProblemReportRequest(
             address: email,
             message: message,

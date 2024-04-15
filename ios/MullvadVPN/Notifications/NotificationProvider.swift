@@ -17,7 +17,7 @@ protocol NotificationProviderDelegate: AnyObject {
 
 /// Base class for all notification providers.
 class NotificationProvider: NotificationProviderProtocol {
-    weak var delegate: NotificationProviderDelegate?
+    weak var delegate: (any NotificationProviderDelegate)?
 
     /**
      Provider identifier.

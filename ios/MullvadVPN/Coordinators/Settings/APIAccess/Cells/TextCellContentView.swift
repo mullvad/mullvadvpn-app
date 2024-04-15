@@ -13,7 +13,7 @@ class TextCellContentView: UIView, UIContentView, UIGestureRecognizerDelegate {
     private var textLabel = UILabel()
     private var textField = CustomTextField()
 
-    var configuration: UIContentConfiguration {
+    var configuration: any UIContentConfiguration {
         get {
             actualConfiguration
         }
@@ -30,7 +30,7 @@ class TextCellContentView: UIView, UIContentView, UIGestureRecognizerDelegate {
 
     private var actualConfiguration: TextCellContentConfiguration
 
-    func supports(_ configuration: UIContentConfiguration) -> Bool {
+    func supports(_ configuration: any UIContentConfiguration) -> Bool {
         configuration is TextCellContentConfiguration
     }
 

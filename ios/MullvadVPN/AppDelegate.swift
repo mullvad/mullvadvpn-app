@@ -31,9 +31,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var addressCache: REST.AddressCache!
 
     private var proxyFactory: REST.ProxyFactory!
-    private(set) var apiProxy: APIQuerying!
-    private(set) var accountsProxy: RESTAccountHandling!
-    private(set) var devicesProxy: DeviceHandling!
+    private(set) var apiProxy: (any APIQuerying)!
+    private(set) var accountsProxy: (any RESTAccountHandling)!
+    private(set) var devicesProxy: (any DeviceHandling)!
 
     private(set) var addressCacheTracker: AddressCacheTracker!
     private(set) var relayCacheTracker: RelayCacheTracker!
@@ -43,7 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private let migrationManager = MigrationManager()
 
     private(set) var accessMethodRepository = AccessMethodRepository()
-    private(set) var shadowsocksLoader: ShadowsocksLoaderProtocol!
+    private(set) var shadowsocksLoader: (any ShadowsocksLoaderProtocol)!
     private(set) var configuredTransportProvider: ProxyConfigurationTransportProvider!
     private(set) var ipOverrideRepository = IPOverrideRepository()
 
@@ -450,7 +450,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
                     case let .failure(error):
                         let migrationUIHandler = application.connectedScenes
-                            .first { $0 is SettingsMigrationUIHandler } as? SettingsMigrationUIHandler
+                            .first { $0 is (any SettingsMigrationUIHandler) } as? any SettingsMigrationUIHandler
 
                         if let migrationUIHandler {
                             migrationUIHandler.showMigrationError(error) {

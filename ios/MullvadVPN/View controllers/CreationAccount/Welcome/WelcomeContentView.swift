@@ -158,7 +158,7 @@ final class WelcomeContentView: UIView {
         return stackView
     }()
 
-    weak var delegate: WelcomeContentViewDelegate?
+    weak var delegate: (any WelcomeContentViewDelegate)?
     var viewModel: WelcomeViewModel? {
         didSet {
             accountNumberLabel.text = viewModel?.accountNumber

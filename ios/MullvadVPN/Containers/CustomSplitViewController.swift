@@ -10,14 +10,14 @@ import UIKit
 
 class CustomSplitViewController: UISplitViewController, RootContainment {
     var preferredHeaderBarPresentation: HeaderBarPresentation {
-        for case let viewController as RootContainment in viewControllers {
+        for case let viewController as any RootContainment in viewControllers {
             return viewController.preferredHeaderBarPresentation
         }
         return .default
     }
 
     var prefersHeaderBarHidden: Bool {
-        for case let viewController as RootContainment in viewControllers {
+        for case let viewController as any RootContainment in viewControllers {
             return viewController.prefersHeaderBarHidden
         }
         return false

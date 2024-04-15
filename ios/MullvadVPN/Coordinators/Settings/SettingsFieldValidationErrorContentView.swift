@@ -18,7 +18,7 @@ class SettingsFieldValidationErrorContentView: UIView, UIContentView {
         return view
     }
 
-    var configuration: UIContentConfiguration {
+    var configuration: any UIContentConfiguration {
         get {
             actualConfiguration
         }
@@ -34,7 +34,7 @@ class SettingsFieldValidationErrorContentView: UIView, UIContentView {
 
     private var actualConfiguration: SettingsFieldValidationErrorConfiguration
 
-    func supports(_ configuration: UIContentConfiguration) -> Bool {
+    func supports(_ configuration: any UIContentConfiguration) -> Bool {
         configuration is SettingsFieldValidationErrorConfiguration
     }
 

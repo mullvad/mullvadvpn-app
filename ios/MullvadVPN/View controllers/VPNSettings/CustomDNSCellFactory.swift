@@ -19,7 +19,7 @@ protocol CustomDNSCellEventHandler {
 final class CustomDNSCellFactory: CellFactoryProtocol {
     let tableView: UITableView
     var viewModel: VPNSettingsViewModel
-    var delegate: CustomDNSCellEventHandler?
+    var delegate: (any CustomDNSCellEventHandler)?
     var isEditing = false
 
     init(tableView: UITableView, viewModel: VPNSettingsViewModel) {

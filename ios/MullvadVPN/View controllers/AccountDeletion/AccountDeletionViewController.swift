@@ -21,7 +21,7 @@ class AccountDeletionViewController: UIViewController {
         return view
     }()
 
-    weak var delegate: AccountDeletionViewControllerDelegate?
+    weak var delegate: (any AccountDeletionViewControllerDelegate)?
     var interactor: AccountDeletionInteractor
 
     init(interactor: AccountDeletionInteractor) {
@@ -49,7 +49,7 @@ class AccountDeletionViewController: UIViewController {
         contentView.isEditing = false
     }
 
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
         contentView.isEditing = false
         super.viewWillTransition(to: size, with: coordinator)
     }

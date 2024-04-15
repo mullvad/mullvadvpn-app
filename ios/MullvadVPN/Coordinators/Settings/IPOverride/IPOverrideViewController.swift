@@ -15,7 +15,7 @@ class IPOverrideViewController: UIViewController {
     private let alertPresenter: AlertPresenter
     private let headerView = IPOverrideHeaderView()
 
-    weak var delegate: IPOverrideViewControllerDelegate?
+    weak var delegate: (any IPOverrideViewControllerDelegate)?
 
     private lazy var containerView: UIStackView = {
         let view = UIStackView()

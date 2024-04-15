@@ -13,9 +13,9 @@ import MullvadTypes
 
 class CustomListsDataSource: LocationDataSourceProtocol {
     private(set) var nodes = [LocationNode]()
-    private(set) var repository: CustomListRepositoryProtocol
+    private(set) var repository: any CustomListRepositoryProtocol
 
-    init(repository: CustomListRepositoryProtocol) {
+    init(repository: any CustomListRepositoryProtocol) {
         self.repository = repository
     }
 

@@ -18,7 +18,7 @@ final class TunnelBlockObserver: TunnelObserver {
         _ previousDeviceState: DeviceState
     ) -> Void
     typealias DidUpdateTunnelSettingsHandler = (TunnelManager, LatestTunnelSettings) -> Void
-    typealias DidFailWithErrorHandler = (TunnelManager, Error) -> Void
+    typealias DidFailWithErrorHandler = (TunnelManager, any Error) -> Void
 
     private let didLoadConfiguration: DidLoadConfigurationHandler?
     private let didUpdateTunnelStatus: DidUpdateTunnelStatusHandler?
@@ -60,7 +60,7 @@ final class TunnelBlockObserver: TunnelObserver {
         didUpdateTunnelSettings?(manager, tunnelSettings)
     }
 
-    func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
+    func tunnelManager(_ manager: TunnelManager, didFailWithError error: any Error) {
         didFailWithError?(manager, error)
     }
 }

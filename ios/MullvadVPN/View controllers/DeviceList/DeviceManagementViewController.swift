@@ -18,7 +18,7 @@ protocol DeviceManagementViewControllerDelegate: AnyObject {
 }
 
 class DeviceManagementViewController: UIViewController, RootContainment {
-    weak var delegate: DeviceManagementViewControllerDelegate?
+    weak var delegate: (any DeviceManagementViewControllerDelegate)?
 
     var preferredHeaderBarPresentation: HeaderBarPresentation {
         .default
@@ -86,7 +86,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
     func fetchDevices(
         animateUpdates: Bool,
-        completionHandler: ((Result<Void, Error>) -> Void)? = nil
+        completionHandler: ((Result<Void, any Error>) -> Void)? = nil
     ) {
         interactor.getDevices { [weak self] result in
             guard let self = self else { return }
@@ -150,7 +150,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         }
     }
 
-    private func getErrorDescription(_ error: Error) -> String {
+    private func getErrorDescription(_ error: any Error) -> String {
         if case let .network(urlError) = error as? REST.Error {
             return urlError.localizedDescription
         } else {
@@ -158,7 +158,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         }
     }
 
-    private func showErrorAlert(title: String, error: Error) {
+    private func showErrorAlert(title: String, error: any Error) {
         let presentation = AlertPresentation(
             id: "delete-device-error-alert",
             title: title,
@@ -234,7 +234,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
-    private func deleteDevice(identifier: String, completionHandler: @escaping (Error?) -> Void) {
+    private func deleteDevice(identifier: String, completionHandler: @escaping ((any Error)?) -> Void) {
         interactor.deleteDevice(identifier) { [weak self] completion in
             guard let self = self else { return }
 

@@ -65,7 +65,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     private var storedAccountData: StoredAccountData?
     private weak var tableView: UITableView?
 
-    weak var delegate: SettingsDataSourceDelegate?
+    weak var delegate: (any SettingsDataSourceDelegate)?
 
     init(tableView: UITableView, interactor: SettingsInteractor) {
         self.tableView = tableView

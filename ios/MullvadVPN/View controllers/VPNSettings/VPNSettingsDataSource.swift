@@ -155,7 +155,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     private let vpnSettingsCellFactory: VPNSettingsCellFactory
     private weak var tableView: UITableView?
 
-    weak var delegate: VPNSettingsDataSourceDelegate?
+    weak var delegate: (any VPNSettingsDataSourceDelegate)?
 
     var selectedIndexPaths: [IndexPath] {
         let wireGuardPortItem: Item = viewModel.customWireGuardPort == nil

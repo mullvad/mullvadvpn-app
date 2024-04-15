@@ -13,7 +13,7 @@ import MullvadTypes
 final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppNotificationProvider {
     private var accountExpiry = AccountExpiry()
     private var tunnelObserver: TunnelBlockObserver?
-    private var timer: DispatchSourceTimer?
+    private var timer: (any DispatchSourceTimer)?
 
     init(tunnelManager: TunnelManager) {
         super.init()

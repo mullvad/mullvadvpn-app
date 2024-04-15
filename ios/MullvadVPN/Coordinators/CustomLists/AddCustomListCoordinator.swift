@@ -13,7 +13,7 @@ import UIKit
 
 class AddCustomListCoordinator: Coordinator, Presentable, Presenting {
     let navigationController: UINavigationController
-    let interactor: CustomListInteractorProtocol
+    let interactor: any CustomListInteractorProtocol
     let nodes: [LocationNode]
     let subject = CurrentValueSubject<CustomListViewModel, Never>(
         CustomListViewModel(id: UUID(), name: "", locations: [], tableSections: [.name, .addLocations])
@@ -27,7 +27,7 @@ class AddCustomListCoordinator: Coordinator, Presentable, Presenting {
 
     init(
         navigationController: UINavigationController,
-        interactor: CustomListInteractorProtocol,
+        interactor: any CustomListInteractorProtocol,
         nodes: [LocationNode]
     ) {
         self.navigationController = navigationController

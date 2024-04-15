@@ -47,7 +47,7 @@ struct CustomListCellConfiguration {
             contentValidationErrors: validationErrors
         )
 
-        guard let cell = cell as? DynamicBackgroundConfiguration else { return }
+        guard let cell = cell as? any DynamicBackgroundConfiguration else { return }
 
         cell.setAutoAdaptingBackgroundConfiguration(.mullvadListGroupedCell(), selectionType: .dimmed)
     }
@@ -86,7 +86,7 @@ struct CustomListCellConfiguration {
         contentConfiguration.text = itemIdentifier.text
         cell.contentConfiguration = contentConfiguration
 
-        if let cell = cell as? CustomCellDisclosureHandling {
+        if let cell = cell as? any CustomCellDisclosureHandling {
             cell.disclosureType = .chevron
         }
     }

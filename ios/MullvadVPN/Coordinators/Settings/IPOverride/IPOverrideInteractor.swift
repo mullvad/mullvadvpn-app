@@ -13,7 +13,7 @@ import MullvadTypes
 
 final class IPOverrideInteractor {
     private let logger = Logger(label: "IPOverrideInteractor")
-    private let repository: IPOverrideRepositoryProtocol
+    private let repository: any IPOverrideRepositoryProtocol
     private let tunnelManager: TunnelManager
     private var statusWorkItem: DispatchWorkItem?
 
@@ -30,7 +30,7 @@ final class IPOverrideInteractor {
         }
     }
 
-    init(repository: IPOverrideRepositoryProtocol, tunnelManager: TunnelManager) {
+    init(repository: any IPOverrideRepositoryProtocol, tunnelManager: TunnelManager) {
         self.repository = repository
         self.tunnelManager = tunnelManager
 

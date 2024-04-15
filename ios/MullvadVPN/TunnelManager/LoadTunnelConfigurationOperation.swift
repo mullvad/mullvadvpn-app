@@ -14,9 +14,9 @@ import Operations
 
 class LoadTunnelConfigurationOperation: ResultOperation<Void> {
     private let logger = Logger(label: "LoadTunnelConfigurationOperation")
-    private let interactor: TunnelInteractor
+    private let interactor: any TunnelInteractor
 
-    init(dispatchQueue: DispatchQueue, interactor: TunnelInteractor) {
+    init(dispatchQueue: DispatchQueue, interactor: any TunnelInteractor) {
         self.interactor = interactor
 
         super.init(dispatchQueue: dispatchQueue)
@@ -58,7 +58,7 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void> {
         finish(result: .success(()))
     }
 
-    private func readSettings() -> Result<LatestTunnelSettings?, Error> {
+    private func readSettings() -> Result<LatestTunnelSettings?, any Error> {
         Result { try SettingsManager.readSettings() }
             .flatMapError { error in
                 if let error = error as? ReadSettingsVersionError,
@@ -77,7 +77,7 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void> {
             }
     }
 
-    private func readDeviceState() -> Result<DeviceState?, Error> {
+    private func readDeviceState() -> Result<DeviceState?, any Error> {
         Result { try SettingsManager.readDeviceState() }
             .flatMapError { error in
                 if let error = error as? KeychainError, error == .itemNotFound {

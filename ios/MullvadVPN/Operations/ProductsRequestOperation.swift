@@ -18,7 +18,7 @@ final class ProductsRequestOperation: ResultOperation<SKProductsResponse>,
     private let retryDelay: Duration = .seconds(2)
 
     private var retryCount = 0
-    private var retryTimer: DispatchSourceTimer?
+    private var retryTimer: (any DispatchSourceTimer)?
     private var request: SKProductsRequest?
 
     init(productIdentifiers: Set<String>, completionHandler: @escaping CompletionHandler) {
@@ -46,7 +46,7 @@ final class ProductsRequestOperation: ResultOperation<SKProductsResponse>,
         // no-op
     }
 
-    func request(_ request: SKRequest, didFailWithError error: Error) {
+    func request(_ request: SKRequest, didFailWithError error: any Error) {
         dispatchQueue.async {
             if self.retryCount < self.maxRetryCount, !self.isCancelled {
                 self.retryCount += 1
@@ -72,7 +72,7 @@ final class ProductsRequestOperation: ResultOperation<SKProductsResponse>,
         request?.start()
     }
 
-    private func retry(error: Error) {
+    private func retry(error: any Error) {
         retryTimer = DispatchSource.makeTimerSource(flags: [], queue: .main)
 
         retryTimer?.setEventHandler { [weak self] in

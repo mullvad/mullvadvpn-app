@@ -37,8 +37,8 @@ protocol TunnelProtocol: AnyObject {
 
     func logFormat() -> String
 
-    func saveToPreferences(_ completion: @escaping (Error?) -> Void)
-    func removeFromPreferences(completion: @escaping (Error?) -> Void)
+    func saveToPreferences(_ completion: @escaping ((any Error)?) -> Void)
+    func removeFromPreferences(completion: @escaping ((any Error)?) -> Void)
 
     func setConfiguration(_ configuration: TunnelConfiguration)
     func start(options: [String: NSObject]?) throws
@@ -134,7 +134,7 @@ final class Tunnel: TunnelProtocol, Equatable {
     }
 
     func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws {
-        let session = tunnelProvider.connection as? VPNTunnelProviderSessionProtocol
+        let session = tunnelProvider.connection as? any VPNTunnelProviderSessionProtocol
 
         try session?.sendProviderMessage(messageData, responseHandler: responseHandler)
     }
@@ -143,7 +143,7 @@ final class Tunnel: TunnelProtocol, Equatable {
         configuration.apply(to: tunnelProvider)
     }
 
-    func saveToPreferences(_ completion: @escaping (Error?) -> Void) {
+    func saveToPreferences(_ completion: @escaping ((any Error)?) -> Void) {
         tunnelProvider.saveToPreferences { error in
             if let error {
                 completion(error)
@@ -157,7 +157,7 @@ final class Tunnel: TunnelProtocol, Equatable {
         }
     }
 
-    func removeFromPreferences(completion: @escaping (Error?) -> Void) {
+    func removeFromPreferences(completion: @escaping ((any Error)?) -> Void) {
         tunnelProvider.removeFromPreferences(completionHandler: completion)
     }
 
@@ -181,7 +181,7 @@ final class Tunnel: TunnelProtocol, Equatable {
     }
 
     @objc private func handleVPNStatusChangeNotification(_ notification: Notification) {
-        guard let connection = notification.object as? VPNConnectionProtocol else { return }
+        guard let connection = notification.object as? any VPNConnectionProtocol else { return }
 
         let newStatus = connection.status
 

@@ -12,8 +12,8 @@ import UIKit
 
 class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordinator {
     let navigationController: UINavigationController
-    let accessMethodRepository: AccessMethodRepositoryProtocol
-    let proxyConfigurationTester: ProxyConfigurationTesterProtocol
+    let accessMethodRepository: any AccessMethodRepositoryProtocol
+    let proxyConfigurationTester: any ProxyConfigurationTesterProtocol
 
     var presentationContext: UIViewController {
         navigationController
@@ -21,8 +21,8 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
 
     init(
         navigationController: UINavigationController,
-        accessMethodRepository: AccessMethodRepositoryProtocol,
-        proxyConfigurationTester: ProxyConfigurationTesterProtocol
+        accessMethodRepository: any AccessMethodRepositoryProtocol,
+        proxyConfigurationTester: any ProxyConfigurationTesterProtocol
     ) {
         self.navigationController = navigationController
         self.accessMethodRepository = accessMethodRepository

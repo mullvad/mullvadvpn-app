@@ -70,7 +70,7 @@ class MethodSettingsCellConfiguration {
             contentValidationErrors: contentValidationErrors
         )
 
-        guard let cell = cell as? DynamicBackgroundConfiguration else { return }
+        guard let cell = cell as? any DynamicBackgroundConfiguration else { return }
 
         guard !itemIdentifier.isClearBackground else {
             cell.setAutoAdaptingClearBackgroundConfiguration()
@@ -149,7 +149,7 @@ class MethodSettingsCellConfiguration {
         contentConfiguration.secondaryText = subject.value.method.localizedDescription
         cell.contentConfiguration = contentConfiguration
 
-        if let cell = cell as? CustomCellDisclosureHandling {
+        if let cell = cell as? any CustomCellDisclosureHandling {
             cell.disclosureType = .chevron
         }
 

@@ -14,7 +14,7 @@ protocol LocationCellDelegate: AnyObject {
 }
 
 class LocationCell: UITableViewCell {
-    weak var delegate: LocationCellDelegate?
+    weak var delegate: (any LocationCellDelegate)?
 
     private let locationLabel: UILabel = {
         let label = UILabel()

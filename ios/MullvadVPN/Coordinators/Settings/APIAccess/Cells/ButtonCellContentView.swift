@@ -15,7 +15,7 @@ class ButtonCellContentView: UIView, UIContentView {
     /// Default cell corner radius in inset grouped table view
     private let tableViewCellCornerRadius: CGFloat = 10
 
-    var configuration: UIContentConfiguration {
+    var configuration: any UIContentConfiguration {
         get {
             actualConfiguration
         }
@@ -32,7 +32,7 @@ class ButtonCellContentView: UIView, UIContentView {
 
     private var actualConfiguration: ButtonCellContentConfiguration
 
-    func supports(_ configuration: UIContentConfiguration) -> Bool {
+    func supports(_ configuration: any UIContentConfiguration) -> Bool {
         configuration is ButtonCellContentConfiguration
     }
 

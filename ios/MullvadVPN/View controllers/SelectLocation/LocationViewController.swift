@@ -25,8 +25,8 @@ final class LocationViewController: UIViewController {
     private var cachedRelays: CachedRelays?
     private var filter = RelayFilter()
     var relayLocations: UserSelectedRelays?
-    weak var delegate: LocationViewControllerDelegate?
-    var customListRepository: CustomListRepositoryProtocol
+    weak var delegate: (any LocationViewControllerDelegate)?
+    var customListRepository: any CustomListRepositoryProtocol
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
@@ -41,7 +41,7 @@ final class LocationViewController: UIViewController {
     var didUpdateFilter: ((RelayFilter) -> Void)?
     var didFinish: (() -> Void)?
 
-    init(customListRepository: CustomListRepositoryProtocol) {
+    init(customListRepository: any CustomListRepositoryProtocol) {
         self.customListRepository = customListRepository
         super.init(nibName: nil, bundle: nil)
     }

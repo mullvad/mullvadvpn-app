@@ -31,11 +31,11 @@ struct MethodTestingStatusCellContentConfiguration: UIContentConfiguration, Equa
     /// Layout margins.
     var directionalLayoutMargins: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.apiAccessInsetLayoutMargins
 
-    func makeContentView() -> UIView & UIContentView {
+    func makeContentView() -> any UIView & UIContentView {
         return MethodTestingStatusCellContentView(configuration: self)
     }
 
-    func updated(for state: UIConfigurationState) -> Self {
+    func updated(for state: any UIConfigurationState) -> Self {
         return self
     }
 }

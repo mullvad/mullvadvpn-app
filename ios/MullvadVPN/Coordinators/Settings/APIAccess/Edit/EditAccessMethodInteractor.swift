@@ -12,8 +12,8 @@ import MullvadSettings
 
 struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
     let subject: CurrentValueSubject<AccessMethodViewModel, Never>
-    let repository: AccessMethodRepositoryProtocol
-    let proxyConfigurationTester: ProxyConfigurationTesterProtocol
+    let repository: any AccessMethodRepositoryProtocol
+    let proxyConfigurationTester: any ProxyConfigurationTesterProtocol
 
     func saveAccessMethod() {
         guard let persistentMethod = try? subject.value.intoPersistentAccessMethod() else { return }

@@ -16,16 +16,16 @@ enum StorePaymentManagerError: LocalizedError, WrappingError {
     case noAccountSet
 
     /// Failure to validate the account token.
-    case validateAccount(Error)
+    case validateAccount(any Error)
 
     /// Failure to handle payment transaction. Contains error returned by StoreKit.
-    case storePayment(Error)
+    case storePayment(any Error)
 
     /// Failure to read the AppStore receipt.
-    case readReceipt(Error)
+    case readReceipt(any Error)
 
     /// Failure to send the AppStore receipt to backend.
-    case sendReceipt(Error)
+    case sendReceipt(any Error)
 
     var errorDescription: String? {
         switch self {
@@ -42,7 +42,7 @@ enum StorePaymentManagerError: LocalizedError, WrappingError {
         }
     }
 
-    var underlyingError: Error? {
+    var underlyingError: (any Error)? {
         switch self {
         case .noAccountSet:
             return nil

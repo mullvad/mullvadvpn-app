@@ -24,7 +24,7 @@ class WelcomeViewController: UIViewController, RootContainment {
 
     private let interactor: WelcomeInteractor
 
-    weak var delegate: WelcomeViewControllerDelegate?
+    weak var delegate: (any WelcomeViewControllerDelegate)?
 
     var preferredHeaderBarPresentation: HeaderBarPresentation {
         HeaderBarPresentation(style: .default, showsDivider: true)

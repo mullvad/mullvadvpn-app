@@ -15,8 +15,8 @@ class AddAccessMethodCoordinator: Coordinator, Presentable, Presenting {
     private let subject: CurrentValueSubject<AccessMethodViewModel, Never> = .init(AccessMethodViewModel())
 
     let navigationController: UINavigationController
-    let accessMethodRepository: AccessMethodRepositoryProtocol
-    let proxyConfigurationTester: ProxyConfigurationTesterProtocol
+    let accessMethodRepository: any AccessMethodRepositoryProtocol
+    let proxyConfigurationTester: any ProxyConfigurationTesterProtocol
 
     var presentedViewController: UIViewController {
         navigationController
@@ -24,8 +24,8 @@ class AddAccessMethodCoordinator: Coordinator, Presentable, Presenting {
 
     init(
         navigationController: UINavigationController,
-        accessMethodRepo: AccessMethodRepositoryProtocol,
-        proxyConfigurationTester: ProxyConfigurationTesterProtocol
+        accessMethodRepo: any AccessMethodRepositoryProtocol,
+        proxyConfigurationTester: any ProxyConfigurationTesterProtocol
     ) {
         self.navigationController = navigationController
         self.accessMethodRepository = accessMethodRepo

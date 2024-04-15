@@ -19,7 +19,7 @@ protocol SettingsViewControllerDelegate: AnyObject {
 }
 
 class SettingsViewController: UITableViewController, SettingsDataSourceDelegate {
-    weak var delegate: SettingsViewControllerDelegate?
+    weak var delegate: (any SettingsViewControllerDelegate)?
     private var dataSource: SettingsDataSource?
     private let interactor: SettingsInteractor
 

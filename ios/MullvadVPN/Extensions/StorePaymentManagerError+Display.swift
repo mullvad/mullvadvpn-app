@@ -22,7 +22,7 @@ extension StorePaymentManagerError: DisplayError {
             )
 
         case let .validateAccount(error):
-            let reason = (error as? DisplayError)?.displayErrorDescription ?? ""
+            let reason = (error as? any DisplayError)?.displayErrorDescription ?? ""
 
             return String(
                 format: NSLocalizedString(
@@ -61,7 +61,7 @@ extension StorePaymentManagerError: DisplayError {
             }
 
         case let .sendReceipt(error):
-            let reason = (error as? DisplayError)?.displayErrorDescription ?? ""
+            let reason = (error as? any DisplayError)?.displayErrorDescription ?? ""
             let errorFormat = NSLocalizedString(
                 "SEND_RECEIPT_ERROR",
                 tableName: "StorePaymentManager",

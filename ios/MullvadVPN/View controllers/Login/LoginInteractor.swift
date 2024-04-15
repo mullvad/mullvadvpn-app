@@ -13,7 +13,7 @@ import MullvadSettings
 final class LoginInteractor {
     private let tunnelManager: TunnelManager
     private let logger = Logger(label: "LoginInteractor")
-    private var tunnelObserver: TunnelObserver?
+    private var tunnelObserver: (any TunnelObserver)?
     var didCreateAccount: (() -> Void)?
     var suggestPreferredAccountNumber: ((String) -> Void)?
 

@@ -80,7 +80,7 @@ class AutomaticKeyboardResponder {
             let fromCoordinateSpace = screen.coordinateSpace
 
             // Get your view's coordinate space.
-            let toCoordinateSpace: UICoordinateSpace = targetView
+            let toCoordinateSpace: any UICoordinateSpace = targetView
 
             // Convert the keyboard's frame from the screen's coordinate space to your view's coordinate space.
             let convertedKeyboardFrameEnd = fromCoordinateSpace.convert(keyboardFrameEnd, to: toCoordinateSpace)

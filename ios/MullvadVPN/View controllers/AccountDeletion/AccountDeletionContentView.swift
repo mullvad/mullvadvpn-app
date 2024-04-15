@@ -18,7 +18,7 @@ class AccountDeletionContentView: UIView {
     enum State {
         case initial
         case loading
-        case failure(Error)
+        case failure(any Error)
     }
 
     private let scrollView: UIScrollView = {
@@ -265,7 +265,7 @@ class AccountDeletionContentView: UIView {
         return inputLengthIsValid && inputMatchesAccountNumber
     }
 
-    weak var delegate: AccountDeletionContentViewDelegate?
+    weak var delegate: (any AccountDeletionContentViewDelegate)?
 
     override init(frame: CGRect) {
         super.init(frame: .zero)

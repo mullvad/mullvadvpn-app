@@ -11,18 +11,18 @@ import MullvadSettings
 
 final class SettingsInteractorFactory {
     private let storePaymentManager: StorePaymentManager
-    private let apiProxy: APIQuerying
+    private let apiProxy: any APIQuerying
     private let relayCacheTracker: RelayCacheTracker
-    private let ipOverrideRepository: IPOverrideRepositoryProtocol
+    private let ipOverrideRepository: any IPOverrideRepositoryProtocol
 
     let tunnelManager: TunnelManager
 
     init(
         storePaymentManager: StorePaymentManager,
         tunnelManager: TunnelManager,
-        apiProxy: APIQuerying,
+        apiProxy: any APIQuerying,
         relayCacheTracker: RelayCacheTracker,
-        ipOverrideRepository: IPOverrideRepositoryProtocol
+        ipOverrideRepository: any IPOverrideRepositoryProtocol
     ) {
         self.storePaymentManager = storePaymentManager
         self.tunnelManager = tunnelManager

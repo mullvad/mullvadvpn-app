@@ -12,7 +12,7 @@ import MullvadSettings
 
 final class VPNSettingsInteractor {
     let tunnelManager: TunnelManager
-    private var tunnelObserver: TunnelObserver?
+    private var tunnelObserver: (any TunnelObserver)?
     private let relayCacheTracker: RelayCacheTracker
 
     var tunnelSettingsDidChange: ((LatestTunnelSettings) -> Void)?

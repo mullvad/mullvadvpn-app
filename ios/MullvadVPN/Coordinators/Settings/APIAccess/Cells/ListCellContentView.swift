@@ -14,7 +14,7 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
     private var secondaryTextLabel = UILabel()
     private var tertiaryTextLabel = UILabel()
 
-    var configuration: UIContentConfiguration {
+    var configuration: any UIContentConfiguration {
         get {
             actualConfiguration
         }
@@ -31,7 +31,7 @@ class ListCellContentView: UIView, UIContentView, UITextFieldDelegate {
 
     private var actualConfiguration: ListCellContentConfiguration
 
-    func supports(_ configuration: UIContentConfiguration) -> Bool {
+    func supports(_ configuration: any UIContentConfiguration) -> Bool {
         configuration is ListCellContentConfiguration
     }
 

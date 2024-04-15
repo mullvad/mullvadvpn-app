@@ -71,13 +71,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private let storePaymentManager: StorePaymentManager
     private let relayCacheTracker: RelayCacheTracker
 
-    private let apiProxy: APIQuerying
-    private let devicesProxy: DeviceHandling
-    private let accountsProxy: RESTAccountHandling
-    private var tunnelObserver: TunnelObserver?
-    private var appPreferences: AppPreferencesDataSource
-    private var outgoingConnectionService: OutgoingConnectionServiceHandling
-    private var accessMethodRepository: AccessMethodRepositoryProtocol
+    private let apiProxy: any APIQuerying
+    private let devicesProxy: any DeviceHandling
+    private let accountsProxy: any RESTAccountHandling
+    private var tunnelObserver: (any TunnelObserver)?
+    private var appPreferences: any AppPreferencesDataSource
+    private var outgoingConnectionService: any OutgoingConnectionServiceHandling
+    private var accessMethodRepository: any AccessMethodRepositoryProtocol
     private let configuredTransportProvider: ProxyConfigurationTransportProvider
     private let ipOverrideRepository: IPOverrideRepository
 
@@ -91,12 +91,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         tunnelManager: TunnelManager,
         storePaymentManager: StorePaymentManager,
         relayCacheTracker: RelayCacheTracker,
-        apiProxy: APIQuerying,
-        devicesProxy: DeviceHandling,
-        accountsProxy: RESTAccountHandling,
-        outgoingConnectionService: OutgoingConnectionServiceHandling,
-        appPreferences: AppPreferencesDataSource,
-        accessMethodRepository: AccessMethodRepositoryProtocol,
+        apiProxy: any APIQuerying,
+        devicesProxy: any DeviceHandling,
+        accountsProxy: any RESTAccountHandling,
+        outgoingConnectionService: any OutgoingConnectionServiceHandling,
+        appPreferences: any AppPreferencesDataSource,
+        accessMethodRepository: any AccessMethodRepositoryProtocol,
         transportProvider: ProxyConfigurationTransportProvider,
         ipOverrideRepository: IPOverrideRepository
 
@@ -193,7 +193,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
                 context.dismissedRoutes.forEach { $0.coordinator.removeFromParent() }
 
             case .selectLocation, .account, .settings, .changelog, .alert:
-                guard let coordinator = dismissedRoute.coordinator as? Presentable else {
+                guard let coordinator = dismissedRoute.coordinator as? any Presentable else {
                     completion()
                     return assertionFailure("Expected presentable coordinator for \(dismissedRoute.route)")
                 }
@@ -205,7 +205,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
             switch dismissedRoute.route {
             case .outOfTime, .welcome:
-                guard let coordinator = dismissedRoute.coordinator as? Poppable else {
+                guard let coordinator = dismissedRoute.coordinator as? any Poppable else {
                     completion()
                     return assertionFailure("Expected presentable coordinator for \(dismissedRoute.route)")
                 }

@@ -10,7 +10,7 @@ import Foundation
 
 final class RevokedDeviceInteractor {
     private let tunnelManager: TunnelManager
-    private var tunnelObserver: TunnelObserver?
+    private var tunnelObserver: (any TunnelObserver)?
 
     var didUpdateTunnelStatus: ((TunnelStatus) -> Void)?
 

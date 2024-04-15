@@ -11,9 +11,9 @@ import MullvadSettings
 
 /// A concrete implementation of an API access list interactor.
 struct ListAccessMethodInteractor: ListAccessMethodInteractorProtocol {
-    let repository: AccessMethodRepositoryProtocol
+    let repository: any AccessMethodRepositoryProtocol
 
-    init(repository: AccessMethodRepositoryProtocol) {
+    init(repository: any AccessMethodRepositoryProtocol) {
         self.repository = repository
     }
 

@@ -15,7 +15,7 @@ import UIKit
 
 final class LoginCoordinator: Coordinator, Presenting, DeviceManagementViewControllerDelegate {
     private let tunnelManager: TunnelManager
-    private let devicesProxy: DeviceHandling
+    private let devicesProxy: any DeviceHandling
 
     private var loginController: LoginViewController?
     private var lastLoginAction: LoginAction?
@@ -34,7 +34,7 @@ final class LoginCoordinator: Coordinator, Presenting, DeviceManagementViewContr
     init(
         navigationController: RootContainerViewController,
         tunnelManager: TunnelManager,
-        devicesProxy: DeviceHandling
+        devicesProxy: any DeviceHandling
     ) {
         self.navigationController = navigationController
         self.tunnelManager = tunnelManager
@@ -75,7 +75,7 @@ final class LoginCoordinator: Coordinator, Presenting, DeviceManagementViewContr
 
     // MARK: - Private
 
-    private func didFinishLogin(action: LoginAction, error: Error?) -> EndLoginAction {
+    private func didFinishLogin(action: LoginAction, error: (any Error)?) -> EndLoginAction {
         guard let error else {
             callDidFinishAfterDelay()
             return .nothing
@@ -115,7 +115,7 @@ final class LoginCoordinator: Coordinator, Presenting, DeviceManagementViewContr
         }
     }
 
-    private func showDeviceList(for accountNumber: String, completion: @escaping (Error?) -> Void) {
+    private func showDeviceList(for accountNumber: String, completion: @escaping ((any Error)?) -> Void) {
         let interactor = DeviceManagementInteractor(
             accountNumber: accountNumber,
             devicesProxy: devicesProxy

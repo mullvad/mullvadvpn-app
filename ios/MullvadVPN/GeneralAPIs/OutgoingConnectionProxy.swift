@@ -25,9 +25,9 @@ final class OutgoingConnectionProxy: OutgoingConnectionHandling {
         }
     }
 
-    let urlSession: URLSessionProtocol
+    let urlSession: any URLSessionProtocol
 
-    init(urlSession: URLSessionProtocol) {
+    init(urlSession: any URLSessionProtocol) {
         self.urlSession = urlSession
     }
 

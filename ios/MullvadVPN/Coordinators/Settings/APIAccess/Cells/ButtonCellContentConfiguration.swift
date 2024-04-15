@@ -25,11 +25,11 @@ struct ButtonCellContentConfiguration: UIContentConfiguration, Equatable {
     /// The button content edge insets.
     var directionalContentEdgeInsets: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.insetLayoutMargins
 
-    func makeContentView() -> UIView & UIContentView {
+    func makeContentView() -> any UIView & UIContentView {
         return ButtonCellContentView(configuration: self)
     }
 
-    func updated(for state: UIConfigurationState) -> Self {
+    func updated(for state: any UIConfigurationState) -> Self {
         return self
     }
 }

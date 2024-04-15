@@ -21,7 +21,7 @@ class IPOverrideCoordinator: Coordinator, Presenting, SettingsChildCoordinator {
 
     init(
         navigationController: UINavigationController,
-        repository: IPOverrideRepositoryProtocol,
+        repository: any IPOverrideRepositoryProtocol,
         tunnelManager: TunnelManager
     ) {
         self.navigationController = navigationController

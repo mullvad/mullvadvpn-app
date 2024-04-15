@@ -19,7 +19,7 @@ protocol CustomListViewControllerDelegate: AnyObject {
 class CustomListViewController: UIViewController {
     typealias DataSource = UITableViewDiffableDataSource<CustomListSectionIdentifier, CustomListItemIdentifier>
 
-    private let interactor: CustomListInteractorProtocol
+    private let interactor: any CustomListInteractorProtocol
     private let tableView = UITableView(frame: .zero, style: .insetGrouped)
     private let subject: CurrentValueSubject<CustomListViewModel, Never>
     private var cancellables = Set<AnyCancellable>()
@@ -54,10 +54,10 @@ class CustomListViewController: UIViewController {
         return barButtonItem
     }()
 
-    weak var delegate: CustomListViewControllerDelegate?
+    weak var delegate: (any CustomListViewControllerDelegate)?
 
     init(
-        interactor: CustomListInteractorProtocol,
+        interactor: any CustomListInteractorProtocol,
         subject: CurrentValueSubject<CustomListViewModel, Never>,
         alertPresenter: AlertPresenter
     ) {

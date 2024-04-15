@@ -186,7 +186,7 @@ class InputTextFormatter: NSObject, UITextFieldDelegate, UITextPasteDelegate {
     // MARK: - UITextPasteDelegate
 
     func textPasteConfigurationSupporting(
-        _ textPasteConfigurationSupporting: UITextPasteConfigurationSupporting,
+        _ textPasteConfigurationSupporting: any UITextPasteConfigurationSupporting,
         performPasteOf attributedString: NSAttributedString,
         to textRange: UITextRange
     ) -> UITextRange {

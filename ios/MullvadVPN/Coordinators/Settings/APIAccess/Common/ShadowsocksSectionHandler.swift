@@ -72,7 +72,7 @@ struct ShadowsocksSectionHandler {
         contentConfiguration.secondaryText = subject.value.shadowsocks.cipher.rawValue.description
         cell.contentConfiguration = contentConfiguration
 
-        if let cell = cell as? CustomCellDisclosureHandling {
+        if let cell = cell as? any CustomCellDisclosureHandling {
             cell.disclosureType = .chevron
         }
     }

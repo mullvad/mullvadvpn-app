@@ -18,7 +18,7 @@ protocol OutOfTimeViewControllerDelegate: AnyObject {
 }
 
 class OutOfTimeViewController: UIViewController, RootContainment {
-    weak var delegate: OutOfTimeViewControllerDelegate?
+    weak var delegate: (any OutOfTimeViewControllerDelegate)?
 
     private let interactor: OutOfTimeInteractor
     private let errorPresenter: PaymentAlertPresenter

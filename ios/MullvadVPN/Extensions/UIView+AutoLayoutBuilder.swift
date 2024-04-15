@@ -26,14 +26,14 @@ extension UIView {
     /**
      Pin all edges to edges of other view.
      */
-    func pinEdgesTo(_ other: AutoLayoutAnchorsProtocol) -> [NSLayoutConstraint] {
+    func pinEdgesTo(_ other: any AutoLayoutAnchorsProtocol) -> [NSLayoutConstraint] {
         pinEdges(.all(), to: other)
     }
 
     /**
      Pin edges to edges of other view.
      */
-    func pinEdges(_ edges: PinnableEdges, to other: AutoLayoutAnchorsProtocol) -> [NSLayoutConstraint] {
+    func pinEdges(_ edges: PinnableEdges, to other: any AutoLayoutAnchorsProtocol) -> [NSLayoutConstraint] {
         edges.makeConstraints(firstView: self, secondView: other)
     }
 
@@ -202,8 +202,8 @@ struct PinnableEdges {
         }
 
         func makeConstraint(
-            firstView: AutoLayoutAnchorsProtocol,
-            secondView: AutoLayoutAnchorsProtocol
+            firstView: any AutoLayoutAnchorsProtocol,
+            secondView: any AutoLayoutAnchorsProtocol
         ) -> NSLayoutConstraint {
             switch self {
             case let .top(inset):
@@ -257,8 +257,8 @@ struct PinnableEdges {
      Returns new constraints pinning edges of the corresponding views.
      */
     func makeConstraints(
-        firstView: AutoLayoutAnchorsProtocol,
-        secondView: AutoLayoutAnchorsProtocol
+        firstView: any AutoLayoutAnchorsProtocol,
+        secondView: any AutoLayoutAnchorsProtocol
     ) -> [NSLayoutConstraint] {
         inner.map { $0.makeConstraint(firstView: firstView, secondView: secondView) }
     }

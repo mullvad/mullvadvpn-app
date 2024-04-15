@@ -16,11 +16,11 @@ struct SettingsFieldValidationErrorConfiguration: UIContentConfiguration, Equata
     var errors: [SettingsFieldValidationError] = []
     var directionalLayoutMargins: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.settingsValidationErrorLayoutMargins
 
-    func makeContentView() -> UIView & UIContentView {
+    func makeContentView() -> any UIView & UIContentView {
         return SettingsFieldValidationErrorContentView(configuration: self)
     }
 
-    func updated(for state: UIConfigurationState) -> Self {
+    func updated(for state: any UIConfigurationState) -> Self {
         return self
     }
 }

@@ -20,7 +20,7 @@ class AddLocationsViewController: UIViewController {
     private let nodes: [LocationNode]
     private let customList: CustomList
 
-    weak var delegate: AddLocationsViewControllerDelegate?
+    weak var delegate: (any AddLocationsViewControllerDelegate)?
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.separatorColor = .secondaryColor

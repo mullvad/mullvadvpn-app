@@ -15,15 +15,15 @@ import Operations
 import WireGuardKitTypes
 
 class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData> {
-    private let interactor: TunnelInteractor
-    private let devicesProxy: DeviceHandling
+    private let interactor: any TunnelInteractor
+    private let devicesProxy: any DeviceHandling
 
-    private var task: Cancellable?
+    private var task: (any Cancellable)?
 
     init(
         dispatchQueue: DispatchQueue,
-        interactor: TunnelInteractor,
-        devicesProxy: DeviceHandling
+        interactor: any TunnelInteractor,
+        devicesProxy: any DeviceHandling
     ) {
         self.interactor = interactor
         self.devicesProxy = devicesProxy
@@ -54,7 +54,7 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData> {
         task = nil
     }
 
-    private func didReceiveDeviceResponse(result: Result<Device, Error>) {
+    private func didReceiveDeviceResponse(result: Result<Device, any Error>) {
         let result = result.tryMap { device -> StoredDeviceData in
             switch interactor.deviceState {
             case .loggedIn(let storedAccount, var storedDevice):

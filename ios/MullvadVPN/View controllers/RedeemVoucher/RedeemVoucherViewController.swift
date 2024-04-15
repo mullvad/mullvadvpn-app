@@ -22,7 +22,7 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
     private let contentView: RedeemVoucherContentView
     private var interactor: RedeemVoucherInteractor
 
-    weak var delegate: RedeemVoucherViewControllerDelegate?
+    weak var delegate: (any RedeemVoucherViewControllerDelegate)?
 
     init(
         configuration: RedeemVoucherViewConfiguration,
@@ -79,7 +79,7 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
         contentView.isEditing = false
     }
 
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
         contentView.isEditing = false
         super.viewWillTransition(to: size, with: coordinator)
     }

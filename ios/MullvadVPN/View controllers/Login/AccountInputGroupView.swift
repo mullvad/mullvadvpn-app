@@ -543,7 +543,7 @@ final class AccountInputGroupView: UIView {
 }
 
 private class AccountInputBorderLayer: CAShapeLayer {
-    override class func defaultAction(forKey event: String) -> CAAction? {
+    override class func defaultAction(forKey event: String) -> (any CAAction)? {
         if event == "path" {
             let action = CABasicAnimation(keyPath: event)
             action.duration = animationDuration.timeInterval

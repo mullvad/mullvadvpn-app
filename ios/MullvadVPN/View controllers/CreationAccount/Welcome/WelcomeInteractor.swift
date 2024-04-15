@@ -17,10 +17,10 @@ final class WelcomeInteractor {
 
     /// Interval used for periodic polling account updates.
     private let accountUpdateTimerInterval: Duration = .minutes(1)
-    private var accountUpdateTimer: DispatchSourceTimer?
+    private var accountUpdateTimer: (any DispatchSourceTimer)?
 
     private let logger = Logger(label: "\(WelcomeInteractor.self)")
-    private var tunnelObserver: TunnelObserver?
+    private var tunnelObserver: (any TunnelObserver)?
     private(set) var product: SKProduct?
 
     var didChangeInAppPurchaseState: ((ProductState) -> Void)?

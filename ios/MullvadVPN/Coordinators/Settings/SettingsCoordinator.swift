@@ -38,8 +38,8 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     private let interactorFactory: SettingsInteractorFactory
     private var currentRoute: SettingsNavigationRoute?
     private var modalRoute: SettingsNavigationRoute?
-    private let accessMethodRepository: AccessMethodRepositoryProtocol
-    private let proxyConfigurationTester: ProxyConfigurationTesterProtocol
+    private let accessMethodRepository: any AccessMethodRepositoryProtocol
+    private let proxyConfigurationTester: any ProxyConfigurationTesterProtocol
     private let ipOverrideRepository: IPOverrideRepository
 
     let navigationController: UINavigationController
@@ -65,8 +65,8 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     init(
         navigationController: UINavigationController,
         interactorFactory: SettingsInteractorFactory,
-        accessMethodRepository: AccessMethodRepositoryProtocol,
-        proxyConfigurationTester: ProxyConfigurationTesterProtocol,
+        accessMethodRepository: any AccessMethodRepositoryProtocol,
+        proxyConfigurationTester: any ProxyConfigurationTesterProtocol,
         ipOverrideRepository: IPOverrideRepository
     ) {
         self.navigationController = navigationController
@@ -210,7 +210,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     /// Release all child coordinators conforming to ``SettingsChildCoordinator`` protocol.
     private func releaseChildren() {
         childCoordinators.forEach { coordinator in
-            if coordinator is SettingsChildCoordinator {
+            if coordinator is any SettingsChildCoordinator {
                 coordinator.removeFromParent()
             }
         }
@@ -225,7 +225,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
 
         /// Child coordinator that should be added to the children hierarchy.
         /// The child is responsile for presenting itself.
-        case childCoordinator(SettingsChildCoordinator)
+        case childCoordinator(any SettingsChildCoordinator)
 
         /// Failure to produce a child.
         case failed

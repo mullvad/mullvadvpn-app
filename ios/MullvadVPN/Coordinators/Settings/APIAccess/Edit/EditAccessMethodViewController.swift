@@ -17,16 +17,16 @@ class EditAccessMethodViewController: UITableViewController {
     >
 
     private let subject: CurrentValueSubject<AccessMethodViewModel, Never>
-    private let interactor: EditAccessMethodInteractorProtocol
+    private let interactor: any EditAccessMethodInteractorProtocol
     private var alertPresenter: AlertPresenter
     private var cancellables = Set<AnyCancellable>()
     private var dataSource: EditAccessMethodDataSource?
 
-    weak var delegate: EditAccessMethodViewControllerDelegate?
+    weak var delegate: (any EditAccessMethodViewControllerDelegate)?
 
     init(
         subject: CurrentValueSubject<AccessMethodViewModel, Never>,
-        interactor: EditAccessMethodInteractorProtocol,
+        interactor: any EditAccessMethodInteractorProtocol,
         alertPresenter: AlertPresenter
     ) {
         self.subject = subject
@@ -159,7 +159,7 @@ class EditAccessMethodViewController: UITableViewController {
     }
 
     private func configureBackground(cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
-        guard let cell = cell as? DynamicBackgroundConfiguration else { return }
+        guard let cell = cell as? any DynamicBackgroundConfiguration else { return }
 
         guard !itemIdentifier.isClearBackground else {
             cell.setAutoAdaptingClearBackgroundConfiguration()
@@ -213,7 +213,7 @@ class EditAccessMethodViewController: UITableViewController {
         contentConfiguration.text = itemIdentifier.text
         cell.contentConfiguration = contentConfiguration
 
-        if let cell = cell as? CustomCellDisclosureHandling {
+        if let cell = cell as? any CustomCellDisclosureHandling {
             cell.disclosureType = .chevron
         }
     }

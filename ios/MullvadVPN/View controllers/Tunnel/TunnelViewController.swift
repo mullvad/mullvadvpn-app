@@ -115,7 +115,7 @@ class TunnelViewController: UIViewController, RootContainment {
 
     override func viewWillTransition(
         to size: CGSize,
-        with coordinator: UIViewControllerTransitionCoordinator
+        with coordinator: any UIViewControllerTransitionCoordinator
     ) {
         super.viewWillTransition(to: size, with: coordinator)
 
