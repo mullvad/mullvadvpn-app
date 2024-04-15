@@ -68,4 +68,13 @@
         <packageUrl regex="true">^pkg:maven/androidx\.test\.services/storage@.*$</packageUrl>
         <cve>CVE-2014-9152</cve>
     </suppress>
+    <suppress until="2024-05-01Z">
+        <notes><![CDATA[
+            Suppressing since the affected function isn't used in this project. No upstream fixes
+            are available at the time of adding this suppression.
+            https://nvd.nist.gov/vuln/detail/CVE-2024-23080
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/joda-time/joda-time@.*$</packageUrl>
+        <cve>CVE-2024-23080</cve>
+    </suppress>
 </suppressions>
