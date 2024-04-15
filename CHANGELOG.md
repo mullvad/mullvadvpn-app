@@ -23,10 +23,6 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add automatic MTU detection for desktop platforms. This currently only uses information about
-  dropped packets and does not take fragmentation into account.
-- Add ability to import server IP overrides in GUI.
-
 #### Android
 - Add support for all screen orientations.
 - Add toggle for enabling or disabling split tunneling.
@@ -36,24 +32,12 @@ Line wrap the file at 100 chars.                                              Th
 - Add Server IP overrides feature.
 
 ### Changed
-- Change default obfuscation setting to `auto`.
-- Migrate obfuscation settings for existing users from `off` to `auto`.
-- Change [default retry connection attempts][`relay selector defaults`].
-
-[`relay selector defaults`]: docs/relay-selector.md#default-constraints-for-tunnel-endpoints
-
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.
 - Increase focus highlight opacity.
 - Set auto-connect setting as legacy on platforms with system vpn settings.
 
 ### Fixed
-- Continual excessive attempts to update the API IP were made after testing access methods.
-- Fix pointless API access method rotations for concurrent requests.
-- Fix daemon rotating logs on startup even if another daemon is already running.
-- Fix missing redirect to out of time-view when running out of time.
-- Fix incorrectly showing "App lost contact with system service" notification on suspend.
-
 #### Android
 - Fix crash in Split Tunneling screen caused by apps provding icons bigger than 100MB.
 
@@ -61,6 +45,27 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
 - Add protection against some tapjacking vulnerabilities.
+
+
+## [2024.2-beta1] - 2024-04-15
+### Added
+- Add automatic MTU detection for desktop platforms. This currently only uses information about
+  dropped packets and does not take fragmentation into account.
+- Add ability to import server IP overrides in GUI.
+
+### Changed
+- Change default obfuscation setting to `auto`.
+- Migrate obfuscation settings for existing users from `off` to `auto`.
+- Change [default retry connection attempts][`relay selector defaults`].
+
+[`relay selector defaults`]: docs/relay-selector.md#default-constraints-for-tunnel-endpoints
+
+### Fixed
+- Continual excessive attempts to update the API IP were made after testing access methods.
+- Fix pointless API access method rotations for concurrent requests.
+- Fix daemon rotating logs on startup even if another daemon is already running.
+- Fix missing redirect to out of time-view when running out of time.
+- Fix incorrectly showing "App lost contact with system service" notification on suspend.
 
 
 ## [2024.1] - 2024-03-21
