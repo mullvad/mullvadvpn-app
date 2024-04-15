@@ -357,7 +357,7 @@ impl VersionUpdater {
             .as_ref()
             .map(|(_, last_update_time)| last_update_time)
             .and_then(|&last_update_time| now.duration_since(last_update_time).ok())
-            .map(|time_since_last_update| UPDATE_INTERVAL - time_since_last_update)
+            .map(|time_since_last_update| UPDATE_INTERVAL.saturating_sub(time_since_last_update))
             // if there is no last_app_version_info, or if clocks are being weird,
             // assume that the version is stale
             .unwrap_or(Duration::ZERO);
