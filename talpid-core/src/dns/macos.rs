@@ -494,3 +494,199 @@ fn state_to_setup_path(state_path: &str) -> Option<String> {
         None
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::{DnsSettings, State};
+    use std::collections::{BTreeSet, HashMap};
+
+    /// The initial backup should equal whatever the first provided state is.
+    #[test]
+    fn test_backup_new_dns_config() {
+        let prev_state = HashMap::new();
+
+        let new_state = HashMap::from([
+            ("a".to_owned(), None),
+            (
+                "b".to_owned(),
+                Some(DnsSettings::from_server_addresses(
+                    &["1.2.3.4".to_owned()],
+                    "iface_b".to_owned(),
+                )),
+            ),
+            // One of our states already equals the desired state. It should be stored regardless.
+            (
+                "c".to_owned(),
+                Some(DnsSettings::from_server_addresses(
+                    &["10.64.0.1".to_owned()],
+                    "iface_c".to_owned(),
+                )),
+            ),
+        ]);
+
+        let desired_addresses: BTreeSet<String> = ["10.64.0.1".to_owned()].into();
+
+        let merged_state = State::merge_states(&new_state, &prev_state, desired_addresses);
+
+        assert_eq!(merged_state, new_state);
+    }
+
+    /// Any changes equal to the desired state should be ignored. Other changes should be recorded.
+    #[test]
+    fn test_backup_ignore_desired_state() {
+        let prev_state = HashMap::from([
+            ("a".to_owned(), None),
+            (
+                "b".to_owned(),
+                Some(DnsSettings::from_server_addresses(
+                    &["1.2.3.4".to_owned()],
+                    "iface_b".to_owned(),
+                )),
+            ),
+            (
+                "c".to_owned(),
+                Some(DnsSettings::from_server_addresses(
+                    &["10.64.0.1".to_owned()],
+                    "iface_c".to_owned(),
+                )),
+            ),
+            (
+                "d".to_owned(),
+                Some(DnsSettings::from_server_addresses(
+                    &["1.3.3.7".to_owned()],
+                    "iface_d".to_owned(),
+                )),
+            ),
+        ]);
+        let new_state = HashMap::from([
+            // This change should be ignored
+            (
+                "a".to_owned(),
+                Some(DnsSettings::from_server_addresses(
+                    &["10.64.0.1".to_owned()],
+                    "iface_a".to_owned(),
+                )),
+            ),
+            // This change should be ignored
+            (
+                "b".to_owned(),
+                Some(DnsSettings::from_server_addresses(
+                    &["10.64.0.1".to_owned()],
+                    "iface_b".to_owned(),
+                )),
+            ),
+            // This change should be ignored
+            (
+                "c".to_owned(),
+                Some(DnsSettings::from_server_addresses(
+                    &["4.3.2.1".to_owned()],
+                    "iface_c".to_owned(),
+                )),
+            ),
+            // This change should NOT be ignored
+            (
+                "d".to_owned(),
+                Some(DnsSettings::from_server_addresses(
+                    &["4.3.2.1".to_owned()],
+                    "iface_d".to_owned(),
+                )),
+            ),
+        ]);
+        let expect_state = HashMap::from([
+            ("a".to_owned(), None),
+            (
+                "b".to_owned(),
+                Some(DnsSettings::from_server_addresses(
+                    &["1.2.3.4".to_owned()],
+                    "iface_b".to_owned(),
+                )),
+            ),
+            (
+                "c".to_owned(),
+                Some(DnsSettings::from_server_addresses(
+                    &["4.3.2.1".to_owned()],
+                    "iface_c".to_owned(),
+                )),
+            ),
+            (
+                "d".to_owned(),
+                Some(DnsSettings::from_server_addresses(
+                    &["4.3.2.1".to_owned()],
+                    "iface_d".to_owned(),
+                )),
+            ),
+        ]);
+
+        let desired_addresses: BTreeSet<String> = ["10.64.0.1".to_owned()].into();
+
+        let merged_state = State::merge_states(&new_state, &prev_state, desired_addresses);
+
+        assert_eq!(merged_state, expect_state);
+    }
+
+    /// Services not specified in the new state should be removed from the backed up state
+    #[test]
+    fn test_backup_remove_dns_config() {
+        let prev_state = HashMap::from([
+            (
+                "a".to_owned(),
+                Some(DnsSettings::from_server_addresses(
+                    &["10.64.0.1".to_owned()],
+                    "iface_a".to_owned(),
+                )),
+            ),
+            (
+                "b".to_owned(),
+                Some(DnsSettings::from_server_addresses(
+                    &["1.2.3.4".to_owned()],
+                    "iface_b".to_owned(),
+                )),
+            ),
+            ("c".to_owned(), None),
+        ]);
+        let new_state = HashMap::from([("c".to_owned(), None)]);
+        let expected_state = new_state.clone();
+
+        let desired_addresses: BTreeSet<String> = ["10.64.0.1".to_owned()].into();
+
+        let merged_state = State::merge_states(&new_state, &prev_state, desired_addresses);
+
+        assert_eq!(merged_state, expected_state);
+    }
+
+    /// If DHCP provides an IP identical to our desired state, the tracked state will not reflect
+    /// this. This is a known limitation.
+    // TODO: This should actually succeed. If we happen to switch to a network whose IP equals
+    //       the "desired IP", we should still back up the result.
+    #[test]
+    #[should_panic]
+    fn test_backup_change_equals_desired_state() {
+        let prev_state = HashMap::from([(
+            "a".to_owned(),
+            Some(DnsSettings::from_server_addresses(
+                &["192.168.100.1".to_owned()],
+                "iface_a".to_owned(),
+            )),
+        )]);
+        let new_state = HashMap::from([(
+            "a".to_owned(),
+            Some(DnsSettings::from_server_addresses(
+                &["192.168.1.1".to_owned()],
+                "iface_a".to_owned(),
+            )),
+        )]);
+        let expect_state = HashMap::from([(
+            "a".to_owned(),
+            Some(DnsSettings::from_server_addresses(
+                &["192.168.1.1".to_owned()],
+                "iface_a".to_owned(),
+            )),
+        )]);
+
+        let desired_addresses: BTreeSet<String> = ["192.168.1.1".to_owned()].into();
+
+        let merged_state = State::merge_states(&new_state, &prev_state, desired_addresses);
+
+        assert_eq!(merged_state, expect_state);
+    }
+}
