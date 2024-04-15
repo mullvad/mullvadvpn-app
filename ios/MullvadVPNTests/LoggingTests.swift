@@ -26,6 +26,18 @@ class MullvadLoggingTests: XCTestCase {
         return fileURL
     }
 
+    func testLogFileOutputStreamWritesHeader() {
+        let headerText = "This is a header"
+        let logMessage = "And this is a log message\n"
+        let fileURL = temporaryFileURL()
+        let stream = LogFileOutputStream(fileURL: fileURL, header: headerText)
+        stream.write(logMessage)
+        sync()
+
+        let contents = String(decoding: try! Data(contentsOf: fileURL), as: UTF8.self)
+        XCTAssertEqual(contents, "\(headerText)\n\(logMessage)")
+    }
+
     func testLogHeader() {
         let expectedHeader = "Header of a log file"
 
@@ -37,8 +49,7 @@ class MullvadLoggingTests: XCTestCase {
 
         Logger(label: "test").info(":-P")
 
-        // Wait for the log file to settle
-        usleep(100000)
+        sync()
 
         let contents = String(decoding: try! Data(contentsOf: fileURL), as: UTF8.self)
 
