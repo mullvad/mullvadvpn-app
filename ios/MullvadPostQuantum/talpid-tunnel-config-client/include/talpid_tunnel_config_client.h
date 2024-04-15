@@ -28,7 +28,7 @@ void handle_recv(const uint8_t *data, uintptr_t data_len, const void *sender);
  * This function is safe to call
  */
 int32_t negotiate_post_quantum_key(const uint8_t *public_key,
-                                   const uint8_t *ephemeral_public_key,
+                                   const uint8_t *ephemeral_key,
                                    const void *packet_tunnel,
                                    const void *tcp_connection,
                                    struct PostQuantumCancelToken *cancel_token);
@@ -53,4 +53,5 @@ extern void swift_nw_tcp_connection_read(const void *connection, const void *sen
  * `raw_preshared_key` might be NULL if the key negotiation failed.
  */
 extern void swift_post_quantum_key_ready(const void *raw_packet_tunnel,
-                                         const uint8_t *raw_preshared_key);
+                                         const uint8_t *raw_preshared_key,
+                                         const uint8_t *raw_ephemeral_private_key);

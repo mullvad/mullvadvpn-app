@@ -1,6 +1,7 @@
 use std::ptr;
 
 use libc::c_void;
+use talpid_types::net::wireguard::PrivateKey;
 use tokio::sync::mpsc;
 
 use std::io;
@@ -148,24 +149,22 @@ impl IOSRuntime {
                 Err(error) => {
                     log::error!("Failed to create iOS TCP client: {error}");
                     unsafe {
-                        swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null());
+                        swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null());
                     }
                     return;
                 }
             };
-            // TODO: derive the public key from the (private) ephemeral key for use here
-            // let ephemeral_key = .....
+            let ephemeral_pub_key = PrivateKey::from(self.ephemeral_key).public_key();
             tokio::select! {
-                preshared_key = talpid_tunnel_config_client::push_pq_inner(
+                key_result = talpid_tunnel_config_client::push_pq_inner(
                     &mut async_provider,
                     PublicKey::from(self.pub_key),
-                    PublicKey::from(ephemeral_key),
+                    ephemeral_pub_key,
                 ) =>  {
-                    match preshared_key {
-                        Ok(key) => unsafe {
-                            let bytes = key.as_bytes();
-                            let eph_bytes = self.ephemeral_public_key.as_bytes();
-                            swift_post_quantum_key_ready(packet_tunnel_ptr, bytes.as_ptr(), eph_bytes.as_ptr());
+                    match key_result {
+                        Ok(preshared_key) => unsafe {
+                            let preshared_key_bytes = preshared_key.as_bytes();
+                            swift_post_quantum_key_ready(packet_tunnel_ptr, preshared_key_bytes.as_ptr(), self.ephemeral_key.as_ptr());
                         },
                         Err(_) => unsafe {
                             swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null());
