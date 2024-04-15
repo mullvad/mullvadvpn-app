@@ -46,7 +46,6 @@ pub unsafe extern "C" fn handle_recv(data: *const u8, data_len: usize, sender: *
 #[no_mangle]
 pub unsafe extern "C" fn negotiate_post_quantum_key(
     public_key: *const u8,
-    /// ephemeral_key is now the private key that's being passed back
     ephemeral_key: *const u8,
     packet_tunnel: *const c_void,
     tcp_connection: *const c_void,
@@ -59,17 +58,9 @@ pub unsafe extern "C" fn negotiate_post_quantum_key(
     });
 
     let pub_key_copy: [u8; 32] = unsafe { std::ptr::read(public_key as *const [u8; 32]) };
-    let eph_key_copy: [u8; 32] =
-        unsafe { std::ptr::read(ephemeral_key as *const [u8; 32]) };
+    let eph_key_copy: [u8; 32] = unsafe { std::ptr::read(ephemeral_key as *const [u8; 32]) };
 
-    match unsafe {
-        run_ios_runtime(
-            pub_key_copy,
-            eph_key_copy,
-            packet_tunnel,
-            tcp_connection,
-        )
-    } {
+    match unsafe { run_ios_runtime(pub_key_copy, eph_key_copy, packet_tunnel, tcp_connection) } {
         Ok(token) => {
             unsafe { std::ptr::write(cancel_token, token) };
             0
