@@ -47,11 +47,11 @@ unsafe impl Send for PostQuantumCancelToken {}
 ///
 pub unsafe fn run_ios_runtime(
     pub_key: [u8; 32],
-    ephemeral_pub_key: [u8; 32],
+    ephemeral_key: [u8; 32],
     packet_tunnel: *const c_void,
     tcp_connection: *const c_void,
 ) -> Result<PostQuantumCancelToken, i32> {
-    match unsafe { IOSRuntime::new(pub_key, ephemeral_pub_key, packet_tunnel, tcp_connection) } {
+    match unsafe { IOSRuntime::new(pub_key, ephemeral_key, packet_tunnel, tcp_connection) } {
         Ok(runtime) => {
             let token = runtime.cancel_token_tx.clone();
 
@@ -79,7 +79,7 @@ unsafe impl Sync for SwiftContext {}
 struct IOSRuntime {
     runtime: tokio::runtime::Runtime,
     pub_key: [u8; 32],
-    ephemeral_public_key: [u8; 32],
+    ephemeral_key: [u8; 32],
     packet_tunnel: SwiftContext,
     cancel_token_tx: Arc<mpsc::UnboundedSender<()>>,
     cancel_token_rx: mpsc::UnboundedReceiver<()>,
@@ -88,7 +88,7 @@ struct IOSRuntime {
 impl IOSRuntime {
     pub unsafe fn new(
         pub_key: [u8; 32],
-        ephemeral_public_key: [u8; 32],
+        ephemeral_key: [u8; 32],
         packet_tunnel: *const libc::c_void,
         tcp_connection: *const c_void,
     ) -> io::Result<Self> {
@@ -107,7 +107,7 @@ impl IOSRuntime {
         Ok(Self {
             runtime,
             pub_key,
-            ephemeral_public_key,
+            ephemeral_key,
             packet_tunnel: context,
             cancel_token_tx: Arc::new(tx),
             cancel_token_rx: rx,
@@ -153,19 +153,22 @@ impl IOSRuntime {
                     return;
                 }
             };
+            // TODO: derive the public key from the (private) ephemeral key for use here
+            // let ephemeral_key = .....
             tokio::select! {
                 preshared_key = talpid_tunnel_config_client::push_pq_inner(
                     &mut async_provider,
                     PublicKey::from(self.pub_key),
-                    PublicKey::from(self.ephemeral_public_key),
+                    PublicKey::from(ephemeral_key),
                 ) =>  {
                     match preshared_key {
                         Ok(key) => unsafe {
                             let bytes = key.as_bytes();
-                            swift_post_quantum_key_ready(packet_tunnel_ptr, bytes.as_ptr());
+                            let eph_bytes = self.ephemeral_public_key.as_bytes();
+                            swift_post_quantum_key_ready(packet_tunnel_ptr, bytes.as_ptr(), eph_bytes.as_ptr());
                         },
                         Err(_) => unsafe {
-                            swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null());
+                            swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null());
                         },
                     }
                 }
