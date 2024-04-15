@@ -27,6 +27,7 @@ extern "C" {
     pub fn swift_post_quantum_key_ready(
         raw_packet_tunnel: *const c_void,
         raw_preshared_key: *const u8,
+        raw_ephemeral_private_key: *const u8,
     );
 }
 
