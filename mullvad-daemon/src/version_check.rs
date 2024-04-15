@@ -35,7 +35,7 @@ const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24);
 /// Wait this long until next try if an update failed
 const UPDATE_INTERVAL_ERROR: Duration = Duration::from_secs(60 * 60 * 6);
-/// Retry strategy for `RunVersionCheck`.
+/// Retry strategy for `GetVersionInfo`.
 const IMMEDIATE_RETRY_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(3));
 
 #[cfg(target_os = "linux")]
@@ -104,8 +104,8 @@ pub(crate) struct VersionUpdater {
     rx: Option<mpsc::Receiver<VersionUpdaterCommand>>,
     availability_handle: ApiAvailabilityHandle,
 
-    /// Oneshot channels for responding to [VersionUpdaterCommand::RunVersionCheck].
-    run_version_check_responders: Vec<oneshot::Sender<AppVersionInfo>>,
+    /// Oneshot channels for responding to [VersionUpdaterCommand::GetVersionInfo].
+    get_version_info_responders: Vec<oneshot::Sender<AppVersionInfo>>,
 }
 
 #[derive(Clone)]
@@ -115,7 +115,7 @@ pub(crate) struct VersionUpdaterHandle {
 
 enum VersionUpdaterCommand {
     SetShowBetaReleases(bool),
-    RunVersionCheck(oneshot::Sender<AppVersionInfo>),
+    GetVersionInfo(oneshot::Sender<AppVersionInfo>),
 }
 
 impl VersionUpdaterHandle {
@@ -132,11 +132,15 @@ impl VersionUpdaterHandle {
         }
     }
 
-    pub async fn run_version_check(&mut self) -> Result<AppVersionInfo, Error> {
+    /// Get the latest cached [AppVersionInfo].
+    ///
+    /// If the cache is stale or missing, this will immediately query the API for the latest
+    /// version. This may take a few seconds.
+    pub async fn get_version_info(&mut self) -> Result<AppVersionInfo, Error> {
         let (done_tx, done_rx) = oneshot::channel();
         if self
             .tx
-            .send(VersionUpdaterCommand::RunVersionCheck(done_tx))
+            .send(VersionUpdaterCommand::GetVersionInfo(done_tx))
             .await
             .is_err()
         {
@@ -174,7 +178,7 @@ impl VersionUpdater {
                 show_beta_releases,
                 rx: Some(rx),
                 availability_handle,
-                run_version_check_responders: vec![],
+                get_version_info_responders: vec![],
             },
             VersionUpdaterHandle { tx },
         )
@@ -186,7 +190,7 @@ impl VersionUpdater {
     }
 
     /// Immediately query the API for the latest [AppVersionInfo].
-    fn query_app_version(
+    fn do_version_check(
         &mut self,
     ) -> Pin<
         Box<dyn Future<Output = Result<mullvad_api::AppVersionResponse, Error>> + Send + 'static>,
@@ -226,7 +230,7 @@ impl VersionUpdater {
     /// [ApiAvailability](mullvad_api::availability::ApiAvailability).
     ///
     /// On any error, this function retries repeatedly every [UPDATE_INTERVAL_ERROR] until success.
-    fn query_app_version_in_background(
+    fn do_version_check_in_background(
         &self,
     ) -> Pin<
         Box<dyn Future<Output = Result<mullvad_api::AppVersionResponse, Error>> + Send + 'static>,
@@ -328,9 +332,9 @@ impl VersionUpdater {
 
     /// Update [Self::last_app_version_info] and write it to disk cache.
     ///
-    /// Also, if we are currently have a pending [RunVersionCheck][rvc] command, respond to it.
+    /// Also, if we are currently have a pending [GetVersionInfo][rvc] command, respond to it.
     ///
-    /// [rvc]: VersionUpdaterCommand::RunVersionCheck
+    /// [rvc]: VersionUpdaterCommand::GetVersionInfo
     async fn update_version_info(&mut self, new_version_info: AppVersionInfo) {
         // if daemon can't be reached, return immediately
         if self.update_sender.send(new_version_info.clone()).is_err() {
@@ -346,7 +350,7 @@ impl VersionUpdater {
     /// Get the time left until [Self::last_app_version_info] becomes stale, and should be
     /// refreshed, or [Duration::ZERO] if it already is stale.
     ///
-    /// This happens [UPDATE_INTERVAL] after the last version query.
+    /// This happens [UPDATE_INTERVAL] after the last version check.
     fn time_until_version_is_stale(&self) -> Duration {
         let now = SystemTime::now();
         self
@@ -360,13 +364,14 @@ impl VersionUpdater {
             .unwrap_or(Duration::ZERO)
     }
 
+    /// Is [Self::last_app_version_info] stale?
     fn version_is_stale(&self) -> bool {
         self.time_until_version_is_stale().is_zero()
     }
 
     /// Wait until [Self::last_app_version_info] becomes stale and needs to be refreshed.
     ///
-    /// This happens [UPDATE_INTERVAL] after the last version query.
+    /// This happens [UPDATE_INTERVAL] after the last version check.
     fn wait_until_version_is_stale(&self) -> Pin<Box<impl FusedFuture<Output = ()>>> {
         let time_until_stale = self.time_until_version_is_stale();
 
@@ -375,13 +380,13 @@ impl VersionUpdater {
         Box::pin(talpid_time::sleep(time_until_stale).fuse())
     }
 
-    /// Returns true if we are currently handling one or more `RunVersionCheck` commands.
+    /// Returns true if we are currently handling one or more `GetVersionInfo` commands.
     fn is_running_version_check(&self) -> bool {
-        !self.run_version_check_responders.is_empty()
+        !self.get_version_info_responders.is_empty()
     }
 
     pub async fn run(mut self) {
-        let mut rx = self.rx.take().unwrap().fuse();
+        let mut rx = self.rx.take().unwrap();
         let mut version_is_stale = self.wait_until_version_is_stale();
         let mut version_check = futures::future::Fuse::terminated();
 
@@ -389,7 +394,7 @@ impl VersionUpdater {
         if *IS_DEV_BUILD {
             log::warn!("Not checking for updates because this is a development build");
             while let Some(cmd) = rx.next().await {
-                if let VersionUpdaterCommand::RunVersionCheck(done_tx) = cmd {
+                if let VersionUpdaterCommand::GetVersionInfo(done_tx) = cmd {
                     log::info!("Version check is disabled in dev builds");
                     let _ = done_tx.send(dev_version_cache());
                 }
@@ -423,7 +428,7 @@ impl VersionUpdater {
                         }
                     }
 
-                    Some(VersionUpdaterCommand::RunVersionCheck(done_tx)) => {
+                    Some(VersionUpdaterCommand::GetVersionInfo(done_tx)) => {
                         if self.update_sender.is_closed() {
                             return;
                         }
@@ -435,9 +440,9 @@ impl VersionUpdater {
                             _ => {
                                 // otherwise, start a foreground query to get the latest version_info.
                                 if !self.is_running_version_check() {
-                                    version_check = self.query_app_version().fuse();
+                                    version_check = self.do_version_check().fuse();
                                 }
-                                self.run_version_check_responders.push(done_tx);
+                                self.get_version_info_responders.push(done_tx);
                             }
                         }
                     }
@@ -455,7 +460,7 @@ impl VersionUpdater {
                     if self.is_running_version_check() {
                         continue;
                     }
-                    version_check = self.query_app_version_in_background().fuse();
+                    version_check = self.do_version_check_in_background().fuse();
                 },
 
                 response = version_check => {
@@ -468,8 +473,8 @@ impl VersionUpdater {
                             let new_version_info =
                                 self.response_to_version_info(version_info_response);
 
-                            // Respond to all pending RunVersionCheck commands
-                            for done_tx in self.run_version_check_responders.drain(..) {
+                            // Respond to all pending GetVersionInfo commands
+                            for done_tx in self.get_version_info_responders.drain(..) {
                                 let _ = done_tx.send(new_version_info.clone());
                             }
 
@@ -478,7 +483,7 @@ impl VersionUpdater {
                         }
                         Err(err) => {
                             log::error!("Failed to fetch version info: {err:#}");
-                            self.run_version_check_responders.clear();
+                            self.get_version_info_responders.clear();
                         }
                     }
 
