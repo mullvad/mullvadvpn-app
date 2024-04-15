@@ -104,8 +104,8 @@ pub(crate) struct VersionUpdater {
     rx: Option<mpsc::Receiver<VersionUpdaterCommand>>,
     availability_handle: ApiAvailabilityHandle,
 
-    /// Oneshot channel for responding to [VersionUpdaterCommand::RunVersionCheck].
-    run_version_check_responder: Option<oneshot::Sender<AppVersionInfo>>,
+    /// Oneshot channels for responding to [VersionUpdaterCommand::RunVersionCheck].
+    run_version_check_responders: Vec<oneshot::Sender<AppVersionInfo>>,
 }
 
 #[derive(Clone)]
@@ -174,7 +174,7 @@ impl VersionUpdater {
                 show_beta_releases,
                 rx: Some(rx),
                 availability_handle,
-                run_version_check_responder: None,
+                run_version_check_responders: vec![],
             },
             VersionUpdaterHandle { tx },
         )
@@ -185,7 +185,7 @@ impl VersionUpdater {
         self.last_app_version_info.as_ref().map(|(info, _)| info)
     }
 
-    /// Immediately query the API for the current [AppVersionInfo].
+    /// Immediately query the API for the latest [AppVersionInfo].
     fn query_app_version(
         &mut self,
     ) -> Pin<
@@ -220,7 +220,7 @@ impl VersionUpdater {
         ))
     }
 
-    /// Query the API for the current [AppVersionInfo].
+    /// Query the API for the latest [AppVersionInfo].
     ///
     /// This function waits until background calls are enabled in
     /// [ApiAvailability](mullvad_api::availability::ApiAvailability).
@@ -332,10 +332,6 @@ impl VersionUpdater {
     ///
     /// [rvc]: VersionUpdaterCommand::RunVersionCheck
     async fn update_version_info(&mut self, new_version_info: AppVersionInfo) {
-        if let Some(done_tx) = self.run_version_check_responder.take() {
-            let _ = done_tx.send(new_version_info.clone());
-        }
-
         // if daemon can't be reached, return immediately
         if self.update_sender.send(new_version_info.clone()).is_err() {
             return;
@@ -365,6 +361,11 @@ impl VersionUpdater {
         // Boxed, pinned, and fused.
         // Alternate title: "We don't want to deal with the borrow checker."
         Box::pin(talpid_time::sleep(time_until_stale).fuse())
+    }
+
+    /// Returns true if we are currently handling one or more `RunVersionCheck` commands.
+    fn is_running_version_check(&self) -> bool {
+        !self.run_version_check_responders.is_empty()
     }
 
     pub async fn run(mut self) {
@@ -414,9 +415,12 @@ impl VersionUpdater {
                             if self.update_sender.is_closed() {
                                 return;
                             }
-                            // TODO: should we support multiple concurrent RunVersionCheck calls?
-                            self.run_version_check_responder = Some(done_tx);
-                            version_check = self.query_app_version().fuse();
+
+                            if !self.is_running_version_check() {
+                                version_check = self.query_app_version().fuse();
+                            }
+
+                            self.run_version_check_responders.push(done_tx);
                         }
                         // time to shut down
                         None => {
@@ -429,8 +433,7 @@ impl VersionUpdater {
                     if rx.is_terminated() || self.update_sender.is_closed() {
                         return;
                     }
-                    if self.run_version_check_responder.is_some() {
-                        // Sync check in progress
+                    if self.is_running_version_check() {
                         continue;
                     }
                     version_check = self.query_app_version_in_background().fuse();
@@ -445,11 +448,18 @@ impl VersionUpdater {
                         Ok(version_info_response) => {
                             let new_version_info =
                                 self.response_to_version_info(version_info_response);
+
+                            // Respond to all pending RunVersionCheck commands
+                            for done_tx in self.run_version_check_responders.drain(..) {
+                                let _ = done_tx.send(new_version_info.clone());
+                            }
+
                             self.update_version_info(new_version_info).await;
+
                         }
                         Err(err) => {
                             log::error!("Failed to fetch version info: {err:#}");
-                            self.run_version_check_responder = None;
+                            self.run_version_check_responders.clear();
                         }
                     }
 
