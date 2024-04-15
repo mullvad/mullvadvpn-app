@@ -647,7 +647,6 @@ pub struct Daemon<L: EventListener> {
     relay_selector: RelaySelector,
     relay_list_updater: RelayListUpdaterHandle,
     parameters_generator: tunnel::ParametersGenerator,
-    app_version_info: Option<AppVersionInfo>,
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()>>>>,
     tunnel_state_machine_handle: TunnelStateMachineHandle,
     #[cfg(target_os = "windows")]
@@ -869,7 +868,6 @@ where
             settings.show_beta_releases,
         )
         .await;
-        let app_version_info = version_updater.last_app_version_info().cloned();
         tokio::spawn(version_updater.run());
 
         // Attempt to download a fresh relay list
@@ -905,7 +903,6 @@ where
             relay_selector,
             relay_list_updater,
             parameters_generator,
-            app_version_info,
             shutdown_tasks: vec![],
             tunnel_state_machine_handle,
             #[cfg(target_os = "windows")]
@@ -1322,7 +1319,6 @@ where
     }
 
     fn handle_new_app_version_info(&mut self, app_version_info: AppVersionInfo) {
-        self.app_version_info = Some(app_version_info.clone());
         self.event_listener.notify_app_version(app_version_info);
     }
 
@@ -1719,32 +1715,23 @@ where
     }
 
     fn on_get_version_info(&mut self, tx: oneshot::Sender<Option<AppVersionInfo>>) {
-        if self.app_version_info.is_none() {
-            log::debug!("No version cache found. Fetching new info");
-            let mut handle = self.version_updater_handle.clone();
-            tokio::spawn(async move {
-                Self::oneshot_send(
-                    tx,
-                    handle
-                        .run_version_check()
-                        .await
-                        .map_err(|error| {
-                            log::error!(
-                                "{}",
-                                error.display_chain_with_msg("Error running version check")
-                            )
-                        })
-                        .ok(),
-                    "get_version_info response",
-                );
-            });
-        } else {
+        let mut handle = self.version_updater_handle.clone();
+        tokio::spawn(async move {
             Self::oneshot_send(
                 tx,
-                self.app_version_info.clone(),
+                handle
+                    .get_version_info()
+                    .await
+                    .map_err(|error| {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("Error running version check")
+                        )
+                    })
+                    .ok(),
                 "get_version_info response",
             );
-        }
+        });
     }
 
     fn on_get_current_version(&mut self, tx: oneshot::Sender<AppVersion>) {
