@@ -296,7 +296,7 @@ impl Machinist {
                 quit_event,
                 peer,
                 // TODO: We're assuming that constant packet size is always enabled here
-                override_size: Some(mtu as u16),
+                override_size: Some(mtu),
             }
             .event_loop(framework);
         });
