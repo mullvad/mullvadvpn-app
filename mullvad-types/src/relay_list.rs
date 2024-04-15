@@ -129,6 +129,7 @@ impl PartialEq for Relay {
     ///     #       "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
     ///     #   )
     ///     #   .unwrap(),
+    ///     #   daita: false,
     ///     # }),
     ///     # location: None,
     /// };
