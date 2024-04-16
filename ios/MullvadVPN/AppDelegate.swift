@@ -502,7 +502,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 }
 
                 SettingsManager.resetStore(completely: true)
+                try? SettingsManager.writeSettings(LatestTunnelSettings())
 
+                // Default access methods need to be repopulated again after settings wipe.
                 self.accessMethodRepository.reloadWithDefaultsAfterDataRemoval()
                 // At app startup, the relay cache tracker will get populated with a list of overriden IPs.
                 // The overriden IPs will get wiped, therefore, the cache needs to be pruned as well.
