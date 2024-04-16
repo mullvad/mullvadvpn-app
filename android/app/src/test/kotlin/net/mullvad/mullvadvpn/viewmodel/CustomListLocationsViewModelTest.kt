@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
@@ -31,7 +32,7 @@ class CustomListLocationsViewModelTest {
 
     @BeforeEach
     fun setup() {
-        every { mockRelayListUseCase.relayList() } returns relayListFlow
+        every { mockRelayListUseCase.relatListAll() } returns relayListFlow
         every { mockRelayListUseCase.customLists() } returns customListFlow
     }
 
@@ -283,7 +284,9 @@ class CustomListLocationsViewModelTest {
                                                     "SE",
                                                     "GBG",
                                                     "gbg-1"
-                                                )
+                                                ),
+                                            providerName = "Provider",
+                                            ownership = Ownership.MullvadOwned
                                         )
                                     )
                             )
