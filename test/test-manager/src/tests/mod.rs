@@ -96,6 +96,8 @@ pub async fn cleanup_after_test(
         tunnel_options,
         relay_overrides,
         show_beta_releases,
+        #[cfg(target_os = "macos")]
+            split_tunnel: _,
         settings_version: _, // N/A
     } = Default::default();
 
