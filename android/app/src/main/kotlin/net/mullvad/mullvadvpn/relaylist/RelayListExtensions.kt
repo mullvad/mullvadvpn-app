@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.relaylist
 
+import net.mullvad.mullvadvpn.compose.state.toNullableOwnership
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.Ownership
@@ -12,10 +13,7 @@ import net.mullvad.mullvadvpn.model.RelayList
  * filtered out and also relays that do not fit the ownership and provider list So are also cities
  * that only contains non-wireguard relays Countries, cities and relays are ordered by name
  */
-fun RelayList.toRelayCountries(
-    ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>
-): List<RelayItem.Country> {
+fun RelayList.toRelayCountries(): List<RelayItem.Country> {
     val relayCountries =
         this.countries
             .map { country ->
@@ -33,8 +31,7 @@ fun RelayList.toRelayCountries(
                             relays = relays
                         )
 
-                    val validCityRelays =
-                        city.relays.filterValidRelays(ownership = ownership, providers = providers)
+                    val validCityRelays = city.relays.filterValidRelays()
 
                     for (relay in validCityRelays) {
                         relays.add(
@@ -47,7 +44,10 @@ fun RelayList.toRelayCountries(
                                         relay.hostname
                                     ),
                                 locationName = "${city.name} (${relay.hostname})",
-                                active = relay.active
+                                active = relay.active,
+                                providerName = relay.provider,
+                                ownership =
+                                    if (relay.owned) Ownership.MullvadOwned else Ownership.Rented
                             )
                         )
                     }
@@ -172,27 +172,28 @@ fun List<RelayItem.Country>.filterOnSearchTerm(
     }
 }
 
-private fun List<DaemonRelay>.filterValidRelays(
+private fun List<DaemonRelay>.filterValidRelays(): List<DaemonRelay> = filter {
+    it.isWireguardRelay
+}
+
+fun List<RelayItem.Country>.filterOnOwnershipAndProviders(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>
-): List<DaemonRelay> =
-    filter { it.isWireguardRelay }
-        .filter {
-            when (ownership) {
-                is Constraint.Any -> true
-                is Constraint.Only ->
-                    when (ownership.value) {
-                        Ownership.MullvadOwned -> it.owned
-                        Ownership.Rented -> !it.owned
-                    }
-            }
+): List<RelayItem.Country> =
+    this.filter {
+        it.cities.any { city ->
+            city.relays.filterRelayByOwnershipAndProviders(ownership, providers).isNotEmpty()
         }
-        .filter { relay ->
-            when (providers) {
-                is Constraint.Any -> true
-                is Constraint.Only -> providers.value.providers.contains(relay.provider)
-            }
-        }
+    }
+
+private fun List<RelayItem.Relay>.filterRelayByOwnershipAndProviders(
+    ownership: Constraint<Ownership>,
+    providers: Constraint<Providers>
+): List<RelayItem.Relay> = filter {
+    (ownership.toNullableOwnership() == null || ownership.toNullableOwnership() == it.ownership) &&
+        (providers is Constraint.Any ||
+            (providers is Constraint.Only && providers.value.providers.contains(it.providerName)))
+}
 
 /** Expand the parent(s), if any, for the current selected item */
 private fun List<RelayItem.Country>.expandItemForSelection(

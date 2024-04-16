@@ -45,6 +45,7 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -69,7 +70,9 @@ private fun PreviewEditCustomListScreen() {
                                     "hostname",
                                     "hostname",
                                     "hostname"
-                                )
+                                ),
+                                "Provider",
+                                Ownership.MullvadOwned
                             )
                         )
                 )

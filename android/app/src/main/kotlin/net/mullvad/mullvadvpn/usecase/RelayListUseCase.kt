@@ -9,6 +9,7 @@ import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
+import net.mullvad.mullvadvpn.relaylist.filterOnOwnershipAndProviders
 import net.mullvad.mullvadvpn.relaylist.findItemForGeographicLocationConstraint
 import net.mullvad.mullvadvpn.relaylist.toRelayCountries
 import net.mullvad.mullvadvpn.relaylist.toRelayItemLists
@@ -36,22 +37,32 @@ class RelayListUseCase(
                 settings?.relaySettings?.relayConstraints()?.ownership ?: Constraint.Any()
             val providers =
                 settings?.relaySettings?.relayConstraints()?.providers ?: Constraint.Any()
-            val relayCountries =
-                relayList.toRelayCountries(ownership = ownership, providers = providers)
+            val relayCountries = relayList.toRelayCountries()
             val customLists =
                 settings?.customLists?.customLists?.toRelayItemLists(relayCountries) ?: emptyList()
+            val relayCountriesFiltered =
+                relayCountries.filterOnOwnershipAndProviders(ownership, providers)
             val selectedItem =
                 findSelectedRelayItem(
                     relaySettings = settings?.relaySettings,
-                    relayCountries = relayCountries,
+                    relayCountries = relayCountriesFiltered,
                     customLists = customLists,
                 )
-            RelayList(customLists, relayCountries, selectedItem)
+            RelayList(
+                customLists = customLists,
+                allCountries = relayCountries,
+                filteredCountries = relayCountriesFiltered,
+                selectedItem = selectedItem
+            )
         }
 
     fun selectedRelayItem(): Flow<RelayItem?> = relayListWithSelection().map { it.selectedItem }
 
-    fun relayList(): Flow<List<RelayItem.Country>> = relayListWithSelection().map { it.country }
+    fun relayListFiltered(): Flow<List<RelayItem.Country>> =
+        relayListWithSelection().map { it.filteredCountries }
+
+    fun relatListAll(): Flow<List<RelayItem.Country>> =
+        relayListWithSelection().map { it.allCountries }
 
     fun customLists(): Flow<List<RelayItem.CustomList>> =
         relayListWithSelection().map { it.customLists }

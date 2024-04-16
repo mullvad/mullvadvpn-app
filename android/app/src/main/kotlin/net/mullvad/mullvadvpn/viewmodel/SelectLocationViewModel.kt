@@ -43,7 +43,7 @@ class SelectLocationViewModel(
                 relayListFilterUseCase.availableProviders(),
                 relayListFilterUseCase.selectedProviders(),
             ) {
-                (customLists, relayCountries, selectedItem),
+                (customLists, _, relayCountries, selectedItem),
                 searchTerm,
                 selectedOwnership,
                 allProviders,
@@ -63,7 +63,15 @@ class SelectLocationViewModel(
                 val filteredRelayCountries =
                     relayCountries.filterOnSearchTerm(searchTerm, selectedItem)
 
-                val filteredCustomLists = customLists.filterOnSearchTerm(searchTerm)
+                val filteredCustomLists =
+                    customLists.filterOnSearchTerm(searchTerm).map { customList ->
+                        customList.copy(
+                            locations =
+                                customList.locations.filter { location ->
+                                    filteredRelayCountries.any { it.code == location.code }
+                                }
+                        )
+                    }
 
                 SelectLocationUiState.Content(
                     searchTerm = searchTerm,
