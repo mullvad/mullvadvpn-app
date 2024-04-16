@@ -53,7 +53,7 @@ class CustomListActionUseCase(
                     )
                     val locationNames =
                         relayListUseCase
-                            .relayList()
+                            .fullRelayList()
                             .firstOrNull()
                             ?.getRelayItemsByCodes(action.locations)
                             ?.map { it.name }
@@ -61,7 +61,7 @@ class CustomListActionUseCase(
                         CustomListResult.Created(
                             id = result.id,
                             name = action.name,
-                            locationName = locationNames?.first(),
+                            locationName = locationNames?.firstOrNull(),
                             undo = action.not(result.id)
                         )
                     )

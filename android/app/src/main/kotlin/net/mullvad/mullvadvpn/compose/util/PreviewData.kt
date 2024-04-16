@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.util
 
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 
 fun generateRelayItemCountry(
@@ -65,7 +66,9 @@ fun generateRelayItemRelay(
                 hostname = hostName,
             ),
         locationName = "$cityCode $hostName",
-        active = active
+        active = active,
+        providerName = "Provider",
+        ownership = Ownership.MullvadOwned,
     )
 
 private fun String.generateCountryCode() = (take(1) + takeLast(1)).lowercase()

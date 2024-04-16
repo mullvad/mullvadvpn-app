@@ -12,10 +12,7 @@ import net.mullvad.mullvadvpn.model.RelayList
  * filtered out and also relays that do not fit the ownership and provider list So are also cities
  * that only contains non-wireguard relays Countries, cities and relays are ordered by name
  */
-fun RelayList.toRelayCountries(
-    ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>
-): List<RelayItem.Country> {
+fun RelayList.toRelayCountries(): List<RelayItem.Country> {
     val relayCountries =
         this.countries
             .map { country ->
@@ -33,8 +30,7 @@ fun RelayList.toRelayCountries(
                             relays = relays
                         )
 
-                    val validCityRelays =
-                        city.relays.filterValidRelays(ownership = ownership, providers = providers)
+                    val validCityRelays = city.relays.filterValidRelays()
 
                     for (relay in validCityRelays) {
                         relays.add(
@@ -47,7 +43,10 @@ fun RelayList.toRelayCountries(
                                         relay.hostname
                                     ),
                                 locationName = "${city.name} (${relay.hostname})",
-                                active = relay.active
+                                active = relay.active,
+                                providerName = relay.provider,
+                                ownership =
+                                    if (relay.owned) Ownership.MullvadOwned else Ownership.Rented
                             )
                         )
                     }
@@ -172,25 +171,42 @@ fun List<RelayItem.Country>.filterOnSearchTerm(
     }
 }
 
-private fun List<DaemonRelay>.filterValidRelays(
+private fun List<DaemonRelay>.filterValidRelays(): List<DaemonRelay> = filter {
+    it.isWireguardRelay
+}
+
+fun List<RelayItem.Country>.filterOnOwnershipAndProviders(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>
-): List<DaemonRelay> =
-    filter { it.isWireguardRelay }
-        .filter {
+): List<RelayItem.Country> {
+    return this.map { country ->
+            val cities =
+                country.cities.map { city ->
+                    val relays =
+                        city.relays.filterRelayByOwnershipAndProviders(ownership, providers).map {
+                            it.copy()
+                        }
+                    city.copy(relays = relays)
+                }
+            country.copy(cities = cities.filter { it.relays.isNotEmpty() })
+        }
+        .filter { it.cities.isNotEmpty() }
+}
+
+private fun List<RelayItem.Relay>.filterRelayByOwnershipAndProviders(
+    ownership: Constraint<Ownership>,
+    providers: Constraint<Providers>
+): List<RelayItem.Relay> =
+    filter {
             when (ownership) {
                 is Constraint.Any -> true
-                is Constraint.Only ->
-                    when (ownership.value) {
-                        Ownership.MullvadOwned -> it.owned
-                        Ownership.Rented -> !it.owned
-                    }
+                is Constraint.Only -> it.ownership == ownership.value
             }
         }
         .filter { relay ->
             when (providers) {
                 is Constraint.Any -> true
-                is Constraint.Only -> providers.value.providers.contains(relay.provider)
+                is Constraint.Only -> providers.value.providers.contains(relay.providerName)
             }
         }
 
