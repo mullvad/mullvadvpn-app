@@ -41,14 +41,13 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix crash in Split Tunneling screen caused by apps provding icons bigger than 100MB.
 
+#### macOS
+- DNS was not properly restored in some cases when using custom DNS.
+
 ### Security
 #### Android
 - Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
 - Add protection against some tapjacking vulnerabilities.
-
-### Fixed
-#### macOS
-- DNS was not properly restored in some cases when using custom DNS.
 
 
 ## [2024.2-beta1] - 2024-04-15
