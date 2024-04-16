@@ -49,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import kotlinx.coroutines.launch
@@ -119,6 +120,7 @@ private fun PreviewSelectLocationScreen() {
 @Composable
 fun SelectLocation(
     navigator: DestinationsNavigator,
+    backNavigator: ResultBackNavigator<Boolean>,
     createCustomListDialogResultRecipient:
         ResultRecipient<CreateCustomListDestination, CustomListResult.Created>,
     editCustomListNameDialogResultRecipient:
@@ -136,7 +138,7 @@ fun SelectLocation(
 
     LaunchedEffectCollect(vm.uiSideEffect) {
         when (it) {
-            SelectLocationSideEffect.CloseScreen -> navigator.navigateUp()
+            SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true)
             is SelectLocationSideEffect.LocationAddedToCustomList -> {
                 launch {
                     snackbarHostState.showResultSnackbar(

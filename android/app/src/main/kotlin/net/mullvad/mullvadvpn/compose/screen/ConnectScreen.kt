@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -43,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
+import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
@@ -67,6 +69,8 @@ import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
+import net.mullvad.mullvadvpn.compose.util.RequestVpnPermission
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
 import net.mullvad.mullvadvpn.constant.UNSECURE_ZOOM
@@ -106,12 +110,22 @@ private fun PreviewConnectScreen() {
 
 @Destination(style = HomeTransition::class)
 @Composable
-fun Connect(navigator: DestinationsNavigator) {
+fun Connect(
+    navigator: DestinationsNavigator,
+    selectLocationResultRecipient: ResultRecipient<SelectLocationDestination, Boolean>
+) {
     val connectViewModel: ConnectViewModel = koinViewModel()
 
     val state by connectViewModel.uiState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
+
+    val launchVpnPermission =
+        rememberLauncherForActivityResult(RequestVpnPermission()) {
+            if (it != null) {
+                connectViewModel.onConnectClick()
+            }
+        }
 
     CollectSideEffectWithLifecycle(
         connectViewModel.uiSideEffect,
@@ -131,6 +145,13 @@ fun Connect(navigator: DestinationsNavigator) {
                     launchSingleTop = true
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
+            is ConnectViewModel.UiSideEffect.NoVpnPermission -> launchVpnPermission.launch(null)
+        }
+    }
+
+    selectLocationResultRecipient.OnNavResultValue { result ->
+        if (result) {
+            connectViewModel.onConnectClick()
         }
     }
 
