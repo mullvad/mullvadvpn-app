@@ -10,31 +10,29 @@ import com.google.protobuf.BoolValue
 import com.google.protobuf.Empty
 import com.google.protobuf.StringValue
 import com.google.protobuf.UInt32Value
-import io.grpc.CallOptions
 import io.grpc.ConnectivityState
-import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusException
 import io.grpc.android.UdsChannelBuilder
 import java.net.InetAddress
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlin.time.measureTimedValue
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
+import net.mullvad.mullvadvpn.lib.daemon.grpc.util.LogInterceptor
+import net.mullvad.mullvadvpn.lib.daemon.grpc.util.connectivityFlow
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.AppVersionInfo as ModelAppVersionInfo
@@ -111,7 +109,8 @@ class ManagementService(
     )
 
     private val channel =
-        UdsChannelBuilder.forPath(rpcSocketPath, LocalSocketAddress.Namespace.FILESYSTEM).build()
+        UdsChannelBuilder.forPath(rpcSocketPath, LocalSocketAddress.Namespace.FILESYSTEM)
+            .build()
 
     val connectionState: StateFlow<GrpcConnectivityState> =
         channel
@@ -120,26 +119,15 @@ class ManagementService(
             .onEach { Log.d(TAG, "Connection state: $it") }
             .stateIn(scope, SharingStarted.Eagerly, channel.getState(false).toDomain())
 
-    private fun ManagedChannel.connectivityFlow(): Flow<ConnectivityState> {
-        return callbackFlow {
-            var currentState = getState(false)
-            send(currentState)
-
-            while (isActive) {
-                currentState =
-                    suspendCoroutine<ConnectivityState> {
-                        notifyWhenStateChanged(currentState) { it.resume(getState(false)) }
-                    }
-                send(currentState)
-            }
-        }
-    }
-
-    private val managementService =
-        ManagementServiceGrpcKt.ManagementServiceCoroutineStub(channel).withWaitForReady()
+    private val grpc =
+        ManagementServiceGrpcKt.ManagementServiceCoroutineStub(channel)
+            .withExecutor(Dispatchers.IO.asExecutor())
+            .withInterceptors(LogInterceptor())
+            .withWaitForReady()
 
     private val _mutableStateFlow: MutableStateFlow<ManagementServiceState> =
         MutableStateFlow(ManagementServiceState())
+
     val state: StateFlow<ManagementServiceState> = _mutableStateFlow
 
     val deviceState: Flow<ModelDeviceState?> =
@@ -160,8 +148,8 @@ class ManagementService(
     suspend fun start() {
         scope.launch {
             try {
-                managementService.eventsListen(Empty.getDefaultInstance()).collect { event ->
-                //    Log.d("ManagementService", "Event: $event")
+                grpc.eventsListen(Empty.getDefaultInstance()).collect { event ->
+                    //    Log.d("ManagementService", "Event: $event")
                     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
                     when (event.eventCase) {
                         ManagementInterface.DaemonEvent.EventCase.TUNNEL_STATE ->
@@ -197,12 +185,12 @@ class ManagementService(
     }
 
     suspend fun getDevice(): Either<GetDeviceStateError, net.mullvad.mullvadvpn.model.DeviceState> =
-        Either.catch { managementService.getDevice(Empty.getDefaultInstance()) }
+        Either.catch { grpc.getDevice(Empty.getDefaultInstance()) }
             .map { it.toDomain() }
             .mapLeft { GetDeviceStateError.Unknown(it) }
 
     suspend fun getDeviceList(token: AccountToken): Either<GetDeviceListError, List<Device>> =
-        Either.catch { managementService.listDevices(StringValue.of(token.value)) }
+        Either.catch { grpc.listDevices(StringValue.of(token.value)) }
             .map { it.devicesList.map(ManagementInterface.Device::toDomain) }
             .mapLeft { GetDeviceListError.Unknown(it) }
 
@@ -211,7 +199,7 @@ class ManagementService(
         deviceId: DeviceId
     ): Either<DeleteDeviceError, Unit> =
         Either.catch {
-                managementService.removeDevice(
+                grpc.removeDevice(
                     ManagementInterface.DeviceRemoval.newBuilder()
                         .setAccountToken(token.value)
                         .setDeviceId(deviceId.value.toString())
@@ -222,37 +210,34 @@ class ManagementService(
             .mapLeft { DeleteDeviceError.Unknown(it) }
 
     suspend fun getTunnelState(): ModelTunnelState =
-        managementService.getTunnelState(Empty.getDefaultInstance()).toDomain()
+        grpc.getTunnelState(Empty.getDefaultInstance()).toDomain()
 
-    suspend fun connect(): Boolean =
-        managementService.connectTunnel(Empty.getDefaultInstance()).value
+    suspend fun connect(): Boolean = grpc.connectTunnel(Empty.getDefaultInstance()).value
 
-    suspend fun disconnect(): Boolean =
-        managementService.disconnectTunnel(Empty.getDefaultInstance()).value
+    suspend fun disconnect(): Boolean = grpc.disconnectTunnel(Empty.getDefaultInstance()).value
 
-    suspend fun test() = managementService.getAccountData(StringValue.of("s"))
+    suspend fun test() = grpc.getAccountData(StringValue.of("s"))
 
-    suspend fun reconnect(): Boolean =
-        managementService.reconnectTunnel(Empty.getDefaultInstance()).value
+    suspend fun reconnect(): Boolean = grpc.reconnectTunnel(Empty.getDefaultInstance()).value
 
     suspend fun getSettings(): ModelSettings =
-        managementService.getSettings(Empty.getDefaultInstance()).toDomain()
+        grpc.getSettings(Empty.getDefaultInstance()).toDomain()
 
     suspend fun getDeviceState(): ModelDeviceState =
-        managementService.getDevice(Empty.getDefaultInstance()).toDomain()
+        grpc.getDevice(Empty.getDefaultInstance()).toDomain()
 
     suspend fun getRelayList(): ModelRelayList =
-        managementService.getRelayLocations(Empty.getDefaultInstance()).toDomain()
+        grpc.getRelayLocations(Empty.getDefaultInstance()).toDomain()
 
     suspend fun getVersionInfo(): ModelAppVersionInfo =
-        managementService.getVersionInfo(Empty.getDefaultInstance()).toDomain()
+        grpc.getVersionInfo(Empty.getDefaultInstance()).toDomain()
 
     suspend fun logoutAccount(): Unit {
-        managementService.logoutAccount(Empty.getDefaultInstance())
+        grpc.logoutAccount(Empty.getDefaultInstance())
     }
 
     suspend fun loginAccount(accountToken: AccountToken): Either<LoginAccountError, Unit> =
-        Either.catch { managementService.loginAccount(StringValue.of(accountToken.value)) }
+        Either.catch { grpc.loginAccount(StringValue.of(accountToken.value)) }
             .mapLeftStatus {
                 when (it.status.code) {
                     Status.Code.UNAUTHENTICATED -> LoginAccountError.InvalidAccount
@@ -265,12 +250,12 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun clearAccountHistory(): Unit {
-        managementService.clearAccountHistory(Empty.getDefaultInstance())
+        grpc.clearAccountHistory(Empty.getDefaultInstance())
     }
 
     suspend fun getAccountHistory(): Either<GetAccountHistoryError, AccountToken?> =
         Either.catch {
-                val history = managementService.getAccountHistory(Empty.getDefaultInstance())
+                val history = grpc.getAccountHistory(Empty.getDefaultInstance())
                 if (history.hasToken()) {
                     AccountToken(history.token.value)
                 } else {
@@ -291,21 +276,18 @@ class ManagementService(
     suspend fun getAccountData(
         accountToken: AccountToken
     ): Either<GetAccountDataError, AccountData> =
-        Either.catch {
-                managementService.getAccountData(StringValue.of(accountToken.value)).toDomain()
-            }
+        Either.catch { grpc.getAccountData(StringValue.of(accountToken.value)).toDomain() }
             .mapLeft { GetAccountDataError.Unknown(it) }
 
     suspend fun createAccount(): Either<CreateAccountError, AccountToken> =
         Either.catch {
-                val accountTokenStringValue =
-                    managementService.createNewAccount(Empty.getDefaultInstance())
+                val accountTokenStringValue = grpc.createNewAccount(Empty.getDefaultInstance())
                 AccountToken(accountTokenStringValue.value)
             }
             .mapLeft { CreateAccountError.Unknown(it) }
 
     suspend fun setDnsOptions(dnsOptions: ModelDnsOptions): Either<SetDnsOptionsError, Unit> =
-        Either.catch { managementService.setDnsOptions(dnsOptions.fromDomain()) }
+        Either.catch { grpc.setDnsOptions(dnsOptions.fromDomain()) }
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
 
@@ -314,7 +296,7 @@ class ManagementService(
                 val currentDnsOptions = measureTimedValue { getSettings().tunnelOptions.dnsOptions }
                 Log.d(TAG, "Time to get currentDnsOptions: ${currentDnsOptions.duration}")
                 val updated = DnsOptions.currentDnsOption.set(currentDnsOptions.value, dnsState)
-                measureTimedValue { managementService.setDnsOptions(updated.fromDomain()) }
+                measureTimedValue { grpc.setDnsOptions(updated.fromDomain()) }
                     .also { Log.d(TAG, "Time to set DnsState: ${currentDnsOptions.duration}") }
                     .value
             }
@@ -329,7 +311,7 @@ class ManagementService(
                         .index(Index.list(), index)
                         .set(currentDnsOptions, address)
 
-                managementService.setDnsOptions(updatedDnsOptions.fromDomain())
+                grpc.setDnsOptions(updatedDnsOptions.fromDomain())
             }
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
@@ -339,7 +321,7 @@ class ManagementService(
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
                 val updatedDnsOptions =
                     DnsOptions.customOptions.addresses.modify(currentDnsOptions) { it + address }
-                managementService.setDnsOptions(updatedDnsOptions.fromDomain())
+                grpc.setDnsOptions(updatedDnsOptions.fromDomain())
             }
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
@@ -349,47 +331,51 @@ class ManagementService(
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
                 val updatedDnsOptions =
                     DnsOptions.customOptions.addresses.modify(currentDnsOptions) { it - address }
-                managementService.setDnsOptions(updatedDnsOptions.fromDomain())
+                grpc.setDnsOptions(updatedDnsOptions.fromDomain())
             }
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
 
     suspend fun setWireguardMtu(value: Int): Either<SetWireguardMtuError, Unit> =
-        Either.catch { managementService.setWireguardMtu(UInt32Value.of(value)) }
+        Either.catch { grpc.setWireguardMtu(UInt32Value.of(value)) }
             .mapLeft(SetWireguardMtuError::Unknown)
             .mapEmpty()
 
     suspend fun setWireguardQuantumResistant(
         value: ModelQuantumResistantState
     ): Either<SetWireguardQuantumResistantError, Unit> =
-        Either.catch { managementService.setQuantumResistantTunnel(value.toDomain()) }
+        Either.catch { grpc.setQuantumResistantTunnel(value.toDomain()) }
             .mapLeft(SetWireguardQuantumResistantError::Unknown)
             .mapEmpty()
 
     // Todo needs to be more advanced
     suspend fun setRelaySettings(value: RelaySettings) {
-        managementService.setRelaySettings(value.fromDomain())
+        grpc.setRelaySettings(value.fromDomain())
     }
 
     suspend fun setObfuscationOptions(
         value: ModelObfuscationSettings
     ): Either<SetObfuscationOptionsError, Unit> =
-        Either.catch { managementService.setObfuscationSettings(value.fromDomain()) }
+        Either.catch { grpc.setObfuscationSettings(value.fromDomain()) }
             .mapLeft(SetObfuscationOptionsError::Unknown)
             .mapEmpty()
 
     suspend fun setAutoConnect(isEnabled: Boolean): Either<SetAutoConnectError, Unit> =
-        Either.catch { managementService.setAutoConnect(BoolValue.of(isEnabled)) }
+        Either.catch {
+                measureTimedValue { grpc.setAutoConnect(BoolValue.of(isEnabled)) }
+                    .also { Log.d("ManagementService", "Time to setAutoConnect: ${it.duration}") }
+                    .value
+            }
             .mapLeft(SetAutoConnectError::Unknown)
             .mapEmpty()
 
     suspend fun setAllowLan(allow: Boolean): Either<SetAllowLanError, Unit> =
-        Either.catch { managementService.setAllowLan(BoolValue.of(allow)) }
+        Either.catch { grpc.setAllowLan(BoolValue.of(allow)) }
             .mapLeft(SetAllowLanError::Unknown)
             .mapEmpty()
 
     suspend fun getCurrentVersion(): String =
-        managementService.getCurrentVersion(Empty.getDefaultInstance()).value
+        grpc.getCurrentVersion(Empty.getDefaultInstance()).value
 
     suspend fun setRelayLocation(
         location: ModelLocationConstraint
@@ -401,7 +387,7 @@ class ManagementService(
                         currentRelaySettings,
                         Constraint.Only(location)
                     )
-                managementService.setRelaySettings(updatedRelaySettings.fromDomain())
+                grpc.setRelaySettings(updatedRelaySettings.fromDomain())
             }
             .mapLeft(SetRelayLocationError::Unknown)
             .mapEmpty()
@@ -409,7 +395,7 @@ class ManagementService(
     suspend fun createCustomList(
         name: CustomListName
     ): Either<CreateCustomListError, CustomListId> =
-        Either.catch { managementService.createCustomList(StringValue.of(name.value)) }
+        Either.catch { grpc.createCustomList(StringValue.of(name.value)) }
             .map { CustomListId(it.value) }
             .mapLeftStatus {
                 when (it.status.code) {
@@ -419,22 +405,22 @@ class ManagementService(
             }
 
     suspend fun updateCustomList(customList: ModelCustomList): Either<UpdateCustomListError, Unit> =
-        Either.catch { managementService.updateCustomList(customList.fromDomain()) }
+        Either.catch { grpc.updateCustomList(customList.fromDomain()) }
             .mapLeft(UpdateCustomListError::Unknown)
             .mapEmpty()
 
     suspend fun deleteCustomList(id: CustomListId): Either<DeleteCustomListError, Unit> =
-        Either.catch { managementService.deleteCustomList(StringValue.of(id.value)) }
+        Either.catch { grpc.deleteCustomList(StringValue.of(id.value)) }
             .mapLeft(DeleteCustomListError::Unknown)
             .mapEmpty()
 
     suspend fun clearAllRelayOverrides(): Either<ClearAllOverridesError, Unit> =
-        Either.catch { managementService.clearAllRelayOverrides(Empty.getDefaultInstance()) }
+        Either.catch { grpc.clearAllRelayOverrides(Empty.getDefaultInstance()) }
             .mapLeft(ClearAllOverridesError::Unknown)
             .mapEmpty()
 
     suspend fun applySettingsPatch(json: String): Either<SettingsPatchError, Unit> =
-        Either.catch { managementService.applyJsonSettings(StringValue.of(json)) }
+        Either.catch { grpc.applyJsonSettings(StringValue.of(json)) }
             .mapLeftStatus {
                 Log.d(TAG, "applySettingsPatch error: ${it.status.description} ${it.status.code}")
                 when (it.status.code) {
@@ -452,7 +438,7 @@ class ManagementService(
                 val relaySettings = getSettings().relaySettings
                 val updated =
                     RelaySettings.relayConstraints.wireguardConstraints.set(relaySettings, value)
-                managementService.setRelaySettings(updated.fromDomain())
+                grpc.setRelaySettings(updated.fromDomain())
             }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
@@ -470,7 +456,7 @@ class ManagementService(
                             RelayConstraints.ownership set ownershipConstraint
                         }
                     }
-                managementService.setRelaySettings(updated.fromDomain())
+                grpc.setRelaySettings(updated.fromDomain())
             }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
@@ -481,7 +467,7 @@ class ManagementService(
         Either.catch {
                 val relaySettings = getSettings().relaySettings
                 val updated = RelaySettings.relayConstraints.ownership.set(relaySettings, ownership)
-                managementService.setRelaySettings(updated.fromDomain())
+                grpc.setRelaySettings(updated.fromDomain())
             }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
@@ -493,13 +479,13 @@ class ManagementService(
                 val relaySettings = getSettings().relaySettings
                 val updated =
                     RelaySettings.relayConstraints.providers.set(relaySettings, providersConstraint)
-                managementService.setRelaySettings(updated.fromDomain())
+                grpc.setRelaySettings(updated.fromDomain())
             }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 
     suspend fun submitVoucher(voucher: String): Either<RedeemVoucherError, RedeemVoucherSuccess> =
-        Either.catch { managementService.submitVoucher(StringValue.of(voucher)).toDomain() }
+        Either.catch { grpc.submitVoucher(StringValue.of(voucher)).toDomain() }
             .mapLeftStatus {
                 when (it.status.code) {
                     Status.Code.INVALID_ARGUMENT,
