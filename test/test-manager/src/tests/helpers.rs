@@ -249,6 +249,21 @@ pub async fn login_with_retries(
     }
 }
 
+/// Ensure that the test runner is logged in to an account.
+///
+/// This will first check whether we are logged in. If not, it will also try to login
+/// on your behalf. If this function returns without any errors, we are logged in to a valid
+/// account.
+pub async fn ensure_logged_in(
+    mullvad_client: &mut MullvadProxyClient,
+) -> Result<(), mullvad_management_interface::Error> {
+    if mullvad_client.get_device().await?.is_logged_in() {
+        return Ok(());
+    }
+    // We are apparently not logged in already.. Try to log in.
+    login_with_retries(mullvad_client).await
+}
+
 /// Try to connect to a Mullvad Tunnel.
 ///
 /// # Returns
