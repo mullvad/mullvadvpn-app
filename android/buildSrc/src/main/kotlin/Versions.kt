@@ -59,6 +59,7 @@ object Versions {
         const val android = "8.3.0"
         const val androidAapt = "$android-10880808"
         const val playPublisher = "3.9.0"
+        const val protobuf = "0.9.4"
         const val dependencyCheck = "9.0.9"
         const val detekt = "1.23.5"
         const val gradleVersions = "0.51.0"
