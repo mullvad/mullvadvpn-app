@@ -265,6 +265,10 @@ msgid "%(title)s, View loaded"
 msgstr ""
 
 msgctxt "accessibility"
+msgid "Add new custom bridge"
+msgstr ""
+
+msgctxt "accessibility"
 msgid "Close notification"
 msgstr ""
 
@@ -276,6 +280,10 @@ msgstr ""
 #. which copies the account number to the clipboard.
 msgctxt "accessibility"
 msgid "Copy account number"
+msgstr ""
+
+msgctxt "accessibility"
+msgid "Edit custom bridge"
 msgstr ""
 
 msgctxt "accessibility"
