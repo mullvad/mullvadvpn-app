@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.CustomListId
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceId
@@ -333,7 +334,7 @@ internal fun ManagementInterface.Udp2TcpObfuscationSettings.toDomain(): Udp2TcpO
     }
 
 internal fun ManagementInterface.CustomList.toDomain(): CustomList =
-    CustomList(id = CustomListId(id), name = name, locations = locationsList.map { it.toDomain() })
+    CustomList(id = CustomListId(id), name = CustomListName.fromString(name), locations = locationsList.map { it.toDomain() })
 
 internal fun ManagementInterface.TunnelOptions.toDomain(): TunnelOptions =
     TunnelOptions(wireguard = wireguard.toDomain(), dnsOptions = dnsOptions.toDomain())
@@ -493,7 +494,7 @@ internal fun GeographicLocationConstraint.fromDomain():
 internal fun CustomList.fromDomain(): ManagementInterface.CustomList =
     ManagementInterface.CustomList.newBuilder()
         .setId(this.id.value)
-        .setName(this.name)
+        .setName(this.name.value)
         .addAllLocations(this.locations.map { it.fromDomain() })
         .build()
 
