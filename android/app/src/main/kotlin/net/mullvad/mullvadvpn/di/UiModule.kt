@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.repository.SelectedLocationRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.VoucherRepository
+import net.mullvad.mullvadvpn.repository.VpnPermissionRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -120,6 +121,7 @@ val uiModule = module {
     single { SelectedLocationRepository(get()) }
     single { RelayListFilterRepository(get()) }
     single { VoucherRepository(get()) }
+    single { VpnPermissionRepository(get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }
@@ -155,7 +157,7 @@ val uiModule = module {
 
     single { ProblemReportRepository() }
 
-    single { ConnectionProxy(get()) }
+    single { ConnectionProxy(get(), get()) }
     single { AppVersionInfoCache(get()) }
 
     // View models
@@ -174,7 +176,7 @@ val uiModule = module {
     }
     viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
-    viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }

@@ -37,7 +37,6 @@ class SelectLocationViewModel(
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
     selectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase,
     private val customListActionUseCase: CustomListActionUseCase,
-    private val connectionProxy: ConnectionProxy,
     filteredRelayListUseCase: FilteredRelayListUseCase,
     private val selectedLocationRepository: SelectedLocationRepository
 ) : ViewModel() {
@@ -107,7 +106,6 @@ class SelectLocationViewModel(
         viewModelScope.launch {
             val locationConstraint = relayItem.toLocationConstraint()
             selectedLocationRepository.updateSelectedRelayLocation(locationConstraint)
-            connectionProxy.connect()
             _uiSideEffect.trySend(SelectLocationSideEffect.CloseScreen)
         }
     }

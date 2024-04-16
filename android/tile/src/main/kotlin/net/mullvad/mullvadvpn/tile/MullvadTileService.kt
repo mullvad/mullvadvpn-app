@@ -14,6 +14,9 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
@@ -23,6 +26,8 @@ import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.setSubtitleIfSupported
+import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.ServiceResult
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
@@ -130,22 +135,25 @@ class MullvadTileService : TileService() {
     }
 
     @OptIn(FlowPreview::class)
-    private fun CoroutineScope.launchListenToTunnelState() =
-        launch {
-            // TODO()
-            //        ServiceConnection(this@MullvadTileService, this)
-            //            .tunnelState
-            //            .debounce(300L)
-            //            .map { (tunnelState, connectionState) -> mapToTileState(tunnelState,
-            // connectionState) }
-            //            .collect { updateTileState(it) }
-        }
+    private fun CoroutineScope.launchListenToTunnelState() = launch {
+        val managementService =
+            ManagementService("/data/data/net.mullvad.mullvadvpn/rpc-socket", MainScope())
+        managementService.start()
+        combine(managementService.tunnelState, managementService.connectionState) {
+                tunnelState,
+                connectionState ->
+                tunnelState to connectionState
+            }
+            .debounce(300L)
+            .map { (tunnelState, connectionState) -> mapToTileState(tunnelState, connectionState) }
+            .collect { updateTileState(it) }
+    }
 
     private fun mapToTileState(
         tunnelState: TunnelState,
-        connectionState: ServiceResult.ConnectionState
+        connectionState: GrpcConnectivityState
     ): Int {
-        return if (connectionState == ServiceResult.ConnectionState.CONNECTED) {
+        return if (connectionState == GrpcConnectivityState.Ready) {
             when (tunnelState) {
                 is TunnelState.Disconnected -> Tile.STATE_INACTIVE
                 is TunnelState.Connecting -> Tile.STATE_ACTIVE
