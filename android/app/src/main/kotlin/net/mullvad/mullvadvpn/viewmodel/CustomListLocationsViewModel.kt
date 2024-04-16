@@ -37,7 +37,7 @@ class CustomListLocationsViewModel(
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
 
     val uiState =
-        combine(relayListUseCase.relayList(), _searchTerm, _selectedLocations) {
+        combine(relayListUseCase.fullRelayList(), _searchTerm, _selectedLocations) {
                 relayCountries,
                 searchTerm,
                 selectedLocations ->
