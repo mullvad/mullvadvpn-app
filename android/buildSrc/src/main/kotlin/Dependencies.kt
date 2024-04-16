@@ -149,5 +149,6 @@ object Dependencies {
         const val playPublisher =
             "com.github.triplet.gradle:play-publisher:${Versions.Plugin.playPublisher}"
         const val playPublisherId = "com.github.triplet.play"
+        const val protobufId = "com.google.protobuf"
     }
 }
