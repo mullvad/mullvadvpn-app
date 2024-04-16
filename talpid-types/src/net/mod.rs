@@ -40,6 +40,8 @@ impl TunnelParameters {
                 obfuscation: None,
                 entry_endpoint: None,
                 tunnel_interface: None,
+                #[cfg(target_os = "windows")]
+                daita: false,
             },
             TunnelParameters::Wireguard(params) => TunnelEndpoint {
                 tunnel_type: TunnelType::Wireguard,
@@ -55,6 +57,8 @@ impl TunnelParameters {
                     .get_exit_endpoint()
                     .map(|_| params.connection.get_endpoint()),
                 tunnel_interface: None,
+                #[cfg(target_os = "windows")]
+                daita: params.options.daita,
             },
         }
     }
@@ -183,6 +187,8 @@ pub struct TunnelEndpoint {
     pub entry_endpoint: Option<Endpoint>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_interface: Option<String>,
+    #[cfg(target_os = "windows")]
+    pub daita: bool,
 }
 
 impl fmt::Display for TunnelEndpoint {

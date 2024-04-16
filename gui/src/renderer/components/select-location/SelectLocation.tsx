@@ -5,7 +5,7 @@ import { colors } from '../../../config.json';
 import { Ownership } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
-import { filterSpecialLocations } from '../../lib/filter-locations';
+import { daitaFilterActive, filterSpecialLocations } from '../../lib/filter-locations';
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
 import { RoutePath } from '../../lib/routes';
@@ -71,6 +71,13 @@ export default function SelectLocation() {
   const ownership = relaySettings?.ownership ?? Ownership.any;
   const providers = relaySettings?.providers ?? [];
   const filteredProviders = useFilteredProviders(providers, ownership);
+  const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
+  const showDaitaFilter = daitaFilterActive(
+    daita,
+    locationType,
+    relaySettings?.tunnelProtocol ?? 'any',
+    relaySettings?.wireguard.useMultihop ?? false,
+  );
 
   const [searchValue, setSearchValue] = useState('');
 
@@ -122,7 +129,7 @@ export default function SelectLocation() {
 
   const showOwnershipFilter = ownership !== Ownership.any;
   const showProvidersFilter = providers.length > 0;
-  const showFilters = showOwnershipFilter || showProvidersFilter;
+  const showFilters = showOwnershipFilter || showProvidersFilter || showDaitaFilter;
   return (
     <BackAction action={onClose}>
       <Layout>
@@ -218,6 +225,15 @@ export default function SelectLocation() {
                           tintHoverColor={colors.white80}
                         />
                       </StyledClearFilterButton>
+                    </StyledFilter>
+                  )}
+
+                  {showDaitaFilter && (
+                    <StyledFilter>
+                      {sprintf(
+                        messages.pgettext('select-location-view', 'Setting: %(settingName)s'),
+                        { settingName: 'DAITA' },
+                      )}
                     </StyledFilter>
                   )}
                 </StyledFilterRow>

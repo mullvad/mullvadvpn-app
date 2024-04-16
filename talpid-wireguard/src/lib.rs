@@ -260,7 +260,6 @@ impl WireguardMonitor {
             + 'static,
     >(
         mut config: Config,
-        psk_negotiation: bool,
         #[cfg(not(target_os = "android"))] detect_mtu: bool,
         log_path: Option<&Path>,
         args: TunnelArgs<'_, F>,
@@ -283,12 +282,12 @@ impl WireguardMonitor {
             log_path,
             args.resource_dir,
             args.tun_provider.clone(),
+            #[cfg(target_os = "android")]
+            config.quantum_resistant,
             #[cfg(target_os = "windows")]
             args.route_manager.clone(),
             #[cfg(target_os = "windows")]
             setup_done_tx,
-            #[cfg(target_os = "android")]
-            psk_negotiation,
         )?;
         let iface_name = tunnel.get_interface_name();
 
@@ -336,7 +335,7 @@ impl WireguardMonitor {
                 .await?;
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            let allowed_traffic = if psk_negotiation {
+            let allowed_traffic = if config.quantum_resistant || config.daita {
                 AllowedTunnelTraffic::One(Endpoint::new(
                     config.ipv4_gateway,
                     talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
@@ -365,16 +364,16 @@ impl WireguardMonitor {
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
-            let psk_obfs_sender = close_obfs_sender.clone();
-            if psk_negotiation {
-                Self::psk_negotiation(
+            let ephemeral_obfs_sender = close_obfs_sender.clone();
+            if config.quantum_resistant || config.daita {
+                Self::config_ephemeral_peers(
                     &tunnel,
                     &mut config,
                     args.retry_attempt,
                     args.on_event.clone(),
                     &iface_name,
                     obfuscator.clone(),
-                    psk_obfs_sender,
+                    ephemeral_obfs_sender,
                     #[cfg(target_os = "android")]
                     args.tun_provider,
                 )
@@ -386,6 +385,14 @@ impl WireguardMonitor {
                 let config = config.clone();
                 let iface_name = iface_name.clone();
                 tokio::task::spawn(async move {
+                    #[cfg(target_os = "windows")]
+                    if config.daita {
+                        // TODO: For now, we assume the MTU during the tunnel lifetime.
+                        // We could instead poke maybenot whenever we detect changes to it.
+                        log::warn!("MTU detection is not supported with DAITA. Skipping");
+                        return;
+                    }
+
                     if let Err(e) = mtu_detection::automatic_mtu_correction(
                         gateway,
                         iface_name,
@@ -465,7 +472,7 @@ impl WireguardMonitor {
     }
 
     #[allow(clippy::too_many_arguments)]
-    async fn psk_negotiation<F>(
+    async fn config_ephemeral_peers<F>(
         tunnel: &Arc<Mutex<Option<Box<dyn Tunnel>>>>,
         config: &mut Config,
         retry_attempt: u32,
@@ -482,7 +489,7 @@ impl WireguardMonitor {
             + Clone
             + 'static,
     {
-        let wg_psk_privkey = PrivateKey::new_from_random();
+        let ephemeral_private_key = PrivateKey::new_from_random();
         let close_obfs_sender = close_obfs_sender.clone();
 
         let allowed_traffic = Endpoint::new(
@@ -507,11 +514,17 @@ impl WireguardMonitor {
         let metadata = Self::tunnel_metadata(iface_name, config);
         (on_event)(TunnelEvent::InterfaceUp(metadata, allowed_traffic.clone())).await;
 
-        let exit_psk =
-            Self::perform_psk_negotiation(retry_attempt, config, wg_psk_privkey.public_key())
-                .await?;
+        let exit_should_have_daita = config.daita && !config.is_multihop();
+        let exit_psk = Self::request_ephemeral_peer(
+            retry_attempt,
+            config,
+            ephemeral_private_key.public_key(),
+            config.quantum_resistant,
+            exit_should_have_daita,
+        )
+        .await?;
 
-        log::debug!("Successfully exchanged PSK with exit peer");
+        log::debug!("Retrieved ephemeral peer");
 
         if config.is_multihop() {
             // Set up tunnel to lead to entry
@@ -531,22 +544,27 @@ impl WireguardMonitor {
                 &tun_provider,
             )
             .await?;
-            let entry_psk = Some(
-                Self::perform_psk_negotiation(
-                    retry_attempt,
-                    &entry_config,
-                    wg_psk_privkey.public_key(),
-                )
-                .await?,
-            );
+            let entry_psk = Self::request_ephemeral_peer(
+                retry_attempt,
+                &entry_config,
+                ephemeral_private_key.public_key(),
+                config.quantum_resistant,
+                config.daita,
+            )
+            .await?;
             log::debug!("Successfully exchanged PSK with entry peer");
 
             config.entry_peer.psk = entry_psk;
         }
 
-        config.exit_peer_mut().psk = Some(exit_psk);
+        config.exit_peer_mut().psk = exit_psk;
+        #[cfg(target_os = "windows")]
+        if config.daita {
+            log::trace!("Enabling constant packet size for entry peer");
+            config.entry_peer.constant_packet_size = true;
+        }
 
-        config.tunnel.private_key = wg_psk_privkey;
+        config.tunnel.private_key = ephemeral_private_key;
 
         *config = Self::reconfigure_tunnel(
             tunnel,
@@ -557,6 +575,19 @@ impl WireguardMonitor {
             &tun_provider,
         )
         .await?;
+
+        #[cfg(target_os = "windows")]
+        if config.daita {
+            // Start local DAITA machines
+            let mut tunnel = tunnel.lock().unwrap();
+            if let Some(tunnel) = tunnel.as_mut() {
+                tunnel
+                    .start_daita()
+                    .map_err(Error::TunnelError)
+                    .map_err(CloseMsg::SetupError)?;
+            }
+        }
+
         let metadata = Self::tunnel_metadata(iface_name, config);
         (on_event)(TunnelEvent::InterfaceUp(
             metadata,
@@ -678,12 +709,14 @@ impl WireguardMonitor {
         Ok(())
     }
 
-    async fn perform_psk_negotiation(
+    async fn request_ephemeral_peer(
         retry_attempt: u32,
         config: &Config,
         wg_psk_pubkey: PublicKey,
-    ) -> std::result::Result<PresharedKey, CloseMsg> {
-        log::debug!("Performing PQ-safe PSK exchange");
+        enable_pq: bool,
+        enable_daita: bool,
+    ) -> std::result::Result<Option<PresharedKey>, CloseMsg> {
+        log::debug!("Requesting ephemeral peer");
 
         let timeout = std::cmp::min(
             MAX_PSK_EXCHANGE_TIMEOUT,
@@ -691,23 +724,25 @@ impl WireguardMonitor {
                 .saturating_mul(PSK_EXCHANGE_TIMEOUT_MULTIPLIER.saturating_pow(retry_attempt)),
         );
 
-        let psk = tokio::time::timeout(
+        let ephemeral = tokio::time::timeout(
             timeout,
-            talpid_tunnel_config_client::push_pq_key(
+            talpid_tunnel_config_client::request_ephemeral_peer(
                 IpAddr::from(config.ipv4_gateway),
                 config.tunnel.private_key.public_key(),
                 wg_psk_pubkey,
+                enable_pq,
+                enable_daita,
             ),
         )
         .await
         .map_err(|_timeout_err| {
-            log::warn!("Timeout while negotiating PSK");
+            log::warn!("Timeout while negotiating ephemeral peer");
             CloseMsg::PskNegotiationTimeout
         })?
         .map_err(Error::PskNegotiationError)
         .map_err(CloseMsg::SetupError)?;
 
-        Ok(psk)
+        Ok(ephemeral.psk)
     }
 
     #[allow(unused_variables)]
@@ -717,7 +752,7 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
-        #[cfg(target_os = "android")] psk_negotiation: bool,
+        #[cfg(target_os = "android")] gateway_only: bool,
         #[cfg(windows)] route_manager: crate::routing::RouteManagerHandle,
         #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Box<dyn Tunnel>> {
@@ -771,7 +806,7 @@ impl WireguardMonitor {
                 Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
 
             #[cfg(target_os = "android")]
-            let config = Self::patch_allowed_ips(config, psk_negotiation);
+            let config = Self::patch_allowed_ips(config, gateway_only);
 
             #[cfg(target_os = "linux")]
             log::debug!("Using userspace WireGuard implementation");
@@ -994,6 +1029,8 @@ pub(crate) trait Tunnel: Send {
         &self,
         _config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>>;
+    #[cfg(target_os = "windows")]
+    fn start_daita(&mut self) -> std::result::Result<(), TunnelError>;
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait

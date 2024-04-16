@@ -129,6 +129,7 @@ impl PartialEq for Relay {
     ///     #       "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
     ///     #   )
     ///     #   .unwrap(),
+    ///     #   daita: false,
     ///     # }),
     ///     # location: None,
     /// };
@@ -232,6 +233,9 @@ struct PortRange {
 pub struct WireguardRelayEndpointData {
     /// Public key used by the relay peer
     pub public_key: wireguard::PublicKey,
+    /// Whether the server supports DAITA
+    #[serde(default)]
+    pub daita: bool,
 }
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]

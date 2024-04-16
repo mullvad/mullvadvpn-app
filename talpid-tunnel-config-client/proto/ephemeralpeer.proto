@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+option go_package = "github.com/mullvad/wg-manager/tuncfg/api/ephemeralpeer";
+
+package ephemeralpeer;
+
+service EphemeralPeer {
+  // Derive an ephemeral peer with one or several options enabled, such as PQ or DAITA.
+  //
+  // The VPN server associates the ephemeral peer with the peer who performed the exchange. Any
+  // already existing ephemeral peer for the normal peer is replaced. Each normal peer can have
+  // at most one ephemeral peer.
+  //
+  // The ephemeral peer is mutually exclusive to the normal peer. The server keeps both peers in
+  // memory, but only one of them is loaded into WireGuard at any point in time. A handshake from
+  // the normal peer unloads the corresponding ephemeral peer from WireGuard and vice versa.
+  //
+  // A new peer is negotiated to avoid a premature break of the tunnel used for negotiation.
+  // A tunnel would break prematurely if configuration such as preshared key were applied before the
+  // normal peer received the server's response. This cannot occur now because the client decides
+  // when to switch to the ephemeral tunnel. This design also allows the client to switch back to
+  // using a non-ephemeral tunnel at any point.
+  //
+  // The server gives no guarantees how long the ephemeral peer will be valid and working when it's
+  // no longer in use. The client should negotiate a new ephemeral peer every time it establishes a
+  // new tunnel to the server.
+  //
+  // The request from the VPN client should contain:
+  //   * `wg_parent_pubkey` - The public key used by the current tunnel (that the request travels
+  //     inside).
+  //   * `wg_ephemeral_peer_pubkey` - A newly generated ephemeral WireGuard public key for the
+  //     ephemeral peer. The server will associate the new configuration with this key.
+  //   * One or more requests for different types of options. See the individual messages for more
+  //     information. If a request is provided, a corresponding response may be returned in the
+  //     server's response.
+  rpc RegisterPeerV1(EphemeralPeerRequestV1) returns (EphemeralPeerResponseV1) {}
+}
+
+message EphemeralPeerRequestV1 {
+  bytes wg_parent_pubkey = 1;
+  bytes wg_ephemeral_peer_pubkey = 2;
+  PostQuantumRequestV1 post_quantum = 3;
+  DaitaRequestV1 daita = 4;
+}
+
+// The v1 request supports exactly two algorithms.
+// The algorithms can appear soletary or in mixed order:
+// - "Classic-McEliece-460896f", but explicitly identified as "Classic-McEliece-460896f-round3"
+// - "Kyber1024"
+message PostQuantumRequestV1 { repeated KemPubkeyV1 kem_pubkeys = 1; }
+
+message KemPubkeyV1 {
+  string algorithm_name = 1;
+  bytes key_data = 2;
+}
+
+message DaitaRequestV1 { bool activate_daita = 1; }
+
+message EphemeralPeerResponseV1 {
+  // The response from the VPN server contains:
+  //   * `ciphertexts` - A list of the ciphertexts (the encapsulated shared secrets) for all
+  //     public keys in `kem_pubkeys` in the request, in the same order as in the request.
+  //
+  // # Deriving the WireGuard PSK
+  //
+  // The PSK to be used in WireGuard's preshared-key field is computed by XORing the resulting
+  // shared secrets of all the KEM algorithms. All currently supported and planned to be
+  // supported algorithms output 32 bytes, so this is trivial.
+  //
+  // Since the PSK provided to WireGuard is directly fed into a HKDF, it is not important that
+  // the entropy in the PSK is uniformly distributed. The actual keys used for encrypting the
+  // data channel will have uniformly distributed entropy anyway, thanks to the HKDF.
+  // But even if that was not true, since both CME and Kyber run SHAKE256 as the last step
+  // of their internal key derivation, the output they produce are uniformly distributed.
+  //
+  // If we later want to support another type of KEM that produce longer or shorter output,
+  // we can hash that secret into a 32 byte hash before proceeding to the XOR step.
+  //
+  // Mixing with XOR (A = B ^ C) is fine since nothing about A is revealed even if one of B or C
+  // is known. Both B *and* C must be known to compute any bit in A. This means all involved
+  // KEM algorithms must be broken before the PSK can be computed by an attacker.
+  PostQuantumResponseV1 post_quantum = 1;
+}
+
+message PostQuantumResponseV1 { repeated bytes ciphertexts = 1; }

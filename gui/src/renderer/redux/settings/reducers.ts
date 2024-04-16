@@ -7,6 +7,7 @@ import {
   BridgeType,
   CustomLists,
   CustomProxy,
+  IDaitaSettings,
   IDnsOptions,
   IpVersion,
   IWireguardEndpointData,
@@ -75,6 +76,7 @@ export interface IRelayLocationRelayRedux {
   owned: boolean;
   weight: number;
   endpointType: RelayEndpointType;
+  daita: boolean;
 }
 
 export interface IRelayLocationCityRedux {
@@ -109,6 +111,7 @@ export interface ISettingsReduxState {
   wireguard: {
     mtu?: number;
     quantumResistant?: boolean;
+    daita?: IDaitaSettings;
   };
   dns: IDnsOptions;
   splitTunneling: boolean;
@@ -269,6 +272,14 @@ export default function (
         wireguard: {
           ...state.wireguard,
           quantumResistant: action.quantumResistant,
+        },
+      };
+    case 'UPDATE_WIREGUARD_DAITA':
+      return {
+        ...state,
+        wireguard: {
+          ...state.wireguard,
+          daita: action.daita,
         },
       };
 

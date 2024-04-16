@@ -28,6 +28,7 @@
 //! queries and ensure that queries are built in a type-safe manner, reducing the risk
 //! of runtime errors and improving code readability.
 
+use crate::AdditionalWireguardConstraints;
 use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
@@ -139,6 +140,7 @@ pub struct WireguardRelayQuery {
     pub entry_location: Constraint<LocationConstraint>,
     pub obfuscation: SelectedObfuscation,
     pub udp2tcp_port: Constraint<Udp2TcpObfuscationSettings>,
+    pub daita: Constraint<bool>,
 }
 
 impl WireguardRelayQuery {
@@ -156,6 +158,7 @@ impl WireguardRelayQuery {
             entry_location: Constraint::Any,
             obfuscation: SelectedObfuscation::Auto,
             udp2tcp_port: Constraint::Any,
+            daita: Constraint::Any,
         }
     }
 }
@@ -168,6 +171,17 @@ impl From<WireguardRelayQuery> for WireguardConstraints {
             ip_version: value.ip_version,
             entry_location: value.entry_location,
             use_multihop: value.use_multihop.unwrap_or(false),
+        }
+    }
+}
+
+impl From<WireguardRelayQuery> for AdditionalWireguardConstraints {
+    /// The mapping from [`WireguardRelayQuery`] to [`AdditionalWireguardConstraints`].
+    fn from(value: WireguardRelayQuery) -> Self {
+        AdditionalWireguardConstraints {
+            daita: value
+                .daita
+                .unwrap_or(AdditionalWireguardConstraints::default().daita),
         }
     }
 }
@@ -344,10 +358,11 @@ pub mod builder {
             }
         }
         /// Set the VPN protocol for this [`RelayQueryBuilder`] to Wireguard.
-        pub fn wireguard(mut self) -> RelayQueryBuilder<Wireguard<Any, Any>> {
+        pub fn wireguard(mut self) -> RelayQueryBuilder<Wireguard<Any, Any, Any>> {
             let protocol = Wireguard {
                 multihop: Any,
                 obfuscation: Any,
+                daita: Any,
             };
             self.query.tunnel_protocol = Constraint::Only(TunnelType::Wireguard);
             // Update the type state
@@ -381,13 +396,14 @@ pub mod builder {
     /// select entry point.
     ///
     /// [`WireguardRelayQuery`]: super::WireguardRelayQuery
-    pub struct Wireguard<Multihop, Obfuscation> {
+    pub struct Wireguard<Multihop, Obfuscation, Daita> {
         multihop: Multihop,
         obfuscation: Obfuscation,
+        daita: Daita,
     }
 
     // This impl-block is quantified over all configurations
-    impl<Multihop, Obfuscation> RelayQueryBuilder<Wireguard<Multihop, Obfuscation>> {
+    impl<Multihop, Obfuscation, Daita> RelayQueryBuilder<Wireguard<Multihop, Obfuscation, Daita>> {
         /// Specify the port to ues when connecting to the selected
         /// Wireguard relay.
         pub const fn port(mut self, port: u16) -> Self {
@@ -403,11 +419,27 @@ pub mod builder {
         }
     }
 
-    impl<Obfuscation> RelayQueryBuilder<Wireguard<Any, Obfuscation>> {
+    impl<Multihop, Obfuscation> RelayQueryBuilder<Wireguard<Multihop, Obfuscation, Any>> {
+        /// Enable DAITA support.
+        pub fn daita(mut self) -> RelayQueryBuilder<Wireguard<Multihop, Obfuscation, bool>> {
+            self.query.wireguard_constraints.daita = Constraint::Only(true);
+            // Update the type state
+            RelayQueryBuilder {
+                query: self.query,
+                protocol: Wireguard {
+                    multihop: self.protocol.multihop,
+                    obfuscation: self.protocol.obfuscation,
+                    daita: true,
+                },
+            }
+        }
+    }
+
+    impl<Obfuscation, Daita> RelayQueryBuilder<Wireguard<Any, Obfuscation, Daita>> {
         /// Enable multihop.
         ///
         /// To configure the entry relay, see [`RelayQueryBuilder::entry`].
-        pub fn multihop(mut self) -> RelayQueryBuilder<Wireguard<bool, Obfuscation>> {
+        pub fn multihop(mut self) -> RelayQueryBuilder<Wireguard<bool, Obfuscation, Daita>> {
             self.query.wireguard_constraints.use_multihop = Constraint::Only(true);
             // Update the type state
             RelayQueryBuilder {
@@ -415,12 +447,13 @@ pub mod builder {
                 protocol: Wireguard {
                     multihop: true,
                     obfuscation: self.protocol.obfuscation,
+                    daita: self.protocol.daita,
                 },
             }
         }
     }
 
-    impl<Obfuscation> RelayQueryBuilder<Wireguard<bool, Obfuscation>> {
+    impl<Obfuscation, Daita> RelayQueryBuilder<Wireguard<bool, Obfuscation, Daita>> {
         /// Set the entry location in a multihop configuration. This requires
         /// multihop to be enabled.
         pub fn entry(mut self, location: GeographicLocationConstraint) -> Self {
@@ -430,18 +463,19 @@ pub mod builder {
         }
     }
 
-    impl<Multihop> RelayQueryBuilder<Wireguard<Multihop, Any>> {
+    impl<Multihop, Daita> RelayQueryBuilder<Wireguard<Multihop, Any, Daita>> {
         /// Enable `UDP2TCP` obufscation. This will in turn enable the option to configure the
         /// `UDP2TCP` port.
         pub fn udp2tcp(
             mut self,
-        ) -> RelayQueryBuilder<Wireguard<Multihop, Udp2TcpObfuscationSettings>> {
+        ) -> RelayQueryBuilder<Wireguard<Multihop, Udp2TcpObfuscationSettings, Daita>> {
             let obfuscation = Udp2TcpObfuscationSettings {
                 port: Constraint::Any,
             };
             let protocol = Wireguard {
                 multihop: self.protocol.multihop,
                 obfuscation: obfuscation.clone(),
+                daita: self.protocol.daita,
             };
             self.query.wireguard_constraints.udp2tcp_port = Constraint::Only(obfuscation);
             self.query.wireguard_constraints.obfuscation = SelectedObfuscation::Udp2Tcp;
@@ -452,7 +486,7 @@ pub mod builder {
         }
     }
 
-    impl<Multihop> RelayQueryBuilder<Wireguard<Multihop, Udp2TcpObfuscationSettings>> {
+    impl<Multihop, Daita> RelayQueryBuilder<Wireguard<Multihop, Udp2TcpObfuscationSettings, Daita>> {
         /// Set the `UDP2TCP` port. This is the TCP port which the `UDP2TCP` obfuscation
         /// protocol should use to connect to a relay.
         pub fn udp2tcp_port(mut self, port: u16) -> Self {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <wireguard-nt/wireguard.h>
+#include <wireguard.h>
 #include <libcommon/error.h>
 #include "util.h"
 

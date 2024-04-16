@@ -37,9 +37,13 @@ use futures::{
     StreamExt,
 };
 use geoip::GeoIpHandler;
-use mullvad_relay_selector::{RelaySelector, SelectorConfig};
+use mullvad_relay_selector::{
+    AdditionalRelayConstraints, AdditionalWireguardConstraints, RelaySelector, SelectorConfig,
+};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
+#[cfg(target_os = "windows")]
+use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
     access_method::{AccessMethod, AccessMethodSetting},
     account::{AccountData, AccountToken, VoucherSubmission},
@@ -256,6 +260,9 @@ pub enum DaemonCommand {
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
     /// Set whether to enable PQ PSK exchange in the tunnel
     SetQuantumResistantTunnel(ResponseTx<(), settings::Error>, QuantumResistantState),
+    /// Set DAITA settings for the tunnel
+    #[cfg(target_os = "windows")]
+    SetDaitaSettings(ResponseTx<(), settings::Error>, DaitaSettings),
     /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
     /// Set override options to use for a given relay
@@ -1241,6 +1248,10 @@ where
             SetQuantumResistantTunnel(tx, quantum_resistant_state) => {
                 self.on_set_quantum_resistant_tunnel(tx, quantum_resistant_state)
                     .await
+            }
+            #[cfg(target_os = "windows")]
+            SetDaitaSettings(tx, daita_settings) => {
+                self.on_set_daita_settings(tx, daita_settings).await
             }
             SetDnsOptions(tx, dns_servers) => self.on_set_dns_options(tx, dns_servers).await,
             SetRelayOverride(tx, relay_override) => {
@@ -2259,6 +2270,40 @@ where
         }
     }
 
+    #[cfg(target_os = "windows")]
+    async fn on_set_daita_settings(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        daita_settings: DaitaSettings,
+    ) {
+        match self
+            .settings
+            .update(|settings| settings.tunnel_options.wireguard.daita = daita_settings)
+            .await
+        {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, Ok(()), "set_daita_settings response");
+                if settings_changed {
+                    self.parameters_generator
+                        .set_tunnel_options(&self.settings.tunnel_options)
+                        .await;
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
+                    self.relay_selector
+                        .set_config(new_selector_config(&self.settings));
+                    if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
+                        log::info!("Reconnecting because DAITA settings changed");
+                        self.reconnect_tunnel();
+                    }
+                }
+            }
+            Err(e) => {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_daita_settings response");
+            }
+        }
+    }
+
     async fn on_set_dns_options(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
@@ -2780,8 +2825,18 @@ impl DaemonShutdownHandle {
 }
 
 fn new_selector_config(settings: &Settings) -> SelectorConfig {
+    let additional_constraints = AdditionalRelayConstraints {
+        wireguard: AdditionalWireguardConstraints {
+            #[cfg(target_os = "windows")]
+            daita: settings.tunnel_options.wireguard.daita.enabled,
+            #[cfg(not(target_os = "windows"))]
+            daita: false,
+        },
+    };
+
     SelectorConfig {
         relay_settings: settings.relay_settings.clone(),
+        additional_constraints,
         bridge_state: settings.bridge_state,
         bridge_settings: settings.bridge_settings.clone(),
         obfuscation_settings: settings.obfuscation_settings.clone(),

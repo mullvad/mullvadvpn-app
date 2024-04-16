@@ -69,6 +69,7 @@ test('App should show connected tunnel state', async () => {
     protocol: 'tcp',
     quantumResistant: false,
     tunnelType: 'wireguard',
+    daita: false,
   };
   await util.sendMockIpcResponse<TunnelState>({
     channel: 'tunnel-',
