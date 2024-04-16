@@ -8,6 +8,7 @@ import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.lib.ipc.events
 import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomList
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.UpdateCustomListResult
@@ -20,8 +21,8 @@ class CustomListsRepository(
     private val settingsRepository: SettingsRepository,
     private val relayListListener: RelayListListener
 ) {
-    suspend fun createCustomList(name: String): CreateCustomListResult {
-        val result = messageHandler.trySendRequest(Request.CreateCustomList(name))
+    suspend fun createCustomList(name: CustomListName): CreateCustomListResult {
+        val result = messageHandler.trySendRequest(Request.CreateCustomList(name.value))
 
         return if (result) {
             messageHandler.events<Event.CreateCustomListResultEvent>().first().result
@@ -52,8 +53,8 @@ class CustomListsRepository(
                 ArrayList(locationCodes.mapNotNull { getGeographicLocationConstraintByCode(it) })
         )
 
-    suspend fun updateCustomListName(id: String, name: String): UpdateCustomListResult =
-        getCustomListById(id)?.let { updateCustomList(it.copy(name = name)) }
+    suspend fun updateCustomListName(id: String, name: CustomListName): UpdateCustomListResult =
+        getCustomListById(id)?.let { updateCustomList(it.copy(name = name.value)) }
             ?: UpdateCustomListResult.Error(CustomListsError.OtherError)
 
     private suspend fun updateCustomListLocations(

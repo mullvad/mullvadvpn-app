@@ -5,6 +5,7 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomList
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.UpdateCustomListResult
 import net.mullvad.mullvadvpn.relaylist.getRelayItemsByCodes
@@ -79,9 +80,9 @@ class CustomListActionUseCase(
         }
 
     fun performAction(action: CustomListAction.Delete): Result<CustomListResult.Deleted> {
-        val customList: CustomList? = customListsRepository.getCustomListById(action.customListId)
+        val customList: CustomList = customListsRepository.getCustomListById(action.customListId)!!
         val oldLocations = customList.locations()
-        val name = customList?.name ?: ""
+        val name = CustomListName.fromString(customList.name)
         customListsRepository.deleteCustomList(action.customListId)
         return Result.success(
             CustomListResult.Deleted(undo = action.not(locations = oldLocations, name = name))
@@ -91,9 +92,9 @@ class CustomListActionUseCase(
     suspend fun performAction(
         action: CustomListAction.UpdateLocations
     ): Result<CustomListResult.LocationsChanged> {
-        val customList: CustomList? = customListsRepository.getCustomListById(action.customListId)
+        val customList = customListsRepository.getCustomListById(action.customListId)!!
         val oldLocations = customList.locations()
-        val name = customList?.name ?: ""
+        val name = CustomListName.fromString(customList.name)
         customListsRepository.updateCustomListLocationsFromCodes(
             action.customListId,
             action.locations

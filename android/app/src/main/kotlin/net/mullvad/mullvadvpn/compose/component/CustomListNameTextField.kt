@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.CustomListsError
 
 @Composable
@@ -41,6 +42,7 @@ fun CustomListNameTextField(
         placeholderText = null,
         isValidValue = error == null,
         isDigitsOnlyAllowed = false,
+        maxCharLength = CustomListName.MAX_LENGTH,
         supportingText =
             error?.let {
                 {

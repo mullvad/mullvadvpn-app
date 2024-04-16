@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsException
@@ -38,7 +39,7 @@ class CreateCustomListDialogViewModel(
             customListActionUseCase
                 .performAction(
                     CustomListAction.Create(
-                        name,
+                        CustomListName.fromString(name),
                         if (locationCode.isNotEmpty()) {
                             listOf(locationCode)
                         } else {

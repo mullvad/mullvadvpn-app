@@ -1,13 +1,14 @@
 package net.mullvad.mullvadvpn.relaylist
 
 import net.mullvad.mullvadvpn.model.CustomList
+import net.mullvad.mullvadvpn.model.CustomListName
 
 private fun CustomList.toRelayItemCustomList(
     relayCountries: List<RelayItem.Country>
 ): RelayItem.CustomList =
     RelayItem.CustomList(
         id = this.id,
-        name = this.name,
+        customListName = CustomListName.fromString(name),
         expanded = false,
         locations =
             this.locations.mapNotNull {

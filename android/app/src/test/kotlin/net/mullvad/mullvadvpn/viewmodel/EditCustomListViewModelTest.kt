@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.EditCustomListState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -23,7 +24,12 @@ class EditCustomListViewModelTest {
         // Arrange
         val customListId = "2"
         val customList =
-            RelayItem.CustomList(id = "1", name = "test", expanded = false, locations = emptyList())
+            RelayItem.CustomList(
+                id = "1",
+                customListName = CustomListName.fromString("test"),
+                expanded = false,
+                locations = emptyList()
+            )
         every { mockRelayListUseCase.customLists() } returns flowOf(listOf(customList))
         val viewModel = createViewModel(customListId)
 
@@ -41,7 +47,7 @@ class EditCustomListViewModelTest {
         val customList =
             RelayItem.CustomList(
                 id = customListId,
-                name = "test",
+                customListName = CustomListName.fromString("test"),
                 expanded = false,
                 locations = emptyList()
             )
