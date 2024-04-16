@@ -95,7 +95,11 @@ function CustomBridgeForm() {
                     <SmallButton key="cancel" onClick={hideDeleteDialog}>
                       {messages.gettext('Cancel')}
                     </SmallButton>,
-                    <SmallButton key="delete" color={SmallButtonColor.red} onClick={onDelete}>
+                    <SmallButton
+                      key="delete"
+                      color={SmallButtonColor.red}
+                      onClick={onDelete}
+                      data-testid="delete-confirm">
                       {messages.gettext('Delete')}
                     </SmallButton>,
                   ]}
