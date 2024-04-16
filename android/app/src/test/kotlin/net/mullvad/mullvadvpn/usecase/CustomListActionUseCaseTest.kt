@@ -71,7 +71,7 @@ class CustomListActionUseCaseTest {
                 listOf(locationCode)
             )
         } returns UpdateCustomListResult.Ok
-        coEvery { mockRelayListUseCase.relayList() } returns flowOf(mockLocations)
+        coEvery { mockRelayListUseCase.fullRelayList() } returns flowOf(mockLocations)
         every { mockLocations.getRelayItemsByCodes(listOf(locationCode)) } returns mockLocations
 
         // Act
