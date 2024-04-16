@@ -46,6 +46,10 @@ Line wrap the file at 100 chars.                                              Th
 - Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
 - Add protection against some tapjacking vulnerabilities.
 
+### Fixed
+#### macOS
+- DNS was not properly restored in some cases when using custom DNS.
+
 
 ## [2024.2-beta1] - 2024-04-15
 ### Added
