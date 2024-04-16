@@ -25,6 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add custom bridge settings in GUI.
 
+### Fixed
+#### macOS
+- DNS was not properly restored in some cases when using custom DNS.
+
 
 ## [2024.2-beta1] - 2024-04-15
 ### Added
