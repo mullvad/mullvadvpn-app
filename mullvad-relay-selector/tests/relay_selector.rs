@@ -1211,16 +1211,10 @@ fn test_daita() {
         },
     };
 
-    let daita_supporting_relay = GeographicLocationConstraint::Hostname(
-        "se".to_owned(),
-        "got".to_owned(),
-        "se10-wireguard".to_owned(),
-    );
-    let nondaita_supporting_relay = GeographicLocationConstraint::Hostname(
-        "se".to_owned(),
-        "got".to_owned(),
-        "se9-wireguard".to_owned(),
-    );
+    let daita_supporting_relay =
+        GeographicLocationConstraint::hostname("se", "got", "se10-wireguard");
+    let nondaita_supporting_relay =
+        GeographicLocationConstraint::hostname("se", "got", "se9-wireguard");
 
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
 
