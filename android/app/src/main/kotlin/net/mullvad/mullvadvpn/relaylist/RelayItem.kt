@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.relaylist
 import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.Ownership
 
 sealed interface RelayItem {
     val name: String
@@ -66,6 +67,8 @@ sealed interface RelayItem {
         override val locationName: String,
         override val active: Boolean,
         val location: GeographicLocationConstraint.Hostname,
+        val providerName: String,
+        val ownership: Ownership,
     ) : RelayItem {
         override val code = name
         override val hasChildren = false
