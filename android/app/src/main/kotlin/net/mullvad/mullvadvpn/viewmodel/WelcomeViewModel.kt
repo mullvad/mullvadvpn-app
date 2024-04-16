@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
+import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
@@ -26,9 +27,9 @@ import net.mullvad.mullvadvpn.util.toPaymentState
 @OptIn(FlowPreview::class)
 class WelcomeViewModel(
     private val accountRepository: AccountRepository,
-    private val deviceRepository: DeviceRepository,
+    deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentUseCase,
-    private val connectionProxy: ConnectionProxy,
+    connectionProxy: ConnectionProxy,
     private val pollAccountExpiry: Boolean = true,
     private val isPlayBuild: Boolean
 ) : ViewModel() {
@@ -71,11 +72,9 @@ class WelcomeViewModel(
 
     fun onSitePaymentClick() {
         viewModelScope.launch {
-            _uiSideEffect.send(
-                UiSideEffect.OpenAccountView(
-                    TODO() // serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
-                )
-            )
+            accountRepository.getAccountToken()?.let { accountToken ->
+                _uiSideEffect.send(UiSideEffect.OpenAccountView(accountToken))
+            }
         }
     }
 
@@ -112,7 +111,7 @@ class WelcomeViewModel(
     }
 
     sealed interface UiSideEffect {
-        data class OpenAccountView(val token: String) : UiSideEffect
+        data class OpenAccountView(val token: AccountToken) : UiSideEffect
 
         data object OpenConnectScreen : UiSideEffect
     }

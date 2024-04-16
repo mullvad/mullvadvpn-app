@@ -133,7 +133,7 @@ fun Welcome(
         uiSideEffect ->
         when (uiSideEffect) {
             is WelcomeViewModel.UiSideEffect.OpenAccountView ->
-                context.openAccountPageInBrowser(uiSideEffect.token)
+                context.openAccountPageInBrowser(uiSideEffect.token.value)
             WelcomeViewModel.UiSideEffect.OpenConnectScreen ->
                 navigator.navigate(ConnectDestination) {
                     launchSingleTop = true
