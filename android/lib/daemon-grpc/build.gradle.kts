@@ -4,7 +4,7 @@ plugins {
     id(Dependencies.Plugin.androidLibraryId)
     id(Dependencies.Plugin.kotlinAndroidId)
     id(Dependencies.Plugin.kotlinParcelizeId)
-    id("com.google.protobuf") version "0.9.4"
+    id(Dependencies.Plugin.protobufId) version Versions.Plugin.protobuf
 }
 
 android {
