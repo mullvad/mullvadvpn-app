@@ -20,9 +20,8 @@ class LocationCell: UITableViewCell {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16)
         label.textColor = .white
-        label.lineBreakMode = .byWordWrapping
-        label.numberOfLines = 0
-        label.lineBreakStrategy = []
+        label.lineBreakMode = .byTruncatingTail
+        label.numberOfLines = 1
         return label
     }()
 
