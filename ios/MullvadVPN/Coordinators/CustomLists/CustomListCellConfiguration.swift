@@ -75,6 +75,7 @@ struct CustomListCellConfiguration {
         contentConfiguration.setPlaceholder(type: .required)
         contentConfiguration.textFieldProperties = .withSmartFeaturesDisabled()
         contentConfiguration.inputText = subject.value.name
+        contentConfiguration.maxLength = 30
         contentConfiguration.editingEvents.onChange = subject.bindTextAction(to: \.name)
 
         cell.contentConfiguration = contentConfiguration
