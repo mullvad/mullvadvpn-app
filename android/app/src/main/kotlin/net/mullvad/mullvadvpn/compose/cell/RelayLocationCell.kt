@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.R
@@ -296,7 +297,9 @@ private fun Name(modifier: Modifier = Modifier, relay: RelayItem) {
                         AlphaInactive
                     }
                 )
-                .padding(horizontal = Dimens.smallPadding, vertical = Dimens.mediumPadding)
+                .padding(horizontal = Dimens.smallPadding, vertical = Dimens.mediumPadding),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
     )
 }
 

@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -33,13 +34,17 @@ fun TwoRowCell(
                     modifier = Modifier.fillMaxWidth(),
                     text = titleText,
                     style = MaterialTheme.typography.labelLarge,
-                    color = titleColor
+                    color = titleColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = subtitleText,
                     style = MaterialTheme.typography.labelLarge,
-                    color = subtitleColor
+                    color = subtitleColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         },
