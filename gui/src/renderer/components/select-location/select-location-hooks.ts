@@ -121,6 +121,7 @@ export function useOnSelectBridgeLocation() {
         case SpecialBridgeLocationType.closestToExit:
           return setLocation(
             bridgeSettingsModifier((bridgeSettings) => {
+              bridgeSettings.type = 'normal';
               bridgeSettings.normal.location = 'any';
               return bridgeSettings;
             }),
