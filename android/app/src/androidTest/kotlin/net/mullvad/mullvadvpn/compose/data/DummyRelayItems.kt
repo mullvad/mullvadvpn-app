@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.data
 
-import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.RelayEndpointData
@@ -43,7 +42,7 @@ val DUMMY_RELAY_COUNTRIES =
             arrayListOf(DUMMY_RELAY_COUNTRY_1, DUMMY_RELAY_COUNTRY_2),
             DUMMY_WIREGUARD_ENDPOINT_DATA,
         )
-        .toRelayCountries(ownership = Constraint.Any(), providers = Constraint.Any())
+        .toRelayCountries()
 
 val DUMMY_CUSTOM_LISTS =
     listOf(
