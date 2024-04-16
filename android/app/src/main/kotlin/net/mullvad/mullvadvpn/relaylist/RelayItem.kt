@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.relaylist
 
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 
@@ -15,11 +16,12 @@ sealed interface RelayItem {
     val expanded: Boolean
 
     data class CustomList(
-        override val name: String,
+        val customListName: CustomListName,
         override val expanded: Boolean,
         val id: String,
         val locations: List<RelayItem>,
     ) : RelayItem {
+        override val name: String = customListName.value
         override val active
             get() = locations.any { location -> location.active }
 

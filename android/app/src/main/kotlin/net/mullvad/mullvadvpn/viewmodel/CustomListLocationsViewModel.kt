@@ -28,8 +28,6 @@ class CustomListLocationsViewModel(
     private val relayListUseCase: RelayListUseCase,
     private val customListActionUseCase: CustomListActionUseCase
 ) : ViewModel() {
-    private var customListName: String = ""
-
     private val _uiSideEffect =
         MutableSharedFlow<CustomListLocationsSideEffect>(replay = 1, extraBufferCapacity = 1)
     val uiSideEffect: SharedFlow<CustomListLocationsSideEffect> = _uiSideEffect
@@ -195,11 +193,9 @@ class CustomListLocationsViewModel(
 
     private suspend fun fetchInitialSelectedLocations() {
         _selectedLocations.value =
-            awaitCustomListById(customListId)
-                ?.apply { customListName = name }
-                ?.locations
-                ?.selectChildren()
-                .apply { _initialLocations.value = this ?: emptySet() }
+            awaitCustomListById(customListId)?.locations?.selectChildren().apply {
+                _initialLocations.value = this ?: emptySet()
+            }
     }
 
     companion object {

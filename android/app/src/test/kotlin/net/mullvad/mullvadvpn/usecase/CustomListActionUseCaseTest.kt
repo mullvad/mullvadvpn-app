@@ -11,6 +11,7 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomList
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.UpdateCustomListResult
@@ -40,7 +41,7 @@ class CustomListActionUseCaseTest {
     @Test
     fun `create action should return success when ok`() = runTest {
         // Arrange
-        val name = "test"
+        val name = CustomListName.fromString("test")
         val locationCode = "AB"
         val locationName = "Acklaba"
         val createdId = "1"
@@ -83,7 +84,7 @@ class CustomListActionUseCaseTest {
     @Test
     fun `create action should return error when name already exists`() = runTest {
         // Arrange
-        val name = "test"
+        val name = CustomListName.fromString("test")
         val locationCode = "AB"
         val action = CustomListAction.Create(name = name, locations = listOf(locationCode))
         val expectedError = CustomListsError.CustomListExists
@@ -103,8 +104,8 @@ class CustomListActionUseCaseTest {
     @Test
     fun `rename action should return success when ok`() = runTest {
         // Arrange
-        val name = "test"
-        val newName = "test2"
+        val name = CustomListName.fromString("test")
+        val newName = CustomListName.fromString("test2")
         val customListId = "1"
         val action =
             CustomListAction.Rename(customListId = customListId, name = name, newName = newName)
@@ -123,8 +124,8 @@ class CustomListActionUseCaseTest {
     @Test
     fun `rename action should return error when name already exists`() = runTest {
         // Arrange
-        val name = "test"
-        val newName = "test2"
+        val name = CustomListName.fromString("test")
+        val newName = CustomListName.fromString("test2")
         val customListId = "1"
         val action =
             CustomListAction.Rename(customListId = customListId, name = name, newName = newName)
@@ -149,7 +150,7 @@ class CustomListActionUseCaseTest {
         val mockCustomList: CustomList = mockk()
         val mockLocation: GeographicLocationConstraint.Country = mockk()
         val mockLocations: ArrayList<GeographicLocationConstraint> = arrayListOf(mockLocation)
-        val name = "test"
+        val name = CustomListName.fromString("test")
         val customListId = "1"
         val locationCode = "AB"
         val action = CustomListAction.Delete(customListId = customListId)
@@ -160,7 +161,7 @@ class CustomListActionUseCaseTest {
                 )
             )
         every { mockCustomList.locations } returns mockLocations
-        every { mockCustomList.name } returns name
+        every { mockCustomList.name } returns name.value
         every { mockLocation.countryCode } returns locationCode
         coEvery { mockCustomListsRepository.deleteCustomList(id = customListId) } returns true
         every { mockCustomListsRepository.getCustomListById(customListId) } returns mockCustomList
@@ -175,7 +176,7 @@ class CustomListActionUseCaseTest {
     @Test
     fun `update locations action should return success with changed locations`() = runTest {
         // Arrange
-        val name = "test"
+        val name = CustomListName.fromString("test")
         val oldLocationCodes = listOf("AB", "CD")
         val newLocationCodes = listOf("EF", "GH")
         val oldLocations: ArrayList<GeographicLocationConstraint> =
@@ -184,7 +185,7 @@ class CustomListActionUseCaseTest {
                 GeographicLocationConstraint.Country("CD")
             )
         val customListId = "1"
-        val customList = CustomList(id = customListId, name = name, locations = oldLocations)
+        val customList = CustomList(id = customListId, name = name.value, locations = oldLocations)
         val action =
             CustomListAction.UpdateLocations(
                 customListId = customListId,

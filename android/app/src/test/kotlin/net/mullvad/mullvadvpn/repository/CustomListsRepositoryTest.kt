@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.lib.ipc.events
 import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomList
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.RelayList
@@ -94,7 +95,8 @@ class CustomListsRepositoryTest {
             flowOf(Event.CreateCustomListResultEvent(expectedResult))
 
         // Act
-        val result = customListsRepository.createCustomList(customListName)
+        val result =
+            customListsRepository.createCustomList(CustomListName.fromString(customListName))
 
         // Assert
         assertEquals(expectedResult, result)
@@ -113,7 +115,8 @@ class CustomListsRepositoryTest {
                 flowOf(Event.CreateCustomListResultEvent(expectedResult))
 
             // Act
-            val result = customListsRepository.createCustomList(customListName)
+            val result =
+                customListsRepository.createCustomList(CustomListName.fromString(customListName))
 
             // Assert
             assertEquals(expectedResult, result)
@@ -139,7 +142,11 @@ class CustomListsRepositoryTest {
         every { mockSettings.customLists.customLists } returns arrayListOf(mockCustomList)
 
         // Act
-        val result = customListsRepository.updateCustomListName(customListId, customListName)
+        val result =
+            customListsRepository.updateCustomListName(
+                customListId,
+                CustomListName.fromString(customListName)
+            )
 
         // Assert
         assertEquals(expectedResult, result)
@@ -167,7 +174,11 @@ class CustomListsRepositoryTest {
             every { mockSettings.customLists.customLists } returns arrayListOf(mockCustomList)
 
             // Act
-            val result = customListsRepository.updateCustomListName(customListId, customListName)
+            val result =
+                customListsRepository.updateCustomListName(
+                    customListId,
+                    CustomListName.fromString(customListName)
+                )
 
             // Assert
             assertEquals(expectedResult, result)

@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.data
 
 import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.RelayEndpointData
 import net.mullvad.mullvadvpn.model.RelayList
@@ -46,6 +47,16 @@ val DUMMY_RELAY_COUNTRIES =
 
 val DUMMY_CUSTOM_LISTS =
     listOf(
-        RelayItem.CustomList("First list", false, "1", locations = DUMMY_RELAY_COUNTRIES),
-        RelayItem.CustomList("Empty list", expanded = false, "2", locations = emptyList())
+        RelayItem.CustomList(
+            CustomListName.fromString("First list"),
+            false,
+            "1",
+            locations = DUMMY_RELAY_COUNTRIES
+        ),
+        RelayItem.CustomList(
+            CustomListName.fromString("Empty list"),
+            expanded = false,
+            "2",
+            locations = emptyList()
+        )
     )

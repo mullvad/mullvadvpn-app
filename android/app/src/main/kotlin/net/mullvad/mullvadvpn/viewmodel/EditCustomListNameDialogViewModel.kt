@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsException
@@ -44,8 +45,8 @@ class EditCustomListNameDialogViewModel(
                 .performAction(
                     CustomListAction.Rename(
                         customListId = customListId,
-                        name = initialName,
-                        newName = name
+                        name = CustomListName.fromString(initialName),
+                        newName = CustomListName.fromString(name)
                     )
                 )
                 .fold(
