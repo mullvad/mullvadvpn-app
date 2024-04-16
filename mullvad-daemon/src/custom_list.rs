@@ -14,22 +14,11 @@ where
     ///
     /// Returns an error if the name is not unique.
     pub async fn create_custom_list(&mut self, name: String) -> Result<Id, crate::Error> {
-        if self
-            .settings
-            .custom_lists
-            .iter()
-            .any(|list| list.name == name)
-        {
-            return Err(Error::CustomListExists);
-        }
-
-        let new_list = CustomList::new(name);
+        let new_list = CustomList::new(name).map_err(crate::Error::CustomListError)?;
         let id = new_list.id;
 
         self.settings
-            .update(|settings| {
-                settings.custom_lists.add(new_list);
-            })
+            .try_update(|settings| settings.custom_lists.add(new_list))
             .await
             .map_err(Error::SettingsError)?;
 
@@ -40,20 +29,12 @@ where
     ///
     /// Returns an error if the list doesn't exist.
     pub async fn delete_custom_list(&mut self, id: Id) -> Result<(), Error> {
-        let Some(list_index) = self
-            .settings
-            .custom_lists
-            .iter()
-            .position(|elem| elem.id == id)
-        else {
-            return Err(Error::CustomListNotFound);
-        };
         let settings_changed = self
             .settings
-            .update(|settings| {
+            .try_update(|settings| {
                 // NOTE: Not using swap remove because it would make user output slightly
                 // more confusing and the cost is so small.
-                settings.custom_lists.remove(list_index);
+                settings.custom_lists.remove(&id)
             })
             .await
             .map_err(Error::SettingsError);
@@ -78,32 +59,10 @@ where
     /// - there is no existing list with the same ID,
     /// - or the existing list has a different name.
     pub async fn update_custom_list(&mut self, new_list: CustomList) -> Result<(), Error> {
-        let Some((list_index, old_list)) = self
-            .settings
-            .custom_lists
-            .iter()
-            .enumerate()
-            .find(|elem| elem.1.id == new_list.id)
-        else {
-            return Err(Error::CustomListNotFound);
-        };
-        let id = old_list.id;
-
-        if old_list.name != new_list.name
-            && self
-                .settings
-                .custom_lists
-                .iter()
-                .any(|list| list.name == new_list.name)
-        {
-            return Err(Error::CustomListExists);
-        }
-
+        let list_id = new_list.id;
         let settings_changed = self
             .settings
-            .update(|settings| {
-                settings.custom_lists[list_index] = new_list;
-            })
+            .try_update(|settings| settings.custom_lists.update(new_list))
             .await
             .map_err(Error::SettingsError);
 
@@ -111,7 +70,7 @@ where
             self.relay_selector
                 .set_config(new_selector_config(&self.settings));
 
-            if self.change_should_cause_reconnect(Some(id)) {
+            if self.change_should_cause_reconnect(Some(list_id)) {
                 log::info!("Initiating tunnel restart because a selected custom list changed");
                 self.reconnect_tunnel();
             }
