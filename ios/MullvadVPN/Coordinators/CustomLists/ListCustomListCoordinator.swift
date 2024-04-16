@@ -65,6 +65,12 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
             self.updateRelayConstraints(for: action, in: list)
         }
 
+        coordinator.didCancel = { [weak self] editCustomListCoordinator in
+            guard let self else { return }
+            popToList()
+            editCustomListCoordinator.removeFromParent()
+        }
+
         coordinator.start()
         addChild(coordinator)
     }
@@ -84,6 +90,14 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
                     customListSelection: UserSelectedRelays.CustomListSelection(listId: list.id, isList: true)
                 )
                 relayConstraints.locations = .only(selectedRelays)
+            } else {
+                let selectedConstraintIsRemovedFromList = list.locations.filter {
+                    relayConstraints.locations.value?.locations.contains($0) ?? false
+                }.isEmpty
+
+                if selectedConstraintIsRemovedFromList {
+                    relayConstraints.locations = .only(UserSelectedRelays(locations: []))
+                }
             }
         case .delete:
             relayConstraints.locations = .only(UserSelectedRelays(locations: []))

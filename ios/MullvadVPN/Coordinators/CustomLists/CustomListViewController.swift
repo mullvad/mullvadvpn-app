@@ -27,6 +27,14 @@ class CustomListViewController: UIViewController {
     private let alertPresenter: AlertPresenter
     private var validationErrors: Set<CustomListFieldValidationError> = []
 
+    private var persistedCustomList: CustomList? {
+        return interactor.fetchAll().first(where: { $0.id == subject.value.id })
+    }
+
+    var hasUnsavedChanges: Bool {
+        persistedCustomList != subject.value.customList
+    }
+
     private lazy var cellConfiguration: CustomListCellConfiguration = {
         CustomListCellConfiguration(tableView: tableView, subject: subject)
     }()
@@ -75,12 +83,12 @@ class CustomListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        navigationItem.rightBarButtonItem = saveBarButton
         view.directionalLayoutMargins = UIMetrics.contentLayoutMargins
         view.backgroundColor = .secondaryColor
         isModalInPresentation = true
 
         addSubviews()
-        configureNavigationItem()
         configureDataSource()
         configureTableView()
 
@@ -88,10 +96,6 @@ class CustomListViewController: UIViewController {
             self?.saveBarButton.isEnabled = !viewModel.name.isEmpty
             self?.validationErrors.removeAll()
         }.store(in: &cancellables)
-    }
-
-    private func configureNavigationItem() {
-        navigationItem.rightBarButtonItem = saveBarButton
     }
 
     private func configureTableView() {

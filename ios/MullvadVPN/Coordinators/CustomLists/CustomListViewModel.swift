@@ -18,4 +18,9 @@ struct CustomListViewModel {
     var customList: CustomList {
         CustomList(id: id, name: name, locations: locations)
     }
+
+    mutating func update(with list: CustomList) {
+        name = list.name
+        locations = list.locations
+    }
 }
