@@ -1,4 +1,8 @@
-use super::{config::TEST_CONFIG, helpers, Error, TestContext};
+use super::{
+    config::TEST_CONFIG,
+    helpers::{self, ensure_logged_in},
+    Error, TestContext,
+};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use std::{
@@ -125,7 +129,7 @@ pub async fn test_ui_login(_: TestContext, rpc: ServiceClient) -> Result<(), Err
     Ok(())
 }
 
-#[test_function(priority = 1000, must_succeed = true)]
+#[test_function(priority = 1000)]
 async fn test_custom_access_methods_gui(
     _: TestContext,
     rpc: ServiceClient,
@@ -188,6 +192,78 @@ async fn test_custom_access_methods_gui(
             (
                 "SHADOWSOCKS_SERVER_PASSWORD",
                 access_method.password.as_ref(),
+            ),
+        ],
+    )
+    .await
+    .unwrap();
+
+    assert!(ui_result.success());
+
+    // Reset the `api-override` feature.
+    tokio::time::timeout(
+        std::time::Duration::from_secs(60),
+        rpc.set_daemon_environment(helpers::get_app_env()),
+    )
+    .await
+    .map_err(|_| Error::DaemonNotRunning)??;
+
+    Ok(())
+}
+
+#[test_function(priority = 1000)]
+async fn test_custom_bridge_gui(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> Result<(), Error> {
+    use mullvad_relay_selector::{RelaySelector, SelectorConfig};
+    use talpid_types::net::proxy::CustomProxy;
+    // For this test to work, we need to supply the following env-variables:
+    //
+    // * SHADOWSOCKS_SERVER_IP
+    // * SHADOWSOCKS_SERVER_PORT
+    // * SHADOWSOCKS_SERVER_CIPHER
+    // * SHADOWSOCKS_SERVER_PASSWORD
+    //
+    // See `gui/test/e2e/installed/state-dependent/custom-bridge.spec.ts`
+    // for details. The setup should be the same as in
+    // `test_manager::tests::access_methods::test_shadowsocks`.
+    //
+    // # Note
+    // The test requires the app to already be logged in.
+
+    ensure_logged_in(&mut mullvad_client)
+        .await
+        .expect("ensure_logged_in failed");
+
+    let gui_test = "custom-bridge.spec";
+    let relay_list = mullvad_client.get_relay_locations().await.unwrap();
+    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
+    let custom_proxy = relay_selector
+        .get_bridge_forced()
+        .and_then(|proxy| match proxy {
+            CustomProxy::Shadowsocks(s) => Some(s),
+            _ => None
+        })
+        .expect("`test_shadowsocks` needs at least one shadowsocks relay to execute. Found none in relay list.");
+
+    let ui_result = run_test_env(
+        &rpc,
+        &[gui_test],
+        [
+            (
+                "SHADOWSOCKS_SERVER_IP",
+                custom_proxy.endpoint.ip().to_string().as_ref(),
+            ),
+            (
+                "SHADOWSOCKS_SERVER_PORT",
+                custom_proxy.endpoint.port().to_string().as_ref(),
+            ),
+            ("SHADOWSOCKS_SERVER_CIPHER", custom_proxy.cipher.as_ref()),
+            (
+                "SHADOWSOCKS_SERVER_PASSWORD",
+                custom_proxy.password.as_ref(),
             ),
         ],
     )
