@@ -173,12 +173,8 @@ pub enum Error {
     TunnelError(#[source] tunnel_state_machine::Error),
 
     /// Custom list already exists
-    #[error("A list with that name already exists")]
-    CustomListExists,
-
-    /// Custom list does not exist
-    #[error("A list with that name does not exist")]
-    CustomListNotFound,
+    #[error("Custom list error: {0}")]
+    CustomListError(#[source] mullvad_types::custom_list::Error),
 
     #[error("Access method error")]
     AccessMethodError(#[source] access_method::Error),
