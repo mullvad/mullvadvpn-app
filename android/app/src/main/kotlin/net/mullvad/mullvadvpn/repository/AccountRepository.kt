@@ -71,4 +71,11 @@ class AccountRepository(
         }
         return accountData
     }
+
+    fun getAccountToken(): AccountToken? {
+        return when (val deviceState = accountState.value) {
+            is DeviceState.LoggedIn -> deviceState.accountToken
+            else -> null
+        }
+    }
 }
