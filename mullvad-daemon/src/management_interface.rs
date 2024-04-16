@@ -1115,16 +1115,6 @@ fn map_daemon_error(error: crate::Error) -> Status {
         DaemonError::NoAccountToken | DaemonError::NoAccountTokenHistory => {
             Status::unauthenticated(error.to_string())
         }
-        DaemonError::CustomListExists => Status::with_details(
-            Code::AlreadyExists,
-            error.to_string(),
-            mullvad_management_interface::CUSTOM_LIST_LIST_EXISTS_DETAILS.into(),
-        ),
-        DaemonError::CustomListNotFound => Status::with_details(
-            Code::NotFound,
-            error.to_string(),
-            mullvad_management_interface::CUSTOM_LIST_LIST_NOT_FOUND_DETAILS.into(),
-        ),
         error => Status::unknown(error.to_string()),
     }
 }

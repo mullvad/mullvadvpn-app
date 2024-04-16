@@ -174,11 +174,7 @@ pub enum Error {
 
     /// Custom list already exists
     #[error("A list with that name already exists")]
-    CustomListExists,
-
-    /// Custom list does not exist
-    #[error("A list with that name does not exist")]
-    CustomListNotFound,
+    CustomListError(#[source] mullvad_types::custom_list::Error),
 
     #[error("Access method error")]
     AccessMethodError(#[source] access_method::Error),
