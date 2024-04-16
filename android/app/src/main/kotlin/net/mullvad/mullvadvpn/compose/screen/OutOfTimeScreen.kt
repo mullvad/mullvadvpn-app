@@ -139,7 +139,7 @@ fun OutOfTime(
     CollectSideEffectWithLifecycle(vm.uiSideEffect, Lifecycle.State.RESUMED) { uiSideEffect ->
         when (uiSideEffect) {
             is OutOfTimeViewModel.UiSideEffect.OpenAccountView ->
-                openAccountPage(uiSideEffect.token)
+                openAccountPage(uiSideEffect.token.value)
             OutOfTimeViewModel.UiSideEffect.OpenConnectScreen ->
                 navigator.navigate(ConnectDestination) {
                     launchSingleTop = true
