@@ -748,7 +748,7 @@ impl RelaySelector {
         // step.
         let mut exit_relay_query = query.clone();
         // DAITA should only be enabled for the entry relay
-        exit_relay_query.wireguard_constraints.daita = Constraint::Any;
+        exit_relay_query.wireguard_constraints.daita = Constraint::Only(false);
         let exit_candidates = filter_matching_relay_list(
             &exit_relay_query,
             parsed_relays.relays(),
