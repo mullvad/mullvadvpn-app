@@ -117,7 +117,7 @@ impl State {
         let prev_state = mem::take(&mut self.backup);
         let desired_set = desired_settings.address_set();
 
-        self.backup = Self::merge_states(&actual_state, &prev_state, desired_set);
+        self.backup = Self::merge_states(actual_state, &prev_state, desired_set);
     }
 
     /// Merge `new_state` set by the OS with a previous `prev_state`, but ignore any service whose
@@ -176,7 +176,7 @@ impl State {
                 Some(settings) if settings.address_set() == desired_set => (),
                 // Apply desired state to service
                 _ => {
-                    let path_cf = CFString::new(&path);
+                    let path_cf = CFString::new(path);
                     if let Err(e) = desired_settings.save(store, path_cf) {
                         log::error!("Failed changing DNS for {}: {}", path, e);
                     }
