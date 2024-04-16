@@ -442,6 +442,7 @@ impl VersionUpdater {
                                 if !self.is_running_version_check() {
                                     version_check = self.do_version_check().fuse();
                                 }
+                                self.get_version_info_responders.retain(|r| !r.is_canceled());
                                 self.get_version_info_responders.push(done_tx);
                             }
                         }
