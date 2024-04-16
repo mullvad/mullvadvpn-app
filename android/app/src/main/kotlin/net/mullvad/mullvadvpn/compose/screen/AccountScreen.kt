@@ -173,7 +173,7 @@ fun AccountScreen(
         when (sideEffect) {
             AccountViewModel.UiSideEffect.NavigateToLogin -> navigateToLogin()
             is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
-                context.openAccountPageInBrowser(sideEffect.token)
+                context.openAccountPageInBrowser(sideEffect.token.value)
             is AccountViewModel.UiSideEffect.CopyAccountNumber ->
                 launch { copyToClipboard(sideEffect.accountNumber, copyTextString) }
         }

@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
+import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.RelayItem
@@ -37,9 +38,9 @@ import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 @OptIn(FlowPreview::class)
 class ConnectViewModel(
-    accountRepository: AccountRepository,
+    private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
-    private val inAppNotificationController: InAppNotificationController,
+    inAppNotificationController: InAppNotificationController,
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
     private val selectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase,
     private val outOfTimeUseCase: OutOfTimeUseCase,
@@ -146,11 +147,9 @@ class ConnectViewModel(
 
     fun onManageAccountClick() {
         viewModelScope.launch {
-            _uiSideEffect.trySend(
-                UiSideEffect.OpenAccountManagementPageInBrowser(
-                    TODO() // serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
-                )
-            )
+            accountRepository.getAccountToken()?.let { accountToken ->
+                _uiSideEffect.send(UiSideEffect.OpenAccountManagementPageInBrowser(accountToken))
+            }
         }
     }
 
@@ -167,7 +166,7 @@ class ConnectViewModel(
         }
 
     sealed interface UiSideEffect {
-        data class OpenAccountManagementPageInBrowser(val token: String) : UiSideEffect
+        data class OpenAccountManagementPageInBrowser(val token: AccountToken) : UiSideEffect
 
         data object OutOfTime : UiSideEffect
 

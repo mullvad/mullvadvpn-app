@@ -119,7 +119,7 @@ fun Connect(navigator: DestinationsNavigator) {
     ) { sideEffect ->
         when (sideEffect) {
             is ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser -> {
-                context.openAccountPageInBrowser(sideEffect.token)
+                context.openAccountPageInBrowser(sideEffect.token.value)
             }
             is ConnectViewModel.UiSideEffect.OutOfTime ->
                 navigator.navigate(OutOfTimeDestination, true) {
