@@ -28,6 +28,7 @@ static MULLVAD_MANAGEMENT_SOCKET_GROUP: Lazy<Option<String>> =
 
 pub const CUSTOM_LIST_LIST_NOT_FOUND_DETAILS: &[u8] = b"custom_list_list_not_found";
 pub const CUSTOM_LIST_LIST_EXISTS_DETAILS: &[u8] = b"custom_list_list_exists";
+pub const CUSTOM_LIST_LIST_NAME_TOO_LONG_DETAILS: &[u8] = b"custom_list_list_name_too_long";
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
