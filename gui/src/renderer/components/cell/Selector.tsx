@@ -16,6 +16,8 @@ export interface SelectorItem<T> {
   label: string;
   value: T;
   disabled?: boolean;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  'data-testid'?: string;
 }
 
 // T represents the available values and U represent the value of "Automatic"/"Any" if there is one.
@@ -51,7 +53,8 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
         isSelected={selected}
         disabled={props.disabled || item.disabled}
         forwardedRef={ref}
-        onSelect={props.onSelect}>
+        onSelect={props.onSelect}
+        data-testid={item['data-testid']}>
         {item.label}
       </SelectorCell>
     );
@@ -133,6 +136,8 @@ interface SelectorCellProps<T> {
   onSelect: (value: T) => void;
   children: React.ReactNode | Array<React.ReactNode>;
   forwardedRef?: React.Ref<HTMLButtonElement>;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  'data-testid'?: string;
 }
 
 function SelectorCell<T>(props: SelectorCellProps<T>) {
@@ -150,7 +155,8 @@ function SelectorCell<T>(props: SelectorCellProps<T>) {
       disabled={props.disabled}
       role="option"
       aria-selected={props.isSelected}
-      aria-disabled={props.disabled}>
+      aria-disabled={props.disabled}
+      data-testid={props['data-testid']}>
       <StyledCellIcon
         $visible={props.isSelected}
         source="icon-tick"

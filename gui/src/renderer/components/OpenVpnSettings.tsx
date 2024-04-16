@@ -269,6 +269,7 @@ function BridgeModeSelector() {
         label: messages.gettext('On'),
         value: 'on',
         disabled: tunnelProtocol !== 'openvpn' || transportProtocol === 'udp',
+        'data-testid': 'bridge-mode-on',
       },
       {
         label: messages.gettext('Off'),
@@ -367,7 +368,7 @@ function BridgeModeSelector() {
           <SmallButton key="cancel" onClick={hideConfirmationDialog}>
             {messages.gettext('Cancel')}
           </SmallButton>,
-          <SmallButton key="confirm" onClick={confirmBridgeState}>
+          <SmallButton key="confirm" onClick={confirmBridgeState} data-testid="enable-confirm">
             {messages.gettext('Enable')}
           </SmallButton>,
         ]}
