@@ -54,36 +54,6 @@ android {
     buildFeatures { buildConfig = true }
 }
 
-/*
-protobuf {
-    // Configure the protoc executable
-    protoc {
-        // Download from repositories
-        // artifact("com.google.protobuf:protoc:3.0.0")
-    }
-    plugins {
-        create("java") { artifact = "io.grpc:protoc-gen-grpc-java:1.57.2" }
-        create("grpc") { artifact = "io.grpc:protoc-gen-grpc-java:1.57.2" }
-        create("kotlin") { artifact = "io.grpc:protoc-gen-grpc-kotlin:1.4.0:jdk8@jar" }
-    }
-
-    generateProtoTasks {
-        all().forEach {
-            it.plugins {
-                create("java") { option("lite") }
-                create("grpc") { option("lite") }
-                create("kotlin") { option("lite") }
-            }
-            /*it.builtins {
-                create("kotlin") {
-                    option("lite")
-                }
-            }*/
-        }
-    }
-}
-*/
-
 dependencies {
     implementation(project(Dependencies.Mullvad.commonLib))
     implementation(project(Dependencies.Mullvad.endpointLib))
@@ -97,4 +67,5 @@ dependencies {
     implementation(Dependencies.Koin.android)
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
+    implementation(Dependencies.Arrow.core)
 }

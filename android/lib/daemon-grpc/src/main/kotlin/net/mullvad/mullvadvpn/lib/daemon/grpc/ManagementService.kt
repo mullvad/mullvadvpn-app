@@ -37,6 +37,7 @@ import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.AppVersionInfo as ModelAppVersionInfo
 import net.mullvad.mullvadvpn.model.ClearAllOverridesError
+import net.mullvad.mullvadvpn.model.ConnectError
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.CreateAccountError
 import net.mullvad.mullvadvpn.model.CreateCustomListError
@@ -109,8 +110,7 @@ class ManagementService(
     )
 
     private val channel =
-        UdsChannelBuilder.forPath(rpcSocketPath, LocalSocketAddress.Namespace.FILESYSTEM)
-            .build()
+        UdsChannelBuilder.forPath(rpcSocketPath, LocalSocketAddress.Namespace.FILESYSTEM).build()
 
     val connectionState: StateFlow<GrpcConnectivityState> =
         channel
@@ -149,7 +149,7 @@ class ManagementService(
         scope.launch {
             try {
                 grpc.eventsListen(Empty.getDefaultInstance()).collect { event ->
-                    //    Log.d("ManagementService", "Event: $event")
+                    Log.d("ManagementService", "Event: $event")
                     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
                     when (event.eventCase) {
                         ManagementInterface.DaemonEvent.EventCase.TUNNEL_STATE ->
@@ -212,7 +212,9 @@ class ManagementService(
     suspend fun getTunnelState(): ModelTunnelState =
         grpc.getTunnelState(Empty.getDefaultInstance()).toDomain()
 
-    suspend fun connect(): Boolean = grpc.connectTunnel(Empty.getDefaultInstance()).value
+    suspend fun connect(): Either<ConnectError, Boolean> =
+        Either.catch { grpc.connectTunnel(Empty.getDefaultInstance()).value }
+            .mapLeft(ConnectError::Unknown)
 
     suspend fun disconnect(): Boolean = grpc.disconnectTunnel(Empty.getDefaultInstance()).value
 

@@ -101,9 +101,11 @@ class MullvadVpnService : TalpidVpnService() {
         // notificationManager.updateNotification()
 
         // Service was started from system, e.g Always-on VPN enabled
-        if (intent?.action == SERVICE_INTERFACE) {
+        if (intent?.action == SERVICE_INTERFACE || intent?.action == KEY_CONNECT_ACTION) {
             notificationManager.showOnForeground()
             runBlocking { managementService.connect() }
+        } else {
+            runBlocking { managementService.disconnect() }
         }
 
         //        if (!keyguardManager.isDeviceLocked) {

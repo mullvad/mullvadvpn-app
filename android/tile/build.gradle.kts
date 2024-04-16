@@ -29,6 +29,7 @@ dependencies {
     implementation(project(Dependencies.Mullvad.modelLib))
     implementation(project(Dependencies.Mullvad.resourceLib))
     implementation(project(Dependencies.Mullvad.talpidLib))
+    implementation(project(Dependencies.Mullvad.daemonGrpc))
 
     implementation(Dependencies.AndroidX.appcompat)
     implementation(Dependencies.Kotlin.stdlib)
