@@ -49,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import kotlinx.coroutines.launch
@@ -119,6 +120,7 @@ private fun PreviewSelectLocationScreen() {
 @Composable
 fun SelectLocation(
     navigator: DestinationsNavigator,
+    backNavigator: ResultBackNavigator<Boolean>,
     createCustomListDialogResultRecipient:
         ResultRecipient<CreateCustomListDestination, CustomListResult.Created>,
     editCustomListNameDialogResultRecipient:
@@ -136,8 +138,8 @@ fun SelectLocation(
 
     LaunchedEffectCollect(vm.uiSideEffect) {
         when (it) {
-            SelectLocationSideEffect.CloseScreen -> navigator.navigateUp()
-            is SelectLocationSideEffect.LocationAddedToCustomList ->
+            SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true)
+            is SelectLocationSideEffect.LocationAddedToCustomList -> {
                 launch {
                     snackbarHostState.showResultSnackbar(
                         context = context,
@@ -145,7 +147,8 @@ fun SelectLocation(
                         onUndo = vm::performAction
                     )
                 }
-            is SelectLocationSideEffect.LocationRemovedFromCustomList ->
+            }
+            is SelectLocationSideEffect.LocationRemovedFromCustomList -> {
                 launch {
                     snackbarHostState.showResultSnackbar(
                         context = context,
@@ -229,9 +232,11 @@ fun SelectLocationScreen(
     onEditCustomLists: () -> Unit = {},
     removeOwnershipFilter: () -> Unit = {},
     removeProviderFilter: () -> Unit = {},
-    onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit = { _, _ ->
-    },
-    onRemoveLocationFromList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
+    onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
+        { _, _ ->
+        },
+    onRemoveLocationFromList:
+        (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
         { _, _ ->
         },
     onEditCustomListName: (RelayItem.CustomList) -> Unit = {},
