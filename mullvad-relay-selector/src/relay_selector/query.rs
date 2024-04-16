@@ -179,7 +179,9 @@ impl From<WireguardRelayQuery> for AdditionalWireguardConstraints {
     /// The mapping from [`WireguardRelayQuery`] to [`AdditionalWireguardConstraints`].
     fn from(value: WireguardRelayQuery) -> Self {
         AdditionalWireguardConstraints {
-            daita: value.daita.unwrap_or(false),
+            daita: value
+                .daita
+                .unwrap_or(AdditionalWireguardConstraints::default().daita),
         }
     }
 }
