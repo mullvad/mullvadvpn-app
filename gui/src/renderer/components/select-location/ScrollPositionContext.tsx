@@ -1,5 +1,7 @@
+import { Action } from 'history';
 import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
+import { useHistory } from '../../lib/history';
 import { useNormalRelaySettings, useStyledRef } from '../../lib/utilityHooks';
 import { CustomScrollbarsRef } from '../CustomScrollbars';
 import { LocationType } from './select-location-types';
@@ -36,6 +38,9 @@ interface ScrollPositionContextProps {
 export function ScrollPositionContextProvider(props: ScrollPositionContextProps) {
   const { locationType, searchTerm } = useSelectLocationContext();
   const relaySettings = useNormalRelaySettings();
+
+  const { action } = useHistory();
+  const recentNavigationAction = useRef<Action | null>(action);
 
   const scrollPositions = useRef<Partial<Record<LocationType, ScrollPosition>>>({});
   const scrollViewRef = useRef<CustomScrollbarsRef>(null);
@@ -82,6 +87,11 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
 
   // Restore the scroll position when parameters change
   useEffect(() => {
+    if (recentNavigationAction.current === 'POP') {
+      recentNavigationAction.current = null;
+      return;
+    }
+
     const scrollPosition = scrollPositions.current?.[locationType];
     if (scrollPosition) {
       scrollViewRef.current?.scrollTo(...scrollPosition);
