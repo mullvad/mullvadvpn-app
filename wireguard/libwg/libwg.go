@@ -85,7 +85,7 @@ func wgReceiveEvent(tunnelHandle int32, event *C.Event) int32 {
 }
 
 //export wgSendAction
-func wgSendAction(tunnelHandle int32, action *C.Action) int32 {
+func wgSendAction(tunnelHandle int32, action C.Action) int32 {
 	tunnel, err := tunnels.Get(tunnelHandle)
 	if err != nil {
 		tunnel.Logger.Errorf("Failed to get tunnel from handle %v", tunnelHandle)
@@ -106,7 +106,7 @@ func wgSendAction(tunnelHandle int32, action *C.Action) int32 {
 	}
 	C.memcpy(unsafe.Pointer(&action_go.Peer), unsafe.Pointer(&action.peer), 32)
 
-	err = tunnel.Device.Daita.SendAction(&action_go)
+	err = tunnel.Device.Daita.SendAction(action_go)
 	if err != nil {
 		tunnel.Logger.Errorf("Failed to send DAITA action %v because of %v", action_go, err)
 		return -3
