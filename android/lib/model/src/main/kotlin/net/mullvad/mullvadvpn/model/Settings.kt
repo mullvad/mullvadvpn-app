@@ -12,6 +12,7 @@ data class Settings(
     val tunnelOptions: TunnelOptions,
     val relayOverrides: List<RelayOverride>,
     val showBetaReleases: Boolean,
+    val splitTunnelSettings: SplitTunnelSettings
 ) {
     companion object
 }
