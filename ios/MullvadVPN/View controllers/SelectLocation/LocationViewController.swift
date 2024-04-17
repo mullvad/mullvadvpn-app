@@ -76,6 +76,7 @@ final class LocationViewController: UIViewController {
                 self?.navigateToFilter?()
             })
         )
+        navigationItem.leftBarButtonItem?.accessibilityIdentifier = .selectLocationFilterButton
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             systemItem: .done,
@@ -83,6 +84,7 @@ final class LocationViewController: UIViewController {
                 self?.didFinish?()
             })
         )
+        navigationItem.rightBarButtonItem?.accessibilityIdentifier = .selectLocationDoneButton
 
         setUpDataSources()
         setUpTableView()

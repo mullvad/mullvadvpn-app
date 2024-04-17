@@ -34,10 +34,13 @@ struct RelayFilterCellFactory: CellFactoryProtocol {
         switch item {
         case .ownershipAny:
             title = "Any"
+            cell.accessibilityIdentifier = .ownershipAnyCell
         case .ownershipOwned:
             title = "Mullvad owned only"
+            cell.accessibilityIdentifier = .ownershipMullvadOwnedCell
         case .ownershipRented:
             title = "Rented only"
+            cell.accessibilityIdentifier = .ownershipRentedCell
         default:
             assertionFailure("Item mismatch. Got: \(item)")
         }
@@ -50,7 +53,6 @@ struct RelayFilterCellFactory: CellFactoryProtocol {
         )
 
         cell.applySubCellStyling()
-        cell.accessibilityIdentifier = .relayFilterOwnershipCell
     }
 
     private func configureProviderCell(_ cell: UITableViewCell, item: RelayFilterDataSource.Item) {

@@ -39,6 +39,8 @@ public enum AccessibilityIdentifier: String {
     case problemReportSendButton
     case relayStatusCollapseButton
     case settingsDoneButton
+    case selectLocationFilterButton
+    case selectLocationDoneButton
 
     // Cells
     case vpnSettingsCell
@@ -49,15 +51,24 @@ public enum AccessibilityIdentifier: String {
     case problemReportCell
     case faqCell
     case apiAccessCell
-    case relayFilterOwnershipCell
     case relayFilterProviderCell
     case wireGuardPortsCell
     case wireGuardObfuscationCell
     case udpOverTCPPortCell
     case quantumResistantTunnelCell
+    case locationFilterOwnershipHeaderCell
+    case locationFilterProvidersHeaderCell
+    case ownershipMullvadOwnedCell
+    case ownershipRentedCell
+    case ownershipAnyCell
+    case countryLocationCell
+    case cityLocationCell
+    case relayLocationCell
+    case customListLocationCell
 
     // Labels
     case accountPagePaidUntilLabel
+    case accountPageDeviceNameLabel
     case headerDeviceNameLabel
     case connectionStatusConnectedLabel
     case connectionStatusNotConnectedLabel

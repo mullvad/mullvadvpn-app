@@ -31,7 +31,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
 
     let collapseButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.accessibilityIdentifier = .collapseButton
+        button.accessibilityIdentifier = .expandButton
         button.tintColor = .white
         return button
     }()
@@ -123,6 +123,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
         let image = isExpanded ? chevronUp : chevronDown
 
         collapseButton.setImage(image, for: .normal)
+        collapseButton.accessibilityIdentifier = isExpanded ? .collapseButton : .expandButton
     }
 
     private func updateAccessibilityCustomActions() {

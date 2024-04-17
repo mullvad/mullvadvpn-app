@@ -309,13 +309,25 @@ extension LocationCell {
     }
 
     func configure(item: LocationCellViewModel, behavior: LocationCellBehavior) {
-        accessibilityIdentifier = item.node.code
         isDisabled = !item.node.isActive
         locationLabel.text = item.node.name
         showsCollapseControl = !item.node.children.isEmpty
         isExpanded = item.node.showsChildren
         checkboxButton.isSelected = item.isSelected
         checkboxButton.tintColor = item.isSelected ? .successColor : .white
+
+        if item.node is CountryLocationNode {
+            accessibilityIdentifier = .countryLocationCell
+            accessibilityValue = item.node.code
+        } else if item.node is CityLocationNode {
+            accessibilityIdentifier = .cityLocationCell
+            accessibilityValue = item.node.code
+        } else if item.node is HostLocationNode {
+            accessibilityIdentifier = .relayLocationCell
+            accessibilityValue = item.node.code
+        } else if item.node is CustomListLocationNode {
+            accessibilityIdentifier = .customListLocationCell
+        }
 
         setBehavior(behavior)
     }
