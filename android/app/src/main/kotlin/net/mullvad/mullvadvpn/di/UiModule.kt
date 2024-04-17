@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.repository.SelectedLocationRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.repository.VoucherRepository
 import net.mullvad.mullvadvpn.repository.VpnPermissionRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
@@ -95,7 +96,7 @@ val uiModule = module {
     single<PackageManager> { androidContext().packageManager }
     single<String>(named(SELF_PACKAGE_NAME)) { androidContext().packageName }
 
-    viewModel { SplitTunnelingViewModel(get(), Dispatchers.Default) }
+    viewModel { SplitTunnelingViewModel(get(), get(), Dispatchers.Default) }
     single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
 
     single { ServiceConnectionManager(androidContext()) }
@@ -122,6 +123,7 @@ val uiModule = module {
     single { RelayListFilterRepository(get()) }
     single { VoucherRepository(get()) }
     single { VpnPermissionRepository(get()) }
+    single { SplitTunnelingRepository(get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }
