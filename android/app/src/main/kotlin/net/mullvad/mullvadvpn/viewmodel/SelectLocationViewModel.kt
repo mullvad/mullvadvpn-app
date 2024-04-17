@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -94,8 +95,14 @@ class SelectLocationViewModel(
     fun selectRelay(relayItem: RelayItem) {
         viewModelScope.launch {
             val locationConstraint = relayItem.id
-            selectedLocationRepository.updateSelectedRelayLocation(locationConstraint)
-            _uiSideEffect.trySend(SelectLocationSideEffect.CloseScreen)
+            val result =
+                selectedLocationRepository
+                    .updateSelectedRelayLocation(locationConstraint)
+                    .fold(
+                        { Log.d("SelectLocationViewModel", "Error selecting relay: $it") },
+                        { _uiSideEffect.trySend(SelectLocationSideEffect.CloseScreen) }
+                    )
+
         }
     }
 
