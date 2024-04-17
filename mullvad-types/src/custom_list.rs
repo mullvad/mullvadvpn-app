@@ -126,9 +126,9 @@ impl CustomListsSettings {
     }
 
     pub fn update(&mut self, new_list: CustomList) -> Result<(), Error> {
-        let Some(list_index) = self.find_list_index(&new_list.id) else {
-            return Err(Error::ListNotFound);
-        };
+        let list_index = self
+            .find_list_index(&new_list.id)
+            .ok_or(Error::ListNotFound)?;
         self.check_list_name_is_unique(&new_list)?;
         self.custom_lists[list_index] = new_list;
         Ok(())
@@ -146,7 +146,7 @@ impl CustomListsSettings {
     }
 
     fn check_if_id_is_unique(&self, new_list: &CustomList) -> Result<(), Error> {
-        if self.custom_lists.iter().any(|list| list.id != new_list.id) {
+        if self.custom_lists.iter().any(|list| list.id == new_list.id) {
             return Err(Error::ListExists);
         }
         Ok(())

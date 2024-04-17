@@ -1,6 +1,7 @@
 #[cfg(not(target_os = "android"))]
 use futures::TryFutureExt;
 use mullvad_types::{
+    custom_list::Error as CustomListError,
     relay_constraints::{RelayConstraints, RelaySettings, WireguardConstraints},
     settings::{DnsState, Settings},
 };
@@ -57,30 +58,38 @@ impl From<Error> for mullvad_management_interface::Status {
                     .downcast_ref::<mullvad_types::custom_list::Error>()
                     .is_some() =>
             {
-                use mullvad_types::custom_list::Error as CustomListError;
-                match *err.downcast::<CustomListError>().unwrap() {
-                    error @ CustomListError::ListExists
-                    | error @ CustomListError::DuplicateName => Status::with_details(
-                        Code::AlreadyExists,
-                        error.to_string(),
-                        mullvad_management_interface::CUSTOM_LIST_LIST_EXISTS_DETAILS.into(),
-                    ),
-                    error @ CustomListError::NameTooLong => Status::with_details(
-                        Code::InvalidArgument,
-                        error.to_string(),
-                        mullvad_management_interface::CUSTOM_LIST_LIST_NAME_TOO_LONG_DETAILS.into(),
-                    ),
-                    error @ CustomListError::ListNotFound => Status::with_details(
-                        Code::NotFound,
-                        error.to_string(),
-                        mullvad_management_interface::CUSTOM_LIST_LIST_NOT_FOUND_DETAILS.into(),
-                    ),
-                }
+                let custom_list_err =  *err.downcast::<CustomListError>().unwrap();
+                handle_custom_list_error(custom_list_err)
+
             }
             Error::SerializeError(..) | Error::ParseError(..) | Error::UpdateFailed(..) => {
                 Status::new(Code::Internal, error.to_string())
             }
         }
+    }
+}
+
+fn handle_custom_list_error(
+    custom_list_err: CustomListError,
+) -> mullvad_management_interface::Status {
+    match custom_list_err {
+        error @ CustomListError::ListExists | error @ CustomListError::DuplicateName => {
+            Status::with_details(
+                Code::AlreadyExists,
+                error.to_string(),
+                mullvad_management_interface::CUSTOM_LIST_LIST_EXISTS_DETAILS.into(),
+            )
+        }
+        error @ CustomListError::NameTooLong => Status::with_details(
+            Code::InvalidArgument,
+            error.to_string(),
+            mullvad_management_interface::CUSTOM_LIST_LIST_NAME_TOO_LONG_DETAILS.into(),
+        ),
+        error @ CustomListError::ListNotFound => Status::with_details(
+            Code::NotFound,
+            error.to_string(),
+            mullvad_management_interface::CUSTOM_LIST_LIST_NOT_FOUND_DETAILS.into(),
+        ),
     }
 }
 
