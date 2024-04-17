@@ -13,4 +13,8 @@ extension XCUIElementQuery {
     subscript(key: any RawRepresentable<String>) -> XCUIElement {
         self[key.rawValue]
     }
+
+    subscript(key: AccessibilityIdentifier) -> XCUIElement {
+        self[key.rawValue]
+    }
 }
