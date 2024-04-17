@@ -33,8 +33,52 @@ class SelectLocationPage: Page {
         return self
     }
 
+    @discardableResult func tapLocationCellCollapseButton(withName name: String) -> Self {
+        let table = app.tables[AccessibilityIdentifier.selectLocationTableView]
+        let matchingCells = table.cells.containing(.any, identifier: name)
+        let buttons = matchingCells.buttons
+        let collapseButton = buttons[AccessibilityIdentifier.collapseButton]
+
+        collapseButton.tap()
+
+        return self
+    }
+
+    @discardableResult func closeSelectLocationPage() -> Self {
+        let doneButton = app.buttons[.closeSelectLocationButton]
+        doneButton.tap()
+        return self
+    }
+
+    @discardableResult func tapCustomListEllipsisButton() -> Self {
+        let customListEllipsisButton = app.buttons[AccessibilityIdentifier.openCustomListsMenuButton]
+        customListEllipsisButton.tap()
+        return self
+    }
+
+    @discardableResult func tapAddNewCustomList() -> Self {
+        let addNewCustomListButton = app.buttons[AccessibilityIdentifier.addNewCustomListButton]
+        addNewCustomListButton.tap()
+        return self
+    }
+
+    @discardableResult func editExistingCustomLists() -> Self {
+        let editCustomListsButton = app.buttons[AccessibilityIdentifier.editCustomListButton]
+        editCustomListsButton.tap()
+        return self
+    }
+
+    @discardableResult func cellWithIdentifier(identifier: String) -> XCUIElement {
+        app.tables[AccessibilityIdentifier.selectLocationTableView].cells[identifier]
+    }
+
     func locationCellIsExpanded(_ name: String) -> Bool {
         let matchingCells = app.cells.containing(.any, identifier: name)
         return matchingCells.buttons[AccessibilityIdentifier.expandButton].exists ? false : true
+    }
+
+    func verifyEditCustomListsButtonIs(enabled: Bool) {
+        let editCustomListsButton = app.buttons[AccessibilityIdentifier.editCustomListButton]
+        XCTAssertTrue(editCustomListsButton.isEnabled == enabled)
     }
 }

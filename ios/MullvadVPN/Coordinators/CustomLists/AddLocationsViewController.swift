@@ -27,7 +27,7 @@ class AddLocationsViewController: UIViewController {
         tableView.separatorInset = .zero
         tableView.rowHeight = 56
         tableView.indicatorStyle = .white
-        tableView.accessibilityIdentifier = .addLocationsView
+        tableView.accessibilityIdentifier = .editCustomListEditLocationsTableView
         return tableView
     }()
 
@@ -46,6 +46,7 @@ class AddLocationsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.accessibilityIdentifier = .editCustomListEditLocationsView
         tableView.backgroundColor = view.backgroundColor
         view.backgroundColor = .secondaryColor
         addConstraints()
