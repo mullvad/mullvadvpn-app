@@ -21,8 +21,11 @@ public struct LoggerBuilder {
 
     public var metadata: Logger.Metadata = [:]
     public var logLevel: Logger.Level = .debug
+    public var header: String
 
-    public init() {}
+    public init(header: String) {
+        self.header = header
+    }
 
     public mutating func addFileOutput(fileURL: URL) {
         let logsDirectoryURL = fileURL.deletingLastPathComponent()
@@ -42,7 +45,7 @@ public struct LoggerBuilder {
             logRotationErrors.append(error)
         }
 
-        outputs.append(.fileOutput(LogFileOutputStream(fileURL: fileURL)))
+        outputs.append(.fileOutput(LogFileOutputStream(fileURL: fileURL, header: header)))
     }
 
     public mutating func addOSLogOutput(subsystem: String) {

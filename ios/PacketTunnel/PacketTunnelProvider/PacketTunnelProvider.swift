@@ -160,7 +160,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
 extension PacketTunnelProvider {
     private static func configureLogging() {
-        var loggerBuilder = LoggerBuilder()
+        var loggerBuilder = LoggerBuilder(header: "PacketTunnel version \(Bundle.main.productVersion)")
         let pid = ProcessInfo.processInfo.processIdentifier
         loggerBuilder.metadata["pid"] = .string("\(pid)")
         loggerBuilder.addFileOutput(fileURL: ApplicationConfiguration.newLogFileURL(for: .packetTunnel))
