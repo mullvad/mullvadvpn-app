@@ -9,6 +9,7 @@ import mullvad_daemon.management_interface.ManagementInterface
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.AccountId
 import net.mullvad.mullvadvpn.model.AccountToken
+import net.mullvad.mullvadvpn.model.AppId
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.CustomDnsOptions
@@ -43,6 +44,7 @@ import net.mullvad.mullvadvpn.model.RelayOverride
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.model.SplitTunnelSettings
 import net.mullvad.mullvadvpn.model.TunnelOptions
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings
@@ -216,7 +218,8 @@ internal fun ManagementInterface.Settings.toDomain(): Settings =
         autoConnect = autoConnect,
         tunnelOptions = tunnelOptions.toDomain(),
         relayOverrides = relayOverridesList.map { it.toDomain() },
-        showBetaReleases = showBetaReleases
+        showBetaReleases = showBetaReleases,
+        splitTunnelSettings = splitTunnel.toDomain()
     )
 
 internal fun ManagementInterface.RelayOverride.toDomain(): RelayOverride =
@@ -682,4 +685,10 @@ internal fun ManagementInterface.VoucherSubmission.toDomain(): RedeemVoucherSucc
     RedeemVoucherSuccess(
         timeAdded = secondsAdded,
         newExpiry = Instant.ofEpochSecond(newExpiry.seconds).toDateTime()
+    )
+
+internal fun ManagementInterface.SplitTunnelSettings.toDomain(): SplitTunnelSettings =
+    SplitTunnelSettings(
+        enabled = enableExclusions,
+        excludedApps = appsList.map { AppId(it) }.toSet()
     )
