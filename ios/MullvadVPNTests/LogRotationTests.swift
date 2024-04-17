@@ -37,16 +37,22 @@ final class LogRotationTests: XCTestCase {
             try writeDataToDisk(path: logPath, fileSize: 1000)
         }
 
-        try LogRotation.rotateLogs(logDirectory: directoryPath, options: LogRotation.Options(
-            storageSizeLimit: 5000,
-            oldestAllowedDate: .distantPast)
+        try LogRotation.rotateLogs(
+            logDirectory: directoryPath,
+            options: LogRotation.Options(
+                storageSizeLimit: 5000,
+                oldestAllowedDate: .distantPast
+            )
         )
         var logFileCount = try fileManager.contentsOfDirectory(atPath: directoryPath.relativePath).count
         XCTAssertEqual(logFileCount, 5)
 
-        try LogRotation.rotateLogs(logDirectory: directoryPath, options: LogRotation.Options(
-            storageSizeLimit: 3999,
-            oldestAllowedDate: .distantPast)
+        try LogRotation.rotateLogs(
+            logDirectory: directoryPath,
+            options: LogRotation.Options(
+                storageSizeLimit: 3999,
+                oldestAllowedDate: .distantPast
+            )
         )
         logFileCount = try fileManager.contentsOfDirectory(atPath: directoryPath.relativePath).count
         XCTAssertEqual(logFileCount, 3)
