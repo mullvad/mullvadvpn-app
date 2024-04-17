@@ -542,7 +542,7 @@ impl Relay {
                     allowed_ips: all_of_the_internet(),
                     endpoint: SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), port),
                     psk: None,
-                    #[cfg(target_os = "windows")]
+                    #[cfg(any(target_os = "windows", target_os = "linux"))]
                     constant_packet_size: false,
                 },
                 exit_peer: None,

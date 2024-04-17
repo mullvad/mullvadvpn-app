@@ -85,7 +85,7 @@ fn wireguard_singlehop_endpoint(
         // This will be filled in later, not the relay selector's problem
         psk: None,
         // This will be filled in later
-        #[cfg(target_os = "windows")]
+        #[cfg(any(target_os = "windows", target_os = "linux"))]
         constant_packet_size: false,
     };
     Ok(MullvadWireguardEndpoint {
@@ -126,7 +126,7 @@ fn wireguard_multihop_endpoint(
         // This will be filled in later, not the relay selector's problem
         psk: None,
         // This will be filled in later
-        #[cfg(target_os = "windows")]
+        #[cfg(any(target_os = "windows", target_os = "linux"))]
         constant_packet_size: false,
     };
 
@@ -144,7 +144,7 @@ fn wireguard_multihop_endpoint(
         // This will be filled in later
         psk: None,
         // This will be filled in later
-        #[cfg(target_os = "windows")]
+        #[cfg(any(target_os = "windows", target_os = "linux"))]
         constant_packet_size: false,
     };
 
