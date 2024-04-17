@@ -1,17 +1,9 @@
 package net.mullvad.mullvadvpn.relaylist
 
 import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.RelayItem
-
-fun RelayItem.toLocationConstraint(): LocationConstraint {
-    return when (this) {
-        is RelayItem.Location -> LocationConstraint.Location(location)
-        is RelayItem.CustomList -> LocationConstraint.CustomList(id)
-    }
-}
 
 fun RelayItem.children(): List<RelayItem> {
     return when (this) {
@@ -40,7 +32,7 @@ private fun RelayItem.hasOwnership(ownershipConstraint: Constraint<Ownership>): 
         when (this) {
             is RelayItem.Location.Country -> cities.any { it.hasOwnership(ownershipConstraint) }
             is RelayItem.Location.City -> relays.any { it.hasOwnership(ownershipConstraint) }
-            is RelayItem.Location.Relay -> this.ownership == ownershipConstraint.value
+            is RelayItem.Location.Relay -> this.provider.ownership == ownershipConstraint.value
             is RelayItem.CustomList -> locations.any { it.hasOwnership(ownershipConstraint) }
         }
     } else {
@@ -52,7 +44,8 @@ private fun RelayItem.hasProvider(providersConstraint: Constraint<Providers>): B
         when (this) {
             is RelayItem.Location.Country -> cities.any { it.hasProvider(providersConstraint) }
             is RelayItem.Location.City -> relays.any { it.hasProvider(providersConstraint) }
-            is RelayItem.Location.Relay -> providersConstraint.value.providers.contains(provider)
+            is RelayItem.Location.Relay ->
+                providersConstraint.value.providers.contains(provider.providerId)
             is RelayItem.CustomList -> locations.any { it.hasProvider(providersConstraint) }
         }
     } else {
@@ -125,3 +118,6 @@ fun RelayItem.Location.descendants(): List<RelayItem.Location> {
     val children = children()
     return children + children.flatMap { it.descendants() }
 }
+
+fun List<RelayItem.Location.Country>.withDescendants(): List<RelayItem.Location> =
+    this + flatMap { it.descendants() }

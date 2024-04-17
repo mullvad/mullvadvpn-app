@@ -141,7 +141,7 @@ fun StatusRelayLocationCell(
     RelayLocationCell(
         relay = relay,
         leadingContent = { relayItem ->
-            val selected = selectedItem?.code == relayItem.code
+            val selected = selectedItem?.id == relayItem.id
             Box(
                 modifier =
                     Modifier.align(Alignment.CenterStart)
@@ -175,7 +175,7 @@ fun StatusRelayLocationCell(
         modifier = modifier,
         specialBackgroundColor = { relayItem ->
             when {
-                selectedItem?.code == relayItem.code -> MaterialTheme.colorScheme.selected
+                selectedItem?.id == relayItem.id -> MaterialTheme.colorScheme.selected
                 relayItem is RelayItem.CustomList && !relayItem.active ->
                     MaterialTheme.colorScheme.surfaceTint
                 else -> null

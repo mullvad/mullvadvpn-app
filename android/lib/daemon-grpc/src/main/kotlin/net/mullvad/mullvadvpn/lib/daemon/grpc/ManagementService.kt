@@ -57,7 +57,7 @@ import net.mullvad.mullvadvpn.model.GetAccountDataError
 import net.mullvad.mullvadvpn.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.model.GetDeviceListError
 import net.mullvad.mullvadvpn.model.GetDeviceStateError
-import net.mullvad.mullvadvpn.model.LocationConstraint as ModelLocationConstraint
+import net.mullvad.mullvadvpn.model.RelayItemId as ModelRelayItemId
 import net.mullvad.mullvadvpn.model.LoginAccountError
 import net.mullvad.mullvadvpn.model.ObfuscationSettings as ModelObfuscationSettings
 import net.mullvad.mullvadvpn.model.Ownership as ModelOwnership
@@ -380,7 +380,7 @@ class ManagementService(
         grpc.getCurrentVersion(Empty.getDefaultInstance()).value
 
     suspend fun setRelayLocation(
-        location: ModelLocationConstraint
+        location: ModelRelayItemId
     ): Either<SetRelayLocationError, Unit> =
         Either.catch {
                 val currentRelaySettings = getSettings().relaySettings
