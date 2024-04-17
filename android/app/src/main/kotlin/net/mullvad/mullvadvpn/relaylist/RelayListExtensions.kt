@@ -4,7 +4,7 @@ import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.RelayItem
 
 fun List<RelayItem.Location.Country>.findItemForGeoLocationId(constraint: GeoLocationId) =
-    withDescendants().first { it.id == constraint }
+    withDescendants().firstOrNull { it.id == constraint }
 
 /**
  * Filter and expand the list based on search terms If a country is matched, that country and all
