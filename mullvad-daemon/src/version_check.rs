@@ -1,6 +1,7 @@
 use crate::{version::is_beta_version, DaemonEventSender};
 use futures::{
     channel::{mpsc, oneshot},
+    future::FusedFuture,
     stream::FusedStream,
     FutureExt, SinkExt, StreamExt, TryFutureExt,
 };
@@ -9,16 +10,18 @@ use mullvad_types::version::{AppVersionInfo, ParsedAppVersion};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::{
+    cmp::max,
     future::Future,
     io,
     path::{Path, PathBuf},
+    pin::Pin,
     str::FromStr,
-    time::Duration,
+    time::{Duration, SystemTime},
 };
 use talpid_core::mpsc::Sender;
 use talpid_future::retry::{retry_future, ConstantInterval};
 use talpid_types::ErrorExt;
-use tokio::fs::{self, File};
+use tokio::{fs::File, io::AsyncReadExt};
 
 const VERSION_INFO_FILENAME: &str = "version-info.json";
 
@@ -32,7 +35,7 @@ const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24);
 /// Wait this long until next try if an update failed
 const UPDATE_INTERVAL_ERROR: Duration = Duration::from_secs(60 * 60 * 6);
-/// Retry strategy for `RunVersionCheck`.
+/// Retry strategy for `GetVersionInfo`.
 const IMMEDIATE_RETRY_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(3));
 
 #[cfg(target_os = "linux")]
@@ -94,12 +97,15 @@ pub(crate) struct VersionUpdater {
     version_proxy: AppVersionProxy,
     cache_path: PathBuf,
     update_sender: DaemonEventSender<AppVersionInfo>,
-    last_app_version_info: Option<AppVersionInfo>,
+    /// The last known [AppVersionInfo], along with the time it was determined.
+    last_app_version_info: Option<(AppVersionInfo, SystemTime)>,
     platform_version: String,
     show_beta_releases: bool,
     rx: Option<mpsc::Receiver<VersionUpdaterCommand>>,
     availability_handle: ApiAvailabilityHandle,
-    internal_done_tx: Option<oneshot::Sender<AppVersionInfo>>,
+
+    /// Oneshot channels for responding to [VersionUpdaterCommand::GetVersionInfo].
+    get_version_info_responders: Vec<oneshot::Sender<AppVersionInfo>>,
 }
 
 #[derive(Clone)]
@@ -109,7 +115,7 @@ pub(crate) struct VersionUpdaterHandle {
 
 enum VersionUpdaterCommand {
     SetShowBetaReleases(bool),
-    RunVersionCheck(oneshot::Sender<AppVersionInfo>),
+    GetVersionInfo(oneshot::Sender<AppVersionInfo>),
 }
 
 impl VersionUpdaterHandle {
@@ -126,11 +132,15 @@ impl VersionUpdaterHandle {
         }
     }
 
-    pub async fn run_version_check(&mut self) -> Result<AppVersionInfo, Error> {
+    /// Get the latest cached [AppVersionInfo].
+    ///
+    /// If the cache is stale or missing, this will immediately query the API for the latest
+    /// version. This may take a few seconds.
+    pub async fn get_version_info(&mut self) -> Result<AppVersionInfo, Error> {
         let (done_tx, done_rx) = oneshot::channel();
         if self
             .tx
-            .send(VersionUpdaterCommand::RunVersionCheck(done_tx))
+            .send(VersionUpdaterCommand::GetVersionInfo(done_tx))
             .await
             .is_err()
         {
@@ -142,14 +152,16 @@ impl VersionUpdaterHandle {
 }
 
 impl VersionUpdater {
-    pub fn new(
+    pub async fn new(
         mut api_handle: MullvadRestHandle,
         availability_handle: ApiAvailabilityHandle,
         cache_dir: PathBuf,
         update_sender: DaemonEventSender<AppVersionInfo>,
-        last_app_version_info: Option<AppVersionInfo>,
         show_beta_releases: bool,
     ) -> (Self, VersionUpdaterHandle) {
+        // load the last known AppVersionInfo from cache
+        let last_app_version_info = load_cache(&cache_dir).await;
+
         api_handle.factory = api_handle.factory.default_timeout(DOWNLOAD_TIMEOUT);
         let version_proxy = AppVersionProxy::new(api_handle);
         let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
@@ -166,20 +178,23 @@ impl VersionUpdater {
                 show_beta_releases,
                 rx: Some(rx),
                 availability_handle,
-                internal_done_tx: None,
+                get_version_info_responders: vec![],
             },
             VersionUpdaterHandle { tx },
         )
     }
 
-    fn create_update_future(
+    /// Get the last known [AppVersionInfo]. May be stale.
+    pub fn last_app_version_info(&self) -> Option<&AppVersionInfo> {
+        self.last_app_version_info.as_ref().map(|(info, _)| info)
+    }
+
+    /// Immediately query the API for the latest [AppVersionInfo].
+    fn do_version_check(
         &mut self,
-        done_tx: oneshot::Sender<AppVersionInfo>,
-    ) -> std::pin::Pin<
+    ) -> Pin<
         Box<dyn Future<Output = Result<mullvad_api::AppVersionResponse, Error>> + Send + 'static>,
     > {
-        self.internal_done_tx = Some(done_tx);
-
         let api_handle = self.availability_handle.clone();
         let version_proxy = self.version_proxy.clone();
         let platform_version = self.platform_version.clone();
@@ -193,28 +208,31 @@ impl VersionUpdater {
                 .map_err(Error::Download)
         };
 
+        // retry immediately on network errors (unless we're offline)
+        let should_retry_immediate = move |result: &Result<_, Error>| {
+            if let Err(Error::Download(error)) = result {
+                error.is_network_error() && !api_handle.get_state().is_offline()
+            } else {
+                false
+            }
+        };
+
         Box::pin(retry_future(
             download_future_factory,
-            move |result| Self::should_retry_immediate(result, &api_handle),
+            should_retry_immediate,
             IMMEDIATE_RETRY_STRATEGY,
         ))
     }
 
-    fn should_retry_immediate<T>(
-        result: &Result<T, Error>,
-        api_handle: &ApiAvailabilityHandle,
-    ) -> bool {
-        match result {
-            Err(Error::Download(error)) if error.is_network_error() => {
-                !api_handle.get_state().is_offline()
-            }
-            _ => false,
-        }
-    }
-
-    fn create_update_background_future(
+    /// Query the API for the latest [AppVersionInfo].
+    ///
+    /// This function waits until background calls are enabled in
+    /// [ApiAvailability](mullvad_api::availability::ApiAvailability).
+    ///
+    /// On any error, this function retries repeatedly every [UPDATE_INTERVAL_ERROR] until success.
+    fn do_version_check_in_background(
         &self,
-    ) -> std::pin::Pin<
+    ) -> Pin<
         Box<dyn Future<Output = Result<mullvad_api::AppVersionResponse, Error>> + Send + 'static>,
     > {
         let api_handle = self.availability_handle.clone();
@@ -240,8 +258,9 @@ impl VersionUpdater {
         ))
     }
 
+    /// Write [Self::last_app_version_info], if any, to the cache file ([VERSION_INFO_FILENAME]).
     async fn write_cache(&self) -> Result<(), Error> {
-        let last_app_version_info = match self.last_app_version_info.as_ref() {
+        let last_app_version_info = match self.last_app_version_info() {
             Some(version_info) => version_info,
             None => {
                 log::debug!("The version cache is empty -- not writing");
@@ -265,6 +284,7 @@ impl VersionUpdater {
         Ok(())
     }
 
+    /// Convert a [mullvad_api::AppVersionResponse] to an [AppVersionInfo].
     fn response_to_version_info(
         &mut self,
         response: mullvad_api::AppVersionResponse,
@@ -284,6 +304,7 @@ impl VersionUpdater {
         }
     }
 
+    /// If current_version is not the latest, return a string containing the latest version.
     fn suggested_upgrade(
         current_version: &ParsedAppVersion,
         latest_stable: &Option<String>,
@@ -300,42 +321,80 @@ impl VersionUpdater {
             None
         };
 
-        let latest_version = stable_version.iter().chain(beta_version.iter()).max()?;
+        let latest_version = max(stable_version, beta_version)?;
 
-        if current_version < latest_version {
+        if current_version < &latest_version {
             Some(latest_version.to_string())
         } else {
             None
         }
     }
 
+    /// Update [Self::last_app_version_info] and write it to disk cache.
+    ///
+    /// Also, if we are currently have a pending [GetVersionInfo][rvc] command, respond to it.
+    ///
+    /// [rvc]: VersionUpdaterCommand::GetVersionInfo
     async fn update_version_info(&mut self, new_version_info: AppVersionInfo) {
-        if let Some(done_tx) = self.internal_done_tx.take() {
-            let _ = done_tx.send(new_version_info.clone());
-        }
-
         // if daemon can't be reached, return immediately
         if self.update_sender.send(new_version_info.clone()).is_err() {
             return;
         }
 
-        self.last_app_version_info = Some(new_version_info);
+        self.last_app_version_info = Some((new_version_info, SystemTime::now()));
         if let Err(err) = self.write_cache().await {
             log::error!("Failed to save version cache to disk: {}", err);
         }
     }
 
+    /// Get the time left until [Self::last_app_version_info] becomes stale, and should be
+    /// refreshed, or [Duration::ZERO] if it already is stale.
+    ///
+    /// This happens [UPDATE_INTERVAL] after the last version check.
+    fn time_until_version_is_stale(&self) -> Duration {
+        let now = SystemTime::now();
+        self
+            .last_app_version_info
+            .as_ref()
+            .map(|(_, last_update_time)| last_update_time)
+            .and_then(|&last_update_time| now.duration_since(last_update_time).ok())
+            .map(|time_since_last_update| UPDATE_INTERVAL.saturating_sub(time_since_last_update))
+            // if there is no last_app_version_info, or if clocks are being weird,
+            // assume that the version is stale
+            .unwrap_or(Duration::ZERO)
+    }
+
+    /// Is [Self::last_app_version_info] stale?
+    fn version_is_stale(&self) -> bool {
+        self.time_until_version_is_stale().is_zero()
+    }
+
+    /// Wait until [Self::last_app_version_info] becomes stale and needs to be refreshed.
+    ///
+    /// This happens [UPDATE_INTERVAL] after the last version check.
+    fn wait_until_version_is_stale(&self) -> Pin<Box<impl FusedFuture<Output = ()>>> {
+        let time_until_stale = self.time_until_version_is_stale();
+
+        // Boxed, pinned, and fused.
+        // Alternate title: "We don't want to deal with the borrow checker."
+        Box::pin(talpid_time::sleep(time_until_stale).fuse())
+    }
+
+    /// Returns true if we are currently handling one or more `GetVersionInfo` commands.
+    fn is_running_version_check(&self) -> bool {
+        !self.get_version_info_responders.is_empty()
+    }
+
     pub async fn run(mut self) {
-        let mut rx = self.rx.take().unwrap().fuse();
-        let next_delay = || Box::pin(talpid_time::sleep(UPDATE_INTERVAL)).fuse();
-        let mut check_delay = next_delay();
+        let mut rx = self.rx.take().unwrap();
+        let mut version_is_stale = self.wait_until_version_is_stale();
         let mut version_check = futures::future::Fuse::terminated();
 
         // If this is a dev build, there's no need to pester the API for version checks.
         if *IS_DEV_BUILD {
             log::warn!("Not checking for updates because this is a development build");
             while let Some(cmd) = rx.next().await {
-                if let VersionUpdaterCommand::RunVersionCheck(done_tx) = cmd {
+                if let VersionUpdaterCommand::GetVersionInfo(done_tx) = cmd {
                     log::info!("Version check is disabled in dev builds");
                     let _ = done_tx.send(dev_version_cache());
                 }
@@ -345,53 +404,64 @@ impl VersionUpdater {
 
         loop {
             futures::select! {
-                command = rx.next() => {
-                    match command {
-                        Some(VersionUpdaterCommand::SetShowBetaReleases(show_beta_releases)) => {
-                            self.show_beta_releases = show_beta_releases;
+                command = rx.next() => match command {
+                    Some(VersionUpdaterCommand::SetShowBetaReleases(show_beta_releases)) => {
+                        self.show_beta_releases = show_beta_releases;
 
-                            if let Some(last_app_version_info) = self
-                                .last_app_version_info
-                                .clone()
-                            {
-                                let suggested_upgrade = Self::suggested_upgrade(
-                                    &APP_VERSION,
-                                    &Some(last_app_version_info.latest_stable.clone()),
-                                    &last_app_version_info.latest_beta,
-                                    self.show_beta_releases || is_beta_version(),
-                                );
+                        if let Some(last_app_version_info) = self
+                            .last_app_version_info()
+                            .cloned()
+                        {
+                            let suggested_upgrade = Self::suggested_upgrade(
+                                &APP_VERSION,
+                                &Some(last_app_version_info.latest_stable.clone()),
+                                &last_app_version_info.latest_beta,
+                                self.show_beta_releases || is_beta_version(),
+                            );
 
-                                self.update_version_info(AppVersionInfo {
-                                    supported: last_app_version_info.supported,
-                                    latest_stable: last_app_version_info.latest_stable,
-                                    latest_beta: last_app_version_info.latest_beta,
-                                    suggested_upgrade,
-                                }).await;
-                            }
+                            self.update_version_info(AppVersionInfo {
+                                supported: last_app_version_info.supported,
+                                latest_stable: last_app_version_info.latest_stable,
+                                latest_beta: last_app_version_info.latest_beta,
+                                suggested_upgrade,
+                            }).await;
                         }
-                        Some(VersionUpdaterCommand::RunVersionCheck(done_tx)) => {
-                            if self.update_sender.is_closed() {
-                                return;
-                            }
-                            let download_future = self.create_update_future(done_tx).fuse();
-                            version_check = download_future;
-                        }
-                        // time to shut down
-                        None => {
+                    }
+
+                    Some(VersionUpdaterCommand::GetVersionInfo(done_tx)) => {
+                        if self.update_sender.is_closed() {
                             return;
                         }
+                        match (self.version_is_stale(), self.last_app_version_info()) {
+                            (false, Some(version_info)) => {
+                                // if the version_info isn't stale, return it immediately.
+                                let _ = done_tx.send(version_info.clone());
+                            }
+                            _ => {
+                                // otherwise, start a foreground query to get the latest version_info.
+                                if !self.is_running_version_check() {
+                                    version_check = self.do_version_check().fuse();
+                                }
+                                self.get_version_info_responders.retain(|r| !r.is_canceled());
+                                self.get_version_info_responders.push(done_tx);
+                            }
+                        }
+                    }
+
+                    // time to shut down
+                    None => {
+                        return;
                     }
                 },
 
-                _sleep = check_delay => {
+                _ = version_is_stale => {
                     if rx.is_terminated() || self.update_sender.is_closed() {
                         return;
                     }
-                    if self.internal_done_tx.is_some() {
-                        // Sync check in progress
+                    if self.is_running_version_check() {
                         continue;
                     }
-                    version_check = self.create_update_background_future().fuse();
+                    version_check = self.do_version_check_in_background().fuse();
                 },
 
                 response = version_check => {
@@ -403,42 +473,62 @@ impl VersionUpdater {
                         Ok(version_info_response) => {
                             let new_version_info =
                                 self.response_to_version_info(version_info_response);
+
+                            // Respond to all pending GetVersionInfo commands
+                            for done_tx in self.get_version_info_responders.drain(..) {
+                                let _ = done_tx.send(new_version_info.clone());
+                            }
+
                             self.update_version_info(new_version_info).await;
-                        },
+
+                        }
                         Err(err) => {
-                            log::error!("Failed to fetch version info: {}", err);
-                            self.internal_done_tx = None;
-                        },
+                            log::error!("Failed to fetch version info: {err:#}");
+                            self.get_version_info_responders.clear();
+                        }
                     }
 
-                    check_delay = next_delay();
+                    version_is_stale = self.wait_until_version_is_stale();
                 },
             }
         }
     }
 }
 
-async fn try_load_cache(cache_dir: &Path) -> Result<AppVersionInfo, Error> {
+async fn try_load_cache(cache_dir: &Path) -> Result<(AppVersionInfo, SystemTime), Error> {
     if *IS_DEV_BUILD {
-        return Ok(dev_version_cache());
+        return Ok((dev_version_cache(), SystemTime::now()));
     }
 
     let path = cache_dir.join(VERSION_INFO_FILENAME);
     log::debug!("Loading version check cache from {}", path.display());
-    let content = fs::read_to_string(&path)
+
+    let mut file = File::open(&path).map_err(Error::ReadVersionCache).await?;
+    let meta = file.metadata().map_err(Error::ReadVersionCache).await?;
+    let mtime = meta
+        .modified()
+        .expect("Platforms without file modification times aren't supported");
+
+    let mut content = String::new();
+    file.read_to_string(&mut content)
         .map_err(Error::ReadVersionCache)
         .await?;
+
     let version_info: CachedAppVersionInfo =
         serde_json::from_str(&content).map_err(Error::Deserialize)?;
 
     if version_info.cached_from_version == mullvad_version::VERSION {
-        Ok(version_info.version_info)
+        Ok((version_info.version_info, mtime))
     } else {
         Err(Error::CacheVersionMismatch)
     }
 }
 
-pub async fn load_cache(cache_dir: &Path) -> Option<AppVersionInfo> {
+/// Read the app version cache from the provided directory.
+///
+/// Returns the [AppVersionInfo] along with the modification time of the cache file,
+/// or `None` on any error.
+async fn load_cache(cache_dir: &Path) -> Option<(AppVersionInfo, SystemTime)> {
     match try_load_cache(cache_dir).await {
         Ok(app_version_info) => Some(app_version_info),
         Err(error) => {
