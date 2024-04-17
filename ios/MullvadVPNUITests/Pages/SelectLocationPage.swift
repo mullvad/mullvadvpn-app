@@ -37,4 +37,34 @@ class SelectLocationPage: Page {
         let matchingCells = app.cells.containing(.any, identifier: name)
         return matchingCells.buttons[AccessibilityIdentifier.expandButton].exists ? false : true
     }
+
+    @discardableResult
+    func openCustomListsActions() -> Self {
+        scrollToCustomListsSection()
+        let customListEllipsisButton = app.buttons[AccessibilityIdentifier.openCustomListsMenuButton]
+        customListEllipsisButton.tap()
+        return self
+    }
+
+    @discardableResult
+    func scrollToCustomListsSection() -> Self {
+        let selectLocationTableView = app.tables[AccessibilityIdentifier.selectLocationTableView]
+        selectLocationTableView.swipeDown(velocity: XCUIGestureVelocity(floatLiteral: 9999))
+        return self
+    }
+
+    func tapAddNewCustomList() {
+        let addNewCustomListButton = app.buttons[AccessibilityIdentifier.addNewCustomListButton]
+        addNewCustomListButton.tap()
+    }
+
+    func editExistingCustomLists() {
+        let editCustomListsButton = app.buttons[AccessibilityIdentifier.editCustomListButton]
+        editCustomListsButton.tap()
+    }
+
+    func verifyEditCustomListsButtonIs(enabled: Bool) {
+        let editCustomListsButton = app.buttons[AccessibilityIdentifier.editCustomListButton]
+        XCTAssertTrue(editCustomListsButton.isEnabled == enabled)
+    }
 }
