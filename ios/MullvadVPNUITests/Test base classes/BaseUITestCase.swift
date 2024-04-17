@@ -17,8 +17,6 @@ class BaseUITestCase: XCTestCase {
     // swiftlint:disable force_cast
     let displayName = Bundle(for: BaseUITestCase.self)
         .infoDictionary?["DisplayName"] as! String
-    let noTimeAccountNumber = Bundle(for: BaseUITestCase.self)
-        .infoDictionary?["NoTimeAccountNumber"] as! String
     let hasTimeAccountNumber = Bundle(for: BaseUITestCase.self)
         .infoDictionary?["HasTimeAccountNumber"] as! String
     let fiveWireGuardKeysAccountNumber = Bundle(for: BaseUITestCase.self)
