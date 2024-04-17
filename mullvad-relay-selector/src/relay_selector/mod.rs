@@ -450,7 +450,7 @@ impl RelaySelector {
         let near_location = match specialized_config {
             SpecializedSelectorConfig::Normal(config) => {
                 let user_preferences = RelayQuery::from(config.clone());
-                Self::get_relay_midpoint(&user_preferences, parsed_relays, &config)
+                Self::get_relay_midpoint(&user_preferences, parsed_relays, config.custom_lists)
             }
             SpecializedSelectorConfig::Custom(_) => None,
         };
@@ -486,9 +486,9 @@ impl RelaySelector {
             SpecializedSelectorConfig::Custom(custom_config) => {
                 Ok(GetRelay::Custom(custom_config.clone()))
             }
-            SpecializedSelectorConfig::Normal(pure_config) => {
+            SpecializedSelectorConfig::Normal(normal_config) => {
                 let parsed_relays = &self.parsed_relays.lock().unwrap();
-                Self::get_relay_inner(&query, parsed_relays, &pure_config)
+                Self::get_relay_inner(&query, parsed_relays, normal_config.custom_lists)
             }
         }
     }
@@ -532,7 +532,7 @@ impl RelaySelector {
                     &normal_config,
                     parsed_relays,
                 )?;
-                Self::get_relay_inner(&query, parsed_relays, &normal_config)
+                Self::get_relay_inner(&query, parsed_relays, normal_config.custom_lists)
             }
         }
     }
@@ -566,7 +566,7 @@ impl RelaySelector {
             // settings
             .filter(|query| runtime_params.compatible(query))
             .filter_map(|query| query.clone().intersection(user_query.clone()))
-            .filter(|query| Self::get_relay_inner(query, parsed_relays, user_config).is_ok())
+            .filter(|query| Self::get_relay_inner(query, parsed_relays, user_config.custom_lists).is_ok())
             .cycle() // If the above filters remove all relays, cycle will also return an empty iterator
             .nth(retry_attempt)
             .ok_or(Error::NoRelay)
@@ -592,14 +592,14 @@ impl RelaySelector {
     fn get_relay_inner(
         query: &RelayQuery,
         parsed_relays: &ParsedRelays,
-        config: &NormalSelectorConfig<'_>,
+        custom_lists: &CustomListsSettings,
     ) -> Result<GetRelay, Error> {
         match query.tunnel_protocol {
             Constraint::Only(TunnelType::Wireguard) => {
-                Self::get_wireguard_relay(query, config, parsed_relays)
+                Self::get_wireguard_relay(query, custom_lists, parsed_relays)
             }
             Constraint::Only(TunnelType::OpenVpn) => {
-                Self::get_openvpn_relay(query, config, parsed_relays)
+                Self::get_openvpn_relay(query, custom_lists, parsed_relays)
             }
             Constraint::Any => {
                 // Try Wireguard, then OpenVPN, then fail
@@ -607,7 +607,9 @@ impl RelaySelector {
                     let mut new_query = query.clone();
                     new_query.tunnel_protocol = Constraint::Only(tunnel_type);
                     // If a suitable relay is found, short-circuit and return it
-                    if let Ok(relay) = Self::get_relay_inner(&new_query, parsed_relays, config) {
+                    if let Ok(relay) =
+                        Self::get_relay_inner(&new_query, parsed_relays, custom_lists)
+                    {
                         return Ok(relay);
                     }
                 }
@@ -618,16 +620,17 @@ impl RelaySelector {
 
     #[cfg(target_os = "android")]
     fn get_relay_inner(
-        mut query: RelayQuery,
+        query: &RelayQuery,
         parsed_relays: &ParsedRelays,
-        config: &NormalSelectorConfig<'_>,
+        custom_lists: &CustomListsSettings,
     ) -> Result<GetRelay, Error> {
         // FIXME: A bit of defensive programming - calling `get_wiregurad_relay` with a query that
         // doesn't specify Wireguard as the desired tunnel type is not valid and will lead
         // to unwanted behavior. This should be seen as a workaround, and it would be nicer
         // to lift this invariant to be checked by the type system instead.
+        let mut query = query.clone();
         query.tunnel_protocol = Constraint::Only(TunnelType::Wireguard);
-        Self::get_wireguard_relay(query, config, parsed_relays)
+        Self::get_wireguard_relay(&query, custom_lists, parsed_relays)
     }
 
     /// Derive a valid Wireguard relay configuration from `query`.
@@ -645,7 +648,7 @@ impl RelaySelector {
     /// [`MullvadEndpoint`]: mullvad_types::endpoint::MullvadEndpoint
     fn get_wireguard_relay(
         query: &RelayQuery,
-        config: &NormalSelectorConfig<'_>,
+        custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
     ) -> Result<GetRelay, Error> {
         assert_eq!(
@@ -653,9 +656,9 @@ impl RelaySelector {
             Constraint::Only(TunnelType::Wireguard)
         );
         let inner = if !query.wireguard_constraints.multihop() {
-            Self::get_wireguard_singlehop_config(query, config, parsed_relays)?
+            Self::get_wireguard_singlehop_config(query, custom_lists, parsed_relays)?
         } else {
-            Self::get_wireguard_multihop_config(query, config, parsed_relays)?
+            Self::get_wireguard_multihop_config(query, custom_lists, parsed_relays)?
         };
         let endpoint = Self::get_wireguard_endpoint(query, parsed_relays, &inner)?;
         let obfuscator =
@@ -675,11 +678,10 @@ impl RelaySelector {
     /// * `Ok(WireguardInner::Singlehop)` otherwise
     fn get_wireguard_singlehop_config(
         query: &RelayQuery,
-        config: &NormalSelectorConfig<'_>,
+        custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
     ) -> Result<WireguardConfig, Error> {
-        let candidates =
-            filter_matching_relay_list(query, parsed_relays.relays(), config.custom_lists);
+        let candidates = filter_matching_relay_list(query, parsed_relays.relays(), custom_lists);
         helpers::pick_random_relay(&candidates)
             .cloned()
             .map(WireguardConfig::singlehop)
@@ -695,7 +697,7 @@ impl RelaySelector {
     /// * `Ok(WireguardInner::Multihop)` otherwise
     fn get_wireguard_multihop_config(
         query: &RelayQuery,
-        config: &NormalSelectorConfig<'_>,
+        custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
     ) -> Result<WireguardConfig, Error> {
         // Here, we modify the original query just a bit.
@@ -708,12 +710,9 @@ impl RelaySelector {
         // we can query for all exit & entry candidates! All candidates are needed for the next
         // step.
         let exit_candidates =
-            filter_matching_relay_list(query, parsed_relays.relays(), config.custom_lists);
-        let entry_candidates = filter_matching_relay_list(
-            &entry_relay_query,
-            parsed_relays.relays(),
-            config.custom_lists,
-        );
+            filter_matching_relay_list(query, parsed_relays.relays(), custom_lists);
+        let entry_candidates =
+            filter_matching_relay_list(&entry_relay_query, parsed_relays.relays(), custom_lists);
 
         fn pick_random_excluding<'a>(list: &'a [Relay], exclude: &'a Relay) -> Option<&'a Relay> {
             list.iter()
@@ -802,15 +801,20 @@ impl RelaySelector {
     #[cfg(not(target_os = "android"))]
     fn get_openvpn_relay(
         query: &RelayQuery,
-        config: &NormalSelectorConfig<'_>,
+        custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
     ) -> Result<GetRelay, Error> {
         assert_eq!(query.tunnel_protocol, Constraint::Only(TunnelType::OpenVpn));
         let exit =
-            Self::choose_openvpn_relay(query, config, parsed_relays).ok_or(Error::NoRelay)?;
+            Self::choose_openvpn_relay(query, custom_lists, parsed_relays).ok_or(Error::NoRelay)?;
         let endpoint = Self::get_openvpn_endpoint(query, &exit, parsed_relays)?;
-        let bridge =
-            Self::get_openvpn_bridge(query, &exit, &endpoint.protocol, parsed_relays, config)?;
+        let bridge = Self::get_openvpn_bridge(
+            query,
+            &exit,
+            &endpoint.protocol,
+            parsed_relays,
+            custom_lists,
+        )?;
 
         // FIXME: This assert would be better to encode at the type level.
         assert!(matches!(exit.endpoint_data, RelayEndpointData::Openvpn));
@@ -863,13 +867,13 @@ impl RelaySelector {
         relay: &Relay,
         protocol: &TransportProtocol,
         parsed_relays: &ParsedRelays,
-        config: &NormalSelectorConfig<'_>,
+        custom_lists: &CustomListsSettings,
     ) -> Result<Option<SelectedBridge>, Error> {
         if !BridgeQuery::should_use_bridge(&query.openvpn_constraints.bridge_settings) {
             Ok(None)
         } else {
             let bridge_query = &query.openvpn_constraints.bridge_settings.clone().unwrap();
-            let custom_lists = &config.custom_lists;
+            let custom_lists = &custom_lists;
             match protocol {
                 TransportProtocol::Udp => {
                     log::error!("Can not use OpenVPN bridges over UDP");
@@ -987,7 +991,7 @@ impl RelaySelector {
     fn get_relay_midpoint(
         query: &RelayQuery,
         parsed_relays: &ParsedRelays,
-        config: &NormalSelectorConfig<'_>,
+        custom_lists: &CustomListsSettings,
     ) -> Option<Coordinates> {
         use std::ops::Not;
         if query.location.is_any() {
@@ -995,7 +999,7 @@ impl RelaySelector {
         }
 
         let matching_locations: Vec<Location> =
-            filter_matching_relay_list(query, parsed_relays.relays(), config.custom_lists)
+            filter_matching_relay_list(query, parsed_relays.relays(), custom_lists)
                 .into_iter()
                 .filter_map(|relay| relay.location)
                 .unique_by(|location| location.city.clone())
@@ -1013,12 +1017,12 @@ impl RelaySelector {
     #[cfg(not(target_os = "android"))]
     fn choose_openvpn_relay(
         query: &RelayQuery,
-        config: &NormalSelectorConfig<'_>,
+        custom_lists: &CustomListsSettings,
         parsed_relays: &ParsedRelays,
     ) -> Option<Relay> {
         // Filter among all valid relays
         let relays = parsed_relays.relays();
-        let candidates = filter_matching_relay_list(query, relays, config.custom_lists);
+        let candidates = filter_matching_relay_list(query, relays, custom_lists);
         // Pick one of the valid relays.
         helpers::pick_random_relay(&candidates).cloned()
     }
