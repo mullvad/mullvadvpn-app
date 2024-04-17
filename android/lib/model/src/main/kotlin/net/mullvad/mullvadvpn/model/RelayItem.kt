@@ -12,11 +12,12 @@ sealed interface RelayItem {
     val expanded: Boolean
 
     data class CustomList(
-        override val name: String,
+        val customListName: CustomListName,
         override val expanded: Boolean,
         val id: CustomListId,
         val locations: List<Location>,
     ) : RelayItem {
+        override val name: String = customListName.value
         override val active
             get() = locations.any { location -> location.active }
 

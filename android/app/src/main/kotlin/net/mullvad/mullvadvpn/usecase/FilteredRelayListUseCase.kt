@@ -18,9 +18,7 @@ class FilteredRelayListUseCase(
             relayListFilterRepository.selectedOwnership,
             relayListFilterRepository.selectedProviders
         ) { relayList, selectedOwnership, selectedProviders ->
-            relayList
-                .filterOnOwnership(selectedOwnership)
-                .filterOnProviders(selectedProviders)
+            relayList.filterOnOwnership(selectedOwnership).filterOnProviders(selectedProviders)
         }
 
     private fun List<RelayItem.Location.Country>.filterOnOwnership(

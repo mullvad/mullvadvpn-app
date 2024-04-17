@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.model.CustomListId
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 
 sealed interface EditCustomListState {
@@ -10,7 +11,7 @@ sealed interface EditCustomListState {
 
     data class Content(
         val id: CustomListId,
-        val name: String,
+        val name: CustomListName,
         val locations: List<GeographicLocationConstraint>
     ) : EditCustomListState
 }

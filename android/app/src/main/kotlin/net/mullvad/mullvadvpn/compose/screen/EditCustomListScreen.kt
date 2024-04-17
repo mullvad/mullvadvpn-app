@@ -45,6 +45,7 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.CustomListId
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -58,7 +59,7 @@ private fun PreviewEditCustomListScreen() {
             state =
                 EditCustomListState.Content(
                     id = CustomListId("id"),
-                    name = "Custom list",
+                    name = CustomListName.fromString("Custom list"),
                     locations =
                         listOf(
                             GeographicLocationConstraint.Hostname(
@@ -122,21 +123,29 @@ fun EditCustomList(
 @Composable
 fun EditCustomListScreen(
     state: EditCustomListState,
-    onDeleteList: (name: String) -> Unit = {},
-    onNameClicked: (id: CustomListId, name: String) -> Unit = { _, _ -> },
+    onDeleteList: (name: CustomListName) -> Unit = {},
+    onNameClicked: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },
     onLocationsClicked: (CustomListId) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val title =
         when (state) {
             EditCustomListState.Loading,
-            EditCustomListState.NotFound -> ""
+            EditCustomListState.NotFound -> null
             is EditCustomListState.Content -> state.name
         }
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.edit_list),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-        actions = { Actions(onDeleteList = { onDeleteList(title) }) },
+        actions = {
+            Actions(
+                onDeleteList = {
+                    if (title != null) {
+                        onDeleteList(title)
+                    }
+                }
+            )
+        },
     ) { modifier: Modifier ->
         SpacedColumn(modifier = modifier, alignment = Alignment.Top) {
             when (state) {
@@ -157,7 +166,7 @@ fun EditCustomListScreen(
                     // Name cell
                     TwoRowCell(
                         titleText = stringResource(id = R.string.list_name),
-                        subtitleText = state.name,
+                        subtitleText = state.name.value,
                         onCellClicked = { onNameClicked(state.id, state.name) }
                     )
                     // Locations cell

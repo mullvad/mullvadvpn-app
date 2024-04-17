@@ -204,7 +204,7 @@ fun SelectLocation(
         onRemoveLocationFromList = vm::removeLocationFromList,
         onEditCustomListName = {
             navigator.navigate(
-                EditCustomListNameDestination(customListId = it.id, initialName = it.name)
+                EditCustomListNameDestination(customListId = it.id, initialName = it.customListName)
             )
         },
         onEditLocationsCustomList = {
@@ -213,7 +213,9 @@ fun SelectLocation(
             )
         },
         onDeleteCustomList = {
-            navigator.navigate(DeleteCustomListDestination(customListId = it.id, name = it.name))
+            navigator.navigate(
+                DeleteCustomListDestination(customListId = it.id, name = it.customListName)
+            )
         }
     )
 }
