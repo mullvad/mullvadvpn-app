@@ -39,7 +39,7 @@ public struct LoggerBuilder {
         do {
             try LogRotation.rotateLogs(logDirectory: logsDirectoryURL, options: LogRotation.Options(
                 storageSizeLimit: 5_242_880, // 5 MB
-                oldestAllowedDate: Date(timeIntervalSinceNow: Duration.days(7).timeInterval)
+                oldestAllowedDate: Date(timeIntervalSinceNow: -Duration.days(7).timeInterval)
             ))
         } catch {
             logRotationErrors.append(error)
