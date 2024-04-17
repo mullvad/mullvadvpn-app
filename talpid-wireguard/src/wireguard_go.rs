@@ -81,6 +81,11 @@ impl WgGoTunnel {
             )
         };
         check_wg_status(handle)?;
+        WgGoTunnel::activate_daita(handle, 1000, 1000);
+        tokio::task::spawn_blocking(move || loop {
+            let event = WgGoTunnel::receive_daita_event(handle);
+            log::info!("DAITA event: {event:?}");
+        });
 
         #[cfg(target_os = "android")]
         Self::bypass_tunnel_sockets(&mut tunnel_device, handle)
@@ -94,6 +99,23 @@ impl WgGoTunnel {
             #[cfg(target_os = "android")]
             tun_provider: tun_provider_clone,
         })
+    }
+
+    fn activate_daita(handle: i32, events_capacity: u32, actions_capacity: u32) {
+        let res = unsafe { wgActivateDaita(handle, events_capacity, actions_capacity) };
+        if !res {
+            panic!("Failed to activate DAITA")
+        }
+    }
+
+    fn receive_daita_event(handle: i32) -> Result<Event> {
+        let mut event = Event::default();
+        let res = unsafe { wgReceiveEvent(handle, &mut event) };
+        if res == 0 {
+            Ok(event)
+        } else {
+            Err(TunnelError::DaitaReceiveEvent(res))
+        }
     }
 
     fn create_tunnel_config(config: &Config, routes: impl Iterator<Item = IpNetwork>) -> TunConfig {
@@ -305,6 +327,12 @@ extern "C" {
     // Sets the config of the WireGuard interface.
     fn wgSetConfig(handle: i32, settings: *const i8) -> i32;
 
+    // Activate DAITA
+    fn wgActivateDaita(tunnelHandle: i32, eventsCapacity: u32, actionsCapacity: u32) -> bool;
+
+    // Wait for and receive DAITA event.
+    fn wgReceiveEvent(tunnelHandle: i32, event: *mut Event) -> i32;
+
     // Frees a pointer allocated by the go runtime - useful to free return value of wgGetConfig
     fn wgFreePtr(ptr: *mut c_void);
 
@@ -315,6 +343,14 @@ extern "C" {
     // Returns the file descriptor of the tunnel IPv6 socket.
     #[cfg(target_os = "android")]
     fn wgGetSocketV6(handle: i32) -> Fd;
+}
+
+#[repr(C)]
+#[derive(Debug, Default)]
+struct Event {
+    peer: [u8; 32],
+    event_type: u32,
+    xmit_bytes: u16,
 }
 
 mod stats {
