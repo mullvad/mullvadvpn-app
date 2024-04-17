@@ -1,7 +1,7 @@
 use crate::{version::is_beta_version, DaemonEventSender};
 use futures::{
     channel::{mpsc, oneshot},
-    future::FusedFuture,
+    future::{BoxFuture, FusedFuture},
     FutureExt, SinkExt, StreamExt, TryFutureExt,
 };
 use mullvad_api::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle, AppVersionProxy};
@@ -92,16 +92,13 @@ pub enum Error {
     UpdateAborted,
 }
 
-pub(crate) struct VersionUpdater {
-    version_proxy: AppVersionProxy,
-    cache_path: PathBuf,
-    update_sender: DaemonEventSender<AppVersionInfo>,
+pub(crate) struct VersionUpdater;
+
+#[derive(Default)]
+struct VersionUpdaterInner {
     /// The last known [AppVersionInfo], along with the time it was determined.
     last_app_version_info: Option<(AppVersionInfo, SystemTime)>,
-    platform_version: String,
     show_beta_releases: bool,
-    availability_handle: ApiAvailabilityHandle,
-
     /// Oneshot channels for responding to [VersionUpdaterCommand::GetVersionInfo].
     get_version_info_responders: Vec<oneshot::Sender<AppVersionInfo>>,
 }
@@ -160,135 +157,49 @@ impl VersionUpdater {
         // load the last known AppVersionInfo from cache
         let last_app_version_info = load_cache(&cache_dir).await;
 
+        let (tx, rx) = mpsc::channel(1);
+
         api_handle.factory = api_handle.factory.default_timeout(DOWNLOAD_TIMEOUT);
         let version_proxy = AppVersionProxy::new(api_handle);
         let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
-        let (tx, rx) = mpsc::channel(1);
         let platform_version = talpid_platform_metadata::short_version();
 
         tokio::spawn(
-            Self {
-                version_proxy,
-                cache_path,
-                update_sender,
+            VersionUpdaterInner {
                 last_app_version_info,
-                platform_version,
                 show_beta_releases,
-                availability_handle,
                 get_version_info_responders: vec![],
             }
-            .run(rx),
+            .run(
+                rx,
+                UpdateContext {
+                    cache_path,
+                    update_sender,
+                },
+                ApiContext {
+                    api_handle: availability_handle,
+                    version_proxy,
+                    platform_version,
+                },
+            ),
         );
 
         VersionUpdaterHandle { tx }
     }
+}
 
+impl VersionUpdaterInner {
     /// Get the last known [AppVersionInfo]. May be stale.
     pub fn last_app_version_info(&self) -> Option<&AppVersionInfo> {
         self.last_app_version_info.as_ref().map(|(info, _)| info)
     }
 
-    /// Immediately query the API for the latest [AppVersionInfo].
-    fn do_version_check(
-        &mut self,
-    ) -> Pin<
-        Box<dyn Future<Output = Result<mullvad_api::AppVersionResponse, Error>> + Send + 'static>,
-    > {
-        let api_handle = self.availability_handle.clone();
-        let version_proxy = self.version_proxy.clone();
-        let platform_version = self.platform_version.clone();
-        let download_future_factory = move || {
-            version_proxy
-                .version_check(
-                    mullvad_version::VERSION.to_owned(),
-                    PLATFORM,
-                    platform_version.clone(),
-                )
-                .map_err(Error::Download)
-        };
-
-        // retry immediately on network errors (unless we're offline)
-        let should_retry_immediate = move |result: &Result<_, Error>| {
-            if let Err(Error::Download(error)) = result {
-                error.is_network_error() && !api_handle.get_state().is_offline()
-            } else {
-                false
-            }
-        };
-
-        Box::pin(retry_future(
-            download_future_factory,
-            should_retry_immediate,
-            IMMEDIATE_RETRY_STRATEGY,
-        ))
-    }
-
-    /// Query the API for the latest [AppVersionInfo].
-    ///
-    /// This function waits until background calls are enabled in
-    /// [ApiAvailability](mullvad_api::availability::ApiAvailability).
-    ///
-    /// On any error, this function retries repeatedly every [UPDATE_INTERVAL_ERROR] until success.
-    fn do_version_check_in_background(
-        &self,
-    ) -> Pin<
-        Box<dyn Future<Output = Result<mullvad_api::AppVersionResponse, Error>> + Send + 'static>,
-    > {
-        let api_handle = self.availability_handle.clone();
-        let version_proxy = self.version_proxy.clone();
-        let platform_version = self.platform_version.clone();
-        let download_future_factory = move || {
-            let when_available = api_handle.wait_background();
-            let request = version_proxy.version_check(
-                mullvad_version::VERSION.to_owned(),
-                PLATFORM,
-                platform_version.clone(),
-            );
-            async move {
-                when_available.await.map_err(Error::ApiCheck)?;
-                request.await.map_err(Error::Download)
-            }
-        };
-
-        Box::pin(retry_future(
-            download_future_factory,
-            |result| result.is_err(),
-            std::iter::repeat(UPDATE_INTERVAL_ERROR),
-        ))
-    }
-
-    /// Write [Self::last_app_version_info], if any, to the cache file ([VERSION_INFO_FILENAME]).
-    async fn write_cache(&self) -> Result<(), Error> {
-        let last_app_version_info = match self.last_app_version_info() {
-            Some(version_info) => version_info,
-            None => {
-                log::debug!("The version cache is empty -- not writing");
-                return Ok(());
-            }
-        };
-        log::debug!(
-            "Writing version check cache to {}",
-            self.cache_path.display()
-        );
-        let mut file = File::create(&self.cache_path)
-            .await
-            .map_err(Error::WriteVersionCache)?;
-        let cached_app_version = CachedAppVersionInfo::from(last_app_version_info.clone());
-        let mut buf = serde_json::to_vec_pretty(&cached_app_version).map_err(Error::Serialize)?;
-        let mut read_buf: &[u8] = buf.as_mut();
-
-        let _ = tokio::io::copy(&mut read_buf, &mut file)
-            .await
-            .map_err(Error::WriteVersionCache)?;
-        Ok(())
-    }
-
     /// Convert a [mullvad_api::AppVersionResponse] to an [AppVersionInfo].
     fn response_to_version_info(
-        &mut self,
+        &self,
         response: mullvad_api::AppVersionResponse,
     ) -> AppVersionInfo {
-        let suggested_upgrade = Self::suggested_upgrade(
+        let suggested_upgrade = suggested_upgrade(
             &APP_VERSION,
             &response.latest_stable,
             &response.latest_beta,
@@ -303,44 +214,20 @@ impl VersionUpdater {
         }
     }
 
-    /// If current_version is not the latest, return a string containing the latest version.
-    fn suggested_upgrade(
-        current_version: &ParsedAppVersion,
-        latest_stable: &Option<String>,
-        latest_beta: &str,
-        show_beta: bool,
-    ) -> Option<String> {
-        let stable_version = latest_stable
-            .as_ref()
-            .and_then(|stable| ParsedAppVersion::from_str(stable).ok());
-
-        let beta_version = if show_beta {
-            ParsedAppVersion::from_str(latest_beta).ok()
-        } else {
-            None
-        };
-
-        let latest_version = max(stable_version, beta_version)?;
-
-        if current_version < &latest_version {
-            Some(latest_version.to_string())
-        } else {
-            None
-        }
-    }
-
     /// Update [Self::last_app_version_info] and write it to disk cache.
     ///
     /// Also, if we are currently have a pending [GetVersionInfo][rvc] command, respond to it.
     ///
     /// [rvc]: VersionUpdaterCommand::GetVersionInfo
-    async fn update_version_info(&mut self, new_version_info: AppVersionInfo) {
-        let _ = self.update_sender.send(new_version_info.clone());
-
-        self.last_app_version_info = Some((new_version_info, SystemTime::now()));
-        if let Err(err) = self.write_cache().await {
+    async fn update_version_info(
+        &mut self,
+        update: &impl Fn(AppVersionInfo) -> BoxFuture<'static, Result<(), Error>>,
+        new_version_info: AppVersionInfo,
+    ) {
+        if let Err(err) = update(new_version_info.clone()).await {
             log::error!("Failed to save version cache to disk: {}", err);
         }
+        self.last_app_version_info = Some((new_version_info, SystemTime::now()));
     }
 
     /// Get the time left until [Self::last_app_version_info] becomes stale, and should be
@@ -381,7 +268,12 @@ impl VersionUpdater {
         !self.get_version_info_responders.is_empty()
     }
 
-    async fn run(mut self, mut rx: mpsc::Receiver<VersionUpdaterCommand>) {
+    async fn run(
+        self,
+        mut rx: mpsc::Receiver<VersionUpdaterCommand>,
+        update: UpdateContext,
+        api: ApiContext,
+    ) {
         // If this is a dev build, there's no need to pester the API for version checks.
         if *IS_DEV_BUILD {
             log::warn!("Not checking for updates because this is a development build");
@@ -394,6 +286,25 @@ impl VersionUpdater {
             return;
         }
 
+        let update = |info| Box::pin(update.update(info)) as BoxFuture<'static, _>;
+        let do_version_check = || do_version_check(api.clone());
+        let do_version_check_in_background = || do_version_check_in_background(api.clone());
+
+        self.run_inner(rx, update, do_version_check, do_version_check_in_background)
+            .await
+    }
+
+    async fn run_inner(
+        mut self,
+        mut rx: mpsc::Receiver<VersionUpdaterCommand>,
+        update: impl Fn(AppVersionInfo) -> BoxFuture<'static, Result<(), Error>>,
+        do_version_check: impl Fn()
+            -> BoxFuture<'static, Result<mullvad_api::AppVersionResponse, Error>>,
+        do_version_check_in_background: impl Fn() -> BoxFuture<
+            'static,
+            Result<mullvad_api::AppVersionResponse, Error>,
+        >,
+    ) {
         let mut version_is_stale = self.wait_until_version_is_stale();
         let mut version_check = futures::future::Fuse::terminated();
 
@@ -407,14 +318,14 @@ impl VersionUpdater {
                             .last_app_version_info()
                             .cloned()
                         {
-                            let suggested_upgrade = Self::suggested_upgrade(
+                            let suggested_upgrade = suggested_upgrade(
                                 &APP_VERSION,
                                 &Some(last_app_version_info.latest_stable.clone()),
                                 &last_app_version_info.latest_beta,
                                 self.show_beta_releases || is_beta_version(),
                             );
 
-                            self.update_version_info(AppVersionInfo {
+                            self.update_version_info(&update, AppVersionInfo {
                                 supported: last_app_version_info.supported,
                                 latest_stable: last_app_version_info.latest_stable,
                                 latest_beta: last_app_version_info.latest_beta,
@@ -432,7 +343,7 @@ impl VersionUpdater {
                             _ => {
                                 // otherwise, start a foreground query to get the latest version_info.
                                 if !self.is_running_version_check() {
-                                    version_check = self.do_version_check().fuse();
+                                    version_check = do_version_check().fuse();
                                 }
                                 self.get_version_info_responders.retain(|r| !r.is_canceled());
                                 self.get_version_info_responders.push(done_tx);
@@ -450,7 +361,7 @@ impl VersionUpdater {
                     if self.is_running_version_check() {
                         continue;
                     }
-                    version_check = self.do_version_check_in_background().fuse();
+                    version_check = do_version_check_in_background().fuse();
                 },
 
                 response = version_check => {
@@ -464,7 +375,7 @@ impl VersionUpdater {
                                 let _ = done_tx.send(new_version_info.clone());
                             }
 
-                            self.update_version_info(new_version_info).await;
+                            self.update_version_info(&update, new_version_info).await;
 
                         }
                         Err(err) => {
@@ -478,6 +389,102 @@ impl VersionUpdater {
             }
         }
     }
+}
+
+struct UpdateContext {
+    cache_path: PathBuf,
+    update_sender: DaemonEventSender<AppVersionInfo>,
+}
+
+impl UpdateContext {
+    /// Write [Self::last_app_version_info], if any, to the cache file ([VERSION_INFO_FILENAME]).
+    /// Also notify listener
+    fn update(&self, last_app_version: AppVersionInfo) -> impl Future<Output = Result<(), Error>> {
+        let _ = self.update_sender.send(last_app_version.clone());
+        let cache_path = self.cache_path.clone();
+
+        async move {
+            log::debug!("Writing version check cache to {}", cache_path.display());
+            let mut file = File::create(cache_path)
+                .await
+                .map_err(Error::WriteVersionCache)?;
+            let cached_app_version = CachedAppVersionInfo::from(last_app_version.to_owned());
+            let mut buf =
+                serde_json::to_vec_pretty(&cached_app_version).map_err(Error::Serialize)?;
+            let mut read_buf: &[u8] = buf.as_mut();
+
+            let _ = tokio::io::copy(&mut read_buf, &mut file)
+                .await
+                .map_err(Error::WriteVersionCache)?;
+            Ok(())
+        }
+    }
+}
+
+#[derive(Clone)]
+struct ApiContext {
+    api_handle: ApiAvailabilityHandle,
+    version_proxy: AppVersionProxy,
+    platform_version: String,
+}
+
+/// Immediately query the API for the latest [AppVersionInfo].
+fn do_version_check(
+    api: ApiContext,
+) -> BoxFuture<'static, Result<mullvad_api::AppVersionResponse, Error>> {
+    let download_future_factory = move || {
+        api.version_proxy
+            .version_check(
+                mullvad_version::VERSION.to_owned(),
+                PLATFORM,
+                api.platform_version.clone(),
+            )
+            .map_err(Error::Download)
+    };
+
+    // retry immediately on network errors (unless we're offline)
+    let should_retry_immediate = move |result: &Result<_, Error>| {
+        if let Err(Error::Download(error)) = result {
+            error.is_network_error() && !api.api_handle.get_state().is_offline()
+        } else {
+            false
+        }
+    };
+
+    Box::pin(retry_future(
+        download_future_factory,
+        should_retry_immediate,
+        IMMEDIATE_RETRY_STRATEGY,
+    ))
+}
+
+/// Query the API for the latest [AppVersionInfo].
+///
+/// This function waits until background calls are enabled in
+/// [ApiAvailability](mullvad_api::availability::ApiAvailability).
+///
+/// On any error, this function retries repeatedly every [UPDATE_INTERVAL_ERROR] until success.
+fn do_version_check_in_background(
+    api: ApiContext,
+) -> BoxFuture<'static, Result<mullvad_api::AppVersionResponse, Error>> {
+    let download_future_factory = move || {
+        let when_available = api.api_handle.wait_background();
+        let request = api.version_proxy.version_check(
+            mullvad_version::VERSION.to_owned(),
+            PLATFORM,
+            api.platform_version.clone(),
+        );
+        async move {
+            when_available.await.map_err(Error::ApiCheck)?;
+            request.await.map_err(Error::Download)
+        }
+    };
+
+    Box::pin(retry_future(
+        download_future_factory,
+        |result| result.is_err(),
+        std::iter::repeat(UPDATE_INTERVAL_ERROR),
+    ))
 }
 
 /// Read the app version cache from the provided directory.
@@ -535,10 +542,201 @@ fn dev_version_cache() -> AppVersionInfo {
         suggested_upgrade: None,
     }
 }
+/// If current_version is not the latest, return a string containing the latest version.
+fn suggested_upgrade(
+    current_version: &ParsedAppVersion,
+    latest_stable: &Option<String>,
+    latest_beta: &str,
+    show_beta: bool,
+) -> Option<String> {
+    let stable_version = latest_stable
+        .as_ref()
+        .and_then(|stable| ParsedAppVersion::from_str(stable).ok());
+
+    let beta_version = if show_beta {
+        ParsedAppVersion::from_str(latest_beta).ok()
+    } else {
+        None
+    };
+
+    let latest_version = max(stable_version, beta_version)?;
+
+    if current_version < &latest_version {
+        Some(latest_version.to_string())
+    } else {
+        None
+    }
+}
 
 #[cfg(test)]
 mod test {
+    use std::sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    };
+
     use super::*;
+
+    /// If there's no cached version, it should count as stale
+    #[test]
+    fn test_version_unknown_is_stale() {
+        let checker = VersionUpdaterInner::default();
+        assert!(checker.last_app_version_info.is_none());
+        assert!(checker.version_is_stale());
+    }
+
+    /// If the last checked time is in the future, the version is stale
+    #[test]
+    fn test_version_invalid_is_stale() {
+        let checker = VersionUpdaterInner {
+            last_app_version_info: Some((
+                dev_version_cache(),
+                SystemTime::now() + Duration::from_secs(1),
+            )),
+            ..VersionUpdaterInner::default()
+        };
+        assert!(checker.version_is_stale());
+    }
+
+    /// If we have a cached version that's less than `UPDATE_INTERVAL` old, it should not be stale
+    #[test]
+    fn test_version_actual_non_stale() {
+        let checker = VersionUpdaterInner {
+            last_app_version_info: Some((
+                dev_version_cache(),
+                SystemTime::now() - UPDATE_INTERVAL + Duration::from_secs(1),
+            )),
+            ..VersionUpdaterInner::default()
+        };
+        assert!(!checker.version_is_stale());
+    }
+
+    /// If `UPDATE_INTERVAL` has elapsed, the version should be stale
+    #[test]
+    fn test_version_actual_stale() {
+        let checker = VersionUpdaterInner {
+            last_app_version_info: Some((dev_version_cache(), SystemTime::now() - UPDATE_INTERVAL)),
+            ..VersionUpdaterInner::default()
+        };
+        assert!(checker.version_is_stale());
+    }
+
+    /// Test whether check immediately fetches version info if it's non-existent
+    #[tokio::test(start_paused = true)]
+    async fn test_version_check_run_immediate() {
+        let checker = VersionUpdaterInner::default();
+
+        let updated = Arc::new(AtomicBool::new(false));
+        let update = fake_updater(updated.clone());
+
+        let (_tx, rx) = mpsc::channel(1);
+        tokio::spawn(checker.run_inner(rx, update, fake_version_check, fake_version_check));
+
+        talpid_time::sleep(Duration::from_secs(10)).await;
+        assert!(updated.load(Ordering::SeqCst), "expected immediate update");
+    }
+
+    /// Test whether check actually runs after `UPDATE_INTERVAL`
+    #[tokio::test(start_paused = true)]
+    async fn test_version_check_run_when_stale() {
+        let checker = VersionUpdaterInner {
+            last_app_version_info: Some((dev_version_cache(), SystemTime::now())),
+            ..VersionUpdaterInner::default()
+        };
+
+        let updated = Arc::new(AtomicBool::new(false));
+        let update = fake_updater(updated.clone());
+
+        let (_tx, rx) = mpsc::channel(1);
+        tokio::spawn(checker.run_inner(rx, update, fake_version_check, fake_version_check));
+
+        assert!(!updated.load(Ordering::SeqCst));
+
+        talpid_time::sleep(Duration::from_secs(10)).await;
+        assert!(
+            !updated.load(Ordering::SeqCst),
+            "short interval: no update should have occurred"
+        );
+
+        talpid_time::sleep(UPDATE_INTERVAL).await;
+        assert!(
+            updated.load(Ordering::SeqCst),
+            "check should have run after `UPDATE_INTERVAL`"
+        );
+    }
+
+    /// Test whether check runs immediately when requested, if stale
+    #[tokio::test(start_paused = true)]
+    async fn test_version_check_manual() {
+        let checker = VersionUpdaterInner {
+            last_app_version_info: Some((dev_version_cache(), SystemTime::now() - UPDATE_INTERVAL)),
+            ..VersionUpdaterInner::default()
+        };
+
+        let updated = Arc::new(AtomicBool::new(false));
+        let update = fake_updater(updated.clone());
+
+        let (mut tx, rx) = mpsc::channel(1);
+        tokio::spawn(checker.run_inner(rx, update, fake_version_check, fake_version_check_err));
+
+        // Fail automatic update
+        talpid_time::sleep(Duration::from_secs(1)).await;
+        assert!(!updated.load(Ordering::SeqCst), "check should fail");
+
+        // Requesting version should trigger an immediate update
+        send_version_request(&mut tx).await.unwrap();
+        talpid_time::sleep(Duration::from_secs(1)).await;
+        assert!(
+            updated.load(Ordering::SeqCst),
+            "expected immediate update from stale"
+        );
+
+        updated.store(false, Ordering::SeqCst);
+
+        // The next request should do nothing
+        send_version_request(&mut tx).await.unwrap();
+        talpid_time::sleep(Duration::from_secs(1)).await;
+        assert!(!updated.load(Ordering::SeqCst), "expected cached version");
+    }
+
+    async fn send_version_request(
+        tx: &mut mpsc::Sender<VersionUpdaterCommand>,
+    ) -> Result<(), futures::channel::mpsc::SendError> {
+        let (done_tx, _done_rx) = oneshot::channel();
+        tx.send(VersionUpdaterCommand::GetVersionInfo(done_tx))
+            .await
+    }
+
+    fn fake_updater(
+        updated: Arc<AtomicBool>,
+    ) -> impl Fn(AppVersionInfo) -> BoxFuture<'static, Result<(), Error>> {
+        move |_new_version| {
+            updated.store(true, Ordering::SeqCst);
+            Box::pin(async { Ok(()) })
+        }
+    }
+
+    fn fake_version_check() -> BoxFuture<'static, Result<mullvad_api::AppVersionResponse, Error>> {
+        Box::pin(async { Ok(fake_version_response()) })
+    }
+
+    fn fake_version_check_err() -> BoxFuture<'static, Result<mullvad_api::AppVersionResponse, Error>>
+    {
+        Box::pin(retry_future(
+            || async { Err(Error::Download(mullvad_api::rest::Error::TimeoutError)) },
+            |_| true,
+            std::iter::repeat(UPDATE_INTERVAL_ERROR),
+        ))
+    }
+
+    fn fake_version_response() -> mullvad_api::AppVersionResponse {
+        mullvad_api::AppVersionResponse {
+            supported: true,
+            latest: "2024.1".to_owned(),
+            latest_stable: None,
+            latest_beta: "2024.1-beta1".to_owned(),
+        }
+    }
 
     #[test]
     fn test_version_upgrade_suggestions() {
@@ -554,51 +752,51 @@ mod test {
         let newer_beta = ParsedAppVersion::from_str("2021.5-beta3").unwrap();
 
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&older_stable, &latest_stable, latest_beta, false),
+            suggested_upgrade(&older_stable, &latest_stable, latest_beta, false),
             Some("2020.4".to_owned())
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&older_stable, &latest_stable, latest_beta, true),
+            suggested_upgrade(&older_stable, &latest_stable, latest_beta, true),
             Some("2020.5-beta3".to_owned())
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&current_stable, &latest_stable, latest_beta, false),
+            suggested_upgrade(&current_stable, &latest_stable, latest_beta, false),
             None
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&current_stable, &latest_stable, latest_beta, true),
+            suggested_upgrade(&current_stable, &latest_stable, latest_beta, true),
             Some("2020.5-beta3".to_owned())
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&newer_stable, &latest_stable, latest_beta, false),
+            suggested_upgrade(&newer_stable, &latest_stable, latest_beta, false),
             None
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&newer_stable, &latest_stable, latest_beta, true),
+            suggested_upgrade(&newer_stable, &latest_stable, latest_beta, true),
             None
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&older_beta, &latest_stable, latest_beta, false),
+            suggested_upgrade(&older_beta, &latest_stable, latest_beta, false),
             Some("2020.4".to_owned())
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&older_beta, &latest_stable, latest_beta, true),
+            suggested_upgrade(&older_beta, &latest_stable, latest_beta, true),
             Some("2020.5-beta3".to_owned())
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&current_beta, &latest_stable, latest_beta, false),
+            suggested_upgrade(&current_beta, &latest_stable, latest_beta, false),
             None
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&current_beta, &latest_stable, latest_beta, true),
+            suggested_upgrade(&current_beta, &latest_stable, latest_beta, true),
             None
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&newer_beta, &latest_stable, latest_beta, false),
+            suggested_upgrade(&newer_beta, &latest_stable, latest_beta, false),
             None
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&newer_beta, &latest_stable, latest_beta, true),
+            suggested_upgrade(&newer_beta, &latest_stable, latest_beta, true),
             None
         );
     }
