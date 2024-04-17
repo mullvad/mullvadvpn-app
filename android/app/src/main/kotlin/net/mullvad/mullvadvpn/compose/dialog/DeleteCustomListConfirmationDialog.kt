@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.CustomListId
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -33,7 +34,7 @@ import org.koin.core.parameter.parametersOf
 @Preview
 @Composable
 private fun PreviewRemoveDeviceConfirmationDialog() {
-    AppTheme { DeleteCustomListConfirmationDialog("My Custom List") }
+    AppTheme { DeleteCustomListConfirmationDialog(CustomListName.fromString("My Custom List")) }
 }
 
 @Composable
@@ -41,7 +42,7 @@ private fun PreviewRemoveDeviceConfirmationDialog() {
 fun DeleteCustomList(
     navigator: ResultBackNavigator<CustomListResult.Deleted>,
     customListId: CustomListId,
-    name: String
+    name: CustomListName
 ) {
     val viewModel: DeleteCustomListConfirmationViewModel =
         koinViewModel(parameters = { parametersOf(customListId) })
@@ -62,7 +63,7 @@ fun DeleteCustomList(
 
 @Composable
 fun DeleteCustomListConfirmationDialog(
-    name: String,
+    name: CustomListName,
     onDelete: () -> Unit = {},
     onBack: () -> Unit = {}
 ) {
@@ -79,7 +80,10 @@ fun DeleteCustomListConfirmationDialog(
         title = {
             Text(
                 text =
-                    stringResource(id = R.string.delete_custom_list_confirmation_description, name)
+                    stringResource(
+                        id = R.string.delete_custom_list_confirmation_description,
+                        name.value
+                    )
             )
         },
         dismissButton = {

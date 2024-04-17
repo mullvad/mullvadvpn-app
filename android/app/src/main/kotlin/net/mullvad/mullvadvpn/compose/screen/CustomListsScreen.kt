@@ -177,7 +177,10 @@ private fun LazyListScope.content(
         key = { item: CustomList -> item.id },
         contentType = { ContentType.ITEM }
     ) { customList ->
-        NavigationComposeCell(title = customList.name, onClick = { openCustomList(customList) })
+        NavigationComposeCell(
+            title = customList.name.value,
+            onClick = { openCustomList(customList) }
+        )
     }
 }
 

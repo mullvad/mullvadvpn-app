@@ -14,8 +14,8 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
 import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.ModifyCustomListError
 import net.mullvad.mullvadvpn.model.CustomListName
+import net.mullvad.mullvadvpn.model.ModifyCustomListError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 
 class EditCustomListNameDialogViewModel(
