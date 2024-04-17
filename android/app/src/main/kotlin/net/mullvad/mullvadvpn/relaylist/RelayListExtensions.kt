@@ -1,29 +1,10 @@
 package net.mullvad.mullvadvpn.relaylist
 
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
-import net.mullvad.mullvadvpn.model.Relay as DaemonRelay
+import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.RelayItem
 
-fun List<RelayItem.Location.Country>.findItemForGeographicLocationConstraint(
-    constraint: GeographicLocationConstraint
-) =
-    when (constraint) {
-        is GeographicLocationConstraint.Country -> {
-            this.find { country -> country.code == constraint.countryCode }
-        }
-        is GeographicLocationConstraint.City -> {
-            val country = this.find { country -> country.code == constraint.countryCode }
-
-            country?.cities?.find { city -> city.code == constraint.cityCode }
-        }
-        is GeographicLocationConstraint.Hostname -> {
-            val country = this.find { country -> country.code == constraint.countryCode }
-
-            val city = country?.cities?.find { city -> city.code == constraint.cityCode }
-
-            city?.relays?.find { relay -> relay.name == constraint.hostname }
-        }
-    }
+fun List<RelayItem.Location.Country>.findItemForGeoLocationId(constraint: GeoLocationId) =
+    withDescendants().first { it.id == constraint }
 
 /**
  * Filter and expand the list based on search terms If a country is matched, that country and all
@@ -37,7 +18,7 @@ fun List<RelayItem.Location.Country>.filterOnSearchTerm(
     selectedItem: RelayItem?
 ): List<RelayItem.Location.Country> {
     return if (searchTerm.length >= MIN_SEARCH_LENGTH) {
-        val filteredCountries = mutableMapOf<String, RelayItem.Location.Country>()
+        val filteredCountries = mutableMapOf<GeoLocationId.Country, RelayItem.Location.Country>()
         this.forEach { relayCountry ->
             val cities = mutableListOf<RelayItem.Location.City>()
 
@@ -46,7 +27,7 @@ fun List<RelayItem.Location.Country>.filterOnSearchTerm(
             // Do not currently expand the country or any city
             if (relayCountry.name.contains(other = searchTerm, ignoreCase = true)) {
                 cities.addAll(relayCountry.cities.map { city -> city.copy(expanded = false) })
-                filteredCountries[relayCountry.code] =
+                filteredCountries[relayCountry.id] =
                     relayCountry.copy(expanded = false, cities = cities)
             }
 
@@ -59,14 +40,14 @@ fun List<RelayItem.Location.Country>.filterOnSearchTerm(
                 // Finally if the city has not already been added to the filtered list, add it, but
                 // do not expand it yet.
                 if (relayCity.name.contains(other = searchTerm, ignoreCase = true)) {
-                    val value = filteredCountries[relayCountry.code]
+                    val value = filteredCountries[relayCountry.id]
                     if (value != null) {
-                        filteredCountries[relayCountry.code] = value.copy(expanded = true)
+                        filteredCountries[relayCountry.id] = value.copy(expanded = true)
                     } else {
-                        filteredCountries[relayCountry.code] =
+                        filteredCountries[relayCountry.id] =
                             relayCountry.copy(expanded = true, cities = cities)
                     }
-                    if (cities.none { city -> city.code == relayCity.code }) {
+                    if (cities.none { city -> city.id == relayCity.id }) {
                         cities.add(relayCity.copy(expanded = false))
                     }
                 }
@@ -79,14 +60,14 @@ fun List<RelayItem.Location.Country>.filterOnSearchTerm(
                     // if so expand it, if not add it to the filtered list and expand it.
                     // Finally add the relay to the list.
                     if (relay.name.contains(other = searchTerm, ignoreCase = true)) {
-                        val value = filteredCountries[relayCountry.code]
+                        val value = filteredCountries[relayCountry.id]
                         if (value != null) {
-                            filteredCountries[relayCountry.code] = value.copy(expanded = true)
+                            filteredCountries[relayCountry.id] = value.copy(expanded = true)
                         } else {
-                            filteredCountries[relayCountry.code] =
+                            filteredCountries[relayCountry.id] =
                                 relayCountry.copy(expanded = true, cities = cities)
                         }
-                        val cityIndex = cities.indexOfFirst { it.code == relayCity.code }
+                        val cityIndex = cities.indexOfFirst { it.id == relayCity.id }
 
                         // No city found
                         if (cityIndex < 0) {
@@ -107,10 +88,6 @@ fun List<RelayItem.Location.Country>.filterOnSearchTerm(
     }
 }
 
-private fun List<DaemonRelay>.filterValidRelays(): List<DaemonRelay> = filter {
-    it.isWireguardRelay
-}
-
 /** Expand the parent(s), if any, for the current selected item */
 private fun List<RelayItem.Location.Country>.expandItemForSelection(
     selectedItem: RelayItem?
@@ -122,7 +99,7 @@ private fun List<RelayItem.Location.Country>.expandItemForSelection(
             }
             is RelayItem.Location.City -> {
                 this.map { country ->
-                    if (country.code == selectedItem.location.countryCode) {
+                    if (country.id == selectedItem.id.countryCode) {
                         country.copy(expanded = true)
                     } else {
                         country
@@ -131,12 +108,12 @@ private fun List<RelayItem.Location.Country>.expandItemForSelection(
             }
             is RelayItem.Location.Relay -> {
                 this.map { country ->
-                    if (country.code == selectedItem.location.countryCode) {
+                    if (country.id == selectedItem.id.country) {
                         country.copy(
                             expanded = true,
                             cities =
                                 country.cities.map { city ->
-                                    if (city.code == selectedItem.location.cityCode) {
+                                    if (city.id == selectedItem.id.city) {
                                         city.copy(expanded = true)
                                     } else {
                                         city
@@ -154,7 +131,7 @@ private fun List<RelayItem.Location.Country>.expandItemForSelection(
 }
 
 fun List<RelayItem.Location.Country>.getRelayItemsByCodes(
-    codes: List<GeographicLocationConstraint>
+    codes: List<GeoLocationId>
 ): List<RelayItem.Location> =
-    this.filter { codes.contains(it.location) } +
-        this.flatMap { it.descendants() }.filter { codes.contains(it.location) }
+    this.filter { codes.contains(it.id) } +
+        this.flatMap { it.descendants() }.filter { codes.contains(it.id) }

@@ -49,8 +49,8 @@
     <ID>ConstructorParameterNaming:ExcludedProcessKt.kt$ExcludedProcessKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ExcludedProcess.Builder</ID>
     <ID>ConstructorParameterNaming:ExcludedProcessListKt.kt$ExcludedProcessListKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.ExcludedProcessList.Builder</ID>
     <ID>ConstructorParameterNaming:GeoIpLocationKt.kt$GeoIpLocationKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.GeoIpLocation.Builder</ID>
-    <ID>ConstructorParameterNaming:GeographicLocationConstraintKt.kt$GeographicLocationConstraintKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.GeographicLocationConstraint.Builder</ID>
-    <ID>ConstructorParameterNaming:LocationConstraintKt.kt$LocationConstraintKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.LocationConstraint.Builder</ID>
+    <ID>ConstructorParameterNaming:GeoLocationIdKt.kt$GeoLocationIdKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.GeoLocationId.Builder</ID>
+    <ID>ConstructorParameterNaming:RelayItemIdKt.kt$RelayItemIdKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.RelayItemId.Builder</ID>
     <ID>ConstructorParameterNaming:LocationKt.kt$LocationKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.Location.Builder</ID>
     <ID>ConstructorParameterNaming:NewAccessMethodSettingKt.kt$NewAccessMethodSettingKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.NewAccessMethodSetting.Builder</ID>
     <ID>ConstructorParameterNaming:NormalRelaySettingsKt.kt$NormalRelaySettingsKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.NormalRelaySettings.Builder</ID>
@@ -193,10 +193,10 @@
     <ID>FunctionNaming:ExcludedProcessListKt.kt$ExcludedProcessListKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.ExcludedProcessList.Builder, ): Dsl</ID>
     <ID>FunctionNaming:GeoIpLocationKt.kt$GeoIpLocationKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.GeoIpLocation</ID>
     <ID>FunctionNaming:GeoIpLocationKt.kt$GeoIpLocationKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.GeoIpLocation.Builder, ): Dsl</ID>
-    <ID>FunctionNaming:GeographicLocationConstraintKt.kt$GeographicLocationConstraintKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.GeographicLocationConstraint</ID>
-    <ID>FunctionNaming:GeographicLocationConstraintKt.kt$GeographicLocationConstraintKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.GeographicLocationConstraint.Builder, ): Dsl</ID>
-    <ID>FunctionNaming:LocationConstraintKt.kt$LocationConstraintKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.LocationConstraint</ID>
-    <ID>FunctionNaming:LocationConstraintKt.kt$LocationConstraintKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.LocationConstraint.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:GeoLocationIdKt.kt$GeoLocationIdKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.GeoLocationId</ID>
+    <ID>FunctionNaming:GeoLocationIdKt.kt$GeoLocationIdKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.GeoLocationId.Builder, ): Dsl</ID>
+    <ID>FunctionNaming:RelayItemIdKt.kt$RelayItemIdKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.RelayItemId</ID>
+    <ID>FunctionNaming:RelayItemIdKt.kt$RelayItemIdKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.RelayItemId.Builder, ): Dsl</ID>
     <ID>FunctionNaming:LocationKt.kt$LocationKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.Location</ID>
     <ID>FunctionNaming:LocationKt.kt$LocationKt.Dsl.Companion$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _create( builder: mullvad_daemon.management_interface.ManagementInterface.Location.Builder, ): Dsl</ID>
     <ID>FunctionNaming:NewAccessMethodSettingKt.kt$NewAccessMethodSettingKt.Dsl$@kotlin.jvm.JvmSynthetic @kotlin.PublishedApi internal fun _build(): mullvad_daemon.management_interface.ManagementInterface.NewAccessMethodSetting</ID>
@@ -378,7 +378,7 @@
     <ID>MaxLineLength:ConnectionConfigKt.kt$public inline</ID>
     <ID>MaxLineLength:CustomDnsOptionsKt.kt$CustomDnsOptionsKt.Dsl$@kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)</ID>
     <ID>MaxLineLength:CustomListKt.kt$CustomListKt.Dsl$public</ID>
-    <ID>MaxLineLength:CustomListKt.kt$CustomListKt.Dsl$values: kotlin.collections.Iterable&lt;mullvad_daemon.management_interface.ManagementInterface.GeographicLocationConstraint&gt;</ID>
+    <ID>MaxLineLength:CustomListKt.kt$CustomListKt.Dsl$values: kotlin.collections.Iterable&lt;mullvad_daemon.management_interface.ManagementInterface.GeoLocationId&gt;</ID>
     <ID>MaxLineLength:CustomListSettingsKt.kt$CustomListSettingsKt.Dsl$public</ID>
     <ID>MaxLineLength:CustomRelaySettingsKt.kt$public</ID>
     <ID>MaxLineLength:DaemonEventKt.kt$public</ID>
@@ -396,8 +396,8 @@
     <ID>MaxLineLength:ErrorStateKt.kt$public</ID>
     <ID>MaxLineLength:ExcludedProcessListKt.kt$ExcludedProcessListKt.Dsl$public</ID>
     <ID>MaxLineLength:ExcludedProcessListKt.kt$ExcludedProcessListKt.Dsl$values: kotlin.collections.Iterable&lt;mullvad_daemon.management_interface.ManagementInterface.ExcludedProcess&gt;</ID>
-    <ID>MaxLineLength:GeographicLocationConstraintKt.kt$GeographicLocationConstraintKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.GeographicLocationConstraint.Builder</ID>
-    <ID>MaxLineLength:LocationConstraintKt.kt$public</ID>
+    <ID>MaxLineLength:GeoLocationIdKt.kt$GeoLocationIdKt.Dsl$private val _builder: mullvad_daemon.management_interface.ManagementInterface.GeoLocationId.Builder</ID>
+    <ID>MaxLineLength:RelayItemIdKt.kt$public</ID>
     <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt$public</ID>
     <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.AddSplitTunnelProcess is unimplemented"</ID>
     <ID>MaxLineLength:ManagementInterfaceGrpcKt.kt$ManagementServiceGrpcKt.ManagementServiceCoroutineImplBase$"Method mullvad_daemon.management_interface.ManagementService.ClearSplitTunnelProcesses is unimplemented"</ID>
@@ -540,9 +540,9 @@
     <ID>PackageNaming:ExcludedProcessKt.kt$package mullvad_daemon.management_interface</ID>
     <ID>PackageNaming:ExcludedProcessListKt.kt$package mullvad_daemon.management_interface</ID>
     <ID>PackageNaming:GeoIpLocationKt.kt$package mullvad_daemon.management_interface</ID>
-    <ID>PackageNaming:GeographicLocationConstraintKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:GeoLocationIdKt.kt$package mullvad_daemon.management_interface</ID>
     <ID>PackageNaming:InetNetwork.kt$package net.mullvad.talpid.tun_provider</ID>
-    <ID>PackageNaming:LocationConstraintKt.kt$package mullvad_daemon.management_interface</ID>
+    <ID>PackageNaming:RelayItemIdKt.kt$package mullvad_daemon.management_interface</ID>
     <ID>PackageNaming:LocationKt.kt$package mullvad_daemon.management_interface</ID>
     <ID>PackageNaming:ManagementInterfaceGrpcKt.kt$package mullvad_daemon.management_interface</ID>
     <ID>PackageNaming:ManagementInterfaceKt.kt$package mullvad_daemon.management_interface</ID>

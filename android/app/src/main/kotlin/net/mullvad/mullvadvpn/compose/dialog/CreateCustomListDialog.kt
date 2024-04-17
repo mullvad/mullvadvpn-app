@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.compose.test.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.model.CreateCustomListError
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.usecase.customlists.CreateCustomListWithLocationsError
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
@@ -61,7 +61,7 @@ private fun PreviewCreateCustomListDialogError() {
 fun CreateCustomList(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<CustomListResult.Created>,
-    locationCode: GeographicLocationConstraint? = null
+    locationCode: GeoLocationId? = null
 ) {
     val vm: CreateCustomListDialogViewModel =
         koinViewModel(parameters = { parametersOf(locationCode) })

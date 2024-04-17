@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.model.CreateCustomListError
 import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomList
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.UpdateCustomListResult
 import net.mullvad.mullvadvpn.relaylist.getRelayItemsByCodes
@@ -145,8 +145,8 @@ class CustomListActionUseCaseTest {
     fun `delete action should return successful with deleted list`() = runTest {
         // Arrange
         val mockCustomList: CustomList = mockk()
-        val mockLocation: GeographicLocationConstraint.Country = mockk()
-        val mockLocations: ArrayList<GeographicLocationConstraint> = arrayListOf(mockLocation)
+        val mockLocation: GeoLocationId.Country = mockk()
+        val mockLocations: ArrayList<GeoLocationId> = arrayListOf(mockLocation)
         val name = CustomListName.fromString("test")
         val customListId = "1"
         val locationCode = "AB"
@@ -176,10 +176,10 @@ class CustomListActionUseCaseTest {
         val name = CustomListName.fromString("test")
         val oldLocationCodes = listOf("AB", "CD")
         val newLocationCodes = listOf("EF", "GH")
-        val oldLocations: ArrayList<GeographicLocationConstraint> =
+        val oldLocations: ArrayList<GeoLocationId> =
             arrayListOf(
-                GeographicLocationConstraint.Country("AB"),
-                GeographicLocationConstraint.Country("CD")
+                GeoLocationId.Country("AB"),
+                GeoLocationId.Country("CD")
             )
         val customListId = "1"
         val customList = CustomList(id = customListId, name = name.value, locations = oldLocations)

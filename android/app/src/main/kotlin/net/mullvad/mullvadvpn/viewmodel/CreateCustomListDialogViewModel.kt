@@ -15,12 +15,12 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.usecase.customlists.CreateCustomListWithLocationsError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 
 class CreateCustomListDialogViewModel(
-    private val locationCode: GeographicLocationConstraint?,
+    private val locationCode: GeoLocationId?,
     private val customListActionUseCase: CustomListActionUseCase,
 ) : ViewModel() {
 

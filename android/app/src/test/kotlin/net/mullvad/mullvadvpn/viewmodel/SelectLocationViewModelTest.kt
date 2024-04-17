@@ -22,8 +22,8 @@ import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
-import net.mullvad.mullvadvpn.model.LocationConstraint
+import net.mullvad.mullvadvpn.model.GeoLocationId
+import net.mullvad.mullvadvpn.model.RelayItemId
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.relaylist.Provider
@@ -31,7 +31,7 @@ import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
-import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
+import net.mullvad.mullvadvpn.relaylist.toRelayItemId
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
@@ -132,14 +132,14 @@ class SelectLocationViewModelTest {
     fun `on selectRelay call uiSideEffect should emit CloseScreen and connect`() = runTest {
         // Arrange
         val mockRelayItem: RelayItem.Country = mockk()
-        val mockLocation: GeographicLocationConstraint.Country = mockk(relaxed = true)
-        val mockLocationConstraint: LocationConstraint = mockk()
+        val mockLocation: GeoLocationId.Country = mockk(relaxed = true)
+        val mockRelayItemId: RelayItemId = mockk()
         val connectionProxyMock: ConnectionProxy = mockk(relaxUnitFun = true)
         every { mockRelayItem.location } returns mockLocation
         every { mockServiceConnectionManager.connectionProxy() } returns connectionProxyMock
-        every { mockRelayListUseCase.updateSelectedRelayLocation(mockLocationConstraint) } returns
+        every { mockRelayListUseCase.updateSelectedRelayLocation(mockRelayItemId) } returns
             Unit
-        every { mockRelayItem.toLocationConstraint() } returns mockLocationConstraint
+        every { mockRelayItem.toRelayItemId() } returns mockRelayItemId
 
         // Act, Assert
         viewModel.uiSideEffect.test {
@@ -148,7 +148,7 @@ class SelectLocationViewModelTest {
             assertEquals(SelectLocationSideEffect.CloseScreen, awaitItem())
             verify {
                 connectionProxyMock.connect()
-                mockRelayListUseCase.updateSelectedRelayLocation(mockLocationConstraint)
+                mockRelayListUseCase.updateSelectedRelayLocation(mockRelayItemId)
             }
         }
     }

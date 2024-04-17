@@ -3,9 +3,11 @@ package net.mullvad.mullvadvpn.usecase
 import kotlinx.coroutines.flow.combine
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.CustomList
-import net.mullvad.mullvadvpn.model.LocationConstraint
+import net.mullvad.mullvadvpn.model.CustomListId
+import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.RelayItem
-import net.mullvad.mullvadvpn.relaylist.findItemForGeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.RelayItemId
+import net.mullvad.mullvadvpn.relaylist.findItemForGeoLocationId
 import net.mullvad.mullvadvpn.relaylist.toRelayItemCustomList
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
@@ -26,19 +28,19 @@ class SelectedLocationRelayItemUseCase(
         }
 
     private fun findSelectedRelayItem(
-        locationConstraint: Constraint<LocationConstraint>,
+        locationConstraint: Constraint<RelayItemId>,
         relayCountries: List<RelayItem.Location.Country>,
         customLists: List<CustomList>
     ): RelayItem? {
         return if (locationConstraint is Constraint.Only) {
             when (val location = locationConstraint.value) {
-                is LocationConstraint.CustomList -> {
+                is CustomListId -> {
                     customLists
-                        .firstOrNull { it.id == location.listId }
+                        .firstOrNull { it.id == location }
                         ?.toRelayItemCustomList(relayCountries)
                 }
-                is LocationConstraint.Location -> {
-                    relayCountries.findItemForGeographicLocationConstraint(location.location)
+                is GeoLocationId -> {
+                    relayCountries.findItemForGeoLocationId(location)
                 }
             }
         } else {

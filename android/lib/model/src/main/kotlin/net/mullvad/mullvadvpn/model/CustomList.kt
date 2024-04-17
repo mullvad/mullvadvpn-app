@@ -9,7 +9,7 @@ import kotlinx.parcelize.Parcelize
 data class CustomList(
     val id: CustomListId,
     val name: CustomListName,
-    val locations: List<GeographicLocationConstraint>
+    val locations: List<GeoLocationId>
 ) : Parcelable {
     companion object
 }
