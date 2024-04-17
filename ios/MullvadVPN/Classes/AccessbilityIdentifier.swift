@@ -52,6 +52,7 @@ public enum AccessibilityIdentifier: String {
     case cancelDeleteCustomListButton
     case customListLocationCheckmarkButton
     case listCustomListDoneButton
+    case selectLocationFilterButton
 
     // Cells
     case deviceCell
@@ -63,7 +64,6 @@ public enum AccessibilityIdentifier: String {
     case problemReportCell
     case faqCell
     case apiAccessCell
-    case relayFilterOwnershipCell
     case relayFilterProviderCell
     case wireGuardPortsCell
     case wireGuardObfuscationCell
@@ -72,9 +72,19 @@ public enum AccessibilityIdentifier: String {
     case customListEditNameFieldCell
     case customListEditAddOrEditLocationCell
     case customListEditDeleteListCell
+    case locationFilterOwnershipHeaderCell
+    case locationFilterProvidersHeaderCell
+    case ownershipMullvadOwnedCell
+    case ownershipRentedCell
+    case ownershipAnyCell
+    case countryLocationCell
+    case cityLocationCell
+    case relayLocationCell
+    case customListLocationCell
 
     // Labels
     case accountPagePaidUntilLabel
+    case accountPageDeviceNameLabel
     case headerDeviceNameLabel
     case connectionStatusConnectedLabel
     case connectionStatusNotConnectedLabel
