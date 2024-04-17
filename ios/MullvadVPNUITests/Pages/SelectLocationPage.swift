@@ -22,6 +22,29 @@ class SelectLocationPage: Page {
         return self
     }
 
+    @discardableResult func tapCountryLocationCellExpandButton(withIndex: Int) -> Self {
+        let cell = app.cells.containing(.any, identifier: AccessibilityIdentifier.countryLocationCell.rawValue)
+            .element(boundBy: withIndex)
+        let expandButton = cell.buttons[AccessibilityIdentifier.expandButton]
+        expandButton.tap()
+        return self
+    }
+
+    @discardableResult func tapCityLocationCellExpandButton(withIndex: Int) -> Self {
+        let cell = app.cells.containing(.any, identifier: AccessibilityIdentifier.cityLocationCell.rawValue)
+            .element(boundBy: withIndex)
+        let expandButton = cell.buttons[AccessibilityIdentifier.expandButton]
+        expandButton.tap()
+        return self
+    }
+
+    @discardableResult func tapRelayLocationCell(withIndex: Int) -> Self {
+        let cell = app.cells.containing(.any, identifier: AccessibilityIdentifier.relayLocationCell.rawValue)
+            .element(boundBy: withIndex)
+        cell.tap()
+        return self
+    }
+
     @discardableResult func tapLocationCellExpandButton(withName name: String) -> Self {
         let table = app.tables[AccessibilityIdentifier.selectLocationTableView]
         let matchingCells = table.cells.containing(.any, identifier: name)
@@ -41,12 +64,6 @@ class SelectLocationPage: Page {
 
         collapseButton.tap()
 
-        return self
-    }
-
-    @discardableResult func closeSelectLocationPage() -> Self {
-        let doneButton = app.buttons[.closeSelectLocationButton]
-        doneButton.tap()
         return self
     }
 
@@ -70,6 +87,16 @@ class SelectLocationPage: Page {
 
     @discardableResult func cellWithIdentifier(identifier: String) -> XCUIElement {
         app.tables[AccessibilityIdentifier.selectLocationTableView].cells[identifier]
+    }
+
+    @discardableResult func tapFilterButton() -> Self {
+        app.buttons[AccessibilityIdentifier.selectLocationFilterButton].tap()
+        return self
+    }
+
+    @discardableResult func tapDoneButton() -> Self {
+        app.buttons[AccessibilityIdentifier.closeSelectLocationButton].tap()
+        return self
     }
 
     func locationCellIsExpanded(_ name: String) -> Bool {

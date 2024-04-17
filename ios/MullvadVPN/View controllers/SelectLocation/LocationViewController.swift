@@ -76,6 +76,7 @@ final class LocationViewController: UIViewController {
                 self?.navigateToFilter?()
             })
         )
+        navigationItem.leftBarButtonItem?.accessibilityIdentifier = .selectLocationFilterButton
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             systemItem: .done,
