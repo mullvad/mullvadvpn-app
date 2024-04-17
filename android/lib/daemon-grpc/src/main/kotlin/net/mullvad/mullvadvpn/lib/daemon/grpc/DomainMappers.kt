@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.lib.daemon.grpc
 
 import android.net.Uri
+import android.util.Log
 import io.grpc.ConnectivityState
 import java.net.InetAddress
 import java.net.InetSocketAddress
@@ -106,17 +107,25 @@ internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
     TunnelEndpoint(
         endpoint =
             with(address) {
-                val indexOfSeparator = indexOfLast { it == ':' }
-                val ipPart =
-                    address.substring(0, indexOfSeparator).filter { it in listOf('[', ']') }
-                val portPart = address.substring(indexOfSeparator + 1)
-                Endpoint(
-                    address = InetSocketAddress.createUnresolved(ipPart, portPart.toInt()),
-                    protocol = this@toDomain.protocol.toDomain()
-                )
-            },
+                    val indexOfSeparator = indexOfLast { it == ':' }
+                    val ipPart =
+                        address.substring(0, indexOfSeparator).filter { it !in listOf('[', ']') }
+                    val portPart = address.substring(indexOfSeparator + 1)
+
+                    Endpoint(
+                        address =
+                            InetSocketAddress(InetAddress.getByName(ipPart), portPart.toInt()),
+                        protocol = this@toDomain.protocol.toDomain()
+                    )
+                }
+                .also { Log.d("TunnelEndpoint", "TunnelEndpoint: $it") },
         quantumResistant = this.quantumResistant,
-        obfuscation = this.obfuscation.toDomain()
+        obfuscation =
+            if (hasObfuscation()) {
+                obfuscation.toDomain()
+            } else {
+                null
+            }
     )
 
 internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndpoint =
@@ -259,21 +268,19 @@ internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<Relay
     }
 
 internal fun Constraint<RelayItemId>.fromDomain(): ManagementInterface.LocationConstraint =
-    when (this) {
-        is Constraint.Any -> ManagementInterface.LocationConstraint.newBuilder().build()
-        is Constraint.Only -> {
-            when (val relayItemId = value) {
-                is CustomListId ->
-                    ManagementInterface.LocationConstraint.newBuilder()
-                        .setCustomList(relayItemId.value)
-                        .build()
-                is GeoLocationId ->
-                    ManagementInterface.LocationConstraint.newBuilder()
-                        .setLocation(relayItemId.fromDomain())
-                        .build()
+    ManagementInterface.LocationConstraint.newBuilder()
+        .apply {
+            when (this@fromDomain) {
+                is Constraint.Any -> {}
+                is Constraint.Only -> {
+                    when (val relayItemId = value) {
+                        is CustomListId -> setCustomList(relayItemId.value)
+                        is GeoLocationId -> setLocation(relayItemId.fromDomain())
+                    }
+                }
             }
         }
-    }
+        .build()
 
 internal fun ManagementInterface.GeographicLocationConstraint.toDomain(): GeoLocationId {
     val country = GeoLocationId.Country(country)
@@ -495,24 +502,6 @@ internal fun GeoLocationId.fromDomain(): ManagementInterface.GeographicLocationC
         }
         .build()
 
-// internal fun GeoLocationId.fromDomain(): ManagementInterface.LocationConstraint =
-//    when (this) {
-//        is GeoLocationId.Country ->
-//
-// ManagementInterface.LocationConstraint.newBuilder().setCountry(this.countryCode).build()
-//        is GeoLocationId.City ->
-//            ManagementInterface.GeographicLocationConstraint.newBuilder()
-//                .setCountry(this.countryCode)
-//                .setCity(this.cityCode)
-//                .build()
-//        is GeoLocationId.Hostname ->
-//            ManagementInterface.LocationConstraint.newBuilder()
-//                .setCountry(this.countryCode)
-//                .setCity(this.cityCode)
-//                .setHostname(this.hostname)
-//                .build()
-////    }
-
 internal fun CustomList.fromDomain(): ManagementInterface.CustomList =
     ManagementInterface.CustomList.newBuilder()
         .setId(this.id.value)
@@ -659,12 +648,12 @@ internal fun RelaySettings.fromDomain(): ManagementInterface.RelaySettings =
     ManagementInterface.RelaySettings.newBuilder()
         .setNormal(
             ManagementInterface.NormalRelaySettings.newBuilder()
-                .setLocation(this@fromDomain.relayConstraints.location.fromDomain())
+                .setTunnelType(ManagementInterface.TunnelType.WIREGUARD)
                 .setWireguardConstraints(relayConstraints.wireguardConstraints.fromDomain())
+                .setOpenvpnConstraints(ManagementInterface.OpenvpnConstraints.getDefaultInstance())
+                .setLocation(this@fromDomain.relayConstraints.location.fromDomain())
                 .setOwnership(relayConstraints.ownership.fromDomain())
                 .addAllProviders(relayConstraints.providers.fromDomain())
-                .setTunnelType(ManagementInterface.TunnelType.WIREGUARD)
-                .setOpenvpnConstraints(ManagementInterface.OpenvpnConstraints.getDefaultInstance())
                 .build()
         )
         .build()
