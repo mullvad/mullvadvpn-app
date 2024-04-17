@@ -35,6 +35,8 @@ import net.mullvad.mullvadvpn.lib.daemon.grpc.util.LogInterceptor
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.connectivityFlow
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.AccountToken
+import net.mullvad.mullvadvpn.model.AddSplitTunnelingAppError
+import net.mullvad.mullvadvpn.model.AppId
 import net.mullvad.mullvadvpn.model.AppVersionInfo as ModelAppVersionInfo
 import net.mullvad.mullvadvpn.model.ClearAllOverridesError
 import net.mullvad.mullvadvpn.model.ConnectError
@@ -57,7 +59,6 @@ import net.mullvad.mullvadvpn.model.GetAccountDataError
 import net.mullvad.mullvadvpn.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.model.GetDeviceListError
 import net.mullvad.mullvadvpn.model.GetDeviceStateError
-import net.mullvad.mullvadvpn.model.RelayItemId as ModelRelayItemId
 import net.mullvad.mullvadvpn.model.LoginAccountError
 import net.mullvad.mullvadvpn.model.ObfuscationSettings as ModelObfuscationSettings
 import net.mullvad.mullvadvpn.model.Ownership as ModelOwnership
@@ -70,8 +71,10 @@ import net.mullvad.mullvadvpn.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.model.RedeemVoucherSuccess
 import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.model.RelayItemId as ModelRelayItemId
 import net.mullvad.mullvadvpn.model.RelayList as ModelRelayList
 import net.mullvad.mullvadvpn.model.RelaySettings
+import net.mullvad.mullvadvpn.model.RemoveSplitTunnelingAppError
 import net.mullvad.mullvadvpn.model.SetAllowLanError
 import net.mullvad.mullvadvpn.model.SetAutoConnectError
 import net.mullvad.mullvadvpn.model.SetDnsOptionsError
@@ -178,7 +181,10 @@ class ManagementService(
                     }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error in eventsListen: ${e.message}, ${e.cause}, ${e.stackTraceToString()}")
+                Log.e(
+                    TAG,
+                    "Error in eventsListen: ${e.message}, ${e.cause}, ${e.stackTraceToString()}"
+                )
             }
         }
         scope.launch { _mutableStateFlow.update { getInitialServiceState() } }
@@ -379,9 +385,7 @@ class ManagementService(
     suspend fun getCurrentVersion(): String =
         grpc.getCurrentVersion(Empty.getDefaultInstance()).value
 
-    suspend fun setRelayLocation(
-        location: ModelRelayItemId
-    ): Either<SetRelayLocationError, Unit> =
+    suspend fun setRelayLocation(location: ModelRelayItemId): Either<SetRelayLocationError, Unit> =
         Either.catch {
                 val currentRelaySettings = getSettings().relaySettings
                 val updatedRelaySettings =
@@ -504,6 +508,59 @@ class ManagementService(
 
     suspend fun verifyPlayPurchase(purchase: PlayPurchase): Either<PlayPurchaseVerifyError, Unit> =
         Either.catch { TODO("Not yet implemented") }.mapLeft { PlayPurchaseVerifyError.OtherError }
+
+    suspend fun addSplitTunnelingApp(app: AppId): Either<AddSplitTunnelingAppError, Unit> =
+        Either.catch {
+                // TODO Not yet implemented, added local update that do not change the tunnel
+                _mutableStateFlow.update {
+                    it.copy(
+                        settings =
+                            it.settings?.copy(
+                                splitTunnelSettings =
+                                    it.settings.splitTunnelSettings.copy(
+                                        excludedApps =
+                                            it.settings.splitTunnelSettings.excludedApps + app
+                                    )
+                            )
+                    )
+                }
+            }
+            .mapLeft(AddSplitTunnelingAppError::Unknown)
+
+    suspend fun removeSplitTunnelingApp(app: AppId): Either<RemoveSplitTunnelingAppError, Unit> =
+        Either.catch {
+                // TODO Not yet implemented, added local update that do not change the tunnel
+                _mutableStateFlow.update {
+                    it.copy(
+                        settings =
+                            it.settings?.copy(
+                                splitTunnelSettings =
+                                    it.settings.splitTunnelSettings.copy(
+                                        excludedApps =
+                                            it.settings.splitTunnelSettings.excludedApps - app
+                                    )
+                            )
+                    )
+                }
+            }
+            .mapLeft(RemoveSplitTunnelingAppError::Unknown)
+
+    suspend fun setSplitTunnelingState(
+        enabled: Boolean
+    ): Either<RemoveSplitTunnelingAppError, Unit> =
+        Either.catch {
+                // TODO Not yet implemented, added local update that do not change the tunnel
+                _mutableStateFlow.update {
+                    it.copy(
+                        settings =
+                            it.settings?.copy(
+                                splitTunnelSettings =
+                                    it.settings.splitTunnelSettings.copy(enabled = enabled)
+                            )
+                    )
+                }
+            }
+            .mapLeft(RemoveSplitTunnelingAppError::Unknown)
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 
