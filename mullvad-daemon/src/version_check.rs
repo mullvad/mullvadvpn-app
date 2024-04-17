@@ -336,10 +336,7 @@ impl VersionUpdater {
     ///
     /// [rvc]: VersionUpdaterCommand::GetVersionInfo
     async fn update_version_info(&mut self, new_version_info: AppVersionInfo) {
-        // if daemon can't be reached, return immediately
-        if self.update_sender.send(new_version_info.clone()).is_err() {
-            return;
-        }
+        let _ = self.update_sender.send(new_version_info.clone());
 
         self.last_app_version_info = Some((new_version_info, SystemTime::now()));
         if let Err(err) = self.write_cache().await {
@@ -429,9 +426,6 @@ impl VersionUpdater {
                     }
 
                     Some(VersionUpdaterCommand::GetVersionInfo(done_tx)) => {
-                        if self.update_sender.is_closed() {
-                            return;
-                        }
                         match (self.version_is_stale(), self.last_app_version_info()) {
                             (false, Some(version_info)) => {
                                 // if the version_info isn't stale, return it immediately.
@@ -450,14 +444,11 @@ impl VersionUpdater {
 
                     // time to shut down
                     None => {
-                        return;
+                        break;
                     }
                 },
 
                 _ = version_is_stale => {
-                    if rx.is_terminated() || self.update_sender.is_closed() {
-                        return;
-                    }
                     if self.is_running_version_check() {
                         continue;
                     }
@@ -465,10 +456,6 @@ impl VersionUpdater {
                 },
 
                 response = version_check => {
-                    if rx.is_terminated() || self.update_sender.is_closed() {
-                        return;
-                    }
-
                     match response {
                         Ok(version_info_response) => {
                             let new_version_info =
