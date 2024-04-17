@@ -12,3 +12,5 @@ require (
 	golang.org/x/net v0.0.0-20220809184613-07c6da5e1ced // indirect
 	golang.zx2c4.com/wintun v0.0.0-20211104114900-415007cec224 // indirect
 )
+
+replace golang.zx2c4.com/wireguard => ../../../wireguard-go
