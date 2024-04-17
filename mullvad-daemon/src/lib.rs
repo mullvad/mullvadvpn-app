@@ -857,7 +857,7 @@ where
             on_relay_list_update,
         );
 
-        let (version_updater, version_updater_handle) = version_check::VersionUpdater::new(
+        let version_updater_handle = version_check::VersionUpdater::spawn(
             api_handle.clone(),
             api_availability.clone(),
             cache_dir.clone(),
@@ -865,7 +865,6 @@ where
             settings.show_beta_releases,
         )
         .await;
-        tokio::spawn(version_updater.run());
 
         // Attempt to download a fresh relay list
         relay_list_updater.update().await;
