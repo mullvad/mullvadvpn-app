@@ -1296,3 +1296,30 @@ fn test_daita() {
         ),
     }
 }
+
+/// Check that if  the original user query would yield a relay, the result of running the query
+/// which is the intersection between the user query and any of the default queries shall never
+/// fail.
+#[test]
+fn valid_user_setting_should_yield_relay() {
+    // Make a valid user relay constraint
+    let location = GeographicLocationConstraint::hostname("se", "got", "se9-wireguard");
+    let user_query = RelayQueryBuilder::new().location(location.clone()).build();
+    let user_constraints = RelayQueryBuilder::new()
+        .location(location.clone())
+        .into_constraint();
+
+    let config = SelectorConfig {
+        relay_settings: user_constraints.into(),
+        ..SelectorConfig::default()
+    };
+    let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
+    let user_result = relay_selector.get_relay_by_query(user_query.clone());
+    for retry_attempt in 0..RETRY_ORDER.len() {
+        let post_unification_result =
+            relay_selector.get_relay(retry_attempt, RuntimeParameters::default());
+        if user_result.is_ok() {
+            assert!(post_unification_result.is_ok(), "Expected Post-unification query to be valid because original query {:#?} yielded a connection configuration", user_query)
+        }
+    }
+}
