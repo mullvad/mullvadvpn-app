@@ -58,9 +58,8 @@ impl From<Error> for mullvad_management_interface::Status {
                     .downcast_ref::<mullvad_types::custom_list::Error>()
                     .is_some() =>
             {
-                let custom_list_err =  *err.downcast::<CustomListError>().unwrap();
+                let custom_list_err = *err.downcast::<CustomListError>().unwrap();
                 handle_custom_list_error(custom_list_err)
-
             }
             Error::SerializeError(..) | Error::ParseError(..) | Error::UpdateFailed(..) => {
                 Status::new(Code::Internal, error.to_string())
