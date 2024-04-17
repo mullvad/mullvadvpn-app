@@ -178,7 +178,7 @@ class ManagementService(
                     }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error in eventsListen: ${e.message}")
+                Log.e(TAG, "Error in eventsListen: ${e.message}, ${e.cause}, ${e.stackTraceToString()}")
             }
         }
         scope.launch { _mutableStateFlow.update { getInitialServiceState() } }
