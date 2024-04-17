@@ -255,7 +255,7 @@ internal fun Constraint<RelayItemId>.fromDomain(): ManagementInterface.LocationC
     when (this) {
         is Constraint.Any -> ManagementInterface.LocationConstraint.newBuilder().build()
         is Constraint.Only -> {
-            when (val relayItemId = this.value) {
+            when (val relayItemId = value) {
                 is CustomListId ->
                     ManagementInterface.LocationConstraint.newBuilder()
                         .setCustomList(relayItemId.value)
@@ -650,9 +650,19 @@ internal fun RelaySettings.fromDomain(): ManagementInterface.RelaySettings =
         .setNormal(
             ManagementInterface.NormalRelaySettings.newBuilder()
                 .setLocation(this@fromDomain.relayConstraints.location.fromDomain())
+                .setWireguardConstraints(relayConstraints.wireguardConstraints.fromDomain())
+                .setOwnership(relayConstraints.ownership.fromDomain())
+                .addAllProviders(relayConstraints.providers.fromDomain())
+                .setOpenvpnConstraints(ManagementInterface.OpenvpnConstraints.getDefaultInstance())
                 .build()
         )
         .build()
+
+internal fun Constraint<Ownership>.fromDomain(): ManagementInterface.Ownership =
+    when (this) {
+        Constraint.Any -> ManagementInterface.Ownership.ANY
+        is Constraint.Only -> value.fromDomain()
+    }
 
 internal fun ManagementInterface.AccountData.toDomain(): AccountData =
     AccountData(
