@@ -78,6 +78,7 @@ struct CustomListCellConfiguration {
         contentConfiguration.maxLength = 30
         contentConfiguration.editingEvents.onChange = subject.bindTextAction(to: \.name)
 
+        cell.accessibilityIdentifier = AccessibilityIdentifier.customListEditNameFieldCell
         cell.contentConfiguration = contentConfiguration
     }
 
@@ -86,6 +87,7 @@ struct CustomListCellConfiguration {
 
         contentConfiguration.text = itemIdentifier.text
         cell.contentConfiguration = contentConfiguration
+        cell.accessibilityIdentifier = AccessibilityIdentifier.customListEditAddOrEditLocationCell
 
         if let cell = cell as? CustomCellDisclosureHandling {
             cell.disclosureType = .chevron
@@ -101,6 +103,7 @@ struct CustomListCellConfiguration {
             onDelete?()
         }
 
+        cell.accessibilityIdentifier = AccessibilityIdentifier.customListEditDeleteListCell
         cell.contentConfiguration = contentConfiguration
     }
 }
