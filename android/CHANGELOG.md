@@ -22,9 +22,20 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [android/2024.2-beta1] - 2024-04-17
 ### Added
 - Add the ability to create and manage custom lists of relays.
-- Add Server IP overrides feature.
+- Add the ability to import server IP overrides using text or file.
+
+### Changed
+- Change [default retry connection attempts][`relay selector defaults`].
+
+[`relay selector defaults`]: docs/relay-selector.md#default-constraints-for-tunnel-endpoints
+
+### Fixed
+- Fix pointless API access method rotations for concurrent requests.
 
 
 ## [android/2024.1] - 2024-04-05
