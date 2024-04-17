@@ -215,6 +215,7 @@
     <string name="sent">已傳送</string>
     <string name="sent_contact">如有需要，我們將透過 %1$s 與您聯絡</string>
     <string name="sent_thanks">謝謝！</string>
+    <string name="server_ip_overrides">伺服器 IP 覆寫</string>
     <string name="server_ip_overrides_info_first_paragraph">在某些採用了各類審查功能的網路上，我們的伺服器 IP 位址有時會遭到封鎖。</string>
     <string name="server_ip_overrides_info_second_paragraph">為了避免這種情況，您可以匯入由我們支援團隊所提供的檔案或文字，其中的新 IP 位址會覆蓋「選取位置」視圖中伺服器的預設位址。</string>
     <string name="server_ip_overrides_info_third_paragraph">如果您在連線至 VPN 伺服器時遇到問題，請聯絡支援人員。</string>

@@ -215,6 +215,7 @@
     <string name="sent">Inviato</string>
     <string name="sent_contact">Se necessario, ti contatteremo all\'indirizzo %1$s</string>
     <string name="sent_thanks">Grazie!</string>
+    <string name="server_ip_overrides">Sovrascritture IP server</string>
     <string name="server_ip_overrides_info_first_paragraph">Su alcune reti, dove vengono utilizzati vari tipi di censura, gli indirizzi IP dei nostri server vengono talvolta bloccati.</string>
     <string name="server_ip_overrides_info_second_paragraph">Per aggirare questo problema, puoi importare un file o un testo, fornito dal nostro team di supporto, con nuovi indirizzi IP che sovrascrivono gli indirizzi predefiniti dei server nella vista Seleziona posizione.</string>
     <string name="server_ip_overrides_info_third_paragraph">Se riscontri problemi di connessione ai server VPN, contatta l\'assistenza.</string>

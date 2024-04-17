@@ -215,6 +215,7 @@
     <string name="sent">ส่ง</string>
     <string name="sent_contact">เราจะติดต่อคุณไปทาง %1$s ในกรณีจำเป็น</string>
     <string name="sent_thanks">ขอบคุณ!</string>
+    <string name="server_ip_overrides">โอเวอร์ไรด์เซิร์ฟเวอร์ IP</string>
     <string name="server_ip_overrides_info_first_paragraph">บางครั้งที่อยู่ IP เซิร์ฟเวอร์ของเราอาจถูกบล็อก ในบางเครือข่ายที่มีการใช้งานเซ็นเซอร์หลายประเภท</string>
     <string name="server_ip_overrides_info_second_paragraph">ในการหลีกเลี่ยงปัญหานี้ คุณสามารถนำเข้าไฟล์หรือข้อความที่ได้รับจากทีมสนับสนุนของเรา พร้อมด้วยที่อยู่ IP ใหม่ที่โอเวอร์ไรด์ที่อยู่เริ่มต้นของเซิร์ฟเวอร์ในมุมมองเลือกตำแหน่งที่ตั้ง</string>
     <string name="server_ip_overrides_info_third_paragraph">หากคุณประสบปัญหาในการเชื่อมต่อกับเซิร์ฟเวอร์ VPN โปรดติดต่อฝ่ายสนับสนุน</string>

@@ -215,6 +215,7 @@
     <string name="sent">Отправлено</string>
     <string name="sent_contact">При необходимости мы свяжемся с вами по адресу %1$s</string>
     <string name="sent_thanks">Спасибо!</string>
+    <string name="server_ip_overrides">Переопределение IP-адреса сервера</string>
     <string name="server_ip_overrides_info_first_paragraph">В некоторых сетях, где используются различные виды цензуры, IP-адреса наших серверов иногда блокируются.</string>
     <string name="server_ip_overrides_info_second_paragraph">Чтобы обойти эту проблему, можно импортировать файл или текст, предоставленный нашей службой поддержки, с новыми IP-адресами, которые заменяют адреса серверов по умолчанию в представлении «Выбор местоположения».</string>
     <string name="server_ip_overrides_info_third_paragraph">Если у вас возникли проблемы с подключением к VPN-серверам, обратитесь в службу поддержки.</string>

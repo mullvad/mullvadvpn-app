@@ -215,6 +215,7 @@
     <string name="sent">送信済み</string>
     <string name="sent_contact">必要に応じて %1$s 宛にご連絡します　</string>
     <string name="sent_thanks">ありがとうございます！</string>
+    <string name="server_ip_overrides">サーバーIPのオーバーライド</string>
     <string name="server_ip_overrides_info_first_paragraph">各種の検閲が使用されている一部のネットワークでは、サーバーIPアドレスがブロックされる場合があります。</string>
     <string name="server_ip_overrides_info_second_paragraph">これを回避するには、「場所を選択」ビューでサポートチームが提供したサーバーのデフォルトアドレスをオーバーライドする新しいIPアドレスを含むファイルまたはテキストをインポートできます。</string>
     <string name="server_ip_overrides_info_third_paragraph">VPNサーバーへの接続に問題が生じている場合は、サポートにお問い合わせください。</string>
