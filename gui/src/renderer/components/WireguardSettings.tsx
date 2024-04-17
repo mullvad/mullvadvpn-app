@@ -34,7 +34,6 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import YellowLabel from './YellowLabel';
 
 const MIN_WIREGUARD_MTU_VALUE = 1280;
 const MAX_WIREGUARD_MTU_VALUE = 1420;
@@ -581,10 +580,7 @@ function DaitaSettings() {
       <AriaInputGroup>
         <Cell.Container>
           <AriaLabel>
-            <Cell.InputLabel>
-              {strings.daita}
-              <YellowLabel>{messages.gettext('BETA')}</YellowLabel>
-            </Cell.InputLabel>
+            <Cell.InputLabel>{strings.daita}</Cell.InputLabel>
           </AriaLabel>
           <InfoButton>
             <ModalMessage>

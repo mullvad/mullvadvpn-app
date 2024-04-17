@@ -56,9 +56,6 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
-msgid "BETA"
-msgstr ""
-
 msgid "BLOCKED CONNECTION"
 msgstr ""
 
