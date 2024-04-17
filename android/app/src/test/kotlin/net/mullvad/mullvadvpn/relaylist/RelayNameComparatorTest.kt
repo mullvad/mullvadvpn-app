@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.relaylist
 
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import net.mullvad.mullvadvpn.model.Ownership
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -21,6 +22,8 @@ class RelayNameComparatorTest {
                 location = mockk(),
                 locationName = "mock",
                 active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
         val relay10 =
             RelayItem.Relay(
@@ -28,6 +31,8 @@ class RelayNameComparatorTest {
                 location = mockk(),
                 locationName = "mock",
                 active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
 
         relay9 assertOrderBothDirection relay10
@@ -41,6 +46,8 @@ class RelayNameComparatorTest {
                 location = mockk(),
                 locationName = "mock",
                 active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
         val relay9b =
             RelayItem.Relay(
@@ -48,6 +55,8 @@ class RelayNameComparatorTest {
                 location = mockk(),
                 locationName = "mock",
                 active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
 
         assertTrue(RelayNameComparator.compare(relay9a, relay9b) == 0)
@@ -57,13 +66,41 @@ class RelayNameComparatorTest {
     @Test
     fun `comparator should be able to handle name of only numbers`() {
         val relay001 =
-            RelayItem.Relay(name = "001", location = mockk(), locationName = "mock", active = false)
+            RelayItem.Relay(
+                name = "001",
+                location = mockk(),
+                locationName = "mock",
+                active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
+            )
         val relay1 =
-            RelayItem.Relay(name = "1", location = mockk(), locationName = "mock", active = false)
+            RelayItem.Relay(
+                name = "1",
+                location = mockk(),
+                locationName = "mock",
+                active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
+            )
         val relay3 =
-            RelayItem.Relay(name = "3", location = mockk(), locationName = "mock", active = false)
+            RelayItem.Relay(
+                name = "3",
+                location = mockk(),
+                locationName = "mock",
+                active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
+            )
         val relay100 =
-            RelayItem.Relay(name = "100", location = mockk(), locationName = "mock", active = false)
+            RelayItem.Relay(
+                name = "100",
+                location = mockk(),
+                locationName = "mock",
+                active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
+            )
 
         relay001 assertOrderBothDirection relay1
         relay001 assertOrderBothDirection relay3
@@ -79,6 +116,8 @@ class RelayNameComparatorTest {
                 location = mockk(),
                 locationName = "mock",
                 active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
         val relay9b =
             RelayItem.Relay(
@@ -86,6 +125,8 @@ class RelayNameComparatorTest {
                 location = mockk(),
                 locationName = "mock",
                 active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
 
         assertTrue(RelayNameComparator.compare(relay9a, relay9b) == 0)
@@ -100,6 +141,8 @@ class RelayNameComparatorTest {
                 location = mockk(),
                 locationName = "mock",
                 active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
         val relay005 =
             RelayItem.Relay(
@@ -107,6 +150,8 @@ class RelayNameComparatorTest {
                 location = mockk(),
                 locationName = "mock",
                 active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
 
         relay001 assertOrderBothDirection relay005
@@ -120,6 +165,8 @@ class RelayNameComparatorTest {
                 location = mockk(),
                 locationName = "mock",
                 active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
         val relayAr8 =
             RelayItem.Relay(
@@ -127,6 +174,8 @@ class RelayNameComparatorTest {
                 location = mockk(),
                 locationName = "mock",
                 active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
         val relaySe5 =
             RelayItem.Relay(
@@ -134,6 +183,8 @@ class RelayNameComparatorTest {
                 location = mockk(),
                 locationName = "mock",
                 active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
         val relaySe10 =
             RelayItem.Relay(
@@ -141,6 +192,8 @@ class RelayNameComparatorTest {
                 location = mockk(),
                 locationName = "mock",
                 active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
 
         relayAr2 assertOrderBothDirection relayAr8
@@ -155,7 +208,9 @@ class RelayNameComparatorTest {
                 name = "se2-cloud",
                 location = mockk(),
                 locationName = "mock",
-                active = false
+                active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
         val relay2w =
             RelayItem.Relay(
@@ -163,6 +218,8 @@ class RelayNameComparatorTest {
                 location = mockk(),
                 locationName = "mock",
                 active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
 
         relay2c assertOrderBothDirection relay2w
@@ -175,7 +232,9 @@ class RelayNameComparatorTest {
                 name = "se22",
                 location = mockk(),
                 locationName = "mock",
-                active = false
+                active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
         val relay22b =
             RelayItem.Relay(
@@ -183,6 +242,8 @@ class RelayNameComparatorTest {
                 location = mockk(),
                 locationName = "mock",
                 active = false,
+                providerName = "Provider",
+                ownership = Ownership.MullvadOwned
             )
 
         relay22a assertOrderBothDirection relay22b
