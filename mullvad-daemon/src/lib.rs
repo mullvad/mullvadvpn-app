@@ -569,18 +569,6 @@ impl DaemonEventSender {
     }
 }
 
-impl<E> DaemonEventSender<E>
-where
-    InternalDaemonEvent: From<E>,
-{
-    pub fn is_closed(&self) -> bool {
-        self.sender
-            .upgrade()
-            .map(|sender| sender.is_closed())
-            .unwrap_or(true)
-    }
-}
-
 impl<E> Sender<E> for DaemonEventSender<E>
 where
     InternalDaemonEvent: From<E>,
