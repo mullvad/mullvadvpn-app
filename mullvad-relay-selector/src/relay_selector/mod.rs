@@ -510,7 +510,7 @@ impl RelaySelector {
             }
             SpecializedSelectorConfig::Normal(pure_config) => {
                 let parsed_relays = &self.parsed_relays.lock().unwrap();
-                Self::get_relay_inner(query, parsed_relays, &pure_config)
+                Self::get_relay_inner(&query, parsed_relays, &pure_config)
             }
         }
     }
@@ -547,14 +547,14 @@ impl RelaySelector {
             SpecializedSelectorConfig::Normal(normal_config) => {
                 let parsed_relays = &self.parsed_relays.lock().unwrap();
                 // Merge user preferences with the relay selector's default preferences.
-                let user_preferences = RelayQuery::from(normal_config.clone());
                 let query = Self::pick_and_merge_query(
                     retry_attempt,
                     retry_order,
                     runtime_params,
-                    user_preferences,
-                );
-                Self::get_relay_inner(query, parsed_relays, &normal_config)
+                    &normal_config,
+                    parsed_relays,
+                )?;
+                Self::get_relay_inner(&query, parsed_relays, &normal_config)
             }
         }
     }
@@ -569,22 +569,29 @@ impl RelaySelector {
     /// Runtime parameters may affect which of the default queries that are considered. For example,
     /// queries which rely on IPv6 will not be considered if working IPv6 is not available at
     /// runtime.
+    ///
+    /// Returns an error iff the intersection between the user's preferences and every default retry
+    /// attempt-query yields queries with no matching relays. I.e., no retry attempt could ever
+    /// resolve to a relay.
     fn pick_and_merge_query(
         retry_attempt: usize,
         retry_order: &[RelayQuery],
         runtime_params: RuntimeParameters,
-        user_preferences: RelayQuery,
-    ) -> RelayQuery {
-        log::trace!("Merging user preferences {user_preferences:?} with default retry strategy");
+        user_config: &NormalSelectorConfig<'_>,
+        parsed_relays: &ParsedRelays,
+    ) -> Result<RelayQuery, Error> {
+        let user_query = RelayQuery::from(user_config.clone());
+        log::trace!("Merging user preferences {user_query:?} with default retry strategy");
         retry_order
             .iter()
             // Remove candidate queries based on runtime parameters before trying to merge user
             // settings
             .filter(|query| runtime_params.compatible(query))
-            .cycle()
-            .filter_map(|query| query.clone().intersection(user_preferences.clone()))
+            .filter_map(|query| query.clone().intersection(user_query.clone()))
+            .filter(|query| Self::get_relay_inner(query, parsed_relays, user_config).is_ok())
+            .cycle() // If the above filters remove all relays, cycle will also return an empty iterator
             .nth(retry_attempt)
-            .unwrap_or(user_preferences)
+            .ok_or(Error::NoRelay)
     }
 
     /// "Execute" the given query, yielding a final set of relays and/or bridges which the VPN
@@ -605,7 +612,7 @@ impl RelaySelector {
     /// * An `Err` if no suitable bridge is found
     #[cfg(not(target_os = "android"))]
     fn get_relay_inner(
-        query: RelayQuery,
+        query: &RelayQuery,
         parsed_relays: &ParsedRelays,
         config: &NormalSelectorConfig<'_>,
     ) -> Result<GetRelay, Error> {
@@ -622,7 +629,7 @@ impl RelaySelector {
                     let mut new_query = query.clone();
                     new_query.tunnel_protocol = Constraint::Only(tunnel_type);
                     // If a suitable relay is found, short-circuit and return it
-                    if let Ok(relay) = Self::get_relay_inner(new_query, parsed_relays, config) {
+                    if let Ok(relay) = Self::get_relay_inner(&new_query, parsed_relays, config) {
                         return Ok(relay);
                     }
                 }
@@ -659,7 +666,7 @@ impl RelaySelector {
     ///
     /// [`MullvadEndpoint`]: mullvad_types::endpoint::MullvadEndpoint
     fn get_wireguard_relay(
-        query: RelayQuery,
+        query: &RelayQuery,
         config: &NormalSelectorConfig<'_>,
         parsed_relays: &ParsedRelays,
     ) -> Result<GetRelay, Error> {
@@ -668,13 +675,13 @@ impl RelaySelector {
             Constraint::Only(TunnelType::Wireguard)
         );
         let inner = if !query.wireguard_constraints.multihop() {
-            Self::get_wireguard_singlehop_config(&query, config, parsed_relays)?
+            Self::get_wireguard_singlehop_config(query, config, parsed_relays)?
         } else {
-            Self::get_wireguard_multihop_config(&query, config, parsed_relays)?
+            Self::get_wireguard_multihop_config(query, config, parsed_relays)?
         };
-        let endpoint = Self::get_wireguard_endpoint(&query, parsed_relays, &inner)?;
+        let endpoint = Self::get_wireguard_endpoint(query, parsed_relays, &inner)?;
         let obfuscator =
-            Self::get_wireguard_obfuscator(&query, inner.clone(), &endpoint, parsed_relays)?;
+            Self::get_wireguard_obfuscator(query, inner.clone(), &endpoint, parsed_relays)?;
 
         Ok(GetRelay::Wireguard {
             endpoint,
@@ -822,16 +829,16 @@ impl RelaySelector {
     /// [`MullvadEndpoint`]: mullvad_types::endpoint::MullvadEndpoint
     #[cfg(not(target_os = "android"))]
     fn get_openvpn_relay(
-        query: RelayQuery,
+        query: &RelayQuery,
         config: &NormalSelectorConfig<'_>,
         parsed_relays: &ParsedRelays,
     ) -> Result<GetRelay, Error> {
         assert_eq!(query.tunnel_protocol, Constraint::Only(TunnelType::OpenVpn));
         let exit =
-            Self::choose_openvpn_relay(&query, config, parsed_relays).ok_or(Error::NoRelay)?;
-        let endpoint = Self::get_openvpn_endpoint(&query, &exit, parsed_relays)?;
+            Self::choose_openvpn_relay(query, config, parsed_relays).ok_or(Error::NoRelay)?;
+        let endpoint = Self::get_openvpn_endpoint(query, &exit, parsed_relays)?;
         let bridge =
-            Self::get_openvpn_bridge(&query, &exit, &endpoint.protocol, parsed_relays, config)?;
+            Self::get_openvpn_bridge(query, &exit, &endpoint.protocol, parsed_relays, config)?;
 
         // FIXME: This assert would be better to encode at the type level.
         assert!(matches!(exit.endpoint_data, RelayEndpointData::Openvpn));
