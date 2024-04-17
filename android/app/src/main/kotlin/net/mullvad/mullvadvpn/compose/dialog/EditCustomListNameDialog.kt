@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.compose.test.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TA
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.model.CustomListId
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.GetCustomListError
 import net.mullvad.mullvadvpn.model.ModifyCustomListError
 import net.mullvad.mullvadvpn.model.UpdateCustomListError
@@ -44,7 +45,7 @@ private fun PreviewEditCustomListNameDialog() {
 fun EditCustomListName(
     backNavigator: ResultBackNavigator<CustomListResult.Renamed>,
     customListId: CustomListId,
-    initialName: String
+    initialName: CustomListName
 ) {
     val vm: EditCustomListNameDialogViewModel =
         koinViewModel(parameters = { parametersOf(customListId, initialName) })

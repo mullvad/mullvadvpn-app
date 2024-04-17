@@ -17,7 +17,6 @@ import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.usecase.customlists.CreateCustomListWithLocationsError
-import net.mullvad.mullvadvpn.model.CustomListsError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 
 class CreateCustomListDialogViewModel(
@@ -39,7 +38,12 @@ class CreateCustomListDialogViewModel(
     fun createCustomList(name: String) {
         viewModelScope.launch {
             customListActionUseCase
-                .performAction(CustomListAction.Create(CustomListName.fromString(name), listOfNotNull(locationCode)))
+                .performAction(
+                    CustomListAction.Create(
+                        CustomListName.fromString(name),
+                        listOfNotNull(locationCode)
+                    )
+                )
                 .fold(
                     { _error.emit(it) },
                     {

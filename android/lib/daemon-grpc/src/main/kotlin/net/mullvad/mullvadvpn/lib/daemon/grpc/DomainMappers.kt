@@ -334,7 +334,11 @@ internal fun ManagementInterface.Udp2TcpObfuscationSettings.toDomain(): Udp2TcpO
     }
 
 internal fun ManagementInterface.CustomList.toDomain(): CustomList =
-    CustomList(id = CustomListId(id), name = CustomListName.fromString(name), locations = locationsList.map { it.toDomain() })
+    CustomList(
+        id = CustomListId(id),
+        name = CustomListName.fromString(name),
+        locations = locationsList.map { it.toDomain() }
+    )
 
 internal fun ManagementInterface.TunnelOptions.toDomain(): TunnelOptions =
     TunnelOptions(wireguard = wireguard.toDomain(), dnsOptions = dnsOptions.toDomain())
