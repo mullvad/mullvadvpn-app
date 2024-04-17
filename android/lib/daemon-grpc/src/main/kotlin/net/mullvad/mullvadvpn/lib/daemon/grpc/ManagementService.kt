@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.LogInterceptor
@@ -151,33 +152,35 @@ class ManagementService(
     suspend fun start() {
         scope.launch {
             try {
-                grpc.eventsListen(Empty.getDefaultInstance()).collect { event ->
-                    Log.d("ManagementService", "Event: $event")
-                    @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
-                    when (event.eventCase) {
-                        ManagementInterface.DaemonEvent.EventCase.TUNNEL_STATE ->
-                            _mutableStateFlow.update {
-                                it.copy(tunnelState = event.tunnelState.toDomain())
-                            }
-                        ManagementInterface.DaemonEvent.EventCase.SETTINGS ->
-                            _mutableStateFlow.update {
-                                it.copy(settings = event.settings.toDomain())
-                            }
-                        ManagementInterface.DaemonEvent.EventCase.RELAY_LIST ->
-                            _mutableStateFlow.update {
-                                it.copy(relayList = event.relayList.toDomain())
-                            }
-                        ManagementInterface.DaemonEvent.EventCase.VERSION_INFO ->
-                            _mutableStateFlow.update {
-                                it.copy(versionInfo = event.versionInfo.toDomain())
-                            }
-                        ManagementInterface.DaemonEvent.EventCase.DEVICE ->
-                            _mutableStateFlow.update {
-                                it.copy(device = event.device.newState.toDomain())
-                            }
-                        ManagementInterface.DaemonEvent.EventCase.REMOVE_DEVICE -> {}
-                        ManagementInterface.DaemonEvent.EventCase.EVENT_NOT_SET -> {}
-                        ManagementInterface.DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
+                withContext(Dispatchers.IO) {
+                    grpc.eventsListen(Empty.getDefaultInstance()).collect { event ->
+                        Log.d("ManagementService", "Event: $event")
+                        @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
+                        when (event.eventCase) {
+                            ManagementInterface.DaemonEvent.EventCase.TUNNEL_STATE ->
+                                _mutableStateFlow.update {
+                                    it.copy(tunnelState = event.tunnelState.toDomain())
+                                }
+                            ManagementInterface.DaemonEvent.EventCase.SETTINGS ->
+                                _mutableStateFlow.update {
+                                    it.copy(settings = event.settings.toDomain())
+                                }
+                            ManagementInterface.DaemonEvent.EventCase.RELAY_LIST ->
+                                _mutableStateFlow.update {
+                                    it.copy(relayList = event.relayList.toDomain())
+                                }
+                            ManagementInterface.DaemonEvent.EventCase.VERSION_INFO ->
+                                _mutableStateFlow.update {
+                                    it.copy(versionInfo = event.versionInfo.toDomain())
+                                }
+                            ManagementInterface.DaemonEvent.EventCase.DEVICE ->
+                                _mutableStateFlow.update {
+                                    it.copy(device = event.device.newState.toDomain())
+                                }
+                            ManagementInterface.DaemonEvent.EventCase.REMOVE_DEVICE -> {}
+                            ManagementInterface.DaemonEvent.EventCase.EVENT_NOT_SET -> {}
+                            ManagementInterface.DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
+                        }
                     }
                 }
             } catch (e: Exception) {
