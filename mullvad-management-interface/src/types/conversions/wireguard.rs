@@ -72,7 +72,7 @@ impl TryFrom<proto::QuantumResistantState> for mullvad_types::wireguard::Quantum
     }
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_os = "linux"))]
 impl From<mullvad_types::wireguard::DaitaSettings> for proto::DaitaSettings {
     fn from(settings: mullvad_types::wireguard::DaitaSettings) -> Self {
         proto::DaitaSettings {
@@ -81,7 +81,7 @@ impl From<mullvad_types::wireguard::DaitaSettings> for proto::DaitaSettings {
     }
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_os = "linux"))]
 impl From<proto::DaitaSettings> for mullvad_types::wireguard::DaitaSettings {
     fn from(settings: proto::DaitaSettings) -> Self {
         mullvad_types::wireguard::DaitaSettings {
