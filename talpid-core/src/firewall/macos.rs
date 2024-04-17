@@ -1,6 +1,7 @@
 use super::{FirewallArguments, FirewallPolicy};
 use ipnetwork::IpNetwork;
 use pfctl::{DropAction, FilterRuleAction, Uid};
+use std::process::Stdio;
 use std::{
     env,
     net::{IpAddr, Ipv4Addr},
@@ -49,7 +50,13 @@ impl Firewall {
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
         self.enable()?;
         self.add_anchor()?;
-        self.set_rules(policy)
+        self.set_rules(policy)?;
+
+        // When entering a secured state, clear connection states
+        // Otherwise, an existing connection may be approved by some other anchor, and leak
+        clear_all_states();
+
+        Ok(())
     }
 
     pub fn reset_policy(&mut self) -> Result<()> {
@@ -667,4 +674,25 @@ enum RuleLogging {
     Pass,
     Drop,
     All,
+}
+
+/// Clear all PF connection states by calling 'pfctl -F rules'. This could be done more nicely
+/// using the `DIOCKILLSTATES` or `DIOCCLRSTATES` ioctl.
+///
+/// See http://man.openbsd.org/pf.4, `DIOCKILLSTATES`, and `DIOCCLRSTATES` for more info.
+fn clear_all_states() {
+    let status = std::process::Command::new("/sbin/pfctl")
+        .args(["-F", "states"])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status();
+    match status {
+        Ok(status) if status.success() => (),
+        Ok(status) => {
+            log::error!("Failed to clear PF states. pfctl failed: {status}");
+        }
+        Err(error) => {
+            log::error!("Failed to clear PF states: {error}");
+        }
+    }
 }
