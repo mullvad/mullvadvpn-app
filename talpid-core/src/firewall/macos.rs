@@ -676,10 +676,7 @@ enum RuleLogging {
     All,
 }
 
-/// Clear all PF connection states by calling 'pfctl -F rules'. This could be done more nicely
-/// using the `DIOCKILLSTATES` or `DIOCCLRSTATES` ioctl.
-///
-/// See http://man.openbsd.org/pf.4, `DIOCKILLSTATES`, and `DIOCCLRSTATES` for more info.
+/// Clear all PF connection states by calling 'pfctl -F rules'.
 fn clear_all_states() {
     let status = std::process::Command::new("/sbin/pfctl")
         .args(["-F", "states"])
