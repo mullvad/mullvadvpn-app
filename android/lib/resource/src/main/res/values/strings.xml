@@ -318,7 +318,7 @@
     <string name="locations_were_changed_for">Locations were changed for \"%s\"</string>
     <string name="not_found">Not found</string>
     <string name="server_ip_overrides_import_button">Import</string>
-    <string name="server_ip_overrides">Server Ip overrides</string>
+    <string name="server_ip_overrides">Server IP override</string>
     <string name="server_ip_overrides_active">Overrides active</string>
     <string name="server_ip_overrides_inactive">Overrides inactive</string>
     <string name="server_ip_overrides_info_first_paragraph">On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked.</string>

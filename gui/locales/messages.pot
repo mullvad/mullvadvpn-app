@@ -2353,9 +2353,6 @@ msgstr ""
 msgid "Secured"
 msgstr ""
 
-msgid "Server Ip overrides"
-msgstr ""
-
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr ""
 

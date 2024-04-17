@@ -215,6 +215,7 @@
     <string name="sent">Envoyé</string>
     <string name="sent_contact">Si nécessaire, nous vous contacterons à l\'adresse %1$s</string>
     <string name="sent_thanks">Merci !</string>
+    <string name="server_ip_overrides">Substitution d\'IP de serveur</string>
     <string name="server_ip_overrides_info_first_paragraph">Sur certains réseaux, où divers types de censure sont utilisés, les adresses IP de notre serveur sont parfois bloquées.</string>
     <string name="server_ip_overrides_info_second_paragraph">Pour contourner ce problème, vous pouvez importer un fichier ou du texte fourni par notre équipe d\'assistance, avec de nouvelles adresses IP qui remplacent les adresses par défaut des serveurs dans la vue Sélectionner un emplacement.</string>
     <string name="server_ip_overrides_info_third_paragraph">Si vous rencontrez des problèmes de connexion aux serveurs VPN, veuillez contacter l\'assistance.</string>

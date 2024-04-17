@@ -215,6 +215,7 @@
     <string name="sent">Skickat</string>
     <string name="sent_contact">Om det behövs kontaktar vi dig på %1$s</string>
     <string name="sent_thanks">Tack!</string>
+    <string name="server_ip_overrides">Åsidosättning av server-IP</string>
     <string name="server_ip_overrides_info_first_paragraph">På vissa nätverk där olika typer av censureringar används blockeras blir ibland vår servers IP-adresser blockerade.</string>
     <string name="server_ip_overrides_info_second_paragraph">För att kringgå detta kan du importera en fil eller text, som tillhandahålls av vårt supportteam, med nya IP-adresser som åsidosätter servrarnas standardadresser i Välj platsvy.</string>
     <string name="server_ip_overrides_info_third_paragraph">Kontakta supporten om du har problem med att ansluta till VPN-servrar.</string>

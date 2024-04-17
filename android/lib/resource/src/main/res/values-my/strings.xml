@@ -215,6 +215,7 @@
     <string name="sent">ပို့ပြီး</string>
     <string name="sent_contact">လိုအပ်ပါက %1$s မှတစ်ဆင့် ကျွန်ုပ်တို့ထံ ဆက်သွယ်ပါ</string>
     <string name="sent_thanks">ကျေးဇူးတင်ပါသည်။</string>
+    <string name="server_ip_overrides">ဆာဗာ IP ကျော်လွန် ပယ်ဖျက်မှု</string>
     <string name="server_ip_overrides_info_first_paragraph">အမျိုးအမျိုးသော စိစစ်ဖြတ်တောက်မှု အမျိုးအစားများ အသုံးပြုသည့် ကွန်ရက်အချို့တွင် ကျွန်ုပ်တို့၏ ဆာဗာ IP လိပ်စာများကို တစ်ခါတစ်ရံ ပိတ်ဆို့ထားပါသည်။</string>
     <string name="server_ip_overrides_info_second_paragraph">ဤသည်ကို ရှောင်လွှဲရန် ကျွန်ုပ်တို့ အကူအညီပေးရေးအဖွဲ့မှ ပေးထားသော တည်နေရာ ရွေးရန် ပြသမှုအတွင်းရှိ ဆာဗာများ၏ ပုံသေ လိပ်စာများကို ကျော်လွန် ပယ်ဖျက်သည့် IP လိပ်စာအသစ်များဖြင့် ဖိုင် သို့မဟုတ် စာသားကို သင် ထည့်သွင်းနိုင်ပါသည်။</string>
     <string name="server_ip_overrides_info_third_paragraph">VPN ဆာဗာများကို ချိတ်ဆက်ရာတွင် ပြဿနာများရှိနေပါက အကူအညီပေးရေးအဖွဲ့ကို ဆက်သွယ်ပါ။</string>

@@ -215,6 +215,7 @@
     <string name="sent">已发送</string>
     <string name="sent_contact">如果需要，我们将通过 %1$s 与您联系</string>
     <string name="sent_thanks">谢谢！</string>
+    <string name="server_ip_overrides">服务器 IP 覆盖</string>
     <string name="server_ip_overrides_info_first_paragraph">在某些使用各类审查的网络上，我们的服务器 IP 地址有时会被阻止。</string>
     <string name="server_ip_overrides_info_second_paragraph">为了避免这种情况，您可以导入由我们的支持团队提供的文件或文本，其中的新 IP 地址会覆盖“选择位置”视图中服务器的默认地址。</string>
     <string name="server_ip_overrides_info_third_paragraph">如果您在连接到 VPN 服务器时遇到问题，请联系支持团队。</string>

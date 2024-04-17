@@ -215,6 +215,7 @@
     <string name="sent">Gönderildi</string>
     <string name="sent_contact">Gerektiğinde sizinle %1$s adresinden iletişime geçeceğiz</string>
     <string name="sent_thanks">Teşekkürler!</string>
+    <string name="server_ip_overrides">Sunucu IP\'sini geçersiz kılma</string>
     <string name="server_ip_overrides_info_first_paragraph">Farklı sansür türlerinin kullanıldığı bazı ağlarda sunucu IP adreslerimiz zaman zaman engellenir.</string>
     <string name="server_ip_overrides_info_second_paragraph">Bu sınırlamadan kaçınmak için Konum Seç görünümündeki varsayılan sunucu adreslerini geçersiz kılan yeni IP adreslerine sahip bir dosyayı veya metni (destek ekibimiz tarafından sağlanır) içe aktarabilirsiniz.</string>
     <string name="server_ip_overrides_info_third_paragraph">VPN sunucularına bağlanırken sorun yaşıyorsanız lütfen destek ekibiyle iletişime geçin.</string>

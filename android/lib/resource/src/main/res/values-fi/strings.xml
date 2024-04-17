@@ -215,6 +215,7 @@
     <string name="sent">Lähetetty</string>
     <string name="sent_contact">Tarvittaessa otamme sinuun yhteyttä osoitteeseen %1$s</string>
     <string name="sent_thanks">Kiitos!</string>
+    <string name="server_ip_overrides">Palvelimen IP-osoitteen ohitus</string>
     <string name="server_ip_overrides_info_first_paragraph">Palvelimiemme IP-osoitteet estetään toisinaan joissakin useita erityyppistä sensurointimenetelmiä käyttävissä verkoissa.</string>
     <string name="server_ip_overrides_info_second_paragraph">Voit kiertää estot tuomalla tukitiimimme toimittaman tiedoston tai tekstin, josta löytyy uusia, palvelimien oletusosoitteet sijainnin valintanäkymässä ohittavia IP-osoitteita.</string>
     <string name="server_ip_overrides_info_third_paragraph">Jos sinulla on ongelmia yhteyden muodostamisessa VPN-palvelimiin, ota yhteyttä tukeen.</string>
