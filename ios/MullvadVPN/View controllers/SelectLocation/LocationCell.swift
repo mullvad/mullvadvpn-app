@@ -314,6 +314,7 @@ extension LocationCell {
         locationLabel.text = item.node.name
         showsCollapseControl = !item.node.children.isEmpty
         isExpanded = item.node.showsChildren
+        checkboxButton.accessibilityIdentifier = .customListLocationCheckmarkButton
         checkboxButton.isSelected = item.isSelected
         checkboxButton.tintColor = item.isSelected ? .successColor : .white
 

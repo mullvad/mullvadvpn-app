@@ -200,7 +200,7 @@ extension LocationCoordinator: LocationViewControllerDelegate {
         actionSheet.overrideUserInterfaceStyle = .dark
         actionSheet.view.tintColor = UIColor(red: 0.0, green: 0.59, blue: 1.0, alpha: 1)
 
-        actionSheet.addAction(UIAlertAction(
+        let addCustomListAction = UIAlertAction(
             title: NSLocalizedString(
                 "CUSTOM_LIST_ACTION_SHEET_ADD_LIST_BUTTON",
                 tableName: "CustomLists",
@@ -211,7 +211,9 @@ extension LocationCoordinator: LocationViewControllerDelegate {
             handler: { [weak self] _ in
                 self?.showAddCustomList(nodes: nodes)
             }
-        ))
+        )
+        addCustomListAction.accessibilityIdentifier = AccessibilityIdentifier.addNewCustomListButton
+        actionSheet.addAction(addCustomListAction)
         let editAction = UIAlertAction(
             title: NSLocalizedString(
                 "CUSTOM_LIST_ACTION_SHEET_EDIT_LISTS_BUTTON",
@@ -225,6 +227,7 @@ extension LocationCoordinator: LocationViewControllerDelegate {
             }
         )
         editAction.isEnabled = !customListRepository.fetchAll().isEmpty
+        editAction.accessibilityIdentifier = AccessibilityIdentifier.editCustomListButton
 
         actionSheet.addAction(editAction)
 
