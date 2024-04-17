@@ -86,7 +86,7 @@ class CustomListLocationsViewModel(
                     .performAction(
                         CustomListAction.UpdateLocations(
                             customListId,
-                            selectedLocations.calculateLocationsToSave().map { it.location }
+                            selectedLocations.calculateLocationsToSave().map { it.id }
                         )
                     )
                     .fold(
@@ -153,16 +153,16 @@ class CustomListLocationsViewModel(
         when (relayItem) {
             is RelayItem.Location.City -> {
                 availableLocations
-                    .find { it.code == relayItem.location.countryCode }
+                    .find { it.id == relayItem.id.country }
                     ?.let { updateSelectionList.remove(it) }
             }
             is RelayItem.Location.Relay -> {
                 availableLocations
                     .flatMap { country -> country.cities }
-                    .find { it.code == relayItem.location.cityCode }
+                    .find { it.id == relayItem.id.city }
                     ?.let { updateSelectionList.remove(it) }
                 availableLocations
-                    .find { it.code == relayItem.location.countryCode }
+                    .find { it.id == relayItem.id.country }
                     ?.let { updateSelectionList.remove(it) }
             }
             is RelayItem.Location.Country -> {

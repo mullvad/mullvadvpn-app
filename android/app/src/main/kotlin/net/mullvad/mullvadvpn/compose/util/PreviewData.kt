@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.compose.util
 import java.util.UUID
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceId
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Provider
 import net.mullvad.mullvadvpn.model.ProviderId
@@ -20,7 +20,7 @@ fun generateRelayItemCountry(
 ) =
     RelayItem.Location.Country(
         name = name,
-        code = name.generateCountryCode(),
+        id = name.generateCountryCode(),
         cities =
             cityNames.map { cityName ->
                 generateRelayItemCity(
@@ -36,52 +36,48 @@ fun generateRelayItemCountry(
 
 fun generateRelayItemCity(
     name: String,
-    countryCode: String,
+    countryCode: GeoLocationId.Country,
     numberOfRelays: Int,
     active: Boolean = true,
     expanded: Boolean = false,
 ) =
     RelayItem.Location.City(
         name = name,
-        code = name.generateCityCode(),
+        id = name.generateCityCode(countryCode),
         relays =
             List(numberOfRelays) { index ->
                 generateRelayItemRelay(
-                    countryCode,
-                    name.generateCityCode(),
-                    generateHostname(countryCode, name.generateCityCode(), index),
+                    name.generateCityCode(countryCode),
+                    generateHostname(name.generateCityCode(countryCode), index),
                     active
                 )
             },
         expanded = expanded,
-        location = GeographicLocationConstraint.City(countryCode, name.generateCityCode()),
     )
 
 fun generateRelayItemRelay(
-    countryCode: String,
-    cityCode: String,
+    cityCode: GeoLocationId.City,
     hostName: String,
     active: Boolean = true,
 ) =
     RelayItem.Location.Relay(
-        name = hostName,
-        location =
-            GeographicLocationConstraint.Hostname(
-                countryCode = countryCode,
-                cityCode = cityCode,
+        id =
+            GeoLocationId.Hostname(
+                city = cityCode,
                 hostname = hostName,
             ),
-        locationName = "$cityCode $hostName",
         active = active,
         provider = Provider(ProviderId("Provider"), Ownership.MullvadOwned),
     )
 
-private fun String.generateCountryCode() = (take(1) + takeLast(1)).lowercase()
+private fun String.generateCountryCode() =
+    GeoLocationId.Country((take(1) + takeLast(1)).lowercase())
 
-private fun String.generateCityCode() = take(CITY_CODE_LENGTH).lowercase()
+private fun String.generateCityCode(countryCode: GeoLocationId.Country) =
+    GeoLocationId.City(countryCode, take(CITY_CODE_LENGTH).lowercase())
 
-private fun generateHostname(countryCode: String, cityCode: String, index: Int) =
-    "$countryCode-$cityCode-wg-${index+1}"
+private fun generateHostname(city: GeoLocationId.City, index: Int) =
+    "${city.countryCode.countryCode}-${city.cityCode}-wg-${index+1}"
 
 private const val CITY_CODE_LENGTH = 3
 

@@ -15,7 +15,7 @@ import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.GetCustomListError
 import net.mullvad.mullvadvpn.model.ModifyCustomListError
 
@@ -45,7 +45,7 @@ class CustomListsRepository(
 
     suspend fun updateCustomListLocations(
         id: CustomListId,
-        locations: List<GeographicLocationConstraint>
+        locations: List<GeoLocationId>
     ): Either<ModifyCustomListError, Unit> = either {
         val customList = getCustomListById(id).bind()
         updateCustomList(customList.copy(locations = locations)).bind()

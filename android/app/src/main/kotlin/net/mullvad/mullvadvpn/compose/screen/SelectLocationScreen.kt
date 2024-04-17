@@ -89,6 +89,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.canAddLocation
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationSideEffect
@@ -104,7 +105,14 @@ private fun PreviewSelectLocationScreen() {
             selectedOwnership = null,
             selectedProvidersCount = 0,
             countries =
-                listOf(RelayItem.Location.Country("Country 1", "Code 1", false, emptyList())),
+                listOf(
+                    RelayItem.Location.Country(
+                        GeoLocationId.Country("Country 1"),
+                        "Code 1",
+                        false,
+                        emptyList()
+                    )
+                ),
             selectedItem = null,
             customLists = emptyList(),
             filteredCustomLists = emptyList()
@@ -184,7 +192,7 @@ fun SelectLocation(
         onBackClick = navigator::navigateUp,
         onFilterClick = { navigator.navigate(FilterScreenDestination, true) },
         onCreateCustomList = { relayItem ->
-            navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.location)) {
+            navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.id)) {
                 launchSingleTop = true
             }
         },
@@ -305,8 +313,7 @@ fun SelectLocationScreen(
             }
             Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
             val lazyListState = rememberLazyListState()
-            val selectedItemCode =
-                (state as? SelectLocationUiState.Content)?.selectedItem?.code ?: ""
+            val selectedItemCode = (state as? SelectLocationUiState.Content)?.selectedItem?.id ?: ""
             RunOnKeyChange(key = selectedItemCode) {
                 val index = state.indexOfSelectedRelayItem()
 
@@ -410,7 +417,7 @@ private fun LazyListScope.customLists(
     if (customLists.isNotEmpty()) {
         items(
             items = customLists,
-            key = { item -> item.code },
+            key = { item -> item.id },
             contentType = { ContentType.ITEM },
         ) { customList ->
             StatusRelayLocationCell(
@@ -461,7 +468,7 @@ private fun LazyListScope.relayList(
     }
     items(
         items = countries,
-        key = { item -> item.code },
+        key = { item -> item.id },
         contentType = { ContentType.ITEM },
     ) { country ->
         StatusRelayLocationCell(
@@ -548,7 +555,7 @@ private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int =
             is RelayItem.Location.Country,
             is RelayItem.Location.City,
             is RelayItem.Location.Relay ->
-                countries.indexOfFirst { it.code == selectedItem.countryCode() } +
+                countries.indexOfFirst { it.id == selectedItem.countryCode() } +
                     customLists.size +
                     EXTRA_ITEMS_LOCATION
             is RelayItem.CustomList ->
@@ -560,11 +567,9 @@ private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int =
         -1
     }
 
-private fun RelayItem.countryCode(): String =
+private fun RelayItem.countryCode(): GeoLocationId.Country =
     when (this) {
-        is RelayItem.Location.Country -> this.code
-        is RelayItem.Location.City -> this.location.countryCode
-        is RelayItem.Location.Relay -> this.location.countryCode
+        is RelayItem.Location -> this.id.country
         is RelayItem.CustomList ->
             throw IllegalArgumentException("Custom list does not have a country code")
     }

@@ -1,14 +1,6 @@
 package net.mullvad.mullvadvpn.relaylist
 
-import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.RelayItem
-
-fun RelayItem.toLocationConstraint(): LocationConstraint {
-    return when (this) {
-        is RelayItem.Location -> LocationConstraint.Location(location)
-        is RelayItem.CustomList -> LocationConstraint.CustomList(id)
-    }
-}
 
 fun RelayItem.children(): List<RelayItem> {
     return when (this) {
@@ -36,3 +28,10 @@ fun RelayItem.Location.descendants(): List<RelayItem.Location> {
     val children = children()
     return children + children.flatMap { it.descendants() }
 }
+
+fun RelayItem.Location.Country.withDescendants(): List<RelayItem.Location> {
+    return listOf(this) + descendants()
+}
+
+fun List<RelayItem.Location.Country>.withDescendants(): List<RelayItem.Location> =
+    this + flatMap { it.descendants() }
