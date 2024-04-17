@@ -21,7 +21,6 @@ import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SelectedLocationRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
@@ -113,15 +112,11 @@ class SelectLocationViewModel(
         else selectedProviders.filter { it.ownership == selectedOwnership }
 
     fun removeOwnerFilter() {
-        viewModelScope.launch {
-            relayListFilterRepository.updateSelectedOwnership(Constraint.Any)
-        }
+        viewModelScope.launch { relayListFilterRepository.updateSelectedOwnership(Constraint.Any) }
     }
 
     fun removeProviderFilter() {
-        viewModelScope.launch {
-            relayListFilterRepository.updateSelectedProviders(Constraint.Any)
-        }
+        viewModelScope.launch { relayListFilterRepository.updateSelectedProviders(Constraint.Any) }
     }
 
     fun addLocationToList(item: RelayItem.Location, customList: RelayItem.CustomList) {

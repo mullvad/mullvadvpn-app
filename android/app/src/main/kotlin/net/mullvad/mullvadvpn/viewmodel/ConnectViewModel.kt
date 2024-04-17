@@ -21,7 +21,6 @@ import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.ConnectError
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -74,11 +73,7 @@ class ConnectViewModel(
                         when (tunnelState) {
                             is TunnelState.Disconnected ->
                                 tunnelState.location() ?: lastKnownDisconnectedLocation
-                            is TunnelState.Connecting ->
-                                tunnelState.location
-                                    ?: (selectedRelayItem as? RelayItem.Location)
-                                        ?.location
-                                        ?.location
+                            is TunnelState.Connecting -> tunnelState.location
                             is TunnelState.Connected -> tunnelState.location
                             is TunnelState.Disconnecting -> lastKnownDisconnectedLocation
                             is TunnelState.Error -> null
@@ -139,12 +134,16 @@ class ConnectViewModel(
     }
 
     fun onConnectClick() {
-        viewModelScope.launch { connectionProxy.connect().onLeft { connectError ->
-            when(connectError) {
-                ConnectError.NoVpnPermission -> _uiSideEffect.send(UiSideEffect.NoVpnPermission)
-                is ConnectError.Unknown -> { /* Do nothing */ }
+        viewModelScope.launch {
+            connectionProxy.connect().onLeft { connectError ->
+                when (connectError) {
+                    ConnectError.NoVpnPermission -> _uiSideEffect.send(UiSideEffect.NoVpnPermission)
+                    is ConnectError.Unknown -> {
+                        /* Do nothing */
+                    }
+                }
             }
-        } }
+        }
     }
 
     fun onCancelClick() {

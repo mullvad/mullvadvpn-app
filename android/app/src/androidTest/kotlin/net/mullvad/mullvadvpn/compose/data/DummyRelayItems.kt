@@ -1,8 +1,11 @@
 package net.mullvad.mullvadvpn.compose.data
 
 import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.CustomListName
+import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.PortRange
+import net.mullvad.mullvadvpn.model.ProviderId
 import net.mullvad.mullvadvpn.model.RelayEndpointType
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.RelayList
@@ -13,17 +16,17 @@ private val DUMMY_RELAY_1 =
     net.mullvad.mullvadvpn.model.Relay(
         hostname = "Relay host 1",
         active = true,
-        endpointType = RelayEndpointType.Wireguard(WireguardRelayEndpointData),
-        owned = true,
-        provider = "PROVIDER"
+        endpointType = RelayEndpointType.Wireguard,
+        ownership = Ownership.Rented,
+        provider = ProviderId("PROVIDER"),
     )
 private val DUMMY_RELAY_2 =
     net.mullvad.mullvadvpn.model.Relay(
         hostname = "Relay host 2",
         active = true,
-        endpointType = RelayEndpointType.Wireguard(WireguardRelayEndpointData),
-        owned = true,
-        provider = "PROVIDER"
+        ownership = Ownership.MullvadOwned,
+        endpointType = RelayEndpointType.Wireguard,
+        provider = ProviderId("PROVIDER"),
     )
 private val DUMMY_RELAY_CITY_1 = RelayListCity("Relay City 1", "RCi1", arrayListOf(DUMMY_RELAY_1))
 private val DUMMY_RELAY_CITY_2 = RelayListCity("Relay City 2", "RCi2", arrayListOf(DUMMY_RELAY_2))
@@ -47,13 +50,13 @@ val DUMMY_CUSTOM_LISTS =
         RelayItem.CustomList(
             CustomListName.fromString("First list"),
             false,
-            "1",
+            CustomListId("1"),
             locations = DUMMY_RELAY_COUNTRIES
         ),
         RelayItem.CustomList(
             CustomListName.fromString("Empty list"),
             expanded = false,
-            "2",
+            CustomListId("2"),
             locations = emptyList()
         )
     )

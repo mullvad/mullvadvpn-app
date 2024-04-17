@@ -10,6 +10,6 @@ data class CustomList(
     val id: CustomListId,
     val name: CustomListName,
     val locations: List<GeographicLocationConstraint>
-) : Parcelable  {
+) : Parcelable {
     companion object
 }
