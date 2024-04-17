@@ -2,42 +2,39 @@ package net.mullvad.mullvadvpn.model
 
 sealed interface RelayItem {
     val name: String
-    val code: String
     val active: Boolean
     val hasChildren: Boolean
 
-    val locationName: String
-        get() = name
+    val id: RelayItemId
 
     val expanded: Boolean
 
     data class CustomList(
+        override val id: CustomListId,
         val customListName: CustomListName,
-        override val expanded: Boolean,
-        val id: CustomListId,
         val locations: List<Location>,
+        override val expanded: Boolean,
     ) : RelayItem {
         override val name: String = customListName.value
+
         override val active
             get() = locations.any { location -> location.active }
 
         override val hasChildren
             get() = locations.isNotEmpty()
-
-        override val code = id.value
     }
 
     sealed interface Location : RelayItem {
-        val location: GeographicLocationConstraint
+        override val id: GeoLocationId
 
         data class Country(
+            override val id: GeoLocationId.Country,
             override val name: String,
-            override val code: String,
             override val expanded: Boolean,
             val cities: List<City>
         ) : Location {
-            override val location = GeographicLocationConstraint.Country(code)
             val relays = cities.flatMap { city -> city.relays }
+
             override val active
                 get() = cities.any { city -> city.active }
 
@@ -46,10 +43,9 @@ sealed interface RelayItem {
         }
 
         data class City(
+            override val id: GeoLocationId.City,
             override val name: String,
-            override val code: String,
             override val expanded: Boolean,
-            override val location: GeographicLocationConstraint.City,
             val relays: List<Relay>
         ) : Location {
 
@@ -61,13 +57,12 @@ sealed interface RelayItem {
         }
 
         data class Relay(
-            override val name: String,
-            override val locationName: String,
+            override val id: GeoLocationId.Hostname,
+            val provider: Provider,
             override val active: Boolean,
-            override val location: GeographicLocationConstraint.Hostname,
-            val provider: Provider
         ) : Location {
-            override val code = name
+            override val name: String = id.hostname
+
             override val hasChildren = false
             override val expanded = false
         }

@@ -20,7 +20,6 @@ import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.filterOnOwnershipAndProvider
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
-import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SelectedLocationRepository
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
@@ -103,7 +102,7 @@ class SelectLocationViewModel(
 
     fun selectRelay(relayItem: RelayItem) {
         viewModelScope.launch {
-            val locationConstraint = relayItem.toLocationConstraint()
+            val locationConstraint = relayItem.id
             selectedLocationRepository.updateSelectedRelayLocation(locationConstraint)
             _uiSideEffect.trySend(SelectLocationSideEffect.CloseScreen)
         }
@@ -132,9 +131,7 @@ class SelectLocationViewModel(
         viewModelScope.launch {
             // If this is null then something is seriously wrong
             val newLocations =
-                (customList.locations + item)
-                    .filter { it !in item.descendants() }
-                    .map { it.location }
+                (customList.locations + item).filter { it !in item.descendants() }.map { it.id }
             customListActionUseCase
                 .performAction(CustomListAction.UpdateLocations(customList.id, newLocations))
                 .fold(
@@ -150,7 +147,7 @@ class SelectLocationViewModel(
 
     fun removeLocationFromList(item: RelayItem.Location, customList: RelayItem.CustomList) {
         viewModelScope.launch {
-            val newLocations = (customList.locations - item).map { it.location }
+            val newLocations = (customList.locations - item).map { it.id }
             customListActionUseCase
                 .performAction(CustomListAction.UpdateLocations(customList.id, newLocations))
                 .fold(

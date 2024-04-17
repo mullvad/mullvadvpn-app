@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.GeoLocationId
 
 sealed interface CustomListAction : Parcelable {
 
@@ -16,12 +16,12 @@ sealed interface CustomListAction : Parcelable {
 
     @Parcelize
     data class Delete(val id: CustomListId) : CustomListAction {
-        fun not(name: CustomListName, locations: List<GeographicLocationConstraint>) =
+        fun not(name: CustomListName, locations: List<GeoLocationId>) =
             Create(name, locations)
     }
 
     @Parcelize
-    data class Create(val name: CustomListName, val locations: List<GeographicLocationConstraint>) :
+    data class Create(val name: CustomListName, val locations: List<GeoLocationId>) :
         CustomListAction {
         fun not(customListId: CustomListId) = Delete(customListId)
     }
@@ -29,9 +29,9 @@ sealed interface CustomListAction : Parcelable {
     @Parcelize
     data class UpdateLocations(
         val id: CustomListId,
-        val locations: List<GeographicLocationConstraint> = emptyList()
+        val locations: List<GeoLocationId> = emptyList()
     ) : CustomListAction {
-        fun not(locations: List<GeographicLocationConstraint>): UpdateLocations =
+        fun not(locations: List<GeoLocationId>): UpdateLocations =
             UpdateLocations(id = id, locations = locations)
     }
 }
