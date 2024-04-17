@@ -29,6 +29,11 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - DNS was not properly restored in some cases when using custom DNS.
 
+### Security
+#### macOS
+- Flush states on tunnel state changes. Previously, pre-existing connections could leak when
+  internet sharing was enabled on a device.
+
 
 ## [2024.2-beta1] - 2024-04-15
 ### Added
