@@ -1,3 +1,5 @@
+mod daita;
+
 use super::{
     stats::{Stats, StatsMap},
     Config, Tunnel, TunnelError,
@@ -7,7 +9,7 @@ use ipnetwork::IpNetwork;
 use std::{
     ffi::{c_char, c_void, CStr},
     future::Future,
-    path::Path,
+    path::{Path, PathBuf},
     pin::Pin,
 };
 use talpid_tunnel::tun_provider::TunProvider;
@@ -28,6 +30,7 @@ type Result<T> = std::result::Result<T, TunnelError>;
 use std::sync::{Arc, Mutex};
 
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
+const WIREGUARD_KEY_LENGTH: usize = 32;
 
 struct LoggingContext(u32);
 
@@ -39,7 +42,7 @@ impl Drop for LoggingContext {
 
 pub struct WgGoTunnel {
     interface_name: String,
-    handle: Option<i32>,
+    handle: Option<i32>, // TODO(sebastian): Remove option
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
     _tunnel_device: Tun,
@@ -47,6 +50,9 @@ pub struct WgGoTunnel {
     _logging_context: LoggingContext,
     #[cfg(target_os = "android")]
     tun_provider: Arc<Mutex<TunProvider>>,
+    daita_handle: Option<daita::MachinistHandle>,
+    resource_dir: PathBuf,
+    config: Arc<Mutex<Config>>,
 }
 
 impl WgGoTunnel {
@@ -55,6 +61,7 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
+        resource_dir: &Path,
     ) -> Result<Self> {
         #[cfg(target_os = "android")]
         let tun_provider_clone = tun_provider.clone();
@@ -81,41 +88,49 @@ impl WgGoTunnel {
             )
         };
         check_wg_status(handle)?;
-        WgGoTunnel::activate_daita(handle, 1000, 1000);
-        tokio::task::spawn_blocking(move || loop {
-            let event = WgGoTunnel::receive_daita_event(handle);
-            log::info!("DAITA event: {event:?}");
-        });
 
         #[cfg(target_os = "android")]
         Self::bypass_tunnel_sockets(&mut tunnel_device, handle)
             .map_err(TunnelError::BypassError)?;
 
-        Ok(WgGoTunnel {
+        let mut wg_go_tunnel = WgGoTunnel {
             interface_name,
             handle: Some(handle),
             _tunnel_device: tunnel_device,
             _logging_context: logging_context,
             #[cfg(target_os = "android")]
             tun_provider: tun_provider_clone,
-        })
+            resource_dir: resource_dir.to_owned(),
+            config: Arc::new(Mutex::new(config.clone())),
+            daita_handle: None,
+        };
+
+        wg_go_tunnel.start_daita().expect("Failed to start DAITA");
+        Ok(wg_go_tunnel)
     }
 
-    fn activate_daita(handle: i32, events_capacity: u32, actions_capacity: u32) {
-        let res = unsafe { wgActivateDaita(handle, events_capacity, actions_capacity) };
-        if !res {
-            panic!("Failed to activate DAITA")
+    fn start_daita(&mut self) -> Result<()> {
+        if let Some(_handle) = self.daita_handle.take() {
+            log::info!("Stopping previous DAITA machines");
+            // let _ = handle.close();
+            todo!("Closing existing DAITA instance")
         }
-    }
 
-    fn receive_daita_event(handle: i32) -> Result<Event> {
-        let mut event = Event::default();
-        let res = unsafe { wgReceiveEvent(handle, &mut event) };
-        if res == 0 {
-            Ok(event)
-        } else {
-            Err(TunnelError::DaitaReceiveEvent(res))
-        }
+        let config = self.config.lock().unwrap();
+
+        log::info!("Initializing DAITA for wireguard device");
+        let session = daita::Session::from_adapter(self.handle.expect("Tunnel should be active"))
+            .expect("Wireguard-go should fetch current tunnel from ID");
+        self.daita_handle = Some(
+            daita::Machinist::spawn(
+                &self.resource_dir,
+                session,
+                config.entry_peer.public_key.clone(),
+                config.mtu,
+            )
+            .expect("Failed to spawn machinist"),
+        );
+        Ok(())
     }
 
     fn create_tunnel_config(config: &Config, routes: impl Iterator<Item = IpNetwork>) -> TunConfig {
@@ -331,7 +346,7 @@ extern "C" {
     fn wgActivateDaita(tunnelHandle: i32, eventsCapacity: u32, actionsCapacity: u32) -> bool;
 
     // Wait for and receive DAITA event.
-    fn wgReceiveEvent(tunnelHandle: i32, event: *mut Event) -> i32;
+    fn wgReceiveEvent(tunnelHandle: i32, event: *mut daita::Event) -> i32;
 
     // Frees a pointer allocated by the go runtime - useful to free return value of wgGetConfig
     fn wgFreePtr(ptr: *mut c_void);
@@ -343,14 +358,6 @@ extern "C" {
     // Returns the file descriptor of the tunnel IPv6 socket.
     #[cfg(target_os = "android")]
     fn wgGetSocketV6(handle: i32) -> Fd;
-}
-
-#[repr(C)]
-#[derive(Debug, Default)]
-struct Event {
-    peer: [u8; 32],
-    event_type: u32,
-    xmit_bytes: u16,
 }
 
 mod stats {
