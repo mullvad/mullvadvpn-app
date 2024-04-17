@@ -25,15 +25,6 @@ pub const BRIDGE_NAME: &str = "br-mullvadtest";
 /// TAP interface used by the guest
 pub const TAP_NAME: &str = "tap-mullvadtest";
 
-/// Pingable dummy LAN interface (name)
-pub const DUMMY_LAN_INTERFACE_NAME: &str = "lan-mullvadtest";
-/// Pingable dummy LAN interface (IP)
-pub const DUMMY_LAN_INTERFACE_IP: Ipv4Addr = Ipv4Addr::new(172, 29, 1, 200);
-/// Pingable dummy interface with public IP (name)
-pub const DUMMY_INET_INTERFACE_NAME: &str = "net-mullvadtest";
-/// Pingable dummy interface with public IP (IP)
-pub const DUMMY_INET_INTERFACE_IP: Ipv4Addr = Ipv4Addr::new(1, 3, 3, 7);
-
 // Private key of the wireguard remote peer on host.
 const CUSTOM_TUN_REMOTE_PRIVKEY: &str = "gLvQuyqazziyf+pUCAFUgTnWIwn6fPE5MOReOqPEGHU=";
 // Public key of the wireguard remote peer on host.
@@ -47,9 +38,9 @@ data_encoding_macro::base64_array!(
     "pub const CUSTOM_TUN_LOCAL_PRIVKEY" = "mPue6Xt0pdz4NRAhfQSp/SLKo7kV7DW+2zvBq0N9iUI="
 );
 
-/// "Real" (non-tunnel) IP of the wireguard remote peer as defined in `setup-network.sh`.
+/// "Real" (non-tunnel) IP of the wireguard remote peer on the host
 #[allow(dead_code)]
-pub const CUSTOM_TUN_REMOTE_REAL_ADDR: Ipv4Addr = Ipv4Addr::new(172, 29, 1, 200);
+pub const CUSTOM_TUN_REMOTE_REAL_ADDR: Ipv4Addr = Ipv4Addr::new(172, 29, 1, 1);
 /// Port of the wireguard remote peer as defined in `setup-network.sh`.
 #[allow(dead_code)]
 pub const CUSTOM_TUN_REMOTE_REAL_PORT: u16 = 51820;
@@ -132,28 +123,6 @@ table ip mullvad_test_nat {{
     }}
 }}"
     ))
-    .await?;
-
-    log::debug!("Set up pingable hosts");
-
-    run_ip_cmd(["link", "add", DUMMY_LAN_INTERFACE_NAME, "type", "dummy"]).await?;
-    run_ip_cmd([
-        "addr",
-        "add",
-        "dev",
-        DUMMY_LAN_INTERFACE_NAME,
-        &DUMMY_LAN_INTERFACE_IP.to_string(),
-    ])
-    .await?;
-
-    run_ip_cmd(["link", "add", DUMMY_INET_INTERFACE_NAME, "type", "dummy"]).await?;
-    run_ip_cmd([
-        "addr",
-        "add",
-        "dev",
-        DUMMY_INET_INTERFACE_NAME,
-        &DUMMY_INET_INTERFACE_IP.to_string(),
-    ])
     .await?;
 
     log::debug!("Create WireGuard peer");

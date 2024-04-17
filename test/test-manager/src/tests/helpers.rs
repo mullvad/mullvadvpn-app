@@ -121,7 +121,7 @@ pub async fn send_guest_probes(
     rpc: ServiceClient,
     interface: String,
     destination: SocketAddr,
-) -> Result<ProbeResult, Error> {
+) -> ProbeResult {
     const MONITOR_DURATION: Duration = Duration::from_secs(8);
 
     let pktmon = start_packet_monitor(
@@ -162,7 +162,7 @@ pub async fn send_guest_probes(
         }
     }
 
-    Ok(result)
+    result
 }
 
 /// Send one probe per transport protocol to `destination` without running a packet monitor
@@ -509,8 +509,8 @@ pub fn get_app_env() -> HashMap<String, String> {
 ///
 /// # Note
 /// This function does not handle bridges and multihop configurations (currently). There is no
-/// particular reason for this other than it not being needed at the time, so feel free to extend this
-/// function :).
+/// particular reason for this other than it not being needed at the time, so feel free to extend
+/// this function :).
 pub async fn constrain_to_relay(
     mullvad_client: &mut MullvadProxyClient,
     query: RelayQuery,
