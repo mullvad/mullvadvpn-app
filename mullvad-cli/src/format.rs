@@ -174,7 +174,7 @@ fn format_relay_connection(
         "\nQuantum resistant tunnel: no"
     };
 
-    #[cfg(target_os = "windows")]
+    #[cfg(any(target_os = "windows", target_os = "linux"))]
     let daita = if !verbose {
         ""
     } else if endpoint.daita {
@@ -182,7 +182,7 @@ fn format_relay_connection(
     } else {
         "\nDAITA: no"
     };
-    #[cfg(not(target_os = "windows"))]
+    #[cfg(not(any(target_os = "windows", target_os = "linux")))]
     let daita = "";
 
     let mut bridge_type = String::new();

@@ -369,6 +369,8 @@ pub async fn test_connected_state(
                     obfuscation: None,
                     entry_endpoint: None,
                     tunnel_interface: _,
+                    #[cfg(target_os = "linux")]
+                        daita: _,
                 },
             ..
         } => {
