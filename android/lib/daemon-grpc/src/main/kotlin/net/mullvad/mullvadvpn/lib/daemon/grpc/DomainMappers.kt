@@ -103,9 +103,13 @@ internal fun ManagementInterface.GeoIpLocation.toDomain(): GeoIpLocation =
 internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
     TunnelEndpoint(
         endpoint =
-            with(address.split(":")) {
+            with(address) {
+                val indexOfSeparator = indexOfLast { it == ':' }
+                val ipPart =
+                    address.substring(0, indexOfSeparator).filter { it in listOf('[', ']') }
+                val portPart = address.substring(indexOfSeparator + 1)
                 Endpoint(
-                    address = InetSocketAddress(this[0], this[1].toInt()),
+                    address = InetSocketAddress.createUnresolved(ipPart, portPart.toInt()),
                     protocol = this@toDomain.protocol.toDomain()
                 )
             },
@@ -479,8 +483,11 @@ internal fun GeoLocationId.fromDomain(): ManagementInterface.GeographicLocationC
         .apply {
             when (val id = this@fromDomain) {
                 is GeoLocationId.Country -> setCountry(id.countryCode)
-                is GeoLocationId.City -> setCity(id.cityCode)
-                is GeoLocationId.Hostname -> setHostname(id.hostname)
+                is GeoLocationId.City -> setCountry(id.countryCode.countryCode).setCity(id.cityCode)
+                is GeoLocationId.Hostname ->
+                    setCountry(id.country.countryCode)
+                        .setCity(id.city.cityCode)
+                        .setHostname(id.hostname)
             }
         }
         .build()
@@ -653,6 +660,7 @@ internal fun RelaySettings.fromDomain(): ManagementInterface.RelaySettings =
                 .setWireguardConstraints(relayConstraints.wireguardConstraints.fromDomain())
                 .setOwnership(relayConstraints.ownership.fromDomain())
                 .addAllProviders(relayConstraints.providers.fromDomain())
+                .setTunnelType(ManagementInterface.TunnelType.WIREGUARD)
                 .setOpenvpnConstraints(ManagementInterface.OpenvpnConstraints.getDefaultInstance())
                 .build()
         )
