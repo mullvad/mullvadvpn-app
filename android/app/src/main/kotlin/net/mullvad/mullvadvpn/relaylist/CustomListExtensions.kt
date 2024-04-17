@@ -13,7 +13,7 @@ fun CustomList.toRelayItemCustomList(
         expanded = false,
         locations =
             this.locations.mapNotNull {
-                relayCountries.findItemForGeographicLocationConstraint(it)
+                relayCountries.findItemForGeoLocationId(it)
             },
     )
 
@@ -29,8 +29,8 @@ fun List<RelayItem.CustomList>.filterOnSearchTerm(searchTerm: String) =
     }
 
 fun RelayItem.CustomList.canAddLocation(location: RelayItem) =
-    this.locations.none { it.code == location.code } &&
-        this.locations.flatMap { it.descendants() }.none { it.code == location.code }
+    this.locations.none { it.id == location.id } &&
+        this.locations.flatMap { it.descendants() }.none { it.id == location.id }
 
 fun List<RelayItem.CustomList>.getById(id: CustomListId) = this.find { it.id == id }
 

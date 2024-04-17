@@ -15,11 +15,11 @@ import net.mullvad.mullvadvpn.model.CreateCustomListError
 import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.UpdateCustomListResult
-import net.mullvad.mullvadvpn.relaylist.getGeographicLocationConstraintByCode
+import net.mullvad.mullvadvpn.relaylist.getGeoLocationIdByCode
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -212,7 +212,7 @@ class CustomListsRepositoryTest {
             val mockRelayList: RelayList = mockk()
             val mockCustomList: CustomList = mockk()
             val updatedCustomList: CustomList = mockk()
-            val mockLocationConstraint: GeographicLocationConstraint = mockk()
+            val mockRelayItemId: GeoLocationId = mockk()
             settingsFlow.value = mockSettings
             relayListFlow.value = mockRelayList
             every { mockCustomList.id } returns customListId
@@ -221,7 +221,7 @@ class CustomListsRepositoryTest {
                 mockCustomList.copy(
                     customListId,
                     customListName,
-                    arrayListOf(mockLocationConstraint)
+                    arrayListOf(mockRelayItemId)
                 )
             } returns updatedCustomList
             every {
@@ -230,8 +230,8 @@ class CustomListsRepositoryTest {
             every { mockMessageHandler.events<Event.UpdateCustomListResultEvent>() } returns
                 flowOf(Event.UpdateCustomListResultEvent(expectedResult))
             every { mockSettings.customLists.customLists } returns arrayListOf(mockCustomList)
-            every { mockRelayList.getGeographicLocationConstraintByCode(locationCode) } returns
-                mockLocationConstraint
+            every { mockRelayList.getGeoLocationIdByCode(locationCode) } returns
+                mockRelayItemId
 
             // Act
             val result =
@@ -255,13 +255,13 @@ class CustomListsRepositoryTest {
             val otherCustomListId = "2"
             val locationCode = "AB"
             val mockRelayList: RelayList = mockk()
-            val mockLocationConstraint: GeographicLocationConstraint = mockk()
+            val mockRelayItemId: GeoLocationId = mockk()
             settingsFlow.value = mockSettings
             relayListFlow.value = mockRelayList
             every { mockSettings.customLists.customLists } returns arrayListOf(mockCustomList)
             every { mockCustomList.id } returns customListId
-            every { mockRelayList.getGeographicLocationConstraintByCode(locationCode) } returns
-                mockLocationConstraint
+            every { mockRelayList.getGeoLocationIdByCode(locationCode) } returns
+                mockRelayItemId
 
             // Act
             val result =

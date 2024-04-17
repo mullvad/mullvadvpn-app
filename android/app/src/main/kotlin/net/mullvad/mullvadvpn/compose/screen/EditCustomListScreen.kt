@@ -46,7 +46,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -62,10 +62,8 @@ private fun PreviewEditCustomListScreen() {
                     name = CustomListName.fromString("Custom list"),
                     locations =
                         listOf(
-                            GeographicLocationConstraint.Hostname(
-                                "hostname",
-                                "hostname",
-                                "hostname"
+                            GeoLocationId.Hostname(
+                                GeoLocationId.City(GeoLocationId.Country("country"), cityCode = "city"), "hostname",
                             )
                         )
                 )

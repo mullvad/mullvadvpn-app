@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.Ownership
+import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -271,7 +272,7 @@ class CustomListLocationsViewModelTest {
                                 name = "Gothenburg",
                                 code = "GBG",
                                 expanded = false,
-                                location = GeographicLocationConstraint.City("SE", "GBG"),
+                                location = GeoLocationId.City("SE", "GBG"),
                                 relays =
                                     listOf(
                                         RelayItem.Relay(
@@ -279,7 +280,7 @@ class CustomListLocationsViewModelTest {
                                             locationName = "GBG gbg-1",
                                             active = true,
                                             location =
-                                                GeographicLocationConstraint.Hostname(
+                                                GeoLocationId.Hostname(
                                                     "SE",
                                                     "GBG",
                                                     "gbg-1"

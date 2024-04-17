@@ -22,8 +22,7 @@ import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.DnsState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
-import net.mullvad.mullvadvpn.model.LocationConstraint
+import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.Mtu
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.model.Ownership
@@ -38,6 +37,7 @@ import net.mullvad.mullvadvpn.model.Relay
 import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelayEndpointType
 import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.model.RelayItemId
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelayOverride
 import net.mullvad.mullvadvpn.model.RelaySettings
@@ -241,44 +241,45 @@ internal fun ManagementInterface.NormalRelaySettings.toDomain(): RelayConstraint
         wireguardConstraints = wireguardConstraints.toDomain()
     )
 
-internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<LocationConstraint> =
+internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<RelayItemId> =
     when (typeCase) {
         ManagementInterface.LocationConstraint.TypeCase.CUSTOM_LIST ->
-            Constraint.Only(LocationConstraint.CustomList(CustomListId(customList)))
+            Constraint.Only(CustomListId(customList))
         ManagementInterface.LocationConstraint.TypeCase.LOCATION ->
-            Constraint.Only(LocationConstraint.Location(location.toDomain()))
+            Constraint.Only(location.toDomain())
         ManagementInterface.LocationConstraint.TypeCase.TYPE_NOT_SET -> Constraint.Any
         else -> throw IllegalArgumentException("Location constraint type is null")
     }
 
-internal fun Constraint<LocationConstraint>.fromDomain(): ManagementInterface.LocationConstraint =
+internal fun Constraint<RelayItemId>.fromDomain(): ManagementInterface.LocationConstraint =
     when (this) {
-        is Constraint.Any ->
-            ManagementInterface.LocationConstraint.newBuilder()
-                .setLocation(ManagementInterface.GeographicLocationConstraint.getDefaultInstance())
-                .build()
-        is Constraint.Only ->
-            when (this.value) {
-                is LocationConstraint.CustomList ->
+        is Constraint.Any -> ManagementInterface.LocationConstraint.newBuilder().build()
+        is Constraint.Only -> {
+            when (val relayItemId = this.value) {
+                is CustomListId ->
                     ManagementInterface.LocationConstraint.newBuilder()
-                        .setCustomList((this.value as LocationConstraint.CustomList).listId.value)
+                        .setCustomList(relayItemId.value)
                         .build()
-                is LocationConstraint.Location ->
+                is GeoLocationId ->
                     ManagementInterface.LocationConstraint.newBuilder()
-                        .setLocation(
-                            (this.value as LocationConstraint.Location).location.fromDomain()
-                        )
+                        .setLocation(relayItemId.fromDomain())
                         .build()
             }
+        }
     }
 
-internal fun ManagementInterface.GeographicLocationConstraint.toDomain():
-    GeographicLocationConstraint =
-    when {
-        hasHostname() && hasCity() -> GeographicLocationConstraint.Hostname(country, city, hostname)
-        hasCity() -> GeographicLocationConstraint.City(country, city)
-        else -> GeographicLocationConstraint.Country(country)
+internal fun ManagementInterface.GeographicLocationConstraint.toDomain(): GeoLocationId {
+    val country = GeoLocationId.Country(country)
+    if (!hasCity()) {
+        return country
     }
+
+    val city = GeoLocationId.City(country, city)
+    if (!hasHostname()) {
+        return city
+    }
+    return GeoLocationId.Hostname(city, hostname)
+}
 
 internal fun List<String>.toDomain(): Constraint<Providers> =
     if (isEmpty()) Constraint.Any
@@ -463,37 +464,44 @@ internal fun ConnectivityState.toDomain(): GrpcConnectivityState =
         ConnectivityState.SHUTDOWN -> GrpcConnectivityState.Shutdown
     }
 
-internal fun LocationConstraint.fromDomain(): ManagementInterface.LocationConstraint =
+internal fun RelayItemId.fromDomain(): ManagementInterface.LocationConstraint =
     when (this) {
-        is LocationConstraint.CustomList ->
+        is CustomListId ->
+            ManagementInterface.LocationConstraint.newBuilder().setCustomList(this.value).build()
+        is GeoLocationId ->
             ManagementInterface.LocationConstraint.newBuilder()
-                .setCustomList(this.listId.value)
-                .build()
-        is LocationConstraint.Location ->
-            ManagementInterface.LocationConstraint.newBuilder()
-                .setLocation(this.location.fromDomain())
+                .setLocation(this.fromDomain())
                 .build()
     }
 
-internal fun GeographicLocationConstraint.fromDomain():
-    ManagementInterface.GeographicLocationConstraint =
-    when (this) {
-        is GeographicLocationConstraint.Country ->
-            ManagementInterface.GeographicLocationConstraint.newBuilder()
-                .setCountry(this.countryCode)
-                .build()
-        is GeographicLocationConstraint.City ->
-            ManagementInterface.GeographicLocationConstraint.newBuilder()
-                .setCountry(this.countryCode)
-                .setCity(this.cityCode)
-                .build()
-        is GeographicLocationConstraint.Hostname ->
-            ManagementInterface.GeographicLocationConstraint.newBuilder()
-                .setCountry(this.countryCode)
-                .setCity(this.cityCode)
-                .setHostname(this.hostname)
-                .build()
-    }
+internal fun GeoLocationId.fromDomain(): ManagementInterface.GeographicLocationConstraint =
+    ManagementInterface.GeographicLocationConstraint.newBuilder()
+        .apply {
+            when (val id = this@fromDomain) {
+                is GeoLocationId.Country -> setCountry(id.countryCode)
+                is GeoLocationId.City -> setCity(id.cityCode)
+                is GeoLocationId.Hostname -> setHostname(id.hostname)
+            }
+        }
+        .build()
+
+// internal fun GeoLocationId.fromDomain(): ManagementInterface.LocationConstraint =
+//    when (this) {
+//        is GeoLocationId.Country ->
+//
+// ManagementInterface.LocationConstraint.newBuilder().setCountry(this.countryCode).build()
+//        is GeoLocationId.City ->
+//            ManagementInterface.GeographicLocationConstraint.newBuilder()
+//                .setCountry(this.countryCode)
+//                .setCity(this.cityCode)
+//                .build()
+//        is GeoLocationId.Hostname ->
+//            ManagementInterface.LocationConstraint.newBuilder()
+//                .setCountry(this.countryCode)
+//                .setCity(this.cityCode)
+//                .setHostname(this.hostname)
+//                .build()
+////    }
 
 internal fun CustomList.fromDomain(): ManagementInterface.CustomList =
     ManagementInterface.CustomList.newBuilder()
@@ -547,15 +555,19 @@ internal fun List<ManagementInterface.RelayListCountry>.toDomain():
         this.map { country ->
                 val cities = mutableListOf<RelayItem.Location.City>()
                 val relayCountry =
-                    RelayItem.Location.Country(country.name, country.code, false, cities)
+                    RelayItem.Location.Country(
+                        GeoLocationId.Country(country.code),
+                        country.name,
+                        false,
+                        cities
+                    )
 
                 for (city in country.citiesList) {
                     val relays = mutableListOf<RelayItem.Location.Relay>()
                     val relayCity =
                         RelayItem.Location.City(
                             name = city.name,
-                            code = city.code,
-                            location = GeographicLocationConstraint.City(country.code, city.code),
+                            id = GeoLocationId.City(GeoLocationId.Country(country.code), city.code),
                             expanded = false,
                             relays = relays
                         )
@@ -568,14 +580,14 @@ internal fun List<ManagementInterface.RelayListCountry>.toDomain():
                     for (relay in validCityRelays) {
                         relays.add(
                             RelayItem.Location.Relay(
-                                name = relay.hostname,
-                                location =
-                                    GeographicLocationConstraint.Hostname(
-                                        country.code,
-                                        city.code,
+                                id =
+                                    GeoLocationId.Hostname(
+                                        GeoLocationId.City(
+                                            GeoLocationId.Country(country.code),
+                                            city.code
+                                        ),
                                         relay.hostname
                                     ),
-                                locationName = "${city.name} (${relay.hostname})",
                                 active = relay.active,
                                 provider =
                                     Provider(
