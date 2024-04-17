@@ -42,6 +42,16 @@ class AccountPage: Page {
         return self
     }
 
+    func getDeviceName() -> String {
+        let deviceNameLabel = app.otherElements[AccessibilityIdentifier.accountPageDeviceNameLabel]
+        guard let deviceName = deviceNameLabel.value as? String else {
+            XCTFail("Failed to read device name from label")
+            return String()
+        }
+
+        return deviceName
+    }
+
     @discardableResult func verifyPaidUntil(_ date: Date) -> Self {
         // Strip seconds from date, since the app don't display seconds
         let calendar = Calendar.current

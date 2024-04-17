@@ -92,8 +92,10 @@ class MullvadVPNScreenshots: XCTestCase {
 
             // Tap the "Filter" button and expand each relay filter
             app.navigationBars.buttons["Filter"].tap()
-            app.otherElements["Ownership"].buttons[AccessibilityIdentifier.collapseButton.rawValue].tap()
-            app.otherElements["Providers"].buttons[AccessibilityIdentifier.collapseButton.rawValue].tap()
+            app.otherElements[AccessibilityIdentifier.locationFilterOwnershipHeaderCell.rawValue]
+                .buttons[AccessibilityIdentifier.expandButton.rawValue].tap()
+            app.otherElements[AccessibilityIdentifier.locationFilterProvidersHeaderCell.rawValue]
+                .buttons[AccessibilityIdentifier.expandButton.rawValue].tap()
             snapshot("RelayFilter")
 
             app.navigationBars.buttons["Cancel"].tap()

@@ -627,6 +627,7 @@
 		852BC6732BAB450B00A47558 /* MullvadVPNUITestsChangeDNSSettings.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 852BC6722BAB450B00A47558 /* MullvadVPNUITestsChangeDNSSettings.xctestplan */; };
 		8532E6872B8CCED600ACECD1 /* ProblemReportSubmittedPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8532E6862B8CCED600ACECD1 /* ProblemReportSubmittedPage.swift */; };
 		8542CE242B95F7B9006FCA14 /* VPNSettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8542CE232B95F7B9006FCA14 /* VPNSettingsPage.swift */; };
+		8542F7532BCFBD050035C042 /* SelectLocationFilterPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8542F7522BCFBD050035C042 /* SelectLocationFilterPage.swift */; };
 		85557B0E2B591B2600795FE1 /* FirewallAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85557B0D2B591B2600795FE1 /* FirewallAPIClient.swift */; };
 		85557B102B59215F00795FE1 /* FirewallRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85557B0F2B59215F00795FE1 /* FirewallRule.swift */; };
 		85557B122B594FC900795FE1 /* ConnectivityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85557B112B594FC900795FE1 /* ConnectivityTests.swift */; };
@@ -1886,6 +1887,7 @@
 		852BC6722BAB450B00A47558 /* MullvadVPNUITestsChangeDNSSettings.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MullvadVPNUITestsChangeDNSSettings.xctestplan; sourceTree = "<group>"; };
 		8532E6862B8CCED600ACECD1 /* ProblemReportSubmittedPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportSubmittedPage.swift; sourceTree = "<group>"; };
 		8542CE232B95F7B9006FCA14 /* VPNSettingsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsPage.swift; sourceTree = "<group>"; };
+		8542F7522BCFBD050035C042 /* SelectLocationFilterPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationFilterPage.swift; sourceTree = "<group>"; };
 		85557B0D2B591B2600795FE1 /* FirewallAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirewallAPIClient.swift; sourceTree = "<group>"; };
 		85557B0F2B59215F00795FE1 /* FirewallRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirewallRule.swift; sourceTree = "<group>"; };
 		85557B112B594FC900795FE1 /* ConnectivityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectivityTests.swift; sourceTree = "<group>"; };
@@ -3655,6 +3657,7 @@
 				850201DE2B5040A500EF8C96 /* TunnelControlPage.swift */,
 				8542CE232B95F7B9006FCA14 /* VPNSettingsPage.swift */,
 				85FB5A0B2B6903990015DCED /* WelcomePage.swift */,
+				8542F7522BCFBD050035C042 /* SelectLocationFilterPage.swift */,
 			);
 			path = Pages;
 			sourceTree = "<group>";
@@ -5634,6 +5637,7 @@
 				A9DF789D2B7D1E8B0094E4AD /* LoggedInWithTimeUITestCase.swift in Sources */,
 				85D2B0B12B6BD32400DF9DA7 /* BaseUITestCase.swift in Sources */,
 				8529693C2B4F0257007EAD4C /* Alert.swift in Sources */,
+				8542F7532BCFBD050035C042 /* SelectLocationFilterPage.swift in Sources */,
 				850201DD2B503D8C00EF8C96 /* SelectLocationPage.swift in Sources */,
 				85D039982BA4711800940E7F /* SettingsMigrationTests.swift in Sources */,
 				850201DB2B503D7700EF8C96 /* RelayTests.swift in Sources */,

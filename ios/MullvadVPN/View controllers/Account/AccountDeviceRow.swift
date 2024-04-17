@@ -13,6 +13,7 @@ class AccountDeviceRow: UIView {
         didSet {
             deviceLabel.text = deviceName?.capitalized ?? ""
             accessibilityValue = deviceName
+            accessibilityIdentifier = .accountPageDeviceNameLabel
         }
     }
 

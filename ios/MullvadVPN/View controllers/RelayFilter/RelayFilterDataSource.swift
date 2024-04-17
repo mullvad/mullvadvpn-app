@@ -243,14 +243,18 @@ extension RelayFilterDataSource: UITableViewDelegate {
 
         let sectionId = snapshot().sectionIdentifiers[section]
         let title: String
+        let accessibilityIdentifier: AccessibilityIdentifier
 
         switch sectionId {
         case .ownership:
+            accessibilityIdentifier = .locationFilterOwnershipHeaderCell
             title = "Ownership"
         case .providers:
+            accessibilityIdentifier = .locationFilterProvidersHeaderCell
             title = "Providers"
         }
 
+        view.accessibilityIdentifier = accessibilityIdentifier
         view.titleLabel.text = NSLocalizedString(
             "RELAY_FILTER_HEADER_LABEL",
             tableName: "Relay filter header",
