@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.relaylist
 
 import net.mullvad.mullvadvpn.model.CustomList
-import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.RelayItem
 
@@ -10,7 +9,7 @@ fun CustomList.toRelayItemCustomList(
 ): RelayItem.CustomList =
     RelayItem.CustomList(
         id = this.id,
-        customListName = CustomListName.fromString(name),
+        customListName = name,
         expanded = false,
         locations =
             this.locations.mapNotNull {

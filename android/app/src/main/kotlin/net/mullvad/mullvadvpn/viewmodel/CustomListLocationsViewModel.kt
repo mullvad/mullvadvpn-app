@@ -45,8 +45,7 @@ class CustomListLocationsViewModel(
                 relayCountries,
                 searchTerm,
                 selectedLocations ->
-                val filteredRelayCountries =
-                    relayCountries.filterOnSearchTerm(searchTerm, null)
+                val filteredRelayCountries = relayCountries.filterOnSearchTerm(searchTerm, null)
 
                 when {
                     selectedLocations == null ->
