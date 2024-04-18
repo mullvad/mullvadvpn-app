@@ -196,7 +196,9 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .enterText("4001")
             .dismissKeyboard()
             .swipeDownToDismissModal()
-            .swipeDownToDismissModal() // After editing text field the table is first responder for the first swipe so we need to swipe twice to swipe the modal
+
+            // After editing text field the table is first responder for the first swipe so we need to swipe twice to swipe the modal
+            .swipeDownToDismissModal()
 
         TunnelControlPage(app)
             .tapSecureConnectionButton()
