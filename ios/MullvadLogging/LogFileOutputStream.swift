@@ -16,10 +16,13 @@ private let reopenFileLogInterval: Duration = .seconds(5)
 class LogFileOutputStream: TextOutputStream {
     private let queue = DispatchQueue(label: "LogFileOutputStreamQueue", qos: .utility)
 
-    private let fileURL: URL
+    private let baseFileURL: URL
+    private var fileURL: URL
     private let encoding: String.Encoding
-    private let maxBufferCapacity: Int
+    private let maximumBufferCapacity: Int
     private let fileHeader: String
+    private var partialFileSizeCounter: UInt64 = 0
+    private var partialFileNameCounter = 1
 
     private var state: State = .closed {
         didSet {
@@ -47,9 +50,11 @@ class LogFileOutputStream: TextOutputStream {
 
     init(fileURL: URL, header: String, encoding: String.Encoding = .utf8, maxBufferCapacity: Int = 16 * 1024) {
         self.fileURL = fileURL
-        self.encoding = encoding
-        self.maxBufferCapacity = maxBufferCapacity
         self.fileHeader = header
+        self.encoding = encoding
+        self.maximumBufferCapacity = maxBufferCapacity
+
+        baseFileURL = fileURL.deletingPathExtension()
     }
 
     deinit {
@@ -89,7 +94,21 @@ class LogFileOutputStream: TextOutputStream {
         }
     }
 
-    @discardableResult private func write(fileHandle: FileHandle, data: Data) throws -> Int {
+    private func write(fileHandle: FileHandle, data: Data) throws {
+        partialFileSizeCounter += UInt64(data.count)
+
+        guard partialFileSizeCounter <= ApplicationConfiguration.logMaximumFileSize else {
+            try fileHandle.close()
+
+            state = .closed
+            partialFileSizeCounter = 0
+            partialFileNameCounter += 1
+            fileURL = try incrementFileName(partialFileCounter: partialFileNameCounter)
+
+            write(String(data: data, encoding: encoding) ?? "")
+            return
+        }
+
         let bytesWritten = data.withUnsafeBytes { buffer -> Int in
             guard let ptr = buffer.baseAddress else { return 0 }
 
@@ -99,8 +118,6 @@ class LogFileOutputStream: TextOutputStream {
         if bytesWritten == -1 {
             let code = POSIXErrorCode(rawValue: errno)!
             throw POSIXError(code)
-        } else {
-            return bytesWritten
         }
     }
 
@@ -171,8 +188,16 @@ class LogFileOutputStream: TextOutputStream {
     private func bufferData(_ data: Data) {
         buffer.append(data)
 
-        if buffer.count > maxBufferCapacity {
-            buffer.removeFirst(buffer.count - maxBufferCapacity)
+        if buffer.count > maximumBufferCapacity {
+            buffer.removeFirst(buffer.count - maximumBufferCapacity)
+        }
+    }
+
+    private func incrementFileName(partialFileCounter: Int) throws -> URL {
+        if let url = URL(string: baseFileURL.relativePath + "_\(partialFileCounter).log") {
+            return url
+        } else {
+            throw POSIXError(POSIXErrorCode(rawValue: 2)!) // "No such file or directory"
         }
     }
 }

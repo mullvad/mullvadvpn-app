@@ -9,16 +9,16 @@
 import Foundation
 
 extension Date {
-    public func logFormatDate() -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd/MM/yyyy @ HH:mm:ss"
-
-        return formatter.string(from: self)
+    public var logFormatted: String {
+        logFileFormatted.replacingOccurrences(of: "T", with: " ")
     }
 
-    public func logFormatFilename() -> String {
+    public var logFileFormatted: String {
         let formatter = DateFormatter()
+
         formatter.dateFormat = "dd-MM-yyyy'T'HH:mm:ss"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(abbreviation: "UTC")
 
         return formatter.string(from: self)
     }
