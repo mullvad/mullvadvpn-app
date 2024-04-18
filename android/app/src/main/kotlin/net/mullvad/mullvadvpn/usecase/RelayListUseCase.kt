@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
-import net.mullvad.mullvadvpn.relaylist.filterOnOwnershipAndProviders
+import net.mullvad.mullvadvpn.relaylist.filterOnOwnershipAndProvider
 import net.mullvad.mullvadvpn.relaylist.findItemForGeographicLocationConstraint
 import net.mullvad.mullvadvpn.relaylist.toRelayCountries
 import net.mullvad.mullvadvpn.relaylist.toRelayItemLists
@@ -41,11 +41,11 @@ class RelayListUseCase(
             val customLists =
                 settings?.customLists?.customLists?.toRelayItemLists(relayCountries) ?: emptyList()
             val relayCountriesFiltered =
-                relayCountries.filterOnOwnershipAndProviders(ownership, providers)
+                relayCountries.mapNotNull { it.filterOnOwnershipAndProvider(ownership, providers) }
             val selectedItem =
                 findSelectedRelayItem(
                     relaySettings = settings?.relaySettings,
-                    relayCountries = relayCountriesFiltered,
+                    relayCountries = relayCountries,
                     customLists = customLists,
                 )
             RelayList(

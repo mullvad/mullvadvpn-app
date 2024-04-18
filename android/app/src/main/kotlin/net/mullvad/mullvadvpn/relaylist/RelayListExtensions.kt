@@ -1,9 +1,7 @@
 package net.mullvad.mullvadvpn.relaylist
 
-import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.Relay as DaemonRelay
 import net.mullvad.mullvadvpn.model.RelayList
 
@@ -174,39 +172,6 @@ fun List<RelayItem.Country>.filterOnSearchTerm(
 private fun List<DaemonRelay>.filterValidRelays(): List<DaemonRelay> = filter {
     it.isWireguardRelay
 }
-
-fun List<RelayItem.Country>.filterOnOwnershipAndProviders(
-    ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>
-): List<RelayItem.Country> {
-    return map { country ->
-            val cities =
-                country.cities.map { city ->
-                    val relays =
-                        city.relays.filterRelayByOwnershipAndProviders(ownership, providers)
-                    city.copy(relays = relays)
-                }
-            country.copy(cities = cities.filter { it.relays.isNotEmpty() })
-        }
-        .filter { it.cities.isNotEmpty() }
-}
-
-private fun List<RelayItem.Relay>.filterRelayByOwnershipAndProviders(
-    ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>
-): List<RelayItem.Relay> =
-    filter {
-            when (ownership) {
-                is Constraint.Any -> true
-                is Constraint.Only -> it.ownership == ownership.value
-            }
-        }
-        .filter { relay ->
-            when (providers) {
-                is Constraint.Any -> true
-                is Constraint.Only -> providers.value.providers.contains(relay.providerName)
-            }
-        }
 
 /** Expand the parent(s), if any, for the current selected item */
 private fun List<RelayItem.Country>.expandItemForSelection(
