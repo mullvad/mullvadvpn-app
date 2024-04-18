@@ -24,23 +24,39 @@ enum ApplicationConfiguration {
     /// Returns URL for new log file associated with application target and located within shared container.
     static func newLogFileURL(for target: ApplicationTarget) -> URL {
         containerURL.appendingPathComponent(
-            "\(target.bundleIdentifier)_\(Date().logFormatFilename()).log",
+            "\(target.bundleIdentifier)_\(Date().logFileFormatted).log",
             isDirectory: false
         )
     }
 
     /// Returns URLs for log files associated with application target and located within shared container.
     static func logFileURLs(for target: ApplicationTarget) -> [URL] {
+        let fileManager = FileManager.default
         let containerUrl = containerURL
+        let filePathsInDirectory = try? fileManager.contentsOfDirectory(atPath: containerURL.relativePath)
 
-        return (try? FileManager.default.contentsOfDirectory(atPath: containerURL.relativePath))?.compactMap { file in
-            if file.split(separator: ".").last == "log" {
-                containerUrl.appendingPathComponent(file)
-            } else {
-                nil
-            }
-        }.sorted { $0.relativePath > $1.relativePath } ?? []
+        let filteredFilePaths: [URL] = filePathsInDirectory?.compactMap { path in
+            let pathIsLog = path.split(separator: ".").last == "log"
+            let pathBelongsToTarget = path.contains(target.bundleIdentifier)
+
+            return pathIsLog && pathBelongsToTarget ? containerUrl.appendingPathComponent(path) : nil
+        } ?? []
+
+        let sortedFilePaths = try? filteredFilePaths.sorted { path1, path2 in
+            let path1Attributes = try fileManager.attributesOfItem(atPath: path1.relativePath)
+            let date1 = (path1Attributes[.creationDate] as? Date) ?? Date.distantPast
+
+            let path2Attributes = try fileManager.attributesOfItem(atPath: path2.relativePath)
+            let date2 = (path2Attributes[.creationDate] as? Date) ?? Date.distantPast
+
+            return date1 > date2
+        }
+
+        return sortedFilePaths ?? []
     }
+
+    // Maximum file size for writing and reading logs.
+    static let logMaximumFileSize: UInt64 = 131_072 // 128 kB.
 
     /// Privacy policy URL.
     static let privacyPolicyURL = URL(string: "https://mullvad.net/help/privacy-policy/")!
