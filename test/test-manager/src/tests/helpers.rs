@@ -252,8 +252,8 @@ pub async fn login_with_retries(
 /// Ensure that the test runner is logged in to an account.
 ///
 /// This will first check whether we are logged in. If not, it will also try to login
-/// on your behalf. If this function returns with any errors, it means that we are logged in
-/// to.
+/// on your behalf. If this function returns without any errors, we are logged in to a valid
+/// account.
 pub async fn ensure_logged_in(
     mullvad_client: &mut MullvadProxyClient,
 ) -> Result<(), mullvad_management_interface::Error> {
