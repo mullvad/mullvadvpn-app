@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.relaylist.Provider
 import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.relaylist.filterOnOwnershipAndProvider
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -66,11 +67,9 @@ class SelectLocationViewModel(
 
                 val filteredCustomLists =
                     customLists.filterOnSearchTerm(searchTerm).map { customList ->
-                        customList.copy(
-                            locations =
-                                customList.locations.filter { location ->
-                                    filteredRelayCountries.any { it.code == location.code }
-                                }
+                        customList.filterOnOwnershipAndProvider(
+                            selectedOwnership,
+                            selectedConstraintProviders
                         )
                     }
 
