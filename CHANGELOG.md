@@ -38,6 +38,9 @@ Line wrap the file at 100 chars.                                              Th
 - Set auto-connect setting as legacy on platforms with system vpn settings.
 
 ### Fixed
+- Fix bug where the app would fail to select an existing relay in some scenarios, causing the
+  user to wrongly end up in a blocked state.
+
 #### Android
 - Fix crash in Split Tunneling screen caused by apps provding icons bigger than 100MB.
 
