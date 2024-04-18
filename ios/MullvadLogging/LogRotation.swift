@@ -36,7 +36,7 @@ public enum LogRotation {
         public var errorDescription: String? {
             switch self {
             case .rotateLogFiles:
-                return "Failure to rotate the source log file to backup."
+                return "Failure to rotate logs"
             }
         }
 
@@ -74,30 +74,23 @@ public enum LogRotation {
                 log1.creationDate > log2.creationDate
             }
 
-            try deleteLogsOlderThan(options.oldestAllowedDate, in: logs)
-            try deleteLogsWithCombinedSizeLargerThan(options.storageSizeLimit, in: logs)
+            try deleteLogs(dateThreshold: options.oldestAllowedDate, sizeThreshold: options.storageSizeLimit, in: logs)
         } catch {
             throw Error.rotateLogFiles(error)
         }
     }
 
-    private static func deleteLogsOlderThan(_ dateThreshold: Date, in logs: [LogData]) throws {
+    private static func deleteLogs(dateThreshold: Date, sizeThreshold: Int, in logs: [LogData]) throws {
         let fileManager = FileManager.default
 
-        for log in logs where log.creationDate < dateThreshold {
-            try fileManager.removeItem(at: log.path)
-        }
-    }
-
-    private static func deleteLogsWithCombinedSizeLargerThan(_ sizeThreshold: Int, in logs: [LogData]) throws {
-        let fileManager = FileManager.default
-
-        // Delete all logs outside maximum capacity (ordered newest to oldest).
         var fileSizes = UInt64.zero
         for log in logs {
             fileSizes += log.size
 
-            if fileSizes > sizeThreshold {
+            let logIsTooOld = log.creationDate < dateThreshold
+            let logCapacityIsExceeded = fileSizes > sizeThreshold
+
+            if logIsTooOld || logCapacityIsExceeded {
                 try fileManager.removeItem(at: log.path)
             }
         }

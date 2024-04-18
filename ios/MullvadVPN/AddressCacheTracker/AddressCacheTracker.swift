@@ -65,7 +65,7 @@ final class AddressCacheTracker {
 
         let scheduleDate = _nextScheduleDate()
 
-        logger.debug("Schedule address cache update at \(scheduleDate.logFormatDate()).")
+        logger.debug("Schedule address cache update at \(scheduleDate.logFormatted).")
 
         scheduleEndpointsUpdate(startTime: .now() + scheduleDate.timeIntervalSinceNow)
     }
@@ -165,7 +165,7 @@ final class AddressCacheTracker {
             let scheduleDate = self._nextScheduleDate()
 
             self.logger
-                .debug("Schedule next address cache update at \(scheduleDate.logFormatDate()).")
+                .debug("Schedule next address cache update at \(scheduleDate.logFormatted).")
 
             self.scheduleEndpointsUpdate(startTime: .now() + scheduleDate.timeIntervalSinceNow)
         }

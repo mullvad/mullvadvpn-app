@@ -34,7 +34,7 @@ class MullvadLoggingTests: XCTestCase {
         stream.write(logMessage)
         sync()
 
-        let contents = String(decoding: try! Data(contentsOf: fileURL), as: UTF8.self)
+        let contents = String(decoding: (try? Data(contentsOf: fileURL)) ?? Data(), as: UTF8.self)
         XCTAssertEqual(contents, "\(headerText)\n\(logMessage)")
     }
 
@@ -51,7 +51,7 @@ class MullvadLoggingTests: XCTestCase {
 
         sync()
 
-        let contents = String(decoding: try! Data(contentsOf: fileURL), as: UTF8.self)
+        let contents = String(decoding: (try? Data(contentsOf: fileURL)) ?? Data(), as: UTF8.self)
 
         XCTAssert(contents.hasPrefix(expectedHeader))
     }
