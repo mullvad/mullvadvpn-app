@@ -61,7 +61,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../../dist-assets/binaries/wireguard-nt/api/;$(ProjectDir)../windows-libraries/src/;$(ProjectDir)../</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../windows-libraries/src/;$(ProjectDir)../</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -83,7 +83,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../../dist-assets/binaries/wireguard-nt/api/;$(ProjectDir)../windows-libraries/src/;$(ProjectDir)../</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../windows-libraries/src/;$(ProjectDir)../</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -115,7 +115,7 @@
     <ClInclude Include="src\targetver.h" />
     <ClInclude Include="src\util.h" />
     <ClInclude Include="src\wintun.h" />
-    <ClInclude Include="src\wireguard_dll.h" />
+    <ClInclude Include="src\wireguard.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
