@@ -172,7 +172,7 @@ final class TunnelManager: StorePaymentObserver {
 
         privateKeyRotationTimer = timer
 
-        logger.debug("Schedule next private key rotation at \(scheduleDate.logFormatDate()).")
+        logger.debug("Schedule next private key rotation at \(scheduleDate.logFormatted).")
     }
 
     // MARK: - Public methods

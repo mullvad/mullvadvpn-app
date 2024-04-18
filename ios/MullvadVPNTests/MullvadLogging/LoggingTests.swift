@@ -26,7 +26,7 @@ class MullvadLoggingTests: XCTestCase {
         return fileURL
     }
 
-    func testLogFileOutputStreamWritesHeader() {
+    func testLogFileOutputStreamWritesHeader() throws {
         let headerText = "This is a header"
         let logMessage = "And this is a log message\n"
         let fileURL = temporaryFileURL()
@@ -34,11 +34,11 @@ class MullvadLoggingTests: XCTestCase {
         stream.write(logMessage)
         sync()
 
-        let contents = String(decoding: try! Data(contentsOf: fileURL), as: UTF8.self)
+        let contents = try XCTUnwrap(String(contentsOf: fileURL))
         XCTAssertEqual(contents, "\(headerText)\n\(logMessage)")
     }
 
-    func testLogHeader() {
+    func testLogHeader() throws {
         let expectedHeader = "Header of a log file"
 
         var builder = LoggerBuilder(header: expectedHeader)
@@ -51,7 +51,7 @@ class MullvadLoggingTests: XCTestCase {
 
         sync()
 
-        let contents = String(decoding: try! Data(contentsOf: fileURL), as: UTF8.self)
+        let contents = try XCTUnwrap(String(contentsOf: fileURL))
 
         XCTAssert(contents.hasPrefix(expectedHeader))
     }

@@ -307,7 +307,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             let request = BGAppRefreshTaskRequest(identifier: BackgroundTask.appRefresh.identifier)
             request.earliestBeginDate = date
 
-            logger.debug("Schedule app refresh task at \(date.logFormatDate()).")
+            logger.debug("Schedule app refresh task at \(date.logFormatted).")
 
             try BGTaskScheduler.shared.submit(request)
         } catch {
@@ -325,7 +325,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             request.requiresNetworkConnectivity = true
             request.earliestBeginDate = date
 
-            logger.debug("Schedule key rotation task at \(date.logFormatDate()).")
+            logger.debug("Schedule key rotation task at \(date.logFormatted).")
 
             try BGTaskScheduler.shared.submit(request)
         } catch {
@@ -341,7 +341,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             request.requiresNetworkConnectivity = true
             request.earliestBeginDate = date
 
-            logger.debug("Schedule address cache update task at \(date.logFormatDate()).")
+            logger.debug("Schedule address cache update task at \(date.logFormatted).")
 
             try BGTaskScheduler.shared.submit(request)
         } catch {

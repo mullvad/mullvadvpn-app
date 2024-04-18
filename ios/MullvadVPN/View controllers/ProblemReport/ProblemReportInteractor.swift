@@ -30,6 +30,10 @@ final class ProblemReportInteractor {
         return report
     }()
 
+    var reportString: String {
+        consolidatedLog.string
+    }
+
     init(apiProxy: APIQuerying, tunnelManager: TunnelManager) {
         self.apiProxy = apiProxy
         self.tunnelManager = tunnelManager
@@ -54,9 +58,5 @@ final class ProblemReportInteractor {
             retryStrategy: .default,
             completionHandler: completion
         )
-    }
-
-    var reportString: String {
-        consolidatedLog.string
     }
 }
