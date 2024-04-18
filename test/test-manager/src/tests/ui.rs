@@ -200,14 +200,6 @@ async fn test_custom_access_methods_gui(
 
     assert!(ui_result.success());
 
-    // Reset the `api-override` feature.
-    tokio::time::timeout(
-        std::time::Duration::from_secs(60),
-        rpc.set_daemon_environment(helpers::get_app_env()),
-    )
-    .await
-    .map_err(|_| Error::DaemonNotRunning)??;
-
     Ok(())
 }
 
@@ -271,14 +263,6 @@ async fn test_custom_bridge_gui(
     .unwrap();
 
     assert!(ui_result.success());
-
-    // Reset the `api-override` feature.
-    tokio::time::timeout(
-        std::time::Duration::from_secs(60),
-        rpc.set_daemon_environment(helpers::get_app_env()),
-    )
-    .await
-    .map_err(|_| Error::DaemonNotRunning)??;
 
     Ok(())
 }
