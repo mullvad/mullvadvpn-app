@@ -140,7 +140,7 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
                     """
                     AppStore receipt was processed. \
                     Time added: \(response.timeAdded), \
-                    New expiry: \(response.newExpiry.logFormatDate())
+                    New expiry: \(response.newExpiry.logFormatted)
                     """
                 )
                 self.finish(result: .success(response))
