@@ -605,14 +605,12 @@ impl MullvadProxyClient {
             .map(drop)
     }
 
-    /// Set the [`AccessMethod`] which [`ApiConnectionModeProvider`] should
+    /// Set the [`AccessMethod`] which `AccessModeSelector` should
     /// pick.
     ///
-    /// - `access_method`: If `Some(access_method)`, [`ApiConnectionModeProvider`] will skip ahead
-    ///   and return `access_method` when asked for a new access method. If `None`,
-    ///   [`ApiConnectionModeProvider`] will pick the next access method "randomly"
-    ///
-    /// [`ApiConnectionModeProvider`]: mullvad_daemon::api::ApiConnectionModeProvider
+    /// - `access_method`: If `Some(access_method)`, `AccessModeSelector` will skip ahead and return
+    ///   `access_method` when asked for a new access method. If `None`, `AccessModeSelector` will
+    ///   pick the next access method "randomly"
     pub async fn set_access_method(&mut self, api_access_method: access_method::Id) -> Result<()> {
         self.0
             .set_api_access_method(types::Uuid::from(api_access_method))

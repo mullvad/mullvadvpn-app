@@ -1,4 +1,5 @@
 #![recursion_limit = "512"]
+#![allow(rustdoc::private_intra_doc_links)]
 
 mod access_method;
 pub mod account_history;

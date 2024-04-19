@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 // Section for vendoring types and values that
 // this settings version depend on. See `mod.rs`.
 
-/// The tunnel protocol used by a [`TunnelEndpoint`].
+/// The tunnel protocol used by a [`TunnelEndpoint`][talpid_types::net::TunnelEndpoint].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename = "tunnel_type")]
 pub enum TunnelType {

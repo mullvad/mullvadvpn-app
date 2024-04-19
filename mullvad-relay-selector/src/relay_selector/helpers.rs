@@ -11,7 +11,7 @@ use talpid_types::net::obfuscation::ObfuscatorConfig;
 
 use crate::SelectedObfuscator;
 
-/// Picks a relay using [pick_random_relay_fn], using the `weight` member of each relay
+/// Picks a relay using [pick_random_relay_weighted], using the `weight` member of each relay
 /// as the weight function.
 pub fn pick_random_relay(relays: &[Relay]) -> Option<&Relay> {
     pick_random_relay_weighted(relays, |relay| relay.weight)

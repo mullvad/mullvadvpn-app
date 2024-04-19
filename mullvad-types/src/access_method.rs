@@ -28,7 +28,7 @@ impl Settings {
         self.custom.push(api_access_method)
     }
 
-    /// Remove an [`ApiAccessMethod`] from `api_access_methods`.
+    /// Remove an [`AccessMethod`] from `api_access_methods`.
     ///
     /// This function will return an error if a built-in API access is about to
     /// be removed.
@@ -205,15 +205,15 @@ impl AccessMethodSetting {
         }
     }
 
-    /// Just like [`new`], [`with_id`] will create a new [`ApiAccessMethod`].
+    /// Just like [`new`], [`with_id`] will create a new [`AccessMethodSetting`].
     /// But instead of automatically generating a new UUID, the id is instead
     /// passed as an argument.
     ///
-    /// This is useful when converting to [`ApiAccessMethod`] from other data
+    /// This is useful when converting to [`AccessMethodSetting`] from other data
     /// representations, such as protobuf.
     ///
-    /// [`new`]: ApiAccessMethod::new
-    /// [`with_id`]: ApiAccessMethod::with_id
+    /// [`new`]: AccessMethodSetting::new
+    /// [`with_id`]: AccessMethodSetting::with_id
     pub fn with_id(id: Id, name: String, enabled: bool, access_method: AccessMethod) -> Self {
         Self {
             id,

@@ -19,6 +19,8 @@ impl<T: Match<U>, U> Match<U> for Constraint<T> {
     }
 }
 
+// NOTE: This docstring cannot link to `mullvad_relay_selector::relay_selector::query` and
+// `RETRY_ORDER`as `mullvad_relay_selector` is not a dependency of this crate
 /// The intersection of two sets of criteria on [`Relay`](crate::relay_list::Relay)s is another
 /// criteria which matches the given relay iff both of the original criteria matched. It is
 /// primarily used by the relay selector to check whether a given connection method is compatible
@@ -26,9 +28,10 @@ impl<T: Match<U>, U> Match<U> for Constraint<T> {
 ///
 /// # Examples
 ///
-/// The [`Intersection`] implementation of [`RelayQuery`] upholds the following properties:
+/// The [`Intersection`] implementation of
+/// `mullvad_relay_selector::relay_selector::query::RelayQuery` upholds the following properties:
 ///
-/// * If two [`RelayQuery`]s differ such that no relay matches both, [`Option::None`] is returned:
+/// * If two `RelayQuery`s differ such that no relay matches both, [`Option::None`] is returned:
 /// ```rust, ignore
 /// # use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 /// let query_a = RelayQueryBuilder::new().wireguard().build();
@@ -36,7 +39,7 @@ impl<T: Match<U>, U> Match<U> for Constraint<T> {
 /// assert_eq!(query_a.intersection(query_b), None);
 /// ```
 ///
-/// * Otherwise, a new [`RelayQuery`] is returned where each constraint is
+/// * Otherwise, a new `RelayQuery` is returned where each constraint is
 /// as specific as possible. See [`Constraint`] for further details.
 /// ```rust, ignore
 /// let query_a = RelayQueryBuilder::new().wireguard().build();
@@ -47,11 +50,10 @@ impl<T: Match<U>, U> Match<U> for Constraint<T> {
 /// ```
 ///
 /// This way, if the mullvad app wants to check if the user's relay settings
-/// are compatible with any other [`RelayQuery`], for examples those defined by
-/// [`RETRY_ORDER`] , taking the intersection between them will never result in
+/// are compatible with any other `RelayQuery`, for examples those defined by
+/// `RETRY_ORDER` , taking the intersection between them will never result in
 /// a situation where the app can override the user's preferences.
 ///
-/// [`RETRY_ORDER`]: crate::RETRY_ORDER
 ///
 /// The macro recursively applies the intersection on each field of the struct and returns the
 /// resulting type or `None` if any of the intersections failed to overlap.
@@ -62,7 +64,7 @@ impl<T: Match<U>, U> Match<U> for Constraint<T> {
 /// # Implementing [`Intersection`]
 ///
 /// For structs where each field already implements `Intersection`, the easiest way to implement the
-/// trait is using the derive macro. Using the derive macro on [`RelayQuery`]
+/// trait is using the derive macro. Using the derive macro on `RelayQuery`
 /// ```rust, ignore
 /// #[derive(Intersection)]
 /// struct RelayQuery {
@@ -106,7 +108,7 @@ impl<T: Match<U>, U> Match<U> for Constraint<T> {
 /// For less trivial cases, the trait needs to be implemented manually. When doing so, make sure
 /// that the following properties are upheld:
 ///
-/// - idempotency (if there is an identity element)
+/// - idempotence (if there is an identity element)
 /// - commutativity
 /// - associativity
 pub trait Intersection: Sized {

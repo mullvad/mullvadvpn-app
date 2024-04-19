@@ -1094,7 +1094,7 @@ impl ManagementInterfaceEventBroadcaster {
     }
 }
 
-/// Converts [`mullvad_daemon::Error`] into a tonic status.
+/// Converts [`crate::Error`] into a tonic status.
 fn map_daemon_error(error: crate::Error) -> Status {
     use crate::Error as DaemonError;
 
@@ -1150,7 +1150,7 @@ fn map_rest_error(error: &RestError) -> Status {
     }
 }
 
-/// Converts an instance of [`mullvad_daemon::device::Error`] into a tonic status.
+/// Converts an instance of [`crate::device::Error`] into a tonic status.
 fn map_device_error(error: &device::Error) -> Status {
     match error {
         device::Error::MaxDevicesReached => Status::new(Code::ResourceExhausted, error.to_string()),
@@ -1168,7 +1168,7 @@ fn map_device_error(error: &device::Error) -> Status {
     }
 }
 
-/// Converts an instance of [`mullvad_daemon::account_history::Error`] into a tonic status.
+/// Converts an instance of [`crate::account_history::Error`] into a tonic status.
 fn map_account_history_error(error: account_history::Error) -> Status {
     match error {
         account_history::Error::Read(..) | account_history::Error::Write(..) => {

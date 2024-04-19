@@ -102,25 +102,25 @@ pub struct SocksAuthentication {
 
 #[derive(Args, Debug, Clone)]
 pub struct ProxyEditParams {
-    /// Username for authentication [Socks5 (Remote proxy)]
+    /// Username for authentication \[Socks5 (Remote proxy)\]
     #[arg(long)]
     pub username: Option<String>,
-    /// Password for authentication [Socks5 (Remote proxy), Shadowsocks]
+    /// Password for authentication \[Socks5 (Remote proxy), Shadowsocks\]
     #[arg(long)]
     pub password: Option<String>,
-    /// Cipher to use [Shadowsocks]
+    /// Cipher to use \[Shadowsocks\]
     #[arg(value_parser = SHADOWSOCKS_CIPHERS, long)]
     pub cipher: Option<String>,
-    /// The IP of the remote proxy server [Socks5 (Local & Remote proxy), Shadowsocks]
+    /// The IP of the remote proxy server \[Socks5 (Local & Remote proxy), Shadowsocks\]
     #[arg(long)]
     pub ip: Option<IpAddr>,
-    /// The port of the remote proxy server [Socks5 (Local & Remote proxy), Shadowsocks]
+    /// The port of the remote proxy server \[Socks5 (Local & Remote proxy), Shadowsocks\]
     #[arg(long)]
     pub port: Option<u16>,
-    /// The port that the server on localhost is listening on [Socks5 (Local proxy)]
+    /// The port that the server on localhost is listening on \[Socks5 (Local proxy)\]
     #[arg(long)]
     pub local_port: Option<u16>,
-    /// The transport protocol used by the remote proxy [Socks5 (Local proxy)]
+    /// The transport protocol used by the remote proxy \[Socks5 (Local proxy)\]
     #[arg(long)]
     pub transport_protocol: Option<TransportProtocol>,
 }
