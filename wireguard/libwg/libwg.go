@@ -66,7 +66,6 @@ func wgActivateDaita(machines *C.int8_t, tunnelHandle int32, eventsCapacity uint
 	var maybenot *C.Maybenot
 	maybenot_result := C.maybenot_start(
 		machines, 0.0, 0.0, 1440,
-		C.MaybenotActionCallback(C.wgOnMaybenotAction),
 		&maybenot,
 	)
 
@@ -110,17 +109,13 @@ func handleEvents(maybenot *C.Maybenot, tunnelHandle int32, tunnel tunnelcontain
 			xmit_bytes: C.uint16_t(event.XmitBytes),
 		}
 
-		ctx := EventContext{
-			tunnelHandle: tunnelHandle,
-			peer:         event.Peer,
-		}
-
 		// TODO: is unsafe.Pointer sound?
-		C.maybenot_on_event(maybenot, unsafe.Pointer(&ctx), cEvent)
+		var num_actions C.uint64_t
+		actions := make([]C.MaybenotAction, 10) // TODO: Actually use a valid capacity here
+		C.maybenot_on_event(maybenot, cEvent, &actions[0], &num_actions)
 	}
 }
 
-//export wgOnMaybenotAction
 func wgOnMaybenotAction(userData *C.void, action C.MaybenotAction) {
 	// TODO: is this safe? will go try to garbage collect this pointer? what happens if i leak it?
 	ctx := (*EventContext)(unsafe.Pointer(userData))
@@ -143,7 +138,7 @@ func wgOnMaybenotAction(userData *C.void, action C.MaybenotAction) {
 	}
 
 	// cast union to the ActionInjectPadding variant
-	padding_action := (*C.InjectPadding_Body)(unsafe.Pointer(&action.anon0[0]))
+	padding_action := (*C.MaybenotAction_InjectPadding_Body)(unsafe.Pointer(&action.anon0[0]))
 
 	action_go := device.Action{
 		Peer:       ctx.peer,
