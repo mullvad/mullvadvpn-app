@@ -154,6 +154,19 @@ class SelectLocationViewModel(
         viewModelScope.launch { customListActionUseCase.performAction(action) }
     }
 
+    fun removeLocationFromList(item: RelayItem, customList: RelayItem.CustomList) {
+        viewModelScope.launch {
+            val newLocations = (customList.locations - item).map { it.code }
+            val result =
+                customListActionUseCase.performAction(
+                    CustomListAction.UpdateLocations(customList.id, newLocations)
+                )
+            _uiSideEffect.send(
+                SelectLocationSideEffect.LocationRemovedFromCustomList(result.getOrThrow())
+            )
+        }
+    }
+
     companion object {
         private const val EMPTY_SEARCH_TERM = ""
     }
@@ -163,5 +176,8 @@ sealed interface SelectLocationSideEffect {
     data object CloseScreen : SelectLocationSideEffect
 
     data class LocationAddedToCustomList(val result: CustomListResult.LocationsChanged) :
+        SelectLocationSideEffect
+
+    class LocationRemovedFromCustomList(val result: CustomListResult.LocationsChanged) :
         SelectLocationSideEffect
 }
