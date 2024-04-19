@@ -340,7 +340,7 @@ pub struct EditCustomCommands {
     /// Which API access method to edit
     #[clap(flatten)]
     item: SelectItem,
-    /// Name of the API access method in the Mullvad client [All]
+    /// Name of the API access method in the Mullvad client \[All\]
     #[arg(long)]
     name: Option<String>,
     /// Editing parameters
@@ -350,7 +350,7 @@ pub struct EditCustomCommands {
 
 #[derive(Args, Debug, Clone)]
 pub struct EditParams {
-    /// Name of the API access method in the Mullvad client [All]
+    /// Name of the API access method in the Mullvad client \[All\]
     #[arg(long)]
     name: Option<String>,
     #[clap(flatten)]
@@ -406,7 +406,7 @@ mod conversions {
     }
 }
 
-/// Pretty printing of [`ApiAccessMethod`]s
+/// Pretty printing of [`AccessMethodSetting`]s
 mod pp {
     use crate::cmds::proxies::pp::CustomProxyFormatter;
     use mullvad_types::access_method::{AccessMethod, AccessMethodSetting};
@@ -418,7 +418,7 @@ mod pp {
 
     pub struct FormatterSettings {
         /// If the formatter should print the enabled status of an
-        /// [`AcessMethodSetting`] (*) next to its name.
+        /// [`AccessMethodSetting`] (*) next to its name.
         pub write_enabled: bool,
     }
 

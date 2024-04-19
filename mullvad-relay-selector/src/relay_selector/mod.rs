@@ -161,15 +161,17 @@ impl Default for RuntimeParameters {
 /// This enum exists to separate the two types of [`SelectorConfig`] that exists.
 ///
 /// The first one is a "regular" config, where [`SelectorConfig::relay_settings`] is
-/// [`RelaySettings::Normal`]. This is the most common variant, and there exists a mapping from this
-/// variant to [`RelayQueryBuilder`]. Being able to implement `From<NormalSelectorConfig> for
-/// RelayQueryBuilder` was the main motivator for introducing these seemingly useless derivates of
-/// [`SelectorConfig`].
+/// [`RelaySettings::Normal`]. This is the most common variant, and there exists a
+/// mapping from this variant to [`RelayQueryBuilder`]. Being able to implement
+/// `From<NormalSelectorConfig> for RelayQueryBuilder` was the main motivator for introducing these
+/// seemingly useless derivates of [`SelectorConfig`].
 ///
 /// The second one is a custom config, where [`SelectorConfig::relay_settings`] is
-/// [`RelaySettings::Custom`]. For this variant, the endpoint where the client should connect to is
-/// already specified inside of the variant, so in practice the relay selector becomes superfluous.
-/// Also, there exists no mapping to [`RelayQueryBuilder`].
+/// [`RelaySettings::CustomTunnelEndpoint`]. For this variant, the endpoint where the client should
+/// connect to is already specified inside of the variant, so in practice the relay selector becomes
+/// superfluous. Also, there exists no mapping to [`RelayQueryBuilder`].
+///
+/// [`RelayQueryBuilder`]: query::builder::RelayQueryBuilder
 #[derive(Debug, Clone)]
 enum SpecializedSelectorConfig<'a> {
     // This variant implements `From<NormalSelectorConfig> for RelayQuery`
