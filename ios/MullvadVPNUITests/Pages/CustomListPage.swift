@@ -28,6 +28,11 @@ class CustomListPage: Page {
         return self
     }
 
+    // It's the same button, the difference is just for semantics
+    @discardableResult func tapSaveListButton() -> Self {
+        tapCreateListButton()
+    }
+
     @discardableResult func editCustomList(name: String) -> Self {
         let editCustomListNameCell = app.cells[.customListEditNameFieldCell]
         editCustomListNameCell.tap()
@@ -39,6 +44,11 @@ class CustomListPage: Page {
         let deleteCustomListCell = app.cells[.customListEditDeleteListCell]
         deleteCustomListCell.tap()
         app.buttons[.confirmDeleteCustomListButton].tap()
+        return self
+    }
+
+    @discardableResult func addOrEditLocations() -> Self {
+        app.cells[.customListEditAddOrEditLocationCell].tap()
         return self
     }
 }

@@ -50,6 +50,8 @@ public enum AccessibilityIdentifier: String {
     case saveCreateCustomListButton
     case confirmDeleteCustomListButton
     case cancelDeleteCustomListButton
+    case customListLocationCheckmarkButton
+    case listCustomListDoneButton
 
     // Cells
     case deviceCell
@@ -68,7 +70,7 @@ public enum AccessibilityIdentifier: String {
     case udpOverTCPPortCell
     case quantumResistantTunnelCell
     case customListEditNameFieldCell
-    case customListEditAddLocationCell
+    case customListEditAddOrEditLocationCell
     case customListEditDeleteListCell
 
     // Labels
@@ -81,7 +83,6 @@ public enum AccessibilityIdentifier: String {
 
     // Views
     case accountView
-    case addLocationsView
     case alertContainerView
     case alertTitle
     case changeLogAlert
@@ -105,6 +106,8 @@ public enum AccessibilityIdentifier: String {
     case customListEditTableView
     case listCustomListsView
     case listCustomListsTableView
+    case editCustomListEditLocationsView
+    case editCustomListEditLocationsTableView
 
     // Other UI elements
     case connectionPanelInAddressRow

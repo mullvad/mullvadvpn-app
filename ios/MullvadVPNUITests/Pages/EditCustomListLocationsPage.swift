@@ -1,0 +1,35 @@
+//
+//  EditCustomListLocationsPage.swift
+//  MullvadVPNUITests
+//
+//  Created by Marco Nikic on 2024-04-19.
+//  Copyright © 2024 Mullvad VPN AB. All rights reserved.
+//
+
+import XCTest
+
+class EditCustomListLocationsPage: Page {
+    @discardableResult override init(_ app: XCUIApplication) {
+        super.init(app)
+
+        self.pageAccessibilityIdentifier = .editCustomListEditLocationsView
+        waitForPageToBeShown()
+    }
+
+    @discardableResult func scrollToLocationWith(identifier: String) -> Self {
+        let tableView = app.tables[.editCustomListEditLocationsTableView]
+        tableView.cells[identifier].tap()
+        return self
+    }
+
+    @discardableResult func toggleLocationCheckmarkWith(identifier: String) -> Self {
+        let locationCell = app.tables[.editCustomListEditLocationsTableView].cells[identifier]
+        locationCell.buttons[.customListLocationCheckmarkButton].tap()
+        return self
+    }
+
+    @discardableResult func pressBackButton() -> Self {
+        app.navigationBars["Edit locations"].buttons.firstMatch.tap()
+        return self
+    }
+}

@@ -16,14 +16,18 @@ class ListCustomListsPage: Page {
         waitForPageToBeShown()
     }
 
-    @discardableResult
     /// This function taps on a given custom list in the Edit Custom List page.
     ///
     /// This functions assumes that all the custom lists are visible on a single page
     /// No scrolling will be attempted to scroll to find a custom list
     /// - Parameter customListName: The custom list to edit
-    func selectCustomListToEdit(named customListName: String) -> Self {
+    @discardableResult func selectCustomListToEdit(named customListName: String) -> Self {
         app.tables[.listCustomListsTableView].staticTexts[customListName].tap()
+        return self
+    }
+
+    @discardableResult func finishEditingCustomLists() -> Self {
+        app.buttons[.listCustomListDoneButton].tap()
         return self
     }
 }

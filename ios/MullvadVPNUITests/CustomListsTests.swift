@@ -34,18 +34,39 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
 
         let customListName = createCustomListName()
         createCustomList(named: customListName)
-        // In order to avoid a bug where the open custom list button cannot be found, the location view is closed and then reopened
-        SelectLocationPage(app)
-            .closeSelectLocationPage()
-        TunnelControlPage(app)
-            .tapSelectLocationButton()
-
+        workaroundOpenCustomListMenuBug()
         deleteCustomList(named: customListName)
 
         SelectLocationPage(app)
             .tapWhereStatusBarShouldBeToScrollToTopMostPosition()
 
         XCTAssertFalse(app.staticTexts[customListName].exists)
+    }
+
+    func testEditCustomListLocations() throws {
+        TunnelControlPage(app)
+            .tapSelectLocationButton()
+
+        let customListName = createCustomListName()
+        createCustomList(named: customListName)
+        workaroundOpenCustomListMenuBug()
+        startEditingCustomList(named: customListName)
+
+        EditCustomListLocationsPage(app)
+            .scrollToLocationWith(identifier: "se")
+            .toggleLocationCheckmarkWith(identifier: "se")
+            .pressBackButton()
+
+        CustomListPage(app)
+            .tapSaveListButton()
+
+        ListCustomListsPage(app)
+            .finishEditingCustomLists()
+
+        XCTAssertTrue(app.staticTexts[customListName].exists)
+
+        workaroundOpenCustomListMenuBug()
+        deleteCustomList(named: customListName)
     }
 
     func createCustomList(named name: String) {
@@ -60,6 +81,29 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
             .editCustomList(name: name)
             .verifyCreateButtonIs(enabled: true)
             .tapCreateListButton()
+    }
+
+    func workaroundOpenCustomListMenuBug() {
+        // In order to avoid a bug where the open custom list button cannot be found, the location view is closed and then reopened
+        SelectLocationPage(app)
+            .closeSelectLocationPage()
+        TunnelControlPage(app)
+            .tapSelectLocationButton()
+    }
+
+    func startEditingCustomList(named customListName: String) {
+        SelectLocationPage(app)
+            .tapWhereStatusBarShouldBeToScrollToTopMostPosition()
+            .tapCustomListEllipsisButton()
+            .editExistingCustomLists()
+
+        ListCustomListsPage(app)
+            .selectCustomListToEdit(named: customListName)
+
+        CustomListPage(app)
+            .addOrEditLocations()
+
+        EditCustomListLocationsPage(app)
     }
 
     func deleteCustomList(named customListName: String) {

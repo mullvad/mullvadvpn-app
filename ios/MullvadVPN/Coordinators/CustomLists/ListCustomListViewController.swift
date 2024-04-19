@@ -106,6 +106,8 @@ class ListCustomListViewController: UIViewController {
                 self?.didFinish?()
             })
         )
+
+        navigationItem.rightBarButtonItem?.accessibilityIdentifier = .listCustomListDoneButton
     }
 
     private func configureDataSource() {

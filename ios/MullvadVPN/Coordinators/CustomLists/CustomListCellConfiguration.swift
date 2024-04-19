@@ -87,7 +87,7 @@ struct CustomListCellConfiguration {
 
         contentConfiguration.text = itemIdentifier.text
         cell.contentConfiguration = contentConfiguration
-        cell.accessibilityIdentifier = AccessibilityIdentifier.customListEditAddLocationCell
+        cell.accessibilityIdentifier = AccessibilityIdentifier.customListEditAddOrEditLocationCell
 
         if let cell = cell as? CustomCellDisclosureHandling {
             cell.disclosureType = .chevron
