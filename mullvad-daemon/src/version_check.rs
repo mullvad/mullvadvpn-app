@@ -361,7 +361,6 @@ impl VersionUpdaterInner {
                     if self.is_running_version_check() {
                         continue;
                     }
-                    //version_check = api.do_version_check_in_background().fuse();
                     version_check = do_version_check_in_background().fuse();
                 },
 
