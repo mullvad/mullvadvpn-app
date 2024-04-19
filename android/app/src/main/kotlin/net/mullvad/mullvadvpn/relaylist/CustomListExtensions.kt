@@ -11,10 +11,7 @@ fun CustomList.toRelayItemCustomList(
         id = this.id,
         customListName = name,
         expanded = false,
-        locations =
-            this.locations.mapNotNull {
-                relayCountries.findItemForGeoLocationId(it)
-            },
+        locations = this.locations.mapNotNull { relayCountries.findItemForGeoLocationId(it) },
     )
 
 fun List<CustomList>.toRelayItemLists(

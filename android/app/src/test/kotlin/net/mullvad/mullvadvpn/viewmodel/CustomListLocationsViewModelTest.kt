@@ -278,12 +278,7 @@ class CustomListLocationsViewModelTest {
                                             name = "gbg-1",
                                             locationName = "GBG gbg-1",
                                             active = true,
-                                            location =
-                                                GeoLocationId.Hostname(
-                                                    "SE",
-                                                    "GBG",
-                                                    "gbg-1"
-                                                )
+                                            location = GeoLocationId.Hostname("SE", "GBG", "gbg-1")
                                         )
                                     )
                             )

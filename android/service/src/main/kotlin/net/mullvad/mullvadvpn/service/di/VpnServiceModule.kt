@@ -8,5 +8,11 @@ import org.koin.dsl.module
 
 val vpnServiceModule = module {
     single { NotificationManagerCompat.from(androidContext()) }
-    single { ManagementService("/data/data/net.mullvad.mullvadvpn/rpc-socket", MainScope()) }
+    single {
+        ManagementService(
+            androidContext(),
+            "/data/data/net.mullvad.mullvadvpn/rpc-socket",
+            MainScope()
+        )
+    }
 }

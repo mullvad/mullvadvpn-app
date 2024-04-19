@@ -23,10 +23,10 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeoLocationId
-import net.mullvad.mullvadvpn.model.RelayItemId
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.model.RelayItemId
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.relaylist.Provider
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
@@ -136,8 +136,7 @@ class SelectLocationViewModelTest {
         val connectionProxyMock: ConnectionProxy = mockk(relaxUnitFun = true)
         every { mockRelayItem.location } returns mockLocation
         every { mockServiceConnectionManager.connectionProxy() } returns connectionProxyMock
-        every { mockRelayListUseCase.updateSelectedRelayLocation(mockRelayItemId) } returns
-            Unit
+        every { mockRelayListUseCase.updateSelectedRelayLocation(mockRelayItemId) } returns Unit
         every { mockRelayItem.toRelayItemId() } returns mockRelayItemId
 
         // Act, Assert

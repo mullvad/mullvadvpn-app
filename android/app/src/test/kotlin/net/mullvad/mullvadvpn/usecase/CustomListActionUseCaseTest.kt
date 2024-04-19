@@ -177,10 +177,7 @@ class CustomListActionUseCaseTest {
         val oldLocationCodes = listOf("AB", "CD")
         val newLocationCodes = listOf("EF", "GH")
         val oldLocations: ArrayList<GeoLocationId> =
-            arrayListOf(
-                GeoLocationId.Country("AB"),
-                GeoLocationId.Country("CD")
-            )
+            arrayListOf(GeoLocationId.Country("AB"), GeoLocationId.Country("CD"))
         val customListId = "1"
         val customList = CustomList(id = customListId, name = name.value, locations = oldLocations)
         val action =
