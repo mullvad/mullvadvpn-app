@@ -64,6 +64,7 @@ import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import net.mullvad.mullvadvpn.viewmodel.FilterViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
+import net.mullvad.mullvadvpn.viewmodel.MigrateSplitTunnelingErrorViewModel
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
@@ -111,7 +112,7 @@ val uiModule = module {
     single { DeviceRepository(get()) }
     single {
         PrivacyDisclaimerRepository(
-            androidContext().getSharedPreferences(APP_PREFERENCES_NAME, Context.MODE_PRIVATE)
+            androidContext().getSharedPreferences(APP_PREFERENCES_NAME, Context.MODE_PRIVATE),
         )
     }
     single { SettingsRepository(get()) }
@@ -123,7 +124,7 @@ val uiModule = module {
     single { RelayListFilterRepository(get()) }
     single { VoucherRepository(get()) }
     single { VpnPermissionRepository(get()) }
-    single { SplitTunnelingRepository(get()) }
+    single { SplitTunnelingRepository(androidContext(), get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }
@@ -141,7 +142,13 @@ val uiModule = module {
     single { FilteredRelayListUseCase(get(), get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
-    single { ManagementService("/data/data/net.mullvad.mullvadvpn/rpc-socket", MainScope()) }
+    single {
+        ManagementService(
+            androidContext(),
+            "/data/data/net.mullvad.mullvadvpn/rpc-socket",
+            MainScope(),
+        )
+    }
 
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 
@@ -189,9 +196,7 @@ val uiModule = module {
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get(), get()) }
-    viewModel { (location: GeoLocationId?) ->
-        CreateCustomListDialogViewModel(location, get())
-    }
+    viewModel { (location: GeoLocationId?) -> CreateCustomListDialogViewModel(location, get()) }
     viewModel { parameters ->
         CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get(), get(), get())
     }
@@ -203,6 +208,7 @@ val uiModule = module {
     viewModel { parameters -> DeleteCustomListConfirmationViewModel(parameters.get(), get()) }
     viewModel { ServerIpOverridesViewModel(get(), get()) }
     viewModel { ResetServerIpOverridesConfirmationViewModel(get()) }
+    viewModel { MigrateSplitTunnelingErrorViewModel(get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { NoDaemonViewModel(get()) }
