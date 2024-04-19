@@ -16,25 +16,29 @@ class CustomListPage: Page {
         waitForPageToBeShown()
     }
 
-    @discardableResult
-    func verifyCreateButtonIs(enabled: Bool) -> Self {
+    @discardableResult func verifyCreateButtonIs(enabled: Bool) -> Self {
         let saveOrCreateButton = app.buttons[.saveCreateCustomListButton]
         XCTAssertTrue(saveOrCreateButton.isEnabled == enabled)
         return self
     }
 
-    @discardableResult
-    func tapCreateListButton() -> Self {
+    @discardableResult func tapCreateListButton() -> Self {
         let saveOrCreateButton = app.buttons[.saveCreateCustomListButton]
         saveOrCreateButton.tap()
         return self
     }
 
-    @discardableResult
-    func editCustomList(name: String) -> Self {
+    @discardableResult func editCustomList(name: String) -> Self {
         let editCustomListNameCell = app.cells[.customListEditNameFieldCell]
         editCustomListNameCell.tap()
         editCustomListNameCell.typeText(name)
+        return self
+    }
+
+    @discardableResult func deleteCustomList(named customListName: String) -> Self {
+        let deleteCustomListCell = app.cells[.customListEditDeleteListCell]
+        deleteCustomListCell.tap()
+        app.buttons[.confirmDeleteCustomListButton].tap()
         return self
     }
 }

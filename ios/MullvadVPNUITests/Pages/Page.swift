@@ -46,4 +46,9 @@ class Page {
         app.toolbars.buttons["Done"].tap()
         return self
     }
+
+    @discardableResult func tapWhereStatusBarShouldBeToScrollToTopMostPosition() -> Self {
+        app.coordinate(withNormalizedOffset: CGVectorMake(0.5, 0)).tap()
+        return self
+    }
 }

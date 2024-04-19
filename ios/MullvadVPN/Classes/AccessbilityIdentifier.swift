@@ -37,6 +37,7 @@ public enum AccessibilityIdentifier: String {
     case restorePurchasesButton
     case secureConnectionButton
     case selectLocationButton
+    case closeSelectLocationButton
     case settingsButton
     case startUsingTheAppButton
     case problemReportAppLogsButton
@@ -47,6 +48,8 @@ public enum AccessibilityIdentifier: String {
     case addNewCustomListButton
     case editCustomListButton
     case saveCreateCustomListButton
+    case confirmDeleteCustomListButton
+    case cancelDeleteCustomListButton
 
     // Cells
     case deviceCell
@@ -100,6 +103,8 @@ public enum AccessibilityIdentifier: String {
     case settingsContainerView
     case newCustomListView
     case customListEditTableView
+    case listCustomListsView
+    case listCustomListsTableView
 
     // Other UI elements
     case connectionPanelInAddressRow
