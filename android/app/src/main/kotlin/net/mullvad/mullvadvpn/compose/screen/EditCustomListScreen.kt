@@ -63,7 +63,11 @@ private fun PreviewEditCustomListScreen() {
                     locations =
                         listOf(
                             GeoLocationId.Hostname(
-                                GeoLocationId.City(GeoLocationId.Country("country"), cityCode = "city"), "hostname",
+                                GeoLocationId.City(
+                                    GeoLocationId.Country("country"),
+                                    cityCode = "city"
+                                ),
+                                "hostname",
                             )
                         )
                 )
