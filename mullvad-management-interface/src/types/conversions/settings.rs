@@ -263,6 +263,7 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
         Ok(Self {
             openvpn: net::openvpn::TunnelOptions {
                 mssfix: openvpn_options.mssfix.map(|mssfix| mssfix as u16),
+                allow_route_push: false,
             },
             wireguard: mullvad_types::wireguard::TunnelOptions {
                 mtu: wireguard_options.mtu.map(|mtu| mtu as u16),
