@@ -56,7 +56,7 @@ func wgTurnOff(tunnelHandle int32) {
 }
 
 //export wgActivateDaita
-func wgActivateDaita(machines *C.char, tunnelHandle int32, eventsCapacity uint32, actionsCapacity uint32) C.bool {
+func wgActivateDaita(machines *C.int8_t, tunnelHandle int32, eventsCapacity uint32, actionsCapacity uint32) C.bool {
 	tunnel, err := tunnels.Get(tunnelHandle)
 	if err != nil {
 		return false
@@ -66,7 +66,7 @@ func wgActivateDaita(machines *C.char, tunnelHandle int32, eventsCapacity uint32
 	var maybenot *C.Maybenot
 	maybenot_result := C.maybenot_start(
 		machines, 0.0, 0.0, 1440,
-		C.onActionCallback(C.wgOnMaybenotAction),
+		C.MaybenotActionCallback(C.wgOnMaybenotAction),
 		&maybenot,
 	)
 
@@ -105,9 +105,9 @@ func handleEvents(maybenot *C.Maybenot, tunnelHandle int32, tunnel tunnelcontain
 		}
 
 		cEvent := C.MaybenotEvent{
-			machine:   0, // TODO
-			eventType: C.uint32_t(event.EventType),
-			xmitBytes: C.uint16_t(event.XmitBytes),
+			machine:    0, // TODO
+			event_type: C.uint32_t(event.EventType),
+			xmit_bytes: C.uint16_t(event.XmitBytes),
 		}
 
 		ctx := EventContext{
@@ -137,13 +137,13 @@ func wgOnMaybenotAction(userData *C.void, action C.MaybenotAction) {
 	}
 
 	// TODO: support more actions
-	if action.actionTag != 1 /* INJECT_PADDING */ {
+	if action.tag != 1 /* INJECT_PADDING */ {
 		tunnel.Logger.Errorf("Got non-padding action")
 		return
 	}
 
 	// cast union to the ActionInjectPadding variant
-	padding_action := (*C.ActionInjectPadding)(unsafe.Pointer(&action.action[0]))
+	padding_action := (*C.InjectPadding_Body)(unsafe.Pointer(&action.anon0[0]))
 
 	action_go := device.Action{
 		Peer:       ctx.peer,
