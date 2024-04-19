@@ -5,6 +5,7 @@ import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.relaylist.filterOnOwnershipAndProvider
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 
@@ -16,40 +17,16 @@ class FilteredRelayListUseCase(
         combine(
             relayListRepository.relayList,
             relayListFilterRepository.selectedOwnership,
-            relayListFilterRepository.selectedProviders
+            relayListFilterRepository.selectedProviders,
         ) { relayList, selectedOwnership, selectedProviders ->
-            relayList.filterOnOwnership(selectedOwnership).filterOnProviders(selectedProviders)
+            relayList.filterOnOwnershipAndProvider(
+                selectedOwnership,
+                selectedProviders,
+            )
         }
 
-    private fun List<RelayItem.Location.Country>.filterOnOwnership(
-        ownership: Constraint<Ownership>
-    ): List<RelayItem.Location.Country> =
-        when (ownership) {
-            is Constraint.Only -> {
-                val selectedOwnership = ownership.value
-                this.filter { country ->
-                    country.cities.any { city ->
-                        city.relays.any { relay -> relay.provider.ownership == selectedOwnership }
-                    }
-                }
-            }
-            else -> this
-        }
-
-    private fun List<RelayItem.Location.Country>.filterOnProviders(
+    private fun List<RelayItem.Location.Country>.filterOnOwnershipAndProvider(
+        ownership: Constraint<Ownership>,
         providers: Constraint<Providers>
-    ): List<RelayItem.Location.Country> =
-        when (providers) {
-            is Constraint.Only -> {
-                val selectedProviders = providers.value
-                this.filter { country ->
-                    country.cities.any { city ->
-                        city.relays.any { relay ->
-                            selectedProviders.providers.contains(relay.provider.providerId)
-                        }
-                    }
-                }
-            }
-            else -> this
-        }
+    ) = mapNotNull { it.filterOnOwnershipAndProvider(ownership, providers) }
 }
