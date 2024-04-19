@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.relaylist.Provider
 import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.filterOnOwnershipAndProvider
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
@@ -137,7 +138,8 @@ class SelectLocationViewModel(
 
     fun addLocationToList(item: RelayItem, customList: RelayItem.CustomList) {
         viewModelScope.launch {
-            val newLocations = (customList.locations + item).map { it.code }
+            val newLocations =
+                (customList.locations + item).filter { it !in item.descendants() }.map { it.code }
             val result =
                 customListActionUseCase.performAction(
                     CustomListAction.UpdateLocations(customList.id, newLocations)
