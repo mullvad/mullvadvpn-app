@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.lib.daemon.grpc
 
+import android.content.Context
 import android.net.LocalSocketAddress
 import android.util.Log
 import arrow.core.Either
@@ -19,10 +20,13 @@ import kotlin.time.measureTimedValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
@@ -32,6 +36,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
+import net.mullvad.mullvadvpn.lib.common.util.MigrateSplitTunnelingResult
+import net.mullvad.mullvadvpn.lib.common.util.migrateSplitTunneling
+import net.mullvad.mullvadvpn.lib.common.util.shouldMigrateSplitTunneling
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.LogInterceptor
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.connectivityFlow
 import net.mullvad.mullvadvpn.model.AccountData
@@ -100,6 +107,7 @@ import net.mullvad.mullvadvpn.model.relayConstraints
 import net.mullvad.mullvadvpn.model.wireguardConstraints
 
 class ManagementService(
+    private val context: Context,
     rpcSocketPath: String,
     private val scope: CoroutineScope,
 ) {
@@ -149,7 +157,13 @@ class ManagementService(
     val wireguardEndpointData: Flow<ModelWireguardEndpointData> =
         _mutableStateFlow.mapNotNull { it.relayList?.wireguardEndpointData }
 
+    // Migrate split tunneling states
+    val shouldTryMigrateSplitTunneling = MutableStateFlow<Boolean?>(null)
+
+    val migrateSplitTunnelingError = Channel<Boolean>()
+
     suspend fun start() {
+        scope.launch { shouldTryMigrateSplitTunneling.emit(shouldMigrateSplitTunneling(context)) }
         scope.launch {
             try {
                 withContext(Dispatchers.IO) {
@@ -186,7 +200,7 @@ class ManagementService(
             } catch (e: Exception) {
                 Log.e(
                     TAG,
-                    "Error in eventsListen: ${e.message}, ${e.cause}, ${e.stackTraceToString()}"
+                    "Error in eventsListen: ${e.message}, ${e.cause}, ${e.stackTraceToString()}",
                 )
             }
         }
@@ -212,7 +226,7 @@ class ManagementService(
                     ManagementInterface.DeviceRemoval.newBuilder()
                         .setAccountToken(token.value)
                         .setDeviceId(deviceId.value.toString())
-                        .build()
+                        .build(),
                 )
             }
             .mapEmpty()
@@ -222,7 +236,37 @@ class ManagementService(
         grpc.getTunnelState(Empty.getDefaultInstance()).toDomain()
 
     suspend fun connect(): Either<ConnectError, Boolean> =
-        Either.catch { grpc.connectTunnel(Empty.getDefaultInstance()).value }
+        Either.catch {
+                // Check if we need to migrate split tunneling
+                if (shouldTryMigrateSplitTunneling.filterNotNull().first()) {
+                    val result =
+                        migrateSplitTunneling(
+                            context,
+                            { setSplitTunnelingState(it).isRight() },
+                            {
+                                it.map { appId -> addSplitTunnelingApp(appId).isRight() }
+                                    .all { isSuccessful -> isSuccessful }
+                            },
+                        )
+                    shouldTryMigrateSplitTunneling.emit(false)
+                    when (result) {
+                        MigrateSplitTunnelingResult.Failed -> {
+                            // Show this to the user
+                            Log.e(TAG, "Failed to migrate split tunneling settings")
+                            migrateSplitTunnelingError.send(false)
+                        }
+                        MigrateSplitTunnelingResult.NoOldSettingsFound -> {
+                            // We do not need to check until next app start
+                            Log.d(TAG, "No old split tunneling settings found")
+                        }
+                        MigrateSplitTunnelingResult.Success -> {
+                            // We have migrated the settings, no need to check again
+                            Log.d(TAG, "Successfully migrated split tunneling settings")
+                        }
+                    }
+                }
+                grpc.connectTunnel(Empty.getDefaultInstance()).value
+            }
             .mapLeft(ConnectError::Unknown)
 
     suspend fun disconnect(): Boolean = grpc.disconnectTunnel(Empty.getDefaultInstance()).value
@@ -394,7 +438,7 @@ class ManagementService(
                 val updatedRelaySettings =
                     RelaySettings.relayConstraints.location.set(
                         currentRelaySettings,
-                        Constraint.Only(location)
+                        Constraint.Only(location),
                     )
                 grpc.setRelaySettings(updatedRelaySettings.fromDomain())
             }
@@ -522,9 +566,9 @@ class ManagementService(
                                 splitTunnelSettings =
                                     it.settings.splitTunnelSettings.copy(
                                         excludedApps =
-                                            it.settings.splitTunnelSettings.excludedApps + app
-                                    )
-                            )
+                                            it.settings.splitTunnelSettings.excludedApps + app,
+                                    ),
+                            ),
                     )
                 }
             }
@@ -540,9 +584,9 @@ class ManagementService(
                                 splitTunnelSettings =
                                     it.settings.splitTunnelSettings.copy(
                                         excludedApps =
-                                            it.settings.splitTunnelSettings.excludedApps - app
-                                    )
-                            )
+                                            it.settings.splitTunnelSettings.excludedApps - app,
+                                    ),
+                            ),
                     )
                 }
             }
@@ -558,8 +602,8 @@ class ManagementService(
                         settings =
                             it.settings?.copy(
                                 splitTunnelSettings =
-                                    it.settings.splitTunnelSettings.copy(enabled = enabled)
-                            )
+                                    it.settings.splitTunnelSettings.copy(enabled = enabled),
+                            ),
                     )
                 }
             }

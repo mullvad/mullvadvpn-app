@@ -136,7 +136,11 @@ class MullvadTileService : TileService() {
     @OptIn(FlowPreview::class)
     private fun CoroutineScope.launchListenToTunnelState() = launch {
         val managementService =
-            ManagementService("/data/data/net.mullvad.mullvadvpn/rpc-socket", MainScope())
+            ManagementService(
+                applicationContext,
+                "/data/data/net.mullvad.mullvadvpn/rpc-socket",
+                MainScope()
+            )
         managementService.start()
         combine(managementService.tunnelState, managementService.connectionState) {
                 tunnelState,

@@ -18,13 +18,16 @@ import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.destinations.ChangelogDestination
 import net.mullvad.mullvadvpn.compose.destinations.ConnectDestination
+import net.mullvad.mullvadvpn.compose.destinations.MigrateSplitTunnelingErrorDestination
 import net.mullvad.mullvadvpn.compose.destinations.NoDaemonScreenDestination
 import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.DaemonScreenEvent
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.getKoin
 
 private val changeLogDestinations = listOf(ConnectDestination, OutOfTimeDestination)
 
@@ -45,7 +48,7 @@ fun MullvadApp() {
         modifier = Modifier.semantics { testTagsAsResourceId = true }.fillMaxSize(),
         engine = engine,
         navController = navController,
-        navGraph = NavGraphs.root
+        navGraph = NavGraphs.root,
     )
 
     // Globally handle daemon dropped connection with NoDaemonScreen
@@ -67,5 +70,17 @@ fun MullvadApp() {
             .first { it in changeLogDestinations }
 
         navController.navigate(ChangelogDestination(it).route)
+    }
+
+    // Show if we get any migrate split tunneling errors
+    val splitTunnelingRepository: SplitTunnelingRepository = getKoin().get()
+    LaunchedEffectCollect(splitTunnelingRepository.migrateSplitTunnelingErrors) {
+
+        // Wait until we are in an acceptable destination
+        navController.currentBackStackEntryFlow
+            .map { it.destination() }
+            .first { it in changeLogDestinations }
+
+        navController.navigate(MigrateSplitTunnelingErrorDestination)
     }
 }

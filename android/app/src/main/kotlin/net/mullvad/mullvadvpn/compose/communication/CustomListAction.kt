@@ -16,8 +16,7 @@ sealed interface CustomListAction : Parcelable {
 
     @Parcelize
     data class Delete(val id: CustomListId) : CustomListAction {
-        fun not(name: CustomListName, locations: List<GeoLocationId>) =
-            Create(name, locations)
+        fun not(name: CustomListName, locations: List<GeoLocationId>) = Create(name, locations)
     }
 
     @Parcelize

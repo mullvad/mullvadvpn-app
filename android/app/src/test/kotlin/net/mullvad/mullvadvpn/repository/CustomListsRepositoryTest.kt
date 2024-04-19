@@ -218,11 +218,7 @@ class CustomListsRepositoryTest {
             every { mockCustomList.id } returns customListId
             every { mockCustomList.name } returns customListName
             every {
-                mockCustomList.copy(
-                    customListId,
-                    customListName,
-                    arrayListOf(mockRelayItemId)
-                )
+                mockCustomList.copy(customListId, customListName, arrayListOf(mockRelayItemId))
             } returns updatedCustomList
             every {
                 mockMessageHandler.trySendRequest(Request.UpdateCustomList(updatedCustomList))
@@ -230,8 +226,7 @@ class CustomListsRepositoryTest {
             every { mockMessageHandler.events<Event.UpdateCustomListResultEvent>() } returns
                 flowOf(Event.UpdateCustomListResultEvent(expectedResult))
             every { mockSettings.customLists.customLists } returns arrayListOf(mockCustomList)
-            every { mockRelayList.getGeoLocationIdByCode(locationCode) } returns
-                mockRelayItemId
+            every { mockRelayList.getGeoLocationIdByCode(locationCode) } returns mockRelayItemId
 
             // Act
             val result =
@@ -260,8 +255,7 @@ class CustomListsRepositoryTest {
             relayListFlow.value = mockRelayList
             every { mockSettings.customLists.customLists } returns arrayListOf(mockCustomList)
             every { mockCustomList.id } returns customListId
-            every { mockRelayList.getGeoLocationIdByCode(locationCode) } returns
-                mockRelayItemId
+            every { mockRelayList.getGeoLocationIdByCode(locationCode) } returns mockRelayItemId
 
             // Act
             val result =
