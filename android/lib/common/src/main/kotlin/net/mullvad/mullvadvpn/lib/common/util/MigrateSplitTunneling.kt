@@ -19,7 +19,8 @@ suspend fun migrateSplitTunneling(
 ): MigrateSplitTunnelingResult {
     mutex.withLock {
         // Get from shared preferences, if not found return
-        val (enabled, apps) = getOldSettings(context) ?: return MigrateSplitTunnelingResult.Failed
+        val (enabled, apps) =
+            getOldSettings(context) ?: return MigrateSplitTunnelingResult.NoOldSettingsFound
 
         // Set new settings, if failed return
         if (!enableSplitTunneling(enabled)) {
