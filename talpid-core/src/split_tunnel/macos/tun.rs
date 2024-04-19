@@ -173,23 +173,32 @@ pub async fn create_split_tunnel(
     vpn_interface: Option<VpnInterface>,
     classify: impl Fn(&PktapPacket) -> RoutingDecision + Send + 'static,
 ) -> Result<SplitTunnelHandle, Error> {
+    let tun_device = create_utun().await?;
+    redirect_packets(tun_device, default_interface, vpn_interface, classify)
+}
+
+/// Create a utun device for split tunneling, and configure its IP addresses.
+async fn create_utun() -> Result<tun::AsyncDevice, Error> {
     let mut tun_config = tun::configure();
     tun_config.address(ST_IFACE_IPV4).up();
     let tun_device =
         tun::create_as_async(&tun_config).map_err(Error::CreateSplitTunnelInterface)?;
     let tun_name = tun_device.get_ref().name().to_owned();
+    add_ipv6_address(&tun_name, ST_IFACE_IPV6).await?;
+    Ok(tun_device)
+}
 
-    // Add IPv6 address
+/// Set the given IPv6 address `addr` as an IP address for the interface `iface`.
+async fn add_ipv6_address(iface: &str, addr: Ipv6Addr) -> Result<(), Error> {
     let output = tokio::process::Command::new("ifconfig")
-        .args([&tun_name, "inet6", &ST_IFACE_IPV6.to_string(), "alias"])
+        .args([iface, "inet6", &addr.to_string(), "alias"])
         .output()
         .await
         .map_err(Error::AddIpv6Address)?;
     if !output.status.success() {
         return Err(Error::AddIpv6Address(io::Error::other("ifconfig failed")));
     }
-
-    redirect_packets(tun_device, default_interface, vpn_interface, classify)
+    Ok(())
 }
 
 type PktapStream = std::pin::Pin<Box<dyn Stream<Item = Result<PktapPacket, Error>> + Send>>;
@@ -233,25 +242,9 @@ fn redirect_packets_for_pktap_stream(
     vpn_interface: Option<VpnInterface>,
     classify: Box<dyn Fn(&PktapPacket) -> RoutingDecision + Send>,
 ) -> Result<SplitTunnelHandle, Error> {
-    let default_dev = bpf::Bpf::open().map_err(Error::CreateDefaultBpf)?;
-    let read_buffer_size = default_dev
-        .set_buffer_size(DEFAULT_BUFFER_SIZE)
-        .map_err(Error::ConfigDefaultBpf)?;
-    default_dev
-        .set_interface(&default_interface.name)
-        .map_err(Error::ConfigDefaultBpf)?;
-    default_dev
-        .set_immediate(true)
-        .map_err(Error::ConfigDefaultBpf)?;
-    default_dev
-        .set_see_sent(false)
-        .map_err(Error::ConfigDefaultBpf)?;
+    let (default_stream, default_write, read_buffer_size) = open_default_bpf(&default_interface)?;
 
     let st_utun_name = st_tun_device.get_ref().name().to_owned();
-
-    let (default_read, default_write) = default_dev.split().map_err(Error::ConfigDefaultBpf)?;
-    let default_stream =
-        bpf::BpfStream::from_read_half(default_read).map_err(Error::CreateDefaultBpf)?;
 
     let (abort_tx, abort_rx) = broadcast::channel(1);
 
@@ -279,6 +272,32 @@ fn redirect_packets_for_pktap_stream(
         ingress_task,
         egress_task,
     })
+}
+
+/// Open a BPF device for the specified default interface. Return a read and write half, and the buffer size.
+fn open_default_bpf(
+    default_interface: &DefaultInterface,
+) -> Result<(bpf::BpfStream, bpf::WriteHalf, usize), Error> {
+    let default_dev = bpf::Bpf::open().map_err(Error::CreateDefaultBpf)?;
+    let read_buffer_size = default_dev
+        .set_buffer_size(DEFAULT_BUFFER_SIZE)
+        .map_err(Error::ConfigDefaultBpf)?;
+    default_dev
+        .set_interface(&default_interface.name)
+        .map_err(Error::ConfigDefaultBpf)?;
+    default_dev
+        .set_immediate(true)
+        .map_err(Error::ConfigDefaultBpf)?;
+    default_dev
+        .set_see_sent(false)
+        .map_err(Error::ConfigDefaultBpf)?;
+
+    // Split the default device BPF handle into a read and write half
+    let (default_read, default_write) = default_dev.split().map_err(Error::ConfigDefaultBpf)?;
+    let default_stream =
+        bpf::BpfStream::from_read_half(default_read).map_err(Error::CreateDefaultBpf)?;
+
+    Ok((default_stream, default_write, read_buffer_size))
 }
 
 /// Read incoming packets on the default interface and send them back to the ST utun.
@@ -362,13 +381,7 @@ async fn run_egress_task(
     mut abort_rx: broadcast::Receiver<()>,
 ) -> Result<EgressResult, Error> {
     let mut vpn_dev = if let Some(ref vpn_interface) = vpn_interface {
-        let vpn_dev = bpf::Bpf::open().map_err(Error::CreateVpnBpf)?;
-        vpn_dev
-            .set_interface(&vpn_interface.name)
-            .map_err(Error::ConfigVpnBpf)?;
-        vpn_dev.set_immediate(true).map_err(Error::ConfigVpnBpf)?;
-        vpn_dev.set_see_sent(false).map_err(Error::ConfigVpnBpf)?;
-        Some(vpn_dev)
+        Some(open_vpn_bpf(vpn_interface)?)
     } else {
         None
     };
@@ -395,6 +408,17 @@ async fn run_egress_task(
             }
         }
     }
+}
+
+/// Open a BPF device for the specified VPN interface
+fn open_vpn_bpf(vpn_interface: &VpnInterface) -> Result<bpf::Bpf, Error> {
+    let vpn_dev = bpf::Bpf::open().map_err(Error::CreateVpnBpf)?;
+    vpn_dev
+        .set_interface(&vpn_interface.name)
+        .map_err(Error::ConfigVpnBpf)?;
+    vpn_dev.set_immediate(true).map_err(Error::ConfigVpnBpf)?;
+    vpn_dev.set_see_sent(false).map_err(Error::ConfigVpnBpf)?;
+    Ok(vpn_dev)
 }
 
 fn classify_and_send(
