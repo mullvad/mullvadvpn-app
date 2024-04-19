@@ -1,13 +1,19 @@
 use std::time::Duration;
 
-#[cfg(target_os = "windows")]
+#[cfg(all(not(feature = "test"), target_os = "windows"))]
 mod inner {
     pub use std::time::Instant;
 }
 
-#[cfg(unix)]
+#[cfg(all(not(feature = "test"), unix))]
 #[path = "unix.rs"]
 mod inner;
+
+#[cfg(feature = "test")]
+mod inner {
+    /// Use mockable time for tests
+    pub use tokio::time::Instant;
+}
 
 const MAX_SLEEP_INTERVAL: Duration = Duration::from_secs(60);
 
