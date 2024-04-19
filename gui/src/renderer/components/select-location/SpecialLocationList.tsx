@@ -108,7 +108,8 @@ export function CustomBridgeLocationRow(
   const history = useHistory();
 
   const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
-  const icon = bridgeSettings.custom !== undefined ? 'icon-edit' : 'icon-add';
+  const bridgeConfigured = bridgeSettings.custom !== undefined;
+  const icon = bridgeConfigured ? 'icon-edit' : 'icon-add';
 
   const selectedRef = props.source.selected ? props.selectedElementRef : undefined;
   const background = getButtonColor(props.source.selected, 0, props.source.disabled);
@@ -135,7 +136,14 @@ export function CustomBridgeLocationRow(
           'A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work.',
         )}
       />
-      <StyledLocationRowIcon {...background} onClick={navigate}>
+      <StyledLocationRowIcon
+        {...background}
+        aria-label={
+          bridgeConfigured
+            ? messages.pgettext('accessibility', 'Edit custom bridge')
+            : messages.pgettext('accessibility', 'Add new custom bridge')
+        }
+        onClick={navigate}>
         <StyledSpecialLocationSideButton
           source={icon}
           width={18}
