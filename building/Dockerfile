@@ -54,11 +54,13 @@ RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
 
 # === Rust ===
 
-# Install latest stable Rust toolchain for both x86_64-unknown-linux-gnu and aarch64-unknown-linux-gnu,
+ARG RUST_VERSION=stable
+
+# Install the Rust toolchain for both x86_64-unknown-linux-gnu and aarch64-unknown-linux-gnu,
 # plus x86_64-pc-windows-gnu for Windows cross-compilation/linting
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
     sh -s -- -y \
-    --default-toolchain stable \
+    --default-toolchain $RUST_VERSION \
     --profile minimal \
     --component clippy \
     --target aarch64-unknown-linux-gnu \
