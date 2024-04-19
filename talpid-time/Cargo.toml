@@ -10,6 +10,9 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
+[features]
+test = []
+
 [dependencies]
 tokio = { workspace = true, features = ["time"] }
 libc = "0.2"
