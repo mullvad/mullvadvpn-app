@@ -588,31 +588,36 @@ mod test {
     /// If the last checked time is in the future, the version is stale
     #[test]
     fn test_version_invalid_is_stale() {
-        let mut checker = VersionUpdaterInner::default();
-        checker.last_app_version_info = Some((
-            dev_version_cache(),
-            SystemTime::now() + Duration::from_secs(1),
-        ));
+        let checker = VersionUpdaterInner {
+            last_app_version_info: Some((
+                dev_version_cache(),
+                SystemTime::now() + Duration::from_secs(1),
+            )),
+            ..VersionUpdaterInner::default()
+        };
         assert!(checker.version_is_stale());
     }
 
     /// If we have a cached version that's less than `UPDATE_INTERVAL` old, it should not be stale
     #[test]
     fn test_version_actual_non_stale() {
-        let mut checker = VersionUpdaterInner::default();
-        checker.last_app_version_info = Some((
-            dev_version_cache(),
-            SystemTime::now() - UPDATE_INTERVAL + Duration::from_secs(1),
-        ));
+        let checker = VersionUpdaterInner {
+            last_app_version_info: Some((
+                dev_version_cache(),
+                SystemTime::now() - UPDATE_INTERVAL + Duration::from_secs(1),
+            )),
+            ..VersionUpdaterInner::default()
+        };
         assert!(!checker.version_is_stale());
     }
 
     /// If `UPDATE_INTERVAL` has elapsed, the version should be stale
     #[test]
     fn test_version_actual_stale() {
-        let mut checker = VersionUpdaterInner::default();
-        checker.last_app_version_info =
-            Some((dev_version_cache(), SystemTime::now() - UPDATE_INTERVAL));
+        let checker = VersionUpdaterInner {
+            last_app_version_info: Some((dev_version_cache(), SystemTime::now() - UPDATE_INTERVAL)),
+            ..VersionUpdaterInner::default()
+        };
         assert!(checker.version_is_stale());
     }
 
@@ -634,8 +639,10 @@ mod test {
     /// Test whether check actually runs after `UPDATE_INTERVAL`
     #[tokio::test(start_paused = true)]
     async fn test_version_check_run_when_stale() {
-        let mut checker = VersionUpdaterInner::default();
-        checker.last_app_version_info = Some((dev_version_cache(), SystemTime::now()));
+        let checker = VersionUpdaterInner {
+            last_app_version_info: Some((dev_version_cache(), SystemTime::now())),
+            ..VersionUpdaterInner::default()
+        };
 
         let updated = Arc::new(AtomicBool::new(false));
         let update = fake_updater(updated.clone());
@@ -661,9 +668,10 @@ mod test {
     /// Test whether check runs immediately when requested, if stale
     #[tokio::test(start_paused = true)]
     async fn test_version_check_manual() {
-        let mut checker = VersionUpdaterInner::default();
-        checker.last_app_version_info =
-            Some((dev_version_cache(), SystemTime::now() - UPDATE_INTERVAL));
+        let checker = VersionUpdaterInner {
+            last_app_version_info: Some((dev_version_cache(), SystemTime::now() - UPDATE_INTERVAL)),
+            ..VersionUpdaterInner::default()
+        };
 
         let updated = Arc::new(AtomicBool::new(false));
         let update = fake_updater(updated.clone());
