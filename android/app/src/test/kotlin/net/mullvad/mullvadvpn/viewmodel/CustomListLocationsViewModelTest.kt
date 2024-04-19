@@ -279,14 +279,7 @@ class CustomListLocationsViewModelTest {
                                             name = "gbg-1",
                                             locationName = "GBG gbg-1",
                                             active = true,
-                                            location =
-                                                GeoLocationId.Hostname(
-                                                    "SE",
-                                                    "GBG",
-                                                    "gbg-1"
-                                                ),
-                                            providerName = "Provider",
-                                            ownership = Ownership.MullvadOwned
+                                            location = GeoLocationId.Hostname("SE", "GBG", "gbg-1")
                                         )
                                     )
                             )
