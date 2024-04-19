@@ -1,10 +1,6 @@
 package net.mullvad.mullvadvpn.relaylist
 
-import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeoLocationId
-import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.model.Providers
-import net.mullvad.mullvadvpn.model.Relay as DaemonRelay
 import net.mullvad.mullvadvpn.model.RelayItem
 
 fun List<RelayItem.Location.Country>.findItemForGeoLocationId(constraint: GeoLocationId) =
@@ -92,24 +88,6 @@ fun List<RelayItem.Location.Country>.filterOnSearchTerm(
     }
 }
 
-private fun List<DaemonRelay>.filterValidRelays(
-    ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>
-): List<DaemonRelay> =
-    filter { it.isWireguardRelay }
-        .filter {
-            when (ownership) {
-                is Constraint.Any -> true
-                is Constraint.Only -> ownership.value == it.ownership
-            }
-        }
-        .filter { relay ->
-            when (providers) {
-                is Constraint.Any -> true
-                is Constraint.Only -> providers.value.providers.contains(relay.provider)
-            }
-        }
-
 /** Expand the parent(s), if any, for the current selected item */
 private fun List<RelayItem.Location.Country>.expandItemForSelection(
     selectedItem: RelayItem?
@@ -140,7 +118,7 @@ private fun List<RelayItem.Location.Country>.expandItemForSelection(
                                     } else {
                                         city
                                     }
-                                }
+                                },
                         )
                     } else {
                         country

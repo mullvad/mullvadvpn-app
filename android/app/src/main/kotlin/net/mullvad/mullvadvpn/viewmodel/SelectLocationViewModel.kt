@@ -17,7 +17,9 @@ import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Provider
+import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.relaylist.filterOnOwnershipAndProvider
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SelectedLocationRepository
@@ -63,7 +65,7 @@ class SelectLocationViewModel(
                         is Constraint.Only ->
                             filterSelectedProvidersByOwnership(
                                     selectedConstraintProviders.toSelectedProviders(allProviders),
-                                    selectedOwnershipItem
+                                    selectedOwnershipItem,
                                 )
                                 .size
                     }
@@ -71,7 +73,13 @@ class SelectLocationViewModel(
                 val filteredRelayCountries =
                     relayCountries.filterOnSearchTerm(searchTerm, selectedItem)
 
-                val filteredCustomLists = customLists.filterOnSearchTerm(searchTerm)
+                val filteredCustomLists =
+                    customLists
+                        .filterOnSearchTerm(searchTerm)
+                        .filterOnOwnershipAndProvider(
+                            ownership = selectedOwnership,
+                            providers = selectedConstraintProviders,
+                        )
 
                 SelectLocationUiState.Content(
                     searchTerm = searchTerm,
@@ -100,7 +108,7 @@ class SelectLocationViewModel(
                     .updateSelectedRelayLocation(locationConstraint)
                     .fold(
                         { Log.d("SelectLocationViewModel", "Error selecting relay: $it") },
-                        { _uiSideEffect.trySend(SelectLocationSideEffect.CloseScreen) }
+                        { _uiSideEffect.trySend(SelectLocationSideEffect.CloseScreen) },
                     )
 
         }
@@ -134,13 +142,20 @@ class SelectLocationViewModel(
                 .performAction(CustomListAction.UpdateLocations(customList.id, newLocations))
                 .fold(
                     { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
-                    { _uiSideEffect.send(SelectLocationSideEffect.LocationAddedToCustomList(it)) }
+                    { _uiSideEffect.send(SelectLocationSideEffect.LocationAddedToCustomList(it)) },
                 )
         }
     }
 
     fun performAction(action: CustomListAction) {
         viewModelScope.launch { customListActionUseCase.performAction(action) }
+    }
+
+    private fun List<RelayItem.CustomList>.filterOnOwnershipAndProvider(
+        ownership: Constraint<Ownership>,
+        providers: Constraint<Providers>
+    ): List<RelayItem.CustomList> = map { item ->
+        item.filterOnOwnershipAndProvider(ownership, providers)
     }
 
     companion object {
