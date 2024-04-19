@@ -183,6 +183,7 @@ class CustomListViewController: UIViewController {
                         comment: ""
                     ),
                     style: .destructive,
+                    accessibilityId: .confirmDeleteCustomListButton,
                     handler: {
                         self.interactor.delete(id: self.subject.value.id)
                         self.delegate?.customListDidDelete(self.subject.value.customList)
@@ -195,7 +196,8 @@ class CustomListViewController: UIViewController {
                         value: "Cancel",
                         comment: ""
                     ),
-                    style: .default
+                    style: .default,
+                    accessibilityId: .cancelDeleteCustomListButton
                 ),
             ]
         )

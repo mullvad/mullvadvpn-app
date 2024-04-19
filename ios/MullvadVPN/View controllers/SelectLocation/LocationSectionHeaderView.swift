@@ -16,9 +16,8 @@ class LocationSectionHeaderView: UIView, UIContentView {
         } set {
             guard let newConfiguration = newValue as? Configuration,
                   actualConfiguration != newConfiguration else { return }
-            let previousConfiguration = actualConfiguration
             actualConfiguration = newConfiguration
-            apply(configuration: previousConfiguration)
+            apply(configuration: newConfiguration)
         }
     }
 
@@ -35,7 +34,6 @@ class LocationSectionHeaderView: UIView, UIContentView {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         button.tintColor = UIColor(white: 1, alpha: 0.6)
-        button.accessibilityIdentifier = AccessibilityIdentifier.openCustomListsMenuButton
         return button
     }()
 
@@ -67,7 +65,9 @@ class LocationSectionHeaderView: UIView, UIContentView {
         let isActionHidden = configuration.primaryAction == nil
         nameLabel.text = configuration.name
         actionButton.isHidden = isActionHidden
+        actionButton.accessibilityIdentifier = nil
         actualConfiguration.primaryAction.flatMap { [weak self] action in
+            self?.actionButton.accessibilityIdentifier = .openCustomListsMenuButton
             self?.actionButton.addAction(action, for: .touchUpInside)
         }
     }

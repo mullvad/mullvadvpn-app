@@ -33,34 +33,28 @@ class SelectLocationPage: Page {
         return self
     }
 
-    func locationCellIsExpanded(_ name: String) -> Bool {
-        let matchingCells = app.cells.containing(.any, identifier: name)
-        return matchingCells.buttons[AccessibilityIdentifier.expandButton].exists ? false : true
-    }
-
     @discardableResult
-    func openCustomListsActions() -> Self {
-        scrollToCustomListsSection()
+    func tapCustomListEllipsisButton() -> Self {
         let customListEllipsisButton = app.buttons[AccessibilityIdentifier.openCustomListsMenuButton]
         customListEllipsisButton.tap()
         return self
     }
 
-    @discardableResult
-    func scrollToCustomListsSection() -> Self {
-        let selectLocationTableView = app.tables[AccessibilityIdentifier.selectLocationTableView]
-        selectLocationTableView.swipeDown(velocity: XCUIGestureVelocity(floatLiteral: 9999))
+    @discardableResult func tapAddNewCustomList() -> Self {
+        let addNewCustomListButton = app.buttons[AccessibilityIdentifier.addNewCustomListButton]
+        addNewCustomListButton.tap()
         return self
     }
 
-    func tapAddNewCustomList() {
-        let addNewCustomListButton = app.buttons[AccessibilityIdentifier.addNewCustomListButton]
-        addNewCustomListButton.tap()
-    }
-
-    func editExistingCustomLists() {
+    @discardableResult func editExistingCustomLists() -> Self {
         let editCustomListsButton = app.buttons[AccessibilityIdentifier.editCustomListButton]
         editCustomListsButton.tap()
+        return self
+    }
+
+    func locationCellIsExpanded(_ name: String) -> Bool {
+        let matchingCells = app.cells.containing(.any, identifier: name)
+        return matchingCells.buttons[AccessibilityIdentifier.expandButton].exists ? false : true
     }
 
     func verifyEditCustomListsButtonIs(enabled: Bool) {
