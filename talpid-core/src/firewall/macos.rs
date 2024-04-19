@@ -49,7 +49,15 @@ impl Firewall {
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<()> {
         self.enable()?;
         self.add_anchor()?;
-        self.set_rules(policy)
+        self.set_rules(policy)?;
+
+        // When entering a secured state, clear connection states
+        // Otherwise, an existing connection may be approved by some other anchor, and leak
+        if let Err(error) = self.pf.clear_interface_states(pfctl::Interface::Any) {
+            log::error!("Failed to clear source state tracking nodes: {error}");
+        }
+
+        Ok(())
     }
 
     pub fn reset_policy(&mut self) -> Result<()> {
