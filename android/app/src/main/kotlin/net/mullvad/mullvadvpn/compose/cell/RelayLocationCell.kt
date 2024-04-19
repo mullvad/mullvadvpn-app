@@ -136,7 +136,7 @@ fun StatusRelayLocationCell(
     disabledColor: Color = MaterialTheme.colorScheme.onSecondary,
     selectedItem: RelayItem? = null,
     onSelectRelay: (item: RelayItem) -> Unit = {},
-    onLongClick: (item: RelayItem) -> Unit = {}
+    onLongClick: (item: RelayItem) -> Unit = {},
 ) {
     RelayLocationCell(
         relay = relay,
