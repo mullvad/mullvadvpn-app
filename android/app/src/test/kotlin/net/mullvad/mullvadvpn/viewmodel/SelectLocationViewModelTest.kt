@@ -29,6 +29,7 @@ import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.relaylist.Provider
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
+import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
@@ -264,7 +265,10 @@ class SelectLocationViewModelTest {
     fun `after adding a location to a list should emit location added side effect`() = runTest {
         // Arrange
         val expectedResult: CustomListResult.LocationsChanged = mockk()
-        val location: RelayItem = mockk { every { code } returns "code" }
+        val location: RelayItem = mockk {
+            every { code } returns "code"
+            every { descendants() } returns emptyList()
+        }
         val customList: RelayItem.CustomList = mockk {
             every { id } returns "1"
             every { locations } returns emptyList()
