@@ -22,44 +22,44 @@ fun RelayItem.Location.children(): List<RelayItem.Location> {
     }
 }
 
-fun RelayItem.descendants(): List<RelayItem> {
+fun RelayItem.Location.descendants(): List<RelayItem.Location> {
     val children = children()
     return children + children.flatMap { it.descendants() }
 }
 
-private fun RelayItem.hasOwnership(ownershipConstraint: Constraint<Ownership>): Boolean =
+fun List<RelayItem.Location.Country>.withDescendants(): List<RelayItem.Location> =
+    this + flatMap { it.descendants() }
+
+private fun RelayItem.Location.hasOwnership(ownershipConstraint: Constraint<Ownership>): Boolean =
     if (ownershipConstraint is Constraint.Only) {
         when (this) {
             is RelayItem.Location.Country -> cities.any { it.hasOwnership(ownershipConstraint) }
             is RelayItem.Location.City -> relays.any { it.hasOwnership(ownershipConstraint) }
             is RelayItem.Location.Relay -> this.provider.ownership == ownershipConstraint.value
-            is RelayItem.CustomList -> locations.any { it.hasOwnership(ownershipConstraint) }
         }
     } else {
         true
     }
 
-private fun RelayItem.hasProvider(providersConstraint: Constraint<Providers>): Boolean =
+private fun RelayItem.Location.hasProvider(providersConstraint: Constraint<Providers>): Boolean =
     if (providersConstraint is Constraint.Only) {
         when (this) {
             is RelayItem.Location.Country -> cities.any { it.hasProvider(providersConstraint) }
             is RelayItem.Location.City -> relays.any { it.hasProvider(providersConstraint) }
             is RelayItem.Location.Relay ->
                 providersConstraint.value.providers.contains(provider.providerId)
-            is RelayItem.CustomList -> locations.any { it.hasProvider(providersConstraint) }
         }
     } else {
         true
     }
 
-fun RelayItem.filterOnOwnershipAndProvider(
+fun RelayItem.Location.filterOnOwnershipAndProvider(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>
 ): RelayItem? =
     when (this) {
         is RelayItem.Location.City -> filterOnOwnershipAndProvider(ownership, providers)
         is RelayItem.Location.Country -> filterOnOwnershipAndProvider(ownership, providers)
-        is RelayItem.CustomList -> filterOnOwnershipAndProvider(ownership, providers)
         is RelayItem.Location.Relay -> filterOnOwnershipAndProvider(ownership, providers)
     }
 
@@ -70,9 +70,9 @@ fun RelayItem.CustomList.filterOnOwnershipAndProvider(
     val newLocations =
         locations.mapNotNull {
             when (it) {
-                is RelayItem.Location.City -> it.filterOnOwnershipAndProvider(ownership, providers)
                 is RelayItem.Location.Country ->
                     it.filterOnOwnershipAndProvider(ownership, providers)
+                is RelayItem.Location.City -> it.filterOnOwnershipAndProvider(ownership, providers)
                 is RelayItem.Location.Relay -> it.filterOnOwnershipAndProvider(ownership, providers)
             }
         }
@@ -113,11 +113,3 @@ private fun RelayItem.Location.Relay.filterOnOwnershipAndProvider(
         null
     }
 }
-
-fun RelayItem.Location.descendants(): List<RelayItem.Location> {
-    val children = children()
-    return children + children.flatMap { it.descendants() }
-}
-
-fun List<RelayItem.Location.Country>.withDescendants(): List<RelayItem.Location> =
-    this + flatMap { it.descendants() }
