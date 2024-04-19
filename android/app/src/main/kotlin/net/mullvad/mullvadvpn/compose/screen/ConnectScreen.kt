@@ -122,7 +122,7 @@ fun Connect(
 
     val launchVpnPermission =
         rememberLauncherForActivityResult(RequestVpnPermission()) {
-            if (it != null) {
+            if (it) {
                 connectViewModel.onConnectClick()
             }
         }
@@ -145,7 +145,7 @@ fun Connect(
                     launchSingleTop = true
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
-            is ConnectViewModel.UiSideEffect.NoVpnPermission -> launchVpnPermission.launch(null)
+            is ConnectViewModel.UiSideEffect.NoVpnPermission -> launchVpnPermission.launch(Unit)
         }
     }
 
