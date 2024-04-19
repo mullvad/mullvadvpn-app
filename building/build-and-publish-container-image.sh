@@ -35,8 +35,11 @@ case ${1-:""} in
 esac
 full_container_name="$REGISTRY_HOST/$REGISTRY_ORG/$container_name"
 
+RUST_VERSION=$(rg -o "channel = \"(.*)\"" -r '$1' "$REPO_DIR/rust-toolchain.toml")
+
 log_header "Building $full_container_name tagged as '$tag' and 'latest'"
 podman build -f "$containerfile_path" "$container_context_dir" --no-cache \
+    --build-arg="RUST_VERSION=$RUST_VERSION" \
     -t "$full_container_name:$tag" \
     -t "$full_container_name:latest"
 
