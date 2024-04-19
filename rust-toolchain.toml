@@ -1,4 +1,6 @@
 [toolchain]
 # Keep in sync with `rust-version` in `Cargo.toml`
 channel = "1.77.0"
+
+[toolchain.i686-pc-windows-msvc]
 targets = ["i686-pc-windows-msvc"]
