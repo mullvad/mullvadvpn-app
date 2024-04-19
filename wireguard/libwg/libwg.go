@@ -6,7 +6,12 @@
 
 package main
 
+// #include <stdio.h>
+// #include <stdlib.h>
 // #include "libwg.h"
+// #include "../../libmaybenot/libmaybenot.h"
+//
+// void wgOnMaybenotAction(void* tunnelHandle, MaybenotAction action);
 import "C"
 
 import (
@@ -31,6 +36,11 @@ func init() {
 	tunnels = tunnelcontainer.New()
 }
 
+type EventContext struct {
+	tunnelHandle int32
+	peer         device.NoisePublicKey
+}
+
 //export wgTurnOff
 func wgTurnOff(tunnelHandle int32) {
 	{
@@ -46,20 +56,38 @@ func wgTurnOff(tunnelHandle int32) {
 }
 
 //export wgActivateDaita
-func wgActivateDaita(tunnelHandle int32, eventsCapacity uint32, actionsCapacity uint32) bool {
+func wgActivateDaita(machines *C.char, tunnelHandle int32, eventsCapacity uint32, actionsCapacity uint32) C.bool {
 	tunnel, err := tunnels.Get(tunnelHandle)
 	if err != nil {
 		return false
 	}
 
-	return tunnel.Device.ActivateDaita(uint(eventsCapacity), uint(actionsCapacity))
+	tunnel.Logger.Errorf("Initializing libmaybenot")
+	var maybenot *C.Maybenot
+	maybenot_result := C.maybenot_start(
+		machines, 0.0, 0.0, 1440,
+		C.onActionCallback(C.wgOnMaybenotAction),
+		&maybenot,
+	)
+
+	if maybenot == nil {
+		tunnel.Logger.Errorf("Failed to initialize maybenot: %d", maybenot_result)
+		return false
+	}
+	tunnel.Logger.Errorf("Success :eyes:")
+
+	if !tunnel.Device.ActivateDaita(uint(eventsCapacity), uint(actionsCapacity)) {
+		C.maybenot_stop(maybenot)
+		return false
+	}
+
+	go handleEvents(maybenot, tunnelHandle, tunnel)
+	return true
 }
 
-//export wgReceiveEvent
-func wgReceiveEvent(tunnelHandle int32, event *C.Event) int32 {
-	tunnel, err := tunnels.Get(tunnelHandle)
-	if err != nil {
-		// Failed to get tunnel from handle, cannot log
+func handleEvents(maybenot *C.Maybenot, tunnelHandle int32, tunnel tunnelcontainer.Context) int32 {
+	if tunnel.Device == nil {
+		tunnel.Logger.Errorf("No device for tunnel?")
 		return -1
 	}
 
@@ -68,49 +96,69 @@ func wgReceiveEvent(tunnelHandle int32, event *C.Event) int32 {
 		return -2
 	}
 
-	receivedEvent := tunnel.Device.Daita.ReceiveEvent()
-	if receivedEvent == nil {
-		tunnel.Logger.Verbosef("DAITA closed")
-		return -3
+	for {
+		event := tunnel.Device.Daita.ReceiveEvent()
+		if event == nil {
+			tunnel.Logger.Errorf("No more DAITA events")
+			C.maybenot_stop(maybenot)
+			return 0
+		}
+
+		cEvent := C.MaybenotEvent{
+			machine:   0, // TODO
+			eventType: C.uint32_t(event.EventType),
+			xmitBytes: C.uint16_t(event.XmitBytes),
+		}
+
+		ctx := EventContext{
+			tunnelHandle: tunnelHandle,
+			peer:         event.Peer,
+		}
+
+		// TODO: is unsafe.Pointer sound?
+		C.maybenot_on_event(maybenot, unsafe.Pointer(&ctx), cEvent)
 	}
-
-	// TODO: convert go repr into C repr
-	C.memcpy(unsafe.Pointer(&event.peer), unsafe.Pointer(&receivedEvent.Peer), 32)
-	event.eventType = (C.uint32_t)(receivedEvent.EventType)
-	event.xmitBytes = (C.uint16_t)(receivedEvent.XmitBytes)
-
-	return 0
 }
 
-//export wgSendAction
-func wgSendAction(tunnelHandle int32, action C.Action) int32 {
-	tunnel, err := tunnels.Get(tunnelHandle)
+//export wgOnMaybenotAction
+func wgOnMaybenotAction(userData *C.void, action C.MaybenotAction) {
+	// TODO: is this safe? will go try to garbage collect this pointer? what happens if i leak it?
+	ctx := (*EventContext)(unsafe.Pointer(userData))
+
+	tunnel, err := tunnels.Get(ctx.tunnelHandle)
 	if err != nil {
 		// Failed to get tunnel from handle, cannot log
-		return -1
+		return
 	}
 
 	if tunnel.Device.Daita == nil {
 		tunnel.Logger.Errorf("DAITA not activated")
-		return -2
+		return
 	}
+
+	// TODO: support more actions
+	if action.actionTag != 1 /* INJECT_PADDING */ {
+		tunnel.Logger.Errorf("Got non-padding action")
+		return
+	}
+
+	// cast union to the ActionInjectPadding variant
+	padding_action := (*C.ActionInjectPadding)(unsafe.Pointer(&action.action[0]))
 
 	action_go := device.Action{
-		ActionType: device.ActionType(action.actionType),
+		Peer:       ctx.peer,
+		ActionType: 1,
 		Payload: device.Padding{
-			ByteCount: uint16(action.padding.byteCount),
-			Replace:   bool(action.padding.replace),
+			ByteCount: uint16(padding_action.size),
+			Replace:   bool(padding_action.replace),
 		},
 	}
-	C.memcpy(unsafe.Pointer(&action_go.Peer), unsafe.Pointer(&action.peer), 32)
 
 	err = tunnel.Device.Daita.SendAction(action_go)
 	if err != nil {
 		tunnel.Logger.Errorf("Failed to send DAITA action %v because of %v", action_go, err)
-		return -3
+		return
 	}
-
-	return 0
 }
 
 //export wgGetConfig

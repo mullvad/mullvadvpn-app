@@ -162,9 +162,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.75"
+version = "1.0.82"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
+checksum = "f538837af36e6f6a9be0faa67f9a314f8119e4e4b5867c6ab40ed60360142519"
 
 [[package]]
 name = "arc-swap"
@@ -1812,6 +1812,14 @@ name = "libm"
 version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ec2a862134d2a7d32d7983ddcdd1c4923530833c9f2ea1a44fc5fa473989058"
+
+[[package]]
+name = "libmaybenot"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "maybenot",
+]
 
 [[package]]
 name = "linked-hash-map"
@@ -3959,6 +3967,7 @@ dependencies = [
  "internet-checksum",
  "ipnetwork",
  "libc",
+ "libmaybenot",
  "log",
  "maybenot",
  "netlink-packet-core",
