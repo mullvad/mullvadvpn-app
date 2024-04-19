@@ -52,6 +52,10 @@ Line wrap the file at 100 chars.                                              Th
 - Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
 - Add protection against some tapjacking vulnerabilities.
 
+#### macOS
+- Flush states on tunnel state changes. Previously, pre-existing connections could leak when
+  internet sharing was enabled on a device.
+
 
 ## [2024.2-beta1] - 2024-04-15
 ### Added
