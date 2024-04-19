@@ -118,7 +118,7 @@ private fun List<RelayItem.Location.Country>.expandItemForSelection(
                                     } else {
                                         city
                                     }
-                                }
+                                },
                         )
                     } else {
                         country
