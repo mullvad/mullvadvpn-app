@@ -480,9 +480,10 @@ impl AccessModeSelector {
                 }
             }
             None => {
-                // Current method was removed: A new access method will suddenly have the same index as the one
-                // we are removing, but we want it to still be a candidate. A minor
-                // hack to achieve this is to simply decrement the current index.
+                // Current method was removed: A new access method will suddenly have the same index
+                // as the one we are removing, but we want it to still be a
+                // candidate. A minor hack to achieve this is to simply decrement
+                // the current index.
                 self.index = self.index.saturating_sub(1);
                 self.next_connection_mode().await?;
             }

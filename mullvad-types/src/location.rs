@@ -63,7 +63,7 @@ impl Coordinates {
     /// back to spherical coordinates. This is approximate, because the semi-minor (polar)
     /// axis is assumed to equal the semi-major (equatorial) axis.
     ///
-    /// https://en.wikipedia.org/wiki/Spherical_coordinate_system#Cartesian_coordinates
+    /// <https://en.wikipedia.org/wiki/Spherical_coordinate_system#Cartesian_coordinates>
     pub fn midpoint(locations: &[Location]) -> Self {
         Self::midpoint_inner(locations.iter().map(Coordinates::from))
     }
@@ -110,7 +110,7 @@ fn haversine_dist_deg(lat: f64, lon: f64, other_lat: f64, other_lon: f64) -> f64
         other_lon.to_radians(),
     )
 }
-/// Implemented as per https://en.wikipedia.org/wiki/Haversine_formula and https://rosettacode.org/wiki/Haversine_formula#Rust
+/// Implemented as per <https://en.wikipedia.org/wiki/Haversine_formula> and <https://rosettacode.org/wiki/Haversine_formula#Rust>
 /// Takes input as radians, outputs kilometers.
 fn haversine_dist_rad(lat: f64, lon: f64, other_lat: f64, other_lon: f64) -> f64 {
     let d_lat = lat - other_lat;

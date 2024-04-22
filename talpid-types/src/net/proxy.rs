@@ -87,10 +87,8 @@ impl From<Shadowsocks> for CustomProxy {
 pub struct Shadowsocks {
     pub endpoint: SocketAddr,
     pub password: String,
-    /// One of [`shadowsocks_ciphers`].
+    /// One of [`SHADOWSOCKS_CIPHERS`].
     /// Gets validated at a later stage. Is assumed to be valid.
-    ///
-    /// shadowsocks_ciphers: talpid_types::net::openvpn::SHADOWSOCKS_CIPHERS
     pub cipher: String,
 }
 
@@ -236,7 +234,6 @@ impl Socks5Remote {
 }
 
 /// List of ciphers usable by a Shadowsocks proxy.
-/// Cf. [`ShadowsocksProxySettings::cipher`].
 pub const SHADOWSOCKS_CIPHERS: [&str; 19] = [
     // Stream ciphers.
     "aes-128-cfb",

@@ -165,7 +165,7 @@ impl RouteManagerHandle {
         _ = result_rx.await;
     }
 
-    /// Removes all routes previously applied in [`RouteManager::add_routes`].
+    /// Removes all routes previously applied in [`RouteManagerInternal::add_routes`].
     pub fn clear_routes(&self) -> Result<()> {
         self.tx
             .unbounded_send(RouteManagerCommand::ClearRoutes)

@@ -52,8 +52,8 @@ mod settings {
     }
 }
 
-/// Implements conversions for the auxilliary
-/// [`crate::types::proto::ApiAccessMethod`] type to the internal
+/// Implements conversions for the auxiliary
+/// [`crate::types::proto::AccessMethodSetting`] type to the internal
 /// [`mullvad_types::access_method::AccessMethodSetting`] data type.
 mod data {
     use crate::types::{proto, FromProtobufTypeError};

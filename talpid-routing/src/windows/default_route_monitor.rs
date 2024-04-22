@@ -112,7 +112,7 @@ pub struct DefaultRouteMonitor {
 }
 
 /// SAFETY: DefaultRouteMonitor is `Send` since `NotifyChangeHandle` is `Send` and
-/// `ContextAndBurstGuard` is `Sync` as it holds Mutex<T> and Arc<Mutex<T>> fields.
+/// `ContextAndBurstGuard` is `Sync` as it holds `Mutex<T>` and `Arc<Mutex<T>>` fields.
 unsafe impl Send for DefaultRouteMonitor {}
 
 impl Drop for DefaultRouteMonitor {

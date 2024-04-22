@@ -183,7 +183,7 @@ pub struct WgNtTunnel {
 
 const WIREGUARD_KEY_LENGTH: usize = 32;
 
-/// See `WIREGUARD_ALLOWED_IP` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+/// See `WIREGUARD_ALLOWED_IP` at <https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h>.
 #[derive(Clone, Copy)]
 #[repr(C, align(8))]
 union WgIpAddr {
@@ -216,7 +216,7 @@ impl From<Ipv4Addr> for WgIpAddr {
     }
 }
 
-/// See `WIREGUARD_ALLOWED_IP` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+/// See `WIREGUARD_ALLOWED_IP` at <https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h>.
 #[derive(Clone, Copy)]
 #[repr(C, align(8))]
 struct WgAllowedIp {
@@ -309,7 +309,7 @@ impl fmt::Debug for WgAllowedIp {
 }
 
 bitflags! {
-    /// See `WIREGUARD_PEER_FLAG` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+    /// See `WIREGUARD_PEER_FLAG` at <https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h>.
     struct WgPeerFlag: u32 {
         const HAS_PUBLIC_KEY = 0b00000001;
         const HAS_PRESHARED_KEY = 0b00000010;
@@ -322,7 +322,7 @@ bitflags! {
     }
 }
 
-/// See `WIREGUARD_PEER` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+/// See `WIREGUARD_PEER` at <https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h>.
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 #[repr(C, align(8))]
 struct WgPeer {
@@ -388,7 +388,7 @@ impl fmt::Debug for SockAddrInet {
 }
 
 bitflags! {
-    /// See `WIREGUARD_INTERFACE_FLAG` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+    /// See `WIREGUARD_INTERFACE_FLAG` at <https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h>.
     struct WgInterfaceFlag: u32 {
         const HAS_PUBLIC_KEY = 0b00000001;
         const HAS_PRIVATE_KEY = 0b00000010;
@@ -397,7 +397,7 @@ bitflags! {
     }
 }
 
-/// See `WIREGUARD_INTERFACE` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+/// See `WIREGUARD_INTERFACE` at <https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h>.
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 #[repr(C, align(8))]
 struct WgInterface {
@@ -408,7 +408,7 @@ struct WgInterface {
     peers_count: u32,
 }
 
-/// See `WIREGUARD_ADAPTER_LOG_STATE` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+/// See `WIREGUARD_ADAPTER_LOG_STATE` at <https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h>.
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 #[repr(C)]
 #[allow(dead_code)]

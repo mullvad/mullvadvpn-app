@@ -1,5 +1,5 @@
 //! Manage routing tables on various platforms.
-
+#![allow(rustdoc::private_intra_doc_links)]
 #![deny(missing_docs)]
 
 use ipnetwork::IpNetwork;

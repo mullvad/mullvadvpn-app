@@ -1,3 +1,4 @@
+#![allow(rustdoc::private_intra_doc_links)]
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
 use hyper::Method;
@@ -279,8 +280,7 @@ impl ApiEndpoint {
     }
 
     /// Read the [`Self::address`] value, falling back to
-    /// [`Self::API_IP_DEFAULT`]:[`Self::API_PORT_DEFAULT`] as default if it
-    /// does not exist.
+    /// [`Self::API_IP_DEFAULT`] as default value if it does not exist.
     pub fn address(&self) -> SocketAddr {
         self.address.unwrap_or(SocketAddr::new(
             ApiEndpoint::API_IP_DEFAULT,
