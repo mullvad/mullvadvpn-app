@@ -1,15 +1,16 @@
-use super::{
-    config::TEST_CONFIG,
-    helpers::{connect_and_wait, get_app_env, get_package_desc, wait_for_tunnel_state, Pinger},
-    Error, TestContext,
-};
+use anyhow::Context;
+use std::time::Duration;
 
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{constraints::Constraint, relay_constraints};
 use test_macro::test_function;
 use test_rpc::{meta::Os, mullvad_daemon::ServiceStatus, ServiceClient};
 
-use std::time::Duration;
+use super::{
+    config::TEST_CONFIG,
+    helpers::{connect_and_wait, get_app_env, get_package_desc, wait_for_tunnel_state, Pinger},
+    Error, TestContext,
+};
 
 /// Install the last stable version of the app and verify that it is running.
 #[test_function(priority = -200)]
@@ -277,7 +278,7 @@ pub async fn test_installation_idempotency(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> Result<(), anyhow::Error> {
     // Connect to any relay. This forces the daemon to enter a secured target state
     connect_and_wait(&mut mullvad_client)
         .await
@@ -290,27 +291,33 @@ pub async fn test_installation_idempotency(
     mullvad_client
         .set_auto_connect(false)
         .await
-        .expect("failed to enable auto-connect");
+        .context("Failed to enable auto-connect")?;
+
     // Check for traffic leaks during the installation processes.
     //
     // Start continously pinging while monitoring the network traffic. No
     // traffic should be observed going outside of the tunnel during either
     // installation process.
     let pinger = Pinger::start(&rpc).await;
-    for _ in 1..=2 {
-        // install package
-        log::debug!("Installing new app");
-        rpc.install_app(get_package_desc(&TEST_CONFIG.current_app_filename)?)
-            .await?;
-        // verify that the daemon starts in a non-disconnected state
-        wait_for_tunnel_state(mullvad_client.clone(), |state| !state.is_disconnected())
-            .await
-            .map_err(|err| {
-                log::error!(
-                    "App did not start in the expected `Connected` state after the installation process."
-                );
-                err
-            })?;
+    for _ in 0..2 {
+        // Install the app
+        log::info!("Installing new app");
+        let app_package = get_package_desc(&TEST_CONFIG.current_app_filename)?;
+        rpc.install_app(app_package).await?;
+        log::info!("App was successfully installed!");
+
+        // Verify that the daemon starts in a non-disconnected state.
+        const STATE_TRANSITION_TIMEOUT: Duration = Duration::from_secs(60);
+        tokio::time::timeout(
+            STATE_TRANSITION_TIMEOUT,
+            wait_for_tunnel_state(mullvad_client.clone(), |state| !state.is_disconnected()),
+        )
+        .await
+        .context("Failed while waiting for expected tunnel state")?
+        .context(
+            "App did not start in the expected `Connected` state after the installation process.",
+        )?;
+
         // Wait for an arbitrary amount of time. The point is that the pinger
         // should be able to ping while the newly installed app is running.
         if let Some(delay) = pinger.period().checked_mul(3) {
