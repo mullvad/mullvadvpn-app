@@ -6,7 +6,7 @@ mod is_null;
 mod problem_report;
 mod talpid_vpn_service;
 
-use crate::{daemon_interface::DaemonInterface};
+use crate::daemon_interface::DaemonInterface;
 use jnix::{
     jni::{
         objects::{GlobalRef, JObject, JString, JValue},
@@ -18,11 +18,11 @@ use jnix::{
 };
 use mullvad_api::{rest::Error as RestError, StatusCode};
 use mullvad_daemon::{
-    cleanup_old_rpc_socket, device, exception_logging, logging, runtime::new_multi_thread, version, Daemon,
-    DaemonCommandChannel,
+    cleanup_old_rpc_socket, device, exception_logging, logging, runtime::new_multi_thread, version,
+    Daemon, DaemonCommandChannel,
 };
 use mullvad_types::{
-    account::{AccountData, PlayPurchase, VoucherSubmission},
+    account::{AccountData, VoucherSubmission},
     custom_list::CustomList,
     settings::DnsOptions,
 };
@@ -276,7 +276,7 @@ fn spawn_daemon(
     command_channel: DaemonCommandChannel,
     android_context: AndroidContext,
 ) -> Result<(), Error> {
-//    let listener = JniEventListener::spawn(env, this).map_err(Error::SpawnJniEventListener)?;
+    //    let listener = JniEventListener::spawn(env, this).map_err(Error::SpawnJniEventListener)?;
     let daemon_object = env
         .new_global_ref(*this)
         .map_err(Error::CreateGlobalReference)?;
@@ -307,7 +307,9 @@ fn spawn_daemon(
 
         runtime.block_on(cleanup_old_rpc_socket());
 
-        let event_listener = match runtime.block_on(async {spawn_management_interface(command_channel.sender()) }) {
+        let event_listener = match runtime
+            .block_on(async { spawn_management_interface(command_channel.sender()) })
+        {
             Ok(event_listener) => event_listener,
             Err(error) => {
                 let _ = tx.send(Err(error));
@@ -356,7 +358,10 @@ fn spawn_management_interface(
 ) -> Result<ManagementInterfaceEventBroadcaster, Error> {
     let (socket_path, event_broadcaster) = ManagementInterfaceServer::start(command_sender)
         .map_err(|error| {
-            log::error!("{}", error.display_chain_with_msg("Unable to start management interface server"));
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Unable to start management interface server")
+            );
             Error::SpawnManagementInterface(error)
         })?;
 
@@ -492,7 +497,6 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdow
         }
     }
 }
-
 
 fn log_request_error(request: &str, error: &daemon_interface::Error) {
     match error {
