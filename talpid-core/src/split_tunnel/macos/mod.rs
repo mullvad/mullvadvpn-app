@@ -47,19 +47,22 @@ pub struct SplitTunnel {
     state: State,
     tunnel_tx: Weak<futures::channel::mpsc::UnboundedSender<TunnelCommand>>,
     rx: mpsc::UnboundedReceiver<Message>,
+    shutdown_tx: Option<oneshot::Sender<()>>,
 }
 
 enum Message {
+    /// Return the name of the split tunnel interface
     GetInterface {
         result_tx: oneshot::Sender<Option<String>>,
     },
-    Shutdown {
-        result_tx: oneshot::Sender<()>,
-    },
+    /// Shut down split tunnel service
+    Shutdown { result_tx: oneshot::Sender<()> },
+    /// Set paths to exclude from the VPN tunnel
     SetExcludePaths {
         result_tx: oneshot::Sender<Result<(), Error>>,
         paths: HashSet<PathBuf>,
     },
+    /// Update VPN tunnel interface
     SetTunnel {
         result_tx: oneshot::Sender<Result<(), Error>>,
         new_vpn_interface: Option<VpnInterface>,
@@ -124,6 +127,7 @@ impl SplitTunnel {
             },
             tunnel_tx,
             rx,
+            shutdown_tx: None,
         };
 
         tokio::spawn(Self::run(split_tunnel));
@@ -143,68 +147,79 @@ impl SplitTunnel {
             tokio::select! {
                 // Handle process monitor being stopped
                 result = process_monitor_stopped => {
-                    match result {
-                        Ok(()) => log::error!("Process monitor stopped unexpectedly with no error"),
-                        Err(error) => {
-                            log::error!("{}", error.display_chain_with_msg("Process monitor stopped unexpectedly"));
-                        }
-                    }
-
-                    // Enter the error state if split tunneling is active. Otherwise, we might make incorrect
-                    // decisions for new processes
-                    if self.state.active() {
-                        if let Some(tunnel_tx) = self.tunnel_tx.upgrade() {
-                            let _ = tunnel_tx.unbounded_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
-                        }
-                    }
-
-                    self.state.fail();
+                    self.handle_process_monitor_shutdown(result);
                 }
 
                 // Handle messages
                 message = self.rx.recv() => {
                     let Some(message) = message else {
-                        // Shut down split tunnel
                         break
                     };
-
-                    match message {
-                        Message::GetInterface {
-                            result_tx,
-                        } => {
-                            let _ = result_tx.send(self.interface().map(str::to_owned));
-                        }
-                        Message::Shutdown {
-                            result_tx,
-                        } => {
-                            // Shut down; early exit
-                            self.shutdown().await;
-                            let _ = result_tx.send(());
-                            return;
-                        }
-                        Message::SetExcludePaths {
-                            result_tx,
-                            paths,
-                        } => {
-                            let _ = result_tx.send(self.state.set_exclude_paths(paths).await);
-                        }
-                        Message::SetTunnel {
-                            result_tx,
-                            new_vpn_interface,
-                        } => {
-                            let _ = result_tx.send(self.state.set_tunnel(new_vpn_interface).await);
-                        }
+                    if !self.handle_message(message).await {
+                        break;
                     }
                 }
             }
         }
 
         self.shutdown().await;
+
+        if let Some(tx) = self.shutdown_tx.take() {
+            let _ = tx.send(());
+        }
+    }
+
+    /// Handle process monitor unexpectedly stopping
+    fn handle_process_monitor_shutdown(&mut self, result: Result<(), process::Error>) {
+        match result {
+            Ok(()) => log::error!("Process monitor stopped unexpectedly with no error"),
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Process monitor stopped unexpectedly")
+                );
+            }
+        }
+
+        // Enter the error state if split tunneling is active. Otherwise, we might make incorrect
+        // decisions for new processes
+        if self.state.active() {
+            if let Some(tunnel_tx) = self.tunnel_tx.upgrade() {
+                let _ = tunnel_tx
+                    .unbounded_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
+            }
+        }
+
+        self.state.fail();
+    }
+
+    /// Handle an incoming message
+    /// Return whether the actor should continue running
+    async fn handle_message(&mut self, message: Message) -> bool {
+        match message {
+            Message::GetInterface { result_tx } => {
+                let _ = result_tx.send(self.interface().map(str::to_owned));
+            }
+            Message::Shutdown { result_tx } => {
+                self.shutdown_tx = Some(result_tx);
+                return false;
+            }
+            Message::SetExcludePaths { result_tx, paths } => {
+                let _ = result_tx.send(self.state.set_exclude_paths(paths).await);
+            }
+            Message::SetTunnel {
+                result_tx,
+                new_vpn_interface,
+            } => {
+                let _ = result_tx.send(self.state.set_tunnel(new_vpn_interface).await);
+            }
+        }
+        true
     }
 
     /// Shut down split tunnel
-    async fn shutdown(self) {
-        match self.state {
+    async fn shutdown(&mut self) {
+        match self.state.fail() {
             State::ProcessMonitorOnly { mut process, .. } => {
                 process.shutdown().await;
             }
@@ -231,7 +246,6 @@ impl SplitTunnel {
     }
 }
 
-/// State machine
 enum State {
     /// The initial state: no paths have been provided
     NoExclusions {
