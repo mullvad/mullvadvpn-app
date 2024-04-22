@@ -1,7 +1,7 @@
 use futures::{channel::oneshot, executor::block_on};
 use mullvad_daemon::{device, DaemonCommand, DaemonCommandSender};
 use mullvad_types::{
-    account::{AccountData, AccountToken, PlayPurchase, VoucherSubmission},
+    account::{AccountData, AccountToken, VoucherSubmission},
     custom_list::CustomList,
     device::{Device, DeviceState},
     relay_constraints::{ObfuscationSettings, RelaySettings},
