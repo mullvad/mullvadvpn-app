@@ -464,8 +464,10 @@ checksum = "a21f936df1771bf62b77f047b726c4625ff2e8aa607c01ec06e5a05bd8463401"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
+ "js-sys",
  "num-traits",
  "serde",
+ "wasm-bindgen",
  "windows-targets 0.52.5",
 ]
 
@@ -538,6 +540,14 @@ dependencies = [
  "rand 0.8.5",
  "sha3",
  "zeroize",
+]
+
+[[package]]
+name = "cmaybenot"
+version = "0.1.0"
+dependencies = [
+ "maybenot",
+ "thiserror",
 ]
 
 [[package]]
@@ -4124,6 +4134,7 @@ dependencies = [
  "tunnel-obfuscation",
  "widestring",
  "windows-sys 0.52.0",
+ "wireguard-go-rs",
  "zeroize",
 ]
 
@@ -4994,6 +5005,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b68db261ef59e9e52806f688020631e987592bd83619edccda9c47d42cde4f6c"
 dependencies = [
  "toml",
+]
+
+[[package]]
+name = "wireguard-go-rs"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "cmaybenot",
 ]
 
 [[package]]
