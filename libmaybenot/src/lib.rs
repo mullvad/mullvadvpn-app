@@ -1,6 +1,5 @@
 use core::{hash::BuildHasher, mem::MaybeUninit, str::FromStr, time::Duration};
-use std::collections::HashMap;
-use std::time::Instant;
+use std::{collections::HashMap, time::Instant};
 
 use anyhow::{anyhow, bail};
 use maybenot::{
