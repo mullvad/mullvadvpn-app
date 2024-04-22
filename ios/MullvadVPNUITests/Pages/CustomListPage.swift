@@ -33,9 +33,14 @@ class CustomListPage: Page {
         tapCreateListButton()
     }
 
-    @discardableResult func editCustomList(name: String) -> Self {
+    @discardableResult func renameCustomList(name: String) -> Self {
         let editCustomListNameCell = app.cells[.customListEditNameFieldCell]
+        // Activate the text field
         editCustomListNameCell.tap()
+        // Select the entire text with a triple tap
+        editCustomListNameCell.tap(withNumberOfTaps: 3, numberOfTouches: 1)
+        // Tap the "delete" key on the on-screen keyboard, the case is sensitive
+        app.keys["delete"].tap()
         editCustomListNameCell.typeText(name)
         return self
     }

@@ -78,7 +78,7 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
         // When creating a new custom list, the "create" button should be disabled until the list has a name at minimum
         CustomListPage(app)
             .verifyCreateButtonIs(enabled: false)
-            .editCustomList(name: name)
+            .renameCustomList(name: name)
             .verifyCreateButtonIs(enabled: true)
             .tapCreateListButton()
     }
