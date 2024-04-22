@@ -176,19 +176,8 @@ fun WelcomeScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     ScaffoldWithTopBar(
-        topBarColor =
-            if (state.tunnelState.isSecured()) {
-                MaterialTheme.colorScheme.inversePrimary
-            } else {
-                MaterialTheme.colorScheme.error
-            },
-        iconTintColor =
-            if (state.tunnelState.isSecured()) {
-                    MaterialTheme.colorScheme.onPrimary
-                } else {
-                    MaterialTheme.colorScheme.onError
-                }
-                .copy(alpha = AlphaTopBar),
+        topBarColor = MaterialTheme.colorScheme.primary,
+        iconTintColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
         snackbarHostState = snackbarHostState,
