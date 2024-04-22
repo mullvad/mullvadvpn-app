@@ -949,6 +949,60 @@ impl ManagementService for ManagementServiceImpl {
         let blob = self.wait_for_result(rx).await??;
         Ok(Response::new(blob))
     }
+
+    #[cfg(target_os = "android")]
+    async fn init_play_purchase(
+        &self,
+        _request: Request<()>,
+    ) -> ServiceResult<types::PlayPurchasePaymentToken> {
+        log::debug!("init_play_purchase");
+
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::InitPlayPurchase(tx))?;
+
+        let payment_token = self
+            .wait_for_result(rx)
+            .await?
+            .map(types::PlayPurchasePaymentToken::from)
+            .map_err(map_daemon_error)?;
+
+        Ok(Response::new(payment_token))
+    }
+
+    /// On non-Android platforms, the return value will be useless.
+    #[cfg(not(target_os = "android"))]
+    async fn init_play_purchase(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::PlayPurchasePaymentToken> {
+        log::error!("Called `init_play_purchase` on non-Android platform");
+        Ok(Response::new(types::PlayPurchasePaymentToken::from(
+            String::default(),
+        )))
+    }
+
+    #[cfg(target_os = "android")]
+    async fn verify_play_purchase(
+        &self,
+        request: Request<types::PlayPurchase>,
+    ) -> ServiceResult<()> {
+        log::debug!("verify_play_purchase");
+
+        let (tx, rx) = oneshot::channel();
+        let play_purchase = mullvad_types::account::PlayPurchase::try_from(request.into_inner())?;
+
+        self.send_command_to_daemon(DaemonCommand::VerifyPlayPurchase(tx, play_purchase))?;
+
+        self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
+
+        Ok(Response::new(()))
+    }
+
+    #[cfg(not(target_os = "android"))]
+    async fn verify_play_purchase(&self, _: Request<types::PlayPurchase>) -> ServiceResult<()> {
+        log::error!("Called `verify_play_purchase` on non-Android platform");
+        Ok(Response::new(()))
+    }
 }
 
 impl ManagementServiceImpl {
