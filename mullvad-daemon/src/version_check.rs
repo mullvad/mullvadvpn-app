@@ -405,18 +405,14 @@ impl UpdateContext {
 
         async move {
             log::debug!("Writing version check cache to {}", cache_path.display());
-            let mut file = File::create(cache_path)
-                .await
-                .map_err(Error::WriteVersionCache)?;
             let cached_app_version = CachedAppVersionInfo::from(last_app_version.to_owned());
             let mut buf =
                 serde_json::to_vec_pretty(&cached_app_version).map_err(Error::Serialize)?;
             let mut read_buf: &[u8] = buf.as_mut();
 
-            let _ = tokio::io::copy(&mut read_buf, &mut file)
+            tokio::fs::write(cache_path, &mut read_buf)
                 .await
-                .map_err(Error::WriteVersionCache)?;
-            Ok(())
+                .map_err(Error::WriteVersionCache)
         }
     }
 }
