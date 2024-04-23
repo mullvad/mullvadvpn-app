@@ -11,17 +11,14 @@ use super::{
 use futures::{Stream, StreamExt};
 use libc::{AF_INET, AF_INET6};
 use pcap::PacketCodec;
-use pnet::{
-    packet::{
-        ethernet::{EtherTypes, MutableEthernetPacket},
-        ip::IpNextHeaderProtocols,
-        ipv4::MutableIpv4Packet,
-        ipv6::MutableIpv6Packet,
-        tcp::MutableTcpPacket,
-        udp::MutableUdpPacket,
-        MutablePacket, Packet,
-    },
-    util::MacAddr,
+use pnet_packet::{
+    ethernet::{EtherTypes, MutableEthernetPacket},
+    ip::IpNextHeaderProtocols,
+    ipv4::MutableIpv4Packet,
+    ipv6::MutableIpv6Packet,
+    tcp::MutableTcpPacket,
+    udp::MutableUdpPacket,
+    MutablePacket, Packet,
 };
 use std::ffi::c_uint;
 use std::{
@@ -435,8 +432,9 @@ fn classify_and_send(
                     log::trace!("dropping IPv4 packet since there's no default route");
                     return;
                 };
-                let gateway_address = MacAddr::from(addrs.gateway_address.into_bytes());
-                packet.frame.set_destination(gateway_address);
+                packet
+                    .frame
+                    .set_destination(addrs.gateway_address.into_bytes().into());
                 let Some(mut ip) = MutableIpv4Packet::new(packet.frame.payload_mut()) else {
                     log::error!("dropping invalid IPv4 packet");
                     return;
@@ -451,8 +449,9 @@ fn classify_and_send(
                     log::trace!("dropping IPv6 packet since there's no default route");
                     return;
                 };
-                let gateway_address = MacAddr::from(addrs.gateway_address.into_bytes());
-                packet.frame.set_destination(gateway_address);
+                packet
+                    .frame
+                    .set_destination(addrs.gateway_address.into_bytes().into());
                 let Some(mut ip) = MutableIpv6Packet::new(packet.frame.payload_mut()) else {
                     log::error!("dropping invalid IPv6 packet");
                     return;
@@ -612,7 +611,7 @@ fn fix_ipv4_checksums(
     match ip.get_next_level_protocol() {
         IpNextHeaderProtocols::Tcp => {
             if let Some(mut tcp) = MutableTcpPacket::new(ip.payload_mut()) {
-                use pnet::packet::tcp::ipv4_checksum;
+                use pnet_packet::tcp::ipv4_checksum;
                 tcp.set_checksum(ipv4_checksum(
                     &tcp.to_immutable(),
                     &source_ip,
@@ -622,7 +621,7 @@ fn fix_ipv4_checksums(
         }
         IpNextHeaderProtocols::Udp => {
             if let Some(mut udp) = MutableUdpPacket::new(ip.payload_mut()) {
-                use pnet::packet::udp::ipv4_checksum;
+                use pnet_packet::udp::ipv4_checksum;
                 udp.set_checksum(ipv4_checksum(
                     &udp.to_immutable(),
                     &source_ip,
@@ -633,7 +632,7 @@ fn fix_ipv4_checksums(
         _ => (),
     }
 
-    ip.set_checksum(pnet::packet::ipv4::checksum(&ip.to_immutable()));
+    ip.set_checksum(pnet_packet::ipv4::checksum(&ip.to_immutable()));
 }
 
 // Recalculate L3 and L4 checksums. Silently fail on error
@@ -656,7 +655,7 @@ fn fix_ipv6_checksums(
     match ip.get_next_header() {
         IpNextHeaderProtocols::Tcp => {
             if let Some(mut tcp) = MutableTcpPacket::new(ip.payload_mut()) {
-                use pnet::packet::tcp::ipv6_checksum;
+                use pnet_packet::tcp::ipv6_checksum;
                 tcp.set_checksum(ipv6_checksum(
                     &tcp.to_immutable(),
                     &source_ip,
@@ -666,7 +665,7 @@ fn fix_ipv6_checksums(
         }
         IpNextHeaderProtocols::Udp => {
             if let Some(mut udp) = MutableUdpPacket::new(ip.payload_mut()) {
-                use pnet::packet::udp::ipv6_checksum;
+                use pnet_packet::udp::ipv6_checksum;
                 udp.set_checksum(ipv6_checksum(
                     &udp.to_immutable(),
                     &source_ip,

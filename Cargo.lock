@@ -1745,15 +1745,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ipnetwork"
-version = "0.20.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf466541e9d546596ee94f9f69590f89473455f88372423e0008fc1a7daf100e"
-dependencies = [
- "serde",
-]
-
-[[package]]
 name = "iprange"
 version = "0.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1937,12 +1928,12 @@ dependencies = [
 
 [[package]]
 name = "libloading"
-version = "0.6.7"
+version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "351a32417a12d5f7e82c368a66781e307834dae04c6ce0cd4456d52989229883"
+checksum = "0c2a198fb6b0eada2a8df47933734e6d35d350665a33a3593d7164fa52c75c19"
 dependencies = [
  "cfg-if",
- "winapi",
+ "windows-targets 0.52.5",
 ]
 
 [[package]]
@@ -2141,7 +2132,7 @@ dependencies = [
  "futures",
  "http 0.2.12",
  "hyper 0.14.28",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "libc",
  "log",
  "mullvad-fs",
@@ -2249,7 +2240,7 @@ name = "mullvad-jni"
 version = "0.0.0"
 dependencies = [
  "futures",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "jnix",
  "log",
  "log-panics",
@@ -2335,7 +2326,7 @@ version = "0.0.0"
 dependencies = [
  "chrono",
  "intersection-derive",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "itertools 0.12.1",
  "log",
  "mullvad-types",
@@ -2374,7 +2365,7 @@ dependencies = [
  "chrono",
  "clap",
  "intersection-derive",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "jnix",
  "log",
  "once_cell",
@@ -2725,9 +2716,9 @@ checksum = "de3145af08024dea9fa9914f381a17b8fc6034dfb00f3a84013f7ff43f29ed4c"
 
 [[package]]
 name = "pcap"
-version = "1.2.0"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77452fdf9d211d9ca35d092aeefe4d4b3f0c4eb529ffb87a8a3b8fe2bb7c37c3"
+checksum = "45f1686828a29fd8002fbf9c01506b4b2dd575c2305e1b884da3731abae8b9e0"
 dependencies = [
  "bitflags 1.3.2",
  "errno 0.2.8",
@@ -2811,7 +2802,7 @@ dependencies = [
  "errno 0.2.8",
  "error-chain",
  "ioctl-sys",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "libc",
 ]
 
@@ -2908,39 +2899,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "db23d408679286588f4d4644f965003d056e3dd5abcaaa938116871d7ce2fee7"
 
 [[package]]
-name = "pnet"
-version = "0.34.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "130c5b738eeda2dc5796fe2671e49027e6935e817ab51b930a36ec9e6a206a64"
-dependencies = [
- "ipnetwork 0.20.0",
- "pnet_base",
- "pnet_datalink",
- "pnet_packet",
- "pnet_sys",
- "pnet_transport",
-]
-
-[[package]]
 name = "pnet_base"
 version = "0.34.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fe4cf6fb3ab38b68d01ab2aea03ed3d1132b4868fa4e06285f29f16da01c5f4c"
 dependencies = [
  "no-std-net",
-]
-
-[[package]]
-name = "pnet_datalink"
-version = "0.34.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad5854abf0067ebbd3967f7d45ebc8976ff577ff0c7bd101c4973ae3c70f98fe"
-dependencies = [
- "ipnetwork 0.20.0",
- "libc",
- "pnet_base",
- "pnet_sys",
- "winapi",
 ]
 
 [[package]]
@@ -2974,28 +2938,6 @@ dependencies = [
  "pnet_base",
  "pnet_macros",
  "pnet_macros_support",
-]
-
-[[package]]
-name = "pnet_sys"
-version = "0.34.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "417c0becd1b573f6d544f73671070b039051e5ad819cc64aa96377b536128d00"
-dependencies = [
- "libc",
- "winapi",
-]
-
-[[package]]
-name = "pnet_transport"
-version = "0.34.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2637e14d7de974ee2f74393afccbc8704f3e54e6eb31488715e72481d1662cc3"
-dependencies = [
- "libc",
- "pnet_base",
- "pnet_packet",
- "pnet_sys",
 ]
 
 [[package]]
@@ -3954,7 +3896,7 @@ dependencies = [
  "hickory-proto",
  "hickory-server",
  "inotify 0.10.2",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "jnix",
  "libc",
  "log",
@@ -3967,7 +3909,7 @@ dependencies = [
  "parking_lot",
  "pcap",
  "pfctl",
- "pnet",
+ "pnet_packet",
  "rand 0.8.5",
  "resolv-conf",
  "serde",
@@ -4079,7 +4021,7 @@ version = "0.0.0"
 dependencies = [
  "bitflags 2.5.0",
  "futures",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "libc",
  "log",
  "netlink-packet-route",
@@ -4111,7 +4053,7 @@ dependencies = [
  "cfg-if",
  "duct",
  "futures",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "jnix",
  "log",
  "nix 0.23.2",
@@ -4148,7 +4090,7 @@ name = "talpid-types"
 version = "0.0.0"
 dependencies = [
  "base64 0.22.0",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "jnix",
  "log",
  "serde",
@@ -4179,7 +4121,7 @@ dependencies = [
  "futures",
  "hex",
  "internet-checksum",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "libc",
  "log",
  "maybenot",
