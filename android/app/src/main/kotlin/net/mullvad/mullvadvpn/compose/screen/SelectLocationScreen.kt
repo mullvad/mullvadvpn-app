@@ -369,7 +369,7 @@ fun SelectLocationScreen(
                                         BottomSheetState.ShowEditCustomListBottomSheet(customList)
                                 },
                                 onShowEditCustomListEntryBottomSheet = {
-                                    item: RelayItem,
+                                    item: RelayItem.Location,
                                     customList: RelayItem.CustomList ->
                                     bottomSheetState =
                                         BottomSheetState.ShowCustomListsEntryBottomSheet(
@@ -425,7 +425,7 @@ private fun LazyListScope.customLists(
     onSelectRelay: (item: RelayItem) -> Unit,
     onShowCustomListBottomSheet: () -> Unit,
     onShowEditBottomSheet: (RelayItem.CustomList) -> Unit,
-    onShowEditCustomListEntryBottomSheet: (item: RelayItem, RelayItem.CustomList) -> Unit
+    onShowEditCustomListEntryBottomSheet: (item: RelayItem.Location, RelayItem.CustomList) -> Unit
 ) {
     item(
         contentType = { ContentType.HEADER },
@@ -453,7 +453,7 @@ private fun LazyListScope.customLists(
                 onLongClick = {
                     if (it is RelayItem.CustomList) {
                         onShowEditBottomSheet(it)
-                    } else if (it in customList.locations) {
+                    } else if (it is RelayItem.Location && it in customList.locations) {
                         onShowEditCustomListEntryBottomSheet(it, customList)
                     }
                 },
@@ -514,8 +514,8 @@ private fun BottomSheets(
     bottomSheetState: BottomSheetState?,
     onCreateCustomList: (RelayItem.Location?) -> Unit,
     onEditCustomLists: () -> Unit,
-    onAddLocationToList: (RelayItem, RelayItem.CustomList) -> Unit,
-    onRemoveLocationFromList: (RelayItem, RelayItem.CustomList) -> Unit,
+    onAddLocationToList: (RelayItem.Location, RelayItem.CustomList) -> Unit,
+    onRemoveLocationFromList: (RelayItem.Location, RelayItem.CustomList) -> Unit,
     onEditCustomListName: (RelayItem.CustomList) -> Unit,
     onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
     onDeleteCustomList: (RelayItem.CustomList) -> Unit,
@@ -778,8 +778,9 @@ private fun CustomListEntryBottomSheet(
     onBackgroundColor: Color,
     sheetState: SheetState,
     customList: RelayItem.CustomList,
-    item: RelayItem,
-    onRemoveLocationFromList: (location: RelayItem, customList: RelayItem.CustomList) -> Unit,
+    item: RelayItem.Location,
+    onRemoveLocationFromList:
+        (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit
 ) {
     MullvadModalBottomSheet(
@@ -878,7 +879,7 @@ sealed interface BottomSheetState {
 
     data class ShowCustomListsEntryBottomSheet(
         val customList: RelayItem.CustomList,
-        val item: RelayItem
+        val item: RelayItem.Location
     ) : BottomSheetState
 
     data class ShowLocationBottomSheet(
