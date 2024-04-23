@@ -1,3 +1,20 @@
+//! This module detects changes to paths that are symlinks, resolves them and updates paths used by
+//! the split tunnel driver accordingly.
+
+// TODO: Consider whether this code can be removed if paths are handled differently in the driver.
+//       The driver takes currently paths to the actual files on actual volumes (such as
+//       \Device\HarddiskVolume1\test.exe), not symlinks or DOS paths (such as C:\test.exe). If it
+//       instead accepted DOS paths and resolved them to NT/real paths when handling process
+//       arrivals/departures, then perhaps symlinks could be resolved when processes started, so any
+//       changes to symlinks would immediately be reflected (in new processes) without any config
+//       update.
+//       This would still have the limitation that changes to symlinks would not be detected without
+//       any monitoring. Assume that C:\a.exe is a symlink that points to
+//       \Device\HarddiskVolume1\test.exe. If C:\a.exe were deleted or replaced with a symlink pointing
+//       to \Device\HarddiskVolume2\lol.exe instead, then those old processes whose image is
+//       \Device\HarddiskVolume1\test.exe would still be excluded from the tunnel. This might be an
+//       acceptable limitation.
+
 use std::{
     collections::HashSet,
     ffi::{OsStr, OsString},
