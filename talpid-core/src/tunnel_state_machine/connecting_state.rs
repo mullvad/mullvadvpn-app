@@ -463,9 +463,9 @@ impl ConnectingState {
                 shared_values.bypass_socket(fd, done_tx);
                 SameState(self)
             }
-            #[cfg(windows)]
+            #[cfg(any(windows, target_os = "android"))]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                shared_values.split_tunnel.set_paths(&paths, result_tx);
+                shared_values.exclude_paths(paths, result_tx);
                 SameState(self)
             }
         }
