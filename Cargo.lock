@@ -1626,15 +1626,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ipnetwork"
-version = "0.20.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf466541e9d546596ee94f9f69590f89473455f88372423e0008fc1a7daf100e"
-dependencies = [
- "serde",
-]
-
-[[package]]
 name = "iprange"
 version = "0.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2011,7 +2002,7 @@ dependencies = [
  "futures",
  "http",
  "hyper",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "libc",
  "log",
  "mullvad-fs",
@@ -2119,7 +2110,7 @@ name = "mullvad-jni"
 version = "0.0.0"
 dependencies = [
  "futures",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "jnix",
  "log",
  "log-panics",
@@ -2205,7 +2196,7 @@ version = "0.0.0"
 dependencies = [
  "chrono",
  "intersection-derive",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "itertools 0.12.1",
  "log",
  "mullvad-types",
@@ -2244,7 +2235,7 @@ dependencies = [
  "chrono",
  "clap",
  "intersection-derive",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "jnix",
  "log",
  "once_cell",
@@ -2685,7 +2676,7 @@ dependencies = [
  "errno 0.2.8",
  "error-chain",
  "ioctl-sys",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "libc",
 ]
 
@@ -2782,20 +2773,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4503fa043bf02cee09a9582e9554b4c6403b2ef55e4612e96561d294419429f8"
 
 [[package]]
-name = "pnet"
-version = "0.34.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "130c5b738eeda2dc5796fe2671e49027e6935e817ab51b930a36ec9e6a206a64"
-dependencies = [
- "ipnetwork 0.20.0",
- "pnet_base 0.34.0",
- "pnet_datalink",
- "pnet_packet 0.34.0",
- "pnet_sys",
- "pnet_transport",
-]
-
-[[package]]
 name = "pnet_base"
 version = "0.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2811,19 +2788,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fe4cf6fb3ab38b68d01ab2aea03ed3d1132b4868fa4e06285f29f16da01c5f4c"
 dependencies = [
  "no-std-net",
-]
-
-[[package]]
-name = "pnet_datalink"
-version = "0.34.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad5854abf0067ebbd3967f7d45ebc8976ff577ff0c7bd101c4973ae3c70f98fe"
-dependencies = [
- "ipnetwork 0.20.0",
- "libc",
- "pnet_base 0.34.0",
- "pnet_sys",
- "winapi",
 ]
 
 [[package]]
@@ -2890,28 +2854,6 @@ dependencies = [
  "pnet_base 0.34.0",
  "pnet_macros 0.34.0",
  "pnet_macros_support 0.34.0",
-]
-
-[[package]]
-name = "pnet_sys"
-version = "0.34.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "417c0becd1b573f6d544f73671070b039051e5ad819cc64aa96377b536128d00"
-dependencies = [
- "libc",
- "winapi",
-]
-
-[[package]]
-name = "pnet_transport"
-version = "0.34.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2637e14d7de974ee2f74393afccbc8704f3e54e6eb31488715e72481d1662cc3"
-dependencies = [
- "libc",
- "pnet_base 0.34.0",
- "pnet_packet 0.34.0",
- "pnet_sys",
 ]
 
 [[package]]
@@ -3880,7 +3822,7 @@ dependencies = [
  "hickory-proto",
  "hickory-server",
  "inotify 0.10.2",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "jnix",
  "libc",
  "log",
@@ -3893,7 +3835,7 @@ dependencies = [
  "parking_lot",
  "pcap",
  "pfctl",
- "pnet",
+ "pnet_packet 0.34.0",
  "rand 0.8.5",
  "resolv-conf",
  "serde",
@@ -4005,7 +3947,7 @@ version = "0.0.0"
 dependencies = [
  "bitflags 2.4.0",
  "futures",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "libc",
  "log",
  "netlink-packet-route",
@@ -4037,7 +3979,7 @@ dependencies = [
  "cfg-if",
  "duct",
  "futures",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "jnix",
  "log",
  "nix 0.23.2",
@@ -4074,7 +4016,7 @@ name = "talpid-types"
 version = "0.0.0"
 dependencies = [
  "base64 0.13.1",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "jnix",
  "log",
  "serde",
@@ -4106,7 +4048,7 @@ dependencies = [
  "futures",
  "hex",
  "internet-checksum",
- "ipnetwork 0.16.0",
+ "ipnetwork",
  "libc",
  "log",
  "maybenot",
