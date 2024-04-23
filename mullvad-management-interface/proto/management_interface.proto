@@ -92,11 +92,13 @@ service ManagementService {
   rpc RemoveSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
   rpc ClearSplitTunnelProcesses(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
-  // Split tunneling (Windows)
+  // Split tunneling (Windows, Android)
   rpc AddSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc RemoveSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
-  rpc ClearSplitTunnelApps(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc SetSplitTunnelState(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+
+  // Split tunneling (Windows)
+  rpc ClearSplitTunnelApps(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc GetExcludedProcesses(google.protobuf.Empty) returns (ExcludedProcessList) {}
 
   // Play payment (Android)
@@ -420,6 +422,9 @@ message SplitTunnelSettings {
   bool enable_exclusions = 1;
   repeated string apps = 2;
 }
+
+// A list of apps which should be excluded from the tunnel.
+message ExcludedApps { repeated string apps = 1; }
 
 message RelaySettings {
   oneof endpoint {

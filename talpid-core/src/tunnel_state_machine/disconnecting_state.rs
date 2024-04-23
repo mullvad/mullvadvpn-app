@@ -76,9 +76,9 @@ impl DisconnectingState {
                     shared_values.bypass_socket(fd, done_tx);
                     AfterDisconnect::Nothing
                 }
-                #[cfg(windows)]
+                #[cfg(any(windows, target_os = "android"))]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    shared_values.split_tunnel.set_paths(&paths, result_tx);
+                    shared_values.exclude_paths(paths, result_tx);
                     AfterDisconnect::Nothing
                 }
             },
@@ -122,9 +122,9 @@ impl DisconnectingState {
                     shared_values.bypass_socket(fd, done_tx);
                     AfterDisconnect::Block(reason)
                 }
-                #[cfg(windows)]
+                #[cfg(any(windows, target_os = "android"))]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    shared_values.split_tunnel.set_paths(&paths, result_tx);
+                    shared_values.exclude_paths(paths, result_tx);
                     AfterDisconnect::Block(reason)
                 }
                 None => AfterDisconnect::Block(reason),
@@ -169,9 +169,9 @@ impl DisconnectingState {
                     shared_values.bypass_socket(fd, done_tx);
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
-                #[cfg(windows)]
+                #[cfg(any(windows, target_os = "android"))]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    shared_values.split_tunnel.set_paths(&paths, result_tx);
+                    shared_values.exclude_paths(paths, result_tx);
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
             },
