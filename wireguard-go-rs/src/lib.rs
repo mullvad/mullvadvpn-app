@@ -4,6 +4,9 @@ pub type WgLogLevel = u32;
 pub type LoggingCallback =
     unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: *mut c_void);
 
+// Needed for linking with wireguard-go
+use cmaybenot as _;
+
 extern "C" {
     /// Creates a new wireguard tunnel, uses the specific interface name, MTU and file descriptors
     /// for the tunnel device and logging.
