@@ -20,8 +20,6 @@ use mullvad_types::{
     version,
     wireguard::{RotationInterval, RotationIntervalError},
 };
-#[cfg(any(target_os = "windows", target_os = "macos"))]
-use std::path::PathBuf;
 use std::{
     str::FromStr,
     sync::{Arc, Mutex},
@@ -824,10 +822,11 @@ impl ManagementService for ManagementServiceImpl {
         }
     }
 
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     async fn add_split_tunnel_app(&self, request: Request<String>) -> ServiceResult<()> {
+        use mullvad_types::settings::SplitApp;
         log::debug!("add_split_tunnel_app");
-        let path = PathBuf::from(request.into_inner());
+        let path = SplitApp::from(request.into_inner());
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::AddSplitTunnelApp(tx, path))?;
         self.wait_for_result(rx)
@@ -835,15 +834,17 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
             .map(Response::new)
     }
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+
+    #[cfg(target_os = "linux")]
     async fn add_split_tunnel_app(&self, _: Request<String>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(windows, target_os = "android", target_os="macos"))]
     async fn remove_split_tunnel_app(&self, request: Request<String>) -> ServiceResult<()> {
+        use mullvad_types::settings::SplitApp;
         log::debug!("remove_split_tunnel_app");
-        let path = PathBuf::from(request.into_inner());
+        let path = SplitApp::from(request.into_inner());
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::RemoveSplitTunnelApp(tx, path))?;
         self.wait_for_result(rx)
@@ -851,12 +852,12 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
             .map(Response::new)
     }
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    #[cfg(target_os = "linux")]
     async fn remove_split_tunnel_app(&self, _: Request<String>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     async fn clear_split_tunnel_apps(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("clear_split_tunnel_apps");
         let (tx, rx) = oneshot::channel();
@@ -866,12 +867,12 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
             .map(Response::new)
     }
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    #[cfg(target_os = "linux")]
     async fn clear_split_tunnel_apps(&self, _: Request<()>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     async fn set_split_tunnel_state(&self, request: Request<bool>) -> ServiceResult<()> {
         log::debug!("set_split_tunnel_state");
         let enabled = request.into_inner();
@@ -882,7 +883,7 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
             .map(Response::new)
     }
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    #[cfg(target_os = "linux")]
     async fn set_split_tunnel_state(&self, _: Request<bool>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
