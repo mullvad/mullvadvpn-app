@@ -11,7 +11,7 @@ use self::{
     disconnecting_state::{AfterDisconnect, DisconnectingState},
     error_state::ErrorState,
 };
-#[cfg(windows)]
+#[cfg(any(windows, target_os = "android"))]
 use crate::split_tunnel;
 use crate::{
     dns::DnsMonitor,
@@ -102,6 +102,9 @@ pub struct InitialTunnelState {
     /// Programs to exclude from the tunnel using the split tunnel driver.
     #[cfg(windows)]
     pub exclude_paths: Vec<OsString>,
+    /// Apps to exclude from the tunnel.
+    #[cfg(target_os = "android")]
+    pub exclude_paths: Vec<String>,
 }
 
 /// Identifiers for various network resources that should be unique to a given instance of a tunnel
@@ -143,6 +146,8 @@ pub async fn spawn(
             .chain(crate::firewall::ALLOWED_LAN_MULTICAST_NETS.iter())
             .cloned()
             .collect(),
+        #[cfg(target_os = "android")]
+        initial_settings.exclude_paths.clone(),
     );
 
     let (shutdown_tx, shutdown_rx) = oneshot::channel();
@@ -214,6 +219,12 @@ pub enum TunnelCommand {
     SetExcludedApps(
         oneshot::Sender<Result<(), split_tunnel::Error>>,
         Vec<OsString>,
+    ),
+    /// Set applications that are allowed to send and receive traffic outside of the tunnel.
+    #[cfg(target_os = "android")]
+    SetExcludedApps(
+        oneshot::Sender<Result<(), split_tunnel::Error>>,
+        Vec<String>,
     ),
 }
 
@@ -547,6 +558,40 @@ impl SharedTunnelStateValues {
             log::error!("Failed to bypass socket {}", err);
         }
         let _ = tx.send(());
+    }
+
+    #[cfg(windows)]
+    pub fn exclude_paths(
+        &mut self,
+        paths: Vec<OsString>,
+        tx: oneshot::Sender<Result<(), split_tunnel::Error>>,
+    ) {
+        self.split_tunnel.set_paths(&paths, tx);
+    }
+
+    /// Update the set of excluded paths (split tunnel apps) for the tunnel provider.
+    #[cfg(target_os = "android")]
+    pub fn exclude_paths(
+        &mut self,
+        apps: Vec<String>,
+        tx: oneshot::Sender<Result<(), split_tunnel::Error>>,
+    ) {
+        let exclude_apps_result = self
+            .tun_provider
+            .lock()
+            .unwrap()
+            .set_exclude_apps(apps)
+            .map_err(split_tunnel::Error::SetExcludedApps)
+            .inspect_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg(
+                        "Failed to restart tunnel after updating excluded apps",
+                    )
+                );
+            });
+
+        let _ = tx.send(exclude_apps_result);
     }
 }
 
