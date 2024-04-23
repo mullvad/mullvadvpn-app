@@ -36,6 +36,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix pointless API access method rotations for concurrent requests.
+- Fix broken IPv6 connectivity by making sure the relay selector attempts IPv6 connections.
 
 
 ## [android/2024.1] - 2024-04-05
