@@ -689,7 +689,7 @@
 		A944F25F2B8DEFDB00473F4C /* MullvadPostQuantum.h in Headers */ = {isa = PBXBuildFile; fileRef = A944F25E2B8DEFDB00473F4C /* MullvadPostQuantum.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A944F2622B8DEFDB00473F4C /* MullvadPostQuantum.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A944F25C2B8DEFDB00473F4C /* MullvadPostQuantum.framework */; };
 		A944F2632B8DEFDB00473F4C /* MullvadPostQuantum.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A944F25C2B8DEFDB00473F4C /* MullvadPostQuantum.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		A944F26A2B8DF32900473F4C /* PostQuantumKeyNegotiatior.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB4F9C2B7FAB21002A2D7A /* PostQuantumKeyNegotiatior.swift */; };
+		A944F26A2B8DF32900473F4C /* PostQuantumKeyNegotiator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB4F9C2B7FAB21002A2D7A /* PostQuantumKeyNegotiator.swift */; };
 		A944F2722B8E02F600473F4C /* libtalpid_tunnel_config_client_proxy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A944F2712B8E02E800473F4C /* libtalpid_tunnel_config_client_proxy.a */; };
 		A948809B2BC9308D0090A44C /* PostQuantumKeyExchangeActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A948809A2BC9308D0090A44C /* PostQuantumKeyExchangeActor.swift */; };
 		A94D691A2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E22AA72AE9003D1918 /* WireGuardKitTypes */; };
@@ -2024,7 +2024,7 @@
 		A9E0317B2ACBFC7E0095D843 /* TunnelStore+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TunnelStore+Stubs.swift"; sourceTree = "<group>"; };
 		A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelStatusBlockObserver.swift; sourceTree = "<group>"; };
 		A9E034632ABB302000E59A5A /* UIEdgeInsets+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIEdgeInsets+Extensions.swift"; sourceTree = "<group>"; };
-		A9EB4F9C2B7FAB21002A2D7A /* PostQuantumKeyNegotiatior.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostQuantumKeyNegotiatior.swift; sourceTree = "<group>"; };
+		A9EB4F9C2B7FAB21002A2D7A /* PostQuantumKeyNegotiator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostQuantumKeyNegotiator.swift; sourceTree = "<group>"; };
 		A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatesTests.swift; sourceTree = "<group>"; };
 		A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNConnectionProtocol.swift; sourceTree = "<group>"; };
 		E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeViewController.swift; sourceTree = "<group>"; };
@@ -3766,7 +3766,7 @@
 			children = (
 				A944F25E2B8DEFDB00473F4C /* MullvadPostQuantum.h */,
 				A9A557F42B7E3E5C0017ADA8 /* PacketTunnelProvider+TCPConnection.swift */,
-				A9EB4F9C2B7FAB21002A2D7A /* PostQuantumKeyNegotiatior.swift */,
+				A9EB4F9C2B7FAB21002A2D7A /* PostQuantumKeyNegotiator.swift */,
 				A9630E3B2B8E0E7B00A65999 /* talpid_tunnel_config_client.h */,
 			);
 			path = MullvadPostQuantum;
@@ -5810,7 +5810,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A9630E492B921E6D00A65999 /* PacketTunnelProvider+TCPConnection.swift in Sources */,
-				A944F26A2B8DF32900473F4C /* PostQuantumKeyNegotiatior.swift in Sources */,
+				A944F26A2B8DF32900473F4C /* PostQuantumKeyNegotiator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

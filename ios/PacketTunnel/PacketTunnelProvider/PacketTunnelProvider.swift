@@ -32,7 +32,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     // Post Quantum Key required variables
     private var inTunnelTCPConnection: NWTCPConnection!
     private var tcpConnectionObserver: NSKeyValueObservation!
-    private var quantumKeyNegotiatior: PostQuantumKeyNegotiatior!
+    private var quantumKeyNegotiatior: PostQuantumKeyNegotiator!
 
     override init() {
         Self.configureLogging()
@@ -270,7 +270,7 @@ extension PacketTunnelProvider {
     private func startPostQuantumKeyNegotation(with privateKey: PrivateKey) {
         quantumKeyNegotiatior?.cancelKeyNegotiation()
 
-        let keyNegotiatior = PostQuantumKeyNegotiatior()
+        let keyNegotiatior = PostQuantumKeyNegotiator()
 
         let gatewayAddress = "10.64.0.1"
         let IPv4Gateway = IPv4Address(gatewayAddress)!
