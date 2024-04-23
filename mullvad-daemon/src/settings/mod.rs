@@ -1,6 +1,5 @@
 #[cfg(not(target_os = "android"))]
 use futures::TryFutureExt;
-#[cfg(not(target_os = "android"))]
 use mullvad_types::custom_list::Error as CustomListError;
 use mullvad_types::{
     relay_constraints::{RelayConstraints, RelaySettings, WireguardConstraints},
@@ -66,7 +65,6 @@ impl From<Error> for mullvad_management_interface::Status {
     }
 }
 
-#[cfg(not(target_os = "android"))]
 fn handle_custom_list_error(
     custom_list_err: CustomListError,
 ) -> mullvad_management_interface::Status {
