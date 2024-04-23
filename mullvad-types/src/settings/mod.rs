@@ -12,9 +12,11 @@ use crate::{
 #[cfg(target_os = "android")]
 use jnix::IntoJava;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-#[cfg(target_os = "windows")]
-use std::{collections::HashSet, path::PathBuf};
+#[cfg(any(windows, target_os = "android"))]
+use std::collections::HashSet;
 use talpid_types::net::{openvpn, GenericTunnelOptions};
+
+//use std::ffi::
 
 mod dns;
 
@@ -70,25 +72,19 @@ impl Serialize for SettingsVersion {
 /// Mullvad daemon settings.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct Settings {
     pub relay_settings: RelaySettings,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_settings: BridgeSettings,
     pub obfuscation_settings: ObfuscationSettings,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_state: BridgeState,
     /// All of the custom relay lists
     pub custom_lists: CustomListsSettings,
     /// API access methods
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub api_access_methods: access_method::Settings,
     /// If the daemon should allow communication with private (LAN) networks.
     pub allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
     /// the firewall to not allow any traffic in or out.
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub block_when_disconnected: bool,
     /// If the daemon should connect the VPN tunnel directly on start or not.
     pub auto_connect: bool,
@@ -100,20 +96,86 @@ pub struct Settings {
     /// Whether to notify users of beta updates.
     pub show_beta_releases: bool,
     /// Split tunneling settings
-    #[cfg(windows)]
+    #[cfg(any(windows, target_os = "android"))]
     pub split_tunnel: SplitTunnelSettings,
     /// Specifies settings schema version
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub settings_version: SettingsVersion,
 }
 
-#[cfg(windows)]
+#[cfg(any(windows, target_os = "android"))]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
 pub struct SplitTunnelSettings {
     /// Toggles split tunneling on or off
     pub enable_exclusions: bool,
-    /// List of applications to exclude from the tunnel.
-    pub apps: HashSet<PathBuf>,
+    /// Set of applications to exclude from the tunnel.
+    pub apps: HashSet<SplitApp>,
+}
+
+/// A split application.
+#[cfg(target_os = "android")]
+#[derive(Debug, Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct SplitApp(String);
+
+/// An application whose traffic should be excluded from any active tunnel.
+#[cfg(windows)]
+#[derive(Debug, Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct SplitApp(std::path::PathBuf);
+
+#[cfg(any(windows, target_os = "android"))]
+impl SplitApp {
+    /// Convert the underlying app name to a [`String`].
+    ///
+    /// # Note
+    /// This function is fallible due to the Window's dito being fallible, and it is convenient to have the same API across all platforms.
+    #[cfg(target_os = "android")]
+    pub fn to_string(self) -> Option<String> {
+        Some(self.0)
+    }
+
+    /// Convert the underlying path to a [`String`].
+    /// This function will fail if the underlying path string is not valid UTF-8. See [`std::ffi::OsStr::to_str`] for details.
+    #[cfg(windows)]
+    pub fn to_string(self) -> Option<String> {
+        self.0.as_os_str().to_str().map(str::to_string)
+    }
+
+    /// This is the String-representation as expected by [`SetExcludedApps`].
+    #[cfg(windows)]
+    pub fn to_tunnel_command_repr(self) -> std::ffi::OsString {
+        self.0.as_os_str().to_owned()
+    }
+
+    /// This is the String-representation as expected by [`SetExcludedApps`].
+    #[cfg(target_os = "android")]
+    pub fn to_tunnel_command_repr(self) -> String {
+        self.0
+    }
+
+    #[cfg(windows)]
+    pub fn display(&self) -> std::path::Display<'_> {
+        self.0.display()
+    }
+}
+
+#[cfg(target_os = "android")]
+impl From<String> for SplitApp {
+    fn from(value: String) -> Self {
+        SplitApp(value)
+    }
+}
+
+#[cfg(windows)]
+impl From<String> for SplitApp {
+    fn from(value: String) -> Self {
+        SplitApp::from(std::path::PathBuf::from(value))
+    }
+}
+
+#[cfg(windows)]
+impl From<std::path::PathBuf> for SplitApp {
+    fn from(value: std::path::PathBuf) -> Self {
+        SplitApp(value)
+    }
 }
 
 impl Default for Settings {
@@ -145,7 +207,7 @@ impl Default for Settings {
             tunnel_options: TunnelOptions::default(),
             relay_overrides: vec![],
             show_beta_releases: false,
-            #[cfg(windows)]
+            #[cfg(any(windows, target_os = "android"))]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
         }

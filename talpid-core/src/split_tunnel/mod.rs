@@ -11,3 +11,10 @@ mod imp;
 
 #[cfg(windows)]
 pub use imp::*;
+
+#[cfg(target_os = "android")]
+#[path = "android.rs"]
+mod imp;
+
+#[cfg(target_os = "android")]
+pub use imp::*;
