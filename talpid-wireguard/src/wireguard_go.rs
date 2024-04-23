@@ -96,7 +96,11 @@ impl WgGoTunnel {
         })
     }
 
-    fn create_tunnel_config(config: &Config, routes: impl Iterator<Item = IpNetwork>) -> TunConfig {
+    fn create_tunnel_config(
+        config: &Config,
+        routes: impl Iterator<Item = IpNetwork>,
+        #[cfg(target_os = "android")] excluded_apps: Vec<String>,
+    ) -> TunConfig {
         let mut dns_servers = vec![IpAddr::V4(config.ipv4_gateway)];
         dns_servers.extend(config.ipv6_gateway.map(IpAddr::V6));
 
@@ -106,6 +110,8 @@ impl WgGoTunnel {
             routes: routes.collect(),
             #[cfg(target_os = "android")]
             required_routes: Self::create_required_routes(config),
+            #[cfg(target_os = "android")]
+            excluded_packages: excluded_apps,
             mtu: config.mtu,
         }
     }
@@ -152,9 +158,14 @@ impl WgGoTunnel {
         routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<(Tun, RawFd)> {
         let mut last_error = None;
-        let tunnel_config = Self::create_tunnel_config(config, routes);
-
         let mut tun_provider = tun_provider.lock().unwrap();
+
+        let tunnel_config = Self::create_tunnel_config(
+            config,
+            routes,
+            #[cfg(target_os = "android")]
+            tun_provider.get_excluded_apps().collect(),
+        );
 
         for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
             let tunnel_device = tun_provider
