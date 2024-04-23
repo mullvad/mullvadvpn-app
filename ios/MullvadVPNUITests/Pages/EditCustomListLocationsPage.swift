@@ -28,6 +28,24 @@ class EditCustomListLocationsPage: Page {
         return self
     }
 
+    @discardableResult func unfoldLocationwith(identifier: String) -> Self {
+        let locationCell = app.tables[.editCustomListEditLocationsTableView].cells[identifier]
+        let expandCellButton = locationCell.buttons["expandButton"]
+        if expandCellButton.exists {
+            expandCellButton.tap()
+        }
+        return self
+    }
+
+    @discardableResult func collapseLocationwith(identifier: String) -> Self {
+        let locationCell = app.tables[.editCustomListEditLocationsTableView].cells[identifier]
+        let collapseCellButton = locationCell.buttons["collapseButton"]
+        if collapseCellButton.exists {
+            collapseCellButton.tap()
+        }
+        return self
+    }
+
     @discardableResult func pressBackButton() -> Self {
         app.navigationBars["Edit locations"].buttons.firstMatch.tap()
         return self

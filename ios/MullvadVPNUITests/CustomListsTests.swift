@@ -15,6 +15,10 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
 
         let customListName = createCustomListName()
         createCustomList(named: customListName)
+        // Custom lists are persisted across app sessions, guarantee that the next test starts in a clean state
+        addTeardownBlock {
+            self.deleteCustomList(named: customListName)
+        }
 
         app.terminate()
         app.launch()
@@ -49,6 +53,12 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
 
         let customListName = createCustomListName()
         createCustomList(named: customListName)
+
+        addTeardownBlock {
+            self.workaroundOpenCustomListMenuBug()
+            self.deleteCustomList(named: customListName)
+        }
+
         workaroundOpenCustomListMenuBug()
         startEditingCustomList(named: customListName)
 
@@ -61,12 +71,44 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
             .tapSaveListButton()
 
         ListCustomListsPage(app)
-            .finishEditingCustomLists()
+            .tapDoneButton()
 
         XCTAssertTrue(app.staticTexts[customListName].exists)
+    }
+
+    func testAddSingleLocationToCustomList() throws {
+        TunnelControlPage(app)
+            .tapSelectLocationButton()
+
+        let customListName = createCustomListName()
+        createCustomList(named: customListName)
+
+        addTeardownBlock {
+            self.workaroundOpenCustomListMenuBug()
+            self.deleteCustomList(named: customListName)
+        }
 
         workaroundOpenCustomListMenuBug()
-        deleteCustomList(named: customListName)
+        startEditingCustomList(named: customListName)
+
+        EditCustomListLocationsPage(app)
+            .scrollToLocationWith(identifier: "se")
+            .unfoldLocationwith(identifier: "se")
+            .unfoldLocationwith(identifier: "se-got")
+            .toggleLocationCheckmarkWith(identifier: "se-got-wg-001")
+            .pressBackButton()
+
+        CustomListPage(app)
+            .tapSaveListButton()
+
+        ListCustomListsPage(app)
+            .tapDoneButton()
+
+        SelectLocationPage(app)
+            .tapLocationCellExpandButton(withName: customListName)
+        let customListLocationName = "\(customListName)-se-got-wg-001"
+        let customListLocationCell = SelectLocationPage(app).cellWithIdentifier(identifier: customListLocationName)
+        XCTAssertTrue(customListLocationCell.exists)
     }
 
     func createCustomList(named name: String) {
@@ -119,9 +161,13 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
             .deleteCustomList(named: customListName)
     }
 
+    /// Creates a unique name for a custom list
+    ///
+    /// The name will be used as an accessibility identifier
+    /// Those are lower case and case sensitive.
     func createCustomListName() -> String {
         let customListOriginalName = UUID().uuidString
         let index = customListOriginalName.index(customListOriginalName.startIndex, offsetBy: 30)
-        return String(customListOriginalName.prefix(upTo: index))
+        return String(customListOriginalName.prefix(upTo: index)).lowercased()
     }
 }

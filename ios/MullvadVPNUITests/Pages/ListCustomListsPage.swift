@@ -26,7 +26,7 @@ class ListCustomListsPage: Page {
         return self
     }
 
-    @discardableResult func finishEditingCustomLists() -> Self {
+    @discardableResult func tapDoneButton() -> Self {
         app.buttons[.listCustomListDoneButton].tap()
         return self
     }

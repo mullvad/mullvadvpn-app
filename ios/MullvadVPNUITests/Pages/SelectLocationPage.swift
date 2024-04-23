@@ -33,6 +33,17 @@ class SelectLocationPage: Page {
         return self
     }
 
+    @discardableResult func tapLocationCellCollapseButton(withName name: String) -> Self {
+        let table = app.tables[AccessibilityIdentifier.selectLocationTableView]
+        let matchingCells = table.cells.containing(.any, identifier: name)
+        let buttons = matchingCells.buttons
+        let collapseButton = buttons[AccessibilityIdentifier.collapseButton]
+
+        collapseButton.tap()
+
+        return self
+    }
+
     @discardableResult func closeSelectLocationPage() -> Self {
         let doneButton = app.buttons[.closeSelectLocationButton]
         doneButton.tap()
@@ -55,6 +66,10 @@ class SelectLocationPage: Page {
         let editCustomListsButton = app.buttons[AccessibilityIdentifier.editCustomListButton]
         editCustomListsButton.tap()
         return self
+    }
+
+    @discardableResult func cellWithIdentifier(identifier: String) -> XCUIElement {
+        app.tables[AccessibilityIdentifier.selectLocationTableView].cells[identifier]
     }
 
     func locationCellIsExpanded(_ name: String) -> Bool {

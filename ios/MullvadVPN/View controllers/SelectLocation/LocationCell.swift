@@ -140,7 +140,6 @@ class LocationCell: UITableViewCell {
         selectedBackgroundView?.backgroundColor = UIColor.Cell.Background.selected
 
         checkboxButton.addTarget(self, action: #selector(toggleCheckboxButton(_:)), for: .touchUpInside)
-//        checkboxButton.accessibilityIdentifier
         collapseButton.addTarget(self, action: #selector(handleCollapseButton(_:)), for: .touchUpInside)
 
         [locationLabel, tickImageView, statusIndicator, collapseButton].forEach { subview in
