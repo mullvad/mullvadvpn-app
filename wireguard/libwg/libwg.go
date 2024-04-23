@@ -10,8 +10,6 @@ package main
 // #include <stdlib.h>
 // #include "libwg.h"
 // #include "../../libmaybenot/libmaybenot.h"
-//
-// void wgOnMaybenotAction(void* tunnelHandle, MaybenotAction action);
 import "C"
 
 import (
@@ -70,7 +68,7 @@ func wgActivateDaita(machines *C.int8_t, tunnelHandle int32, eventsCapacity uint
 		&maybenot,
 	)
 
-	if maybenot == nil {
+	if maybenot_result != 0 {
 		tunnel.Logger.Errorf("Failed to initialize maybenot, code=%d", maybenot_result)
 		return false
 	}
@@ -174,6 +172,7 @@ func (self DaitaThingy) handleEvent(event device.Event) {
 	var actionsWritten C.uint64_t
 
 	// TODO: is it even sound to pass a slice reference like this?
+	// TODO: handle error
 	C.maybenot_on_event(self.maybenot, cEvent, &self.newActionsBuf[0], &actionsWritten)
 
 	// TODO: there is a small disparity here, between the time used by maybenot_on_event,
