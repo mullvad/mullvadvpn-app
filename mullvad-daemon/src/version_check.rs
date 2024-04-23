@@ -2,7 +2,6 @@ use crate::{version::is_beta_version, DaemonEventSender};
 use futures::{
     channel::{mpsc, oneshot},
     future::FusedFuture,
-    stream::FusedStream,
     FutureExt, SinkExt, StreamExt, TryFutureExt,
 };
 use mullvad_api::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle, AppVersionProxy};
@@ -101,7 +100,6 @@ pub(crate) struct VersionUpdater {
     last_app_version_info: Option<(AppVersionInfo, SystemTime)>,
     platform_version: String,
     show_beta_releases: bool,
-    rx: Option<mpsc::Receiver<VersionUpdaterCommand>>,
     availability_handle: ApiAvailabilityHandle,
 
     /// Oneshot channels for responding to [VersionUpdaterCommand::GetVersionInfo].
@@ -152,13 +150,13 @@ impl VersionUpdaterHandle {
 }
 
 impl VersionUpdater {
-    pub async fn new(
+    pub async fn spawn(
         mut api_handle: MullvadRestHandle,
         availability_handle: ApiAvailabilityHandle,
         cache_dir: PathBuf,
         update_sender: DaemonEventSender<AppVersionInfo>,
         show_beta_releases: bool,
-    ) -> (Self, VersionUpdaterHandle) {
+    ) -> VersionUpdaterHandle {
         // load the last known AppVersionInfo from cache
         let last_app_version_info = load_cache(&cache_dir).await;
 
@@ -168,7 +166,7 @@ impl VersionUpdater {
         let (tx, rx) = mpsc::channel(1);
         let platform_version = talpid_platform_metadata::short_version();
 
-        (
+        tokio::spawn(
             Self {
                 version_proxy,
                 cache_path,
@@ -176,12 +174,13 @@ impl VersionUpdater {
                 last_app_version_info,
                 platform_version,
                 show_beta_releases,
-                rx: Some(rx),
                 availability_handle,
                 get_version_info_responders: vec![],
-            },
-            VersionUpdaterHandle { tx },
-        )
+            }
+            .run(rx),
+        );
+
+        VersionUpdaterHandle { tx }
     }
 
     /// Get the last known [AppVersionInfo]. May be stale.
@@ -336,10 +335,7 @@ impl VersionUpdater {
     ///
     /// [rvc]: VersionUpdaterCommand::GetVersionInfo
     async fn update_version_info(&mut self, new_version_info: AppVersionInfo) {
-        // if daemon can't be reached, return immediately
-        if self.update_sender.send(new_version_info.clone()).is_err() {
-            return;
-        }
+        let _ = self.update_sender.send(new_version_info.clone());
 
         self.last_app_version_info = Some((new_version_info, SystemTime::now()));
         if let Err(err) = self.write_cache().await {
@@ -385,11 +381,7 @@ impl VersionUpdater {
         !self.get_version_info_responders.is_empty()
     }
 
-    pub async fn run(mut self) {
-        let mut rx = self.rx.take().unwrap();
-        let mut version_is_stale = self.wait_until_version_is_stale();
-        let mut version_check = futures::future::Fuse::terminated();
-
+    async fn run(mut self, mut rx: mpsc::Receiver<VersionUpdaterCommand>) {
         // If this is a dev build, there's no need to pester the API for version checks.
         if *IS_DEV_BUILD {
             log::warn!("Not checking for updates because this is a development build");
@@ -401,6 +393,9 @@ impl VersionUpdater {
             }
             return;
         }
+
+        let mut version_is_stale = self.wait_until_version_is_stale();
+        let mut version_check = futures::future::Fuse::terminated();
 
         loop {
             futures::select! {
@@ -429,9 +424,6 @@ impl VersionUpdater {
                     }
 
                     Some(VersionUpdaterCommand::GetVersionInfo(done_tx)) => {
-                        if self.update_sender.is_closed() {
-                            return;
-                        }
                         match (self.version_is_stale(), self.last_app_version_info()) {
                             (false, Some(version_info)) => {
                                 // if the version_info isn't stale, return it immediately.
@@ -450,14 +442,11 @@ impl VersionUpdater {
 
                     // time to shut down
                     None => {
-                        return;
+                        break;
                     }
                 },
 
                 _ = version_is_stale => {
-                    if rx.is_terminated() || self.update_sender.is_closed() {
-                        return;
-                    }
                     if self.is_running_version_check() {
                         continue;
                     }
@@ -465,10 +454,6 @@ impl VersionUpdater {
                 },
 
                 response = version_check => {
-                    if rx.is_terminated() || self.update_sender.is_closed() {
-                        return;
-                    }
-
                     match response {
                         Ok(version_info_response) => {
                             let new_version_info =
@@ -493,6 +478,22 @@ impl VersionUpdater {
             }
         }
     }
+}
+
+/// Read the app version cache from the provided directory.
+///
+/// Returns the [AppVersionInfo] along with the modification time of the cache file,
+/// or `None` on any error.
+async fn load_cache(cache_dir: &Path) -> Option<(AppVersionInfo, SystemTime)> {
+    try_load_cache(cache_dir)
+        .await
+        .inspect_err(|error| {
+            log::warn!(
+                "{}",
+                error.display_chain_with_msg("Unable to load cached version info")
+            )
+        })
+        .ok()
 }
 
 async fn try_load_cache(cache_dir: &Path) -> Result<(AppVersionInfo, SystemTime), Error> {
@@ -521,23 +522,6 @@ async fn try_load_cache(cache_dir: &Path) -> Result<(AppVersionInfo, SystemTime)
         Ok((version_info.version_info, mtime))
     } else {
         Err(Error::CacheVersionMismatch)
-    }
-}
-
-/// Read the app version cache from the provided directory.
-///
-/// Returns the [AppVersionInfo] along with the modification time of the cache file,
-/// or `None` on any error.
-async fn load_cache(cache_dir: &Path) -> Option<(AppVersionInfo, SystemTime)> {
-    match try_load_cache(cache_dir).await {
-        Ok(app_version_info) => Some(app_version_info),
-        Err(error) => {
-            log::warn!(
-                "{}",
-                error.display_chain_with_msg("Unable to load cached version info")
-            );
-            None
-        }
     }
 }
 
