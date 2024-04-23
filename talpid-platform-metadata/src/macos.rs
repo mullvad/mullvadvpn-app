@@ -125,13 +125,11 @@ fn test_version_order() {
         MacosVersion::from_raw_version("13.0.0").unwrap()
     );
 
-    assert!(
-        !(MacosVersion::from_raw_version("13.0").unwrap()
-            < MacosVersion::from_raw_version("13.0.0").unwrap())
-    );
-    assert!(
-        !(MacosVersion::from_raw_version("13.0").unwrap()
-            > MacosVersion::from_raw_version("13.0.0").unwrap())
+    assert_eq!(
+        MacosVersion::from_raw_version("13.0")
+            .unwrap()
+            .partial_cmp(&MacosVersion::from_raw_version("13.0.0").unwrap()),
+        Some(Ordering::Equal),
     );
 
     // test major version
