@@ -10,6 +10,11 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
+[features]
+# This feature should only be enabled for testing (in dev-dependencies). When enabled, timers will
+# use the standard tokio `Instant`, making it possible to advance/pause timers as expected in tests.
+test = []
+
 [dependencies]
 tokio = { workspace = true, features = ["time"] }
 libc = "0.2"

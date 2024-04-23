@@ -45,6 +45,10 @@ log-panics = "2.0.0"
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 mullvad-paths = { path = "../mullvad-paths" }
 
+[dev-dependencies]
+talpid-time = { path = "../talpid-time", features = ["test"] }
+tokio = { workspace = true, features =  ["test-util"] }
+
 [target.'cfg(target_os="android")'.dependencies]
 android_logger = "0.8"
 
