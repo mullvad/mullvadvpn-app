@@ -163,7 +163,7 @@ jobs:
       - name: Checkout submodules
         run: git submodule update --init --depth=1
       - name: Install Protoc
-        uses: arduino/setup-protoc@v1
+        uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v3
@@ -239,7 +239,7 @@ jobs:
         with:
           go-version: 1.21.3
       - name: Install Protoc
-        uses: arduino/setup-protoc@v2
+        uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v3
