@@ -1,5 +1,5 @@
 //
-//  PostQuantumKeyNegotiatior.swift
+//  PostQuantumKeyNegotiator.swift
 //  PacketTunnel
 //
 //  Created by Marco Nikic on 2024-02-16.
@@ -11,7 +11,7 @@ import NetworkExtension
 import TalpidTunnelConfigClientProxy
 import WireGuardKitTypes
 
-public class PostQuantumKeyNegotiatior {
+public class PostQuantumKeyNegotiator {
     public init() {}
 
     var cancelToken: PostQuantumCancelToken?

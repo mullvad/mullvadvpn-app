@@ -15,7 +15,7 @@ typealias InTunnelTCPConnectionCreator = (NWHostEndpoint) -> NWTCPConnection
 actor PostQuantumKeyExchangeActor {
     let createNetworkConnection: InTunnelTCPConnectionCreator
     unowned let packetTunnel: PacketTunnelProvider
-    private var quantumKeyNegotiatior: PostQuantumKeyNegotiatior!
+    private var quantumKeyNegotiatior: PostQuantumKeyNegotiator!
     private var inTunnelTCPConnection: NWTCPConnection!
     private var tcpConnectionObserver: NSKeyValueObservation!
 
