@@ -214,11 +214,8 @@ impl VersionUpdaterInner {
         }
     }
 
-    /// Update [Self::last_app_version_info] and write it to disk cache.
-    ///
-    /// Also, if we are currently have a pending [GetVersionInfo][rvc] command, respond to it.
-    ///
-    /// [rvc]: VersionUpdaterCommand::GetVersionInfo
+    /// Update [Self::last_app_version_info] and write it to disk cache, and notify the `update`
+    /// callback.
     async fn update_version_info(
         &mut self,
         update: &impl Fn(AppVersionInfo) -> BoxFuture<'static, Result<(), Error>>,
@@ -397,8 +394,8 @@ struct UpdateContext {
 }
 
 impl UpdateContext {
-    /// Write [Self::last_app_version_info], if any, to the cache file ([VERSION_INFO_FILENAME]).
-    /// Also notify listener
+    /// Write [VersionUpdaterInner::last_app_version_info], if any, to the cache file
+    /// ([VERSION_INFO_FILENAME]). Also, notify `self.update_sender`
     fn update(&self, last_app_version: AppVersionInfo) -> impl Future<Output = Result<(), Error>> {
         let _ = self.update_sender.send(last_app_version.clone());
         let cache_path = self.cache_path.clone();
