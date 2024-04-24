@@ -53,16 +53,6 @@ class AddLocationsDataSource:
         reloadWithSelectedLocations()
     }
 
-    // Called from `LocationDiffableDataSourceProtocol`.
-    func nodeShowsChildren(_ node: LocationNode) -> Bool {
-        isLocationInCustomList(node: node)
-    }
-
-    // Called from `LocationDiffableDataSourceProtocol`.
-    func nodeShouldBeSelected(_ node: LocationNode) -> Bool {
-        customListLocationNode.children.contains(node)
-    }
-
     private func reloadWithSelectedLocations() {
         var locationsList: [LocationCellViewModel] = []
         nodes.forEach { node in
@@ -158,6 +148,22 @@ extension AddLocationsDataSource: LocationCellDelegate {
             }
             self.subject.value.locations = locations
         })
+    }
+}
+
+// MARK: - Called from LocationDiffableDataSourceProtocol
+
+extension AddLocationsDataSource {
+    func nodeShowsChildren(_ node: LocationNode) -> Bool {
+        isLocationInCustomList(node: node)
+    }
+
+    func nodeShouldBeSelected(_ node: LocationNode) -> Bool {
+        customListLocationNode.children.contains(node)
+    }
+
+    func excludedRelayTitle(_ node: LocationNode) -> String? {
+        nil // N/A
     }
 }
 

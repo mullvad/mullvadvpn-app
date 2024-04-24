@@ -72,7 +72,7 @@ class LocationCell: UITableViewCell {
 
     var isDisabled = false {
         didSet {
-            updateDisabled()
+            updateDisabled(isDisabled)
             updateBackgroundColor()
             updateStatusIndicatorColor()
         }
@@ -150,7 +150,7 @@ class LocationCell: UITableViewCell {
 
         updateCollapseImage()
         updateAccessibilityCustomActions()
-        updateDisabled()
+        updateDisabled(isDisabled)
         updateBackgroundColor()
         setLayoutMargins()
 
@@ -207,7 +207,7 @@ class LocationCell: UITableViewCell {
         statusIndicator.backgroundColor = statusIndicatorColor()
     }
 
-    private func updateDisabled() {
+    private func updateDisabled(_ isDisabled: Bool) {
         locationLabel.alpha = isDisabled ? 0.2 : 1
         collapseButton.alpha = isDisabled ? 0.2 : 1
 
@@ -339,7 +339,15 @@ extension LocationCell {
             }
         }
 
+        setExcludedRelayTitle(item.excludedRelayTitle)
         setBehavior(behavior)
+    }
+
+    private func setExcludedRelayTitle(_ title: String?) {
+        if let title {
+            locationLabel.text! += " (\(title))"
+            updateDisabled(true)
+        }
     }
 
     private func setBehavior(_ newBehavior: LocationCellBehavior) {

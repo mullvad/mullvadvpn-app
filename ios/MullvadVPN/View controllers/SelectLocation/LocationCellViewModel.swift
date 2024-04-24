@@ -13,26 +13,29 @@ struct LocationCellViewModel: Hashable {
     let node: LocationNode
     var indentationLevel = 0
     var isSelected = false
+    var excludedRelayTitle: String?
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(node)
         hasher.combine(node.children.count)
         hasher.combine(section)
         hasher.combine(isSelected)
-        hasher.combine(indentationLevel)
     }
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.node == rhs.node &&
             lhs.node.children.count == rhs.node.children.count &&
             lhs.section == rhs.section &&
-            lhs.isSelected == rhs.isSelected &&
-            lhs.indentationLevel == rhs.indentationLevel
+            lhs.isSelected == rhs.isSelected
     }
 }
 
 extension [LocationCellViewModel] {
-    mutating func addSubNodes(from item: LocationCellViewModel, at indexPath: IndexPath) {
+    mutating func addSubNodes(
+        from item: LocationCellViewModel,
+        at indexPath: IndexPath,
+        excludedRelayTitleCallback: ((LocationNode) -> String?)?
+    ) {
         let section = LocationSection.allCases[indexPath.section]
         let row = indexPath.row + 1
 
@@ -41,7 +44,8 @@ extension [LocationCellViewModel] {
                 section: section,
                 node: $0,
                 indentationLevel: item.indentationLevel + 1,
-                isSelected: item.isSelected
+                isSelected: false,
+                excludedRelayTitle: excludedRelayTitleCallback?($0)
             )
         }
 

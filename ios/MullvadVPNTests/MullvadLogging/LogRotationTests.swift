@@ -11,11 +11,13 @@ import XCTest
 
 final class LogRotationTests: XCTestCase {
     let fileManager = FileManager.default
-    let directoryPath = FileManager.default.temporaryDirectory
-        .appendingPathComponent("LogRotationTests", isDirectory: true)
+    var directoryPath: URL!
 
     override func setUpWithError() throws {
-        try? fileManager.createDirectory(
+        directoryPath = FileManager.default.temporaryDirectory
+            .appendingPathComponent("LogRotationTests", isDirectory: true)
+
+        try fileManager.createDirectory(
             at: directoryPath,
             withIntermediateDirectories: true
         )
