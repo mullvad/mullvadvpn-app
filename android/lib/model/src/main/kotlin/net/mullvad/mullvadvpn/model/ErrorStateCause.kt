@@ -1,16 +1,18 @@
-package net.mullvad.talpid.tunnel
+package net.mullvad.mullvadvpn.model
 
 import android.os.Parcelable
 import java.net.InetAddress
 import kotlinx.parcelize.Parcelize
-
-private const val AUTH_FAILED_REASON_EXPIRED_ACCOUNT = "[EXPIRED_ACCOUNT]"
 
 sealed class ErrorStateCause : Parcelable {
     @Parcelize
     class AuthFailed(private val reason: String?) : ErrorStateCause() {
         fun isCausedByExpiredAccount(): Boolean {
             return reason == AUTH_FAILED_REASON_EXPIRED_ACCOUNT
+        }
+
+        companion object {
+            private const val AUTH_FAILED_REASON_EXPIRED_ACCOUNT = "[EXPIRED_ACCOUNT]"
         }
     }
 

@@ -10,6 +10,7 @@ import mullvad_daemon.management_interface.ManagementInterface
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.AccountId
 import net.mullvad.mullvadvpn.model.AccountToken
+import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.AppId
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.model.Constraint
@@ -23,11 +24,18 @@ import net.mullvad.mullvadvpn.model.DeviceId
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.DnsState
+import net.mullvad.mullvadvpn.model.Endpoint
+import net.mullvad.mullvadvpn.model.ErrorState
+import net.mullvad.mullvadvpn.model.ErrorStateCause
+import net.mullvad.mullvadvpn.model.FirewallPolicyError
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.Mtu
+import net.mullvad.mullvadvpn.model.ObfuscationEndpoint
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
+import net.mullvad.mullvadvpn.model.ObfuscationType
 import net.mullvad.mullvadvpn.model.Ownership
+import net.mullvad.mullvadvpn.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.Provider
@@ -46,22 +54,14 @@ import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.SplitTunnelSettings
+import net.mullvad.mullvadvpn.model.TransportProtocol
+import net.mullvad.mullvadvpn.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.model.TunnelOptions
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.model.WireguardEndpointData
 import net.mullvad.mullvadvpn.model.WireguardTunnelOptions
-import net.mullvad.talpid.net.Endpoint
-import net.mullvad.talpid.net.ObfuscationEndpoint
-import net.mullvad.talpid.net.ObfuscationType
-import net.mullvad.talpid.net.TransportProtocol
-import net.mullvad.talpid.net.TunnelEndpoint
-import net.mullvad.talpid.tunnel.ActionAfterDisconnect
-import net.mullvad.talpid.tunnel.ErrorState
-import net.mullvad.talpid.tunnel.ErrorStateCause
-import net.mullvad.talpid.tunnel.FirewallPolicyError
-import net.mullvad.talpid.tunnel.ParameterGenerationError
 import org.joda.time.Instant
 
 internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =

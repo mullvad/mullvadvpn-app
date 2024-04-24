@@ -25,6 +25,8 @@ android {
 }
 
 dependencies {
+    implementation(project(Dependencies.Mullvad.modelLib))
+
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
     implementation(Dependencies.AndroidX.lifecycleService)

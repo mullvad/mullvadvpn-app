@@ -9,33 +9,45 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
+import arrow.atomic.AtomicInt
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Semaphore
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
+import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
+import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.di.apiEndpointModule
 import net.mullvad.mullvadvpn.service.di.vpnServiceModule
 import net.mullvad.mullvadvpn.service.notifications.AccountExpiryNotification
+import net.mullvad.mullvadvpn.service.notifications.NotificationHandler
+import net.mullvad.mullvadvpn.service.notifications.ShouldBeOnForegroundProvider
 import net.mullvad.talpid.TalpidVpnService
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
 
-class MullvadVpnService : TalpidVpnService() {
+class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
+    private val _shouldBeOnForeground = MutableStateFlow(false)
+    override val shouldBeOnForeground: StateFlow<Boolean> = _shouldBeOnForeground
 
     private lateinit var accountExpiryNotification: AccountExpiryNotification
     private lateinit var keyguardManager: KeyguardManager
-    private lateinit var notificationManager: ForegroundNotificationManager
     private lateinit var daemonInstance: MullvadDaemon
 
     private lateinit var apiEndpointConfiguration: ApiEndpointConfiguration
     private lateinit var managementService: ManagementService
 
+    private lateinit var notificationHandler: NotificationHandler
+
+    private val bindCount = AtomicInt()
     // Suppressing since the tunnel state pref should be writted immediately.
     @SuppressLint("ApplySharedPref")
     override fun onCreate() {
@@ -43,10 +55,15 @@ class MullvadVpnService : TalpidVpnService() {
         Log.d(TAG, "onCreate")
 
         loadKoinModules(listOf(vpnServiceModule, apiEndpointModule))
-        with(getKoin()) { managementService = get() }
+        with(getKoin()) {
+            managementService = get()
+
+            notificationHandler =
+                NotificationHandler(this@MullvadVpnService, get(), get(), lifecycleScope)
+        }
 
         lifecycleScope.launch { managementService.start() }
-        notificationManager = ForegroundNotificationManager(this)
+        lifecycleScope.launch { notificationHandler.start(this@MullvadVpnService) }
 
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
@@ -94,18 +111,17 @@ class MullvadVpnService : TalpidVpnService() {
 
         // Always promote to foreground if connect/disconnect actions are provided to mitigate cases
         // where the service would potentially otherwise be too slow running `startForeground`.
-        if (intent?.action == KEY_CONNECT_ACTION || intent?.action == KEY_DISCONNECT_ACTION) {
-            notificationManager.showOnForeground()
-        }
-
-        // notificationManager.updateNotification()
-
-        // Service was started from system, e.g Always-on VPN enabled
-        if (intent?.action == SERVICE_INTERFACE || intent?.action == KEY_CONNECT_ACTION) {
-            notificationManager.showOnForeground()
-            runBlocking { managementService.connect() }
-        } else {
-            runBlocking { managementService.disconnect() }
+        Log.d(TAG, "Intent Action: ${intent?.action}")
+        when (intent?.action) {
+            KEY_CONNECT_ACTION -> {
+                _shouldBeOnForeground.update { true }
+                runBlocking { managementService.connect() }
+            }
+            KEY_DISCONNECT_ACTION -> {
+                _shouldBeOnForeground.update { true }
+                runBlocking { managementService.disconnect() }
+                _shouldBeOnForeground.update { false }
+            }
         }
 
         //        if (!keyguardManager.isDeviceLocked) {
@@ -122,11 +138,12 @@ class MullvadVpnService : TalpidVpnService() {
         return startResult
     }
 
-    val sa = Semaphore(10)
-
     override fun onBind(intent: Intent?): IBinder {
-        Log.d(TAG, "onBind $intent")
-        runBlocking { sa.acquire() }
+        bindCount.incrementAndGet()
+        if (intent.isFromSystem()) {
+            Log.d(TAG, "onBind from VPN_SERVICE_CLASS")
+            _shouldBeOnForeground.update { true }
+        }
         return super.onBind(intent)
             ?: if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 Binder(this.toString())
@@ -142,17 +159,27 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     override fun onUnbind(intent: Intent): Boolean {
-        sa.release()
+        val bindCount = bindCount.decrementAndGet()
 
         Log.d(TAG, "onUnbind1 $intent")
         // Foreground?
+
+        if (intent.isFromSystem()) {
+            Log.d(TAG, "onUnbind from VPN_SERVICE_CLASS")
+            _shouldBeOnForeground.update { false }
+        }
+
         val currentTunnelState = runBlocking { managementService.tunnelState.first() }
         Log.d(TAG, "onUnbind currentTunnelState: $currentTunnelState")
 
-        if (sa.availablePermits == 10) {
-            Log.d(TAG, "onUnbind stopSelf()")
-            stopSelf()
+        if (bindCount == 0) {
+            Log.d(TAG, "No one bound to the service, stopSelf()")
+            lifecycleScope.launch {
+                managementService.tunnelState.filterIsInstance<TunnelState.Disconnected>().first()
+                stopSelf()
+            }
         }
+
         //        val shouldKill =
         //            if (intent.action == VPN_SERVICE_CLASS) {
         //                Log.d(TAG, "onUnbind from VPN_SERVICE_CLASS")
@@ -182,5 +209,9 @@ class MullvadVpnService : TalpidVpnService() {
         init {
             System.loadLibrary("mullvad_jni")
         }
+    }
+
+    private fun Intent?.isFromSystem(): Boolean {
+        return this?.action == VPN_SERVICE_CLASS
     }
 }

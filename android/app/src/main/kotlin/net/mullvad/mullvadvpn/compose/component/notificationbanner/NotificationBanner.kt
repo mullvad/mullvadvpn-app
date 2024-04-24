@@ -32,12 +32,12 @@ import net.mullvad.mullvadvpn.compose.util.rememberPrevious
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
+import net.mullvad.mullvadvpn.model.ErrorState
+import net.mullvad.mullvadvpn.model.ErrorStateCause
+import net.mullvad.mullvadvpn.model.FirewallPolicyError
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.notification.StatusLevel
-import net.mullvad.talpid.tunnel.ErrorState
-import net.mullvad.talpid.tunnel.ErrorStateCause
-import net.mullvad.talpid.tunnel.FirewallPolicyError
 import org.joda.time.DateTime
 
 @Preview
