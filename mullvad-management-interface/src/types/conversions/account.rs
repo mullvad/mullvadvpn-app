@@ -1,5 +1,5 @@
 use crate::types;
-use chrono::TimeZone;
+use chrono::DateTime;
 use mullvad_types::account::{AccountData, VoucherSubmission};
 
 use super::FromProtobufTypeError;
@@ -23,12 +23,12 @@ impl TryFrom<types::VoucherSubmission> for VoucherSubmission {
         let new_expiry = submission
             .new_expiry
             .ok_or(FromProtobufTypeError::InvalidArgument("missing expiry"))?;
-        let ndt =
-            chrono::NaiveDateTime::from_timestamp_opt(new_expiry.seconds, new_expiry.nanos as u32)
-                .unwrap();
+
+        let new_expiry = DateTime::from_timestamp(new_expiry.seconds, new_expiry.nanos as u32)
+            .ok_or(FromProtobufTypeError::InvalidArgument("invalid timestamp"))?;
 
         Ok(VoucherSubmission {
-            new_expiry: chrono::Utc.from_utc_datetime(&ndt),
+            new_expiry,
             time_added: submission.seconds_added,
         })
     }
@@ -53,12 +53,13 @@ impl TryFrom<types::AccountData> for AccountData {
         let expiry = data
             .expiry
             .ok_or(FromProtobufTypeError::InvalidArgument("missing expiry"))?;
-        let ndt =
-            chrono::NaiveDateTime::from_timestamp_opt(expiry.seconds, expiry.nanos as u32).unwrap();
+
+        let expiry = DateTime::from_timestamp(expiry.seconds, expiry.nanos as u32)
+            .ok_or(FromProtobufTypeError::InvalidArgument("invalid timestamp"))?;
 
         Ok(AccountData {
             id: data.id,
-            expiry: chrono::Utc.from_utc_datetime(&ndt),
+            expiry,
         })
     }
 }

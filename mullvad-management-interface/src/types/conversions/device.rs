@@ -1,28 +1,27 @@
 use crate::types::{conversions::bytes_to_pubkey, proto, FromProtobufTypeError};
-use chrono::TimeZone;
+use chrono::DateTime;
 use prost_types::Timestamp;
 
 impl TryFrom<proto::Device> for mullvad_types::device::Device {
     type Error = FromProtobufTypeError;
 
     fn try_from(device: proto::Device) -> Result<Self, Self::Error> {
+        let created_seconds = device
+            .created
+            .ok_or(FromProtobufTypeError::InvalidArgument(
+                "missing 'created' field",
+            ))?
+            .seconds;
+
+        let created = DateTime::from_timestamp(created_seconds, 0)
+            .ok_or(FromProtobufTypeError::InvalidArgument("invalid timestamp"))?;
+
         Ok(mullvad_types::device::Device {
             id: device.id,
             name: device.name,
             pubkey: bytes_to_pubkey(&device.pubkey)?,
             hijack_dns: device.hijack_dns,
-            created: chrono::Utc.from_utc_datetime(
-                &chrono::NaiveDateTime::from_timestamp_opt(
-                    device
-                        .created
-                        .ok_or(FromProtobufTypeError::InvalidArgument(
-                            "missing 'created' field",
-                        ))?
-                        .seconds,
-                    0,
-                )
-                .unwrap(),
-            ),
+            created,
         })
     }
 }
