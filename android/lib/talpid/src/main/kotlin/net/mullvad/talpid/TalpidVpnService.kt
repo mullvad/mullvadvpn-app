@@ -128,11 +128,7 @@ open class TalpidVpnService : LifecycleVpnService() {
                     addRoute(route.address, route.prefixLength.toInt())
                 }
 
-                disallowedApps?.let { apps ->
-                    for (app in apps) {
-                        addDisallowedApplication(app)
-                    }
-                }
+                config.excludedPackages.forEach { app -> addDisallowedApplication(app) }
                 setMtu(config.mtu)
                 setBlocking(false)
                 setMeteredIfSupported(false)
