@@ -1,6 +1,6 @@
 use super::FromProtobufTypeError;
 use crate::types::proto;
-use chrono::TimeZone;
+use chrono::DateTime;
 use prost_types::Timestamp;
 
 impl From<mullvad_types::wireguard::PublicKey> for proto::PublicKey {
@@ -24,13 +24,14 @@ impl TryFrom<proto::PublicKey> for mullvad_types::wireguard::PublicKey {
             .ok_or(FromProtobufTypeError::InvalidArgument(
                 "missing 'created' timestamp",
             ))?;
-        let ndt = chrono::NaiveDateTime::from_timestamp_opt(created.seconds, created.nanos as u32)
-            .unwrap();
+
+        let created = DateTime::from_timestamp(created.seconds, created.nanos as u32)
+            .ok_or(FromProtobufTypeError::InvalidArgument("invalid timestamp"))?;
 
         Ok(mullvad_types::wireguard::PublicKey {
             key: talpid_types::net::wireguard::PublicKey::try_from(public_key.key.as_slice())
                 .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid wireguard key"))?,
-            created: chrono::Utc.from_utc_datetime(&ndt),
+            created,
         })
     }
 }
