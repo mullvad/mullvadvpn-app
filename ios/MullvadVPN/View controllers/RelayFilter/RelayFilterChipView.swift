@@ -11,6 +11,7 @@ import UIKit
 class RelayFilterChipView: UIView {
     private let titleLabel: UILabel = {
         let label = UILabel()
+        label.accessibilityIdentifier = .relayFilterChipLabel
         label.font = UIFont.preferredFont(forTextStyle: .caption1)
         label.adjustsFontForContentSizeCategory = true
         label.textColor = .white
@@ -22,11 +23,14 @@ class RelayFilterChipView: UIView {
     init() {
         super.init(frame: .zero)
 
+        self.accessibilityIdentifier = .relayFilterChipView
+
         let closeButton = IncreasedHitButton()
         closeButton.setImage(
             UIImage(named: "IconCloseSml")?.withTintColor(.white.withAlphaComponent(0.6)),
             for: .normal
         )
+        closeButton.accessibilityIdentifier = .relayFilterChipCloseButton
         closeButton.addTarget(self, action: #selector(didTapButton(_:)), for: .touchUpInside)
 
         let container = UIStackView(arrangedSubviews: [titleLabel, closeButton])
