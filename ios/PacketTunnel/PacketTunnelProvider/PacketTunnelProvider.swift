@@ -352,7 +352,7 @@ extension PacketTunnelProvider: PostQuantumKeyReceiving {
 
         actor.replacePreSharedKey(key, ephemeralKey: ephemeralKey)
     }
-    
+
     func keyExchangeFailed() {
         postQuantumActor.acknowledgeNegotiationConcluded()
         actor.reconnect(to: .current)
