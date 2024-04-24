@@ -5,24 +5,24 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
+import net.mullvad.mullvadvpn.repository.MigrateSplitTunnelingRepository
 
 class MigrateSplitTunnelingErrorViewModel(
-    private val splitTunnelingRepository: SplitTunnelingRepository
+    private val migrateSplitTunnelingRepository: MigrateSplitTunnelingRepository
 ) : ViewModel() {
     private val _uiSideEffect = Channel<MigrateSplitTunnelingErrorUiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     fun clearOldSettings() {
         viewModelScope.launch {
-            splitTunnelingRepository.clearOldSettings()
+            migrateSplitTunnelingRepository.clearOldSettings()
             _uiSideEffect.send(MigrateSplitTunnelingErrorUiSideEffect.CloseScreen)
         }
     }
 
-    fun tryAgainLater() {
+    fun tryAgain() {
         viewModelScope.launch {
-            splitTunnelingRepository.resetShouldTryMigrateSplitTunneling()
+            migrateSplitTunnelingRepository.migrateSplitTunneling()
             _uiSideEffect.send(MigrateSplitTunnelingErrorUiSideEffect.CloseScreen)
         }
     }

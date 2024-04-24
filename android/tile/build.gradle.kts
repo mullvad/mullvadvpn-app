@@ -31,6 +31,9 @@ dependencies {
     implementation(project(Dependencies.Mullvad.talpidLib))
     implementation(project(Dependencies.Mullvad.daemonGrpc))
 
+    implementation(Dependencies.Koin.core)
+    implementation(Dependencies.Koin.android)
+
     implementation(Dependencies.AndroidX.appcompat)
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
