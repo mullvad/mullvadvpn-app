@@ -13,6 +13,7 @@ import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.navigation.popBackStack
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.destination
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.compose.NavGraphs
@@ -22,7 +23,8 @@ import net.mullvad.mullvadvpn.compose.destinations.MigrateSplitTunnelingErrorDes
 import net.mullvad.mullvadvpn.compose.destinations.NoDaemonScreenDestination
 import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
-import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
+import net.mullvad.mullvadvpn.repository.MigrateSplitTunnelingRepository
+import net.mullvad.mullvadvpn.repository.MigrateSplitTunnelingState
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.DaemonScreenEvent
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
@@ -73,8 +75,12 @@ fun MullvadApp() {
     }
 
     // Show if we get any migrate split tunneling errors
-    val splitTunnelingRepository: SplitTunnelingRepository = getKoin().get()
-    LaunchedEffectCollect(splitTunnelingRepository.migrateSplitTunnelingErrors) {
+    val migrateSplitTunnelingRepository: MigrateSplitTunnelingRepository = getKoin().get()
+    LaunchedEffectCollect(
+        migrateSplitTunnelingRepository.migrationState.filter {
+            it is MigrateSplitTunnelingState.Failure
+        }
+    ) {
 
         // Wait until we are in an acceptable destination
         navController.currentBackStackEntryFlow

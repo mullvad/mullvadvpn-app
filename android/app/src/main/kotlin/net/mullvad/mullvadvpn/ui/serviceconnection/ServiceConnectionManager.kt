@@ -77,7 +77,11 @@ class ServiceConnectionManager(private val context: Context) {
     }
 
     fun onDestroy() {
-        unbind()
+        try {
+            unbind()
+        } catch (e: java.lang.IllegalStateException) {
+            Log.e("ServiceConnectionManager", "We are already unbound")
+        }
     }
 
     //    fun onVpnPermissionResult(isGranted: Boolean) {
