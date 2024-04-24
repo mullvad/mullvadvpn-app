@@ -1,4 +1,4 @@
-package net.mullvad.talpid.net
+package net.mullvad.mullvadvpn.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

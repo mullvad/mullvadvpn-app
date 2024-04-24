@@ -173,7 +173,7 @@ pub struct TunnelTypeParseError;
 /// machine.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct TunnelEndpoint {
     #[serde(flatten)]
     pub endpoint: Endpoint,
@@ -220,7 +220,7 @@ impl fmt::Display for TunnelEndpoint {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename = "obfuscation_type")]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum ObfuscationType {
     #[serde(rename = "udp2tcp")]
     Udp2Tcp,
@@ -237,7 +237,7 @@ impl fmt::Display for ObfuscationType {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename = "obfuscation_endpoint")]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct ObfuscationEndpoint {
     pub endpoint: Endpoint,
     pub obfuscation_type: ObfuscationType,
@@ -271,7 +271,7 @@ impl fmt::Display for ObfuscationEndpoint {
 /// Represents a network layer IP address together with the transport layer protocol and port.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct Endpoint {
     /// The socket address for the endpoint
     pub address: SocketAddr,
@@ -470,7 +470,7 @@ pub struct IpVersionParseError;
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum TransportProtocol {
     /// Represents the UDP transport protocol.
     Udp,

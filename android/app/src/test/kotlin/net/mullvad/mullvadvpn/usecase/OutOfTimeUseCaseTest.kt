@@ -20,10 +20,10 @@ import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
 import net.mullvad.mullvadvpn.lib.ipc.events
 import net.mullvad.mullvadvpn.model.AccountData
+import net.mullvad.mullvadvpn.model.ErrorState
+import net.mullvad.mullvadvpn.model.ErrorStateCause
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
-import net.mullvad.talpid.tunnel.ErrorState
-import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

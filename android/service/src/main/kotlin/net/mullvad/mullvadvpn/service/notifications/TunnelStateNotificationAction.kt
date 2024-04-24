@@ -1,59 +1,92 @@
 package net.mullvad.mullvadvpn.service.notifications
 
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import androidx.core.app.NotificationCompat
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
-import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
+import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
+import net.mullvad.mullvadvpn.model.ChannelId
+import net.mullvad.mullvadvpn.model.Notification
+import net.mullvad.mullvadvpn.model.NotificationAction
+import net.mullvad.mullvadvpn.model.NotificationTunnelState
 import net.mullvad.mullvadvpn.service.R
-import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
-enum class TunnelStateNotificationAction {
-    Connect,
-    Disconnect,
-    Cancel,
-    Dismiss;
+internal fun Notification.Tunnel.toNotification(context: Context, channelId: ChannelId) =
+    NotificationCompat.Builder(context, channelId.value)
+        .setContentIntent(contentIntent(context))
+        .setContentTitle(context.getString(state.contentTitleResourceId()))
+        .setSmallIcon(R.drawable.small_logo_white)
+        .apply { actions.forEach { addAction(it.toCompatAction(context)) } }
+        .setOngoing(ongoing)
+        .setVisibility(NotificationCompat.VISIBILITY_SECRET)
+        .build()
 
-    val text
-        get() =
-            when (this) {
-                Connect -> R.string.connect
-                Disconnect -> R.string.disconnect
-                Cancel -> R.string.cancel
-                Dismiss -> R.string.dismiss
-            }
+private fun Notification.Tunnel.contentIntent(context: Context): PendingIntent {
+    val intent =
+        Intent().apply {
+            setClassName(context.packageName, MAIN_ACTIVITY_CLASS)
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            action = Intent.ACTION_MAIN
+        }
 
-    val key
-        get() =
-            when (this) {
-                Connect -> KEY_CONNECT_ACTION
-                else -> KEY_DISCONNECT_ACTION
-            }
-
-    val icon
-        get() =
-            when (this) {
-                Connect -> R.drawable.icon_notification_connect
-                else -> R.drawable.icon_notification_disconnect
-            }
-
-    companion object {
-        fun from(tunnelState: TunnelState) =
-            when (tunnelState) {
-                is TunnelState.Disconnected -> Connect
-                is TunnelState.Connecting -> Cancel
-                is TunnelState.Connected -> Disconnect
-                is TunnelState.Disconnecting -> {
-                    when (tunnelState.actionAfterDisconnect) {
-                        ActionAfterDisconnect.Reconnect -> Cancel
-                        else -> Connect
-                    }
-                }
-                is TunnelState.Error -> {
-                    if (tunnelState.errorState.isBlocking) {
-                        Disconnect
-                    } else {
-                        Dismiss
-                    }
-                }
-            }
-    }
+    return PendingIntent.getActivity(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())
 }
+
+private fun NotificationTunnelState.contentTitleResourceId(): Int =
+    when (this) {
+        NotificationTunnelState.Connected -> R.string.secured
+        NotificationTunnelState.Connecting -> R.string.connecting
+        NotificationTunnelState.Disconnected -> R.string.unsecured
+        NotificationTunnelState.Disconnecting -> R.string.disconnecting
+        NotificationTunnelState.Error.Blocking -> TODO()
+        is NotificationTunnelState.Error.Critical -> TODO()
+        NotificationTunnelState.Error.DeviceOffline -> R.string.blocking_internet_device_offline
+        is NotificationTunnelState.Error.InvalidDnsServers -> TODO()
+        NotificationTunnelState.Error.VpnPermissionDenied ->
+            R.string.vpn_permission_error_notification_title
+        NotificationTunnelState.Reconnecting -> R.string.reconnecting
+    }
+
+internal fun NotificationAction.Tunnel.toCompatAction(context: Context): NotificationCompat.Action {
+
+    val intent = Intent(toKey()).setPackage(context.packageName)
+
+    val pendingIntent =
+        PendingIntent.getForegroundService(
+            context,
+            1,
+            intent,
+            SdkUtils.getSupportedPendingIntentFlags()
+        )
+
+    return NotificationCompat.Action(
+        toIconResource(),
+        context.getString(titleResource()),
+        pendingIntent
+    )
+}
+
+fun NotificationAction.Tunnel.titleResource() =
+    when (this) {
+        NotificationAction.Tunnel.Cancel -> R.string.cancel
+        NotificationAction.Tunnel.Connect -> R.string.connect
+        NotificationAction.Tunnel.Disconnect -> R.string.disconnect
+        NotificationAction.Tunnel.Dismiss -> R.string.dismiss
+    }
+
+fun NotificationAction.Tunnel.toKey() =
+    when (this) {
+        NotificationAction.Tunnel.Connect -> KEY_CONNECT_ACTION
+        NotificationAction.Tunnel.Cancel,
+        NotificationAction.Tunnel.Disconnect,
+        NotificationAction.Tunnel.Dismiss -> KEY_DISCONNECT_ACTION
+    }
+
+fun NotificationAction.Tunnel.toIconResource() =
+    when (this) {
+        NotificationAction.Tunnel.Connect -> R.drawable.icon_notification_connect
+        else -> R.drawable.icon_notification_disconnect
+    }

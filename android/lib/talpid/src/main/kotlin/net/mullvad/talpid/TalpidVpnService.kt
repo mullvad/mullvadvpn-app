@@ -7,7 +7,7 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 import kotlin.properties.Delegates.observable
-import net.mullvad.talpid.tun_provider.TunConfig
+import net.mullvad.mullvadvpn.model.TunConfig
 import net.mullvad.talpid.util.TalpidSdkUtils.setMeteredIfSupported
 
 open class TalpidVpnService : LifecycleVpnService() {

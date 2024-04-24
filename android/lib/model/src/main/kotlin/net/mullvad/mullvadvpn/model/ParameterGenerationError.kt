@@ -1,4 +1,4 @@
-package net.mullvad.talpid.tunnel
+package net.mullvad.mullvadvpn.model
 
 enum class ParameterGenerationError {
     NoMatchingRelay,
