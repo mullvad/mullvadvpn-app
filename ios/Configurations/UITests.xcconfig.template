@@ -6,10 +6,12 @@ IOS_DEVICE_PIN_CODE =
 // UUID to identify test runs. Should be unique per test device. Generate with for example uuidgen on macOS.
 TEST_DEVICE_IDENTIFIER_UUID = 
 
+// Base64 encoded token for the partner API. Will only be used if account numbers are not configured.
+PARTNER_API_TOKEN = 
+
 // Mullvad accounts used by UI tests
 HAS_TIME_ACCOUNT_NUMBER[config=Debug] = 
 HAS_TIME_ACCOUNT_NUMBER[config=Staging] = 
-FIVE_WIREGUARD_KEYS_ACCOUNT_NUMBER = 
 
 // Ad serving domain used when testing ad blocking. Note that we are assuming there's an HTTP server running on the host.
 AD_SERVING_DOMAIN = vpnlist.to
@@ -19,3 +21,9 @@ SHOULD_BE_REACHABLE_DOMAIN = mullvad.net
  
 // Base URL for the firewall API, Note that // will be treated as a comment, therefor you need to insert a ${} between the slashes for example http:/${}/8.8.8.8
 FIREWALL_API_BASE_URL = http:/${}/8.8.8.8
+
+// URL for Mullvad provided JSON data with information about the connection. https://am.i.mullvad.net/json for production, https://am.i.stagemole.eu/json for staging.
+AM_I_JSON_URL = https:/${}/am.i.stagemole.eu/json
+
+// Specify whether app logs should be extracted and attached to test report for failing tests
+ATTACH_APP_LOGS_ON_FAILURE = 0

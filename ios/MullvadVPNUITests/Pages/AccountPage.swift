@@ -13,7 +13,7 @@ class AccountPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .accountView
+        self.pageElement = app.otherElements[.accountView]
         waitForPageToBeShown()
     }
 
@@ -67,13 +67,13 @@ class AccountPage: Page {
             return self
         }
 
-        XCTAssertEqual(strippedDate, paidUntilLabelDate)
+        XCTAssertEqual(strippedDate, paidUntilLabelDate, "Paid until date correct")
         return self
     }
 
-    @discardableResult func waitForSpinnerNoLongerShown() -> Self {
-        app.otherElements[AccessibilityIdentifier.logOutSpinnerAlertView]
-            .waitForNonExistence(timeout: BaseUITestCase.veryLongTimeout)
-        return self
+    func waitForLogoutSpinnerToDisappear() {
+        let spinnerDisappeared = app.otherElements[.logOutSpinnerAlertView]
+            .waitForNonExistence(timeout: BaseUITestCase.extremelyLongTimeout)
+        XCTAssertTrue(spinnerDisappeared, "Log out spinner disappeared")
     }
 }
