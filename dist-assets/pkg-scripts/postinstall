@@ -2,14 +2,22 @@
 
 set -eu
 
+INSTALL_DIR=$2
+
+# Workaround for issue in electron-builder where the pkg-scripts are run twice, once with the
+# correct install dir and once with an incorrect one. This guard prevents running the script when
+# called the second time. This can be reverted when the following issue has been fixed:
+# https://github.com/electron-userland/electron-builder/issues/8166
+if [[ $INSTALL_DIR == *"Mullvad VPN.app" ]]; then
+    exit 0
+fi
+
 LOG_DIR=/var/log/mullvad-vpn
 
 mkdir -p $LOG_DIR
 exec > $LOG_DIR/postinstall.log 2>&1
 
 echo "Running postinstall at $(date)"
-
-INSTALL_DIR=$2
 
 # Run CLI to force macOS to check the certificate, and shut down the already running daemon, if one
 # exists.
