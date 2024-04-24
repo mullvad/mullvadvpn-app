@@ -8,7 +8,16 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import net.mullvad.mullvadvpn.service.R
 
-class NotificationChannel(
+// val tunnelStateChannel = NotificationChannel(
+//    "vpn_tunnel_status",
+//    NotificationCompat.VISIBILITY_SECRET,
+//    R.string.foreground_notification_channel_name,
+//    R.string.foreground_notification_channel_description,
+//    false,
+//    false
+// )
+
+class NotificationChannelOld(
     val context: Context,
     val id: String,
     val visibility: Int,
@@ -40,15 +49,6 @@ class NotificationChannel(
     fun buildNotification(
         intent: PendingIntent,
         title: String,
-        deleteIntent: PendingIntent? = null,
-        isOngoing: Boolean = false
-    ): Notification {
-        return buildNotification(intent, title, emptyList(), deleteIntent, isOngoing)
-    }
-
-    fun buildNotification(
-        intent: PendingIntent,
-        title: Int,
         deleteIntent: PendingIntent? = null,
         isOngoing: Boolean = false
     ): Notification {

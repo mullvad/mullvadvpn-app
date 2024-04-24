@@ -72,7 +72,7 @@ class ServiceConnectionManager(private val context: Context) {
             context.unbindService(serviceConnection)
             _connectionState.value = ServiceConnectionState.Unbound
         } else {
-            throw IllegalStateException("Service is already bound")
+            throw IllegalStateException("Service is not bound")
         }
     }
 

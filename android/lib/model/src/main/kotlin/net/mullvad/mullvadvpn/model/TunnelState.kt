@@ -2,9 +2,6 @@ package net.mullvad.mullvadvpn.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import net.mullvad.talpid.net.TunnelEndpoint
-import net.mullvad.talpid.tunnel.ActionAfterDisconnect
-import net.mullvad.talpid.tunnel.ErrorState
 
 sealed class TunnelState : Parcelable {
     @Parcelize
