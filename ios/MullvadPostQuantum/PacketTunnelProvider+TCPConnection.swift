@@ -58,21 +58,21 @@ func receivePostQuantumKey(
     rawPresharedKey: UnsafeMutableRawPointer?,
     rawEphemeralKey: UnsafeMutableRawPointer?
 ) {
+
     guard
         let rawPacketTunnel,
-        let rawEphemeralKey,
-        let ephemeralKey = PrivateKey(rawValue: Data(bytes: rawEphemeralKey, count: 32))
+        let postQuantumKeyReceiver = Unmanaged<NEPacketTunnelProvider>.fromOpaque(rawPacketTunnel).takeUnretainedValue() as? PostQuantumKeyReceiving
     else { return }
-    let packetTunnel = Unmanaged<NEPacketTunnelProvider>.fromOpaque(rawPacketTunnel).takeUnretainedValue()
-
-    guard let postQuantumKeyReceiver = packetTunnel as? PostQuantumKeyReceiving else { return }
-    guard let rawPresharedKey else {
-        postQuantumKeyReceiver.receivePostQuantumKey(.none, ephemeralKey: ephemeralKey)
+    
+    guard
+        let rawPresharedKey,
+        let rawEphemeralKey,
+        let ephemeralKey = PrivateKey(rawValue: Data(bytes: rawEphemeralKey, count: 32)),
+        let key = PreSharedKey(rawValue: Data(bytes: rawPresharedKey, count: 32))
+    else {
+        postQuantumKeyReceiver.keyExchangeFailed()
         return
     }
-
-    let presharedKey = Data(bytes: rawPresharedKey, count: 32)
-    if let key = PreSharedKey(rawValue: presharedKey) {
-        postQuantumKeyReceiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
-    }
+    
+    postQuantumKeyReceiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
 }
