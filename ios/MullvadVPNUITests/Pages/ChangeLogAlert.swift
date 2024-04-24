@@ -13,7 +13,7 @@ class ChangeLogAlert: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .changeLogAlert
+        self.pageElement = app.otherElements[.changeLogAlert]
         waitForPageToBeShown()
     }
 

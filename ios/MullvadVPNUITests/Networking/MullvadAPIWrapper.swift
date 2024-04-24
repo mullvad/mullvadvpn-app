@@ -16,11 +16,15 @@ enum MullvadAPIError: Error {
 }
 
 class MullvadAPIWrapper {
+    private var mullvadAPI: MullvadApi
+    private let throttleQueue = DispatchQueue(label: "MullvadAPIWrapperThrottleQueue", qos: .userInitiated)
+    private var lastCallDate: Date?
+    private let throttleDelay: TimeInterval = 0.25
+    private let throttleWaitTimeout: TimeInterval = 5.0
+
     // swiftlint:disable force_cast
     static let hostName = Bundle(for: MullvadAPIWrapper.self)
         .infoDictionary?["ApiHostName"] as! String
-
-    private var mullvadAPI: MullvadApi
 
     /// API endpoint configuration value in the format <IP-address>:<port>
     static let endpoint = Bundle(for: MullvadAPIWrapper.self)
@@ -31,6 +35,27 @@ class MullvadAPIWrapper {
         let apiAddress = try Self.getAPIIPAddress() + ":" + Self.getAPIPort()
         let hostname = Self.hostName
         mullvadAPI = try MullvadApi(apiAddress: apiAddress, hostname: hostname)
+    }
+
+    /// Throttle what's in the callback. This is used for throttling requests to the app API. All requests should be throttled or else we might be rate limited. 5 requests per second allowed.
+    private func throttle(callback: @escaping () -> Void) {
+        throttleQueue.async {
+            let now = Date()
+            var delay: TimeInterval = 0
+
+            if let lastCallDate = self.lastCallDate {
+                let timeSinceLastCall = now.timeIntervalSince(lastCallDate)
+
+                if timeSinceLastCall < self.throttleDelay {
+                    delay = self.throttleDelay - timeSinceLastCall
+                }
+            }
+
+            self.throttleQueue.asyncAfter(deadline: .now() + delay) {
+                callback()
+                self.lastCallDate = Date()
+            }
+        }
     }
 
     public static func getAPIIPAddress() throws -> String {
@@ -59,56 +84,116 @@ class MullvadAPIWrapper {
     }
 
     func createAccount() -> String {
-        do {
-            let accountNumber = try mullvadAPI.createAccount()
-            return accountNumber
-        } catch {
-            XCTFail("Failed to create account using app API")
-            return String()
+        var accountNumber = String()
+        var requestError: Error?
+        let requestCompletedExpectation = XCTestExpectation(description: "Create account request completed")
+
+        throttle {
+            do {
+                accountNumber = try self.mullvadAPI.createAccount()
+            } catch {
+                requestError = MullvadAPIError.requestError
+            }
+
+            requestCompletedExpectation.fulfill()
         }
+
+        let waitResult = XCTWaiter().wait(for: [requestCompletedExpectation], timeout: throttleWaitTimeout)
+        XCTAssertEqual(waitResult, .completed, "Create account request completed")
+        XCTAssertNil(requestError, "Create account error is nil")
+
+        return accountNumber
     }
 
     func deleteAccount(_ accountNumber: String) {
+        var requestError: Error?
+        let requestCompletedExpectation = XCTestExpectation(description: "Delete account request completed")
+
         do {
             try mullvadAPI.delete(account: accountNumber)
         } catch {
-            XCTFail("Failed to delete account using app API")
+            requestError = MullvadAPIError.requestError
         }
+
+        requestCompletedExpectation.fulfill()
+
+        let waitResult = XCTWaiter().wait(for: [requestCompletedExpectation], timeout: throttleWaitTimeout)
+        XCTAssertEqual(waitResult, .completed, "Delete account request completed")
+        XCTAssertNil(requestError, "Delete account error is nil")
     }
 
     /// Add another device to specified account. A dummy WireGuard key will be generated.
-    func addDevice(_ account: String) throws {
-        let devicePublicKey = generateMockWireGuardKey()
+    func addDevice(_ account: String) {
+        var addDeviceError: Error?
+        let requestCompletedExpectation = XCTestExpectation(description: "Add device request completed")
 
-        do {
-            try mullvadAPI.addDevice(forAccount: account, publicKey: devicePublicKey)
-        } catch {
-            throw MullvadAPIError.requestError
+        throttle {
+            let devicePublicKey = self.generateMockWireGuardKey()
+
+            do {
+                try self.mullvadAPI.addDevice(forAccount: account, publicKey: devicePublicKey)
+            } catch {
+                addDeviceError = MullvadAPIError.requestError
+            }
+
+            requestCompletedExpectation.fulfill()
         }
+
+        let waitResult = XCTWaiter().wait(for: [requestCompletedExpectation], timeout: throttleWaitTimeout)
+        XCTAssertEqual(waitResult, .completed, "Add device request completed")
+        XCTAssertNil(addDeviceError, "Add device error is nil")
     }
 
     /// Add multiple devices to specified account. Dummy WireGuard keys will be generated.
-    func addDevices(_ numberOfDevices: Int, account: String) throws {
-        for _ in 0 ..< numberOfDevices {
-            try self.addDevice(account)
+    func addDevices(_ numberOfDevices: Int, account: String) {
+        for i in 0 ..< numberOfDevices {
+            self.addDevice(account)
+            print("Created \(i + 1) devices")
         }
     }
 
     func getAccountExpiry(_ account: String) throws -> Date {
-        do {
-            let accountExpiryTimestamp = Double(try mullvadAPI.getExpiry(forAccount: account))
-            let accountExpiryDate = Date(timeIntervalSince1970: accountExpiryTimestamp)
-            return accountExpiryDate
-        } catch {
-            throw MullvadAPIError.requestError
+        var accountExpiryDate: Date = .distantPast
+        var requestError: Error?
+        let requestCompletedExpectation = XCTestExpectation(description: "Get account expiry request completed")
+
+        throttle {
+            do {
+                let accountExpiryTimestamp = Double(try self.mullvadAPI.getExpiry(forAccount: account))
+                accountExpiryDate = Date(timeIntervalSince1970: accountExpiryTimestamp)
+            } catch {
+                requestError = MullvadAPIError.requestError
+            }
+
+            requestCompletedExpectation.fulfill()
         }
+
+        let waitResult = XCTWaiter().wait(for: [requestCompletedExpectation], timeout: throttleWaitTimeout)
+        XCTAssertEqual(waitResult, .completed, "Get account expiry request completed")
+        XCTAssertNil(requestError, "Get account expiry error is nil")
+
+        return accountExpiryDate
     }
 
     func getDevices(_ account: String) throws -> [Device] {
-        do {
-            return try mullvadAPI.listDevices(forAccount: account)
-        } catch {
-            throw MullvadAPIError.requestError
+        var devices: [Device] = []
+        var requestError: Error?
+        let requestCompletedExpectation = XCTestExpectation(description: "Get devices request completed")
+
+        throttle {
+            do {
+                devices = try self.mullvadAPI.listDevices(forAccount: account)
+            } catch {
+                requestError = MullvadAPIError.requestError
+            }
+
+            requestCompletedExpectation.fulfill()
         }
+
+        let waitResult = XCTWaiter.wait(for: [requestCompletedExpectation], timeout: throttleWaitTimeout)
+        XCTAssertEqual(waitResult, .completed, "Get devices request completed")
+        XCTAssertNil(requestError, "Get devices error is nil")
+
+        return devices
     }
 }

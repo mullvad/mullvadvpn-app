@@ -4,6 +4,8 @@
 1. Make sure device is added to provisioning profiles
 2. Disable passcode in iOS settings - otherwise tests cannot be started without manually entering passcode
 3. Make sure device is configured in GitHub secrets(see *GitHub setup* below)
+4. Make sure the test device is connected to the WiFi `app-team-ios-tests`
+5. Make sure iCloud syncing of keychain is off on the device so that the device isn't getting WiFi passwords from another device causing it to sometimes connect to another WiFi.
 
 ## Set up of runner environment
 1. Install Xcode
@@ -34,6 +36,7 @@
   - `IOS_NO_TIME_ACCOUNT_NUMBER` - Production server account with time added to it
   - `IOS_TEST_DEVICE_IDENTIFIER_UUID` - unique identifier for the test device. Create new identifier with `uuidgen`.
   - `IOS_TEST_DEVICE_UDID` - the iOS device's UDID.
+  - `PARTNER_API_TOKEN` - secret token for partner API. Optional and only intended to be used in CI when running tests against staging environment.
 
 ## Test plans
 There are a few different test plans which are mainly to be triggered by GitHub action workflows but can also be triggered manually with Xcode:
