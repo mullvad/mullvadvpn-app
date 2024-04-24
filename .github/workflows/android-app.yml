@@ -465,7 +465,7 @@ jobs:
       - name: Prepare report dir
         id: prepare-report-dir
         env:
-          INNER_REPORT_DIR: /tmp/${{ matrix.test-type }}-${{ github.run_id }}-${{ github.run_attempt }}
+          INNER_REPORT_DIR: /tmp/${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           mkdir -p $INNER_REPORT_DIR
           echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
