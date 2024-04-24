@@ -519,75 +519,28 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun addSplitTunnelingApp(app: AppId): Either<AddSplitTunnelingAppError, Unit> =
-        Either.catch {
-                // TODO Not yet implemented, added local update that do not change the tunnel
-                _mutableStateFlow.update {
-                    it.copy(
-                        settings =
-                            it.settings?.copy(
-                                splitTunnelSettings =
-                                    it.settings.splitTunnelSettings.copy(
-                                        excludedApps =
-                                            it.settings.splitTunnelSettings.excludedApps + app,
-                                    ),
-                            ),
-                    )
-                }
-            }
+        Either.catch { grpc.addSplitTunnelApp(StringValue.of(app.value)) }
             .mapLeft(AddSplitTunnelingAppError::Unknown)
+            .mapEmpty()
 
     suspend fun addSplitTunnelingApps(apps: List<AppId>): Either<AddSplitTunnelingAppError, Unit> =
         Either.catch {
-                // TODO Not yet implemented, added local update that do not change the tunnel
-                _mutableStateFlow.update {
-                    it.copy(
-                        settings =
-                            it.settings?.copy(
-                                splitTunnelSettings =
-                                    it.settings.splitTunnelSettings.copy(
-                                        excludedApps =
-                                            it.settings.splitTunnelSettings.excludedApps + apps,
-                                    ),
-                            ),
-                    )
-                }
+                grpc.setSplitTunnelApps(apps.fromDomain())
             }
             .mapLeft(AddSplitTunnelingAppError::Unknown)
+            .mapEmpty()
 
     suspend fun removeSplitTunnelingApp(app: AppId): Either<RemoveSplitTunnelingAppError, Unit> =
-        Either.catch {
-                // TODO Not yet implemented, added local update that do not change the tunnel
-                _mutableStateFlow.update {
-                    it.copy(
-                        settings =
-                            it.settings?.copy(
-                                splitTunnelSettings =
-                                    it.settings.splitTunnelSettings.copy(
-                                        excludedApps =
-                                            it.settings.splitTunnelSettings.excludedApps - app,
-                                    ),
-                            ),
-                    )
-                }
-            }
+        Either.catch { grpc.removeSplitTunnelApp(StringValue.of(app.value)) }
             .mapLeft(RemoveSplitTunnelingAppError::Unknown)
+            .mapEmpty()
 
     suspend fun setSplitTunnelingState(
         enabled: Boolean
     ): Either<RemoveSplitTunnelingAppError, Unit> =
-        Either.catch {
-                // TODO Not yet implemented, added local update that do not change the tunnel
-                _mutableStateFlow.update {
-                    it.copy(
-                        settings =
-                            it.settings?.copy(
-                                splitTunnelSettings =
-                                    it.settings.splitTunnelSettings.copy(enabled = enabled),
-                            ),
-                    )
-                }
-            }
+        Either.catch { grpc.setSplitTunnelState(BoolValue.of(enabled)) }
             .mapLeft(RemoveSplitTunnelingAppError::Unknown)
+            .mapEmpty()
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 

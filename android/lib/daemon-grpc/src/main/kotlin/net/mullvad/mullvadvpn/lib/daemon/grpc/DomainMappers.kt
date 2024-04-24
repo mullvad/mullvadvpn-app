@@ -699,3 +699,8 @@ internal fun PlayPurchase.fromDomain(): ManagementInterface.PlayPurchase =
         .setPurchaseToken(purchaseToken.fromDomain())
         .setProductId(productId)
         .build()
+
+internal fun List<AppId>.fromDomain(): ManagementInterface.ExcludedApps =
+    ManagementInterface.ExcludedApps.newBuilder()
+        .addAllApps(this.map { it.value })
+        .build()
