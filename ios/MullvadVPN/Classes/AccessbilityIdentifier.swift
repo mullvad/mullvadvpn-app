@@ -17,6 +17,8 @@ public enum AccessibilityIdentifier: String {
     case accessMethodUnreachableSaveButton
     case agreeButton
     case alertOkButton
+    case appLogsDoneButton
+    case appLogsShareButton
     case applyButton
     case cancelButton
     case connectionPanelButton
@@ -57,6 +59,7 @@ public enum AccessibilityIdentifier: String {
     case customListLocationCheckmarkButton
     case listCustomListDoneButton
     case selectLocationFilterButton
+    case relayFilterChipCloseButton
 
     // Cells
     case deviceCell
@@ -97,9 +100,11 @@ public enum AccessibilityIdentifier: String {
     case addAccessMethodTestStatusUnreachableLabel
     case headerDeviceNameLabel
     case connectionStatusConnectedLabel
+    case connectionStatusConnectingLabel
     case connectionStatusNotConnectedLabel
     case welcomeAccountNumberLabel
     case connectionPanelDetailLabel
+    case relayFilterChipLabel
 
     // Views
     case accessMethodProtocolPickerView
@@ -110,6 +115,7 @@ public enum AccessibilityIdentifier: String {
     case apiAccessView
     case alertContainerView
     case alertTitle
+    case appLogsView
     case changeLogAlert
     case deviceManagementView
     case editAccessMethodView
@@ -135,6 +141,8 @@ public enum AccessibilityIdentifier: String {
     case listCustomListsTableView
     case editCustomListEditLocationsView
     case editCustomListEditLocationsTableView
+    case relayFilterChipView
+    case dnsSettingsTableView
 
     // Other UI elements
     case accessMethodEnableSwitch
@@ -151,10 +159,12 @@ public enum AccessibilityIdentifier: String {
     case loginStatusIconSuccess
     case loginTextField
     case selectLocationSearchTextField
+    case problemReportAppLogsTextView
     case problemReportEmailTextField
     case problemReportMessageTextView
     case deleteAccountTextField
     case socks5AuthenticationSwitch
+    case statusImageView
 
     // DNS settings
     case dnsSettings

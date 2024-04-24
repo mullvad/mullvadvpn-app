@@ -12,13 +12,13 @@ class CustomListPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .newCustomListView
+        self.pageElement = app.otherElements[.newCustomListView]
         waitForPageToBeShown()
     }
 
     @discardableResult func verifyCreateButtonIs(enabled: Bool) -> Self {
         let saveOrCreateButton = app.buttons[.saveCreateCustomListButton]
-        XCTAssertTrue(saveOrCreateButton.isEnabled == enabled)
+        XCTAssertTrue(saveOrCreateButton.isEnabled == enabled, "Verify state of create button")
         return self
     }
 

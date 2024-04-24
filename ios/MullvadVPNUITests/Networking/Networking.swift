@@ -129,34 +129,52 @@ class Networking {
     public static func verifyCanAccessAPI() throws {
         let apiIPAddress = try MullvadAPIWrapper.getAPIIPAddress()
         let apiPort = try MullvadAPIWrapper.getAPIPort()
-        XCTAssertTrue(try canConnectSocket(host: apiIPAddress, port: apiPort))
+        XCTAssertTrue(
+            try canConnectSocket(host: apiIPAddress, port: apiPort),
+            "Failed to verify that API can be accessed"
+        )
     }
 
     /// Verify API cannot be accessed by attempting to connect a socket to the configured API host and port
     public static func verifyCannotAccessAPI() throws {
         let apiIPAddress = try MullvadAPIWrapper.getAPIIPAddress()
         let apiPort = try MullvadAPIWrapper.getAPIPort()
-        XCTAssertFalse(try canConnectSocket(host: apiIPAddress, port: apiPort))
+        XCTAssertFalse(
+            try canConnectSocket(host: apiIPAddress, port: apiPort),
+            "Failed to verify that API cannot be accessed"
+        )
     }
 
     /// Verify that the device has Internet connectivity
     public static func verifyCanAccessInternet() throws {
-        XCTAssertTrue(try canConnectSocket(host: getAlwaysReachableDomain(), port: "80"))
+        XCTAssertTrue(
+            try canConnectSocket(host: getAlwaysReachableDomain(), port: "80"),
+            "Failed to verify that the Internet can be acccessed"
+        )
     }
 
     /// Verify that the device does not have Internet connectivity
     public static func verifyCannotAccessInternet() throws {
-        XCTAssertFalse(try canConnectSocket(host: getAlwaysReachableDomain(), port: "80"))
+        XCTAssertFalse(
+            try canConnectSocket(host: getAlwaysReachableDomain(), port: "80"),
+            "Failed to verify that the Internet cannot be accessed"
+        )
     }
 
     /// Verify that an ad serving domain is reachable by making sure a connection can be established on port 80
     public static func verifyCanReachAdServingDomain() throws {
-        XCTAssertTrue(try Self.canConnectSocket(host: try Self.getAdServingDomain(), port: "80"))
+        XCTAssertTrue(
+            try Self.canConnectSocket(host: try Self.getAdServingDomain(), port: "80"),
+            "Failed to verify that ad serving domain can be accessed"
+        )
     }
 
     /// Verify that an ad serving domain is NOT reachable by making sure a connection can not be established on port 80
     public static func verifyCannotReachAdServingDomain() throws {
-        XCTAssertFalse(try Self.canConnectSocket(host: try Self.getAdServingDomain(), port: "80"))
+        XCTAssertFalse(
+            try Self.canConnectSocket(host: try Self.getAdServingDomain(), port: "80"),
+            "Failed to verify that ad serving domain cannot be accessed"
+        )
     }
 
     /// Verify that the expected DNS server is used by verifying provider name and whether it is a Mullvad DNS server or not
@@ -205,8 +223,12 @@ class Networking {
                     XCTAssertGreaterThanOrEqual(dnsServerEntries.count, 1)
 
                     for dnsServerEntry in dnsServerEntries {
-                        XCTAssertEqual(dnsServerEntry.organization, providerName)
-                        XCTAssertEqual(dnsServerEntry.mullvad_dns, isMullvad)
+                        XCTAssertEqual(dnsServerEntry.organization, providerName, "Expected organization name")
+                        XCTAssertEqual(
+                            dnsServerEntry.mullvad_dns,
+                            isMullvad,
+                            "Verifying that it is or isn't a Mullvad DNS server"
+                        )
                     }
                 }
             }
@@ -215,8 +237,12 @@ class Networking {
         }
     }
 
-    public static func verifyConnectedThroughMullvad() {
-        let mullvadConnectionJsonEndpoint = "https://am.i.mullvad.net/json"
+    public static func verifyConnectedThroughMullvad() throws {
+        let mullvadConnectionJsonEndpoint = try XCTUnwrap(
+            Bundle(for: Networking.self)
+                .infoDictionary?["AmIJSONUrl"] as? String,
+            "Read am I JSON URL from Info"
+        )
         guard let url = URL(string: mullvadConnectionJsonEndpoint) else {
             XCTFail("Failed to unwrap URL")
             return

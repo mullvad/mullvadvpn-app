@@ -13,7 +13,7 @@ class ProblemReportSubmittedPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        pageAccessibilityIdentifier = .problemReportSubmittedView
+        self.pageElement = app.otherElements[.problemReportSubmittedView]
         waitForPageToBeShown()
     }
 }
