@@ -27,7 +27,7 @@ class PostQuantumKeyExchangeActor {
     unowned let packetTunnel: PacketTunnelProvider
     private var negotiation: Negotiation?
 
-    init(packetTunnel: PacketTunnelProvider /* , createNetworkConnection: @escaping InTunnelTCPConnectionCreator */ ) {
+    init(packetTunnel: PacketTunnelProvider) {
         self.packetTunnel = packetTunnel
     }
 

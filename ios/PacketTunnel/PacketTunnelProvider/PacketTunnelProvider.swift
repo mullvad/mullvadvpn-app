@@ -30,11 +30,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var adapter: WgAdapter!
     private var relaySelector: RelaySelectorWrapper!
 
-    // Post Quantum Key required variables
-    private var inTunnelTCPConnection: NWTCPConnection!
-    private var tcpConnectionObserver: NSKeyValueObservation!
-    private var quantumKeyNegotiatior: PostQuantumKeyNegotiator!
-
     override init() {
         Self.configureLogging()
 
@@ -272,35 +267,6 @@ extension PacketTunnelProvider {
 
     private func startPostQuantumKeyNegotation(with privateKey: PrivateKey) {
         postQuantumActor.startNegotiation(with: privateKey)
-//        quantumKeyNegotiatior?.cancelKeyNegotiation()
-//
-//        let keyNegotiatior = PostQuantumKeyNegotiator()
-//
-//        let gatewayAddress = "10.64.0.1"
-//        let IPv4Gateway = IPv4Address(gatewayAddress)!
-//        let tcpConnection = createTCPConnectionForPQPSK(gatewayAddress)
-//
-//        // TODO: Pass the private key to rust directly
-//        // It will derive the public key, and give us back both the preshared key, and the ephemeral private key
-//        let ephemeralSharedKey = PrivateKey() // This will become the new private key of the device
-//        let observer = tcpConnection.observe(\.isViable, options: [
-//            .initial,
-//            .new,
-//        ]) { [weak self] observedConnection, _ in
-//            guard let self, observedConnection.isViable else { return }
-//            keyNegotiatior.negotiateKey(
-//                gatewayIP: IPv4Gateway,
-//                devicePublicKey: privateKey.publicKey,
-//                presharedKey: ephemeralSharedKey,
-//                packetTunnel: self,
-//                tcpConnection: tcpConnection
-//            )
-//            self.tcpConnectionObserver.invalidate()
-//        }
-//
-//        inTunnelTCPConnection = tcpConnection
-//        tcpConnectionObserver = observer
-//        quantumKeyNegotiatior = keyNegotiatior
         // Re-establish the tunnel connection to let the TCP connection flow through
 //        reasserting = false
     }
@@ -343,13 +309,6 @@ extension PacketTunnelProvider {
 extension PacketTunnelProvider: PostQuantumKeyReceiving {
     func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
         postQuantumActor.acknowledgeNegotiationConcluded()
-//        quantumKeyNegotiatior?.cancelKeyNegotiation()
-//        tcpConnectionObserver?.invalidate()
-//        inTunnelTCPConnection.cancel()
-//        tcpConnectionObserver = nil
-//        inTunnelTCPConnection = nil
-//        quantumKeyNegotiatior = nil
-
         actor.replacePreSharedKey(key, ephemeralKey: ephemeralKey)
     }
 
