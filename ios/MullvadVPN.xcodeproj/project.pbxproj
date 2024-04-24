@@ -621,6 +621,7 @@
 		850201DB2B503D7700EF8C96 /* RelayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DA2B503D7700EF8C96 /* RelayTests.swift */; };
 		850201DD2B503D8C00EF8C96 /* SelectLocationPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DC2B503D8C00EF8C96 /* SelectLocationPage.swift */; };
 		850201DF2B5040A500EF8C96 /* TunnelControlPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DE2B5040A500EF8C96 /* TunnelControlPage.swift */; };
+		85021CAE2BDBC4290098B400 /* AppLogsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85021CAD2BDBC4290098B400 /* AppLogsPage.swift */; };
 		85139B2D2B84B4A700734217 /* OutOfTimePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85139B2C2B84B4A700734217 /* OutOfTimePage.swift */; };
 		852969282B4D9C1F007EAD4C /* AccountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969272B4D9C1F007EAD4C /* AccountTests.swift */; };
 		852969332B4E9232007EAD4C /* Page.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969322B4E9232007EAD4C /* Page.swift */; };
@@ -648,6 +649,7 @@
 		8556EB542B9A1D7100D26DD4 /* BridgingHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = 8556EB532B9A1D7100D26DD4 /* BridgingHeader.h */; };
 		8556EB562B9B0AC500D26DD4 /* RevokedDevicePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8556EB552B9B0AC500D26DD4 /* RevokedDevicePage.swift */; };
 		855D9F5B2B63E56B00D7C64D /* ProblemReportPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 855D9F5A2B63E56B00D7C64D /* ProblemReportPage.swift */; };
+		856952DC2BD2922A008C1F84 /* PartnerAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 856952DB2BD2922A008C1F84 /* PartnerAPIClient.swift */; };
 		856952E22BD6B04C008C1F84 /* XCUIElement+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 856952E12BD6B04C008C1F84 /* XCUIElement+Extensions.swift */; };
 		8585CBE32BC684180015B6A4 /* EditAccessMethodPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8585CBE22BC684180015B6A4 /* EditAccessMethodPage.swift */; };
 		8587A05D2B84D43100152938 /* ChangeLogAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8587A05C2B84D43100152938 /* ChangeLogAlert.swift */; };
@@ -1952,6 +1954,7 @@
 		850201DC2B503D8C00EF8C96 /* SelectLocationPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationPage.swift; sourceTree = "<group>"; };
 		850201DE2B5040A500EF8C96 /* TunnelControlPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlPage.swift; sourceTree = "<group>"; };
 		850201E22B51A93C00EF8C96 /* SettingsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPage.swift; sourceTree = "<group>"; };
+		85021CAD2BDBC4290098B400 /* AppLogsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogsPage.swift; sourceTree = "<group>"; };
 		85139B2C2B84B4A700734217 /* OutOfTimePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutOfTimePage.swift; sourceTree = "<group>"; };
 		852969252B4D9C1F007EAD4C /* MullvadVPNUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadVPNUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		852969272B4D9C1F007EAD4C /* AccountTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTests.swift; sourceTree = "<group>"; };
@@ -1983,6 +1986,7 @@
 		8556EB532B9A1D7100D26DD4 /* BridgingHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
 		8556EB552B9B0AC500D26DD4 /* RevokedDevicePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevokedDevicePage.swift; sourceTree = "<group>"; };
 		855D9F5A2B63E56B00D7C64D /* ProblemReportPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportPage.swift; sourceTree = "<group>"; };
+		856952DB2BD2922A008C1F84 /* PartnerAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartnerAPIClient.swift; sourceTree = "<group>"; };
 		856952E12BD6B04C008C1F84 /* XCUIElement+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCUIElement+Extensions.swift"; sourceTree = "<group>"; };
 		8585CBE22BC684180015B6A4 /* EditAccessMethodPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAccessMethodPage.swift; sourceTree = "<group>"; };
 		8587A05C2B84D43100152938 /* ChangeLogAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogAlert.swift; sourceTree = "<group>"; };
@@ -3901,10 +3905,10 @@
 				85557B0C2B591B0F00795FE1 /* Networking */,
 				852969312B4E9220007EAD4C /* Pages */,
 				850201DA2B503D7700EF8C96 /* RelayTests.swift */,
-				856952E12BD6B04C008C1F84 /* XCUIElement+Extensions.swift */,
 				85D039972BA4711800940E7F /* SettingsMigrationTests.swift */,
 				85C7A2E82B89024B00035D5A /* SettingsTests.swift */,
 				8518F6392B601910009EB113 /* Test base classes */,
+				856952E12BD6B04C008C1F84 /* XCUIElement+Extensions.swift */,
 				85557B152B5ABBBE00795FE1 /* XCUIElementQuery+Extensions.swift */,
 			);
 			path = MullvadVPNUITests;
@@ -3939,6 +3943,7 @@
 				852D054C2BC3DE3A008578D2 /* APIAccessPage.swift */,
 				852D054E2BC43DF7008578D2 /* AddAccessMethodPage.swift */,
 				8585CBE22BC684180015B6A4 /* EditAccessMethodPage.swift */,
+				85021CAD2BDBC4290098B400 /* AppLogsPage.swift */,
 			);
 			path = Pages;
 			sourceTree = "<group>";
@@ -3950,6 +3955,7 @@
 				85557B0F2B59215F00795FE1 /* FirewallRule.swift */,
 				85557B132B5983CF00795FE1 /* MullvadAPIWrapper.swift */,
 				85E3BDE42B70E18C00FA71FD /* Networking.swift */,
+				856952DB2BD2922A008C1F84 /* PartnerAPIClient.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -6078,6 +6084,7 @@
 				8542F7532BCFBD050035C042 /* SelectLocationFilterPage.swift in Sources */,
 				850201DD2B503D8C00EF8C96 /* SelectLocationPage.swift in Sources */,
 				85D039982BA4711800940E7F /* SettingsMigrationTests.swift in Sources */,
+				85021CAE2BDBC4290098B400 /* AppLogsPage.swift in Sources */,
 				850201DB2B503D7700EF8C96 /* RelayTests.swift in Sources */,
 				852D054D2BC3DE3A008578D2 /* APIAccessPage.swift in Sources */,
 				85139B2D2B84B4A700734217 /* OutOfTimePage.swift in Sources */,
@@ -6096,6 +6103,7 @@
 				852969282B4D9C1F007EAD4C /* AccountTests.swift in Sources */,
 				8587A05D2B84D43100152938 /* ChangeLogAlert.swift in Sources */,
 				85FB5A102B6960A30015DCED /* AccountDeletionPage.swift in Sources */,
+				856952DC2BD2922A008C1F84 /* PartnerAPIClient.swift in Sources */,
 				85557B162B5ABBBE00795FE1 /* XCUIElementQuery+Extensions.swift in Sources */,
 				855D9F5B2B63E56B00D7C64D /* ProblemReportPage.swift in Sources */,
 				8529693A2B4F0238007EAD4C /* TermsOfServicePage.swift in Sources */,

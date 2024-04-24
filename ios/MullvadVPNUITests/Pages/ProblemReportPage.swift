@@ -13,8 +13,7 @@ class ProblemReportPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        pageAccessibilityIdentifier = .problemReportView
-
+        self.pageElement = app.otherElements[.problemReportView]
         waitForPageToBeShown()
     }
 
@@ -33,7 +32,7 @@ class ProblemReportPage: Page {
     }
 
     @discardableResult func tapViewAppLogsButton() -> Self {
-        app.otherElements[AccessibilityIdentifier.problemReportAppLogsButton]
+        app.buttons[AccessibilityIdentifier.problemReportAppLogsButton]
             .tap()
 
         return self

@@ -38,7 +38,6 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
 
         let customListName = createCustomListName()
         createCustomList(named: customListName)
-        workaroundOpenCustomListMenuBug()
         deleteCustomList(named: customListName)
 
         SelectLocationPage(app)
@@ -55,11 +54,9 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
         createCustomList(named: customListName)
 
         addTeardownBlock {
-            self.workaroundOpenCustomListMenuBug()
             self.deleteCustomList(named: customListName)
         }
 
-        workaroundOpenCustomListMenuBug()
         startEditingCustomList(named: customListName)
 
         EditCustomListLocationsPage(app)
@@ -84,11 +81,9 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
         createCustomList(named: customListName)
 
         addTeardownBlock {
-            self.workaroundOpenCustomListMenuBug()
             self.deleteCustomList(named: customListName)
         }
 
-        workaroundOpenCustomListMenuBug()
         startEditingCustomList(named: customListName)
 
         EditCustomListLocationsPage(app)
@@ -123,14 +118,6 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
             .renameCustomList(name: name)
             .verifyCreateButtonIs(enabled: true)
             .tapCreateListButton()
-    }
-
-    func workaroundOpenCustomListMenuBug() {
-        // In order to avoid a bug where the open custom list button cannot be found, the location view is closed and then reopened
-        SelectLocationPage(app)
-            .tapDoneButton()
-        TunnelControlPage(app)
-            .tapSelectLocationButton()
     }
 
     func startEditingCustomList(named customListName: String) {
