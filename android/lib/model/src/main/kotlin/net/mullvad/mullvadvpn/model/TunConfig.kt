@@ -1,4 +1,4 @@
-package net.mullvad.talpid.tun_provider
+package net.mullvad.mullvadvpn.model
 
 import java.net.InetAddress
 

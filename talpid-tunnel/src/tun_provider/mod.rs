@@ -35,7 +35,7 @@ cfg_if! {
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(
     target_os = "android",
-    jnix(package = "net.mullvad.talpid.tun_provider")
+    jnix(package = "net.mullvad.mullvadvpn.model")
 )]
 pub struct TunConfig {
     /// IP addresses for the tunnel interface.
@@ -63,7 +63,7 @@ pub struct TunConfig {
 
 #[cfg(target_os = "android")]
 #[derive(IntoJava)]
-#[jnix(package = "net.mullvad.talpid.tun_provider")]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
 struct InetNetwork {
     address: IpAddr,
     prefix: i16,

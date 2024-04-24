@@ -184,7 +184,7 @@ impl AndroidTunProvider {
 
         let result = self.call_method(
             "getTun",
-            "(Lnet/mullvad/talpid/tun_provider/TunConfig;)Lnet/mullvad/talpid/CreateTunResult;",
+            "(Lnet/mullvad/mullvadvpn/model/TunConfig;)Lnet/mullvad/talpid/CreateTunResult;",
             JavaType::Object("net/mullvad/talpid/CreateTunResult".to_owned()),
             &[JValue::Object(java_config.as_obj())],
         )?;
@@ -205,7 +205,7 @@ impl AndroidTunProvider {
 
         let result = self.call_method(
             "recreateTunIfOpen",
-            "(Lnet/mullvad/talpid/tun_provider/TunConfig;)V",
+            "(Lnet/mullvad/mullvadvpn/model/TunConfig;)V",
             JavaType::Primitive(Primitive::Void),
             &[JValue::Object(java_config.as_obj())],
         )?;

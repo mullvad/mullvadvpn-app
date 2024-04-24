@@ -28,8 +28,8 @@ import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.setSubtitleIfSupported
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class MullvadTileService : TileService() {
     private var scope: CoroutineScope? = null

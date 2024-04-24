@@ -22,7 +22,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.talpid.net.TransportProtocol
+import net.mullvad.mullvadvpn.model.TransportProtocol
 
 @Preview
 @Composable

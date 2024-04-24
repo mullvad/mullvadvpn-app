@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.model.AccountToken
+import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.ConnectError
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
@@ -34,7 +35,6 @@ import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.daysFromNow
 import net.mullvad.mullvadvpn.util.toInAddress
 import net.mullvad.mullvadvpn.util.toOutAddress
-import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 @OptIn(FlowPreview::class)
 class ConnectViewModel(

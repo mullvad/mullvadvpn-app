@@ -8,10 +8,8 @@ import android.content.Intent
 import android.net.Uri
 import androidx.core.app.NotificationCompat
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
-import net.mullvad.mullvadvpn.lib.common.util.Intermittent
 import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
-import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.R
 import net.mullvad.mullvadvpn.service.constant.IS_PLAY_BUILD
 import org.joda.time.DateTime
@@ -19,7 +17,7 @@ import org.joda.time.Duration
 
 class AccountExpiryNotification(
     val context: Context,
-    val daemon: Intermittent<MullvadDaemon>,
+    //    val daemon: Intermittent<MullvadDaemon>,
     // val accountCache: AccountCache
 ) {
 
@@ -29,7 +27,7 @@ class AccountExpiryNotification(
     private val buyMoreTimeUrl = resources.getString(R.string.account_url)
 
     private val channel =
-        NotificationChannel(
+        NotificationChannelOld(
             context,
             "mullvad_account_time",
             NotificationCompat.VISIBILITY_PRIVATE,
