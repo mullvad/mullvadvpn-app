@@ -16,7 +16,7 @@ class HeaderBar: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .headerBarView
+        self.pageElement = app.otherElements[.headerBarView]
         waitForPageToBeShown()
     }
 
@@ -27,6 +27,15 @@ class HeaderBar: Page {
 
     @discardableResult func tapSettingsButton() -> Self {
         settingsButton.tap()
+        return self
+    }
+
+    @discardableResult public func verifyDeviceLabelShown() -> Self {
+        XCTAssertTrue(
+            app.staticTexts[AccessibilityIdentifier.headerDeviceNameLabel]
+                .waitForExistence(timeout: BaseUITestCase.defaultTimeout), "Device name displayed in header"
+        )
+
         return self
     }
 }

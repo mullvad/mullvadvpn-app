@@ -13,7 +13,7 @@ class DeviceManagementPage: Page {
     override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .deviceManagementView
+        self.pageElement = app.otherElements[.deviceManagementView]
         waitForPageToBeShown()
     }
 
@@ -36,8 +36,7 @@ class DeviceManagementPage: Page {
 class DeviceManagementLogOutDeviceConfirmationAlert: Page {
     override init(_ app: XCUIApplication) {
         super.init(app)
-
-        self.pageAccessibilityIdentifier = .alertContainerView
+        self.pageElement = app.otherElements[.alertContainerView]
         waitForPageToBeShown()
     }
 

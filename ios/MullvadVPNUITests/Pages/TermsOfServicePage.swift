@@ -13,7 +13,7 @@ class TermsOfServicePage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .termsOfServiceView
+        self.pageElement = app.otherElements[.termsOfServiceView]
         waitForPageToBeShown()
     }
 

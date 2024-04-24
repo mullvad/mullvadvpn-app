@@ -17,7 +17,7 @@ class VPNSettingsPage: Page {
     private func cellExpandCollapseButton(_ cellAccessiblityIdentifier: AccessibilityIdentifier) -> XCUIElement {
         let table = app.tables[AccessibilityIdentifier.vpnSettingsTableView]
         let matchingCells = table.otherElements.containing(.any, identifier: cellAccessiblityIdentifier.rawValue)
-        let expandButton = matchingCells.buttons[AccessibilityIdentifier.collapseButton]
+        let expandButton = matchingCells.buttons[AccessibilityIdentifier.expandButton]
 
         return expandButton
     }

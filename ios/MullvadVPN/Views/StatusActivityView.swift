@@ -42,9 +42,12 @@ class StatusActivityView: UIView {
         addSubview(activityIndicator)
 
         NSLayoutConstraint.activate([
+            activityIndicator.widthAnchor.constraint(equalTo: statusImageView.widthAnchor),
             activityIndicator.heightAnchor.constraint(equalTo: statusImageView.heightAnchor),
             statusImageView.topAnchor.constraint(equalTo: topAnchor),
             statusImageView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            statusImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            statusImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
             statusImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
             statusImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
