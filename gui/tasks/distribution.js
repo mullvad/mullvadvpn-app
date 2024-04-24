@@ -2,7 +2,6 @@ const path = require('path');
 const fs = require('fs');
 const builder = require('electron-builder');
 const { Arch } = require('electron-builder');
-const { notarize } = require('@electron/notarize');
 const { execFileSync } = require('child_process');
 
 const noCompression = process.argv.includes('--no-compression');
@@ -88,6 +87,7 @@ const config = {
     artifactName: 'MullvadVPN-${version}.${ext}',
     category: 'public.app-category.tools',
     icon: distAssets('icon-macos.icns'),
+    notarize: shouldNotarize,
     extendInfo: {
       LSUIElement: true,
       NSUserNotificationAlertStyle: 'banner',
@@ -314,11 +314,6 @@ function packMac() {
         return Promise.resolve();
       },
       afterAllArtifactBuild: async (buildResult) => {
-        if (shouldNotarize) {
-          // buildResult.artifactPaths[0] contains the path to the pkg.
-          await notarizeMac(buildResult.artifactPaths[0]);
-        }
-
         // Remove the folder that contains the unpacked app. Electron builder cleans up some of
         // these directories and it's changed between versions without a mention in the changelog.
         for (const dir of appOutDirs) {
@@ -330,23 +325,8 @@ function packMac() {
       afterSign: (context) => {
         const appOutDir = context.appOutDir;
         appOutDirs.push(appOutDir);
-
-        if (shouldNotarize) {
-          const appName = context.packager.appInfo.productFilename;
-          return notarizeMac(path.join(appOutDir, `${appName}.app`));
-        }
       },
     },
-  });
-}
-
-function notarizeMac(notarizePath) {
-  console.log('Notarizing ' + notarizePath);
-  return notarize({
-    appBundleId: config.appId,
-    appPath: notarizePath,
-    keychain: process.env.NOTARIZE_KEYCHAIN,
-    keychainProfile: process.env.NOTARIZE_KEYCHAIN_PROFILE,
   });
 }
 

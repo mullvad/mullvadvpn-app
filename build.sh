@@ -354,6 +354,18 @@ if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
     done
 fi
 
+# notarize installer on macOS
+if [[ "$NOTARIZE" == "true" && "$(uname -s)" == "Darwin" ]]; then
+    log_info "Notarizing pkg"
+    xcrun notarytool submit dist/*"$PRODUCT_VERSION"*.pkg \
+        --keychain "$NOTARIZE_KEYCHAIN" \
+        --keychain-profile "$NOTARIZE_KEYCHAIN_PROFILE" \
+        --wait
+
+    log_info "Stapling pkg"
+    xcrun stapler staple dist/*"$PRODUCT_VERSION"*.pkg
+fi
+
 log_success "**********************************"
 log_success ""
 log_success " The build finished successfully! "
