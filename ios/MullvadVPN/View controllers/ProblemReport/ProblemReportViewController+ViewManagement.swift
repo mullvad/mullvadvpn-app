@@ -88,6 +88,7 @@ extension ProblemReportViewController {
 
     func makeViewLogsButton() -> AppButton {
         let button = AppButton(style: .default)
+        button.accessibilityIdentifier = .problemReportAppLogsButton
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(Self.persistentViewModel.viewLogsButtonTitle, for: .normal)
         button.addTarget(self, action: #selector(handleViewLogsButtonTap), for: .touchUpInside)
@@ -96,7 +97,7 @@ extension ProblemReportViewController {
 
     func makeSendButton() -> AppButton {
         let button = AppButton(style: .success)
-        button.accessibilityIdentifier = AccessibilityIdentifier.problemReportSendButton
+        button.accessibilityIdentifier = .problemReportSendButton
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(Self.persistentViewModel.sendLogsButtonTitle, for: .normal)
         button.addTarget(self, action: #selector(handleSendButtonTap), for: .touchUpInside)

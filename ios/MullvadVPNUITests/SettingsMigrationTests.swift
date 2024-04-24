@@ -29,6 +29,12 @@ class SettingsMigrationTests: BaseUITestCase {
     }
 
     func testChangeCustomDNSSettings() {
+        let hasTimeAccountNumber = getAccountWithTime()
+
+        addTeardownBlock {
+            self.returnAccountWithTime(accountNumber: hasTimeAccountNumber)
+        }
+
         logoutIfLoggedIn()
         login(accountNumber: hasTimeAccountNumber)
 
@@ -52,6 +58,12 @@ class SettingsMigrationTests: BaseUITestCase {
     }
 
     func testChangeSettings() {
+        let hasTimeAccountNumber = getAccountWithTime()
+
+        addTeardownBlock {
+            self.returnAccountWithTime(accountNumber: hasTimeAccountNumber)
+        }
+
         logoutIfLoggedIn()
         login(accountNumber: hasTimeAccountNumber)
 
