@@ -24,10 +24,10 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    var locationViewController: LocationViewController? {
+    var locationViewControllerWrapper: LocationViewControllerWrapper? {
         return navigationController.viewControllers.first {
-            $0 is LocationViewController
-        } as? LocationViewController
+            $0 is LocationViewControllerWrapper
+        } as? LocationViewControllerWrapper
     }
 
     var relayFilter: RelayFilter {
@@ -54,43 +54,14 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     }
 
     func start() {
-        let locationViewController = LocationViewController(customListRepository: customListRepository)
-        locationViewController.delegate = self
+        let locationViewControllerWrapper = LocationViewControllerWrapper(
+            customListRepository: customListRepository,
+            selectedRelays: tunnelManager.settings.relayConstraints.locations.value
+        )
+        locationViewControllerWrapper.delegate = self
 
-        locationViewController.didSelectRelays = { [weak self] locations in
+        locationViewControllerWrapper.didFinish = { [weak self] in
             guard let self else { return }
-
-            var relayConstraints = tunnelManager.settings.relayConstraints
-            relayConstraints.locations = .only(locations)
-
-            tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
-                self.tunnelManager.startTunnel()
-            }
-
-            didFinish?(self)
-        }
-
-        locationViewController.navigateToFilter = { [weak self] in
-            guard let self else { return }
-
-            let coordinator = makeRelayFilterCoordinator(forModalPresentation: true)
-            coordinator.start()
-
-            presentChild(coordinator, animated: true)
-        }
-
-        locationViewController.didUpdateFilter = { [weak self] filter in
-            guard let self else { return }
-
-            var relayConstraints = tunnelManager.settings.relayConstraints
-            relayConstraints.filter = .only(filter)
-
-            tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
-        }
-
-        locationViewController.didFinish = { [weak self] in
-            guard let self else { return }
-
             didFinish?(self)
         }
 
@@ -98,12 +69,10 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         if let cachedRelays = try? relayCacheTracker.getCachedRelays() {
             self.cachedRelays = cachedRelays
-            locationViewController.setCachedRelays(cachedRelays, filter: relayFilter)
+            locationViewControllerWrapper.setCachedRelays(cachedRelays, filter: relayFilter)
         }
 
-        locationViewController.relayLocations = tunnelManager.settings.relayConstraints.locations.value
-
-        navigationController.pushViewController(locationViewController, animated: false)
+        navigationController.pushViewController(locationViewControllerWrapper, animated: false)
     }
 
     private func makeRelayFilterCoordinator(forModalPresentation isModalPresentation: Bool)
@@ -118,7 +87,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         relayFilterCoordinator.didFinish = { [weak self] coordinator, filter in
             if let cachedRelays = self?.cachedRelays, let filter {
-                self?.locationViewController?.setCachedRelays(cachedRelays, filter: filter)
+                self?.locationViewControllerWrapper?.setCachedRelays(cachedRelays, filter: filter)
             }
 
             coordinator.dismiss(animated: true)
@@ -138,7 +107,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         coordinator.didFinish = { [weak self] addCustomListCoordinator in
             addCustomListCoordinator.dismiss(animated: true)
-            self?.locationViewController?.refreshCustomLists()
+            self?.locationViewControllerWrapper?.refreshCustomLists()
         }
 
         coordinator.start()
@@ -155,7 +124,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
         coordinator.didFinish = { [weak self] listCustomListCoordinator in
             listCustomListCoordinator.dismiss(animated: true)
-            self?.locationViewController?.refreshCustomLists()
+            self?.locationViewControllerWrapper?.refreshCustomLists()
         }
 
         coordinator.start()
@@ -169,7 +138,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 // See showEditCustomLists() above.
 extension LocationCoordinator: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        locationViewController?.refreshCustomLists()
+        locationViewControllerWrapper?.refreshCustomLists()
     }
 }
 
@@ -180,12 +149,37 @@ extension LocationCoordinator: RelayCacheTrackerObserver {
     ) {
         self.cachedRelays = cachedRelays
 
-        locationViewController?.setCachedRelays(cachedRelays, filter: relayFilter)
+        locationViewControllerWrapper?.setCachedRelays(cachedRelays, filter: relayFilter)
     }
 }
 
-extension LocationCoordinator: LocationViewControllerDelegate {
-    func didRequestRouteToCustomLists(_ controller: LocationViewController, nodes: [LocationNode]) {
+extension LocationCoordinator: LocationViewControllerWrapperDelegate {
+    func didSelectRelays(relays: UserSelectedRelays) {
+        var relayConstraints = tunnelManager.settings.relayConstraints
+        relayConstraints.locations = .only(relays)
+
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
+            self.tunnelManager.startTunnel()
+        }
+
+        didFinish?(self)
+    }
+
+    func didUpdateFilter(filter: RelayFilter) {
+        var relayConstraints = tunnelManager.settings.relayConstraints
+        relayConstraints.filter = .only(filter)
+
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+    }
+
+    func navigateToFilter() {
+        let coordinator = makeRelayFilterCoordinator(forModalPresentation: true)
+        coordinator.start()
+
+        presentChild(coordinator, animated: true)
+    }
+
+    func navigateToCustomLists(nodes: [LocationNode]) {
         let actionSheet = UIAlertController(
             title: NSLocalizedString(
                 "CUSTOM_LIST_ACTION_SHEET_TITLE",

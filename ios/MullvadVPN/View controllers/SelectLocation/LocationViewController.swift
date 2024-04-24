@@ -6,14 +6,15 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import MullvadLogging
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import UIKit
 
 protocol LocationViewControllerDelegate: AnyObject {
-    func didRequestRouteToCustomLists(_ controller: LocationViewController, nodes: [LocationNode])
+    func navigateToCustomLists(nodes: [LocationNode])
+    func didSelectRelays(relays: UserSelectedRelays)
+    func didUpdateFilter(filter: RelayFilter)
 }
 
 final class LocationViewController: UIViewController {
@@ -24,7 +25,7 @@ final class LocationViewController: UIViewController {
     private var dataSource: LocationDataSource?
     private var cachedRelays: CachedRelays?
     private var filter = RelayFilter()
-    var relayLocations: UserSelectedRelays?
+    private var selectedRelays: UserSelectedRelays?
     weak var delegate: LocationViewControllerDelegate?
     var customListRepository: CustomListRepositoryProtocol
 
@@ -36,13 +37,9 @@ final class LocationViewController: UIViewController {
         return (filter.ownership == .any) && (filter.providers == .any)
     }
 
-    var navigateToFilter: (() -> Void)?
-    var didSelectRelays: ((UserSelectedRelays) -> Void)?
-    var didUpdateFilter: ((RelayFilter) -> Void)?
-    var didFinish: (() -> Void)?
-
-    init(customListRepository: CustomListRepositoryProtocol) {
+    init(customListRepository: CustomListRepositoryProtocol, selectedRelays: UserSelectedRelays?) {
         self.customListRepository = customListRepository
+        self.selectedRelays = selectedRelays
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -58,32 +55,6 @@ final class LocationViewController: UIViewController {
         view.accessibilityIdentifier = .selectLocationView
         view.backgroundColor = .secondaryColor
 
-        navigationItem.title = NSLocalizedString(
-            "NAVIGATION_TITLE",
-            tableName: "SelectLocation",
-            value: "Select location",
-            comment: ""
-        )
-
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            title: NSLocalizedString(
-                "NAVIGATION_TITLE",
-                tableName: "SelectLocation",
-                value: "Filter",
-                comment: ""
-            ),
-            primaryAction: UIAction(handler: { [weak self] _ in
-                self?.navigateToFilter?()
-            })
-        )
-
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            systemItem: .done,
-            primaryAction: UIAction(handler: { [weak self] _ in
-                self?.didFinish?()
-            })
-        )
-
         setUpDataSources()
         setUpTableView()
         setUpTopContent()
@@ -92,7 +63,7 @@ final class LocationViewController: UIViewController {
             topContentView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
 
             tableView.pinEdgesToSuperview(.all().excluding(.top))
-            tableView.topAnchor.constraint(equalTo: topContentView.bottomAnchor)
+            tableView.topAnchor.constraint(equalTo: topContentView.bottomAnchor, constant: 8)
         }
     }
 
@@ -115,11 +86,11 @@ final class LocationViewController: UIViewController {
             filterView.setFilter(filter)
         }
 
-        dataSource?.setRelays(cachedRelays.relays, selectedRelays: relayLocations, filter: filter)
+        dataSource?.setRelays(cachedRelays.relays, selectedRelays: selectedRelays, filter: filter)
     }
 
     func refreshCustomLists() {
-        dataSource?.refreshCustomLists(selectedRelays: relayLocations)
+        dataSource?.refreshCustomLists(selectedRelays: selectedRelays)
     }
 
     // MARK: - Private
@@ -135,16 +106,15 @@ final class LocationViewController: UIViewController {
         )
 
         dataSource?.didSelectRelayLocations = { [weak self] locations in
-            self?.didSelectRelays?(locations)
+            self?.delegate?.didSelectRelays(relays: locations)
         }
 
         dataSource?.didTapEditCustomLists = { [weak self] in
-            guard let self else { return }
-            delegate?.didRequestRouteToCustomLists(self, nodes: allLocationDataSource.nodes)
+            self?.delegate?.navigateToCustomLists(nodes: allLocationDataSource.nodes)
         }
 
         if let cachedRelays {
-            dataSource?.setRelays(cachedRelays.relays, selectedRelays: relayLocations, filter: filter)
+            dataSource?.setRelays(cachedRelays.relays, selectedRelays: selectedRelays, filter: filter)
         }
     }
 
@@ -170,7 +140,7 @@ final class LocationViewController: UIViewController {
             guard let self else { return }
 
             filter = $0
-            didUpdateFilter?($0)
+            delegate?.didUpdateFilter(filter: $0)
 
             if let cachedRelays {
                 setCachedRelays(cachedRelays, filter: filter)
