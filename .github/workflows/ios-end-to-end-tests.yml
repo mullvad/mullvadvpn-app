@@ -26,6 +26,7 @@ jobs:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     name: End to end tests
     runs-on: [self-hosted, macOS, ios-test]
+    timeout-minutes: 60
     steps:
       - name: Configure Rust
         uses: actions-rs/toolchain@v1
@@ -55,6 +56,7 @@ jobs:
           has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
           no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
           test_device_udid: ${{ secrets.IOS_TEST_DEVICE_UDID }}
+          partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
 
       - name: Comment PR on test failure
         if: failure() && github.event_name == 'pull_request'
@@ -76,5 +78,14 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-report
-          path: ios/test-report/junit.xml
+          name: test-results
+          path: |
+            ios/junit-test-report/junit.xml
+            ios/xcode-test-report.xcresult
+
+      - name: Store app log artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-logs
+          path: ios/xcode-test-report/**/app-log-*.log

@@ -13,7 +13,7 @@ class RevokedDevicePage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .revokedDeviceView
+        self.pageElement = app.otherElements[.revokedDeviceView]
         waitForPageToBeShown()
     }
 

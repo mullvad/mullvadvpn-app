@@ -14,7 +14,7 @@ class Alert: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .alertContainerView
+        self.pageElement = app.otherElements[.alertContainerView]
         waitForPageToBeShown()
     }
 

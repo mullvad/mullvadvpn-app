@@ -16,6 +16,13 @@ class AccountApi: XCTestCase {
 }
 
 class AccountTests: LoggedOutUITestCase {
+    lazy var mullvadAPIWrapper: MullvadAPIWrapper = {
+        do {
+            // swiftlint:disable:next force_try
+            return try! MullvadAPIWrapper()
+        }
+    }()
+
     override func setUpWithError() throws {
         continueAfterFailure = false
 
@@ -29,11 +36,11 @@ class AccountTests: LoggedOutUITestCase {
         // Verify welcome page is shown and get account number from it
         let accountNumber = WelcomePage(app).getAccountNumber()
 
-        try MullvadAPIWrapper().deleteAccount(accountNumber)
+        mullvadAPIWrapper.deleteAccount(accountNumber)
     }
 
     func testDeleteAccount() throws {
-        let accountNumber = try MullvadAPIWrapper().createAccount()
+        let accountNumber = mullvadAPIWrapper.createAccount()
 
         LoginPage(app)
             .tapAccountNumberTextField()
@@ -60,12 +67,31 @@ class AccountTests: LoggedOutUITestCase {
             .verifyFailIconShown()
     }
 
+    /// Verify logging in works. Will retry x number of times since login request sometimes time out.
     func testLogin() throws {
+        let hasTimeAccountNumber = getAccountWithTime()
+
+        addTeardownBlock {
+            self.returnAccountWithTime(accountNumber: hasTimeAccountNumber)
+        }
+
+        var successIconShown = false
+        var retryCount = 0
+        let maxRetryCount = 3
+
         LoginPage(app)
             .tapAccountNumberTextField()
             .enterText(hasTimeAccountNumber)
-            .tapAccountNumberSubmitButton()
-            .verifySuccessIconShown()
+
+        repeat {
+            successIconShown = LoginPage(app)
+                .tapAccountNumberSubmitButton()
+                .getSuccessIconShown()
+
+            retryCount += 1
+        } while successIconShown == false && retryCount < maxRetryCount
+
+        HeaderBar(app)
             .verifyDeviceLabelShown()
     }
 
@@ -80,16 +106,12 @@ class AccountTests: LoggedOutUITestCase {
 
     func testLoginToAccountWithTooManyDevices() throws {
         // Setup
-        let temporaryAccountNumber = try MullvadAPIWrapper().createAccount()
-        try MullvadAPIWrapper().addDevices(5, account: temporaryAccountNumber)
+        let temporaryAccountNumber = mullvadAPIWrapper.createAccount()
+        mullvadAPIWrapper.addDevices(5, account: temporaryAccountNumber)
 
         // Teardown
         addTeardownBlock {
-            do {
-                try MullvadAPIWrapper().deleteAccount(temporaryAccountNumber)
-            } catch {
-                XCTFail("Failed to delete account using app API")
-            }
+            self.mullvadAPIWrapper.deleteAccount(temporaryAccountNumber)
         }
 
         LoginPage(app)
@@ -109,6 +131,8 @@ class AccountTests: LoggedOutUITestCase {
         // First taken back to login page and automatically being logged in
         LoginPage(app)
             .verifySuccessIconShown()
+
+        HeaderBar(app)
             .verifyDeviceLabelShown()
 
         // And then taken to out of time page because this account don't have any time added to it
@@ -116,26 +140,33 @@ class AccountTests: LoggedOutUITestCase {
     }
 
     func testLogOut() throws {
-        let newAccountNumber = try MullvadAPIWrapper().createAccount()
+        let newAccountNumber = mullvadAPIWrapper.createAccount()
         login(accountNumber: newAccountNumber)
-        XCTAssertEqual(try MullvadAPIWrapper().getDevices(newAccountNumber).count, 1)
+        XCTAssertEqual(try mullvadAPIWrapper.getDevices(newAccountNumber).count, 1, "Account has one device")
 
         HeaderBar(app)
             .tapAccountButton()
 
         AccountPage(app)
             .tapLogOutButton()
+            .waitForLogoutSpinnerToDisappear()
 
         LoginPage(app)
 
-        XCTAssertEqual(try MullvadAPIWrapper().getDevices(newAccountNumber).count, 0)
-        try MullvadAPIWrapper().deleteAccount(newAccountNumber)
+        XCTAssertEqual(try mullvadAPIWrapper.getDevices(newAccountNumber).count, 0, "Account has 0 devices")
+        mullvadAPIWrapper.deleteAccount(newAccountNumber)
     }
 
     func testTimeLeft() throws {
+        let hasTimeAccountNumber = getAccountWithTime()
+
+        addTeardownBlock {
+            self.returnAccountWithTime(accountNumber: hasTimeAccountNumber)
+        }
+
         login(accountNumber: hasTimeAccountNumber)
 
-        let accountExpiry = try MullvadAPIWrapper().getAccountExpiry(hasTimeAccountNumber)
+        let accountExpiry = try mullvadAPIWrapper.getAccountExpiry(hasTimeAccountNumber)
 
         HeaderBar(app)
             .tapAccountButton()

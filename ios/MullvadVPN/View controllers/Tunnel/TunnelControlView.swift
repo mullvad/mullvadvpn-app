@@ -189,6 +189,8 @@ final class TunnelControlView: UIView {
         switch tunnelState {
         case .connected:
             secureLabel.accessibilityIdentifier = .connectionStatusConnectedLabel
+        case .connecting:
+            secureLabel.accessibilityIdentifier = .connectionStatusConnectingLabel
         default:
             secureLabel.accessibilityIdentifier = .connectionStatusNotConnectedLabel
         }
