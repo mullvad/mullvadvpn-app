@@ -13,21 +13,20 @@ struct LocationCellViewModel: Hashable {
     let node: LocationNode
     var indentationLevel = 0
     var isSelected = false
+    var excludedRelayTitle: String?
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(node)
         hasher.combine(node.children.count)
         hasher.combine(section)
         hasher.combine(isSelected)
-        hasher.combine(indentationLevel)
     }
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.node == rhs.node &&
             lhs.node.children.count == rhs.node.children.count &&
             lhs.section == rhs.section &&
-            lhs.isSelected == rhs.isSelected &&
-            lhs.indentationLevel == rhs.indentationLevel
+            lhs.isSelected == rhs.isSelected
     }
 }
 

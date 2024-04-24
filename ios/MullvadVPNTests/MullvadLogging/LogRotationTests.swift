@@ -22,7 +22,7 @@ final class LogRotationTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
-        try fileManager.removeItem(at: directoryPath)
+        try? fileManager.removeItem(at: directoryPath)
     }
 
     func testRotatingActiveLogWhenSizeLimitIsExceeded() throws {
