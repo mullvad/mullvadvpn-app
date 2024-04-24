@@ -14,7 +14,7 @@ import WireGuardKitTypes
 // not needed? as we have the PacketTunnelProvider
 // typealias InTunnelTCPConnectionCreator = (NWHostEndpoint) -> NWTCPConnection
 
-actor PostQuantumKeyExchangeActor {
+class PostQuantumKeyExchangeActor {
 //    let createNetworkConnection: InTunnelTCPConnectionCreator
     unowned let packetTunnel: PacketTunnelProvider
     private var negotiator: PostQuantumKeyNegotiator?
@@ -58,5 +58,14 @@ actor PostQuantumKeyExchangeActor {
             )
             self.tcpConnectionObserver!.invalidate()
         }
+    }
+
+    func acknowledgePostQuantumKey() {
+        negotiator?.cancelKeyNegotiation()
+        tcpConnectionObserver?.invalidate()
+        inTunnelTCPConnection?.cancel()
+        tcpConnectionObserver = nil
+        inTunnelTCPConnection = nil
+        negotiator = nil
     }
 }
