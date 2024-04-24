@@ -30,6 +30,7 @@ import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
+import org.koin.android.ext.android.getKoin
 
 class MullvadTileService : TileService() {
     private var scope: CoroutineScope? = null
@@ -37,9 +38,13 @@ class MullvadTileService : TileService() {
     private lateinit var securedIcon: Icon
     private lateinit var unsecuredIcon: Icon
 
+    private lateinit var managementService: ManagementService
+
     override fun onCreate() {
         securedIcon = Icon.createWithResource(this, R.drawable.small_logo_white)
         unsecuredIcon = Icon.createWithResource(this, R.drawable.small_logo_black)
+
+        with(getKoin()) { managementService = get() }
     }
 
     override fun onClick() {
@@ -135,12 +140,6 @@ class MullvadTileService : TileService() {
 
     @OptIn(FlowPreview::class)
     private fun CoroutineScope.launchListenToTunnelState() = launch {
-        val managementService =
-            ManagementService(
-                applicationContext,
-                "/data/data/net.mullvad.mullvadvpn/rpc-socket",
-                MainScope()
-            )
         managementService.start()
         combine(managementService.tunnelState, managementService.connectionState) {
                 tunnelState,

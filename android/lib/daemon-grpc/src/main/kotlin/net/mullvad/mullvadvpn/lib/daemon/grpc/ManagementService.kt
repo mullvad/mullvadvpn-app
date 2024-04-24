@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.lib.daemon.grpc
 
-import android.content.Context
 import android.net.LocalSocketAddress
 import android.util.Log
 import arrow.core.Either
@@ -20,13 +19,10 @@ import kotlin.time.measureTimedValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
@@ -36,9 +32,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
-import net.mullvad.mullvadvpn.lib.common.util.MigrateSplitTunnelingResult
-import net.mullvad.mullvadvpn.lib.common.util.migrateSplitTunneling
-import net.mullvad.mullvadvpn.lib.common.util.shouldMigrateSplitTunneling
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.LogInterceptor
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.connectivityFlow
 import net.mullvad.mullvadvpn.model.AccountData
@@ -107,7 +100,6 @@ import net.mullvad.mullvadvpn.model.relayConstraints
 import net.mullvad.mullvadvpn.model.wireguardConstraints
 
 class ManagementService(
-    private val context: Context,
     rpcSocketPath: String,
     private val scope: CoroutineScope,
 ) {
@@ -157,54 +149,50 @@ class ManagementService(
     val wireguardEndpointData: Flow<ModelWireguardEndpointData> =
         _mutableStateFlow.mapNotNull { it.relayList?.wireguardEndpointData }
 
-    // Migrate split tunneling states
-    val shouldTryMigrateSplitTunneling = MutableStateFlow<Boolean?>(null)
-
-    val migrateSplitTunnelingError = Channel<Boolean>()
-
     suspend fun start() {
-        scope.launch { shouldTryMigrateSplitTunneling.emit(shouldMigrateSplitTunneling(context)) }
         scope.launch {
             try {
-                withContext(Dispatchers.IO) {
-                    grpc.eventsListen(Empty.getDefaultInstance()).collect { event ->
-                        Log.d("ManagementService", "Event: $event")
-                        @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
-                        when (event.eventCase) {
-                            ManagementInterface.DaemonEvent.EventCase.TUNNEL_STATE ->
-                                _mutableStateFlow.update {
-                                    it.copy(tunnelState = event.tunnelState.toDomain())
-                                }
-                            ManagementInterface.DaemonEvent.EventCase.SETTINGS ->
-                                _mutableStateFlow.update {
-                                    it.copy(settings = event.settings.toDomain())
-                                }
-                            ManagementInterface.DaemonEvent.EventCase.RELAY_LIST ->
-                                _mutableStateFlow.update {
-                                    it.copy(relayList = event.relayList.toDomain())
-                                }
-                            ManagementInterface.DaemonEvent.EventCase.VERSION_INFO ->
-                                _mutableStateFlow.update {
-                                    it.copy(versionInfo = event.versionInfo.toDomain())
-                                }
-                            ManagementInterface.DaemonEvent.EventCase.DEVICE ->
-                                _mutableStateFlow.update {
-                                    it.copy(device = event.device.newState.toDomain())
-                                }
-                            ManagementInterface.DaemonEvent.EventCase.REMOVE_DEVICE -> {}
-                            ManagementInterface.DaemonEvent.EventCase.EVENT_NOT_SET -> {}
-                            ManagementInterface.DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
-                        }
-                    }
-                }
+                setupListen()
             } catch (e: Exception) {
                 Log.e(
                     TAG,
                     "Error in eventsListen: ${e.message}, ${e.cause}, ${e.stackTraceToString()}",
                 )
+                // Try to set up listen again
+                setupListen()
             }
         }
         scope.launch { _mutableStateFlow.update { getInitialServiceState() } }
+    }
+
+    private suspend fun setupListen() {
+        withContext(Dispatchers.IO) {
+            grpc.eventsListen(Empty.getDefaultInstance()).collect { event ->
+                Log.d("ManagementService", "Event: $event")
+                @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
+                when (event.eventCase) {
+                    ManagementInterface.DaemonEvent.EventCase.TUNNEL_STATE ->
+                        _mutableStateFlow.update {
+                            it.copy(tunnelState = event.tunnelState.toDomain())
+                        }
+                    ManagementInterface.DaemonEvent.EventCase.SETTINGS ->
+                        _mutableStateFlow.update { it.copy(settings = event.settings.toDomain()) }
+                    ManagementInterface.DaemonEvent.EventCase.RELAY_LIST ->
+                        _mutableStateFlow.update { it.copy(relayList = event.relayList.toDomain()) }
+                    ManagementInterface.DaemonEvent.EventCase.VERSION_INFO ->
+                        _mutableStateFlow.update {
+                            it.copy(versionInfo = event.versionInfo.toDomain())
+                        }
+                    ManagementInterface.DaemonEvent.EventCase.DEVICE ->
+                        _mutableStateFlow.update {
+                            it.copy(device = event.device.newState.toDomain())
+                        }
+                    ManagementInterface.DaemonEvent.EventCase.REMOVE_DEVICE -> {}
+                    ManagementInterface.DaemonEvent.EventCase.EVENT_NOT_SET -> {}
+                    ManagementInterface.DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
+                }
+            }
+        }
     }
 
     suspend fun getDevice(): Either<GetDeviceStateError, net.mullvad.mullvadvpn.model.DeviceState> =
@@ -236,37 +224,7 @@ class ManagementService(
         grpc.getTunnelState(Empty.getDefaultInstance()).toDomain()
 
     suspend fun connect(): Either<ConnectError, Boolean> =
-        Either.catch {
-                // Check if we need to migrate split tunneling
-                if (shouldTryMigrateSplitTunneling.filterNotNull().first()) {
-                    val result =
-                        migrateSplitTunneling(
-                            context,
-                            { setSplitTunnelingState(it).isRight() },
-                            {
-                                it.map { appId -> addSplitTunnelingApp(appId).isRight() }
-                                    .all { isSuccessful -> isSuccessful }
-                            },
-                        )
-                    shouldTryMigrateSplitTunneling.emit(false)
-                    when (result) {
-                        MigrateSplitTunnelingResult.Failed -> {
-                            // Show this to the user
-                            Log.e(TAG, "Failed to migrate split tunneling settings")
-                            migrateSplitTunnelingError.send(false)
-                        }
-                        MigrateSplitTunnelingResult.NoOldSettingsFound -> {
-                            // We do not need to check until next app start
-                            Log.d(TAG, "No old split tunneling settings found")
-                        }
-                        MigrateSplitTunnelingResult.Success -> {
-                            // We have migrated the settings, no need to check again
-                            Log.d(TAG, "Successfully migrated split tunneling settings")
-                        }
-                    }
-                }
-                grpc.connectTunnel(Empty.getDefaultInstance()).value
-            }
+        Either.catch { grpc.connectTunnel(Empty.getDefaultInstance()).value }
             .mapLeft(ConnectError::Unknown)
 
     suspend fun disconnect(): Boolean = grpc.disconnectTunnel(Empty.getDefaultInstance()).value
@@ -567,6 +525,24 @@ class ManagementService(
                                     it.settings.splitTunnelSettings.copy(
                                         excludedApps =
                                             it.settings.splitTunnelSettings.excludedApps + app,
+                                    ),
+                            ),
+                    )
+                }
+            }
+            .mapLeft(AddSplitTunnelingAppError::Unknown)
+
+    suspend fun addSplitTunnelingApps(apps: List<AppId>): Either<AddSplitTunnelingAppError, Unit> =
+        Either.catch {
+                // TODO Not yet implemented, added local update that do not change the tunnel
+                _mutableStateFlow.update {
+                    it.copy(
+                        settings =
+                            it.settings?.copy(
+                                splitTunnelSettings =
+                                    it.settings.splitTunnelSettings.copy(
+                                        excludedApps =
+                                            it.settings.splitTunnelSettings.excludedApps + apps,
                                     ),
                             ),
                     )

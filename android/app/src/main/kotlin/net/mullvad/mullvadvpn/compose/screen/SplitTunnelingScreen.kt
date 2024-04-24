@@ -37,18 +37,15 @@ import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.constant.SplitTunnelingContentKey
-import net.mullvad.mullvadvpn.compose.destinations.MigrateSplitTunnelingErrorDestination
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.util.getApplicationIconBitmapOrNull
-import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -94,14 +91,6 @@ fun SplitTunneling(navigator: DestinationsNavigator) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val packageManager = remember(context) { context.packageManager }
-
-    LaunchedEffectCollect(sideEffect = viewModel.uiSideEffect) {
-        when (it) {
-            SplitTunnelingUiSideEffect.ShowMigrateSplitTunnelingError -> {
-                navigator.navigate(MigrateSplitTunnelingErrorDestination)
-            }
-        }
-    }
 
     SplitTunnelingScreen(
         state = state,
