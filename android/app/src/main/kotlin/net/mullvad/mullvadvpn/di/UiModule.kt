@@ -10,7 +10,6 @@ import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
-import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.repository.AccountRepository
@@ -18,6 +17,7 @@ import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
+import net.mullvad.mullvadvpn.repository.MigrateSplitTunnelingRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.ProblemReportRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
@@ -124,7 +124,6 @@ val uiModule = module {
     single { RelayListFilterRepository(get()) }
     single { VoucherRepository(get()) }
     single { VpnPermissionRepository(get()) }
-    single { SplitTunnelingRepository(androidContext(), get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }
@@ -142,13 +141,6 @@ val uiModule = module {
     single { FilteredRelayListUseCase(get(), get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
-    single {
-        ManagementService(
-            androidContext(),
-            "/data/data/net.mullvad.mullvadvpn/rpc-socket",
-            MainScope(),
-        )
-    }
 
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 

@@ -27,7 +27,7 @@ private fun PreviewMigrateSplitTunnelingErrorDialog() {
     AppTheme {
         MigrateSplitTunnelingErrorDialog(
             onCloseDialog = {},
-            onTryAgainLater = {},
+            onTryAgain = {},
             onNeverTryAgain = {},
         )
     }
@@ -46,7 +46,7 @@ fun MigrateSplitTunnelingError(navigator: DestinationsNavigator) {
 
     MigrateSplitTunnelingErrorDialog(
         onCloseDialog = navigator::navigateUp,
-        onTryAgainLater = vm::tryAgainLater,
+        onTryAgain = vm::tryAgain,
         onNeverTryAgain = vm::clearOldSettings,
     )
 }
@@ -54,7 +54,7 @@ fun MigrateSplitTunnelingError(navigator: DestinationsNavigator) {
 @Composable
 fun MigrateSplitTunnelingErrorDialog(
     onCloseDialog: () -> Unit,
-    onTryAgainLater: () -> Unit,
+    onTryAgain: () -> Unit,
     onNeverTryAgain: () -> Unit
 ) {
     AlertDialog(
@@ -95,8 +95,8 @@ fun MigrateSplitTunnelingErrorDialog(
         confirmButton = {
             PrimaryButton(
                 // TODO Translate
-                text = "Try again later",
-                onClick = onTryAgainLater,
+                text = "Try again",
+                onClick = onTryAgain,
             )
         },
     )
