@@ -12,7 +12,7 @@ class ListCustomListsPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .listCustomListsView
+        self.pageElement = app.otherElements[.listCustomListsView]
         waitForPageToBeShown()
     }
 
