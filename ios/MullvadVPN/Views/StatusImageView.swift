@@ -29,6 +29,22 @@ class StatusImageView: UIImageView {
         }
     }
 
+    override var accessibilityValue: String? {
+        get {
+            switch style {
+            case .success:
+                return "success"
+            case .failure:
+                return "fail"
+            }
+        }
+
+        // swiftlint:disable:next unused_setter_value
+        set {
+            fatalError("This accessibilityValue property is get only")
+        }
+    }
+
     override var intrinsicContentSize: CGSize {
         CGSize(width: 60, height: 60)
     }
@@ -42,6 +58,7 @@ class StatusImageView: UIImageView {
         self.style = style
         super.init(image: style.image)
         image = style.image
+        accessibilityIdentifier = .statusImageView
     }
 
     required init?(coder: NSCoder) {

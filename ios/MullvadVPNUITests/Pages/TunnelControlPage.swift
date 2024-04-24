@@ -74,7 +74,7 @@ class TunnelControlPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .tunnelControlView
+        self.pageElement = app.otherElements[.tunnelControlView]
         waitForPageToBeShown()
     }
 
@@ -98,9 +98,25 @@ class TunnelControlPage: Page {
         return self
     }
 
+    /// Tap either cancel or disconnect button, depending on the current connection state. Use this function sparingly when it's irrelevant whether the app is currently connecting to a relay or already connected.
+    @discardableResult func tapCancelOrDisconnectButton() -> Self {
+        let cancelButton = app.buttons[.cancelButton]
+        let disconnectButton = app.buttons[.disconnectButton]
+
+        if disconnectButton.exists && disconnectButton.isHittable {
+            disconnectButton.tap()
+        } else {
+            cancelButton.tap()
+        }
+
+        return self
+    }
+
     @discardableResult func waitForSecureConnectionLabel() -> Self {
-        _ = app.staticTexts[AccessibilityIdentifier.connectionStatusConnectedLabel]
-            .waitForExistence(timeout: BaseUITestCase.defaultTimeout)
+        let labelFound = app.staticTexts[.connectionStatusConnectedLabel]
+            .waitForExistence(timeout: BaseUITestCase.extremelyLongTimeout)
+        XCTAssertTrue(labelFound, "Secure connection label presented")
+
         return self
     }
 
@@ -196,5 +212,16 @@ class TunnelControlPage: Page {
             XCTFail("Failed to read relay IP address from status label")
             return String()
         }
+    }
+
+    func getCurrentRelayName() -> String {
+        let relayExpandButton = app.buttons[.relayStatusCollapseButton]
+
+        guard let relayName = relayExpandButton.value as? String else {
+            XCTFail("Failed to read relay name from tunnel control page")
+            return String()
+        }
+
+        return relayName
     }
 }

@@ -11,18 +11,19 @@ import XCTest
 
 class Page {
     let app: XCUIApplication
-    var pageAccessibilityIdentifier: AccessibilityIdentifier?
+
+    /// Element in the page used to verify that the page is currently being shown, usually accessibilityIdentifier of the view controller's main view
+    var pageElement: XCUIElement?
 
     @discardableResult init(_ app: XCUIApplication) {
         self.app = app
     }
 
     func waitForPageToBeShown() {
-        if let pageAccessibilityIdentifier = self.pageAccessibilityIdentifier {
-            XCTAssert(
-                self.app.descendants(matching: .any).matching(identifier: pageAccessibilityIdentifier.rawValue)
-                    .firstMatch
-                    .waitForExistence(timeout: BaseUITestCase.defaultTimeout)
+        if let pageElement {
+            XCTAssertTrue(
+                pageElement.waitForExistence(timeout: BaseUITestCase.defaultTimeout),
+                "Page is shown"
             )
         }
     }
