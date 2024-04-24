@@ -13,7 +13,7 @@ class WelcomePage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .welcomeView
+        self.pageElement = app.otherElements[.welcomeView]
         waitForPageToBeShown()
     }
 
