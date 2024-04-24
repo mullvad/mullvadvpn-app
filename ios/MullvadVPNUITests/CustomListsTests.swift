@@ -38,7 +38,6 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
 
         let customListName = createCustomListName()
         createCustomList(named: customListName)
-        workaroundOpenCustomListMenuBug()
         deleteCustomList(named: customListName)
 
         SelectLocationPage(app)
@@ -55,17 +54,15 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
         createCustomList(named: customListName)
 
         addTeardownBlock {
-            self.workaroundOpenCustomListMenuBug()
             self.deleteCustomList(named: customListName)
         }
 
-        workaroundOpenCustomListMenuBug()
         startEditingCustomList(named: customListName)
 
         EditCustomListLocationsPage(app)
-            .scrollToLocationWith(identifier: "se")
-            .toggleLocationCheckmarkWith(identifier: "se")
-            .tapBackButton()
+            .scrollToLocationWith(identifier: BaseUITestCase.testsDefaultCountryIdentifier)
+            .toggleLocationCheckmarkWith(identifier: BaseUITestCase.testsDefaultCountryIdentifier)
+            .pressBackButton()
 
         CustomListPage(app)
             .tapSaveListButton()
@@ -84,19 +81,17 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
         createCustomList(named: customListName)
 
         addTeardownBlock {
-            self.workaroundOpenCustomListMenuBug()
             self.deleteCustomList(named: customListName)
         }
 
-        workaroundOpenCustomListMenuBug()
         startEditingCustomList(named: customListName)
 
         EditCustomListLocationsPage(app)
-            .scrollToLocationWith(identifier: "se")
-            .unfoldLocationwith(identifier: "se")
-            .unfoldLocationwith(identifier: "se-got")
-            .toggleLocationCheckmarkWith(identifier: "se-got-wg-001")
-            .tapBackButton()
+            .scrollToLocationWith(identifier: BaseUITestCase.testsDefaultCountryIdentifier)
+            .unfoldLocationwith(identifier: BaseUITestCase.testsDefaultCountryIdentifier)
+            .unfoldLocationwith(identifier: BaseUITestCase.testsDefaultCityIdentifier)
+            .toggleLocationCheckmarkWith(identifier: BaseUITestCase.testsDefaultRelayName)
+            .pressBackButton()
 
         CustomListPage(app)
             .tapSaveListButton()
@@ -106,7 +101,7 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
 
         SelectLocationPage(app)
             .tapLocationCellExpandButton(withName: customListName)
-        let customListLocationName = "\(customListName)-se-got-wg-001"
+        let customListLocationName = "\(customListName)-\(BaseUITestCase.testsDefaultRelayName)"
         let customListLocationCell = SelectLocationPage(app).cellWithIdentifier(identifier: customListLocationName)
         XCTAssertTrue(customListLocationCell.exists)
     }
@@ -123,14 +118,6 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
             .renameCustomList(name: name)
             .verifyCreateButtonIs(enabled: true)
             .tapCreateListButton()
-    }
-
-    func workaroundOpenCustomListMenuBug() {
-        // In order to avoid a bug where the open custom list button cannot be found, the location view is closed and then reopened
-        SelectLocationPage(app)
-            .tapDoneButton()
-        TunnelControlPage(app)
-            .tapSelectLocationButton()
     }
 
     func startEditingCustomList(named customListName: String) {
