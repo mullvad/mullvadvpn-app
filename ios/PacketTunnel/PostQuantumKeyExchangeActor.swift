@@ -11,15 +11,21 @@ import MullvadPostQuantum
 import NetworkExtension
 import WireGuardKitTypes
 
-// not needed? as we have the PacketTunnelProvider
-// typealias InTunnelTCPConnectionCreator = (NWHostEndpoint) -> NWTCPConnection
-
 class PostQuantumKeyExchangeActor {
-//    let createNetworkConnection: InTunnelTCPConnectionCreator
+    struct Negotiation {
+        var negotiator: PostQuantumKeyNegotiator
+        var inTunnelTCPConnection: NWTCPConnection
+        var tcpConnectionObserver: NSKeyValueObservation
+
+        func cancel() {
+            negotiator.cancelKeyNegotiation()
+            tcpConnectionObserver.invalidate()
+            inTunnelTCPConnection.cancel()
+        }
+    }
+
     unowned let packetTunnel: PacketTunnelProvider
-    private var negotiator: PostQuantumKeyNegotiator?
-    private var inTunnelTCPConnection: NWTCPConnection?
-    private var tcpConnectionObserver: NSKeyValueObservation?
+    private var negotiation: Negotiation?
 
     init(packetTunnel: PacketTunnelProvider /* , createNetworkConnection: @escaping InTunnelTCPConnectionCreator */ ) {
         self.packetTunnel = packetTunnel
@@ -35,37 +41,38 @@ class PostQuantumKeyExchangeActor {
     }
 
     func startNegotiation(with privateKey: PrivateKey) {
-        negotiator = PostQuantumKeyNegotiator()
+        let negotiator = PostQuantumKeyNegotiator()
 
         let gatewayAddress = "10.64.0.1"
         let IPv4Gateway = IPv4Address(gatewayAddress)!
         let endpoint = NWHostEndpoint(hostname: gatewayAddress, port: "1337")
-        inTunnelTCPConnection = createTCPConnection(endpoint)
+        let inTunnelTCPConnection = createTCPConnection(endpoint)
 
         let ephemeralSharedKey = PrivateKey() // This will become the new private key of the device
 
-        tcpConnectionObserver = inTunnelTCPConnection!.observe(\.isViable, options: [
+        let tcpConnectionObserver = inTunnelTCPConnection.observe(\.isViable, options: [
             .initial,
             .new,
         ]) { [weak self] observedConnection, _ in
             guard let self, observedConnection.isViable else { return }
-            negotiator!.negotiateKey(
+            negotiator.negotiateKey(
                 gatewayIP: IPv4Gateway,
                 devicePublicKey: privateKey.publicKey,
                 presharedKey: ephemeralSharedKey,
                 packetTunnel: packetTunnel,
-                tcpConnection: inTunnelTCPConnection!
+                tcpConnection: inTunnelTCPConnection
             )
-            self.tcpConnectionObserver!.invalidate()
+            self.negotiation?.tcpConnectionObserver.invalidate()
         }
+        negotiation = Negotiation(
+            negotiator: negotiator,
+            inTunnelTCPConnection: inTunnelTCPConnection,
+            tcpConnectionObserver: tcpConnectionObserver
+        )
     }
 
     func acknowledgeNegotiationConcluded() {
-        negotiator?.cancelKeyNegotiation()
-        tcpConnectionObserver?.invalidate()
-        inTunnelTCPConnection?.cancel()
-        tcpConnectionObserver = nil
-        inTunnelTCPConnection = nil
-        negotiator = nil
+        negotiation?.cancel()
+        negotiation = nil
     }
 }
