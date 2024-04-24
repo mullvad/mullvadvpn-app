@@ -13,7 +13,7 @@ class SelectLocationPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .selectLocationView
+        self.pageElement = app.otherElements[.selectLocationView]
         waitForPageToBeShown()
     }
 
@@ -68,8 +68,16 @@ class SelectLocationPage: Page {
     }
 
     @discardableResult func tapCustomListEllipsisButton() -> Self {
-        let customListEllipsisButton = app.buttons[AccessibilityIdentifier.openCustomListsMenuButton]
-        customListEllipsisButton.tap()
+        let customListEllipsisButtons = app.buttons
+            .matching(identifier: AccessibilityIdentifier.openCustomListsMenuButton.rawValue).allElementsBoundByIndex
+
+        for ellipsisButton in customListEllipsisButtons where ellipsisButton.isHittable {
+            ellipsisButton.tap()
+            return self
+        }
+
+        XCTFail("Found no hittable custom list ellipsis button")
+
         return self
     }
 

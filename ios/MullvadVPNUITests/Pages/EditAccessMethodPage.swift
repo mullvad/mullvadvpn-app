@@ -12,8 +12,7 @@ import XCTest
 class EditAccessMethodPage: Page {
     override init(_ app: XCUIApplication) {
         super.init(app)
-
-        self.pageAccessibilityIdentifier = .editAccessMethodView
+        self.pageElement = app.tables[.editAccessMethodView]
         waitForPageToBeShown()
     }
 

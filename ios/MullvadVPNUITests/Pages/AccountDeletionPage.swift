@@ -13,7 +13,7 @@ class AccountDeletionPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .deleteAccountView
+        self.pageElement = app.otherElements[.deleteAccountView]
         waitForPageToBeShown()
     }
 
@@ -23,12 +23,7 @@ class AccountDeletionPage: Page {
     }
 
     @discardableResult func tapDeleteAccountButton() -> Self {
-        guard let pageAccessibilityIdentifier = self.pageAccessibilityIdentifier else {
-            XCTFail("Page's accessibility identifier not set")
-            return self
-        }
-
-        app.otherElements[pageAccessibilityIdentifier].buttons[AccessibilityIdentifier.deleteButton].tap()
+        app.otherElements[.deleteAccountView].buttons[AccessibilityIdentifier.deleteButton].tap()
         return self
     }
 

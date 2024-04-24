@@ -12,8 +12,7 @@ import XCTest
 class AddAccessMethodPage: Page {
     override init(_ app: XCUIApplication) {
         super.init(app)
-
-        self.pageAccessibilityIdentifier = .addAccessMethodTableView
+        self.pageElement = app.tables[.addAccessMethodTableView]
         waitForPageToBeShown()
     }
 
@@ -75,8 +74,7 @@ class AddAccessMethodPage: Page {
 class AddAccessMethodAPIUnreachableAlert: Page {
     override init(_ app: XCUIApplication) {
         super.init(app)
-
-        self.pageAccessibilityIdentifier = .accessMethodUnreachableAlert
+        self.pageElement = app.otherElements[.accessMethodUnreachableAlert]
         waitForPageToBeShown()
     }
 
