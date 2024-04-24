@@ -94,8 +94,8 @@ class RelayFilterView: UIView {
         contentContainer.spacing = UIMetrics.FilterView.labelSpacing
 
         addConstrainedSubviews([contentContainer]) {
-            contentContainer.pinEdges(.init([.top(0), .bottom(0)]), to: self)
-            contentContainer.pinEdges(.init([.leading(0), .trailing(0)]), to: layoutMarginsGuide)
+            contentContainer.pinEdges(.init([.top(4), .bottom(0)]), to: self)
+            contentContainer.pinEdges(.init([.leading(4), .trailing(4)]), to: layoutMarginsGuide)
         }
     }
 
