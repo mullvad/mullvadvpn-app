@@ -137,7 +137,7 @@ extension UIColor {
     }
 
     enum SegmentedControl {
-        static let backgroundColor = UIColor(red: 0.18, green: 0.33, blue: 0.49, alpha: 1.0)
+        static let backgroundColor = UIColor(red: 0.14, green: 0.25, blue: 0.38, alpha: 1.0)
         static let selectedColor = successColor
     }
 
