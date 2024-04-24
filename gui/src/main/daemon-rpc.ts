@@ -176,7 +176,13 @@ export class DaemonRpc {
 
   public connect(): Promise<void> {
     return new Promise((resolve, reject) => {
+      const usedClient = this.client;
       this.client.waitForReady(this.deadlineFromNow(), (error) => {
+        if (this.client !== usedClient) {
+          reject(new Error('Stale connection attempt'));
+          return;
+        }
+
         if (error) {
           this.onClose(error);
           this.ensureConnectivity();
@@ -831,6 +837,9 @@ export class DaemonRpc {
   // check the connectivity state and nudge the client into connecting.
   // `grpc.Channel.getConnectivityState(true)` should make it attempt to connect.
   private ensureConnectivity() {
+    if (this.reconnectionTimeout) {
+      clearTimeout(this.reconnectionTimeout);
+    }
     this.reconnectionTimeout = setTimeout(() => {
       const lastState = this.client.getChannel().getConnectivityState(true);
       if (this.channelDisconnected(lastState)) {
