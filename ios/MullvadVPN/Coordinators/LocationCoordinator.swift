@@ -54,10 +54,9 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     }
 
     func start() {
-        // TODO: - the location should be defined whether it's Entry or Exit location
         let locationViewControllerWrapper = LocationViewControllerWrapper(
             customListRepository: customListRepository,
-            selectedRelays: tunnelManager.settings.relayConstraints.exitLocations.value
+            constraints: tunnelManager.settings.relayConstraints
         )
         locationViewControllerWrapper.delegate = self
 
@@ -155,15 +154,22 @@ extension LocationCoordinator: RelayCacheTrackerObserver {
 }
 
 extension LocationCoordinator: LocationViewControllerWrapperDelegate {
-    func didSelectRelays(relays: UserSelectedRelays) {
+    func didSelectEntryRelays(relays: UserSelectedRelays) {
+        var relayConstraints = tunnelManager.settings.relayConstraints
+        relayConstraints.entryLocations = .only(relays)
+
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
+            self.tunnelManager.startTunnel()
+        }
+    }
+
+    func didSelectExitRelays(relays: UserSelectedRelays) {
         var relayConstraints = tunnelManager.settings.relayConstraints
         relayConstraints.exitLocations = .only(relays)
 
         tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
             self.tunnelManager.startTunnel()
         }
-
-        didFinish?(self)
     }
 
     func didUpdateFilter(filter: RelayFilter) {
