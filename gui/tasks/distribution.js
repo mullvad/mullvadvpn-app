@@ -88,6 +88,7 @@ const config = {
     artifactName: 'MullvadVPN-${version}.${ext}',
     category: 'public.app-category.tools',
     icon: distAssets('icon-macos.icns'),
+    notarize: false,
     extendInfo: {
       LSUIElement: true,
       NSUserNotificationAlertStyle: 'banner',
@@ -344,7 +345,6 @@ function packMac() {
 function notarizeMac(notarizePath) {
   console.log('Notarizing ' + notarizePath);
   return notarize({
-    appBundleId: config.appId,
     appPath: notarizePath,
     keychain: process.env.NOTARIZE_KEYCHAIN,
     keychainProfile: process.env.NOTARIZE_KEYCHAIN_PROFILE,
