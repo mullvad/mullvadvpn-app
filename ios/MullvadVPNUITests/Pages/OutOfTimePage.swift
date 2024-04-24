@@ -13,7 +13,7 @@ class OutOfTimePage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .outOfTimeView
+        self.pageElement = app.otherElements[.outOfTimeView]
         waitForPageToBeShown()
     }
 }

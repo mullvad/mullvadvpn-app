@@ -13,7 +13,8 @@ class DNSSettingsPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .dnsSettings
+        self.pageElement = app.tables[.dnsSettingsTableView]
+        waitForPageToBeShown()
     }
 
     private func assertSwitchOn(accessibilityIdentifier: AccessibilityIdentifier) -> Self {

@@ -13,7 +13,7 @@ class SelectLocationPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageAccessibilityIdentifier = .selectLocationView
+        self.pageElement = app.otherElements[.selectLocationView]
         waitForPageToBeShown()
     }
 
@@ -68,8 +68,18 @@ class SelectLocationPage: Page {
     }
 
     @discardableResult func tapCustomListEllipsisButton() -> Self {
-        let customListEllipsisButton = app.buttons[AccessibilityIdentifier.openCustomListsMenuButton]
-        customListEllipsisButton.tap()
+        let customListEllipsisButtons = app.buttons
+            .matching(identifier: AccessibilityIdentifier.openCustomListsMenuButton.rawValue).allElementsBoundByIndex
+
+        // This is a workaround for an issue we have with the ellipsis showing up multiple times in the accessibility hieararchy even though in the view hierarchy there is only one
+        // Only the actually visual one is hittable, so only the visible button will be tapped
+        for ellipsisButton in customListEllipsisButtons where ellipsisButton.isHittable {
+            ellipsisButton.tap()
+            return self
+        }
+
+        XCTFail("Found no hittable custom list ellipsis button")
+
         return self
     }
 
