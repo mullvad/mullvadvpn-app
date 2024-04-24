@@ -60,7 +60,7 @@ class PostQuantumKeyExchangeActor {
         }
     }
 
-    func acknowledgePostQuantumKey() {
+    func acknowledgeNegotiationConcluded() {
         negotiator?.cancelKeyNegotiation()
         tcpConnectionObserver?.invalidate()
         inTunnelTCPConnection?.cancel()

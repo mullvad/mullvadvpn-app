@@ -341,8 +341,8 @@ extension PacketTunnelProvider {
 }
 
 extension PacketTunnelProvider: PostQuantumKeyReceiving {
-    func receivePostQuantumKey(_ key: PreSharedKey?, ephemeralKey: PrivateKey) {
-        postQuantumActor.acknowledgePostQuantumKey()
+    func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
+        postQuantumActor.acknowledgeNegotiationConcluded()
 //        quantumKeyNegotiatior?.cancelKeyNegotiation()
 //        tcpConnectionObserver?.invalidate()
 //        inTunnelTCPConnection.cancel()
@@ -350,10 +350,11 @@ extension PacketTunnelProvider: PostQuantumKeyReceiving {
 //        inTunnelTCPConnection = nil
 //        quantumKeyNegotiatior = nil
 
-        if let key {
-            actor.replacePreSharedKey(key, ephemeralKey: ephemeralKey)
-        } else {
-            actor.reconnect(to: .current)
-        }
+        actor.replacePreSharedKey(key, ephemeralKey: ephemeralKey)
+    }
+    
+    func keyExchangeFailed() {
+        postQuantumActor.acknowledgeNegotiationConcluded()
+        actor.reconnect(to: .current)
     }
 }
