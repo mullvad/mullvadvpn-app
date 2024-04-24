@@ -23,6 +23,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private let constraintsUpdater = RelayConstraintsUpdater()
 
     private var actor: PacketTunnelActor!
+    private var postQuantumActor: PostQuantumKeyExchangeActor!
     private var appMessageHandler: AppMessageHandler!
     private var stateObserverTask: AnyTask?
     private var deviceChecker: DeviceChecker!
@@ -85,6 +86,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             settingsReader: SettingsReader(),
             protocolObfuscator: ProtocolObfuscator<UDPOverTCPObfuscator>()
         )
+
+        postQuantumActor = PostQuantumKeyExchangeActor(packetTunnel: self)
 
         let urlRequestProxy = URLRequestProxy(dispatchQueue: internalQueue, transportProvider: transportProvider)
 
