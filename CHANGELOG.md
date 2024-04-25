@@ -25,7 +25,12 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add custom bridge settings in GUI.
 
+
+## [2024.2] - 2024-04-29
 ### Fixed
+- Fix bug where the app would fail to select an existing relay in some scenarios, causing the
+  user to wrongly end up in a blocked state.
+
 #### macOS
 - DNS was not properly restored in some cases when using custom DNS.
 
