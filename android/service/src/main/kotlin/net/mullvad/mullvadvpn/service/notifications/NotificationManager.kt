@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.Notification
+import net.mullvad.mullvadvpn.service.notifications.accountexpiry.toNotification
 import net.mullvad.mullvadvpn.service.notifications.tunnelstate.toNotification
 
 class NotificationManager(
@@ -44,6 +45,7 @@ class NotificationManager(
 
     private fun Notification.toAndroidNotification(context: Context): android.app.Notification =
         when (this) {
-            is Notification.Tunnel -> this.toNotification(context)
+            is Notification.Tunnel -> toNotification(context)
+            is Notification.AccountExpiry -> toNotification(context)
         }
 }
