@@ -83,6 +83,7 @@ final class LocationViewController: UIViewController {
                 self?.didFinish?()
             })
         )
+        navigationItem.rightBarButtonItem?.accessibilityIdentifier = .closeSelectLocationButton
 
         setUpDataSources()
         setUpTableView()
