@@ -47,7 +47,7 @@ sealed interface LoginUiSideEffect {
 }
 
 class LoginViewModel(
-    private val accountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository,
+    private val accountRepository: AccountRepository,
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
     private val connectivityUseCase: ConnectivityUseCase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO

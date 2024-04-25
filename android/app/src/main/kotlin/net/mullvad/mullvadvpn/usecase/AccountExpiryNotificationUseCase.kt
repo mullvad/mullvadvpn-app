@@ -10,7 +10,7 @@ import net.mullvad.mullvadvpn.repository.InAppNotification
 import org.joda.time.DateTime
 
 class AccountExpiryNotificationUseCase(
-    private val accountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository,
+    private val accountRepository: AccountRepository,
 ) {
     fun notifications(): Flow<List<InAppNotification>> =
         accountRepository.accountData

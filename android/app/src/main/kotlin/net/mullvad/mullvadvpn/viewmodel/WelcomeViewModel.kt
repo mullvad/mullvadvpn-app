@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
@@ -25,7 +26,7 @@ import net.mullvad.mullvadvpn.util.toPaymentState
 
 @OptIn(FlowPreview::class)
 class WelcomeViewModel(
-    private val accountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository,
+    private val accountRepository: AccountRepository,
     deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentUseCase,
     connectionProxy: ConnectionProxy,
