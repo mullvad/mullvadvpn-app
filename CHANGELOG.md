@@ -37,6 +37,12 @@ Line wrap the file at 100 chars.                                              Th
 - Service failed to start when IPv6 was disabled in the kernel.
 
 
+## [2024.3-beta1] - 2024-05-07
+- Add DAITA (Defence against AI-guided Traffic Analysis) setting. On supported servers, this makes
+  website fingerprinting more difficult by sending random padding packets along with padding all
+  packets to the same size.
+
+
 ## [2024.2] - 2024-04-29
 ### Fixed
 - Fix bug where the app would fail to select an existing relay in some scenarios, causing the
