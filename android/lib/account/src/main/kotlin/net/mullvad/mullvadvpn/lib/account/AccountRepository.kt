@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.CreateAccountError
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.LoginAccountError
+import org.joda.time.DateTime
 
 class AccountRepository(
     private val managementService: ManagementService,
@@ -82,5 +83,9 @@ class AccountRepository(
             is DeviceState.LoggedIn -> deviceState.accountToken
             else -> null
         }
+    }
+
+    internal suspend fun onVoucherRedeemed(newExpiry: DateTime) {
+        accountData.value?.copy(expiryDate = newExpiry)?.let { _mutableAccountData.emit(it) }
     }
 }
