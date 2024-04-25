@@ -56,6 +56,10 @@ Line wrap the file at 100 chars.                                              Th
 - Flush states on tunnel state changes. Previously, pre-existing connections could leak when
   internet sharing was enabled on a device.
 
+#### Windows
+- Update electron-builder to 24.13.3 to fix CVE-2024-27303, which enabled privilege escelation when
+  running the installer.
+
 
 ## [2024.2-beta1] - 2024-04-15
 ### Added
