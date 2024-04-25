@@ -10,9 +10,10 @@ import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
+import net.mullvad.mullvadvpn.lib.account.VoucherRepository
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.model.GeoLocationId
-import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -24,7 +25,6 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.repository.SelectedLocationRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.repository.VoucherRepository
 import net.mullvad.mullvadvpn.repository.VpnPermissionRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
@@ -106,7 +106,7 @@ val uiModule = module {
 
     single { ChangelogRepository(get(named(APP_PREFERENCES_NAME)), get()) }
 
-    single { AccountRepository(get(), MainScope()) }
+    single { net.mullvad.mullvadvpn.lib.account.AccountRepository(get(), MainScope()) }
     single { DeviceRepository(get()) }
     single {
         PrivacyDisclaimerRepository(
@@ -120,7 +120,7 @@ val uiModule = module {
     single { RelayListRepository(get()) }
     single { SelectedLocationRepository(get()) }
     single { RelayListFilterRepository(get()) }
-    single { VoucherRepository(get()) }
+    single { net.mullvad.mullvadvpn.lib.account.VoucherRepository(get()) }
     single { VpnPermissionRepository(get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }

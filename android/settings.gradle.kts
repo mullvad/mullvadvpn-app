@@ -4,6 +4,7 @@ include(
     ":tile"
 )
 include(
+    ":lib:account",
     ":lib:common",
     ":lib:endpoint",
     ":lib:ipc",

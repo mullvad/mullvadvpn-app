@@ -9,9 +9,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountData
-import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
@@ -29,7 +29,7 @@ class AccountExpiryNotificationUseCaseTest {
     fun setup() {
         MockKAnnotations.init(this)
 
-        val accountRepository = mockk<AccountRepository>()
+        val accountRepository = mockk<net.mullvad.mullvadvpn.lib.account.AccountRepository>()
         every { accountRepository.accountExpiryState } returns accountExpiry
 
         accountExpiryNotificationUseCase = AccountExpiryNotificationUseCase(accountRepository)

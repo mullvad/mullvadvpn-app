@@ -23,7 +23,6 @@ import net.mullvad.mullvadvpn.model.ConnectError
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
@@ -38,7 +37,7 @@ import net.mullvad.mullvadvpn.util.toOutAddress
 
 @OptIn(FlowPreview::class)
 class ConnectViewModel(
-    private val accountRepository: AccountRepository,
+    private val accountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository,
     private val deviceRepository: DeviceRepository,
     inAppNotificationController: InAppNotificationController,
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
@@ -113,7 +112,7 @@ class ConnectViewModel(
     init {
         viewModelScope.launch {
             paymentUseCase.verifyPurchases {
-                viewModelScope.launch { accountRepository.getAccountAccountData() }
+                viewModelScope.launch { accountRepository.getAccountData() }
             }
         }
     }

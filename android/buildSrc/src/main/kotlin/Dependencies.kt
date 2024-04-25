@@ -121,6 +121,7 @@ object Dependencies {
         const val billingLib = ":lib:billing"
         const val paymentLib = ":lib:payment"
         const val mapLib = ":lib:map"
+        const val accountLib = ":lib:account"
     }
 
     object Plugin {

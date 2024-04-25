@@ -12,13 +12,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_TIMEOUT_MS
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 
 class SplashViewModel(
     private val privacyDisclaimerRepository: PrivacyDisclaimerRepository,
-    private val accountRepository: AccountRepository,
+    private val accountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository,
 ) : ViewModel() {
 
     val uiSideEffect = flow { emit(getStartDestination()) }
