@@ -12,6 +12,9 @@
     <plurals name="days">
         <item quantity="other">%1$d日</item>
     </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="other">%1$d 件の場所</item>
+    </plurals>
     <plurals name="months">
         <item quantity="other">%1$dヶ月</item>
     </plurals>

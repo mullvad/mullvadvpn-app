@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2024-03-13 08:24\n"
+"PO-Revision-Date: 2024-04-25 08:25\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s eklendi, hesap için %(expiry)s tarihine kadar ödeme yapıldı."
@@ -139,6 +139,12 @@ msgstr "Bağlantı kesiliyor"
 msgid "Dismiss"
 msgstr "Reddet"
 
+msgid "Edit"
+msgstr "Düzenle"
+
+msgid "Enable"
+msgstr "Etkinleştir"
+
 msgid "Enable anyway"
 msgstr "Yine de etkinleştir"
 
@@ -231,6 +237,11 @@ msgstr "Sistem varsayılanı"
 msgid "TCP"
 msgstr "TCP"
 
+msgid "Test"
+msgstr "Test et"
+
+#. Warning shown in dialog to users when they enable setting that increases
+#. network latency (decreases performance).
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "Bu ayar gecikmeyi artırır. Sadece gerekiyorsa kullanın."
@@ -252,6 +263,9 @@ msgstr "Engeli kaldır"
 
 msgid "UNSECURED CONNECTION"
 msgstr "GÜVENLİ OLMAYAN BAĞLANTI"
+
+msgid "Use"
+msgstr "Kullan"
 
 msgid "Username"
 msgstr "Kullanıcı adı"
@@ -388,9 +402,10 @@ msgctxt "api-access-methods-view"
 msgid "Authentication"
 msgstr "Yetkilendirme"
 
+#. %(save)s - Will be replaced with the translation for the word "Save".
 msgctxt "api-access-methods-view"
-msgid "Clicking “Save” changes the in use method."
-msgstr "\"Kaydet\" düğmesine tıklamak kullanımdaki yöntemi değiştirir."
+msgid "Clicking “%(save)s” changes the in use method."
+msgstr "\"%(save)s\" düğmesine tıklamak kullanılan yöntemi değiştirir."
 
 msgctxt "api-access-methods-view"
 msgid "Delete %(name)s?"
@@ -633,6 +648,10 @@ msgctxt "connection-info"
 msgid "%(relay)s via %(entry)s"
 msgstr "%(entry)s aracılığıyla %(relay)s"
 
+msgctxt "connection-info"
+msgid "%(relay)s via Custom bridge"
+msgstr "Özel köprü üzerinden %(relay)s"
+
 #. The tunnel type line displayed below the hostname line on the main screen
 #. Available placeholders:
 #. %(tunnelType)s - the tunnel type, i.e OpenVPN
@@ -648,6 +667,22 @@ msgstr "Giriş"
 msgctxt "connection-info"
 msgid "Out"
 msgstr "Çıkış"
+
+msgctxt "custom-bridge"
+msgid "Add custom bridge"
+msgstr "Özel köprü ekle"
+
+msgctxt "custom-bridge"
+msgid "Delete custom bridge?"
+msgstr "Özel köprü silinsin mi?"
+
+msgctxt "custom-bridge"
+msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
+msgstr "Özel köprünün silinmesi sizi konum seçme görünümüne geri götürür ve bunun yerine Otomatik seçeneği belirlenir."
+
+msgctxt "custom-bridge"
+msgid "Edit custom bridge"
+msgstr "Özel köprüyü düzenle"
 
 #. Text displayed above button which logs out another device.
 #. The text enclosed in "<b></b>" will appear bold.
@@ -1157,6 +1192,10 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "Köprü modu"
 
+msgctxt "openvpn-settings-view"
+msgid "Enable bridge mode?"
+msgstr "Köprü modu etkinleştirilsin mi?"
+
 #. This is used as a description for the bridge mode
 #. setting.
 #. Available placeholders:
@@ -1202,6 +1241,12 @@ msgstr "Köprü modunu etkinleştirmek için geri dönün ve <b>%(tunnelProtocol
 msgctxt "openvpn-settings-view"
 msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
 msgstr "UDP'yi etkinleştirmek için <b>Köprü modu</b>'nu <b>Otomatik</b> veya <b>Kapalı</b> olarak değiştirin."
+
+#. This text is shown beneath the bridge mode setting to instruct users how to
+#. configure the feature further.
+msgctxt "openvpn-settings-view"
+msgid "To select a specific bridge server, go to the Select location view."
+msgstr "Belirli bir köprü sunucusunu seçmek için Konum seç görünümüne gidin."
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -1266,6 +1311,10 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
 
+msgctxt "select-location-view"
+msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
+msgstr "Normal Mullvad köprü sunucuları çalışmadığında sansürü aşmak için özel bir köprü sunucusu kullanılabilir."
+
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1284,6 +1333,10 @@ msgstr "Şehir"
 msgctxt "select-location-view"
 msgid "Country"
 msgstr "Ülke"
+
+msgctxt "select-location-view"
+msgid "Custom bridge"
+msgstr "Özel köprü"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -2014,9 +2067,17 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor."
 
-msgctxt "Message to indicate how much time was added to an account as part of an in-app purchase. Example: \"30 days was added to your account.\""
+msgctxt "Indicator of that the currently selected element already has been added (directly or indirectly) to a named list (\"%s\")"
+msgid "%s (added)"
+msgstr "%s (eklendi)"
+
+msgctxt "Message notifying the user that a location (first %s) was added to a named list (second %s)."
+msgid "%s was added to \"%s\""
+msgstr "%s, \"%s\" listesine eklendi"
+
+msgctxt "Message shown after successfully adding time to the account. %s could be either day(s) or months, for example \"1 day\" or \"6 months\""
 msgid "%s was added to your account."
-msgstr "Hesabınıza %s eklendi."
+msgstr "%s, hesabınıza eklendi."
 
 msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
 msgstr "1. Aşağıdaki <b>VPN ayarlarına git</b> düğmesine tıkladıktan sonra <b>Mullvad VPN</b>'nin yanındaki dişli çarka tıklayın."
@@ -2039,6 +2100,10 @@ msgstr "Hesap kredisinin süresi yakında doluyor"
 msgid "Account time reminders"
 msgstr "Hesap süresi hatırlatıcıları"
 
+msgctxt "Title of the prompt where the user is asked to add a location (%s) to a list. "
+msgid "Add %s to list"
+msgstr "%s konumunu listeye ekle"
+
 msgid "Add 30 days time"
 msgstr "30 gün süre ekleyin"
 
@@ -2048,11 +2113,17 @@ msgstr "30 gün süre ekleyin (%s)"
 msgid "Add DNS server"
 msgstr "DNS sunucusu ekle"
 
+msgid "Add locations"
+msgstr "Konum ekle"
+
 msgid "Agree and continue"
 msgstr "Kabul et ve devam et"
 
 msgid "All applications"
 msgstr "Tüm uygulamalar"
+
+msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
+msgstr "Tüm geçersiz kılmalar sıfırlanacak ve Konum seç görünümündeki sunucuların IP adresleri varsayılana döndürülecek."
 
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "Paylaşım, yazdırma gibi özellikler için aynı ağdaki diğer cihazlara erişim izni verir."
@@ -2063,6 +2134,9 @@ msgstr "Her zaman açık VPN başka bir uygulamaya atandı"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "Her zaman açık VPN başka bir uygulama için etkinleştirilebilir"
 
+msgid "Attention: Split tunneling is a privacy risk."
+msgstr "Dikkat: Bölünmüş tünelleme gizlilik riski taşır."
+
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
 msgstr "Dikkat: Bu ayar <b>Özel DNS sunucusu kullan</b> seçeneği ile birlikte kullanılamaz."
 
@@ -2071,6 +2145,9 @@ msgstr "Otomatik bağlantı ve Kilitleme modu"
 
 msgid "Auto-connect & \\nLockdown mode"
 msgstr "Otomatik bağlantı ve \\nKilitleme modu"
+
+msgid "Auto-connect (legacy)"
+msgstr "Otomatik bağlan (eski)"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Otomatik bağlantı, Android sistem ayarlarında VPN her zaman açık olarak gösterilir ve VPN tüneline sürekli bağlı olmanızı ve yeniden başlatma sonrası otomatik olarak bağlanmanızı sağlar."
@@ -2093,6 +2170,12 @@ msgstr "Günlükler panoya kopyalandı"
 msgid "Copied to clipboard"
 msgstr "Panoya kopyalandı"
 
+msgid "Create"
+msgstr "Oluştur"
+
+msgid "Create new list"
+msgstr "Yeni liste oluştur"
+
 msgid "Critical error (your attention is required)"
 msgstr "Kritik hata (Lütfen dikkatli olun)"
 
@@ -2102,17 +2185,44 @@ msgstr "Özel DNS sunucu adresleri (%s) geçersiz"
 msgid "DNS settings might not go into effect immediately"
 msgstr "DNS ayarları hemen etkili olmayabilir"
 
+msgid "Delete \"%s\"?"
+msgstr "\"%s\" silinsin mi\"?"
+
 msgid "Disable all <b>%s</b> above to activate this setting."
 msgstr "Bu ayarı etkinleştirmek için yukarıdaki <b>%s</b> öğelerinin tümünü devre dışı bırakın."
 
-msgid "Enable"
-msgstr "Etkinleştir"
+msgid "Discard"
+msgstr "İptal et"
+
+msgid "Discard changes?"
+msgstr "Değişiklikler iptal edilsin mi?"
+
+msgid "Edit custom lists"
+msgstr "Özel listeleri düzenle"
+
+msgid "Edit list"
+msgstr "Listeyi düzenle"
+
+msgid "Edit lists"
+msgstr "Listeleri düzenle"
+
+msgid "Edit locations"
+msgstr "Konumları düzenle"
+
+msgid "Edit name"
+msgstr "Adı düzenle"
 
 msgid "Enter MTU"
 msgstr "MTU'yu girin"
 
 msgid "Excluded applications"
 msgstr "Hariç tutulan uygulamalar"
+
+msgid "Failed to apply patch"
+msgstr "Yama uygulanamadı"
+
+msgid "File"
+msgstr "Dosya"
 
 msgid "Go to VPN settings"
 msgstr "VPN ayarlarına git"
@@ -2129,8 +2239,33 @@ msgstr "Google Play kullanılamıyor"
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Bölünmüş tünelleme özelliği kullanılıyorsa uygulama, yüklü tüm uygulamaların bir listesi için sisteminizi sorgular. Bu liste yalnızca bölünmüş tünelleme görünümünde alınır. Yüklü uygulamaların listesi hiçbir zaman cihazdan gönderilmez."
 
+msgctxt "Title of the bottom sheet prompt shown when importing a patch/configuration. The string itself is follwed by a list of import sources."
+msgid "Import new overrides by"
+msgstr "Şuradaki yeni geçersiz kılmaları içe aktar:"
+
+msgid "Import successful, overrides active"
+msgstr "İçe aktarma başarılı, geçersiz kılmalar etkin"
+
+msgid "Importing new overrides might replace some previously imported overrides."
+msgstr "Yeni geçersiz kılmaların içe aktarılması, önceden içe aktarılan bazı geçersiz kılmaların yerine geçebilir."
+
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Güncel kalmak için Mullvad VPN (%s) yükleyin"
+
+msgid "Invalid or missing value \"%s\""
+msgstr "Geçersiz veya eksik \"%s\" değeri"
+
+msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
+msgstr "VPN tünelinden geçmeden doğrudan internete erişmesi gereken uygulamaları seçmenizi sağlar."
+
+msgid "List name"
+msgstr "Liste adı"
+
+msgid "Locations"
+msgstr "Konumlar"
+
+msgid "Locations were changed for \"%s\""
+msgstr "\"%s\" için konumlar değiştirildi"
 
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "Cihazın her zaman VPN tünelinde olduğundan emin olun."
@@ -2144,8 +2279,42 @@ msgstr "Mullvad hesap numarası"
 msgid "Mullvad services unavailable"
 msgstr "Mullvad hizmetleri kullanılamıyor"
 
+msgid "Name was changed to %s"
+msgstr "Ad, %s olarak değiştirildi"
+
+msgid "New list"
+msgstr "Yeni liste"
+
+msgid "No custom lists available"
+msgstr "Özel listeler mevcut değil"
+
 msgid "No internet connection"
 msgstr "İnternet bağlantısı yok"
+
+msgid "No locations found"
+msgstr "Konum bulunamadı"
+
+msgid "Not found"
+msgstr "Bulunamadı"
+
+msgid "Overrides active"
+msgstr "Geçersiz kılmalar etkin"
+
+msgid "Overrides cleared"
+msgstr "Geçersiz kılmalar temizlendi"
+
+msgid "Overrides inactive"
+msgstr "Geçersiz kılmalar etkin değil"
+
+msgid "Paste or write overrides to be imported"
+msgstr "İçe aktarılacak geçersiz kılmaları yapıştırın veya yazın"
+
+msgctxt "Message shown if the provided configuration file/text (\"patch\") format doesn't match the requirements and therefore couldn't be applied."
+msgid "Patch not matching specification"
+msgstr "Yama spesifikasyonla eşleşmiyor"
+
+msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
+msgstr "Lütfen yukarıdaki <b>%s</b> bölümündeki kılavuzu izleyerek <b>Her zaman açık</b> sistem ayarını kullanın."
 
 msgid "Preferences"
 msgstr "Tercihler"
@@ -2156,17 +2325,32 @@ msgstr "Gizlilik"
 msgid "Privacy policy"
 msgstr "Gizlilik politikası"
 
+msgid "Recursion limit"
+msgstr "Yineleme sınırı"
+
 msgid "Remove"
 msgstr "Kaldır"
 
 msgid "Remove custom port"
 msgstr "Özel portu kaldır"
 
+msgid "Reset"
+msgstr "Sıfırla"
+
+msgid "Reset all overrides"
+msgstr "Tüm geçersiz kılmaları sıfırla"
+
+msgid "Reset overrides"
+msgstr "Geçersiz kılmaları sıfırla"
+
 msgid "Reset to default"
 msgstr "Varsayılana sıfırla"
 
 msgid "Secured"
 msgstr "Güvenli"
+
+msgid "Server Ip overrides"
+msgstr "Sunucu IP geçersiz kılmaları"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "WireGuard MTU değerini ayarlayın. Geçerli aralık: %d - %d."
@@ -2183,11 +2367,11 @@ msgstr "Mevcut VPN tünelinin durumunu gösterir"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Hesap süresinin dolmak üzere olduğunu bildiren hatırlatıcıları gösterir"
 
-msgid "Split tunneling is disabled."
-msgstr "Bölünmüş tünelleme devre dışı."
-
 msgid "Submit"
 msgstr "Gönder"
+
+msgid "Text"
+msgstr "Metin"
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "Otomatik Bağlantı ve Kilitleme modu ayarları Android sistem ayarlarında yer alır. Bu ayarlardan birini veya her ikisini de etkinleştirmek için bu kılavuza göz atın."
@@ -2204,6 +2388,12 @@ msgstr "Cihazınızda VPN ayarları belirlenmemiş"
 msgid "This address has already been entered."
 msgstr "Bu adres zaten girilmiş."
 
+msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
+msgstr "Listeye konum eklemek için \"︙\" düğmesine basın veya bir ülke, şehir veya sunucunun üzerine uzun basın."
+
+msgid "To create a custom list press the \"︙\""
+msgstr "Özel bir liste oluşturmak için \"︙\" düğmesine basın"
+
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Uygulama, en güvenli sürüme sahip olduğunuzdan emin olmak ve çalışan mevcut sürümle ilgili sorunları size bildirmek için sürüm kontrollerini otomatik olarak gerçekleştirir. Bu işlem, uygulama sürümünü ve Android sistem sürümünü Mullvad sunucularına gönderir. Mullvad, kullanılan uygulama sürümlerinin ve Android sürümlerinin numarasını kaydeder. Veriler asla sizi tanımlayacak şekilde saklanmaz veya kullanılmaz."
 
@@ -2213,8 +2403,18 @@ msgstr "VPN'i aç/kapat"
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "Güvenlik duvarı kuralları uygulanamıyor. Lütfen sorunu çözmeye çalışın veya bir hata raporu gönderin."
 
+msgid "Unable to parse patch"
+msgstr "Yama ayrıştırılamıyor"
+
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Tünel bağlantısı başlatılamıyor. Mullvad VPN'i kullanmadan önce lütfen Her zaman açık VPN'i <b>%s</b> için devre dışı bırakın."
+
+msgid "Undo"
+msgstr "Geri al"
+
+msgctxt "Error message shown when failing to parse a configuration file/text. The key variable (%s) is a an identifier used within the configuration file/text. "
+msgid "Unknown or prohibited key \"%s\""
+msgstr "Bilinmeyen veya yasaklanmış \"%s\" anahtarı"
 
 msgid "Unsecured"
 msgstr "Güvenli değil"
@@ -2224,6 +2424,9 @@ msgstr "DNS sunucusunu güncelle"
 
 msgid "Update available, download to remain safe."
 msgstr "Güncelleme mevcut, güvende kalmak için güncellemeyi indirin."
+
+msgid "Update list name"
+msgstr "Liste adını güncelle"
 
 msgid "VPN permission error"
 msgstr "VPN izin hatası"
@@ -2237,7 +2440,6 @@ msgstr "VPN tüneli durumu"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Geçerli WireGuard anahtarı eksik. Gelişmiş ayarlardan anahtarları yönetin."
 
-msgctxt "Help text to explain which numbers are valid to configure. The user should enter a single number/integer that either matches one of the listed numbers or is within one of the listed ranges. Example: \"Valid ranges: 53, 123, 4000-33433\""
 msgid "Valid ranges: %s"
 msgstr "Geçerli aralıklar: %s"
 
@@ -2283,6 +2485,9 @@ msgstr "AĞ TRAFİĞİNİZDE SIZINTI OLABİLİR"
 msgid "You are running an unsupported app version."
 msgstr "Desteklenmeyen bir uygulama sürümünü kullanıyorsunuz."
 
+msgid "\"%s\" was deleted"
+msgstr "\"%s\" silindi"
+
 msgid "less than a minute ago"
 msgstr "bir dakikadan az"
 
@@ -2293,6 +2498,11 @@ msgid "%d day"
 msgid_plural "%d days"
 msgstr[0] "%d gün"
 msgstr[1] "%d gün"
+
+msgid "%d location"
+msgid_plural "%d locations"
+msgstr[0] "%d konum"
+msgstr[1] "%d konum"
 
 msgid "%d month"
 msgid_plural "%d months"

@@ -16,6 +16,10 @@
         <item quantity="one">%1$d dag</item>
         <item quantity="other">%1$d dagen</item>
     </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="one">%1$d locatie</item>
+        <item quantity="other">%1$d locaties</item>
+    </plurals>
     <plurals name="months">
         <item quantity="one">%1$d maand</item>
         <item quantity="other">%1$d maanden</item>

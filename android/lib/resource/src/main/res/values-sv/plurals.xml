@@ -16,6 +16,10 @@
         <item quantity="one">%1$d dag</item>
         <item quantity="other">%1$d dagar</item>
     </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="one">%1$d plats</item>
+        <item quantity="other">%1$d platser</item>
+    </plurals>
     <plurals name="months">
         <item quantity="one">%1$d månad</item>
         <item quantity="other">%1$d månader</item>
