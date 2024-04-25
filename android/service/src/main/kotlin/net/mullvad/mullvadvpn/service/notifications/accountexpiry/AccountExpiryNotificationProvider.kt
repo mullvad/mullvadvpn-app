@@ -20,10 +20,6 @@ class AccountExpiryNotificationProvider(
     accountRepository: AccountRepository,
 ) : NotificationProvider {
     @OptIn(ExperimentalCoroutinesApi::class)
-
-    // TODO Should observe from AccountRepository so we get new update e.g if they redeem a single,
-    // also we do not update notification as time passes
-    // day voucher
     override val notifications: Flow<Notification> =
         accountRepository.isNewAccount
             .flatMapLatest { isNewAccount ->
@@ -32,6 +28,8 @@ class AccountExpiryNotificationProvider(
                 } else {
                     flow {
                         while (true) {
+                            // TODO do we get all the updates we need? We won't post new update if
+                            // user redeems a one day voucher? Maybe needs more logic
                             emit(accountRepository.accountData.value)
                             delay(TIME_BETWEEN_CHECKS)
                             // Trigger new fetch of account data

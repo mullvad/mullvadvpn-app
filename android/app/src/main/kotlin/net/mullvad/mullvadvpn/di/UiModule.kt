@@ -120,7 +120,7 @@ val uiModule = module {
     single { RelayListRepository(get()) }
     single { SelectedLocationRepository(get()) }
     single { RelayListFilterRepository(get()) }
-    single { net.mullvad.mullvadvpn.lib.account.VoucherRepository(get()) }
+    single { VoucherRepository(get(), get()) }
     single { VpnPermissionRepository(get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
