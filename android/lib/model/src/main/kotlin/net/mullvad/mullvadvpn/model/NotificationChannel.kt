@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.model
 
 import java.net.InetAddress
+import org.joda.time.Duration
 
 @JvmInline value class ChannelId(val value: String)
 
@@ -32,9 +33,23 @@ sealed interface Notification {
     ) : Notification {
         override val id: NotificationId = NotificationId(2)
     }
+
+    data class AccountExpiry(
+        override val channelId: ChannelId,
+        override val actions: List<NotificationAction.AccountExpiry>,
+        val isPlayBuild: Boolean,
+        val durationUntilExpiry: Duration
+    ) : Notification {
+        override val id: NotificationId = NotificationId(3)
+        override val ongoing: Boolean = false
+    }
 }
 
 sealed interface NotificationAction {
+
+    sealed interface AccountExpiry : NotificationAction {
+        data object Open : AccountExpiry
+    }
 
     sealed interface Tunnel : NotificationAction {
         data object Connect : Tunnel
