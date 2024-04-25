@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.model.PlayPurchase
+import net.mullvad.mullvadvpn.model.PlayPurchasePaymentToken
 
 class BillingPaymentRepository(
     private val billingRepository: BillingRepository,
@@ -72,7 +73,7 @@ class BillingPaymentRepository(
 
         // Get transaction id
         emit(PurchaseResult.FetchingObfuscationId)
-        val obfuscatedId: String =
+        val obfuscatedId: PlayPurchasePaymentToken =
             initialisePurchase()
                 .fold(
                     {
@@ -85,7 +86,7 @@ class BillingPaymentRepository(
         val result =
             billingRepository.startPurchaseFlow(
                 productDetails = productDetails,
-                obfuscatedId = obfuscatedId,
+                obfuscatedId = obfuscatedId.value,
                 activityProvider = activityProvider
             )
 
@@ -158,7 +159,7 @@ class BillingPaymentRepository(
         playPurchaseRepository.verifyPlayPurchase(
             PlayPurchase(
                 productId = purchase.products.first(),
-                purchaseToken = purchase.purchaseToken,
+                purchaseToken = PlayPurchasePaymentToken(purchase.purchaseToken),
             )
         )
 }

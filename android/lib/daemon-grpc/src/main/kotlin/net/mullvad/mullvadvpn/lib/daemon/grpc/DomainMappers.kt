@@ -36,6 +36,8 @@ import net.mullvad.mullvadvpn.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.model.ObfuscationType
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.ParameterGenerationError
+import net.mullvad.mullvadvpn.model.PlayPurchase
+import net.mullvad.mullvadvpn.model.PlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.Provider
@@ -681,3 +683,16 @@ internal fun ManagementInterface.SplitTunnelSettings.toDomain(): SplitTunnelSett
         enabled = enableExclusions,
         excludedApps = appsList.map { AppId(it) }.toSet()
     )
+
+internal fun ManagementInterface.PlayPurchasePaymentToken.toDomain(): PlayPurchasePaymentToken =
+    PlayPurchasePaymentToken(value = this.token)
+
+internal fun PlayPurchasePaymentToken.fromDomain(): ManagementInterface.PlayPurchasePaymentToken =
+    ManagementInterface.PlayPurchasePaymentToken.newBuilder().setToken(
+        value,
+    ).build()
+
+internal fun PlayPurchase.fromDomain(): ManagementInterface.PlayPurchase =
+    ManagementInterface.PlayPurchase.newBuilder().setPurchaseToken(
+        purchaseToken.fromDomain()
+    ).setProductId(productId).build()
