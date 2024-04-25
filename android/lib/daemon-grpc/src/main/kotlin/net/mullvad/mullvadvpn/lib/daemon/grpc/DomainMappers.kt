@@ -688,11 +688,14 @@ internal fun ManagementInterface.PlayPurchasePaymentToken.toDomain(): PlayPurcha
     PlayPurchasePaymentToken(value = this.token)
 
 internal fun PlayPurchasePaymentToken.fromDomain(): ManagementInterface.PlayPurchasePaymentToken =
-    ManagementInterface.PlayPurchasePaymentToken.newBuilder().setToken(
-        value,
-    ).build()
+    ManagementInterface.PlayPurchasePaymentToken.newBuilder()
+        .setToken(
+            value,
+        )
+        .build()
 
 internal fun PlayPurchase.fromDomain(): ManagementInterface.PlayPurchase =
-    ManagementInterface.PlayPurchase.newBuilder().setPurchaseToken(
-        purchaseToken.fromDomain()
-    ).setProductId(productId).build()
+    ManagementInterface.PlayPurchase.newBuilder()
+        .setPurchaseToken(purchaseToken.fromDomain())
+        .setProductId(productId)
+        .build()
