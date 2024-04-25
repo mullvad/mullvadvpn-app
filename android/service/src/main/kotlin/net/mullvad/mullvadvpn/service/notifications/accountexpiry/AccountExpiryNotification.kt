@@ -1,42 +1,16 @@
-package net.mullvad.mullvadvpn.service.notifications
+package net.mullvad.mullvadvpn.service.notifications.accountexpiry
 
-import android.app.Notification
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import androidx.core.app.NotificationCompat
-import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
-import net.mullvad.mullvadvpn.lib.common.util.JobTracker
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.service.R
-import net.mullvad.mullvadvpn.service.constant.IS_PLAY_BUILD
 import org.joda.time.DateTime
 import org.joda.time.Duration
 
-class AccountExpiryNotification(
-    val context: Context,
-    //    val daemon: Intermittent<MullvadDaemon>,
-    // val accountCache: AccountCache
-) {
+class AccountExpiryNotification(val context: Context, val managementService: ManagementService) {
 
-    private val jobTracker = JobTracker()
     private val resources = context.resources
 
     private val buyMoreTimeUrl = resources.getString(R.string.account_url)
-
-    private val channel =
-        NotificationChannelOld(
-            context,
-            "mullvad_account_time",
-            NotificationCompat.VISIBILITY_PRIVATE,
-            R.string.account_time_notification_channel_name,
-            R.string.account_time_notification_channel_description,
-            NotificationManager.IMPORTANCE_HIGH,
-            true,
-            true
-        )
 
     //    var accountExpiry by
     //        observable<AccountData>(AccountData.Missing) { _, oldValue, newValue ->
@@ -84,28 +58,29 @@ class AccountExpiryNotification(
     //        update(accountExpiry)
     //    }
 
-    private suspend fun build(expiry: DateTime, remainingTime: Duration): Notification {
-        val url =
-            jobTracker.runOnBackground {
-                TODO("Fetch api token from gRPC")
-                Uri.parse("$buyMoreTimeUrl?token=TODO()}")
-            }
-        val intent =
-            if (IS_PLAY_BUILD) {
-                Intent().apply {
-                    setClassName(context.packageName, MAIN_ACTIVITY_CLASS)
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    action = Intent.ACTION_MAIN
-                }
-            } else {
-                Intent(Intent.ACTION_VIEW, url)
-            }
-        val pendingIntent =
-            PendingIntent.getActivity(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())
-
-        return channel.buildNotification(pendingIntent, format(expiry, remainingTime))
-    }
-
+    //    private suspend fun build(expiry: DateTime, remainingTime: Duration): Notification {
+    //        val url =
+    //            jobTracker.runOnBackground {
+    //                TODO("Fetch api token from gRPC")
+    //                Uri.parse("$buyMoreTimeUrl?token=TODO()}")
+    //            }
+    //        val intent =
+    //            if (IS_PLAY_BUILD) {
+    //                Intent().apply {
+    //                    setClassName(context.packageName, MAIN_ACTIVITY_CLASS)
+    //                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+    //                    action = Intent.ACTION_MAIN
+    //                }
+    //            } else {
+    //                Intent(Intent.ACTION_VIEW, url)
+    //            }
+    //        val pendingIntent =
+    //            PendingIntent.getActivity(context, 1, intent,
+    // SdkUtils.getSupportedPendingIntentFlags())
+    //
+    //        return channel.buildNotification(pendingIntent, format(expiry, remainingTime))
+    //    }
+    //
     private fun format(expiry: DateTime, remainingTime: Duration): String {
         if (remainingTime.isShorterThan(Duration.ZERO)) {
             return resources.getString(R.string.account_credit_has_expired)

@@ -19,15 +19,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
-import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.di.apiEndpointModule
 import net.mullvad.mullvadvpn.service.di.vpnServiceModule
-import net.mullvad.mullvadvpn.service.notifications.AccountExpiryNotification
-import net.mullvad.mullvadvpn.service.notifications.NotificationHandler
+import net.mullvad.mullvadvpn.service.notifications.ChannelFactory
+import net.mullvad.mullvadvpn.service.notifications.ForegroundNotificationManager
+import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.mullvadvpn.service.notifications.ShouldBeOnForegroundProvider
 import net.mullvad.talpid.TalpidVpnService
 import org.koin.android.ext.android.get
@@ -38,14 +38,13 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     private val _shouldBeOnForeground = MutableStateFlow(false)
     override val shouldBeOnForeground: StateFlow<Boolean> = _shouldBeOnForeground
 
-    private lateinit var accountExpiryNotification: AccountExpiryNotification
     private lateinit var keyguardManager: KeyguardManager
     private lateinit var daemonInstance: MullvadDaemon
 
     private lateinit var apiEndpointConfiguration: ApiEndpointConfiguration
     private lateinit var managementService: ManagementService
 
-    private lateinit var notificationHandler: NotificationHandler
+    private lateinit var foregroundNotificationHandler: ForegroundNotificationManager
 
     private val bindCount = AtomicInt()
     // Suppressing since the tunnel state pref should be writted immediately.
@@ -56,14 +55,16 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
         loadKoinModules(listOf(vpnServiceModule, apiEndpointModule))
         with(getKoin()) {
+            get<ChannelFactory>()
             managementService = get()
 
-            notificationHandler =
-                NotificationHandler(this@MullvadVpnService, get(), get(), lifecycleScope)
+            foregroundNotificationHandler =
+                ForegroundNotificationManager(this@MullvadVpnService, get(), lifecycleScope)
+            get<NotificationManager>()
         }
 
         lifecycleScope.launch { managementService.start() }
-        lifecycleScope.launch { notificationHandler.start(this@MullvadVpnService) }
+        lifecycleScope.launch { foregroundNotificationHandler.start(this@MullvadVpnService) }
 
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
@@ -212,6 +213,6 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     }
 
     private fun Intent?.isFromSystem(): Boolean {
-        return this?.action == VPN_SERVICE_CLASS
+        return this?.action == SERVICE_INTERFACE
     }
 }

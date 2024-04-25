@@ -7,20 +7,30 @@ import java.net.InetAddress
 sealed interface NotificationChannel {
     val id: ChannelId
 
-    data class TunnelUpdates(override val id: ChannelId) : NotificationChannel
+    data object TunnelUpdates : NotificationChannel {
+        override val id: ChannelId = ChannelId("tunnel_state_notification")
+    }
+
+    data object AccountUpdates : NotificationChannel {
+        override val id: ChannelId = ChannelId("account_updates")
+    }
 }
 
+@JvmInline value class NotificationId(val value: Int)
+
 sealed interface Notification {
+    val id: NotificationId
     val actions: List<NotificationAction>
     val ongoing: Boolean
     val channelId: ChannelId
 
     data class Tunnel(
+        override val channelId: ChannelId,
         val state: NotificationTunnelState,
         override val actions: List<NotificationAction.Tunnel>,
         override val ongoing: Boolean,
     ) : Notification {
-        override val channelId: ChannelId = ChannelId("tunnel")
+        override val id: NotificationId = NotificationId(2)
     }
 }
 

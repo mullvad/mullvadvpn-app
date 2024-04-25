@@ -1,38 +1,59 @@
-package net.mullvad.mullvadvpn.service.notifications
+package net.mullvad.mullvadvpn.service.notifications.tunnelstate
 
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.model.ChannelId
 import net.mullvad.mullvadvpn.model.ErrorStateCause
 import net.mullvad.mullvadvpn.model.Notification
 import net.mullvad.mullvadvpn.model.NotificationAction
 import net.mullvad.mullvadvpn.model.NotificationTunnelState
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 
-class TunnelStateNotificationUseCase(val managementService: ManagementService) {
-    val notificationState: Flow<Notification.Tunnel> =
+class TunnelStateNotificationProvider(
+    managementService: ManagementService,
+    channelId: ChannelId,
+    scope: CoroutineScope
+) : NotificationProvider {
+    override val notifications: StateFlow<Notification.Tunnel> =
         combine(
-            managementService.tunnelState,
-            managementService.tunnelState.actionAfterDisconnect().distinctUntilChanged(),
-        ) { tunnelState: TunnelState, actionAfterDisconnect: ActionAfterDisconnect?,
-            ->
-            val notificationTunnelState = tunnelState(tunnelState, actionAfterDisconnect)
-            Log.d(
-                "TunnelStateNotificationUseCase",
-                "notificationTunnelState: $notificationTunnelState"
+                managementService.tunnelState,
+                managementService.tunnelState.actionAfterDisconnect().distinctUntilChanged(),
+            ) { tunnelState: TunnelState, actionAfterDisconnect: ActionAfterDisconnect?,
+                ->
+                val notificationTunnelState = tunnelState(tunnelState, actionAfterDisconnect)
+                Log.d(
+                    "TunnelStateNotificationUseCase",
+                    "notificationTunnelState: $notificationTunnelState"
+                )
+                return@combine Notification.Tunnel(
+                    channelId = channelId,
+                    state = notificationTunnelState,
+                    actions = listOfNotNull(notificationTunnelState.toAction()),
+                    ongoing = notificationTunnelState is NotificationTunnelState.Connected
+                )
+            }
+            .stateIn(
+                scope,
+                SharingStarted.Eagerly,
+                Notification.Tunnel(
+                    channelId,
+                    NotificationTunnelState.Disconnected,
+                    emptyList(),
+                    false
+                )
             )
-            return@combine Notification.Tunnel(
-                state = notificationTunnelState,
-                actions = listOfNotNull(notificationTunnelState.toAction()),
-                ongoing = notificationTunnelState is NotificationTunnelState.Connected
-            )
-        }
 
     private fun tunnelState(
         tunnelState: TunnelState,
