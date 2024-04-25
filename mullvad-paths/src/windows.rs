@@ -12,8 +12,8 @@ use windows_sys::{
     core::{GUID, PWSTR},
     Win32::{
         Foundation::{
-            CloseHandle, ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, GENERIC_ALL, GENERIC_READ,
-            HANDLE, INVALID_HANDLE_VALUE, LUID, S_OK,
+            CloseHandle, LocalFree, ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, GENERIC_ALL,
+            GENERIC_READ, HANDLE, INVALID_HANDLE_VALUE, LUID, S_OK,
         },
         Security::{
             self, AdjustTokenPrivileges,
@@ -31,7 +31,6 @@ use windows_sys::{
         Storage::FileSystem::MAX_SID_SIZE,
         System::{
             Com::CoTaskMemFree,
-            Memory::LocalFree,
             ProcessStatus::EnumProcesses,
             Threading::{
                 GetCurrentThread, OpenProcess, OpenProcessToken, OpenThreadToken,
@@ -244,7 +243,7 @@ fn set_security_permissions(path: &Path) -> Result<()> {
         )
     };
 
-    unsafe { LocalFree(new_dacl as isize) };
+    unsafe { LocalFree(new_dacl.cast()) };
 
     if result != ERROR_SUCCESS {
         Err(Error::SetDirPermissionFailed(
@@ -402,7 +401,8 @@ fn get_known_folder_path(
     user_token: HANDLE,
 ) -> std::io::Result<PathBuf> {
     let mut folder_path: PWSTR = ptr::null_mut();
-    let status = unsafe { SHGetKnownFolderPath(folder_id, flags, user_token, &mut folder_path) };
+    let status =
+        unsafe { SHGetKnownFolderPath(folder_id, flags as u32, user_token, &mut folder_path) };
     let result = if status == S_OK {
         let path = unsafe { WideCStr::from_ptr_str(folder_path) };
         Ok(PathBuf::from(path.to_os_string()))

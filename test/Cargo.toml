@@ -67,7 +67,7 @@ colored = "2.0.0"
 shadowsocks = { version = "1.16" }
 shadowsocks-service = { version = "1.16" }
 
-windows-sys = "0.48.0"
+windows-sys = "0.52.0"
 
 chrono = { version = "0.4.26", default-features = false }
 clap = { version = "4.2.7", features = ["cargo", "derive"] }

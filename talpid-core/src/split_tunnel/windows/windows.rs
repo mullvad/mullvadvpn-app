@@ -10,11 +10,10 @@ use std::{
 };
 use windows_sys::Win32::{
     Foundation::{CloseHandle, ERROR_INSUFFICIENT_BUFFER, FILETIME, HANDLE},
-    Storage::FileSystem::{GetFinalPathNameByHandleW, QueryDosDeviceW},
+    Storage::FileSystem::{GetFinalPathNameByHandleW, QueryDosDeviceW, VOLUME_NAME_NT},
     System::{
         ProcessStatus::GetProcessImageFileNameW,
         Threading::{GetProcessTimes, OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION},
-        WindowsProgramming::VOLUME_NAME_NT,
     },
 };
 

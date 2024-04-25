@@ -2158,7 +2158,7 @@ dependencies = [
  "talpid-types",
  "thiserror",
  "tokio",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
  "winres",
 ]
 
@@ -2202,7 +2202,7 @@ dependencies = [
  "tokio-stream",
  "winapi",
  "windows-service",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
  "winres",
 ]
 
@@ -2284,7 +2284,7 @@ dependencies = [
  "once_cell",
  "thiserror",
  "widestring",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -2306,7 +2306,7 @@ dependencies = [
  "thiserror",
  "tokio",
  "uuid",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
  "winres",
 ]
 
@@ -3899,7 +3899,7 @@ dependencies = [
  "which",
  "widestring",
  "windows-service",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
  "winreg 0.51.0",
 ]
 
@@ -3948,7 +3948,7 @@ dependencies = [
  "triggered",
  "uuid",
  "widestring",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
  "winreg 0.51.0",
 ]
 
@@ -3968,7 +3968,7 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tower",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
  "winres",
 ]
 
@@ -3978,7 +3978,7 @@ version = "0.0.0"
 dependencies = [
  "rs-release",
  "talpid-dbus",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -4001,7 +4001,7 @@ dependencies = [
  "thiserror",
  "tokio",
  "widestring",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -4029,7 +4029,7 @@ dependencies = [
  "thiserror",
  "tokio",
  "tun",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -4047,7 +4047,7 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tower",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
  "zeroize",
 ]
 
@@ -4073,7 +4073,7 @@ dependencies = [
  "socket2",
  "talpid-types",
  "thiserror",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -4114,7 +4114,7 @@ dependencies = [
  "tokio-stream",
  "tunnel-obfuscation",
  "widestring",
- "windows-sys 0.48.0",
+ "windows-sys 0.52.0",
  "zeroize",
 ]
 

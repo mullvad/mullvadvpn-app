@@ -208,13 +208,12 @@ mod windows {
     use talpid_types::ErrorExt;
     use tokio::fs;
     use windows_sys::Win32::{
-        Foundation::{ERROR_SUCCESS, HANDLE, PSID},
+        Foundation::{LocalFree, ERROR_SUCCESS, HLOCAL, PSID},
         Security::{
             Authorization::{GetNamedSecurityInfoW, SE_FILE_OBJECT, SE_OBJECT_TYPE},
             IsWellKnownSid, WinBuiltinAdministratorsSid, WinLocalSystemSid,
             OWNER_SECURITY_INFORMATION, SECURITY_DESCRIPTOR, SID, WELL_KNOWN_SID_TYPE,
         },
-        System::Memory::LocalFree,
     };
 
     #[allow(non_camel_case_types)]
@@ -386,7 +385,7 @@ mod windows {
 
     impl Drop for SecurityInformation {
         fn drop(&mut self) {
-            unsafe { LocalFree(self.security_descriptor as HANDLE) };
+            unsafe { LocalFree(self.security_descriptor as HLOCAL) };
         }
     }
 
