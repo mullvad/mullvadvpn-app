@@ -38,20 +38,24 @@ Line wrap the file at 100 chars.                                              Th
 - Set auto-connect setting as legacy on platforms with system vpn settings.
 
 ### Fixed
-- Fix bug where the app would fail to select an existing relay in some scenarios, causing the
-  user to wrongly end up in a blocked state.
-
 #### Android
 - Fix crash in Split Tunneling screen caused by apps provding icons bigger than 100MB.
-
-#### macOS
-- DNS was not properly restored in some cases when using custom DNS.
 
 ### Security
 #### Android
 - Change from singleTask to singleInstance to fix Task Affinity Vulnerability in Android 8.
 - Add protection against some tapjacking vulnerabilities.
 
+
+## [2024.2] - 2024-04-29
+### Fixed
+- Fix bug where the app would fail to select an existing relay in some scenarios, causing the
+  user to wrongly end up in a blocked state.
+
+#### macOS
+- DNS was not properly restored in some cases when using custom DNS.
+
+### Security
 #### macOS
 - Flush states on tunnel state changes. Previously, pre-existing connections could leak when
   internet sharing was enabled on a device.
