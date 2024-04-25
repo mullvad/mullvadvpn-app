@@ -319,6 +319,7 @@ dependencies {
     implementation(project(Dependencies.Mullvad.themeLib))
     implementation(project(Dependencies.Mullvad.paymentLib))
     implementation(project(Dependencies.Mullvad.mapLib))
+    implementation(project(Dependencies.Mullvad.accountLib))
 
     // Play implementation
     playImplementation(project(Dependencies.Mullvad.billingLib))

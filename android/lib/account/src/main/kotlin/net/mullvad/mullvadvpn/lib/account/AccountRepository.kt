@@ -1,14 +1,16 @@
-package net.mullvad.mullvadvpn.repository
+package net.mullvad.mullvadvpn.lib.account
 
 import arrow.core.Either
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.AccountToken
@@ -25,6 +27,8 @@ class AccountRepository(
 
     private val _mutableAccountData: MutableSharedFlow<AccountData> = MutableSharedFlow()
 
+    private val _isNewAccount: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isNewAccount: StateFlow<Boolean> = _isNewAccount
     val accountData: StateFlow<AccountData?> =
         merge(
                 accountState.filterNotNull().map { deviceState ->
@@ -41,14 +45,15 @@ class AccountRepository(
             .stateIn(scope = scope, SharingStarted.Eagerly, null)
 
     suspend fun createAccount(): Either<CreateAccountError, AccountToken> =
-        managementService.createAccount()
+        managementService.createAccount().onRight { _isNewAccount.update { true } }
 
     suspend fun login(accountToken: AccountToken): Either<LoginAccountError, Unit> =
         managementService.loginAccount(accountToken)
 
     suspend fun logout() {
         managementService.logoutAccount()
-        getAccountAccountData()
+        getAccountData()
+        _isNewAccount.update { false }
     }
 
     suspend fun fetchAccountHistory(): AccountToken? =
@@ -58,7 +63,7 @@ class AccountRepository(
 
     // TODO improve this to account for different logged in state properly (E.g test what
     // AccountData will reply with)
-    suspend fun getAccountAccountData(): AccountData? {
+    suspend fun getAccountData(): AccountData? {
         val accountData =
             if (accountState.value !is DeviceState.LoggedIn) null
             else {

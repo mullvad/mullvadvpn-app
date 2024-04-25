@@ -27,9 +27,9 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
 import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
 import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.LoginAccountError
-import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.util.getOrDefault
@@ -47,7 +47,7 @@ sealed interface LoginUiSideEffect {
 }
 
 class LoginViewModel(
-    private val accountRepository: AccountRepository,
+    private val accountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository,
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
     private val connectivityUseCase: ConnectivityUseCase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO

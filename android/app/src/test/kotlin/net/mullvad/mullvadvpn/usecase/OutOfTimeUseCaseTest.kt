@@ -16,6 +16,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
 import net.mullvad.mullvadvpn.lib.ipc.events
@@ -23,14 +24,14 @@ import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.ErrorState
 import net.mullvad.mullvadvpn.model.ErrorStateCause
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.repository.AccountRepository
 import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class OutOfTimeUseCaseTest {
-    private val mockAccountRepository: AccountRepository = mockk()
+    private val mockAccountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository =
+        mockk()
     private val mockMessageHandler: MessageHandler = mockk()
 
     private lateinit var events: Channel<Event.TunnelStateChange>

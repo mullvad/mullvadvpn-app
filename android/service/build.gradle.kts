@@ -60,6 +60,7 @@ dependencies {
     implementation(project(Dependencies.Mullvad.modelLib))
     implementation(project(Dependencies.Mullvad.talpidLib))
     implementation(project(Dependencies.Mullvad.daemonGrpc))
+    implementation(project(Dependencies.Mullvad.accountLib))
 
     implementation(Dependencies.jodaTime)
     implementation(Dependencies.AndroidX.lifecycleService)

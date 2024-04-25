@@ -15,9 +15,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -33,7 +33,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class DeviceRevokedViewModelTest {
 
-    @MockK private lateinit var mockedAccountRepository: AccountRepository
+    @MockK
+    private lateinit var mockedAccountRepository:
+        net.mullvad.mullvadvpn.lib.account.AccountRepository
 
     @MockK private lateinit var mockedServiceConnectionManager: ServiceConnectionManager
 
