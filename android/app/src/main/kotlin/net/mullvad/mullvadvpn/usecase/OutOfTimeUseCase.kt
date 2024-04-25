@@ -21,7 +21,7 @@ import org.joda.time.DateTime
 
 class OutOfTimeUseCase(
     private val managementService: ManagementService,
-    private val repository: net.mullvad.mullvadvpn.lib.account.AccountRepository,
+    private val repository: AccountRepository,
     scope: CoroutineScope
 ) {
 
