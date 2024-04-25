@@ -7,18 +7,17 @@ pub fn get_rpc_socket_path() -> PathBuf {
     }
 }
 
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 pub fn get_default_rpc_socket_path() -> PathBuf {
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
-    {
-        PathBuf::from("/var/run/mullvad-vpn")
-    }
-    #[cfg(windows)]
-    {
-        PathBuf::from("//./pipe/Mullvad VPN")
-    }
-    #[cfg(target_os = "android")]
-    {
-        log::warn!("HELLO? ");
-        PathBuf::from(format!("{}/rpc-socket", crate::APP_PATH))
-    }
+    PathBuf::from("/var/run/mullvad-vpn")
+}
+
+#[cfg(windows)]
+pub fn get_default_rpc_socket_path() -> PathBuf {
+    PathBuf::from("//./pipe/Mullvad VPN")
+}
+
+#[cfg(target_os = "android")]
+pub fn get_default_rpc_socket_path() -> PathBuf {
+    PathBuf::from(format!("{}/rpc-socket", crate::APP_PATH))
 }

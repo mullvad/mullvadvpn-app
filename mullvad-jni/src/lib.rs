@@ -9,22 +9,16 @@ mod talpid_vpn_service;
 use crate::daemon_interface::DaemonInterface;
 use jnix::{
     jni::{
-        objects::{GlobalRef, JObject, JString, JValue},
+        objects::{GlobalRef, JObject, JValue},
         signature::{JavaType, Primitive},
-        sys::{jboolean, jlong},
+        sys::jlong,
         JNIEnv, JavaVM,
     },
-    FromJava, IntoJava, JnixEnv,
+    FromJava, JnixEnv,
 };
-use mullvad_api::{rest::Error as RestError, StatusCode};
 use mullvad_daemon::{
-    cleanup_old_rpc_socket, device, exception_logging, logging, runtime::new_multi_thread, version,
-    Daemon, DaemonCommandChannel,
-};
-use mullvad_types::{
-    account::{AccountData, VoucherSubmission},
-    custom_list::CustomList,
-    settings::DnsOptions,
+    cleanup_old_rpc_socket, exception_logging, logging, runtime::new_multi_thread, version, Daemon,
+    DaemonCommandChannel,
 };
 use std::{
     io,
@@ -493,20 +487,6 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdow
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to shutdown daemon thread")
-            );
-        }
-    }
-}
-
-fn log_request_error(request: &str, error: &daemon_interface::Error) {
-    match error {
-        daemon_interface::Error::Api(RestError::Aborted) => {
-            log::debug!("Request to {} cancelled", request);
-        }
-        error => {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg(&format!("Failed to {}", request))
             );
         }
     }
