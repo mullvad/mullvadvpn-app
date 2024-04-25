@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2024-03-13 08:24\n"
+"PO-Revision-Date: 2024-04-25 08:25\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "已添加 %(duration)s，帐户到期时间为 %(expiry)s。"
@@ -133,6 +133,12 @@ msgstr "正在断开连接"
 msgid "Dismiss"
 msgstr "关闭"
 
+msgid "Edit"
+msgstr "编辑"
+
+msgid "Enable"
+msgstr "启用"
+
 msgid "Enable anyway"
 msgstr "仍然启用"
 
@@ -225,6 +231,11 @@ msgstr "系统默认值"
 msgid "TCP"
 msgstr "TCP"
 
+msgid "Test"
+msgstr "测试"
+
+#. Warning shown in dialog to users when they enable setting that increases
+#. network latency (decreases performance).
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "此设置会增大延迟。仅在需要时使用。"
@@ -246,6 +257,9 @@ msgstr "解除阻止"
 
 msgid "UNSECURED CONNECTION"
 msgstr "未受保护的连接"
+
+msgid "Use"
+msgstr "使用"
 
 msgid "Username"
 msgstr "用户名"
@@ -382,9 +396,10 @@ msgctxt "api-access-methods-view"
 msgid "Authentication"
 msgstr "身份验证"
 
+#. %(save)s - Will be replaced with the translation for the word "Save".
 msgctxt "api-access-methods-view"
-msgid "Clicking “Save” changes the in use method."
-msgstr "点击“保存”更改正在使用的方法。"
+msgid "Clicking “%(save)s” changes the in use method."
+msgstr "点击“%(save)s”将更改正在使用的方法。"
 
 msgctxt "api-access-methods-view"
 msgid "Delete %(name)s?"
@@ -627,6 +642,10 @@ msgctxt "connection-info"
 msgid "%(relay)s via %(entry)s"
 msgstr "%(relay)s，经由 %(entry)s"
 
+msgctxt "connection-info"
+msgid "%(relay)s via Custom bridge"
+msgstr "%(relay)s，经由自定义网桥"
+
 #. The tunnel type line displayed below the hostname line on the main screen
 #. Available placeholders:
 #. %(tunnelType)s - the tunnel type, i.e OpenVPN
@@ -642,6 +661,22 @@ msgstr "内部"
 msgctxt "connection-info"
 msgid "Out"
 msgstr "外部"
+
+msgctxt "custom-bridge"
+msgid "Add custom bridge"
+msgstr "添加自定义网桥"
+
+msgctxt "custom-bridge"
+msgid "Delete custom bridge?"
+msgstr "删除自定义网桥？"
+
+msgctxt "custom-bridge"
+msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
+msgstr "删除自定义网桥会将您带回“选择位置”视图，并且将改为选择“自动”选项。"
+
+msgctxt "custom-bridge"
+msgid "Edit custom bridge"
+msgstr "编辑自定义网桥"
 
 #. Text displayed above button which logs out another device.
 #. The text enclosed in "<b></b>" will appear bold.
@@ -1151,6 +1186,10 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "桥接模式"
 
+msgctxt "openvpn-settings-view"
+msgid "Enable bridge mode?"
+msgstr "启用桥接模式？"
+
 #. This is used as a description for the bridge mode
 #. setting.
 #. Available placeholders:
@@ -1196,6 +1235,12 @@ msgstr "要激活桥接模式，请返回并将<b>%(tunnelProtocol)s</b>更改�
 msgctxt "openvpn-settings-view"
 msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
 msgstr "要激活 UDP，请将<b>桥接模式</b>更改为<b>自动</b>或<b>关</b>。"
+
+#. This text is shown beneath the bridge mode setting to instruct users how to
+#. configure the feature further.
+msgctxt "openvpn-settings-view"
+msgid "To select a specific bridge server, go to the Select location view."
+msgstr "要选择特定桥接服务器，请转到“选择位置”视图。"
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -1260,6 +1305,10 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s（%(info)s）"
 
+msgctxt "select-location-view"
+msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
+msgstr "当常规的 Mullvad 桥接服务器无法使用时，可以使用自定义桥接服务器来绕过审查。"
+
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1278,6 +1327,10 @@ msgstr "城市"
 msgctxt "select-location-view"
 msgid "Country"
 msgstr "国家/地区"
+
+msgctxt "select-location-view"
+msgid "Custom bridge"
+msgstr "自定义网桥"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -2008,7 +2061,15 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。"
 
-msgctxt "Message to indicate how much time was added to an account as part of an in-app purchase. Example: \"30 days was added to your account.\""
+msgctxt "Indicator of that the currently selected element already has been added (directly or indirectly) to a named list (\"%s\")"
+msgid "%s (added)"
+msgstr "%s（已添加）"
+
+msgctxt "Message notifying the user that a location (first %s) was added to a named list (second %s)."
+msgid "%s was added to \"%s\""
+msgstr "%s已添加到“%s”中"
+
+msgctxt "Message shown after successfully adding time to the account. %s could be either day(s) or months, for example \"1 day\" or \"6 months\""
 msgid "%s was added to your account."
 msgstr "%s已添加到您的帐户中。"
 
@@ -2033,6 +2094,10 @@ msgstr "帐户额度即将到期"
 msgid "Account time reminders"
 msgstr "帐户时间提醒"
 
+msgctxt "Title of the prompt where the user is asked to add a location (%s) to a list. "
+msgid "Add %s to list"
+msgstr "将%s添加到列表中"
+
 msgid "Add 30 days time"
 msgstr "增加 30 天"
 
@@ -2042,11 +2107,17 @@ msgstr "增加 30 天 (%s)"
 msgid "Add DNS server"
 msgstr "添加 DNS 服务器"
 
+msgid "Add locations"
+msgstr "添加位置"
+
 msgid "Agree and continue"
 msgstr "同意并继续"
 
 msgid "All applications"
 msgstr "所有应用程序"
+
+msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
+msgstr "所有覆盖设置都会被重置，并且在“选择位置”视图中，服务器 IP 地址将恢复为默认设置。"
 
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "允许访问同一网络上的其他设备，以进行共享、打印等"
@@ -2057,6 +2128,9 @@ msgstr "“始终开启的 VPN”已分配给其他应用"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "可能为另一个应用启用了“始终开启的 VPN”"
 
+msgid "Attention: Split tunneling is a privacy risk."
+msgstr "注意：拆分隧道存在隐私风险。"
+
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
 msgstr "注意：此设置不能与<b>使用自定义 DNS 服务器</b>结合使用。"
 
@@ -2065,6 +2139,9 @@ msgstr "自动连接和锁定模式"
 
 msgid "Auto-connect & \\nLockdown mode"
 msgstr "自动连接和\\n锁定模式"
+
+msgid "Auto-connect (legacy)"
+msgstr "自动连接（旧）"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "自动连接在 Android 系统设置中称为“始终开启的 VPN”，此功能可确保您始终连接到 VPN 隧道并在重新启动后自动连接。"
@@ -2087,6 +2164,12 @@ msgstr "已将日志复制到剪贴板"
 msgid "Copied to clipboard"
 msgstr "已复制到剪贴板"
 
+msgid "Create"
+msgstr "创建"
+
+msgid "Create new list"
+msgstr "创建新列表"
+
 msgid "Critical error (your attention is required)"
 msgstr "严重错误（需要注意）"
 
@@ -2096,17 +2179,44 @@ msgstr "自定义 DNS 服务器地址 %s 无效"
 msgid "DNS settings might not go into effect immediately"
 msgstr "DNS 设置可能不会立即生效"
 
+msgid "Delete \"%s\"?"
+msgstr "删除“%s”？"
+
 msgid "Disable all <b>%s</b> above to activate this setting."
 msgstr "禁用上方的所有 <b>%s</b>以激活此设置。"
 
-msgid "Enable"
-msgstr "启用"
+msgid "Discard"
+msgstr "舍弃"
+
+msgid "Discard changes?"
+msgstr "舍弃更改？"
+
+msgid "Edit custom lists"
+msgstr "编辑自定义列表"
+
+msgid "Edit list"
+msgstr "编辑列表"
+
+msgid "Edit lists"
+msgstr "编辑列表"
+
+msgid "Edit locations"
+msgstr "编辑位置"
+
+msgid "Edit name"
+msgstr "编辑名称"
 
 msgid "Enter MTU"
 msgstr "输入 MTU"
 
 msgid "Excluded applications"
 msgstr "排除的应用程序"
+
+msgid "Failed to apply patch"
+msgstr "无法应用补丁"
+
+msgid "File"
+msgstr "文件"
 
 msgid "Go to VPN settings"
 msgstr "前往“VPN 设置”"
@@ -2123,8 +2233,33 @@ msgstr "Google Play 不可用"
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "如果使用拆分隧道功能，应用会向您的系统查询所有已安装应用程序的列表。此列表仅在拆分隧道视图中检索。有关已安装应用程序的信息永远不会离开设备。"
 
+msgctxt "Title of the bottom sheet prompt shown when importing a patch/configuration. The string itself is follwed by a list of import sources."
+msgid "Import new overrides by"
+msgstr "导入新覆盖设置的方式"
+
+msgid "Import successful, overrides active"
+msgstr "导入成功，覆盖设置已激活"
+
+msgid "Importing new overrides might replace some previously imported overrides."
+msgstr "导入新覆盖设置可能会替换一些先前导入的覆盖设置。"
+
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "安装 Mullvad VPN (%s) 以保持最新状态"
+
+msgid "Invalid or missing value \"%s\""
+msgstr "值“%s”无效或者缺失"
+
+msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
+msgstr "允许您选择不经过 VPN 隧道而直接访问互联网的应用。"
+
+msgid "List name"
+msgstr "列表名称"
+
+msgid "Locations"
+msgstr "位置"
+
+msgid "Locations were changed for \"%s\""
+msgstr "已更改“%s”的位置"
 
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "确保设备始终位于 VPN 隧道上。"
@@ -2138,8 +2273,42 @@ msgstr "Mullvad 帐号"
 msgid "Mullvad services unavailable"
 msgstr "Mullvad 服务不可用"
 
+msgid "Name was changed to %s"
+msgstr "名称已更改为“%s”"
+
+msgid "New list"
+msgstr "新建列表"
+
+msgid "No custom lists available"
+msgstr "有可用的自定义列表"
+
 msgid "No internet connection"
 msgstr "没有互联网连接"
+
+msgid "No locations found"
+msgstr "找不到位置"
+
+msgid "Not found"
+msgstr "找不到"
+
+msgid "Overrides active"
+msgstr "覆盖设置已激活"
+
+msgid "Overrides cleared"
+msgstr "覆盖设置已清除"
+
+msgid "Overrides inactive"
+msgstr "覆盖设置未激活"
+
+msgid "Paste or write overrides to be imported"
+msgstr "粘贴或编写要导入的覆盖设置"
+
+msgctxt "Message shown if the provided configuration file/text (\"patch\") format doesn't match the requirements and therefore couldn't be applied."
+msgid "Patch not matching specification"
+msgstr "补丁与规范不匹配"
+
+msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
+msgstr "请按照上述<b>%s</b>中的指南操作，改用<b>始终开启</b>系统设置。"
 
 msgid "Preferences"
 msgstr "偏好设置"
@@ -2150,17 +2319,32 @@ msgstr "隐私"
 msgid "Privacy policy"
 msgstr "隐私政策"
 
+msgid "Recursion limit"
+msgstr "递归限制"
+
 msgid "Remove"
 msgstr "移除"
 
 msgid "Remove custom port"
 msgstr "移除自定义端口"
 
+msgid "Reset"
+msgstr "重置"
+
+msgid "Reset all overrides"
+msgstr "重置所有覆盖设置"
+
+msgid "Reset overrides"
+msgstr "重置覆盖设置"
+
 msgid "Reset to default"
 msgstr "重置为默认值"
 
 msgid "Secured"
 msgstr "已受保护"
+
+msgid "Server Ip overrides"
+msgstr "服务器 IP 覆盖设置"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "设置 WireGuard MTU 值。有效范围：%d - %d。"
@@ -2177,11 +2361,11 @@ msgstr "显示当前的 VPN 隧道状态"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "在帐户时间即将到期时显示提醒"
 
-msgid "Split tunneling is disabled."
-msgstr "拆分隧道被禁用。"
-
 msgid "Submit"
 msgstr "提交"
+
+msgid "Text"
+msgstr "文本"
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "自动连接和锁定模式设置可以在 Android 系统设置中找到，请按照本指南启用其中一项或两项。"
@@ -2198,6 +2382,12 @@ msgstr "您的设备上没有 VPN 设置"
 msgid "This address has already been entered."
 msgstr "此地址已输入过。"
 
+msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
+msgstr "要将位置添加到列表中，请按“︙”或长按国家/地区、城市或服务器。"
+
+msgid "To create a custom list press the \"︙\""
+msgstr "要创建自定义列表，请按“︙”"
+
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "为确保您使用的是最安全的版本并通知您当前运行的版本存在的任何问题，应用会自动执行版本检查。此操作会将应用版本和 Android 系统版本发送到 Mullvad 服务器。Mullvad 会统计使用的应用版本和 Android 版本。数据永远不会通过任何可以识别您身份的方式存储或使用。"
 
@@ -2207,8 +2397,18 @@ msgstr "切换 VPN"
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "无法应用防火墙规则。请排查问题或发送问题报告。"
 
+msgid "Unable to parse patch"
+msgstr "无法解析补丁"
+
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "无法启动隧道连接。在使用 Mullvad VPN 之前，请为 <b>%s</b> 禁用“始终开启的 VPN”。"
+
+msgid "Undo"
+msgstr "撤消"
+
+msgctxt "Error message shown when failing to parse a configuration file/text. The key variable (%s) is a an identifier used within the configuration file/text. "
+msgid "Unknown or prohibited key \"%s\""
+msgstr "未知或禁止的密钥“%s”"
 
 msgid "Unsecured"
 msgstr "未受保护"
@@ -2218,6 +2418,9 @@ msgstr "更新 DNS 服务器"
 
 msgid "Update available, download to remain safe."
 msgstr "有可用更新，请下载以保持安全。"
+
+msgid "Update list name"
+msgstr "更新列表名称"
 
 msgid "VPN permission error"
 msgstr "VPN 权限错误"
@@ -2231,7 +2434,6 @@ msgstr "VPN 隧道状态"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "缺少有效的 WireGuard 密钥。在“高级”设置下管理密钥。"
 
-msgctxt "Help text to explain which numbers are valid to configure. The user should enter a single number/integer that either matches one of the listed numbers or is within one of the listed ranges. Example: \"Valid ranges: 53, 123, 4000-33433\""
 msgid "Valid ranges: %s"
 msgstr "有效范围：%s"
 
@@ -2277,6 +2479,9 @@ msgstr "您的网络流量可能在泄露"
 msgid "You are running an unsupported app version."
 msgstr "您正在运行不受支持的应用版本。"
 
+msgid "\"%s\" was deleted"
+msgstr "“%s”已被删除"
+
 msgid "less than a minute ago"
 msgstr "不到 1 分钟前"
 
@@ -2286,6 +2491,10 @@ msgstr "不足 1 天"
 msgid "%d day"
 msgid_plural "%d days"
 msgstr[0] "%d 天"
+
+msgid "%d location"
+msgid_plural "%d locations"
+msgstr[0] "%d 个位置"
 
 msgid "%d month"
 msgid_plural "%d months"

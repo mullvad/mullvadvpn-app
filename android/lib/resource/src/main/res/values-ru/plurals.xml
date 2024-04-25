@@ -24,6 +24,12 @@
         <item quantity="many">%1$d суток</item>
         <item quantity="other">%1$d суток</item>
     </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="one">%1$d местоположение</item>
+        <item quantity="few">%1$d местоположения</item>
+        <item quantity="many">%1$d местоположений</item>
+        <item quantity="other">%1$d местоположения</item>
+    </plurals>
     <plurals name="months">
         <item quantity="one">%1$d месяц</item>
         <item quantity="few">%1$d месяца</item>

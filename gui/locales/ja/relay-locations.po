@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2024-03-13 08:24\n"
+"PO-Revision-Date: 2024-04-25 08:25\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -47,6 +47,14 @@ msgstr "オーストラリア"
 #. AT
 msgid "Austria"
 msgstr "オーストリア"
+
+#. TH BKK
+msgid "Bangkok"
+msgstr "バンコク"
+
+#. ES BCN
+msgid "Barcelona"
+msgstr "バルセロナ"
 
 #. BE
 msgid "Belgium"
@@ -188,6 +196,10 @@ msgstr "フランクフルト"
 msgid "Germany"
 msgstr "ドイツ"
 
+#. GB GLW
+msgid "Glasgow"
+msgstr "グラスゴー"
+
 #. SE GOT
 msgid "Gothenburg"
 msgstr "ヨーテボリ"
@@ -264,6 +276,10 @@ msgstr "ラトビア"
 msgid "Lisbon"
 msgstr "リスボン"
 
+#. SI LJU
+msgid "Ljubljana"
+msgstr "リュブリャナ"
+
 #. GB LON
 msgid "London"
 msgstr "ロンドン"
@@ -295,6 +311,10 @@ msgstr "マンチェスター"
 #. FR MRS
 msgid "Marseille"
 msgstr "マルセイユ"
+
+#. US TXC
+msgid "McAllen, TX"
+msgstr "マッカレン、TX"
 
 #. AU MEL
 msgid "Melbourne"
@@ -472,6 +492,10 @@ msgstr "スコピエ"
 msgid "Slovakia"
 msgstr "スロバキア"
 
+#. SI
+msgid "Slovenia"
+msgstr "スロベニア"
+
 #. BG SOF
 msgid "Sofia"
 msgstr "ソフィア"
@@ -520,6 +544,10 @@ msgstr "タリン"
 msgid "Tel Aviv"
 msgstr "テルアビブ"
 
+#. TH
+msgid "Thailand"
+msgstr "タイ"
+
 #. AL TIA
 msgid "Tirana"
 msgstr "ティラナ"
@@ -547,6 +575,10 @@ msgstr "ウクライナ"
 #. AE
 msgid "United Arab Emirates"
 msgstr "アラブ首長国連邦"
+
+#. ES VLC
+msgid "Valencia"
+msgstr "バレンシア"
 
 #. CA VAN
 msgid "Vancouver"

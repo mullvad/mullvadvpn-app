@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2024-03-13 08:24\n"
+"PO-Revision-Date: 2024-04-25 08:25\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s is toegevoegd, account betaald tot %(expiry)s."
@@ -139,6 +139,12 @@ msgstr "Verbinding wordt verbroken"
 msgid "Dismiss"
 msgstr "Negeren"
 
+msgid "Edit"
+msgstr "Bewerken"
+
+msgid "Enable"
+msgstr "Inschakelen"
+
 msgid "Enable anyway"
 msgstr "Toch inschakelen"
 
@@ -231,6 +237,11 @@ msgstr "Systeemstandaard"
 msgid "TCP"
 msgstr "TCP"
 
+msgid "Test"
+msgstr "Test"
+
+#. Warning shown in dialog to users when they enable setting that increases
+#. network latency (decreases performance).
 #. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "Deze instelling zorgt voor meer latentie. Gebruik hem alleen als het nodig is."
@@ -252,6 +263,9 @@ msgstr "Deblokkeren"
 
 msgid "UNSECURED CONNECTION"
 msgstr "NIET-BEVEILIGDE VERBINDING"
+
+msgid "Use"
+msgstr "Gebruiken"
 
 msgid "Username"
 msgstr "Gebruikersnaam"
@@ -388,9 +402,10 @@ msgctxt "api-access-methods-view"
 msgid "Authentication"
 msgstr "Authenticatie"
 
+#. %(save)s - Will be replaced with the translation for the word "Save".
 msgctxt "api-access-methods-view"
-msgid "Clicking “Save” changes the in use method."
-msgstr "Door op \"Opslaan\" te klikken, wordt de gebruikte methode gewijzigd."
+msgid "Clicking “%(save)s” changes the in use method."
+msgstr "Door op \"%(save)s\" te klikken, wordt de gebruikte methode gewijzigd."
 
 msgctxt "api-access-methods-view"
 msgid "Delete %(name)s?"
@@ -633,6 +648,10 @@ msgctxt "connection-info"
 msgid "%(relay)s via %(entry)s"
 msgstr "%(relay)s via %(entry)s"
 
+msgctxt "connection-info"
+msgid "%(relay)s via Custom bridge"
+msgstr "%(relay)s via aangepaste bridge"
+
 #. The tunnel type line displayed below the hostname line on the main screen
 #. Available placeholders:
 #. %(tunnelType)s - the tunnel type, i.e OpenVPN
@@ -648,6 +667,22 @@ msgstr "In"
 msgctxt "connection-info"
 msgid "Out"
 msgstr "Uit"
+
+msgctxt "custom-bridge"
+msgid "Add custom bridge"
+msgstr "Aangepaste bridge toevoegen"
+
+msgctxt "custom-bridge"
+msgid "Delete custom bridge?"
+msgstr "Aangepaste bridge verwijderen?"
+
+msgctxt "custom-bridge"
+msgid "Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead."
+msgstr "Als u de aangepaste bridge verwijdert, gaat u terug naar Locatie selecteren en wordt in plaats daarvan de optie Automatisch geselecteerd."
+
+msgctxt "custom-bridge"
+msgid "Edit custom bridge"
+msgstr "Aangepaste bridge bewerken"
 
 #. Text displayed above button which logs out another device.
 #. The text enclosed in "<b></b>" will appear bold.
@@ -1157,6 +1192,10 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "Bridge-modus"
 
+msgctxt "openvpn-settings-view"
+msgid "Enable bridge mode?"
+msgstr "Bridgemodus inschakelen?"
+
 #. This is used as a description for the bridge mode
 #. setting.
 #. Available placeholders:
@@ -1202,6 +1241,12 @@ msgstr "Om de Bridge-modus te activeren, moet u teruggaan en <b>%(tunnelProtocol
 msgctxt "openvpn-settings-view"
 msgid "To activate UDP, change <b>Bridge mode</b> to <b>Automatic</b> or <b>Off</b>."
 msgstr "Om UDP te activeren, moet u <b>Bridge-modus</b> wijzigen naar <b>Automatisch</b> of <b>Uit</b>."
+
+#. This text is shown beneath the bridge mode setting to instruct users how to
+#. configure the feature further.
+msgctxt "openvpn-settings-view"
+msgid "To select a specific bridge server, go to the Select location view."
+msgstr "Ga naar Locatie selecteren om een speccifieke bridgeserver te selecteren."
 
 msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
@@ -1266,6 +1311,10 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
 
+msgctxt "select-location-view"
+msgid "A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work."
+msgstr "Een aangepaste bridgeserver kan worden gebruikt om censuur te omzeilen wanneer reguliere Mullvad-bridgeservers niet werken."
+
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1284,6 +1333,10 @@ msgstr "Plaats"
 msgctxt "select-location-view"
 msgid "Country"
 msgstr "Land"
+
+msgctxt "select-location-view"
+msgid "Custom bridge"
+msgstr "Aangepaste bridge"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
@@ -2014,7 +2067,15 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Met welke TCP-poort moet het UDP-over-TCP-obfuscatieprotocol verbinding maken op de VPN-server."
 
-msgctxt "Message to indicate how much time was added to an account as part of an in-app purchase. Example: \"30 days was added to your account.\""
+msgctxt "Indicator of that the currently selected element already has been added (directly or indirectly) to a named list (\"%s\")"
+msgid "%s (added)"
+msgstr "%s (toegevoegd)"
+
+msgctxt "Message notifying the user that a location (first %s) was added to a named list (second %s)."
+msgid "%s was added to \"%s\""
+msgstr "%s is toegevoegd aan \"%s\""
+
+msgctxt "Message shown after successfully adding time to the account. %s could be either day(s) or months, for example \"1 day\" or \"6 months\""
 msgid "%s was added to your account."
 msgstr "%s is toegevoegd aan uw account."
 
@@ -2039,6 +2100,10 @@ msgstr "Accountkrediet verloopt binnenkort"
 msgid "Account time reminders"
 msgstr "Accounttijdherinneringen"
 
+msgctxt "Title of the prompt where the user is asked to add a location (%s) to a list. "
+msgid "Add %s to list"
+msgstr "Voeg %s toe aan lijst"
+
 msgid "Add 30 days time"
 msgstr "30 dagen tijd toevoegen"
 
@@ -2048,11 +2113,17 @@ msgstr "30 dagen tijd toevoegen (%s)"
 msgid "Add DNS server"
 msgstr "DNS-server toevoegen"
 
+msgid "Add locations"
+msgstr "Voeg locaties toe"
+
 msgid "Agree and continue"
 msgstr "Akkoord en doorgaan"
 
 msgid "All applications"
 msgstr "Alle toepassingen"
+
+msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
+msgstr "Alle overschrijvingen worden gereset en IP-adressen van servers in Locatie selecteren worden teruggezet naar de standaardwaarden."
 
 msgid "Allows access to other devices on the same network for sharing, printing etc."
 msgstr "Biedt toegang tot andere apparaten op hetzelfde netwerk voor delen, afdrukken en dergelijke"
@@ -2063,6 +2134,9 @@ msgstr "Altijd-aan VPN toegewezen aan andere app"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "Altijd-aan VPN is mogelijk ingeschakeld voor een andere app"
 
+msgid "Attention: Split tunneling is a privacy risk."
+msgstr "Let op: split tunneling is een privacyrisico."
+
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
 msgstr "Let op: deze instelling kan niet worden gebruikt in combinatie met <b>Aangepaste DNS-server gebruiken</b>."
 
@@ -2071,6 +2145,9 @@ msgstr "Automatisch verbinden en lockdownmodus"
 
 msgid "Auto-connect & \\nLockdown mode"
 msgstr "Automatisch verbinden en \\nlockdownmodus"
+
+msgid "Auto-connect (legacy)"
+msgstr "Automatisch verbinden (verouderd)"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Automatisch verbinden heet Altijd-aan VPN in de Android-systeeminstellingen en zorgt ervoor dat u altijd verbonden bent met de VPN-tunnel en automatisch verbinding maakt na een herstart."
@@ -2093,6 +2170,12 @@ msgstr "Logs gekopieerd naar klembord"
 msgid "Copied to clipboard"
 msgstr "Gekopieerd naar klembord"
 
+msgid "Create"
+msgstr "Maken"
+
+msgid "Create new list"
+msgstr "Nieuwe lijst maken"
+
 msgid "Critical error (your attention is required)"
 msgstr "Kritieke fout (uw aandacht is vereist)"
 
@@ -2102,17 +2185,44 @@ msgstr "Aangepaste DNS-serveradressen %s zijn ongeldig"
 msgid "DNS settings might not go into effect immediately"
 msgstr "DNS-instellingen worden mogelijk niet onmiddellijk van kracht"
 
+msgid "Delete \"%s\"?"
+msgstr "\"%s\" verwijderen?"
+
 msgid "Disable all <b>%s</b> above to activate this setting."
 msgstr "Schakel alle <b>%s</b> hierboven uit om deze instelling te activeren."
 
-msgid "Enable"
-msgstr "Inschakelen"
+msgid "Discard"
+msgstr "Verwerpen"
+
+msgid "Discard changes?"
+msgstr "Wijzigingen verwerpen?"
+
+msgid "Edit custom lists"
+msgstr "Aangepaste lijsten bewerken"
+
+msgid "Edit list"
+msgstr "Lijst bewerken"
+
+msgid "Edit lists"
+msgstr "Lijsten bewerken"
+
+msgid "Edit locations"
+msgstr "Locaties bewerken"
+
+msgid "Edit name"
+msgstr "Naam bewerken"
 
 msgid "Enter MTU"
 msgstr "Voer MTU in"
 
 msgid "Excluded applications"
 msgstr "Uitgesloten toepassingen"
+
+msgid "Failed to apply patch"
+msgstr "Patch toepassen mislukt"
+
+msgid "File"
+msgstr "Bestand"
 
 msgid "Go to VPN settings"
 msgstr "Naar VPN-instellingen"
@@ -2129,8 +2239,33 @@ msgstr "Google Play niet beschikbaar"
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Als de split-tunnelingfunctie wordt gebruikt, vraagt de app het systeem om een lijst van alle geïnstalleerde toepassingen. Deze lijst wordt alleen opgehaald in de split-tunnelingweergave. De lijst van geïnstalleerde toepassingen wordt nooit verzonden vanaf het apparaat."
 
+msgctxt "Title of the bottom sheet prompt shown when importing a patch/configuration. The string itself is follwed by a list of import sources."
+msgid "Import new overrides by"
+msgstr "Nieuwe overschrijvingen importeren vanuit"
+
+msgid "Import successful, overrides active"
+msgstr "Importeren geslaagd, overschrijvingen actief"
+
+msgid "Importing new overrides might replace some previously imported overrides."
+msgstr "Het importeren van nieuwe overschrijvingen kan sommige eerder geïmporteerde overschrijvingen vervangen."
+
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Installeer Mullvad VPN (%s) om up-to-date te blijven"
+
+msgid "Invalid or missing value \"%s\""
+msgstr "Ongeldige of ontbrekende waarde \"%s\""
+
+msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
+msgstr "Hier kunt u apps selecteren die rechtstreeks toegang tot het internet moeten hebben zonder via de VPN-tunnel te gaan."
+
+msgid "List name"
+msgstr "Lijstnaam"
+
+msgid "Locations"
+msgstr "Locaties"
+
+msgid "Locations were changed for \"%s\""
+msgstr "Locaties zijn gewijzigd voor \"%s\""
 
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "Zorg dat het apparaat altijd de VPN-tunnel gebruikt."
@@ -2144,8 +2279,42 @@ msgstr "Mullvad-accountnummer"
 msgid "Mullvad services unavailable"
 msgstr "Mullvad-diensten niet beschikbaar"
 
+msgid "Name was changed to %s"
+msgstr "Naam is gewijzigd in %s"
+
+msgid "New list"
+msgstr "Nieuwe lijst"
+
+msgid "No custom lists available"
+msgstr "Geen aangepaste lijsten beschikbaar"
+
 msgid "No internet connection"
 msgstr "Geen internetverbinding"
+
+msgid "No locations found"
+msgstr "Geen locaties gevonden"
+
+msgid "Not found"
+msgstr "Niet gevonden"
+
+msgid "Overrides active"
+msgstr "Overschrijvingen actief"
+
+msgid "Overrides cleared"
+msgstr "Overschrijvingen gewist"
+
+msgid "Overrides inactive"
+msgstr "Overschrijvingen inactief"
+
+msgid "Paste or write overrides to be imported"
+msgstr "Plak of schrijf overschrijvingen om te importeren"
+
+msgctxt "Message shown if the provided configuration file/text (\"patch\") format doesn't match the requirements and therefore couldn't be applied."
+msgid "Patch not matching specification"
+msgstr "Patch komt niet overeen met specificatie"
+
+msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
+msgstr "Gebruik in plaats hiervan de systeeminstelling <b>Altijd aan</b> door de aanwijzingen hierboven in <b>%s</b> te volgen."
 
 msgid "Preferences"
 msgstr "Voorkeuren"
@@ -2156,17 +2325,32 @@ msgstr "Privacy"
 msgid "Privacy policy"
 msgstr "Privacybeleid"
 
+msgid "Recursion limit"
+msgstr "Recursielimiet"
+
 msgid "Remove"
 msgstr "Verwijderen"
 
 msgid "Remove custom port"
 msgstr "Aangepaste poort verwijderen"
 
+msgid "Reset"
+msgstr "Resetten"
+
+msgid "Reset all overrides"
+msgstr "Alle overschrijvingen resetten"
+
+msgid "Reset overrides"
+msgstr "Overschrijvingen resetten"
+
 msgid "Reset to default"
 msgstr "Standaardwaarde herstellen"
 
 msgid "Secured"
 msgstr "Beveiligd"
+
+msgid "Server Ip overrides"
+msgstr "Overschrijvingen van server-IP-adressen"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "Stel de MTU-waarde voor WireGuard in. Geldig bereik: %d - %d."
@@ -2183,11 +2367,11 @@ msgstr "Toont de huidige status van de VPN-tunnel"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Toont herinneringen wanneer de accounttijd op het punt staat te verlopen"
 
-msgid "Split tunneling is disabled."
-msgstr "Gesplitste tunneling is uitgeschakeld."
-
 msgid "Submit"
 msgstr "Verzenden"
+
+msgid "Text"
+msgstr "Tekst"
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "De instellingen Automatisch verbinden en Lockdownmodus zijn te vinden in de Android-systeeminstellingen, volg deze gids om een of beide in te schakelen."
@@ -2204,6 +2388,12 @@ msgstr "Er zijn geen VPN-instellingen op uw apparaat"
 msgid "This address has already been entered."
 msgstr "Dit adres is al ingevoerd."
 
+msgid "To add locations to a list, press the \"︙\" or long press on a country, city, or server."
+msgstr "Druk op de \"︙\" of druk lang op een land, plaats of server om locaties toe te voegen."
+
+msgid "To create a custom list press the \"︙\""
+msgstr "Druk op de \"︙\" om een aangepaste lijst te maken"
+
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Om zeker te zijn dat u de meest veilige versie hebt en om u te informeren over eventuele problemen met de huidige geactiveerde versie, voert de app automatisch versiecontroles uit. Hierbij worden de appversie en de Android-systeemversie naar de servers van Mullvad gestuurd. Mullvad houdt tellers bij voor gebruikte appversies en Android-versies. De gegevens worden nooit opgeslagen of gebruikt op een manier die u kan identificeren."
 
@@ -2213,8 +2403,18 @@ msgstr "VPN in-/uitschakelen"
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "Kan firewallregels niet toepassen. Los problemen op of stuur een probleemmelding."
 
+msgid "Unable to parse patch"
+msgstr "Kan patch niet parsen"
+
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voor <b>%s</b> voordat u Mullvad VPN gebruikt."
+
+msgid "Undo"
+msgstr "Ongedaan maken"
+
+msgctxt "Error message shown when failing to parse a configuration file/text. The key variable (%s) is a an identifier used within the configuration file/text. "
+msgid "Unknown or prohibited key \"%s\""
+msgstr "Onbekende of verboden sleutel \"%s\""
 
 msgid "Unsecured"
 msgstr "Niet beveiligd"
@@ -2224,6 +2424,9 @@ msgstr "DNS-server bijwerken"
 
 msgid "Update available, download to remain safe."
 msgstr "Update beschikbaar, download deze om veilig te blijven."
+
+msgid "Update list name"
+msgstr "Lijstnaam bijwerken"
 
 msgid "VPN permission error"
 msgstr "VPN-machtigingsfout"
@@ -2237,7 +2440,6 @@ msgstr "Status VPN-tunnel"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde instellingen."
 
-msgctxt "Help text to explain which numbers are valid to configure. The user should enter a single number/integer that either matches one of the listed numbers or is within one of the listed ranges. Example: \"Valid ranges: 53, 123, 4000-33433\""
 msgid "Valid ranges: %s"
 msgstr "Geldige bereiken: %s"
 
@@ -2283,6 +2485,9 @@ msgstr "U LEKT MOGELIJK NETWERKVERKEER"
 msgid "You are running an unsupported app version."
 msgstr "U gebruikt een niet-ondersteunde versie van de app."
 
+msgid "\"%s\" was deleted"
+msgstr "\"%s\" is verwijderd"
+
 msgid "less than a minute ago"
 msgstr "minder dan een minuut geleden"
 
@@ -2293,6 +2498,11 @@ msgid "%d day"
 msgid_plural "%d days"
 msgstr[0] "%d dag"
 msgstr[1] "%d dagen"
+
+msgid "%d location"
+msgid_plural "%d locations"
+msgstr[0] "%d locatie"
+msgstr[1] "%d locaties"
 
 msgid "%d month"
 msgid_plural "%d months"
