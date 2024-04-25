@@ -22,7 +22,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 //  ServiceConnectionManager here.
 class DeviceRevokedViewModel(
     private val serviceConnectionManager: ServiceConnectionManager,
-    private val accountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository,
+    private val accountRepository: AccountRepository,
     private val connectionProxy: ConnectionProxy,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {

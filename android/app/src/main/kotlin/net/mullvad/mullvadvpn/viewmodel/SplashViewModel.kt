@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 
 class SplashViewModel(
     private val privacyDisclaimerRepository: PrivacyDisclaimerRepository,
-    private val accountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository,
+    private val accountRepository: AccountRepository,
 ) : ViewModel() {
 
     val uiSideEffect = flow { emit(getStartDestination()) }

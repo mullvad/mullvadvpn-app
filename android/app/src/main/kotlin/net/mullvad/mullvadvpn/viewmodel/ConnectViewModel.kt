@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.ConnectError
@@ -37,7 +38,7 @@ import net.mullvad.mullvadvpn.util.toOutAddress
 
 @OptIn(FlowPreview::class)
 class ConnectViewModel(
-    private val accountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository,
+    private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
     inAppNotificationController: InAppNotificationController,
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
