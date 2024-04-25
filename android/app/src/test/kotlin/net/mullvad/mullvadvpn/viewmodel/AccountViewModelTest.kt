@@ -14,6 +14,7 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
@@ -24,7 +25,6 @@ import net.mullvad.mullvadvpn.model.AccountAndDevice
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -38,7 +38,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class AccountViewModelTest {
 
-    private val mockAccountRepository: AccountRepository = mockk(relaxUnitFun = true)
+    private val mockAccountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository =
+        mockk(relaxUnitFun = true)
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockAuthTokenCache: AuthTokenCache = mockk()

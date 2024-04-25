@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
@@ -24,7 +25,6 @@ import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
@@ -62,7 +62,8 @@ class OutOfTimeViewModelTest {
     private val eventNotifierTunnelRealState =
         EventNotifier<TunnelState>(TunnelState.Disconnected())
 
-    private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
+    private val mockAccountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository =
+        mockk(relaxed = true)
     private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)

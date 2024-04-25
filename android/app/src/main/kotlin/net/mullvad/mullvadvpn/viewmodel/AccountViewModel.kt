@@ -13,14 +13,13 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.model.AccountToken
-import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.toPaymentState
 import org.joda.time.DateTime
 
 class AccountViewModel(
-    private val accountRepository: AccountRepository,
+    private val accountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository,
     private val paymentUseCase: PaymentUseCase,
     deviceRepository: DeviceRepository,
     private val isPlayBuild: Boolean,
@@ -101,7 +100,7 @@ class AccountViewModel(
     }
 
     private fun updateAccountExpiry() {
-        viewModelScope.launch { accountRepository.getAccountAccountData() }
+        viewModelScope.launch { accountRepository.getAccountData() }
     }
 
     sealed class UiSideEffect {

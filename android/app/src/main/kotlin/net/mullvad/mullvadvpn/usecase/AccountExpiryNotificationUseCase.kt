@@ -4,13 +4,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD_DAYS
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.model.AccountData
-import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import org.joda.time.DateTime
 
 class AccountExpiryNotificationUseCase(
-    private val accountRepository: AccountRepository,
+    private val accountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository,
 ) {
     fun notifications(): Flow<List<InAppNotification>> =
         accountRepository.accountData

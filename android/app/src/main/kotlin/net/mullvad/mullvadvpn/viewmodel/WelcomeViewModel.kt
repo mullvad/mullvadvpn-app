@@ -18,7 +18,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.model.AccountToken
-import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
@@ -26,7 +25,7 @@ import net.mullvad.mullvadvpn.util.toPaymentState
 
 @OptIn(FlowPreview::class)
 class WelcomeViewModel(
-    private val accountRepository: AccountRepository,
+    private val accountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository,
     deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentUseCase,
     connectionProxy: ConnectionProxy,
@@ -107,7 +106,7 @@ class WelcomeViewModel(
     }
 
     private suspend fun updateAccountExpiry() {
-        accountRepository.getAccountAccountData()
+        accountRepository.getAccountData()
     }
 
     sealed interface UiSideEffect {

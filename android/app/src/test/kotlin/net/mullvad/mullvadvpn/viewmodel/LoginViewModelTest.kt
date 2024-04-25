@@ -18,13 +18,13 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
 import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
 import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.CreateAccountError
 import net.mullvad.mullvadvpn.model.LoginAccountError
-import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
@@ -38,7 +38,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 class LoginViewModelTest {
 
     @MockK private lateinit var connectivityUseCase: ConnectivityUseCase
-    @MockK private lateinit var mockedAccountRepository: AccountRepository
+    @MockK
+    private lateinit var mockedAccountRepository:
+        net.mullvad.mullvadvpn.lib.account.AccountRepository
     @MockK private lateinit var mockedDeviceRepository: DeviceRepository
     @MockK private lateinit var mockedNewDeviceNotificationUseCase: NewDeviceNotificationUseCase
 

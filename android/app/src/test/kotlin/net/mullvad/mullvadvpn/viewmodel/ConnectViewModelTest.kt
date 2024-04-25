@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.DeviceState
@@ -24,7 +25,6 @@ import net.mullvad.mullvadvpn.model.ErrorState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
@@ -74,7 +74,8 @@ class ConnectViewModelTest {
     private val mockLocation: GeoIpLocation = mockk(relaxed = true)
 
     // Account Repository
-    private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
+    private val mockAccountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository =
+        mockk(relaxed = true)
 
     // Device Repository
     private val mockDeviceRepository: DeviceRepository = mockk()
