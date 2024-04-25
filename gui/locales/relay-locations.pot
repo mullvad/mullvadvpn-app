@@ -38,6 +38,14 @@ msgstr ""
 msgid "Austria"
 msgstr ""
 
+#. TH BKK
+msgid "Bangkok"
+msgstr ""
+
+#. ES BCN
+msgid "Barcelona"
+msgstr ""
+
 #. BE
 msgid "Belgium"
 msgstr ""
@@ -178,6 +186,10 @@ msgstr ""
 msgid "Germany"
 msgstr ""
 
+#. GB GLW
+msgid "Glasgow"
+msgstr ""
+
 #. SE GOT
 msgid "Gothenburg"
 msgstr ""
@@ -254,6 +266,10 @@ msgstr ""
 msgid "Lisbon"
 msgstr ""
 
+#. SI LJU
+msgid "Ljubljana"
+msgstr ""
+
 #. GB LON
 msgid "London"
 msgstr ""
@@ -284,6 +300,10 @@ msgstr ""
 
 #. FR MRS
 msgid "Marseille"
+msgstr ""
+
+#. US TXC
+msgid "McAllen, TX"
 msgstr ""
 
 #. AU MEL
@@ -462,6 +482,10 @@ msgstr ""
 msgid "Slovakia"
 msgstr ""
 
+#. SI
+msgid "Slovenia"
+msgstr ""
+
 #. BG SOF
 msgid "Sofia"
 msgstr ""
@@ -510,6 +534,10 @@ msgstr ""
 msgid "Tel Aviv"
 msgstr ""
 
+#. TH
+msgid "Thailand"
+msgstr ""
+
 #. AL TIA
 msgid "Tirana"
 msgstr ""
@@ -536,6 +564,10 @@ msgstr ""
 
 #. AE
 msgid "United Arab Emirates"
+msgstr ""
+
+#. ES VLC
+msgid "Valencia"
 msgstr ""
 
 #. CA VAN
