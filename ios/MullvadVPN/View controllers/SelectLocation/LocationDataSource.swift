@@ -136,6 +136,12 @@ final class LocationDataSource:
         ], reloadExisting: true)
     }
 
+    func scrollToSelectedRelay() {
+        indexPathForSelectedRelay().flatMap {
+            tableView.scrollToRow(at: $0, at: .middle, animated: false)
+        }
+    }
+
     // Called from `LocationDiffableDataSourceProtocol`.
     func nodeShowsChildren(_ node: LocationNode) -> Bool {
         node.showsChildren
@@ -277,12 +283,22 @@ extension LocationDataSource: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if let item = itemIdentifier(for: indexPath), item == selectedItem {
-            cell.setSelected(true, animated: false)
+            tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
         }
+    }
+
+    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        if let indexPath = indexPathForSelectedRelay() {
+            tableView.deselectRow(at: indexPath, animated: false)
+            selectedItem = nil
+        }
+
+        return indexPath
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let item = itemIdentifier(for: indexPath) else { return }
+        selectedItem = item
 
         var customListSelection: UserSelectedRelays.CustomListSelection?
         if let topmostNode = item.node.root as? CustomListLocationNode {
@@ -302,12 +318,6 @@ extension LocationDataSource: UITableViewDelegate {
 
     private func scrollToTop(animated: Bool) {
         tableView.setContentOffset(.zero, animated: animated)
-    }
-
-    private func scrollToSelectedRelay() {
-        indexPathForSelectedRelay().flatMap {
-            tableView.scrollToRow(at: $0, at: .middle, animated: false)
-        }
     }
 }
 
