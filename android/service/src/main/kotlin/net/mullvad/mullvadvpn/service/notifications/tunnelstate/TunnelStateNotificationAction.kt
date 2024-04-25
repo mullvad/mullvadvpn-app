@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.service.notifications
+package net.mullvad.mullvadvpn.service.notifications.tunnelstate
 
 import android.app.PendingIntent
 import android.content.Context
@@ -8,13 +8,12 @@ import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
-import net.mullvad.mullvadvpn.model.ChannelId
 import net.mullvad.mullvadvpn.model.Notification
 import net.mullvad.mullvadvpn.model.NotificationAction
 import net.mullvad.mullvadvpn.model.NotificationTunnelState
 import net.mullvad.mullvadvpn.service.R
 
-internal fun Notification.Tunnel.toNotification(context: Context, channelId: ChannelId) =
+internal fun Notification.Tunnel.toNotification(context: Context) =
     NotificationCompat.Builder(context, channelId.value)
         .setContentIntent(contentIntent(context))
         .setContentTitle(context.getString(state.contentTitleResourceId()))

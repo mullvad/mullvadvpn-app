@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.repository
 
-import android.content.Context
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
