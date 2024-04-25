@@ -1,4 +1,5 @@
 use crate::net::{Endpoint, GenericTunnelOptions, TransportProtocol};
+use base64::{engine::general_purpose::STANDARD, Engine};
 use ipnetwork::IpNetwork;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{
@@ -105,7 +106,7 @@ impl PrivateKey {
     }
 
     pub fn to_base64(&self) -> String {
-        base64::encode(self.0.to_bytes())
+        STANDARD.encode(self.0.to_bytes())
     }
 
     pub fn from_base64(key: &str) -> Result<Self, InvalidKey> {
@@ -135,7 +136,7 @@ impl fmt::Debug for PrivateKey {
 
 impl fmt::Display for PrivateKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", &base64::encode((self.0).to_bytes()))
+        write!(f, "{}", &STANDARD.encode((self.0).to_bytes()))
     }
 }
 
@@ -177,7 +178,7 @@ impl PublicKey {
     }
 
     pub fn to_base64(&self) -> String {
-        base64::encode(self.as_bytes())
+        STANDARD.encode(self.as_bytes())
     }
 
     pub fn from_base64(key: &str) -> Result<Self, InvalidKey> {
@@ -272,7 +273,7 @@ impl From<Box<[u8; 32]>> for PresharedKey {
 
 impl fmt::Debug for PresharedKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", &base64::encode(self.as_bytes()))
+        write!(f, "{}", &STANDARD.encode(self.as_bytes()))
     }
 }
 
@@ -280,7 +281,7 @@ fn serialize_key<S>(key: &[u8; 32], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
-    serializer.serialize_str(&base64::encode(key))
+    serializer.serialize_str(&STANDARD.encode(key))
 }
 
 fn deserialize_key<'de, D, K>(deserializer: D) -> Result<K, D::Error>
@@ -295,7 +296,7 @@ where
 }
 
 fn key_from_base64<K: From<[u8; 32]>>(key: &str) -> Result<K, InvalidKey> {
-    let bytes = base64::decode(key).map_err(InvalidKey::Format)?;
+    let bytes = STANDARD.decode(key).map_err(InvalidKey::Format)?;
     if bytes.len() != 32 {
         return Err(InvalidKey::Length(bytes.len()));
     }

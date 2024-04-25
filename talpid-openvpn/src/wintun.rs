@@ -5,13 +5,11 @@ use widestring::{U16CStr, U16CString};
 use windows_sys::{
     core::GUID,
     Win32::{
-        Foundation::HMODULE,
+        Foundation::{FreeLibrary, HMODULE},
         NetworkManagement::{IpHelper::ConvertInterfaceLuidToGuid, Ndis::NET_LUID_LH},
         System::{
             Com::StringFromGUID2,
-            LibraryLoader::{
-                FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH,
-            },
+            LibraryLoader::{GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH},
             Registry::REG_SAM_FLAGS,
         },
     },

@@ -90,7 +90,7 @@ impl Pinger {
         // Asserting that `index` is non-zero since otherwise `if_nametoindex` would have return
         // an error
         socket
-            .bind_device_by_index(std::num::NonZeroU32::new(index))
+            .bind_device_by_index_v4(std::num::NonZeroU32::new(index))
             .map_err(Error::BindSocketByDevice)?;
 
         Ok(())
