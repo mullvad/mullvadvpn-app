@@ -1,5 +1,7 @@
+#[cfg(not(windows))]
+use mullvad_daemon::cleanup_old_rpc_socket;
 use mullvad_daemon::{
-    cleanup_old_rpc_socket, logging,
+    logging,
     management_interface::{ManagementInterfaceEventBroadcaster, ManagementInterfaceServer},
     rpc_uniqueness_check, runtime, version, Daemon, DaemonCommandChannel, DaemonCommandSender,
 };
@@ -160,6 +162,7 @@ fn get_log_dir(config: &cli::Config) -> Result<Option<PathBuf>, String> {
 }
 
 async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
+    #[cfg(not(windows))]
     cleanup_old_rpc_socket().await;
 
     if !running_as_admin() {

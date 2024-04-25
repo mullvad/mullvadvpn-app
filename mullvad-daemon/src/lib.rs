@@ -2846,9 +2846,8 @@ fn oneshot_map<T1: Send + 'static, T2: Send + 'static>(
     new_tx
 }
 
-/// TODO: Change name
-/// TODO: Document
-#[cfg(not(target_os = "windows"))]
+/// Remove any old RPC socket (if it exists).
+#[cfg(not(windows))]
 pub async fn cleanup_old_rpc_socket() {
     if let Err(err) = tokio::fs::remove_file(mullvad_paths::get_rpc_socket_path()).await {
         if err.kind() != std::io::ErrorKind::NotFound {
@@ -2856,8 +2855,3 @@ pub async fn cleanup_old_rpc_socket() {
         }
     }
 }
-
-/// NOP on Windows
-#[cfg(target_os = "windows")]
-#[allow(clippy::unused_async)]
-async fn cleanup_old_rpc_socket() {}
