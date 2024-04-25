@@ -65,6 +65,7 @@ import net.mullvad.mullvadvpn.model.ObfuscationSettings as ModelObfuscationSetti
 import net.mullvad.mullvadvpn.model.Ownership as ModelOwnership
 import net.mullvad.mullvadvpn.model.PlayPurchase
 import net.mullvad.mullvadvpn.model.PlayPurchaseInitError
+import net.mullvad.mullvadvpn.model.PlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyError
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.QuantumResistantState as ModelQuantumResistantState
@@ -508,11 +509,14 @@ class ManagementService(
                 }
             }
 
-    suspend fun initializePlayPurchase(): Either<PlayPurchaseInitError, String> =
-        Either.catch { TODO("Not yet implemented") }.mapLeft { PlayPurchaseInitError.OtherError }
+    suspend fun initializePlayPurchase(): Either<PlayPurchaseInitError, PlayPurchasePaymentToken> =
+        Either.catch { grpc.initPlayPurchase(Empty.getDefaultInstance()).toDomain() }
+            .mapLeft { PlayPurchaseInitError.OtherError }
 
     suspend fun verifyPlayPurchase(purchase: PlayPurchase): Either<PlayPurchaseVerifyError, Unit> =
-        Either.catch { TODO("Not yet implemented") }.mapLeft { PlayPurchaseVerifyError.OtherError }
+        Either.catch { grpc.verifyPlayPurchase(purchase.fromDomain()) }
+            .mapLeft { PlayPurchaseVerifyError.OtherError }
+            .mapEmpty()
 
     suspend fun addSplitTunnelingApp(app: AppId): Either<AddSplitTunnelingAppError, Unit> =
         Either.catch {
