@@ -308,8 +308,8 @@ extension PacketTunnelProvider {
 
 extension PacketTunnelProvider: PostQuantumKeyReceiving {
     func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
-        postQuantumActor.acknowledgeNegotiationConcluded()
         actor.replacePreSharedKey(key, ephemeralKey: ephemeralKey)
+        postQuantumActor.acknowledgeNegotiationConcluded()
     }
 
     func keyExchangeFailed() {
