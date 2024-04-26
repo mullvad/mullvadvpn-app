@@ -53,6 +53,7 @@ mod v5;
 mod v6;
 mod v7;
 mod v8;
+mod v9;
 
 const SETTINGS_FILE: &str = "settings.json";
 
@@ -116,6 +117,12 @@ impl MigrationComplete {
 /// Contains discarded data that may be useful for later work.
 pub type MigrationData = v5::MigrationData;
 
+/// Directories that may be passed to the migration logic.
+pub struct Directories<'path> {
+    cache_dir: &'path Path,
+    settings_dir: &'path Path,
+}
+
 pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option<MigrationData>> {
     #[cfg(windows)]
     windows::migrate_after_windows_update(settings_dir)
@@ -134,8 +141,12 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option
         serde_json::from_reader(&settings_bytes[..]).map_err(Error::Deserialize)?;
 
     let old_settings = settings.clone();
+    let directories = Directories {
+        cache_dir,
+        settings_dir,
+    };
 
-    let migration_data = migrate_settings(Some((cache_dir, settings_dir)), &mut settings).await?;
+    let migration_data = migrate_settings(Some(directories), &mut settings).await?;
 
     if settings == old_settings {
         // Nothing changed
@@ -162,7 +173,7 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option
 }
 
 async fn migrate_settings(
-    directories: Option<(&Path, &Path)>,
+    directories: Option<Directories<'_>>,
     settings: &mut serde_json::Value,
 ) -> Result<Option<MigrationData>> {
     if !settings.is_object() {
@@ -174,7 +185,11 @@ async fn migrate_settings(
     v3::migrate(settings)?;
     v4::migrate(settings)?;
 
-    if let Some((cache_dir, settings_dir)) = directories {
+    if let Some(Directories {
+        cache_dir,
+        settings_dir,
+    }) = directories
+    {
         account_history::migrate_location(cache_dir, settings_dir).await;
         account_history::migrate_formats(settings_dir, settings).await?;
     }
@@ -183,6 +198,14 @@ async fn migrate_settings(
     v6::migrate(settings)?;
     v7::migrate(settings)?;
     v8::migrate(settings)?;
+
+    v9::migrate(
+        settings,
+        #[cfg(target_os = "android")]
+        directories.map(|directories| v9::Directories {
+            settings: directories.settings_dir,
+        }),
+    )?;
 
     Ok(migration_data)
 }
