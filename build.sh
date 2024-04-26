@@ -183,8 +183,7 @@ function sign_win {
                 -tr http://timestamp.digicert.com -td sha256 \
                 -fd sha256 -d "Mullvad VPN" \
                 -du "https://github.com/mullvad/mullvadvpn-app#readme" \
-                -f "$CERT_FILE" \
-                -p "$CERT_PASSPHRASE" "$binary"
+                -sha1 "$CERT_HASH" "$binary"
             then
                 break
             fi
