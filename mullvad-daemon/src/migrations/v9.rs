@@ -45,6 +45,10 @@ const SPLIT_TUNNELING_STATE: &str = "split-tunnelling-enabled.txt";
 /// This `migrate` function needs to get passed a `settings_dir` to work on Android. This is
 /// because the Android client will pass the settings directory when initializing the daemon,
 /// which means that we can not know ahead of time where the settings are stored.
+<<<<<<< HEAD
+=======
+#[allow(unused_variables)]
+>>>>>>> 703cbc191 (Migrate Android split tunnel apps to daemon settings)
 pub fn migrate(
     settings: &mut serde_json::Value,
     #[cfg(target_os = "android")] directories: Option<Directories<'_>>,
@@ -57,14 +61,23 @@ pub fn migrate(
 
     let json_blob = to_settings_object(settings)?;
 
+    // TODO: Remove this comment when closing the migration:
+    // While this is an open migration, we check to see if the split tunnel apps have been migrated
+    // already. If so, we don't want to run the migration code again. The call to `split_tunnel_subkey_exists`
+    // can safely be removed when closing this migration.
     #[cfg(target_os = "android")]
-    if let Some(directories) = directories {
-        migrate_split_tunnel_settings(json_blob, directories)?;
-    } else {
-        log::warn!("Did not migrate old split tunnelled apps due to missing settings directory");
+    if !android::split_tunnel_subkey_exists(json_blob) {
+        if let Some(directories) = directories {
+            android::migrate_split_tunnel_settings(json_blob, directories)?;
+        } else {
+            log::warn!(
+                "Did not migrate old split tunnelled apps due to missing settings directory"
+            );
+        }
     }
 
-    json_blob["settings_version"] = serde_json::json!(SettingsVersion::V10);
+    // TODO: Uncomment this when closing the migration:
+    // json_blob["settings_version"] = serde_json::json!(SettingsVersion::V10);
 
     Ok(())
 }
@@ -83,98 +96,105 @@ fn to_settings_object(settings: &mut serde_json::Value) -> Result<&mut JsonSetti
         .ok_or(Error::InvalidSettingsContent)
 }
 
-/// Add the "split_tunnel" subkey to the settings blob. On Android, this key *should not*
-/// exist before this migration.
-///
-/// Following Windows, this should be a top-level key in the settings object.
+// TODO: Document
 #[cfg(target_os = "android")]
-fn ensure_split_tunnel_subkey(settings: &mut JsonSettings) {
-    settings.insert("split_tunnel".to_string(), serde_json::Value::Null);
-}
+mod android {
+    use super::*;
 
-/// Read the existing split-tunneling settings which the Android client has kept track off and
-/// write them to the settings object.
-#[cfg(target_os = "android")]
-fn migrate_split_tunnel_settings(
-    settings: &mut JsonSettings,
-    directories: Directories<'_>,
-) -> Result<()> {
-    // Read the split tunnel state (enabled / disabled) & all split apps
-    // If both files can not be read for whatever reason we should not migrate any actual data.
-    // Instead, we fill in conservative default values instead.
-    let (enabled, split_apps) = match (
-        read_split_tunnel_state(&directories),
-        read_split_apps(&directories),
+    /// Check if the "split_tunnel" subkey already exists on the settings blob.
+    /// On Android, this key *should not* exist before this migration.
+    pub fn split_tunnel_subkey_exists(settings: &mut JsonSettings) -> bool {
+        settings.get("split_tunnel").is_some()
+    }
+
+    /// Read the existing split-tunneling settings which the Android client has kept track off and
+    /// write them to the settings object.
+    pub fn migrate_split_tunnel_settings(
+        settings: &mut JsonSettings,
+        directories: Directories<'_>,
+    ) -> Result<()> {
+        // Read the split tunnel state (enabled / disabled) & all split apps
+        // If both files can not be read for whatever reason we should not migrate any actual data.
+        // Instead, we fill in conservative default values instead.
+        let (enabled, split_apps) = match (
+            read_split_tunnel_state(&directories),
+            read_split_apps(&directories),
+        ) {
+            (Some(enabled), Some(apps)) => (enabled, apps),
+            _ => (false, vec![]),
+        };
+
+        // Write the split tunnel settings to the settings object.
+        add_split_tunneling_settings(settings, enabled, split_apps);
+
+        // Remove the old leftover settings files.
+        remove_old_split_tunneling_directories(&directories);
+
+        Ok(())
+    }
+
+    /// Add the "split_tunnel" subkey to the settings object while setting it's own subkeys to
+    /// `enabled` and `apps`.
+    pub fn add_split_tunneling_settings(
+        settings: &mut JsonSettings,
+        enabled: bool,
+        apps: Vec<String>,
     ) {
-        (Some(enabled), Some(apps)) => (enabled, apps),
-        _ => (false, vec![]),
-    };
+        // Create the "split_tunnel" key in the settings object and store the read split tunnel state in the daemon's settings
+        settings.insert(
+            "split_tunnel".to_string(),
+            json!({ "enable_exclusions": enabled, "apps": apps }),
+        );
+    }
 
-    // Write the split tunnel settings to the settings object.
-    add_split_tunneling_settings(settings, enabled, split_apps);
+    /// Read the target file and parse the stored split tunneling state. If split tunneling was
+    /// previously enabled in the android app, the return value of this function will be `Some(true)`,
+    /// otherwise `Some(false)`.
+    ///
+    /// If the file could not be found or read, some logging will occur and `None` will be returned.
+    pub fn read_split_tunnel_state(directories: &Directories<'_>) -> Option<bool> {
+        let path = directories.settings.join(SPLIT_TUNNELING_STATE);
+        log::trace!("Reading split tunnel state from {}", path.display());
+        let enabled = read_to_string(path.clone())
+            .inspect_err(|_| {
+                log::error!("Could not read split tunnel state from {}", path.display())
+            })
+            .ok()?
+            .trim()
+            .eq("true");
+        Some(enabled)
+    }
 
-    // Remove the old leftover settings files.
-    remove_old_split_tunneling_directories(&directories);
+    /// Read the target file and parse the stored split tunneled apps.
+    ///
+    /// If the file could not be found or read, some logging will occur and `None` will be returned.
+    pub fn read_split_apps(directories: &Directories<'_>) -> Option<Vec<String>> {
+        let path = directories.settings.join(SPLIT_TUNNELING_APPS);
+        log::trace!("Reading split tunnel apps from {}", path.display());
+        let split_apps = read_to_string(path.clone())
+            .inspect_err(|_| {
+                log::error!("Could not read split tunnel apps from {}", path.display())
+            })
+            .ok()?
+            .lines()
+            .map(str::to_owned)
+            .collect();
+        Some(split_apps)
+    }
 
-    Ok(())
-}
-
-/// Add the "split_tunnel" subkey to the settings object while setting it's own subkeys to
-/// `enabled` and `apps`.
-#[cfg(target_os = "android")]
-fn add_split_tunneling_settings(settings: &mut JsonSettings, enabled: bool, apps: Vec<String>) {
-    // First, we need to create the "split_tunnel" key in the settings object.
-    ensure_split_tunnel_subkey(settings);
-    // Store the read split tunnel state in the daemon's settings
-    settings["split_tunnel"] = json!({ "enable_exclusions": enabled, "apps": apps });
-}
-
-/// Read the target file and parse the stored split tunneling state. If split tunneling was
-/// previously enabled in the android app, the return value of this function will be `Some(true)`,
-/// otherwise `Some(false)`.
-///
-/// If the file could not be found or read, some logging will occur and `None` will be returned.
-#[cfg(target_os = "android")]
-fn read_split_tunnel_state(directories: &Directories<'_>) -> Option<bool> {
-    let path = directories.settings.join(SPLIT_TUNNELING_STATE);
-    log::trace!("Reading split tunnel state from {}", path.display());
-    let enabled = read_to_string(path.clone())
-        .inspect_err(|_| log::error!("Could not read split tunnel state from {}", path.display()))
-        .ok()?
-        .trim()
-        .eq("true");
-    Some(enabled)
-}
-
-/// Read the target file and parse the stored split tunneled apps.
-///
-/// If the file could not be found or read, some logging will occur and `None` will be returned.
-#[cfg(target_os = "android")]
-fn read_split_apps(directories: &Directories<'_>) -> Option<Vec<String>> {
-    let path = directories.settings.join(SPLIT_TUNNELING_APPS);
-    log::trace!("Reading split tunnel apps from {}", path.display());
-    let split_apps = read_to_string(path.clone())
-        .inspect_err(|_| log::error!("Could not read split tunnel apps from {}", path.display()))
-        .ok()?
-        .lines()
-        .map(str::to_owned)
-        .collect();
-    Some(split_apps)
-}
-
-/// Remove the lingering, old files split tunnelling related files. They should have been
-/// completely migrated to the daemon settings at this point, so they won't be needed any longer.
-///
-/// Note: We don't really care if these operations fail - they won't ever be read again, and new
-/// app installations shall not create them.
-#[cfg(target_os = "android")]
-fn remove_old_split_tunneling_directories(directories: &Directories<'_>) {
-    remove_file(directories.settings.join(SPLIT_TUNNELING_STATE))
-        .inspect_err(|error| log::error!("Failed to remove {SPLIT_TUNNELING_STATE}: {error}"))
-        .ok();
-    remove_file(directories.settings.join(SPLIT_TUNNELING_APPS))
-        .inspect_err(|error| log::error!("Failed to remove {SPLIT_TUNNELING_APPS}: {error}"))
-        .ok();
+    /// Remove the lingering, old files split tunnelling related files. They should have been
+    /// completely migrated to the daemon settings at this point, so they won't be needed any longer.
+    ///
+    /// Note: We don't really care if these operations fail - they won't ever be read again, and new
+    /// app installations shall not create them.
+    pub fn remove_old_split_tunneling_directories(directories: &Directories<'_>) {
+        remove_file(directories.settings.join(SPLIT_TUNNELING_STATE))
+            .inspect_err(|error| log::error!("Failed to remove {SPLIT_TUNNELING_STATE}: {error}"))
+            .ok();
+        remove_file(directories.settings.join(SPLIT_TUNNELING_APPS))
+            .inspect_err(|error| log::error!("Failed to remove {SPLIT_TUNNELING_APPS}: {error}"))
+            .ok();
+    }
 }
 
 #[cfg(test)]
