@@ -39,6 +39,8 @@ pub struct IosTcpProvider {
     read_tx: mpsc::UnboundedSender<Box<[u8]>>,
     read_rx: mpsc::UnboundedReceiver<Box<[u8]>>,
     tcp_connection: *const c_void,
+    read_in_progress: bool,
+    write_in_progress: bool,
 }
 
 impl IosTcpProvider {
@@ -51,6 +53,8 @@ impl IosTcpProvider {
             read_tx: recv_tx,
             read_rx: recv_rx,
             tcp_connection,
+            read_in_progress: false,
+            write_in_progress: false,
         }
     }
 }
@@ -64,11 +68,19 @@ impl AsyncWrite for IosTcpProvider {
         let raw_sender = Box::into_raw(Box::new(self.write_tx.clone()));
 
         match self.write_rx.poll_recv(cx) {
-            std::task::Poll::Ready(Some(bytes_sent)) => Poll::Ready(Ok(bytes_sent)),
+            std::task::Poll::Ready(Some(bytes_sent)) => {
+                self.write_in_progress = false;
+                Poll::Ready(Ok(bytes_sent))
+            }
             std::task::Poll::Ready(None) => {
+                self.write_in_progress = false;
                 Poll::Ready(Err(io::Error::new(io::ErrorKind::Other, "sender dropped")))
             }
             std::task::Poll::Pending => {
+                if self.write_in_progress {
+                    return std::task::Poll::Pending;
+                }
+                self.write_in_progress = true;
                 unsafe {
                     swift_nw_tcp_connection_send(
                         self.tcp_connection,
@@ -107,12 +119,18 @@ impl AsyncRead for IosTcpProvider {
         match self.read_rx.poll_recv(cx) {
             std::task::Poll::Ready(Some(data)) => {
                 buf.put_slice(&data);
+                self.read_in_progress = false;
                 Poll::Ready(Ok(()))
             }
             std::task::Poll::Ready(None) => {
+                self.read_in_progress = false;
                 Poll::Ready(Err(io::Error::new(io::ErrorKind::Other, "sender dropped")))
             }
             std::task::Poll::Pending => {
+                if self.read_in_progress {
+                    return std::task::Poll::Pending;
+                }
+                self.read_in_progress = true;
                 unsafe {
                     swift_nw_tcp_connection_read(self.tcp_connection, raw_sender as _);
                 }
