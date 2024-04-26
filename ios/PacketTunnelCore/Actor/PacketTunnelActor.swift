@@ -238,9 +238,7 @@ extension PacketTunnelActor {
             let targetState = state.targetStateForReconnect
         else { return }
 
-        let activeKey = activeKey(from: connectionState, in: settings)
         let configurationBuilder = ConfigurationBuilder(
-            //            privateKey: activeKey,
             privateKey: privateKey,
             interfaceAddresses: settings.interfaceAddresses,
             dns: settings.dnsServers,
