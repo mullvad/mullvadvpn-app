@@ -53,12 +53,9 @@ For running tests on Linux and Windows guests, you will need these tools and lib
 
 ```bash
 dnf install git gcc protobuf-devel libpcap-devel qemu \
-    podman mingw64-gcc mingw64-winpthreads-static mtools \
-    golang-github-rootless-containers-rootlesskit slirp4netns dnsmasq \
+    podman golang-github-rootless-containers-rootlesskit slirp4netns dnsmasq \
     dbus-devel pkgconf-pkg-config swtpm edk2-ovmf \
     wireguard-tools
-
-rustup target add x86_64-pc-windows-gnu
 ```
 
 # Building the test runner
@@ -70,27 +67,27 @@ The `build.sh` requires the `$TARGET` environment variable to be set.
 For example, building `test-runner` for Linux would look like this:
 
 ``` bash
-TARGET=x86_64-unknown-linux-gnu ./build.sh
+./container-run.sh ./build.sh windows
 ```
 
 ## Linux
-For a Linux target `podman` is required to build the `test-runner`. See the [Linux section under Prerequisities](#Prerequisities) for more details.
+Using `podman` is the recommended way to build the `test-runner`. See the [Linux section under Prerequisities](#Prerequisities) for more details.
 
 ``` bash
-TARGET=x86_64-unknown-linux-gnu ./build.sh
+./container-run.sh ./build.sh linux
 ```
 
 ## macOS
 
 ``` bash
-TARGET=aarch64-apple-darwin ./build.sh
+./build.sh macos
 ```
 
 ## Windows
 The `test-runner` binary for Windows may be cross-compiled from a Linux host.
 
 ``` bash
-TARGET=x86_64-pc-windows-gnu ./build.sh
+./container-run.sh ./build.sh windows
 ```
 
 # Building base images
