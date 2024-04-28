@@ -17,10 +17,8 @@ if [[ "$(uname -s)" != "Linux" ]]; then
     exit 1
 fi
 
-if ! "$CONTAINER_RUNNER" image exists mullvadvpn-app-tests; then
-    container_image=$(cat "$REPO_DIR/building/linux-container-image.txt")
-    podman build -t mullvadvpn-app-tests --build-arg IMAGE="${container_image}" .
-fi
+container_image=$(cat "$REPO_DIR/building/linux-container-image.txt")
+podman build -t mullvadvpn-app-tests --build-arg IMAGE="${container_image}" .
 
 set -x
 exec "$CONTAINER_RUNNER" run --rm -it \
