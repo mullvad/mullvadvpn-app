@@ -220,15 +220,13 @@ echo "**********************************"
 find "$PACKAGES_DIR/" -type f ! \( -name "*${OLD_APP_VERSION}_*" -o -name "*${OLD_APP_VERSION}.*" -o -name "*${commit}*" \) -delete || true
 
 function build_test_runner {
-    local target=""
     if [[ "${TEST_OS}" =~ "debian"|"ubuntu"|"fedora" ]]; then
-        target="x86_64-unknown-linux-gnu"
+        ./container-run.sh ./build-runner.sh linux
     elif [[ "${TEST_OS}" =~ "windows" ]]; then
-        target="x86_64-pc-windows-gnu"
+        ./container-run.sh ./build-runner.sh windows
     elif [[ "${TEST_OS}" =~ "macos" ]]; then
-        target="aarch64-apple-darwin"
+        ./build-runner.sh macos
     fi
-    TARGET=$target ./build.sh
 }
 
 nice_time build_test_runner
