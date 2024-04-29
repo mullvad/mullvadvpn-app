@@ -54,7 +54,7 @@ extension PacketTunnelActor {
      - Returns: New blocked state that should be assigned to error state, otherwise `nil` when actor is past or at `disconnecting` phase or
                 when actor is already in the error state and no changes need to be made.
      */
-    private func makeBlockedState(reason: BlockedStateReason) -> State.BlockingData? {
+    internal func makeBlockedState(reason: BlockedStateReason) -> State.BlockingData? {
         switch state {
         case .initial:
             return State.BlockingData(
@@ -111,7 +111,7 @@ extension PacketTunnelActor {
     /**
      Configure tunnel with empty WireGuard configuration that consumes all traffic on device emulating a firewall blocking all traffic.
      */
-    private func configureAdapterForErrorState() async {
+    internal func configureAdapterForErrorState() async {
         do {
             let configurationBuilder = ConfigurationBuilder(
                 privateKey: PrivateKey(),

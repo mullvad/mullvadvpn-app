@@ -88,35 +88,59 @@ public actor PacketTunnelActor {
 
                 self.logger.debug("Received command: \(command.logFormat())")
 
-                switch command {
-                case let .start(options):
-                    await start(options: options)
+                let effects = await runReducer(command)
 
-                case .stop:
-                    await stop()
-
-                case let .reconnect(nextRelay, reason):
-                    await reconnect(to: nextRelay, reason: reason)
-
-                case let .error(reason):
-                    await setErrorStateInternal(with: reason)
-
-                case let .notifyKeyRotated(date):
-                    await cacheActiveKey(lastKeyRotation: date)
-
-                case .switchKey:
-                    await switchToCurrentKey()
-
-                case let .monitorEvent(event):
-                    await handleMonitorEvent(event)
-
-                case let .networkReachability(defaultPath):
-                    await handleDefaultPathChange(defaultPath)
-
-                case let .replaceDevicePrivateKey(preSharedKey, ephemeralKey):
-                    await postQuantumConnect(with: preSharedKey, privateKey: ephemeralKey)
+                for effect in effects {
+                    await executeEffect(effect)
                 }
             }
+        }
+    }
+
+    func executeEffect(_ effect: Effect) async {
+        switch effect {
+        case .startDefaultPathObserver:
+            startDefaultPathObserver()
+        case .stopDefaultPathObserver:
+            stopDefaultPathObserver()
+        case .startTunnelMonitor:
+            setTunnelMonitorEventHandler()
+        case .stopTunnelMonitor:
+            tunnelMonitor.stop()
+        case let .updateTunnelMonitorPath(networkPath):
+            handleDefaultPathChange(networkPath)
+        case let .startConnection(nextRelay):
+            do {
+                try await tryStart(nextRelay: nextRelay)
+            } catch {
+                logger.error(error: error, message: "Failed to start the tunnel.")
+
+                await setErrorStateInternal(with: error)
+            }
+        case let .restartConnection(nextRelay, reason):
+            do {
+                try await tryStart(nextRelay: nextRelay, reason: reason)
+            } catch {
+                logger.error(error: error, message: "Failed to reconnect the tunnel.")
+
+                await setErrorStateInternal(with: error)
+            }
+        case let .reconnect(nextRelay):
+            commandChannel.send(.reconnect(nextRelay))
+        case .stopTunnelAdapter:
+            do {
+                try await tunnelAdapter.stop()
+            } catch {
+                logger.error(error: error, message: "Failed to stop adapter.")
+            }
+            state = .disconnected
+        case let .configureForErrorState(reason):
+            await setErrorStateInternal(with: reason)
+
+        case let .cacheActiveKey(lastKeyRotation):
+            await cacheActiveKey(lastKeyRotation: lastKeyRotation)
+        case let .postQuantumConnect(key, privateKey: privateKey):
+            await postQuantumConnect(with: key, privateKey: privateKey)
         }
     }
 }
