@@ -7,20 +7,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
 class MigrateSplitTunnelingRepository(
-    private val context: Context,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val context: Context
 ) {
-    private val scope: CoroutineScope = CoroutineScope(dispatcher)
-
     fun migrateSplitTunneling() {
         // Get old settings, if not found return
-        val (enabled, _) = getOldSettings(context) ?: return
+        val enabled = getOldSettings(context) ?: return
 
         // Migrate enable settings to file so that the daemon can read it
         migrateSplitTunnelingEnabled(context, enabled)
     }
 
-    private fun getOldSettings(context: Context): Pair<Boolean, Set<String>>? {
+    private fun getOldSettings(context: Context): Boolean? {
         // Get from shared preferences and appListFile
         val appListFile = File(context.filesDir, SPLIT_TUNNELING_APPS_FILE)
         val preferences = getSharedPreferences(context)
@@ -28,16 +25,14 @@ class MigrateSplitTunnelingRepository(
         return when {
             !appListFile.exists() -> return null
             !preferences.contains(KEY_ENABLED) -> return null
-            else -> preferences.getBoolean(KEY_ENABLED, false) to appListFile.readLines().toSet()
+            else -> preferences.getBoolean(KEY_ENABLED, false)
         }
     }
 
     private fun migrateSplitTunnelingEnabled(context: Context, enabled: Boolean) {
         val enabledFile = File(context.filesDir, SPLIT_TUNNELING_ENABLED_FILE)
         if (enabledFile.createNewFile()) {
-            if (enabled) {
-                enabledFile.writeText(SPLIT_TUNNELING_ENABLED)
-            }
+            enabledFile.writeText(enabled.toString())
         }
     }
 
@@ -49,6 +44,5 @@ class MigrateSplitTunnelingRepository(
         private const val KEY_ENABLED = "enabled"
         private const val SPLIT_TUNNELING_APPS_FILE = "split-tunnelling.txt"
         private const val SPLIT_TUNNELING_ENABLED_FILE = "split-tunnelling-enabled.txt"
-        private const val SPLIT_TUNNELING_ENABLED = "enabled"
     }
 }
