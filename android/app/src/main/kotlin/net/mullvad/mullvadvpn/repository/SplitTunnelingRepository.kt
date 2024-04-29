@@ -28,7 +28,5 @@ class SplitTunnelingRepository(
 
     suspend fun excludeApp(app: AppId) = managementService.addSplitTunnelingApp(app)
 
-    suspend fun excludeApps(apps: List<AppId>) = managementService.addSplitTunnelingApps(apps)
-
     suspend fun includeApp(app: AppId) = managementService.removeSplitTunnelingApp(app)
 }
