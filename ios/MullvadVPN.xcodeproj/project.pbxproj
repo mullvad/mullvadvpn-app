@@ -695,7 +695,7 @@
 		A944F2622B8DEFDB00473F4C /* MullvadPostQuantum.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A944F25C2B8DEFDB00473F4C /* MullvadPostQuantum.framework */; };
 		A944F2632B8DEFDB00473F4C /* MullvadPostQuantum.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A944F25C2B8DEFDB00473F4C /* MullvadPostQuantum.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A944F26A2B8DF32900473F4C /* PostQuantumKeyNegotiator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB4F9C2B7FAB21002A2D7A /* PostQuantumKeyNegotiator.swift */; };
-		A944F2722B8E02F600473F4C /* libtalpid_tunnel_config_client_proxy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A944F2712B8E02E800473F4C /* libtalpid_tunnel_config_client_proxy.a */; };
+		A944F2722B8E02F600473F4C /* libtalpid_tunnel_config_client.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A944F2712B8E02E800473F4C /* libtalpid_tunnel_config_client.a */; };
 		A948809B2BC9308D0090A44C /* PostQuantumKeyExchangeActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A948809A2BC9308D0090A44C /* PostQuantumKeyExchangeActor.swift */; };
 		A94D691A2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E22AA72AE9003D1918 /* WireGuardKitTypes */; };
 		A94D691B2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E72AA7399D003D1918 /* WireGuardKitTypes */; };
@@ -2003,7 +2003,7 @@
 		A935594D2B4E919F00D5D524 /* Api.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Api.xcconfig; sourceTree = "<group>"; };
 		A944F25C2B8DEFDB00473F4C /* MullvadPostQuantum.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MullvadPostQuantum.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A944F25E2B8DEFDB00473F4C /* MullvadPostQuantum.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadPostQuantum.h; sourceTree = "<group>"; };
-		A944F2712B8E02E800473F4C /* libtalpid_tunnel_config_client_proxy.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtalpid_tunnel_config_client_proxy.a; path = "../target/aarch64-apple-ios/debug/libtalpid_tunnel_config_client_proxy.a"; sourceTree = "<group>"; };
+		A944F2712B8E02E800473F4C /* libtalpid_tunnel_config_client.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtalpid_tunnel_config_client.a; path = "../target/aarch64-apple-ios/debug/libtalpid_tunnel_config_client.a"; sourceTree = "<group>"; };
 		A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTests.swift; sourceTree = "<group>"; };
 		A948809A2BC9308D0090A44C /* PostQuantumKeyExchangeActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostQuantumKeyExchangeActor.swift; sourceTree = "<group>"; };
 		A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorState.swift; sourceTree = "<group>"; };
@@ -2298,7 +2298,7 @@
 			files = (
 				A9630E432B8E10FB00A65999 /* MullvadTypes.framework in Frameworks */,
 				A906F94A2BA1E09A002BF22E /* WireGuardKitTypes in Frameworks */,
-				A944F2722B8E02F600473F4C /* libtalpid_tunnel_config_client_proxy.a in Frameworks */,
+				A944F2722B8E02F600473F4C /* libtalpid_tunnel_config_client.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2995,7 +2995,7 @@
 		584F991F2902CBDD001F858D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				A944F2712B8E02E800473F4C /* libtalpid_tunnel_config_client_proxy.a */,
+				A944F2712B8E02E800473F4C /* libtalpid_tunnel_config_client.a */,
 				01EF6F332B6A590700125696 /* libmullvad_api.a */,
 				01EF6F312B6A58F000125696 /* debug */,
 				01EF6F2F2B6A588300125696 /* aarch64-apple-ios */,
@@ -4988,7 +4988,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "CARGO_TARGET_DIR=${PROJECT_DIR}/../target bash ${PROJECT_DIR}/build-rust-library.sh talpid-tunnel-config-client-proxy\n";
+			shellScript = "CARGO_TARGET_DIR=${PROJECT_DIR}/../target bash ${PROJECT_DIR}/build-rust-library.sh talpid-tunnel-config-client\n";
 		};
 		F05F39962B21C704006E60A7 /* Prebuild relays */ = {
 			isa = PBXShellScriptBuildPhase;

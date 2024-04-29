@@ -1,10 +1,16 @@
-use std::{
-    fmt,
-    net::{IpAddr, SocketAddr},
-};
+use proto::PostQuantumRequestV1;
+use std::fmt;
+#[cfg(not(target_os = "ios"))]
+use std::net::IpAddr;
+#[cfg(not(target_os = "ios"))]
+use std::net::SocketAddr;
 use talpid_types::net::wireguard::{PresharedKey, PublicKey};
+#[cfg(not(target_os = "ios"))]
 use tokio::net::TcpSocket;
-use tonic::transport::{Channel, Endpoint};
+use tonic::transport::Channel;
+#[cfg(not(target_os = "ios"))]
+use tonic::transport::Endpoint;
+#[cfg(not(target_os = "ios"))]
 use tower::service_fn;
 use zeroize::Zeroize;
 
@@ -16,18 +22,27 @@ mod proto {
     tonic::include_proto!("ephemeralpeer");
 }
 
+#[cfg(target_os = "ios")]
+pub mod ios_ffi;
+#[cfg(target_os = "ios")]
+use proto::ephemeral_peer_client::EphemeralPeerClient;
+
+#[cfg(not(target_os = "ios"))]
 use libc::setsockopt;
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(not(any(target_os = "windows", target_os = "ios")))]
 mod sys {
     pub use libc::{socklen_t, IPPROTO_TCP, TCP_MAXSEG};
-    pub use std::os::fd::{AsRawFd, RawFd};
+    pub use std::os::fd::RawFd;
 }
+#[cfg(not(target_os = "ios"))]
+pub use std::os::fd::AsRawFd;
 #[cfg(target_os = "windows")]
 mod sys {
     pub use std::os::windows::io::{AsRawSocket, RawSocket};
     pub use windows_sys::Win32::Networking::WinSock::{IPPROTO_IP, IP_USER_MTU};
 }
+#[cfg(not(target_os = "ios"))]
 use sys::*;
 
 #[derive(Debug)]
@@ -79,7 +94,7 @@ impl std::error::Error for Error {
     }
 }
 
-type RelayConfigService = proto::ephemeral_peer_client::EphemeralPeerClient<Channel>;
+pub type RelayConfigService = proto::ephemeral_peer_client::EphemeralPeerClient<Channel>;
 
 /// Port used by the tunnel config service.
 pub const CONFIG_SERVICE_PORT: u16 = 1337;
@@ -93,6 +108,7 @@ pub const CONFIG_SERVICE_PORT: u16 = 1337;
 /// 2. MH + PQ on macOS has connection issues during the handshake due to PF blocking packet
 ///    fragments for not having a port. In the longer term this might be fixed by allowing the
 ///    handshake to work even if there is fragmentation.
+#[cfg(not(target_os = "ios"))]
 const CONFIG_CLIENT_MTU: u16 = 576;
 
 pub struct EphemeralPeer {
@@ -101,38 +117,21 @@ pub struct EphemeralPeer {
 
 /// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled.
 pub async fn request_ephemeral_peer(
-    service_address: IpAddr,
+    #[cfg(not(target_os = "ios"))] service_address: IpAddr,
     parent_pubkey: PublicKey,
     ephemeral_pubkey: PublicKey,
     enable_post_quantum: bool,
     enable_daita: bool,
+    #[cfg(target_os = "ios")] mut client: EphemeralPeerClient<Channel>,
 ) -> Result<EphemeralPeer, Error> {
-    let (pq_request, kem_secrets) = if enable_post_quantum {
-        let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
-        let kyber_keypair = kyber::keypair(&mut rand::thread_rng());
-
-        (
-            Some(proto::PostQuantumRequestV1 {
-                kem_pubkeys: vec![
-                    proto::KemPubkeyV1 {
-                        algorithm_name: classic_mceliece::ALGORITHM_NAME.to_owned(),
-                        key_data: cme_kem_pubkey.as_array().to_vec(),
-                    },
-                    proto::KemPubkeyV1 {
-                        algorithm_name: kyber::ALGORITHM_NAME.to_owned(),
-                        key_data: kyber_keypair.public.to_vec(),
-                    },
-                ],
-            }),
-            Some((cme_kem_secret, kyber_keypair.secret)),
-        )
-    } else {
-        (None, None)
-    };
+    let (pq_request, kem_secrets) = post_quantum_secrets(enable_post_quantum).await;
 
     let daita = Some(proto::DaitaRequestV1 {
         activate_daita: enable_daita,
     });
+
+    #[cfg(not(target_os = "ios"))]
+    let mut client = new_client(service_address).await?;
 
     let response = client
         .register_peer_v1(proto::EphemeralPeerRequestV1 {
@@ -191,6 +190,37 @@ pub async fn request_ephemeral_peer(
     Ok(EphemeralPeer { psk })
 }
 
+async fn post_quantum_secrets(
+    enable_post_quantum: bool,
+) -> (
+    Option<PostQuantumRequestV1>,
+    Option<(classic_mceliece_rust::SecretKey<'static>, [u8; 3168])>,
+) {
+    let (pq_request, kem_secrets) = if enable_post_quantum {
+        let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
+        let kyber_keypair = kyber::keypair(&mut rand::thread_rng());
+
+        (
+            Some(proto::PostQuantumRequestV1 {
+                kem_pubkeys: vec![
+                    proto::KemPubkeyV1 {
+                        algorithm_name: classic_mceliece::ALGORITHM_NAME.to_owned(),
+                        key_data: cme_kem_pubkey.as_array().to_vec(),
+                    },
+                    proto::KemPubkeyV1 {
+                        algorithm_name: kyber::ALGORITHM_NAME.to_owned(),
+                        key_data: kyber_keypair.public.to_vec(),
+                    },
+                ],
+            }),
+            Some((cme_kem_secret, kyber_keypair.secret)),
+        )
+    } else {
+        (None, None)
+    };
+    (pq_request, kem_secrets)
+}
+
 /// Performs `dst = dst ^ src`.
 fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
     for (dst_byte, src_byte) in dst.iter_mut().zip(src.iter()) {
@@ -198,6 +228,7 @@ fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
     }
 }
 
+#[cfg(not(target_os = "ios"))]
 async fn new_client(addr: IpAddr) -> Result<RelayConfigService, Error> {
     let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
 
@@ -244,7 +275,7 @@ fn try_set_tcp_sock_mtu(sock: RawSocket, mtu: u16) {
     }
 }
 
-#[cfg(not(windows))]
+#[cfg(not(any(target_os = "windows", target_os = "ios")))]
 fn try_set_tcp_sock_mtu(dest: &IpAddr, sock: RawFd, mut mtu: u16) {
     const IPV4_HEADER_SIZE: u16 = 20;
     const IPV6_HEADER_SIZE: u16 = 40;
