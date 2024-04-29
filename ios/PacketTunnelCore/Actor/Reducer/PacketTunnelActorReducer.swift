@@ -18,8 +18,8 @@ extension PacketTunnelActor {
         case stopTunnelMonitor
         case updateTunnelMonitorPath(NetworkPath)
         case startConnection(NextRelay)
-        // Merge the two below?
         case restartConnection(NextRelay, ReconnectReason)
+        // trigger a reconnect, which becomes several effects depending on the state
         case reconnect(NextRelay)
         case stopTunnelAdapter
         case configureForErrorState(BlockedStateReason)
