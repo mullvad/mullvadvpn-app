@@ -37,6 +37,9 @@ public struct CustomListRepository: CustomListRepositoryProtocol {
     public init() {}
 
     public func save(list: CustomList) throws {
+        var list = list
+        list.name = list.name.trimmingCharacters(in: .whitespaces)
+
         var lists = fetchAll()
 
         if let listWithSameName = lists.first(where: { $0.name.caseInsensitiveCompare(list.name) == .orderedSame }),
