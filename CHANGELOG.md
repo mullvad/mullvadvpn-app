@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add custom bridge settings in GUI.
+- Add possibility to use openvpn binary without the --route-noexec option
 
 ### Fixed
 #### macOS
