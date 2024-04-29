@@ -62,7 +62,6 @@ import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import net.mullvad.mullvadvpn.viewmodel.FilterViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
-import net.mullvad.mullvadvpn.viewmodel.MigrateSplitTunnelingErrorViewModel
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
@@ -198,7 +197,6 @@ val uiModule = module {
     viewModel { parameters -> DeleteCustomListConfirmationViewModel(parameters.get(), get()) }
     viewModel { ServerIpOverridesViewModel(get(), get()) }
     viewModel { ResetServerIpOverridesConfirmationViewModel(get()) }
-    viewModel { MigrateSplitTunnelingErrorViewModel(get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { NoDaemonViewModel(get()) }

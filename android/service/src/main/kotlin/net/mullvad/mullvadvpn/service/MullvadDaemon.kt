@@ -5,13 +5,15 @@ import android.content.Context
 import java.io.File
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
+import net.mullvad.mullvadvpn.repository.MigrateSplitTunnelingRepository
 
 private const val RELAYS_FILE = "relays.json"
 
 @SuppressLint("SdCardPath")
 class MullvadDaemon(
     vpnService: MullvadVpnService,
-    apiEndpointConfiguration: ApiEndpointConfiguration
+    apiEndpointConfiguration: ApiEndpointConfiguration,
+    migrateSplitTunnelingRepository: MigrateSplitTunnelingRepository
 ) {
     protected var daemonInterfaceAddress = 0L
 
@@ -21,6 +23,8 @@ class MullvadDaemon(
         System.loadLibrary("mullvad_jni")
 
         prepareFiles(vpnService)
+
+        migrateSplitTunnelingRepository.migrateSplitTunneling()
 
         initialize(
             vpnService = vpnService,
