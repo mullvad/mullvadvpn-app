@@ -523,13 +523,6 @@ class ManagementService(
             .mapLeft(AddSplitTunnelingAppError::Unknown)
             .mapEmpty()
 
-    suspend fun addSplitTunnelingApps(apps: List<AppId>): Either<AddSplitTunnelingAppError, Unit> =
-        Either.catch {
-                grpc.setSplitTunnelApps(apps.fromDomain())
-            }
-            .mapLeft(AddSplitTunnelingAppError::Unknown)
-            .mapEmpty()
-
     suspend fun removeSplitTunnelingApp(app: AppId): Either<RemoveSplitTunnelingAppError, Unit> =
         Either.catch { grpc.removeSplitTunnelApp(StringValue.of(app.value)) }
             .mapLeft(RemoveSplitTunnelingAppError::Unknown)
