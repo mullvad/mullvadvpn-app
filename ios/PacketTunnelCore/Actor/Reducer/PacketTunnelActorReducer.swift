@@ -9,9 +9,11 @@
 import Foundation
 import WireGuardKitTypes
 
+extension WireGuardKey where Self: Equatable {}
+
 extension PacketTunnelActor {
     ///  A structure encoding an effect; each event will yield zero or more of those, which can then be sequentially executed.
-    enum Effect {
+    enum Effect: Equatable {
         case startDefaultPathObserver
         case stopDefaultPathObserver
         case startTunnelMonitor
@@ -25,6 +27,26 @@ extension PacketTunnelActor {
         case configureForErrorState(BlockedStateReason)
         case cacheActiveKey(Date?)
         case postQuantumConnect(PreSharedKey, privateKey: PrivateKey)
+
+        // We cannot synthesise Equatable on Effect because NetworkPath is a protocol which cannot be easily made Equatable, so we need to do this for now.
+        static func == (lhs: PacketTunnelActor.Effect, rhs: PacketTunnelActor.Effect) -> Bool {
+            return switch (lhs, rhs) {
+            case (.startDefaultPathObserver, .startDefaultPathObserver): true
+            case (.stopDefaultPathObserver, .stopDefaultPathObserver): true
+            case (.startTunnelMonitor, .startTunnelMonitor): true
+            case (.stopTunnelMonitor, .stopTunnelMonitor): true
+            case let (.updateTunnelMonitorPath(lp), .updateTunnelMonitorPath(rp)): lp.status == rp.status
+            case let (.startConnection(nr0), .startConnection(nr1)): nr0 == nr1
+            case let (.restartConnection(nr0, rr0), .restartConnection(nr1, rr1)): nr0 == nr1 && rr0 == rr1
+            case let (.reconnect(nr0), .reconnect(nr1)): nr0 == nr1
+            case (.stopTunnelAdapter, .stopTunnelAdapter): true
+            case let (.configureForErrorState(r0), .configureForErrorState(r1)): r0 == r1
+            case let (.cacheActiveKey(d0), .cacheActiveKey(d1)): d0 == d1
+            case let (.postQuantumConnect(psk0, privateKey: pk0), .postQuantumConnect(psk1, privateKey: pk1)): psk0 ==
+                psk1 && pk0 == pk1
+            default: false
+            }
+        }
     }
 
     static func reducer(_ state: inout State, _ command: Command) -> [Effect] {

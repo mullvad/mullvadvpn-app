@@ -149,7 +149,7 @@ public actor PacketTunnelActor {
 
 extension PacketTunnelActor {
     /// Describes the reason for reconnection request.
-    enum ReconnectReason {
+    enum ReconnectReason: Equatable {
         /// Initiated by user.
         case userInitiated
 
