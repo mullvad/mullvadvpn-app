@@ -17,7 +17,7 @@ talpid-types = { path = "../talpid-types" }
 tonic = { workspace = true }
 tower = { workspace = true }
 prost = { workspace = true }
-tokio = { workspace = true, features = ["macros"] }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 classic-mceliece-rust = { version = "2.0.0", features = [
     "mceliece460896f",
     "zeroize",
@@ -30,12 +30,15 @@ libc = "0.2"
 workspace = true
 features = ["Win32_Networking_WinSock"]
 
-[dev-dependencies]
-tokio = { workspace = true, features = ["rt-multi-thread"] }
-
 [build-dependencies]
 tonic-build = { workspace = true, default-features = false, features = [
     "transport",
     "prost",
 ] }
 cbindgen = { version = "0.24.3", default-features = false }
+
+[target.'cfg(target_os = "ios")'.dependencies]
+oslog = "0.2"
+
+[lib]
+crate-type = ["staticlib"]
