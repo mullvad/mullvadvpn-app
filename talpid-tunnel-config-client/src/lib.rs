@@ -134,6 +134,7 @@ pub async fn request_ephemeral_peer(
         activate_daita: enable_daita,
     });
 
+    let mut client = new_client(service_address).await?;
     let response = client
         .register_peer_v1(proto::EphemeralPeerRequestV1 {
             wg_parent_pubkey: parent_pubkey.as_bytes().to_vec(),
