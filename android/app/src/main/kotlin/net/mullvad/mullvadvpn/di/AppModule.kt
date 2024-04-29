@@ -15,5 +15,4 @@ val appModule = module {
         )
     }
     single { SplitTunnelingRepository(get()) }
-    single { MigrateSplitTunnelingRepository(androidContext(), get()) }
 }

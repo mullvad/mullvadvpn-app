@@ -2,8 +2,6 @@ package net.mullvad.mullvadvpn
 
 import android.app.Application
 import net.mullvad.mullvadvpn.di.appModule
-import net.mullvad.mullvadvpn.repository.MigrateSplitTunnelingRepository
-import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
@@ -18,7 +16,5 @@ class MullvadApplication : Application() {
         // Used to create/start separate DI graphs for each process. Avoid non-common classes etc.
         startKoin { androidContext(this@MullvadApplication) }
         loadKoinModules(listOf(appModule))
-        val migrateSplitTunnelingRepository: MigrateSplitTunnelingRepository = getKoin().get()
-        migrateSplitTunnelingRepository.migrateSplitTunneling()
     }
 }
