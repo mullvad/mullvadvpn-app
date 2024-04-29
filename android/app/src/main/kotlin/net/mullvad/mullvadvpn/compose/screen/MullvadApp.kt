@@ -13,23 +13,18 @@ import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.navigation.popBackStack
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.destination
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.destinations.ChangelogDestination
 import net.mullvad.mullvadvpn.compose.destinations.ConnectDestination
-import net.mullvad.mullvadvpn.compose.destinations.MigrateSplitTunnelingErrorDestination
 import net.mullvad.mullvadvpn.compose.destinations.NoDaemonScreenDestination
 import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
-import net.mullvad.mullvadvpn.repository.MigrateSplitTunnelingRepository
-import net.mullvad.mullvadvpn.repository.MigrateSplitTunnelingState
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.DaemonScreenEvent
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.getKoin
 
 private val changeLogDestinations = listOf(ConnectDestination, OutOfTimeDestination)
 
@@ -72,21 +67,5 @@ fun MullvadApp() {
             .first { it in changeLogDestinations }
 
         navController.navigate(ChangelogDestination(it).route)
-    }
-
-    // Show if we get any migrate split tunneling errors
-    val migrateSplitTunnelingRepository: MigrateSplitTunnelingRepository = getKoin().get()
-    LaunchedEffectCollect(
-        migrateSplitTunnelingRepository.migrationState.filter {
-            it is MigrateSplitTunnelingState.Failure
-        }
-    ) {
-
-        // Wait until we are in an acceptable destination
-        navController.currentBackStackEntryFlow
-            .map { it.destination() }
-            .first { it in changeLogDestinations }
-
-        navController.navigate(MigrateSplitTunnelingErrorDestination)
     }
 }

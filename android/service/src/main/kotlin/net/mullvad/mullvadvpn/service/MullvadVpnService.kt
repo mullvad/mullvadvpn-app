@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.repository.MigrateSplitTunnelingRepository
 import net.mullvad.mullvadvpn.service.di.apiEndpointModule
 import net.mullvad.mullvadvpn.service.di.vpnServiceModule
 import net.mullvad.mullvadvpn.service.notifications.ChannelFactory
@@ -43,6 +44,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
     private lateinit var apiEndpointConfiguration: ApiEndpointConfiguration
     private lateinit var managementService: ManagementService
+    private lateinit var migrateSplitTunnelingRepository: MigrateSplitTunnelingRepository
 
     private lateinit var foregroundNotificationHandler: ForegroundNotificationManager
 
@@ -69,7 +71,9 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
         apiEndpointConfiguration = get()
-        daemonInstance = MullvadDaemon(this, apiEndpointConfiguration)
+        migrateSplitTunnelingRepository = get()
+        daemonInstance =
+            MullvadDaemon(this, apiEndpointConfiguration, migrateSplitTunnelingRepository)
         //        endpoint.splitTunneling.onChange.subscribe(this@MullvadVpnService) { excludedApps
         // ->
         //            disallowedApps = excludedApps
