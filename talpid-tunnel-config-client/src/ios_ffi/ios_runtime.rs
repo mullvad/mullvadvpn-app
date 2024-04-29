@@ -1,47 +1,16 @@
-use std::ptr;
-
+use super::ios_tcp_connection::*;
+use super::PostQuantumCancelToken;
+use crate::request_ephemeral_peer;
+use crate::Error;
+use crate::RelayConfigService;
 use libc::c_void;
-use talpid_types::net::wireguard::PrivateKey;
-use tokio::sync::mpsc;
-
-use std::io;
 use std::sync::Arc;
-
-mod ios_ffi;
-pub use ios_ffi::negotiate_post_quantum_key;
-
-use crate::ios_tcp_connection::swift_post_quantum_key_ready;
-use crate::ios_tcp_connection::IosTcpProvider;
-mod ios_tcp_connection;
-use talpid_tunnel_config_client::Error;
-use talpid_tunnel_config_client::RelayConfigService;
-use talpid_types::net::wireguard::PublicKey;
-use tonic::transport::Endpoint;
-use tower::service_fn;
-
-#[repr(C)]
-pub struct PostQuantumCancelToken {
-    // Must keep a pointer to a valid std::sync::Arc<tokio::mpsc::UnboundedSender>
-    pub context: *mut c_void,
-}
-
-impl PostQuantumCancelToken {
-    /// #Safety
-    /// This function can only be called when the context pointer is valid.
-    unsafe fn cancel(&self) {
-        // Try to take the value, if there is a value, we can safely send the message, otherwise, assume it has been dropped and nothing happens
-        let send_tx: Arc<mpsc::UnboundedSender<()>> = unsafe { Arc::from_raw(self.context as _) };
-        let _ = send_tx.send(());
-        std::mem::forget(send_tx);
-    }
-}
-
-impl Drop for PostQuantumCancelToken {
-    fn drop(&mut self) {
-        let _: Arc<mpsc::UnboundedSender<()>> = unsafe { Arc::from_raw(self.context as _) };
-    }
-}
-unsafe impl Send for PostQuantumCancelToken {}
+use std::{io, ptr};
+use talpid_types::net::wireguard::{PrivateKey, PublicKey};
+use tokio::runtime::Builder;
+use tokio::sync::mpsc;
+use tonic::transport::channel::Endpoint;
+use tower::util::service_fn;
 
 /// # Safety
 /// packet_tunnel and tcp_connection must be valid pointers to a packet tunnel and a TCP connection instances.
@@ -69,7 +38,7 @@ pub unsafe fn run_ios_runtime(
 }
 
 #[derive(Clone)]
-struct SwiftContext {
+pub struct SwiftContext {
     pub packet_tunnel: *const c_void,
     pub tcp_connection: *const c_void,
 }
@@ -93,7 +62,7 @@ impl IOSRuntime {
         packet_tunnel: *const libc::c_void,
         tcp_connection: *const c_void,
     ) -> io::Result<Self> {
-        let runtime = tokio::runtime::Builder::new_multi_thread()
+        let runtime = Builder::new_multi_thread()
             .enable_all()
             .worker_threads(2)
             .build()?;
@@ -144,7 +113,7 @@ impl IOSRuntime {
 
         let packet_tunnel_ptr = self.packet_tunnel.packet_tunnel;
         runtime.block_on(async move {
-            let mut async_provider = match Self::ios_tcp_client(self.packet_tunnel).await {
+            let async_provider = match Self::ios_tcp_client(self.packet_tunnel).await {
                 Ok(async_provider) => async_provider,
                 Err(error) => {
                     log::error!("Failed to create iOS TCP client: {error}");
@@ -155,21 +124,40 @@ impl IOSRuntime {
                 }
             };
             let ephemeral_pub_key = PrivateKey::from(self.ephemeral_key).public_key();
+
             tokio::select! {
-                key_result = talpid_tunnel_config_client::push_pq_inner(
-                    &mut async_provider,
+                ephemeral_peer = request_ephemeral_peer(
                     PublicKey::from(self.pub_key),
                     ephemeral_pub_key,
+                    true,
+                    false,
+                    async_provider,
                 ) =>  {
-                    match key_result {
-                        Ok(preshared_key) => unsafe {
-                            let preshared_key_bytes = preshared_key.as_bytes();
-                            swift_post_quantum_key_ready(packet_tunnel_ptr, preshared_key_bytes.as_ptr(), self.ephemeral_key.as_ptr());
+                    match ephemeral_peer {
+                        Ok(peer) => {
+                            match peer.psk {
+                                Some(preshared_key) => unsafe {
+                                    let preshared_key_bytes = preshared_key.as_bytes();
+                                    swift_post_quantum_key_ready(packet_tunnel_ptr, preshared_key_bytes.as_ptr(), self.ephemeral_key.as_ptr());
+                                },
+                                None => unsafe {
+                                    swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null());
+                                }
+                            }
                         },
                         Err(_) => unsafe {
                             swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null());
-                        },
+                        }
                     }
+                    // match key_result {
+                    //     Ok(preshared_key) => unsafe {
+                    //         let preshared_key_bytes = preshared_key.as_bytes();
+                    //         swift_post_quantum_key_ready(packet_tunnel_ptr, preshared_key_bytes.as_ptr(), self.ephemeral_key.as_ptr());
+                    //     },
+                    //     Err(_) => unsafe {
+                    //         swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null());
+                    //     },
+                    // }
                 }
 
                 _ = cancel_token_rx.recv() => {
