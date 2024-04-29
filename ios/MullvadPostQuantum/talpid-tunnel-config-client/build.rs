@@ -1,5 +1,5 @@
 fn main() {
-    tonic_build::compile_protos("../../../talpid-tunnel-config-client/proto/tunnel_config.proto")
+    tonic_build::compile_protos("../../../talpid-tunnel-config-client/proto/ephemeralpeer.proto")
         .unwrap();
 
     match std::env::var("TARGET").unwrap().as_str() {
