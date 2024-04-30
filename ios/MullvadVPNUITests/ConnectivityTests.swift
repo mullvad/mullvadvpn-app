@@ -11,7 +11,7 @@ import Network
 import XCTest
 
 class ConnectivityTests: LoggedOutUITestCase {
-    let firewallAPIClient = FirewallAPIClient()
+    let firewallAPIClient = FirewallClient()
 
     /// Verifies that the app still functions when API has been blocked
     func testAPIConnectionViaBridges() throws {
