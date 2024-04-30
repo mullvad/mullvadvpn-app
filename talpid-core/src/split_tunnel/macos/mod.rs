@@ -429,7 +429,7 @@ impl State {
                 let result = tun::create_split_tunnel(
                     default_interface,
                     new_vpn_interface.clone(),
-                    move |packet| {
+                    Box::new(move |packet| {
                         match states.get_process_status(packet.header.pth_pid as u32) {
                             ExclusionStatus::Excluded => tun::RoutingDecision::DefaultInterface,
                             ExclusionStatus::Included => tun::RoutingDecision::VpnTunnel,
@@ -438,7 +438,7 @@ impl State {
                                 tun::RoutingDecision::Drop
                             }
                         }
-                    },
+                    }),
                 )
                 .await;
 

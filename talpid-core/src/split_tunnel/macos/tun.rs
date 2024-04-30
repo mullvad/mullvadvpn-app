@@ -168,7 +168,7 @@ impl SplitTunnelHandle {
 pub async fn create_split_tunnel(
     default_interface: DefaultInterface,
     vpn_interface: Option<VpnInterface>,
-    classify: impl Fn(&PktapPacket) -> RoutingDecision + Send + 'static,
+    classify: ClassifyFn,
 ) -> Result<SplitTunnelHandle, Error> {
     let tun_device = create_utun().await?;
     redirect_packets(tun_device, default_interface, vpn_interface, classify)
@@ -199,6 +199,8 @@ async fn add_ipv6_address(iface: &str, addr: Ipv6Addr) -> Result<(), Error> {
 }
 
 type PktapStream = std::pin::Pin<Box<dyn Stream<Item = Result<PktapPacket, Error>> + Send>>;
+/// A function that is used to classify whether packets should be VPN-tunneled or excluded
+type ClassifyFn = Box<dyn Fn(&PktapPacket) -> RoutingDecision + Send>;
 
 /// Monitor outgoing traffic on `st_tun_device` using a pktap. A routing decision is
 /// made for each packet using `classify`. Based on this, a packet is forced out on either
@@ -212,7 +214,7 @@ fn redirect_packets(
     st_tun_device: tun::AsyncDevice,
     default_interface: DefaultInterface,
     vpn_interface: Option<VpnInterface>,
-    classify: impl Fn(&PktapPacket) -> RoutingDecision + Send + 'static,
+    classify: ClassifyFn,
 ) -> Result<SplitTunnelHandle, Error> {
     let pktap_stream = capture_outbound_packets(st_tun_device.get_ref().name())?;
     redirect_packets_for_pktap_stream(
@@ -237,7 +239,7 @@ fn redirect_packets_for_pktap_stream(
     pktap_stream: PktapStream,
     default_interface: DefaultInterface,
     vpn_interface: Option<VpnInterface>,
-    classify: Box<dyn Fn(&PktapPacket) -> RoutingDecision + Send>,
+    classify: ClassifyFn,
 ) -> Result<SplitTunnelHandle, Error> {
     let (default_stream, default_write, read_buffer_size) = open_default_bpf(&default_interface)?;
 
@@ -364,14 +366,14 @@ async fn run_ingress_task(
 /// Arguments to `run_egress_task` that are returned when the function succeeds
 struct EgressResult {
     pktap_stream: PktapStream,
-    classify: Box<dyn Fn(&PktapPacket) -> RoutingDecision + Send>,
+    classify: ClassifyFn,
 }
 
 /// Read outgoing packets and send them out on either the default interface or VPN interface,
 /// based on the result of `classify`.
 async fn run_egress_task(
     mut pktap_stream: PktapStream,
-    classify: Box<dyn Fn(&PktapPacket) -> RoutingDecision + Send>,
+    classify: ClassifyFn,
     default_interface: DefaultInterface,
     mut default_write: bpf::WriteHalf,
     vpn_interface: Option<VpnInterface>,
@@ -419,7 +421,7 @@ fn open_vpn_bpf(vpn_interface: &VpnInterface) -> Result<bpf::Bpf, Error> {
 }
 
 fn classify_and_send(
-    classify: &(dyn Fn(&PktapPacket) -> RoutingDecision),
+    classify: &ClassifyFn,
     packet: &mut PktapPacket,
     default_interface: &DefaultInterface,
     default_write: &mut bpf::WriteHalf,
