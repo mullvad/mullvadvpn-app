@@ -17,7 +17,7 @@ struct CustomListLocationNodeBuilder {
     var customListLocationNode: CustomListLocationNode {
         let listNode = CustomListLocationNode(
             name: customList.name,
-            code: customList.name.lowercased(),
+            code: customList.name,
             locations: customList.locations,
             isActive: !customList.locations.isEmpty,
             customList: customList

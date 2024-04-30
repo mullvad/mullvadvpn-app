@@ -30,11 +30,13 @@ class CustomListRepositoryTests: XCTestCase {
 
     func testFailedAddingDuplicateCustomList() throws {
         let item1 = CustomList(name: "Netflix", locations: [])
-        let item2 = CustomList(name: "Netflix", locations: [])
+        let item2 = CustomList(name: "netflix", locations: [])
+        let item3 = CustomList(name: "Netflix", locations: [])
 
         try XCTAssertNoThrow(repository.save(list: item1))
+        try XCTAssertNoThrow(repository.save(list: item2))
 
-        XCTAssertThrowsError(try repository.save(list: item2)) { error in
+        XCTAssertThrowsError(try repository.save(list: item3)) { error in
             XCTAssertEqual(error as? CustomRelayListError, CustomRelayListError.duplicateName)
         }
     }
