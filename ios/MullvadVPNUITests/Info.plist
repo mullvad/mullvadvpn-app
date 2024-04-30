@@ -24,10 +24,14 @@
 	<string>$(IOS_DEVICE_PIN_CODE)</string>
 	<key>NoTimeAccountNumber</key>
 	<string>$(NO_TIME_ACCOUNT_NUMBER)</string>
+	<key>PacketCaptureAPIBaseURL</key>
+	<string>$(PACKET_CAPTURE_BASE_URL)</string>
 	<key>PartnerApiToken</key>
 	<string>$(PARTNER_API_TOKEN)</string>
 	<key>ShouldBeReachableDomain</key>
 	<string>$(SHOULD_BE_REACHABLE_DOMAIN)</string>
+	<key>ShouldBeReachableIPAddress</key>
+	<string>$(SHOULD_BE_REACHABLE_IP_ADDRESS)</string>
 	<key>TestDeviceIdentifier</key>
 	<string>$(TEST_DEVICE_IDENTIFIER_UUID)</string>
 	<key>TestDeviceIsIPad</key>

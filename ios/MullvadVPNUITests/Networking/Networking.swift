@@ -10,6 +10,12 @@ import Foundation
 import Network
 import XCTest
 
+enum NetworkTransportProtocol: String, Codable {
+    case TCP = "tcp"
+    case UDP = "udp"
+    case ICMP = "icmp"
+}
+
 enum NetworkingError: Error {
     case notConfiguredError
     case internalError(reason: String)
@@ -30,16 +36,6 @@ class Networking {
         }
 
         return adServingDomain
-    }
-
-    /// Get configured domain to use for Internet connectivity checks
-    private static func getAlwaysReachableDomain() throws -> String {
-        guard let shouldBeReachableDomain = Bundle(for: Networking.self)
-            .infoDictionary?["ShouldBeReachableDomain"] as? String else {
-            throw NetworkingError.notConfiguredError
-        }
-
-        return shouldBeReachableDomain
     }
 
     /// Check whether host and port is reachable by attempting to connect a socket
@@ -77,6 +73,26 @@ class Networking {
         }
 
         return true
+    }
+
+    /// Get configured domain to use for Internet connectivity checks
+    public static func getAlwaysReachableDomain() throws -> String {
+        guard let shouldBeReachableDomain = Bundle(for: Networking.self)
+            .infoDictionary?["ShouldBeReachableDomain"] as? String else {
+            throw NetworkingError.notConfiguredError
+        }
+
+        return shouldBeReachableDomain
+    }
+
+    public static func getAlwaysReachableIPAddress() -> String {
+        guard let shouldBeReachableIPAddress = Bundle(for: Networking.self)
+            .infoDictionary?["ShouldBeReachableIPAddress"] as? String else {
+            XCTFail("Should be reachable IP address not configured")
+            return String()
+        }
+
+        return shouldBeReachableIPAddress
     }
 
     /// Verify API can be accessed by attempting to connect a socket to the configured API host and port

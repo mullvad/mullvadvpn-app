@@ -27,7 +27,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         super.tearDown()
 
         if removeFirewallRulesInTearDown {
-            FirewallAPIClient().removeRules()
+            FirewallClient().removeRules()
         }
     }
 
@@ -102,7 +102,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testConnectionRetryLogic() throws {
-        FirewallAPIClient().removeRules()
+        FirewallClient().removeRules()
         removeFirewallRulesInTearDown = true
 
         addTeardownBlock {
@@ -113,7 +113,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         let relayInfo = getDefaultRelayInfo()
 
         // Run actual test
-        try FirewallAPIClient().createRule(
+        try FirewallClient().createRule(
             FirewallRule.makeBlockAllTrafficRule(toIPAddress: relayInfo.ipAddress)
         )
 
@@ -215,7 +215,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
     /// Test automatic switching to TCP is functioning when UDP traffic to relay is blocked. This test first connects to a realy to get the IP address of it, in order to block UDP traffic to this relay.
     func testWireGuardOverTCPAutomatically() throws {
-        FirewallAPIClient().removeRules()
+        FirewallClient().removeRules()
         removeFirewallRulesInTearDown = true
 
         addTeardownBlock {
@@ -226,7 +226,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         let relayInfo = getDefaultRelayInfo()
 
         // Run actual test
-        try FirewallAPIClient().createRule(
+        try FirewallClient().createRule(
             FirewallRule.makeBlockUDPTrafficRule(toIPAddress: relayInfo.ipAddress)
         )
 
