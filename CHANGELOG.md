@@ -25,6 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add custom bridge settings in GUI.
 
+### Fixed
+#### Linux
+- Fix GUI not working on Ubuntu 24.04 by adding an AppArmor profile.
+
 
 ## [2024.2] - 2024-04-29
 ### Fixed
