@@ -1,3 +1,4 @@
+#![cfg(not(feature = "daita"))]
 use super::{Config, Tunnel, TunnelError};
 use futures::future::{abortable, AbortHandle};
 use netlink_packet_core::{constants::*, NetlinkDeserializable};

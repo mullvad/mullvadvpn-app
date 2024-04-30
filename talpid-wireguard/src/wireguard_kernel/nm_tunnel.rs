@@ -110,11 +110,6 @@ impl Tunnel for NetworkManagerTunnel {
             })
         })
     }
-
-    // TODO: We shouldn't force `NetworkManagerTunnel` tunnel to implement `start_daita`
-    fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
-        unreachable!("NetworkManager tunnel does not support DAITA")
-    }
 }
 
 fn convert_config_to_dbus(config: &Config) -> DeviceConfig {
