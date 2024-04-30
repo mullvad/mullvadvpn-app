@@ -1,9 +1,7 @@
 //! Wrapper around a stream to make it abortable. This allows in-flight requests to be cancelled
 //! immediately instead of after the socket times out.
 
-use futures::channel::oneshot;
-use futures::future::Fuse;
-use futures::FutureExt;
+use futures::{channel::oneshot, future::Fuse, FutureExt};
 use hyper::client::connect::{Connected, Connection};
 use std::{
     future::Future,
