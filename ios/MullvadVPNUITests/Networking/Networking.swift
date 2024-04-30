@@ -10,6 +10,12 @@ import Foundation
 import Network
 import XCTest
 
+enum NetworkTransportProtocol: String, Codable {
+    case TCP = "tcp"
+    case UDP = "udp"
+    case ICMP = "icmp"
+}
+
 enum NetworkingError: Error {
     case notConfiguredError
     case internalError(reason: String)
@@ -22,6 +28,51 @@ struct DNSServerEntry: Decodable {
 
 /// Class with methods for verifying network connectivity
 class Networking {
+    static func getIPAddress() throws -> String {
+        var ipAddress: String
+        // Get list of all interfaces on the local machine:
+        var interfaceList: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&interfaceList) == 0, let firstInterfaceAddress = interfaceList else {
+            throw NetworkingError.internalError(reason: "Failed to locate local networking interface")
+        }
+
+        // For each interface
+        for interfacePointer in sequence(first: firstInterfaceAddress, next: { $0.pointee.ifa_next }) {
+            let flags = Int32(interfacePointer.pointee.ifa_flags)
+            let interfaceAddress = interfacePointer.pointee.ifa_addr.pointee
+
+            // Check for running IPv4 interfaces. Skip the loopback interface.
+            if (
+                flags &
+                    (IFF_UP | IFF_RUNNING | IFF_LOOPBACK)
+            ) == (IFF_UP | IFF_RUNNING),
+                interfaceAddress.sa_family == UInt8(AF_INET) {
+                // Check if interface is en0 which is the WiFi connection on the iPhone
+                let name = String(cString: interfacePointer.pointee.ifa_name)
+                if name == "en0" {
+                    // Convert interface address to a human readable string:
+                    var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+                    if getnameinfo(
+                        interfacePointer.pointee.ifa_addr,
+                        socklen_t(interfaceAddress.sa_len),
+                        &hostname,
+                        socklen_t(hostname.count),
+                        nil,
+                        socklen_t(0),
+                        NI_NUMERICHOST
+                    ) == 0 {
+                        ipAddress = String(cString: hostname)
+                        return ipAddress
+                    }
+                }
+            }
+        }
+
+        freeifaddrs(interfaceList)
+
+        throw NetworkingError.internalError(reason: "Failed to determine device's IP address")
+    }
+
     /// Get configured ad serving domain
     private static func getAdServingDomain() throws -> String {
         guard let adServingDomain = Bundle(for: Networking.self)
@@ -30,16 +81,6 @@ class Networking {
         }
 
         return adServingDomain
-    }
-
-    /// Get configured domain to use for Internet connectivity checks
-    private static func getAlwaysReachableDomain() throws -> String {
-        guard let shouldBeReachableDomain = Bundle(for: Networking.self)
-            .infoDictionary?["ShouldBeReachableDomain"] as? String else {
-            throw NetworkingError.notConfiguredError
-        }
-
-        return shouldBeReachableDomain
     }
 
     /// Check whether host and port is reachable by attempting to connect a socket
@@ -77,6 +118,26 @@ class Networking {
         }
 
         return true
+    }
+
+    /// Get configured domain to use for Internet connectivity checks
+    public static func getAlwaysReachableDomain() throws -> String {
+        guard let shouldBeReachableDomain = Bundle(for: Networking.self)
+            .infoDictionary?["ShouldBeReachableDomain"] as? String else {
+            throw NetworkingError.notConfiguredError
+        }
+
+        return shouldBeReachableDomain
+    }
+
+    public static func getAlwaysReachableIPAddress() -> String {
+        guard let shouldBeReachableIPAddress = Bundle(for: Networking.self)
+            .infoDictionary?["ShouldBeReachableIPAddress"] as? String else {
+            XCTFail("Should be reachable IP address not configured")
+            return String()
+        }
+
+        return shouldBeReachableIPAddress
     }
 
     /// Verify API can be accessed by attempting to connect a socket to the configured API host and port
