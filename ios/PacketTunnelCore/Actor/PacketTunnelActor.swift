@@ -231,7 +231,7 @@ extension PacketTunnelActor {
         guard
             let settings: Settings = try? settingsReader.read(),
             let connectionState = try? obfuscateConnection(
-                nextRelay: .random,
+                nextRelay: .current,
                 settings: settings,
                 reason: .userInitiated
             ),
