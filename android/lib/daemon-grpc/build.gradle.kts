@@ -73,4 +73,13 @@ dependencies {
 
     implementation(Dependencies.Arrow.core)
     implementation(Dependencies.Arrow.optics)
+
+    testImplementation(project(Dependencies.Mullvad.commonTestLib))
+    testImplementation(Dependencies.Kotlin.test)
+    testImplementation(Dependencies.KotlinX.coroutinesTest)
+    testImplementation(Dependencies.MockK.core)
+    testImplementation(Dependencies.turbine)
+    testImplementation(Dependencies.junitApi)
+    testRuntimeOnly(Dependencies.junitEngine)
+    testImplementation(Dependencies.junitParams)
 }

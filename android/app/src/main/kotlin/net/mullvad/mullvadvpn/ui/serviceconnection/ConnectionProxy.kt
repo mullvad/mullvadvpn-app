@@ -8,12 +8,12 @@ import net.mullvad.mullvadvpn.repository.VpnPermissionRepository
 
 class ConnectionProxy(
     private val managementService: ManagementService,
-    private val permissionRepository: VpnPermissionRepository
+    private val vpnPermissionRepository: VpnPermissionRepository
 ) {
     val tunnelState = managementService.tunnelState
 
     suspend fun connect(): Either<ConnectError, Unit> = either {
-        if (permissionRepository.hasVpnPermission()) {
+        if (vpnPermissionRepository.hasVpnPermission()) {
             managementService.connect().map {
                 if (it) {
                     Unit
