@@ -1,3 +1,4 @@
+#![cfg(unix)]
 pub type Fd = std::os::unix::io::RawFd;
 use std::ffi::{c_char, c_void};
 pub type WgLogLevel = u32;
