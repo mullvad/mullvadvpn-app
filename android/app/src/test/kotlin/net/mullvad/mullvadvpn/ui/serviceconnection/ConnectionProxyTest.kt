@@ -34,7 +34,7 @@ class ConnectionProxyTest {
     @Test
     fun `connect with vpn permission not allowed should not call managementService connect`() =
         runTest {
-            every { mockVpnPermissionRepository.hasVpnPermission() } returns true
+            every { mockVpnPermissionRepository.hasVpnPermission() } returns false
             connectionProxy.connect()
             coVerify(exactly = 0) { mockManagementService.connect() }
         }

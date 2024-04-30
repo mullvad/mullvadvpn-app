@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import app.cash.turbine.test
+import arrow.core.right
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlin.test.assertIs
@@ -8,6 +9,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -24,7 +26,7 @@ class DeleteCustomListConfirmationViewModelTest {
         val viewModel = createViewModel()
         coEvery {
             mockCustomListActionUseCase.performAction(any<CustomListAction.Delete>())
-        } returns Result.success(expectedResult)
+        } returns expectedResult.right()
 
         // Act, Assert
         viewModel.uiSideEffect.test {
@@ -37,7 +39,7 @@ class DeleteCustomListConfirmationViewModelTest {
 
     private fun createViewModel() =
         DeleteCustomListConfirmationViewModel(
-            customListId = "1",
+            customListId = CustomListId("1"),
             customListActionUseCase = mockCustomListActionUseCase
         )
 }

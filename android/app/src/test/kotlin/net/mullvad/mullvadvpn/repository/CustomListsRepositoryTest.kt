@@ -7,8 +7,8 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.CreateCustomListError
@@ -21,61 +21,69 @@ import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.UpdateCustomListError
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class CustomListsRepositoryTest {
     private val mockManagementService: ManagementService = mockk()
-    private val customListsRepository =
-        CustomListsRepository(
-            managementService = mockManagementService,
-            dispatcher = Dispatchers.Unconfined
-        )
+    private lateinit var customListsRepository: CustomListsRepository
 
-    private val settingsFlow: MutableStateFlow<Settings> = MutableStateFlow(mockk())
+    private val settingsFlow: MutableStateFlow<Settings> = MutableStateFlow(mockk(relaxed = true))
 
     @BeforeEach
     fun setup() {
         mockkStatic(RELAY_LIST_EXTENSIONS)
         every { mockManagementService.settings } returns settingsFlow
+        customListsRepository =
+            CustomListsRepository(
+                managementService = mockManagementService,
+                dispatcher = UnconfinedTestDispatcher()
+            )
     }
 
     @Test
     fun `get custom list by id should return custom list when id matches custom list in settings`() =
         runTest {
             // Arrange
-            val mockCustomList: CustomList = mockk()
-            val mockSettings: Settings = mockk()
             val customListId = CustomListId("1")
-            settingsFlow.value = mockSettings
+            val mockCustomList =
+                CustomList(
+                    id = customListId,
+                    name = mockk(relaxed = true),
+                    locations = mockk(relaxed = true)
+                )
+            val mockSettings: Settings = mockk()
             every { mockSettings.customLists } returns listOf(mockCustomList)
-            every { mockCustomList.id } returns customListId
+            settingsFlow.value = mockSettings
 
             // Act
             val result = customListsRepository.getCustomListById(customListId)
 
             // Assert
-            assertEquals(mockCustomList, result)
+            assertEquals(mockCustomList, result.getOrNull())
         }
 
     @Test
     fun `get custom list by id should return get custom list error when id does not matches custom list in settings`() =
         runTest {
             // Arrange
-            val mockCustomList: CustomList = mockk()
-            val mockSettings: Settings = mockk()
             val customListId = CustomListId("1")
+            val mockCustomList =
+                CustomList(
+                    id = customListId,
+                    name = mockk(relaxed = true),
+                    locations = mockk(relaxed = true)
+                )
+            val mockSettings: Settings = mockk()
             val otherCustomListId = CustomListId("2")
-            settingsFlow.value = mockSettings
             every { mockSettings.customLists } returns listOf(mockCustomList)
-            every { mockCustomList.id } returns customListId
+            settingsFlow.value = mockSettings
 
             // Act
             val result = customListsRepository.getCustomListById(otherCustomListId)
 
             // Assert
-            assertNull(result)
+            assertEquals(GetCustomListError, result.leftOrNull())
         }
 
     @Test
@@ -116,12 +124,15 @@ class CustomListsRepositoryTest {
         val expectedResult = Unit.right()
         val customListName = CustomListName.fromString("CUSTOM")
         val mockSettings: Settings = mockk()
-        val mockCustomList: CustomList = mockk()
-        val updatedCustomList: CustomList = mockk()
+        val mockCustomList =
+            CustomList(
+                id = customListId,
+                name = mockk(relaxed = true),
+                locations = mockk(relaxed = true)
+            )
+        every { mockSettings.customLists } returns listOf(mockCustomList)
         settingsFlow.value = mockSettings
-        every { mockCustomList.id } returns customListId
-        every { mockCustomList.copy(customListId, customListName, any()) } returns updatedCustomList
-        coEvery { mockManagementService.updateCustomList(mockCustomList) } returns expectedResult
+        coEvery { mockManagementService.updateCustomList(any<CustomList>()) } returns expectedResult
 
         // Act
         val result = customListsRepository.updateCustomListName(customListId, customListName)

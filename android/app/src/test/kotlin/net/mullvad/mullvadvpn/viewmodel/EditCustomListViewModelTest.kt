@@ -4,32 +4,33 @@ import app.cash.turbine.test
 import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.assertIs
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.EditCustomListState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.model.CustomList
+import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
 class EditCustomListViewModelTest {
-    private val mockRelayListUseCase: RelayListUseCase = mockk(relaxed = true)
+    private val mockCustomListsRepository: CustomListsRepository = mockk(relaxed = true)
 
     @Test
     fun `given a custom list id that does not exists should return not found ui state`() = runTest {
         // Arrange
-        val customListId = "2"
+        val customListId = CustomListId("2")
         val customList =
-            RelayItem.CustomList(
-                id = "1",
-                customListName = CustomListName.fromString("test"),
-                expanded = false,
+            CustomList(
+                id = CustomListId("1"),
+                name = CustomListName.fromString("test"),
                 locations = emptyList()
             )
-        every { mockRelayListUseCase.customLists() } returns flowOf(listOf(customList))
+        every { mockCustomListsRepository.customLists } returns MutableStateFlow(listOf(customList))
         val viewModel = createViewModel(customListId)
 
         // Act, Assert
@@ -42,15 +43,14 @@ class EditCustomListViewModelTest {
     @Test
     fun `given a custom list id that exists should return content ui state`() = runTest {
         // Arrange
-        val customListId = "1"
+        val customListId = CustomListId("1")
         val customList =
-            RelayItem.CustomList(
+            CustomList(
                 id = customListId,
-                customListName = CustomListName.fromString("test"),
-                expanded = false,
+                name = CustomListName.fromString("test"),
                 locations = emptyList()
             )
-        every { mockRelayListUseCase.customLists() } returns flowOf(listOf(customList))
+        every { mockCustomListsRepository.customLists } returns MutableStateFlow(listOf(customList))
         val viewModel = createViewModel(customListId)
 
         // Act, Assert
@@ -63,9 +63,9 @@ class EditCustomListViewModelTest {
         }
     }
 
-    private fun createViewModel(customListId: String) =
+    private fun createViewModel(customListId: CustomListId) =
         EditCustomListViewModel(
             customListId = customListId,
-            relayListUseCase = mockRelayListUseCase
+            customListsRepository = mockCustomListsRepository
         )
 }
