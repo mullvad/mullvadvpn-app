@@ -20,16 +20,6 @@ version=$(grep -oP '^VERSION_ID=\K.+' /etc/os-release | tr -d '"')
 
 if [[ "$os" == "ubuntu" ]] && version_is_ge "$version" "24.04"; then
     echo "Creating apparmor profile"
-
-    cat <<EOF > /etc/apparmor.d/mullvad
-abi <abi/4.0>,
-include <tunables/global>
-
-profile mullvad /opt/Mullvad\ VPN/mullvad-gui flags=(unconfined) {
-  userns,
-  # Site-specific additions and overrides. See local/README for details.
-  include if exists <local/mullvad>
-}
-EOF
+    cp /opt/Mullvad\ VPN/resources/apparmor_mullvad /etc/apparmor.d/mullvad
     apparmor_parser -r /etc/apparmor.d/mullvad || echo "Failed to reload apparmor profile"
 fi
