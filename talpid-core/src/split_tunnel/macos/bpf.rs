@@ -336,7 +336,20 @@ impl<'a> BpfIterMut<'a> {
     }
 }
 
-/// Compute the next word boundary given `n`
+/// Compute the next word boundary given `n`. `n` will be rounded up to a multiple of
+/// "word" (defined by `BPF_ALIGNMENT`). Assuming `BPF_ALIGNMENT == 4`:
+///
+/// ```text
+/// n=0: bpf_wordalign(0) == 0
+/// n=1: bpf_wordalign(1) == 4
+/// n=2: bpf_wordalign(2) == 4
+/// n=3: bpf_wordalign(3) == 4
+/// n=4: bpf_wordalign(4) == 4
+/// n=5: bpf_wordalign(5) == 8
+/// n=6: bpf_wordalign(6) == 8
+/// ...
+/// n=9: bpf_wordalign(9) == 12
+/// ```
 const fn bpf_wordalign(n: u32) -> u32 {
     const ALIGNMENT: u32 = BPF_ALIGNMENT as u32;
     (n + (ALIGNMENT - 1)) & (!(ALIGNMENT - 1))
