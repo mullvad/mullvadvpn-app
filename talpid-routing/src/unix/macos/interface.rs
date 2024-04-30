@@ -169,12 +169,11 @@ impl PrimaryInterfaceMonitor {
             .into_iter()
             .filter_map(|iface| {
                 let index = if_nametoindex(iface.name.as_str())
-                    .map_err(|error| {
+                    .inspect_err(|error| {
                         log::error!(
                             "Failed to retrieve interface index for \"{}\": {error}",
                             iface.name
                         );
-                        error
                     })
                     .ok()?;
                 Some((iface, index))
