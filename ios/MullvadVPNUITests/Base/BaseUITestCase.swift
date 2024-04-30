@@ -31,6 +31,13 @@ class BaseUITestCase: XCTestCase {
     /// Default relay to use in tests
     static let testsDefaultRelayName = "se-got-wg-001"
 
+    /// True when the current test case is capturing packets
+    private var currentTestCaseShouldCapturePackets = false
+
+    /// True when a packet capture session is active
+    private var packetCaptureSessionIsActive = false
+    private var packetCaptureSession: PacketCaptureSession?
+
     // swiftlint:disable force_cast
     let displayName = Bundle(for: BaseUITestCase.self)
         .infoDictionary?["DisplayName"] as! String
@@ -135,7 +142,7 @@ class BaseUITestCase: XCTestCase {
     func allowAddVPNConfigurationsIfAsked() {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
 
-        if springboard.buttons["Allow"].waitForExistence(timeout: Self.shortTimeout) {
+        if springboard.buttons["Allowi"].waitForExistence(timeout: Self.shortTimeout) {
             let alertAllowButton = springboard.buttons.element(boundBy: 0)
             if alertAllowButton.waitForExistence(timeout: Self.defaultTimeout) {
                 alertAllowButton.tap()
@@ -160,6 +167,29 @@ class BaseUITestCase: XCTestCase {
         }
     }
 
+    /// Start packet capture for this test case
+    func startPacketCapture() {
+        currentTestCaseShouldCapturePackets = true
+        packetCaptureSessionIsActive = true
+        let packetCaptureClient = PacketCapture()
+        packetCaptureSession = packetCaptureClient.startCapture()
+    }
+
+    /// Stop the current packet capture and return captured data
+    func stopPacketCapture() -> StreamCollection {
+        packetCaptureSessionIsActive = false
+        guard let packetCaptureSession else {
+            XCTFail("Trying to stop capture when there is no active capture")
+            return StreamCollection(streams: [])
+        }
+
+        let packetCaptureAPIClient = PacketCapture()
+        packetCaptureAPIClient.stopCapture(session: packetCaptureSession)
+        let capturedData = packetCaptureAPIClient.getParsedCaptureObjects(session: packetCaptureSession)
+
+        return StreamCollection(streams: capturedData)
+    }
+
     // MARK: - Setup & teardown
 
     /// Override this class function to change the uninstall behaviour in suite level teardown
@@ -176,12 +206,43 @@ class BaseUITestCase: XCTestCase {
 
     /// Test level setup
     override func setUp() {
+        currentTestCaseShouldCapturePackets = false // Reset for each test case run
         continueAfterFailure = false
         app.launch()
     }
 
     /// Test level teardown
     override func tearDown() {
+        if currentTestCaseShouldCapturePackets {
+            guard let packetCaptureSession = packetCaptureSession else {
+                XCTFail("Packet capture session unexpectedly not set up")
+                return
+            }
+
+            let packetCaptureClient = PacketCapture()
+
+            // If there's a an active session due to cancelled/failed test run make sure to end it
+            if packetCaptureSessionIsActive {
+                packetCaptureSessionIsActive = false
+                packetCaptureClient.stopCapture(session: packetCaptureSession)
+            }
+
+            packetCaptureClient.stopCapture(session: packetCaptureSession)
+            let pcap = packetCaptureClient.getPCAP(session: packetCaptureSession)
+            let parsedCapture = packetCaptureClient.getParsedCapture(session: packetCaptureSession)
+            self.packetCaptureSession = nil
+
+            let pcapAttachment = XCTAttachment(data: pcap)
+            pcapAttachment.name = self.name + ".pcap"
+            pcapAttachment.lifetime = .keepAlways
+            self.add(pcapAttachment)
+
+            let jsonAttachment = XCTAttachment(data: parsedCapture)
+            jsonAttachment.name = self.name + ".json"
+            jsonAttachment.lifetime = .keepAlways
+            self.add(jsonAttachment)
+        }
+
         app.terminate()
 
         if let testRun = self.testRun, testRun.failureCount > 0, attachAppLogsOnFailure == true {

@@ -64,7 +64,9 @@ class FirewallAPIClient {
             } else {
                 if let response = requestResponse as? HTTPURLResponse {
                     if response.statusCode != 201 {
-                        XCTFail("Failed to create firewall rule - unexpected server response")
+                        XCTFail(
+                            "Failed to create firewall rule - unexpected response status code \(response.statusCode)"
+                        )
                     }
                 }
 
