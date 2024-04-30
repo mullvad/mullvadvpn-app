@@ -19,7 +19,7 @@ struct CustomListLocationNodeBuilder {
             name: customList.name,
             code: customList.name,
             locations: customList.locations,
-            isActive: !customList.locations.isEmpty,
+            isActive: true, // Defaults to true, updated after children have been populated.
             customList: customList
         )
 
@@ -47,7 +47,9 @@ struct CustomListLocationNodeBuilder {
             }
         }
 
+        listNode.isActive = !listNode.children.isEmpty
         listNode.sort()
+
         return listNode
     }
 }
@@ -66,7 +68,7 @@ private extension CustomListLocationNode {
         })
         .sorted(by: { $0.key < $1.key })
         .reduce([]) {
-            return $0 + $1.value.sorted(by: { $0.name < $1.name })
+            $0 + $1.value.sorted(by: { $0.name < $1.name })
         }
 
         children = sortedChildren

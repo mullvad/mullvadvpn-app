@@ -25,8 +25,8 @@ class CustomListsDataSource: LocationDataSourceProtocol {
 
     /// Constructs a collection of node trees by copying each matching counterpart
     /// from the complete list of nodes created in ``AllLocationDataSource``.
-    func reload(allLocationNodes: [LocationNode], isFiltered: Bool) {
-        nodes = repository.fetchAll().compactMap { list in
+    func reload(allLocationNodes: [LocationNode]) {
+        nodes = repository.fetchAll().map { list in
             let customListWrapper = CustomListLocationNodeBuilder(customList: list, allLocations: allLocationNodes)
             let listNode = customListWrapper.customListLocationNode
 
@@ -38,7 +38,7 @@ class CustomListsDataSource: LocationDataSourceProtocol {
                 node.code = LocationNode.combineNodeCodes([listNode.code, node.code])
             }
 
-            return (isFiltered && listNode.children.isEmpty) ? nil : listNode
+            return listNode
         }
     }
 

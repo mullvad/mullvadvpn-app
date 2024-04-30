@@ -18,7 +18,6 @@ final class LocationDataSource:
     private var currentSearchString = ""
     private var dataSources: [LocationDataSourceProtocol] = []
     private var selectedItem: LocationCellViewModel?
-    private var hasFilter = false
     let tableView: UITableView
     let sections: [LocationSection]
 
@@ -52,8 +51,6 @@ final class LocationDataSource:
     }
 
     func setRelays(_ response: REST.ServerRelaysResponse, selectedRelays: UserSelectedRelays?, filter: RelayFilter) {
-        hasFilter = filter.providers != .any || filter.ownership != .any
-
         let allLocationsDataSource =
             dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource
 
@@ -65,7 +62,7 @@ final class LocationDataSource:
         }
 
         allLocationsDataSource?.reload(response, relays: relays)
-        customListsDataSource?.reload(allLocationNodes: allLocationsDataSource?.nodes ?? [], isFiltered: hasFilter)
+        customListsDataSource?.reload(allLocationNodes: allLocationsDataSource?.nodes ?? [])
 
         mapSelectedItem(from: selectedRelays)
         filterRelays(by: currentSearchString)
@@ -110,7 +107,7 @@ final class LocationDataSource:
             .filter { $0.showsChildren }
 
         // Reload data source with (possibly) updated custom lists.
-        customListsDataSource.reload(allLocationNodes: allLocationsDataSource.nodes, isFiltered: hasFilter)
+        customListsDataSource.reload(allLocationNodes: allLocationsDataSource.nodes)
 
         // Reapply current selection.
         mapSelectedItem(from: selectedRelays)
