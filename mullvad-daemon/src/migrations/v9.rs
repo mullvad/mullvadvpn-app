@@ -45,6 +45,7 @@ const SPLIT_TUNNELING_STATE: &str = "split-tunnelling-enabled.txt";
 /// This `migrate` function needs to get passed a `settings_dir` to work on Android. This is
 /// because the Android client will pass the settings directory when initializing the daemon,
 /// which means that we can not know ahead of time where the settings are stored.
+#[allow(unused_variables)]
 pub fn migrate(
     settings: &mut serde_json::Value,
     #[cfg(target_os = "android")] directories: Option<Directories<'_>>,
