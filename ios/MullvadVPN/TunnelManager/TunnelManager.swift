@@ -1045,16 +1045,6 @@ final class TunnelManager: StorePaymentObserver {
         isPolling = false
     }
 
-    private func cancelPollingKeyRotation() {
-        guard isRunningPeriodicPrivateKeyRotation else { return }
-
-        logger.debug("Cancel key rotation polling.")
-
-        privateKeyRotationTimer?.cancel()
-        privateKeyRotationTimer = nil
-        isRunningPeriodicPrivateKeyRotation = false
-    }
-
     fileprivate func removeLastUsedAccount() {
         do {
             try SettingsManager.setLastUsedAccount(nil)
