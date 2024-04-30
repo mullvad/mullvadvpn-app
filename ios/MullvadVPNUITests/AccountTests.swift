@@ -8,6 +8,13 @@
 
 import XCTest
 
+class AccountApi: XCTestCase {
+    func testApi() throws {
+        let temporaryAccountNumber = try MullvadAPIWrapper().createAccount()
+        try MullvadAPIWrapper().addDevices(5, account: temporaryAccountNumber)
+    }
+}
+
 class AccountTests: LoggedOutUITestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
