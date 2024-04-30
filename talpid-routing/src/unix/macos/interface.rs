@@ -11,6 +11,7 @@ use std::{
 };
 
 use super::data::{Destination, RouteMessage};
+use system_configuration::core_foundation::string::CFStringRef;
 use system_configuration::{
     core_foundation::{
         array::CFArray,
@@ -60,6 +61,7 @@ impl Family {
 struct NetworkServiceDetails {
     name: String,
     router_ip: IpAddr,
+    first_ip: IpAddr,
 }
 
 pub struct PrimaryInterfaceMonitor {
@@ -72,6 +74,34 @@ unsafe impl Send for PrimaryInterfaceMonitor {}
 
 pub enum InterfaceEvent {
     Update,
+}
+
+/// Default interface/route
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DefaultRoute {
+    /// Default interface name
+    pub interface: String,
+    /// Default interface index
+    pub interface_index: u16,
+    /// Router IP
+    pub router_ip: IpAddr,
+    /// Default interface IP address
+    pub ip: IpAddr,
+}
+
+impl From<DefaultRoute> for RouteMessage {
+    fn from(route: DefaultRoute) -> Self {
+        let network = if route.router_ip.is_ipv4() {
+            Family::V4.default_network()
+        } else {
+            Family::V6.default_network()
+        };
+        // The route message requires a socket address. The port is ignored in this case.
+        let router_addr = SocketAddr::from((route.router_ip, 0));
+        RouteMessage::new_route(Destination::Network(network))
+            .set_gateway_addr(router_addr)
+            .set_interface_index(route.interface_index)
+    }
 }
 
 impl PrimaryInterfaceMonitor {
@@ -126,7 +156,7 @@ impl PrimaryInterfaceMonitor {
 
     /// Retrieve the best current default route. This is based on the primary interface, or else
     /// the first active interface in the network service order.
-    pub fn get_route(&self, family: Family) -> Option<RouteMessage> {
+    pub fn get_route(&self, family: Family) -> Option<DefaultRoute> {
         let ifaces = self
             .get_primary_interface(family)
             .map(|iface| {
@@ -138,134 +168,110 @@ impl PrimaryInterfaceMonitor {
         let (iface, index) = ifaces
             .into_iter()
             .filter_map(|iface| {
-                let index = if_nametoindex(iface.name.as_str()).map_err(|error| {
-                    log::error!("Failed to retrieve interface index for \"{}\": {error}", iface.name);
-                    error
-                }).ok()?;
-
-                let active = is_active_interface(&iface.name, family).unwrap_or_else(|error| {
-                    log::error!("is_active_interface() returned an error for interface \"{}\", assuming active. Error: {error}", iface.name);
-                    true
-                });
-                if !active {
-                    log::debug!("Skipping inactive interface {}, router IP {}", iface.name, iface.router_ip);
-                    return None;
-                }
+                let index = if_nametoindex(iface.name.as_str())
+                    .inspect_err(|error| {
+                        log::error!(
+                            "Failed to retrieve interface index for \"{}\": {error}",
+                            iface.name
+                        );
+                    })
+                    .ok()?;
                 Some((iface, index))
             })
             .next()?;
 
-        let router_addr = (iface.router_ip, 0);
-        let mut router_addr = SocketAddr::from(router_addr);
+        let index = u16::try_from(index).unwrap();
 
-        // If the gateway is a link-local address, scope ID must be specified
-        if let SocketAddr::V6(ref mut v6_addr) = router_addr {
-            let v6ip = v6_addr.ip();
-
-            if is_link_local_v6(v6ip) {
+        let mut router_ip = iface.router_ip;
+        if let IpAddr::V6(ref mut addr) = router_ip {
+            if is_link_local_v6(addr) {
                 // The second pair of octets should be set to the scope id
                 // See getaddr() in route.c:
                 // https://opensource.apple.com/source/network_cmds/network_cmds-396.6/route.tproj/route.c.auto.html
 
-                let second_octet = u16::try_from(index).unwrap().to_be_bytes();
+                let second_octet = index.to_be_bytes();
 
-                let mut octets = v6ip.octets();
+                let mut octets = addr.octets();
                 octets[2] = second_octet[0];
                 octets[3] = second_octet[1];
 
-                let new_ip = Ipv6Addr::from(octets);
-
-                v6_addr.set_ip(new_ip);
+                *addr = Ipv6Addr::from(octets);
             }
         }
 
-        let msg = RouteMessage::new_route(Destination::Network(family.default_network()))
-            .set_gateway_addr(router_addr)
-            .set_interface_index(u16::try_from(index).unwrap());
-        Some(msg)
+        Some(DefaultRoute {
+            interface: iface.name,
+            interface_index: index,
+            router_ip,
+            ip: iface.first_ip,
+        })
     }
 
     fn get_primary_interface(&self, family: Family) -> Option<NetworkServiceDetails> {
-        let global_name = if family == Family::V4 {
+        let key = if family == Family::V4 {
             STATE_IPV4_KEY
         } else {
             STATE_IPV6_KEY
         };
-        let global_dict = self
+        let ip_dict = self
             .store
-            .get(CFString::new(global_name))
+            .get(key)
             .and_then(|v| v.downcast_into::<CFDictionary>())?;
-        let name = global_dict
-            .find(unsafe { kSCDynamicStorePropNetPrimaryInterface }.to_void())
-            .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
-            .and_then(|s| s.downcast::<CFString>())
-            .map(|s| s.to_string())
-            .or_else(|| {
-                log::debug!("Missing name for primary interface ({family})");
-                None
-            })?;
+        let name =
+            get_dict_elem_as_string(&ip_dict, unsafe { kSCDynamicStorePropNetPrimaryInterface })
+                .or_else(|| {
+                    log::debug!("Missing name for primary interface ({family})");
+                    None
+                })?;
+        let router_ip = get_service_router_ip(&ip_dict, family).or_else(|| {
+            log::debug!("Missing router IP for primary interface ({name}, {family})");
+            None
+        })?;
+        let first_ip = find_first_ip(&name, family).or_else(|| {
+            log::debug!("Missing IP for primary interface ({name}, {family})");
+            None
+        })?;
 
-        let router_key = if family == Family::V4 {
-            unsafe { kSCPropNetIPv4Router.to_void() }
-        } else {
-            unsafe { kSCPropNetIPv6Router.to_void() }
-        };
-
-        let router_ip = global_dict
-            .find(router_key)
-            .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
-            .and_then(|s| s.downcast::<CFString>())
-            .and_then(|ip| ip.to_string().parse().ok())
-            .or_else(|| {
-                log::debug!("Missing router IP for primary interface \"{name}\"");
-                None
-            })?;
-
-        Some(NetworkServiceDetails { name, router_ip })
+        Some(NetworkServiceDetails {
+            name,
+            router_ip,
+            first_ip,
+        })
     }
 
     fn network_services(&self, family: Family) -> Vec<NetworkServiceDetails> {
-        let router_key = if family == Family::V4 {
-            unsafe { kSCPropNetIPv4Router.to_void() }
-        } else {
-            unsafe { kSCPropNetIPv6Router.to_void() }
-        };
-
         SCNetworkSet::new(&self.prefs)
             .service_order()
             .iter()
             .filter_map(|service_id| {
                 let service_id_s = service_id.to_string();
-                let key = if family == Family::V4 {
+                let service_key = if family == Family::V4 {
                     format!("State:/Network/Service/{service_id_s}/IPv4")
                 } else {
                     format!("State:/Network/Service/{service_id_s}/IPv6")
                 };
-
                 let ip_dict = self
                     .store
-                    .get(CFString::new(&key))
+                    .get(CFString::new(&service_key))
                     .and_then(|v| v.downcast_into::<CFDictionary>())?;
-                let name = ip_dict
-                    .find(unsafe { kSCPropInterfaceName }.to_void())
-                    .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
-                    .and_then(|s| s.downcast::<CFString>())
-                    .map(|s| s.to_string())
+                let name = get_dict_elem_as_string(&ip_dict, unsafe { kSCPropInterfaceName })
                     .or_else(|| {
-                        log::debug!("Missing name for service {service_id_s} ({family})");
+                        log::debug!("Missing name for service {service_key} ({family})");
                         None
                     })?;
-                let router_ip = ip_dict
-                    .find(router_key)
-                    .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
-                    .and_then(|s| s.downcast::<CFString>())
-                    .and_then(|ip| ip.to_string().parse().ok())
-                    .or_else(|| {
-                        log::debug!("Missing router IP for {service_id_s} ({name}, {family})");
-                        None
-                    })?;
-
-                Some(NetworkServiceDetails { name, router_ip })
+                let router_ip = get_service_router_ip(&ip_dict, family).or_else(|| {
+                    log::debug!("Missing router IP for {service_key} ({name}, {family})");
+                    None
+                })?;
+                let first_ip = find_first_ip(&name, family).or_else(|| {
+                    log::debug!("Missing IP for \"{service_key}\" ({name}, {family})");
+                    None
+                })?;
+                Some(NetworkServiceDetails {
+                    name,
+                    router_ip,
+                    first_ip,
+                })
             })
             .collect::<Vec<_>>()
     }
@@ -297,26 +303,30 @@ pub fn get_interface_link_addresses() -> io::Result<BTreeMap<String, SockaddrSto
     Ok(gateway_link_addrs)
 }
 
-/// Return whether the given interface has an assigned (unicast) IP address.
-fn is_active_interface(interface_name: &str, family: Family) -> io::Result<bool> {
+/// Return the first assigned (unicast) IP address for the given interface
+fn find_first_ip(interface_name: &str, family: Family) -> Option<IpAddr> {
     let required_link_flags: InterfaceFlags = InterfaceFlags::IFF_UP | InterfaceFlags::IFF_RUNNING;
-    let has_ip_addr = nix::ifaddrs::getifaddrs()?
+    nix::ifaddrs::getifaddrs()
+        .ok()?
         .filter(|addr| (addr.flags & required_link_flags) == required_link_flags)
         .filter(|addr| addr.interface_name == interface_name)
-        .any(|addr| {
-            if let Some(addr) = addr.address {
-                // Check if family matches; ignore if link-local address
-                match family {
-                    Family::V4 => matches!(addr.as_sockaddr_in(), Some(addr_in) if is_routable_v4(&addr_in.ip())),
-                    Family::V6 => {
-                        matches!(addr.as_sockaddr_in6(), Some(addr_in) if is_routable_v6(&addr_in.ip()))
-                    }
-                }
-            } else {
-                false
-            }
-        });
-    Ok(has_ip_addr)
+        .filter_map(|addr| addr.address)
+        .find_map(|addr| match family {
+            Family::V4 => addr
+                .as_sockaddr_in()
+                .map(|addr_in| IpAddr::from(addr_in.ip())),
+            Family::V6 => addr
+                .as_sockaddr_in6()
+                .map(|addr_in| IpAddr::from(addr_in.ip())),
+        })
+        .filter(is_routable)
+}
+
+fn is_routable(addr: &IpAddr) -> bool {
+    match addr {
+        IpAddr::V4(ip) => is_routable_v4(ip),
+        IpAddr::V6(ip) => is_routable_v6(ip),
+    }
 }
 
 fn is_routable_v4(addr: &Ipv4Addr) -> bool {
@@ -329,4 +339,20 @@ fn is_routable_v6(addr: &Ipv6Addr) -> bool {
 
 fn is_link_local_v6(addr: &Ipv6Addr) -> bool {
     (addr.segments()[0] & 0xffc0) == 0xfe80
+}
+
+fn get_service_router_ip(ip_dict: &CFDictionary, family: Family) -> Option<IpAddr> {
+    let router_key = if family == Family::V4 {
+        unsafe { kSCPropNetIPv4Router }
+    } else {
+        unsafe { kSCPropNetIPv6Router }
+    };
+    get_dict_elem_as_string(ip_dict, router_key).and_then(|ip| ip.parse().ok())
+}
+
+fn get_dict_elem_as_string(dict: &CFDictionary, key: CFStringRef) -> Option<String> {
+    dict.find(key.to_void())
+        .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+        .and_then(|s| s.downcast::<CFString>())
+        .map(|s| s.to_string())
 }
