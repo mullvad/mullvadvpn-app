@@ -1,7 +1,6 @@
 use crate::{
     rest,
     rest::{RequestFactory, RequestServiceHandle},
-    API,
 };
 use futures::{
     channel::{mpsc, oneshot},
@@ -9,7 +8,7 @@ use futures::{
 };
 use hyper::StatusCode;
 use mullvad_types::account::{AccessToken, AccessTokenData, AccountToken};
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 use tokio::select;
 
 pub const AUTH_URL_PREFIX: &str = "auth/v1";
@@ -37,8 +36,11 @@ struct AccountState {
 }
 
 impl AccessTokenStore {
-    pub(crate) fn new(service: RequestServiceHandle) -> Self {
-        let factory = rest::RequestFactory::new(API.host(), None);
+    pub(crate) fn new(
+        service: RequestServiceHandle,
+        hostname: impl Into<Cow<'static, str>>,
+    ) -> Self {
+        let factory = rest::RequestFactory::new(hostname, None);
         let (tx, rx) = mpsc::unbounded();
         tokio::spawn(Self::service_requests(rx, service, factory));
         Self { tx }
