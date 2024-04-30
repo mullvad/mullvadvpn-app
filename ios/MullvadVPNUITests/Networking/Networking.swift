@@ -10,6 +10,12 @@ import Foundation
 import Network
 import XCTest
 
+enum NetworkTransportProtocol: String, Codable {
+    case TCP = "tcp"
+    case UDP = "udp"
+    case ICMP = "icmp"
+}
+
 enum NetworkingError: Error {
     case notConfiguredError
     case internalError(reason: String)

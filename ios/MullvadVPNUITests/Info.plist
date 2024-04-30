@@ -24,6 +24,8 @@
 	<string>$(NO_TIME_ACCOUNT_NUMBER)</string>
 	<key>PartnerApiToken</key>
 	<string>$(PARTNER_API_TOKEN)</string>
+	<key>PacketCaptureAPIBaseURL</key>
+	<string>$(PACKET_CAPTURE_BASE_URL)</string>
 	<key>ShouldBeReachableDomain</key>
 	<string>$(SHOULD_BE_REACHABLE_DOMAIN)</string>
 	<key>TestDeviceIdentifier</key>
