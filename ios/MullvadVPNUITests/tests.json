@@ -4,6 +4,7 @@
             "AccountTests",
             "ConnectivityTests",
             "CustomListsTests",
+            "LeakTests",
             "RelayTests",
             "SettingsTests"
         ],
