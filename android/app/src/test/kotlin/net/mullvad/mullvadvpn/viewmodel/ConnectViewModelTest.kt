@@ -2,12 +2,11 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
-import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
-import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
@@ -20,27 +19,22 @@ import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountData
+import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.ErrorState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
+import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
-import net.mullvad.mullvadvpn.ui.VersionInfo
-import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
-import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
-import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
-import net.mullvad.talpid.util.EventNotifier
+import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -54,28 +48,16 @@ class ConnectViewModelTest {
 
     private val serviceConnectionState =
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
-    private val versionInfo =
-        MutableStateFlow(
-            VersionInfo(
-                currentVersion = null,
-                upgradeVersion = null,
-                isOutdated = false,
-                isSupported = true
-            )
-        )
-    private val accountExpiryState = MutableStateFlow<AccountData>(AccountData.Missing)
-    private val deviceState = MutableStateFlow<DeviceState>(DeviceState.Initial)
+    private val accountExpiryState = MutableStateFlow<AccountData?>(null)
+    private val deviceState = MutableStateFlow<DeviceState?>(null)
     private val notifications = MutableStateFlow<List<InAppNotification>>(emptyList())
 
     // Service connections
-    private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
-    private lateinit var mockAppVersionInfoCache: AppVersionInfoCache
     private val mockConnectionProxy: ConnectionProxy = mockk()
     private val mockLocation: GeoIpLocation = mockk(relaxed = true)
 
     // Account Repository
-    private val mockAccountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository =
-        mockk(relaxed = true)
+    private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
 
     // Device Repository
     private val mockDeviceRepository: DeviceRepository = mockk()
@@ -83,18 +65,14 @@ class ConnectViewModelTest {
     // In App Notifications
     private val mockInAppNotificationController: InAppNotificationController = mockk()
 
-    // Relay list use case
-    private val mockRelayListUseCase: RelayListUseCase = mockk()
+    // Select location use case
+    private val mockSelectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase = mockk()
 
     // Payment use case
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
 
-    // Event notifiers
-    private val eventNotifierTunnelUiState = EventNotifier<TunnelState>(TunnelState.Disconnected())
-    private val eventNotifierTunnelRealState =
-        EventNotifier<TunnelState>(TunnelState.Disconnected())
-
     // Flows
+    private val tunnelState = MutableStateFlow<TunnelState>(TunnelState.Disconnected())
     private val selectedRelayItemFlow = MutableStateFlow<RelayItem?>(null)
 
     // Out Of Time Use Case
@@ -103,46 +81,33 @@ class ConnectViewModelTest {
 
     @BeforeEach
     fun setup() {
-        mockkStatic(CACHE_EXTENSION_CLASS)
-        mockkStatic(SERVICE_CONNECTION_MANAGER_EXTENSIONS)
-
-        mockAppVersionInfoCache =
-            mockk<AppVersionInfoCache>().apply {
-                every { appVersionCallbackFlow() } returns versionInfo
-            }
-
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
-        every { mockServiceConnectionContainer.appVersionInfoCache } returns mockAppVersionInfoCache
-        every { mockServiceConnectionContainer.connectionProxy } returns mockConnectionProxy
 
-        every { mockAccountRepository.accountExpiryState } returns accountExpiryState
+        every { mockAccountRepository.accountData } returns accountExpiryState
 
         every { mockDeviceRepository.deviceState } returns deviceState
 
         every { mockInAppNotificationController.notifications } returns notifications
 
-        every { mockConnectionProxy.onUiStateChange } returns eventNotifierTunnelUiState
-        every { mockConnectionProxy.onStateChange } returns eventNotifierTunnelRealState
+        every { mockConnectionProxy.tunnelState } returns tunnelState
 
         every { mockLocation.country } returns "dummy country"
 
-        // Listeners
-        every { mockAppVersionInfoCache.onUpdate = any() } answers {}
-
         // Flows
-        every { mockRelayListUseCase.selectedRelayItem() } returns selectedRelayItemFlow
+        every { mockSelectedLocationRelayItemUseCase.selectedRelayItem() } returns
+            selectedRelayItemFlow
 
         every { outOfTimeUseCase.isOutOfTime } returns outOfTimeViewFlow
         viewModel =
             ConnectViewModel(
-                serviceConnectionManager = mockServiceConnectionManager,
                 accountRepository = mockAccountRepository,
                 deviceRepository = mockDeviceRepository,
                 inAppNotificationController = mockInAppNotificationController,
-                relayListUseCase = mockRelayListUseCase,
                 newDeviceNotificationUseCase = mockk(),
                 outOfTimeUseCase = outOfTimeUseCase,
                 paymentUseCase = mockPaymentUseCase,
+                selectedLocationRelayItemUseCase = mockSelectedLocationRelayItemUseCase,
+                connectionProxy = mockConnectionProxy,
                 isPlayBuild = false
             )
     }
@@ -164,9 +129,7 @@ class ConnectViewModelTest {
 
         viewModel.uiState.test {
             assertEquals(ConnectUiState.INITIAL, awaitItem())
-            serviceConnectionState.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-            eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)
+            tunnelState.emit(tunnelRealStateTestItem)
             val result = awaitItem()
             assertEquals(tunnelRealStateTestItem, result.tunnelState)
         }
@@ -178,11 +141,9 @@ class ConnectViewModelTest {
 
         viewModel.uiState.test {
             assertEquals(ConnectUiState.INITIAL, awaitItem())
-            serviceConnectionState.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-            eventNotifierTunnelUiState.notify(tunnelUiStateTestItem)
+            tunnelState.emit(tunnelUiStateTestItem)
             val result = awaitItem()
-            assertEquals(tunnelUiStateTestItem, result.tunnelUiState)
+            assertEquals(tunnelUiStateTestItem, result.tunnelState)
         }
     }
 
@@ -190,9 +151,9 @@ class ConnectViewModelTest {
     fun `given RelayListUseCase returns new selectedRelayItem uiState should emit new selectedRelayItem`() =
         runTest {
             val selectedRelayItem =
-                RelayItem.Country(
+                RelayItem.Location.Country(
                     name = "Name",
-                    code = "Code",
+                    id = GeoLocationId.Country("se"),
                     expanded = false,
                     cities = emptyList()
                 )
@@ -200,8 +161,6 @@ class ConnectViewModelTest {
 
             viewModel.uiState.test {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
-                serviceConnectionState.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 val result = awaitItem()
                 assertEquals(selectedRelayItem, result.selectedRelayItem)
             }
@@ -223,15 +182,13 @@ class ConnectViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             assertEquals(ConnectUiState.INITIAL, awaitItem())
-            eventNotifierTunnelRealState.notify(TunnelState.Disconnected(null))
+            tunnelState.emit(TunnelState.Disconnected(null))
 
-            serviceConnectionState.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             // Start of with no location
             assertNull(awaitItem().location)
 
             // After updated we show latest
-            eventNotifierTunnelRealState.notify(TunnelState.Disconnected(locationTestItem))
+            tunnelState.emit(TunnelState.Disconnected(locationTestItem))
             assertEquals(locationTestItem, awaitItem().location)
         }
     }
@@ -245,8 +202,6 @@ class ConnectViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
-                serviceConnectionState.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 expectNoEvents()
                 val result = awaitItem()
                 assertEquals(locationTestItem, result.location)
@@ -256,33 +211,29 @@ class ConnectViewModelTest {
     @Test
     fun `onDisconnectClick should invoke disconnect on ConnectionProxy`() = runTest {
         val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
-        every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
         viewModel.onDisconnectClick()
-        verify { mockConnectionProxy.disconnect() }
+        coVerify { mockConnectionProxy.disconnect() }
     }
 
     @Test
     fun `onReconnectClick should invoke reconnect on ConnectionProxy`() = runTest {
         val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
-        every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
         viewModel.onReconnectClick()
-        verify { mockConnectionProxy.reconnect() }
+        coVerify { mockConnectionProxy.reconnect() }
     }
 
     @Test
     fun `onConnectClick should invoke connect on ConnectionProxy`() = runTest {
         val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
-        every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
         viewModel.onConnectClick()
-        verify { mockConnectionProxy.connect() }
+        coVerify { mockConnectionProxy.connect() }
     }
 
     @Test
     fun `onCancelClick should invoke disconnect on ConnectionProxy`() = runTest {
         val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
-        every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
         viewModel.onCancelClick()
-        verify { mockConnectionProxy.disconnect() }
+        coVerify { mockConnectionProxy.disconnect() }
     }
 
     @Test
@@ -298,9 +249,7 @@ class ConnectViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
-                serviceConnectionState.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                eventNotifierTunnelUiState.notify(tunnelUiState)
+                tunnelState.emit(tunnelUiState)
                 val result = awaitItem()
                 assertEquals(expectedConnectNotificationState, result.inAppNotification)
             }
@@ -310,10 +259,8 @@ class ConnectViewModelTest {
     fun `onShowAccountClick call should result in uiSideEffect emitting OpenAccountManagementPageInBrowser`() =
         runTest {
             // Arrange
-            val mockToken = "4444 5555 6666 7777"
-            val mockAuthTokenCache: AuthTokenCache = mockk(relaxed = true)
-            every { mockServiceConnectionManager.authTokenCache() } returns mockAuthTokenCache
-            coEvery { mockAuthTokenCache.fetchAuthToken() } returns mockToken
+            val mockToken = AccountToken("4444 5555 6666 7777")
+            every { mockAccountRepository.getAccountToken() } returns mockToken
 
             // Act, Assert
             viewModel.uiSideEffect.test {
@@ -332,19 +279,11 @@ class ConnectViewModelTest {
         // Act
         viewModel.uiState.test {
             awaitItem()
-            serviceConnectionState.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             outOfTimeViewFlow.value = true
             awaitItem()
         }
 
         // Assert
         assertIs<ConnectViewModel.UiSideEffect.OutOfTime>(deferred.await())
-    }
-
-    companion object {
-        private const val CACHE_EXTENSION_CLASS = "net.mullvad.mullvadvpn.util.CacheExtensionsKt"
-        private const val SERVICE_CONNECTION_MANAGER_EXTENSIONS =
-            "net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManagerExtensionsKt"
     }
 }

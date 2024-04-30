@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.usecase.customlists
 import arrow.core.Either
 import arrow.core.raise.either
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.model.CreateCustomListError

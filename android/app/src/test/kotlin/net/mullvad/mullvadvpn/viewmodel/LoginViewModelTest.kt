@@ -3,11 +3,14 @@ package net.mullvad.mullvadvpn.viewmodel
 import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import app.cash.turbine.turbineScope
+import arrow.core.left
+import arrow.core.right
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -21,11 +24,8 @@ import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountData
-import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.AccountToken
-import net.mullvad.mullvadvpn.model.CreateAccountError
 import net.mullvad.mullvadvpn.model.LoginAccountError
-import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import org.joda.time.DateTime
@@ -38,14 +38,10 @@ import org.junit.jupiter.api.extension.ExtendWith
 class LoginViewModelTest {
 
     @MockK private lateinit var connectivityUseCase: ConnectivityUseCase
-    @MockK
-    private lateinit var mockedAccountRepository:
-        net.mullvad.mullvadvpn.lib.account.AccountRepository
-    @MockK private lateinit var mockedDeviceRepository: DeviceRepository
+    @MockK private lateinit var mockedAccountRepository: AccountRepository
     @MockK private lateinit var mockedNewDeviceNotificationUseCase: NewDeviceNotificationUseCase
 
     private lateinit var loginViewModel: LoginViewModel
-    private val accountHistoryTestEvents = MutableStateFlow<AccountHistory>(AccountHistory.Missing)
 
     @BeforeEach
     fun setup() {
@@ -53,15 +49,13 @@ class LoginViewModelTest {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         MockKAnnotations.init(this, relaxUnitFun = true)
         every { connectivityUseCase.isInternetAvailable() } returns true
-        every { mockedAccountRepository.accountHistory } returns accountHistoryTestEvents
         every { mockedNewDeviceNotificationUseCase.newDeviceCreated() } returns Unit
 
         loginViewModel =
             LoginViewModel(
-                mockedAccountRepository,
-                mockedDeviceRepository,
-                mockedNewDeviceNotificationUseCase,
-                connectivityUseCase,
+                accountRepository = mockedAccountRepository,
+                newDeviceNotificationUseCase = mockedNewDeviceNotificationUseCase,
+                connectivityUseCase = connectivityUseCase,
                 UnconfinedTestDispatcher()
             )
     }
@@ -99,7 +93,7 @@ class LoginViewModelTest {
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
             val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
             coEvery { mockedAccountRepository.createAccount() } returns
-                CreateAccountError.Success(DUMMY_ACCOUNT_TOKEN)
+                AccountToken(DUMMY_ACCOUNT_TOKEN).right()
 
             // Act, Assert
             uiStates.skipDefaultItem()
@@ -115,9 +109,9 @@ class LoginViewModelTest {
             // Arrange
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
             val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
-            coEvery { mockedAccountRepository.login(any()) } returns LoginAccountError.Ok
-            coEvery { mockedAccountRepository.accountExpiryState } returns
-                MutableStateFlow(AccountData.Available(DateTime.now().plusDays(3)))
+            coEvery { mockedAccountRepository.login(any()) } returns Unit.right()
+            coEvery { mockedAccountRepository.accountData } returns
+                MutableStateFlow(AccountData(mockk(), DateTime.now().plusDays(3)))
 
             // Act, Assert
             uiStates.skipDefaultItem()
@@ -133,7 +127,7 @@ class LoginViewModelTest {
         loginViewModel.uiState.test {
             // Arrange
             coEvery { mockedAccountRepository.login(any()) } returns
-                LoginAccountError.InvalidAccount
+                LoginAccountError.InvalidAccount.left()
 
             // Act, Assert
             skipDefaultItem()
@@ -150,16 +144,8 @@ class LoginViewModelTest {
                 // Arrange
                 val uiStates = loginViewModel.uiState.testIn(backgroundScope)
                 val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
-                coEvery {
-                    mockedDeviceRepository.refreshAndAwaitDeviceListWithTimeout(
-                        any(),
-                        any(),
-                        any(),
-                        any()
-                    )
-                } returns DeviceListEvent.Available(DUMMY_ACCOUNT_TOKEN, listOf())
                 coEvery { mockedAccountRepository.login(any()) } returns
-                    LoginAccountError.MaxDevicesReached
+                    LoginAccountError.MaxDevicesReached(AccountToken(DUMMY_ACCOUNT_TOKEN)).left()
 
                 // Act, Assert
                 uiStates.skipDefaultItem()
@@ -176,7 +162,8 @@ class LoginViewModelTest {
     fun `given RpcError when logging in then show unknown error with message`() = runTest {
         loginViewModel.uiState.test {
             // Arrange
-            coEvery { mockedAccountRepository.login(any()) } returns LoginAccountError.RpcError
+            coEvery { mockedAccountRepository.login(any()) } returns
+                LoginAccountError.RpcError.left()
 
             // Act, Assert
             skipDefaultItem()
@@ -190,10 +177,11 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `given OtherError when logging in then show unknown error with message`() = runTest {
+    fun `given unknown error when logging in then show unknown error with message`() = runTest {
         loginViewModel.uiState.test {
             // Arrange
-            coEvery { mockedAccountRepository.login(any()) } returns LoginAccountError.OtherError
+            coEvery { mockedAccountRepository.login(any()) } returns
+                LoginAccountError.Unknown(mockk()).left()
 
             // Act, Assert
             skipDefaultItem()
@@ -209,10 +197,12 @@ class LoginViewModelTest {
     @Test
     fun `on new accountHistory emission uiState should include lastUsedAccount matching accountHistory`() =
         runTest {
+            // Arrange
+            coEvery { mockedAccountRepository.fetchAccountHistory() } returns
+                AccountToken(DUMMY_ACCOUNT_TOKEN)
             loginViewModel.uiState.test {
                 // Act, Assert
                 skipDefaultItem()
-                accountHistoryTestEvents.emit(AccountHistory.Available(DUMMY_ACCOUNT_TOKEN))
                 assertEquals(
                     LoginUiState.INITIAL.copy(lastUsedAccount = AccountToken(DUMMY_ACCOUNT_TOKEN)),
                     awaitItem()
@@ -224,7 +214,7 @@ class LoginViewModelTest {
     fun `clearAccountHistory should invoke clearAccountHistory on AccountRepository`() = runTest {
         // Act, Assert
         loginViewModel.clearAccountHistory()
-        verify { mockedAccountRepository.clearAccountHistory() }
+        coVerify { mockedAccountRepository.clearAccountHistory() }
     }
 
     private suspend fun <T> ReceiveTurbine<T>.skipDefaultItem() where T : Any? {

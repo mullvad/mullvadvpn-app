@@ -14,10 +14,6 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -26,12 +22,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class VersionNotificationUseCaseTest {
 
-    private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
-    private lateinit var mockAppVersionInfoCache: AppVersionInfoCache
-    private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
+    private val mockAppVersionInfoCache: AppVersionInfoCache = mockk()
 
-    private val serviceConnectionState =
-        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
     private val versionInfo =
         MutableStateFlow(
             VersionInfo(
@@ -46,19 +38,11 @@ class VersionNotificationUseCaseTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        mockkStatic(CACHE_EXTENSION_CLASS)
-        mockAppVersionInfoCache =
-            mockk<AppVersionInfoCache>().apply {
-                every { appVersionCallbackFlow() } returns versionInfo
-            }
-
-        every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
-        every { mockServiceConnectionContainer.appVersionInfoCache } returns mockAppVersionInfoCache
-        every { mockAppVersionInfoCache.onUpdate = any() } answers {}
+        every { mockAppVersionInfoCache.versionInfo() } returns versionInfo
 
         versionNotificationUseCase =
             VersionNotificationUseCase(
-                serviceConnectionManager = mockServiceConnectionManager,
+                appVersionInfoCache = mockAppVersionInfoCache,
                 isVersionInfoNotificationEnabled = true
             )
     }
@@ -81,8 +65,6 @@ class VersionNotificationUseCaseTest {
                 // Arrange, Act
                 val upgradeVersionInfo =
                     VersionInfo("1.0", "1.1", isOutdated = true, isSupported = true)
-                serviceConnectionState.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 awaitItem()
                 versionInfo.value = upgradeVersionInfo
 
@@ -101,8 +83,6 @@ class VersionNotificationUseCaseTest {
                 // Arrange, Act
                 val upgradeVersionInfo =
                     VersionInfo("1.0", "", isOutdated = false, isSupported = false)
-                serviceConnectionState.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 awaitItem()
                 versionInfo.value = upgradeVersionInfo
 
@@ -113,8 +93,4 @@ class VersionNotificationUseCaseTest {
                 )
             }
         }
-
-    companion object {
-        private const val CACHE_EXTENSION_CLASS = "net.mullvad.mullvadvpn.util.CacheExtensionsKt"
-    }
 }
