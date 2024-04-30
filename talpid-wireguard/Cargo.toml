@@ -10,6 +10,10 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
+[features]
+# Wireguard support for Daita.
+daita = ["talpid-types/daita"]
+
 [dependencies]
 thiserror = { workspace = true }
 futures = "0.3.15"

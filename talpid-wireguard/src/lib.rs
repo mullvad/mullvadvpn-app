@@ -6,11 +6,11 @@ use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
 use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Future};
-#[cfg(target_os = "linux")]
+#[cfg(all(target_os = "linux", not(feature = "daita")))]
 use once_cell::sync::Lazy;
 #[cfg(target_os = "android")]
 use std::borrow::Cow;
-#[cfg(target_os = "linux")]
+#[cfg(all(target_os = "linux", not(feature = "daita")))]
 use std::env;
 #[cfg(windows)]
 use std::io;
@@ -65,6 +65,14 @@ use self::wireguard_go::WgGoTunnel;
 
 type Result<T> = std::result::Result<T, Error>;
 type EventCallback = Box<dyn (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Sync + 'static>;
+/// TODO: Document
+/// TODO: Rename
+#[cfg(not(feature = "daita"))]
+pub(crate) type TunnelT = Box<dyn Tunnel>;
+/// TODO: Document
+/// TODO: Rename
+#[cfg(feature = "daita")]
+pub(crate) type TunnelT = Box<dyn DaitaTunnel>;
 
 /// Errors that can happen in the Wireguard tunnel monitor.
 #[derive(thiserror::Error, Debug)]
@@ -144,7 +152,7 @@ impl Error {
 pub struct WireguardMonitor {
     runtime: tokio::runtime::Handle,
     /// Tunnel implementation
-    tunnel: Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+    tunnel: Arc<Mutex<Option<TunnelT>>>,
     /// Callback to signal tunnel events
     event_callback: EventCallback,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
@@ -191,7 +199,7 @@ impl Drop for ObfuscatorHandle {
     }
 }
 
-#[cfg(target_os = "linux")]
+#[cfg(all(target_os = "linux", not(feature = "daita")))]
 /// Overrides the preference for the kernel module for WireGuard.
 static FORCE_USERSPACE_WIREGUARD: Lazy<bool> = Lazy::new(|| {
     env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
@@ -385,7 +393,7 @@ impl WireguardMonitor {
                 let config = config.clone();
                 let iface_name = iface_name.clone();
                 tokio::task::spawn(async move {
-                    #[cfg(target_os = "windows")]
+                    #[cfg(feature = "daita")]
                     if config.daita {
                         // TODO: For now, we assume the MTU during the tunnel lifetime.
                         // We could instead poke maybenot whenever we detect changes to it.
@@ -473,7 +481,7 @@ impl WireguardMonitor {
 
     #[allow(clippy::too_many_arguments)]
     async fn config_ephemeral_peers<F>(
-        tunnel: &Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+        tunnel: &Arc<Mutex<Option<TunnelT>>>,
         config: &mut Config,
         retry_attempt: u32,
         on_event: F,
@@ -558,7 +566,7 @@ impl WireguardMonitor {
         }
 
         config.exit_peer_mut().psk = exit_psk;
-        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        #[cfg(feature = "daita")]
         if config.daita {
             log::trace!("Enabling constant packet size for entry peer");
             config.entry_peer.constant_packet_size = true;
@@ -576,7 +584,7 @@ impl WireguardMonitor {
         )
         .await?;
 
-        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        #[cfg(feature = "daita")]
         if config.daita {
             // Start local DAITA machines
             let mut tunnel = tunnel.lock().unwrap();
@@ -601,7 +609,7 @@ impl WireguardMonitor {
     /// Reconfigures the tunnel to use the provided config while potentially modifying the config
     /// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
     async fn reconfigure_tunnel(
-        tunnel: &Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+        tunnel: &Arc<Mutex<Option<TunnelT>>>,
         mut config: Config,
         obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
         close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
@@ -745,22 +753,20 @@ impl WireguardMonitor {
         Ok(ephemeral.psk)
     }
 
-    #[allow(unused_variables)]
+    // TODO(markus): De-duplicate parts of different `open_tunnel`implementations.
+
+    /// Linux can use the kernel implementation of Wireguard and fall back to WireguardGo.
+    /// Note that when DAITA is enabled, only WireguardGo may be used.
+    #[cfg(all(target_os = "linux", not(feature = "daita")))]
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
         config: &Config,
         log_path: Option<&Path>,
-        resource_dir: &Path,
+        _resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
-        #[cfg(target_os = "android")] gateway_only: bool,
-        #[cfg(windows)] route_manager: crate::routing::RouteManagerHandle,
-        #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
-    ) -> Result<Box<dyn Tunnel>> {
+    ) -> Result<TunnelT> {
         log::debug!("Tunnel MTU: {}", config.mtu);
-
-        let daita = true;
-        #[cfg(target_os = "linux")]
-        if !daita && !*FORCE_USERSPACE_WIREGUARD {
+        if !*FORCE_USERSPACE_WIREGUARD {
             if will_nm_manage_dns() {
                 match wireguard_kernel::NetworkManagerTunnel::new(runtime, config) {
                     Ok(tunnel) => {
@@ -794,22 +800,14 @@ impl WireguardMonitor {
             }
         }
 
-        #[cfg(target_os = "windows")]
-        {
-            wireguard_nt::WgNtTunnel::start_tunnel(config, log_path, resource_dir, setup_done_tx)
-                .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
-                .map_err(Error::TunnelError)
-        }
-
+        // TODO: `wireguard_go` is *currently* implied when building for Linux, but that might not
+        // always be true. When that assumptions is not uphold anymore, the kernel-only version of
+        // this function will have to return any errors instead of falling back to WireguardGo.
         #[cfg(wireguard_go)]
         {
             let routes =
                 Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
 
-            #[cfg(target_os = "android")]
-            let config = Self::patch_allowed_ips(config, gateway_only);
-
-            #[cfg(target_os = "linux")]
             log::debug!("Using userspace WireGuard implementation");
             Ok(Box::new(
                 WgGoTunnel::start_tunnel(
@@ -818,11 +816,87 @@ impl WireguardMonitor {
                     log_path,
                     tun_provider,
                     routes,
+                    #[cfg(feature = "daita")]
                     resource_dir,
                 )
                 .map_err(Error::TunnelError)?,
             ))
         }
+    }
+
+    #[cfg(all(target_os = "linux", feature = "daita"))]
+    fn open_tunnel(
+        _runtime: tokio::runtime::Handle,
+        config: &Config,
+        log_path: Option<&Path>,
+        resource_dir: &Path,
+        tun_provider: Arc<Mutex<TunProvider>>,
+    ) -> Result<TunnelT> {
+        log::debug!("Tunnel MTU: {}", config.mtu);
+
+        let routes = Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
+
+        Ok(Box::new(
+            WgGoTunnel::start_tunnel(
+                #[allow(clippy::needless_borrow)]
+                &config,
+                log_path,
+                tun_provider,
+                routes,
+                #[cfg(feature = "daita")]
+                resource_dir,
+            )
+            .map_err(Error::TunnelError)?,
+        ))
+    }
+
+    /// Both Android and macOS uses WireguardGo.
+    #[cfg(any(target_os = "macos", target_os = "android"))]
+    #[allow(unused_variables)]
+    fn open_tunnel(
+        runtime: tokio::runtime::Handle,
+        config: &Config,
+        log_path: Option<&Path>,
+        resource_dir: &Path,
+        tun_provider: Arc<Mutex<TunProvider>>,
+        #[cfg(target_os = "android")] gateway_only: bool,
+    ) -> Result<TunnelT> {
+        log::debug!("Tunnel MTU: {}", config.mtu);
+
+        let routes = Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
+
+        #[cfg(target_os = "android")]
+        let config = Self::patch_allowed_ips(config, gateway_only);
+
+        Ok(Box::new(
+            WgGoTunnel::start_tunnel(
+                #[allow(clippy::needless_borrow)]
+                &config,
+                log_path,
+                tun_provider,
+                routes,
+                #[cfg(feature = "daita")]
+                resource_dir,
+            )
+            .map_err(Error::TunnelError)?,
+        ))
+    }
+
+    /// Windows uses it's own version of `open_tunnel`.
+    #[cfg(target_os = "windows")]
+    #[allow(unused_variables)]
+    fn open_tunnel(
+        runtime: tokio::runtime::Handle,
+        config: &Config,
+        log_path: Option<&Path>,
+        resource_dir: &Path,
+        tun_provider: Arc<Mutex<TunProvider>>,
+        route_manager: crate::routing::RouteManagerHandle,
+        setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
+    ) -> Result<TunnelT> {
+        wireguard_nt::WgNtTunnel::start_tunnel(config, log_path, resource_dir, setup_done_tx)
+            .map(|tun| Box::new(tun) as TunnelT)
+            .map_err(Error::TunnelError)
     }
 
     /// Blocks the current thread until tunnel disconnects
@@ -1031,7 +1105,11 @@ pub(crate) trait Tunnel: Send {
         &self,
         _config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>>;
-    #[cfg(any(target_os = "windows", target_os = "linux"))]
+}
+
+/// A [`Tunnel`] capable of using DAITA.
+#[cfg(feature = "daita")]
+pub(crate) trait DaitaTunnel: Tunnel {
     fn start_daita(&mut self) -> std::result::Result<(), TunnelError>;
 }
 
@@ -1111,11 +1189,13 @@ pub enum TunnelError {
     LoggingError(#[source] logging::Error),
 
     /// Failed to receive DAITA event
+    #[cfg(feature = "daita")]
     #[error("Failed to receive DAITA event")]
     DaitaReceiveEvent(i32),
 }
 
 #[cfg(target_os = "linux")]
+#[allow(dead_code)]
 fn will_nm_manage_dns() -> bool {
     use talpid_dbus::network_manager::NetworkManager;
 
