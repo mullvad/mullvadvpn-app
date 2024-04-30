@@ -52,6 +52,10 @@ Line wrap the file at 100 chars.                                              Th
   website fingerprinting more difficult by sending random padding packets along with padding all
   packets to the same size.
 
+### Fixed
+#### Linux
+- Fix GUI not working on Ubuntu 24.04 by adding an AppArmor profile.
+
 
 ## [2024.2] - 2024-04-29
 ### Fixed
