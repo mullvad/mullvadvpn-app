@@ -55,8 +55,10 @@ impl FromStr for QuantumResistantState {
 #[error("Not a valid state")]
 pub struct QuantumResistantStateParseError;
 
-#[cfg(any(target_os = "windows", target_os = "linux"))]
+#[cfg(feature = "daita")]
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
+#[cfg_attr(target_os = "android", derive(IntoJava, FromJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct DaitaSettings {
     pub enabled: bool,
 }
@@ -208,7 +210,7 @@ pub struct TunnelOptions {
     /// Obtain a PSK using the relay config client.
     pub quantum_resistant: QuantumResistantState,
     /// Configure DAITA
-    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    #[cfg(feature = "daita")]
     pub daita: DaitaSettings,
     /// Interval used for automatic key rotation
     #[cfg_attr(target_os = "android", jnix(skip))]
@@ -221,7 +223,7 @@ impl Default for TunnelOptions {
         TunnelOptions {
             mtu: None,
             quantum_resistant: QuantumResistantState::Auto,
-            #[cfg(any(target_os = "windows", target_os = "linux"))]
+            #[cfg(feature = "daita")]
             daita: DaitaSettings::default(),
             rotation_interval: None,
         }
@@ -237,7 +239,7 @@ impl TunnelOptions {
                 QuantumResistantState::On => true,
                 QuantumResistantState::Off => false,
             },
-            #[cfg(any(target_os = "windows", target_os = "linux"))]
+            #[cfg(feature = "daita")]
             daita: self.daita.enabled,
         }
     }
