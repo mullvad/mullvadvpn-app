@@ -1,3 +1,11 @@
+//! This module provides a thin wrapper for BPF devices on macOS. BPF is used for packet
+//! filtering/capture and is exposed as several devices `/dev/bpfN` (where `N` is some integer).
+//!
+//! BPF devices can be attached to network interface and used for reading and writing packets
+//! directly on them, usually whole frames.
+//!
+//! Certain features may be macOS-specific, but much of the documentation for FreeBSD still holds
+//! true. Read more here: https://man.freebsd.org/cgi/man.cgi?bpf
 use futures::ready;
 use libc::{
     bpf_hdr, ifreq, BIOCGBLEN, BIOCGDLT, BIOCIMMEDIATE, BIOCSBLEN, BIOCSETIF, BIOCSHDRCMPLT,
