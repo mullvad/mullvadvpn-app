@@ -22,15 +22,15 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class AccountExpiryNotificationUseCaseTest {
 
-    private val accountExpiry = MutableStateFlow<AccountData>(AccountData.Missing)
+    private val accountExpiry = MutableStateFlow<AccountData?>(null)
     private lateinit var accountExpiryNotificationUseCase: AccountExpiryNotificationUseCase
 
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
 
-        val accountRepository = mockk<net.mullvad.mullvadvpn.lib.account.AccountRepository>()
-        every { accountRepository.accountExpiryState } returns accountExpiry
+        val accountRepository = mockk<AccountRepository>()
+        every { accountRepository.accountData } returns accountExpiry
 
         accountExpiryNotificationUseCase = AccountExpiryNotificationUseCase(accountRepository)
     }
@@ -53,11 +53,11 @@ class AccountExpiryNotificationUseCaseTest {
         // Arrange, Act, Assert
         accountExpiryNotificationUseCase.notifications().test {
             assertTrue { awaitItem().isEmpty() }
-            val closeToExpiry = AccountData.Available(DateTime.now().plusDays(2))
+            val closeToExpiry = AccountData(mockk(), DateTime.now().plusDays(2))
             accountExpiry.value = closeToExpiry
 
             assertEquals(
-                listOf(InAppNotification.AccountExpiry(closeToExpiry.expiryDateTime)),
+                listOf(InAppNotification.AccountExpiry(closeToExpiry.expiryDate)),
                 awaitItem()
             )
         }
@@ -68,7 +68,7 @@ class AccountExpiryNotificationUseCaseTest {
         // Arrange, Act, Assert
         accountExpiryNotificationUseCase.notifications().test {
             assertTrue { awaitItem().isEmpty() }
-            accountExpiry.value = AccountData.Available(DateTime.now().plusDays(4))
+            accountExpiry.value = AccountData(mockk(), DateTime.now().plusDays(4))
             expectNoEvents()
         }
     }

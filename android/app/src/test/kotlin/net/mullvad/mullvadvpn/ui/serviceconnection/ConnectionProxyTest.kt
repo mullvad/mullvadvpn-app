@@ -1,82 +1,60 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
-import android.os.DeadObjectException
-import android.os.Looper
-import android.os.Messenger
-import android.util.Log
-import io.mockk.MockKAnnotations
-import io.mockk.Runs
+import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.mockkStatic
-import io.mockk.slot
 import io.mockk.unmockkAll
-import kotlin.reflect.KClass
-import kotlin.test.assertEquals
-import net.mullvad.mullvadvpn.lib.ipc.Event
-import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
-import net.mullvad.mullvadvpn.lib.ipc.Request
+import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.repository.VpnPermissionRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class ConnectionProxyTest {
 
-    @MockK private lateinit var mockedMainLooper: Looper
+    private val mockManagementService: ManagementService = mockk(relaxed = true)
+    private val mockVpnPermissionRepository: VpnPermissionRepository = mockk()
 
-    @MockK private lateinit var connection: Messenger
+    private val connectionProxy: ConnectionProxy =
+        ConnectionProxy(
+            managementService = mockManagementService,
+            vpnPermissionRepository = mockVpnPermissionRepository
+        )
 
-    @MockK private lateinit var mockedDispatchingHandler: EventDispatcher
-    lateinit var connectionProxy: ConnectionProxy
+    @BeforeEach fun setup() {}
 
-    @BeforeEach
-    fun setup() {
-        mockkStatic(Looper::class)
-        mockkStatic(Log::class)
-        MockKAnnotations.init(this)
-        mockkObject(Request.Connect, Request.Disconnect)
-        every { Request.Connect.message } returns mockk()
-        every { Request.Disconnect.message } returns mockk()
-        every { Looper.getMainLooper() } returns mockedMainLooper
-        every { Log.e(any(), any()) } returns mockk(relaxed = true)
+    @Test
+    fun `connect with vpn permission allowed should call managementService connect`() = runTest {
+        every { mockVpnPermissionRepository.hasVpnPermission() } returns true
+        connectionProxy.connect()
+        coVerify(exactly = 1) { mockManagementService.connect() }
     }
+
+    @Test
+    fun `connect with vpn permission not allowed should not call managementService connect`() =
+        runTest {
+            every { mockVpnPermissionRepository.hasVpnPermission() } returns true
+            connectionProxy.connect()
+            coVerify(exactly = 0) { mockManagementService.connect() }
+        }
+
+    @Test
+    fun `disconnect should call managementService disconnect`() =
+        runTest {
+            connectionProxy.disconnect()
+            coVerify(exactly = 1) { mockManagementService.disconnect() }
+        }
+
+    @Test
+    fun `reconnect should call managementService reconnect`() =
+        runTest {
+            connectionProxy.reconnect()
+            coVerify(exactly = 1) { mockManagementService.reconnect() }
+        }
 
     @AfterEach
     fun tearDown() {
         unmockkAll()
-    }
-
-    @Test
-    fun `initialize connection proxy should work`() {
-        // Arrange
-        val eventType = slot<KClass<Event.TunnelStateChange>>()
-        every { mockedDispatchingHandler.registerHandler(capture(eventType), any()) } just Runs
-        // Create ConnectionProxy instance and assert initial Event type
-        connectionProxy = ConnectionProxy(connection, mockedDispatchingHandler)
-        assertEquals(Event.TunnelStateChange::class, eventType.captured.java.kotlin)
-    }
-
-    @Test
-    fun `normal connect and disconnect should not crash`() {
-        // Arrange
-        every { connection.send(any()) } just Runs
-        every { mockedDispatchingHandler.registerHandler(any<KClass<Event>>(), any()) } just Runs
-        // Act and Assert no crashes
-        connectionProxy = ConnectionProxy(connection, mockedDispatchingHandler)
-        connectionProxy.connect()
-        connectionProxy.disconnect()
-    }
-
-    @Test
-    fun `connect should catch DeadObjectException`() {
-        // Arrange
-        every { connection.send(any()) } throws DeadObjectException()
-        every { mockedDispatchingHandler.registerHandler(any<KClass<Event>>(), any()) } just Runs
-        // Act and Assert no crashes
-        connectionProxy = ConnectionProxy(connection, mockedDispatchingHandler)
-        connectionProxy.connect()
     }
 }
