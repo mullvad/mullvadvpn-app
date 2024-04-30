@@ -1,9 +1,11 @@
-package net.mullvad.mullvadvpn.relaylist
+package net.mullvad.mullvadvpn.lib.daemon.grpc
 
 import io.mockk.mockk
 import io.mockk.unmockkAll
-import net.mullvad.mullvadvpn.lib.daemon.grpc.RelayNameComparator
+import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.Ownership
+import net.mullvad.mullvadvpn.model.Provider
+import net.mullvad.mullvadvpn.model.ProviderId
 import net.mullvad.mullvadvpn.model.RelayItem
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -19,16 +21,17 @@ class RelayNameComparatorTest {
     @Test
     fun `given two relays with same prefix but different numbers comparator should return lowest number first`() {
         val relay9 =
-            RelayItem.Relay(
-                name = "se9-wireguard",
-                location = mockk(),
-                locationName = "mock",
+            RelayItem.Location.Relay(
+                id = GeoLocationId.Hostname(city = mockk(), "se9-wireguard"),
                 active = false,
-                providerName = "Provider",
-                ownership = Ownership.MullvadOwned
+                provider =
+                    Provider(
+                        providerId = ProviderId("Provider"),
+                        ownership = Ownership.MullvadOwned
+                    ),
             )
         val relay10 =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "se10-wireguard",
                 location = mockk(),
                 locationName = "mock",
@@ -43,7 +46,7 @@ class RelayNameComparatorTest {
     @Test
     fun `given two relays with same name with number in name comparator should return 0`() {
         val relay9a =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "se9-wireguard",
                 location = mockk(),
                 locationName = "mock",
@@ -52,7 +55,7 @@ class RelayNameComparatorTest {
                 ownership = Ownership.MullvadOwned
             )
         val relay9b =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "se9-wireguard",
                 location = mockk(),
                 locationName = "mock",
@@ -68,7 +71,7 @@ class RelayNameComparatorTest {
     @Test
     fun `comparator should be able to handle name of only numbers`() {
         val relay001 =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "001",
                 location = mockk(),
                 locationName = "mock",
@@ -77,7 +80,7 @@ class RelayNameComparatorTest {
                 ownership = Ownership.MullvadOwned
             )
         val relay1 =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "1",
                 location = mockk(),
                 locationName = "mock",
@@ -86,7 +89,7 @@ class RelayNameComparatorTest {
                 ownership = Ownership.MullvadOwned
             )
         val relay3 =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "3",
                 location = mockk(),
                 locationName = "mock",
@@ -95,7 +98,7 @@ class RelayNameComparatorTest {
                 ownership = Ownership.MullvadOwned
             )
         val relay100 =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "100",
                 location = mockk(),
                 locationName = "mock",
@@ -113,7 +116,7 @@ class RelayNameComparatorTest {
     @Test
     fun `given two relays with same name and without number comparator should return 0`() {
         val relay9a =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "se-wireguard",
                 location = mockk(),
                 locationName = "mock",
@@ -122,7 +125,7 @@ class RelayNameComparatorTest {
                 ownership = Ownership.MullvadOwned
             )
         val relay9b =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "se-wireguard",
                 location = mockk(),
                 locationName = "mock",
@@ -138,7 +141,7 @@ class RelayNameComparatorTest {
     @Test
     fun `given two relays with leading zeroes comparator should return lowest number first`() {
         val relay001 =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "se001-wireguard",
                 location = mockk(),
                 locationName = "mock",
@@ -147,7 +150,7 @@ class RelayNameComparatorTest {
                 ownership = Ownership.MullvadOwned
             )
         val relay005 =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "se005-wireguard",
                 location = mockk(),
                 locationName = "mock",
@@ -162,7 +165,7 @@ class RelayNameComparatorTest {
     @Test
     fun `given 4 relays comparator should sort by prefix then number`() {
         val relayAr2 =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "ar2-wireguard",
                 location = mockk(),
                 locationName = "mock",
@@ -171,7 +174,7 @@ class RelayNameComparatorTest {
                 ownership = Ownership.MullvadOwned
             )
         val relayAr8 =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "ar8-wireguard",
                 location = mockk(),
                 locationName = "mock",
@@ -180,7 +183,7 @@ class RelayNameComparatorTest {
                 ownership = Ownership.MullvadOwned
             )
         val relaySe5 =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "se5-wireguard",
                 location = mockk(),
                 locationName = "mock",
@@ -189,7 +192,7 @@ class RelayNameComparatorTest {
                 ownership = Ownership.MullvadOwned
             )
         val relaySe10 =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "se10-wireguard",
                 location = mockk(),
                 locationName = "mock",
@@ -206,7 +209,7 @@ class RelayNameComparatorTest {
     @Test
     fun `given two relays with same prefix and number comparator should sort by suffix`() {
         val relay2c =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "se2-cloud",
                 location = mockk(),
                 locationName = "mock",
@@ -215,7 +218,7 @@ class RelayNameComparatorTest {
                 ownership = Ownership.MullvadOwned
             )
         val relay2w =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "se2-wireguard",
                 location = mockk(),
                 locationName = "mock",
@@ -230,7 +233,7 @@ class RelayNameComparatorTest {
     @Test
     fun `given two relays with same prefix, but one with no suffix, the one with no suffix should come first`() {
         val relay22a =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "se22",
                 location = mockk(),
                 locationName = "mock",
@@ -239,7 +242,7 @@ class RelayNameComparatorTest {
                 ownership = Ownership.MullvadOwned
             )
         val relay22b =
-            RelayItem.Relay(
+            RelayItem.Location.Relay(
                 name = "se22-wireguard",
                 location = mockk(),
                 locationName = "mock",
@@ -251,7 +254,9 @@ class RelayNameComparatorTest {
         relay22a assertOrderBothDirection relay22b
     }
 
-    private infix fun RelayItem.Relay.assertOrderBothDirection(other: RelayItem.Relay) {
+    private infix fun RelayItem.Location.Relay.assertOrderBothDirection(
+        other: RelayItem.Location.Relay
+    ) {
         assertTrue(RelayNameComparator.compare(this, other) < 0)
         assertTrue(RelayNameComparator.compare(other, this) > 0)
     }

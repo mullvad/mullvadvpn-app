@@ -1,22 +1,24 @@
 package net.mullvad.mullvadvpn.usecase
 
+import arrow.core.right
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlin.test.assertIs
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.model.CreateCustomListError
 import net.mullvad.mullvadvpn.model.CreateCustomListResult
 import net.mullvad.mullvadvpn.model.CustomList
+import net.mullvad.mullvadvpn.model.CustomListId
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.UpdateCustomListResult
-import net.mullvad.mullvadvpn.relaylist.getRelayItemsByCodes
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
+import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsException
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -25,11 +27,11 @@ import org.junit.jupiter.api.Test
 
 class CustomListActionUseCaseTest {
     private val mockCustomListsRepository: CustomListsRepository = mockk()
-    private val mockRelayListUseCase: RelayListUseCase = mockk()
+    private val mockRelayListRepository: RelayListRepository = mockk()
     private val customListActionUseCase =
         CustomListActionUseCase(
             customListsRepository = mockCustomListsRepository,
-            relayListUseCase = mockRelayListUseCase
+            relayListRepository = mockRelayListRepository
         )
 
     @BeforeEach
@@ -41,37 +43,31 @@ class CustomListActionUseCaseTest {
     fun `create action should return success when ok`() = runTest {
         // Arrange
         val name = CustomListName.fromString("test")
-        val locationCode = "AB"
+        val locationId = GeoLocationId.Country("se")
         val locationName = "Acklaba"
-        val createdId = "1"
-        val action = CustomListAction.Create(name = name, locations = listOf(locationCode))
+        val createdId = CustomListId("1")
+        val action = CustomListAction.Create(name = name, locations = listOf(locationId))
         val expectedResult =
             Result.success(
                 CustomListResult.Created(
                     id = createdId,
                     name = name,
-                    locationName = locationName,
+                    locationNames = listOf(locationName),
                     undo = action.not(createdId)
                 )
             )
         val relayItem =
-            RelayItem.Country(
+            RelayItem.Location.Country(
                 name = locationName,
-                code = locationCode,
+                id = locationId,
                 expanded = false,
                 cities = emptyList()
             )
-        val mockLocations: List<RelayItem.Country> = listOf(relayItem)
-        coEvery { mockCustomListsRepository.createCustomList(name) } returns
-            CreateCustomListResult.Ok(createdId)
+        val mockLocations: List<RelayItem.Location.Country> = listOf(relayItem)
+        coEvery { mockCustomListsRepository.createCustomList(name) } returns createdId.right()
         coEvery {
-            mockCustomListsRepository.updateCustomListLocationsFromCodes(
-                createdId,
-                listOf(locationCode)
-            )
-        } returns UpdateCustomListResult.Ok
-        coEvery { mockRelayListUseCase.fullRelayList() } returns flowOf(mockLocations)
-        every { mockLocations.getRelayItemsByCodes(listOf(locationCode)) } returns mockLocations
+            mockCustomListsRepository.updateCustomListLocations(createdId, listOf(locationId))
+        } returns Unit.right()
 
         // Act
         val result = customListActionUseCase.performAction(action)
