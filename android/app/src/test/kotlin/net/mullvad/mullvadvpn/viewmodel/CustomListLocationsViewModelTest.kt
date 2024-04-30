@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import app.cash.turbine.test
+import arrow.core.right
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -11,10 +12,17 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.GeoLocationId
+import net.mullvad.mullvadvpn.model.Ownership
+import net.mullvad.mullvadvpn.model.Provider
+import net.mullvad.mullvadvpn.model.ProviderId
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
+import net.mullvad.mullvadvpn.repository.CustomListsRepository
+import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -22,23 +30,24 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
 class CustomListLocationsViewModelTest {
-    private val mockRelayListUseCase: RelayListUseCase = mockk()
+    private val mockRelayListRepository: RelayListRepository = mockk()
     private val mockCustomListUseCase: CustomListActionUseCase = mockk()
+    private val mockCustomListRelayItemsUseCase: CustomListRelayItemsUseCase = mockk()
+    private val mockCustomListsRepository: CustomListsRepository = mockk()
 
-    private val relayListFlow = MutableStateFlow<List<RelayItem.Country>>(emptyList())
+    private val relayListFlow = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
     private val customListFlow = MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
 
     @BeforeEach
     fun setup() {
-        every { mockRelayListUseCase.fullRelayList() } returns relayListFlow
-        every { mockRelayListUseCase.customLists() } returns customListFlow
+        every { mockRelayListRepository.relayList } returns relayListFlow
     }
 
     @Test
     fun `given new list false state should return new list false`() = runTest {
         // Arrange
         val newList = false
-        val viewModel = createViewModel("id", newList)
+        val viewModel = createViewModel(CustomListId("id"), newList)
 
         // Act, Assert
         viewModel.uiState.test { assertEquals(newList, awaitItem().newList) }
@@ -49,7 +58,7 @@ class CustomListLocationsViewModelTest {
         runTest {
             // Arrange
             val expectedList = DUMMY_COUNTRIES
-            val customListId = "id"
+            val customListId = CustomListId("id")
             val customListName = "name"
             val customList: RelayItem.CustomList = mockk {
                 every { id } returns customListId
@@ -73,7 +82,7 @@ class CustomListLocationsViewModelTest {
     fun `when selecting parent should select children`() = runTest {
         // Arrange
         val expectedList = DUMMY_COUNTRIES
-        val customListId = "id"
+        val customListId = CustomListId("id")
         val customListName = "name"
         val customList: RelayItem.CustomList = mockk {
             every { id } returns customListId
@@ -106,7 +115,7 @@ class CustomListLocationsViewModelTest {
         val expectedList = DUMMY_COUNTRIES
         val initialSelection =
             (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.descendants() }).toSet()
-        val customListId = "id"
+        val customListId = CustomListId("id")
         val customListName = "name"
         val customList: RelayItem.CustomList = mockk {
             every { id } returns customListId
@@ -138,7 +147,7 @@ class CustomListLocationsViewModelTest {
         val expectedList = DUMMY_COUNTRIES
         val initialSelection =
             (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.descendants() }).toSet()
-        val customListId = "id"
+        val customListId = CustomListId("id")
         val customListName = "name"
         val customList: RelayItem.CustomList = mockk {
             every { id } returns customListId
@@ -168,7 +177,7 @@ class CustomListLocationsViewModelTest {
     fun `when selecting child should not select parent`() = runTest {
         // Arrange
         val expectedList = DUMMY_COUNTRIES
-        val customListId = "id"
+        val customListId = CustomListId("id")
         val customListName = "name"
         val customList: RelayItem.CustomList = mockk {
             every { id } returns customListId
@@ -198,7 +207,7 @@ class CustomListLocationsViewModelTest {
     fun `given new list true when saving successfully should emit close screen side effect`() =
         runTest {
             // Arrange
-            val customListId = "1"
+            val customListId = CustomListId("1")
             val customListName = "name"
             val newList = true
             val expectedResult: CustomListResult.LocationsChanged = mockk()
@@ -210,7 +219,7 @@ class CustomListLocationsViewModelTest {
             customListFlow.value = listOf(customList)
             coEvery {
                 mockCustomListUseCase.performAction(any<CustomListAction.UpdateLocations>())
-            } returns Result.success(expectedResult)
+            } returns expectedResult.right()
             val viewModel = createViewModel(customListId, newList)
 
             // Act, Assert
@@ -225,7 +234,7 @@ class CustomListLocationsViewModelTest {
     fun `given new list false when saving successfully should emit return with result side effect`() =
         runTest {
             // Arrange
-            val customListId = "1"
+            val customListId = CustomListId("1")
             val customListName = "name"
             val newList = false
             val expectedResult: CustomListResult.LocationsChanged = mockk()
@@ -237,7 +246,7 @@ class CustomListLocationsViewModelTest {
             customListFlow.value = listOf(customList)
             coEvery {
                 mockCustomListUseCase.performAction(any<CustomListAction.UpdateLocations>())
-            } returns Result.success(expectedResult)
+            } returns expectedResult.right()
             val viewModel = createViewModel(customListId, newList)
 
             // Act, Assert
@@ -249,35 +258,46 @@ class CustomListLocationsViewModelTest {
             }
         }
 
-    private fun createViewModel(customListId: String, newList: Boolean) =
+    private fun createViewModel(customListId: CustomListId, newList: Boolean) =
         CustomListLocationsViewModel(
             customListId = customListId,
             newList = newList,
-            relayListUseCase = mockRelayListUseCase,
-            customListActionUseCase = mockCustomListUseCase
+            relayListRepository = mockRelayListRepository,
+            customListRelayItemsUseCase = mockCustomListRelayItemsUseCase,
+            customListActionUseCase = mockCustomListUseCase,
+            customListsRepository = mockCustomListsRepository
         )
 
     companion object {
         private val DUMMY_COUNTRIES =
             listOf(
-                RelayItem.Country(
+                RelayItem.Location.Country(
                     name = "Sweden",
-                    code = "SE",
+                    id = GeoLocationId.Country("SE"),
                     expanded = false,
                     cities =
                         listOf(
-                            RelayItem.City(
+                            RelayItem.Location.City(
                                 name = "Gothenburg",
-                                code = "GBG",
                                 expanded = false,
-                                location = GeoLocationId.City("SE", "GBG"),
+                                id = GeoLocationId.City(GeoLocationId.Country("SE"), "GBG"),
                                 relays =
                                     listOf(
-                                        RelayItem.Relay(
-                                            name = "gbg-1",
-                                            locationName = "GBG gbg-1",
+                                        RelayItem.Location.Relay(
+                                            id =
+                                                GeoLocationId.Hostname(
+                                                    GeoLocationId.City(
+                                                        GeoLocationId.Country("SE"),
+                                                        "GBG"
+                                                    ),
+                                                    "gbg-1"
+                                                ),
                                             active = true,
-                                            location = GeoLocationId.Hostname("SE", "GBG", "gbg-1")
+                                            provider =
+                                                Provider(
+                                                    ProviderId("Provider"),
+                                                    ownership = Ownership.MullvadOwned
+                                                )
                                         )
                                     )
                             )

@@ -7,10 +7,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.withTimeout
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.CustomListId
@@ -18,6 +16,7 @@ import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.GetCustomListError
 import net.mullvad.mullvadvpn.model.ModifyCustomListError
+import net.mullvad.mullvadvpn.util.firstOrNullWithTimeout
 
 class CustomListsRepository(
     private val managementService: ManagementService,
@@ -52,12 +51,10 @@ class CustomListsRepository(
     }
 
     suspend fun getCustomListById(id: CustomListId): Either<GetCustomListError, CustomList> =
-        Either.catch {
-                withTimeout(GET_CUSTOM_LIST_TIMEOUT_MS) {
-                    customLists
-                        .mapNotNull { it?.find { customList -> customList.id == id } }
-                        .first()
-                }
+        either {
+                customLists
+                    .mapNotNull { it?.find { customList -> customList.id == id } }
+                    .firstOrNullWithTimeout(GET_CUSTOM_LIST_TIMEOUT_MS) ?: raise(GetCustomListError)
             }
             .mapLeft { GetCustomListError }
 

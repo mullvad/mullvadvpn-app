@@ -15,10 +15,6 @@ import net.mullvad.mullvadvpn.model.ErrorState
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.talpid.util.EventNotifier
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,26 +23,19 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class TunnelStateNotificationUseCaseTest {
 
-    private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
-    private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
     private val mockConnectionProxy: ConnectionProxy = mockk()
 
-    private val serviceConnectionState =
-        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
     private lateinit var tunnelStateNotificationUseCase: TunnelStateNotificationUseCase
 
-    private val eventNotifierTunnelUiState = EventNotifier<TunnelState>(TunnelState.Disconnected())
+    private val tunnelState = MutableStateFlow<TunnelState>(TunnelState.Disconnected())
 
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        every { mockConnectionProxy.onUiStateChange } returns eventNotifierTunnelUiState
-
-        every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
-        every { mockServiceConnectionContainer.connectionProxy } returns mockConnectionProxy
+        every { mockConnectionProxy.tunnelState } returns tunnelState
 
         tunnelStateNotificationUseCase =
-            TunnelStateNotificationUseCase(serviceConnectionManager = mockServiceConnectionManager)
+            TunnelStateNotificationUseCase(connectionProxy = mockConnectionProxy)
     }
 
     @AfterEach
@@ -65,10 +54,8 @@ class TunnelStateNotificationUseCaseTest {
         tunnelStateNotificationUseCase.notifications().test {
             // Arrange, Act
             assertEquals(emptyList(), awaitItem())
-            serviceConnectionState.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             val errorState: ErrorState = mockk()
-            eventNotifierTunnelUiState.notify(TunnelState.Error(errorState))
+            tunnelState.emit(TunnelState.Error(errorState))
 
             // Assert
             assertEquals(listOf(InAppNotification.TunnelStateError(errorState)), awaitItem())
@@ -81,11 +68,7 @@ class TunnelStateNotificationUseCaseTest {
             tunnelStateNotificationUseCase.notifications().test {
                 // Arrange, Act
                 assertEquals(emptyList(), awaitItem())
-                serviceConnectionState.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                eventNotifierTunnelUiState.notify(
-                    TunnelState.Disconnecting(ActionAfterDisconnect.Block)
-                )
+                tunnelState.emit(TunnelState.Disconnecting(ActionAfterDisconnect.Block))
 
                 // Assert
                 assertEquals(listOf(InAppNotification.TunnelStateBlocked), awaitItem())

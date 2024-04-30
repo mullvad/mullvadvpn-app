@@ -53,7 +53,7 @@ class AccountExpiryNotificationUseCaseTest {
         // Arrange, Act, Assert
         accountExpiryNotificationUseCase.notifications().test {
             assertTrue { awaitItem().isEmpty() }
-            val closeToExpiry = AccountData(mockk(), DateTime.now().plusDays(2))
+            val closeToExpiry = AccountData(mockk(relaxed = true), DateTime.now().plusDays(2))
             accountExpiry.value = closeToExpiry
 
             assertEquals(
@@ -68,7 +68,7 @@ class AccountExpiryNotificationUseCaseTest {
         // Arrange, Act, Assert
         accountExpiryNotificationUseCase.notifications().test {
             assertTrue { awaitItem().isEmpty() }
-            accountExpiry.value = AccountData(mockk(), DateTime.now().plusDays(4))
+            accountExpiry.value = AccountData(mockk(relaxed = true), DateTime.now().plusDays(4))
             expectNoEvents()
         }
     }

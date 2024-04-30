@@ -6,7 +6,6 @@ import io.mockk.Runs
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.just
-import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlinx.coroutines.test.runTest
@@ -28,7 +27,6 @@ class ChangelogViewModelTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        mockkStatic(EVENT_NOTIFIER_EXTENSION_CLASS)
         every { mockedChangelogRepository.setVersionCodeOfMostRecentChangelogShowed(any()) } just
             Runs
     }
@@ -80,8 +78,6 @@ class ChangelogViewModelTest {
     }
 
     companion object {
-        private const val EVENT_NOTIFIER_EXTENSION_CLASS =
-            "net.mullvad.talpid.util.EventNotifierExtensionsKt"
         private const val buildVersionCode = 10
     }
 }

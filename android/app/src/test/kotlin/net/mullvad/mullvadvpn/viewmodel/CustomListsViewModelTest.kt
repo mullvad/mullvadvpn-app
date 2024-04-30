@@ -4,12 +4,13 @@ import app.cash.turbine.test
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.state.CustomListsUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.model.CustomList
+import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -17,15 +18,15 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
 class CustomListsViewModelTest {
-    private val mockRelayListUseCase: RelayListUseCase = mockk(relaxed = true)
+    private val mockCustomListsRepository: CustomListsRepository = mockk(relaxed = true)
     private val mockCustomListsActionUseCase: CustomListActionUseCase = mockk(relaxed = true)
 
     @Test
     fun `given custom list from relay list use case should be in state`() = runTest {
         // Arrange
-        val customLists: List<RelayItem.CustomList> = mockk()
+        val customLists: List<CustomList> = mockk()
         val expectedState = CustomListsUiState.Content(customLists)
-        every { mockRelayListUseCase.customLists() } returns flowOf(customLists)
+        every { mockCustomListsRepository.customLists } returns MutableStateFlow(customLists)
         val viewModel = createViewModel()
 
         // Act, Assert
@@ -47,7 +48,7 @@ class CustomListsViewModelTest {
 
     private fun createViewModel() =
         CustomListsViewModel(
-            relayListUseCase = mockRelayListUseCase,
+            customListsRepository = mockCustomListsRepository,
             customListActionUseCase = mockCustomListsActionUseCase
         )
 }
