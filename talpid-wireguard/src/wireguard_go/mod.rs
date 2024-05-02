@@ -93,7 +93,7 @@ impl WgGoTunnel {
         Self::bypass_tunnel_sockets(&mut tunnel_device, handle)
             .map_err(TunnelError::BypassError)?;
 
-        let mut wg_go_tunnel = WgGoTunnel {
+        let wg_go_tunnel = WgGoTunnel {
             interface_name,
             handle: Some(handle),
             _tunnel_device: tunnel_device,
@@ -105,32 +105,7 @@ impl WgGoTunnel {
             daita_handle: None,
         };
 
-        wg_go_tunnel.start_daita().expect("Failed to start DAITA");
         Ok(wg_go_tunnel)
-    }
-
-    fn start_daita(&mut self) -> Result<()> {
-        if let Some(_handle) = self.daita_handle.take() {
-            log::info!("Stopping previous DAITA machines");
-            // let _ = handle.close();
-            todo!("Closing existing DAITA instance")
-        }
-
-        let config = self.config.lock().unwrap();
-
-        log::info!("Initializing DAITA for wireguard device");
-        let session = daita::Session::from_adapter(self.handle.expect("Tunnel should be active"))
-            .expect("Wireguard-go should fetch current tunnel from ID");
-        self.daita_handle = Some(
-            daita::Machinist::spawn(
-                &self.resource_dir,
-                session,
-                config.entry_peer.public_key.clone(),
-                config.mtu,
-            )
-            .expect("Failed to spawn machinist"),
-        );
-        Ok(())
     }
 
     fn create_tunnel_config(
@@ -300,6 +275,30 @@ impl Tunnel for WgGoTunnel {
 
             Ok(())
         })
+    }
+
+    fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
+        if let Some(_handle) = self.daita_handle.take() {
+            log::info!("Stopping previous DAITA machines");
+            // let _ = handle.close();
+            todo!("Closing existing DAITA instance")
+        }
+
+        let config = self.config.lock().unwrap();
+
+        log::info!("Initializing DAITA for wireguard device");
+        let session = daita::Session::from_adapter(self.handle.expect("Tunnel should be active"))
+            .expect("Wireguard-go should fetch current tunnel from ID");
+        self.daita_handle = Some(
+            daita::Machinist::spawn(
+                &self.resource_dir,
+                session,
+                config.entry_peer.public_key.clone(),
+                config.mtu,
+            )
+            .expect("Failed to spawn machinist"),
+        );
+        Ok(())
     }
 }
 
