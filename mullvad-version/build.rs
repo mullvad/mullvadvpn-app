@@ -75,6 +75,40 @@ fn get_dev_suffix(target: Target, product_version: &str) -> Option<String> {
         Target::Desktop => product_version.to_owned(),
     };
 
+    let git_dir = Path::new("..").join(".git");
+
+    // If we build our output on information about HEAD we need to re-run if HEAD moves
+    let head_path = git_dir.join("HEAD");
+    if head_path.exists() {
+        println!("cargo:rerun-if-changed={}", head_path.display());
+    }
+
+    let output = Command::new("git")
+        .arg("branch")
+        .arg("--show-current")
+        .output()
+        .ok()?;
+    let current_branch = String::from_utf8(output.stdout).unwrap();
+    // If we build our output on information about a git reference, we need to re-run
+    // if it moves. Instead of trying to be smart, just re-run if any git reference moves.
+    let git_current_branch_ref = git_dir
+        .join("refs")
+        .join("heads")
+        .join(current_branch.trim());
+    if git_current_branch_ref.exists() {
+        println!(
+            "cargo:rerun-if-changed={}",
+            git_current_branch_ref.display()
+        );
+    }
+    let git_current_branch_ref = git_dir.join("refs").join("tags").join(&release_tag);
+    if git_current_branch_ref.exists() {
+        println!(
+            "cargo:rerun-if-changed={}",
+            git_current_branch_ref.display()
+        );
+    }
+
     // Get the git commit hashes for the latest release and current HEAD
     // Return `None` if unable to find the hash for HEAD.
     let head_commit_hash = git_rev_parse_commit_hash("HEAD")?;
@@ -94,21 +128,6 @@ fn get_dev_suffix(target: Target, product_version: &str) -> Option<String> {
 ///
 /// Returns `None` if executing the `git rev-parse` command fails for some reason.
 fn git_rev_parse_commit_hash(git_ref: &str) -> Option<String> {
-    let git_dir = Path::new("..").join(".git");
-    // If we build our output on information about HEAD we need to re-run if HEAD moves
-    if git_ref == "HEAD" {
-        let head_path = git_dir.join("HEAD");
-        if head_path.exists() {
-            println!("cargo:rerun-if-changed={}", head_path.display());
-        }
-    }
-    // If we build our output on information about a git reference, we need to re-run
-    // if it moves. Instead of trying to be smart, just re-run if any git reference moves.
-    let git_refs_dir = git_dir.join("refs");
-    if git_refs_dir.exists() {
-        println!("cargo:rerun-if-changed={}", git_refs_dir.display());
-    }
-
     let output = Command::new("git")
         .arg("rev-parse")
         .arg(format!("{git_ref}^{{commit}}"))
