@@ -16,6 +16,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.Mtu
 import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.QuantumResistantState
@@ -104,7 +105,9 @@ class VpnSettingsViewModelTest {
             every { mockSettings.tunnelOptions } returns mockTunnelOptions
             every { mockTunnelOptions.wireguard } returns mockWireguardTunnelOptions
             every { mockWireguardTunnelOptions.quantumResistant } returns expectedResistantState
+            every { mockWireguardTunnelOptions.mtu } returns Mtu(0)
             every { mockSettings.relaySettings } returns mockk<RelaySettings>(relaxed = true)
+
 
             viewModel.uiState.test {
                 assertEquals(defaultResistantState, awaitItem().quantumResistant)
@@ -127,6 +130,15 @@ class VpnSettingsViewModelTest {
             every { mockRelaySettings.relayConstraints } returns mockRelayConstraints
             every { mockRelayConstraints.wireguardConstraints } returns mockWireguardConstraints
             every { mockWireguardConstraints.port } returns expectedPort
+            every { mockSettings.tunnelOptions } returns
+                TunnelOptions(
+                    wireguard =
+                        WireguardTunnelOptions(
+                            mtu = null,
+                            quantumResistant = QuantumResistantState.Off
+                        ),
+                    dnsOptions = mockk(relaxed = true)
+                )
 
             // Act, Assert
             viewModel.uiState.test {

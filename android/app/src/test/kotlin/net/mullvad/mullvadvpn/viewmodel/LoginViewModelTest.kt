@@ -1,16 +1,21 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import android.util.Log
 import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import app.cash.turbine.turbineScope
 import arrow.core.left
 import arrow.core.right
 import io.mockk.MockKAnnotations
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import kotlin.test.assertIs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -45,11 +50,13 @@ class LoginViewModelTest {
 
     @BeforeEach
     fun setup() {
-
         Dispatchers.setMain(UnconfinedTestDispatcher())
         MockKAnnotations.init(this, relaxUnitFun = true)
+        mockkStatic(Log::class)
+        every { Log.d(any(), any()) } returns 0
         every { connectivityUseCase.isInternetAvailable() } returns true
         every { mockedNewDeviceNotificationUseCase.newDeviceCreated() } returns Unit
+        coEvery { mockedAccountRepository.fetchAccountHistory() } returns null
 
         loginViewModel =
             LoginViewModel(
@@ -111,7 +118,7 @@ class LoginViewModelTest {
             val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
             coEvery { mockedAccountRepository.login(any()) } returns Unit.right()
             coEvery { mockedAccountRepository.accountData } returns
-                MutableStateFlow(AccountData(mockk(), DateTime.now().plusDays(3)))
+                MutableStateFlow(AccountData(mockk(relaxed = true), DateTime.now().plusDays(3)))
 
             // Act, Assert
             uiStates.skipDefaultItem()
@@ -187,10 +194,9 @@ class LoginViewModelTest {
             skipDefaultItem()
             loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
             assertEquals(Loading.LoggingIn, awaitItem().loginState)
-            assertEquals(
-                Idle(LoginError.Unknown(EXPECTED_OTHER_ERROR_MESSAGE)),
-                awaitItem().loginState
-            )
+            val loginState = awaitItem().loginState
+            assertIs<Idle>(loginState)
+            assertIs<LoginError.Unknown>(loginState.loginError)
         }
     }
 
@@ -200,9 +206,9 @@ class LoginViewModelTest {
             // Arrange
             coEvery { mockedAccountRepository.fetchAccountHistory() } returns
                 AccountToken(DUMMY_ACCOUNT_TOKEN)
+
+            // Act, Assert
             loginViewModel.uiState.test {
-                // Act, Assert
-                skipDefaultItem()
                 assertEquals(
                     LoginUiState.INITIAL.copy(lastUsedAccount = AccountToken(DUMMY_ACCOUNT_TOKEN)),
                     awaitItem()

@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import app.cash.turbine.test
+import arrow.core.Either
 import arrow.core.right
 import io.mockk.coEvery
 import io.mockk.every
@@ -12,8 +13,11 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.CustomListId
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.GeoLocationId
+import net.mullvad.mullvadvpn.model.GetCustomListError
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Provider
 import net.mullvad.mullvadvpn.model.ProviderId
@@ -36,18 +40,31 @@ class CustomListLocationsViewModelTest {
     private val mockCustomListsRepository: CustomListsRepository = mockk()
 
     private val relayListFlow = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
-    private val customListFlow = MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
+    private val selectedLocationsFlow = MutableStateFlow<List<RelayItem.Location>>(emptyList())
 
     @BeforeEach
     fun setup() {
         every { mockRelayListRepository.relayList } returns relayListFlow
+        every { mockCustomListRelayItemsUseCase.getRelayItemLocationsForCustomList(any()) } returns
+            selectedLocationsFlow
     }
 
     @Test
     fun `given new list false state should return new list false`() = runTest {
         // Arrange
         val newList = false
-        val viewModel = createViewModel(CustomListId("id"), newList)
+        val customList =
+            CustomList(
+                id = CustomListId("id"),
+                name = CustomListName.fromString("name"),
+                locations = emptyList()
+            )
+        val viewModel =
+            createViewModel(
+                customList = customList.right(),
+                customListId = customList.id,
+                newList = newList
+            )
 
         // Act, Assert
         viewModel.uiState.test { assertEquals(newList, awaitItem().newList) }
@@ -59,19 +76,15 @@ class CustomListLocationsViewModelTest {
             // Arrange
             val expectedList = DUMMY_COUNTRIES
             val customListId = CustomListId("id")
-            val customListName = "name"
-            val customList: RelayItem.CustomList = mockk {
-                every { id } returns customListId
-                every { name } returns customListName
-                every { locations } returns emptyList()
-            }
-            customListFlow.value = listOf(customList)
+            val customListName = CustomListName.fromString("name")
+            val customList =
+                CustomList(id = customListId, name = customListName, locations = emptyList())
             val expectedState =
                 CustomListLocationsUiState.Content.Data(
                     newList = true,
                     availableLocations = expectedList
                 )
-            val viewModel = createViewModel(customListId, true)
+            val viewModel = createViewModel(customListId, customList = customList.right(), true)
             relayListFlow.value = expectedList
 
             // Act, Assert
@@ -83,16 +96,12 @@ class CustomListLocationsViewModelTest {
         // Arrange
         val expectedList = DUMMY_COUNTRIES
         val customListId = CustomListId("id")
-        val customListName = "name"
-        val customList: RelayItem.CustomList = mockk {
-            every { id } returns customListId
-            every { name } returns customListName
-            every { locations } returns emptyList()
-        }
-        customListFlow.value = listOf(customList)
+        val customListName = CustomListName.fromString("name")
+        val customList =
+            CustomList(id = customListId, name = customListName, locations = emptyList())
         val expectedSelection =
             (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.descendants() }).toSet()
-        val viewModel = createViewModel(customListId, true)
+        val viewModel = createViewModel(customListId, customList.right(), true)
         relayListFlow.value = expectedList
 
         // Act, Assert
@@ -116,16 +125,13 @@ class CustomListLocationsViewModelTest {
         val initialSelection =
             (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.descendants() }).toSet()
         val customListId = CustomListId("id")
-        val customListName = "name"
-        val customList: RelayItem.CustomList = mockk {
-            every { id } returns customListId
-            every { name } returns customListName
-            every { locations } returns initialSelection.toList()
-        }
-        customListFlow.value = listOf(customList)
+        val customListName = CustomListName.fromString("name")
+        val customList =
+            CustomList(id = customListId, name = customListName, locations = emptyList())
         val expectedSelection = emptySet<RelayItem>()
-        val viewModel = createViewModel(customListId, true)
         relayListFlow.value = expectedList
+        selectedLocationsFlow.value = initialSelection.toList()
+        val viewModel = createViewModel(customListId, customList.right(), true)
 
         // Act, Assert
         viewModel.uiState.test {
@@ -148,16 +154,13 @@ class CustomListLocationsViewModelTest {
         val initialSelection =
             (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.descendants() }).toSet()
         val customListId = CustomListId("id")
-        val customListName = "name"
-        val customList: RelayItem.CustomList = mockk {
-            every { id } returns customListId
-            every { name } returns customListName
-            every { locations } returns initialSelection.toList()
-        }
-        customListFlow.value = listOf(customList)
+        val customListName = CustomListName.fromString("name")
+        val customList =
+            CustomList(id = customListId, name = customListName, locations = emptyList())
         val expectedSelection = emptySet<RelayItem>()
-        val viewModel = createViewModel(customListId, true)
         relayListFlow.value = expectedList
+        selectedLocationsFlow.value = initialSelection.toList()
+        val viewModel = createViewModel(customListId, customList.right(), true)
 
         // Act, Assert
         viewModel.uiState.test {
@@ -178,15 +181,11 @@ class CustomListLocationsViewModelTest {
         // Arrange
         val expectedList = DUMMY_COUNTRIES
         val customListId = CustomListId("id")
-        val customListName = "name"
-        val customList: RelayItem.CustomList = mockk {
-            every { id } returns customListId
-            every { name } returns customListName
-            every { locations } returns emptyList()
-        }
-        customListFlow.value = listOf(customList)
+        val customListName = CustomListName.fromString("name")
+        val customList =
+            CustomList(id = customListId, name = customListName, locations = emptyList())
         val expectedSelection = DUMMY_COUNTRIES[0].cities[0].relays.toSet()
-        val viewModel = createViewModel(customListId, true)
+        val viewModel = createViewModel(customListId, customList = customList.right(), true)
         relayListFlow.value = expectedList
 
         // Act, Assert
@@ -208,19 +207,15 @@ class CustomListLocationsViewModelTest {
         runTest {
             // Arrange
             val customListId = CustomListId("1")
-            val customListName = "name"
+            val customListName = CustomListName.fromString("name")
             val newList = true
             val expectedResult: CustomListResult.LocationsChanged = mockk()
-            val customList: RelayItem.CustomList = mockk {
-                every { id } returns customListId
-                every { name } returns customListName
-                every { locations } returns DUMMY_COUNTRIES
-            }
-            customListFlow.value = listOf(customList)
+            val customList =
+                CustomList(id = customListId, name = customListName, locations = emptyList())
             coEvery {
                 mockCustomListUseCase.performAction(any<CustomListAction.UpdateLocations>())
             } returns expectedResult.right()
-            val viewModel = createViewModel(customListId, newList)
+            val viewModel = createViewModel(customListId, customList = customList.right(), newList)
 
             // Act, Assert
             viewModel.uiSideEffect.test {
@@ -235,19 +230,15 @@ class CustomListLocationsViewModelTest {
         runTest {
             // Arrange
             val customListId = CustomListId("1")
-            val customListName = "name"
+            val customListName = CustomListName.fromString("name")
             val newList = false
             val expectedResult: CustomListResult.LocationsChanged = mockk()
-            val customList: RelayItem.CustomList = mockk {
-                every { id } returns customListId
-                every { name } returns customListName
-                every { locations } returns DUMMY_COUNTRIES
-            }
-            customListFlow.value = listOf(customList)
+            val customList =
+                CustomList(id = customListId, name = customListName, locations = emptyList())
             coEvery {
                 mockCustomListUseCase.performAction(any<CustomListAction.UpdateLocations>())
             } returns expectedResult.right()
-            val viewModel = createViewModel(customListId, newList)
+            val viewModel = createViewModel(customListId, customList = customList.right(), newList)
 
             // Act, Assert
             viewModel.uiSideEffect.test {
@@ -258,8 +249,13 @@ class CustomListLocationsViewModelTest {
             }
         }
 
-    private fun createViewModel(customListId: CustomListId, newList: Boolean) =
-        CustomListLocationsViewModel(
+    private fun createViewModel(
+        customListId: CustomListId,
+        customList: Either<GetCustomListError, CustomList>,
+        newList: Boolean
+    ): CustomListLocationsViewModel {
+        coEvery { mockCustomListsRepository.getCustomListById(customListId) } returns customList
+        return CustomListLocationsViewModel(
             customListId = customListId,
             newList = newList,
             relayListRepository = mockRelayListRepository,
@@ -267,6 +263,7 @@ class CustomListLocationsViewModelTest {
             customListActionUseCase = mockCustomListUseCase,
             customListsRepository = mockCustomListsRepository
         )
+    }
 
     companion object {
         private val DUMMY_COUNTRIES =

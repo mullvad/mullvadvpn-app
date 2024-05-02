@@ -2,8 +2,12 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
+import arrow.core.right
+import io.mockk.Runs
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
@@ -25,6 +29,7 @@ import net.mullvad.mullvadvpn.model.ErrorState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
@@ -35,6 +40,8 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
+import net.mullvad.mullvadvpn.util.toInAddress
+import net.mullvad.mullvadvpn.util.toOutAddress
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -81,6 +88,9 @@ class ConnectViewModelTest {
 
     @BeforeEach
     fun setup() {
+        mockkStatic(TUNNEL_ENDPOINT_EXTENSIONS)
+        mockkStatic(GEO_IP_LOCATIONS_EXTENSIONS)
+
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
 
         every { mockAccountRepository.accountData } returns accountExpiryState
@@ -137,8 +147,15 @@ class ConnectViewModelTest {
 
     @Test
     fun `given change in tunnelUiState uiState should emit new tunnelUiState`() = runTest {
-        val tunnelUiStateTestItem = TunnelState.Connected(mockk(), mockk())
+        // Arrange
+        val tunnelEndpoint: TunnelEndpoint = mockk()
+        val location: GeoIpLocation = mockk()
+        val tunnelUiStateTestItem = TunnelState.Connected(tunnelEndpoint, location)
+        every { tunnelEndpoint.toInAddress() } returns mockk(relaxed = true)
+        every { location.toOutAddress() } returns "1.1.1.1"
+        every { location.hostname } returns "hostname"
 
+        // Act, Assert
         viewModel.uiState.test {
             assertEquals(ConnectUiState.INITIAL, awaitItem())
             tunnelState.emit(tunnelUiStateTestItem)
@@ -210,29 +227,49 @@ class ConnectViewModelTest {
 
     @Test
     fun `onDisconnectClick should invoke disconnect on ConnectionProxy`() = runTest {
-        val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
+        // Arrange
+        coEvery { mockConnectionProxy.disconnect() } just Runs
+
+        // Act
         viewModel.onDisconnectClick()
+
+        // Assert
         coVerify { mockConnectionProxy.disconnect() }
     }
 
     @Test
     fun `onReconnectClick should invoke reconnect on ConnectionProxy`() = runTest {
-        val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
+        // Arrange
+        coEvery { mockConnectionProxy.reconnect() } just Runs
+
+        // Act
         viewModel.onReconnectClick()
+
+        // Assert
         coVerify { mockConnectionProxy.reconnect() }
     }
 
     @Test
     fun `onConnectClick should invoke connect on ConnectionProxy`() = runTest {
-        val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
+        // Arrange
+        coEvery { mockConnectionProxy.connect() } returns Unit.right()
+
+        // Act
         viewModel.onConnectClick()
+
+        // Asser
         coVerify { mockConnectionProxy.connect() }
     }
 
     @Test
     fun `onCancelClick should invoke disconnect on ConnectionProxy`() = runTest {
-        val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
+        // Arrange
+        coEvery { mockConnectionProxy.disconnect() } just Runs
+
+        // Act
         viewModel.onCancelClick()
+
+        // Assert
         coVerify { mockConnectionProxy.disconnect() }
     }
 
@@ -285,5 +322,10 @@ class ConnectViewModelTest {
 
         // Assert
         assertIs<ConnectViewModel.UiSideEffect.OutOfTime>(deferred.await())
+    }
+
+    companion object {
+        private const val TUNNEL_ENDPOINT_EXTENSIONS = "net.mullvad.mullvadvpn.util.TunnelEndpointExtensionsKt"
+        private const val GEO_IP_LOCATIONS_EXTENSIONS = "net.mullvad.mullvadvpn.util.GeoIpLocationExtensionsKt"
     }
 }
