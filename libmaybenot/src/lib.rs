@@ -1,11 +1,15 @@
+pub mod error;
+pub mod ffi;
+
 use core::{hash::BuildHasher, mem::MaybeUninit, str::FromStr, time::Duration};
 use std::{collections::HashMap, time::Instant};
 
-use anyhow::{anyhow, bail};
 use maybenot::{
     framework::{Framework, MachineId, TriggerEvent},
     machine::Machine,
 };
+
+use crate::error::Error;
 
 /// A running Maybenot instance.
 ///
@@ -103,7 +107,7 @@ impl Maybenot {
         max_padding_bytes: f64,
         max_blocking_bytes: f64,
         mtu: u16,
-    ) -> anyhow::Result<Self> {
+    ) -> Result<Self, Error> {
         let machines: Vec<_> = machines_str
             .lines()
             .map(|line| line.trim())
@@ -111,7 +115,7 @@ impl Maybenot {
             .filter(|line| !line.starts_with('#'))
             .map(Machine::from_str)
             .collect::<Result<_, _>>()
-            .map_err(|e| anyhow!("Failed to parse maybenot machine: {e}"))?;
+            .map_err(|_e| Error::InvalidMachineString)?;
 
         let framework = Framework::new(
             machines.clone(),
@@ -120,7 +124,7 @@ impl Maybenot {
             mtu,
             Instant::now(),
         )
-        .map_err(|e| anyhow!("Failed to initialize framework: {e}"))?;
+        .map_err(|_e| Error::StartFramework)?;
 
         Ok(Maybenot {
             framework,
@@ -134,10 +138,8 @@ impl Maybenot {
         &mut self,
         actions: &mut [MaybeUninit<MaybenotAction>],
         event: MaybenotEvent,
-    ) -> anyhow::Result<u64> {
-        let Some(event) = convert_event(event, &self.machine_id_hashes) else {
-            bail!("Unknown machine");
-        };
+    ) -> Result<u64, Error> {
+        let event = convert_event(event, &self.machine_id_hashes)?;
 
         let num_actions = self
             .framework
@@ -159,8 +161,14 @@ fn hash_machine(machine_id: MachineId, machine_id_hashes: &mut HashMap<u64, Mach
     hash
 }
 
-fn machine_from_hash(hash: u64, machine_id_hashes: &HashMap<u64, MachineId>) -> Option<MachineId> {
-    machine_id_hashes.get(&hash).copied()
+fn machine_from_hash(
+    hash: u64,
+    machine_id_hashes: &HashMap<u64, MachineId>,
+) -> Result<MachineId, Error> {
+    machine_id_hashes
+        .get(&hash)
+        .copied()
+        .ok_or(Error::UnknownMachine)
 }
 
 /// Convert an action from [maybenot] to our own `repr(C)` action type.
@@ -204,8 +212,8 @@ fn convert_action(
 fn convert_event(
     event: MaybenotEvent,
     machine_id_hashes: &HashMap<u64, MachineId>,
-) -> Option<TriggerEvent> {
-    Some(match event.event_type {
+) -> Result<TriggerEvent, Error> {
+    Ok(match event.event_type {
         MaybenotEventType::NonpaddingSent => TriggerEvent::NonPaddingSent {
             bytes_sent: event.xmit_bytes,
         },
@@ -228,103 +236,6 @@ impl From<Duration> for MaybenotDuration {
         MaybenotDuration {
             secs: duration.as_secs(),
             nanos: duration.subsec_nanos(),
-        }
-    }
-}
-
-pub mod ffi {
-    use crate::{Maybenot, MaybenotAction, MaybenotEvent};
-    use core::{ffi::CStr, mem::MaybeUninit, slice::from_raw_parts_mut};
-
-    #[repr(u32)]
-    pub enum MaybenotError {
-        Ok = 0,
-        MachineStringNotUtf8 = 1,
-        InvalidMachineString = 2,
-        StartFramework = 3,
-        UnknownMachine = 4,
-    }
-
-    /// Start a new [Maybenot] instance.
-    ///
-    /// # Safety
-    /// - `machines_str` must be a null-terminated UTF-8 string, containing LF-separated machines.
-    /// - `out` must be a valid pointer to some valid pointer-sized memory.
-    #[no_mangle]
-    pub unsafe extern "C" fn maybenot_start(
-        machines_str: *const i8,
-        max_padding_bytes: f64,
-        max_blocking_bytes: f64,
-        mtu: u16,
-        out: *mut MaybeUninit<*mut Maybenot>,
-    ) -> MaybenotError {
-        // TODO: s/unwrap/error/
-        // SAFETY: see function docs
-        let out = unsafe { out.as_mut() }.unwrap();
-        let machines_str = unsafe { CStr::from_ptr(machines_str) };
-        let machines_str = machines_str.to_str().unwrap();
-
-        let result = Maybenot::start(machines_str, max_padding_bytes, max_blocking_bytes, mtu);
-
-        match result {
-            Ok(maybenot) => {
-                let box_pointer = Box::into_raw(Box::new(maybenot));
-                out.write(box_pointer);
-
-                MaybenotError::Ok
-            }
-            Err(_) => todo!("return maybenot_start error"),
-        }
-    }
-
-    /// Get the number of machines running in the [Maybenot] instance.
-    #[no_mangle]
-    pub unsafe extern "C" fn maybenot_num_machines(this: *mut Maybenot) -> u64 {
-        let this = unsafe { this.as_mut() }
-            .expect("maybenot_num_machines expects a valid maybenot pointer");
-
-        this.framework.num_machines() as u64
-    }
-
-    /// Stop a running [Maybenot] instance. This will free the maybenot pointer.
-    ///
-    /// # Safety
-    /// The pointer MUST have been created by [maybenot_start].
-    #[no_mangle]
-    pub unsafe extern "C" fn maybenot_stop(this: *mut Maybenot) {
-        // Reconstruct the Box<Maybenot> and drop it.
-        // SAFETY: caller pinky promises that this pointer was created by `maybenot_start`
-        let _this = unsafe { Box::from_raw(this) };
-    }
-
-    /// Feed an event to the [Maybenot] instance.
-    ///
-    /// This may generate [super::MaybenotAction]s that will be written to `actions_out`,
-    /// which must have a capacity at least equal to [maybenot_num_machines].
-    ///
-    /// The number of actions will be written to `num_actions_out`.
-    #[no_mangle]
-    pub unsafe extern "C" fn maybenot_on_event(
-        this: *mut Maybenot,
-        event: MaybenotEvent,
-
-        actions_out: *mut MaybeUninit<MaybenotAction>,
-        num_actions_out: *mut u64,
-    ) -> MaybenotError {
-        let this =
-            unsafe { this.as_mut() }.expect("maybenot_on_event expects a valid maybenot pointer");
-
-        // TODO: Add safety reasoning
-        let actions: &mut [MaybeUninit<MaybenotAction>] =
-            unsafe { from_raw_parts_mut(actions_out, this.framework.num_machines()) };
-
-        match this.on_event(actions, event) {
-            Ok(num_actions) => {
-                // TODO: Add safety reasoning
-                unsafe { num_actions_out.write(num_actions) };
-                MaybenotError::Ok
-            }
-            Err(_) => MaybenotError::UnknownMachine,
         }
     }
 }
