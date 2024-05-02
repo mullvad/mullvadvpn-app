@@ -6,7 +6,9 @@
 
 package main
 
+// #include <stdio.h>
 // #include <stdlib.h>
+// #include <stdint.h>
 import "C"
 
 import (
@@ -17,17 +19,28 @@ import (
 	"unsafe"
 
 	"github.com/mullvad/mullvadvpn-app/wireguard/libwg/tunnelcontainer"
+	"golang.zx2c4.com/wireguard/device"
 )
 
+// FFI integer result codes
 const (
-	ERROR_GENERAL_FAILURE      = -1
-	ERROR_INTERMITTENT_FAILURE = -2
+	OK = C.int32_t(-iota)
+	ERROR_GENERAL_FAILURE
+	ERROR_INTERMITTENT_FAILURE
+	ERROR_UNKNOWN_TUNNEL
+	ERROR_UNKNOWN_PEER
+	ERROR_ENABLE_DAITA
 )
 
 var tunnels tunnelcontainer.Container
 
 func init() {
 	tunnels = tunnelcontainer.New()
+}
+
+type EventContext struct {
+	tunnelHandle int32
+	peer         device.NoisePublicKey
 }
 
 //export wgTurnOff
@@ -61,10 +74,10 @@ func wgGetConfig(tunnelHandle int32) *C.char {
 }
 
 //export wgSetConfig
-func wgSetConfig(tunnelHandle int32, cSettings *C.char) int32 {
+func wgSetConfig(tunnelHandle int32, cSettings *C.char) C.int32_t {
 	tunnel, err := tunnels.Get(tunnelHandle)
 	if err != nil {
-		return ERROR_GENERAL_FAILURE
+		return ERROR_UNKNOWN_TUNNEL
 	}
 	if cSettings == nil {
 		tunnel.Logger.Errorf("cSettings is null\n")

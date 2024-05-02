@@ -127,4 +127,9 @@ impl Tunnel for NetlinkTunnel {
                 })
         })
     }
+
+    // TODO: We shouldn't force `NetlinkTunnel` to implement `start_daita`
+    fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
+        unreachable!("Netlink tunnel does not support DAITA")
+    }
 }
