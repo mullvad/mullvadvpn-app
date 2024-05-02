@@ -1,3 +1,4 @@
+//go:build (darwin || linux) && !android
 // +build darwin linux
 // +build !android
 
@@ -10,6 +11,7 @@
 package main
 
 // #include <stdlib.h>
+// #include <stdint.h>
 import "C"
 import (
 	"bufio"
@@ -28,16 +30,15 @@ import (
 // Redefined here because otherwise the compiler doesn't realize it's a type alias for a type that's safe to export.
 // Taken from the contained logging package.
 type LogSink = unsafe.Pointer
-type LogContext = unsafe.Pointer
+type LogContext = C.uint64_t
 
 //export wgTurnOn
-func wgTurnOn(mtu int, cSettings *C.char, fd int, logSink LogSink, logContext LogContext) int32 {
-
-	logger := logging.NewLogger(logSink, logContext)
+func wgTurnOn(mtu int, cSettings *C.char, fd int, logSink LogSink, logContext LogContext) C.int32_t {
+	logger := logging.NewLogger(logSink, logging.LogContext(logContext))
 
 	if cSettings == nil {
 		logger.Errorf("cSettings is null\n")
-		return ERROR_GENERAL_FAILURE
+		return ERROR_INVALID_ARGUMENT
 	}
 	settings := C.GoString(cSettings)
 
@@ -74,5 +75,5 @@ func wgTurnOn(mtu int, cSettings *C.char, fd int, logSink LogSink, logContext Lo
 		return ERROR_GENERAL_FAILURE
 	}
 
-	return handle
+	return C.int32_t(handle)
 }

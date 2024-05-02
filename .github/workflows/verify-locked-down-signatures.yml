@@ -11,7 +11,7 @@ on:
       - deny.toml
       - test/deny.toml
       - gui/package-lock.json
-      - wireguard/libwg/go.sum
+      - wireguard-go-rs/libwg/go.sum
       - ci/keys/**
       - ci/verify-locked-down-signatures.sh
       - ios/MullvadVPN.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
