@@ -4,7 +4,7 @@ pub type WgLogLevel = u32;
 pub type LoggingCallback =
     unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: *mut c_void);
 
-// Needed for linking with wireguard-go
+// Needed to link libwg with cmaybenot
 use cmaybenot as _;
 
 extern "C" {
