@@ -290,7 +290,7 @@ extension PacketTunnelActor {
     ) async throws {
         let settings: Settings = try settingsReader.read()
 
-        guard settings.quantumResistance == .off || settings.quantumResistance == .automatic else {
+        if settings.quantumResistance.isEnabled {
             if let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings, reason: reason) {
                 let activeKey = activeKey(from: connectionState, in: settings)
 
