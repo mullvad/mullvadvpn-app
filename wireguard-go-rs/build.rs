@@ -26,7 +26,6 @@ fn main() {
     println!("cargo:rustc-link-lib=static=wg");
     // TODO: check that these are correct
     println!("cargo:rerun-if-changed=libwg");
-    println!("cargo:rerun-if-changed=cmaybenot/cmaybenot.h");
 }
 
 // fn declare_libs_dir(base: &str) {
