@@ -45,6 +45,18 @@ typedef uint32_t MaybenotEventType;
  */
 typedef struct Maybenot Maybenot;
 
+typedef struct MaybenotEvent {
+  MaybenotEventType event_type;
+  /**
+   * The number of bytes that was sent or received.
+   */
+  uint16_t xmit_bytes;
+  /**
+   * The ID of the machine that triggered the event, if any.
+   */
+  uint64_t machine;
+} MaybenotEvent;
+
 typedef struct MaybenotDuration {
   /**
    * Number of whole seconds
@@ -117,24 +129,6 @@ typedef struct MaybenotAction {
 } MaybenotAction;
 
 /**
- * A function that is called by [ffi::maybenot_on_event] once for every generated
- * [MaybenotAction].
- */
-typedef void (*MaybenotActionCallback)(void*, struct MaybenotAction);
-
-typedef struct MaybenotEvent {
-  MaybenotEventType event_type;
-  /**
-   * The number of bytes that was sent or received.
-   */
-  uint16_t xmit_bytes;
-  /**
-   * The ID of the machine that triggered the event, if any.
-   */
-  uint64_t machine;
-} MaybenotEvent;
-
-/**
  * Start a new [Maybenot] instance.
  *
  * `machines_str` must be a null-terminated UTF-8 string, containing LF-separated machines.
@@ -143,7 +137,6 @@ MaybenotError maybenot_start(const int8_t *machines_str,
                              double max_padding_bytes,
                              double max_blocking_bytes,
                              uint16_t mtu,
-                             MaybenotActionCallback on_action,
                              struct Maybenot **out);
 
 /**
@@ -161,5 +154,6 @@ void maybenot_stop(struct Maybenot *this_);
  * modified.
  */
 MaybenotError maybenot_on_event(struct Maybenot *this_,
-                                void *user_data,
-                                struct MaybenotEvent event);
+                                struct MaybenotEvent event,
+                                struct MaybenotAction *actions,
+                                uint64_t *num_actions_out);
