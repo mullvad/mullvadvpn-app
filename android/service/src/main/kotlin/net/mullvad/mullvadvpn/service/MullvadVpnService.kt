@@ -10,6 +10,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import arrow.atomic.AtomicInt
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterIsInstance
@@ -22,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
+import net.mullvad.mullvadvpn.lib.intent.IntentProvider
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.MigrateSplitTunnelingRepository
 import net.mullvad.mullvadvpn.service.di.apiEndpointModule
@@ -45,6 +47,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     private lateinit var apiEndpointConfiguration: ApiEndpointConfiguration
     private lateinit var managementService: ManagementService
     private lateinit var migrateSplitTunnelingRepository: MigrateSplitTunnelingRepository
+    private lateinit var intentProvider: IntentProvider
 
     private lateinit var foregroundNotificationHandler: ForegroundNotificationManager
 
@@ -53,6 +56,8 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     @SuppressLint("ApplySharedPref")
     override fun onCreate() {
         super.onCreate()
+        // TODO We should probably run things in the background here?
+        // TODO Remove run blocking?
         Log.d(TAG, "onCreate")
 
         loadKoinModules(listOf(vpnServiceModule, apiEndpointModule))
@@ -72,8 +77,18 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
         apiEndpointConfiguration = get()
         migrateSplitTunnelingRepository = get()
-        daemonInstance =
-            MullvadDaemon(this, apiEndpointConfiguration, migrateSplitTunnelingRepository)
+        intentProvider = get()
+        lifecycleScope.launch(context = Dispatchers.IO) {
+            daemonInstance =
+                MullvadDaemon(
+                    vpnService = this@MullvadVpnService,
+                    apiEndpointConfiguration =
+                        intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
+                            ?: apiEndpointConfiguration,
+                    migrateSplitTunnelingRepository = migrateSplitTunnelingRepository
+                )
+        }
+
         //        endpoint.splitTunneling.onChange.subscribe(this@MullvadVpnService) { excludedApps
         // ->
         //            disallowedApps = excludedApps
@@ -96,21 +111,6 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand (intent=$intent, flags=$flags, startId=$startId)")
         Log.d(TAG, "intent action=${intent?.action}")
-
-        val intentProvidedConfiguration =
-            if (BuildConfig.DEBUG) {
-                intent?.getApiEndpointConfigurationExtras()
-            } else {
-                null
-            }
-
-        //        daemonInstance.apply {
-        //            intermittentDaemon.registerListener(this@MullvadVpnService) { daemon ->
-        //                handleDaemonInstance(daemon)
-        //            }
-        //
-        //            start(apiEndpointConfiguration)
-        //        }
 
         val startResult = super.onStartCommand(intent, flags, startId)
 

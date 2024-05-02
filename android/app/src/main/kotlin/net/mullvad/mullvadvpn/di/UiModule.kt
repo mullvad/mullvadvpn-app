@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.repository.SelectedLocationRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.repository.VpnPermissionRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
@@ -121,6 +122,7 @@ val uiModule = module {
     single { RelayListFilterRepository(get()) }
     single { VoucherRepository(get(), get()) }
     single { VpnPermissionRepository(get()) }
+    single { SplitTunnelingRepository(get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }

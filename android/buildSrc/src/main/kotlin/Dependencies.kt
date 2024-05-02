@@ -122,6 +122,7 @@ object Dependencies {
         const val paymentLib = ":lib:payment"
         const val mapLib = ":lib:map"
         const val accountLib = ":lib:account"
+        const val intentLib = ":lib:intent-provider"
     }
 
     object Plugin {
