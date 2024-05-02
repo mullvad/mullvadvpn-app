@@ -1,21 +1,8 @@
-#include <stdlib.h>
 #include <stdint.h>
-#include <string.h>
 #include <stdbool.h>
 
-typedef struct Event {
- uint8_t peer[32];
- uint32_t eventType;
- uint16_t xmitBytes;
-} Event;
-
-typedef struct Padding {
-	uint16_t byteCount;
-    bool replace;
-} Padding;
-
-typedef struct Action {
- uint8_t peer[32];
- uint32_t actionType;
- Padding padding;
-} Action;
+/// Activate DAITA for the specified tunnel.
+bool wgActivateDaita(char* machines, int32_t tunnelHandle, uint32_t eventsCapacity, uint32_t actionsCapacity);
+char* wgGetConfig(int32_t tunnelHandle);
+int32_t wgSetConfig(int32_t tunnelHandle, char* cSettings);
+void wgFreePtr(void*);
