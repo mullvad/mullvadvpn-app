@@ -758,8 +758,9 @@ impl WireguardMonitor {
     ) -> Result<Box<dyn Tunnel>> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
+        let daita = true;
         #[cfg(target_os = "linux")]
-        if !*FORCE_USERSPACE_WIREGUARD {
+        if !daita && !*FORCE_USERSPACE_WIREGUARD {
             if will_nm_manage_dns() {
                 match wireguard_kernel::NetworkManagerTunnel::new(runtime, config) {
                     Ok(tunnel) => {
