@@ -8,6 +8,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
+import net.mullvad.mullvadvpn.model.CustomListName
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -27,7 +28,7 @@ class DeleteCustomListConfirmationDialogTest {
     fun givenNameShouldShowDeleteNameTitle() =
         composeExtension.use {
             // Arrange
-            val name = "List should be deleted"
+            val name = CustomListName.fromString("List should be deleted")
             setContentWithTheme { DeleteCustomListConfirmationDialog(name = name) }
 
             // Assert
@@ -38,7 +39,7 @@ class DeleteCustomListConfirmationDialogTest {
     fun whenDeleteIsClickedShouldCallOnDelete() =
         composeExtension.use {
             // Arrange
-            val name = "List should be deleted"
+            val name = CustomListName.fromString("List should be deleted")
             val mockedOnDelete: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 DeleteCustomListConfirmationDialog(name = name, onDelete = mockedOnDelete)
@@ -55,7 +56,7 @@ class DeleteCustomListConfirmationDialogTest {
     fun whenCancelIsClickedShouldCallOnBack() =
         composeExtension.use {
             // Arrange
-            val name = "List should be deleted"
+            val name = CustomListName.fromString("List should be deleted")
             val mockedOnBack: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 DeleteCustomListConfirmationDialog(name = name, onBack = mockedOnBack)

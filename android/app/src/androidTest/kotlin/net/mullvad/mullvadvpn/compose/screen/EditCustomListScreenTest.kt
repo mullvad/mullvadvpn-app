@@ -14,6 +14,8 @@ import net.mullvad.mullvadvpn.compose.state.EditCustomListState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.model.CustomListId
+import net.mullvad.mullvadvpn.model.CustomListName
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -64,7 +66,7 @@ class EditCustomListScreenTest {
             }
 
             // Assert
-            onNodeWithText(customList.name)
+            onNodeWithText(customList.name.value)
         }
 
     @Test
@@ -91,7 +93,7 @@ class EditCustomListScreenTest {
     fun whenClickingOnDeleteDropdownShouldCallOnDeleteList() =
         composeExtension.use {
             // Arrange
-            val mockedOnDelete: (String) -> Unit = mockk(relaxed = true)
+            val mockedOnDelete: (CustomListName) -> Unit = mockk(relaxed = true)
             val customList = DUMMY_CUSTOM_LISTS[0]
             setContentWithTheme {
                 EditCustomListScreen(
@@ -117,7 +119,7 @@ class EditCustomListScreenTest {
     fun whenClickingOnNameCellShouldCallOnNameClicked() =
         composeExtension.use {
             // Arrange
-            val mockedOnNameClicked: (String, String) -> Unit = mockk(relaxed = true)
+            val mockedOnNameClicked: (CustomListId, CustomListName) -> Unit = mockk(relaxed = true)
             val customList = DUMMY_CUSTOM_LISTS[0]
             setContentWithTheme {
                 EditCustomListScreen(
@@ -132,7 +134,7 @@ class EditCustomListScreenTest {
             }
 
             // Act
-            onNodeWithText(customList.name).performClick()
+            onNodeWithText(customList.name.value).performClick()
 
             // Assert
             verify { mockedOnNameClicked(customList.id, customList.name) }
@@ -142,7 +144,7 @@ class EditCustomListScreenTest {
     fun whenClickingOnLocationCellShouldCallOnLocationsClicked() =
         composeExtension.use {
             // Arrange
-            val mockedOnLocationsClicked: (String) -> Unit = mockk(relaxed = true)
+            val mockedOnLocationsClicked: (CustomListId) -> Unit = mockk(relaxed = true)
             val customList = DUMMY_CUSTOM_LISTS[0]
             setContentWithTheme {
                 EditCustomListScreen(

@@ -201,7 +201,7 @@ class ConnectScreenTest {
             // Arrange
             val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockSelectedLocation.locationName } returns mockLocationName
+            every { mockSelectedLocation.name } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
                     state =
@@ -233,7 +233,7 @@ class ConnectScreenTest {
             // Arrange
             val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockSelectedLocation.locationName } returns mockLocationName
+            every { mockSelectedLocation.name } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
                     state =
@@ -265,7 +265,7 @@ class ConnectScreenTest {
             // Arrange
             val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockSelectedLocation.locationName } returns mockLocationName
+            every { mockSelectedLocation.name } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
                     state =
@@ -304,7 +304,7 @@ class ConnectScreenTest {
             // Arrange
             val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockSelectedLocation.locationName } returns mockLocationName
+            every { mockSelectedLocation.name } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
                     state =
@@ -376,7 +376,7 @@ class ConnectScreenTest {
             // Arrange
             val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockSelectedLocation.locationName } returns mockLocationName
+            every { mockSelectedLocation.name } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
                     state =

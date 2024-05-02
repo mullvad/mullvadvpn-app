@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.compose.test.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.model.CreateCustomListError
+import net.mullvad.mullvadvpn.usecase.customlists.CreateCustomListWithLocationsError
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -44,7 +45,13 @@ class CreateCustomListDialogTest {
     fun givenCustomListExistsShouldShowCustomListExitsErrorText() =
         composeExtension.use {
             // Arrange
-            val state = CreateCustomListUiState(error = CreateCustomListError.CustomListExists)
+            val state =
+                CreateCustomListUiState(
+                    error =
+                        CreateCustomListWithLocationsError.Create(
+                            CreateCustomListError.CustomListAlreadyExists
+                        )
+                )
             setContentWithTheme { CreateCustomListDialog(state = state) }
 
             // Assert
@@ -56,7 +63,13 @@ class CreateCustomListDialogTest {
     fun givenOtherCustomListErrorShouldShowAnErrorOccurredErrorText() =
         composeExtension.use {
             // Arrange
-            val state = CreateCustomListUiState(error = CreateCustomListError.OtherError)
+            val state =
+                CreateCustomListUiState(
+                    error =
+                        CreateCustomListWithLocationsError.Create(
+                            CreateCustomListError.Unknown(Throwable())
+                        )
+                )
             setContentWithTheme { CreateCustomListDialog(state = state) }
 
             // Assert

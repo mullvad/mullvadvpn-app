@@ -45,9 +45,7 @@ import net.mullvad.mullvadvpn.model.ProviderId
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.RedeemVoucherSuccess
-import net.mullvad.mullvadvpn.model.Relay
 import net.mullvad.mullvadvpn.model.RelayConstraints
-import net.mullvad.mullvadvpn.model.RelayEndpointType
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.RelayItemId
 import net.mullvad.mullvadvpn.model.RelayList
@@ -516,23 +514,6 @@ internal fun ManagementInterface.RelayList.toDomain(): RelayList =
 
 internal fun ManagementInterface.WireguardEndpointData.toDomain(): WireguardEndpointData =
     WireguardEndpointData(portRangesList.map { it.toDomain() })
-
-internal fun ManagementInterface.Relay.toDomain(): Relay =
-    Relay(
-        hostname = hostname,
-        active = active,
-        ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented,
-        provider = ProviderId(provider),
-        endpointType =
-            when (endpointType) {
-                ManagementInterface.Relay.RelayType.OPENVPN -> RelayEndpointType.Openvpn
-                ManagementInterface.Relay.RelayType.BRIDGE -> RelayEndpointType.Bridge
-                ManagementInterface.Relay.RelayType.WIREGUARD -> RelayEndpointType.Wireguard
-                ManagementInterface.Relay.RelayType.UNRECOGNIZED ->
-                    throw IllegalArgumentException("Unrecognized relay type")
-                else -> throw NullPointerException("Relay type is null")
-            }
-    )
 
 internal fun ManagementInterface.PortRange.toDomain(): PortRange = PortRange(first..last)
 
