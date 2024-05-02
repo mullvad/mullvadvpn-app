@@ -17,7 +17,6 @@ import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.GetCustomListError
-import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.UpdateCustomListError
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -150,12 +149,16 @@ class CustomListsRepositoryTest {
             val expectedResult =
                 UpdateCustomListError.NameAlreadyExists(customListName.value).left()
             val mockSettings: Settings = mockk()
-            val mockCustomList: CustomList = mockk()
-            val updatedCustomList: CustomList = mockk()
+            val mockCustomList =
+                CustomList(
+                    id = customListId,
+                    name = CustomListName.fromString("OLD CUSTOM"),
+                    locations = emptyList()
+                )
+            val updatedCustomList =
+                CustomList(id = customListId, name = customListName, locations = emptyList())
+            every { mockSettings.customLists } returns listOf(mockCustomList)
             settingsFlow.value = mockSettings
-            every { mockCustomList.id } returns customListId
-            every { mockCustomList.copy(customListId, customListName, any()) } returns
-                updatedCustomList
             coEvery { mockManagementService.updateCustomList(updatedCustomList) } returns
                 expectedResult
 
@@ -188,18 +191,14 @@ class CustomListsRepositoryTest {
             val customListName = CustomListName.fromString("CUSTOM")
             val location = GeoLocationId.Country("se")
             val mockSettings: Settings = mockk()
-            val mockCustomList: CustomList = mockk()
-            val updatedCustomList: CustomList = mockk()
-            val mockRelayItemId: GeoLocationId = mockk()
+            val mockCustomList =
+                CustomList(id = customListId, name = customListName, locations = emptyList())
+            val updatedCustomList =
+                CustomList(id = customListId, name = customListName, locations = listOf(location))
+            every { mockSettings.customLists } returns listOf(mockCustomList)
             settingsFlow.value = mockSettings
-            every { mockCustomList.id } returns customListId
-            every { mockCustomList.name } returns customListName
-            every {
-                mockCustomList.copy(customListId, customListName, arrayListOf(mockRelayItemId))
-            } returns updatedCustomList
             coEvery { mockManagementService.updateCustomList(updatedCustomList) } returns
                 Unit.right()
-            every { mockSettings.customLists } returns listOf(mockCustomList)
 
             // Act
             val result =
@@ -213,17 +212,19 @@ class CustomListsRepositoryTest {
     fun `update custom list locations should return get custom list error when list does not exist`() =
         runTest {
             // Arrange
-            val expectedResult = GetCustomListError
-            val mockCustomList: CustomList = mockk()
+            val expectedResult = GetCustomListError.left()
             val mockSettings: Settings = mockk()
             val customListId = CustomListId("1")
             val otherCustomListId = CustomListId("2")
+            val mockCustomList =
+                CustomList(
+                    id = customListId,
+                    name = CustomListName.fromString("name"),
+                    locations = emptyList()
+                )
             val locationId = GeoLocationId.Country("se")
-            val mockRelayList: RelayList = mockk()
-            val mockRelayItemId: GeoLocationId = mockk()
-            settingsFlow.value = mockSettings
             every { mockSettings.customLists } returns listOf(mockCustomList)
-            every { mockCustomList.id } returns customListId
+            settingsFlow.value = mockSettings
 
             // Act
             val result =

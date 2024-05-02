@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
+import arrow.core.left
 import arrow.core.right
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -70,9 +71,12 @@ class ServerIpOverridesViewModelTest {
 
     @Test
     fun `when import is finished we should get side effect`() = runTest {
+        // Arrange
         val mockkResult: SettingsPatchError = mockk()
-        coEvery { mockRelayOverridesRepository.applySettingsPatch(TEXT_INPUT) } returns Unit.right()
+        coEvery { mockRelayOverridesRepository.applySettingsPatch(TEXT_INPUT) } returns
+            mockkResult.left()
 
+        // Act, Assert
         viewModel.uiSideEffect.test {
             viewModel.importText(TEXT_INPUT)
             assertEquals(ServerIpOverridesUiSideEffect.ImportResult(mockkResult), awaitItem())
@@ -81,21 +85,29 @@ class ServerIpOverridesViewModelTest {
 
     @Test
     fun `ensure import text invokes repository`() = runTest {
+        // Arrange
+        coEvery { mockRelayOverridesRepository.applySettingsPatch(TEXT_INPUT) } returns Unit.right()
+
+        // Act
         viewModel.importText(TEXT_INPUT)
 
+        // Assert
         coVerify { mockRelayOverridesRepository.applySettingsPatch(TEXT_INPUT) }
     }
 
     @Test
     fun `ensure import file invokes repository`() = runTest {
+        // Arrange
         val uri: Uri = mockk()
-
         val mockInputStream: InputStream = mockk()
         every { mockContentResolver.openInputStream(uri) } returns mockInputStream
         every { any<InputStreamReader>().readText() } returns TEXT_INPUT
+        coEvery { mockRelayOverridesRepository.applySettingsPatch(TEXT_INPUT) } returns Unit.right()
 
+        // Act
         viewModel.importFile(uri)
 
+        // Assert
         coVerify { mockRelayOverridesRepository.applySettingsPatch(TEXT_INPUT) }
     }
 

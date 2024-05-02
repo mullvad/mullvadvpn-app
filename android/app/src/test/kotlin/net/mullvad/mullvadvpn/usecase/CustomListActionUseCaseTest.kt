@@ -6,6 +6,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
@@ -14,9 +15,11 @@ import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.GeoLocationId
+import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.usecase.customlists.CreateCustomListWithLocationsError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -31,9 +34,12 @@ class CustomListActionUseCaseTest {
             relayListRepository = mockRelayListRepository
         )
 
+    private val relayListFlow = MutableStateFlow(emptyList<RelayItem.Location.Country>())
+
     @BeforeEach
     fun setup() {
         mockkStatic(RELAY_LIST_EXTENSIONS)
+        every { mockRelayListRepository.relayList } returns relayListFlow
     }
 
     @Test
@@ -45,18 +51,26 @@ class CustomListActionUseCaseTest {
         val createdId = CustomListId("1")
         val action = CustomListAction.Create(name = name, locations = listOf(locationId))
         val expectedResult =
-            Result.success(
-                CustomListResult.Created(
+            CustomListResult.Created(
                     id = createdId,
                     name = name,
                     locationNames = listOf(locationName),
                     undo = action.not(createdId)
                 )
-            )
+                .right()
         coEvery { mockCustomListsRepository.createCustomList(name) } returns createdId.right()
         coEvery {
             mockCustomListsRepository.updateCustomListLocations(createdId, listOf(locationId))
         } returns Unit.right()
+        relayListFlow.value =
+            listOf(
+                RelayItem.Location.Country(
+                    id = locationId,
+                    name = locationName,
+                    expanded = false,
+                    cities = emptyList()
+                )
+            )
 
         // Act
         val result = customListActionUseCase.performAction(action)
@@ -71,7 +85,9 @@ class CustomListActionUseCaseTest {
         val name = CustomListName.fromString("test")
         val locationId = GeoLocationId.Country("AB")
         val action = CustomListAction.Create(name = name, locations = listOf(locationId))
-        val expectedError = CreateCustomListError.CustomListAlreadyExists
+        val expectedError =
+            CreateCustomListWithLocationsError.Create(CreateCustomListError.CustomListAlreadyExists)
+                .left()
         coEvery { mockCustomListsRepository.createCustomList(name) } returns
             CreateCustomListError.CustomListAlreadyExists.left()
 
@@ -89,7 +105,7 @@ class CustomListActionUseCaseTest {
         val newName = CustomListName.fromString("test2")
         val customListId = CustomListId("1")
         val action = CustomListAction.Rename(id = customListId, name = name, newName = newName)
-        val expectedResult = Result.success(CustomListResult.Renamed(undo = action.not()))
+        val expectedResult = CustomListResult.Renamed(undo = action.not()).right()
         coEvery {
             mockCustomListsRepository.updateCustomListName(id = customListId, name = newName)
         } returns Unit.right()
@@ -108,10 +124,10 @@ class CustomListActionUseCaseTest {
         val newName = CustomListName.fromString("test2")
         val customListId = CustomListId("1")
         val action = CustomListAction.Rename(id = customListId, name = name, newName = newName)
-        val expectedError = UpdateCustomListError.NameAlreadyExists(newName.value)
+        val expectedError = UpdateCustomListError.NameAlreadyExists(newName.value).left()
         coEvery {
             mockCustomListsRepository.updateCustomListName(id = customListId, name = newName)
-        } returns expectedError.left()
+        } returns expectedError
 
         // Act
         val result = customListActionUseCase.performAction(action)
@@ -123,21 +139,16 @@ class CustomListActionUseCaseTest {
     @Test
     fun `delete action should return successful with deleted list`() = runTest {
         // Arrange
-        val mockCustomList: CustomList = mockk()
         val mockLocation: GeoLocationId.Country = mockk()
         val mockLocations: List<GeoLocationId> = listOf(mockLocation)
         val name = CustomListName.fromString("test")
         val customListId = CustomListId("1")
+        val mockCustomList = CustomList(id = customListId, name = name, locations = mockLocations)
         val location = GeoLocationId.Country("AB")
         val action = CustomListAction.Delete(id = customListId)
         val expectedResult =
-            Result.success(
-                CustomListResult.Deleted(
-                    undo = action.not(name = name, locations = listOf(location))
-                )
-            )
-        every { mockCustomList.locations } returns mockLocations
-        every { mockCustomList.name } returns name
+            CustomListResult.Deleted(undo = action.not(name = name, locations = listOf(location)))
+                .right()
         every { mockLocation.countryCode } returns location.countryCode
         coEvery { mockCustomListsRepository.deleteCustomList(id = customListId) } returns
             Unit.right()
@@ -162,12 +173,11 @@ class CustomListActionUseCaseTest {
         val customList = CustomList(id = customListId, name = name, locations = oldLocations)
         val action = CustomListAction.UpdateLocations(id = customListId, locations = newLocations)
         val expectedResult =
-            Result.success(
-                CustomListResult.LocationsChanged(
+            CustomListResult.LocationsChanged(
                     name = name,
                     undo = action.not(locations = oldLocations)
                 )
-            )
+                .right()
         coEvery { mockCustomListsRepository.getCustomListById(customListId) } returns
             customList.right()
 
