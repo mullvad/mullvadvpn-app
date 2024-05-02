@@ -83,7 +83,7 @@ function build_unix {
 
     pushd libwg
         # TODO: pass OUT_DIR as an arg maybe? instead of relying on cargo setting it globally?
-        go build -v -o "$OUT_DIR"/libwg.a -buildmode c-archive
+        go build -v -tags daita -o "$OUT_DIR"/libwg.a -buildmode c-archive
     popd
 }
 

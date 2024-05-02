@@ -61,7 +61,7 @@ func wgActivateDaita(machines *C.int8_t, tunnelHandle int32, eventsCapacity uint
 
 	tunnel.Logger.Verbosef("Initializing libmaybenot")
 
-	return (C.bool)(tunnel.Device.ActivateDaita(C.GoString((*C.char)(machines)), uint(eventsCapacity), uint(actionsCapacity)))
+	return (C.bool)(tunnel.Device.EnableDaita(C.GoString((*C.char)(machines)), uint(eventsCapacity), uint(actionsCapacity)))
 }
 
 //export wgGetConfig
