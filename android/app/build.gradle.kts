@@ -320,6 +320,7 @@ dependencies {
     implementation(project(Dependencies.Mullvad.paymentLib))
     implementation(project(Dependencies.Mullvad.mapLib))
     implementation(project(Dependencies.Mullvad.accountLib))
+    implementation(project(Dependencies.Mullvad.intentLib))
 
     // Play implementation
     playImplementation(project(Dependencies.Mullvad.billingLib))

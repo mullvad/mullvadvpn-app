@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermissionIfMissing
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
+import net.mullvad.mullvadvpn.lib.intent.IntentProvider
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var serviceConnectionManager: ServiceConnectionManager
     private lateinit var noDaemonViewModel: NoDaemonViewModel
     private lateinit var managementService: ManagementService
+    private lateinit var intentProvider: IntentProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(listOf(uiModule, paymentModule))
@@ -52,10 +54,15 @@ class MainActivity : ComponentActivity() {
             serviceConnectionManager = get()
             noDaemonViewModel = get()
             managementService = get()
+            intentProvider = get()
         }
         lifecycle.addObserver(noDaemonViewModel)
 
         super.onCreate(savedInstanceState)
+
+        if (savedInstanceState == null) {
+            intentProvider.setStartIntent(intent)
+        }
 
         setContent {
             AppTheme {

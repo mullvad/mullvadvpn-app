@@ -7,6 +7,7 @@ include(
     ":lib:account",
     ":lib:common",
     ":lib:endpoint",
+    ":lib:intent-provider",
     ":lib:ipc",
     ":lib:model",
     ":lib:resource",
@@ -16,7 +17,7 @@ include(
     ":lib:billing",
     ":lib:payment",
     ":lib:map",
-    ":lib:daemon-grpc"
+    ":lib:daemon-grpc",
 )
 include(
     ":test",
