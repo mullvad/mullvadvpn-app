@@ -130,13 +130,10 @@ final class LocationViewController: UIViewController {
     // MARK: - Private
 
     private func setUpDataSources() {
-        let allLocationDataSource = AllLocationDataSource()
-        let customListsDataSource = CustomListsDataSource(repository: customListRepository)
-
         dataSource = LocationDataSource(
             tableView: tableView,
-            allLocations: allLocationDataSource,
-            customLists: customListsDataSource
+            allLocations: AllLocationDataSource(),
+            customLists: CustomListsDataSource(repository: customListRepository)
         )
 
         dataSource?.didSelectRelayLocations = { [weak self] locations in
@@ -145,7 +142,12 @@ final class LocationViewController: UIViewController {
 
         dataSource?.didTapEditCustomLists = { [weak self] in
             guard let self else { return }
-            delegate?.didRequestRouteToCustomLists(self, nodes: allLocationDataSource.nodes)
+
+            if let cachedRelays {
+                let allLocationDataSource = AllLocationDataSource()
+                allLocationDataSource.reload(cachedRelays.relays, relays: cachedRelays.relays.wireguard.relays)
+                delegate?.didRequestRouteToCustomLists(self, nodes: allLocationDataSource.nodes)
+            }
         }
 
         if let cachedRelays {
