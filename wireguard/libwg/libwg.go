@@ -6,16 +6,7 @@
 
 package main
 
-// #include <stdlib.h>
-// #include <stdint.h>
-// #include <string.h>
-//
-//
-// typedef struct Event {
-// 	uint8_t peer[32];
-//  uint32_t eventType;
-//  uint16_t xmitBytes;
-// } Event;
+// #include "libwg.h"
 import "C"
 
 import (
