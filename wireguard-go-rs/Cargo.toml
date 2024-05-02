@@ -9,4 +9,5 @@ edition = "2021"
 chrono = "0.4.38"
 
 # NOTE: remember to update libwg/go.mod if you change this:
+# TODO: pin git revision so it matches libwg?
 cmaybenot = { git = "https://github.com/mullvad/wireguard-go", branch = "daita-cmaybenot" }
