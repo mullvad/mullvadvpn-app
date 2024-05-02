@@ -141,6 +141,10 @@ impl Config {
             for addr in &peer.allowed_ips {
                 wg_conf.add("allowed_ip", addr.to_string().as_str());
             }
+            #[cfg(daita)]
+            if peer.constant_packet_size {
+                wg_conf.add("constant_packet_size", "true");
+            }
         }
 
         let bytes = wg_conf.into_config();
