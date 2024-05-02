@@ -558,7 +558,7 @@ impl WireguardMonitor {
         }
 
         config.exit_peer_mut().psk = exit_psk;
-        #[cfg(target_os = "windows")]
+        #[cfg(any(target_os = "windows", target_os = "linux"))]
         if config.daita {
             log::trace!("Enabling constant packet size for entry peer");
             config.entry_peer.constant_packet_size = true;
