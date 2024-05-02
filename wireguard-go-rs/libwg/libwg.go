@@ -9,7 +9,7 @@ package main
 // #include <stdio.h>
 // #include <stdlib.h>
 // #include "libwg.h"
-// #include "../cmaybenot/libmaybenot.h"
+// #include "../cmaybenot/cmaybenot.h"
 import "C"
 
 import (
