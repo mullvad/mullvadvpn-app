@@ -7,15 +7,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-enum MaybenotError {
-  MaybenotError_Ok = 0,
-  MaybenotError_MachineStringNotUtf8 = 1,
-  MaybenotError_InvalidMachineString = 2,
-  MaybenotError_StartFramework = 3,
-  MaybenotError_UnknownMachine = 4,
-};
-typedef uint32_t MaybenotError;
-
 enum MaybenotEventType {
   /**
    * We sent a normal packet.
@@ -35,6 +26,22 @@ enum MaybenotEventType {
   MaybenotEventType_PaddingReceived = 3,
 };
 typedef uint32_t MaybenotEventType;
+
+/**
+ * An FFI friendly result type.
+ */
+enum MaybenotResult {
+  /**
+   * Operation completed successfully
+   */
+  MaybenotResult_Ok = 0,
+  MaybenotResult_MachineStringNotUtf8 = 1,
+  MaybenotResult_InvalidMachineString = 2,
+  MaybenotResult_StartFramework = 3,
+  MaybenotResult_UnknownMachine = 4,
+  MaybenotResult_NullPointer = 5,
+};
+typedef uint32_t MaybenotResult;
 
 /**
  * A running Maybenot instance.
@@ -135,11 +142,11 @@ typedef struct MaybenotAction {
  * - `machines_str` must be a null-terminated UTF-8 string, containing LF-separated machines.
  * - `out` must be a valid pointer to some valid pointer-sized memory.
  */
-MaybenotError maybenot_start(const int8_t *machines_str,
-                             double max_padding_bytes,
-                             double max_blocking_bytes,
-                             uint16_t mtu,
-                             struct Maybenot **out);
+MaybenotResult maybenot_start(const int8_t *machines_str,
+                              double max_padding_bytes,
+                              double max_blocking_bytes,
+                              uint16_t mtu,
+                              struct Maybenot **out);
 
 /**
  * Get the number of machines running in the [Maybenot] instance.
@@ -162,7 +169,7 @@ void maybenot_stop(struct Maybenot *this_);
  *
  * The number of actions will be written to `num_actions_out`.
  */
-MaybenotError maybenot_on_event(struct Maybenot *this_,
-                                struct MaybenotEvent event,
-                                struct MaybenotAction *actions_out,
-                                uint64_t *num_actions_out);
+MaybenotResult maybenot_on_event(struct Maybenot *this_,
+                                 struct MaybenotEvent event,
+                                 struct MaybenotAction *actions_out,
+                                 uint64_t *num_actions_out);
