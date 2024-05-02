@@ -613,7 +613,7 @@ mod test {
             Box::pin(async { Ok(()) })
         }
 
-        #[cfg(target_os = "windows")]
+        #[cfg(any(target_os = "windows", target_os = "linux"))]
         fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
             Ok(())
         }

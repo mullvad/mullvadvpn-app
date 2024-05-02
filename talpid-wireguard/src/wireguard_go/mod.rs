@@ -1,13 +1,17 @@
+mod daita;
+
 use super::{
     stats::{Stats, StatsMap},
     Config, Tunnel, TunnelError,
 };
 use crate::logging::{clean_up_logging, initialize_logging};
 use ipnetwork::IpNetwork;
+use once_cell::sync::OnceCell;
 use std::{
-    ffi::{c_char, c_void, CStr},
+    ffi::{c_char, c_void, CStr, CString},
+    fs,
     future::Future,
-    path::Path,
+    path::{Path, PathBuf},
     pin::Pin,
 };
 use talpid_tunnel::tun_provider::TunProvider;
@@ -27,6 +31,8 @@ type Result<T> = std::result::Result<T, TunnelError>;
 
 use std::sync::{Arc, Mutex};
 
+use wireguard_go_rs::*;
+
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 struct LoggingContext(u32);
@@ -39,7 +45,7 @@ impl Drop for LoggingContext {
 
 pub struct WgGoTunnel {
     interface_name: String,
-    handle: Option<i32>,
+    handle: Option<i32>, // TODO(sebastian): Remove option
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
     _tunnel_device: Tun,
@@ -47,6 +53,8 @@ pub struct WgGoTunnel {
     _logging_context: LoggingContext,
     #[cfg(target_os = "android")]
     tun_provider: Arc<Mutex<TunProvider>>,
+    daita_handle: Option<daita::Session>,
+    resource_dir: PathBuf,
 }
 
 impl WgGoTunnel {
@@ -55,6 +63,7 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
+        resource_dir: &Path,
     ) -> Result<Self> {
         #[cfg(target_os = "android")]
         let tun_provider_clone = tun_provider.clone();
@@ -86,14 +95,18 @@ impl WgGoTunnel {
         Self::bypass_tunnel_sockets(&mut tunnel_device, handle)
             .map_err(TunnelError::BypassError)?;
 
-        Ok(WgGoTunnel {
+        let wg_go_tunnel = WgGoTunnel {
             interface_name,
             handle: Some(handle),
             _tunnel_device: tunnel_device,
             _logging_context: logging_context,
             #[cfg(target_os = "android")]
             tun_provider: tun_provider_clone,
-        })
+            resource_dir: resource_dir.to_owned(),
+            daita_handle: None,
+        };
+
+        Ok(wg_go_tunnel)
     }
 
     fn create_tunnel_config(
@@ -264,6 +277,33 @@ impl Tunnel for WgGoTunnel {
             Ok(())
         })
     }
+
+    fn start_daita(&mut self) -> Result<()> {
+        if let Some(_handle) = self.daita_handle.take() {
+            log::info!("Stopping previous DAITA machines");
+            // let _ = handle.close();
+            todo!("Closing existing DAITA instance")
+        }
+
+        static MAYBENOT_MACHINES: OnceCell<CString> = OnceCell::new();
+        let machines = MAYBENOT_MACHINES.get_or_try_init(|| {
+            let path = self.resource_dir.join("maybenot_machines");
+            log::debug!("Reading maybenot machines from {}", path.display());
+
+            // TODO: errors
+            let machines = fs::read_to_string(path).unwrap();
+            let machines = CString::new(machines).unwrap();
+            Ok(machines)
+        })?;
+
+        log::info!("Initializing DAITA for wireguard device");
+        let tunnel_handle = self.handle.expect("Tunnel should be active");
+        let session = daita::Session::from_adapter(tunnel_handle, machines)
+            .expect("Wireguard-go should fetch current tunnel from ID");
+        self.daita_handle = Some(session);
+
+        Ok(())
+    }
 }
 
 fn check_wg_status(wg_code: i32) -> Result<()> {
@@ -278,55 +318,8 @@ fn check_wg_status(wg_code: i32) -> Result<()> {
     }
 }
 
-pub type Fd = std::os::unix::io::RawFd;
-
 const ERROR_GENERAL_FAILURE: i32 = -1;
 const ERROR_INTERMITTENT_FAILURE: i32 = -2;
-
-extern "C" {
-    /// Creates a new wireguard tunnel, uses the specific interface name, MTU and file descriptors
-    /// for the tunnel device and logging.
-    ///
-    /// Positive return values are tunnel handles for this specific wireguard tunnel instance.
-    /// Negative return values signify errors. All error codes are opaque.
-    #[cfg(not(target_os = "android"))]
-    fn wgTurnOn(
-        mtu: isize,
-        settings: *const i8,
-        fd: Fd,
-        logging_callback: Option<logging::LoggingCallback>,
-        logging_context: *mut c_void,
-    ) -> i32;
-
-    // Android
-    #[cfg(target_os = "android")]
-    fn wgTurnOn(
-        settings: *const i8,
-        fd: Fd,
-        logging_callback: Option<logging::LoggingCallback>,
-        logging_context: *mut c_void,
-    ) -> i32;
-
-    // Pass a handle that was created by wgTurnOn to stop a wireguard tunnel.
-    fn wgTurnOff(handle: i32) -> i32;
-
-    // Returns the file descriptor of the tunnel IPv4 socket.
-    fn wgGetConfig(handle: i32) -> *mut c_char;
-
-    // Sets the config of the WireGuard interface.
-    fn wgSetConfig(handle: i32, settings: *const i8) -> i32;
-
-    // Frees a pointer allocated by the go runtime - useful to free return value of wgGetConfig
-    fn wgFreePtr(ptr: *mut c_void);
-
-    // Returns the file descriptor of the tunnel IPv4 socket.
-    #[cfg(target_os = "android")]
-    fn wgGetSocketV4(handle: i32) -> Fd;
-
-    // Returns the file descriptor of the tunnel IPv6 socket.
-    #[cfg(target_os = "android")]
-    fn wgGetSocketV6(handle: i32) -> Fd;
-}
 
 mod stats {
     use super::{Stats, StatsMap};
@@ -466,7 +459,4 @@ mod logging {
     const WG_GO_LOG_VERBOSE: WgLogLevel = 2;
 
     pub type WgLogLevel = u32;
-
-    pub type LoggingCallback =
-        unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: *mut c_void);
 }

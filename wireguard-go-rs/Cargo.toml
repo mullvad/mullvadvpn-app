@@ -1,0 +1,5 @@
+[package]
+name = "wireguard-go-rs"
+description = "Rust bindings to wireguard-go with DAITA support"
+edition = "2021"
+license.workspace = true
