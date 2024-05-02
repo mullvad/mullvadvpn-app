@@ -55,7 +55,6 @@ pub struct WgGoTunnel {
     tun_provider: Arc<Mutex<TunProvider>>,
     daita_handle: Option<daita::Session>,
     resource_dir: PathBuf,
-    config: Arc<Mutex<Config>>,
 }
 
 impl WgGoTunnel {
@@ -104,7 +103,6 @@ impl WgGoTunnel {
             #[cfg(target_os = "android")]
             tun_provider: tun_provider_clone,
             resource_dir: resource_dir.to_owned(),
-            config: Arc::new(Mutex::new(config.clone())),
             daita_handle: None,
         };
 
@@ -320,8 +318,6 @@ fn check_wg_status(wg_code: i32) -> Result<()> {
     }
 }
 
-pub type Fd = std::os::unix::io::RawFd;
-
 const ERROR_GENERAL_FAILURE: i32 = -1;
 const ERROR_INTERMITTENT_FAILURE: i32 = -2;
 
@@ -463,7 +459,4 @@ mod logging {
     const WG_GO_LOG_VERBOSE: WgLogLevel = 2;
 
     pub type WgLogLevel = u32;
-
-    pub type LoggingCallback =
-        unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: *mut c_void);
 }
