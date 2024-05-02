@@ -102,6 +102,12 @@ pub mod flood {
         counter: usize,
     }
 
+    impl Default for DetectFlood {
+        fn default() -> Self {
+            DetectFlood::new()
+        }
+    }
+
     impl DetectFlood {
         pub const fn new() -> Self {
             DetectFlood {
