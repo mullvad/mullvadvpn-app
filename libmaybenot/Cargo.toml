@@ -9,11 +9,11 @@ edition.workspace = true
 rust-version.workspace = true
 
 [lib]
-crate-type = ["lib", "cdylib"]
+crate-type = ["lib", "staticlib", "cdylib"]
 
 [dependencies]
-anyhow = "1.0.82"
 maybenot = "1.1.0"
+thiserror.workspace = true
 
 [lints]
 workspace = true
