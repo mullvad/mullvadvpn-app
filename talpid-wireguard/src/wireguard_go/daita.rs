@@ -49,6 +49,7 @@ pub struct Event {
 // See DAITA_ACTION_TYPE:
 // https://github.com/mullvad/wireguard-nt-priv/blob/mullvad-patches/driver/daita.h
 #[repr(C)]
+#[derive(Debug)]
 pub enum ActionType {
     InjectPadding,
 }
@@ -110,7 +111,13 @@ impl Session {
     }
 
     pub fn send_action(&self, action: &Action) -> io::Result<()> {
-        todo!("Send DAITA action")
+        let res = unsafe { super::wgSendAction(self.tunnel_handle, action) };
+        if !res == 0 {
+            // TODO: return error
+            panic!("Failed to send DAITA action, error code {res}")
+        }
+        log::info!("Send DAITA action {:?}", action.action_type);
+        Ok(())
     }
 }
 
