@@ -1,4 +1,3 @@
-use libmaybenot as _;
 use std::{ffi::CStr, io};
 
 /// Maximum number of events that can be stored in the underlying buffer
