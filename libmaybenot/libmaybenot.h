@@ -131,7 +131,9 @@ typedef struct MaybenotAction {
 /**
  * Start a new [Maybenot] instance.
  *
- * `machines_str` must be a null-terminated UTF-8 string, containing LF-separated machines.
+ * # Safety
+ * - `machines_str` must be a null-terminated UTF-8 string, containing LF-separated machines.
+ * - `out` must be a valid pointer to some valid pointer-sized memory.
  */
 MaybenotError maybenot_start(const int8_t *machines_str,
                              double max_padding_bytes,
@@ -140,20 +142,27 @@ MaybenotError maybenot_start(const int8_t *machines_str,
                              struct Maybenot **out);
 
 /**
- * Stop a running [Maybenot] instance.
+ * Get the number of machines running in the [Maybenot] instance.
+ */
+uint64_t maybenot_num_machines(struct Maybenot *this_);
+
+/**
+ * Stop a running [Maybenot] instance. This will free the maybenot pointer.
  *
- * This will free the maybenot pointer.
+ * # Safety
+ * The pointer MUST have been created by [maybenot_start].
  */
 void maybenot_stop(struct Maybenot *this_);
 
 /**
  * Feed an event to the [Maybenot] instance.
  *
- * This may generate [super::MaybenotAction]s that will be sent to the callback provided to
- * [maybenot_start]. `user_data` will be passed to the callback as-is, it will not be read or
- * modified.
+ * This may generate [super::MaybenotAction]s that will be written to `actions_out`,
+ * which must have a capacity at least equal to [maybenot_num_machines].
+ *
+ * The number of actions will be written to `num_actions_out`.
  */
 MaybenotError maybenot_on_event(struct Maybenot *this_,
                                 struct MaybenotEvent event,
-                                struct MaybenotAction *actions,
+                                struct MaybenotAction *actions_out,
                                 uint64_t *num_actions_out);
