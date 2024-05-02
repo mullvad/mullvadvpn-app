@@ -543,7 +543,7 @@ dependencies = [
 [[package]]
 name = "cmaybenot"
 version = "0.1.0"
-source = "git+https://github.com/mullvad/wireguard-go?branch=daita-cmaybenot#a2c0080e3dc59bfbf8bb4a81aa92cc08f7cc7df9"
+source = "git+https://github.com/mullvad/wireguard-go?rev=7cf6da8e40b37770d911eb2b4b5469f77fdd8aa2#7cf6da8e40b37770d911eb2b4b5469f77fdd8aa2"
 dependencies = [
  "maybenot",
  "thiserror",
