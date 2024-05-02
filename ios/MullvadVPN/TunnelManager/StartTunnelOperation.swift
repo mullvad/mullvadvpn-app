@@ -90,7 +90,10 @@ class StartTunnelOperation: ResultOperation<Void> {
 
         interactor.updateTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
-            tunnelStatus.state = .connecting(selectedRelay)
+            tunnelStatus.state = .connecting(
+                selectedRelay,
+                isPostQuantum: interactor.settings.tunnelQuantumResistance.isEnabled
+            )
         }
 
         try tunnel.start(options: tunnelOptions.rawOptions())

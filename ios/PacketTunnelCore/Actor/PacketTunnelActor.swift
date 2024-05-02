@@ -283,7 +283,7 @@ extension PacketTunnelActor {
     ) async throws {
         let settings: Settings = try settingsReader.read()
 
-        guard settings.quantumResistance == .off || settings.quantumResistance == .automatic else {
+        if settings.quantumResistance.isEnabled {
             if let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings, reason: reason) {
                 let selectedEndpoint = connectionState.selectedRelay.endpoint
                 let activeKey = activeKey(from: connectionState, in: settings)
@@ -411,7 +411,8 @@ extension PacketTunnelActor {
             lastKeyRotation: lastKeyRotation,
             connectedEndpoint: selectedRelay.endpoint,
             transportLayer: .udp,
-            remotePort: selectedRelay.endpoint.ipv4Relay.port
+            remotePort: selectedRelay.endpoint.ipv4Relay.port,
+            isPostQuantum: settings.quantumResistance.isEnabled
         )
     }
 
@@ -449,7 +450,8 @@ extension PacketTunnelActor {
             lastKeyRotation: connectionState.lastKeyRotation,
             connectedEndpoint: obfuscatedEndpoint,
             transportLayer: transportLayer,
-            remotePort: protocolObfuscator.remotePort
+            remotePort: protocolObfuscator.remotePort,
+            isPostQuantum: connectionState.isPostQuantum
         )
     }
 

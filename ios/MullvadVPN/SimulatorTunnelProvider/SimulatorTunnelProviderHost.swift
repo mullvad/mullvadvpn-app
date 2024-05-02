@@ -176,14 +176,16 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         guard let selectedRelay = selectedRelay else { return }
 
         do {
+            let settings = try SettingsManager.readSettings()
             observedState = .connected(
                 ObservedConnectionState(
                     selectedRelay: selectedRelay,
-                    relayConstraints: try SettingsManager.readSettings().relayConstraints,
+                    relayConstraints: settings.relayConstraints,
                     networkReachability: .reachable,
                     connectionAttemptCount: 0,
                     transportLayer: .udp,
-                    remotePort: selectedRelay.endpoint.ipv4Relay.port
+                    remotePort: selectedRelay.endpoint.ipv4Relay.port,
+                    isPostQuantum: settings.tunnelQuantumResistance.isEnabled
                 )
             )
         } catch {
