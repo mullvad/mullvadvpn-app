@@ -360,7 +360,7 @@ extern "C" {
     fn wgReceiveEvent(tunnelHandle: i32, event: *mut daita::Event) -> i32;
 
     // Wait for and receive DAITA event.
-    fn wgSendAction(tunnelHandle: i32, event: *const daita::Action) -> i32;
+    fn wgSendAction(tunnelHandle: i32, event: daita::Action) -> i32;
 
     // Frees a pointer allocated by the go runtime - useful to free return value of wgGetConfig
     fn wgFreePtr(ptr: *mut c_void);
