@@ -146,6 +146,9 @@ extension State {
 
         /// The remote port that was chosen to connect to `connectedEndpoint`
         public let remotePort: UInt16
+
+        /// True if post-quantum key exchange is enabled
+        public let isPostQuantum: Bool
     }
 
     /// Data associated with error state.
