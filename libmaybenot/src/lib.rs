@@ -1,4 +1,4 @@
-use core::{hash::BuildHasher, str::FromStr, time::Duration};
+use core::{hash::BuildHasher, mem::MaybeUninit, str::FromStr, time::Duration};
 use std::collections::HashMap;
 use std::time::Instant;
 
@@ -133,26 +133,24 @@ impl Maybenot {
 
     pub fn on_event(
         &mut self,
-        actions: &mut [MaybenotAction],
+        actions: &mut [MaybeUninit<MaybenotAction>],
         event: MaybenotEvent,
     ) -> anyhow::Result<u64> {
         let Some(event) = convert_event(event, &self.machine_id_hashes) else {
             bail!("Unknown machine");
         };
 
-        let mut num_actions = 0;
-        for (index, action) in self
+        let num_actions = self
             .framework
             .trigger_events(&[event], Instant::now())
-            .enumerate()
-        {
-            let action = convert_action(action, &mut self.machine_id_hashes);
-            // TODO: _Maybe_ use `MaybeUninit`
-            actions[index] = action;
-            num_actions += 1;
-        }
+            // convert maybenot actions to repr(C) equivalents
+            .map(|action| convert_action(action, &mut self.machine_id_hashes))
+            // write the actions to the out buffer
+            .zip(actions.iter_mut())
+            .map(|(action, out)| out.write(action))
+            .count();
 
-        Ok(num_actions)
+        Ok(num_actions as u64)
     }
 }
 
@@ -166,6 +164,7 @@ fn machine_from_hash(hash: u64, machine_id_hashes: &HashMap<u64, MachineId>) -> 
     machine_id_hashes.get(&hash).copied()
 }
 
+/// Convert an action from [maybenot] to our own `repr(C)` action type.
 fn convert_action(
     action: &maybenot::framework::Action,
     machine_id_hashes: &mut HashMap<u64, MachineId>,
@@ -236,7 +235,7 @@ impl From<Duration> for MaybenotDuration {
 
 pub mod ffi {
     use crate::{Maybenot, MaybenotAction, MaybenotEvent};
-    use std::{ffi::CStr, slice::from_raw_parts_mut};
+    use core::{ffi::CStr, mem::MaybeUninit, slice::from_raw_parts_mut};
 
     #[repr(u32)]
     pub enum MaybenotError {
@@ -249,15 +248,20 @@ pub mod ffi {
 
     /// Start a new [Maybenot] instance.
     ///
-    /// `machines_str` must be a null-terminated UTF-8 string, containing LF-separated machines.
+    /// # Safety
+    /// - `machines_str` must be a null-terminated UTF-8 string, containing LF-separated machines.
+    /// - `out` must be a valid pointer to some valid pointer-sized memory.
     #[no_mangle]
     pub unsafe extern "C" fn maybenot_start(
         machines_str: *const i8,
         max_padding_bytes: f64,
         max_blocking_bytes: f64,
         mtu: u16,
-        out: *mut *mut Maybenot,
+        out: *mut MaybeUninit<*mut Maybenot>,
     ) -> MaybenotError {
+        // TODO: s/unwrap/error/
+        // SAFETY: see function docs
+        let out = unsafe { out.as_mut() }.unwrap();
         let machines_str = unsafe { CStr::from_ptr(machines_str) };
         let machines_str = machines_str.to_str().unwrap();
 
@@ -266,19 +270,27 @@ pub mod ffi {
         match result {
             Ok(maybenot) => {
                 let box_pointer = Box::into_raw(Box::new(maybenot));
-
-                // SAFETY: caller pinky promises that `out` is a valid pointer.
-                unsafe { out.write(box_pointer) };
+                out.write(box_pointer);
 
                 MaybenotError::Ok
             }
-            Err(_) => todo!(),
+            Err(_) => todo!("return maybenot_start error"),
         }
     }
 
-    /// Stop a running [Maybenot] instance.
+    /// Get the number of machines running in the [Maybenot] instance.
+    #[no_mangle]
+    pub unsafe extern "C" fn maybenot_num_machines(this: *mut Maybenot) -> u64 {
+        let this = unsafe { this.as_mut() }
+            .expect("maybenot_num_machines expects a valid maybenot pointer");
+
+        this.framework.num_machines() as u64
+    }
+
+    /// Stop a running [Maybenot] instance. This will free the maybenot pointer.
     ///
-    /// This will free the maybenot pointer.
+    /// # Safety
+    /// The pointer MUST have been created by [maybenot_start].
     #[no_mangle]
     pub unsafe extern "C" fn maybenot_stop(this: *mut Maybenot) {
         // Reconstruct the Box<Maybenot> and drop it.
@@ -288,23 +300,25 @@ pub mod ffi {
 
     /// Feed an event to the [Maybenot] instance.
     ///
-    /// This may generate [super::MaybenotAction]s that will be sent to the callback provided to
-    /// [maybenot_start]. `user_data` will be passed to the callback as-is, it will not be read or
-    /// modified.
+    /// This may generate [super::MaybenotAction]s that will be written to `actions_out`,
+    /// which must have a capacity at least equal to [maybenot_num_machines].
+    ///
+    /// The number of actions will be written to `num_actions_out`.
     #[no_mangle]
     pub unsafe extern "C" fn maybenot_on_event(
         this: *mut Maybenot,
         event: MaybenotEvent,
-        actions: *mut MaybenotAction,
-        // The number of actions created ..?
+
+        actions_out: *mut MaybeUninit<MaybenotAction>,
         num_actions_out: *mut u64,
     ) -> MaybenotError {
         let this =
             unsafe { this.as_mut() }.expect("maybenot_on_event expects a valid maybenot pointer");
 
         // TODO: Add safety reasoning
-        let actions: &mut [MaybenotAction] =
-            unsafe { from_raw_parts_mut(actions, this.framework.num_machines()) };
+        let actions: &mut [MaybeUninit<MaybenotAction>] =
+            unsafe { from_raw_parts_mut(actions_out, this.framework.num_machines()) };
+
         match this.on_event(actions, event) {
             Ok(num_actions) => {
                 // TODO: Add safety reasoning
