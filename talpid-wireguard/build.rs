@@ -19,7 +19,7 @@ fn main() {
         _ => panic!("Unsupported platform: {target_os}"),
     };
 
-    println!("cargo:rustc-link-lib{link_type}=wg");
+    // println!("cargo:rustc-link-lib{link_type}=wg");
 
     if let "linux" | "macos" | "android" = target_os.as_str() {
         println!("cargo:rustc-cfg=wireguard_go");

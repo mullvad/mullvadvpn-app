@@ -1,0 +1,12 @@
+[package]
+name = "cmaybenot"
+description = "A small FFI wrapper around maybenot"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["lib", "staticlib", "cdylib"]
+
+[dependencies]
+maybenot = "1.1.0"
+thiserror = "1.0"
