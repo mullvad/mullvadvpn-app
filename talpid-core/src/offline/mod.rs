@@ -5,6 +5,7 @@ use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 use talpid_types::net::Connectivity;
+use talpid_types::ErrorExt;
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -29,8 +30,6 @@ static FORCE_DISABLE_OFFLINE_MONITOR: Lazy<bool> = Lazy::new(|| {
         .unwrap_or(false)
 });
 
-pub use self::imp::Error;
-
 pub struct MonitorHandle(Option<imp::MonitorHandle>);
 
 impl MonitorHandle {
@@ -42,39 +41,33 @@ impl MonitorHandle {
     }
 }
 
-#[cfg(not(target_os = "android"))]
 pub async fn spawn_monitor(
     sender: UnboundedSender<Connectivity>,
-    route_manager: RouteManagerHandle,
+    #[cfg(not(target_os = "android"))] route_manager: RouteManagerHandle,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
-) -> Result<MonitorHandle, Error> {
+    #[cfg(target_os = "android")] android_context: AndroidContext,
+) -> MonitorHandle {
     let monitor = if *FORCE_DISABLE_OFFLINE_MONITOR {
         None
     } else {
-        Some(
-            imp::spawn_monitor(
-                sender,
-                route_manager,
-                #[cfg(target_os = "linux")]
-                fwmark,
-            )
-            .await?,
+        imp::spawn_monitor(
+            sender,
+            #[cfg(not(target_os = "android"))]
+            route_manager,
+            #[cfg(target_os = "linux")]
+            fwmark,
+            #[cfg(target_os = "android")]
+            android_context,
         )
+        .await
+        .inspect_err(|error| {
+            log::warn!(
+                "{}",
+                error.display_chain_with_msg("Failed to spawn offline monitor")
+            );
+        })
+        .ok()
     };
 
-    Ok(MonitorHandle(monitor))
-}
-
-#[cfg(target_os = "android")]
-pub async fn spawn_monitor(
-    sender: UnboundedSender<Connectivity>,
-    android_context: AndroidContext,
-) -> Result<MonitorHandle, Error> {
-    let monitor = if *FORCE_DISABLE_OFFLINE_MONITOR {
-        None
-    } else {
-        Some(imp::spawn_monitor(sender, android_context).await?)
-    };
-
-    Ok(MonitorHandle(monitor))
+    MonitorHandle(monitor)
 }
