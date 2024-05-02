@@ -818,6 +818,7 @@ impl WireguardMonitor {
                     log_path,
                     tun_provider,
                     routes,
+                    resource_dir,
                 )
                 .map_err(Error::TunnelError)?,
             ))
