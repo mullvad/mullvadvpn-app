@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
+import net.mullvad.mullvadvpn.model.AccountToken
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -82,7 +83,7 @@ class WelcomeScreenTest {
     fun testShowAccountNumber() =
         composeExtension.use {
             // Arrange
-            val rawAccountNumber = "1111222233334444"
+            val rawAccountNumber = AccountToken("1111222233334444")
             val expectedAccountNumber = "1111 2222 3333 4444"
             setContentWithTheme {
                 WelcomeScreen(
