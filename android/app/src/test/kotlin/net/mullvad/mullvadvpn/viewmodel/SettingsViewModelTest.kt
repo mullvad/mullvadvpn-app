@@ -8,6 +8,7 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -44,6 +45,7 @@ class SettingsViewModelTest {
         val deviceState = MutableStateFlow<DeviceState>(DeviceState.LoggedOut)
 
         every { mockDeviceRepository.deviceState } returns deviceState
+        every { mockAppVersionInfoCache.versionInfo() } returns versionInfo
 
         viewModel =
             SettingsViewModel(
@@ -76,7 +78,7 @@ class SettingsViewModelTest {
                     isOutdated = false,
                     isSupported = true
                 )
-            every { mockAppVersionInfoCache.versionInfo() } returns flowOf(versionInfoTestItem)
+
 
             // Act, Assert
             viewModel.uiState.test {
@@ -99,12 +101,10 @@ class SettingsViewModelTest {
                     isOutdated = false,
                     isSupported = false
                 )
-            every { mockAppVersionInfoCache.versionInfo() } returns flowOf(versionInfoTestItem)
+            versionInfo.value = versionInfoTestItem
 
             // Act, Assert
             viewModel.uiState.test {
-                awaitItem()
-
                 val result = awaitItem()
                 assertEquals(true, result.isUpdateAvailable)
             }
@@ -121,12 +121,10 @@ class SettingsViewModelTest {
                     isOutdated = true,
                     isSupported = true
                 )
-            every { mockAppVersionInfoCache.versionInfo() } returns flowOf(versionInfoTestItem)
+            versionInfo.value = versionInfoTestItem
 
             // Act, Assert
             viewModel.uiState.test {
-                awaitItem()
-
                 val result = awaitItem()
                 assertEquals(true, result.isUpdateAvailable)
             }

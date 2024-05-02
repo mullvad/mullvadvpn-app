@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.CreateCustomListError
 import net.mullvad.mullvadvpn.model.CustomListId
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.usecase.customlists.CreateCustomListWithLocationsError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -50,19 +51,23 @@ class CreateCustomListDialogViewModelTest {
     fun `when successfully creating a list without locations should emit with navigate to location screen`() =
         runTest {
             // Arrange
-            val expectedResult: CustomListResult.Created = mockk()
-            val customListName = "list"
+            val customListName = CustomListName.fromString("list")
             val createdId = CustomListId("1")
+            val expectedResult =
+                CustomListResult.Created(
+                    id = createdId,
+                    name = customListName,
+                    locationNames = emptyList(),
+                    undo = CustomListAction.Delete(createdId)
+                )
             val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
             coEvery {
                 mockCustomListActionUseCase.performAction(any<CustomListAction.Create>())
             } returns expectedResult.right()
-            every { expectedResult.locationNames } returns emptyList()
-            every { expectedResult.id } returns createdId
 
             // Act, Assert
             viewModel.uiSideEffect.test {
-                viewModel.createCustomList(customListName)
+                viewModel.createCustomList(customListName.value)
                 val sideEffect = awaitItem()
                 assertIs<CreateCustomListDialogSideEffect.NavigateToCustomListLocationsScreen>(
                     sideEffect

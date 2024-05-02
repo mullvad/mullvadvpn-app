@@ -12,6 +12,8 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -35,9 +37,12 @@ class DeviceRevokedViewModelTest {
 
     private lateinit var viewModel: DeviceRevokedViewModel
 
+    private val tunnelStateFlow = MutableSharedFlow<TunnelState>()
+
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
+        every { mockConnectionProxy.tunnelState } returns tunnelStateFlow
         viewModel =
             DeviceRevokedViewModel(
                 accountRepository = mockedAccountRepository,
@@ -56,11 +61,11 @@ class DeviceRevokedViewModelTest {
         // Arrange
         val tunnelState: TunnelState = mockk()
         every { tunnelState.isSecured() } returns true
-        every { mockConnectionProxy.tunnelState } returns flowOf(tunnelState)
 
         // Act, Assert
         viewModel.uiState.test {
             assertEquals(DeviceRevokedUiState.UNKNOWN, awaitItem())
+            tunnelStateFlow.emit(tunnelState)
             assertEquals(DeviceRevokedUiState.SECURED, awaitItem())
         }
     }
@@ -68,6 +73,7 @@ class DeviceRevokedViewModelTest {
     @Test
     fun `onGoToLoginClicked should invoke logout on AccountRepository`() {
         // Arrange
+        coEvery { mockConnectionProxy.disconnect() } just Runs
         coEvery { mockedAccountRepository.logout() } just Runs
 
         // Act
