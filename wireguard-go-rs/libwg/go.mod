@@ -13,4 +13,5 @@ require (
 	golang.zx2c4.com/wintun v0.0.0-20211104114900-415007cec224 // indirect
 )
 
-replace golang.zx2c4.com/wireguard => github.com/mullvad/wireguard-go v0.0.0-20240423014522-ed1f8c66b49f
+// NOTE: remember to update wireguard-go-rs/Cargo.toml if you change this:
+replace golang.zx2c4.com/wireguard => github.com/mullvad/wireguard-go v0.0.0-20240429150257-7cf6da8e40b3
