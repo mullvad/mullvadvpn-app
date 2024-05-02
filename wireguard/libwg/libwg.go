@@ -17,6 +17,7 @@ import (
 	"unsafe"
 
 	"github.com/mullvad/mullvadvpn-app/wireguard/libwg/tunnelcontainer"
+	"golang.zx2c4.com/wireguard/device"
 )
 
 const (
@@ -79,6 +80,37 @@ func wgReceiveEvent(tunnelHandle int32, event *C.Event) int32 {
 	C.memcpy(unsafe.Pointer(&event.peer), unsafe.Pointer(&receivedEvent.Peer), 32)
 	event.eventType = (C.uint32_t)(receivedEvent.EventType)
 	event.xmitBytes = (C.uint16_t)(receivedEvent.XmitBytes)
+
+	return 0
+}
+
+//export wgSendAction
+func wgSendAction(tunnelHandle int32, action *C.Action) int32 {
+	tunnel, err := tunnels.Get(tunnelHandle)
+	if err != nil {
+		tunnel.Logger.Errorf("Failed to get tunnel from handle %v", tunnelHandle)
+		return -1
+	}
+
+	if tunnel.Device.Daita == nil {
+		tunnel.Logger.Errorf("DAITA not activated")
+		return -2
+	}
+
+	action_go := device.Action{
+		ActionType: device.ActionType(action.actionType),
+		Payload: device.Padding{
+			ByteCount: uint16(action.padding.byteCount),
+			Replace:   bool(action.padding.replace),
+		},
+	}
+	C.memcpy(unsafe.Pointer(&action_go.Peer), unsafe.Pointer(&action.peer), 32)
+
+	err = tunnel.Device.Daita.SendAction(&action_go)
+	if err != nil {
+		tunnel.Logger.Errorf("Failed to send DAITA action %v because of %v", action_go, err)
+		return -3
+	}
 
 	return 0
 }
