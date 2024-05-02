@@ -6,8 +6,10 @@
 
 package main
 
+// #include <stdint.h>
+import "C"
+
 import (
-	"C"
 	"bufio"
 	"strings"
 	"unsafe"
@@ -28,7 +30,7 @@ type LogSink = unsafe.Pointer
 type LogContext = unsafe.Pointer
 
 //export wgTurnOn
-func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext) int32 {
+func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext) C.int32_t {
 	logger := logging.NewLogger(logSink, logContext)
 
 	if cSettings == nil {
@@ -71,33 +73,33 @@ func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext)
 		return ERROR_GENERAL_FAILURE
 	}
 
-	return handle
+	return C.int32_t(handle)
 }
 
 //export wgGetSocketV4
-func wgGetSocketV4(tunnelHandle int32) int32 {
+func wgGetSocketV4(tunnelHandle int32) C.int32_t {
 	tunnel, err := tunnels.Get(tunnelHandle)
 	if err != nil {
-		return ERROR_GENERAL_FAILURE
+		return ERROR_UNKNOWN_TUNNEL
 	}
 	peek := tunnel.Device.Bind().(conn.PeekLookAtSocketFd)
 	fd, err := peek.PeekLookAtSocketFd4()
 	if err != nil {
 		return ERROR_GENERAL_FAILURE
 	}
-	return int32(fd)
+	return C.int32_t(fd)
 }
 
 //export wgGetSocketV6
-func wgGetSocketV6(tunnelHandle int32) int32 {
+func wgGetSocketV6(tunnelHandle int32) C.int32_t {
 	tunnel, err := tunnels.Get(tunnelHandle)
 	if err != nil {
-		return ERROR_GENERAL_FAILURE
+		return ERROR_UNKNOWN_TUNNEL
 	}
 	peek := tunnel.Device.Bind().(conn.PeekLookAtSocketFd)
 	fd, err := peek.PeekLookAtSocketFd6()
 	if err != nil {
 		return ERROR_GENERAL_FAILURE
 	}
-	return int32(fd)
+	return C.int32_t(fd)
 }
