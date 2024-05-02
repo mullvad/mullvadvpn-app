@@ -70,7 +70,6 @@ type WireGuardGetConfigurationFn = unsafe extern "stdcall" fn(
 type WireGuardSetStateFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, state: WgAdapterState) -> BOOL;
 
-#[cfg(windows)]
 #[repr(C)]
 #[allow(dead_code)]
 enum LogLevel {
@@ -79,7 +78,6 @@ enum LogLevel {
     Err = 2,
 }
 
-#[cfg(windows)]
 impl From<LogLevel> for logging::LogLevel {
     fn from(level: LogLevel) -> Self {
         match level {
@@ -430,7 +428,7 @@ impl WgNtTunnel {
 
             match error {
                 Error::CreateTunnelDevice(error) => super::TunnelError::SetupTunnelDevice(error),
-                _ => super::TunnelError::FatalStartWireguardError,
+                _ => super::TunnelError::FatalStartWireguardError(Box::new(error)),
             }
         })
     }
@@ -542,11 +540,11 @@ impl Drop for WgNtTunnel {
     }
 }
 
-static LOG_CONTEXT: Lazy<Mutex<Option<u32>>> = Lazy::new(|| Mutex::new(None));
+static LOG_CONTEXT: Lazy<Mutex<Option<u64>>> = Lazy::new(|| Mutex::new(None));
 
 struct LoggerHandle {
     dll: &'static WgNtDll,
-    context: u32,
+    context: u64,
 }
 
 impl LoggerHandle {
@@ -1080,7 +1078,7 @@ impl Tunnel for WgNtTunnel {
     }
 
     fn set_config(
-        &self,
+        &mut self,
         config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), super::TunnelError>> + Send>> {
         let device = self.device.clone();
@@ -1145,7 +1143,6 @@ mod tests {
             allowed_ips: vec!["1.3.3.0/24".parse().unwrap()],
             endpoint: "1.2.3.4:1234".parse().unwrap(),
             psk: None,
-            #[cfg(target_os = "windows")]
             constant_packet_size: false,
         },
         exit_peer: None,
@@ -1181,7 +1178,6 @@ mod tests {
             rx_bytes: 0,
             last_handshake: 0,
             allowed_ips_count: 1,
-            #[cfg(target_os = "windows")]
             constant_packet_size: 0,
         },
         p0_allowed_ip_0: WgAllowedIp {

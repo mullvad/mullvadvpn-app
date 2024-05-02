@@ -213,11 +213,6 @@ function build {
     # Compile and link all binaries.
     ################################################################################
 
-    if [[ "$(uname -s)" != "MINGW"* ]]; then
-        log_header "Building wireguard-go$for_target_string"
-        ./wireguard/build-wireguard-go.sh "$current_target"
-    fi
-
     log_header "Building Rust code in $RUST_BUILD_MODE mode using $RUSTC_VERSION$for_target_string"
 
     local cargo_target_arg=()
@@ -311,6 +306,7 @@ for t in "${TARGETS[@]:-""}"; do
     source env.sh "$t"
     build "$t"
 done
+
 
 ################################################################################
 # Package app.

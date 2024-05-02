@@ -70,7 +70,7 @@ impl Tunnel for NetworkManagerTunnel {
         if let Some(tunnel) = self.tunnel.take() {
             if let Err(err) = self.network_manager.remove_tunnel(tunnel) {
                 log::error!("Failed to remove WireGuard tunnel via NM: {}", err);
-                Err(TunnelError::StopWireguardError { status: 0 })
+                Err(TunnelError::StopWireguardError(Box::new(err)))
             } else {
                 Ok(())
             }
@@ -94,7 +94,7 @@ impl Tunnel for NetworkManagerTunnel {
     }
 
     fn set_config(
-        &self,
+        &mut self,
         config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
         let interface_name = self.interface_name.clone();
@@ -109,6 +109,11 @@ impl Tunnel for NetworkManagerTunnel {
                 TunnelError::SetConfigError
             })
         })
+    }
+
+    // TODO: We shouldn't force `NetworkManagerTunnel` tunnel to implement `start_daita`
+    fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
+        unreachable!("NetworkManager tunnel does not support DAITA")
     }
 }
 

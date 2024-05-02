@@ -30,6 +30,9 @@ tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 rand = "0.8.5"
 surge-ping = "0.8.0"
 
+[target.'cfg(not(windows))'.dependencies]
+wireguard-go-rs = { path = "../wireguard-go-rs"}
+
 [target.'cfg(target_os="android")'.dependencies]
 duct = "0.13"
 
@@ -42,7 +45,6 @@ tokio-stream = { version = "0.1", features = ["io-util"] }
 [target.'cfg(unix)'.dependencies]
 nix = "0.23"
 
-[target.'cfg(target_os = "linux")'.dependencies]
 rtnetlink = "0.11"
 netlink-packet-core = "0.4.2"
 netlink-packet-route = "0.13"
