@@ -9,8 +9,8 @@ import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
-import net.mullvad.mullvadvpn.compose.data.DUMMY_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_COUNTRIES
+import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
@@ -84,7 +84,8 @@ class SelectLocationScreenTest {
                     cities.add(0, city.copy(expanded = true))
 
                     val mutableRelayList = it.toMutableList()
-                    mutableRelayList[0] = it[0].copy(expanded = true, cities = cities.toList())
+                    mutableRelayList[0] =
+                        it[0].copy(expanded = true, cities = cities.toList())
                     mutableRelayList
                 }
 
@@ -202,7 +203,7 @@ class SelectLocationScreenTest {
                 SelectLocationScreen(
                     state =
                         SelectLocationUiState.Content(
-                            customLists = DUMMY_CUSTOM_LISTS,
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             filteredCustomLists = emptyList(),
                             countries = emptyList(),
                             selectedItem = null,
@@ -222,14 +223,14 @@ class SelectLocationScreenTest {
     fun whenCustomListIsClickedShouldCallOnSelectRelay() =
         composeExtension.use {
             // Arrange
-            val customList = DUMMY_CUSTOM_LISTS[0]
+            val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
             val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 SelectLocationScreen(
                     state =
                         SelectLocationUiState.Content(
-                            customLists = DUMMY_CUSTOM_LISTS,
-                            filteredCustomLists = DUMMY_CUSTOM_LISTS,
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                            filteredCustomLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             countries = emptyList(),
                             selectedItem = null,
                             selectedOwnership = null,
@@ -251,14 +252,14 @@ class SelectLocationScreenTest {
     fun whenCustomListIsLongClickedShouldShowBottomSheet() =
         composeExtension.use {
             // Arrange
-            val customList = DUMMY_CUSTOM_LISTS[0]
+            val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
             val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 SelectLocationScreen(
                     state =
                         SelectLocationUiState.Content(
-                            customLists = DUMMY_CUSTOM_LISTS,
-                            filteredCustomLists = DUMMY_CUSTOM_LISTS,
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                            filteredCustomLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             countries = emptyList(),
                             selectedItem = null,
                             selectedOwnership = null,
