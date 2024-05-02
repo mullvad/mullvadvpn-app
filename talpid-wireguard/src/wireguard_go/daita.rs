@@ -100,18 +100,18 @@ impl Session {
         Ok(Self { tunnel_handle })
     }
 
-    pub fn receive_events(&self) -> io::Result<Event> {
+    pub fn receive_events(&self) -> io::Result<Option<Event>> {
         let mut buffer = Event::default();
         let res = unsafe { super::wgReceiveEvent(self.tunnel_handle, &mut buffer) };
         match res {
-            0 => Ok(buffer),
+            0 => Ok(Some(buffer)),
             // TODO: change to custom error type
             -1 => Err(io::Error::other(format!(
                 "Invalid tunnel handle {}",
                 self.tunnel_handle
             ))),
             -2 => Err(io::Error::other("DAITA not activated")),
-            -3 => Err(io::Error::other("Failed to fetch DAITA event")),
+            -3 => Ok(None), // DAITA closed
             n => panic!("Failed to fetch DAITA event with unknown error code {n}"),
         }
     }
@@ -263,7 +263,8 @@ impl Machinist {
     ) {
         loop {
             let event = match self.wait_for_events() {
-                Ok(event) => event,
+                Ok(Some(event)) => event,
+                Ok(None) => break, // DAITA closed
                 Err(error) => {
                     log::error!("Error while waiting for DAITA events: {error}");
                     break;
@@ -335,15 +336,18 @@ impl Machinist {
         }
     }
 
-    fn wait_for_events(&mut self) -> io::Result<maybenot::framework::TriggerEvent> {
+    fn wait_for_events(&mut self) -> io::Result<Option<maybenot::framework::TriggerEvent>> {
         loop {
-            let event = self.daita.receive_events()?;
-            if &event.peer == self.peer.as_bytes() {
-                if let Some(event) =
-                    maybenot_event_from_event(&event, &self.machine_ids, self.override_size)
-                {
-                    return Ok(event);
+            if let Some(event) = self.daita.receive_events()? {
+                if &event.peer == self.peer.as_bytes() {
+                    if let Some(event) =
+                        maybenot_event_from_event(&event, &self.machine_ids, self.override_size)
+                    {
+                        return Ok(Some(event));
+                    }
                 }
+            } else {
+                return Ok(None);
             }
         }
     }
