@@ -52,6 +52,9 @@ Line wrap the file at 100 chars.                                              Th
   website fingerprinting more difficult by sending random padding packets along with padding all
   packets to the same size.
 
+### Changed
+- Don't fail to start daemon when the offline monitor fails to be initialized.
+
 ### Fixed
 #### Linux
 - Fix GUI not working on Ubuntu 24.04 by adding an AppArmor profile.
