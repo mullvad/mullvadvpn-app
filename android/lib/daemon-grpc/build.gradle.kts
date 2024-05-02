@@ -5,6 +5,7 @@ plugins {
     id(Dependencies.Plugin.kotlinAndroidId)
     id(Dependencies.Plugin.kotlinParcelizeId)
     id(Dependencies.Plugin.protobufId) version Versions.Plugin.protobuf
+    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
 }
 
 android {
