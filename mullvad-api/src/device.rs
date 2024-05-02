@@ -42,11 +42,15 @@ impl DevicesProxy {
         struct DeviceSubmission {
             pubkey: wireguard::PublicKey,
             hijack_dns: bool,
+            same_ip: bool,
         }
 
         let submission = DeviceSubmission {
             pubkey,
             hijack_dns: false,
+
+            // TODO: same_ip on stagemole.eu is bork. remove this before merging to main.
+            same_ip: false,
         };
 
         let service = self.handle.service.clone();
