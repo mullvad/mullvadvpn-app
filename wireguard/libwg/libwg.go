@@ -46,15 +46,13 @@ func wgTurnOff(tunnelHandle int32) {
 }
 
 //export wgActivateDaita
-func wgActivateDaita(tunnelHandle int32, eventsCapacity uint, actionsCapacity uint) bool {
+func wgActivateDaita(tunnelHandle int32, eventsCapacity uint32, actionsCapacity uint32) bool {
 	tunnel, err := tunnels.Get(tunnelHandle)
 	if err != nil {
 		return false
 	}
 
-	tunnel.Device.ActivateDaita(eventsCapacity, actionsCapacity)
-
-	return true
+	return tunnel.Device.ActivateDaita(uint(eventsCapacity), uint(actionsCapacity))
 }
 
 //export wgReceiveEvent
