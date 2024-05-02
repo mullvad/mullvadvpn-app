@@ -33,7 +33,6 @@ type LogContext = unsafe.Pointer
 
 //export wgTurnOn
 func wgTurnOn(mtu int, cSettings *C.char, fd int, logSink LogSink, logContext LogContext) int32 {
-
 	logger := logging.NewLogger(logSink, logContext)
 
 	if cSettings == nil {
