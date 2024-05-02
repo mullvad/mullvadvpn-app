@@ -7,4 +7,6 @@ edition = "2021"
 
 [dependencies]
 chrono = "0.4.38"
-cmaybenot = { path = "cmaybenot" }
+
+# NOTE: remember to update libwg/go.mod if you change this:
+cmaybenot = { git = "https://github.com/mullvad/wireguard-go", branch = "daita-cmaybenot" }
