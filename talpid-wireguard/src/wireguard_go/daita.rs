@@ -100,25 +100,37 @@ impl Session {
         Ok(Self { tunnel_handle })
     }
 
-    pub fn receive_events(&self) -> super::Result<Event> {
+    pub fn receive_events(&self) -> io::Result<Event> {
         let mut buffer = Event::default();
         let res = unsafe { super::wgReceiveEvent(self.tunnel_handle, &mut buffer) };
-        if res == 0 {
-            Ok(buffer)
-        } else {
-            Err(crate::TunnelError::DaitaReceiveEvent(res))
+        match res {
+            0 => Ok(buffer),
+            // TODO: change to custom error type
+            -1 => Err(io::Error::other(format!(
+                "Invalid tunnel handle {}",
+                self.tunnel_handle
+            ))),
+            -2 => Err(io::Error::other("DAITA not activated")),
+            -3 => Err(io::Error::other("Failed to fetch DAITA event")),
+            n => panic!("Failed to fetch DAITA event with unknown error code {n}"),
         }
     }
 
     pub fn send_action(&self, action: Action) -> io::Result<()> {
         let action_type = action.action_type;
+        log::info!("Sending DAITA action {:?}", action_type);
         let res = unsafe { super::wgSendAction(self.tunnel_handle, action) };
-        if !res == 0 {
-            // TODO: return error
-            panic!("Failed to send DAITA action, error code {res}")
+        match res {
+            0 => Ok(()),
+            // TODO: change to custom error type
+            -1 => Err(io::Error::other(format!(
+                "Invalid tunnel handle {}",
+                self.tunnel_handle
+            ))),
+            -2 => Err(io::Error::other("DAITA not activated")),
+            -3 => Err(io::Error::other("Failed to send DAITA action")),
+            n => panic!("Failed to send DAITA action with unknown error code {n}"),
         }
-        log::info!("Send DAITA action {:?}", action_type);
-        Ok(())
     }
 }
 
@@ -323,7 +335,7 @@ impl Machinist {
         }
     }
 
-    fn wait_for_events(&mut self) -> super::Result<maybenot::framework::TriggerEvent> {
+    fn wait_for_events(&mut self) -> io::Result<maybenot::framework::TriggerEvent> {
         loop {
             let event = self.daita.receive_events()?;
             if &event.peer == self.peer.as_bytes() {
