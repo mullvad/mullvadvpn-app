@@ -517,6 +517,8 @@ pub fn unreachable_wireguard_tunnel() -> talpid_types::net::wireguard::Connectio
             ],
             endpoint: "1.3.3.7:1234".parse().unwrap(),
             psk: None,
+            #[cfg(target_os = "linux")]
+            constant_packet_size: false,
         },
         exit_peer: None,
         ipv4_gateway: Ipv4Addr::new(10, 64, 10, 1),
