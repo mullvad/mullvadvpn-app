@@ -415,7 +415,8 @@ extension PacketTunnelActor {
             lastKeyRotation: lastKeyRotation,
             connectedEndpoint: selectedRelay.endpoint,
             transportLayer: .udp,
-            remotePort: selectedRelay.endpoint.ipv4Relay.port
+            remotePort: selectedRelay.endpoint.ipv4Relay.port,
+            isPostQuantum: settings.quantumResistance.isEnabled
         )
     }
 
@@ -453,7 +454,8 @@ extension PacketTunnelActor {
             lastKeyRotation: connectionState.lastKeyRotation,
             connectedEndpoint: obfuscatedEndpoint,
             transportLayer: transportLayer,
-            remotePort: protocolObfuscator.remotePort
+            remotePort: protocolObfuscator.remotePort,
+            isPostQuantum: connectionState.isPostQuantum
         )
     }
 
