@@ -7,6 +7,15 @@
 package main
 
 // #include <stdlib.h>
+// #include <stdint.h>
+// #include <string.h>
+//
+//
+// typedef struct Event {
+// 	uint8_t peer[32];
+//  uint32_t eventType;
+//  uint16_t xmitBytes;
+// } Event;
 import "C"
 
 import (
@@ -42,6 +51,45 @@ func wgTurnOff(tunnelHandle int32) {
 	// Calling twice convinces the GC to release NOW.
 	runtime.GC()
 	runtime.GC()
+}
+
+//export wgActivateDaita
+func wgActivateDaita(tunnelHandle int32, eventsCapacity uint, actionsCapacity uint) bool {
+	tunnel, err := tunnels.Get(tunnelHandle)
+	if err != nil {
+		return false
+	}
+
+	tunnel.Device.ActivateDaita(eventsCapacity, actionsCapacity)
+
+	return true
+}
+
+//export wgReceiveEvent
+func wgReceiveEvent(tunnelHandle int32, event *C.Event) int32 {
+	tunnel, err := tunnels.Get(tunnelHandle)
+	if err != nil {
+		tunnel.Logger.Errorf("Failed to get tunnel from handle %v", tunnelHandle)
+		return -1
+	}
+
+	if tunnel.Device.Daita == nil {
+		tunnel.Logger.Errorf("DAITA not activated")
+		return -2
+	}
+
+	receivedEvent, err := tunnel.Device.Daita.ReceiveEvent()
+	if err != nil {
+		tunnel.Logger.Errorf("Failed to fetch DAITA event")
+		return -3
+	}
+
+	// TODO: convert go repr into C repr
+	C.memcpy(unsafe.Pointer(&event.peer), unsafe.Pointer(&receivedEvent.Peer), 32)
+	event.eventType = (C.uint32_t)(receivedEvent.EventType)
+	event.xmitBytes = (C.uint16_t)(receivedEvent.XmitBytes)
+
+	return 0
 }
 
 //export wgGetConfig
