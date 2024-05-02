@@ -59,7 +59,7 @@ func wgActivateDaita(tunnelHandle int32, eventsCapacity uint32, actionsCapacity 
 func wgReceiveEvent(tunnelHandle int32, event *C.Event) int32 {
 	tunnel, err := tunnels.Get(tunnelHandle)
 	if err != nil {
-		tunnel.Logger.Errorf("Failed to get tunnel from handle %v", tunnelHandle)
+		// Failed to get tunnel from handle
 		return -1
 	}
 
@@ -86,7 +86,7 @@ func wgReceiveEvent(tunnelHandle int32, event *C.Event) int32 {
 func wgSendAction(tunnelHandle int32, action C.Action) int32 {
 	tunnel, err := tunnels.Get(tunnelHandle)
 	if err != nil {
-		tunnel.Logger.Errorf("Failed to get tunnel from handle %v", tunnelHandle)
+		// Failed to get tunnel from handle
 		return -1
 	}
 
