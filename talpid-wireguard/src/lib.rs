@@ -1108,6 +1108,10 @@ pub enum TunnelError {
     /// Failure to set up logging
     #[error("Failed to set up logging")]
     LoggingError(#[source] logging::Error),
+
+    /// Failed to receive DAITA event
+    #[error("Failed to receive DAITA event")]
+    DaitaReceiveEvent(i32),
 }
 
 #[cfg(target_os = "linux")]
