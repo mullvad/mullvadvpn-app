@@ -11,6 +11,7 @@ members = [
     "android/translations-converter",
     "ios/MullvadREST/Transport/Shadowsocks/shadowsocks-proxy",
     "ios/TunnelObfuscation/tunnel-obfuscator-proxy",
+    "libmaybenot",
     "mullvad-api",
     "mullvad-cli",
     "mullvad-daemon",
