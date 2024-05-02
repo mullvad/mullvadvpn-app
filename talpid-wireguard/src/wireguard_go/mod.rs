@@ -6,8 +6,10 @@ use super::{
 };
 use crate::logging::{clean_up_logging, initialize_logging};
 use ipnetwork::IpNetwork;
+use once_cell::sync::OnceCell;
 use std::{
-    ffi::{c_char, c_void, CStr},
+    ffi::{c_char, c_void, CStr, CString},
+    fs,
     future::Future,
     path::{Path, PathBuf},
     pin::Pin,
@@ -30,7 +32,6 @@ type Result<T> = std::result::Result<T, TunnelError>;
 use std::sync::{Arc, Mutex};
 
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
-const WIREGUARD_KEY_LENGTH: usize = 32;
 
 struct LoggingContext(u32);
 
@@ -50,7 +51,7 @@ pub struct WgGoTunnel {
     _logging_context: LoggingContext,
     #[cfg(target_os = "android")]
     tun_provider: Arc<Mutex<TunProvider>>,
-    daita_handle: Option<daita::MachinistHandle>,
+    daita_handle: Option<daita::Session>,
     resource_dir: PathBuf,
     config: Arc<Mutex<Config>>,
 }
@@ -266,27 +267,30 @@ impl Tunnel for WgGoTunnel {
         })
     }
 
-    fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
+    fn start_daita(&mut self) -> Result<()> {
         if let Some(_handle) = self.daita_handle.take() {
             log::info!("Stopping previous DAITA machines");
             // let _ = handle.close();
             todo!("Closing existing DAITA instance")
         }
 
-        let config = self.config.lock().unwrap();
+        static MAYBENOT_MACHINES: OnceCell<CString> = OnceCell::new();
+        let machines = MAYBENOT_MACHINES.get_or_try_init(|| {
+            let path = self.resource_dir.join("maybenot_machines");
+            log::debug!("Reading maybenot machines from {}", path.display());
+
+            // TODO: errors
+            let machines = fs::read_to_string(path).unwrap();
+            let machines = CString::new(machines).unwrap();
+            Ok(machines)
+        })?;
 
         log::info!("Initializing DAITA for wireguard device");
-        let session = daita::Session::from_adapter(self.handle.expect("Tunnel should be active"))
+        let tunnel_handle = self.handle.expect("Tunnel should be active");
+        let session = daita::Session::from_adapter(tunnel_handle, machines)
             .expect("Wireguard-go should fetch current tunnel from ID");
-        self.daita_handle = Some(
-            daita::Machinist::spawn(
-                &self.resource_dir,
-                session,
-                config.entry_peer.public_key.clone(),
-                config.mtu,
-            )
-            .expect("Failed to spawn machinist"),
-        );
+        self.daita_handle = Some(session);
+
         Ok(())
     }
 }
@@ -342,13 +346,12 @@ extern "C" {
     fn wgSetConfig(handle: i32, settings: *const i8) -> i32;
 
     // Activate DAITA
-    fn wgActivateDaita(tunnelHandle: i32, eventsCapacity: u32, actionsCapacity: u32) -> bool;
-
-    // Wait for and receive DAITA event.
-    fn wgReceiveEvent(tunnelHandle: i32, event: *mut daita::Event) -> i32;
-
-    // Wait for and receive DAITA event.
-    fn wgSendAction(tunnelHandle: i32, event: daita::Action) -> i32;
+    fn wgActivateDaita(
+        machines: *const i8,
+        tunnelHandle: i32,
+        eventsCapacity: u32,
+        actionsCapacity: u32,
+    ) -> bool;
 
     // Frees a pointer allocated by the go runtime - useful to free return value of wgGetConfig
     fn wgFreePtr(ptr: *mut c_void);
