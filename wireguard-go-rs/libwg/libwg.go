@@ -53,15 +53,22 @@ func wgTurnOff(tunnelHandle int32) {
 }
 
 //export wgActivateDaita
-func wgActivateDaita(machines *C.int8_t, tunnelHandle int32, eventsCapacity uint32, actionsCapacity uint32) C.bool {
+func wgActivateDaita(tunnelHandle int32, noisePublic *C.uint8_t, machines *C.char, eventsCapacity uint32, actionsCapacity uint32) C.bool {
 	tunnel, err := tunnels.Get(tunnelHandle)
 	if err != nil {
 		return false
 	}
 
 	tunnel.Logger.Verbosef("Initializing libmaybenot")
+	var publicKey device.NoisePublicKey
+	copy(publicKey[:], C.GoBytes(unsafe.Pointer(noisePublic), device.NoisePublicKeySize))
+	peer := tunnel.Device.LookupPeer(publicKey)
 
-	return (C.bool)(tunnel.Device.EnableDaita(C.GoString((*C.char)(machines)), uint(eventsCapacity), uint(actionsCapacity)))
+	if peer == nil {
+		return false
+	}
+
+	return (C.bool)(peer.EnableDaita(C.GoString((*C.char)(machines)), uint(eventsCapacity), uint(actionsCapacity)))
 }
 
 //export wgGetConfig

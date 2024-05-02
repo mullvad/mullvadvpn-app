@@ -14,4 +14,4 @@ require (
 )
 
 // NOTE: remember to update wireguard-go-rs/Cargo.toml if you change this:
-replace golang.zx2c4.com/wireguard => github.com/mullvad/wireguard-go v0.0.0-20240429150257-7cf6da8e40b3
+replace golang.zx2c4.com/wireguard => github.com/mullvad/wireguard-go v0.0.0-20240430093321-b860549f6c34

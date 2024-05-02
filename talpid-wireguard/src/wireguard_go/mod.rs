@@ -45,7 +45,7 @@ impl Drop for LoggingContext {
 
 pub struct WgGoTunnel {
     interface_name: String,
-    handle: Option<i32>, // TODO(sebastian): Remove option
+    tunnel_handle: i32,
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
     _tunnel_device: Tun,
@@ -55,6 +55,7 @@ pub struct WgGoTunnel {
     tun_provider: Arc<Mutex<TunProvider>>,
     daita_handle: Option<daita::Session>,
     resource_dir: PathBuf,
+    config: Config,
 }
 
 impl WgGoTunnel {
@@ -95,18 +96,17 @@ impl WgGoTunnel {
         Self::bypass_tunnel_sockets(&mut tunnel_device, handle)
             .map_err(TunnelError::BypassError)?;
 
-        let wg_go_tunnel = WgGoTunnel {
+        Ok(WgGoTunnel {
             interface_name,
-            handle: Some(handle),
+            tunnel_handle: handle,
             _tunnel_device: tunnel_device,
             _logging_context: logging_context,
             #[cfg(target_os = "android")]
             tun_provider: tun_provider_clone,
             resource_dir: resource_dir.to_owned(),
             daita_handle: None,
-        };
-
-        Ok(wg_go_tunnel)
+            config: config.clone(),
+        })
     }
 
     fn create_tunnel_config(
@@ -156,11 +156,9 @@ impl WgGoTunnel {
     }
 
     fn stop_tunnel(&mut self) -> Result<()> {
-        if let Some(handle) = self.handle.take() {
-            let status = unsafe { wgTurnOff(handle) };
-            if status < 0 {
-                return Err(TunnelError::StopWireguardError { status });
-            }
+        let status = unsafe { wgTurnOff(self.tunnel_handle) };
+        if status < 0 {
+            return Err(TunnelError::StopWireguardError { status });
         }
         Ok(())
     }
@@ -215,7 +213,7 @@ impl Tunnel for WgGoTunnel {
 
     fn get_tunnel_stats(&self) -> Result<StatsMap> {
         let config_str = unsafe {
-            let ptr = wgGetConfig(self.handle.unwrap());
+            let ptr = wgGetConfig(self.tunnel_handle);
             if ptr.is_null() {
                 log::error!("Failed to get config !");
                 return Err(TunnelError::GetConfigError);
@@ -250,7 +248,7 @@ impl Tunnel for WgGoTunnel {
         config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), super::TunnelError>> + Send>> {
         let wg_config_str = config.to_userspace_format();
-        let handle = self.handle.unwrap();
+        let handle = self.tunnel_handle;
         #[cfg(target_os = "android")]
         let tun_provider = self.tun_provider.clone();
         Box::pin(async move {
@@ -297,8 +295,8 @@ impl Tunnel for WgGoTunnel {
         })?;
 
         log::info!("Initializing DAITA for wireguard device");
-        let tunnel_handle = self.handle.expect("Tunnel should be active");
-        let session = daita::Session::from_adapter(tunnel_handle, machines)
+        let peer_public_key = &self.config.entry_peer.public_key;
+        let session = daita::Session::from_adapter(self.tunnel_handle, peer_public_key, machines)
             .expect("Wireguard-go should fetch current tunnel from ID");
         self.daita_handle = Some(session);
 
