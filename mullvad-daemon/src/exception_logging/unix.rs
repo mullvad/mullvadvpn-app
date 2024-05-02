@@ -4,6 +4,7 @@ use libc::siginfo_t;
 use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, Signal};
 
 use std::{
+    backtrace::Backtrace,
     ffi::{c_int, c_void},
     sync::Once,
 };
@@ -84,5 +85,9 @@ extern "C" fn fault_handler(
     };
 
     log::error!("Caught signal {}", signal);
+    log::error!("Backtrace:");
+    for line in format!("{}", Backtrace::force_capture()).lines() {
+        log::error!("{line}");
+    }
     std::process::exit(2);
 }
