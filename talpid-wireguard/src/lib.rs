@@ -576,7 +576,7 @@ impl WireguardMonitor {
         )
         .await?;
 
-        #[cfg(target_os = "windows")]
+        #[cfg(any(target_os = "windows", target_os = "linux"))]
         if config.daita {
             // Start local DAITA machines
             let mut tunnel = tunnel.lock().unwrap();
@@ -1031,7 +1031,7 @@ pub(crate) trait Tunnel: Send {
         &self,
         _config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>>;
-    #[cfg(target_os = "windows")]
+    #[cfg(any(target_os = "windows", target_os = "linux"))]
     fn start_daita(&mut self) -> std::result::Result<(), TunnelError>;
 }
 
