@@ -318,7 +318,9 @@ impl<'a> BpfIterMut<'a> {
         }
 
         // SAFETY: The buffer is large enough to contain a BPF header
-        let hdr = unsafe { &*(&self.data[offset] as *const u8 as *const bpf_hdr) };
+        let hdr = unsafe {
+            &*(self.data[offset..offset + mem::size_of::<bpf_hdr>()].as_ptr() as *const bpf_hdr)
+        };
 
         if offset + hdr.bh_hdrlen as usize + hdr.bh_caplen as usize > self.data.len() {
             return None;
