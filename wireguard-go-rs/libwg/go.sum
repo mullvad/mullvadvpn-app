@@ -1,5 +1,5 @@
-github.com/mullvad/wireguard-go v0.0.0-20240430093321-b860549f6c34 h1:O/j8FlgOW5xgCfgGvOONzaWbOX2i8K9Bqk05eLRLl+g=
-github.com/mullvad/wireguard-go v0.0.0-20240430093321-b860549f6c34/go.mod h1:whfbyDBt09xhCYQWtO2+3UVjlaq6/9hDZrjg2ZE6SyA=
+github.com/mullvad/wireguard-go v0.0.0-20240430143015-44e212db23cf h1:XKKo1gi5eGR9TAZns0BxvxnY70+wQwgAHbKC2L3/sEg=
+github.com/mullvad/wireguard-go v0.0.0-20240430143015-44e212db23cf/go.mod h1:whfbyDBt09xhCYQWtO2+3UVjlaq6/9hDZrjg2ZE6SyA=
 golang.org/x/crypto v0.22.0 h1:g1v0xeRhjcugydODzvb3mEM9SQ0HGp9s/nh3COQ/C30=
 golang.org/x/crypto v0.22.0/go.mod h1:vr6Su+7cTlO45qkww3VDJlzDn0ctJvRgYbC2NvXHt+M=
 golang.org/x/net v0.24.0 h1:1PcaxkF854Fu3+lvBIx5SYn9wRlBzzcnHZSiaFFAb0w=
