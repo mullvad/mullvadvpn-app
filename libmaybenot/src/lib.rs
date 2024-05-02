@@ -8,8 +8,13 @@ use maybenot::{
     machine::Machine,
 };
 
+/// A running Maybenot instance.
+///
+/// - Create it [ffi::maybenot_start].
+/// - Feed it actions using [ffi::maybenot_on_event].
+/// - Stop it using [ffi::maybenot_stop].
 pub struct Maybenot {
-    on_action: ActionCallback,
+    on_action: MaybenotActionCallback,
     framework: Framework<Vec<Machine>>,
 
     // we aren't allowed to look into MachineId, so we need our own id type to use with FFI
@@ -17,54 +22,85 @@ pub struct Maybenot {
     machine_id_hashes: HashMap<u64, MachineId>,
 }
 
-type ActionCallback = extern "C" fn(*mut c_void, Action);
-
-pub const WIREGUARD_KEY_LENGTH: usize = 32;
+/// A function that is called by [ffi::maybenot_on_event] once for every generated
+/// [MaybenotAction].
+// TODO: Consider passing an action buffer to `maybenot_on_event` instead of using a callback.
+pub type MaybenotActionCallback = extern "C" fn(*mut c_void, MaybenotAction);
 
 #[repr(C)]
-#[derive(Debug, Default)]
-pub struct Event {
-    pub event_type: EventType,
+#[derive(Debug)]
+pub struct MaybenotEvent {
+    pub event_type: MaybenotEventType,
+
+    /// The number of bytes that was sent or received.
     pub xmit_bytes: u16,
+
+    /// The ID of the machine that triggered the event, if any.
     pub machine: u64,
 }
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
-pub struct CDuration {
+pub struct MaybenotDuration {
+    /// Number of whole seconds
     secs: u64,
+
+    /// A nanosecond fraction of a second.
     nanos: u32,
 }
-#[repr(C)]
-#[derive(Debug, Default)]
+
+#[repr(u32)]
+#[derive(Debug, Clone, Copy)]
 #[allow(dead_code)]
-pub enum EventType {
-    #[default]
-    NonpaddingSent,
-    NonpaddingReceived,
-    PaddingSent,
-    PaddingReceived,
+pub enum MaybenotEventType {
+    /// We sent a normal packet.
+    NonpaddingSent = 0,
+
+    /// We received a normal packet.
+    NonpaddingReceived = 1,
+
+    /// We send a padding packet.
+    PaddingSent = 2,
+
+    /// We received a padding packet.
+    PaddingReceived = 3,
 }
 
 #[repr(C, u32)]
 #[derive(Debug, Clone, Copy)]
-pub enum Action {
+pub enum MaybenotAction {
     Cancel {
+        /// The machine that generated the action.
         machine: u64,
     } = 0,
+
+    /// Send a padding packet.
     InjectPadding {
+        /// The machine that generated the action.
         machine: u64,
-        timeout: CDuration,
+
+        /// The time to wait before injecting a padding packet.
+        timeout: MaybenotDuration,
+
         replace: bool,
         bypass: bool,
+
+        /// The size of the padding packet.
         size: u16,
     } = 1,
+
     BlockOutgoing {
+        /// The machine that generated the action.
         machine: u64,
-        timeout: CDuration,
+
+        /// The time to wait before blocking.
+        timeout: MaybenotDuration,
+
         replace: bool,
         bypass: bool,
-        duration: CDuration,
+
+        /// How long to block.
+        duration: MaybenotDuration,
     } = 2,
 }
 
@@ -74,7 +110,7 @@ impl Maybenot {
         max_padding_bytes: f64,
         max_blocking_bytes: f64,
         mtu: u16,
-        on_action: ActionCallback,
+        on_action: MaybenotActionCallback,
     ) -> anyhow::Result<Self> {
         let machines: Vec<_> = machines_str
             .lines()
@@ -103,7 +139,7 @@ impl Maybenot {
         })
     }
 
-    pub fn on_event(&mut self, user_data: *mut c_void, event: Event) -> anyhow::Result<()> {
+    pub fn on_event(&mut self, user_data: *mut c_void, event: MaybenotEvent) -> anyhow::Result<()> {
         let Some(event) = convert_event(event, &self.machine_id_hashes) else {
             bail!("Unknown machine");
         };
@@ -133,9 +169,9 @@ fn machine_from_hash(hash: u64, machine_id_hashes: &HashMap<u64, MachineId>) -> 
 fn convert_action(
     action: &maybenot::framework::Action,
     machine_id_hashes: &mut HashMap<u64, MachineId>,
-) -> Action {
+) -> MaybenotAction {
     match action {
-        &maybenot::framework::Action::Cancel { machine } => Action::Cancel {
+        &maybenot::framework::Action::Cancel { machine } => MaybenotAction::Cancel {
             machine: hash_machine(machine, machine_id_hashes),
         },
         &maybenot::framework::Action::InjectPadding {
@@ -144,7 +180,7 @@ fn convert_action(
             bypass,
             replace,
             machine,
-        } => Action::InjectPadding {
+        } => MaybenotAction::InjectPadding {
             timeout: timeout.into(),
             size,
             replace,
@@ -157,7 +193,7 @@ fn convert_action(
             bypass,
             replace,
             machine,
-        } => Action::BlockOutgoing {
+        } => MaybenotAction::BlockOutgoing {
             timeout: timeout.into(),
             duration: duration.into(),
             replace,
@@ -168,30 +204,30 @@ fn convert_action(
 }
 
 fn convert_event(
-    event: Event,
+    event: MaybenotEvent,
     machine_id_hashes: &HashMap<u64, MachineId>,
 ) -> Option<TriggerEvent> {
     Some(match event.event_type {
-        EventType::NonpaddingSent => TriggerEvent::NonPaddingSent {
+        MaybenotEventType::NonpaddingSent => TriggerEvent::NonPaddingSent {
             bytes_sent: event.xmit_bytes,
         },
-        EventType::NonpaddingReceived => TriggerEvent::NonPaddingRecv {
+        MaybenotEventType::NonpaddingReceived => TriggerEvent::NonPaddingRecv {
             bytes_recv: event.xmit_bytes,
         },
-        EventType::PaddingSent => TriggerEvent::PaddingSent {
+        MaybenotEventType::PaddingSent => TriggerEvent::PaddingSent {
             bytes_sent: event.xmit_bytes,
             machine: machine_from_hash(event.machine, machine_id_hashes)?,
         },
-        EventType::PaddingReceived => TriggerEvent::PaddingRecv {
+        MaybenotEventType::PaddingReceived => TriggerEvent::PaddingRecv {
             bytes_recv: event.xmit_bytes,
         },
     })
 }
 
-impl From<Duration> for CDuration {
+impl From<Duration> for MaybenotDuration {
     #[inline]
     fn from(duration: Duration) -> Self {
-        CDuration {
+        MaybenotDuration {
             secs: duration.as_secs(),
             nanos: duration.subsec_nanos(),
         }
@@ -199,11 +235,11 @@ impl From<Duration> for CDuration {
 }
 
 pub mod ffi {
-    use crate::{ActionCallback, Event, Maybenot};
+    use crate::{Maybenot, MaybenotActionCallback, MaybenotEvent};
     use std::ffi::{c_void, CStr};
 
     #[repr(u32)]
-    pub enum Error {
+    pub enum MaybenotError {
         Ok = 0,
         MachineStringNotUtf8 = 1,
         InvalidMachineString = 2,
@@ -211,15 +247,18 @@ pub mod ffi {
         UnknownMachine = 4,
     }
 
+    /// Start a new [Maybenot] instance.
+    ///
+    /// `machines_str` must be a null-terminated UTF-8 string, containing LF-separated machines.
     #[no_mangle]
     pub extern "C" fn maybenot_start(
         machines_str: *const i8,
         max_padding_bytes: f64,
         max_blocking_bytes: f64,
         mtu: u16,
-        on_action: ActionCallback,
+        on_action: MaybenotActionCallback,
         out: *mut *mut Maybenot,
-    ) -> Error {
+    ) -> MaybenotError {
         let machines_str = unsafe { CStr::from_ptr(machines_str) };
         let machines_str = machines_str.to_str().unwrap();
 
@@ -238,12 +277,15 @@ pub mod ffi {
                 // SAFETY: caller pinky promises that `out` is a valid pointer.
                 unsafe { out.write(box_pointer) };
 
-                Error::Ok
+                MaybenotError::Ok
             }
             Err(_) => todo!(),
         }
     }
 
+    /// Stop a running [Maybenot] instance.
+    ///
+    /// This will free the maybenot pointer.
     #[no_mangle]
     pub extern "C" fn maybenot_stop(this: *mut Maybenot) {
         // Reconstruct the Box<Maybenot> and drop it.
@@ -251,18 +293,23 @@ pub mod ffi {
         let _this = unsafe { Box::from_raw(this) };
     }
 
+    /// Feed an event to the [Maybenot] instance.
+    ///
+    /// This may generate [super::MaybenotAction]s that will be sent to the callback provided to
+    /// [maybenot_start]. `user_data` will be passed to the callback as-is, it will not be read or
+    /// modified.
     #[no_mangle]
     pub extern "C" fn maybenot_on_event(
         this: *mut Maybenot,
         user_data: *mut c_void,
-        event: Event,
-    ) -> Error {
+        event: MaybenotEvent,
+    ) -> MaybenotError {
         let this =
             unsafe { this.as_mut() }.expect("maybenot_on_event expects a valid maybenot pointer");
 
         match this.on_event(user_data, event) {
-            Ok(_) => Error::Ok,
-            Err(_) => Error::UnknownMachine,
+            Ok(_) => MaybenotError::Ok,
+            Err(_) => MaybenotError::UnknownMachine,
         }
     }
 }
