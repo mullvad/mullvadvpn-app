@@ -136,7 +136,6 @@ func (self DaitaThingy) handleEvents() {
 
 		// if we found a pending action, set the timer
 		if nextActionMachine != nil {
-			self.tunnel.Logger.Verbosef("next action in %f seconds", nextActionIn.Seconds())
 			actionTimer.Reset(nextActionIn)
 		}
 
@@ -225,7 +224,6 @@ func maybenotDurationToGoDuration(duration C.MaybenotDuration) time.Duration {
 }
 
 func (self DaitaThingy) actOnAction(action device.Action) {
-	self.tunnel.Logger.Verbosef("Sending action")
 	err := self.tunnel.Device.Daita.SendAction(action)
 	if err != nil {
 		self.tunnel.Logger.Errorf("Failed to send DAITA action %v because of %v", action, err)
