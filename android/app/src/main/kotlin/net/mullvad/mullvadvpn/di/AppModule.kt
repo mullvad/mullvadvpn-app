@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.di
 
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.intent.IntentProvider
 import net.mullvad.mullvadvpn.repository.MigrateSplitTunnelingRepository
 import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
 import org.koin.android.ext.koin.androidContext
@@ -14,5 +15,5 @@ val appModule = module {
             MainScope(),
         )
     }
-    single { SplitTunnelingRepository(get()) }
+    single { IntentProvider() }
 }
