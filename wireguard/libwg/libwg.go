@@ -59,7 +59,7 @@ func wgActivateDaita(tunnelHandle int32, eventsCapacity uint32, actionsCapacity 
 func wgReceiveEvent(tunnelHandle int32, event *C.Event) int32 {
 	tunnel, err := tunnels.Get(tunnelHandle)
 	if err != nil {
-		// Failed to get tunnel from handle
+		// Failed to get tunnel from handle, cannot log
 		return -1
 	}
 
@@ -68,9 +68,9 @@ func wgReceiveEvent(tunnelHandle int32, event *C.Event) int32 {
 		return -2
 	}
 
-	receivedEvent, err := tunnel.Device.Daita.ReceiveEvent()
-	if err != nil {
-		tunnel.Logger.Errorf("Failed to fetch DAITA event")
+	receivedEvent := tunnel.Device.Daita.ReceiveEvent()
+	if receivedEvent == nil {
+		tunnel.Logger.Verbosef("DAITA closed")
 		return -3
 	}
 
@@ -86,7 +86,7 @@ func wgReceiveEvent(tunnelHandle int32, event *C.Event) int32 {
 func wgSendAction(tunnelHandle int32, action C.Action) int32 {
 	tunnel, err := tunnels.Get(tunnelHandle)
 	if err != nil {
-		// Failed to get tunnel from handle
+		// Failed to get tunnel from handle, cannot log
 		return -1
 	}
 
