@@ -40,12 +40,22 @@ extern "C" {
     // Sets the config of the WireGuard interface.
     pub fn wgSetConfig(handle: i32, settings: *const i8) -> i32;
 
-    // Activate DAITA
+    /// Activate DAITA for the specified peer.
+    ///
+    /// `tunnel_handle` must come from [wgTurnOn]. `machines` is a string containing LF-separated
+    /// maybenot machines.
+    ///
+    /// # Safety:
+    /// - `peer_public_key` must point to a 32 byte array.
+    /// - `machines` must point to a null-terminated UTF-8 string.
+    /// - Neither pointer will be written to by `wgActivateDaita`.
+    /// - Neither pointer will be read from after `wgActivateDaita` has returned.
     pub fn wgActivateDaita(
-        machines: *const i8,
-        tunnelHandle: i32,
-        eventsCapacity: u32,
-        actionsCapacity: u32,
+        tunnel_handle: i32,
+        peer_public_key: *const u8,
+        machines: *const c_char,
+        events_capacity: u32,
+        actions_capacity: u32,
     ) -> bool;
 
     // Frees a pointer allocated by the go runtime - useful to free return value of wgGetConfig
