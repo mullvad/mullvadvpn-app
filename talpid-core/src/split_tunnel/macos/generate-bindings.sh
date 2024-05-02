@@ -18,5 +18,4 @@ bindgen "include/bindings.h" -o ./bindings.rs \
     --allowlist-item "^pktap_header" \
     --allowlist-item "PCAP_ERRBUF_SIZE" \
     --allowlist-item "^BIOCSWANTPKTAP" \
-    --allowlist-item "^PTH_FLAG_DIR_OUT" \
-    --allowlist-item "^bpf_stat"
+    --allowlist-item "^PTH_FLAG_DIR_OUT"

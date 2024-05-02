@@ -5,7 +5,6 @@ pub const PCAP_ERRBUF_SIZE: u32 = 256;
 pub type __int32_t = ::std::os::raw::c_int;
 pub type __darwin_pid_t = __int32_t;
 pub type __darwin_uuid_t = [::std::os::raw::c_uchar; 16usize];
-pub type u_int = ::std::os::raw::c_uint;
 pub type pid_t = __darwin_pid_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -285,47 +284,6 @@ fn bindgen_test_layout_pktap_header() {
             stringify!(pktap_header),
             "::",
             stringify!(pth_euuid)
-        )
-    );
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct bpf_stat {
-    pub bs_recv: u_int,
-    pub bs_drop: u_int,
-}
-#[test]
-fn bindgen_test_layout_bpf_stat() {
-    const UNINIT: ::std::mem::MaybeUninit<bpf_stat> = ::std::mem::MaybeUninit::uninit();
-    let ptr = UNINIT.as_ptr();
-    assert_eq!(
-        ::std::mem::size_of::<bpf_stat>(),
-        8usize,
-        concat!("Size of: ", stringify!(bpf_stat))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<bpf_stat>(),
-        4usize,
-        concat!("Alignment of ", stringify!(bpf_stat))
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).bs_recv) as usize - ptr as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(bpf_stat),
-            "::",
-            stringify!(bs_recv)
-        )
-    );
-    assert_eq!(
-        unsafe { ::std::ptr::addr_of!((*ptr).bs_drop) as usize - ptr as usize },
-        4usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(bpf_stat),
-            "::",
-            stringify!(bs_drop)
         )
     );
 }
