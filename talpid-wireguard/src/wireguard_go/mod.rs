@@ -29,6 +29,8 @@ use super::{
 };
 use crate::logging::{clean_up_logging, initialize_logging};
 
+use wireguard_go_rs::*;
+
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 type Result<T> = std::result::Result<T, TunnelError>;
