@@ -1,10 +1,7 @@
-package net.mullvad.mullvadvpn.repository
+package net.mullvad.mullvadvpn.service
 
 import android.content.Context
 import java.io.File
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 
 class MigrateSplitTunnelingRepository(
     private val context: Context

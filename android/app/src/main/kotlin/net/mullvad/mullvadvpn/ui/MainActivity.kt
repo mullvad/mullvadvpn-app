@@ -8,9 +8,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.collectAsState
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.delay
@@ -18,7 +18,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
-import net.mullvad.mullvadvpn.lib.common.constant.KEY_REQUEST_VPN_PERMISSION
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermissionIfMissing
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
@@ -67,7 +66,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 MullvadApp()
-                val currentState = managementService.connectionState.collectAsState()
+                val currentState = managementService.connectionState.collectAsStateWithLifecycle()
                 Text(
                     text = currentState.value.toString(),
                     style = MaterialTheme.typography.titleLarge

@@ -230,6 +230,5 @@ class LoginViewModelTest {
     companion object {
         private const val DUMMY_ACCOUNT_TOKEN = "DUMMY"
         private const val EXPECTED_RPC_ERROR_MESSAGE = "RpcError"
-        private const val EXPECTED_OTHER_ERROR_MESSAGE = "OtherError"
     }
 }
