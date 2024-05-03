@@ -44,6 +44,10 @@
 		449EB9FD2B95F8AD00DFA4EB /* DeviceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449EB9FC2B95F8AD00DFA4EB /* DeviceMock.swift */; };
 		449EB9FF2B95FF2500DFA4EB /* AccountMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449EB9FE2B95FF2500DFA4EB /* AccountMock.swift */; };
 		449EBA262B975B9700DFA4EB /* PostQuantumKeyReceiving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449EBA252B975B9700DFA4EB /* PostQuantumKeyReceiving.swift */; };
+		44BB5F902BE4FB53002520EB /* TunnelStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BB5F8F2BE4FB53002520EB /* TunnelStateTests.swift */; };
+		44BB5F922BE50F4F002520EB /* TunnelState+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BB5F912BE50F4F002520EB /* TunnelState+UI.swift */; };
+		44BB5F932BE5105E002520EB /* TunnelState+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BB5F912BE50F4F002520EB /* TunnelState+UI.swift */; };
+		44BB5F942BE5114A002520EB /* CodingErrors+CustomErrorDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */; };
 		44DD7D242B6CFFD70005F67F /* StartTunnelOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */; };
 		44DD7D272B6D18FB0005F67F /* MockTunnelInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */; };
 		44DD7D292B7113CA0005F67F /* MockTunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D282B7113CA0005F67F /* MockTunnel.swift */; };
@@ -726,7 +730,6 @@
 		A9A5F9E92ACB05160083449F /* ObserverList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CC40EE24A601900019D96E /* ObserverList.swift */; };
 		A9A5F9EA2ACB05160083449F /* Bundle+ProductVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */; };
 		A9A5F9EB2ACB05160083449F /* CharacterSet+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */; };
-		A9A5F9EC2ACB05160083449F /* CodingErrors+CustomErrorDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */; };
 		A9A5F9ED2ACB05160083449F /* NSRegularExpression+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */; };
 		A9A5F9EE2ACB05160083449F /* RESTCreateApplePaymentResponse+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */; };
 		A9A5F9EF2ACB05160083449F /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
@@ -1369,6 +1372,8 @@
 		449EB9FC2B95F8AD00DFA4EB /* DeviceMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceMock.swift; sourceTree = "<group>"; };
 		449EB9FE2B95FF2500DFA4EB /* AccountMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountMock.swift; sourceTree = "<group>"; };
 		449EBA252B975B9700DFA4EB /* PostQuantumKeyReceiving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostQuantumKeyReceiving.swift; sourceTree = "<group>"; };
+		44BB5F8F2BE4FB53002520EB /* TunnelStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelStateTests.swift; sourceTree = "<group>"; };
+		44BB5F912BE50F4F002520EB /* TunnelState+UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TunnelState+UI.swift"; sourceTree = "<group>"; };
 		44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartTunnelOperationTests.swift; sourceTree = "<group>"; };
 		44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnelInteractor.swift; sourceTree = "<group>"; };
 		44DD7D282B7113CA0005F67F /* MockTunnel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnel.swift; sourceTree = "<group>"; };
@@ -2406,6 +2411,7 @@
 				5820676326E771DB00655B05 /* TunnelManagerErrors.swift */,
 				5823FA5326CE49F600283BF8 /* TunnelObserver.swift */,
 				58B93A1226C3F13600A55733 /* TunnelState.swift */,
+				44BB5F912BE50F4F002520EB /* TunnelState+UI.swift */,
 				5803B4B12940A48700C23744 /* TunnelStore.swift */,
 				5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */,
 				58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */,
@@ -3033,6 +3039,7 @@
 				44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */,
 				5807E2C1243203D000F5FF30 /* StringTests.swift */,
 				A9A5F9A12ACB003D0083449F /* TunnelManagerTests.swift */,
+				44BB5F8F2BE4FB53002520EB /* TunnelStateTests.swift */,
 				A9E0317B2ACBFC7E0095D843 /* TunnelStore+Stubs.swift */,
 				A9E031792ACB0AE70095D843 /* UIApplication+Stubs.swift */,
 				F09D04BA2AE95396003D4F89 /* URLSessionStub.swift */,
@@ -4987,6 +4994,7 @@
 				A9A5FA3F2ACB05D90083449F /* DeviceCheckRemoteService.swift in Sources */,
 				A9A5FA402ACB05D90083449F /* DeviceCheckRemoteServiceProtocol.swift in Sources */,
 				A9A5FA412ACB05D90083449F /* DeviceStateAccessor.swift in Sources */,
+				44BB5F942BE5114A002520EB /* CodingErrors+CustomErrorDescription.swift in Sources */,
 				A9A5FA422ACB05D90083449F /* DeviceStateAccessorProtocol.swift in Sources */,
 				7A5869C32B5820CE00640D27 /* IPOverrideRepositoryTests.swift in Sources */,
 				A9A5FA392ACB05910083449F /* UIColor+Palette.swift in Sources */,
@@ -4996,6 +5004,7 @@
 				58B07C182AEFDD6C00A09625 /* StoreTransactionLog.swift in Sources */,
 				A9A5FA382ACB05600083449F /* InputTextFormatter.swift in Sources */,
 				A9A5FA372ACB052D0083449F /* ApplicationTarget.swift in Sources */,
+				44BB5F932BE5105E002520EB /* TunnelState+UI.swift in Sources */,
 				A9A5F9E12ACB05160083449F /* AddressCacheTracker.swift in Sources */,
 				A900E9BC2ACC609200C95F67 /* DevicesProxy+Stubs.swift in Sources */,
 				A9A5F9E22ACB05160083449F /* BackgroundTask.swift in Sources */,
@@ -5010,7 +5019,6 @@
 				A9A5F9EA2ACB05160083449F /* Bundle+ProductVersion.swift in Sources */,
 				A9A5F9EB2ACB05160083449F /* CharacterSet+IPAddress.swift in Sources */,
 				F0D8825C2B04F70E00D3EF9A /* OutgoingConnectionData.swift in Sources */,
-				A9A5F9EC2ACB05160083449F /* CodingErrors+CustomErrorDescription.swift in Sources */,
 				A9A5F9ED2ACB05160083449F /* NSRegularExpression+IPAddress.swift in Sources */,
 				A9A5F9EE2ACB05160083449F /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
 				7A12D0772B062D6500E9602D /* URLSessionProtocol.swift in Sources */,
@@ -5102,6 +5110,7 @@
 				449872E42B7CB96300094DDC /* TunnelSettingsUpdateTests.swift in Sources */,
 				449EB9FD2B95F8AD00DFA4EB /* DeviceMock.swift in Sources */,
 				A9A5FA292ACB05160083449F /* AddressCacheTests.swift in Sources */,
+				44BB5F902BE4FB53002520EB /* TunnelStateTests.swift in Sources */,
 				A9B6AC182ADE8F4300F7802A /* MigrationManagerTests.swift in Sources */,
 				7A9BE5AB2B909A1700E2A7D0 /* LocationDataSourceProtocol.swift in Sources */,
 				A9A5FA2A2ACB05160083449F /* CoordinatesTests.swift in Sources */,
@@ -5274,6 +5283,7 @@
 				5867771429097BCD006F721F /* PaymentState.swift in Sources */,
 				F0EF50D32A8FA47E0031E8DF /* ChangeLogInteractor.swift in Sources */,
 				7AC8A3AF2ABC71D600DC4939 /* TermsOfServiceCoordinator.swift in Sources */,
+				44BB5F922BE50F4F002520EB /* TunnelState+UI.swift in Sources */,
 				58FF9FE22B075BA600E4C97D /* EditAccessMethodSectionIdentifier.swift in Sources */,
 				F0C2AEFD2A0BB5CC00986207 /* NotificationProviderIdentifier.swift in Sources */,
 				7A58699B2B482FE200640D27 /* UITableViewCell+Disable.swift in Sources */,
