@@ -5,7 +5,6 @@ import android.content.Context
 import java.io.File
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
-import net.mullvad.mullvadvpn.repository.MigrateSplitTunnelingRepository
 
 private const val RELAYS_FILE = "relays.json"
 

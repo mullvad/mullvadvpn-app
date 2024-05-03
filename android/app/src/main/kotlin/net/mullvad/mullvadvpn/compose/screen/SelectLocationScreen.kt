@@ -125,6 +125,7 @@ private fun PreviewSelectLocationScreen() {
 }
 
 @Destination(style = SelectLocationTransition::class)
+@Suppress("LongMethod")
 @Composable
 fun SelectLocation(
     navigator: DestinationsNavigator,
@@ -277,30 +278,7 @@ fun SelectLocationScreen(
         )
 
         Column(modifier = Modifier.padding(it).background(backgroundColor).fillMaxSize()) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        modifier = Modifier.rotate(270f),
-                        painter = painterResource(id = R.drawable.icon_back),
-                        tint = Color.Unspecified,
-                        contentDescription = null,
-                    )
-                }
-                Text(
-                    text = stringResource(id = R.string.select_location),
-                    modifier = Modifier.align(Alignment.CenterVertically).weight(weight = 1f),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                )
-                IconButton(onClick = onFilterClick) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icons_more_circle),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                    )
-                }
-            }
+            SelectLocationTopBar(onBackClick = onBackClick, onFilterClick = onFilterClick)
 
             when (state) {
                 SelectLocationUiState.Loading -> {}
@@ -407,6 +385,34 @@ fun SelectLocationScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun SelectLocationTopBar(onBackClick: () -> Unit, onFilterClick: () -> Unit) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        IconButton(onClick = onBackClick) {
+            Icon(
+                modifier = Modifier.rotate(270f),
+                painter = painterResource(id = R.drawable.icon_back),
+                tint = Color.Unspecified,
+                contentDescription = null,
+            )
+        }
+        Text(
+            text = stringResource(id = R.string.select_location),
+            modifier = Modifier.align(Alignment.CenterVertically).weight(weight = 1f),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onPrimary,
+        )
+        IconButton(onClick = onFilterClick) {
+            Icon(
+                painter = painterResource(id = R.drawable.icons_more_circle),
+                contentDescription = null,
+                tint = Color.Unspecified,
+            )
         }
     }
 }
