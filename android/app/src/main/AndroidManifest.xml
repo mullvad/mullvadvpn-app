@@ -63,6 +63,9 @@
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="net.mullvad.mullvadvpn.request_vpn_permission" />
+            </intent-filter>
         </activity>
         <!--
             MullvadVpnService

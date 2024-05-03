@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.lib.common.util.firstOrNullWithTimeout
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.CustomList
 import net.mullvad.mullvadvpn.model.CustomListId
@@ -16,7 +17,6 @@ import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.GetCustomListError
 import net.mullvad.mullvadvpn.model.ModifyCustomListError
-import net.mullvad.mullvadvpn.util.firstOrNullWithTimeout
 
 class CustomListsRepository(
     private val managementService: ManagementService,

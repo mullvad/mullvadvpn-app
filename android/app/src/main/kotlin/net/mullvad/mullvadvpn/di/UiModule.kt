@@ -10,7 +10,6 @@ import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
-import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.account.VoucherRepository
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.model.GeoLocationId
@@ -26,7 +25,6 @@ import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.repository.SelectedLocationRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
-import net.mullvad.mullvadvpn.repository.VpnPermissionRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -77,6 +75,7 @@ import net.mullvad.mullvadvpn.viewmodel.SplashViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
 import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
+import net.mullvad.mullvadvpn.viewmodel.VpnPermissionViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import org.apache.commons.validator.routines.InetAddressValidator
@@ -105,8 +104,6 @@ val uiModule = module {
     single { androidContext().contentResolver }
 
     single { ChangelogRepository(get(named(APP_PREFERENCES_NAME)), get()) }
-
-    single { net.mullvad.mullvadvpn.lib.account.AccountRepository(get(), MainScope()) }
     single { DeviceRepository(get()) }
     single {
         PrivacyDisclaimerRepository(
@@ -121,7 +118,6 @@ val uiModule = module {
     single { SelectedLocationRepository(get()) }
     single { RelayListFilterRepository(get()) }
     single { VoucherRepository(get(), get()) }
-    single { VpnPermissionRepository(get()) }
     single { SplitTunnelingRepository(get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
@@ -199,6 +195,7 @@ val uiModule = module {
     viewModel { parameters -> DeleteCustomListConfirmationViewModel(parameters.get(), get()) }
     viewModel { ServerIpOverridesViewModel(get(), get()) }
     viewModel { ResetServerIpOverridesConfirmationViewModel(get()) }
+    viewModel { VpnPermissionViewModel(get(), get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { NoDaemonViewModel(get()) }

@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.content.Intent
-import android.net.VpnService
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -19,6 +18,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_REQUEST_VPN_PERMISSION
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermissionIfMissing
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
@@ -91,6 +91,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        intentProvider.setStartIntent(intent)
+    }
+
     fun startServiceSuspend() {
         requestNotificationPermissionIfMissing(requestNotificationPermissionLauncher)
         serviceConnectionManager.bind(
@@ -104,17 +109,6 @@ class MainActivity : ComponentActivity() {
         managementService.start()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        // super call is needed for return value when opening file.
-        super.onActivityResult(requestCode, resultCode, resultData)
-
-        // Ensure we are responding to the correct request
-        if (requestCode == REQUEST_VPN_PERMISSION_RESULT_CODE) {
-            //        serviceConnectionManager.onVpnPermissionResult(resultCode ==
-            // Activity.RESULT_OK)
-        }
-    }
-
     override fun onStop() {
         Log.d("mullvad", "Stopping main activity")
         super.onStop()
@@ -125,16 +119,5 @@ class MainActivity : ComponentActivity() {
         serviceConnectionManager.onDestroy()
         lifecycle.removeObserver(noDaemonViewModel)
         super.onDestroy()
-    }
-
-    @Suppress("DEPRECATION")
-    private fun requestVpnPermission() {
-        val intent = VpnService.prepare(this)
-
-        startActivityForResult(intent, REQUEST_VPN_PERMISSION_RESULT_CODE)
-    }
-
-    companion object {
-        private const val REQUEST_VPN_PERMISSION_RESULT_CODE = 0
     }
 }
