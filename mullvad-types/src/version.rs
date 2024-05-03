@@ -3,6 +3,7 @@ use jnix::IntoJava;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
+use std::fmt::{self, Formatter};
 use std::{cmp::Ordering, str::FromStr};
 
 static STABLE_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(\d{4})\.(\d+)$").unwrap());
@@ -133,18 +134,18 @@ impl PartialOrd for ParsedAppVersion {
     }
 }
 
-impl ToString for ParsedAppVersion {
-    fn to_string(&self) -> String {
+impl fmt::Display for ParsedAppVersion {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Stable(year, version) => format!("{year}.{version}"),
+            Self::Stable(year, version) => write!(f, "{year}.{version}"),
             Self::Beta(year, version, beta_version) => {
-                format!("{year}.{version}-beta{beta_version}")
+                write!(f, "{year}.{version}-beta{beta_version}")
             }
             Self::Dev(year, version, beta_version, hash) => {
                 if let Some(beta_version) = beta_version {
-                    format!("{year}.{version}-beta{beta_version}-dev-{hash}")
+                    write!(f, "{year}.{version}-beta{beta_version}-dev-{hash}")
                 } else {
-                    format!("{year}.{version}-dev-{hash}")
+                    write!(f, "{year}.{version}-dev-{hash}")
                 }
             }
         }
