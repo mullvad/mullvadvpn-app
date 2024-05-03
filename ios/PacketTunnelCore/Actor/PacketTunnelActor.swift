@@ -200,12 +200,9 @@ extension PacketTunnelActor {
     private func reconnect(to nextRelay: NextRelay, reason: ReconnectReason) async {
         do {
             switch state {
-            case .negotiatingPostQuantumKey:
-                // There is no connection monitoring going on when exchanging keys.
-                // The procedure starts from scratch for each reconnection attempts.
-//                try await tryStart(nextRelay: nextRelay, reason: reason)
-                break // DO nothing at all for the moment
-            case .connecting, .connected, .reconnecting, .error:
+            // There is no connection monitoring going on when exchanging keys.
+            // The procedure starts from scratch for each reconnection attempts.
+            case .connecting, .connected, .reconnecting, .error, .negotiatingPostQuantumKey:
                 switch reason {
                 case .connectionLoss:
                     // Tunnel monitor is already paused at this point. Avoid calling stop() to prevent the reset of
@@ -229,13 +226,14 @@ extension PacketTunnelActor {
 
     private func postQuantumConnect(with key: PreSharedKey, privateKey: PrivateKey) async {
         guard
+            // It is important to select the same relay that was saved in the connection state as the key negotiation happened with this specific relay.
+            let selectedRelay = state.connectionData?.selectedRelay,
             let settings: Settings = try? settingsReader.read(),
             let connectionState = try? obfuscateConnection(
-                nextRelay: .current,
+                nextRelay: .preSelected(selectedRelay),
                 settings: settings,
                 reason: .userInitiated
-            ),
-            let targetState = state.targetStateForReconnect
+            )
         else { return }
 
         let configurationBuilder = ConfigurationBuilder(
@@ -251,12 +249,7 @@ extension PacketTunnelActor {
         )
         stopDefaultPathObserver()
 
-        switch targetState {
-        case .connecting:
-            state = .connecting(connectionState)
-        case .reconnecting:
-            state = .reconnecting(connectionState)
-        }
+        state = .connecting(connectionState)
 
         defer {
             // Restart default path observer and notify the observer with the current path that might have changed while
@@ -285,20 +278,21 @@ extension PacketTunnelActor {
          - reason: reason for reconnect
      */
     private func tryStart(
-        nextRelay: NextRelay = .random,
+        nextRelay: NextRelay,
         reason: ReconnectReason = .userInitiated
     ) async throws {
         let settings: Settings = try settingsReader.read()
 
         guard settings.quantumResistance == .off || settings.quantumResistance == .automatic else {
             if let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings, reason: reason) {
+                let selectedEndpoint = connectionState.selectedRelay.endpoint
                 let activeKey = activeKey(from: connectionState, in: settings)
 
                 let configurationBuilder = ConfigurationBuilder(
                     privateKey: activeKey,
                     interfaceAddresses: settings.interfaceAddresses,
                     dns: settings.dnsServers,
-                    endpoint: connectionState.connectedEndpoint,
+                    endpoint: selectedEndpoint,
                     allowedIPs: [
                         IPAddressRange(from: "10.64.0.1/32")!,
                     ]
@@ -388,7 +382,9 @@ extension PacketTunnelActor {
                 connectionState.incrementAttemptCount()
             }
             fallthrough
-        case var .connected(connectionState), var .negotiatingPostQuantumKey(connectionState, _):
+        case let .negotiatingPostQuantumKey(connectionState, _):
+            return connectionState
+        case var .connected(connectionState):
             let selectedRelay = try callRelaySelector(
                 connectionState.selectedRelay,
                 connectionState.connectionAttemptCount
