@@ -109,6 +109,12 @@ impl RelayQuery {
     }
 }
 
+impl Default for RelayQuery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl From<RelayQuery> for RelayConstraints {
     /// The mapping from [`RelayQuery`] to [`RelayConstraints`].
     fn from(value: RelayQuery) -> Self {
@@ -163,6 +169,12 @@ impl WireguardRelayQuery {
     }
 }
 
+impl Default for WireguardRelayQuery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl From<WireguardRelayQuery> for WireguardConstraints {
     /// The mapping from [`WireguardRelayQuery`] to [`WireguardConstraints`].
     fn from(value: WireguardRelayQuery) -> Self {
@@ -204,6 +216,12 @@ impl OpenVpnRelayQuery {
             port: Constraint::Any,
             bridge_settings: Constraint::Any,
         }
+    }
+}
+
+impl Default for OpenVpnRelayQuery {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -384,6 +402,12 @@ pub mod builder {
                 query: self.query,
                 protocol,
             }
+        }
+    }
+
+    impl Default for RelayQueryBuilder<Any> {
+        fn default() -> Self {
+            Self::new()
         }
     }
 
