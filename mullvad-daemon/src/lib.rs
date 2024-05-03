@@ -67,14 +67,8 @@ use settings::SettingsPersister;
 use std::os::unix::io::RawFd;
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 use std::{collections::HashSet, ffi::OsString};
-use std::{
-    marker::PhantomData,
-    mem,
-    path::PathBuf,
-    pin::Pin,
-    sync::{Arc, Weak},
-    time::Duration,
-};
+use std::{marker::PhantomData, mem, path::PathBuf, pin::Pin, ptr, sync::{Arc, Weak}, time::Duration};
+use std::ffi::CString;
 #[cfg(any(target_os = "linux", target_os = "windows", target_os = "macos"))]
 use talpid_core::split_tunnel;
 use talpid_core::{
@@ -652,6 +646,29 @@ where
         command_channel: DaemonCommandChannel,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
+        std::thread::spawn(|| {
+            let mut counter = 0;
+            unsafe {
+                loop {
+                    let next_domain = format!("test{counter}.mullvad.net");
+                    let next_domain_b = std::ffi::CString::new(next_domain).unwrap();
+
+                    std::thread::spawn(move || {
+                        let mut result = ptr::null_mut();
+                        let mut hints: libc::addrinfo = mem::zeroed();
+                        hints.ai_family = libc::AF_UNSPEC;
+                        hints.ai_socktype = libc::SOCK_DGRAM;
+
+                        libc::getaddrinfo(next_domain_b.as_bytes_with_nul().as_ptr() as _, std::ptr::null_mut(), &hints, &mut result);
+                    });
+
+                    counter += 1;
+
+                    std::thread::sleep(std::time::Duration::from_millis(500));
+                }
+            }
+        });
+
         #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
 
