@@ -98,29 +98,36 @@ fn get_dev_suffix(target: Target, product_version: &str) -> Option<String> {
 fn rerun_if_git_ref_changed(release_tag: &String) -> Option<()> {
     let git_dir = Path::new("..").join(".git");
 
-    // If we build our output on information about HEAD we need to re-run if HEAD moves
+    // The `.git/HEAD` file contains the position of the current head. If in 'detached HEAD' state,
+    // this will be the ref of the current commit. If on a branch it will just point to it, e.g.
+    // `ref: refs/heads/main`. Tracking changes to this file will tell us if we change branch, or
+    // modify the current detached HEAD state (e.g. committing or rebasing).
     let head_path = git_dir.join("HEAD");
     if head_path.exists() {
         println!("cargo:rerun-if-changed={}", head_path.display());
     }
 
-    // If we build our output on information about the ref of the current branch, we need to re-run
-    // on changes to it
+    // The above check will not cause a rebuild when modifying commits on a currently checked out
+    // branch. To catch this, we need to track the `.git/refs/heads/$current_branch` file.
     let output = Command::new("git")
         .arg("branch")
         .arg("--show-current")
         .output()
         .ok()?;
     let current_branch = String::from_utf8(output.stdout).unwrap();
-    let git_current_branch_ref = git_dir
-        .join("refs")
-        .join("heads")
-        .join(current_branch.trim());
-    if git_current_branch_ref.exists() {
-        println!(
-            "cargo:rerun-if-changed={}",
-            git_current_branch_ref.display()
-        );
+    // When in 'detached HEAD' state, the output will be empty. However, in that case we already get
+    // the ref from `.git/HEAD`, so we can safely skip this part.
+    if !current_branch.is_empty() {
+        let git_current_branch_ref = git_dir
+            .join("refs")
+            .join("heads")
+            .join(current_branch.trim());
+        if git_current_branch_ref.exists() {
+            println!(
+                "cargo:rerun-if-changed={}",
+                git_current_branch_ref.display()
+            );
+        }
     }
 
     // To rebuild in the case where the release tag moves to the current commit, we need to track
@@ -129,6 +136,13 @@ fn rerun_if_git_ref_changed(release_tag: &String) -> Option<()> {
     if git_release_tag_ref.exists() {
         println!("cargo:rerun-if-changed={}", git_release_tag_ref.display());
     };
+
+    // NOTE: As the repository has gotten quite large, you may find the contents of the
+    // `.git/refs/heads` and `.git/refs/tags` empty. This happens because `git pack-refs` compresses
+    // and the information in the `.git/packed-refs` file to save storage. We do not have to track
+    // this folder, however, as any changes to the current branch, 'detached HEAD' state or tags
+    // will update the corresponding `.git/refs` file we are tracking, even if it had previously
+    // been pruned.
     Some(())
 }
 
