@@ -344,4 +344,5 @@
     <string name="settings_patch_error_recursion_limit">Recursion limit</string>
     <string name="settings_patch_success">Import successful, overrides active</string>
     <string name="overrides_cleared">Overrides cleared</string>
+    <string name="unsecured_vpn_permission_error">Unsecured (No VPN permission)</string>
 </resources>

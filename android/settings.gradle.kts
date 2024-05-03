@@ -18,6 +18,7 @@ include(
     ":lib:payment",
     ":lib:map",
     ":lib:daemon-grpc",
+    ":lib:vpn-permission"
 )
 include(
     ":test",

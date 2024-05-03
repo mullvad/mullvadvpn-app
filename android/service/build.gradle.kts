@@ -62,6 +62,7 @@ dependencies {
     implementation(project(Dependencies.Mullvad.daemonGrpc))
     implementation(project(Dependencies.Mullvad.accountLib))
     implementation(project(Dependencies.Mullvad.intentLib))
+    implementation(project(Dependencies.Mullvad.vpnPermissionLib))
 
     implementation(Dependencies.jodaTime)
     implementation(Dependencies.AndroidX.lifecycleService)

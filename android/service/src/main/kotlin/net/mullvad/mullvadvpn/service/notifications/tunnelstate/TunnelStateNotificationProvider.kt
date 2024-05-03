@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.permission.VpnPermissionRepository
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.ChannelId
 import net.mullvad.mullvadvpn.model.ErrorStateCause
@@ -23,6 +24,7 @@ import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 
 class TunnelStateNotificationProvider(
     managementService: ManagementService,
+    vpnPermissionRepository: VpnPermissionRepository,
     channelId: ChannelId,
     scope: CoroutineScope
 ) : NotificationProvider {
@@ -32,7 +34,12 @@ class TunnelStateNotificationProvider(
                 managementService.tunnelState.actionAfterDisconnect().distinctUntilChanged(),
             ) { tunnelState: TunnelState, actionAfterDisconnect: ActionAfterDisconnect?,
                 ->
-                val notificationTunnelState = tunnelState(tunnelState, actionAfterDisconnect)
+                val notificationTunnelState =
+                    tunnelState(
+                        tunnelState,
+                        actionAfterDisconnect,
+                        vpnPermissionRepository.hasVpnPermission()
+                    )
                 Log.d(
                     "TunnelStateNotificationUseCase",
                     "notificationTunnelState: $notificationTunnelState"
@@ -49,7 +56,7 @@ class TunnelStateNotificationProvider(
                 SharingStarted.Eagerly,
                 Notification.Tunnel(
                     channelId,
-                    NotificationTunnelState.Disconnected,
+                    NotificationTunnelState.Disconnected(true),
                     emptyList(),
                     false
                 )
@@ -58,18 +65,21 @@ class TunnelStateNotificationProvider(
     private fun tunnelState(
         tunnelState: TunnelState,
         actionAfterDisconnect: ActionAfterDisconnect?,
-    ): NotificationTunnelState = tunnelState.toNotificationTunnelState(actionAfterDisconnect)
+        hasVpnPermission: Boolean,
+    ): NotificationTunnelState =
+        tunnelState.toNotificationTunnelState(actionAfterDisconnect, hasVpnPermission)
 
     private fun Flow<TunnelState>.actionAfterDisconnect(): Flow<ActionAfterDisconnect?> =
         filterIsInstance<TunnelState.Disconnecting>()
-            .map { it.actionAfterDisconnect as ActionAfterDisconnect? }
+            .map<TunnelState.Disconnecting, ActionAfterDisconnect?> { it.actionAfterDisconnect }
             .onStart { emit(null) }
 
     private fun TunnelState.toNotificationTunnelState(
-        actionAfterDisconnect: ActionAfterDisconnect?
+        actionAfterDisconnect: ActionAfterDisconnect?,
+        hasVpnPermission: Boolean
     ) =
         when (this) {
-            is TunnelState.Disconnected -> NotificationTunnelState.Disconnected
+            is TunnelState.Disconnected -> NotificationTunnelState.Disconnected(hasVpnPermission)
             is TunnelState.Connecting -> {
                 if (actionAfterDisconnect == ActionAfterDisconnect.Reconnect) {
                     NotificationTunnelState.Reconnecting
@@ -103,7 +113,13 @@ class TunnelStateNotificationProvider(
 
     private fun NotificationTunnelState.toAction(): NotificationAction.Tunnel =
         when (this) {
-            NotificationTunnelState.Disconnected,
+            is NotificationTunnelState.Disconnected -> {
+                if (this.hasVpnPermission) {
+                    NotificationAction.Tunnel.Connect
+                } else {
+                    NotificationAction.Tunnel.RequestPermission
+                }
+            }
             NotificationTunnelState.Disconnecting -> NotificationAction.Tunnel.Connect
             NotificationTunnelState.Connected,
             NotificationTunnelState.Error.Blocking -> NotificationAction.Tunnel.Disconnect

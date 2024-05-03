@@ -127,6 +127,3 @@ suspend inline fun <T> Flow<T>.retryWithExponentialBackOff(
 
 class ExceptionWrapper(val item: Any) : Throwable()
 
-suspend fun <T> Flow<T>.firstOrNullWithTimeout(timeMillis: Long): T? {
-    return withTimeoutOrNull(timeMillis) { firstOrNull() }
-}
