@@ -58,7 +58,7 @@ class LoginViewModel(
     private val _uiSideEffect = Channel<LoginUiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    val _mutableAccountHistory: MutableStateFlow<AccountToken?> = MutableStateFlow(null)
+    private val _mutableAccountHistory: MutableStateFlow<AccountToken?> = MutableStateFlow(null)
 
     private val _uiState =
         combine(

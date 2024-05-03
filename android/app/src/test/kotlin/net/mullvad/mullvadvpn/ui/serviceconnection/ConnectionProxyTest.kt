@@ -8,7 +8,6 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.repository.VpnPermissionRepository
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class ConnectionProxyTest {
@@ -21,8 +20,6 @@ class ConnectionProxyTest {
             managementService = mockManagementService,
             vpnPermissionRepository = mockVpnPermissionRepository
         )
-
-    @BeforeEach fun setup() {}
 
     @Test
     fun `connect with vpn permission allowed should call managementService connect`() = runTest {
@@ -40,18 +37,16 @@ class ConnectionProxyTest {
         }
 
     @Test
-    fun `disconnect should call managementService disconnect`() =
-        runTest {
-            connectionProxy.disconnect()
-            coVerify(exactly = 1) { mockManagementService.disconnect() }
-        }
+    fun `disconnect should call managementService disconnect`() = runTest {
+        connectionProxy.disconnect()
+        coVerify(exactly = 1) { mockManagementService.disconnect() }
+    }
 
     @Test
-    fun `reconnect should call managementService reconnect`() =
-        runTest {
-            connectionProxy.reconnect()
-            coVerify(exactly = 1) { mockManagementService.reconnect() }
-        }
+    fun `reconnect should call managementService reconnect`() = runTest {
+        connectionProxy.reconnect()
+        coVerify(exactly = 1) { mockManagementService.reconnect() }
+    }
 
     @AfterEach
     fun tearDown() {

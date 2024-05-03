@@ -24,7 +24,7 @@ enum class ProviderCacheDirectory(val directoryName: String) {
     LOGS("logs")
 }
 
-fun Context.getLogsShareIntent(shareTitle: String, logContent: String): Intent {
+fun Context.getLogsShareIntent(logContent: String): Intent {
     val fileName = createShareLogFileName()
     val cacheFile = createCacheFile(ProviderCacheDirectory.LOGS, fileName)
     cacheFile.writeText(logContent)

@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.lib.daemon.grpc
 
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import net.mullvad.mullvadvpn.lib.daemon.grpc.RelayNameComparator
 import net.mullvad.mullvadvpn.model.GeoLocationId
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Provider
