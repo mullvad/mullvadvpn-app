@@ -1,14 +1,13 @@
 package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.TransportProtocol
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.InAppNotification
 
 data class ConnectUiState(
     val location: GeoIpLocation?,
-    val selectedRelayItem: RelayItem?,
+    val selectedRelayItemTitle: String?,
     val tunnelState: TunnelState,
     val inAddress: Triple<String, Int, TransportProtocol>?,
     val outAddress: String,
@@ -28,7 +27,7 @@ data class ConnectUiState(
         val INITIAL =
             ConnectUiState(
                 location = null,
-                selectedRelayItem = null,
+                selectedRelayItemTitle = null,
                 tunnelState = TunnelState.Disconnected(),
                 inAddress = null,
                 outAddress = "",

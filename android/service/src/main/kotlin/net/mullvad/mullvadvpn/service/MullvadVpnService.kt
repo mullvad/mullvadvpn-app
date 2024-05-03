@@ -208,15 +208,15 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         Log.d(TAG, "onTaskRemoved (rootIntent=$rootIntent)")
     }
 
+    private fun Intent?.isFromSystem(): Boolean {
+        return this?.action == SERVICE_INTERFACE
+    }
+
     companion object {
         private const val TAG = "MullvadVpnService"
 
         init {
             System.loadLibrary("mullvad_jni")
         }
-    }
-
-    private fun Intent?.isFromSystem(): Boolean {
-        return this?.action == SERVICE_INTERFACE
     }
 }
