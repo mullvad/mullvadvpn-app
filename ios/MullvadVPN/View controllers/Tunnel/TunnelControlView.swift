@@ -475,13 +475,22 @@ private extension TunnelState {
 
     var localizedTitleForSecureLabel: String {
         switch self {
-        case .connecting, .reconnecting:
-            NSLocalizedString(
-                "TUNNEL_STATE_CONNECTING",
-                tableName: "Main",
-                value: "Creating secure connection",
-                comment: ""
-            )
+        case let .connecting(_, isPostQuantum), let .reconnecting(_, isPostQuantum):
+            if isPostQuantum {
+                NSLocalizedString(
+                    "TUNNEL_STATE_PQ_CONNECTING",
+                    tableName: "Main",
+                    value: "Creating quantum secure connection",
+                    comment: ""
+                )
+            } else {
+                NSLocalizedString(
+                    "TUNNEL_STATE_CONNECTING",
+                    tableName: "Main",
+                    value: "Creating secure connection",
+                    comment: ""
+                )
+            }
 
         // TODO: Is this the correct message here ?
         case .negotiatingPostQuantumKey:
@@ -492,13 +501,22 @@ private extension TunnelState {
                 comment: ""
             )
 
-        case .connected:
-            NSLocalizedString(
-                "TUNNEL_STATE_CONNECTED",
-                tableName: "Main",
-                value: "Secure connection",
-                comment: ""
-            )
+        case let .connected(_, isPostQuantum):
+            if isPostQuantum {
+                NSLocalizedString(
+                    "TUNNEL_STATE_CONNECTED",
+                    tableName: "Main",
+                    value: "Quantum secure connection",
+                    comment: ""
+                )
+            } else {
+                NSLocalizedString(
+                    "TUNNEL_STATE_CONNECTED",
+                    tableName: "Main",
+                    value: "Secure connection",
+                    comment: ""
+                )
+            }
 
         case .disconnecting(.nothing):
             NSLocalizedString(
@@ -597,7 +615,7 @@ private extension TunnelState {
                 comment: ""
             )
 
-        case let .connected(tunnelInfo):
+        case let .connected(tunnelInfo, _):
             String(
                 format: NSLocalizedString(
                     "TUNNEL_STATE_CONNECTED_ACCESSIBILITY_LABEL",
@@ -617,7 +635,7 @@ private extension TunnelState {
                 comment: ""
             )
 
-        case let .reconnecting(tunnelInfo):
+        case let .reconnecting(tunnelInfo, _):
             String(
                 format: NSLocalizedString(
                     "TUNNEL_STATE_RECONNECTING_ACCESSIBILITY_LABEL",
