@@ -12,6 +12,8 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.model.ServiceResult
 
 fun <T> SendChannel<T>.safeOffer(element: T): Boolean {
@@ -44,4 +46,8 @@ fun Context.bindServiceFlow(intent: Intent, flags: Int = 0): Flow<ServiceResult>
             }
         }
     }
+}
+
+suspend fun <T> Flow<T>.firstOrNullWithTimeout(timeMillis: Long): T? {
+    return withTimeoutOrNull(timeMillis) { firstOrNull() }
 }

@@ -321,6 +321,7 @@ dependencies {
     implementation(project(Dependencies.Mullvad.mapLib))
     implementation(project(Dependencies.Mullvad.accountLib))
     implementation(project(Dependencies.Mullvad.intentLib))
+    implementation(project(Dependencies.Mullvad.vpnPermissionLib))
 
     // Play implementation
     playImplementation(project(Dependencies.Mullvad.billingLib))

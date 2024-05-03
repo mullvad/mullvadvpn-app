@@ -123,6 +123,7 @@ object Dependencies {
         const val mapLib = ":lib:map"
         const val accountLib = ":lib:account"
         const val intentLib = ":lib:intent-provider"
+        const val vpnPermissionLib = ":lib:vpn-permission"
     }
 
     object Plugin {

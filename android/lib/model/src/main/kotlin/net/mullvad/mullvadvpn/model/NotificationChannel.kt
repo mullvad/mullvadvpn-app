@@ -59,11 +59,13 @@ sealed interface NotificationAction {
         data object Cancel : Tunnel
 
         data object Dismiss : Tunnel
+
+        data object RequestPermission : Tunnel
     }
 }
 
 sealed interface NotificationTunnelState {
-    data object Disconnected : NotificationTunnelState
+    data class Disconnected(val hasVpnPermission: Boolean) : NotificationTunnelState
 
     data object Connecting : NotificationTunnelState
 

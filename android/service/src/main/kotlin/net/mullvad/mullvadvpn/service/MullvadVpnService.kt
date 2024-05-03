@@ -120,7 +120,9 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         when (intent?.action) {
             KEY_CONNECT_ACTION -> {
                 _shouldBeOnForeground.update { true }
-                runBlocking { managementService.connect() }
+                runBlocking {
+                    managementService.connect()
+                }
             }
             KEY_DISCONNECT_ACTION -> {
                 _shouldBeOnForeground.update { true }
