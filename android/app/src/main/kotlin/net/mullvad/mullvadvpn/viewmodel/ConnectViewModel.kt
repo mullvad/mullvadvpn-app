@@ -55,14 +55,14 @@ class ConnectViewModel(
 
     val uiState: StateFlow<ConnectUiState> =
         combine(
-                selectedLocationRelayItemUseCase.selectedRelayItem(),
+                selectedLocationRelayItemUseCase.selectedRelayItemTitle(),
                 inAppNotificationController.notifications,
                 connectionProxy.tunnelState,
                 connectionProxy.lastKnownDisconnectedLocation(),
                 accountRepository.accountData,
                 deviceRepository.deviceState.map { it?.deviceName() }
             ) {
-                selectedRelayItem,
+                selectedRelayItemTitle,
                 notifications,
                 tunnelState,
                 lastKnownDisconnectedLocation,
@@ -78,7 +78,7 @@ class ConnectViewModel(
                             is TunnelState.Disconnecting -> lastKnownDisconnectedLocation
                             is TunnelState.Error -> null
                         },
-                    selectedRelayItem = selectedRelayItem,
+                    selectedRelayItemTitle = selectedRelayItemTitle,
                     tunnelState = tunnelState,
                     inAddress =
                         when (tunnelState) {

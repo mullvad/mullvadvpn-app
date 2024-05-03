@@ -386,8 +386,8 @@ private fun ButtonPanel(
         onClick = onSwitchLocationClick,
         showChevron = state.showLocation,
         text =
-            if (state.showLocation && state.selectedRelayItem != null) {
-                state.selectedRelayItem.name // TODO Fix proper location name
+            if (state.showLocation && state.selectedRelayItemTitle != null) {
+                state.selectedRelayItemTitle
             } else {
                 stringResource(id = R.string.switch_location)
             }
