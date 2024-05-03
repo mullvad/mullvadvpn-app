@@ -49,6 +49,7 @@
 		44B02E3C2BC5B8A5008EDF34 /* Bundle+ProductVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */; };
 		44BB5F972BE527F4002520EB /* TunnelState+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BB5F962BE527F4002520EB /* TunnelState+UI.swift */; };
 		44BB5F982BE527F4002520EB /* TunnelState+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BB5F962BE527F4002520EB /* TunnelState+UI.swift */; };
+		44BB5F9A2BE529FF002520EB /* TunnelStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BB5F992BE529FE002520EB /* TunnelStateTests.swift */; };
 		44DD7D242B6CFFD70005F67F /* StartTunnelOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */; };
 		44DD7D272B6D18FB0005F67F /* MockTunnelInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */; };
 		44DD7D292B7113CA0005F67F /* MockTunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D282B7113CA0005F67F /* MockTunnel.swift */; };
@@ -1382,6 +1383,7 @@
 		449EBA252B975B9700DFA4EB /* PostQuantumKeyReceiving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostQuantumKeyReceiving.swift; sourceTree = "<group>"; };
 		44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoggingTests.swift; sourceTree = "<group>"; };
 		44BB5F962BE527F4002520EB /* TunnelState+UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TunnelState+UI.swift"; sourceTree = "<group>"; };
+		44BB5F992BE529FE002520EB /* TunnelStateTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelStateTests.swift; sourceTree = "<group>"; };
 		44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartTunnelOperationTests.swift; sourceTree = "<group>"; };
 		44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnelInteractor.swift; sourceTree = "<group>"; };
 		44DD7D282B7113CA0005F67F /* MockTunnel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnel.swift; sourceTree = "<group>"; };
@@ -2486,6 +2488,7 @@
 				44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */,
 				44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */,
 				A9A5F9A12ACB003D0083449F /* TunnelManagerTests.swift */,
+				44BB5F992BE529FE002520EB /* TunnelStateTests.swift */,
 				A9E0317B2ACBFC7E0095D843 /* TunnelStore+Stubs.swift */,
 				A9E031792ACB0AE70095D843 /* UIApplication+Stubs.swift */,
 				58165EBD2A262CBB00688EAD /* WgKeyRotationTests.swift */,
@@ -5203,6 +5206,7 @@
 				A9A5F9FE2ACB05160083449F /* NotificationManager.swift in Sources */,
 				A9A5F9FF2ACB05160083449F /* NotificationManagerDelegate.swift in Sources */,
 				7A9BE5AD2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift in Sources */,
+				44BB5F9A2BE529FF002520EB /* TunnelStateTests.swift in Sources */,
 				A900E9BE2ACC654100C95F67 /* APIProxy+Stubs.swift in Sources */,
 				A900E9BA2ACC5D0600C95F67 /* RESTRequestExecutor+Stubs.swift in Sources */,
 				A9A5FA002ACB05160083449F /* ProductsRequestOperation.swift in Sources */,
