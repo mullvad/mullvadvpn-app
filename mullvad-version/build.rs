@@ -75,39 +75,7 @@ fn get_dev_suffix(target: Target, product_version: &str) -> Option<String> {
         Target::Desktop => product_version.to_owned(),
     };
 
-    let git_dir = Path::new("..").join(".git");
-
-    // If we build our output on information about HEAD we need to re-run if HEAD moves
-    let head_path = git_dir.join("HEAD");
-    if head_path.exists() {
-        println!("cargo:rerun-if-changed={}", head_path.display());
-    }
-
-    let output = Command::new("git")
-        .arg("branch")
-        .arg("--show-current")
-        .output()
-        .ok()?;
-    let current_branch = String::from_utf8(output.stdout).unwrap();
-    // If we build our output on information about a git reference, we need to re-run
-    // if it moves. Instead of trying to be smart, just re-run if any git reference moves.
-    let git_current_branch_ref = git_dir
-        .join("refs")
-        .join("heads")
-        .join(current_branch.trim());
-    if git_current_branch_ref.exists() {
-        println!(
-            "cargo:rerun-if-changed={}",
-            git_current_branch_ref.display()
-        );
-    }
-    let git_current_branch_ref = git_dir.join("refs").join("tags").join(&release_tag);
-    if git_current_branch_ref.exists() {
-        println!(
-            "cargo:rerun-if-changed={}",
-            git_current_branch_ref.display()
-        );
-    }
+    rerun_if_git_ref_changed(&release_tag)?;
 
     // Get the git commit hashes for the latest release and current HEAD
     // Return `None` if unable to find the hash for HEAD.
@@ -122,6 +90,46 @@ fn get_dev_suffix(target: Target, product_version: &str) -> Option<String> {
         "-dev-{}",
         &head_commit_hash[..GIT_HASH_DEV_SUFFIX_LEN]
     ))
+}
+
+/// Trigger rebuild of `mullvad-version` on changing branch (`.git/HEAD`), on changes to the ref of
+/// the current branch (`.git/refs/heads/$current_branch`) and on changes to the ref of the current
+/// release tag (`.git/refs/tags/$current_release_tag`).
+fn rerun_if_git_ref_changed(release_tag: &String) -> Option<()> {
+    let git_dir = Path::new("..").join(".git");
+
+    // If we build our output on information about HEAD we need to re-run if HEAD moves
+    let head_path = git_dir.join("HEAD");
+    if head_path.exists() {
+        println!("cargo:rerun-if-changed={}", head_path.display());
+    }
+
+    // If we build our output on information about the ref of the current branch, we need to re-run
+    // on changes to it
+    let output = Command::new("git")
+        .arg("branch")
+        .arg("--show-current")
+        .output()
+        .ok()?;
+    let current_branch = String::from_utf8(output.stdout).unwrap();
+    let git_current_branch_ref = git_dir
+        .join("refs")
+        .join("heads")
+        .join(current_branch.trim());
+    if git_current_branch_ref.exists() {
+        println!(
+            "cargo:rerun-if-changed={}",
+            git_current_branch_ref.display()
+        );
+    }
+
+    // To rebuild in the case where the release tag moves to the current commit, we need to track
+    // changes to it
+    let git_release_tag_ref = git_dir.join("refs").join("tags").join(release_tag);
+    if git_release_tag_ref.exists() {
+        println!("cargo:rerun-if-changed={}", git_release_tag_ref.display());
+    };
+    Some(())
 }
 
 /// Returns the commit hash for the commit that `git_ref` is pointing to.
