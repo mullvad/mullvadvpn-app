@@ -23,12 +23,12 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.destinations.PrivacyDisclaimerDestination
 import net.mullvad.mullvadvpn.compose.destinations.SplashDestination
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 
 private val noServiceDestinations = listOf(SplashDestination, PrivacyDisclaimerDestination)
 
-class NoDaemonViewModel(serviceConnectionManager: ServiceConnectionManager) :
+class NoDaemonViewModel(managementService: ManagementService) :
     ViewModel(), LifecycleEventObserver, NavController.OnDestinationChangedListener {
 
     private val lifecycleFlow: MutableSharedFlow<Lifecycle.Event> = MutableSharedFlow()
@@ -36,7 +36,7 @@ class NoDaemonViewModel(serviceConnectionManager: ServiceConnectionManager) :
 
     @OptIn(FlowPreview::class)
     val uiSideEffect =
-        combine(lifecycleFlow, serviceConnectionManager.connectionState, destinationFlow) {
+        combine(lifecycleFlow, managementService.connectionState, destinationFlow) {
                 event,
                 connEvent,
                 destination ->
@@ -69,7 +69,7 @@ class NoDaemonViewModel(serviceConnectionManager: ServiceConnectionManager) :
 
     private fun toDaemonState(
         lifecycleEvent: Lifecycle.Event,
-        serviceState: ServiceConnectionState,
+        serviceState: GrpcConnectivityState,
         currentDestination: DestinationSpec<*>
     ): DaemonState {
         // In these destinations we don't care about showing the NoDaemonScreen
@@ -80,9 +80,11 @@ class NoDaemonViewModel(serviceConnectionManager: ServiceConnectionManager) :
         return if (lifecycleEvent.targetState.isAtLeast(Lifecycle.State.STARTED)) {
             // If we are started we want to show the overlay if we are not connected to daemon
             when (serviceState) {
-                // TODO Add gRPC layer
-                ServiceConnectionState.Unbound -> DaemonState.Show
-                is ServiceConnectionState.Bound -> DaemonState.Hidden.Connected
+                GrpcConnectivityState.Connecting,
+                GrpcConnectivityState.Shutdown,
+                GrpcConnectivityState.TransientFailure -> DaemonState.Show
+                GrpcConnectivityState.Idle,
+                GrpcConnectivityState.Ready -> DaemonState.Hidden.Connected
             }
         } else {
             // If we are stopped we intentionally stop service and don't care about showing overlay.
