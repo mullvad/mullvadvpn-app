@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.service
 import android.annotation.SuppressLint
 import android.content.Context
 import java.io.File
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 
@@ -12,6 +13,7 @@ private const val RELAYS_FILE = "relays.json"
 class MullvadDaemon(
     vpnService: MullvadVpnService,
     apiEndpointConfiguration: ApiEndpointConfiguration,
+    private val managementService: ManagementService,
     migrateSplitTunnelingRepository: MigrateSplitTunnelingRepository
 ) {
     protected var daemonInterfaceAddress = 0L
@@ -25,6 +27,8 @@ class MullvadDaemon(
 
         migrateSplitTunnelingRepository.migrateSplitTunneling()
 
+        managementService.setDaemonActive(active = true)
+
         initialize(
             vpnService = vpnService,
             cacheDirectory = vpnService.cacheDir.absolutePath,
@@ -35,7 +39,7 @@ class MullvadDaemon(
 
     fun onDestroy() {
         onDaemonStopped = null
-        // TODO: Stop ManagementService
+        managementService.setDaemonActive(active = false)
         shutdown(daemonInterfaceAddress)
         deinitialize()
     }
@@ -55,6 +59,7 @@ class MullvadDaemon(
     @Suppress("unused")
     private fun notifyDaemonStopped() {
         onDaemonStopped?.invoke()
+        managementService.setDaemonActive(active = false)
     }
 
     private fun prepareFiles(context: Context) {

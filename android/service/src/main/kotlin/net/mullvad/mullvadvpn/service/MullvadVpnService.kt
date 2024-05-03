@@ -84,6 +84,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
                     apiEndpointConfiguration =
                         intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
                             ?: apiEndpointConfiguration,
+                    managementService = managementService,
                     migrateSplitTunnelingRepository = migrateSplitTunnelingRepository
                 )
         }
@@ -119,9 +120,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         when (intent?.action) {
             KEY_CONNECT_ACTION -> {
                 _shouldBeOnForeground.update { true }
-                runBlocking {
-                    managementService.connect()
-                }
+                runBlocking { managementService.connect() }
             }
             KEY_DISCONNECT_ACTION -> {
                 _shouldBeOnForeground.update { true }
