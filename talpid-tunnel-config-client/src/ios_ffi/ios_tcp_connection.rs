@@ -1,9 +1,17 @@
 use libc::c_void;
-use std::io;
-use std::io::Result;
-use std::task::Poll;
-use tokio::io::{AsyncRead, AsyncWrite};
-use tokio::sync::mpsc;
+use std::{
+    io::{self, Result},
+    sync::{Arc, atomic::{AtomicBool, self}},
+    task::Poll,
+};
+use tokio::{
+    io::{AsyncRead, AsyncWrite},
+    sync::mpsc,
+};
+
+fn connection_closed_err() -> io::Error {
+    io::Error::new(io::ErrorKind::BrokenPipe, "TCP connection closed")
+}
 
 extern "C" {
     /// Called when there is data to send on the TCP connection.
@@ -41,21 +49,42 @@ pub struct IosTcpProvider {
     tcp_connection: *const c_void,
     read_in_progress: bool,
     write_in_progress: bool,
+    shutdown: Arc<AtomicBool>,
+}
+
+pub struct IosTcpShutdownHandle {
+    shutdown: Arc<AtomicBool>,
 }
 
 impl IosTcpProvider {
-    pub unsafe fn new(tcp_connection: *const c_void) -> Self {
+    pub unsafe fn new(tcp_connection: *const c_void) -> (Self, IosTcpShutdownHandle) {
         let (tx, rx) = mpsc::unbounded_channel();
         let (recv_tx, recv_rx) = mpsc::unbounded_channel();
-        Self {
-            write_tx: tx,
-            write_rx: rx,
-            read_tx: recv_tx,
-            read_rx: recv_rx,
-            tcp_connection,
-            read_in_progress: false,
-            write_in_progress: false,
-        }
+        let shutdown = Arc::new(AtomicBool::new(false));
+
+        (
+            Self {
+                write_tx: tx,
+                write_rx: rx,
+                read_tx: recv_tx,
+                read_rx: recv_rx,
+                tcp_connection,
+                read_in_progress: false,
+                write_in_progress: false,
+                shutdown: shutdown.clone(),
+            },
+            IosTcpShutdownHandle { shutdown },
+        )
+    }
+
+    fn is_shutdown(&self) -> bool {
+        self.shutdown.load(atomic::Ordering::SeqCst)
+    }
+}
+
+impl IosTcpShutdownHandle {
+    pub fn shutdown(&self) {
+        self.shutdown.store(true, atomic::Ordering::SeqCst);
     }
 }
 
@@ -74,9 +103,12 @@ impl AsyncWrite for IosTcpProvider {
             }
             std::task::Poll::Ready(None) => {
                 self.write_in_progress = false;
-                Poll::Ready(Err(io::Error::new(io::ErrorKind::Other, "sender dropped")))
+                Poll::Ready(Err(connection_closed_err()))
             }
             std::task::Poll::Pending => {
+                if self.is_shutdown() {
+                    return Poll::Ready(Err(connection_closed_err()));
+                }
                 if self.write_in_progress {
                     return std::task::Poll::Pending;
                 }
@@ -115,6 +147,9 @@ impl AsyncRead for IosTcpProvider {
         buf: &mut tokio::io::ReadBuf<'_>,
     ) -> std::task::Poll<std::io::Result<()>> {
         let raw_sender = Box::into_raw(Box::new(self.read_tx.clone()));
+        if self.is_shutdown() {
+            return Poll::Ready(Err(connection_closed_err()));
+        }
 
         match self.read_rx.poll_recv(cx) {
             std::task::Poll::Ready(Some(data)) => {
@@ -124,7 +159,7 @@ impl AsyncRead for IosTcpProvider {
             }
             std::task::Poll::Ready(None) => {
                 self.read_in_progress = false;
-                Poll::Ready(Err(io::Error::new(io::ErrorKind::Other, "sender dropped")))
+                Poll::Ready(Err(connection_closed_err()))
             }
             std::task::Poll::Pending => {
                 if self.read_in_progress {

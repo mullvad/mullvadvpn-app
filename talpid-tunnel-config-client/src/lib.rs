@@ -59,6 +59,8 @@ pub enum Error {
         actual: usize,
     },
     FailedDecapsulateKyber(kyber::KyberError),
+    #[cfg(target_os = "ios")]
+    TcpConnectionExpired,
 }
 
 impl std::fmt::Display for Error {
@@ -80,6 +82,8 @@ impl std::fmt::Display for Error {
                 write!(f, "Expected 2 ciphertext in the response, got {actual}")
             }
             FailedDecapsulateKyber(_) => "Failed to decapsulate Kyber1024 ciphertext".fmt(f),
+            #[cfg(target_os = "ios")]
+            TcpConnectionExpired => "TCP connection is already shut down".fmt(f),
         }
     }
 }
