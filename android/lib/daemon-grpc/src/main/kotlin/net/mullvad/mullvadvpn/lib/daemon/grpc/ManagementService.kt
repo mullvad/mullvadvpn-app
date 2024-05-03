@@ -256,8 +256,6 @@ class ManagementService(
 
     suspend fun disconnect(): Boolean = grpc.disconnectTunnel(Empty.getDefaultInstance()).value
 
-    suspend fun test() = grpc.getAccountData(StringValue.of("s"))
-
     suspend fun reconnect(): Boolean = grpc.reconnectTunnel(Empty.getDefaultInstance()).value
 
     suspend fun getSettings(): ModelSettings =
