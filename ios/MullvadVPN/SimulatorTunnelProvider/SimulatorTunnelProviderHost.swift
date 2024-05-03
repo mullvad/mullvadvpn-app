@@ -183,7 +183,8 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                     networkReachability: .reachable,
                     connectionAttemptCount: 0,
                     transportLayer: .udp,
-                    remotePort: selectedRelay.endpoint.ipv4Relay.port
+                    remotePort: selectedRelay.endpoint.ipv4Relay.port,
+                    isPostQuantum: false
                 )
             )
         } catch {
