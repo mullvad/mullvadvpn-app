@@ -15,8 +15,6 @@ import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 
-// TODO: Refactor ConnectionProxy to be easily injectable rather than injecting
-//  ServiceConnectionManager here.
 class DeviceRevokedViewModel(
     private val accountRepository: AccountRepository,
     private val connectionProxy: ConnectionProxy,
