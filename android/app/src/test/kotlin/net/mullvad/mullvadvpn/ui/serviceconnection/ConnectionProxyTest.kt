@@ -6,7 +6,7 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.repository.VpnPermissionRepository
+import net.mullvad.mullvadvpn.lib.permission.VpnPermissionRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
