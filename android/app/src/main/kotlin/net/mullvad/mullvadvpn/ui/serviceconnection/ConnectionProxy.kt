@@ -3,8 +3,8 @@ package net.mullvad.mullvadvpn.ui.serviceconnection
 import arrow.core.Either
 import arrow.core.raise.either
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.model.ConnectError
 import net.mullvad.mullvadvpn.lib.permission.VpnPermissionRepository
+import net.mullvad.mullvadvpn.model.ConnectError
 
 class ConnectionProxy(
     private val managementService: ManagementService,
@@ -12,8 +12,8 @@ class ConnectionProxy(
 ) {
     val tunnelState = managementService.tunnelState
 
-    suspend fun connect(): Either<ConnectError, Unit> = either {
-        if (vpnPermissionRepository.hasVpnPermission()) {
+    suspend fun connect(ignorePermission: Boolean = false): Either<ConnectError, Unit> = either {
+        if (ignorePermission || vpnPermissionRepository.hasVpnPermission()) {
             managementService.connect().map {
                 if (it) {
                     Unit

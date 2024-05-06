@@ -9,7 +9,6 @@ import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_REQUEST_VPN_PERMISSION
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
-import net.mullvad.mullvadvpn.lib.common.util.errorMessageId
 import net.mullvad.mullvadvpn.model.Notification
 import net.mullvad.mullvadvpn.model.NotificationAction
 import net.mullvad.mullvadvpn.model.NotificationTunnelState
@@ -48,13 +47,13 @@ private fun NotificationTunnelState.contentTitleResourceId(): Int =
             }
         }
         NotificationTunnelState.Disconnecting -> R.string.disconnecting
-        NotificationTunnelState.Error.Blocking -> TODO()
-        is NotificationTunnelState.Error.Critical -> this.cause.errorMessageId()
+        NotificationTunnelState.Reconnecting -> R.string.reconnecting
+        NotificationTunnelState.Error.Blocking -> R.string.blocking_internet
+        is NotificationTunnelState.Error.Critical -> R.string.critical_error
         NotificationTunnelState.Error.DeviceOffline -> R.string.blocking_internet_device_offline
-        is NotificationTunnelState.Error.InvalidDnsServers -> TODO()
         NotificationTunnelState.Error.VpnPermissionDenied ->
             R.string.vpn_permission_error_notification_title
-        NotificationTunnelState.Reconnecting -> R.string.reconnecting
+        NotificationTunnelState.Error.AlwaysOnVpn -> R.string.always_on_vpn_error_notification_title
     }
 
 internal fun NotificationAction.Tunnel.toCompatAction(context: Context): NotificationCompat.Action {
@@ -99,8 +98,8 @@ fun NotificationAction.Tunnel.titleResource() =
 
 fun NotificationAction.Tunnel.toKey() =
     when (this) {
-        NotificationAction.Tunnel.Connect,
-        NotificationAction.Tunnel.RequestPermission -> KEY_CONNECT_ACTION
+        NotificationAction.Tunnel.Connect -> KEY_CONNECT_ACTION
+        NotificationAction.Tunnel.RequestPermission -> KEY_REQUEST_VPN_PERMISSION
         NotificationAction.Tunnel.Cancel,
         NotificationAction.Tunnel.Disconnect,
         NotificationAction.Tunnel.Dismiss -> KEY_DISCONNECT_ACTION
