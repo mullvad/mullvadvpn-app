@@ -10,8 +10,8 @@ require (
 require (
 	golang.org/x/crypto v0.22.0 // indirect
 	golang.org/x/net v0.24.0 // indirect
-	golang.zx2c4.com/wintun v0.0.0-20211104114900-415007cec224 // indirect
+	golang.zx2c4.com/wintun v0.0.0-20230126152724-0fa3db229ce2 // indirect
 )
 
 // NOTE: remember to update wireguard-go-rs/Cargo.toml if you change this:
-replace golang.zx2c4.com/wireguard => github.com/mullvad/wireguard-go v0.0.0-20240430143015-44e212db23cf
+replace golang.zx2c4.com/wireguard => ./wireguard-go
