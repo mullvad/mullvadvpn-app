@@ -15,17 +15,6 @@ function is_android_build {
     return 1
 }
 
-function is_docker_build {
-    for arg in "$@"
-    do
-        case "$arg" in
-            "--no-docker")
-                return 1
-        esac
-    done
-    return 0
-}
-
 function unix_target_triple {
     local platform
     platform="$(uname -s)"
@@ -48,6 +37,7 @@ function unix_target_triple {
 
 
 function build_unix {
+    # TODO: consider using `log_header` here
     echo "Building wireguard-go for $1"
 
     # Flags for cross compiling
@@ -88,13 +78,9 @@ function build_unix {
 }
 
 function build_android {
-    echo "Building for android"
+    echo "Building wireguard-go for android"
 
-    if is_docker_build "$@"; then
-        ../building/container-run.sh android wireguard-go-rs/libwg/build-android.sh
-    else
-        ./libwg/build-android.sh
-    fi
+    ./libwg/build-android.sh
 }
 
 function build_wireguard_go {
