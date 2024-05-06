@@ -122,9 +122,7 @@ fun Connect(
 
     val launchVpnPermission =
         rememberLauncherForActivityResult(RequestVpnPermission()) {
-            if (it) {
-                connectViewModel.onConnectClick()
-            }
+            connectViewModel.onConnectClick(ignorePermission = true)
         }
 
     CollectSideEffectWithLifecycle(
