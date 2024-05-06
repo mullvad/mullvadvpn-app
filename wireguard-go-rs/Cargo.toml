@@ -7,5 +7,4 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [target.'cfg(unix)'.dependencies]
-# NOTE: remember to update libwg/go.mod if you change this:
-cmaybenot = { git = "https://github.com/mullvad/wireguard-go", rev = "44e212db23cf998924ba4193816964a83f9e1e79" }
+cmaybenot = { path = "libwg/wireguard-go/cmaybenot" }
