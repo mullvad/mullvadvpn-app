@@ -543,7 +543,6 @@ dependencies = [
 [[package]]
 name = "cmaybenot"
 version = "0.1.0"
-source = "git+https://github.com/mullvad/wireguard-go?rev=44e212db23cf998924ba4193816964a83f9e1e79#44e212db23cf998924ba4193816964a83f9e1e79"
 dependencies = [
  "maybenot",
  "thiserror",
@@ -2036,9 +2035,9 @@ checksum = "0e7465ac9959cc2b1404e8e2367b43684a6d13790fe23056cc8c6c5a6b7bcb94"
 
 [[package]]
 name = "maybenot"
-version = "1.1.0"
+version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94ed977e86fc65a7ffae967a6a973e6f7a90b5d747ebd755703d5718804f7c16"
+checksum = "a7fe205734d700937dabf0b8687e290f8574fac996f8a9d04bd7a62d7c2c1dad"
 dependencies = [
  "byteorder",
  "hex",
