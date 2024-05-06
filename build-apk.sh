@@ -80,7 +80,7 @@ $GRADLE_CMD --console plain clean
 mkdir -p "app/build/extraJni"
 popd
 
-./wireguard/build-wireguard-go.sh --android $EXTRA_WGGO_ARGS
+#./wireguard/build-wireguard-go.sh --android $EXTRA_WGGO_ARGS
 
 for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     case "$ARCHITECTURE" in
