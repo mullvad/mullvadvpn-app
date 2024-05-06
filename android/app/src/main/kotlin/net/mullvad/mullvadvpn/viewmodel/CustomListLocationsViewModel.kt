@@ -31,7 +31,7 @@ class CustomListLocationsViewModel(
     private val customListActionUseCase: CustomListActionUseCase,
     private val customListsRepository: CustomListsRepository
 ) : ViewModel() {
-    var customListName: String? = null
+    private var customListName: String? = null
     private val _uiSideEffect =
         MutableSharedFlow<CustomListLocationsSideEffect>(replay = 1, extraBufferCapacity = 1)
     val uiSideEffect: SharedFlow<CustomListLocationsSideEffect> = _uiSideEffect

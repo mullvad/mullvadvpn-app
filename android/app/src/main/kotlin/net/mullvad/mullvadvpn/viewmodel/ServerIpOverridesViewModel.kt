@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.model.SettingsPatchError
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 
 class ServerIpOverridesViewModel(
-    val relayOverridesRepository: RelayOverridesRepository,
+    private val relayOverridesRepository: RelayOverridesRepository,
     private val contentResolver: ContentResolver,
 ) : ViewModel() {
 
