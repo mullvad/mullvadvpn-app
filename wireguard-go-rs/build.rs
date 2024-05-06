@@ -13,7 +13,7 @@ fn main() {
     match target_os.as_str() {
         "linux" => {}
         "android" => {
-            cmd.arg("--android").arg("--no-docker");
+            cmd.arg("--android");
         }
         _ => unimplemented!("building wireguard-go-rs for {target_os} is not implemented."),
     }
