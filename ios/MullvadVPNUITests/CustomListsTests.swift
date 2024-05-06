@@ -128,7 +128,7 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
     func workaroundOpenCustomListMenuBug() {
         // In order to avoid a bug where the open custom list button cannot be found, the location view is closed and then reopened
         SelectLocationPage(app)
-            .closeSelectLocationPage()
+            .tapDoneButton()
         TunnelControlPage(app)
             .tapSelectLocationButton()
     }
