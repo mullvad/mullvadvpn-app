@@ -30,14 +30,21 @@ class NotificationManager(
                 .merge()
                 .collect { notification ->
                     Log.d("NotificationManager", "Posting notification $notification")
-                    val androidNotification = notification.toAndroidNotification(context)
-                    if (
-                        ActivityCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.POST_NOTIFICATIONS
-                        ) == PackageManager.PERMISSION_GRANTED
-                    ) {
-                        notificationManagerCompat.notify(notification.id.value, androidNotification)
+                    if (notification is Notification.CancelNotification) {
+                        notificationManagerCompat.cancel(notification.id.value)
+                    } else {
+                        val androidNotification = notification.toAndroidNotification(context)
+                        if (
+                            ActivityCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.POST_NOTIFICATIONS
+                            ) == PackageManager.PERMISSION_GRANTED
+                        ) {
+                            notificationManagerCompat.notify(
+                                notification.id.value,
+                                androidNotification
+                            )
+                        }
                     }
                 }
         }
@@ -47,5 +54,9 @@ class NotificationManager(
         when (this) {
             is Notification.Tunnel -> toNotification(context)
             is Notification.AccountExpiry -> toNotification(context)
+            is Notification.CancelNotification ->
+                throw IllegalArgumentException(
+                    "Cancel notification should only cancel notification"
+                )
         }
 }
