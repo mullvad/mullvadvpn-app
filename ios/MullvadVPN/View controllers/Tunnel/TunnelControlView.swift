@@ -27,7 +27,7 @@ private enum TunnelControlActionButton {
 }
 
 final class TunnelControlView: UIView {
-    private let secureLabel = makeBoldTextLabel(ofSize: 20)
+    private let secureLabel = makeBoldTextLabel(ofSize: 20, numberOfLines: 0)
     private let cityLabel = makeBoldTextLabel(ofSize: 34)
     private let countryLabel = makeBoldTextLabel(ofSize: 34)
 
@@ -420,11 +420,12 @@ final class TunnelControlView: UIView {
         )
     }
 
-    private class func makeBoldTextLabel(ofSize fontSize: CGFloat) -> UILabel {
+    private class func makeBoldTextLabel(ofSize fontSize: CGFloat, numberOfLines: Int = 1) -> UILabel {
         let textLabel = UILabel()
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.font = UIFont.boldSystemFont(ofSize: fontSize)
         textLabel.textColor = .white
+        textLabel.numberOfLines = numberOfLines
         return textLabel
     }
 
