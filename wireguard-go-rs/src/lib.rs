@@ -51,6 +51,7 @@ extern "C" {
     /// - `machines` must point to a null-terminated UTF-8 string.
     /// - Neither pointer will be written to by `wgActivateDaita`.
     /// - Neither pointer will be read from after `wgActivateDaita` has returned.
+    #[cfg(feature = "daita")]
     pub fn wgActivateDaita(
         tunnel_handle: i32,
         peer_public_key: *const u8,
