@@ -1,1 +1,2 @@
 [Windows] New feature! DAITA (Defence against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size.
+[linux] Make app work on Ubuntu 24.04.
