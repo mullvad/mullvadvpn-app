@@ -2,9 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
@@ -12,7 +10,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -22,11 +19,11 @@ import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.ConnectError
 import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
+import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
@@ -36,16 +33,16 @@ import net.mullvad.mullvadvpn.util.daysFromNow
 import net.mullvad.mullvadvpn.util.toInAddress
 import net.mullvad.mullvadvpn.util.toOutAddress
 
-@OptIn(FlowPreview::class)
 class ConnectViewModel(
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
     inAppNotificationController: InAppNotificationController,
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
-    private val selectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase,
+    selectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase,
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val paymentUseCase: PaymentUseCase,
     private val connectionProxy: ConnectionProxy,
+    lastKnownLocationUseCase: LastKnownLocationUseCase,
     private val isPlayBuild: Boolean
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
@@ -58,7 +55,7 @@ class ConnectViewModel(
                 selectedLocationRelayItemUseCase.selectedRelayItemTitle(),
                 inAppNotificationController.notifications,
                 connectionProxy.tunnelState,
-                connectionProxy.lastKnownDisconnectedLocation(),
+                lastKnownLocationUseCase.lastKnownDisconnectedLocation,
                 accountRepository.accountData,
                 deviceRepository.deviceState.map { it?.deviceName() }
             ) {
@@ -117,13 +114,6 @@ class ConnectViewModel(
             }
         }
     }
-
-    private fun ConnectionProxy.lastKnownDisconnectedLocation(): Flow<GeoIpLocation?> =
-        tunnelState
-            .filterIsInstance<TunnelState.Disconnected>()
-            .filter { it.location != null }
-            .map { it.location }
-            .onStart { emit(null) }
 
     fun onDisconnectClick() {
         viewModelScope.launch { connectionProxy.disconnect() }
