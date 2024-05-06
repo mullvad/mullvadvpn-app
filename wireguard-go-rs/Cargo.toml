@@ -5,7 +5,7 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-daita = []
+daita = ["dep:cmaybenot"]
 
-[target.'cfg(unix)'.dependencies]
-cmaybenot = { path = "libwg/wireguard-go/cmaybenot" }
+[dependencies]
+cmaybenot = { path = "libwg/wireguard-go/cmaybenot" , optional = true}
