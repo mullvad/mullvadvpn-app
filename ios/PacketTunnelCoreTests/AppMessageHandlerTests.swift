@@ -7,6 +7,7 @@
 //
 
 import Combine
+@testable import MullvadMockData
 @testable import MullvadREST
 import MullvadTypes
 import PacketTunnelCore

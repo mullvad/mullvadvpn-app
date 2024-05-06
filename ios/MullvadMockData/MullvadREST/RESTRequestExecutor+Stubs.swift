@@ -11,19 +11,25 @@ import Foundation
 @testable import MullvadTypes
 
 struct RESTRequestExecutorStub<Success>: RESTRequestExecutor {
-    typealias Success = Success
+    typealias Success = ProxyCompletionHandler
 
     var success: (() -> Success)?
 
     func execute(completionHandler: @escaping (Result<Success, Error>) -> Void) -> Cancellable {
-        AnyCancellable()
+        if let result = success?() {
+            completionHandler(.success(result))
+        }
+        return AnyCancellable()
     }
 
     func execute(
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping (Result<Success, Error>) -> Void
     ) -> Cancellable {
-        AnyCancellable()
+        if let result = success?() {
+            completionHandler(.success(result))
+        }
+        return AnyCancellable()
     }
 
     func execute() async throws -> Success {
