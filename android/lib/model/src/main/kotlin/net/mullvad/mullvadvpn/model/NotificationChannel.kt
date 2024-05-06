@@ -95,8 +95,8 @@ sealed interface NotificationTunnelState {
 
         data object VpnPermissionDenied : Error
 
-        data class InvalidDnsServers(val addresses: List<InetAddress>) : Error
+        data object AlwaysOnVpn: Error
 
-        data class Critical(val cause: ErrorStateCause) : Error
+        data object Critical : Error
     }
 }

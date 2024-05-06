@@ -8,7 +8,7 @@ import androidx.activity.result.contract.ActivityResultContract
 
 class RequestVpnPermission : ActivityResultContract<Unit, Boolean>() {
     override fun createIntent(context: Context, input: Unit): Intent {
-        return VpnService.prepare(context)
+        return VpnService.prepare(context) ?: Intent()
     }
 
     override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
