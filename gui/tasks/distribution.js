@@ -179,6 +179,7 @@ const config = {
       { from: distAssets(path.join('linux', 'apparmor_mullvad')), to: '.' },
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'apisocks5')), to: '.' },
+      { from: distAssets('maybenot_machines'), to: '.' },
     ],
   },
 
