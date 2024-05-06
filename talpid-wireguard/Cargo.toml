@@ -12,7 +12,7 @@ workspace = true
 
 [features]
 # Wireguard support for Daita.
-daita = ["talpid-types/daita"]
+daita = ["talpid-types/daita", "wireguard-go-rs/daita"]
 
 [dependencies]
 thiserror = { workspace = true }
