@@ -49,7 +49,6 @@ extension TunnelState {
                 )
             }
 
-        // TODO: Is this the correct message here ?
         case .negotiatingPostQuantumKey:
             NSLocalizedString(
                 "TUNNEL_STATE_NEGOTIATING_KEY",
@@ -61,7 +60,7 @@ extension TunnelState {
         case let .connected(_, isPostQuantum):
             if isPostQuantum {
                 NSLocalizedString(
-                    "TUNNEL_STATE_CONNECTED",
+                    "TUNNEL_STATE_PQ_CONNECTED",
                     tableName: "Main",
                     value: "Quantum secure connection",
                     comment: ""
@@ -142,7 +141,6 @@ extension TunnelState {
                 comment: ""
             )
 
-        // TODO: Is this correct ?
         case .negotiatingPostQuantumKey:
             NSLocalizedString(
                 "SWITCH_LOCATION_BUTTON_TITLE",
@@ -155,34 +153,56 @@ extension TunnelState {
 
     var localizedAccessibilityLabel: String {
         switch self {
-        case .connecting:
-            NSLocalizedString(
-                "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL",
-                tableName: "Main",
-                value: "Creating secure connection",
-                comment: ""
-            )
+        case let .connecting(_, isPostQuantum):
+            if isPostQuantum {
+                NSLocalizedString(
+                    "TUNNEL_STATE_PQ_CONNECTING_ACCESSIBILITY_LABEL",
+                    tableName: "Main",
+                    value: "Creating quantum secure connection",
+                    comment: ""
+                )
+            } else {
+                NSLocalizedString(
+                    "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL",
+                    tableName: "Main",
+                    value: "Creating secure connection",
+                    comment: ""
+                )
+            }
 
         // TODO: Is this correct ?
         case .negotiatingPostQuantumKey:
             NSLocalizedString(
                 "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL",
                 tableName: "Main",
-                value: "Creating secure connection",
+                value: "Creating quantum secure connection",
                 comment: ""
             )
 
-        case let .connected(tunnelInfo, _):
-            String(
-                format: NSLocalizedString(
-                    "TUNNEL_STATE_CONNECTED_ACCESSIBILITY_LABEL",
-                    tableName: "Main",
-                    value: "Secure connection. Connected to %@, %@",
-                    comment: ""
-                ),
-                tunnelInfo.location.city,
-                tunnelInfo.location.country
-            )
+        case let .connected(tunnelInfo, isPostQuantum):
+            if isPostQuantum {
+                String(
+                    format: NSLocalizedString(
+                        "TUNNEL_STATE_PQ_CONNECTED_ACCESSIBILITY_LABEL",
+                        tableName: "Main",
+                        value: "Quantum secure connection. Connected to %@, %@",
+                        comment: ""
+                    ),
+                    tunnelInfo.location.city,
+                    tunnelInfo.location.country
+                )
+            } else {
+                String(
+                    format: NSLocalizedString(
+                        "TUNNEL_STATE_CONNECTED_ACCESSIBILITY_LABEL",
+                        tableName: "Main",
+                        value: "Secure connection. Connected to %@, %@",
+                        comment: ""
+                    ),
+                    tunnelInfo.location.city,
+                    tunnelInfo.location.country
+                )
+            }
 
         case .disconnected:
             NSLocalizedString(

@@ -19,7 +19,7 @@ final class TunnelStateTests: XCTestCase {
             publicKey: Data()
         ),
         hostname: "hostname-goes-here",
-        location: Location(country: "", countryCode: "", city: "", cityCode: "", latitude: 0, longitude: 0),
+        location: Location(country: "country", countryCode: "", city: "city", cityCode: "", latitude: 0, longitude: 0),
         retryAttempts: 0
     )
 
@@ -77,12 +77,12 @@ final class TunnelStateTests: XCTestCase {
 
     func testLocalizedTitleForSecureLabel_Reconnecting() {
         XCTAssertEqual(
-            TunnelState.connecting(nil, isPostQuantum: false).localizedTitleForSecureLabel,
+            TunnelState.reconnecting(arbitrarySelectedRelay, isPostQuantum: false).localizedTitleForSecureLabel,
             "Creating secure connection"
         )
 
         XCTAssertEqual(
-            TunnelState.connecting(nil, isPostQuantum: true).localizedTitleForSecureLabel,
+            TunnelState.reconnecting(arbitrarySelectedRelay, isPostQuantum: true).localizedTitleForSecureLabel,
             "Creating quantum secure connection"
         )
     }
@@ -96,6 +96,44 @@ final class TunnelStateTests: XCTestCase {
         XCTAssertEqual(
             TunnelState.connected(arbitrarySelectedRelay, isPostQuantum: true).localizedTitleForSecureLabel,
             "Quantum secure connection"
+        )
+    }
+
+    // MARK: localizedAccessibilityLabel
+
+    func testLocalizedAccessibilityLabel_Connecting() {
+        XCTAssertEqual(
+            TunnelState.connecting(nil, isPostQuantum: false).localizedAccessibilityLabel,
+            "Creating secure connection"
+        )
+
+        XCTAssertEqual(
+            TunnelState.connecting(nil, isPostQuantum: true).localizedAccessibilityLabel,
+            "Creating quantum secure connection"
+        )
+    }
+
+    func testLocalizedAccessibilityLabel_Reconnecting() {
+        XCTAssertEqual(
+            TunnelState.reconnecting(arbitrarySelectedRelay, isPostQuantum: false).localizedAccessibilityLabel,
+            "Reconnecting to city, country"
+        )
+
+        XCTAssertEqual(
+            TunnelState.reconnecting(arbitrarySelectedRelay, isPostQuantum: true).localizedAccessibilityLabel,
+            "Reconnecting to city, country"
+        )
+    }
+
+    func testLocalizedAccessibilityLabel_Connected() {
+        XCTAssertEqual(
+            TunnelState.connected(arbitrarySelectedRelay, isPostQuantum: false).localizedAccessibilityLabel,
+            "Secure connection. Connected to city, country"
+        )
+
+        XCTAssertEqual(
+            TunnelState.connected(arbitrarySelectedRelay, isPostQuantum: true).localizedAccessibilityLabel,
+            "Quantum secure connection. Connected to city, country"
         )
     }
 }
