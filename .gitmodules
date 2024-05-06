@@ -7,6 +7,3 @@
 [submodule "windows/windows-libraries"]
 	path = windows/windows-libraries
 	url = https://github.com/mullvad/windows-libraries
-[submodule "wireguard-go-rs/wireguard-go"]
-	path = wireguard-go-rs/wireguard-go
-	url = https://github.com/mullvad/wireguard-go
