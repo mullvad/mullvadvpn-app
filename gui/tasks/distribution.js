@@ -175,6 +175,7 @@ const config = {
       { from: distAssets(path.join(getLinuxTargetSubdir(), 'libtalpid_openvpn_plugin.so')), to: '.' },
       { from: distAssets(path.join('linux', 'apparmor_mullvad')), to: '.' },
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
+      { from: distAssets('maybenot_machines'), to: '.' },
     ],
   },
 
