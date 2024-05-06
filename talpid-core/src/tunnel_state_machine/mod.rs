@@ -51,10 +51,6 @@ const TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(5);
 /// Errors that can happen when setting up or using the state machine.
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    /// Unable to spawn offline state monitor
-    #[error("Unable to spawn offline state monitor")]
-    OfflineMonitorError(#[from] crate::offline::Error),
-
     /// Unable to set up split tunneling
     #[cfg(target_os = "windows")]
     #[error("Failed to initialize split tunneling")]
@@ -331,8 +327,7 @@ impl TunnelStateMachine {
             #[cfg(target_os = "android")]
             android_context,
         )
-        .await
-        .map_err(Error::OfflineMonitorError)?;
+        .await;
         let connectivity = offline_monitor.connectivity().await;
         let _ = initial_offline_state_tx.unbounded_send(connectivity);
 
