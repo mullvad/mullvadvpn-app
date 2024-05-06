@@ -91,7 +91,7 @@ function build_android {
     echo "Building for android"
 
     if is_docker_build "$@"; then
-        ../building/container-run.sh android wireguard/libwg/build-android.sh
+        ../building/container-run.sh android wireguard-go-rs/libwg/build-android.sh
     else
         ./libwg/build-android.sh
     fi
