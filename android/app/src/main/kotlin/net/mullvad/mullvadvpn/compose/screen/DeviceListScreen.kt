@@ -60,6 +60,7 @@ import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceId
+import net.mullvad.mullvadvpn.model.GetDeviceListError
 import net.mullvad.mullvadvpn.util.formatDate
 import net.mullvad.mullvadvpn.viewmodel.DeviceListSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
@@ -95,6 +96,14 @@ private fun PreviewDeviceListScreenEmpty() {
 @Preview
 private fun PreviewDeviceListLoading() {
     AppTheme { DeviceListScreen(state = DeviceListUiState.Loading) }
+}
+
+@Composable
+@Preview
+private fun PreviewDeviceListError() {
+    AppTheme {
+        DeviceListScreen(state = DeviceListUiState.Error(GetDeviceListError.Unknown(Throwable())))
+    }
 }
 
 @Destination(style = DefaultTransition::class)
@@ -151,6 +160,7 @@ fun DeviceList(
             }
         },
         onSettingsClicked = { navigator.navigate(SettingsDestination) { launchSingleTop = true } },
+        onTryAgainClicked = viewModel::fetchDevices,
         navigateToRemoveDeviceConfirmationDialog = {
             navigator.navigate(RemoveDeviceConfirmationDialogDestination(it)) {
                 launchSingleTop = true
@@ -166,6 +176,7 @@ fun DeviceListScreen(
     onBackClick: () -> Unit = {},
     onContinueWithLogin: () -> Unit = {},
     onSettingsClicked: () -> Unit = {},
+    onTryAgainClicked: () -> Unit = {},
     navigateToRemoveDeviceConfirmationDialog: (device: Device) -> Unit = {}
 ) {
 
@@ -190,7 +201,7 @@ fun DeviceListScreen(
                         .weight(1f)
                         .fillMaxWidth(),
                 verticalArrangement =
-                    if (state is DeviceListUiState.Loading) {
+                    if (state !is DeviceListUiState.Content) {
                         Arrangement.Center
                     } else {
                         Arrangement.Top
@@ -203,8 +214,7 @@ fun DeviceListScreen(
                             navigateToRemoveDeviceConfirmationDialog =
                                 navigateToRemoveDeviceConfirmationDialog
                         )
-                    is DeviceListUiState.Error ->
-                        TODO("Handle error fetching list, should show error and offer retry")
+                    is DeviceListUiState.Error -> DeviceListError(onTryAgainClicked)
                     DeviceListUiState.Loading -> DeviceListLoading()
                 }
             }
@@ -217,6 +227,24 @@ fun DeviceListScreen(
 private fun ColumnScope.DeviceListLoading() {
     MullvadCircularProgressIndicatorLarge(
         modifier = Modifier.padding(Dimens.smallPadding).align(Alignment.CenterHorizontally)
+    )
+}
+
+@Composable
+private fun ColumnScope.DeviceListError(tryAgain: () -> Unit) {
+    Text(
+        text = stringResource(id = R.string.error_occurred),
+        modifier = Modifier.padding(Dimens.smallPadding).align(Alignment.CenterHorizontally)
+    )
+    PrimaryButton(
+        onClick = tryAgain,
+        text = stringResource(id = R.string.try_again),
+        modifier =
+            Modifier.padding(
+                top = Dimens.buttonSpacing,
+                start = Dimens.sideMargin,
+                end = Dimens.sideMargin
+            )
     )
 }
 
