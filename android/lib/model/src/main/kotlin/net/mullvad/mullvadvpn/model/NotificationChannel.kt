@@ -42,6 +42,19 @@ sealed interface Notification {
     ) : Notification {
         override val id: NotificationId = NotificationId(3)
         override val ongoing: Boolean = false
+
+        fun cancel(): CancelNotification = CancelNotification(
+            channelId = this.channelId,
+            id = this.id
+        )
+    }
+
+    data class CancelNotification(
+        override val channelId: ChannelId,
+        override val id: NotificationId
+    ) : Notification {
+        override val actions: List<NotificationAction> = emptyList()
+        override val ongoing: Boolean = false
     }
 }
 
