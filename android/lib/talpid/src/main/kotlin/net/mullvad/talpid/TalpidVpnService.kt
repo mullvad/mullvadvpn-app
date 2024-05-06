@@ -2,6 +2,7 @@ package net.mullvad.talpid
 
 import android.net.VpnService
 import android.os.ParcelFileDescriptor
+import android.util.Log
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
@@ -103,6 +104,18 @@ open class TalpidVpnService : VpnService() {
                     }
                 }
 
+                // Avoids creating a tunnel with no DNS servers or if all DNS servers was invalid,
+                // since apps then may leak DNS requests.
+                // https://issuetracker.google.com/issues/337961996
+                if (invalidDnsServerAddresses.size == config.dnsServers.size) {
+                    Log.w(
+                        "mullvad",
+                        "All DNS servers invalid or non set, using fallback DNS server to " +
+                            "minimize leaks, dnsServers.isEmpty(): ${config.dnsServers.isEmpty()}"
+                    )
+                    addDnsServer(FALLBACK_DUMMY_DNS_SERVER)
+                }
+
                 for (route in config.routes) {
                     addRoute(route.address, route.prefixLength.toInt())
                 }
@@ -148,4 +161,8 @@ open class TalpidVpnService : VpnService() {
     private external fun defaultTunConfig(): TunConfig
 
     private external fun waitForTunnelUp(tunFd: Int, isIpv6Enabled: Boolean)
+
+    companion object {
+        private const val FALLBACK_DUMMY_DNS_SERVER = "192.0.2.1"
+    }
 }
