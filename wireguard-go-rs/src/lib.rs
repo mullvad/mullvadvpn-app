@@ -6,6 +6,7 @@ pub type LoggingCallback =
     unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: *mut c_void);
 
 // Needed to link libwg with cmaybenot
+#[cfg(feature = "daita")]
 use cmaybenot as _;
 
 extern "C" {
