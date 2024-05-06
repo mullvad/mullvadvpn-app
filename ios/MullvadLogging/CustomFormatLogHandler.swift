@@ -16,14 +16,6 @@ public struct CustomFormatLogHandler: LogHandler {
     private let label: String
     private let streams: [TextOutputStream]
 
-    private let dateFormatter = Self.makeDateFormatter()
-
-    public static func makeDateFormatter() -> DateFormatter {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "YYYY-MM-dd HH:mm:ss.SSS"
-        return dateFormatter
-    }
-
     public init(label: String, streams: [TextOutputStream]) {
         self.label = label
         self.streams = streams
@@ -54,7 +46,7 @@ public struct CustomFormatLogHandler: LogHandler {
             }
         let prettyMetadata = Self.formatMetadata(mergedMetadata)
         let metadataOutput = prettyMetadata.isEmpty ? "" : " \(prettyMetadata)"
-        let timestamp = dateFormatter.string(from: Date())
+        let timestamp = Date().logFormatted
         let formattedMessage = "[\(timestamp)][\(label)][\(level)]\(metadataOutput) \(message)\n"
 
         for var stream in streams {

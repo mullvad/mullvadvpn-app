@@ -78,7 +78,7 @@ public struct LoggerBuilder {
             let rotationLogger = Logger(label: "LogRotation")
 
             for error in logRotationErrors {
-                rotationLogger.error(error: error, message: "Failed to rotate log")
+                rotationLogger.error(error: error, message: error.localizedDescription)
             }
         }
     }

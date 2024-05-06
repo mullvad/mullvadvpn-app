@@ -603,6 +603,8 @@
 		7ADCB2D82B6A6EB300C88F89 /* AnyRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */; };
 		7ADCB2DA2B6A730400C88F89 /* IPOverrideRepositoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */; };
 		7AE044BB2A935726003915D8 /* Routing.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A88DCD02A8FABBE00D2FF0E /* Routing.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7AED35CC2BD13F60002A67D1 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
+		7AED35CD2BD13FC4002A67D1 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
 		7AEF7F1A2AD00F52006FE45D /* AppMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */; };
 		7AF10EB22ADE859200C090B9 /* AlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF10EB12ADE859200C090B9 /* AlertViewController.swift */; };
 		7AF10EB42ADE85BC00C090B9 /* RelayFilterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF10EB32ADE85BC00C090B9 /* RelayFilterCoordinator.swift */; };
@@ -5732,6 +5734,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7AED35CC2BD13F60002A67D1 /* ApplicationConfiguration.swift in Sources */,
+				7AED35CD2BD13FC4002A67D1 /* ApplicationTarget.swift in Sources */,
 				58D22402294C90050029F5F8 /* Logger+Errors.swift in Sources */,
 				58D22404294C90050029F5F8 /* Date+LogFormat.swift in Sources */,
 				58D22403294C90050029F5F8 /* Logging.swift in Sources */,
