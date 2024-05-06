@@ -114,7 +114,7 @@ if [[ "$SIGN" == "true" ]]; then
         exit 1
     fi
 
-    if [[ "$(uname -s)" == "Darwin" || "$(uname -s)" == "MINGW"* ]]; then
+    if [[ "$(uname -s)" == "Darwin" ]]; then
         log_info "Configuring environment for signing of binaries"
         if [[ -z ${CSC_LINK-} ]]; then
             log_error "The variable CSC_LINK is not set. It needs to point to a file containing the"
@@ -128,13 +128,15 @@ if [[ "$SIGN" == "true" ]]; then
         fi
         # macOS: This needs to be set to 'true' to activate signing, even when CSC_LINK is set.
         export CSC_IDENTITY_AUTO_DISCOVERY=true
-
-        if [[ "$(uname -s)" == "MINGW"* ]]; then
-            CERT_FILE=$CSC_LINK
-            CERT_PASSPHRASE=$CSC_KEY_PASSWORD
-            unset CSC_LINK CSC_KEY_PASSWORD
-            export CSC_IDENTITY_AUTO_DISCOVERY=false
+    elif [[ "$(uname -s)" == "MINGW"* ]]; then
+        if [[ -z ${CERT_HASH-} ]]; then
+            log_error "The variable CERT_HASH is not set. It needs to be set to the thumbprint of"
+            log_error "the signing certificate."
+            exit 1
         fi
+
+        unset CSC_LINK CSC_KEY_PASSWORD
+        export CSC_IDENTITY_AUTO_DISCOVERY=false
     else
         unset CSC_LINK CSC_KEY_PASSWORD
         export CSC_IDENTITY_AUTO_DISCOVERY=false
@@ -183,8 +185,7 @@ function sign_win {
                 -tr http://timestamp.digicert.com -td sha256 \
                 -fd sha256 -d "Mullvad VPN" \
                 -du "https://github.com/mullvad/mullvadvpn-app#readme" \
-                -f "$CERT_FILE" \
-                -p "$CERT_PASSPHRASE" "$binary"
+                -sha1 "$CERT_HASH" "$binary"
             then
                 break
             fi
