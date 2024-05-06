@@ -134,8 +134,6 @@ const config = {
     ],
     artifactName: 'MullvadVPN-${version}.${ext}',
     publisherName: 'Mullvad VPN AB',
-    signingHashAlgorithms: ['sha256'],
-    signDlls: true,
     extraResources: [
       { from: distAssets('mullvad.exe'), to: '.' },
       { from: distAssets('mullvad-problem-report.exe'), to: '.' },
