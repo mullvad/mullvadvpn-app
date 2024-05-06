@@ -25,7 +25,7 @@ source "$SCRIPT_DIR/buildserver-config.sh"
 
 # Ask for the passphrase to the signing keys
 case "$(uname -s)" in
-    Darwin*|MINGW*|MSYS_NT*)
+    Darwin*)
         if [[ -z ${CSC_KEY_PASSWORD-} ]]; then
             read -rsp "CSC_KEY_PASSWORD = " CSC_KEY_PASSWORD
             echo ""
