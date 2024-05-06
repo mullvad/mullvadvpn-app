@@ -28,9 +28,13 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Add support for split tunneling (beta).
 
+### Changed
+- Don't fail to start daemon when the offline monitor fails to be initialized.
+
 ### Fixed
 #### Linux
 - Fix GUI not working on Ubuntu 24.04 by adding an AppArmor profile.
+- Service failed to start when IPv6 was disabled in the kernel.
 
 
 ## [2024.2] - 2024-04-29
