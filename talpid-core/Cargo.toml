@@ -7,6 +7,9 @@ license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 
+[features]
+daita = ["talpid-wireguard/daita"]
+
 [lints]
 workspace = true
 
