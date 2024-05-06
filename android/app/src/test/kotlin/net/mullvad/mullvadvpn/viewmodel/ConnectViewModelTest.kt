@@ -18,6 +18,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.lib.account.AccountRepository
@@ -27,8 +28,6 @@ import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.ErrorState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.mullvadvpn.model.GeoLocationId
-import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -37,6 +36,7 @@ import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
@@ -80,11 +80,14 @@ class ConnectViewModelTest {
 
     // Flows
     private val tunnelState = MutableStateFlow<TunnelState>(TunnelState.Disconnected())
-    private val selectedRelayItemFlow = MutableStateFlow<RelayItem?>(null)
+    private val selectedRelayItemFlow = MutableStateFlow<String?>(null)
 
     // Out Of Time Use Case
     private val outOfTimeUseCase: OutOfTimeUseCase = mockk()
     private val outOfTimeViewFlow = MutableStateFlow(false)
+
+    // Last known location
+    private val mockLastKnownLocationUseCase: LastKnownLocationUseCase = mockk()
 
     @BeforeEach
     fun setup() {
@@ -101,10 +104,12 @@ class ConnectViewModelTest {
 
         every { mockConnectionProxy.tunnelState } returns tunnelState
 
+        every { mockLastKnownLocationUseCase.lastKnownDisconnectedLocation } returns flowOf(null)
+
         every { mockLocation.country } returns "dummy country"
 
         // Flows
-        every { mockSelectedLocationRelayItemUseCase.selectedRelayItem() } returns
+        every { mockSelectedLocationRelayItemUseCase.selectedRelayItemTitle() } returns
             selectedRelayItemFlow
 
         every { outOfTimeUseCase.isOutOfTime } returns outOfTimeViewFlow
@@ -118,6 +123,7 @@ class ConnectViewModelTest {
                 paymentUseCase = mockPaymentUseCase,
                 selectedLocationRelayItemUseCase = mockSelectedLocationRelayItemUseCase,
                 connectionProxy = mockConnectionProxy,
+                lastKnownLocationUseCase = mockLastKnownLocationUseCase,
                 isPlayBuild = false
             )
     }
@@ -167,19 +173,13 @@ class ConnectViewModelTest {
     @Test
     fun `given RelayListUseCase returns new selectedRelayItem uiState should emit new selectedRelayItem`() =
         runTest {
-            val selectedRelayItem =
-                RelayItem.Location.Country(
-                    name = "Name",
-                    id = GeoLocationId.Country("se"),
-                    expanded = false,
-                    cities = emptyList()
-                )
-            selectedRelayItemFlow.value = selectedRelayItem
+            val selectedRelayItemTitle = "Item"
+            selectedRelayItemFlow.value = selectedRelayItemTitle
 
             viewModel.uiState.test {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 val result = awaitItem()
-                assertEquals(selectedRelayItem, result.selectedRelayItem)
+                assertEquals(selectedRelayItemTitle, result.selectedRelayItemTitle)
             }
         }
 
@@ -325,7 +325,9 @@ class ConnectViewModelTest {
     }
 
     companion object {
-        private const val TUNNEL_ENDPOINT_EXTENSIONS = "net.mullvad.mullvadvpn.util.TunnelEndpointExtensionsKt"
-        private const val GEO_IP_LOCATIONS_EXTENSIONS = "net.mullvad.mullvadvpn.util.GeoIpLocationExtensionsKt"
+        private const val TUNNEL_ENDPOINT_EXTENSIONS =
+            "net.mullvad.mullvadvpn.util.TunnelEndpointExtensionsKt"
+        private const val GEO_IP_LOCATIONS_EXTENSIONS =
+            "net.mullvad.mullvadvpn.util.GeoIpLocationExtensionsKt"
     }
 }
