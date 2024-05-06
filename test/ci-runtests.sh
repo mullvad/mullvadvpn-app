@@ -29,9 +29,11 @@ TEST_OS=$1
 RELEASES=$(curl -sf https://api.github.com/repos/mullvad/mullvadvpn-app/releases | jq -r '[.[] | select(((.tag_name|(startswith("android") or startswith("ios"))) | not))]')
 OLD_APP_VERSION=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_name' <<<"$RELEASES")
 
-NEW_APP_VERSION=$(cargo run -q --manifest-path="$APP_DIR/Cargo.toml" --bin mullvad-version)
-commit=$(git rev-parse HEAD^\{commit\})
-commit=${commit:0:6}
+NEW_APP_VERSION="2024.2-dev-0d71e8"
+#NEW_APP_VERSION=$(cargo run -q --manifest-path="$APP_DIR/Cargo.toml" --bin mullvad-version)
+#commit=$(git rev-parse HEAD^\{commit\})
+#commit=${commit:0:6}
+commit=0d71e8
 
 TAG=$(git describe --exact-match HEAD 2>/dev/null || echo "")
 
@@ -200,6 +202,7 @@ function run_tests_for_os {
         --current-app "${cur_filename}" \
         --previous-app "${prev_filename}" \
         --test-report "$SCRIPT_DIR/.ci-logs/${os}_report" \
+        --vnc 5933 \
         "$os" 2>&1 | sed "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"
 }
 

@@ -71,60 +71,9 @@ jobs:
       windows_matrix: ${{ env.windows_matrix }}
       macos_matrix: ${{ env.macos_matrix }}
 
-  prepare-linux:
-    needs: prepare-matrices
-    if: |
-      needs.prepare-matrices.outputs.linux_matrix != '[]' &&
-      !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Use custom container image if specified
-        if: ${{ github.event.inputs.override_container_image != '' }}
-        run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
-          >> $GITHUB_ENV
-      - name: Use default container image and resolve digest
-        if: ${{ github.event.inputs.override_container_image == '' }}
-        run: |
-          echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
-    outputs:
-      container_image: ${{ env.inner_container_image }}
-  build-linux:
-    needs: prepare-linux
-    runs-on: ubuntu-latest
-    container:
-      image: ${{ needs.prepare-linux.outputs.container_image }}
-    continue-on-error: true
-    steps:
-      # Fix for HOME path overridden by GH runners when building in containers, see:
-      # https://github.com/actions/runner/issues/863
-      - name: Fix HOME path
-        run: echo "HOME=/root" >> $GITHUB_ENV
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Checkout binaries submodule
-        run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init --depth=1 dist-assets/binaries
-      - name: Build app
-        env:
-          USE_MOLD: false
-        run: ./build.sh
-      - name: Build test executable
-        run: ./gui/scripts/build-test-executable.sh
-      - uses: actions/upload-artifact@v3
-        if: '!cancelled()'
-        with:
-          name: linux-build
-          path: |
-            ./dist/*.rpm
-            ./dist/*.deb
-            ./dist/app-e2e-*
-
   e2e-test-linux:
     name: Linux end-to-end tests
-    needs: [prepare-matrices, build-linux]
+    needs: [prepare-matrices]
     if: '!cancelled()'
     runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
     timeout-minutes: 240
@@ -133,11 +82,6 @@ jobs:
       matrix:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.linux_matrix) }}
     steps:
-      - uses: actions/download-artifact@v3
-        if: ${{ needs.build-linux.result == 'success' }}
-        with:
-          name: linux-build
-          path: ~/.cache/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Run end-to-end tests
