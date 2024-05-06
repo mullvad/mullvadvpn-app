@@ -51,7 +51,7 @@ class DeviceListViewModel(
             .onStart { fetchDevices() }
             .stateIn(viewModelScope, SharingStarted.Lazily, DeviceListUiState.Loading)
 
-    private fun fetchDevices() =
+    fun fetchDevices() =
         viewModelScope.launch {
             error.value = null
             loading.value = true
