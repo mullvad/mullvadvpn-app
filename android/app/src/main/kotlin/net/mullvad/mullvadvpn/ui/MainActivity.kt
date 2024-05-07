@@ -103,8 +103,7 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    suspend fun startManagementService() {
-        delay(100)
+    fun startManagementService() {
         managementService.start()
     }
 

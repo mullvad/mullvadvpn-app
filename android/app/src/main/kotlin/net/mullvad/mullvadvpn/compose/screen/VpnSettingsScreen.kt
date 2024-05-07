@@ -133,6 +133,7 @@ private fun PreviewVpnSettings() {
 
 @Destination(style = SlideInFromRightTransition::class)
 @Composable
+@Suppress("LongMethod")
 fun VpnSettings(
     navigator: DestinationsNavigator,
     dnsDialogResult: ResultRecipient<DnsDialogDestination, DnsDialogResult>,
