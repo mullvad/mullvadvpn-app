@@ -1,7 +1,7 @@
 use ipnetwork::IpNetwork;
-#[cfg(feature = "daita")]
+#[cfg(daita)]
 use once_cell::sync::OnceCell;
-#[cfg(feature = "daita")]
+#[cfg(daita)]
 use std::{ffi::CString, fs, path::PathBuf};
 use std::{
     ffi::{c_char, c_void, CStr},
@@ -19,9 +19,10 @@ use talpid_types::BoxedError;
 use wireguard_go_rs::*;
 use zeroize::Zeroize;
 
+#[cfg(daita)]
 mod daita;
 
-#[cfg(feature = "daita")]
+#[cfg(daita)]
 use super::DaitaTunnel;
 use super::{
     stats::{Stats, StatsMap},
@@ -53,11 +54,11 @@ pub struct WgGoTunnel {
     _logging_context: LoggingContext,
     #[cfg(target_os = "android")]
     tun_provider: Arc<Mutex<TunProvider>>,
-    #[cfg(feature = "daita")]
+    #[cfg(daita)]
     daita_handle: Option<daita::Session>,
-    #[cfg(feature = "daita")]
+    #[cfg(daita)]
     resource_dir: PathBuf,
-    #[cfg(feature = "daita")]
+    #[cfg(daita)]
     config: Config,
 }
 
@@ -67,7 +68,7 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
-        #[cfg(feature = "daita")] resource_dir: &Path,
+        #[cfg(daita)] resource_dir: &Path,
     ) -> Result<Self> {
         #[cfg(target_os = "android")]
         let tun_provider_clone = tun_provider.clone();
@@ -106,11 +107,11 @@ impl WgGoTunnel {
             _logging_context: logging_context,
             #[cfg(target_os = "android")]
             tun_provider: tun_provider_clone,
-            #[cfg(feature = "daita")]
+            #[cfg(daita)]
             resource_dir: resource_dir.to_owned(),
-            #[cfg(feature = "daita")]
+            #[cfg(daita)]
             daita_handle: None,
-            #[cfg(feature = "daita")]
+            #[cfg(daita)]
             config: config.clone(),
         })
     }
@@ -272,7 +273,7 @@ impl Tunnel for WgGoTunnel {
     }
 }
 
-#[cfg(feature = "daita")]
+#[cfg(daita)]
 impl DaitaTunnel for WgGoTunnel {
     fn start_daita(&mut self) -> Result<()> {
         if let Some(_handle) = self.daita_handle.take() {

@@ -10,8 +10,6 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
-[features]
-daita = ["mullvad-types/daita", "talpid-types/daita"]
 
 [dependencies]
 chrono = { workspace = true }

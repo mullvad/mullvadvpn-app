@@ -13,7 +13,6 @@ workspace = true
 [features]
 # Allow the API server to use to be configured
 api-override = ["mullvad-api/api-override"]
-daita = ["mullvad-management-interface/daita", "mullvad-relay-selector/daita", "mullvad-types/daita", "talpid-core/daita", "talpid-types/daita"]
 
 [dependencies]
 chrono = { workspace = true }

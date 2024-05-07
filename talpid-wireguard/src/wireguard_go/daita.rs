@@ -1,4 +1,4 @@
-#![cfg(feature = "daita")]
+#![cfg(daita)]
 use std::{ffi::CStr, io};
 
 use talpid_types::net::wireguard::PublicKey;
