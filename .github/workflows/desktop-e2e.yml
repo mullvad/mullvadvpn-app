@@ -103,10 +103,10 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Checkout binaries submodule
+      - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init --depth=1 dist-assets/binaries
+          git submodule update --init --depth=1 dist-assets/binaries wireguard-go-rs/libwg
       - name: Build app
         env:
           USE_MOLD: false
@@ -161,6 +161,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Checkout submodules
+       # TODO: should this specify a path? We don't want to pull `wireguard-go`
         run: git submodule update --init --depth=1
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
@@ -233,6 +234,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Checkout submodules
+        # TODO: see windows build
         run: git submodule update --init --depth=1
       - name: Install Go
         uses: actions/setup-go@v3
