@@ -11,10 +11,10 @@ import MullvadTypes
 import WireGuardKitTypes
 
 extension Device {
-    static func mock(publicKey: PublicKey) -> Device {
+    public static func mock(publicKey: PublicKey) -> Device {
         Device(
             id: "device-id",
-            name: "Devicey McDeviceface",
+            name: "Secure Mole",
             pubkey: publicKey,
             hijackDNS: false,
             created: Date(),

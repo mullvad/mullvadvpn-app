@@ -27,7 +27,7 @@ final class RequestExecutorTests: XCTestCase {
             transportProvider: transportProvider,
             addressCache: addressCache
         )
-        timerServerProxy = proxyFactory.createTimeServerProxy()
+        timerServerProxy = TimeServerProxy(configuration: proxyFactory.configuration)
     }
 
     func testExecuteAsync() async throws {

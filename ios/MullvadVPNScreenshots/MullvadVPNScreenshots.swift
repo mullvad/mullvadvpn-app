@@ -11,15 +11,19 @@ import XCTest
 class MullvadVPNScreenshots: XCTestCase {
     let app = XCUIApplication()
 
-    override func setUp() {
+    override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of
         // each test method in the class.
 
         // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
 
-        // Disable animations to speed up tests. This argument is picked up in AppDelegate.didFinishLaunchingWithOptions.
-        app.launchArguments = ["DisableAnimations"]
+        let argumentsJsonString = try LaunchArguments(
+            target: .screenshots,
+            isDisabledAnimations: true
+        ).toJSON()
+
+        app.launchEnvironment[LaunchArguments.tag] = argumentsJsonString
 
         // In UI tests it’s important to set the initial state - such as interface orientation -
         // required for your tests before they run. The setUp method is a good place to do this.
@@ -68,15 +72,17 @@ class MullvadVPNScreenshots: XCTestCase {
 
         let countryCell = app.cells["se"]
         let cityCell = app.cells["se-got"]
+        let relayCell = app.cells["se-got-wg-101"]
 
         _ = countryCell.waitForExistence(timeout: 2)
 
-        if cityCell.exists {
-            cityCell.tap()
+        if relayCell.exists {
+            relayCell.tap()
         } else {
             _ = countryCell.buttons[AccessibilityIdentifier.expandButton.rawValue].waitForExistence(timeout: 5)
             countryCell.buttons[AccessibilityIdentifier.expandButton.rawValue].tap()
-            cityCell.tap()
+            cityCell.buttons[AccessibilityIdentifier.expandButton.rawValue].tap()
+            relayCell.tap()
         }
 
         // Wait for Disconnect button to appear
@@ -87,7 +93,6 @@ class MullvadVPNScreenshots: XCTestCase {
         // Re-open Select location controller (iPhone only)
         if case .phone = UIDevice.current.userInterfaceIdiom {
             app.buttons[AccessibilityIdentifier.selectLocationButton.rawValue].tap()
-            cityCell.buttons[AccessibilityIdentifier.expandButton.rawValue].tap()
             snapshot("SelectLocation")
 
             // Tap the "Filter" button and expand each relay filter
