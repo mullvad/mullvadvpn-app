@@ -222,6 +222,7 @@ jobs:
               :app:testOssProdDebugUnitTest
               :service:testOssProdDebugUnitTest
               :lib:billing:testDebugUnitTest
+              :lib:daemon-grpc:testDebugUnitTest
           - gradle-task: :test:arch:test --rerun-tasks
           - gradle-task: detekt
           - gradle-task: lint
