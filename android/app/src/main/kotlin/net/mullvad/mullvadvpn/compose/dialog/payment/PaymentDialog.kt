@@ -125,9 +125,7 @@ fun Payment(productId: ProductId, resultBackNavigator: ResultBackNavigator<Boole
     val vm = koinViewModel<PaymentViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffectCollect(vm.uiSideEffect) {
-        resultBackNavigator.navigateBack(result = false)
-    }
+    LaunchedEffectCollect(vm.uiSideEffect) { resultBackNavigator.navigateBack(result = false) }
 
     val context = LocalContext.current
     LaunchedEffect(Unit) { vm.startBillingPayment(productId) { context.getActivity()!! } }

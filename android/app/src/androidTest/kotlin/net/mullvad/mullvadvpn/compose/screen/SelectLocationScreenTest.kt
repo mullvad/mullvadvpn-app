@@ -84,8 +84,7 @@ class SelectLocationScreenTest {
                     cities.add(0, city.copy(expanded = true))
 
                     val mutableRelayList = it.toMutableList()
-                    mutableRelayList[0] =
-                        it[0].copy(expanded = true, cities = cities.toList())
+                    mutableRelayList[0] = it[0].copy(expanded = true, cities = cities.toList())
                     mutableRelayList
                 }
 

@@ -101,9 +101,7 @@ private fun PreviewDeviceListLoading() {
 @Composable
 @Preview
 private fun PreviewDeviceListError() {
-    AppTheme {
-        DeviceListScreen(state = DeviceListUiState.Error(GetDeviceListError.Unknown(null)))
-    }
+    AppTheme { DeviceListScreen(state = DeviceListUiState.Error(GetDeviceListError.Unknown(null))) }
 }
 
 @Destination(style = DefaultTransition::class)

@@ -4,13 +4,10 @@ import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.DeviceState
@@ -78,7 +75,6 @@ class SettingsViewModelTest {
                     isOutdated = false,
                     isSupported = true
                 )
-
 
             // Act, Assert
             viewModel.uiState.test {

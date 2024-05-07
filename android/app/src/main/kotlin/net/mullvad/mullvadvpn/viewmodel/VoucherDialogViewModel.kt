@@ -15,9 +15,7 @@ import net.mullvad.mullvadvpn.lib.account.VoucherRepository
 import net.mullvad.mullvadvpn.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.util.VoucherRegexHelper
 
-class VoucherDialogViewModel(
-    private val voucherRepository: VoucherRepository
-) : ViewModel() {
+class VoucherDialogViewModel(private val voucherRepository: VoucherRepository) : ViewModel() {
 
     private val vmState = MutableStateFlow<VoucherDialogState>(VoucherDialogState.Default)
     private val voucherInput = MutableStateFlow("")

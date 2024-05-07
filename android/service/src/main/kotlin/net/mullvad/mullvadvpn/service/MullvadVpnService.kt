@@ -51,6 +51,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     private lateinit var foregroundNotificationHandler: ForegroundNotificationManager
 
     private val bindCount = AtomicInt()
+
     // Suppressing since the tunnel state pref should be writted immediately.
     @SuppressLint("ApplySharedPref")
     override fun onCreate() {
@@ -88,24 +89,6 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
                     migrateSplitTunnelingRepository = migrateSplitTunnelingRepository
                 )
         }
-
-        //        endpoint.splitTunneling.onChange.subscribe(this@MullvadVpnService) { excludedApps
-        // ->
-        //            disallowedApps = excludedApps
-        //            markTunAsStale()
-        //            connectionProxy.reconnect()
-        //        }
-
-        //        notificationManager =
-        //            ForegroundNotificationManager(this, connectionProxy,
-        // daemonInstance.intermittentDaemon)
-
-        //        accountExpiryNotification =
-        //            AccountExpiryNotification(
-        //                this,
-        //                daemonInstance.intermittentDaemon,
-        //                //endpoint.accountCache
-        //            )
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -118,14 +101,17 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         // where the service would potentially otherwise be too slow running `startForeground`.
         Log.d(TAG, "Intent Action: ${intent?.action}")
         when (intent?.action) {
+            // TODO Launch connect disconnect in job so we can cancel operation?
             KEY_CONNECT_ACTION -> {
                 _shouldBeOnForeground.update { true }
-                runBlocking { managementService.connect() }
+                lifecycleScope.launch { managementService.connect() }
             }
             KEY_DISCONNECT_ACTION -> {
-                _shouldBeOnForeground.update { true }
-                runBlocking { managementService.disconnect() }
-                _shouldBeOnForeground.update { false }
+                lifecycleScope.launch {
+                    _shouldBeOnForeground.update { true }
+                    managementService.disconnect()
+                    _shouldBeOnForeground.update { false }
+                }
             }
         }
 
@@ -184,17 +170,6 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
                 stopSelf()
             }
         }
-
-        //        val shouldKill =
-        //            if (intent.action == VPN_SERVICE_CLASS) {
-        //                Log.d(TAG, "onUnbind from VPN_SERVICE_CLASS")
-        //                runBlocking { managementService.disconnect() }
-        //                true
-        //            } else false
-        //        if (shouldKill) {
-        //            Log.d(TAG, "onUnbind stopSelf()")
-        //            stopSelf()
-        //        }
         return false
     }
 
