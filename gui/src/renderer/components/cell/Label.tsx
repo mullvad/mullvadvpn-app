@@ -9,7 +9,6 @@ import { CellDisabledContext } from './Container';
 
 const StyledLabel = styled.div<{ disabled: boolean }>(buttonText, (props) => ({
   display: 'flex',
-  alignItems: 'center',
   margin: '10px 0',
   flex: 1,
   color: props.disabled ? colors.white40 : colors.white,
