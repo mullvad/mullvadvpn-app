@@ -91,7 +91,7 @@ impl TryFrom<proto::ConnectionConfig> for mullvad_types::ConnectionConfig {
                             allowed_ips,
                             endpoint,
                             psk: None,
-                            #[cfg(feature = "daita")]
+                            #[cfg(daita)]
                             constant_packet_size: false,
                         },
                         exit_peer: None,

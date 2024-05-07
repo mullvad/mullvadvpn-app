@@ -97,9 +97,9 @@ impl Config {
             enable_ipv6: generic_options.enable_ipv6,
             obfuscator_config: obfuscator_config.to_owned(),
             quantum_resistant: wg_options.quantum_resistant,
-            #[cfg(feature = "daita")]
+            #[cfg(daita)]
             daita: wg_options.daita,
-            #[cfg(not(feature = "daita"))]
+            #[cfg(not(daita))]
             daita: false,
         };
 
