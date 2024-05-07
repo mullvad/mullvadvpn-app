@@ -8,7 +8,7 @@ package main
 
 // #include <stdio.h>
 // #include <stdlib.h>
-// #include "libwg.h"
+// #include <stdint.h>
 import "C"
 
 import (
@@ -22,9 +22,14 @@ import (
 	"golang.zx2c4.com/wireguard/device"
 )
 
+// FFI integer result codes
 const (
-	ERROR_GENERAL_FAILURE      = -1
-	ERROR_INTERMITTENT_FAILURE = -2
+	OK = C.int32_t(-iota)
+	ERROR_GENERAL_FAILURE
+	ERROR_INTERMITTENT_FAILURE
+	ERROR_UNKNOWN_TUNNEL
+	ERROR_UNKNOWN_PEER
+	ERROR_ENABLE_DAITA
 )
 
 var tunnels tunnelcontainer.Container
@@ -69,10 +74,10 @@ func wgGetConfig(tunnelHandle int32) *C.char {
 }
 
 //export wgSetConfig
-func wgSetConfig(tunnelHandle int32, cSettings *C.char) int32 {
+func wgSetConfig(tunnelHandle int32, cSettings *C.char) C.int32_t {
 	tunnel, err := tunnels.Get(tunnelHandle)
 	if err != nil {
-		return ERROR_GENERAL_FAILURE
+		return ERROR_UNKNOWN_TUNNEL
 	}
 	if cSettings == nil {
 		tunnel.Logger.Errorf("cSettings is null\n")
