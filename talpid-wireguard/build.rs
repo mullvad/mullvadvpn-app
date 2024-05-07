@@ -8,6 +8,12 @@ fn main() {
     if let "linux" | "macos" | "android" = target_os.as_str() {
         println!("cargo:rustc-cfg=wireguard_go");
     }
+
+    // Enable Daita by default on Linux and Windows.
+    println!("cargo:rustc-check-cfg=cfg(daita)");
+    if let "linux" | "windows" = target_os.as_str() {
+        println!(r#"cargo:rustc-cfg=daita"#);
+    }
 }
 
 fn declare_libs_dir(base: &str) {
