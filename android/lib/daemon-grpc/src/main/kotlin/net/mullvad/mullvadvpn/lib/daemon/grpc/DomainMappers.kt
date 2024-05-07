@@ -683,6 +683,4 @@ internal fun PlayPurchase.fromDomain(): ManagementInterface.PlayPurchase =
         .build()
 
 internal fun List<AppId>.fromDomain(): ManagementInterface.ExcludedApps =
-    ManagementInterface.ExcludedApps.newBuilder()
-        .addAllApps(this.map { it.value })
-        .build()
+    ManagementInterface.ExcludedApps.newBuilder().addAllApps(this.map { it.value }).build()

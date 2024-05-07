@@ -6,7 +6,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.withTimeoutOrNull
@@ -126,4 +125,3 @@ suspend inline fun <T> Flow<T>.retryWithExponentialBackOff(
         }
 
 class ExceptionWrapper(val item: Any) : Throwable()
-

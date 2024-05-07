@@ -9,9 +9,7 @@ import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
@@ -200,7 +198,8 @@ class OutOfTimeUseCaseTest {
         // Arrange
         val initialAccountExpiry =
             AccountData(mockk(relaxed = true), DateTime.now().plusSeconds(100))
-        val updatedExpiry = AccountData(mockk(relaxed = true), initialAccountExpiry.expiryDate.plusDays(30))
+        val updatedExpiry =
+            AccountData(mockk(relaxed = true), initialAccountExpiry.expiryDate.plusDays(30))
         // Act, Assert
         outOfTimeUseCase.isOutOfTime.test {
             // Initial event

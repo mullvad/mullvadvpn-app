@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.model
 
-import java.net.InetAddress
 import org.joda.time.Duration
 
 @JvmInline value class ChannelId(val value: String)
@@ -43,10 +42,8 @@ sealed interface Notification {
         override val id: NotificationId = NotificationId(3)
         override val ongoing: Boolean = false
 
-        fun cancel(): CancelNotification = CancelNotification(
-            channelId = this.channelId,
-            id = this.id
-        )
+        fun cancel(): CancelNotification =
+            CancelNotification(channelId = this.channelId, id = this.id)
     }
 
     data class CancelNotification(
@@ -95,7 +92,7 @@ sealed interface NotificationTunnelState {
 
         data object VpnPermissionDenied : Error
 
-        data object AlwaysOnVpn: Error
+        data object AlwaysOnVpn : Error
 
         data object Critical : Error
     }
