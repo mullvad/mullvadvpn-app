@@ -41,10 +41,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Checkout binaries submodule
+      - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init --depth=1 dist-assets/binaries
+          git submodule update --init --depth=1 dist-assets/binaries wireguard-go-rs/libwg
 
       - name: Install nightly Rust toolchain
         run: rustup default $RUST_NIGHTLY_TOOLCHAIN
