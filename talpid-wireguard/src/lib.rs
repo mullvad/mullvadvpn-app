@@ -6,11 +6,11 @@ use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
 use futures::future::{abortable, AbortHandle as FutureAbortHandle, BoxFuture, Future};
-#[cfg(all(target_os = "linux", not(feature = "daita")))]
+#[cfg(all(target_os = "linux", not(daita)))]
 use once_cell::sync::Lazy;
 #[cfg(target_os = "android")]
 use std::borrow::Cow;
-#[cfg(all(target_os = "linux", not(feature = "daita")))]
+#[cfg(all(target_os = "linux", not(daita)))]
 use std::env;
 #[cfg(windows)]
 use std::io;
@@ -67,11 +67,11 @@ type Result<T> = std::result::Result<T, Error>;
 type EventCallback = Box<dyn (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Sync + 'static>;
 /// TODO: Document
 /// TODO: Rename
-#[cfg(not(feature = "daita"))]
+#[cfg(not(daita))]
 pub(crate) type TunnelT = Box<dyn Tunnel>;
 /// TODO: Document
 /// TODO: Rename
-#[cfg(feature = "daita")]
+#[cfg(daita)]
 pub(crate) type TunnelT = Box<dyn DaitaTunnel>;
 
 /// Errors that can happen in the Wireguard tunnel monitor.
@@ -199,7 +199,7 @@ impl Drop for ObfuscatorHandle {
     }
 }
 
-#[cfg(all(target_os = "linux", not(feature = "daita")))]
+#[cfg(all(target_os = "linux", not(daita)))]
 /// Overrides the preference for the kernel module for WireGuard.
 static FORCE_USERSPACE_WIREGUARD: Lazy<bool> = Lazy::new(|| {
     env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
@@ -393,7 +393,7 @@ impl WireguardMonitor {
                 let config = config.clone();
                 let iface_name = iface_name.clone();
                 tokio::task::spawn(async move {
-                    #[cfg(feature = "daita")]
+                    #[cfg(daita)]
                     if config.daita {
                         // TODO: For now, we assume the MTU during the tunnel lifetime.
                         // We could instead poke maybenot whenever we detect changes to it.
@@ -566,7 +566,7 @@ impl WireguardMonitor {
         }
 
         config.exit_peer_mut().psk = exit_psk;
-        #[cfg(feature = "daita")]
+        #[cfg(daita)]
         if config.daita {
             log::trace!("Enabling constant packet size for entry peer");
             config.entry_peer.constant_packet_size = true;
@@ -584,7 +584,7 @@ impl WireguardMonitor {
         )
         .await?;
 
-        #[cfg(feature = "daita")]
+        #[cfg(daita)]
         if config.daita {
             // Start local DAITA machines
             let mut tunnel = tunnel.lock().unwrap();
@@ -757,7 +757,7 @@ impl WireguardMonitor {
 
     /// Linux can use the kernel implementation of Wireguard and fall back to WireguardGo.
     /// Note that when DAITA is enabled, only WireguardGo may be used.
-    #[cfg(all(target_os = "linux", not(feature = "daita")))]
+    #[cfg(all(target_os = "linux", not(daita)))]
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
         config: &Config,
@@ -816,7 +816,7 @@ impl WireguardMonitor {
                     log_path,
                     tun_provider,
                     routes,
-                    #[cfg(feature = "daita")]
+                    #[cfg(daita)]
                     resource_dir,
                 )
                 .map_err(Error::TunnelError)?,
@@ -824,7 +824,7 @@ impl WireguardMonitor {
         }
     }
 
-    #[cfg(all(target_os = "linux", feature = "daita"))]
+    #[cfg(all(target_os = "linux", daita))]
     fn open_tunnel(
         _runtime: tokio::runtime::Handle,
         config: &Config,
@@ -843,7 +843,7 @@ impl WireguardMonitor {
                 log_path,
                 tun_provider,
                 routes,
-                #[cfg(feature = "daita")]
+                #[cfg(daita)]
                 resource_dir,
             )
             .map_err(Error::TunnelError)?,
@@ -875,7 +875,7 @@ impl WireguardMonitor {
                 log_path,
                 tun_provider,
                 routes,
-                #[cfg(feature = "daita")]
+                #[cfg(daita)]
                 resource_dir,
             )
             .map_err(Error::TunnelError)?,
@@ -1108,7 +1108,7 @@ pub(crate) trait Tunnel: Send {
 }
 
 /// A [`Tunnel`] capable of using DAITA.
-#[cfg(feature = "daita")]
+#[cfg(daita)]
 pub(crate) trait DaitaTunnel: Tunnel {
     fn start_daita(&mut self) -> std::result::Result<(), TunnelError>;
 }
@@ -1189,7 +1189,7 @@ pub enum TunnelError {
     LoggingError(#[source] logging::Error),
 
     /// Failed to receive DAITA event
-    #[cfg(feature = "daita")]
+    #[cfg(daita)]
     #[error("Failed to receive DAITA event")]
     DaitaReceiveEvent(i32),
 }

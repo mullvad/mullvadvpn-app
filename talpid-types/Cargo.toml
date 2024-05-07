@@ -10,8 +10,6 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
-[features]
-daita = []
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }

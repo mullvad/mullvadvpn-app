@@ -10,9 +10,6 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
-[features]
-daita = ["mullvad-management-interface/daita", "mullvad-types/daita", "talpid-types/daita"]
-
 [[bin]]
 name = "mullvad"
 path = "src/main.rs"

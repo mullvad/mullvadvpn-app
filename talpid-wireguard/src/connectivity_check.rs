@@ -613,7 +613,7 @@ mod test {
             Box::pin(async { Ok(()) })
         }
 
-        #[cfg(feature = "daita")]
+        #[cfg(daita)]
         fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
             Ok(())
         }

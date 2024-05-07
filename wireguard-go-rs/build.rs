@@ -15,6 +15,8 @@ fn main() {
         "android" => {
             cmd.arg("--android");
         }
+        // TODO: Is is allowed to panic? Won't this always happen if we run `cargo build` in the
+        // workspace root for e.g. windows?
         _ => unimplemented!("building wireguard-go-rs for {target_os} is not implemented."),
     }
 

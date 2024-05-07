@@ -2,7 +2,7 @@
 
 use crate::types;
 use futures::{Stream, StreamExt};
-#[cfg(feature = "daita")]
+#[cfg(daita)]
 use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
     access_method::{self, AccessMethod, AccessMethodSetting},
@@ -346,7 +346,7 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    #[cfg(feature = "daita")]
+    #[cfg(daita)]
     pub async fn set_daita_settings(&mut self, settings: DaitaSettings) -> Result<()> {
         let settings = types::DaitaSettings::from(settings);
         self.0

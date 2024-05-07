@@ -325,7 +325,7 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    #[cfg(feature = "daita")]
+    #[cfg(daita)]
     async fn set_daita_settings(
         &self,
         request: Request<types::DaitaSettings>,
@@ -339,7 +339,7 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    #[cfg(not(feature = "daita"))]
+    #[cfg(not(daita))]
     async fn set_daita_settings(&self, _: Request<types::DaitaSettings>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
