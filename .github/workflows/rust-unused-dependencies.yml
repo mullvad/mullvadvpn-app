@@ -94,6 +94,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # TODO: submod wireguard-go on just macos
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
         with:

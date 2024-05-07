@@ -16,6 +16,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Checkout wireguard-go submodule
+        run: git submodule update --init --depth=1 wireguard-go-rs/libwg
+
       - name: Read volta info
         id: volta
         uses: zoexx/github-action-json-file-properties@1.0.6
