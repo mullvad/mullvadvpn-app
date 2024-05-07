@@ -17,8 +17,6 @@ class ForegroundNotificationManager(
     private val tunnelStateNotificationProvider: TunnelStateNotificationProvider,
     private val scope: CoroutineScope,
 ) {
-    private val notificationId: Int = 1
-
     suspend fun start(foregroundProvider: ShouldBeOnForegroundProvider) {
 
         //                channel.apply{ lockscreenVisibility =

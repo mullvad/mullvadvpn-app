@@ -21,7 +21,6 @@ class NotificationManager(
 ) {
 
     init {
-
         Log.d("NotificationManager", "Starting NotificationManager with $notificationProviders")
 
         scope.launch {

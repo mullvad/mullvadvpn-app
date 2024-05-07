@@ -108,7 +108,6 @@ class VpnSettingsViewModelTest {
             every { mockWireguardTunnelOptions.mtu } returns Mtu(0)
             every { mockSettings.relaySettings } returns mockk<RelaySettings>(relaxed = true)
 
-
             viewModel.uiState.test {
                 assertEquals(defaultResistantState, awaitItem().quantumResistant)
                 mockSettingsUpdate.value = mockSettings

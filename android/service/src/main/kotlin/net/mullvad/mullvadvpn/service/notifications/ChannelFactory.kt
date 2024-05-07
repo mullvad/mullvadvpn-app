@@ -11,8 +11,8 @@ import net.mullvad.mullvadvpn.model.NotificationChannel
 
 class ChannelFactory(
     private val notificationManagerCompat: NotificationManagerCompat,
-    val resources: Resources,
-    val channels: List<NotificationChannel>
+    private val resources: Resources,
+    channels: List<NotificationChannel>
 ) {
     init {
         Log.d("ChannelFactory", "Creating channels")

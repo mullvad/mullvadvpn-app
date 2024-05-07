@@ -31,6 +31,7 @@ private fun Notification.AccountExpiry.contentIntent(context: Context): PendingI
                 action = Intent.ACTION_MAIN
             }
         } else {
+            // TODO add account token into URL
             Intent(Intent.ACTION_VIEW, Uri.parse(context.getString(R.string.account_url)))
         }
     return PendingIntent.getActivity(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())
