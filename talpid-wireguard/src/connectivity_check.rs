@@ -398,9 +398,12 @@ mod test {
     use futures::Future;
 
     use super::*;
+    #[cfg(daita)]
+    use crate::DaitaTunnel;
     use crate::{
         config::Config,
         stats::{self, Stats},
+        Tunnel,
     };
     use std::{
         pin::Pin,
@@ -580,13 +583,8 @@ mod test {
         }
 
         #[allow(clippy::type_complexity)]
-        fn into_locked(
-            self,
-        ) -> (
-            Arc<Mutex<Option<Box<dyn Tunnel>>>>,
-            Weak<Mutex<Option<Box<dyn Tunnel>>>>,
-        ) {
-            let dyn_tunnel: Box<dyn Tunnel> = Box::new(self);
+        fn into_locked(self) -> (Arc<Mutex<Option<TunnelT>>>, Weak<Mutex<Option<TunnelT>>>) {
+            let dyn_tunnel: TunnelT = Box::new(self);
             let arc = Arc::new(Mutex::new(Some(dyn_tunnel)));
             let weak_ref = Arc::downgrade(&arc);
             (arc, weak_ref)
@@ -612,8 +610,10 @@ mod test {
         ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
             Box::pin(async { Ok(()) })
         }
+    }
 
-        #[cfg(daita)]
+    #[cfg(daita)]
+    impl DaitaTunnel for MockTunnel {
         fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
             Ok(())
         }
@@ -622,7 +622,7 @@ mod test {
     fn mock_monitor(
         now: Instant,
         pinger: Box<dyn Pinger>,
-        tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
+        tunnel_handle: Weak<Mutex<Option<TunnelT>>>,
         close_receiver: mpsc::Receiver<()>,
     ) -> ConnectivityMonitor {
         ConnectivityMonitor {
