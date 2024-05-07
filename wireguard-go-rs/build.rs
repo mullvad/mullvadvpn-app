@@ -28,22 +28,18 @@ fn main() {
         panic!();
     }
 
-    // declare_libs_dir("../dist-assets/binaries");
-    declare_libs_dir("../build/lib");
-
-    println!("cargo::rustc-link-search={out_dir}");
-
     if target_os == "android" {
         // NOTE: Go programs does not support being statically linked on android
         // so we need to dynamically link to libwg
-        println!("cargo::rustc-link-lib=wg")
+        println!("cargo::rustc-link-lib=wg");
+        declare_libs_dir("../build/lib");
     } else {
         // other platforms can statically link to libwg just fine
         // TODO: consider doing dynamic linking everywhere, to keep things simpler
         println!("cargo::rustc-link-lib=static=wg");
+        println!("cargo::rustc-link-search={out_dir}");
     }
 
-    // TODO: check that these are correct
     println!("cargo::rerun-if-changed=libwg");
 }
 
