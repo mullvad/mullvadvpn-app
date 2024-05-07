@@ -45,8 +45,5 @@ class AccountExpiryNotificationProvider(
 
     companion object {
         private val REMAINING_TIME_FOR_REMINDERS = Duration.standardDays(2)
-
-        private const val TIME_BETWEEN_CHECKS: Long =
-            12 /* h */ * 60 /* min */ * 60 /* s */ * 1000 /* ms */
     }
 }

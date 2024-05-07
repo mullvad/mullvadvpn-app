@@ -3,9 +3,7 @@ package net.mullvad.mullvadvpn.service
 import android.content.Context
 import java.io.File
 
-class MigrateSplitTunnelingRepository(
-    private val context: Context
-) {
+class MigrateSplitTunnelingRepository(private val context: Context) {
     fun migrateSplitTunneling() {
         // Get old settings, if not found return
         val enabled = getOldSettings(context) ?: return
@@ -19,10 +17,10 @@ class MigrateSplitTunnelingRepository(
         val appListFile = File(context.filesDir, SPLIT_TUNNELING_APPS_FILE)
         val preferences = getSharedPreferences(context)
 
-        return when {
-            !appListFile.exists() -> return null
-            !preferences.contains(KEY_ENABLED) -> return null
-            else -> preferences.getBoolean(KEY_ENABLED, false)
+        return if (appListFile.exists() && preferences.contains(KEY_ENABLED)) {
+            preferences.getBoolean(KEY_ENABLED, false)
+        } else {
+            null
         }
     }
 

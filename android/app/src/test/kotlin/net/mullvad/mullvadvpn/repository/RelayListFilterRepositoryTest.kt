@@ -17,7 +17,7 @@ import net.mullvad.mullvadvpn.model.ProviderId
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.SetWireguardConstraintsError
 import net.mullvad.mullvadvpn.model.Settings
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 

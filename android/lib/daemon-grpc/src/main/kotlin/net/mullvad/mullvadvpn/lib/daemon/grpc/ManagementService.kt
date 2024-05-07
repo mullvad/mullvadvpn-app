@@ -106,6 +106,7 @@ import net.mullvad.mullvadvpn.model.providers
 import net.mullvad.mullvadvpn.model.relayConstraints
 import net.mullvad.mullvadvpn.model.wireguardConstraints
 
+@Suppress("TooManyFunctions")
 class ManagementService(
     rpcSocketPath: String,
     private val scope: CoroutineScope,
@@ -155,8 +156,6 @@ class ManagementService(
 
     val wireguardEndpointData: Flow<ModelWireguardEndpointData> =
         _mutableStateFlow.mapNotNull { it.relayList?.wireguardEndpointData }
-
-    private var listenJob: Job? = null
 
     init {
         scope.launch { setupListen() }
