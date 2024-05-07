@@ -282,6 +282,7 @@ internal fun Constraint<RelayItemId>.fromDomain(): ManagementInterface.LocationC
         }
         .build()
 
+@Suppress("ReturnCount")
 internal fun ManagementInterface.GeographicLocationConstraint.toDomain(): GeoLocationId {
     val country = GeoLocationId.Country(country)
     if (!hasCity()) {
