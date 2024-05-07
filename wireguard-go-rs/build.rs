@@ -16,8 +16,6 @@ fn main() {
             cmd.arg("--android");
         }
         "macos" => {}
-        // TODO: Is is allowed to panic? Won't this always happen if we run `cargo build` in the
-        // workspace root for e.g. windows?
         // building wireguard-go-rs for windows is not implemented
         _ => return,
     }
