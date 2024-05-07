@@ -59,7 +59,7 @@ extern "C" {
         machines: *const c_char,
         events_capacity: u32,
         actions_capacity: u32,
-    ) -> bool;
+    ) -> i32;
 
     // Frees a pointer allocated by the go runtime - useful to free return value of wgGetConfig
     pub fn wgFreePtr(ptr: *mut c_void);
