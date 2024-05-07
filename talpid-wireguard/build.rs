@@ -21,7 +21,12 @@ fn main() {
 
     println!("cargo:rustc-link-lib{link_type}=wg");
 
-    if let "linux" | "macos" | "android" = target_os.as_str() {
+    add_wireguard_go_cfg(&target_os);
+}
+
+fn add_wireguard_go_cfg(target_os: &str) {
+    println!("cargo:rustc-check-cfg=cfg(wireguard_go)");
+    if matches!(target_os, "linux" | "macos" | "android") {
         println!("cargo:rustc-cfg=wireguard_go");
     }
 }
