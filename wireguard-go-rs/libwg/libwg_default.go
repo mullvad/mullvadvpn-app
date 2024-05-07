@@ -11,6 +11,7 @@
 package main
 
 // #include <stdlib.h>
+// #include <stdint.h>
 import "C"
 import (
 	"bufio"
@@ -32,7 +33,7 @@ type LogSink = unsafe.Pointer
 type LogContext = unsafe.Pointer
 
 //export wgTurnOn
-func wgTurnOn(mtu int, cSettings *C.char, fd int, logSink LogSink, logContext LogContext) int32 {
+func wgTurnOn(mtu int, cSettings *C.char, fd int, logSink LogSink, logContext LogContext) C.int32_t {
 	logger := logging.NewLogger(logSink, logContext)
 
 	if cSettings == nil {
@@ -74,5 +75,5 @@ func wgTurnOn(mtu int, cSettings *C.char, fd int, logSink LogSink, logContext Lo
 		return ERROR_GENERAL_FAILURE
 	}
 
-	return handle
+	return C.int32_t(handle)
 }
