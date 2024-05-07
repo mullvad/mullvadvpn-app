@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.di
 
 import kotlinx.coroutines.MainScope
+import net.mullvad.mullvadvpn.constant.GRPC_SOCKET_PATH
 import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.intent.IntentProvider
@@ -11,7 +12,7 @@ import org.koin.dsl.module
 val appModule = module {
     single {
         ManagementService(
-            "/data/data/net.mullvad.mullvadvpn/rpc-socket",
+            GRPC_SOCKET_PATH,
             MainScope(),
         )
     }
