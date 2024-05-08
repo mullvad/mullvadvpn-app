@@ -140,7 +140,6 @@ class MullvadTileService : TileService() {
 
     @OptIn(FlowPreview::class)
     private fun CoroutineScope.launchListenToTunnelState() = launch {
-        managementService.start()
         combine(managementService.tunnelState, managementService.connectionState) {
                 tunnelState,
                 connectionState ->
