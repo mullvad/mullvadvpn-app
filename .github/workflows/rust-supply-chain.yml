@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      
+
       - name: Checkout wireguard-go submodule
         run: git submodule update --init --depth=1 wireguard-go-rs/libwg/wireguard-go
 
