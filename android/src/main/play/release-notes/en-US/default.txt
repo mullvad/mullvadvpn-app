@@ -1,3 +1,1 @@
-Add the ability to create and manage custom lists of relays.
-Add the ability to import server IP overrides using text or file.
-Fix broken IPv6 connectivity by making sure the relay selector attempts IPv6 connections.
+Fix DNS leaks in blocking states or when no valid DNS has been configured due to an underlying OS issue.
