@@ -11,12 +11,14 @@ import android.service.quicksettings.TileService
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
@@ -33,7 +35,7 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import org.koin.android.ext.android.getKoin
 
 class MullvadTileService : TileService() {
-    private var scope: CoroutineScope? = null
+    private var job: Job? = null
 
     private lateinit var securedIcon: Icon
     private lateinit var unsecuredIcon: Icon
@@ -41,6 +43,7 @@ class MullvadTileService : TileService() {
     private lateinit var managementService: ManagementService
 
     override fun onCreate() {
+        Log.d("MullvadTileService", "onCreate")
         securedIcon = Icon.createWithResource(this, R.drawable.small_logo_white)
         unsecuredIcon = Icon.createWithResource(this, R.drawable.small_logo_black)
 
@@ -79,11 +82,13 @@ class MullvadTileService : TileService() {
     }
 
     override fun onStartListening() {
-        scope = MainScope().apply { launchListenToTunnelState() }
+        Log.d("MullvadTileService", "onStartListening")
+        job = MainScope().launch { launchListenToTunnelState() }
     }
 
     override fun onStopListening() {
-        scope?.cancel()
+        Log.d("MullvadTileService", "onStopListening")
+        job?.cancel()
     }
 
     @SuppressLint("StartActivityAndCollapseDeprecated")
@@ -139,10 +144,12 @@ class MullvadTileService : TileService() {
     }
 
     @OptIn(FlowPreview::class)
-    private fun CoroutineScope.launchListenToTunnelState() = launch {
-        combine(managementService.tunnelState, managementService.connectionState) {
-                tunnelState,
-                connectionState ->
+    private suspend fun launchListenToTunnelState() {
+        Log.d("MullvadTileService", "launchListenToTunnelState")
+        combine(
+                managementService.tunnelState.onStart { emit(TunnelState.Disconnected(null)) },
+                managementService.connectionState
+            ) { tunnelState, connectionState ->
                 tunnelState to connectionState
             }
             .debounce(300L)
@@ -154,6 +161,7 @@ class MullvadTileService : TileService() {
         tunnelState: TunnelState,
         connectionState: GrpcConnectivityState
     ): Int {
+        Log.d("MullvadTileService", "mapToTileState: $tunnelState, $connectionState")
         return if (connectionState == GrpcConnectivityState.Ready) {
             when (tunnelState) {
                 is TunnelState.Disconnected -> Tile.STATE_INACTIVE
