@@ -11,17 +11,18 @@ import XCTest
 
 final class LogRotationTests: XCTestCase {
     let fileManager = FileManager.default
-    let directoryPath = FileManager.default.temporaryDirectory.appendingPathComponent("LogRotationTests")
+    let directoryPath = FileManager.default.temporaryDirectory
+        .appendingPathComponent("LogRotationTests", isDirectory: true)
 
     override func setUpWithError() throws {
         try? fileManager.createDirectory(
             at: directoryPath,
-            withIntermediateDirectories: false
+            withIntermediateDirectories: true
         )
     }
 
     override func tearDownWithError() throws {
-        try fileManager.removeItem(atPath: directoryPath.relativePath)
+        try fileManager.removeItem(at: directoryPath)
     }
 
     func testRotatingActiveLogWhenSizeLimitIsExceeded() throws {

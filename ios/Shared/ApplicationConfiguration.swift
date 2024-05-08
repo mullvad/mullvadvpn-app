@@ -21,25 +21,25 @@ enum ApplicationConfiguration {
         FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: securityGroupIdentifier)!
     }
 
-    /// Returns URL for new log file associated with application target and located within shared container.
-    static func newLogFileURL(for target: ApplicationTarget) -> URL {
+    /// Returns URL for new log file associated with application target and located within the specified container.
+    static func newLogFileURL(for target: ApplicationTarget, in containerURL: URL) -> URL {
         containerURL.appendingPathComponent(
             "\(target.bundleIdentifier)_\(Date().logFileFormatted).log",
             isDirectory: false
         )
     }
 
-    /// Returns URLs for log files associated with application target and located within shared container.
-    static func logFileURLs(for target: ApplicationTarget) -> [URL] {
+    /// Returns URLs for log files associated with application target and located within the specified container.
+    static func logFileURLs(for target: ApplicationTarget, in containerURL: URL) -> [URL] {
         let fileManager = FileManager.default
-        let containerUrl = containerURL
         let filePathsInDirectory = try? fileManager.contentsOfDirectory(atPath: containerURL.relativePath)
 
         let filteredFilePaths: [URL] = filePathsInDirectory?.compactMap { path in
             let pathIsLog = path.split(separator: ".").last == "log"
-            let pathBelongsToTarget = path.contains(target.bundleIdentifier)
+            // Pattern should be "<Target Bundle ID>_", eg. "net.mullvad.MullvadVPN_".
+            let pathBelongsToTarget = path.contains("\(target.bundleIdentifier)_")
 
-            return pathIsLog && pathBelongsToTarget ? containerUrl.appendingPathComponent(path) : nil
+            return pathIsLog && pathBelongsToTarget ? containerURL.appendingPathComponent(path) : nil
         } ?? []
 
         let sortedFilePaths = try? filteredFilePaths.sorted { path1, path2 in

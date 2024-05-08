@@ -11,25 +11,24 @@ import Foundation
 import XCTest
 
 class MullvadLoggingTests: XCTestCase {
-    func temporaryFileURL() -> URL {
-        // Create a URL for an unique file in the system's temporary directory.
-        let directory = NSTemporaryDirectory()
-        let filename = UUID().uuidString
-        let fileURL = URL(fileURLWithPath: directory).appendingPathComponent(filename)
+    let fileManager = FileManager.default
+    let directoryPath = FileManager.default.temporaryDirectory.appendingPathComponent("LoggingTests", isDirectory: true)
 
-        // Add a teardown block to delete any file at `fileURL`.
-        addTeardownBlock {
-            try? FileManager.default.removeItem(at: fileURL)
-        }
+    override func setUpWithError() throws {
+        try? fileManager.createDirectory(
+            at: directoryPath,
+            withIntermediateDirectories: true
+        )
+    }
 
-        // Return the temporary file URL for use in a test method.
-        return fileURL
+    override func tearDownWithError() throws {
+        try fileManager.removeItem(at: directoryPath)
     }
 
     func testLogFileOutputStreamWritesHeader() throws {
         let headerText = "This is a header"
         let logMessage = "And this is a log message\n"
-        let fileURL = temporaryFileURL()
+        let fileURL = directoryPath.appendingPathComponent(UUID().uuidString)
         let stream = LogFileOutputStream(fileURL: fileURL, header: headerText)
         stream.write(logMessage)
         sync()
@@ -42,7 +41,7 @@ class MullvadLoggingTests: XCTestCase {
         let expectedHeader = "Header of a log file"
 
         var builder = LoggerBuilder(header: expectedHeader)
-        let fileURL = temporaryFileURL()
+        let fileURL = directoryPath.appendingPathComponent(UUID().uuidString)
         builder.addFileOutput(fileURL: fileURL)
 
         builder.install()
@@ -54,5 +53,31 @@ class MullvadLoggingTests: XCTestCase {
         let contents = try XCTUnwrap(String(contentsOf: fileURL))
 
         XCTAssert(contents.hasPrefix(expectedHeader))
+    }
+
+    func testGettingLogFilesByApplicationTarget() async throws {
+        let mainTargetLog = ApplicationConfiguration.newLogFileURL(for: .mainApp, in: directoryPath)
+        let packetTunnelTargetLog = ApplicationConfiguration.newLogFileURL(for: .packetTunnel, in: directoryPath)
+
+        let logPaths = [
+            directoryPath.appendingPathComponent("test1.log"),
+            directoryPath.appendingPathComponent("test2.log"),
+            mainTargetLog,
+            packetTunnelTargetLog,
+        ]
+
+        logPaths.forEach { url in
+            let stream = LogFileOutputStream(fileURL: url, header: "")
+            stream.write("test")
+            sync()
+        }
+
+        var urls = ApplicationConfiguration.logFileURLs(for: .mainApp, in: directoryPath)
+        XCTAssertEqual(urls.count, 1)
+        XCTAssertEqual(urls.first, mainTargetLog)
+
+        urls = ApplicationConfiguration.logFileURLs(for: .packetTunnel, in: directoryPath)
+        XCTAssertEqual(urls.count, 1)
+        XCTAssertEqual(urls.first, packetTunnelTargetLog)
     }
 }
