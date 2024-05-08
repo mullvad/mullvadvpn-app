@@ -66,9 +66,9 @@ class LocationSectionHeaderView: UIView, UIContentView {
         nameLabel.text = configuration.name
         actionButton.isHidden = isActionHidden
         actionButton.accessibilityIdentifier = nil
-        actualConfiguration.primaryAction.flatMap { [weak self] action in
-            self?.actionButton.accessibilityIdentifier = .openCustomListsMenuButton
-            self?.actionButton.addAction(action, for: .touchUpInside)
+        actualConfiguration.primaryAction.flatMap { action in
+            actionButton.accessibilityIdentifier = .openCustomListsMenuButton
+            actionButton.addAction(action, for: .touchUpInside)
         }
     }
 

@@ -134,10 +134,7 @@ class LocationCell: UITableViewCell {
         contentView.backgroundColor = .clear
 
         backgroundView = UIView()
-        backgroundView?.backgroundColor = UIColor.Cell.Background.normal
-
         selectedBackgroundView = UIView()
-        selectedBackgroundView?.backgroundColor = UIColor.Cell.Background.selected
 
         checkboxButton.addTarget(self, action: #selector(toggleCheckboxButton(_:)), for: .touchUpInside)
         collapseButton.addTarget(self, action: #selector(handleCollapseButton(_:)), for: .touchUpInside)

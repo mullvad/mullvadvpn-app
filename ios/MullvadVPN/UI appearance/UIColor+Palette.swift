@@ -87,10 +87,10 @@ extension UIColor {
     // Cells
     enum Cell {
         enum Background {
-            static let indentationLevelZero = primaryColor
-            static let indentationLevelOne = UIColor(red: 0.15, green: 0.23, blue: 0.33, alpha: 1.0)
-            static let indentationLevelTwo = UIColor(red: 0.13, green: 0.20, blue: 0.30, alpha: 1.0)
-            static let indentationLevelThree = UIColor(red: 0.11, green: 0.17, blue: 0.27, alpha: 1.0)
+            static let indentationLevelZero = UIColor(red: 0.14, green: 0.25, blue: 0.38, alpha: 1.0)
+            static let indentationLevelOne = UIColor(red: 0.12, green: 0.23, blue: 0.34, alpha: 1.0)
+            static let indentationLevelTwo = UIColor(red: 0.11, green: 0.20, blue: 0.31, alpha: 1.0)
+            static let indentationLevelThree = UIColor(red: 0.11, green: 0.19, blue: 0.29, alpha: 1.0)
 
             static let normal = indentationLevelZero
             static let disabled = normal.darkened(by: 0.3)!
