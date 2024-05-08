@@ -68,31 +68,21 @@ fn get_product_version(target: Target) -> String {
     rerun_if_git_ref_changed(&release_tag)
         .expect("Failed to set 'cargo:rerun-if-changed' on git ref changes");
 
-    if let Some(dev_suffix) = get_dev_suffix(&product_version) {
-        format!("{product_version}{dev_suffix}")
-    } else {
-        product_version
-    }
-}
-
-/// Returns the development suffix for the current build. A build has a development
-/// suffix if the build is not done on a git tag named `product_version`.
-/// This also returns `None` if the `git` command can't run, or the code does
-/// not live in a git repository.
-fn get_dev_suffix(release_tag: &str) -> Option<String> {
     // Get the git commit hashes for the latest release and current HEAD
-    // Return `None` if unable to find the hash for HEAD.
-    let head_commit_hash = git_rev_parse_commit_hash("HEAD")?;
-    let product_version_commit_hash = git_rev_parse_commit_hash(release_tag);
+    let head_commit_hash = git_rev_parse_commit_hash("HEAD");
+    let product_version_commit_hash = git_rev_parse_commit_hash(&release_tag);
 
+    // Compute the product version of the current build. A build has a development
+    // suffix if the build is not done on a git tag named `product_version`.
     // If we are currently building the release tag, there is no dev suffix
-    if Some(&head_commit_hash) == product_version_commit_hash.as_ref() {
-        return None;
+    if head_commit_hash == product_version_commit_hash {
+        product_version
+    } else {
+        format!(
+            "{release_tag}-dev-{}",
+            &head_commit_hash[..GIT_HASH_DEV_SUFFIX_LEN]
+        )
     }
-    Some(format!(
-        "-dev-{}",
-        &head_commit_hash[..GIT_HASH_DEV_SUFFIX_LEN]
-    ))
 }
 
 /// Trigger rebuild of `mullvad-version` on changing branch (`.git/HEAD`), on changes to the ref of
@@ -150,16 +140,16 @@ fn rerun_if_git_ref_changed(release_tag: &str) -> std::io::Result<()> {
 }
 
 /// Returns the commit hash for the commit that `git_ref` is pointing to.
-///
-/// Returns `None` if executing the `git rev-parse` command fails for some reason.
-fn git_rev_parse_commit_hash(git_ref: &str) -> Option<String> {
+fn git_rev_parse_commit_hash(git_ref: &str) -> String {
     let output = Command::new("git")
         .arg("rev-parse")
         .arg(format!("{git_ref}^{{commit}}"))
         .output()
-        .ok()?;
+        .expect("Failed to run `git rev-parse`");
+    let stdout = String::from_utf8(output.stdout).unwrap();
     if !output.status.success() {
-        return None;
+        let stderr = String::from_utf8(output.stderr).unwrap();
+        panic!("Command `git rev-parse` failed:\nstdout: {stdout}\nstderr: {stderr}");
     }
-    Some(String::from_utf8(output.stdout).unwrap().trim().to_owned())
+    stdout.trim().to_owned()
 }
