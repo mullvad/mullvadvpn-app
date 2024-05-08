@@ -7,9 +7,9 @@
 //
 
 import Foundation
-@testable import MullvadREST
-@testable import MullvadTypes
-@testable import WireGuardKitTypes
+import MullvadREST
+import MullvadTypes
+import WireGuardKitTypes
 
 struct APIProxyStub: APIQuerying {
     func getAddressList(

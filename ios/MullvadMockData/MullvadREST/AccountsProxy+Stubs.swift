@@ -7,14 +7,14 @@
 //
 
 import Foundation
-@testable import MullvadREST
-@testable import MullvadTypes
+import MullvadREST
+import MullvadTypes
 
 struct AccountsProxyStub: RESTAccountHandling {
     var createAccountResult: Result<REST.NewAccountData, Error>?
     func createAccount(
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping MullvadREST.ProxyCompletionHandler<REST.NewAccountData>
+        completion: @escaping ProxyCompletionHandler<REST.NewAccountData>
     ) -> Cancellable {
         if let createAccountResult = createAccountResult {
             completion(createAccountResult)
@@ -24,7 +24,12 @@ struct AccountsProxyStub: RESTAccountHandling {
 
     func getAccountData(accountNumber: String) -> any RESTRequestExecutor<Account> {
         RESTRequestExecutorStub<Account>(success: {
-            Account(id: accountNumber, expiry: .distantFuture, maxDevices: 1, canAddDevices: true)
+            Account(
+                id: accountNumber,
+                expiry: Calendar.current.date(byAdding: .day, value: 38, to: Date())!,
+                maxDevices: 1,
+                canAddDevices: true
+            )
         })
     }
 

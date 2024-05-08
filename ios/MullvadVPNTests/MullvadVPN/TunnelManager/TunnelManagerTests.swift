@@ -5,9 +5,13 @@
 //  Created by Marco Nikic on 2023-10-02.
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
-
 import MullvadREST
+
+@testable import MullvadMockData
 @testable import MullvadSettings
+@testable import MullvadTypes
+@testable import WireGuardKitTypes
+
 import XCTest
 
 final class TunnelManagerTests: XCTestCase {
@@ -26,7 +30,7 @@ final class TunnelManagerTests: XCTestCase {
         let tunnelStore = TunnelStoreStub()
         let relayCacheTracker = RelayCacheTrackerStub()
         let accountProxy = AccountsProxyStub()
-        let devicesProxy = DevicesProxyStub()
+        let devicesProxy = DevicesProxyStub(deviceResult: .success(Device.mock(publicKey: PrivateKey().publicKey)))
         let apiProxy = APIProxyStub()
         let accessTokenManager = AccessTokenManagerStub()
         let tunnelManager = TunnelManager(
@@ -46,7 +50,7 @@ final class TunnelManagerTests: XCTestCase {
         let tunnelStore = TunnelStoreStub()
         let relayCacheTracker = RelayCacheTrackerStub()
         var accountProxy = AccountsProxyStub()
-        let devicesProxy = DevicesProxyStub()
+        let devicesProxy = DevicesProxyStub(deviceResult: .success(Device.mock(publicKey: PrivateKey().publicKey)))
         let apiProxy = APIProxyStub()
         let accessTokenManager = AccessTokenManagerStub()
         accountProxy.createAccountResult = .success(REST.NewAccountData.mockValue())
@@ -68,7 +72,7 @@ final class TunnelManagerTests: XCTestCase {
         let tunnelStore = TunnelStoreStub()
         let relayCacheTracker = RelayCacheTrackerStub()
         var accountProxy = AccountsProxyStub()
-        let devicesProxy = DevicesProxyStub()
+        let devicesProxy = DevicesProxyStub(deviceResult: .success(Device.mock(publicKey: PrivateKey().publicKey)))
         let apiProxy = APIProxyStub()
         let accessTokenManager = AccessTokenManagerStub()
         accountProxy.createAccountResult = .success(REST.NewAccountData.mockValue())
