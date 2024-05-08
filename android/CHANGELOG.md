@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Security
+- Fix DNS leaks in blocking states or when no valid DNS has been configured due to an underlying OS
+  issue. In these cases a dummy DNS will be set to prevent leaks.
 
 
 ## [android/2024.2-beta1] - 2024-04-17
