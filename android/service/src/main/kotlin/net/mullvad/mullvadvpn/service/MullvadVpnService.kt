@@ -70,7 +70,6 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             get<NotificationManager>()
         }
 
-        lifecycleScope.launch { managementService.start() }
         lifecycleScope.launch { foregroundNotificationHandler.start(this@MullvadVpnService) }
 
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
@@ -79,16 +78,18 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         migrateSplitTunnelingRepository = get()
         intentProvider = get()
         lifecycleScope.launch(context = Dispatchers.IO) {
+            Log.d(TAG, "onStart management")
+            managementService.start()
             daemonInstance =
                 MullvadDaemon(
                     vpnService = this@MullvadVpnService,
                     apiEndpointConfiguration =
                         intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
                             ?: apiEndpointConfiguration,
-                    managementService = managementService,
                     migrateSplitTunnelingRepository = migrateSplitTunnelingRepository
                 )
         }
+        Log.d(TAG, "onCreate Complete")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -104,7 +105,11 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             // TODO Launch connect disconnect in job so we can cancel operation?
             KEY_CONNECT_ACTION -> {
                 _shouldBeOnForeground.update { true }
-                lifecycleScope.launch { managementService.connect() }
+                lifecycleScope.launch {
+                    Log.d("MullvadVpnService", "Calling connect")
+                    managementService.connect()
+                    Log.d("MullvadVpnService", "Calling connect sent")
+                }
             }
             KEY_DISCONNECT_ACTION -> {
                 lifecycleScope.launch {
@@ -175,6 +180,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
+        managementService.stop()
         daemonInstance.onDestroy()
         super.onDestroy()
     }

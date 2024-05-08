@@ -46,6 +46,8 @@ object Dependencies {
         const val core = "io.arrow-kt:arrow-core:${Versions.Arrow.base}"
         const val optics = "io.arrow-kt:arrow-optics:${Versions.Arrow.base}"
         const val opticsKsp = "io.arrow-kt:arrow-optics-ksp-plugin:${Versions.Arrow.base}"
+        const val fxCoroutines = "io.arrow-kt:arrow-fx-coroutines:${Versions.Arrow.base}"
+
     }
 
     object Compose {

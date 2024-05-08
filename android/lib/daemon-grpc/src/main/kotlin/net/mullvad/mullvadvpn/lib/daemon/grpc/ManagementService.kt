@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.daemon.grpc
 import android.net.LocalSocketAddress
 import android.util.Log
 import arrow.core.Either
+import arrow.fx.coroutines.parZip
 import arrow.optics.copy
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
@@ -19,18 +20,17 @@ import kotlin.time.measureTimedValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -110,6 +110,7 @@ class ManagementService(
     rpcSocketPath: String,
     private val scope: CoroutineScope,
 ) {
+    private var job: Job? = null
 
     data class ManagementServiceState(
         val tunnelState: ModelTunnelState? = null,
@@ -136,8 +137,6 @@ class ManagementService(
             .withInterceptors(LogInterceptor())
             .withWaitForReady()
 
-    private val daemonActive = MutableStateFlow(false)
-
     private val _mutableStateFlow: MutableStateFlow<ManagementServiceState> =
         MutableStateFlow(ManagementServiceState())
 
@@ -156,69 +155,61 @@ class ManagementService(
     val wireguardEndpointData: Flow<ModelWireguardEndpointData> =
         _mutableStateFlow.mapNotNull { it.relayList?.wireguardEndpointData }
 
-    init {
-        scope.launch { setupListen() }
-    }
-
     fun start() {
         // Just to ensure that connection is set up since the connection won't be setup without a
         // call to the daemon
-        scope.launch { _mutableStateFlow.update { getInitialServiceState() } }
+        if (job != null) {
+            error("ManagementService already started")
+        }
+
+        job =
+            scope.launch {
+                launch { setupListen() }
+                _mutableStateFlow.update {
+                    // This may be called twice if we get a new event from setupListen while getting
+                    // initial state
+                    getInitialServiceState()
+                }
+            }
     }
 
-    fun setDaemonActive(active: Boolean) = daemonActive.tryEmit(active)
+    fun stop() {
+        if (job == null) {
+            error("ManagementService already stopped")
+        }
+        job!!.cancel(message = "ManagementService stopped")
+        job = null
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun setupListen() {
+    private suspend fun setupListen() =
         withContext(Dispatchers.IO) {
-            daemonActive
-                .flatMapLatest { daemonActive ->
-                    grpc
-                        .eventsListen(Empty.getDefaultInstance())
-                        .onStart {
-                            Log.d(TAG, "Start events listen")
-                            _mutableStateFlow.update { getInitialServiceState() }
+            grpc.eventsListen(Empty.getDefaultInstance()).collect { event ->
+                Log.d("ManagementService", "Event: $event")
+                @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
+                when (event.eventCase) {
+                    ManagementInterface.DaemonEvent.EventCase.TUNNEL_STATE ->
+                        _mutableStateFlow.update {
+                            it.copy(tunnelState = event.tunnelState.toDomain())
                         }
-                        .retryWhen { cause, attempt -> daemonActive && cause is StatusException }
-                        .catch { e ->
-                            // Log error, we might want to suppress this in the future
-                            Log.e(
-                                TAG,
-                                "Error in eventsListen: ${e.message}, ${e.cause}, ${e.stackTraceToString()}",
-                            )
+                    ManagementInterface.DaemonEvent.EventCase.SETTINGS ->
+                        _mutableStateFlow.update { it.copy(settings = event.settings.toDomain()) }
+                    ManagementInterface.DaemonEvent.EventCase.RELAY_LIST ->
+                        _mutableStateFlow.update { it.copy(relayList = event.relayList.toDomain()) }
+                    ManagementInterface.DaemonEvent.EventCase.VERSION_INFO ->
+                        _mutableStateFlow.update {
+                            it.copy(versionInfo = event.versionInfo.toDomain())
                         }
+                    ManagementInterface.DaemonEvent.EventCase.DEVICE ->
+                        _mutableStateFlow.update {
+                            it.copy(device = event.device.newState.toDomain())
+                        }
+                    ManagementInterface.DaemonEvent.EventCase.REMOVE_DEVICE -> {}
+                    ManagementInterface.DaemonEvent.EventCase.EVENT_NOT_SET -> {}
+                    ManagementInterface.DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
                 }
-                .collect { event ->
-                    Log.d("ManagementService", "Event: $event")
-                    @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
-                    when (event.eventCase) {
-                        ManagementInterface.DaemonEvent.EventCase.TUNNEL_STATE ->
-                            _mutableStateFlow.update {
-                                it.copy(tunnelState = event.tunnelState.toDomain())
-                            }
-                        ManagementInterface.DaemonEvent.EventCase.SETTINGS ->
-                            _mutableStateFlow.update {
-                                it.copy(settings = event.settings.toDomain())
-                            }
-                        ManagementInterface.DaemonEvent.EventCase.RELAY_LIST ->
-                            _mutableStateFlow.update {
-                                it.copy(relayList = event.relayList.toDomain())
-                            }
-                        ManagementInterface.DaemonEvent.EventCase.VERSION_INFO ->
-                            _mutableStateFlow.update {
-                                it.copy(versionInfo = event.versionInfo.toDomain())
-                            }
-                        ManagementInterface.DaemonEvent.EventCase.DEVICE ->
-                            _mutableStateFlow.update {
-                                it.copy(device = event.device.newState.toDomain())
-                            }
-                        ManagementInterface.DaemonEvent.EventCase.REMOVE_DEVICE -> {}
-                        ManagementInterface.DaemonEvent.EventCase.EVENT_NOT_SET -> {}
-                        ManagementInterface.DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
-                    }
-                }
+            }
         }
-    }
 
     suspend fun getDevice(): Either<GetDeviceStateError, net.mullvad.mullvadvpn.model.DeviceState> =
         Either.catch { grpc.getDevice(Empty.getDefaultInstance()) }
@@ -300,14 +291,26 @@ class ManagementService(
             }
             .mapLeftStatus { GetAccountHistoryError.Unknown(it) }
 
-    private suspend fun getInitialServiceState() =
-        ManagementServiceState(
-            getTunnelState(),
-            getSettings(),
-            getRelayList(),
-            getVersionInfo(),
-            getDeviceState(),
-        )
+    private suspend fun getInitialServiceState(): ManagementServiceState {
+        Log.d("ManagementService", "getInitialServiceState started")
+        return parZip(
+            Dispatchers.IO,
+            { getTunnelState() },
+            { getSettings() },
+            { getRelayList() },
+            { getVersionInfo() },
+            { getDeviceState() },
+        ) { a, b, c, d, e ->
+            Log.d("ManagementService", "getInitialServiceState complete1")
+            ManagementServiceState(
+                tunnelState = a,
+                settings = b,
+                relayList = c,
+                versionInfo = d,
+                device = e,
+            )
+        }
+    }
 
     suspend fun getAccountData(
         accountToken: AccountToken

@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -81,18 +80,18 @@ class MainActivity : ComponentActivity() {
         // https://medium.com/@lepicekmichal/android-background-service-without-hiccup-501e4479110f
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
+                Log.d("mullvad", "repeatOnLifecycle STARTED")
                 if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
                     startServiceSuspend()
-                    startManagementService()
                 }
             }
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        intentProvider.setStartIntent(intent)
-    }
+    //    override fun onNewIntent(intent: Intent?) {
+    //        super.onNewIntent(intent)
+    //        intentProvider.setStartIntent(intent)
+    //    }
 
     fun startServiceSuspend() {
         requestNotificationPermissionIfMissing(requestNotificationPermissionLauncher)
@@ -102,12 +101,8 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    fun startManagementService() {
-        managementService.start()
-    }
-
     override fun onStop() {
-        Log.d("mullvad", "Stopping main activity")
+        Log.d("mullvad", "onStop")
         super.onStop()
         serviceConnectionManager.unbind()
     }
