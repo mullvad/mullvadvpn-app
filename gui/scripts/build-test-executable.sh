@@ -8,16 +8,53 @@ cd "$SCRIPT_DIR/.."
 TARGET=${1:-$(rustc -vV | sed -n 's|host: ||p')}
 PRODUCT_VERSION=$(cargo run -q --bin mullvad-version)
 
+ASSETS=(
+    "build/src/config.json"
+    "build/src/renderer/lib/routes.js"
+    "build/test/e2e/utils.js"
+    "build/test/e2e/shared/*.js"
+    "build/test/e2e/installed/*.js"
+    "build/test/e2e/installed/**/*.js"
+    "node_modules/.bin/playwright"
+    "node_modules/playwright"
+    "node_modules/playwright-core"
+    "node_modules/@playwright/test"
+)
+
 function build_test_executable {
     local pkg_target=$1
-    local suffix=${2:-""}
-    local output="../dist/app-e2e-tests-$PRODUCT_VERSION-$TARGET$suffix"
+    local bin_suffix=${2:-""}
+    local temp_output="./build/temp-test-executable$bin_suffix"
+    local output="../dist/app-e2e-tests-$PRODUCT_VERSION-$TARGET$bin_suffix"
+    local node_copy_path="./build/test/node$bin_suffix"
+    local node_path
+    node_path="$(volta which node || which node)"
 
-    npm exec pkg -- \
-        --config standalone-tests.pkg.json \
-        --targets "$pkg_target" \
-        --output "$output" \
-        build/standalone-tests.js
+    # pack assets
+    cp "$node_path" "$node_copy_path"
+    # shellcheck disable=SC2068
+    tar -czf ./build/test/assets.tar.gz ${ASSETS[@]}
+
+    cp "$node_copy_path" "$temp_output"
+    node --experimental-sea-config standalone-tests.sea.json
+
+    # Inject SEA blob
+    case $pkg_target in
+        macos-*)
+            codesign --remove-signature "$temp_output"
+            npx postject "$temp_output" NODE_SEA_BLOB \
+                standalone-tests.sea.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 \
+                --macho-segment-name NODE_SEA
+            codesign --sign - "$temp_output"
+            ;;
+        *)
+            npx postject "$temp_output" NODE_SEA_BLOB \
+                standalone-tests.sea.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
+            ;;
+    esac
+
+    mkdir -p "$(dirname "$output")"
+    mv "$temp_output" "$output"
 }
 
 case "$TARGET" in
