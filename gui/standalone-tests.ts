@@ -1,4 +1,6 @@
-import { spawn } from 'child_process';
+import { getRawAsset } from 'node:sea';
+
+import child_process, { spawn } from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -11,6 +13,7 @@ const tmpDir = path.join(os.tmpdir(), 'mullvad-standalone-tests');
 
 async function main() {
   extract();
+
   const code = await runTests();
 
   removeTmpDir();
@@ -18,39 +21,55 @@ async function main() {
 }
 
 function extract() {
-  const rootDir = path.join(__dirname, '..');
-  const nodeModulesDir = path.join(rootDir, 'node_modules');
-  const srcDir = path.join(rootDir, 'build', 'src');
-  const testDir = path.join(rootDir, 'build', 'test');
-
   // Remove old directory if already existing and create new clean one
   removeTmpDir();
   fs.mkdirSync(tmpDir);
 
-  extractDirectory(srcDir);
-  extractDirectory(testDir);
-  extractDirectory(nodeModulesDir);
+  // Copy assets archive to temp dir
+  const tarAssets = getRawAsset('assets.tar.gz') as ArrayBuffer;
+  fs.writeFileSync(path.join(tmpDir, 'assets.tar.gz'), Buffer.from(tarAssets));
+
+  // Untar assets
+  const args = ['-xzf', path.join(tmpDir, 'assets.tar.gz')];
+  child_process.spawnSync('tar', args, { cwd: tmpDir });
 }
 
-function extractDirectory(source: string) {
-  copyRecursively(source, path.join(tmpDir, path.basename(source)));
-}
+function createSealessNode() {
+  const nodeBin = path.join(tmpDir, 'node');
 
-function copyRecursively(source: string, target: string) {
-  if (fs.statSync(source).isDirectory()) {
-    fs.mkdirSync(target);
-    fs.readdirSync(source, { encoding: 'utf8' }).forEach((item) =>
-      copyRecursively(path.join(source, item), path.join(target, item)),
-    );
-  } else {
-    fs.copyFileSync(source, target);
+  fs.copyFileSync(process.argv[0], nodeBin);
+
+  if (process.platform === 'darwin') {
+    child_process.spawnSync('/usr/bin/codesign', ['--remove-signature', nodeBin]);
   }
+
+  // Find and disable SEA fuse in node binary
+  const fuseString = 'NODE_SEA_FUSE_' + 'fce680ab2cc467b6e072b8b5df1996b2:';
+
+  const buf = fs.readFileSync(nodeBin);
+  const fuseIndex = buf.indexOf(fuseString);
+
+  if (fuseIndex !== -1) {
+    const stateIndex = fuseIndex + fuseString.length;
+    if (stateIndex < buf.length && buf[stateIndex] === '1'.charCodeAt(0)) {
+      // If we set the state of the fuse to 0, it will not execute our payload
+      buf[stateIndex] = '0'.charCodeAt(0);
+      fs.writeFileSync(nodeBin, buf);
+      fs.chmodSync(nodeBin, 0o554);
+    }
+  }
+
+  if (process.platform === 'darwin') {
+    child_process.spawnSync('/usr/bin/codesign', ['--sign', '-', nodeBin]);
+  }
+
+  return nodeBin;
 }
 
 function runTests(): Promise<number> {
-  const nodeBin = process.argv[0];
+  const nodeBin = createSealessNode();
   const playwrightBin = path.join(tmpDir, 'node_modules', '@playwright', 'test', 'cli.js');
-  const configPath = path.join(tmpDir, 'test', 'e2e', 'installed', 'playwright.config.js');
+  const configPath = path.join(tmpDir, 'build', 'test', 'e2e', 'installed', 'playwright.config.js');
 
   return new Promise((resolve) => {
     // Tests need to be run sequentially since they interact with the same daemon instance.
