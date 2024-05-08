@@ -37,7 +37,8 @@ enum ApplicationConfiguration {
 
         let filteredFilePaths: [URL] = filePathsInDirectory?.compactMap { path in
             let pathIsLog = path.split(separator: ".").last == "log"
-            let pathBelongsToTarget = path.contains(target.bundleIdentifier)
+            // Pattern should be either "net.mullvad.MullvadVPN:PacketTunnel_" or "net.mullvad.MullvadVPN_".
+            let pathBelongsToTarget = path.contains("\(target.bundleIdentifier)_")
 
             return pathIsLog && pathBelongsToTarget ? containerUrl.appendingPathComponent(path) : nil
         } ?? []
