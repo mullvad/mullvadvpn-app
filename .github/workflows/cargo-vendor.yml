@@ -21,7 +21,7 @@ jobs:
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init --depth=1 dist-assets/binaries wireguard-go-rs/libwg
+          git submodule update --init --depth=1 dist-assets/binaries wireguard-go-rs/libwg/wireguard-go
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1.0.6

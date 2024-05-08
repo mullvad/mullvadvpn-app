@@ -43,8 +43,8 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Checkout binaries submodule
-        run: git submodule update --init --depth=1 dist-assets/binaries wireguard-go-rs/libwg
+      - name: Checkout submodules
+        run: git submodule update --init --depth=1 dist-assets/binaries wireguard-go-rs/libwg/wireguard-go
 
       - uses: actions-rs/toolchain@v1.0.6
         with:
