@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.lib.daemon.grpc
 import android.net.LocalSocketAddress
 import android.util.Log
 import arrow.core.Either
-import arrow.fx.coroutines.parZip
 import arrow.optics.copy
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
@@ -22,12 +21,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
@@ -55,7 +56,6 @@ import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.model.DeleteDeviceError
 import net.mullvad.mullvadvpn.model.Device
-import net.mullvad.mullvadvpn.model.DeviceEvent
 import net.mullvad.mullvadvpn.model.DeviceId
 import net.mullvad.mullvadvpn.model.DeviceState as ModelDeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions as ModelDnsOptions
@@ -80,6 +80,7 @@ import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.RelayItemId as ModelRelayItemId
 import net.mullvad.mullvadvpn.model.RelayList as ModelRelayList
+import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.RemoveSplitTunnelingAppError
 import net.mullvad.mullvadvpn.model.SetAllowLanError
@@ -112,15 +113,6 @@ class ManagementService(
 ) {
     private var job: Job? = null
 
-    data class ManagementServiceState(
-        val tunnelState: ModelTunnelState? = null,
-        val settings: ModelSettings? = null,
-        val relayList: ModelRelayList? = null,
-        val versionInfo: ModelAppVersionInfo? = null,
-        val device: ModelDeviceState? = null,
-        val deviceEvent: DeviceEvent? = null,
-    )
-
     private val channel =
         UdsChannelBuilder.forPath(rpcSocketPath, LocalSocketAddress.Namespace.FILESYSTEM).build()
 
@@ -137,23 +129,26 @@ class ManagementService(
             .withInterceptors(LogInterceptor())
             .withWaitForReady()
 
-    private val _mutableStateFlow: MutableStateFlow<ManagementServiceState> =
-        MutableStateFlow(ManagementServiceState())
+    private val _mutableDeviceState = MutableStateFlow<ModelDeviceState?>(null)
+    val deviceState: Flow<ModelDeviceState> = _mutableDeviceState.filterNotNull()
 
-    val deviceState: Flow<ModelDeviceState?> =
-        _mutableStateFlow.mapNotNull { it.device }.stateIn(scope, SharingStarted.Eagerly, null)
+    private val _mutableTunnelState = MutableStateFlow<ModelTunnelState?>(null)
+    val tunnelState: Flow<ModelTunnelState> = _mutableTunnelState.filterNotNull()
 
-    val tunnelState: Flow<ModelTunnelState> = _mutableStateFlow.mapNotNull { it.tunnelState }
+    private val _mutableSettings = MutableStateFlow<ModelSettings?>(null)
+    val settings: Flow<ModelSettings> = _mutableSettings.filterNotNull()
 
-    val settings: Flow<ModelSettings> = _mutableStateFlow.mapNotNull { it.settings }
+    private val _mutableVersionInfo = MutableStateFlow<ModelAppVersionInfo?>(null)
+    val versionInfo: Flow<ModelAppVersionInfo> = _mutableVersionInfo.filterNotNull()
 
-    val versionInfo: Flow<ModelAppVersionInfo> = _mutableStateFlow.mapNotNull { it.versionInfo }
+    private val _mutableRelayList = MutableStateFlow<RelayList?>(null)
+    val relayList: Flow<RelayList> = _mutableRelayList.filterNotNull()
 
     val relayCountries: Flow<List<RelayItem.Location.Country>> =
-        _mutableStateFlow.mapNotNull { it.relayList?.countries }
+        relayList.mapNotNull { it.countries }
 
     val wireguardEndpointData: Flow<ModelWireguardEndpointData> =
-        _mutableStateFlow.mapNotNull { it.relayList?.wireguardEndpointData }
+        relayList.mapNotNull { it.wireguardEndpointData }
 
     fun start() {
         // Just to ensure that connection is set up since the connection won't be setup without a
@@ -162,15 +157,7 @@ class ManagementService(
             error("ManagementService already started")
         }
 
-        job =
-            scope.launch {
-                launch { setupListen() }
-                _mutableStateFlow.update {
-                    // This may be called twice if we get a new event from setupListen while getting
-                    // initial state
-                    getInitialServiceState()
-                }
-            }
+        job = scope.launch { subscribeEvents() }
     }
 
     fun stop() {
@@ -182,36 +169,33 @@ class ManagementService(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun setupListen() =
+    private suspend fun subscribeEvents() =
         withContext(Dispatchers.IO) {
-            grpc.eventsListen(Empty.getDefaultInstance()).collect { event ->
-                Log.d("ManagementService", "Event: $event")
-                @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
-                when (event.eventCase) {
-                    ManagementInterface.DaemonEvent.EventCase.TUNNEL_STATE ->
-                        _mutableStateFlow.update {
-                            it.copy(tunnelState = event.tunnelState.toDomain())
-                        }
-                    ManagementInterface.DaemonEvent.EventCase.SETTINGS ->
-                        _mutableStateFlow.update { it.copy(settings = event.settings.toDomain()) }
-                    ManagementInterface.DaemonEvent.EventCase.RELAY_LIST ->
-                        _mutableStateFlow.update { it.copy(relayList = event.relayList.toDomain()) }
-                    ManagementInterface.DaemonEvent.EventCase.VERSION_INFO ->
-                        _mutableStateFlow.update {
-                            it.copy(versionInfo = event.versionInfo.toDomain())
-                        }
-                    ManagementInterface.DaemonEvent.EventCase.DEVICE ->
-                        _mutableStateFlow.update {
-                            it.copy(device = event.device.newState.toDomain())
-                        }
-                    ManagementInterface.DaemonEvent.EventCase.REMOVE_DEVICE -> {}
-                    ManagementInterface.DaemonEvent.EventCase.EVENT_NOT_SET -> {}
-                    ManagementInterface.DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
+            launch {
+                grpc.eventsListen(Empty.getDefaultInstance()).collect { event ->
+                    Log.d("ManagementService", "Event: $event")
+                    @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
+                    when (event.eventCase) {
+                        ManagementInterface.DaemonEvent.EventCase.TUNNEL_STATE ->
+                            _mutableTunnelState.update { event.tunnelState.toDomain() }
+                        ManagementInterface.DaemonEvent.EventCase.SETTINGS ->
+                            _mutableSettings.update { event.settings.toDomain() }
+                        ManagementInterface.DaemonEvent.EventCase.RELAY_LIST ->
+                            _mutableRelayList.update { event.relayList.toDomain() }
+                        ManagementInterface.DaemonEvent.EventCase.VERSION_INFO ->
+                            _mutableVersionInfo.update { event.versionInfo.toDomain() }
+                        ManagementInterface.DaemonEvent.EventCase.DEVICE ->
+                            _mutableDeviceState.update { event.device.newState.toDomain() }
+                        ManagementInterface.DaemonEvent.EventCase.REMOVE_DEVICE -> {}
+                        ManagementInterface.DaemonEvent.EventCase.EVENT_NOT_SET -> {}
+                        ManagementInterface.DaemonEvent.EventCase.NEW_ACCESS_METHOD -> {}
+                    }
                 }
             }
+            getInitialServiceState()
         }
 
-    suspend fun getDevice(): Either<GetDeviceStateError, net.mullvad.mullvadvpn.model.DeviceState> =
+    suspend fun getDevice(): Either<GetDeviceStateError, ModelDeviceState> =
         Either.catch { grpc.getDevice(Empty.getDefaultInstance()) }
             .map { it.toDomain() }
             .mapLeft { GetDeviceStateError.Unknown(it) }
@@ -236,9 +220,6 @@ class ManagementService(
             .mapEmpty()
             .mapLeft { DeleteDeviceError.Unknown(it) }
 
-    suspend fun getTunnelState(): ModelTunnelState =
-        grpc.getTunnelState(Empty.getDefaultInstance()).toDomain()
-
     suspend fun connect(): Either<ConnectError, Boolean> =
         Either.catch { grpc.connectTunnel(Empty.getDefaultInstance()).value }
             .mapLeft(ConnectError::Unknown)
@@ -247,16 +228,19 @@ class ManagementService(
 
     suspend fun reconnect(): Boolean = grpc.reconnectTunnel(Empty.getDefaultInstance()).value
 
-    suspend fun getSettings(): ModelSettings =
+    private suspend fun getTunnelState(): ModelTunnelState =
+        grpc.getTunnelState(Empty.getDefaultInstance()).toDomain()
+
+    private suspend fun getSettings(): ModelSettings =
         grpc.getSettings(Empty.getDefaultInstance()).toDomain()
 
-    suspend fun getDeviceState(): ModelDeviceState =
+    private suspend fun getDeviceState(): ModelDeviceState =
         grpc.getDevice(Empty.getDefaultInstance()).toDomain()
 
-    suspend fun getRelayList(): ModelRelayList =
+    private suspend fun getRelayList(): ModelRelayList =
         grpc.getRelayLocations(Empty.getDefaultInstance()).toDomain()
 
-    suspend fun getVersionInfo(): ModelAppVersionInfo =
+    private suspend fun getVersionInfo(): ModelAppVersionInfo =
         grpc.getVersionInfo(Empty.getDefaultInstance()).toDomain()
 
     suspend fun logoutAccount(): Unit {
@@ -291,23 +275,14 @@ class ManagementService(
             }
             .mapLeftStatus { GetAccountHistoryError.Unknown(it) }
 
-    private suspend fun getInitialServiceState(): ManagementServiceState {
-        Log.d("ManagementService", "getInitialServiceState started")
-        return parZip(
-            Dispatchers.IO,
-            { getTunnelState() },
-            { getSettings() },
-            { getRelayList() },
-            { getVersionInfo() },
-            { getDeviceState() },
-        ) { a, b, c, d, e ->
-            Log.d("ManagementService", "getInitialServiceState complete1")
-            ManagementServiceState(
-                tunnelState = a,
-                settings = b,
-                relayList = c,
-                versionInfo = d,
-                device = e,
+    private suspend fun getInitialServiceState() {
+        withContext(Dispatchers.IO) {
+            awaitAll(
+                async { _mutableTunnelState.update { getTunnelState() } },
+                async { _mutableDeviceState.update { getDeviceState() } },
+                async { _mutableSettings.update { getSettings() } },
+                async { _mutableVersionInfo.update { getVersionInfo() } },
+                async { _mutableRelayList.update { getRelayList() } },
             )
         }
     }
