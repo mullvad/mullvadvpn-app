@@ -101,9 +101,8 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         // Always promote to foreground if connect/disconnect actions are provided to mitigate cases
         // where the service would potentially otherwise be too slow running `startForeground`.
         Log.d(TAG, "Intent Action: ${intent?.action}")
-        when (intent?.action) {
-            // TODO Launch connect disconnect in job so we can cancel operation?
-            KEY_CONNECT_ACTION -> {
+        when {
+            intent.isFromSystem() || intent?.action == KEY_CONNECT_ACTION -> {
                 _shouldBeOnForeground.update { true }
                 lifecycleScope.launch {
                     Log.d("MullvadVpnService", "Calling connect")
@@ -111,12 +110,8 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
                     Log.d("MullvadVpnService", "Calling connect sent")
                 }
             }
-            KEY_DISCONNECT_ACTION -> {
-                lifecycleScope.launch {
-                    _shouldBeOnForeground.update { true }
-                    managementService.disconnect()
-                    _shouldBeOnForeground.update { false }
-                }
+            intent?.action == KEY_DISCONNECT_ACTION -> {
+                lifecycleScope.launch { managementService.disconnect() }
             }
         }
 
@@ -151,7 +146,6 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     override fun onRevoke() {
         Log.d(TAG, "onRevoke")
         runBlocking { managementService.disconnect() }
-        super.onRevoke()
     }
 
     override fun onUnbind(intent: Intent): Boolean {
@@ -165,13 +159,12 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             _shouldBeOnForeground.update { false }
         }
 
-        val currentTunnelState = runBlocking { managementService.tunnelState.first() }
-        Log.d(TAG, "onUnbind currentTunnelState: $currentTunnelState")
-
         if (bindCount == 0) {
             Log.d(TAG, "No one bound to the service, stopSelf()")
-            lifecycleScope.launch {
+            runBlocking {
+                Log.d(TAG, "Waiting for disconnected state")
                 managementService.tunnelState.filterIsInstance<TunnelState.Disconnected>().first()
+                Log.d(TAG, "Stopping service")
                 stopSelf()
             }
         }
