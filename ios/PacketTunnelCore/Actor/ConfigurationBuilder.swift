@@ -27,7 +27,6 @@ public struct ConfigurationBuilder {
     var dns: SelectedDNSServers?
     var endpoint: MullvadEndpoint?
     var allowedIPs: [IPAddressRange]
-    // or should this go in MullvadEndpoint?
     var preSharedKey: PreSharedKey?
 
     public init(

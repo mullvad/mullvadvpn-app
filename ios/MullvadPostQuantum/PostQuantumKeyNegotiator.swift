@@ -11,23 +11,25 @@ import NetworkExtension
 import TalpidTunnelConfigClientProxy
 import WireGuardKitTypes
 
+/**
+ Attempt to start the asynchronous process of key negotiation. Returns true if successfully started, false if failed.
+ */
 public class PostQuantumKeyNegotiator {
     public init() {}
 
     var cancelToken: PostQuantumCancelToken?
 
-    public func negotiateKey(
+    public func startNegotiation(
         gatewayIP: IPv4Address,
         devicePublicKey: PublicKey,
         presharedKey: PrivateKey,
         packetTunnel: NEPacketTunnelProvider,
         tcpConnection: NWTCPConnection
-    ) {
+    ) -> Bool {
         let packetTunnelPointer = Unmanaged.passUnretained(packetTunnel).toOpaque()
         let opaqueConnection = Unmanaged.passUnretained(tcpConnection).toOpaque()
         var cancelToken = PostQuantumCancelToken()
 
-        // TODO: Any non 0 return is considered a failure, and should be handled gracefully
         let result = negotiate_post_quantum_key(
             devicePublicKey.rawValue.map { $0 },
             presharedKey.rawValue.map { $0 },
@@ -36,10 +38,10 @@ public class PostQuantumKeyNegotiator {
             &cancelToken
         )
         guard result == 0 else {
-            // Handle failure here
-            return
+            return false
         }
         self.cancelToken = cancelToken
+        return true
     }
 
     public func cancelKeyNegotiation() {

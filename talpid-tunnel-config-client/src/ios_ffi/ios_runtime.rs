@@ -1,5 +1,5 @@
 use super::{ios_tcp_connection::*, PostQuantumCancelToken};
-use crate::{request_ephemeral_peer, Error, RelayConfigService};
+use crate::{request_ephemeral_peer_with, Error, RelayConfigService};
 use libc::c_void;
 use std::{future::Future, io, pin::Pin, ptr, sync::Arc};
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
@@ -10,12 +10,12 @@ use tower::util::service_fn;
 /// # Safety
 /// packet_tunnel and tcp_connection must be valid pointers to a packet tunnel and a TCP connection
 /// instances.
-pub unsafe fn run_ios_runtime(
+pub unsafe fn run_post_quantum_psk_exchange(
     pub_key: [u8; 32],
     ephemeral_key: [u8; 32],
     packet_tunnel: *const c_void,
     tcp_connection: *const c_void,
-) -> Result<PostQuantumCancelToken, i32> {
+) -> Result<PostQuantumCancelToken, Error> {
     match unsafe { IOSRuntime::new(pub_key, ephemeral_key, packet_tunnel, tcp_connection) } {
         Ok(runtime) => {
             let token = runtime.cancel_token_tx.clone();
@@ -27,7 +27,7 @@ pub unsafe fn run_ios_runtime(
         }
         Err(err) => {
             log::error!("Failed to create runtime {}", err);
-            Err(-1)
+            Err(Error::UnableToCreateRuntime)
         }
     }
 }
@@ -85,7 +85,10 @@ impl IOSRuntime {
         });
     }
 
-    pub async fn ios_tcp_client(
+    /// Creates a `RelayConfigService` using the in-tunnel TCP Connection provided by the Packet Tunnel Provider
+    /// # Safety
+    /// It is unsafe to call this with an already used `SwiftContext`
+    async unsafe fn ios_tcp_client(
         ctx: SwiftContext,
     ) -> Result<(RelayConfigService, IosTcpShutdownHandle), Error> {
         let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
@@ -117,25 +120,23 @@ impl IOSRuntime {
 
         let packet_tunnel_ptr = self.packet_tunnel.packet_tunnel;
         runtime.block_on(async move {
-            let (async_provider, shutdown_handle) = match Self::ios_tcp_client(self.packet_tunnel).await {
+            let (async_provider, shutdown_handle) = unsafe { match Self::ios_tcp_client(self.packet_tunnel).await {
                 Ok(result) => result,
                 Err(error) => {
                     log::error!("Failed to create iOS TCP client: {error}");
-                    unsafe {
                         swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null());
-                    }
                     return;
                 }
-            };
+            }};
             let ephemeral_pub_key = PrivateKey::from(self.ephemeral_key).public_key();
 
             tokio::select! {
-                ephemeral_peer = request_ephemeral_peer(
+                ephemeral_peer = request_ephemeral_peer_with(
+                    async_provider,
                     PublicKey::from(self.pub_key),
                     ephemeral_pub_key,
                     true,
                     false,
-                    async_provider,
                 ) =>  {
                     shutdown_handle.shutdown();
                     match ephemeral_peer {
