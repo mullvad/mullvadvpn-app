@@ -56,6 +56,7 @@ pub struct AndroidTunProvider {
     object: GlobalRef,
     last_tun_config: TunConfig,
     allow_lan: bool,
+    blocking: bool,
     custom_dns_servers: Option<Vec<IpAddr>>,
     allowed_lan_networks: Vec<IpNetwork>,
 }
@@ -82,6 +83,7 @@ impl AndroidTunProvider {
             object: context.vpn_service,
             last_tun_config: TunConfig::default(),
             allow_lan,
+            blocking: false,
             custom_dns_servers,
             allowed_lan_networks,
         }
@@ -105,8 +107,15 @@ impl AndroidTunProvider {
         Ok(())
     }
 
+    /// Retrieve a tunnel device with the provided configuration. Custom DNS and LAN routes are
+    /// appended to the provided config.
+    pub fn get_tun(&mut self, mut config: TunConfig) -> Result<VpnServiceTun, Error> {
+        self.prepare_tun_config(&mut config, false);
+        self.get_tun_inner(config)
+    }
+
     /// Retrieve a tunnel device with the provided configuration.
-    pub fn get_tun(&mut self, config: TunConfig) -> Result<VpnServiceTun, Error> {
+    fn get_tun_inner(&mut self, config: TunConfig) -> Result<VpnServiceTun, Error> {
         let tun_fd = self.get_tun_fd(config.clone())?;
 
         self.last_tun_config = config;
@@ -122,15 +131,15 @@ impl AndroidTunProvider {
         })
     }
 
-    /// Open a tunnel device that routes everything but custom DNS, and
-    /// (potentially) LAN routes via the tunnel device.
+    /// Open a tunnel device that routes everything but (potentially) LAN routes via the tunnel
+    /// device.
     ///
     /// Will open a new tunnel if there is already an active tunnel. The previous tunnel will be
     /// closed.
     pub fn create_blocking_tun(&mut self) -> Result<(), Error> {
         let mut config = TunConfig::default();
-        self.prepare_tun_config(&mut config);
-        let _ = self.get_tun(config)?;
+        self.prepare_tun_config(&mut config, true);
+        let _ = self.get_tun_inner(config)?;
         Ok(())
     }
 
@@ -176,9 +185,7 @@ impl AndroidTunProvider {
         }
     }
 
-    fn get_tun_fd(&mut self, mut config: TunConfig) -> Result<RawFd, Error> {
-        self.prepare_tun_config(&mut config);
-
+    fn get_tun_fd(&mut self, config: TunConfig) -> Result<RawFd, Error> {
         let env = self.env()?;
         let java_config = config.into_java(&env);
 
@@ -198,7 +205,7 @@ impl AndroidTunProvider {
     fn recreate_tun_if_open(&mut self) -> Result<(), Error> {
         let mut actual_config = self.last_tun_config.clone();
 
-        self.prepare_tun_config(&mut actual_config);
+        self.prepare_tun_config(&mut actual_config, self.blocking);
 
         let env = self.env()?;
         let java_config = actual_config.into_java(&env);
@@ -216,9 +223,13 @@ impl AndroidTunProvider {
         }
     }
 
-    fn prepare_tun_config(&self, config: &mut TunConfig) {
+    fn prepare_tun_config(&mut self, config: &mut TunConfig, blocking: bool) {
+        self.blocking = blocking;
         self.prepare_tun_config_for_allow_lan(config);
-        self.prepare_tun_config_for_custom_dns(config);
+        if !blocking {
+            self.prepare_tun_config_for_custom_dns(config);
+        }
+        maybe_set_dummy_dns_servers(config);
     }
 
     fn prepare_tun_config_for_allow_lan(&self, config: &mut TunConfig) {
@@ -322,6 +333,14 @@ impl AndroidTunProvider {
 
         Ok(JnixEnv::from(jni_env))
     }
+}
+
+/// Add dummy servers if no DNS servers are set. Android may sometimes leak DNS otherwise.
+fn maybe_set_dummy_dns_servers(config: &mut TunConfig) {
+    if !config.dns_servers.is_empty() {
+        return;
+    }
+    config.dns_servers = vec!["192.0.2.1".parse().unwrap()];
 }
 
 /// Handle to a tunnel device on Android.
