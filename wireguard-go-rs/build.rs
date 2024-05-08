@@ -18,7 +18,8 @@ fn main() {
         "macos" => {}
         // TODO: Is is allowed to panic? Won't this always happen if we run `cargo build` in the
         // workspace root for e.g. windows?
-        _ => unimplemented!("building wireguard-go-rs for {target_os} is not implemented."),
+        // building wireguard-go-rs for windows is not implemented
+        _ => return,
     }
 
     let output = cmd.output().expect("build-wireguard-go.sh failed");
