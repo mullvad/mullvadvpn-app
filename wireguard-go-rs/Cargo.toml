@@ -3,6 +3,7 @@ name = "wireguard-go-rs"
 description = "Rust bindings to wireguard-go with DAITA support"
 version = "0.1.0"
 edition = "2021"
+license.workspace = true
 
 [features]
 daita = ["dep:cmaybenot"]
