@@ -1,0 +1,20 @@
+# Usage:
+#  crowdin upload sources
+#  crowdin download
+
+'project_id': '350815'
+'api_token_env': 'CROWDIN_API_KEY'
+'base_path': './locales'
+'base_url': 'https://api.crowdin.com'
+'preserve_hierarchy': true
+
+files: [
+  {
+    'source': '/*.pot',
+    'translation': '/%osx_locale%/%file_name%.po',
+    'translation_replace': {
+      'zh-Hans': 'zh-CN',
+      'zh-Hant': 'zh-TW',
+    },
+  },
+]
