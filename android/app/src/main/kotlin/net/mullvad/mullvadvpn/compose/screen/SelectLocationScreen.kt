@@ -147,7 +147,7 @@ fun SelectLocation(
 
     LaunchedEffectCollect(vm.uiSideEffect) {
         when (it) {
-            SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true)
+            SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true, true)
             is SelectLocationSideEffect.LocationAddedToCustomList -> {
                 launch {
                     snackbarHostState.showResultSnackbar(
@@ -199,7 +199,7 @@ fun SelectLocation(
         snackbarHostState = snackbarHostState,
         onSelectRelay = vm::selectRelay,
         onSearchTermInput = vm::onSearchTermInput,
-        onBackClick = navigator::navigateUp,
+        onBackClick = { backNavigator.navigateBack(true) },
         onFilterClick = { navigator.navigate(FilterScreenDestination, true) },
         onCreateCustomList = { relayItem ->
             navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.id)) {
