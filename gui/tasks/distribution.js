@@ -103,6 +103,7 @@ const config = {
         to: '.',
       },
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
+      { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'apisocks5')), to: '.' },
       { from: distAssets('uninstall_macos.sh'), to: './uninstall.sh' },
       { from: buildAssets('shell-completions/_mullvad'), to: '.' },
       { from: buildAssets('shell-completions/mullvad.fish'), to: '.' },
@@ -145,6 +146,7 @@ const config = {
         to: '.',
       },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
+      { from: distAssets('binaries/x86_64-pc-windows-msvc/apisocks5.exe'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/wintun/wintun.dll'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/split-tunnel/mullvad-split-tunnel.sys'), to: '.' },
       {
@@ -176,6 +178,7 @@ const config = {
       { from: distAssets(path.join(getLinuxTargetSubdir(), 'libtalpid_openvpn_plugin.so')), to: '.' },
       { from: distAssets(path.join('linux', 'apparmor_mullvad')), to: '.' },
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
+      { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'apisocks5')), to: '.' },
     ],
   },
 
