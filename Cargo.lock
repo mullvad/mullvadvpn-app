@@ -4070,11 +4070,9 @@ dependencies = [
 name = "talpid-tunnel-config-client"
 version = "0.0.0"
 dependencies = [
- "cbindgen",
  "classic-mceliece-rust",
  "libc",
  "log",
- "oslog",
  "pqc_kyber",
  "prost",
  "rand 0.8.5",
