@@ -86,6 +86,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Checkout wireguard-go submodule
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --depth=1wireguard-go-rs/libwg/wireguard-go
+
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
         with:
