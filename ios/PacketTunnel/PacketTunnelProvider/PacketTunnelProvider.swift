@@ -244,6 +244,7 @@ extension PacketTunnelProvider {
                     lastConnectionAttempt = connectionAttempt
 
                 case let .negotiatingPostQuantumKey(_, privateKey):
+                    postQuantumActor.endCurrentNegotiation()
                     postQuantumActor.startNegotiation(with: privateKey)
 
                 case .initial, .connected, .disconnecting, .disconnected, .error:
@@ -301,11 +302,11 @@ extension PacketTunnelProvider {
 extension PacketTunnelProvider: PostQuantumKeyReceiving {
     func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
         actor.replacePreSharedKey(key, ephemeralKey: ephemeralKey)
-        postQuantumActor.acknowledgeNegotiationConcluded()
+        postQuantumActor.endCurrentNegotiation()
     }
 
     func keyExchangeFailed() {
-        postQuantumActor.acknowledgeNegotiationConcluded()
+        postQuantumActor.endCurrentNegotiation()
         actor.reconnect(to: .current)
     }
 }

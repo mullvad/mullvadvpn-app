@@ -71,7 +71,7 @@ class PostQuantumKeyExchangeActor {
         )
     }
 
-    func acknowledgeNegotiationConcluded() {
+    func endCurrentNegotiation() {
         negotiation?.cancel()
         negotiation = nil
     }

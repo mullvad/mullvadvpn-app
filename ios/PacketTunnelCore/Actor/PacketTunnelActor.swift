@@ -234,7 +234,10 @@ extension PacketTunnelActor {
                 settings: settings,
                 reason: .userInitiated
             )
-        else { return }
+        else {
+            logger.error("Could not create connection state in PostQuantumConnect")
+            return
+        }
 
         let configurationBuilder = ConfigurationBuilder(
             privateKey: privateKey,
