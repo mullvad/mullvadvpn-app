@@ -41,6 +41,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var intentProvider: IntentProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("mullvad", "onCreate")
         loadKoinModules(listOf(uiModule, paymentModule))
 
         // Tell the system that we will draw behind the status bar and navigation bar
@@ -101,13 +102,29 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    override fun onStart() {
+        super.onStart()
+        Log.d("mullvad", "onStart")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("mullvad", "onResume")
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        Log.d("mullvad", "onRestart")
+    }
+
     override fun onStop() {
-        Log.d("mullvad", "onStop")
         super.onStop()
+        Log.d("mullvad", "onStop")
         serviceConnectionManager.unbind()
     }
 
     override fun onDestroy() {
+        Log.d("mullvad", "onDestroy")
         serviceConnectionManager.onDestroy()
         lifecycle.removeObserver(noDaemonViewModel)
         super.onDestroy()

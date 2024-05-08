@@ -23,7 +23,6 @@ class SettingsRepository(
 ) {
     val settingsUpdates: StateFlow<Settings?> =
         managementService.settings
-            .onStart { managementService.getSettings() }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), null)
 
     suspend fun setDnsOptions(

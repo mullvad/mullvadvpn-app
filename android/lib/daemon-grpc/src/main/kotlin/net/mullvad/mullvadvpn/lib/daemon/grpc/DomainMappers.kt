@@ -68,17 +68,34 @@ internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
     when (stateCase!!) {
         ManagementInterface.TunnelState.StateCase.DISCONNECTED ->
             TunnelState.Disconnected(
-                location = disconnected.disconnectedLocation.toDomain(),
+                location =
+                    with(disconnected) {
+                        if (hasDisconnectedLocation()) {
+                            disconnectedLocation.toDomain()
+                        } else null
+                    },
             )
         ManagementInterface.TunnelState.StateCase.CONNECTING ->
             TunnelState.Connecting(
                 endpoint = connecting.relayInfo.tunnelEndpoint.toDomain(),
-                location = connecting.relayInfo.location.toDomain(),
+                location =
+                    with(connecting.relayInfo) {
+                        if (hasLocation()) {
+                            location.toDomain()
+                        } else null
+                    }
             )
         ManagementInterface.TunnelState.StateCase.CONNECTED ->
             TunnelState.Connected(
                 endpoint = connected.relayInfo.tunnelEndpoint.toDomain(),
-                location = connected.relayInfo.location.toDomain(),
+                location =
+                    with(connected.relayInfo) {
+                        if (hasLocation()) {
+                            location.toDomain()
+                        } else {
+                            null
+                        }
+                    }
             )
         ManagementInterface.TunnelState.StateCase.DISCONNECTING ->
             TunnelState.Disconnecting(
