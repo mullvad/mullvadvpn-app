@@ -73,6 +73,7 @@ dependencies {
 
     implementation(Dependencies.Arrow.core)
     implementation(Dependencies.Arrow.optics)
+    implementation(Dependencies.Arrow.fxCoroutines)
 
     testImplementation(project(Dependencies.Mullvad.commonTestLib))
     testImplementation(Dependencies.Kotlin.test)

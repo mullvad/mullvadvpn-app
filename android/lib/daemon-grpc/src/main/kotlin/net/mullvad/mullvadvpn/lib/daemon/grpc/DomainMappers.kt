@@ -192,7 +192,7 @@ internal fun ManagementInterface.ErrorState.toDomain(): ErrorState =
                 ManagementInterface.ErrorState.Cause.CREATE_TUNNEL_DEVICE ->
                     throw IllegalArgumentException("Unrecognized error state cause")
             },
-        isBlocking = this.hasBlockingError()
+        isBlocking = !this.hasBlockingError()
     )
 
 internal fun ManagementInterface.ErrorState.FirewallPolicyError.toDomain(): FirewallPolicyError =
