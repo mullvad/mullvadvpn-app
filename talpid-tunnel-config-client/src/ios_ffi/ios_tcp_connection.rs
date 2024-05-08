@@ -3,9 +3,9 @@ use std::{
     io::{self, Result},
     sync::{
         atomic::{self, AtomicBool},
-        Arc,
+        Arc, Mutex, Weak,
     },
-    task::Poll,
+    task::{Poll, Waker},
 };
 use tokio::{
     io::{AsyncRead, AsyncWrite},
@@ -45,18 +45,20 @@ extern "C" {
 unsafe impl Send for IosTcpProvider {}
 
 pub struct IosTcpProvider {
-    write_tx: mpsc::UnboundedSender<usize>,
+    write_tx: Arc<mpsc::UnboundedSender<usize>>,
     write_rx: mpsc::UnboundedReceiver<usize>,
-    read_tx: mpsc::UnboundedSender<Box<[u8]>>,
+    read_tx: Arc<mpsc::UnboundedSender<Box<[u8]>>>,
     read_rx: mpsc::UnboundedReceiver<Box<[u8]>>,
     tcp_connection: *const c_void,
     read_in_progress: bool,
     write_in_progress: bool,
     shutdown: Arc<AtomicBool>,
+    waker: Arc<Mutex<Option<Waker>>>,
 }
 
 pub struct IosTcpShutdownHandle {
     shutdown: Arc<AtomicBool>,
+    waker: Arc<Mutex<Option<Waker>>>,
 }
 
 impl IosTcpProvider {
@@ -68,30 +70,41 @@ impl IosTcpProvider {
         let (tx, rx) = mpsc::unbounded_channel();
         let (recv_tx, recv_rx) = mpsc::unbounded_channel();
         let shutdown = Arc::new(AtomicBool::new(false));
+        let waker = Arc::new(Mutex::new(None));
 
         (
             Self {
-                write_tx: tx,
+                write_tx: Arc::new(tx),
                 write_rx: rx,
-                read_tx: recv_tx,
+                read_tx: Arc::new(recv_tx),
                 read_rx: recv_rx,
                 tcp_connection,
                 read_in_progress: false,
                 write_in_progress: false,
                 shutdown: shutdown.clone(),
+                waker: waker.clone(),
             },
-            IosTcpShutdownHandle { shutdown },
+            IosTcpShutdownHandle { shutdown, waker },
         )
     }
 
     fn is_shutdown(&self) -> bool {
         self.shutdown.load(atomic::Ordering::SeqCst)
     }
+
+    fn maybe_set_waker(&self, new_waker: Waker) {
+        if let Ok(mut waker) = self.waker.lock() {
+            *waker = Some(new_waker);
+        }
+    }
 }
 
 impl IosTcpShutdownHandle {
     pub fn shutdown(&self) {
         self.shutdown.store(true, atomic::Ordering::SeqCst);
+        if let Some(waker) = self.waker.lock().ok().and_then(|mut waker| waker.take()) {
+            waker.wake();
+        }
     }
 }
 
@@ -101,8 +114,7 @@ impl AsyncWrite for IosTcpProvider {
         cx: &mut std::task::Context<'_>,
         buf: &[u8],
     ) -> std::task::Poll<Result<usize>> {
-        let raw_sender = Box::into_raw(Box::new(self.write_tx.clone()));
-
+        self.maybe_set_waker(cx.waker().clone());
         match self.write_rx.poll_recv(cx) {
             std::task::Poll::Ready(Some(bytes_sent)) => {
                 self.write_in_progress = false;
@@ -116,17 +128,17 @@ impl AsyncWrite for IosTcpProvider {
                 if self.is_shutdown() {
                     return Poll::Ready(Err(connection_closed_err()));
                 }
-                if self.write_in_progress {
-                    return std::task::Poll::Pending;
-                }
-                self.write_in_progress = true;
-                unsafe {
-                    swift_nw_tcp_connection_send(
-                        self.tcp_connection,
-                        buf.as_ptr() as _,
-                        buf.len(),
-                        raw_sender as _,
-                    );
+                if !self.write_in_progress {
+                    let raw_sender = Weak::into_raw(Arc::downgrade(&self.write_tx));
+                    unsafe {
+                        swift_nw_tcp_connection_send(
+                            self.tcp_connection,
+                            buf.as_ptr() as _,
+                            buf.len(),
+                            raw_sender as _,
+                        );
+                    }
+                    self.write_in_progress = true;
                 }
                 std::task::Poll::Pending
             }
@@ -153,7 +165,6 @@ impl AsyncRead for IosTcpProvider {
         cx: &mut std::task::Context<'_>,
         buf: &mut tokio::io::ReadBuf<'_>,
     ) -> std::task::Poll<std::io::Result<()>> {
-        let raw_sender = Box::into_raw(Box::new(self.read_tx.clone()));
         if self.is_shutdown() {
             return Poll::Ready(Err(connection_closed_err()));
         }
@@ -169,15 +180,14 @@ impl AsyncRead for IosTcpProvider {
                 Poll::Ready(Err(connection_closed_err()))
             }
             std::task::Poll::Pending => {
-                if self.read_in_progress {
-                    return std::task::Poll::Pending;
+                if !self.read_in_progress {
+                    let raw_sender = Weak::into_raw(Arc::downgrade(&self.read_tx));
+                    unsafe {
+                        swift_nw_tcp_connection_read(self.tcp_connection, raw_sender as _);
+                    }
+                    self.read_in_progress = true;
                 }
-                self.read_in_progress = true;
-                unsafe {
-                    swift_nw_tcp_connection_read(self.tcp_connection, raw_sender as _);
-                }
-
-                std::task::Poll::Pending
+                Poll::Pending
             }
         }
     }
