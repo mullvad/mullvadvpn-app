@@ -451,7 +451,7 @@ extension PacketTunnelActor {
             connectedEndpoint: obfuscatedEndpoint,
             transportLayer: transportLayer,
             remotePort: protocolObfuscator.remotePort,
-            isPostQuantum: connectionState.isPostQuantum
+            isPostQuantum: settings.quantumResistance.isEnabled
         )
     }
 
