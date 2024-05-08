@@ -16,7 +16,6 @@ use std::{
 use talpid_tunnel::tun_provider::Error as TunProviderError;
 use talpid_tunnel::tun_provider::{Tun, TunConfig, TunProvider};
 use talpid_types::BoxedError;
-use wireguard_go_rs::*;
 use zeroize::Zeroize;
 
 #[cfg(daita)]
