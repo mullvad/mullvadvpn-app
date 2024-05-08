@@ -39,7 +39,7 @@
     "@types/google-protobuf": "^3.15.6",
     "@types/history": "^4.7.11",
     "@types/mocha": "^10.0.0",
-    "@types/node": "^18.18.2",
+    "@types/node": "^20.12.11",
     "@types/node-gettext": "^3.0.3",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
@@ -68,7 +68,6 @@
     "gulp-sourcemaps": "^3.0.0",
     "gulp-typescript": "^6.0.0-alpha.1",
     "mocha": "^10.2.0",
-    "pkg": "^5.8.0",
     "playwright": "^1.41.1",
     "prettier": "^2.2.1",
     "sinon": "^14.0.1",
@@ -83,7 +82,7 @@
     "postinstall": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true electron-builder install-app-deps",
     "build": "gulp build",
     "build-proto": "gulp build-proto",
-    "pack-test-executable": "pkg --config standalone-tests.pkg.json --output ../dist/mullvadvpn-app-e2e-tests build/standalone-tests.js",
+    "pack-test-executable": "./scripts/build-test-executable.sh",
     "build-test-executable": "npm run build && npm run pack-test-executable",
     "lint": "eslint --ext tsx,ts .",
     "format": "prettier \"**/*.{js,css,ts,tsx}\" --write",
@@ -105,7 +104,7 @@
     "npm": ">=8.3"
   },
   "volta": {
-    "node": "18.18.2",
+    "node": "20.13.0",
     "npm": "9.9.0"
   }
 }
