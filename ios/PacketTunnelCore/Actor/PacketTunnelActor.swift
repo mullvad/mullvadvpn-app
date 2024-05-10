@@ -266,9 +266,27 @@ extension PacketTunnelActor {
     }
 
     /**
-     Attempt to start the tunnel by performing the following steps:
+     Entry point for attempting to start the tunnel by performing the following steps:
 
-     - Read settings.
+     - Read settings
+     - Start either a direct connection or the post-quantum key negotiation process, depending on settings.
+     */
+    private func tryStart(
+        nextRelay: NextRelay,
+        reason: ReconnectReason = .userInitiated
+    ) async throws {
+        let settings: Settings = try settingsReader.read()
+
+        if settings.quantumResistance.isEnabled {
+            try await tryStartPostQuantumNegotiation(withSettings: settings, nextRelay: nextRelay, reason: reason)
+        } else {
+            try await tryStartConnection(withSettings: settings, nextRelay: nextRelay, reason: reason)
+        }
+    }
+
+    /**
+     Attempt to start a direct (non-quantum) connection to the tunnel by performing the following steps:
+
      - Determine target state, it can either be `.connecting` or `.reconnecting`. (See `TargetStateForReconnect`)
      - Bail if target state cannot be determined. That means that the actor is past the point when it could logically connect or reconnect, i.e it can already be in
      `.disconnecting` state.
@@ -280,33 +298,11 @@ extension PacketTunnelActor {
          - nextRelay: which relay should be selected next.
          - reason: reason for reconnect
      */
-    private func tryStart(
+    private func tryStartConnection(
+        withSettings settings: Settings,
         nextRelay: NextRelay,
-        reason: ReconnectReason = .userInitiated
+        reason: ReconnectReason
     ) async throws {
-        let settings: Settings = try settingsReader.read()
-
-        if settings.quantumResistance.isEnabled {
-            if let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings, reason: reason) {
-                let selectedEndpoint = connectionState.selectedRelay.endpoint
-                let activeKey = activeKey(from: connectionState, in: settings)
-
-                let configurationBuilder = ConfigurationBuilder(
-                    privateKey: activeKey,
-                    interfaceAddresses: settings.interfaceAddresses,
-                    dns: settings.dnsServers,
-                    endpoint: selectedEndpoint,
-                    allowedIPs: [
-                        IPAddressRange(from: "10.64.0.1/32")!,
-                    ]
-                )
-
-                try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
-                state = .negotiatingPostQuantumKey(connectionState, activeKey)
-            }
-            return
-        }
-
         guard let connectionState = try obfuscateConnection(nextRelay: nextRelay, settings: settings, reason: reason),
               let targetState = state.targetStateForReconnect else { return }
 
@@ -347,6 +343,34 @@ extension PacketTunnelActor {
 
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
         tunnelMonitor.start(probeAddress: connectionState.selectedRelay.endpoint.ipv4Gateway)
+    }
+
+    /**
+     Attempt to start the process of negotiating a post-quantum secure key, setting up an initial
+     connection restricted to the negotiation host and entering the negotiating state.
+     */
+    private func tryStartPostQuantumNegotiation(
+        withSettings settings: Settings,
+        nextRelay: NextRelay,
+        reason: ReconnectReason
+    ) async throws {
+        if let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings, reason: reason) {
+            let selectedEndpoint = connectionState.selectedRelay.endpoint
+            let activeKey = activeKey(from: connectionState, in: settings)
+
+            let configurationBuilder = ConfigurationBuilder(
+                privateKey: activeKey,
+                interfaceAddresses: settings.interfaceAddresses,
+                dns: settings.dnsServers,
+                endpoint: selectedEndpoint,
+                allowedIPs: [
+                    IPAddressRange(from: "10.64.0.1/32")!,
+                ]
+            )
+
+            try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
+            state = .negotiatingPostQuantumKey(connectionState, activeKey)
+        }
     }
 
     /**
