@@ -29,6 +29,7 @@ function build_test_executable {
 
     # pack assets
     cp "$(volta which node)" ./build/test/node
+    # shellcheck disable=SC2068
     tar -czf ./build/test/assets.tar.gz ${ASSETS[@]}
 
     cp ./build/test/node "$temp_output"
