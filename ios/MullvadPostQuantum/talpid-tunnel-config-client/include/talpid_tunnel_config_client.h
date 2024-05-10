@@ -39,7 +39,11 @@ void handle_recv(const uint8_t *data,
  * Entry point for exchanging post quantum keys on iOS.
  * The TCP connection must be created to go through the tunnel.
  * # Safety
- * This function is safe to call
+ * `public_key` and `ephemeral_key` must be valid respective `PublicKey` and `PrivateKey` types.
+ * They will not be valid after this function is called, and thus must be copied here.
+ * `packet_tunnel` and `tcp_connection` must be valid pointers to a packet tunnel and a TCP connection
+ * instances.
+ * `cancel_token` should be owned by the caller of this function.
  */
 int32_t negotiate_post_quantum_key(const uint8_t *public_key,
                                    const uint8_t *ephemeral_key,

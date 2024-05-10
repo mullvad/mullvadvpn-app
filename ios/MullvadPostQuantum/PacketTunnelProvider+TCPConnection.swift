@@ -23,7 +23,7 @@ func tcpConnectionSend(
     let tcpConnection = Unmanaged<NWTCPConnection>.fromOpaque(connection).takeUnretainedValue()
     let rawData = Data(bytes: data, count: Int(dataLength))
 
-    // The guarantee that no more than 2 writes happen in parallel is done by virtue of not returning the execution context
+    // The guarantee that all writes are sequential is done by virtue of not returning the execution context
     // to Rust before this closure is done executing.
     tcpConnection.write(rawData, completionHandler: { maybeError in
         if maybeError != nil {
