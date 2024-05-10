@@ -670,14 +670,10 @@ final class TunnelManager: StorePaymentObserver {
             refreshDeviceState()
         }
         switch newTunnelStatus.state {
-        case .connecting, .reconnecting:
+        case .connecting, .reconnecting, .negotiatingPostQuantumKey:
             // Start polling tunnel status to keep the relay information up to date
             // while the tunnel process is trying to connect.
             startPollingTunnelStatus(interval: establishingTunnelStatusPollInterval)
-
-        case .negotiatingPostQuantumKey:
-            // No need to poll the tunnel while negotiating post quantum keys, assume the connection will work
-            break
 
         case .connected, .waitingForConnectivity(.noConnection):
             // Start polling tunnel status to keep connectivity status up to date.

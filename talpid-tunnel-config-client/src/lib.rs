@@ -24,8 +24,6 @@ mod proto {
 
 #[cfg(target_os = "ios")]
 pub mod ios_ffi;
-#[cfg(target_os = "ios")]
-use proto::ephemeral_peer_client::EphemeralPeerClient;
 
 #[cfg(not(target_os = "ios"))]
 use libc::setsockopt;
@@ -61,6 +59,8 @@ pub enum Error {
     FailedDecapsulateKyber(kyber::KyberError),
     #[cfg(target_os = "ios")]
     TcpConnectionExpired,
+    #[cfg(target_os = "ios")]
+    UnableToCreateRuntime,
 }
 
 impl std::fmt::Display for Error {
@@ -84,6 +84,8 @@ impl std::fmt::Display for Error {
             FailedDecapsulateKyber(_) => "Failed to decapsulate Kyber1024 ciphertext".fmt(f),
             #[cfg(target_os = "ios")]
             TcpConnectionExpired => "TCP connection is already shut down".fmt(f),
+            #[cfg(target_os = "ios")]
+            UnableToCreateRuntime => "Unable to create iOS PQ PSK runtime".fmt(f),
         }
     }
 }
@@ -119,23 +121,17 @@ pub struct EphemeralPeer {
     pub psk: Option<PresharedKey>,
 }
 
-/// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled.
-pub async fn request_ephemeral_peer(
-    #[cfg(not(target_os = "ios"))] service_address: IpAddr,
+pub async fn request_ephemeral_peer_with(
+    mut client: RelayConfigService,
     parent_pubkey: PublicKey,
     ephemeral_pubkey: PublicKey,
     enable_post_quantum: bool,
     enable_daita: bool,
-    #[cfg(target_os = "ios")] mut client: EphemeralPeerClient<Channel>,
 ) -> Result<EphemeralPeer, Error> {
     let (pq_request, kem_secrets) = post_quantum_secrets(enable_post_quantum).await;
-
     let daita = Some(proto::DaitaRequestV1 {
         activate_daita: enable_daita,
     });
-
-    #[cfg(not(target_os = "ios"))]
-    let mut client = new_client(service_address).await?;
 
     let response = client
         .register_peer_v1(proto::EphemeralPeerRequestV1 {
@@ -194,13 +190,34 @@ pub async fn request_ephemeral_peer(
     Ok(EphemeralPeer { psk })
 }
 
+/// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled.
+#[cfg(not(target_os = "ios"))]
+pub async fn request_ephemeral_peer(
+    service_address: IpAddr,
+    parent_pubkey: PublicKey,
+    ephemeral_pubkey: PublicKey,
+    enable_post_quantum: bool,
+    enable_daita: bool,
+) -> Result<EphemeralPeer, Error> {
+    let client = new_client(service_address).await?;
+
+    request_ephemeral_peer_with(
+        client,
+        parent_pubkey,
+        ephemeral_pubkey,
+        enable_post_quantum,
+        enable_daita,
+    )
+    .await
+}
+
 async fn post_quantum_secrets(
     enable_post_quantum: bool,
 ) -> (
     Option<PostQuantumRequestV1>,
     Option<(classic_mceliece_rust::SecretKey<'static>, [u8; 3168])>,
 ) {
-    let (pq_request, kem_secrets) = if enable_post_quantum {
+    if enable_post_quantum {
         let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
         let kyber_keypair = kyber::keypair(&mut rand::thread_rng());
 
@@ -221,8 +238,7 @@ async fn post_quantum_secrets(
         )
     } else {
         (None, None)
-    };
-    (pq_request, kem_secrets)
+    }
 }
 
 /// Performs `dst = dst ^ src`.

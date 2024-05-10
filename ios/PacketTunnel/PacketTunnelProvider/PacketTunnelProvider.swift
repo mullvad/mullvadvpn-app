@@ -82,7 +82,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             protocolObfuscator: ProtocolObfuscator<UDPOverTCPObfuscator>()
         )
 
-        postQuantumActor = PostQuantumKeyExchangeActor(packetTunnel: self)
+        postQuantumActor = PostQuantumKeyExchangeActor(
+            packetTunnel: self,
+            onFailure: self.keyExchangeFailed
+        )
 
         let urlRequestProxy = URLRequestProxy(dispatchQueue: internalQueue, transportProvider: transportProvider)
 
@@ -254,16 +257,6 @@ extension PacketTunnelProvider {
         }
     }
 
-    func createTCPConnectionForPQPSK(_ gatewayAddress: String) -> NWTCPConnection {
-        let gatewayEndpoint = NWHostEndpoint(hostname: gatewayAddress, port: "1337")
-        return createTCPConnectionThroughTunnel(
-            to: gatewayEndpoint,
-            enableTLS: false,
-            tlsParameters: nil,
-            delegate: nil
-        )
-    }
-
     private func stopObservingActorState() {
         stateObserverTask?.cancel()
         stateObserverTask = nil
@@ -307,6 +300,8 @@ extension PacketTunnelProvider: PostQuantumKeyReceiving {
 
     func keyExchangeFailed() {
         postQuantumActor.endCurrentNegotiation()
-        actor.reconnect(to: .current)
+        // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
+        // and it will not try to reconnect
+        actor.reconnect(to: .random)
     }
 }
