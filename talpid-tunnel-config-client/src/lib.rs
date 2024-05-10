@@ -24,8 +24,6 @@ mod proto {
 
 #[cfg(target_os = "ios")]
 pub mod ios_ffi;
-#[cfg(target_os = "ios")]
-use proto::ephemeral_peer_client::EphemeralPeerClient;
 
 #[cfg(not(target_os = "ios"))]
 use libc::setsockopt;
@@ -126,7 +124,7 @@ pub async fn request_ephemeral_peer(
     ephemeral_pubkey: PublicKey,
     enable_post_quantum: bool,
     enable_daita: bool,
-    #[cfg(target_os = "ios")] mut client: EphemeralPeerClient<Channel>,
+    #[cfg(target_os = "ios")] mut client: RelayConfigService,
 ) -> Result<EphemeralPeer, Error> {
     let (pq_request, kem_secrets) = post_quantum_secrets(enable_post_quantum).await;
 
@@ -200,7 +198,7 @@ async fn post_quantum_secrets(
     Option<PostQuantumRequestV1>,
     Option<(classic_mceliece_rust::SecretKey<'static>, [u8; 3168])>,
 ) {
-    let (pq_request, kem_secrets) = if enable_post_quantum {
+    if enable_post_quantum {
         let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
         let kyber_keypair = kyber::keypair(&mut rand::thread_rng());
 
@@ -221,8 +219,7 @@ async fn post_quantum_secrets(
         )
     } else {
         (None, None)
-    };
-    (pq_request, kem_secrets)
+    }
 }
 
 /// Performs `dst = dst ^ src`.
