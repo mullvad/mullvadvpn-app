@@ -10,7 +10,7 @@ use tower::util::service_fn;
 /// # Safety
 /// packet_tunnel and tcp_connection must be valid pointers to a packet tunnel and a TCP connection
 /// instances.
-pub unsafe fn run_ios_runtime(
+pub unsafe fn run_post_quantum_psk_exchange(
     pub_key: [u8; 32],
     ephemeral_key: [u8; 32],
     packet_tunnel: *const c_void,

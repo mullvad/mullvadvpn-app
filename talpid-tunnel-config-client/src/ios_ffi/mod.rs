@@ -1,7 +1,7 @@
 pub mod ios_runtime;
 pub mod ios_tcp_connection;
 
-use crate::ios_ffi::ios_runtime::run_ios_runtime;
+use crate::ios_ffi::ios_runtime::run_post_quantum_psk_exchange;
 use libc::c_void;
 use std::sync::Arc;
 use tokio::sync::mpsc;
@@ -107,7 +107,9 @@ pub unsafe extern "C" fn negotiate_post_quantum_key(
     let pub_key_copy: [u8; 32] = unsafe { std::ptr::read(public_key as *const [u8; 32]) };
     let eph_key_copy: [u8; 32] = unsafe { std::ptr::read(ephemeral_key as *const [u8; 32]) };
 
-    match unsafe { run_ios_runtime(pub_key_copy, eph_key_copy, packet_tunnel, tcp_connection) } {
+    match unsafe {
+        run_post_quantum_psk_exchange(pub_key_copy, eph_key_copy, packet_tunnel, tcp_connection)
+    } {
         Ok(token) => {
             unsafe { std::ptr::write(cancel_token, token) };
             0

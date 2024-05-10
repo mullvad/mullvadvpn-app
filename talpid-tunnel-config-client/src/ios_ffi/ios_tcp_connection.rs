@@ -101,8 +101,6 @@ impl AsyncWrite for IosTcpProvider {
         cx: &mut std::task::Context<'_>,
         buf: &[u8],
     ) -> std::task::Poll<Result<usize>> {
-        let raw_sender = Box::into_raw(Box::new(self.write_tx.clone()));
-
         match self.write_rx.poll_recv(cx) {
             std::task::Poll::Ready(Some(bytes_sent)) => {
                 self.write_in_progress = false;
@@ -116,17 +114,17 @@ impl AsyncWrite for IosTcpProvider {
                 if self.is_shutdown() {
                     return Poll::Ready(Err(connection_closed_err()));
                 }
-                if self.write_in_progress {
-                    return std::task::Poll::Pending;
-                }
-                self.write_in_progress = true;
-                unsafe {
-                    swift_nw_tcp_connection_send(
-                        self.tcp_connection,
-                        buf.as_ptr() as _,
-                        buf.len(),
-                        raw_sender as _,
-                    );
+                if !self.write_in_progress {
+                    let raw_sender = Box::into_raw(Box::new(self.write_tx.clone()));
+                    unsafe {
+                        swift_nw_tcp_connection_send(
+                            self.tcp_connection,
+                            buf.as_ptr() as _,
+                            buf.len(),
+                            raw_sender as _,
+                        );
+                    }
+                    self.write_in_progress = true;
                 }
                 std::task::Poll::Pending
             }
@@ -153,7 +151,6 @@ impl AsyncRead for IosTcpProvider {
         cx: &mut std::task::Context<'_>,
         buf: &mut tokio::io::ReadBuf<'_>,
     ) -> std::task::Poll<std::io::Result<()>> {
-        let raw_sender = Box::into_raw(Box::new(self.read_tx.clone()));
         if self.is_shutdown() {
             return Poll::Ready(Err(connection_closed_err()));
         }
@@ -169,15 +166,14 @@ impl AsyncRead for IosTcpProvider {
                 Poll::Ready(Err(connection_closed_err()))
             }
             std::task::Poll::Pending => {
-                if self.read_in_progress {
-                    return std::task::Poll::Pending;
+                if !self.read_in_progress {
+                    let raw_sender = Box::into_raw(Box::new(self.read_tx.clone()));
+                    unsafe {
+                        swift_nw_tcp_connection_read(self.tcp_connection, raw_sender as _);
+                    }
+                    self.read_in_progress = true;
                 }
-                self.read_in_progress = true;
-                unsafe {
-                    swift_nw_tcp_connection_read(self.tcp_connection, raw_sender as _);
-                }
-
-                std::task::Poll::Pending
+                Poll::Pending
             }
         }
     }
