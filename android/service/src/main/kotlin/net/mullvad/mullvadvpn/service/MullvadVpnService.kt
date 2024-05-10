@@ -2,12 +2,12 @@ package net.mullvad.mullvadvpn.service
 
 import android.annotation.SuppressLint
 import android.app.KeyguardManager
-import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import androidx.core.content.getSystemService
 import androidx.lifecycle.lifecycleScope
 import arrow.atomic.AtomicInt
 import kotlinx.coroutines.Dispatchers
@@ -68,18 +68,22 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             foregroundNotificationHandler =
                 ForegroundNotificationManager(this@MullvadVpnService, get(), lifecycleScope)
             get<NotificationManager>()
+
+            apiEndpointConfiguration = get()
+            migrateSplitTunnelingRepository = get()
+            intentProvider = get()
         }
+
+        keyguardManager = getSystemService<KeyguardManager>()!!
 
         lifecycleScope.launch { foregroundNotificationHandler.start(this@MullvadVpnService) }
 
-        keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-
-        apiEndpointConfiguration = get()
-        migrateSplitTunnelingRepository = get()
-        intentProvider = get()
+        // TODO We should avoid lifecycleScope.launch (current needed due to InetSocketAddress
+        // with intent from API)
         lifecycleScope.launch(context = Dispatchers.IO) {
-            Log.d(TAG, "onStart management")
+            Log.d(TAG, "onCreate start management")
             managementService.start()
+            Log.d(TAG, "onCreate started management")
             daemonInstance =
                 MullvadDaemon(
                     vpnService = this@MullvadVpnService,
@@ -102,6 +106,9 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         // where the service would potentially otherwise be too slow running `startForeground`.
         Log.d(TAG, "Intent Action: ${intent?.action}")
         when {
+            keyguardManager.isKeyguardLocked -> {
+                Log.d(TAG, "Keyguard is locked, ignoring command")
+            }
             intent.isFromSystem() || intent?.action == KEY_CONNECT_ACTION -> {
                 _shouldBeOnForeground.update { true }
                 lifecycleScope.launch {
@@ -115,22 +122,12 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             }
         }
 
-        //        if (!keyguardManager.isDeviceLocked) {
-        //            val action = intent?.action
-        //
-        //            if (action == SERVICE_INTERFACE || action == KEY_CONNECT_ACTION) {
-        //                pendingAction = PendingAction.Connect
-        //            } else if (action == KEY_DISCONNECT_ACTION) {
-        //                pendingAction = PendingAction.Disconnect
-        //            }
-        //        }
-
-        Log.d(TAG, "onStartCommand result: $startResult")
         return startResult
     }
 
     override fun onBind(intent: Intent?): IBinder {
         bindCount.incrementAndGet()
+
         if (intent.isFromSystem()) {
             Log.d(TAG, "onBind from VPN_SERVICE_CLASS")
             _shouldBeOnForeground.update { true }
@@ -174,12 +171,10 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
         managementService.stop()
-        daemonInstance.onDestroy()
-        super.onDestroy()
-    }
 
-    override fun onTaskRemoved(rootIntent: Intent?) {
-        Log.d(TAG, "onTaskRemoved (rootIntent=$rootIntent)")
+        // Shutting down the daemon gracefully
+        runBlocking { daemonInstance.shutdown() }
+        super.onDestroy()
     }
 
     private fun Intent?.isFromSystem(): Boolean {
