@@ -50,8 +50,8 @@ function build_test_executable {
             ;;
     esac
 
+    mkdir -p "$(dirname "$output")"
     mv "$temp_output" "$output"
-
 }
 
 case "$TARGET" in
