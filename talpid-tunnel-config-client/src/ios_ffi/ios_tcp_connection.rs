@@ -3,7 +3,7 @@ use std::{
     io::{self, Result},
     sync::{
         atomic::{self, AtomicBool},
-        Arc,
+        Arc, Weak,
     },
     task::Poll,
 };
@@ -45,9 +45,9 @@ extern "C" {
 unsafe impl Send for IosTcpProvider {}
 
 pub struct IosTcpProvider {
-    write_tx: mpsc::UnboundedSender<usize>,
+    write_tx: Arc<mpsc::UnboundedSender<usize>>,
     write_rx: mpsc::UnboundedReceiver<usize>,
-    read_tx: mpsc::UnboundedSender<Box<[u8]>>,
+    read_tx: Arc<mpsc::UnboundedSender<Box<[u8]>>>,
     read_rx: mpsc::UnboundedReceiver<Box<[u8]>>,
     tcp_connection: *const c_void,
     read_in_progress: bool,
@@ -71,9 +71,9 @@ impl IosTcpProvider {
 
         (
             Self {
-                write_tx: tx,
+                write_tx: Arc::new(tx),
                 write_rx: rx,
-                read_tx: recv_tx,
+                read_tx: Arc::new(recv_tx),
                 read_rx: recv_rx,
                 tcp_connection,
                 read_in_progress: false,
@@ -115,7 +115,7 @@ impl AsyncWrite for IosTcpProvider {
                     return Poll::Ready(Err(connection_closed_err()));
                 }
                 if !self.write_in_progress {
-                    let raw_sender = Box::into_raw(Box::new(self.write_tx.clone()));
+                    let raw_sender = Weak::into_raw(Arc::downgrade(&self.write_tx));
                     unsafe {
                         swift_nw_tcp_connection_send(
                             self.tcp_connection,
@@ -167,7 +167,7 @@ impl AsyncRead for IosTcpProvider {
             }
             std::task::Poll::Pending => {
                 if !self.read_in_progress {
-                    let raw_sender = Box::into_raw(Box::new(self.read_tx.clone()));
+                    let raw_sender = Weak::into_raw(Arc::downgrade(&self.read_tx));
                     unsafe {
                         swift_nw_tcp_connection_read(self.tcp_connection, raw_sender as _);
                     }

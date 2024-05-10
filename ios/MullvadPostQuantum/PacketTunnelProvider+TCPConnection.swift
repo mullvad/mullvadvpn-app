@@ -19,7 +19,10 @@ func tcpConnectionSend(
     dataLength: UInt,
     sender: UnsafeMutableRawPointer?
 ) {
-    guard let connection, let sender else { return }
+    guard let connection, let sender else {
+        handle_sent(0, sender)
+        return
+    }
     let tcpConnection = Unmanaged<NWTCPConnection>.fromOpaque(connection).takeUnretainedValue()
     let rawData = Data(bytes: data, count: Int(dataLength))
 
@@ -39,7 +42,10 @@ func tcpConnectionReceive(
     connection: UnsafeMutableRawPointer?,
     sender: UnsafeMutableRawPointer?
 ) {
-    guard let connection, let sender else { return }
+    guard let connection, let sender else {
+        handle_recv(Data().map { $0 }, 0, sender)
+        return
+    }
     let tcpConnection = Unmanaged<NWTCPConnection>.fromOpaque(connection).takeUnretainedValue()
     tcpConnection.readMinimumLength(0, maximumLength: Int(UInt16.max)) { data, maybeError in
         if let data {

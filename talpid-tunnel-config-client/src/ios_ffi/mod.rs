@@ -3,7 +3,7 @@ pub mod ios_tcp_connection;
 
 use crate::ios_ffi::ios_runtime::run_post_quantum_psk_exchange;
 use libc::c_void;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 use tokio::sync::mpsc;
 
 use std::sync::Once;
@@ -62,8 +62,10 @@ pub unsafe extern "C" fn drop_post_quantum_key_exchange_token(
  */
 #[no_mangle]
 pub unsafe extern "C" fn handle_sent(bytes_sent: usize, sender: *const c_void) {
-    let send_tx: Box<mpsc::UnboundedSender<usize>> = unsafe { Box::from_raw(sender as _) };
-    _ = send_tx.send(bytes_sent);
+    let weak_tx: Weak<mpsc::UnboundedSender<usize>> = unsafe { Weak::from_raw(sender as _) };
+    if let Some(send_tx) = weak_tx.upgrade() {
+        _ = send_tx.send(bytes_sent);
+    }
 }
 
 /**
@@ -74,12 +76,15 @@ pub unsafe extern "C" fn handle_sent(bytes_sent: usize, sender: *const c_void) {
  */
 #[no_mangle]
 pub unsafe extern "C" fn handle_recv(data: *const u8, data_len: usize, sender: *const c_void) {
-    let read_tx: Box<mpsc::UnboundedSender<Box<[u8]>>> = unsafe { Box::from_raw(sender as _) };
+    let weak_tx: Weak<mpsc::UnboundedSender<Box<[u8]>>> = unsafe { Weak::from_raw(sender as _) };
+
     let mut bytes = vec![0u8; data_len];
     if !data.is_null() {
         std::ptr::copy_nonoverlapping(data, bytes.as_mut_ptr(), data_len);
     }
-    _ = read_tx.send(bytes.into_boxed_slice());
+    if let Some(read_tx) = weak_tx.upgrade() {
+        _ = read_tx.send(bytes.into_boxed_slice());
+    }
 }
 
 /// Entry point for exchanging post quantum keys on iOS.
