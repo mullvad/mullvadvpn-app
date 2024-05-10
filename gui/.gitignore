@@ -1,0 +1,10 @@
+/node_modules
+/build
+/scripts/ne_10m_populated_places/
+/scripts/ne_50m_admin_0_countries/
+/scripts/ne_50m_admin_1_states_provinces_lines/
+/scripts/out/
+/src/main/management_interface/
+/test/e2e/screenshots/
+/test-results/
+/standalone-tests.sea.blob
