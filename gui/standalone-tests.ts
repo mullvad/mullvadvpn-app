@@ -34,8 +34,16 @@ function extract() {
   child_process.spawnSync('tar', args, { cwd: tmpDir });
 }
 
+function getNodeBin() {
+  if (process.platform === 'win32') {
+    return path.join(tmpDir, 'node.exe');
+  } else {
+    return path.join(tmpDir, 'node');
+  }
+}
+
 function createSealessNode() {
-  const nodeBin = path.join(tmpDir, 'node');
+  const nodeBin = getNodeBin();
 
   fs.copyFileSync(process.argv[0], nodeBin);
 
