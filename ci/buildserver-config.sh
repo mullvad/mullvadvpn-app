@@ -9,7 +9,7 @@ export CODE_SIGNING_KEY_FINGERPRINT="A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"
 # Debian codenames we support.
 SUPPORTED_DEB_CODENAMES=("sid" "testing" "bookworm" "bullseye")
 # Ubuntu codenames we support (latest two LTS) ...
-SUPPORTED_DEB_CODENAMES+=("jammy" "focal")
+SUPPORTED_DEB_CODENAMES+=("noble" "jammy" "focal")
 # ... + latest non-LTS Ubuntu. We officially only support the latest non-LTS.
 # But to not cause too much disturbance just when Ubuntu is released, we keep
 # the last two codenames working in the repository.
