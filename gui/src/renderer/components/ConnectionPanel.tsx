@@ -166,10 +166,6 @@ export default class ConnectionPanel extends React.Component<IProps> {
           entry: this.props.entryHostname,
         },
       );
-    } else if (this.props.bridgeInfo?.ip) {
-      hostname = sprintf(messages.pgettext('connection-info', '%(relay)s via %(entry)s'), {
-        relay: this.props.hostname,
-      });
     } else if (this.props.bridgeInfo !== undefined) {
       hostname = sprintf(messages.pgettext('connection-info', '%(relay)s via Custom bridge'), {
         relay: this.props.hostname,
