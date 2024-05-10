@@ -254,16 +254,6 @@ extension PacketTunnelProvider {
         }
     }
 
-    func createTCPConnectionForPQPSK(_ gatewayAddress: String) -> NWTCPConnection {
-        let gatewayEndpoint = NWHostEndpoint(hostname: gatewayAddress, port: "1337")
-        return createTCPConnectionThroughTunnel(
-            to: gatewayEndpoint,
-            enableTLS: false,
-            tlsParameters: nil,
-            delegate: nil
-        )
-    }
-
     private func stopObservingActorState() {
         stateObserverTask?.cancel()
         stateObserverTask = nil
