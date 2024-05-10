@@ -21,63 +21,14 @@ GENERATED_CONTENT_OUTPUT_PATH = path.join(SCRIPT_DIR, "out")
 # The directory with the generated localizations content
 GENERATED_TRANSLATIONS_PATH = path.join(GENERATED_CONTENT_OUTPUT_PATH, "locales")
 
-# The directory with the app's geo assets
-APP_GEO_ASSETS_PATH = path.realpath(path.join(SCRIPT_DIR, "../assets/geo"))
-
 # The directory with the existing app localizations
 APP_TRANSLATIONS_PATH = path.realpath(path.join(SCRIPT_DIR, "../locales"))
-
-# Geo assets for copying from generated content folder into the app folder
-GEO_ASSETS_TO_COPY = [
-  "geometry.json",
-  "geometry.rbush.json",
-  "states-provinces-lines.json",
-  "states-provinces-lines.rbush.json",
-]
-
-# The filenames of gettext catalogues that should be merged using msgcat
-TRANSLATIONS_TO_MERGE = [
-  "relay-locations.po"
-]
-
-
-def copy_geo_assets():
-  for f in GEO_ASSETS_TO_COPY:
-    src = path.join(GENERATED_CONTENT_OUTPUT_PATH, f)
-    dst = path.join(APP_GEO_ASSETS_PATH, f)
-
-    print("Copying {} to {}".format(src, dst))
-
-    shutil.copyfile(src, dst)
-
 
 def merge_relay_locations_catalogue_template():
   existing_pot_file = path.join(APP_TRANSLATIONS_PATH, RELAY_LOCATIONS_POT_FILENAME)
   generated_pot_file = path.join(GENERATED_TRANSLATIONS_PATH, RELAY_LOCATIONS_POT_FILENAME)
 
   merge_gettext_catalogues(existing_pot_file, generated_pot_file)
-
-
-def copy_and_merge_translations():
-  for f in os.listdir(GENERATED_TRANSLATIONS_PATH):
-    src = path.join(GENERATED_TRANSLATIONS_PATH, f)
-    dst = path.join(APP_TRANSLATIONS_PATH, f)
-
-    if path.isdir(src):
-      merge_single_locale_folder(src, dst)
-
-
-def merge_single_locale_folder(src, dst):
-  for f in os.listdir(src):
-    src_po = path.join(src, f)
-    dst_po = path.join(dst, f)
-
-    if f in TRANSLATIONS_TO_MERGE:
-      # merge ../locales/*/file.po with ./out/locales/*/file.po
-      # use existing translation to resolve conflicts
-      merge_gettext_catalogues(dst_po, src_po)
-    else:
-      print(c.orange("Unexpected file: {}".format(src_po)))
 
 
 def merge_gettext_catalogues(existing_catalogue_file, generated_catalogue_file):
@@ -120,11 +71,6 @@ def run_program(*args):
 # Program main()
 
 def main():
-  if not path.exists(APP_GEO_ASSETS_PATH):
-    os.makedirs(APP_GEO_ASSETS_PATH)
-
-  copy_geo_assets()
   merge_relay_locations_catalogue_template()
-  copy_and_merge_translations()
 
 main()
