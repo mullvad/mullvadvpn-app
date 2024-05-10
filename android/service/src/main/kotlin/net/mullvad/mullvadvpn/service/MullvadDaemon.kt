@@ -4,6 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 
@@ -15,9 +20,10 @@ class MullvadDaemon(
     apiEndpointConfiguration: ApiEndpointConfiguration,
     migrateSplitTunnelingRepository: MigrateSplitTunnelingRepository
 ) {
-    protected var daemonInterfaceAddress = 0L
+    // Used by JNI
+    @Suppress("ProtectedMemberInFinalClass") protected var daemonInterfaceAddress = 0L
 
-    var onDaemonStopped: (() -> Unit)? = null
+    private val shutdownSignal = Channel<Unit>()
 
     init {
         System.loadLibrary("mullvad_jni")
@@ -36,28 +42,14 @@ class MullvadDaemon(
         Log.d("MullvadDaemon", "Initializing daemon complete")
     }
 
-    fun onDestroy() {
-        onDaemonStopped = null
-        shutdown(daemonInterfaceAddress)
-        deinitialize()
-    }
-
-    private external fun initialize(
-        vpnService: MullvadVpnService,
-        cacheDirectory: String,
-        resourceDirectory: String,
-        apiEndpoint: ApiEndpoint?
-    )
-
-    external fun deinitialize()
-
-    external fun shutdown(daemonInterfaceAddress: Long)
-
-    // Used by JNI
-    @Suppress("unused")
-    private fun notifyDaemonStopped() {
-        onDaemonStopped?.invoke()
-    }
+    suspend fun shutdown() =
+        withContext(Dispatchers.IO) {
+            val shutdownSignal = async { shutdownSignal.receive() }
+            shutdown(daemonInterfaceAddress)
+            shutdownSignal.await()
+            Log.d("MullvadDaemon", "shutdown complete")
+            deinitialize()
+        }
 
     private fun prepareFiles(context: Context) {
         val shouldOverwriteRelayList =
@@ -68,4 +60,25 @@ class MullvadDaemon(
 
     private fun lastUpdatedTime(context: Context): Long =
         context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime
+
+    // Used by JNI
+    @Suppress("unused")
+    private fun notifyDaemonStopped() {
+        Log.d("MullvadDaemon", "Daemon stopped")
+        runBlocking {
+            shutdownSignal.send(Unit)
+            shutdownSignal.close()
+        }
+    }
+
+    private external fun initialize(
+        vpnService: MullvadVpnService,
+        cacheDirectory: String,
+        resourceDirectory: String,
+        apiEndpoint: ApiEndpoint?
+    )
+
+    private external fun deinitialize()
+
+    private external fun shutdown(daemonInterfaceAddress: Long)
 }
