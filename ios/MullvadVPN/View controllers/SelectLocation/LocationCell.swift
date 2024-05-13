@@ -40,9 +40,13 @@ class LocationCell: UITableViewCell {
 
     private let checkboxButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(systemName: "checkmark.square.fill"), for: .selected)
-        button.setImage(UIImage(systemName: "square"), for: .normal)
-        button.tintColor = .white
+        let checkboxView = CheckboxView()
+
+        checkboxView.isUserInteractionEnabled = false
+        button.addConstrainedSubviews([checkboxView]) {
+            checkboxView.pinEdgesToSuperviewMargins(PinnableEdges([.top(8), .bottom(8), .leading(16), .trailing(16)]))
+        }
+
         return button
     }()
 
@@ -314,8 +318,11 @@ extension LocationCell {
         showsCollapseControl = !item.node.children.isEmpty
         isExpanded = item.node.showsChildren
         checkboxButton.accessibilityIdentifier = .customListLocationCheckmarkButton
-        checkboxButton.isSelected = item.isSelected
-        checkboxButton.tintColor = item.isSelected ? .successColor : .white
+
+        for view in checkboxButton.subviews where view is CheckboxView {
+            let checkboxView = view as? CheckboxView
+            checkboxView?.isChecked = item.isSelected
+        }
 
         if item.node is CountryLocationNode {
             accessibilityIdentifier = .countryLocationCell
