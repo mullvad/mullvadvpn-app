@@ -176,6 +176,9 @@ jobs:
             | awk '{print $1}')"
           echo "native_lib_hash=$non_android_hash" >> $GITHUB_OUTPUT
 
+      - name: Checkout wireguard-go submodule
+        run: git submodule update --init wireguard-go-rs/libwg/wireguard-go
+
       - name: Cache native libraries
         uses: actions/cache@v4
         id: cache-native-libs
@@ -233,6 +236,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Checkout wireguard-go submodule
+        run: git submodule update --init wireguard-go-rs/libwg/wireguard-go
+
       - name: Run gradle task
         uses: burrunan/gradle-cache-action@v1
         with:
@@ -259,6 +265,9 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Checkout wireguard-go submodule
+        run: git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - uses: actions/download-artifact@v4
         with:
@@ -363,6 +372,9 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Checkout wireguard-go submodule
+        run: git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - uses: actions/download-artifact@v4
         with:
