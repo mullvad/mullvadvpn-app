@@ -7,6 +7,7 @@
 //
 
 import Combine
+import MullvadTypes
 import UIKit
 
 class MethodSettingsCellConfiguration {
@@ -109,6 +110,7 @@ class MethodSettingsCellConfiguration {
         contentConfiguration.setPlaceholder(type: .required)
         contentConfiguration.textFieldProperties = .withSmartFeaturesDisabled()
         contentConfiguration.inputText = subject.value.name
+        contentConfiguration.maxLength = NameInputFormatter.maxLength
         contentConfiguration.editingEvents.onChange = subject.bindTextAction(to: \.name)
 
         cell.setDisabled(isTesting)

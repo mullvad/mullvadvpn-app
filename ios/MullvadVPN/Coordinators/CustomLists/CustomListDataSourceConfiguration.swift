@@ -92,7 +92,12 @@ extension CustomListDataSourceConfiguration: UITableViewDelegate {
         let errorsInSection = itemsWithErrors.filter { itemsInSection.contains($0) }.compactMap { item in
             switch item {
             case .name:
-                CustomListFieldValidationError.name
+                Array(validationErrors).filter { error in
+                    if case .name = error {
+                        return true
+                    }
+                    return false
+                }
             case .addLocations, .editLocations, .deleteList:
                 nil
             }
@@ -102,7 +107,7 @@ extension CustomListDataSourceConfiguration: UITableViewDelegate {
         case .name:
             let view = SettingsFieldValidationErrorContentView(
                 configuration: SettingsFieldValidationErrorConfiguration(
-                    errors: errorsInSection.settingsFieldValidationErrors
+                    errors: errorsInSection.flatMap { $0.settingsFieldValidationErrors }
                 )
             )
             return view
