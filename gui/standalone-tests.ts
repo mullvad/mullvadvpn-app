@@ -20,6 +20,14 @@ async function main() {
   process.exit(code);
 }
 
+function getTarBin() {
+  if (process.platform === 'win32') {
+    return 'tar.exe';
+  } else {
+    return 'tar';
+  }
+}
+
 function extract() {
   // Remove old directory if already existing and create new clean one
   removeTmpDir();
@@ -31,7 +39,7 @@ function extract() {
 
   // Untar assets
   const args = ['-xzf', path.join(tmpDir, 'assets.tar.gz')];
-  child_process.spawnSync('tar', args, { cwd: tmpDir });
+  child_process.spawnSync(getTarBin(), args, { cwd: tmpDir });
 }
 
 function getNodeBin() {
