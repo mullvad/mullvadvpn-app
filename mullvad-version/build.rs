@@ -53,53 +53,53 @@ fn get_product_version(target: Target) -> String {
         Target::Desktop => DESKTOP_VERSION_FILE_PATH,
     };
     println!("cargo:rerun-if-changed={version_file_path}");
-    let product_version = fs::read_to_string(version_file_path)
+
+    let release_version = fs::read_to_string(version_file_path)
         .unwrap_or_else(|_| panic!("Failed to read {version_file_path}"))
         .trim()
         .to_owned();
 
     // Compute the expected tag name for the release named `product_version`
     let release_tag = match target {
-        Target::Android => format!("android/{product_version}"),
-        Target::Desktop => product_version.to_owned(),
+        Target::Android => format!("android/{release_version}"),
+        Target::Desktop => release_version.to_owned(),
     };
 
-    // Rerun this build script on changes to the git ref that affects the build version.
-    // NOTE: This must be kept up to date with the behavior of `git_rev_parse_commit_hash`.
-    rerun_if_git_ref_changed(&release_tag)
-        .expect("Failed to set 'cargo:rerun-if-changed' on git ref changes");
-
-    if let Some(dev_suffix) = get_dev_suffix(&product_version) {
-        format!("{product_version}{dev_suffix}")
-    } else {
-        product_version
-    }
+    format!("{release_version}{}", get_suffix(&release_tag))
 }
 
-/// Returns the development suffix for the current build. A build has a development
-/// suffix if the build is not done on a git tag named `product_version`.
-/// This also returns `None` if the `git` command can't run, or the code does
-/// not live in a git repository.
-fn get_dev_suffix(release_tag: &str) -> Option<String> {
-    // Get the git commit hashes for the latest release and current HEAD
-    // Return `None` if unable to find the hash for HEAD.
-    let head_commit_hash = git_rev_parse_commit_hash("HEAD")?;
+/// Returns the suffix for the current build. If the build is done on a git tag named
+/// `product_version` or a git repository cannot be found, the suffix is empty. Otherwise,
+/// `-dev-$hash` is appended to the release version.
+fn get_suffix(release_tag: &str) -> String {
+    if !valid_git_repo() {
+        return String::new();
+    };
+    // Rerun this build script on changes to the git ref that affects the build version.
+    // NOTE: This must be kept up to date with the behavior of `git_rev_parse_commit_hash`.
+    rerun_if_git_ref_changed(release_tag);
+    let head_commit_hash =
+        git_rev_parse_commit_hash("HEAD").expect("Failed to run `git rev-parse HEAD^{{commit}}`");
     let product_version_commit_hash = git_rev_parse_commit_hash(release_tag);
 
     // If we are currently building the release tag, there is no dev suffix
     if Some(&head_commit_hash) == product_version_commit_hash.as_ref() {
-        return None;
+        String::new()
+    } else {
+        format!("-dev-{}", &head_commit_hash[..GIT_HASH_DEV_SUFFIX_LEN])
     }
-    Some(format!(
-        "-dev-{}",
-        &head_commit_hash[..GIT_HASH_DEV_SUFFIX_LEN]
-    ))
+}
+
+fn valid_git_repo() -> bool {
+    matches!(Command::new("git").arg("status").status(), Ok(status) if status.success())
 }
 
 /// Trigger rebuild of `mullvad-version` on changing branch (`.git/HEAD`), on changes to the ref of
 /// the current branch (`.git/refs/heads/$current_branch`) and on changes to the ref of the current
 /// release tag (`.git/refs/tags/$current_release_tag`).
-fn rerun_if_git_ref_changed(release_tag: &str) -> std::io::Result<()> {
+///
+/// Returns an error if not in a git repository, or the git binary is not in `PATH`.
+fn rerun_if_git_ref_changed(release_tag: &str) {
     let git_dir = Path::new("..").join(".git");
 
     // The `.git/HEAD` file contains the position of the current head. If in 'detached HEAD' state,
@@ -116,7 +116,8 @@ fn rerun_if_git_ref_changed(release_tag: &str) -> std::io::Result<()> {
     let output = Command::new("git")
         .arg("branch")
         .arg("--show-current")
-        .output()?;
+        .output()
+        .expect("Failed to execute `git branch --show-current`");
 
     let current_branch = String::from_utf8(output.stdout).unwrap();
     let current_branch = current_branch.trim();
@@ -146,19 +147,17 @@ fn rerun_if_git_ref_changed(release_tag: &str) -> std::io::Result<()> {
     // track this file, however, as any changes to the current branch, 'detached HEAD' state
     // or tags will update the corresponding `.git/refs` file we are tracking, even if it had
     // previously been pruned.
-
-    Ok(())
 }
 
 /// Returns the commit hash for the commit that `git_ref` is pointing to.
 ///
-/// Returns `None` if executing the `git rev-parse` command fails for some reason.
+/// Returns `None` if the git reference cannot be found.
 fn git_rev_parse_commit_hash(git_ref: &str) -> Option<String> {
     let output = Command::new("git")
         .arg("rev-parse")
         .arg(format!("{git_ref}^{{commit}}"))
         .output()
-        .ok()?;
+        .expect("Failed to run `git rev-parse`");
     if !output.status.success() {
         return None;
     }
