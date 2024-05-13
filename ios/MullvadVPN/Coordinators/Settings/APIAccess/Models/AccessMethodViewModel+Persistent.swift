@@ -66,9 +66,12 @@ extension AccessMethodViewModel {
     }
 
     private func validateName() throws -> String {
+        // Context doesn't matter for name field errors.
         if name.isEmpty {
-            // Context doesn't matter for name field.
             let fieldError = AccessMethodFieldValidationError(kind: .emptyValue, field: .name, context: .shadowsocks)
+            throw AccessMethodValidationError(fieldErrors: [fieldError])
+        } else if name.count > NameInputFormatter.maxLength {
+            let fieldError = AccessMethodFieldValidationError(kind: .nameTooLong, field: .name, context: .shadowsocks)
             throw AccessMethodValidationError(fieldErrors: [fieldError])
         }
 

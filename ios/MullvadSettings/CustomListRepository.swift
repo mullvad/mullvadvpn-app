@@ -11,8 +11,9 @@ import Foundation
 import MullvadLogging
 import MullvadTypes
 
-public enum CustomRelayListError: LocalizedError, Equatable {
+public enum CustomRelayListError: LocalizedError, Hashable {
     case duplicateName
+    case nameTooLong
 
     public var errorDescription: String? {
         switch self {
@@ -20,8 +21,18 @@ public enum CustomRelayListError: LocalizedError, Equatable {
             NSLocalizedString(
                 "DUPLICATE_CUSTOM_LISTS_ERROR",
                 tableName: "CustomLists",
-                value: "Name is already taken.",
+                value: "A custom list with this name exists, please choose a unique name.",
                 comment: ""
+            )
+        case .nameTooLong:
+            String(
+                format: NSLocalizedString(
+                    "CUSTOM_LIST_NAME_TOO_LONG_ERROR",
+                    tableName: "CustomLists",
+                    value: "Name should be no longer than %i characters.",
+                    comment: ""
+                ),
+                NameInputFormatter.maxLength
             )
         }
     }
@@ -37,10 +48,14 @@ public struct CustomListRepository: CustomListRepositoryProtocol {
     public init() {}
 
     public func save(list: CustomList) throws {
-        var list = list
-        list.name = list.name.trimmingCharacters(in: .whitespaces)
+        guard list.name.count <= NameInputFormatter.maxLength else {
+            throw CustomRelayListError.nameTooLong
+        }
 
         var lists = fetchAll()
+
+        var list = list
+        list.name = list.name.trimmingCharacters(in: .whitespaces)
 
         if let listWithSameName = lists.first(where: { $0.name.compare(list.name) == .orderedSame }),
            listWithSameName.id != list.id {

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 
 /// Access method validation error that holds an array of individual per-field validation errors.
 struct AccessMethodValidationError: LocalizedError, Equatable {
@@ -57,6 +58,9 @@ struct AccessMethodFieldValidationError: LocalizedError, Equatable {
 
         /// Invalid port number, i.e zero.
         case invalidPort
+
+        /// The name input is too long.
+        case nameTooLong
     }
 
     /// Kind of validation error.
@@ -90,6 +94,16 @@ struct AccessMethodFieldValidationError: LocalizedError, Equatable {
                 tableName: "APIAccess",
                 value: "Please enter a valid port.",
                 comment: ""
+            )
+        case .nameTooLong:
+            String(
+                format: NSLocalizedString(
+                    "VALIDATION_ERRORS_NAME_TOO_LONG",
+                    tableName: "APIAccess",
+                    value: "Name should be no longer than %i characters.",
+                    comment: ""
+                ),
+                NameInputFormatter.maxLength
             )
         }
     }
