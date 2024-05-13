@@ -5,11 +5,8 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
@@ -17,7 +14,6 @@ import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermissionIfMissing
-import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.intent.IntentProvider
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -37,7 +33,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var privacyDisclaimerRepository: PrivacyDisclaimerRepository
     private lateinit var serviceConnectionManager: ServiceConnectionManager
     private lateinit var noDaemonViewModel: NoDaemonViewModel
-    private lateinit var managementService: ManagementService
     private lateinit var intentProvider: IntentProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +46,6 @@ class MainActivity : ComponentActivity() {
             privacyDisclaimerRepository = get()
             serviceConnectionManager = get()
             noDaemonViewModel = get()
-            managementService = get()
             intentProvider = get()
         }
         lifecycle.addObserver(noDaemonViewModel)
@@ -62,16 +56,7 @@ class MainActivity : ComponentActivity() {
             intentProvider.setStartIntent(intent)
         }
 
-        setContent {
-            AppTheme {
-                MullvadApp()
-                val currentState = managementService.connectionState.collectAsStateWithLifecycle()
-                Text(
-                    text = currentState.value.toString(),
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
-        }
+        setContent { AppTheme { MullvadApp() } }
 
         // This is to protect against tapjacking attacks
         window.decorView.filterTouchesWhenObscured = true

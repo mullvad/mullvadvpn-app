@@ -103,7 +103,7 @@ class NoDaemonViewModel(managementService: ManagementService) :
     }
 
     companion object {
-        private val SERVICE_DISCONNECT_DEBOUNCE = 2.seconds
+        private val SERVICE_DISCONNECT_DEBOUNCE = 1.seconds
     }
 }
 
