@@ -26,34 +26,27 @@ jobs:
           default: true
           profile: minimal
 
-      - name: Read volta info
-        id: volta
-        uses: zoexx/github-action-json-file-properties@1.0.6
-        with:
-          file_path: 'gui/package.json'
-          prop_path: 'volta'
-
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ steps.volta.outputs.node }}
+          node-version-file: gui/package.json
           cache: 'npm'
           cache-dependency-path: gui/package-lock.json
 
-      - name: Update NPM
-        run: npm i -g npm@${{ steps.volta.outputs.npm }}
-
       - name: Install dependencies
         working-directory: gui
+        shell: bash
         run: npm ci
 
       - name: Check formatting
         if: matrix.os == 'ubuntu-latest'
         working-directory: gui
+        shell: bash
         run: npm run lint
 
       - name: Build
         working-directory: gui
+        shell: bash
         run: npm run build
 
       - name: Run headless test Linux
@@ -64,8 +57,10 @@ jobs:
       - name: Run headless test Windows
         if: runner.os != 'Linux'
         working-directory: gui
+        shell: bash
         run: npm test
 
       - name: Run Playwright tests
         working-directory: gui
+        shell: bash
         run: npm run e2e:no-build

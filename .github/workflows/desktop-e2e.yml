@@ -166,10 +166,11 @@ jobs:
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          node-version: 18
+          node-version-file: gui/package.json
+          cache: 'npm'
+          cache-dependency-path: gui/package-lock.json
       - name: Install Rust
         uses: actions-rs/toolchain@v1.0.6
         with:
@@ -182,8 +183,6 @@ jobs:
           vs-version: 16
       - name: Build app
         shell: bash
-        # TODO: For some reason, 'npm run pack:win' wants to publish the artifacts
-        continue-on-error: true
         run: ./build.sh
       - name: Build test executable
         shell: bash
@@ -242,10 +241,9 @@ jobs:
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          node-version: 18
+          node-version-file: gui/package.json
           cache: 'npm'
           cache-dependency-path: gui/package-lock.json
       - name: Build app
