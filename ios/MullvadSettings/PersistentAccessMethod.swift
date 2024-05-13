@@ -40,6 +40,17 @@ public struct PersistentAccessMethod: Identifiable, Codable, Equatable {
         self.proxyConfiguration = proxyConfiguration
     }
 
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        self.id = try container.decode(UUID.self, forKey: .id)
+        self.isEnabled = try container.decode(Bool.self, forKey: .isEnabled)
+        self.proxyConfiguration = try container.decode(PersistentProxyConfiguration.self, forKey: .proxyConfiguration)
+
+        let name = try container.decode(String.self, forKey: .name)
+        self.name = NameInputFormatter.format(name)
+    }
+
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.id == rhs.id
     }

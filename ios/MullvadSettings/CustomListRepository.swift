@@ -38,7 +38,7 @@ public struct CustomListRepository: CustomListRepositoryProtocol {
 
     public func save(list: CustomList) throws {
         var list = list
-        list.name = list.name.trimmingCharacters(in: .whitespaces)
+        list.name = NameInputFormatter.format(list.name)
 
         var lists = fetchAll()
 

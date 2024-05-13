@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 import MullvadLogging
+import MullvadTypes
 
 public class AccessMethodRepository: AccessMethodRepositoryProtocol {
     private let logger = Logger(label: "AccessMethodRepository")
@@ -53,6 +54,9 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
 
     public func save(_ method: PersistentAccessMethod) {
         var methodStore = readApiAccessMethodStore()
+
+        var method = method
+        method.name = NameInputFormatter.format(method.name)
 
         if let index = methodStore.accessMethods.firstIndex(where: { $0.id == method.id }) {
             methodStore.accessMethods[index] = method
