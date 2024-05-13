@@ -27,8 +27,12 @@ class PostQuantumKeyExchangeActor {
     unowned let packetTunnel: PacketTunnelProvider
     private var negotiation: Negotiation?
 
-    init(packetTunnel: PacketTunnelProvider) {
+    // Callback in the event of the negotiation failing on startup
+    var onFailure: () -> Void
+
+    init(packetTunnel: PacketTunnelProvider, onFailure: @escaping (() -> Void)) {
         self.packetTunnel = packetTunnel
+        self.onFailure = onFailure
     }
 
     private func createTCPConnection(_ gatewayEndpoint: NWHostEndpoint) -> NWTCPConnection {
@@ -55,14 +59,17 @@ class PostQuantumKeyExchangeActor {
             .new,
         ]) { [weak self] observedConnection, _ in
             guard let self, observedConnection.isViable else { return }
-            negotiator.negotiateKey(
+            self.negotiation?.tcpConnectionObserver.invalidate()
+            if !negotiator.startNegotiation(
                 gatewayIP: IPv4Gateway,
                 devicePublicKey: privateKey.publicKey,
                 presharedKey: ephemeralSharedKey,
                 packetTunnel: packetTunnel,
                 tcpConnection: inTunnelTCPConnection
-            )
-            self.negotiation?.tcpConnectionObserver.invalidate()
+            ) {
+                self.negotiation = nil
+                self.onFailure()
+            }
         }
         negotiation = Negotiation(
             negotiator: negotiator,
