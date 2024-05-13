@@ -16,12 +16,14 @@ pub struct PostQuantumCancelToken {
 }
 
 impl PostQuantumCancelToken {
-    /// #Safety
+    /// # Safety
     /// This function can only be called when the context pointer is valid.
     unsafe fn cancel(&self) {
+        // # Safety
         // Try to take the value, if there is a value, we can safely send the message, otherwise, assume it has been dropped and nothing happens
         let send_tx: Arc<mpsc::UnboundedSender<()>> = unsafe { Arc::from_raw(self.context as _) };
         let _ = send_tx.send(());
+        // Call std::mem::forget here to avoid dropping the channel.
         std::mem::forget(send_tx);
     }
 }
