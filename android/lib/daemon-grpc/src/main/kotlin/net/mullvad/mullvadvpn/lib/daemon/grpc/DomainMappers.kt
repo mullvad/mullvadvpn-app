@@ -485,7 +485,10 @@ internal fun Udp2TcpObfuscationSettings.toDomain(): ManagementInterface.Udp2TcpO
     }
 
 internal fun ManagementInterface.AppVersionInfo.toDomain(): AppVersionInfo =
-    AppVersionInfo(supported = this.supported, suggestedUpgrade = this.suggestedUpgrade)
+    AppVersionInfo(
+        supported = this.supported,
+        suggestedUpgrade = if (hasSuggestedUpgrade()) suggestedUpgrade else null
+    )
 
 internal fun ConnectivityState.toDomain(): GrpcConnectivityState =
     when (this) {

@@ -71,12 +71,7 @@ internal fun NotificationAction.Tunnel.toCompatAction(context: Context): Notific
             PendingIntent.getActivity(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())
         } else {
             val intent = Intent(toKey()).setPackage(context.packageName)
-            PendingIntent.getService(
-                context,
-                1,
-                intent,
-                SdkUtils.getSupportedPendingIntentFlags()
-            )
+            PendingIntent.getService(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())
         }
 
     return NotificationCompat.Action(

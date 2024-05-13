@@ -27,7 +27,7 @@ class VersionNotificationUseCaseTest {
         MutableStateFlow(
             VersionInfo(
                 currentVersion = null,
-                upgradeVersion = null,
+                suggestedUpgradeVersion = null,
                 isOutdated = false,
                 isSupported = true
             )

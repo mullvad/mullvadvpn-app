@@ -22,7 +22,7 @@ class DeleteCustomListConfirmationViewModel(
             customListActionUseCase
                 .performAction(CustomListAction.Delete(customListId))
                 .fold(
-                    {  },
+                    {},
                     {
                         _uiSideEffect.send(
                             DeleteCustomListConfirmationSideEffect.ReturnWithResult(it)
