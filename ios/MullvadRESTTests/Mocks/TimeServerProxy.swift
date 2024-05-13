@@ -40,9 +40,3 @@ final class TimeServerProxy: REST.Proxy<REST.ProxyConfiguration> {
 struct TimeResponse: Codable {
     var dateTime: Date
 }
-
-extension REST.ProxyFactory {
-    func createTimeServerProxy() -> TimeServerProxy {
-        return TimeServerProxy(configuration: configuration)
-    }
-}

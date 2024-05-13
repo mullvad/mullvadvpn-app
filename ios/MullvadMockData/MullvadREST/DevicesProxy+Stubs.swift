@@ -7,19 +7,22 @@
 //
 
 import Foundation
-@testable import MullvadREST
-@testable import MullvadTypes
-@testable import WireGuardKitTypes
+import MullvadREST
+import MullvadTypes
+import WireGuardKitTypes
+
+struct DevicesProxyStubError: Error {}
 
 struct DevicesProxyStub: DeviceHandling {
-    let mockDevice = Device.mock(publicKey: PrivateKey().publicKey)
+    var deviceResult: Result<Device, Error> = .failure(DevicesProxyStubError())
     func getDevice(
         accountNumber: String,
         identifier: String,
         retryStrategy: REST.RetryStrategy,
         completion: @escaping ProxyCompletionHandler<Device>
     ) -> Cancellable {
-        AnyCancellable()
+        completion(deviceResult)
+        return AnyCancellable()
     }
 
     func getDevices(
@@ -27,7 +30,13 @@ struct DevicesProxyStub: DeviceHandling {
         retryStrategy: REST.RetryStrategy,
         completion: @escaping ProxyCompletionHandler<[Device]>
     ) -> Cancellable {
-        AnyCancellable()
+        switch deviceResult {
+        case let .success(success):
+            completion(.success([success]))
+        case let .failure(failure):
+            completion(.failure(failure))
+        }
+        return AnyCancellable()
     }
 
     func createDevice(
@@ -36,7 +45,7 @@ struct DevicesProxyStub: DeviceHandling {
         retryStrategy: REST.RetryStrategy,
         completion: @escaping ProxyCompletionHandler<Device>
     ) -> Cancellable {
-        completion(.success(mockDevice))
+        completion(deviceResult)
         return AnyCancellable()
     }
 
@@ -57,6 +66,7 @@ struct DevicesProxyStub: DeviceHandling {
         retryStrategy: REST.RetryStrategy,
         completion: @escaping ProxyCompletionHandler<Device>
     ) -> Cancellable {
-        AnyCancellable()
+        completion(deviceResult)
+        return AnyCancellable()
     }
 }

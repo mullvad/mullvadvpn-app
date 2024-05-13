@@ -9,7 +9,7 @@
 import MullvadTypes
 
 extension Account {
-    static func mock(expiry: Date = .distantFuture) -> Account {
+    public static func mock(expiry: Date = .distantFuture) -> Account {
         Account(
             id: "account-id",
             expiry: expiry,

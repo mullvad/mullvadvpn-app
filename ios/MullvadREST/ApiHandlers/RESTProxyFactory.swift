@@ -7,15 +7,27 @@
 //
 
 import Foundation
+public protocol ProxyFactoryProtocol {
+    var configuration: REST.AuthProxyConfiguration { get }
+
+    func createAPIProxy() -> APIQuerying
+    func createAccountsProxy() -> RESTAccountHandling
+    func createDevicesProxy() -> DeviceHandling
+
+    static func makeProxyFactory(
+        transportProvider: RESTTransportProvider,
+        addressCache: REST.AddressCache
+    ) -> ProxyFactoryProtocol
+}
 
 extension REST {
-    public final class ProxyFactory {
-        public let configuration: AuthProxyConfiguration
+    public final class ProxyFactory: ProxyFactoryProtocol {
+        public var configuration: AuthProxyConfiguration
 
-        public class func makeProxyFactory(
-            transportProvider: RESTTransportProvider,
-            addressCache: AddressCache
-        ) -> ProxyFactory {
+        public static func makeProxyFactory(
+            transportProvider: any RESTTransportProvider,
+            addressCache: REST.AddressCache
+        ) -> any ProxyFactoryProtocol {
             let basicConfiguration = REST.ProxyConfiguration(
                 transportProvider: transportProvider,
                 addressCacheStore: addressCache

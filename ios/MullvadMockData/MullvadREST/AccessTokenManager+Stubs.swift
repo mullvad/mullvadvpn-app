@@ -7,8 +7,8 @@
 //
 
 import Foundation
-@testable import MullvadREST
-@testable import MullvadTypes
+import MullvadREST
+import MullvadTypes
 
 struct AccessTokenManagerStub: RESTAccessTokenManagement {
     func getAccessToken(
