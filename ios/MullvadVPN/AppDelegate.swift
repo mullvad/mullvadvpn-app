@@ -353,7 +353,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func configureLogging() {
         var loggerBuilder = LoggerBuilder(header: "MullvadVPN version \(Bundle.main.productVersion)")
-        loggerBuilder.addFileOutput(fileURL: ApplicationConfiguration.newLogFileURL(for: .mainApp))
+        loggerBuilder.addFileOutput(
+            fileURL: ApplicationConfiguration.newLogFileURL(for: .mainApp, in: ApplicationConfiguration.containerURL)
+        )
         #if DEBUG
         loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)
         #endif

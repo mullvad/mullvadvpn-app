@@ -163,7 +163,12 @@ extension PacketTunnelProvider {
         var loggerBuilder = LoggerBuilder(header: "PacketTunnel version \(Bundle.main.productVersion)")
         let pid = ProcessInfo.processInfo.processIdentifier
         loggerBuilder.metadata["pid"] = .string("\(pid)")
-        loggerBuilder.addFileOutput(fileURL: ApplicationConfiguration.newLogFileURL(for: .packetTunnel))
+        loggerBuilder.addFileOutput(
+            fileURL: ApplicationConfiguration.newLogFileURL(
+                for: .packetTunnel,
+                in: ApplicationConfiguration.containerURL
+            )
+        )
         #if DEBUG
         loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
         #endif
