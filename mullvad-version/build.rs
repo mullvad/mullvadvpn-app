@@ -44,8 +44,9 @@ fn main() {
     .unwrap();
 }
 
-/// Returns the Mullvad product version from the corresponding metadata files,
-/// depending on target platform.
+/// Computes the Mullvad product version using the latest release on the given platform and the git
+/// hash pointed to by `HEAD`. Also triggers a rebuild of this crate when the information becomes
+/// outdated.
 fn get_product_version(target: Target) -> String {
     let version_file_path = match target {
         Target::Android => ANDROID_VERSION_FILE_PATH,
