@@ -162,11 +162,6 @@ else
     CARGO_ARGS+=(--features api-override)
 fi
 
-# Enable DAITA on supported platforms
-if [[ "$(uname -s)" == "MINGW"* || "$(uname -s)" == "Linux" ]]; then
-    CARGO_ARGS+=(--features daita)
-fi
-
 # Make Windows builds include a manifest in the daemon binary declaring it must
 # be run as admin.
 if [[ "$(uname -s)" == "MINGW"* ]]; then
