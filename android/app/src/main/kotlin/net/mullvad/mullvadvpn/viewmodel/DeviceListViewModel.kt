@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.Device
@@ -60,22 +59,18 @@ class DeviceListViewModel(
         }
 
     fun removeDevice(deviceIdToRemove: DeviceId) =
-        viewModelScope.launch {
-            withContext(dispatcher) {
-                // TODO Do we care about timeout? Shouldn't gRPC return error?
-                setLoadingState(deviceIdToRemove, true)
-                deviceRepository
-                    .removeDevice(token, deviceIdToRemove)
-                    .fold(
-                        {
-                            _uiSideEffect.send(DeviceListSideEffect.FailedToRemoveDevice)
-                            setLoadingState(deviceIdToRemove, false)
-                            deviceRepository.deviceList(token).onRight { deviceList.value = it }
-                            // TODO check if we need to listen for deviceRemovalEvent
-                        },
-                        { removeDeviceFromState(deviceIdToRemove) }
-                    )
-            }
+        viewModelScope.launch(dispatcher) {
+            setLoadingState(deviceIdToRemove, true)
+            deviceRepository
+                .removeDevice(token, deviceIdToRemove)
+                .fold(
+                    {
+                        _uiSideEffect.send(DeviceListSideEffect.FailedToRemoveDevice)
+                        setLoadingState(deviceIdToRemove, false)
+                        deviceRepository.deviceList(token).onRight { deviceList.value = it }
+                    },
+                    { removeDeviceFromState(deviceIdToRemove) }
+                )
         }
 
     private fun setLoadingState(deviceId: DeviceId, isLoading: Boolean) {

@@ -5,6 +5,5 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 enum class PlayPurchaseVerifyError : Parcelable {
-    // TODO: Add more errors here.
     OtherError
 }

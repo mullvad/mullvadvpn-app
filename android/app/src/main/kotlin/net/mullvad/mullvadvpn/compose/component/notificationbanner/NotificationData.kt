@@ -99,7 +99,7 @@ fun InAppNotification.toNotificationData(
                 message =
                     stringResource(
                         id = R.string.update_available_description,
-                        versionInfo.upgradeVersion ?: "" // TODO Verify
+                        versionInfo.upgradeVersion ?: ""
                     ),
                 statusLevel = StatusLevel.Warning,
                 action =

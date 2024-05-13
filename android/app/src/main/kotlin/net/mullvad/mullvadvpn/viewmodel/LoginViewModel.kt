@@ -110,7 +110,6 @@ class LoginViewModel(
 
             delay(MINIMUM_LOADING_SPINNER_TIME_MILLIS)
 
-            // TODO Handle timeout in requests
             val uiState =
                 result
                     .await()
