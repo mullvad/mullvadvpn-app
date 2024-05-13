@@ -1,5 +1,5 @@
 use super::{ios_tcp_connection::*, PostQuantumCancelToken};
-use crate::{request_ephemeral_peer, Error, RelayConfigService};
+use crate::{request_ephemeral_peer_with, Error, RelayConfigService};
 use libc::c_void;
 use std::{future::Future, io, pin::Pin, ptr, sync::Arc};
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
@@ -130,12 +130,12 @@ impl IOSRuntime {
             let ephemeral_pub_key = PrivateKey::from(self.ephemeral_key).public_key();
 
             tokio::select! {
-                ephemeral_peer = request_ephemeral_peer(
+                ephemeral_peer = request_ephemeral_peer_with(
+                    async_provider,
                     PublicKey::from(self.pub_key),
                     ephemeral_pub_key,
                     true,
                     false,
-                    async_provider,
                 ) =>  {
                     shutdown_handle.shutdown();
                     match ephemeral_peer {
