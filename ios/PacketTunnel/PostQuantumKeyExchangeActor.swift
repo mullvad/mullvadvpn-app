@@ -52,7 +52,8 @@ class PostQuantumKeyExchangeActor {
         let endpoint = NWHostEndpoint(hostname: gatewayAddress, port: "1337")
         let inTunnelTCPConnection = createTCPConnection(endpoint)
 
-        let ephemeralSharedKey = PrivateKey() // This will become the new private key of the device
+        // This will become the new private key of the device
+        let ephemeralSharedKey = PrivateKey()
 
         let tcpConnectionObserver = inTunnelTCPConnection.observe(\.isViable, options: [
             .initial,
