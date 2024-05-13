@@ -42,7 +42,7 @@ use mullvad_relay_selector::{
 };
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
-#[cfg(any(windows, target_os = "android"))]
+#[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use mullvad_types::settings::SplitApp;
 #[cfg(target_os = "windows")]
 use mullvad_types::wireguard::DaitaSettings;
@@ -68,8 +68,6 @@ use settings::SettingsPersister;
 use std::collections::HashSet;
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
-#[cfg(any(target_os = "windows", target_os = "macos"))]
-use std::{ffi::OsString};
 use std::{
     marker::PhantomData,
     mem,
@@ -1894,13 +1892,14 @@ where
     ) {
         let tunnel_list = match update {
             ExcludedPathsUpdate::SetPaths(ref paths) if settings.split_tunnel.enable_exclusions => {
-                paths.iter().map(OsString::from).collect()
+                paths.iter().cloned().map(SplitApp::to_tunnel_command_repr).collect()
             }
             ExcludedPathsUpdate::SetState(true) => settings
                 .split_tunnel
                 .apps
                 .iter()
-                .map(OsString::from)
+                .cloned()
+                .map(SplitApp::to_tunnel_command_repr)
                 .collect(),
             _ => vec![],
         };
@@ -1934,7 +1933,7 @@ where
 
         let excluded_apps = {
             let mut apps = settings.split_tunnel.apps.clone();
-            apps.insert(app.into());
+            apps.insert(app);
             apps
         };
 
