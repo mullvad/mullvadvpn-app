@@ -53,6 +53,7 @@ extension PacketTunnelActor {
             )
         else {
             logger.error("Could not create connection state in PostQuantumConnect")
+            setErrorState(reason: .unknown)
             return
         }
 
