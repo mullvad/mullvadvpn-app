@@ -80,7 +80,8 @@ function build_unix {
         esac
 
         # TODO: pass OUT_DIR as an arg maybe? instead of relying on cargo setting it globally?
-        go build -v "${TAGS[@]}" -o "$OUT_DIR"/libwg.a -buildmode c-archive
+        # This weird array expansion is due to macOS shipping with a medieval version of bash: https://stackoverflow.com/a/61551944
+        go build -v ${TAGS[@]+"${TAGS[@]}"} -o "$OUT_DIR"/libwg.a -buildmode c-archive
     popd
 }
 
