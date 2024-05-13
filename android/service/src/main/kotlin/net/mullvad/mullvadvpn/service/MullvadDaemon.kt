@@ -46,6 +46,7 @@ class MullvadDaemon(
         withContext(Dispatchers.IO) {
             val shutdownSignal = async { shutdownSignal.receive() }
             shutdown(daemonInterfaceAddress)
+            Log.d("MullvadDaemon", "shutdown complete")
             shutdownSignal.await()
             Log.d("MullvadDaemon", "shutdown complete")
             deinitialize()

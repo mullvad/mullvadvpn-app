@@ -13,7 +13,7 @@ import arrow.atomic.AtomicInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -32,7 +32,6 @@ import net.mullvad.mullvadvpn.service.notifications.ForegroundNotificationManage
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.mullvadvpn.service.notifications.ShouldBeOnForegroundProvider
 import net.mullvad.talpid.TalpidVpnService
-import org.koin.android.ext.android.get
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
 
@@ -145,7 +144,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     }
 
     override fun onUnbind(intent: Intent): Boolean {
-        val bindCount = bindCount.decrementAndGet()
+        val count = bindCount.decrementAndGet()
 
         Log.d(TAG, "onUnbind: $intent")
         // Foreground?
@@ -155,15 +154,23 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             _shouldBeOnForeground.update { false }
         }
 
-        if (bindCount == 0) {
+        if (count == 0) {
             Log.d(TAG, "No one bound to the service, stopSelf()")
-            runBlocking {
+            lifecycleScope.launch {
                 Log.d(TAG, "Waiting for disconnected state")
                 // TODO This needs reworking, we should not wait for the disconnected state, what we
                 // want is the notification of disconnected to go out before we start shutting down
-                managementService.tunnelState.filterIsInstance<TunnelState.Disconnected>().first()
-                Log.d(TAG, "Stopping service")
-                stopSelf()
+                managementService.tunnelState
+                    .filter {
+                        it is TunnelState.Disconnected ||
+                            (it is TunnelState.Error && !it.errorState.isBlocking)
+                    }
+                    .first()
+
+                if (bindCount.get() == 0) {
+                    Log.d(TAG, "Stopping service")
+                    stopSelf()
+                }
             }
         }
         return false
