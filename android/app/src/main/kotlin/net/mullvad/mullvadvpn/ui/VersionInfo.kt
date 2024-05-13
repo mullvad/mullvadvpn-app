@@ -1,8 +1,11 @@
 package net.mullvad.mullvadvpn.ui
 
+import net.mullvad.mullvadvpn.BuildConfig
+
 data class VersionInfo(
-    @Deprecated(message = "Use BuildConfig.VERSION_NAME") val currentVersion: String?,
-    val upgradeVersion: String?,
-    val isOutdated: Boolean,
-    val isSupported: Boolean
-)
+    val suggestedUpgradeVersion: String?,
+    val isSupported: Boolean,
+    val currentVersion: String = BuildConfig.VERSION_NAME
+) {
+    val isOutdated: Boolean = suggestedUpgradeVersion != null
+}
