@@ -119,6 +119,12 @@ jobs:
         if: steps.cache-relay-list.outputs.cache-hit != 'true'
         uses: actions/checkout@v4
 
+      - name: Checkout wireguard-go submodule
+        if: steps.cache-relay-list.outputs.cache-hit != 'true'
+        run: |
+          git config --global --add safe.directory $(pwd)
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+
       - name: Generate
         if: steps.cache-relay-list.outputs.cache-hit != 'true'
         env:
@@ -237,7 +243,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Checkout wireguard-go submodule
-        run: git submodule update --init wireguard-go-rs/libwg/wireguard-go
+        run: |
+          git config --global --add safe.directory $(pwd)
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - name: Run gradle task
         uses: burrunan/gradle-cache-action@v1
@@ -267,7 +275,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Checkout wireguard-go submodule
-        run: git submodule update --init wireguard-go-rs/libwg/wireguard-go
+        run: |
+          git config --global --add safe.directory $(pwd)
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - uses: actions/download-artifact@v4
         with:
@@ -374,7 +384,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Checkout wireguard-go submodule
-        run: git submodule update --init wireguard-go-rs/libwg/wireguard-go
+        run: |
+          git config --global --add safe.directory $(pwd)
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - uses: actions/download-artifact@v4
         with:
