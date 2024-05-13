@@ -46,7 +46,6 @@ class ForegroundNotificationManager(
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
                 )
             } else {
-                // TODO Open app?
                 // Connect intent but no permission
                 Log.d("NotificationHandler", "VPN permission not granted")
                 return

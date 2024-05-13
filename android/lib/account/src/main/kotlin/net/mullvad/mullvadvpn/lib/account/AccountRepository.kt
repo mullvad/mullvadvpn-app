@@ -62,8 +62,6 @@ class AccountRepository(
 
     suspend fun clearAccountHistory() = managementService.clearAccountHistory()
 
-    // TODO improve this to account for different logged in state properly (E.g test what
-    // AccountData will reply with)
     suspend fun getAccountData(): AccountData? {
         val accountData =
             if (accountState.value !is DeviceState.LoggedIn) null
