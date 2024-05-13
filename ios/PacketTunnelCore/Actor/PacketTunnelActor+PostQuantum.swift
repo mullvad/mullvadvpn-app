@@ -53,7 +53,9 @@ extension PacketTunnelActor {
             )
         else {
             logger.error("Could not create connection state in PostQuantumConnect")
-            setErrorState(reason: .unknown)
+
+            let nextRelay: NextRelay = (state.connectionData?.selectedRelay).map { .preSelected($0) } ?? .current
+            commandChannel.send(.reconnect(nextRelay))
             return
         }
 
