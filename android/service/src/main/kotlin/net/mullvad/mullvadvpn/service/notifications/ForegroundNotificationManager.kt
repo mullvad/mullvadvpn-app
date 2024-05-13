@@ -46,8 +46,9 @@ class ForegroundNotificationManager(
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
                 )
             } else {
-                // Connect intent but no permission
-                Log.d("NotificationHandler", "VPN permission not granted")
+                // Got connect/disconnect intent, but we  don't have permission to go in foreground.
+                // tunnel state will return permission and we will eventually get stopped by system.
+                Log.d("ForegroundNotificationManager", "VPN permission not granted")
                 return
             }
         } else {
