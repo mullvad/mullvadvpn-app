@@ -33,6 +33,14 @@ jobs:
           cache: 'npm'
           cache-dependency-path: gui/package-lock.json
 
+      - name: Test
+        working-directory: gui
+        shell: bash
+        run: |
+          which npm
+          npm --version
+          npm version
+
       - name: Install dependencies
         working-directory: gui
         run: npm ci
