@@ -56,8 +56,6 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     @SuppressLint("ApplySharedPref")
     override fun onCreate() {
         super.onCreate()
-        // TODO We should probably run things in the background here?
-        // TODO Remove run blocking?
         Log.d(TAG, "onCreate")
 
         loadKoinModules(listOf(vpnServiceModule, apiEndpointModule))

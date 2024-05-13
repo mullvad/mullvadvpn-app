@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -90,7 +91,10 @@ class CustomListLocationsViewModel(
                         )
                     )
                     .fold(
-                        { TODO("We probably should of handled this") },
+                        {
+                            Log.e(TAG, "Could not save list Error: $it")
+                            _uiSideEffect.tryEmit(CustomListLocationsSideEffect.Error)
+                        },
                         {
                             _uiSideEffect.tryEmit(
                                 // This is so that we don't show a snackbar after returning to
@@ -213,6 +217,8 @@ class CustomListLocationsViewModel(
     companion object {
         private const val EMPTY_SEARCH_TERM = ""
         private const val GET_CUSTOM_LIST_TIMEOUT_MS = 5000L
+
+        private const val TAG = "CustomListLocationsViewModel"
     }
 }
 
@@ -221,4 +227,6 @@ sealed interface CustomListLocationsSideEffect {
 
     data class ReturnWithResult(val result: CustomListResult.LocationsChanged) :
         CustomListLocationsSideEffect
+
+    data object Error : CustomListLocationsSideEffect
 }

@@ -31,7 +31,6 @@ private fun Notification.AccountExpiry.contentIntent(context: Context): PendingI
                 action = Intent.ACTION_MAIN
             }
         } else {
-            // TODO add account token into URL
             Intent(Intent.ACTION_VIEW, Uri.parse(context.getString(R.string.account_url)))
         }
     return PendingIntent.getActivity(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())
@@ -60,50 +59,3 @@ private fun Resources.contentTitle(remainingTime: Duration): String =
 private fun Resources.getRemainingText(pluralId: Int, quantity: Int): String {
     return getQuantityString(pluralId, quantity, quantity)
 }
-// Suppressing since the permission check is done by calling a common util in another module.
-//    @SuppressLint("MissingPermission")
-//    private suspend fun update(accountData: AccountData?) {
-//        val durationUntilExpiry = accountData?.expiryDate?.remainingTime()
-//
-//        if (/*accountCache.isNewAccount.not() &&*/ durationUntilExpiry?.isCloseToExpiry() ==
-// true) {
-//            if (context.isNotificationPermissionMissing().not()) {
-//                val notification = build(expiryDate, durationUntilExpiry)
-//                channel.notificationManager.notify(NOTIFICATION_ID, notification)
-//            }
-//            jobTracker.newUiJob("scheduleUpdate") { scheduleUpdate() }
-//        } else {
-//            channel.notificationManager.cancel(NOTIFICATION_ID)
-//            jobTracker.cancelJob("scheduleUpdate")
-//        }
-//    }
-//
-//
-//    private suspend fun scheduleUpdate() {
-//        delay(TIME_BETWEEN_CHECKS)
-//        update(accountExpiry)
-//    }
-
-//    private suspend fun build(expiry: DateTime, remainingTime: Duration): Notification {
-//        val url =
-//            jobTracker.runOnBackground {
-//                TODO("Fetch api token from gRPC")
-//                Uri.parse("$buyMoreTimeUrl?token=TODO()}")
-//            }
-//        val intent =
-//            if (IS_PLAY_BUILD) {
-//                Intent().apply {
-//                    setClassName(context.packageName, MAIN_ACTIVITY_CLASS)
-//                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-//                    action = Intent.ACTION_MAIN
-//                }
-//            } else {
-//                Intent(Intent.ACTION_VIEW, url)
-//            }
-//        val pendingIntent =
-//            PendingIntent.getActivity(context, 1, intent,
-// SdkUtils.getSupportedPendingIntentFlags())
-//
-//        return channel.buildNotification(pendingIntent, format(expiry, remainingTime))
-//    }
-//
