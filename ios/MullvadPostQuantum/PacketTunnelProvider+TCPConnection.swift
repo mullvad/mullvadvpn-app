@@ -14,25 +14,25 @@ import WireGuardKitTypes
 
 @_cdecl("swift_nw_tcp_connection_send")
 func tcpConnectionSend(
-    connection: UnsafeMutableRawPointer?,
-    data: UnsafeMutableRawPointer,
+    rawConnection: UnsafeMutableRawPointer?,
+    rawData: UnsafeMutableRawPointer,
     dataLength: UInt,
-    sender: UnsafeMutableRawPointer?
+    rawSender: UnsafeMutableRawPointer?
 ) {
-    guard let connection, let sender else {
-        handle_sent(0, sender)
+    guard let rawConnection, let rawSender else {
+        handle_sent(0, rawSender)
         return
     }
-    let tcpConnection = Unmanaged<NWTCPConnection>.fromOpaque(connection).takeUnretainedValue()
-    let rawData = Data(bytes: data, count: Int(dataLength))
+    let tcpConnection = Unmanaged<NWTCPConnection>.fromOpaque(rawConnection).takeUnretainedValue()
+    let data = Data(bytes: rawData, count: Int(dataLength))
 
     // The guarantee that all writes are sequential is done by virtue of not returning the execution context
     // to Rust before this closure is done executing.
-    tcpConnection.write(rawData, completionHandler: { maybeError in
+    tcpConnection.write(data, completionHandler: { maybeError in
         if maybeError != nil {
-            handle_sent(0, sender)
+            handle_sent(0, rawSender)
         } else {
-            handle_sent(dataLength, sender)
+            handle_sent(dataLength, rawSender)
         }
     })
 }
