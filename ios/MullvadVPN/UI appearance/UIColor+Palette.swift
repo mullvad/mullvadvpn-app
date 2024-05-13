@@ -136,6 +136,11 @@ extension UIColor {
         static let actionButtonColor = UIColor(white: 1.0, alpha: 0.8)
     }
 
+    enum SegmentedControl {
+        static let backgroundColor = UIColor(red: 0.18, green: 0.33, blue: 0.49, alpha: 1.0)
+        static let selectedColor = successColor
+    }
+
     // Common colors
     static let primaryColor = UIColor(red: 0.16, green: 0.30, blue: 0.45, alpha: 1.0)
     static let secondaryColor = UIColor(red: 0.10, green: 0.18, blue: 0.27, alpha: 1.0)
