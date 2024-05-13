@@ -125,6 +125,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
     override fun onBind(intent: Intent?): IBinder {
         bindCount.incrementAndGet()
+        Log.d(TAG, "onBind: $intent")
 
         if (intent.isFromSystem()) {
             Log.d(TAG, "onBind from VPN_SERVICE_CLASS")
@@ -146,7 +147,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     override fun onUnbind(intent: Intent): Boolean {
         val bindCount = bindCount.decrementAndGet()
 
-        Log.d(TAG, "onUnbind1 $intent")
+        Log.d(TAG, "onUnbind: $intent")
         // Foreground?
 
         if (intent.isFromSystem()) {
@@ -158,6 +159,8 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             Log.d(TAG, "No one bound to the service, stopSelf()")
             runBlocking {
                 Log.d(TAG, "Waiting for disconnected state")
+                // TODO This needs reworking, we should not wait for the disconnected state, what we
+                // want is the notification of disconnected to go out before we start shutting down
                 managementService.tunnelState.filterIsInstance<TunnelState.Disconnected>().first()
                 Log.d(TAG, "Stopping service")
                 stopSelf()
