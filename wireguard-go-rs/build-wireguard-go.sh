@@ -72,15 +72,15 @@ function build_unix {
 
 
     pushd libwg
-        # TODO: There ought to be a simpler way to do this..
+        # Enable DAITA for supported platforms
         TAGS=()
         platform="$(uname -s)";
         case "$platform" in
-            Linux*) TAGS+="--tags daita";;
+            Linux*) TAGS+=(--tags daita);;
         esac
 
         # TODO: pass OUT_DIR as an arg maybe? instead of relying on cargo setting it globally?
-        go build -v "${TAGS[@]}" -o ./libwg.a -buildmode c-archive
+        go build -v "${TAGS[@]}" -o "$OUT_DIR"/libwg.a -buildmode c-archive
     popd
 }
 
