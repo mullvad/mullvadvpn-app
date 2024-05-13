@@ -245,7 +245,6 @@ impl AndroidTunProvider {
     fn prepare_tun_config(&mut self, config: &mut TunConfig, blocking: bool) {
         self.blocking = blocking;
         self.prepare_tun_config_for_allow_lan(config);
-        self.prepare_tun_config_for_custom_dns(config);
         self.prepare_tun_config_for_excluded_apps(config);
         if !blocking {
             self.prepare_tun_config_for_custom_dns(config);
