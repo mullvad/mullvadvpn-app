@@ -16,25 +16,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Read volta info
-        id: volta
-        uses: zoexx/github-action-json-file-properties@1.0.6
-        with:
-          file_path: 'gui/package.json'
-          prop_path: 'volta'
-
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ steps.volta.outputs.node }}
+          node-version-file: gui/package.json
           cache: 'npm'
           cache-dependency-path: gui/package-lock.json
 
-      - name: Update NPM
-        run: npm i -g npm@${{ steps.volta.outputs.npm }}
-
       - name: Install JS dependencies
         working-directory: gui
+        shell: bash
         run: npm ci
 
       - name: Install Rust
@@ -44,4 +35,5 @@ jobs:
           default: true
 
       - name: Verify translations
+        shell: bash
         run: scripts/localization verify
