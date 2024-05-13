@@ -154,8 +154,10 @@ class CustomListViewController: UIViewController {
             try interactor.save(viewModel: subject.value)
             delegate?.customListDidSave(subject.value.customList)
         } catch {
-            validationErrors.insert(.name)
-            dataSourceConfiguration?.set(validationErrors: validationErrors)
+            if let error = error as? CustomRelayListError {
+                validationErrors.insert(.name(error))
+                dataSourceConfiguration?.set(validationErrors: validationErrors)
+            }
         }
     }
 

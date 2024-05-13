@@ -7,19 +7,15 @@
 //
 
 import Foundation
+import MullvadSettings
 
-enum CustomListFieldValidationError: LocalizedError {
-    case name
+enum CustomListFieldValidationError: LocalizedError, Hashable {
+    case name(CustomRelayListError)
 
     var errorDescription: String? {
         switch self {
-        case .name:
-            NSLocalizedString(
-                "CUSTOM_LISTS_VALIDATION_ERROR_EMPTY_FIELD",
-                tableName: "CutstomLists",
-                value: "A custom list with this name exists, please choose a unique name.",
-                comment: ""
-            )
+        case let .name(error):
+            error.errorDescription
         }
     }
 }

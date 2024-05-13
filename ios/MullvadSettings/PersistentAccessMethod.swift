@@ -40,6 +40,19 @@ public struct PersistentAccessMethod: Identifiable, Codable, Equatable {
         self.proxyConfiguration = proxyConfiguration
     }
 
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        self.id = try container.decode(UUID.self, forKey: .id)
+        self.isEnabled = try container.decode(Bool.self, forKey: .isEnabled)
+        self.proxyConfiguration = try container.decode(PersistentProxyConfiguration.self, forKey: .proxyConfiguration)
+
+        // Added after release of API access methods feature. There was previously no limitation on text input length,
+        // so this formatting has been added to prevent already stored names from being too long when displayed.
+        let name = try container.decode(String.self, forKey: .name)
+        self.name = NameInputFormatter.format(name)
+    }
+
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.id == rhs.id
     }
