@@ -105,7 +105,7 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                             }
                             #[cfg(target_os = "android")]
                             talpid_tunnel::ErrorStateCause::InvalidDnsServers(_) => {
-                                i32::from(Cause::VpnPermissionDenied)
+                                i32::from(Cause::SetDnsError)
                             }
                             #[cfg(any(target_os = "windows", target_os = "macos"))]
                             talpid_tunnel::ErrorStateCause::SplitTunnelError => {
