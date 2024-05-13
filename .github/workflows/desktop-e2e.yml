@@ -168,8 +168,9 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          node-version: 20
+          node-version-file: gui/package.json
+          cache: 'npm'
+          cache-dependency-path: gui/package-lock.json
       - name: Install Rust
         uses: actions-rs/toolchain@v1.0.6
         with:
@@ -244,8 +245,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          node-version: 20
+          node-version-file: gui/package.json
           cache: 'npm'
           cache-dependency-path: gui/package-lock.json
       - name: Build app
