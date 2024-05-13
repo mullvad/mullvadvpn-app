@@ -32,8 +32,8 @@ impl Target {
 }
 
 fn main() {
-    let product_version = get_product_version(Target::current_target());
-    let android_product_version = get_product_version(Target::Android);
+    let product_version = compute_product_version(Target::current_target());
+    let android_product_version = compute_product_version(Target::Android);
 
     let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
     fs::write(out_dir.join("product-version.txt"), product_version).unwrap();
@@ -46,7 +46,7 @@ fn main() {
 
 /// Returns the Mullvad product version from the corresponding metadata files,
 /// depending on target platform.
-fn get_product_version(target: Target) -> String {
+fn compute_product_version(target: Target) -> String {
     let version_file_path = match target {
         Target::Android => ANDROID_VERSION_FILE_PATH,
         Target::Desktop => DESKTOP_VERSION_FILE_PATH,
