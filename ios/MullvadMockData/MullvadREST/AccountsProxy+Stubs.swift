@@ -7,24 +7,30 @@
 //
 
 import Foundation
-@testable import MullvadREST
-@testable import MullvadTypes
+import MullvadREST
+import MullvadTypes
+
+struct AccountProxyStubError: Error {}
 
 struct AccountsProxyStub: RESTAccountHandling {
-    var createAccountResult: Result<REST.NewAccountData, Error>?
+    var createAccountResult: Result<REST.NewAccountData, Error> = .failure(AccountProxyStubError())
+    var deleteAccountResult: Result<Void, Error> = .failure(AccountProxyStubError())
     func createAccount(
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping MullvadREST.ProxyCompletionHandler<REST.NewAccountData>
+        completion: @escaping ProxyCompletionHandler<REST.NewAccountData>
     ) -> Cancellable {
-        if let createAccountResult = createAccountResult {
-            completion(createAccountResult)
-        }
+        completion(createAccountResult)
         return AnyCancellable()
     }
 
     func getAccountData(accountNumber: String) -> any RESTRequestExecutor<Account> {
         RESTRequestExecutorStub<Account>(success: {
-            Account(id: accountNumber, expiry: .distantFuture, maxDevices: 1, canAddDevices: true)
+            Account(
+                id: accountNumber,
+                expiry: Calendar.current.date(byAdding: .day, value: 38, to: Date())!,
+                maxDevices: 1,
+                canAddDevices: true
+            )
         })
     }
 
@@ -33,6 +39,7 @@ struct AccountsProxyStub: RESTAccountHandling {
         retryStrategy: REST.RetryStrategy,
         completion: @escaping ProxyCompletionHandler<Void>
     ) -> Cancellable {
-        AnyCancellable()
+        completion(deleteAccountResult)
+        return AnyCancellable()
     }
 }

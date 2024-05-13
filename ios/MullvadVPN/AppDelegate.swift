@@ -8,6 +8,7 @@
 
 import BackgroundTasks
 import MullvadLogging
+import MullvadMockData
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
@@ -30,7 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var tunnelManager: TunnelManager!
     private(set) var addressCache: REST.AddressCache!
 
-    private var proxyFactory: REST.ProxyFactory!
+    private var proxyFactory: ProxyFactoryProtocol!
     private(set) var apiProxy: APIQuerying!
     private(set) var accountsProxy: RESTAccountHandling!
     private(set) var devicesProxy: DeviceHandling!
@@ -46,6 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var shadowsocksLoader: ShadowsocksLoaderProtocol!
     private(set) var configuredTransportProvider: ProxyConfigurationTransportProvider!
     private(set) var ipOverrideRepository = IPOverrideRepository()
+    private var launchArguments = LaunchArguments()
 
     // MARK: - Application lifecycle
 
@@ -54,7 +56,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        if ProcessInfo().arguments.contains("DisableAnimations") {
+        if let overriddenLaunchArguments = try? ProcessInfo.processInfo.decode(LaunchArguments.self) {
+            launchArguments = overriddenLaunchArguments
+        }
+
+        if launchArguments.areAnimationsDisabled {
             UIView.setAnimationsEnabled(false)
         }
 
@@ -147,13 +153,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func setUpProxies(containerURL: URL) {
-        proxyFactory = REST.ProxyFactory.makeProxyFactory(
-            transportProvider: REST.AnyTransportProvider { [weak self] in
-                return self?.transportMonitor.makeTransport()
-            },
-            addressCache: addressCache
-        )
-
+        if launchArguments.target == .screenshots {
+            proxyFactory = MockProxyFactory.makeProxyFactory(
+                transportProvider: REST.AnyTransportProvider { [weak self] in
+                    return self?.transportMonitor.makeTransport()
+                },
+                addressCache: addressCache
+            )
+        } else {
+            proxyFactory = REST.ProxyFactory.makeProxyFactory(
+                transportProvider: REST.AnyTransportProvider { [weak self] in
+                    return self?.transportMonitor.makeTransport()
+                },
+                addressCache: addressCache
+            )
+        }
         apiProxy = proxyFactory.createAPIProxy()
         accountsProxy = proxyFactory.createAccountsProxy()
         devicesProxy = proxyFactory.createDevicesProxy()
