@@ -540,6 +540,7 @@
 		7A6F2FAD2AFD3DA7006D0856 /* CustomDNSViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FAC2AFD3DA7006D0856 /* CustomDNSViewController.swift */; };
 		7A6F2FAF2AFE36E7006D0856 /* VPNSettingsInfoButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FAE2AFE36E7006D0856 /* VPNSettingsInfoButtonItem.swift */; };
 		7A7907332BC0280A00B61F81 /* InterceptibleNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7907322BC0280A00B61F81 /* InterceptibleNavigationController.swift */; };
+		7A7AD14F2BF21EF200B30B3C /* NameInputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD14D2BF21DCE00B30B3C /* NameInputFormatter.swift */; };
 		7A7AD28D29DC677800480EF1 /* FirstTimeLaunch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */; };
 		7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */; };
 		7A83A0C62B29A750008B5CE7 /* APIAccessMethodsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A83A0C52B29A750008B5CE7 /* APIAccessMethodsTests.swift */; };
@@ -1850,6 +1851,7 @@
 		7A6F2FAC2AFD3DA7006D0856 /* CustomDNSViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDNSViewController.swift; sourceTree = "<group>"; };
 		7A6F2FAE2AFE36E7006D0856 /* VPNSettingsInfoButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsInfoButtonItem.swift; sourceTree = "<group>"; };
 		7A7907322BC0280A00B61F81 /* InterceptibleNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterceptibleNavigationController.swift; sourceTree = "<group>"; };
+		7A7AD14D2BF21DCE00B30B3C /* NameInputFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameInputFormatter.swift; sourceTree = "<group>"; };
 		7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstTimeLaunch.swift; sourceTree = "<group>"; };
 		7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootConfiguration.swift; sourceTree = "<group>"; };
 		7A83A0C52B29A750008B5CE7 /* APIAccessMethodsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIAccessMethodsTests.swift; sourceTree = "<group>"; };
@@ -2544,6 +2546,7 @@
 				58A1AA8623F43901009F7EA6 /* Location.swift */,
 				5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */,
 				58D223D7294C8E5E0029F5F8 /* MullvadTypes.h */,
+				7A7AD14D2BF21DCE00B30B3C /* NameInputFormatter.swift */,
 				A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */,
 				58CAFA01298530DC00BE19F7 /* Promise.swift */,
 				449EBA242B975B7C00DFA4EB /* Protocols */,
@@ -5843,6 +5846,7 @@
 				58D22410294C90210029F5F8 /* Location.swift in Sources */,
 				58D22411294C90210029F5F8 /* MullvadEndpoint.swift in Sources */,
 				58D22412294C90210029F5F8 /* RelayConstraint.swift in Sources */,
+				7A7AD14F2BF21EF200B30B3C /* NameInputFormatter.swift in Sources */,
 				58D22413294C90210029F5F8 /* RelayConstraints.swift in Sources */,
 				7AF9BE8C2A321D1F00DBFEDB /* RelayFilter.swift in Sources */,
 				58D22414294C90210029F5F8 /* RelayLocation.swift in Sources */,
