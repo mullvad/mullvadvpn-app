@@ -7,6 +7,7 @@
 //
 
 import Combine
+import MullvadTypes
 import UIKit
 
 struct CustomListCellConfiguration {
@@ -75,7 +76,7 @@ struct CustomListCellConfiguration {
         contentConfiguration.setPlaceholder(type: .required)
         contentConfiguration.textFieldProperties = .withSmartFeaturesDisabled()
         contentConfiguration.inputText = subject.value.name
-        contentConfiguration.maxLength = 30
+        contentConfiguration.maxLength = NameInputFormatter.maxLength
         contentConfiguration.editingEvents.onChange = subject.bindTextAction(to: \.name)
 
         cell.accessibilityIdentifier = AccessibilityIdentifier.customListEditNameFieldCell
