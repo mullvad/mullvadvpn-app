@@ -6,7 +6,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.CustomDnsOptions
@@ -22,8 +21,11 @@ class SettingsRepository(
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     val settingsUpdates: StateFlow<Settings?> =
-        managementService.settings
-            .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), null)
+        managementService.settings.stateIn(
+            CoroutineScope(dispatcher),
+            SharingStarted.WhileSubscribed(),
+            null
+        )
 
     suspend fun setDnsOptions(
         isCustomDnsEnabled: Boolean,

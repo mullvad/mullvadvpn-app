@@ -52,9 +52,8 @@ private fun PreviewNotificationBanner() {
                         InAppNotification.UnsupportedVersion(
                             versionInfo =
                                 VersionInfo(
-                                    currentVersion = null,
-                                    upgradeVersion = null,
-                                    isOutdated = true,
+                                    currentVersion = "1.0",
+                                    suggestedUpgradeVersion = null,
                                     isSupported = false
                                 ),
                         ),

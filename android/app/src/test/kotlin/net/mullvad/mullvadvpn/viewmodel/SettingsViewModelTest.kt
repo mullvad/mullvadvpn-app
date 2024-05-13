@@ -29,7 +29,7 @@ class SettingsViewModelTest {
         MutableStateFlow(
             VersionInfo(
                 currentVersion = null,
-                upgradeVersion = null,
+                suggestedUpgradeVersion = null,
                 isOutdated = false,
                 isSupported = false
             )
@@ -71,7 +71,7 @@ class SettingsViewModelTest {
             val versionInfoTestItem =
                 VersionInfo(
                     currentVersion = "1.0",
-                    upgradeVersion = "1.0",
+                    suggestedUpgradeVersion = "1.0",
                     isOutdated = false,
                     isSupported = true
                 )
@@ -93,7 +93,7 @@ class SettingsViewModelTest {
             val versionInfoTestItem =
                 VersionInfo(
                     currentVersion = "",
-                    upgradeVersion = "",
+                    suggestedUpgradeVersion = "",
                     isOutdated = false,
                     isSupported = false
                 )
@@ -113,7 +113,7 @@ class SettingsViewModelTest {
             val versionInfoTestItem =
                 VersionInfo(
                     currentVersion = "",
-                    upgradeVersion = "",
+                    suggestedUpgradeVersion = "",
                     isOutdated = true,
                     isSupported = true
                 )
