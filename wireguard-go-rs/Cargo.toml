@@ -8,5 +8,5 @@ license.workspace = true
 [features]
 daita = ["dep:cmaybenot"]
 
-[dependencies]
+[target.'cfg(not(windows))'.dependencies]
 cmaybenot = { path = "libwg/wireguard-go/cmaybenot" , optional = true}
