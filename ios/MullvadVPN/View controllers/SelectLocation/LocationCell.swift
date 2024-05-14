@@ -316,18 +316,23 @@ extension LocationCell {
         checkboxButton.accessibilityIdentifier = .customListLocationCheckmarkButton
         checkboxButton.isSelected = item.isSelected
         checkboxButton.tintColor = item.isSelected ? .successColor : .white
+        accessibilityValue = item.node.code
 
-        if item.node is CountryLocationNode {
-            accessibilityIdentifier = .countryLocationCell
-            accessibilityValue = item.node.code
-        } else if item.node is CityLocationNode {
-            accessibilityIdentifier = .cityLocationCell
-            accessibilityValue = item.node.code
-        } else if item.node is HostLocationNode {
-            accessibilityIdentifier = .relayLocationCell
-            accessibilityValue = item.node.code
-        } else if item.node is CustomListLocationNode {
+        if item.node is CustomListLocationNode {
             accessibilityIdentifier = .customListLocationCell
+        } else {
+            // Only custom list nodes have more than one location. Therefore checking first
+            // location here is fine.
+            switch item.node.locations.first {
+            case .country:
+                accessibilityIdentifier = .countryLocationCell
+            case .city:
+                accessibilityIdentifier = .cityLocationCell
+            case .hostname:
+                accessibilityIdentifier = .relayLocationCell
+            case nil:
+                break
+            }
         }
 
         setBehavior(behavior)

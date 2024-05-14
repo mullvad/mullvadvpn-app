@@ -168,9 +168,3 @@ class CustomListLocationNode: LocationNode {
         )
     }
 }
-
-class CountryLocationNode: LocationNode {}
-
-class CityLocationNode: LocationNode {}
-
-class HostLocationNode: LocationNode {}
