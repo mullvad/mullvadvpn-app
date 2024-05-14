@@ -188,7 +188,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         connectionProxy.onStateChange.latestEvent.let { tunnelState ->
-            Log.d(TAG, "Task removed (tunnelState=$tunnelState)")
+            Log.d(TAG, "Task removed")
             if (tunnelState is TunnelState.Disconnected) {
                 notificationManager.cancelNotification()
                 stop()
