@@ -14,7 +14,7 @@ val appModule = module {
     single {
         ManagementService(
             rpcSocketPath = GRPC_SOCKET_PATH,
-            interceptLogging = BuildConfig.DEBUG,
+            extensiveLogging = BuildConfig.DEBUG,
             scope = MainScope(),
         )
     }
