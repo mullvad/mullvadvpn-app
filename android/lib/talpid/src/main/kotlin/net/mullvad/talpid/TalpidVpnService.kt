@@ -84,7 +84,7 @@ open class TalpidVpnService : LifecycleVpnService() {
             return CreateTunResult.PermissionDenied
         }
 
-        var invalidDnsServerAddresses = ArrayList<InetAddress>()
+        val invalidDnsServerAddresses = ArrayList<InetAddress>()
 
         val builder =
             Builder().apply {
