@@ -23,14 +23,14 @@ class ServiceConnectionManager(private val context: Context) {
 
     private val serviceConnection =
         object : android.content.ServiceConnection {
-            override fun onServiceConnected(className: ComponentName, binder: IBinder) {}
+            @Suppress("EmptyFunctionBlock")
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {}
 
-            override fun onServiceDisconnected(className: ComponentName) {}
-
-            override fun onBindingDied(name: ComponentName?) {}
+            @Suppress("EmptyFunctionBlock")
+            override fun onServiceDisconnected(name: ComponentName?) {}
 
             override fun onNullBinding(name: ComponentName?) {
-                throw RuntimeException("Received onNullBinding, why u do this to me?")
+                error("Received onNullBinding, why u do this to me?")
             }
         }
 
@@ -54,7 +54,7 @@ class ServiceConnectionManager(private val context: Context) {
             }
             _connectionState.value = ServiceConnectionState.Bound
         } else {
-            throw IllegalStateException("Service is already bound")
+            error("Service is already bound")
         }
     }
 
@@ -63,7 +63,7 @@ class ServiceConnectionManager(private val context: Context) {
             context.unbindService(serviceConnection)
             _connectionState.value = ServiceConnectionState.Unbound
         } else {
-            throw IllegalStateException("Service is not bound")
+            error("Service is not bound")
         }
     }
 

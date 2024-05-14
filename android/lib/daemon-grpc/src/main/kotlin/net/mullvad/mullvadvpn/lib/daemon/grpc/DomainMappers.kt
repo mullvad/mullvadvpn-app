@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package net.mullvad.mullvadvpn.lib.daemon.grpc
 
 import android.net.Uri
@@ -550,6 +552,7 @@ internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardCon
  * relays are filtered out. So are also cities that only contains non-wireguard relays and countries
  * that does not have any cities. Countries, cities and relays are ordered by name.
  */
+@Suppress("LongMethod")
 internal fun List<ManagementInterface.RelayListCountry>.toDomain():
     List<RelayItem.Location.Country> {
     val relayCountries =
