@@ -23,10 +23,9 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.model.AccountData
-import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.model.WwwAuthToken
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
@@ -45,7 +44,7 @@ class OutOfTimeViewModelTest {
     private val serviceConnectionStateFlow =
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
     private val accountExpiryStateFlow = MutableStateFlow<AccountData?>(null)
-    private val deviceStateFlow = MutableStateFlow<DeviceState?>(null)
+    private val accountStateFlow = MutableStateFlow<DeviceState?>(null)
     private val paymentAvailabilityFlow = MutableStateFlow<PaymentAvailability?>(null)
     private val purchaseResultFlow = MutableStateFlow<PurchaseResult?>(null)
     private val outOfTimeFlow = MutableStateFlow(true)
@@ -57,7 +56,6 @@ class OutOfTimeViewModelTest {
     private val tunnelState = MutableStateFlow<TunnelState>(TunnelState.Disconnected())
 
     private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
-    private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
     private val mockOutOfTimeUseCase: OutOfTimeUseCase = mockk(relaxed = true)
@@ -74,7 +72,7 @@ class OutOfTimeViewModelTest {
 
         every { mockAccountRepository.accountData } returns accountExpiryStateFlow
 
-        every { mockDeviceRepository.deviceState } returns deviceStateFlow
+        every { mockAccountRepository.accountState } returns accountStateFlow
 
         coEvery { mockPaymentUseCase.purchaseResult } returns purchaseResultFlow
 
@@ -85,7 +83,6 @@ class OutOfTimeViewModelTest {
         viewModel =
             OutOfTimeViewModel(
                 accountRepository = mockAccountRepository,
-                deviceRepository = mockDeviceRepository,
                 paymentUseCase = mockPaymentUseCase,
                 outOfTimeUseCase = mockOutOfTimeUseCase,
                 connectionProxy = mockConnectionProxy,
@@ -103,8 +100,8 @@ class OutOfTimeViewModelTest {
     @Test
     fun `when clicking on site payment then open website account view`() = runTest {
         // Arrange
-        val mockToken = AccountToken("4444 5555 6666 7777")
-        coEvery { mockAccountRepository.getAccountToken() } returns mockToken
+        val mockToken = WwwAuthToken("4444 5555 6666 7777")
+        coEvery { mockAccountRepository.getWwwAuthToken() } returns mockToken
 
         // Act, Assert
         viewModel.uiSideEffect.test {
