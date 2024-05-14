@@ -28,6 +28,9 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Add support for split tunneling (beta).
 
+### Changed
+- Update Electron from 28.1.3 to 30.0.4.
+
 
 ## [2024.3] - 2024-05-15
 This release is identical to 2024.3-beta1.
