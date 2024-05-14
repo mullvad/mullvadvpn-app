@@ -139,15 +139,7 @@ fun EditCustomListScreen(
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.edit_list),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-        actions = {
-            Actions(
-                onDeleteList = {
-                    if (title != null) {
-                        onDeleteList(title)
-                    }
-                }
-            )
-        },
+        actions = { Actions(enabled = title != null, onDeleteList = { onDeleteList(title!!) }) },
     ) { modifier: Modifier ->
         SpacedColumn(modifier = modifier, alignment = Alignment.Top) {
             when (state) {
@@ -189,7 +181,7 @@ fun EditCustomListScreen(
 }
 
 @Composable
-private fun Actions(onDeleteList: () -> Unit) {
+private fun Actions(enabled: Boolean, onDeleteList: () -> Unit) {
     var showMenu by remember { mutableStateOf(false) }
     IconButton(
         onClick = { showMenu = true },
@@ -220,6 +212,7 @@ private fun Actions(onDeleteList: () -> Unit) {
                         onDeleteList()
                         showMenu = false
                     },
+                    enabled = enabled,
                     modifier = Modifier.testTag(DELETE_DROPDOWN_MENU_ITEM_TEST_TAG)
                 )
             }
