@@ -29,9 +29,6 @@ open class TalpidVpnService : LifecycleVpnService() {
         get() = activeTunStatus?.isOpen ?: false
 
     private var currentTunConfig = defaultTunConfig()
-    private var tunIsStale = false
-
-    protected var disallowedApps: List<String>? = null
 
     val connectivityListener = ConnectivityListener()
 
@@ -51,14 +48,13 @@ open class TalpidVpnService : LifecycleVpnService() {
         synchronized(this) {
             val tunStatus = activeTunStatus
 
-            if (config == currentTunConfig && tunIsOpen && !tunIsStale) {
+            if (config == currentTunConfig && tunIsOpen) {
                 return tunStatus!!
             } else {
                 val newTunStatus = createTun(config)
 
                 currentTunConfig = config
                 activeTunStatus = newTunStatus
-                tunIsStale = false
 
                 return newTunStatus
             }
@@ -80,10 +76,6 @@ open class TalpidVpnService : LifecycleVpnService() {
 
     fun closeTun() {
         synchronized(this) { activeTunStatus = null }
-    }
-
-    fun markTunAsStale() {
-        synchronized(this) { tunIsStale = true }
     }
 
     private fun createTun(config: TunConfig): CreateTunResult {
