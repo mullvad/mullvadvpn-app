@@ -24,9 +24,11 @@ ASSETS=(
 function build_test_executable {
     local pkg_target=$1
     local bin_suffix=${2:-""}
-    local temp_output="./build/temp-test-executable$bin_suffix"
+    local temp_dir
+    temp_dir="$(mktemp -d)"
+    local temp_executable="$temp_dir/temp-test-executable$bin_suffix"
     local output="../dist/app-e2e-tests-$PRODUCT_VERSION-$TARGET$bin_suffix"
-    local node_copy_path="./build/test/node$bin_suffix"
+    local node_copy_path="$temp_dir/node$bin_suffix"
     local node_path
     node_path="$(volta which node || which node)"
 
@@ -35,26 +37,28 @@ function build_test_executable {
     # shellcheck disable=SC2068
     tar -czf ./build/test/assets.tar.gz ${ASSETS[@]}
 
-    cp "$node_copy_path" "$temp_output"
+    cp "$node_copy_path" "$temp_executable"
     node --experimental-sea-config standalone-tests.sea.json
 
     # Inject SEA blob
     case $pkg_target in
         macos-*)
-            codesign --remove-signature "$temp_output"
-            npx postject "$temp_output" NODE_SEA_BLOB \
+            codesign --remove-signature "$temp_executable"
+            npx postject "$temp_executable" NODE_SEA_BLOB \
                 standalone-tests.sea.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 \
                 --macho-segment-name NODE_SEA
-            codesign --sign - "$temp_output"
+            codesign --sign - "$temp_executable"
             ;;
         *)
-            npx postject "$temp_output" NODE_SEA_BLOB \
+            npx postject "$temp_executable" NODE_SEA_BLOB \
                 standalone-tests.sea.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
             ;;
     esac
 
     mkdir -p "$(dirname "$output")"
-    mv "$temp_output" "$output"
+    mv "$temp_executable" "$output"
+
+    rm -rf "$temp_dir"
 }
 
 case "$TARGET" in
