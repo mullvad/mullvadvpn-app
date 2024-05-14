@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.AccountToken
@@ -19,12 +20,16 @@ class DeviceRepository(
     private val managementService: ManagementService,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    val deviceState: StateFlow<DeviceState?> =
-        managementService.deviceState.stateIn(
-            CoroutineScope(dispatcher),
-            SharingStarted.Eagerly,
-            null
-        )
+    val deviceState: StateFlow<Device?> =
+        managementService.deviceState
+            .map {
+                when (it) {
+                    is DeviceState.LoggedIn -> it.device
+                    DeviceState.LoggedOut -> null
+                    DeviceState.Revoked -> null
+                }
+            }
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, null)
 
     suspend fun removeDevice(
         accountToken: AccountToken,

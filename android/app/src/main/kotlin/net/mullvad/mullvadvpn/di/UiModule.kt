@@ -159,7 +159,7 @@ val uiModule = module {
     single { AppVersionInfoCache(get()) }
 
     // View models
-    viewModel { AccountViewModel(get(), get(), get(), IS_PLAY_BUILD) }
+    viewModel { AccountViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
@@ -193,7 +193,7 @@ val uiModule = module {
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
-    viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
+    viewModel { OutOfTimeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get(), get()) }
     viewModel { (location: GeoLocationId?) -> CreateCustomListDialogViewModel(location, get()) }
