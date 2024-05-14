@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,6 +61,7 @@ import net.mullvad.mullvadvpn.compose.destinations.DeviceRevokedDestination
 import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
 import net.mullvad.mullvadvpn.compose.destinations.SelectLocationDestination
 import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
+import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
@@ -75,7 +77,6 @@ import net.mullvad.mullvadvpn.constant.SECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
 import net.mullvad.mullvadvpn.constant.UNSECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.fallbackLatLong
-import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.map.AnimatedMap
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
@@ -125,13 +126,14 @@ fun Connect(
             connectViewModel.onConnectClick(ignorePermission = true)
         }
 
+    val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     CollectSideEffectWithLifecycle(
         connectViewModel.uiSideEffect,
         minActiveState = Lifecycle.State.RESUMED
     ) { sideEffect ->
         when (sideEffect) {
             is ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser -> {
-                context.openAccountPageInBrowser(sideEffect.token.value)
+                openAccountPage(sideEffect.token)
             }
             is ConnectViewModel.UiSideEffect.OutOfTime ->
                 navigator.navigate(OutOfTimeDestination, true) {

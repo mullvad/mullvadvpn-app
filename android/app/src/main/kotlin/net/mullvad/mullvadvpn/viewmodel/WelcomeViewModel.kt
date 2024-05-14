@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,13 +17,11 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.account.AccountRepository
-import net.mullvad.mullvadvpn.model.AccountToken
-import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.model.WwwAuthToken
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.toPaymentState
 
-@OptIn(FlowPreview::class)
 class WelcomeViewModel(
     private val accountRepository: AccountRepository,
     private val paymentUseCase: PaymentUseCase,
@@ -71,8 +68,8 @@ class WelcomeViewModel(
 
     fun onSitePaymentClick() {
         viewModelScope.launch {
-            accountRepository.getAccountToken()?.let { accountToken ->
-                _uiSideEffect.send(UiSideEffect.OpenAccountView(accountToken))
+            accountRepository.getWwwAuthToken()?.let { token ->
+                _uiSideEffect.send(UiSideEffect.OpenAccountView(token))
             }
         }
     }
@@ -110,7 +107,7 @@ class WelcomeViewModel(
     }
 
     sealed interface UiSideEffect {
-        data class OpenAccountView(val token: AccountToken) : UiSideEffect
+        data class OpenAccountView(val token: WwwAuthToken) : UiSideEffect
 
         data object OpenConnectScreen : UiSideEffect
     }

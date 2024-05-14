@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
-import net.mullvad.mullvadvpn.model.AccountToken
+import net.mullvad.mullvadvpn.model.WwwAuthToken
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.toPaymentState
 import org.joda.time.DateTime
@@ -50,8 +50,8 @@ class AccountViewModel(
 
     fun onManageAccountClick() {
         viewModelScope.launch {
-            accountRepository.getAccountToken()?.let { accountToken ->
-                _uiSideEffect.send(UiSideEffect.OpenAccountManagementPageInBrowser(accountToken))
+            accountRepository.getWwwAuthToken()?.let { wwwAuthToken ->
+                _uiSideEffect.send(UiSideEffect.OpenAccountManagementPageInBrowser(wwwAuthToken))
             }
         }
     }
@@ -105,7 +105,7 @@ class AccountViewModel(
     sealed class UiSideEffect {
         data object NavigateToLogin : UiSideEffect()
 
-        data class OpenAccountManagementPageInBrowser(val token: AccountToken) : UiSideEffect()
+        data class OpenAccountManagementPageInBrowser(val token: WwwAuthToken) : UiSideEffect()
 
         data class CopyAccountNumber(val accountNumber: String) : UiSideEffect()
     }

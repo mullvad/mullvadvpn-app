@@ -4,15 +4,20 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import net.mullvad.mullvadvpn.lib.common.R
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.getInstalledPackagesList
+import net.mullvad.mullvadvpn.model.WwwAuthToken
 
 private const val ALWAYS_ON_VPN_APP = "always_on_vpn_app"
 
-fun Context.openAccountPageInBrowser(authToken: String) {
-    startActivity(
-        Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.account_url) + "?token=$authToken"))
-    )
+fun createAccountUri(accountUri: String, wwwAuthToken: WwwAuthToken?): Uri {
+    val urlString = buildString {
+        append(accountUri)
+        if (wwwAuthToken != null) {
+            append("?token=")
+            append(wwwAuthToken.value)
+        }
+    }
+    return Uri.parse(urlString)
 }
 
 fun Context.getAlwaysOnVpnAppName(): String? {
