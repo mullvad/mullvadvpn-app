@@ -15,8 +15,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.account.AccountRepository
-import net.mullvad.mullvadvpn.model.AccountToken
-import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.model.WwwAuthToken
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
@@ -62,8 +61,8 @@ class OutOfTimeViewModel(
 
     fun onSitePaymentClick() {
         viewModelScope.launch {
-            accountRepository.getAccountToken()?.let { accountToken ->
-                _uiSideEffect.send(UiSideEffect.OpenAccountView(accountToken))
+            accountRepository.getWwwAuthToken()?.let { wwwAuthToken ->
+                _uiSideEffect.send(UiSideEffect.OpenAccountView(wwwAuthToken))
             }
         }
     }
@@ -112,7 +111,7 @@ class OutOfTimeViewModel(
             }
 
     sealed interface UiSideEffect {
-        data class OpenAccountView(val token: AccountToken) : UiSideEffect
+        data class OpenAccountView(val token: WwwAuthToken) : UiSideEffect
 
         data object OpenConnectScreen : UiSideEffect
     }

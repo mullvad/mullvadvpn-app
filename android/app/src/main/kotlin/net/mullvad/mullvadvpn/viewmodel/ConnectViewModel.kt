@@ -15,11 +15,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.lib.account.AccountRepository
-import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.ConnectError
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.model.WwwAuthToken
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
@@ -143,8 +143,8 @@ class ConnectViewModel(
 
     fun onManageAccountClick() {
         viewModelScope.launch {
-            accountRepository.getAccountToken()?.let { accountToken ->
-                _uiSideEffect.send(UiSideEffect.OpenAccountManagementPageInBrowser(accountToken))
+            accountRepository.getWwwAuthToken()?.let { wwwAuthToken ->
+                _uiSideEffect.send(UiSideEffect.OpenAccountManagementPageInBrowser(wwwAuthToken))
             }
         }
     }
@@ -162,7 +162,7 @@ class ConnectViewModel(
         }
 
     sealed interface UiSideEffect {
-        data class OpenAccountManagementPageInBrowser(val token: AccountToken) : UiSideEffect
+        data class OpenAccountManagementPageInBrowser(val token: WwwAuthToken) : UiSideEffect
 
         data object OutOfTime : UiSideEffect
 

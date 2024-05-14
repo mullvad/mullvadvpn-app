@@ -62,6 +62,7 @@ import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.model.WireguardEndpointData
 import net.mullvad.mullvadvpn.model.WireguardTunnelOptions
+import net.mullvad.mullvadvpn.model.WwwAuthToken
 import org.joda.time.Instant
 
 internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
@@ -701,3 +702,5 @@ internal fun PlayPurchase.fromDomain(): ManagementInterface.PlayPurchase =
         .setPurchaseToken(purchaseToken.fromDomain())
         .setProductId(productId)
         .build()
+
+internal fun String.toDomain(): WwwAuthToken = WwwAuthToken(this)
