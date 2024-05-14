@@ -51,7 +51,7 @@ jobs:
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-udeps
+          tool: cargo-udeps@0.1.48
 
       - name: Check for unused dependencies
         shell: bash
@@ -84,7 +84,7 @@ jobs:
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-udeps
+          tool: cargo-udeps@0.1.48
 
       - name: Check for unused dependencies
         run: cargo udeps --target aarch64-linux-android --package mullvad-jni
@@ -110,7 +110,7 @@ jobs:
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-udeps
+          tool: cargo-udeps@0.1.48
 
       - name: Check for unused dependencies
         shell: bash
@@ -142,7 +142,7 @@ jobs:
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-udeps
+          tool: cargo-udeps@0.1.48
 
       - name: Check for unused dependencies
         shell: bash
