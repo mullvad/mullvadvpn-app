@@ -3,9 +3,3 @@ name = "wireguard-go-rs"
 description = "Rust bindings to wireguard-go with DAITA support"
 edition = "2021"
 license.workspace = true
-
-[features]
-daita = ["dep:cmaybenot"]
-
-[target.'cfg(not(windows))'.dependencies]
-cmaybenot = { path = "libwg/wireguard-go/cmaybenot" , optional = true}
