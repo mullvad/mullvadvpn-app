@@ -1,19 +1,27 @@
 #!/usr/bin/env bash
 
 # This script is used to build wireguard-go libraries for all the platforms.
+#
+# If "DAITA" support should be enabled, pass the `--daita` flag when invoking this script.
 
 set -eu
 
-function is_android_build {
-    for arg in "$@"
-    do
-        case "$arg" in
-            "--android")
-                return 0
-        esac
-    done
-    return 1
-}
+# If Wireguard-go should be built with DAITA-support.
+DAITA="false"
+# If the target OS is Adnroid.
+ANDROID="false"
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --android) ANDROID="true";;
+        --daita)   DAITA="true";;
+        *)
+            log_error "Unknown parameter: $1"
+            exit 1
+            ;;
+    esac
+    shift
+done
 
 function unix_target_triple {
     local platform
@@ -72,12 +80,11 @@ function build_unix {
 
 
     pushd libwg
-        # Enable DAITA for supported platforms
+        # Enable DAITA if needed
         TAGS=()
-        platform="$(uname -s)";
-        case "$platform" in
-            Linux*) TAGS+=(--tags daita);;
-        esac
+        if [[ "$DAITA" == "true" ]]; then
+            TAGS+=(--tags daita)
+        fi
 
         # TODO: pass OUT_DIR as an arg maybe? instead of relying on cargo setting it globally?
         # This weird array expansion is due to macOS shipping with a medieval version of bash: https://stackoverflow.com/a/61551944
@@ -92,14 +99,14 @@ function build_android {
 }
 
 function build_wireguard_go {
-    if is_android_build "$@"; then
+    if [[ "$ANDROID" == "true" ]]; then
         build_android "$@"
         return
     fi
 
     local platform
     platform="$(uname -s)";
-    case  "$platform" in
+    case "$platform" in
         Linux*|Darwin*) build_unix "${1:-$(unix_target_triple)}";;
         *)
             echo "Unsupported platform"

@@ -11,7 +11,9 @@ fn main() {
     cmd.arg("./build-wireguard-go.sh");
 
     match target_os.as_str() {
-        "linux" => {}
+        "linux" => {
+            cmd.arg("--daita");
+        }
         "android" => {
             cmd.arg("--android");
         }
