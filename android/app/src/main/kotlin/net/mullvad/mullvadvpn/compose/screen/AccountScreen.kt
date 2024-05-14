@@ -166,7 +166,6 @@ fun AccountScreen(
     // This will enable SECURE_FLAG while this screen is visible to preview screenshot
     SecureScreenWhileInView()
 
-    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val copyTextString = stringResource(id = R.string.copied_mullvad_account_number)
     val copyToClipboard = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
