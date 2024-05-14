@@ -18,8 +18,16 @@ sealed interface NotificationChannel {
 
 @JvmInline value class NotificationId(val value: Int)
 
+sealed interface NotificationUpdate<out D> {
+    val notificationId: NotificationId
+
+    data class Notify<D>(override val notificationId: NotificationId, val value: D) :
+        NotificationUpdate<D>
+
+    data class Cancel(override val notificationId: NotificationId) : NotificationUpdate<Nothing>
+}
+
 sealed interface Notification {
-    val id: NotificationId
     val actions: List<NotificationAction>
     val ongoing: Boolean
     val channelId: ChannelId
@@ -29,9 +37,7 @@ sealed interface Notification {
         val state: NotificationTunnelState,
         override val actions: List<NotificationAction.Tunnel>,
         override val ongoing: Boolean,
-    ) : Notification {
-        override val id: NotificationId = NotificationId(2)
-    }
+    ) : Notification
 
     data class AccountExpiry(
         override val channelId: ChannelId,
@@ -40,18 +46,6 @@ sealed interface Notification {
         val isPlayBuild: Boolean,
         val durationUntilExpiry: Duration
     ) : Notification {
-        override val id: NotificationId = NotificationId(3)
-        override val ongoing: Boolean = false
-
-        fun cancel(): CancelNotification =
-            CancelNotification(channelId = this.channelId, id = this.id)
-    }
-
-    data class CancelNotification(
-        override val channelId: ChannelId,
-        override val id: NotificationId
-    ) : Notification {
-        override val actions: List<NotificationAction> = emptyList()
         override val ongoing: Boolean = false
     }
 }

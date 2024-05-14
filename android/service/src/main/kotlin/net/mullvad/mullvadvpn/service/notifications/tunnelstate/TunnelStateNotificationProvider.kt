@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.service.notifications.tunnelstate
 
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -10,29 +11,42 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.permission.VpnPermissionRepository
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.ChannelId
+import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.ErrorStateCause
 import net.mullvad.mullvadvpn.model.Notification
 import net.mullvad.mullvadvpn.model.NotificationAction
+import net.mullvad.mullvadvpn.model.NotificationId
 import net.mullvad.mullvadvpn.model.NotificationTunnelState
+import net.mullvad.mullvadvpn.model.NotificationUpdate
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 
 class TunnelStateNotificationProvider(
     managementService: ManagementService,
     vpnPermissionRepository: VpnPermissionRepository,
+    accountRepository: AccountRepository,
     channelId: ChannelId,
     scope: CoroutineScope
-) : NotificationProvider {
-    override val notifications: StateFlow<Notification.Tunnel> =
+) : NotificationProvider<Notification.Tunnel> {
+    internal val notificationId = NotificationId(2)
+
+    override val notifications: StateFlow<NotificationUpdate<Notification.Tunnel>> =
         combine(
                 managementService.tunnelState,
                 managementService.tunnelState.actionAfterDisconnect().distinctUntilChanged(),
-            ) { tunnelState: TunnelState, actionAfterDisconnect: ActionAfterDisconnect?,
-                ->
+                accountRepository.accountState
+            ) {
+                tunnelState: TunnelState,
+                actionAfterDisconnect: ActionAfterDisconnect?,
+                accountState ->
+                if (accountState !is DeviceState.LoggedIn) {
+                    return@combine NotificationUpdate.Cancel(NotificationId(2))
+                }
                 val notificationTunnelState =
                     tunnelState(
                         tunnelState,
@@ -40,23 +54,18 @@ class TunnelStateNotificationProvider(
                         vpnPermissionRepository.hasVpnPermission(),
                         vpnPermissionRepository.getAlwaysOnVpnAppName()
                     )
-                return@combine Notification.Tunnel(
-                    channelId = channelId,
-                    state = notificationTunnelState,
-                    actions = listOfNotNull(notificationTunnelState.toAction()),
-                    ongoing = notificationTunnelState is NotificationTunnelState.Connected
+
+                return@combine NotificationUpdate.Notify(
+                    notificationId,
+                    Notification.Tunnel(
+                        channelId = channelId,
+                        state = notificationTunnelState,
+                        actions = listOfNotNull(notificationTunnelState.toAction()),
+                        ongoing = notificationTunnelState is NotificationTunnelState.Connected
+                    )
                 )
             }
-            .stateIn(
-                scope,
-                SharingStarted.Eagerly,
-                Notification.Tunnel(
-                    channelId,
-                    NotificationTunnelState.Disconnected(true),
-                    emptyList(),
-                    false
-                )
-            )
+            .stateIn(scope, SharingStarted.Eagerly, NotificationUpdate.Cancel(notificationId))
 
     private fun tunnelState(
         tunnelState: TunnelState,

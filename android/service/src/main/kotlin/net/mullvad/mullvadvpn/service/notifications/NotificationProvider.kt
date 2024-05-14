@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.service.notifications
 
 import kotlinx.coroutines.flow.Flow
-import net.mullvad.mullvadvpn.model.Notification
+import net.mullvad.mullvadvpn.model.NotificationUpdate
 
-interface NotificationProvider {
-    val notifications: Flow<Notification>
+interface NotificationProvider<D> {
+    val notifications: Flow<NotificationUpdate<D>>
 }

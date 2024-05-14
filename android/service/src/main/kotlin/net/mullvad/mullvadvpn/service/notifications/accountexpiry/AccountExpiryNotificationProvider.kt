@@ -5,7 +5,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.model.ChannelId
+import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.Notification
+import net.mullvad.mullvadvpn.model.NotificationId
+import net.mullvad.mullvadvpn.model.NotificationUpdate
 import net.mullvad.mullvadvpn.service.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 import org.joda.time.DateTime
@@ -14,11 +17,19 @@ import org.joda.time.Duration
 class AccountExpiryNotificationProvider(
     channelId: ChannelId,
     accountRepository: AccountRepository,
-) : NotificationProvider {
-    override val notifications: Flow<Notification> =
-        combine(accountRepository.accountData.filterNotNull(), accountRepository.isNewAccount) {
-                accountData,
-                isNewAccount ->
+) : NotificationProvider<Notification.AccountExpiry> {
+    private val notificationId = NotificationId(3)
+
+    override val notifications: Flow<NotificationUpdate<Notification.AccountExpiry>> =
+        combine(
+                accountRepository.accountState,
+                accountRepository.accountData.filterNotNull(),
+                accountRepository.isNewAccount
+            ) { accountState, accountData, isNewAccount ->
+                if (accountState !is DeviceState.LoggedIn) {
+                    return@combine NotificationUpdate.Cancel(notificationId)
+                }
+
                 val durationUntilExpiry = accountData.expiryDate.remainingTime()
 
                 val notification =
@@ -31,9 +42,9 @@ class AccountExpiryNotificationProvider(
                         isPlayBuild = false
                     )
                 if (!isNewAccount && durationUntilExpiry.isCloseToExpiry()) {
-                    notification
+                    NotificationUpdate.Notify(notificationId, notification)
                 } else {
-                    notification.cancel()
+                    NotificationUpdate.Cancel(notificationId)
                 }
             }
             .filterNotNull()
