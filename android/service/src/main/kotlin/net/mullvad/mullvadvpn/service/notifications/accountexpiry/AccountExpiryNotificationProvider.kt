@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.model.ChannelId
 import net.mullvad.mullvadvpn.model.Notification
+import net.mullvad.mullvadvpn.service.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 import org.joda.time.DateTime
 import org.joda.time.Duration
@@ -24,6 +25,8 @@ class AccountExpiryNotificationProvider(
                     Notification.AccountExpiry(
                         channelId = channelId,
                         actions = emptyList(),
+                        wwwAuthToken =
+                            if (!IS_PLAY_BUILD) accountRepository.getWwwAuthToken() else null,
                         durationUntilExpiry = durationUntilExpiry,
                         isPlayBuild = false
                     )

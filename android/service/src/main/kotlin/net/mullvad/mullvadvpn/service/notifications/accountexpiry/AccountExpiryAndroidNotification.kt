@@ -4,10 +4,10 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
-import android.net.Uri
 import androidx.core.app.NotificationCompat
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
+import net.mullvad.mullvadvpn.lib.common.util.createAccountUri
 import net.mullvad.mullvadvpn.model.Notification
 import net.mullvad.mullvadvpn.service.R
 import org.joda.time.Duration
@@ -31,7 +31,8 @@ private fun Notification.AccountExpiry.contentIntent(context: Context): PendingI
                 action = Intent.ACTION_MAIN
             }
         } else {
-            Intent(Intent.ACTION_VIEW, Uri.parse(context.getString(R.string.account_url)))
+            val uri = createAccountUri(context.getString(R.string.account_url), wwwAuthToken)
+            Intent(Intent.ACTION_VIEW, uri)
         }
     return PendingIntent.getActivity(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())
 }
