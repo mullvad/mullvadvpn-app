@@ -60,7 +60,7 @@ class AllLocationDataSource: LocationDataSourceProtocol {
     ) {
         switch location {
         case let .country(countryCode):
-            let countryNode = CountryLocationNode(
+            let countryNode = LocationNode(
                 name: serverLocation.country,
                 code: LocationNode.combineNodeCodes([countryCode]),
                 locations: [location],
@@ -73,7 +73,7 @@ class AllLocationDataSource: LocationDataSourceProtocol {
             }
 
         case let .city(countryCode, cityCode):
-            let cityNode = CityLocationNode(
+            let cityNode = LocationNode(
                 name: serverLocation.city,
                 code: LocationNode.combineNodeCodes([countryCode, cityCode]),
                 locations: [location],
@@ -88,7 +88,7 @@ class AllLocationDataSource: LocationDataSourceProtocol {
             }
 
         case let .hostname(countryCode, cityCode, hostCode):
-            let hostNode = HostLocationNode(
+            let hostNode = LocationNode(
                 name: relay.hostname,
                 code: LocationNode.combineNodeCodes([hostCode]),
                 locations: [location],

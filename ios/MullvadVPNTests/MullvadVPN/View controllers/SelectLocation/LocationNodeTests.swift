@@ -16,9 +16,9 @@ class LocationNodeTests: XCTestCase {
         showsChildren: false,
         customList: CustomList(name: "List", locations: [])
     )
-    let countryNode = CountryLocationNode(name: "Country", code: "country", showsChildren: false)
-    let cityNode = CityLocationNode(name: "City", code: "city", showsChildren: false)
-    let hostNode = HostLocationNode(name: "Host", code: "host", showsChildren: false)
+    let countryNode = LocationNode(name: "Country", code: "country", showsChildren: false)
+    let cityNode = LocationNode(name: "City", code: "city", showsChildren: false)
+    let hostNode = LocationNode(name: "Host", code: "host", showsChildren: false)
 
     override func setUp() async throws {
         createNodeTree()
