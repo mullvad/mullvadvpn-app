@@ -50,7 +50,7 @@ private fun PreviewWireguardCustomPortDialog() {
 
 @Parcelize
 data class WireguardCustomPortNavArgs(
-    val customPort: Int?,
+    val customPort: Port?,
     val allowedPortRanges: List<PortRange>,
 ) : Parcelable
 
@@ -70,12 +70,12 @@ fun WireguardCustomPortDialog(
 
 @Composable
 fun WireguardCustomPortDialog(
-    initialPort: Int?,
+    initialPort: Port?,
     allowedPortRanges: List<PortRange>,
     onSave: (Int?) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val port = remember { mutableStateOf(initialPort?.toString() ?: "") }
+    val port = remember { mutableStateOf(initialPort?.value?.toString() ?: "") }
 
     val isValidPort =
         port.value.isNotEmpty() &&

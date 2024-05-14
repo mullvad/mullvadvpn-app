@@ -93,7 +93,7 @@ import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.util.hasValue
 import net.mullvad.mullvadvpn.util.isCustom
-import net.mullvad.mullvadvpn.util.toValueOrNull
+import net.mullvad.mullvadvpn.util.toPortOrNull
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
@@ -247,7 +247,7 @@ fun VpnSettings(
         navigateToWireguardPortDialog = {
             val args =
                 WireguardCustomPortNavArgs(
-                    state.customWireguardPort?.toValueOrNull(),
+                    state.customWireguardPort?.toPortOrNull(),
                     state.availablePortRanges
                 )
             navigator.navigate(WireguardCustomPortDialogDestination(args)) {
@@ -539,7 +539,7 @@ fun VpnSettingsScreen(
                 CustomPortCell(
                     title = stringResource(id = R.string.wireguard_custon_port_title),
                     isSelected = state.selectedWireguardPort.isCustom(),
-                    port = state.customWireguardPort?.toValueOrNull(),
+                    port = state.customWireguardPort?.toPortOrNull(),
                     onMainCellClicked = {
                         if (state.customWireguardPort != null) {
                             onWireguardPortSelected(state.customWireguardPort)
