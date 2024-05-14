@@ -13,7 +13,6 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceId
-import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import org.joda.time.DateTime
@@ -27,16 +26,12 @@ class NewDeviceUseNotificationCaseTest {
 
     private val deviceName = "Frank Zebra"
     private val deviceState =
-        MutableStateFlow<DeviceState?>(
-            DeviceState.LoggedIn(
-                accountToken = mockk(relaxed = true),
-                device =
-                    Device(
-                        id = DeviceId.fromString(UUID.randomUUID().toString()),
-                        name = deviceName,
-                        pubkey = byteArrayOf(),
-                        created = DateTime.now()
-                    )
+        MutableStateFlow<Device?>(
+            Device(
+                id = DeviceId.fromString(UUID.randomUUID().toString()),
+                name = deviceName,
+                pubkey = byteArrayOf(),
+                created = DateTime.now()
             )
         )
     private lateinit var newDeviceNotificationUseCase: NewDeviceNotificationUseCase
