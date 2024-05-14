@@ -49,7 +49,7 @@ class PostQuantumKeyExchangeActor {
 
         let gatewayAddress = "10.64.0.1"
         let IPv4Gateway = IPv4Address(gatewayAddress)!
-        let endpoint = NWHostEndpoint(hostname: gatewayAddress, port: "1337")
+        let endpoint = NWHostEndpoint(hostname: gatewayAddress, port: "\(CONFIG_SERVICE_PORT)")
         let inTunnelTCPConnection = createTCPConnection(endpoint)
 
         // This will become the new private key of the device

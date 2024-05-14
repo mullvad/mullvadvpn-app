@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "talpid_tunnel_config_client.h"
 
 //! Project version number for MullvadPostQuantum.
 FOUNDATION_EXPORT double MullvadPostQuantumVersionNumber;
