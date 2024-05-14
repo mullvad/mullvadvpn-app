@@ -31,13 +31,14 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.color.selected
+import net.mullvad.mullvadvpn.model.Port
 
 @Preview
 @Composable
 private fun PreviewCustomPortCell() {
     AppTheme {
         SpacedColumn(Modifier.background(MaterialTheme.colorScheme.background)) {
-            CustomPortCell(title = "Title", isSelected = true, port = 444)
+            CustomPortCell(title = "Title", isSelected = true, port = Port(444))
             CustomPortCell(title = "Title", isSelected = false, port = null)
         }
     }
@@ -47,7 +48,7 @@ private fun PreviewCustomPortCell() {
 fun CustomPortCell(
     title: String,
     isSelected: Boolean,
-    port: Int?,
+    port: Port?,
     mainTestTag: String = "",
     numberTestTag: String = "",
     onMainCellClicked: () -> Unit = {},
@@ -100,7 +101,7 @@ fun CustomPortCell(
                     .testTag(numberTestTag)
         ) {
             Text(
-                text = port?.toString() ?: stringResource(id = R.string.port),
+                text = port?.value?.toString() ?: stringResource(id = R.string.port),
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.align(Alignment.Center)
             )
