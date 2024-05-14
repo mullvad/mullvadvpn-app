@@ -48,7 +48,6 @@ open class TalpidVpnService : LifecycleVpnService() {
     }
 
     fun getTun(config: TunConfig): CreateTunResult {
-        Log.d("LOLZ", "createTun $config")
         synchronized(this) {
             val tunStatus = activeTunStatus
 
@@ -67,12 +66,10 @@ open class TalpidVpnService : LifecycleVpnService() {
     }
 
     fun createTun() {
-        Log.d("LOLZ", "createTun")
         synchronized(this) { activeTunStatus = createTun(currentTunConfig) }
     }
 
     fun recreateTunIfOpen(config: TunConfig) {
-        Log.d("LOLZ", "recreateTunIfOpen $config")
         synchronized(this) {
             if (tunIsOpen) {
                 currentTunConfig = config
@@ -82,7 +79,6 @@ open class TalpidVpnService : LifecycleVpnService() {
     }
 
     fun closeTun() {
-        Log.d("LOLZ", "closeTun")
         synchronized(this) { activeTunStatus = null }
     }
 

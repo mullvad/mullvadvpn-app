@@ -55,7 +55,6 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     @SuppressLint("ApplySharedPref")
     override fun onCreate() {
         super.onCreate()
-        Log.d(TAG, "onCreate")
 
         loadKoinModules(listOf(vpnServiceModule, apiEndpointModule))
         with(getKoin()) {
@@ -78,9 +77,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         // TODO We should avoid lifecycleScope.launch (current needed due to InetSocketAddress
         // with intent from API)
         lifecycleScope.launch(context = Dispatchers.IO) {
-            Log.d(TAG, "onCreate start management")
             managementService.start()
-            Log.d(TAG, "onCreate started management")
             daemonInstance =
                 MullvadDaemon(
                     vpnService = this@MullvadVpnService,
@@ -90,7 +87,6 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
                     migrateSplitTunnelingRepository = migrateSplitTunnelingRepository
                 )
         }
-        Log.d(TAG, "onCreate Complete")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -109,9 +105,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             intent.isFromSystem() || intent?.action == KEY_CONNECT_ACTION -> {
                 _shouldBeOnForeground.update { true }
                 lifecycleScope.launch {
-                    Log.d("MullvadVpnService", "Calling connect")
                     managementService.connect()
-                    Log.d("MullvadVpnService", "Calling connect sent")
                 }
             }
             intent?.action == KEY_DISCONNECT_ACTION -> {
@@ -139,18 +133,14 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     }
 
     override fun onRevoke() {
-        Log.d(TAG, "onRevoke")
         runBlocking { managementService.disconnect() }
     }
 
     override fun onUnbind(intent: Intent): Boolean {
         val count = bindCount.decrementAndGet()
 
-        Log.d(TAG, "onUnbind: $intent")
         // Foreground?
-
         if (intent.isFromSystem()) {
-            Log.d(TAG, "onUnbind from VPN_SERVICE_CLASS")
             _shouldBeOnForeground.update { false }
         }
 
@@ -177,7 +167,6 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     }
 
     override fun onDestroy() {
-        Log.d(TAG, "onDestroy")
         managementService.stop()
 
         // Shutting down the daemon gracefully

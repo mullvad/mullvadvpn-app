@@ -12,7 +12,6 @@ import android.util.Log
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -42,7 +41,6 @@ class MullvadTileService : TileService() {
     private lateinit var managementService: ManagementService
 
     override fun onCreate() {
-        Log.d("MullvadTileService", "onCreate")
         securedIcon = Icon.createWithResource(this, R.drawable.small_logo_white)
         unsecuredIcon = Icon.createWithResource(this, R.drawable.small_logo_black)
 
@@ -81,12 +79,10 @@ class MullvadTileService : TileService() {
     }
 
     override fun onStartListening() {
-        Log.d("MullvadTileService", "onStartListening")
         job = MainScope().launch { launchListenToTunnelState() }
     }
 
     override fun onStopListening() {
-        Log.d("MullvadTileService", "onStopListening")
         job?.cancel()
     }
 
@@ -95,7 +91,7 @@ class MullvadTileService : TileService() {
         val isSetup = VpnService.prepare(applicationContext) == null
         // TODO This logic should be more advanced, we should ensure user has an account setup etc.
         if (!isSetup) {
-            Log.d("MullvadTileService", "VPN service not setup, starting main activity")
+            Log.d(TAG, "VPN service not setup, starting main activity")
 
             val intent =
                 Intent().apply {
@@ -109,7 +105,7 @@ class MullvadTileService : TileService() {
             startActivityAndCollapseCompat(intent)
             return
         } else {
-            Log.d("MullvadTileService", "VPN service is setup")
+            Log.d(TAG, "VPN service is setup")
         }
         val intent =
             Intent().apply {
@@ -144,7 +140,6 @@ class MullvadTileService : TileService() {
 
     @OptIn(FlowPreview::class)
     private suspend fun launchListenToTunnelState() {
-        Log.d("MullvadTileService", "launchListenToTunnelState")
         combine(
                 managementService.tunnelState.onStart { emit(TunnelState.Disconnected(null)) },
                 managementService.connectionState
@@ -160,7 +155,6 @@ class MullvadTileService : TileService() {
         tunnelState: TunnelState,
         connectionState: GrpcConnectivityState
     ): Int {
-        Log.d("MullvadTileService", "mapToTileState: $tunnelState, $connectionState")
         return if (connectionState == GrpcConnectivityState.Ready) {
             when (tunnelState) {
                 is TunnelState.Disconnected -> Tile.STATE_INACTIVE
@@ -199,5 +193,9 @@ class MullvadTileService : TileService() {
             }
             updateTile()
         }
+    }
+
+    companion object {
+        private const val TAG = "MullvadTileService"
     }
 }

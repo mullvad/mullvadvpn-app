@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
@@ -134,15 +133,11 @@ class LoginViewModel(
     }
 
     private suspend fun isOutOfTime(): Boolean = coroutineScope {
-        Log.d("LoginViewModel", "isOutOfTime")
         val isOutOfTimeDeferred = async {
             accountRepository.accountData.filterNotNull().map { it.expiryDate.isBeforeNow }.first()
         }
-        Log.d("LoginViewModel", "isOutOfTimeDeferred: $isOutOfTimeDeferred")
         delay(1000)
-        Log.d("LoginViewModel", "finished waiting")
         val result = isOutOfTimeDeferred.getOrDefault(false)
-        Log.d("LoginViewModel", "Result: $result")
         result
     }
 
