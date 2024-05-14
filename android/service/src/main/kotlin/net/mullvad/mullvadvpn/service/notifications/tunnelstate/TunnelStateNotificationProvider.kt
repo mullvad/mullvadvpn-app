@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.service.notifications.tunnelstate
 
-import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -41,10 +40,6 @@ class TunnelStateNotificationProvider(
                         vpnPermissionRepository.hasVpnPermission(),
                         vpnPermissionRepository.getAlwaysOnVpnAppName()
                     )
-                Log.d(
-                    "TunnelStateNotificationUseCase",
-                    "notificationTunnelState: $notificationTunnelState"
-                )
                 return@combine Notification.Tunnel(
                     channelId = channelId,
                     state = notificationTunnelState,

@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.service
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -32,23 +31,19 @@ class MullvadDaemon(
 
         migrateSplitTunnelingRepository.migrateSplitTunneling()
 
-        Log.d("MullvadDaemon", "Initializing daemon")
         initialize(
             vpnService = vpnService,
             cacheDirectory = vpnService.cacheDir.absolutePath,
             resourceDirectory = vpnService.filesDir.absolutePath,
             apiEndpoint = apiEndpointConfiguration.apiEndpoint()
         )
-        Log.d("MullvadDaemon", "Initializing daemon complete")
     }
 
     suspend fun shutdown() =
         withContext(Dispatchers.IO) {
             val shutdownSignal = async { shutdownSignal.receive() }
             shutdown(daemonInterfaceAddress)
-            Log.d("MullvadDaemon", "shutdown complete")
             shutdownSignal.await()
-            Log.d("MullvadDaemon", "shutdown complete")
             deinitialize()
         }
 
@@ -65,7 +60,6 @@ class MullvadDaemon(
     // Used by JNI
     @Suppress("unused")
     private fun notifyDaemonStopped() {
-        Log.d("MullvadDaemon", "Daemon stopped")
         runBlocking {
             shutdownSignal.send(Unit)
             shutdownSignal.close()

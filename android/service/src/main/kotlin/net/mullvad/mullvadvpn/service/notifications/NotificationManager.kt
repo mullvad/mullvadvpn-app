@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.service.notifications
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.CoroutineScope
@@ -21,14 +20,11 @@ class NotificationManager(
 ) {
 
     init {
-        Log.d("NotificationManager", "Starting NotificationManager with $notificationProviders")
-
         scope.launch {
             notificationProviders
                 .map { it.notifications }
                 .merge()
                 .collect { notification ->
-                    Log.d("NotificationManager", "Posting notification $notification")
                     if (notification is Notification.CancelNotification) {
                         notificationManagerCompat.cancel(notification.id.value)
                     } else {

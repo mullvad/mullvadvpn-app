@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.async
@@ -8,7 +7,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_TIMEOUT_MS
@@ -30,7 +28,6 @@ class SplashViewModel(
 
         val deviceState =
             accountRepository.accountState
-                .onEach { Log.d("SplashViewModel", "DeviceState: $it") }
                 .map {
                     when (it) {
                         is DeviceState.LoggedIn -> ValidStartDeviceState.LoggedIn
