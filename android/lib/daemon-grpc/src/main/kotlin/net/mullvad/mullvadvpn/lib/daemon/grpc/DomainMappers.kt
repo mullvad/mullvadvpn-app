@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.lib.daemon.grpc
 
 import android.net.Uri
-import android.util.Log
 import io.grpc.ConnectivityState
 import java.net.InetAddress
 import java.net.InetSocketAddress
@@ -125,18 +124,16 @@ internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
     TunnelEndpoint(
         endpoint =
             with(address) {
-                    val indexOfSeparator = indexOfLast { it == ':' }
-                    val ipPart =
-                        address.substring(0, indexOfSeparator).filter { it !in listOf('[', ']') }
-                    val portPart = address.substring(indexOfSeparator + 1)
+                val indexOfSeparator = indexOfLast { it == ':' }
+                val ipPart =
+                    address.substring(0, indexOfSeparator).filter { it !in listOf('[', ']') }
+                val portPart = address.substring(indexOfSeparator + 1)
 
-                    Endpoint(
-                        address =
-                            InetSocketAddress(InetAddress.getByName(ipPart), portPart.toInt()),
-                        protocol = this@toDomain.protocol.toDomain()
-                    )
-                }
-                .also { Log.d("TunnelEndpoint", "TunnelEndpoint: $it") },
+                Endpoint(
+                    address = InetSocketAddress(InetAddress.getByName(ipPart), portPart.toInt()),
+                    protocol = this@toDomain.protocol.toDomain()
+                )
+            },
         quantumResistant = this.quantumResistant,
         obfuscation =
             if (hasObfuscation()) {

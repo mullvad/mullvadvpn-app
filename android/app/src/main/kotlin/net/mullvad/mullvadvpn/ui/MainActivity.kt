@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,7 +35,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var intentProvider: IntentProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d("mullvad", "onCreate")
         loadKoinModules(listOf(uiModule, paymentModule))
 
         // Tell the system that we will draw behind the status bar and navigation bar
@@ -66,7 +64,6 @@ class MainActivity : ComponentActivity() {
         // https://medium.com/@lepicekmichal/android-background-service-without-hiccup-501e4479110f
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                Log.d("mullvad", "repeatOnLifecycle STARTED")
                 if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
                     startServiceSuspend()
                 }
@@ -87,29 +84,12 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    override fun onStart() {
-        super.onStart()
-        Log.d("mullvad", "onStart")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d("mullvad", "onResume")
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        Log.d("mullvad", "onRestart")
-    }
-
     override fun onStop() {
         super.onStop()
-        Log.d("mullvad", "onStop")
         serviceConnectionManager.unbind()
     }
 
     override fun onDestroy() {
-        Log.d("mullvad", "onDestroy")
         serviceConnectionManager.onDestroy()
         lifecycle.removeObserver(noDaemonViewModel)
         super.onDestroy()

@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.service.notifications
 
 import android.app.NotificationManager
 import android.content.res.Resources
-import android.util.Log
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import net.mullvad.mullvadvpn.lib.common.R
@@ -15,11 +14,7 @@ class ChannelFactory(
     channels: List<NotificationChannel>
 ) {
     init {
-        Log.d("ChannelFactory", "Creating channels")
-        channels.forEach {
-            Log.d("ChannelFactory", "Creating $it")
-            createChannel(it)
-        }
+        channels.forEach { createChannel(it) }
     }
 
     private fun createChannel(channel: NotificationChannel): ChannelId {

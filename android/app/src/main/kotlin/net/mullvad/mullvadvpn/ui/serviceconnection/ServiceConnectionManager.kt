@@ -23,22 +23,13 @@ class ServiceConnectionManager(private val context: Context) {
 
     private val serviceConnection =
         object : android.content.ServiceConnection {
-            override fun onServiceConnected(className: ComponentName, binder: IBinder) {
-                Log.d("ServiceConnectionManager", "Service is bound")
-                // Start gRPC
-            }
+            override fun onServiceConnected(className: ComponentName, binder: IBinder) {}
 
-            override fun onServiceDisconnected(className: ComponentName) {
-                Log.d("ServiceConnectionManager", "Service is unbound")
-                // Stop gRPC
-            }
+            override fun onServiceDisconnected(className: ComponentName) {}
 
-            override fun onBindingDied(name: ComponentName?) {
-                Log.d("ServiceConnectionManager", "Service is onBindingDied")
-            }
+            override fun onBindingDied(name: ComponentName?) {}
 
             override fun onNullBinding(name: ComponentName?) {
-                Log.d("ServiceConnectionManager", "onNullBinding")
                 throw RuntimeException("Received onNullBinding, why u do this to me?")
             }
         }

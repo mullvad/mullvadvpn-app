@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -40,9 +39,7 @@ class NoDaemonViewModel(managementService: ManagementService) :
                 event,
                 connEvent,
                 destination ->
-                toDaemonState(event, connEvent, destination).also {
-                    Log.d("NoDaemonViewModel", "DaemonState: $it")
-                }
+                toDaemonState(event, connEvent, destination)
             }
             .map { state ->
                 when (state) {

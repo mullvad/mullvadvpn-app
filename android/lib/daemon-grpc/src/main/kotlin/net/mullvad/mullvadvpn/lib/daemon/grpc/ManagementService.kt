@@ -15,7 +15,6 @@ import io.grpc.Status
 import io.grpc.StatusException
 import io.grpc.android.UdsChannelBuilder
 import java.net.InetAddress
-import kotlin.time.measureTimedValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,7 +30,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -110,6 +108,7 @@ import net.mullvad.mullvadvpn.model.wireguardConstraints
 @Suppress("TooManyFunctions")
 class ManagementService(
     rpcSocketPath: String,
+    private val extensiveLogging: Boolean,
     private val scope: CoroutineScope,
 ) {
     private var job: Job? = null
@@ -121,13 +120,18 @@ class ManagementService(
         channel
             .connectivityFlow()
             .map(ConnectivityState::toDomain)
-            .onEach { Log.d(TAG, "Connection state: $it") }
             .stateIn(scope, SharingStarted.Eagerly, channel.getState(false).toDomain())
 
     private val grpc =
         ManagementServiceGrpcKt.ManagementServiceCoroutineStub(channel)
             .withExecutor(Dispatchers.IO.asExecutor())
-            .withInterceptors(LogInterceptor())
+            .withInterceptors(
+                if (extensiveLogging) {
+                    LogInterceptor(TAG)
+                } else {
+                    null
+                }
+            )
             .withWaitForReady()
 
     private val _mutableDeviceState = MutableStateFlow<ModelDeviceState?>(null)
@@ -174,7 +178,9 @@ class ManagementService(
         withContext(Dispatchers.IO) {
             launch {
                 grpc.eventsListen(Empty.getDefaultInstance()).collect { event ->
-                    Log.d("ManagementService", "Event: $event")
+                    if (extensiveLogging) {
+                        Log.d(TAG, "Event: $event")
+                    }
                     @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
                     when (event.eventCase) {
                         ManagementInterface.DaemonEvent.EventCase.TUNNEL_STATE ->
@@ -308,12 +314,9 @@ class ManagementService(
 
     suspend fun setDnsState(dnsState: ModelDnsState): Either<SetDnsOptionsError, Unit> =
         Either.catch {
-                val currentDnsOptions = measureTimedValue { getSettings().tunnelOptions.dnsOptions }
-                Log.d(TAG, "Time to get currentDnsOptions: ${currentDnsOptions.duration}")
-                val updated = DnsOptions.currentDnsOption.set(currentDnsOptions.value, dnsState)
-                measureTimedValue { grpc.setDnsOptions(updated.fromDomain()) }
-                    .also { Log.d(TAG, "Time to set DnsState: ${currentDnsOptions.duration}") }
-                    .value
+                val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
+                val updated = DnsOptions.currentDnsOption.set(currentDnsOptions, dnsState)
+                grpc.setDnsOptions(updated.fromDomain())
             }
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
@@ -376,11 +379,7 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun setAutoConnect(isEnabled: Boolean): Either<SetAutoConnectError, Unit> =
-        Either.catch {
-                measureTimedValue { grpc.setAutoConnect(BoolValue.of(isEnabled)) }
-                    .also { Log.d("ManagementService", "Time to setAutoConnect: ${it.duration}") }
-                    .value
-            }
+        Either.catch { grpc.setAutoConnect(BoolValue.of(isEnabled)) }
             .mapLeft(SetAutoConnectError::Unknown)
             .mapEmpty()
 
@@ -435,7 +434,6 @@ class ManagementService(
     suspend fun applySettingsPatch(json: String): Either<SettingsPatchError, Unit> =
         Either.catch { grpc.applyJsonSettings(StringValue.of(json)) }
             .mapLeftStatus {
-                Log.d(TAG, "applySettingsPatch error: ${it.status.description} ${it.status.code}")
                 when (it.status.code) {
                     // Currently we only get invalid argument errors from daemon via gRPC
                     Status.Code.INVALID_ARGUMENT -> SettingsPatchError.ParsePatch
