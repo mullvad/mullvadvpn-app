@@ -14,7 +14,6 @@ import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.model.AccountToken
-import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.toPaymentState
 import org.joda.time.DateTime
@@ -22,7 +21,6 @@ import org.joda.time.DateTime
 class AccountViewModel(
     private val accountRepository: AccountRepository,
     private val paymentUseCase: PaymentUseCase,
-    deviceRepository: DeviceRepository,
     private val isPlayBuild: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
@@ -30,7 +28,7 @@ class AccountViewModel(
 
     val uiState: StateFlow<AccountUiState> =
         combine(
-                deviceRepository.deviceState,
+                accountRepository.accountState,
                 accountRepository.accountData,
                 paymentUseCase.paymentAvailability
             ) { deviceState, accountData, paymentAvailability ->

@@ -27,7 +27,6 @@ import net.mullvad.mullvadvpn.util.toPaymentState
 @OptIn(FlowPreview::class)
 class WelcomeViewModel(
     private val accountRepository: AccountRepository,
-    deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentUseCase,
     connectionProxy: ConnectionProxy,
     private val pollAccountExpiry: Boolean = true,
@@ -39,13 +38,13 @@ class WelcomeViewModel(
     val uiState =
         combine(
                 connectionProxy.tunnelState,
-                deviceRepository.deviceState.filterNotNull(),
+                accountRepository.accountState.filterNotNull(),
                 paymentUseCase.paymentAvailability,
-            ) { tunnelState, deviceState, paymentAvailability ->
+            ) { tunnelState, accountState, paymentAvailability ->
                 WelcomeUiState(
                     tunnelState = tunnelState,
-                    accountNumber = deviceState.token(),
-                    deviceName = deviceState.deviceName(),
+                    accountNumber = accountState.token(),
+                    deviceName = accountState.deviceName(),
                     showSitePayment = !isPlayBuild,
                     billingPaymentState = paymentAvailability?.toPaymentState(),
                 )

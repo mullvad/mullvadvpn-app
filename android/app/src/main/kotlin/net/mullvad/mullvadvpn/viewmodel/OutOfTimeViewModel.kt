@@ -24,7 +24,6 @@ import net.mullvad.mullvadvpn.util.toPaymentState
 
 class OutOfTimeViewModel(
     private val accountRepository: AccountRepository,
-    deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentUseCase,
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val connectionProxy: ConnectionProxy,
@@ -38,12 +37,12 @@ class OutOfTimeViewModel(
     val uiState =
         combine(
                 connectionProxy.tunnelState,
-                deviceRepository.deviceState,
+                accountRepository.accountState,
                 paymentUseCase.paymentAvailability,
-            ) { tunnelState, deviceState, paymentAvailability ->
+            ) { tunnelState, accountState, paymentAvailability ->
                 OutOfTimeUiState(
                     tunnelState = tunnelState,
-                    deviceName = deviceState?.deviceName() ?: "",
+                    deviceName = accountState?.deviceName() ?: "",
                     showSitePayment = !isPlayBuild,
                     billingPaymentState = paymentAvailability?.toPaymentState(),
                 )
