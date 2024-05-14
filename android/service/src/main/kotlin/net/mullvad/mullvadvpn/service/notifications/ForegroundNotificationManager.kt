@@ -8,6 +8,9 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.Notification
+import net.mullvad.mullvadvpn.model.NotificationChannel
+import net.mullvad.mullvadvpn.model.NotificationTunnelState
+import net.mullvad.mullvadvpn.model.NotificationUpdate
 import net.mullvad.mullvadvpn.service.MullvadVpnService
 import net.mullvad.mullvadvpn.service.notifications.tunnelstate.TunnelStateNotificationProvider
 import net.mullvad.mullvadvpn.service.notifications.tunnelstate.toNotification
@@ -25,11 +28,21 @@ class ForegroundNotificationManager(
         scope.launch {
             foregroundProvider.shouldBeOnForeground.collect {
                 if (it) {
-                    notifyForeground(tunnelStateNotificationProvider.notifications.value)
+                    notifyForeground(getTunnelStateNotificationOrDefault())
                 } else {
                     vpnService.stopForeground(Service.STOP_FOREGROUND_DETACH)
                 }
             }
+        }
+    }
+
+    private fun getTunnelStateNotificationOrDefault(): Notification.Tunnel {
+        val current = tunnelStateNotificationProvider.notifications.value
+
+        return if (current is NotificationUpdate.Notify) {
+            current.value
+        } else {
+            defaultNotification
         }
     }
 
@@ -39,7 +52,7 @@ class ForegroundNotificationManager(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             if (VpnService.prepare(vpnService) == null) {
                 vpnService.startForeground(
-                    tunnelStateNotification.id.value,
+                    tunnelStateNotificationProvider.notificationId.value,
                     androidNotification,
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
                 )
@@ -51,11 +64,19 @@ class ForegroundNotificationManager(
             }
         } else {
             vpnService.startForeground(
-                tunnelStateNotification.id.value,
+                tunnelStateNotificationProvider.notificationId.value,
                 androidNotification,
             )
         }
     }
+
+    private val defaultNotification =
+        Notification.Tunnel(
+            NotificationChannel.TunnelUpdates.id,
+            NotificationTunnelState.Disconnected(true),
+            emptyList(),
+            false
+        )
 
     companion object {
         private const val TAG = "ForegroundNotificationManager"
