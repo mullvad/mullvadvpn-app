@@ -27,6 +27,7 @@ val vpnServiceModule = module {
         TunnelStateNotificationProvider(
             get(),
             get(),
+            get(),
             get<NotificationChannel.TunnelUpdates>().id,
             MainScope()
         )
