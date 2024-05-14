@@ -24,6 +24,7 @@ const config = {
   appId: 'net.mullvad.vpn',
   copyright: 'Mullvad VPN AB',
   productName: 'Mullvad VPN',
+  publish: null,
   asar: true,
   compression: noCompression ? 'store' : 'normal',
   extraResources: [
