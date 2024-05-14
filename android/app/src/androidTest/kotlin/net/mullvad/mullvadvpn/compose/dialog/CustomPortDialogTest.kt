@@ -9,6 +9,7 @@ import io.mockk.MockKAnnotations
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.test.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.onNodeWithTagAndText
 import org.junit.jupiter.api.BeforeEach
@@ -29,7 +30,7 @@ class CustomPortDialogTest {
     @SuppressLint("ComposableNaming")
     @Composable
     private fun testWireguardCustomPortDialog(
-        initialPort: Int? = null,
+        initialPort: Port? = null,
         allowedPortRanges: List<PortRange> = emptyList(),
         onSave: (Int?) -> Unit = { _ -> },
         onDismiss: () -> Unit = {},
@@ -54,14 +55,14 @@ class CustomPortDialogTest {
             setContentWithTheme { testWireguardCustomPortDialog() }
 
             // Act
-            onNodeWithTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).performTextInput(invalidCustomPort)
+            onNodeWithTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).performTextInput(INVALID_CUSTOM_PORT)
 
             // Assert
-            onNodeWithTagAndText(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG, invalidCustomPort)
+            onNodeWithTagAndText(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG, INVALID_CUSTOM_PORT)
                 .assertDoesNotExist()
         }
 
     companion object {
-        const val invalidCustomPort = "21474836471"
+        const val INVALID_CUSTOM_PORT = "21474836471"
     }
 }
