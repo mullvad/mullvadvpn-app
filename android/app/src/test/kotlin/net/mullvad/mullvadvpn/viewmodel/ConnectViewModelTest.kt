@@ -25,11 +25,13 @@ import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.AccountToken
+import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.ErrorState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.model.WwwAuthToken
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
@@ -56,7 +58,7 @@ class ConnectViewModelTest {
     private val serviceConnectionState =
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
     private val accountExpiryState = MutableStateFlow<AccountData?>(null)
-    private val deviceState = MutableStateFlow<DeviceState?>(null)
+    private val device = MutableStateFlow<Device?>(null)
     private val notifications = MutableStateFlow<List<InAppNotification>>(emptyList())
 
     // Service connections
@@ -98,7 +100,7 @@ class ConnectViewModelTest {
 
         every { mockAccountRepository.accountData } returns accountExpiryState
 
-        every { mockDeviceRepository.deviceState } returns deviceState
+        every { mockDeviceRepository.deviceState } returns device
 
         every { mockInAppNotificationController.notifications } returns notifications
 
@@ -296,8 +298,8 @@ class ConnectViewModelTest {
     fun `onShowAccountClick call should result in uiSideEffect emitting OpenAccountManagementPageInBrowser`() =
         runTest {
             // Arrange
-            val mockToken = AccountToken("4444 5555 6666 7777")
-            every { mockAccountRepository.getAccountToken() } returns mockToken
+            val mockToken = WwwAuthToken("4444 5555 6666 7777")
+            coEvery { mockAccountRepository.getWwwAuthToken() } returns mockToken
 
             // Act, Assert
             viewModel.uiSideEffect.test {

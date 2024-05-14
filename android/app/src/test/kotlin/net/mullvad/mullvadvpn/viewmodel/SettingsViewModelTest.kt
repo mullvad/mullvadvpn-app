@@ -9,9 +9,9 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import org.junit.jupiter.api.AfterEach
@@ -22,31 +22,26 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class SettingsViewModelTest {
 
-    private val mockDeviceRepository: DeviceRepository = mockk()
+    private val mockAccountRepository: AccountRepository = mockk()
     private val mockAppVersionInfoCache: AppVersionInfoCache = mockk()
 
     private val versionInfo =
         MutableStateFlow(
-            VersionInfo(
-                currentVersion = null,
-                suggestedUpgradeVersion = null,
-                isOutdated = false,
-                isSupported = false
-            )
+            VersionInfo(currentVersion = "", suggestedUpgradeVersion = null, isSupported = false)
         )
 
     private lateinit var viewModel: SettingsViewModel
 
     @BeforeEach
     fun setup() {
-        val deviceState = MutableStateFlow<DeviceState>(DeviceState.LoggedOut)
+        val accountState = MutableStateFlow<DeviceState>(DeviceState.LoggedOut)
 
-        every { mockDeviceRepository.deviceState } returns deviceState
+        every { mockAccountRepository.accountState } returns accountState
         every { mockAppVersionInfoCache.versionInfo() } returns versionInfo
 
         viewModel =
             SettingsViewModel(
-                deviceRepository = mockDeviceRepository,
+                accountRepository = mockAccountRepository,
                 appVersionInfoCache = mockAppVersionInfoCache,
                 isPlayBuild = false
             )
@@ -71,8 +66,7 @@ class SettingsViewModelTest {
             val versionInfoTestItem =
                 VersionInfo(
                     currentVersion = "1.0",
-                    suggestedUpgradeVersion = "1.0",
-                    isOutdated = false,
+                    suggestedUpgradeVersion = null,
                     isSupported = true
                 )
 
@@ -91,12 +85,7 @@ class SettingsViewModelTest {
         runTest {
             // Arrange
             val versionInfoTestItem =
-                VersionInfo(
-                    currentVersion = "",
-                    suggestedUpgradeVersion = "",
-                    isOutdated = false,
-                    isSupported = false
-                )
+                VersionInfo(currentVersion = "", suggestedUpgradeVersion = "", isSupported = false)
             versionInfo.value = versionInfoTestItem
 
             // Act, Assert
@@ -111,12 +100,7 @@ class SettingsViewModelTest {
         runTest {
             // Arrange
             val versionInfoTestItem =
-                VersionInfo(
-                    currentVersion = "",
-                    suggestedUpgradeVersion = "",
-                    isOutdated = true,
-                    isSupported = true
-                )
+                VersionInfo(currentVersion = "", suggestedUpgradeVersion = "", isSupported = true)
             versionInfo.value = versionInfoTestItem
 
             // Act, Assert

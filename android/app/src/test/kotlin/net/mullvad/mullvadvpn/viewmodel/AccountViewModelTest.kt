@@ -23,7 +23,6 @@ import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceId
 import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
@@ -36,10 +35,9 @@ class AccountViewModelTest {
 
     private val mockAccountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository =
         mockk(relaxUnitFun = true)
-    private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
 
-    private val deviceState: MutableStateFlow<DeviceState?> = MutableStateFlow(null)
+    private val accountState: MutableStateFlow<DeviceState?> = MutableStateFlow(null)
     private val paymentAvailability = MutableStateFlow<PaymentAvailability?>(null)
     private val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
     private val accountExpiryState = MutableStateFlow(null)
@@ -61,8 +59,8 @@ class AccountViewModelTest {
     @BeforeEach
     fun setup() {
         mockkStatic(PURCHASE_RESULT_EXTENSIONS_CLASS)
-        every { mockDeviceRepository.deviceState } returns deviceState
         every { mockAccountRepository.accountData } returns accountExpiryState
+        every { mockAccountRepository.accountState } returns accountState
         coEvery { mockPaymentUseCase.purchaseResult } returns purchaseResult
         coEvery { mockPaymentUseCase.paymentAvailability } returns paymentAvailability
         coEvery { mockAccountRepository.getAccountData() } returns null
@@ -70,7 +68,6 @@ class AccountViewModelTest {
         viewModel =
             AccountViewModel(
                 accountRepository = mockAccountRepository,
-                deviceRepository = mockDeviceRepository,
                 paymentUseCase = mockPaymentUseCase,
                 isPlayBuild = false
             )
@@ -86,7 +83,7 @@ class AccountViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             awaitItem() // Default state
-            deviceState.value =
+            accountState.value =
                 DeviceState.LoggedIn(accountToken = dummyAccountToken, device = dummyDevice)
             val result = awaitItem()
             assertEquals(DUMMY_DEVICE_NAME, result.accountNumber)

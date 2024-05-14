@@ -24,7 +24,7 @@ import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.model.WwwAuthToken
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
@@ -40,7 +40,7 @@ class WelcomeViewModelTest {
 
     private val serviceConnectionStateFlow =
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
-    private val deviceStateFlow = MutableStateFlow<DeviceState?>(DeviceState.LoggedOut)
+    private val accountStateFlow = MutableStateFlow<DeviceState?>(DeviceState.LoggedOut)
     private val accountExpiryStateFlow = MutableStateFlow<AccountData?>(null)
     private val purchaseResultFlow = MutableStateFlow<PurchaseResult?>(null)
     private val paymentAvailabilityFlow = MutableStateFlow<PaymentAvailability?>(null)
@@ -52,7 +52,6 @@ class WelcomeViewModelTest {
     private val tunnelState = MutableStateFlow<TunnelState>(TunnelState.Disconnected())
 
     private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
-    private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
 
@@ -62,7 +61,7 @@ class WelcomeViewModelTest {
     fun setup() {
         mockkStatic(PURCHASE_RESULT_EXTENSIONS_CLASS)
 
-        every { mockDeviceRepository.deviceState } returns deviceStateFlow
+        every { mockAccountRepository.accountState } returns accountStateFlow
 
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionStateFlow
 
@@ -77,7 +76,6 @@ class WelcomeViewModelTest {
         viewModel =
             WelcomeViewModel(
                 accountRepository = mockAccountRepository,
-                deviceRepository = mockDeviceRepository,
                 paymentUseCase = mockPaymentUseCase,
                 connectionProxy = mockConnectionProxy,
                 pollAccountExpiry = false,
@@ -94,8 +92,8 @@ class WelcomeViewModelTest {
     @Test
     fun `on onSitePaymentClick call uiSideEffect should emit OpenAccountView`() = runTest {
         // Arrange
-        val mockToken = AccountToken("4444 5555 6666 7777")
-        coEvery { mockAccountRepository.getAccountToken() } returns mockToken
+        val mockToken = WwwAuthToken("4444 5555 6666 7777")
+        coEvery { mockAccountRepository.getWwwAuthToken() } returns mockToken
 
         // Act, Assert
         viewModel.uiSideEffect.test {
@@ -134,7 +132,7 @@ class WelcomeViewModelTest {
                 // Default state
                 awaitItem()
                 paymentAvailabilityFlow.value = null
-                deviceStateFlow.value =
+                accountStateFlow.value =
                     DeviceState.LoggedIn(accountToken = expectedAccountNumber, device = device)
                 assertEquals(expectedAccountNumber, awaitItem().accountNumber)
             }
