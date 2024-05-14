@@ -24,26 +24,31 @@ function getButtonColors(color?: SmallButtonColor, disabled?: boolean) {
   }
 }
 
+const BUTTON_GROUP_GAP = 12;
+
 const StyledSmallButton = styled.button<{ $color?: SmallButtonColor; disabled?: boolean }>(
   smallText,
   (props) => {
     const buttonColors = getButtonColors(props.$color, props.disabled);
     return {
-      height: '32px',
+      minHeight: '32px',
       padding: '5px 16px',
       border: 'none',
       background: buttonColors.background,
       color: props.disabled ? colors.white50 : colors.white,
       borderRadius: '4px',
-      marginLeft: '12px',
+      marginLeft: `${BUTTON_GROUP_GAP}px`,
 
       [`${SmallButtonGroupStart} &&`]: {
         marginLeft: 0,
-        marginRight: '12px',
+        marginRight: `${BUTTON_GROUP_GAP}px`,
       },
 
-      [`${StyledSmallButtonGrid} &&`]: {
+      [`${SmallButtonGrid} &&`]: {
+        flex: '1 0 auto',
         marginLeft: 0,
+        minWidth: `calc(50% - ${BUTTON_GROUP_GAP / 2}px)`,
+        maxWidth: '100%',
       },
 
       '&&:hover': {
@@ -78,22 +83,9 @@ export const SmallButtonGroupStart = styled(SmallButtonGroup)({
   margin: 0,
 });
 
-const StyledSmallButtonGrid = styled.div<{ $columns: number }>((props) => ({
-  display: 'grid',
-  gridTemplateColumns: `repeat(${props.$columns}, 1fr)`,
-  gridColumnGap: '10px',
-}));
-
-interface SmallButtonGridProps {
-  className?: string;
-}
-
-export function SmallButtonGrid(props: React.PropsWithChildren<SmallButtonGridProps>) {
-  return (
-    <StyledSmallButtonGrid
-      $columns={React.Children.count(props.children)}
-      className={props.className}>
-      {props.children}
-    </StyledSmallButtonGrid>
-  );
-}
+export const SmallButtonGrid = styled.div({
+  display: 'flex',
+  flexWrap: 'wrap',
+  columnGap: `${BUTTON_GROUP_GAP}px`,
+  rowGap: `${BUTTON_GROUP_GAP}px`,
+});
