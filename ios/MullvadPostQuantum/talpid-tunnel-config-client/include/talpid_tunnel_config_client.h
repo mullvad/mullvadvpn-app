@@ -13,27 +13,41 @@ typedef struct PostQuantumCancelToken {
 } PostQuantumCancelToken;
 
 /**
- *  * # Safety  * `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the `PacketTunnelProvider`
+ * Called by the Swift side to signal that the quantum-secure key exchange should be cancelled.
+ *
+ * # Safety
+ * `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the `PacketTunnelProvider`.
  */
 void cancel_post_quantum_key_exchange(const struct PostQuantumCancelToken *sender);
 
 /**
- *  * # Safety  * `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the `PacketTunnelProvider`.
+ * Called by the Swift side to signal that the Rust `PostQuantumCancelToken` can be safely dropped from memory.
+ *
+ * # Safety
+ * `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the `PacketTunnelProvider`.
  */
 void drop_post_quantum_key_exchange_token(const struct PostQuantumCancelToken *sender);
 
 /**
- *  * # Safety  * `sender` must be pointing to a valid instance of a `write_tx` created by the `IosTcpProvider`  *  * Callback to call when the TCP connection has written data.
+ * Called by Swift whenever data has been written to the in-tunnel TCP connection when exchanging
+ * quantum-resistant pre shared keys.
+ *
+ * # Safety
+ * `sender` must be pointing to a valid instance of a `write_tx` created by the `IosTcpProvider`
+ * Callback to call when the TCP connection has written data.
  */
-void handle_sent(uintptr_t bytes_sent,
-                 const void *sender);
+void handle_sent(uintptr_t bytes_sent, const void *sender);
 
 /**
- *  * # Safety  * `sender` must be pointing to a valid instance of a `read_tx` created by the `IosTcpProvider`  *  * Callback to call when the TCP connection has received data.
+ * Called by Swift whenever data has been read from the in-tunnel TCP connection when exchanging
+ * quantum-resistant pre shared keys.
+ *
+ * # Safety
+ * `sender` must be pointing to a valid instance of a `read_tx` created by the `IosTcpProvider`
+ *
+ * Callback to call when the TCP connection has received data.
  */
-void handle_recv(const uint8_t *data,
-                 uintptr_t data_len,
-                 const void *sender);
+void handle_recv(const uint8_t *data, uintptr_t data_len, const void *sender);
 
 /**
  * Entry point for exchanging post quantum keys on iOS.

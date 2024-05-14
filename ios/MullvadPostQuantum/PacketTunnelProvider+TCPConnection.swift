@@ -63,14 +63,14 @@ func tcpConnectionReceive(
     rawReadAcknowledgement: UnsafeMutableRawPointer?
 ) {
     guard let rawConnection, let rawReadAcknowledgement else {
-        handle_recv(Data().map { $0 }, 0, rawReadAcknowledgement)
+        handle_recv(nil, 0, rawReadAcknowledgement)
         return
     }
     let tcpConnection = Unmanaged<NWTCPConnection>.fromOpaque(rawConnection).takeUnretainedValue()
     tcpConnection.readMinimumLength(0, maximumLength: Int(UInt16.max)) { data, maybeError in
         if let data {
             if maybeError != nil {
-                handle_recv(Data().map { $0 }, 0, rawReadAcknowledgement)
+                handle_recv(nil, 0, rawReadAcknowledgement)
             } else {
                 handle_recv(data.map { $0 }, UInt(data.count), rawReadAcknowledgement)
             }

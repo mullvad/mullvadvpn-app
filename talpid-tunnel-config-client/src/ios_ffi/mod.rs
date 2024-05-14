@@ -35,20 +35,19 @@ impl Drop for PostQuantumCancelToken {
 }
 unsafe impl Send for PostQuantumCancelToken {}
 
+/// Called by the Swift side to signal that the quantum-secure key exchange should be cancelled.
+///
+/// # Safety
+/// `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the `PacketTunnelProvider`.
 #[no_mangle]
-/**
- * # Safety
- * `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the `PacketTunnelProvider`
- */
 pub unsafe extern "C" fn cancel_post_quantum_key_exchange(sender: *const PostQuantumCancelToken) {
     let sender = unsafe { &*sender };
     sender.cancel();
 }
-
-/**
- * # Safety
- * `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the `PacketTunnelProvider`.
- */
+/// Called by the Swift side to signal that the Rust `PostQuantumCancelToken` can be safely dropped from memory.
+///
+/// # Safety
+/// `sender` must be pointing to a valid instance of a `PostQuantumCancelToken` created by the `PacketTunnelProvider`.
 #[no_mangle]
 pub unsafe extern "C" fn drop_post_quantum_key_exchange_token(
     sender: *const PostQuantumCancelToken,
@@ -56,12 +55,12 @@ pub unsafe extern "C" fn drop_post_quantum_key_exchange_token(
     let _sender = unsafe { std::ptr::read(sender) };
 }
 
-/**
- * # Safety
- * `sender` must be pointing to a valid instance of a `write_tx` created by the `IosTcpProvider`
- *
- * Callback to call when the TCP connection has written data.
- */
+/// Called by Swift whenever data has been written to the in-tunnel TCP connection when exchanging
+/// quantum-resistant pre shared keys.
+///
+/// # Safety
+/// `sender` must be pointing to a valid instance of a `write_tx` created by the `IosTcpProvider`
+/// Callback to call when the TCP connection has written data.
 #[no_mangle]
 pub unsafe extern "C" fn handle_sent(bytes_sent: usize, sender: *const c_void) {
     let weak_tx: Weak<mpsc::UnboundedSender<usize>> = unsafe { Weak::from_raw(sender as _) };
@@ -70,12 +69,13 @@ pub unsafe extern "C" fn handle_sent(bytes_sent: usize, sender: *const c_void) {
     }
 }
 
-/**
- * # Safety
- * `sender` must be pointing to a valid instance of a `read_tx` created by the `IosTcpProvider`
- *
- * Callback to call when the TCP connection has received data.
- */
+/// Called by Swift whenever data has been read from the in-tunnel TCP connection when exchanging
+/// quantum-resistant pre shared keys.
+///
+/// # Safety
+/// `sender` must be pointing to a valid instance of a `read_tx` created by the `IosTcpProvider`
+///
+/// Callback to call when the TCP connection has received data.
 #[no_mangle]
 pub unsafe extern "C" fn handle_recv(data: *const u8, data_len: usize, sender: *const c_void) {
     let weak_tx: Weak<mpsc::UnboundedSender<Box<[u8]>>> = unsafe { Weak::from_raw(sender as _) };

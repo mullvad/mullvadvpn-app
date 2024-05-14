@@ -340,7 +340,13 @@ extension PacketTunnelActor {
                 connectionState.incrementAttemptCount()
             }
             fallthrough
-        case let .negotiatingPostQuantumKey(connectionState, _):
+        case var .negotiatingPostQuantumKey(connectionState, _):
+            let selectedRelay = try callRelaySelector(
+                connectionState.selectedRelay,
+                connectionState.connectionAttemptCount
+            )
+            connectionState.selectedRelay = selectedRelay
+            connectionState.relayConstraints = settings.relayConstraints
             return connectionState
         case var .connected(connectionState):
             let selectedRelay = try callRelaySelector(
