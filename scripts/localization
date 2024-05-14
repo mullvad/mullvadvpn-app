@@ -88,15 +88,19 @@ function upload_to_crowdin {
     ensure_crowdin_api_key
 
     log_header "Uploading translations to crowdin"
-    ../gui/scripts/crowdin.sh upload
+
+    pushd ../gui
+    crowdin upload sources
+    popd
 }
 
 function download_from_crowdin {
     ensure_crowdin_api_key
 
     log_header "Downloading translations from crowdin"
-    ../gui/scripts/crowdin.sh export
-    ../gui/scripts/crowdin.sh download
+    pushd ../gui
+    crowdin download
+    popd
 
     # Add new translations to Android xml-files
     log_header "Updating Android xml-files with new translations"
