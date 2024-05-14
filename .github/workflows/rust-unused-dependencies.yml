@@ -144,6 +144,11 @@ jobs:
         with:
           tool: cargo-udeps@0.1.48
 
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21.3
+
       - name: Check for unused dependencies
         shell: bash
         run: cargo udeps --workspace
