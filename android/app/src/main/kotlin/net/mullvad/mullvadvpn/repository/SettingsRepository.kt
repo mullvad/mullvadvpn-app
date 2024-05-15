@@ -51,7 +51,9 @@ class SettingsRepository(
 
     suspend fun addCustomDns(address: InetAddress) = managementService.addCustomDns(address)
 
-    suspend fun setWireguardMtu(value: Int?) = managementService.setWireguardMtu(value ?: 0)
+    suspend fun setWireguardMtu(value: Int) = managementService.setWireguardMtu(value)
+
+    suspend fun clearWireguardMtu() = managementService.setWireguardMtu(0)
 
     suspend fun setWireguardQuantumResistant(value: QuantumResistantState) =
         managementService.setWireguardQuantumResistant(value)
