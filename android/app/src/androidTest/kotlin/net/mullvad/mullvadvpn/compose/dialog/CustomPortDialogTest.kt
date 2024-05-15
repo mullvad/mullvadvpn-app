@@ -32,7 +32,7 @@ class CustomPortDialogTest {
     private fun testWireguardCustomPortDialog(
         initialPort: Port? = null,
         allowedPortRanges: List<PortRange> = emptyList(),
-        onSave: (Int?) -> Unit = { _ -> },
+        onSave: (Port?) -> Unit = { _ -> },
         onDismiss: () -> Unit = {},
     ) {
 
@@ -48,8 +48,7 @@ class CustomPortDialogTest {
     fun testShowWireguardCustomPortDialogInvalidInt() =
         composeExtension.use {
             // Input a number to make sure that a too long number does not show and it does not
-            // crash
-            // the app
+            // crash the app
 
             // Arrange
             setContentWithTheme { testWireguardCustomPortDialog() }

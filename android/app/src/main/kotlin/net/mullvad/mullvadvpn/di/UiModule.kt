@@ -194,7 +194,7 @@ val uiModule = module {
     viewModel { FilterViewModel(get(), get()) }
     viewModel { (location: GeoLocationId?) -> CreateCustomListDialogViewModel(location, get()) }
     viewModel { parameters ->
-        CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get(), get(), get())
+        CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get(), get())
     }
     viewModel { parameters -> EditCustomListViewModel(parameters.get(), get()) }
     viewModel { parameters ->

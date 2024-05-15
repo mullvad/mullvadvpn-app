@@ -12,15 +12,9 @@ class ConnectionProxy(
 ) {
     val tunnelState = managementService.tunnelState
 
-    suspend fun connect(ignorePermission: Boolean = false): Either<ConnectError, Unit> = either {
+    suspend fun connect(ignorePermission: Boolean = false): Either<ConnectError, Boolean> = either {
         if (ignorePermission || vpnPermissionRepository.hasVpnPermission()) {
-            managementService.connect().map {
-                if (it) {
-                    Unit
-                } else {
-                    raise(ConnectError.Unknown(null))
-                }
-            }
+            managementService.connect().bind()
         } else {
             raise(ConnectError.NoVpnPermission)
         }

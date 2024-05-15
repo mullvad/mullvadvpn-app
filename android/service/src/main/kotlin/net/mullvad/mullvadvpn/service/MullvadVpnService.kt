@@ -104,7 +104,9 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             }
             intent.isFromSystem() || intent?.action == KEY_CONNECT_ACTION -> {
                 _shouldBeOnForeground.update { true }
-                lifecycleScope.launch { managementService.connect() }
+                lifecycleScope.launch {
+                    managementService.connect()
+                }
             }
             intent?.action == KEY_DISCONNECT_ACTION -> {
                 lifecycleScope.launch { managementService.disconnect() }

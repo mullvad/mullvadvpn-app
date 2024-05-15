@@ -13,7 +13,6 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.PaymentState
-import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
@@ -30,12 +29,11 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.util.UUID
 
 @ExtendWith(TestCoroutineRule::class)
 class AccountViewModelTest {
 
-    private val mockAccountRepository: AccountRepository =
+    private val mockAccountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository =
         mockk(relaxUnitFun = true)
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
 
@@ -46,7 +44,7 @@ class AccountViewModelTest {
 
     private val dummyDevice =
         Device(
-            id = DeviceId(UUID.randomUUID()),
+            id = DeviceId.fromString(java.util.UUID.randomUUID().toString()),
             name = "fake_name",
             pubkey = byteArrayOf(),
             created = DateTime.now()
