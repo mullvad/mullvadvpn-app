@@ -30,6 +30,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.util.UUID
 
 @ExtendWith(TestCoroutineRule::class)
 class AccountViewModelTest {
@@ -45,7 +46,7 @@ class AccountViewModelTest {
 
     private val dummyDevice =
         Device(
-            id = DeviceId.fromString(java.util.UUID.randomUUID().toString()),
+            id = DeviceId.fromString(UUID.randomUUID().toString()),
             name = "fake_name",
             pubkey = byteArrayOf(),
             created = DateTime.now()
