@@ -565,20 +565,3 @@ sealed interface GrpcConnectivityState {
 
     data object Shutdown : GrpcConnectivityState
 }
-
-sealed interface ServiceConnectionState {
-    data class Connected(val serviceState: ServiceState) : ServiceConnectionState
-
-    data class Connecting(val lastKnownState: ServiceState?) : ServiceConnectionState
-
-    data class Disconnected(val lastKnownState: ServiceState?, val error: ServiceConnectError?) :
-        ServiceConnectionState
-}
-
-data class ServiceState(val settings: ModelSettings, val accountState: ModelSettings)
-
-sealed interface ServiceConnectError {
-    data object Timeout : ServiceConnectError
-
-    data class Connection(val message: String) : ServiceConnectError
-}
