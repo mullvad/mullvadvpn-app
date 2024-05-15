@@ -6,8 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -20,7 +19,6 @@ class LastKnownLocationUseCase(
     val lastKnownDisconnectedLocation: Flow<GeoIpLocation?> =
         connectionProxy.tunnelState
             .filterIsInstance<TunnelState.Disconnected>()
-            .map { it.location }
-            .filterNotNull()
+            .mapNotNull { it.location }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.Lazily, null)
 }
