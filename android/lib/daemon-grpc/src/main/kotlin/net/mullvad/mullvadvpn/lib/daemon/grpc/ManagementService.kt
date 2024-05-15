@@ -9,6 +9,7 @@ import arrow.optics.typeclasses.Index
 import com.google.protobuf.BoolValue
 import com.google.protobuf.Empty
 import com.google.protobuf.StringValue
+import com.google.protobuf.UInt32Value
 import io.grpc.ConnectivityState
 import io.grpc.Status
 import io.grpc.StatusException
@@ -353,8 +354,13 @@ class ManagementService(
             .mapLeft(SetDnsOptionsError::Unknown)
             .mapEmpty()
 
-    suspend fun setWireguardMtu(value: Int?): Either<SetWireguardMtuError, Unit> =
-        Either.catch { grpc.setWireguardMtu(value.fromDomain()) }
+    suspend fun setWireguardMtu(value: Int): Either<SetWireguardMtuError, Unit> =
+        Either.catch { grpc.setWireguardMtu(UInt32Value.of(value)) }
+            .mapLeft(SetWireguardMtuError::Unknown)
+            .mapEmpty()
+
+    suspend fun clearWireguardMtu(): Either<SetWireguardMtuError, Unit> =
+        Either.catch { grpc.setWireguardMtu(UInt32Value.newBuilder().clearValue().build()) }
             .mapLeft(SetWireguardMtuError::Unknown)
             .mapEmpty()
 
