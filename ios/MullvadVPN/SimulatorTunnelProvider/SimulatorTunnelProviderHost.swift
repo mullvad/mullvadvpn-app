@@ -159,9 +159,9 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     private func pickRelay() throws -> SelectedRelay {
         let cachedRelays = try relayCacheTracker.getCachedRelays()
         let tunnelSettings = try SettingsManager.readSettings()
-        let selectorResult = try RelaySelector.evaluate(
-            relays: cachedRelays.relays,
-            constraints: tunnelSettings.relayConstraints,
+        let selectorResult = try RelaySelector.WireGuard.evaluate(
+            by: tunnelSettings.relayConstraints,
+            in: cachedRelays.relays,
             numberOfFailedAttempts: 0
         )
         return SelectedRelay(

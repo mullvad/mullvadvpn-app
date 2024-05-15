@@ -55,8 +55,8 @@ public class ShadowsocksLoader: ShadowsocksLoaderProtocol {
     /// Returns a randomly selected shadowsocks configuration.
     private func create() throws -> ShadowsocksConfiguration {
         let cachedRelays = try relayCache.read()
-        let bridgeConfiguration = RelaySelector.shadowsocksTCPBridge(from: cachedRelays.relays)
-        let closestRelay = RelaySelector.closestShadowsocksRelayConstrained(
+        let bridgeConfiguration = RelaySelector.Shadowsocks.tcpBridge(from: cachedRelays.relays)
+        let closestRelay = RelaySelector.Shadowsocks.closestRelayConstrained(
             by: relayConstraints,
             in: cachedRelays.relays
         )

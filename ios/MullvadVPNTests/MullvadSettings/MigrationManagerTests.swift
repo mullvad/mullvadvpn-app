@@ -122,7 +122,7 @@ final class MigrationManagerTests: XCTestCase {
     func testSuccessfulMigrationFromV2ToLatest() throws {
         var settingsV2 = TunnelSettingsV2()
         let osakaRelayConstraints = RelayConstraints(
-            locations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
+            exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
         )
 
         settingsV2.relayConstraints = osakaRelayConstraints
@@ -136,7 +136,7 @@ final class MigrationManagerTests: XCTestCase {
     func testSuccessfulMigrationFromV1ToLatest() throws {
         var settingsV1 = TunnelSettingsV1()
         let osakaRelayConstraints = RelayConstraints(
-            locations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
+            exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
         )
 
         settingsV1.relayConstraints = osakaRelayConstraints

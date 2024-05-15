@@ -18,9 +18,9 @@ struct RelaySelectorWrapper: RelaySelectorProtocol {
         with constraints: RelayConstraints,
         connectionAttemptFailureCount: UInt
     ) throws -> SelectedRelay {
-        let selectorResult = try RelaySelector.evaluate(
-            relays: relayCache.read().relays,
-            constraints: constraints,
+        let selectorResult = try RelaySelector.WireGuard.evaluate(
+            by: constraints,
+            in: relayCache.read().relays,
             numberOfFailedAttempts: connectionAttemptFailureCount
         )
 

@@ -787,9 +787,9 @@ final class TunnelManager: StorePaymentObserver {
     fileprivate func selectRelay() throws -> SelectedRelay {
         let cachedRelays = try relayCacheTracker.getCachedRelays()
         let retryAttempts = tunnelStatus.observedState.connectionState?.connectionAttemptCount ?? 0
-        let selectorResult = try RelaySelector.evaluate(
-            relays: cachedRelays.relays,
-            constraints: settings.relayConstraints,
+        let selectorResult = try RelaySelector.WireGuard.evaluate(
+            by: settings.relayConstraints,
+            in: cachedRelays.relays,
             numberOfFailedAttempts: retryAttempts
         )
 
