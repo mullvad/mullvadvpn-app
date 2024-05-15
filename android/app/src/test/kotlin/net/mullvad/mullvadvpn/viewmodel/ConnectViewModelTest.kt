@@ -24,9 +24,7 @@ import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountData
-import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.Device
-import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.ErrorState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelEndpoint
