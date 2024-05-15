@@ -28,7 +28,6 @@ import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.model.WireguardTunnelOptions
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -39,7 +38,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 class VpnSettingsViewModelTest {
 
     private val mockSettingsRepository: SettingsRepository = mockk()
-    private val mockPortRangeUseCase: PortRangeUseCase = mockk()
     private val mockSystemVpnSettingsUseCase: SystemVpnSettingsUseCase = mockk(relaxed = true)
     private val mockRelayListRepository: RelayListRepository = mockk()
 
@@ -51,12 +49,11 @@ class VpnSettingsViewModelTest {
     @BeforeEach
     fun setup() {
         every { mockSettingsRepository.settingsUpdates } returns mockSettingsUpdate
-        every { mockPortRangeUseCase.portRanges() } returns portRangeFlow
+        every { mockRelayListRepository.portRanges } returns portRangeFlow
 
         viewModel =
             VpnSettingsViewModel(
                 repository = mockSettingsRepository,
-                portRangeUseCase = mockPortRangeUseCase,
                 systemVpnSettingsUseCase = mockSystemVpnSettingsUseCase,
                 relayListRepository = mockRelayListRepository,
                 dispatcher = UnconfinedTestDispatcher()
