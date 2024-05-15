@@ -134,7 +134,6 @@ class SelectLocationViewModel(
 
     fun addLocationToList(item: RelayItem.Location, customList: RelayItem.CustomList) {
         viewModelScope.launch {
-            // If this is null then something is seriously wrong
             val newLocations =
                 (customList.locations + item).filter { it !in item.descendants() }.map { it.id }
             customListActionUseCase

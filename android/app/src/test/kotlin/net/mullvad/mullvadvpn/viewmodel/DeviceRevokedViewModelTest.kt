@@ -70,7 +70,7 @@ class DeviceRevokedViewModelTest {
     @Test
     fun `onGoToLoginClicked should invoke logout on AccountRepository`() {
         // Arrange
-        coEvery { mockConnectionProxy.disconnect() } just Runs
+        coEvery { mockConnectionProxy.disconnect() } returns true
         coEvery { mockedAccountRepository.logout() } just Runs
 
         // Act
@@ -83,7 +83,7 @@ class DeviceRevokedViewModelTest {
     @Test
     fun `onGoToLoginClicked should invoke disconnect before logout when connected`() {
         // Arrange
-        coEvery { mockConnectionProxy.disconnect() } just Runs
+        coEvery { mockConnectionProxy.disconnect() } returns true
         coEvery { mockedAccountRepository.logout() } just Runs
 
         // Act
