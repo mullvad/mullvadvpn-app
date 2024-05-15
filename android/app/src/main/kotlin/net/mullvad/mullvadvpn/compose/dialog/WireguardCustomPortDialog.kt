@@ -58,7 +58,7 @@ data class WireguardCustomPortNavArgs(
 @Composable
 fun WireguardCustomPortDialog(
     navArg: WireguardCustomPortNavArgs,
-    backNavigator: ResultBackNavigator<Int?>,
+    backNavigator: ResultBackNavigator<Port?>,
 ) {
     WireguardCustomPortDialog(
         initialPort = navArg.customPort,
@@ -72,14 +72,14 @@ fun WireguardCustomPortDialog(
 fun WireguardCustomPortDialog(
     initialPort: Port?,
     allowedPortRanges: List<PortRange>,
-    onSave: (Int?) -> Unit,
+    onSave: (Port?) -> Unit,
     onDismiss: () -> Unit
 ) {
     val port = remember { mutableStateOf(initialPort?.value?.toString() ?: "") }
 
     val isValidPort =
         port.value.isNotEmpty() &&
-            allowedPortRanges.isPortAnyOfRanges(Port(port.value.toIntOrNull() ?: 0))
+            allowedPortRanges.isPortAnyOfRanges(port = port.value.toPortOrNull() ?: Port(0))
     AlertDialog(
         title = {
             Text(
@@ -90,7 +90,7 @@ fun WireguardCustomPortDialog(
             Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
                 PrimaryButton(
                     text = stringResource(id = R.string.custom_port_dialog_submit),
-                    onClick = { onSave(port.value.toInt()) },
+                    onClick = { onSave(port.value.toPortOrNull()) },
                     isEnabled = isValidPort
                 )
                 if (initialPort != null) {
@@ -108,7 +108,7 @@ fun WireguardCustomPortDialog(
                     value = port.value,
                     onSubmit = { input ->
                         if (isValidPort) {
-                            onSave(input.toIntOrNull())
+                            onSave(input.toPortOrNull())
                         }
                     },
                     onValueChanged = { input -> port.value = input },
@@ -133,3 +133,5 @@ fun WireguardCustomPortDialog(
         onDismissRequest = onDismiss
     )
 }
+
+private fun String.toPortOrNull() = toIntOrNull()?.let { Port(it) }
