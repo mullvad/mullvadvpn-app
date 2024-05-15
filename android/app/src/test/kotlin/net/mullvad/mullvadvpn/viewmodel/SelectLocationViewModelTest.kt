@@ -70,7 +70,7 @@ class SelectLocationViewModelTest {
         every { mockSelectedLocationRelayItemUseCase.selectedRelayItem() } returns
             selectedRelayItemFlow
         every { mockFilteredRelayListUseCase.filteredRelayList() } returns filteredRelayList
-        every { mockCustomListsRelayItemUseCase.customListsRelayItems() } returns
+        every { mockCustomListsRelayItemUseCase.relayItemCustomLists() } returns
             customRelayListItems
 
         mockkStatic(RELAY_LIST_EXTENSIONS)

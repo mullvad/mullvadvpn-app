@@ -45,7 +45,7 @@ class SelectLocationViewModel(
     val uiState =
         combine(
                 filteredRelayListUseCase.filteredRelayList(),
-                customListsRelayItemUseCase.customListsRelayItems(),
+                customListsRelayItemUseCase.relayItemCustomLists(),
                 selectedLocationRelayItemUseCase.selectedRelayItem(),
                 _searchTerm,
                 relayListFilterRepository.selectedOwnership,

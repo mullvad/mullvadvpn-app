@@ -9,6 +9,7 @@ import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
@@ -30,7 +31,7 @@ class OutOfTimeUseCaseTest {
     private val mockAccountRepository: AccountRepository = mockk()
     private val mockManagementService: ManagementService = mockk()
 
-    private lateinit var events: MutableSharedFlow<TunnelState>
+    private lateinit var events: MutableSharedFlow<TunnelState?>
     private lateinit var expiry: MutableStateFlow<AccountData?>
 
     private val dispatcher = StandardTestDispatcher()
@@ -40,10 +41,10 @@ class OutOfTimeUseCaseTest {
 
     @BeforeEach
     fun setup() {
-        events = MutableSharedFlow()
+        events = MutableStateFlow(null)
         expiry = MutableStateFlow(null)
         every { mockAccountRepository.accountData } returns expiry
-        every { mockManagementService.tunnelState } returns events
+        every { mockManagementService.tunnelState } returns events.filterNotNull()
 
         Dispatchers.setMain(dispatcher)
 

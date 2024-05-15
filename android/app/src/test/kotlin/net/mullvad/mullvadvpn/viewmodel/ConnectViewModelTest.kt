@@ -3,11 +3,9 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.right
-import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
@@ -228,7 +226,7 @@ class ConnectViewModelTest {
     @Test
     fun `onDisconnectClick should invoke disconnect on ConnectionProxy`() = runTest {
         // Arrange
-        coEvery { mockConnectionProxy.disconnect() } just Runs
+        coEvery { mockConnectionProxy.disconnect() } returns true
 
         // Act
         viewModel.onDisconnectClick()
@@ -240,7 +238,7 @@ class ConnectViewModelTest {
     @Test
     fun `onReconnectClick should invoke reconnect on ConnectionProxy`() = runTest {
         // Arrange
-        coEvery { mockConnectionProxy.reconnect() } just Runs
+        coEvery { mockConnectionProxy.reconnect() } returns true
 
         // Act
         viewModel.onReconnectClick()
@@ -252,7 +250,7 @@ class ConnectViewModelTest {
     @Test
     fun `onConnectClick should invoke connect on ConnectionProxy`() = runTest {
         // Arrange
-        coEvery { mockConnectionProxy.connect() } returns Unit.right()
+        coEvery { mockConnectionProxy.connect() } returns true.right()
 
         // Act
         viewModel.onConnectClick()
@@ -264,7 +262,7 @@ class ConnectViewModelTest {
     @Test
     fun `onCancelClick should invoke disconnect on ConnectionProxy`() = runTest {
         // Arrange
-        coEvery { mockConnectionProxy.disconnect() } just Runs
+        coEvery { mockConnectionProxy.disconnect() } returns true
 
         // Act
         viewModel.onCancelClick()
@@ -296,7 +294,7 @@ class ConnectViewModelTest {
     fun `onShowAccountClick call should result in uiSideEffect emitting OpenAccountManagementPageInBrowser`() =
         runTest {
             // Arrange
-            val mockToken = WwwAuthToken("767b3b8d63944e5ab8751c382ad3b30f")
+            val mockToken = WwwAuthToken("4444 5555 6666 7777")
             coEvery { mockAccountRepository.getWwwAuthToken() } returns mockToken
 
             // Act, Assert

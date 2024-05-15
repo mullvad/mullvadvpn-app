@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.usecase.customlists
 
 import kotlinx.coroutines.flow.combine
-import net.mullvad.mullvadvpn.relaylist.toRelayItemLists
+import net.mullvad.mullvadvpn.relaylist.toRelayItemCustomList
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 
@@ -10,10 +10,10 @@ class CustomListsRelayItemUseCase(
     private val relayListRepository: RelayListRepository,
 ) {
 
-    fun customListsRelayItems() =
+    fun relayItemCustomLists() =
         combine(customListsRepository.customLists, relayListRepository.relayList) {
             customLists,
             relayList ->
-            customLists?.toRelayItemLists(relayList) ?: emptyList()
+            customLists?.map { it.toRelayItemCustomList(relayList) } ?: emptyList()
         }
 }

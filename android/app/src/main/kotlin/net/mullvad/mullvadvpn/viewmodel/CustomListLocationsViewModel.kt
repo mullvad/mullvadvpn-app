@@ -19,7 +19,6 @@ import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
-import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
@@ -29,10 +28,8 @@ class CustomListLocationsViewModel(
     private val newList: Boolean,
     relayListRepository: RelayListRepository,
     private val customListRelayItemsUseCase: CustomListRelayItemsUseCase,
-    private val customListActionUseCase: CustomListActionUseCase,
-    private val customListsRepository: CustomListsRepository
+    private val customListActionUseCase: CustomListActionUseCase
 ) : ViewModel() {
-    private var customListName: String? = null
     private val _uiSideEffect =
         MutableSharedFlow<CustomListLocationsSideEffect>(replay = 1, extraBufferCapacity = 1)
     val uiSideEffect: SharedFlow<CustomListLocationsSideEffect> = _uiSideEffect
@@ -77,7 +74,6 @@ class CustomListLocationsViewModel(
 
     init {
         viewModelScope.launch { fetchInitialSelectedLocations() }
-        viewModelScope.launch { fetchCustomListName() }
     }
 
     fun save() {
@@ -97,9 +93,8 @@ class CustomListLocationsViewModel(
                         },
                         {
                             _uiSideEffect.tryEmit(
-                                // This is so that we don't show a snackbar after returning to
-                                // the select
-                                // location screen
+                                // This is so that we don't show a snackbar after returning to the
+                                // select location screen
                                 if (newList) {
                                     CustomListLocationsSideEffect.CloseScreen
                                 } else {
@@ -207,11 +202,6 @@ class CustomListLocationsViewModel(
                 .firstOrNullWithTimeout(GET_CUSTOM_LIST_TIMEOUT_MS)
                 ?.selectChildren()
                 .apply { _initialLocations.value = this ?: emptySet() }
-    }
-
-    private suspend fun fetchCustomListName() {
-        customListName =
-            customListsRepository.getCustomListById(customListId).getOrNull()?.name?.value ?: ""
     }
 
     companion object {
