@@ -52,6 +52,8 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterCell
@@ -74,7 +76,6 @@ import net.mullvad.mullvadvpn.compose.destinations.CustomListsDestination
 import net.mullvad.mullvadvpn.compose.destinations.DeleteCustomListDestination
 import net.mullvad.mullvadvpn.compose.destinations.EditCustomListNameDestination
 import net.mullvad.mullvadvpn.compose.destinations.FilterScreenDestination
-import net.mullvad.mullvadvpn.compose.extensions.showSnackbar
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
@@ -84,6 +85,7 @@ import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
+import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
@@ -149,30 +151,27 @@ fun SelectLocation(
         when (it) {
             SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true, true)
             is SelectLocationSideEffect.LocationAddedToCustomList -> {
-                launch {
-                    snackbarHostState.showResultSnackbar(
-                        context = context,
-                        result = it.result,
-                        onUndo = vm::performAction
-                    )
-                }
+                snackbarHostState.showResultSnackbar(
+                    coroutineScope = this,
+                    context = context,
+                    result = it.result,
+                    onUndo = vm::performAction
+                )
             }
             is SelectLocationSideEffect.LocationRemovedFromCustomList -> {
-                launch {
-                    snackbarHostState.showResultSnackbar(
-                        context = context,
-                        result = it.result,
-                        onUndo = vm::performAction
-                    )
-                }
+                snackbarHostState.showResultSnackbar(
+                    coroutineScope = this,
+                    context = context,
+                    result = it.result,
+                    onUndo = vm::performAction
+                )
             }
             SelectLocationSideEffect.GenericError -> {
-                launch {
-                    snackbarHostState.showSnackbar(
-                        message = context.getString(R.string.error_occurred),
-                        duration = SnackbarDuration.Short
-                    )
-                }
+                snackbarHostState.showSnackbarImmediately(
+                    coroutineScope = this,
+                    message = context.getString(R.string.error_occurred),
+                    duration = SnackbarDuration.Short
+                )
             }
         }
     }
@@ -824,13 +823,14 @@ private suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
     }
 }
 
-private suspend fun SnackbarHostState.showResultSnackbar(
+private fun SnackbarHostState.showResultSnackbar(
+    coroutineScope: CoroutineScope,
     context: Context,
     result: CustomListResult,
     onUndo: (CustomListAction) -> Unit
 ) {
-    currentSnackbarData?.dismiss()
-    showSnackbar(
+    showSnackbarImmediately(
+        coroutineScope = coroutineScope,
         message = result.message(context),
         actionLabel = context.getString(R.string.undo),
         duration = SnackbarDuration.Long,
@@ -863,13 +863,12 @@ private fun <D : DestinationSpec<*>, R : CustomListResult> ResultRecipient<D, R>
             }
             is NavResult.Value -> {
                 // Handle result
-                scope.launch {
-                    snackbarHostState.showResultSnackbar(
-                        context = context,
-                        result = result.value,
-                        onUndo = performAction
-                    )
-                }
+                snackbarHostState.showResultSnackbar(
+                    coroutineScope = scope,
+                    context = context,
+                    result = result.value,
+                    onUndo = performAction
+                )
             }
         }
     }
