@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
+import net.mullvad.mullvadvpn.relaylist.withDescendants
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
@@ -192,15 +193,13 @@ class CustomListLocationsViewModel(
         return saveSelectionList
     }
 
-    private fun List<RelayItem.Location>.selectChildren(): Set<RelayItem.Location> =
-        (this.map { it } + flatMap { it.descendants() }).toSet()
-
     private suspend fun fetchInitialSelectedLocations() {
         _selectedLocations.value =
             customListRelayItemsUseCase
                 .getRelayItemLocationsForCustomList(customListId)
                 .firstOrNullWithTimeout(GET_CUSTOM_LIST_TIMEOUT_MS)
-                ?.selectChildren()
+                ?.withDescendants()
+                ?.toSet()
                 .apply { _initialLocations.value = this ?: emptySet() }
     }
 
