@@ -27,7 +27,7 @@ fun RelayItem.Location.descendants(): List<RelayItem.Location> {
     return children + children.flatMap { it.descendants() }
 }
 
-fun List<RelayItem.Location.Country>.withDescendants(): List<RelayItem.Location> =
+fun List<RelayItem.Location>.withDescendants(): List<RelayItem.Location> =
     this + flatMap { it.descendants() }
 
 private fun RelayItem.Location.hasOwnership(ownershipConstraint: Constraint<Ownership>): Boolean =
