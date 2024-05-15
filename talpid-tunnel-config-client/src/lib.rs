@@ -59,6 +59,8 @@ pub enum Error {
     FailedDecapsulateKyber(kyber::KyberError),
     #[cfg(target_os = "ios")]
     TcpConnectionExpired,
+    #[cfg(target_os = "ios")]
+    UnableToCreateRuntime,
 }
 
 impl std::fmt::Display for Error {
@@ -82,6 +84,8 @@ impl std::fmt::Display for Error {
             FailedDecapsulateKyber(_) => "Failed to decapsulate Kyber1024 ciphertext".fmt(f),
             #[cfg(target_os = "ios")]
             TcpConnectionExpired => "TCP connection is already shut down".fmt(f),
+            #[cfg(target_os = "ios")]
+            UnableToCreateRuntime => "Unable to create iOS PQ PSK runtime".fmt(f),
         }
     }
 }

@@ -15,7 +15,7 @@ pub unsafe fn run_post_quantum_psk_exchange(
     ephemeral_key: [u8; 32],
     packet_tunnel: *const c_void,
     tcp_connection: *const c_void,
-) -> Result<PostQuantumCancelToken, i32> {
+) -> Result<PostQuantumCancelToken, Error> {
     match unsafe { IOSRuntime::new(pub_key, ephemeral_key, packet_tunnel, tcp_connection) } {
         Ok(runtime) => {
             let token = runtime.cancel_token_tx.clone();
@@ -27,7 +27,7 @@ pub unsafe fn run_post_quantum_psk_exchange(
         }
         Err(err) => {
             log::error!("Failed to create runtime {}", err);
-            Err(-1)
+            Err(Error::UnableToCreateRuntime)
         }
     }
 }

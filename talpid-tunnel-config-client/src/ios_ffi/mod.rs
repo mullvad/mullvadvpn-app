@@ -121,6 +121,6 @@ pub unsafe extern "C" fn negotiate_post_quantum_key(
             unsafe { std::ptr::write(cancel_token, token) };
             0
         }
-        Err(err) => err,
+        Err(_) => -1,
     }
 }
