@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2024-04-25 08:25\n"
+"PO-Revision-Date: 2024-05-15 07:28\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s lisättiin: tilin käyttö maksettu %(expiry)s asti."
@@ -65,9 +65,6 @@ msgstr "Automaattinen"
 
 msgid "Back"
 msgstr "Takaisin"
-
-msgid "BETA"
-msgstr "BETA"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ESTETTY YHTEYS"
@@ -275,6 +272,10 @@ msgid "%(title)s, View loaded"
 msgstr "%(title)s, Näkymä ladattu"
 
 msgctxt "accessibility"
+msgid "Add new custom bridge"
+msgstr "Lisää uusi mukautettu siltaus"
+
+msgctxt "accessibility"
 msgid "Close notification"
 msgstr "Sulje ilmoitus"
 
@@ -287,6 +288,10 @@ msgstr "Näytä vähemmän: %(location)s"
 msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "Kopioi tilin numero"
+
+msgctxt "accessibility"
+msgid "Edit custom bridge"
+msgstr "Muokkaa mukautettua siltausta"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -639,6 +644,12 @@ msgstr "Jotta pääset internetiin lisäämään aikaa, sinun on poistettava luk
 msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "Olet valmis!"
+
+#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
+#. %(daita)s - Will be replaced with "DAITA"
+msgctxt "connection-info"
+msgid "%(hostname)s using %(daita)s"
+msgstr "%(hostname)s – %(daita)s käytössä"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1379,6 +1390,10 @@ msgid "Relay"
 msgstr "Välitys"
 
 msgctxt "select-location-view"
+msgid "Setting: %(settingName)s"
+msgstr "Asetus: %(settingName)s"
+
+msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "Sovellus valitsee satunnaisen siltauspalvelimen, mutta palvelimen valinnan todennäköisyys on sitä suurempi, mitä lähempänä palvelin on sinua."
 
@@ -1990,11 +2005,19 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s-asetukset"
 
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr "%(daita)s (%(daitaFull)s) piilottaa salatussa VPN-liikenteessäsi toistuvat maneerit luomalla tarkoin räätälöityjä häiriöitä verkkoliikenteeseen ja tekemällä kaikista verkkopaketeista samankokoisia. Jos joku siis yrittää tarkkailla yhteyttäsi, hänen on huomattavasti vaikeampi tunnistaa, millä verkkosivustoilla oikein vierailet."
+
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s-asetukset"
+
+msgctxt "wireguard-settings-view"
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
+msgstr "Huomioithan, että %(daita)s:n käyttöönotto kasvattaa verkkoliikennettäsi kokonaisuudessaan ja voi myös vaikuttaa negatiivisesti verkon nopeuteen. DAITA:n käyttämistä kannattaa harkita tarkkaan, mikäli datapakettisi tiedonsiirtomäärä on rajoitettu."
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -2055,6 +2078,11 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "Tämä mahdollistaa pääsyn %(wireguard)siin laitteille, jotka tukevat vain IPv6-protokollaa."
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "This feature isn't available on all servers. You might need to change location after enabling."
+msgstr "Ominaisuus ei ole käytettävissä kaikilla palvelimilla, joten saatat joutua vaihtamaan sijaintia otettuasi sen käyttöön."
+
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "Tämä ominaisuus tekee WireGuard-tunnelista kestävän kvanttitietokoneiden mahdollisia hyökkäyksiä vastaan."
@@ -2067,15 +2095,14 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys."
 
-msgctxt "Indicator of that the currently selected element already has been added (directly or indirectly) to a named list (\"%s\")"
 msgid "%s (added)"
 msgstr "%s (lisätty)"
 
-msgctxt "Message notifying the user that a location (first %s) was added to a named list (second %s)."
+msgctxt "A location was added to a custom list"
 msgid "%s was added to \"%s\""
 msgstr "%s lisättiin luetteloon \"%s\""
 
-msgctxt "Message shown after successfully adding time to the account. %s could be either day(s) or months, for example \"1 day\" or \"6 months\""
+msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
 msgstr "Tilillesi lisättiin %s käyttöaikaa."
 
@@ -2100,7 +2127,7 @@ msgstr "Tilin käyttöaika päättyy pian"
 msgid "Account time reminders"
 msgstr "Muistutukset tilin käyttöajasta"
 
-msgctxt "Title of the prompt where the user is asked to add a location (%s) to a list. "
+msgctxt "Add a Country,City, or Server to a custom list"
 msgid "Add %s to list"
 msgstr "Lisää %s luetteloon"
 
@@ -2239,7 +2266,6 @@ msgstr "Google Play ei ole käytettävissä"
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Jos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää järjestelmältäsi luettelon kaikista siihen asennetuista sovelluksista. Luettelo noudetaan vain sovelluskohtaisen yhdistämisen näkymässä. Asennettujen sovellusten luetteloa ei koskaan lähetetä laitteelta."
 
-msgctxt "Title of the bottom sheet prompt shown when importing a patch/configuration. The string itself is follwed by a list of import sources."
 msgid "Import new overrides by"
 msgstr "Uusien ohitusten tuontitapa"
 
@@ -2309,7 +2335,7 @@ msgstr "Ohituksia ei ole käytössä"
 msgid "Paste or write overrides to be imported"
 msgstr "Liitä tai kirjoita ohitukset, jotka haluat tuoda"
 
-msgctxt "Message shown if the provided configuration file/text (\"patch\") format doesn't match the requirements and therefore couldn't be applied."
+msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
 msgid "Patch not matching specification"
 msgstr "Muutostiedosto ei vastaa määritelmää"
 
@@ -2331,6 +2357,10 @@ msgstr "Toistorajoitus"
 msgid "Remove"
 msgstr "Poista"
 
+msgctxt "Remove a Country, City, or Server from a custom list."
+msgid "Remove %s from list"
+msgstr "Poista %s luettelosta"
+
 msgid "Remove custom port"
 msgstr "Poista mukautettu portti"
 
@@ -2348,9 +2378,6 @@ msgstr "Palauta oletusarvo"
 
 msgid "Secured"
 msgstr "Suojattu"
-
-msgid "Server Ip overrides"
-msgstr "Palvelimen IP-osoitteen ohitus"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "Aseta WireGuardin MTU-arvo väliltä %d–%d."
@@ -2412,7 +2439,7 @@ msgstr "Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva
 msgid "Undo"
 msgstr "Kumoa"
 
-msgctxt "Error message shown when failing to parse a configuration file/text. The key variable (%s) is a an identifier used within the configuration file/text. "
+msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
 msgid "Unknown or prohibited key \"%s\""
 msgstr "Tuntematon tai kielletty avain \"%s\""
 

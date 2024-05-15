@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2024-04-25 08:25\n"
+"PO-Revision-Date: 2024-05-15 07:28\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)sが追加され、アカウントは%(expiry)sまでに支払われます。"
@@ -59,9 +59,6 @@ msgstr "自動"
 
 msgid "Back"
 msgstr "戻る"
-
-msgid "BETA"
-msgstr "ベータ版"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ブロックされた接続"
@@ -269,6 +266,10 @@ msgid "%(title)s, View loaded"
 msgstr "%(title)s、ビューが読み込まれました"
 
 msgctxt "accessibility"
+msgid "Add new custom bridge"
+msgstr "新規カスタムブリッジの追加"
+
+msgctxt "accessibility"
 msgid "Close notification"
 msgstr "通知を閉じる"
 
@@ -281,6 +282,10 @@ msgstr "%(location)sを折りたたむ"
 msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "アカウント番号のコピー"
+
+msgctxt "accessibility"
+msgid "Edit custom bridge"
+msgstr "カスタムブリッジの編集"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -633,6 +638,12 @@ msgstr "インターネットにアクセスして時間を追加するには \"
 msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "準備完了！"
+
+#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
+#. %(daita)s - Will be replaced with "DAITA"
+msgctxt "connection-info"
+msgid "%(hostname)s using %(daita)s"
+msgstr "%(daita)s を使用した %(hostname)s"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1373,6 +1384,10 @@ msgid "Relay"
 msgstr "中継サーバー"
 
 msgctxt "select-location-view"
+msgid "Setting: %(settingName)s"
+msgstr "設定: %(settingName)s"
+
+msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "ブリッジサーバーはアプリによってランダムに選択されますが、現在地に近いサーバーほど高い確率で選択されます。"
 
@@ -1984,11 +1999,19 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)sの設定"
 
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr "%(daita)s (%(daitaFull)s) を使用すると、暗号化された VPN トラフィックのパターンを隠すことができるようになります。何者かがあなたの接続を監視している場合に、アクセスしているウェブサイトの特定が大幅に難しくなります。ネットワークノイズを慎重に追加し、ネットワークパケットのサイズをすべて同一に揃えることによって実現しています。"
+
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)sの設定"
+
+msgctxt "wireguard-settings-view"
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
+msgstr "注意: これにより、ネットワークトラフィックの総数が増加します。上限のあるデータプランをご利用の場合にはご注意ください。また、ネットワーク　の速度にも悪影響を及ぼす可能性があります。%(daita)s を有効にする場合は、この点を考慮に入れてください。"
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -2049,6 +2072,11 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "これにより、IPv6のみをサポートするデバイスでも%(wireguard)sにアクセスできるようになります。"
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "This feature isn't available on all servers. You might need to change location after enabling."
+msgstr "この機能は、すべてのサーバーでご利用いただけるわけではありません。有効化した後に場所の変更が必要となる可能性があります。"
+
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "この機能は、WireGuardトンネルに量子コンピューターからの潜在的な攻撃に対する耐性を与えます。"
@@ -2061,17 +2089,16 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。"
 
-msgctxt "Indicator of that the currently selected element already has been added (directly or indirectly) to a named list (\"%s\")"
 msgid "%s (added)"
 msgstr "%s (追加済み)"
 
-msgctxt "Message notifying the user that a location (first %s) was added to a named list (second %s)."
+msgctxt "A location was added to a custom list"
 msgid "%s was added to \"%s\""
 msgstr "%s が \"%s\" に追加されました"
 
-msgctxt "Message shown after successfully adding time to the account. %s could be either day(s) or months, for example \"1 day\" or \"6 months\""
+msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
-msgstr "%sがご利用のアカウントに追加されました。"
+msgstr "%s がご利用のアカウントに追加されました。"
 
 msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
 msgstr "1. 下の [<b>VPN設定に移動</b>] ボタンをクリックし、<b>Mullvad VPN</b>名の横にある歯車をクリックします。"
@@ -2094,7 +2121,7 @@ msgstr "アカウントのクレジットがもうすぐ無効になります"
 msgid "Account time reminders"
 msgstr "アカウント時間のリマインダー"
 
-msgctxt "Title of the prompt where the user is asked to add a location (%s) to a list. "
+msgctxt "Add a Country,City, or Server to a custom list"
 msgid "Add %s to list"
 msgstr "%s をリストに追加する"
 
@@ -2233,7 +2260,6 @@ msgstr "Google Playを使用できません"
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "スプリットトンネリング機能が使用されている場合、アプリはシステムにインストール済みの全アプリケーションのリストを照会します。このリストはスプリットトンネリングビューでのみ取得されます。インストール済みアプリケーションのリストがデバイスから送信されることはありません。"
 
-msgctxt "Title of the bottom sheet prompt shown when importing a patch/configuration. The string itself is follwed by a list of import sources."
 msgid "Import new overrides by"
 msgstr "新しいオーバーライドのインポート"
 
@@ -2303,7 +2329,7 @@ msgstr "オーバーライドは無効です"
 msgid "Paste or write overrides to be imported"
 msgstr "インポートするオーバーライドを貼り付けるか、または記入してください"
 
-msgctxt "Message shown if the provided configuration file/text (\"patch\") format doesn't match the requirements and therefore couldn't be applied."
+msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
 msgid "Patch not matching specification"
 msgstr "パッチが仕様に一致していません"
 
@@ -2325,6 +2351,10 @@ msgstr "繰り返しの制限"
 msgid "Remove"
 msgstr "削除"
 
+msgctxt "Remove a Country, City, or Server from a custom list."
+msgid "Remove %s from list"
+msgstr "%s をリストから削除する"
+
 msgid "Remove custom port"
 msgstr "カスタムポートを削除"
 
@@ -2342,9 +2372,6 @@ msgstr "デフォルトにリセット"
 
 msgid "Secured"
 msgstr "セキュリティ保護されています"
-
-msgid "Server Ip overrides"
-msgstr "サーバー IP のオーバーライド"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "WireGuard MTUの値を設定します。有効範囲: %d ～ %d"
@@ -2406,7 +2433,7 @@ msgstr "トンネル接続を開始できません。Mullvad VPNを使用する�
 msgid "Undo"
 msgstr "元に戻す"
 
-msgctxt "Error message shown when failing to parse a configuration file/text. The key variable (%s) is a an identifier used within the configuration file/text. "
+msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
 msgid "Unknown or prohibited key \"%s\""
 msgstr "キー \"%s\" は不明であるか、または禁止されています"
 
