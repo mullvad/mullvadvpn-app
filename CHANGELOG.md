@@ -29,6 +29,10 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for split tunneling (beta).
 
 
+## [2024.3] - 2024-05-15
+This release is identical to 2024.3-beta1.
+
+
 ## [2024.3-beta1] - 2024-05-07
 ### Added
 #### Windows
