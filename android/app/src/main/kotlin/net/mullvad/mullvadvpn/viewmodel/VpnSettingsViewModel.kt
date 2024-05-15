@@ -62,7 +62,7 @@ class VpnSettingsViewModel(
                 portRanges,
                 customWgPort ->
                 VpnSettingsViewModelState(
-                    mtuValue = settings?.mtuString() ?: "",
+                    mtuValue = settings?.tunnelOptions?.wireguard?.mtu,
                     isAutoConnectEnabled = settings?.autoConnect ?: false,
                     isLocalNetworkSharingEnabled = settings?.allowLan ?: false,
                     isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
@@ -270,8 +270,6 @@ class VpnSettingsViewModel(
             CustomDnsItem(address = it.hostAddress ?: EMPTY_STRING, isLocal = it.isLocalAddress())
         }
     }
-
-    private fun Settings.mtuString() = tunnelOptions.wireguard.mtu?.toString() ?: EMPTY_STRING
 
     private fun Settings.quantumResistant() = tunnelOptions.wireguard.quantumResistant
 

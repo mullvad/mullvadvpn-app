@@ -13,6 +13,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
+import net.mullvad.mullvadvpn.viewmodel.MtuDialogUiState
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -31,13 +32,17 @@ class MtuDialogTest {
     @SuppressLint("ComposableNaming")
     @Composable
     private fun testMtuDialog(
-        mtuInitial: Int? = null,
-        onSaveMtu: (Int) -> Unit = { _ -> },
+        mtuInput: String = "",
+        isValidInput: Boolean = true,
+        showResetButton: Boolean = true,
+        onInputChanged: (String) -> Unit = { _ -> },
+        onSaveMtu: (String) -> Unit = { _ -> },
         onResetMtu: () -> Unit = {},
         onDismiss: () -> Unit = {},
     ) {
         MtuDialog(
-            mtuInitial = mtuInitial,
+            MtuDialogUiState(mtuInput, isValidInput, showResetButton),
+            onInputChanged = onInputChanged,
             onSaveMtu = onSaveMtu,
             onResetMtu = onResetMtu,
             onDismiss = onDismiss
@@ -60,12 +65,12 @@ class MtuDialogTest {
             // Arrange
             setContentWithTheme {
                 testMtuDialog(
-                    mtuInitial = VALID_DUMMY_MTU_VALUE,
+                    mtuInput = VALID_DUMMY_MTU_VALUE,
                 )
             }
 
             // Assert
-            onNodeWithText(VALID_DUMMY_MTU_VALUE.toString()).assertExists()
+            onNodeWithText(VALID_DUMMY_MTU_VALUE).assertExists()
         }
 
     @Test
@@ -74,22 +79,22 @@ class MtuDialogTest {
             // Arrange
             setContentWithTheme {
                 testMtuDialog(
-                    null,
+                    "",
                 )
             }
 
             // Act
-            onNodeWithText(EMPTY_STRING).performTextInput(VALID_DUMMY_MTU_VALUE.toString())
+            onNodeWithText(EMPTY_STRING).performTextInput(VALID_DUMMY_MTU_VALUE)
 
             // Assert
-            onNodeWithText(VALID_DUMMY_MTU_VALUE.toString()).assertExists()
+            onNodeWithText(VALID_DUMMY_MTU_VALUE).assertExists()
         }
 
     @Test
     fun testMtuDialogSubmitOfValidValue() =
         composeExtension.use {
             // Arrange
-            val mockedSubmitHandler: (Int) -> Unit = mockk(relaxed = true)
+            val mockedSubmitHandler: (String) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 testMtuDialog(
                     VALID_DUMMY_MTU_VALUE,
@@ -125,7 +130,7 @@ class MtuDialogTest {
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 testMtuDialog(
-                    mtuInitial = VALID_DUMMY_MTU_VALUE,
+                    mtuInput = VALID_DUMMY_MTU_VALUE,
                     onResetMtu = mockedClickHandler,
                 )
             }
@@ -157,7 +162,7 @@ class MtuDialogTest {
 
     companion object {
         private const val EMPTY_STRING = ""
-        private const val VALID_DUMMY_MTU_VALUE = 1337
-        private const val INVALID_DUMMY_MTU_VALUE = 1111
+        private const val VALID_DUMMY_MTU_VALUE = "1337"
+        private const val INVALID_DUMMY_MTU_VALUE = "1111"
     }
 }
