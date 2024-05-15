@@ -14,7 +14,7 @@
     <string name="add_location_to_list">စာရင်းထဲသို့ %1$s ပေါင်းထည့်ရန်</string>
     <string name="add_locations">တည်နေရာများ ပေါင်းထည့်ရန်</string>
     <string name="add_time_to_account">ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်တွင် ခရက်ဒစ် ဝယ်ယူပါ သို့မဟုတ် ဘောက်ချာဖြင့် လဲယူပါ။</string>
-    <string name="added_to_your_account">သင့်အကောင့်သို့ %1$s ကို ပေါင်းထည့်ပြီးပါပြီ။</string>
+    <string name="added_to_your_account">သင့်အကောင့်သို့ %1$s ကို ထည့်ပြီးပါပြီ။</string>
     <string name="agree_and_continue">သဘောတူပြီး ဆက်လုပ်ရန်</string>
     <string name="all_applications">အပလီကေးရှင်း အားလုံး</string>
     <string name="all_locations">တည်နေရာအာလုံး</string>
@@ -154,8 +154,8 @@
     <string name="local_network_sharing">လိုကယ် ကွန်ရက် ဝေမျှမှု</string>
     <string name="local_network_sharing_additional_info">ဒေသတွင်း Multicast နှင့် Broadcast အပိုင်းအခြားများဆီသို့ သာမက ဤသီးသန့် IP အပိုင်းအခြားများထံမှနှင့် ၎င်းတို့ဆီသို့ Tunnel ပြင်ပ ကွန်ရက် ဆက်သွယ်မှုကို ခွင့်ပြုခြင်းဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။</string>
     <string name="local_network_sharing_info">ဤလုပ်ဆောင်ချက်သည် မျှဝေခြင်း၊ ပရင့်ထုတ်ခြင်း၊ တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းအစရှိသည်တို့အတွက် ဒေသတွင်း ကွန်ရက်ရှိ အခြားစက်များကို ရယူသုံးစွဲခွင့်ပေးပါသည်။</string>
-    <string name="location_added">%1$s (ပေါင်းထည့်ပြီး)</string>
-    <string name="location_was_added_to_list">\"%1$s\" သို့ %2$s ကို ပေါင်းထည့်ပြီးပါပြီ</string>
+    <string name="location_added">%1$s (ထည့်ပြီး)</string>
+    <string name="location_was_added_to_list">\"%1$s\" သို့ %2$s ကို ထည့်ပြီးပါပြီ</string>
     <string name="locations">တည်နေရာများ</string>
     <string name="locations_were_changed_for">\"%1$s\" အတွက် တည်နေရာများကို ပြောင်းလိုက်ပါသည်</string>
     <string name="log_out">ထွက်ရန်</string>
@@ -199,7 +199,7 @@
     <string name="owned">အပိုင်</string>
     <string name="ownership">ပိုင်ဆိုင်မှု</string>
     <string name="paid_until">ဖော်ပြပါအထိ ပေးချေထားပြီး</string>
-    <string name="patch_not_matching_specification">Patch သည် သတ်မှတ်ချက်နှင့် မကိုက်ညီပါ</string>
+    <string name="patch_not_matching_specification">ပက်ချ်သည် သတ်မှတ်ချက်နှင့် မကိုက်ညီပါ</string>
     <string name="pay_to_start_using">အက်ပ်ကို စသုံးရန်အတွက် ဦးစွာ သင့်အကောင့်တွင် အချိန်ပေါင်းထည့်ပေးရန် လိုအပ်ပါသည်။</string>
     <string name="payment_billing_error_dialog_message">လက်ရှိတွင် ပေးချေမှု လုပ်ငန်းစဉ်ကို စတင်၍ မရနိုင်ပါ၊ Google Play နောက်ဆုံး ဗားရှင်း သင့်တွင်ရှိနေကြောင်း သေချာပါစေ။</string>
     <string name="payment_billing_error_dialog_title">Google Play ကို မရရှိနိုင်ပါ</string>
@@ -226,6 +226,7 @@
     <string name="redeem">လဲယူရန်</string>
     <string name="redeem_voucher">ဘောက်ချာဖြင့် လဲယူရန်</string>
     <string name="remove_button">ဖယ်ရှားရန်</string>
+    <string name="remove_location_from_list">စာရင်းမှ %1$s ကို ဖယ်ရှားရန်</string>
     <string name="rented">အငှား</string>
     <string name="rented_only">အငှားသီးသန့်</string>
     <string name="report_a_problem">ပြဿနာ ရီပို့တ်လုပ်ရန်</string>
@@ -246,7 +247,7 @@
     <string name="sent_thanks">ကျေးဇူးတင်ပါသည်။</string>
     <string name="server_ip_overrides">ဆာဗာ IP ကျော်လွန် ပယ်ဖျက်မှုများ</string>
     <string name="server_ip_overrides_active">ကျော်လွန် ပယ်ဖျက်မှုများ သက်ဝင်နေသည်</string>
-    <string name="server_ip_overrides_import_by">ဖော်ပြပါဖြင့် ကျော်လွန် ပယ်ဖျက်မှု အသစ်များကို ထည့်သွင်းရန်</string>
+    <string name="server_ip_overrides_import_by">ဖော်ပြပါဖြင့် ကျော်လွန် ပယ်ဖျက်မှုအသစ်များကို ထည့်သွင်းရန်</string>
     <string name="server_ip_overrides_import_by_file">ဖိုင်</string>
     <string name="server_ip_overrides_import_by_text">စာသား</string>
     <string name="server_ip_overrides_inactive">ကျော်လွန် ပယ်ဖျက်မှုများ သက်ဝင်မှု မရှိပါ</string>
@@ -267,7 +268,7 @@
     <string name="settings_patch_error_invalid_or_missing_value">\"%1$s\" တန်ဖိုး မမှန်ကန်ပါ သို့မဟုတ် မရှိပါ</string>
     <string name="settings_patch_error_recursion_limit">ထပ်တလဲလဲ လုပ်ဆောင်မှု ကန့်သတ်ချက်</string>
     <string name="settings_patch_error_unable_to_parse">Patch ကို ခွဲခြမ်းစိတ်ဖြာ၍ မရပါ</string>
-    <string name="settings_patch_error_unknown_or_prohibited_key">မသိသော သို့မဟုတ် ပိတ်ပင်ထားသော ကီး \"%1$s\"</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">မသိသော သို့မဟုတ် တားမြစ်ထားသော ကီး \"%1$s\"</string>
     <string name="settings_patch_success">ထည့်သွင်းမှု အောင်မြင်ပါသည်၊ ကျော်လွန် ပယ်ဖျက်မှု သက်ဝင်ပါသည်</string>
     <string name="settings_preferences">လိုလားမှုများ</string>
     <string name="settings_vpn">VPN ဆက်တင်များ</string>

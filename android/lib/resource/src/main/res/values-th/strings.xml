@@ -226,6 +226,7 @@
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
     <string name="remove_button">ลบ</string>
+    <string name="remove_location_from_list">นำ %1$s ออกจากรายการ</string>
     <string name="rented">เช่า</string>
     <string name="rented_only">เช่าเท่านั้น</string>
     <string name="report_a_problem">รายงานปัญหา</string>
@@ -267,7 +268,7 @@
     <string name="settings_patch_error_invalid_or_missing_value">ค่า \"%1$s\" ไม่ถูกต้องหรือหายไป</string>
     <string name="settings_patch_error_recursion_limit">ขีดจำกัดการเรียกซ้ำ</string>
     <string name="settings_patch_error_unable_to_parse">ไม่สามารถแยกวิเคราะห์แพตช์ได้</string>
-    <string name="settings_patch_error_unknown_or_prohibited_key">\"%1$s\" ที่ไม่รู้จัก หรือมีคีย์ต้องห้าม</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">คีย์ที่ไม่รู้จัก หรือมีคีย์ต้องห้าม \"%1$s\"</string>
     <string name="settings_patch_success">นำเข้าสำเร็จ เปิดใช้โอเวอร์ไรด์อยู่</string>
     <string name="settings_preferences">การกำหนดค่า</string>
     <string name="settings_vpn">การตั้งค่า VPN</string>
