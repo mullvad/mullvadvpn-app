@@ -42,6 +42,7 @@ ARG PROTOBUF_COMMIT_REF=ee1355459c9ce7ffe264bc40cfdc7b7623d37e99
 RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
     git \
     curl \
+    make \
     gcc gcc-aarch64-linux-gnu \
     libdbus-1-dev libdbus-1-dev:arm64 \
     rpm \
