@@ -841,7 +841,9 @@ private fun SnackbarHostState.showResultSnackbar(
 private fun CustomListResult.message(context: Context): String =
     when (this) {
         is CustomListResult.Created ->
-            context.getString(R.string.location_was_added_to_list, locationNames.first(), name)
+            locationNames.firstOrNull()?.let { locationName ->
+                context.getString(R.string.location_was_added_to_list, locationName, name)
+            } ?: context.getString(R.string.locations_were_changed_for, name)
         is CustomListResult.Deleted -> context.getString(R.string.delete_custom_list_message, name)
         is CustomListResult.Renamed -> context.getString(R.string.name_was_changed_to, name)
         is CustomListResult.LocationsChanged ->
