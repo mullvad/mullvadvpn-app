@@ -22,7 +22,7 @@ import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.filterOnOwnershipAndProvider
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.repository.SelectedLocationRepository
+import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
@@ -37,7 +37,7 @@ class SelectLocationViewModel(
     selectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase,
     private val customListActionUseCase: CustomListActionUseCase,
     filteredRelayListUseCase: FilteredRelayListUseCase,
-    private val selectedLocationRepository: SelectedLocationRepository
+    private val relayListRepository: RelayListRepository
 ) : ViewModel() {
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
 
@@ -104,7 +104,7 @@ class SelectLocationViewModel(
     fun selectRelay(relayItem: RelayItem) {
         viewModelScope.launch {
             val locationConstraint = relayItem.id
-            selectedLocationRepository
+            relayListRepository
                 .updateSelectedRelayLocation(locationConstraint)
                 .fold(
                     { _uiSideEffect.trySend(SelectLocationSideEffect.GenericError) },

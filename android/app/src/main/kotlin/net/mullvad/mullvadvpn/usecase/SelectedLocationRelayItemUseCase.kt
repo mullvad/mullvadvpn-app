@@ -12,12 +12,10 @@ import net.mullvad.mullvadvpn.relaylist.findItemForGeoLocationId
 import net.mullvad.mullvadvpn.relaylist.toRelayItemCustomList
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
-import net.mullvad.mullvadvpn.repository.SelectedLocationRepository
 
 class SelectedLocationRelayItemUseCase(
     private val customListsRepository: CustomListsRepository,
     private val relayListRepository: RelayListRepository,
-    private val selectedLocationRepository: SelectedLocationRepository
 ) {
     fun selectedRelayItem() = selectedRelayItemWithTitle().map { it?.first }
 
@@ -27,7 +25,7 @@ class SelectedLocationRelayItemUseCase(
         combine(
             customListsRepository.customLists,
             relayListRepository.relayList,
-            selectedLocationRepository.selectedLocation
+            relayListRepository.selectedLocation
         ) { customLists, relayList, selectedLocation ->
             findSelectedRelayItemWithTitle(selectedLocation, relayList, customLists ?: emptyList())
         }

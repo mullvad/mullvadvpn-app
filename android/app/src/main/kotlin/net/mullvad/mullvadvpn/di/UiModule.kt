@@ -22,7 +22,6 @@ import net.mullvad.mullvadvpn.repository.ProblemReportRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
-import net.mullvad.mullvadvpn.repository.SelectedLocationRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
@@ -116,7 +115,6 @@ val uiModule = module {
     single { RelayOverridesRepository(get()) }
     single { CustomListsRepository(get()) }
     single { RelayListRepository(get()) }
-    single { SelectedLocationRepository(get()) }
     single { RelayListFilterRepository(get()) }
     single { VoucherRepository(get(), get()) }
     single { SplitTunnelingRepository(get()) }
@@ -130,7 +128,7 @@ val uiModule = module {
     single { ConnectivityUseCase(get()) }
     single { SystemVpnSettingsUseCase(androidContext()) }
     single { CustomListActionUseCase(get(), get()) }
-    single { SelectedLocationRelayItemUseCase(get(), get(), get()) }
+    single { SelectedLocationRelayItemUseCase(get(), get()) }
     single { AvailableProvidersUseCase(get()) }
     single { CustomListsRelayItemUseCase(get(), get()) }
     single { CustomListRelayItemsUseCase(get(), get()) }
