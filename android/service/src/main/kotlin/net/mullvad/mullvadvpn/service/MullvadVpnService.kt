@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.service
 
-import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.content.Intent
 import android.os.Binder
@@ -44,15 +43,13 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
     private lateinit var apiEndpointConfiguration: ApiEndpointConfiguration
     private lateinit var managementService: ManagementService
-    private lateinit var migrateSplitTunnelingRepository: MigrateSplitTunnelingRepository
+    private lateinit var migrateSplitTunneling: MigrateSplitTunneling
     private lateinit var intentProvider: IntentProvider
 
     private lateinit var foregroundNotificationHandler: ForegroundNotificationManager
 
     private val bindCount = AtomicInt()
 
-    // Suppressing since the tunnel state pref should be writted immediately.
-    @SuppressLint("ApplySharedPref")
     override fun onCreate() {
         super.onCreate()
 
@@ -66,7 +63,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             get<NotificationManager>()
 
             apiEndpointConfiguration = get()
-            migrateSplitTunnelingRepository = get()
+            migrateSplitTunneling = get()
             intentProvider = get()
         }
 
@@ -84,7 +81,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
                     apiEndpointConfiguration =
                         intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
                             ?: apiEndpointConfiguration,
-                    migrateSplitTunnelingRepository = migrateSplitTunnelingRepository
+                    migrateSplitTunneling = migrateSplitTunneling
                 )
         }
     }
@@ -104,9 +101,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             }
             intent.isFromSystem() || intent?.action == KEY_CONNECT_ACTION -> {
                 _shouldBeOnForeground.update { true }
-                lifecycleScope.launch {
-                    managementService.connect()
-                }
+                lifecycleScope.launch { managementService.connect() }
             }
             intent?.action == KEY_DISCONNECT_ACTION -> {
                 lifecycleScope.launch { managementService.disconnect() }

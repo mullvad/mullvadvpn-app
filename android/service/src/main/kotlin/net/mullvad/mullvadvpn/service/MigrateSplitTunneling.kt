@@ -3,8 +3,8 @@ package net.mullvad.mullvadvpn.service
 import android.content.Context
 import java.io.File
 
-class MigrateSplitTunnelingRepository(private val context: Context) {
-    fun migrateSplitTunneling() {
+class MigrateSplitTunneling(private val context: Context) {
+    fun migrate() {
         // Get old settings, if not found return
         val enabled = getOldSettings(context) ?: return
 
