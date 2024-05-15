@@ -3,6 +3,7 @@
 package net.mullvad.mullvadvpn.lib.daemon.grpc
 
 import android.net.Uri
+import com.google.protobuf.UInt32Value
 import io.grpc.ConnectivityState
 import java.net.InetAddress
 import java.net.InetSocketAddress
@@ -704,3 +705,6 @@ internal fun PlayPurchase.fromDomain(): ManagementInterface.PlayPurchase =
         .build()
 
 internal fun String.toDomain(): WwwAuthToken = WwwAuthToken(this)
+
+internal fun Int?.fromDomain(): UInt32Value =
+    UInt32Value.newBuilder().apply { this@fromDomain?.let { setValue(it) } ?: clearValue() }.build()
