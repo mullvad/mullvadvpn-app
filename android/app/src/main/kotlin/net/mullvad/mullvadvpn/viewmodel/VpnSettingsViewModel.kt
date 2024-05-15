@@ -29,10 +29,8 @@ import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
-import net.mullvad.mullvadvpn.model.relayConstraints
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
 import net.mullvad.mullvadvpn.util.isCustom
 
@@ -48,7 +46,6 @@ sealed interface VpnSettingsSideEffect {
 
 class VpnSettingsViewModel(
     private val repository: SettingsRepository,
-    portRangeUseCase: PortRangeUseCase,
     private val relayListRepository: RelayListRepository,
     private val systemVpnSettingsUseCase: SystemVpnSettingsUseCase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -60,7 +57,7 @@ class VpnSettingsViewModel(
     private val customPort = MutableStateFlow<Constraint<Port>?>(null)
 
     private val vmState =
-        combine(repository.settingsUpdates, portRangeUseCase.portRanges(), customPort) {
+        combine(repository.settingsUpdates, relayListRepository.portRanges, customPort) {
                 settings,
                 portRanges,
                 customWgPort ->
