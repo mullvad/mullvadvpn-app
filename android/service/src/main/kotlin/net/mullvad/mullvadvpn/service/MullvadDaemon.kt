@@ -17,7 +17,7 @@ private const val RELAYS_FILE = "relays.json"
 class MullvadDaemon(
     vpnService: MullvadVpnService,
     apiEndpointConfiguration: ApiEndpointConfiguration,
-    migrateSplitTunnelingRepository: MigrateSplitTunnelingRepository
+    migrateSplitTunneling: MigrateSplitTunneling
 ) {
     // Used by JNI
     @Suppress("ProtectedMemberInFinalClass") protected var daemonInterfaceAddress = 0L
@@ -29,7 +29,7 @@ class MullvadDaemon(
 
         prepareFiles(vpnService)
 
-        migrateSplitTunnelingRepository.migrateSplitTunneling()
+        migrateSplitTunneling.migrate()
 
         initialize(
             vpnService = vpnService,

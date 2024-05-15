@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.service.di
 import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.model.NotificationChannel
-import net.mullvad.mullvadvpn.service.MigrateSplitTunnelingRepository
+import net.mullvad.mullvadvpn.service.MigrateSplitTunneling
 import net.mullvad.mullvadvpn.service.notifications.ChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
@@ -45,5 +45,5 @@ val vpnServiceModule = module {
         )
     } withOptions { createdAtStart() }
 
-    single { MigrateSplitTunnelingRepository(androidContext()) }
+    single { MigrateSplitTunneling(androidContext()) }
 }
