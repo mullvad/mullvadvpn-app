@@ -79,7 +79,6 @@ class MainActivity : ComponentActivity() {
     fun startServiceSuspend() {
         requestNotificationPermissionIfMissing(requestNotificationPermissionLauncher)
         serviceConnectionManager.bind(
-            // vpnPermissionRequestHandler = ::requestVpnPermission,
             apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
         )
     }
