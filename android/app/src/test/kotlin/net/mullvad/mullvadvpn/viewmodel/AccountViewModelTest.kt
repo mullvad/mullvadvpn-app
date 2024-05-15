@@ -34,8 +34,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class AccountViewModelTest {
 
-    private val mockAccountRepository: AccountRepository =
-        mockk(relaxUnitFun = true)
+    private val mockAccountRepository: AccountRepository = mockk(relaxUnitFun = true)
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
 
     private val accountState: MutableStateFlow<DeviceState?> = MutableStateFlow(null)

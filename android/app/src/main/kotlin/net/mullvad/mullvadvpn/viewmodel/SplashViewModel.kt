@@ -57,8 +57,8 @@ class SplashViewModel(
         }
 
         return if (accountData != null && accountData.expiryDate.isBeforeNow) {
-                SplashUiSideEffect.NavigateToOutOfTime
-            } else {
+            SplashUiSideEffect.NavigateToOutOfTime
+        } else {
             SplashUiSideEffect.NavigateToConnect
         }
     }
