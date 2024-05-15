@@ -31,7 +31,7 @@ class OutOfTimeUseCaseTest {
     private val mockAccountRepository: AccountRepository = mockk()
     private val mockManagementService: ManagementService = mockk()
 
-    private lateinit var events: MutableSharedFlow<TunnelState?>
+    private lateinit var events: MutableSharedFlow<TunnelState>
     private lateinit var expiry: MutableStateFlow<AccountData?>
 
     private val dispatcher = StandardTestDispatcher()
@@ -41,10 +41,10 @@ class OutOfTimeUseCaseTest {
 
     @BeforeEach
     fun setup() {
-        events = MutableStateFlow(null)
+        events = MutableSharedFlow()
         expiry = MutableStateFlow(null)
         every { mockAccountRepository.accountData } returns expiry
-        every { mockManagementService.tunnelState } returns events.filterNotNull()
+        every { mockManagementService.tunnelState } returns events
 
         Dispatchers.setMain(dispatcher)
 
