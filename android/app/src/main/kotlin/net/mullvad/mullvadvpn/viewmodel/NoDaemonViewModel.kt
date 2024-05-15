@@ -79,8 +79,8 @@ class NoDaemonViewModel(managementService: ManagementService) :
             when (serviceState) {
                 GrpcConnectivityState.Connecting,
                 GrpcConnectivityState.Shutdown,
-                GrpcConnectivityState.TransientFailure -> DaemonState.Show
-                GrpcConnectivityState.Idle,
+                GrpcConnectivityState.TransientFailure,
+                GrpcConnectivityState.Idle -> DaemonState.Show
                 GrpcConnectivityState.Ready -> DaemonState.Hidden.Connected
             }
         } else {
