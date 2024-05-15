@@ -13,6 +13,7 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
@@ -33,7 +34,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class AccountViewModelTest {
 
-    private val mockAccountRepository: net.mullvad.mullvadvpn.lib.account.AccountRepository =
+    private val mockAccountRepository: AccountRepository =
         mockk(relaxUnitFun = true)
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
 
