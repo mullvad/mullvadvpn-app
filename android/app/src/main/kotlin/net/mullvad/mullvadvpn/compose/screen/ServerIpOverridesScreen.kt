@@ -119,19 +119,17 @@ fun ServerIpOverrides(
 
     // On successful clear of overrides, show snackbar
     val scope = rememberCoroutineScope()
-    clearOverridesResult.OnNavResultValue { result ->
-        scope.launch {
-            snackbarHostState.showSnackbarImmediately(
-                this,
-                message =
-                    if (result) {
-                        context.getString(R.string.overrides_cleared)
-                    } else {
-                        context.getString(R.string.error_occurred)
-                    },
-                actionLabel = null
-            )
-        }
+    clearOverridesResult.OnNavResultValue { clearSuccessful ->
+        snackbarHostState.showSnackbarImmediately(
+            scope,
+            message =
+                if (clearSuccessful) {
+                    context.getString(R.string.overrides_cleared)
+                } else {
+                    context.getString(R.string.error_occurred)
+                },
+            actionLabel = null
+        )
     }
 
     val openFileLauncher =
