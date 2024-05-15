@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2024-04-25 08:25\n"
+"PO-Revision-Date: 2024-05-15 07:28\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "มีการเพิ่ม %(duration)s แล้ว บัญชีได้ชำระเงินจนถึง %(expiry)s"
@@ -59,9 +59,6 @@ msgstr "อัตโนมัติ"
 
 msgid "Back"
 msgstr "ย้อนกลับ"
-
-msgid "BETA"
-msgstr "เบต้า"
 
 msgid "BLOCKED CONNECTION"
 msgstr "การเชื่อมต่อที่ถูกบล็อก"
@@ -269,6 +266,10 @@ msgid "%(title)s, View loaded"
 msgstr "%(title)s โหลดมุมมองแล้ว"
 
 msgctxt "accessibility"
+msgid "Add new custom bridge"
+msgstr "เพิ่ม Bridge ใหม่แบบกำหนดเอง"
+
+msgctxt "accessibility"
 msgid "Close notification"
 msgstr "ปิดการแจ้งเตือน"
 
@@ -281,6 +282,10 @@ msgstr "ย่อ %(location)s"
 msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "คัดลอกหมายเลขบัญชี"
+
+msgctxt "accessibility"
+msgid "Edit custom bridge"
+msgstr "แก้ไข Bridge แบบกำหนดเอง"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -633,6 +638,12 @@ msgstr "คุณจำเป็นต้องปิดใช้งาน \"โ
 msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "คุณพร้อมแล้ว!"
+
+#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
+#. %(daita)s - Will be replaced with "DAITA"
+msgctxt "connection-info"
+msgid "%(hostname)s using %(daita)s"
+msgstr "%(hostname)s กำลังใช้ %(daita)s"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1373,6 +1384,10 @@ msgid "Relay"
 msgstr "รีเลย์"
 
 msgctxt "select-location-view"
+msgid "Setting: %(settingName)s"
+msgstr "การตั้งค่า: %(settingName)s"
+
+msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "แอปจะเลือกเซิร์ฟเวอร์บริดจ์แบบสุ่ม แต่เซิร์ฟเวอร์จะยิ่งมีโอกาสถูกเลือกมากขึ้น หากเซิร์ฟเวอร์ยิ่งอยู่ใกล้คุณ"
 
@@ -1984,11 +1999,19 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "การตั้งค่า %(wireguard)s"
 
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr "%(daita)s (%(daitaFull)s) ซ่อนรูปแบบในการรับส่งข้อมูล VPN ที่เข้ารหัสของคุณ หากมีใครกำลังเฝ้าดูการเชื่อมต่อของคุณอยู่ สิ่งนี้จะทำให้การระบุเว็บไซต์ที่คุณกำลังเยี่ยมชมยากขึ้นอย่างมาก ซึ่งทำได้โดยการเพิ่มสัญญาณรบกวนเครือข่ายอย่างระมัดระวัง และทำให้แพ็กเก็ตเครือข่ายทั้งหมดมีขนาดเท่ากันหมด"
+
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
 msgid "%(wireguard)s settings"
 msgstr "การตั้งค่า %(wireguard)s"
+
+msgctxt "wireguard-settings-view"
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
+msgstr "โปรดทราบ: เนื่องจากการดำเนินการนี้จะเพิ่มการรับส่งข้อมูลโดยรวมของคุณขึ้น โปรดใช้ความระมัดระวัง หากคุณมีแผนข้อมูลที่มีปริมาณจำกัด การดำเนินการนี้อาจส่งผลเชิงลบต่อความเร็วเครือข่ายของคุณได้ โปรดพิจารณาข้อมูลเหล่านี้ หากคุณต้องการเปิดใช้งาน %(daita)s"
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -2049,6 +2072,11 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "นี่จะช่วยให้อุปกรณ์ที่รองรับเฉพาะ IPv6 สามารถเข้าถึง %(wireguard)s ได้"
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "This feature isn't available on all servers. You might need to change location after enabling."
+msgstr "คุณสมบัตินี้ไม่พร้อมใช้งานบนทุกเซิร์ฟเวอร์ คุณอาจต้องต้องเปลี่ยนตำแหน่งที่ตั้ง หลังจากเปิดใช้งาน"
+
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "คุณลักษณะนี้จะช่วยให้ช่องทาง WireGuard สามารถสกัดกั้นการโจมตีที่อาจมาจากคอมพิวเตอร์ควอนตัมได้"
@@ -2061,15 +2089,14 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN"
 
-msgctxt "Indicator of that the currently selected element already has been added (directly or indirectly) to a named list (\"%s\")"
 msgid "%s (added)"
 msgstr "%s (เพิ่มแล้ว)"
 
-msgctxt "Message notifying the user that a location (first %s) was added to a named list (second %s)."
+msgctxt "A location was added to a custom list"
 msgid "%s was added to \"%s\""
 msgstr "%s ถูกเพิ่มลงใน \"%s\""
 
-msgctxt "Message shown after successfully adding time to the account. %s could be either day(s) or months, for example \"1 day\" or \"6 months\""
+msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
 msgstr "%s ถูกเพิ่มลงในบัญชีของคุณแล้ว"
 
@@ -2094,7 +2121,7 @@ msgstr "เครดิตของบัญชีจะหมดอายุใ
 msgid "Account time reminders"
 msgstr "การแจ้งเตือนเวลาบัญชี"
 
-msgctxt "Title of the prompt where the user is asked to add a location (%s) to a list. "
+msgctxt "Add a Country,City, or Server to a custom list"
 msgid "Add %s to list"
 msgstr "เพิ่ม %s ลงในรายการ"
 
@@ -2233,7 +2260,6 @@ msgstr "Google Play ไม่พร้อมใช้งาน"
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "หากมีการใช้งานคุณลักษณะการแยกอุโมงค์ แอปจะขอให้ระบบของคุณระบุแอปพลิเคชันที่ติดตั้งไว้ทั้งหมด รายการนี้จะได้รับการเรียกใช้งานในมุมมองการแยกอุโมงค์เท่านั้น รายการแอปพลิเคชันที่ติดตั้งไว้ทั้งหมด จะไม่ถูกส่งออกจากอุปกรณ์"
 
-msgctxt "Title of the bottom sheet prompt shown when importing a patch/configuration. The string itself is follwed by a list of import sources."
 msgid "Import new overrides by"
 msgstr "นำเข้าโอเวอร์ไรด์ใหม่โดยใช้"
 
@@ -2303,7 +2329,7 @@ msgstr "ปิดใช้โอเวอร์ไรด์อยู่"
 msgid "Paste or write overrides to be imported"
 msgstr "วางหรือพิมพ์โอเวอร์ไรด์เพื่อนำเข้า"
 
-msgctxt "Message shown if the provided configuration file/text (\"patch\") format doesn't match the requirements and therefore couldn't be applied."
+msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
 msgid "Patch not matching specification"
 msgstr "แพตช์ไม่ตรงกับข้อมูลจำเพาะ"
 
@@ -2325,6 +2351,10 @@ msgstr "ขีดจำกัดการเรียกซ้ำ"
 msgid "Remove"
 msgstr "ลบ"
 
+msgctxt "Remove a Country, City, or Server from a custom list."
+msgid "Remove %s from list"
+msgstr "นำ %s ออกจากรายการ"
+
 msgid "Remove custom port"
 msgstr "นำพอร์ตแบบกำหนดเองออก"
 
@@ -2342,9 +2372,6 @@ msgstr "รีเซ็ตเป็นค่าเริ่มต้น"
 
 msgid "Secured"
 msgstr "ปลอดภัย"
-
-msgid "Server Ip overrides"
-msgstr "โอเวอร์ไรด์ IP เซิร์ฟเวอร์"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "ตั้งค่า WireGuard MTU ช่วงที่ใช้ได้: %d - %d"
@@ -2406,9 +2433,9 @@ msgstr "ไม่สามารถเริ่มการเชื่อมต
 msgid "Undo"
 msgstr "เลิกทำ"
 
-msgctxt "Error message shown when failing to parse a configuration file/text. The key variable (%s) is a an identifier used within the configuration file/text. "
+msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
 msgid "Unknown or prohibited key \"%s\""
-msgstr "\"%s\" ที่ไม่รู้จัก หรือมีคีย์ต้องห้าม"
+msgstr "คีย์ที่ไม่รู้จัก หรือมีคีย์ต้องห้าม \"%s\""
 
 msgid "Unsecured"
 msgstr "ไม่ปลอดภัย"

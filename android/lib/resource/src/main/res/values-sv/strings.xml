@@ -199,7 +199,7 @@
     <string name="owned">Ägd</string>
     <string name="ownership">Ägarskap</string>
     <string name="paid_until">Betalat till</string>
-    <string name="patch_not_matching_specification">Korrigering överensstämmer inte med specifikationen</string>
+    <string name="patch_not_matching_specification">Konfigurationsfilen överensstämmer inte med specifikationen</string>
     <string name="pay_to_start_using">Om du vill börja använda appen måste du först lägga till tid i ditt konto.</string>
     <string name="payment_billing_error_dialog_message">Vi kunde inte starta betalningsprocessen. Se till att du har den senaste versionen av Google Play.</string>
     <string name="payment_billing_error_dialog_title">Google Play är inte tillgängligt</string>
@@ -226,6 +226,7 @@
     <string name="redeem">Lös in</string>
     <string name="redeem_voucher">Lös in kupong</string>
     <string name="remove_button">Ta bort</string>
+    <string name="remove_location_from_list">Ta bort %1$s från listan</string>
     <string name="rented">Hyrd</string>
     <string name="rented_only">Endast hyrd</string>
     <string name="report_a_problem">Rapportera ett problem</string>
@@ -263,7 +264,7 @@
     <string name="settings_account">Konto</string>
     <string name="settings_changes_effect_warning_content_blocker">Ändringar i DNS-relaterade inställningar kanske inte börjar gälla direkt på grund av cachade resultat.</string>
     <string name="settings_changes_effect_warning_short">DNS-inställningarna kanske inte börjar gälla direkt</string>
-    <string name="settings_patch_error_failed_to_apply_patch">Det gick inte att tillämpa korrigering</string>
+    <string name="settings_patch_error_failed_to_apply_patch">Konfigurationsfilen kunde inte tillämpas</string>
     <string name="settings_patch_error_invalid_or_missing_value">Värdet \"%1$s\" är ogiltigt eller saknas</string>
     <string name="settings_patch_error_recursion_limit">Rekursionsgräns</string>
     <string name="settings_patch_error_unable_to_parse">Det går inte att parsa korrigering</string>

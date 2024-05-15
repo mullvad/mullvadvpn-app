@@ -226,6 +226,7 @@
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>
     <string name="remove_button">Kaldır</string>
+    <string name="remove_location_from_list">%1$s konumunu listeden kaldır</string>
     <string name="rented">Kiralananlar</string>
     <string name="rented_only">Sadece kiralananlar</string>
     <string name="report_a_problem">Bir sorun bildir</string>
@@ -246,7 +247,7 @@
     <string name="sent_thanks">Teşekkürler!</string>
     <string name="server_ip_overrides">Sunucu IP\'sini geçersiz kılma</string>
     <string name="server_ip_overrides_active">Geçersiz kılmalar etkin</string>
-    <string name="server_ip_overrides_import_by">Şuradaki yeni geçersiz kılmaları içe aktar:</string>
+    <string name="server_ip_overrides_import_by">Şuradaki yeni geçersiz kılmaları içe aktar</string>
     <string name="server_ip_overrides_import_by_file">Dosya</string>
     <string name="server_ip_overrides_import_by_text">Metin</string>
     <string name="server_ip_overrides_inactive">Geçersiz kılmalar etkin değil</string>

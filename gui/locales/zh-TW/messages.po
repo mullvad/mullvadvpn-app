@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2024-04-25 08:25\n"
+"PO-Revision-Date: 2024-05-15 07:28\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "已新增 %(duration)s，帳戶到期時間為 %(expiry)s。"
@@ -59,9 +59,6 @@ msgstr "自動"
 
 msgid "Back"
 msgstr "返回"
-
-msgid "BETA"
-msgstr "BETA"
 
 msgid "BLOCKED CONNECTION"
 msgstr "被封鎖的連線"
@@ -269,6 +266,10 @@ msgid "%(title)s, View loaded"
 msgstr "%(title)s，已載入視圖"
 
 msgctxt "accessibility"
+msgid "Add new custom bridge"
+msgstr "增添新的自訂橋接"
+
+msgctxt "accessibility"
 msgid "Close notification"
 msgstr "關閉通知"
 
@@ -281,6 +282,10 @@ msgstr "折疊 %(location)s"
 msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "複製帳號"
+
+msgctxt "accessibility"
+msgid "Edit custom bridge"
+msgstr "編輯自訂橋接"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -633,6 +638,12 @@ msgstr "您需要停用「鎖定模式」，才能上網加時。"
 msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "您已設定完畢！"
+
+#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
+#. %(daita)s - Will be replaced with "DAITA"
+msgctxt "connection-info"
+msgid "%(hostname)s using %(daita)s"
+msgstr "%(hostname)s，使用 %(daita)s"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1373,6 +1384,10 @@ msgid "Relay"
 msgstr "中繼"
 
 msgctxt "select-location-view"
+msgid "Setting: %(settingName)s"
+msgstr "設定：%(settingName)s"
+
+msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "應用程式會隨機選擇一個橋接伺服器，而離您越近的伺服器就越有可能獲選。"
 
@@ -1984,11 +1999,19 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s 設定"
 
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr "%(daita)s (%(daitaFull)s) 會在您的加密 VPN 流量中隱藏模式。如果有人正在監視您的連線，這能讓他們難以識別出您正在存取的網站。此實現方式係謹慎加入網路噪音，並使所有網路資料包大小皆相同。"
+
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s 設定"
+
+msgctxt "wireguard-settings-view"
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
+msgstr "注意：這會增加您的網路總流量。如果您方案中的流量有限，請謹慎使用。這還會對您的網路速度產生負面影響。如果要啟用 %(daita)s，請考慮到這一點。"
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -2049,6 +2072,11 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "這可以讓僅支援 IPv6 的裝置存取 %(wireguard)s。"
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "This feature isn't available on all servers. You might need to change location after enabling."
+msgstr "此功能尚未在所有伺服器上開放。啟用後，您可能需要變更位置。"
+
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "借助此功能，WireGuard 通道便能夠抵抗可能從量子電腦發起的攻擊。"
@@ -2061,15 +2089,14 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。"
 
-msgctxt "Indicator of that the currently selected element already has been added (directly or indirectly) to a named list (\"%s\")"
 msgid "%s (added)"
 msgstr "%s (已新增)"
 
-msgctxt "Message notifying the user that a location (first %s) was added to a named list (second %s)."
+msgctxt "A location was added to a custom list"
 msgid "%s was added to \"%s\""
 msgstr "已將 %s 新增至「%s」"
 
-msgctxt "Message shown after successfully adding time to the account. %s could be either day(s) or months, for example \"1 day\" or \"6 months\""
+msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
 msgstr "%s 已新增至您的帳戶。"
 
@@ -2094,7 +2121,7 @@ msgstr "帳戶點數即將到期"
 msgid "Account time reminders"
 msgstr "帳戶時間提醒"
 
-msgctxt "Title of the prompt where the user is asked to add a location (%s) to a list. "
+msgctxt "Add a Country,City, or Server to a custom list"
 msgid "Add %s to list"
 msgstr "將 %s 新增至清單"
 
@@ -2233,7 +2260,6 @@ msgstr "Google Play 無法使用"
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "如果使用了分割通道功能，該應用程式會查詢您的系統，以取得所有已安裝應用程式的清單。我們只會在分割通道視圖中擷取這份清單，絕不會傳送至他處。"
 
-msgctxt "Title of the bottom sheet prompt shown when importing a patch/configuration. The string itself is follwed by a list of import sources."
 msgid "Import new overrides by"
 msgstr "匯入新覆寫設定的方式"
 
@@ -2303,7 +2329,7 @@ msgstr "覆寫設定未啟用"
 msgid "Paste or write overrides to be imported"
 msgstr "貼上或撰寫要匯入的覆寫設定"
 
-msgctxt "Message shown if the provided configuration file/text (\"patch\") format doesn't match the requirements and therefore couldn't be applied."
+msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
 msgid "Patch not matching specification"
 msgstr "修補檔與規範不相符"
 
@@ -2325,6 +2351,10 @@ msgstr "遞迴限制"
 msgid "Remove"
 msgstr "移除"
 
+msgctxt "Remove a Country, City, or Server from a custom list."
+msgid "Remove %s from list"
+msgstr "從清單中移除 %s"
+
 msgid "Remove custom port"
 msgstr "移除自訂連接埠"
 
@@ -2342,9 +2372,6 @@ msgstr "重設為預設值"
 
 msgid "Secured"
 msgstr "安全"
-
-msgid "Server Ip overrides"
-msgstr "伺服器 IP 覆寫"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "設定 WireGuard MTU 值。有效範圍：%d - %d。"
@@ -2406,7 +2433,7 @@ msgstr "無法啟動通道連線。在使用 Mullvad VPN 之前，請先為 <b>%
 msgid "Undo"
 msgstr "復原"
 
-msgctxt "Error message shown when failing to parse a configuration file/text. The key variable (%s) is a an identifier used within the configuration file/text. "
+msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
 msgid "Unknown or prohibited key \"%s\""
 msgstr "未知或遭到禁用的金鑰「%s」"
 

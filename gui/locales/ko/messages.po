@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2024-04-25 08:25\n"
+"PO-Revision-Date: 2024-05-15 07:28\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s 추가됨, %(expiry)s까지 계정 결제함"
@@ -59,9 +59,6 @@ msgstr "자동"
 
 msgid "Back"
 msgstr "뒤로"
-
-msgid "BETA"
-msgstr "베타"
 
 msgid "BLOCKED CONNECTION"
 msgstr "연결 차단됨"
@@ -269,6 +266,10 @@ msgid "%(title)s, View loaded"
 msgstr "%(title)s, 보기 로드됨"
 
 msgctxt "accessibility"
+msgid "Add new custom bridge"
+msgstr "새로운 사용자 지정 브리지 추가"
+
+msgctxt "accessibility"
 msgid "Close notification"
 msgstr "알림 닫기"
 
@@ -281,6 +282,10 @@ msgstr "%(location)s 축소"
 msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "계정 번호 복사"
+
+msgctxt "accessibility"
+msgid "Edit custom bridge"
+msgstr "사용자 지정 브리지 편집"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -633,6 +638,12 @@ msgstr "시간을 추가하기 위해 인터넷에 액세스하려면 \"잠금 �
 msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "준비 완료되었습니다!"
+
+#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
+#. %(daita)s - Will be replaced with "DAITA"
+msgctxt "connection-info"
+msgid "%(hostname)s using %(daita)s"
+msgstr "%(daita)s 사용 %(hostname)s"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1373,6 +1384,10 @@ msgid "Relay"
 msgstr "릴레이"
 
 msgctxt "select-location-view"
+msgid "Setting: %(settingName)s"
+msgstr "설정: %(settingName)s"
+
+msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "앱에서 임의의 브리지 서버를 선택하지만, 사용자에게 가까운 서버일수록 확률이 더 높습니다."
 
@@ -1984,11 +1999,19 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s 설정"
 
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr "%(daita)s (%(daitaFull)s)은(는) 암호화 VPN 트래픽에서 패턴을 숨깁니다. 누군가가 사용자의 연결을 모니터링하고 있다면, 사용자가 방문하고 있는 웹사이트 식별을 훨씬 더 어렵게 만듭니다. 네트워크 노이즈를 세심하게 추가하고, 모든 네트워크 패킷을 같은 크기로 만듭니다."
+
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s 설정"
+
+msgctxt "wireguard-settings-view"
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
+msgstr "주의: 이러한 방식은 총 네트워크 트래픽을 증가시키므로, 제한된 데이터 플랜 사용 시에는 유의하시기 바랍니다. 네트워크 속도에도 부정적 영향을 미칠 수 있습니다. %(daita)s 활성화 시에는 이러한 부분을 고려해 주시기 바랍니다."
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -2049,6 +2072,11 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "이를 통해 IPv6만 지원하는 장치에서 %(wireguard)s에 액세스할 수 있습니다."
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "This feature isn't available on all servers. You might need to change location after enabling."
+msgstr "이 기능은 모든 서버에서 이용 가능하지는 않습니다. 활성화 후 위치를 변경해야 할 수도 있습니다."
+
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "이 기능은 WireGuard 터널이 양자 컴퓨터의 잠재적인 공격에 맞서도록 합니다."
@@ -2061,15 +2089,14 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP 난독 처리 프로토콜이 VPN 서버에서 연결해야 하는 TCP 포트입니다."
 
-msgctxt "Indicator of that the currently selected element already has been added (directly or indirectly) to a named list (\"%s\")"
 msgid "%s (added)"
 msgstr "%s(추가됨)"
 
-msgctxt "Message notifying the user that a location (first %s) was added to a named list (second %s)."
+msgctxt "A location was added to a custom list"
 msgid "%s was added to \"%s\""
 msgstr "%s이(가) \"%s\"에 추가되었습니다"
 
-msgctxt "Message shown after successfully adding time to the account. %s could be either day(s) or months, for example \"1 day\" or \"6 months\""
+msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
 msgstr "%s이(가) 계정에 추가되었습니다."
 
@@ -2094,7 +2121,7 @@ msgstr "계정 크레딧이 곧 만료됨"
 msgid "Account time reminders"
 msgstr "계정 시간 알림"
 
-msgctxt "Title of the prompt where the user is asked to add a location (%s) to a list. "
+msgctxt "Add a Country,City, or Server to a custom list"
 msgid "Add %s to list"
 msgstr "목록에 %s 추가"
 
@@ -2233,7 +2260,6 @@ msgstr "Google Play 사용 불가"
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "분할 터널링 기능을 사용하는 경우, 이 앱은 설치된 모든 애플리케이션 목록을 시스템에 쿼리합니다. 이 목록은 분할 터널링 보기에서만 검색됩니다. 설치된 애플리케이션 목록은 장치에서 전송되지 않습니다."
 
-msgctxt "Title of the bottom sheet prompt shown when importing a patch/configuration. The string itself is follwed by a list of import sources."
 msgid "Import new overrides by"
 msgstr "다음으로 새로운 재정의 가져오기:"
 
@@ -2303,7 +2329,7 @@ msgstr "재정의 비활성화"
 msgid "Paste or write overrides to be imported"
 msgstr "가져올 재정의를 붙여넣거나 작성하세요"
 
-msgctxt "Message shown if the provided configuration file/text (\"patch\") format doesn't match the requirements and therefore couldn't be applied."
+msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
 msgid "Patch not matching specification"
 msgstr "사양과 일치하지 않는 패치"
 
@@ -2325,6 +2351,10 @@ msgstr "반복 제한"
 msgid "Remove"
 msgstr "제거"
 
+msgctxt "Remove a Country, City, or Server from a custom list."
+msgid "Remove %s from list"
+msgstr "목록에서 %s 제거"
+
 msgid "Remove custom port"
 msgstr "사용자 지정 포트 제거"
 
@@ -2342,9 +2372,6 @@ msgstr "기본값으로 재설정"
 
 msgid "Secured"
 msgstr "안전함"
-
-msgid "Server Ip overrides"
-msgstr "서버 IP 재정의"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "WireGuard MTU 값을 설정하세요. 유효 범위: %d ~ %d"
@@ -2406,7 +2433,7 @@ msgstr "터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기
 msgid "Undo"
 msgstr "실행 취소"
 
-msgctxt "Error message shown when failing to parse a configuration file/text. The key variable (%s) is a an identifier used within the configuration file/text. "
+msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
 msgid "Unknown or prohibited key \"%s\""
 msgstr "알 수 없거나 금지된 키 \"%s\""
 

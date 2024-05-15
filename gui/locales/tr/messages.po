@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2024-04-25 08:25\n"
+"PO-Revision-Date: 2024-05-15 07:28\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s eklendi, hesap için %(expiry)s tarihine kadar ödeme yapıldı."
@@ -65,9 +65,6 @@ msgstr "Otomatik"
 
 msgid "Back"
 msgstr "Geri"
-
-msgid "BETA"
-msgstr "BETA"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ENGELLENEN BAĞLANTI"
@@ -275,6 +272,10 @@ msgid "%(title)s, View loaded"
 msgstr "%(title)s, Görünüm yüklendi"
 
 msgctxt "accessibility"
+msgid "Add new custom bridge"
+msgstr "Yeni özel köprü ekle"
+
+msgctxt "accessibility"
 msgid "Close notification"
 msgstr "Bildirimi kapat"
 
@@ -287,6 +288,10 @@ msgstr "%(location)s listesini daralt"
 msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "Hesap numarasını kopyala"
+
+msgctxt "accessibility"
+msgid "Edit custom bridge"
+msgstr "Özel köprüyü düzenle"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -639,6 +644,12 @@ msgstr "Süre bilgisi ekleyerek internete erişmek için \"Kilitleme modu\" seç
 msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "Artık hazırsınız!"
+
+#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
+#. %(daita)s - Will be replaced with "DAITA"
+msgctxt "connection-info"
+msgid "%(hostname)s using %(daita)s"
+msgstr "%(hostname)s, %(daita)s kullanıyor"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1379,6 +1390,10 @@ msgid "Relay"
 msgstr "Geçiş"
 
 msgctxt "select-location-view"
+msgid "Setting: %(settingName)s"
+msgstr "Ayar: %(settingName)s"
+
+msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "Uygulama rastgele bir köprü sunucusu seçer, ancak sunucular size ne kadar yakınsa seçilme olasılığı da o kadar fazladır."
 
@@ -1990,11 +2005,19 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s ayarları"
 
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr "%(daita)s (%(daitaFull)s), şifrelenmiş VPN trafiğinizdeki kalıpları gizler. Bu sayede, başka biri bağlantınızı izliyorsa ziyaret ettiğiniz web sitelerini tespit etmesi çok daha zor olacaktır. Özellik, dikkatli bir şekilde ağ paraziti ekleyerek ve tüm ağ paketlerini aynı boyuta getirerek sizi izlenmekten korur."
+
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s ayarları"
+
+msgctxt "wireguard-settings-view"
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
+msgstr "Dikkat: Bu özellik, toplam ağ trafiğinizi artıracağından dolayı sınırlı bir veri planınız varsa dikkatli olun. Bu, ağ hızınızı da olumsuz etkileyebilir. %(daita)s özelliğini etkinleştirmek istiyorsanız lütfen bu durumu göz önünde bulundurun."
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -2055,6 +2078,11 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "Bu, sadece IPv6'yı destekleyen cihazlarda %(wireguard)s için erişim izni sağlar."
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "This feature isn't available on all servers. You might need to change location after enabling."
+msgstr "Bu özellik tüm sunucularda mevcut değildir. Etkinleştirdikten sonra konumu değiştirmeniz gerekebilir."
+
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "Bu özellik, WireGuard tünelini kuantum bilgisayarlardan gelebilecek potansiyel saldırılara karşı dayanıklı hale getirir."
@@ -2067,15 +2095,14 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor."
 
-msgctxt "Indicator of that the currently selected element already has been added (directly or indirectly) to a named list (\"%s\")"
 msgid "%s (added)"
 msgstr "%s (eklendi)"
 
-msgctxt "Message notifying the user that a location (first %s) was added to a named list (second %s)."
+msgctxt "A location was added to a custom list"
 msgid "%s was added to \"%s\""
 msgstr "%s, \"%s\" listesine eklendi"
 
-msgctxt "Message shown after successfully adding time to the account. %s could be either day(s) or months, for example \"1 day\" or \"6 months\""
+msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
 msgstr "%s, hesabınıza eklendi."
 
@@ -2100,7 +2127,7 @@ msgstr "Hesap kredisinin süresi yakında doluyor"
 msgid "Account time reminders"
 msgstr "Hesap süresi hatırlatıcıları"
 
-msgctxt "Title of the prompt where the user is asked to add a location (%s) to a list. "
+msgctxt "Add a Country,City, or Server to a custom list"
 msgid "Add %s to list"
 msgstr "%s konumunu listeye ekle"
 
@@ -2239,9 +2266,8 @@ msgstr "Google Play kullanılamıyor"
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Bölünmüş tünelleme özelliği kullanılıyorsa uygulama, yüklü tüm uygulamaların bir listesi için sisteminizi sorgular. Bu liste yalnızca bölünmüş tünelleme görünümünde alınır. Yüklü uygulamaların listesi hiçbir zaman cihazdan gönderilmez."
 
-msgctxt "Title of the bottom sheet prompt shown when importing a patch/configuration. The string itself is follwed by a list of import sources."
 msgid "Import new overrides by"
-msgstr "Şuradaki yeni geçersiz kılmaları içe aktar:"
+msgstr "Şuradaki yeni geçersiz kılmaları içe aktar"
 
 msgid "Import successful, overrides active"
 msgstr "İçe aktarma başarılı, geçersiz kılmalar etkin"
@@ -2309,7 +2335,7 @@ msgstr "Geçersiz kılmalar etkin değil"
 msgid "Paste or write overrides to be imported"
 msgstr "İçe aktarılacak geçersiz kılmaları yapıştırın veya yazın"
 
-msgctxt "Message shown if the provided configuration file/text (\"patch\") format doesn't match the requirements and therefore couldn't be applied."
+msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
 msgid "Patch not matching specification"
 msgstr "Yama spesifikasyonla eşleşmiyor"
 
@@ -2331,6 +2357,10 @@ msgstr "Yineleme sınırı"
 msgid "Remove"
 msgstr "Kaldır"
 
+msgctxt "Remove a Country, City, or Server from a custom list."
+msgid "Remove %s from list"
+msgstr "%s konumunu listeden kaldır"
+
 msgid "Remove custom port"
 msgstr "Özel portu kaldır"
 
@@ -2348,9 +2378,6 @@ msgstr "Varsayılana sıfırla"
 
 msgid "Secured"
 msgstr "Güvenli"
-
-msgid "Server Ip overrides"
-msgstr "Sunucu IP geçersiz kılmaları"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "WireGuard MTU değerini ayarlayın. Geçerli aralık: %d - %d."
@@ -2412,7 +2439,7 @@ msgstr "Tünel bağlantısı başlatılamıyor. Mullvad VPN'i kullanmadan önce 
 msgid "Undo"
 msgstr "Geri al"
 
-msgctxt "Error message shown when failing to parse a configuration file/text. The key variable (%s) is a an identifier used within the configuration file/text. "
+msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
 msgid "Unknown or prohibited key \"%s\""
 msgstr "Bilinmeyen veya yasaklanmış \"%s\" anahtarı"
 

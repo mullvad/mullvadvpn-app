@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2024-04-25 08:25\n"
+"PO-Revision-Date: 2024-05-15 07:28\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s ble lagt til, konto betalt til %(expiry)s."
@@ -65,9 +65,6 @@ msgstr "Automatisk"
 
 msgid "Back"
 msgstr "Tilbake"
-
-msgid "BETA"
-msgstr "BETA"
 
 msgid "BLOCKED CONNECTION"
 msgstr "TILKOBLING BLOKKERT"
@@ -275,6 +272,10 @@ msgid "%(title)s, View loaded"
 msgstr "%(title)s, visning lastet inn"
 
 msgctxt "accessibility"
+msgid "Add new custom bridge"
+msgstr "Legg til ny egendefinert bro"
+
+msgctxt "accessibility"
 msgid "Close notification"
 msgstr "Lukk varsel"
 
@@ -287,6 +288,10 @@ msgstr "Vis mindre %(location)s"
 msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "Kopier kontonummer"
+
+msgctxt "accessibility"
+msgid "Edit custom bridge"
+msgstr "Endre egendefinert bro"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -639,6 +644,12 @@ msgstr "Du må deaktivere «Låsemodus» for å få tilgang til internettet og l
 msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "Du er klar!"
+
+#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
+#. %(daita)s - Will be replaced with "DAITA"
+msgctxt "connection-info"
+msgid "%(hostname)s using %(daita)s"
+msgstr "%(hostname)s bruker %(daita)s"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1379,6 +1390,10 @@ msgid "Relay"
 msgstr "Relé"
 
 msgctxt "select-location-view"
+msgid "Setting: %(settingName)s"
+msgstr "Innstilling: %(settingName)s"
+
+msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "Appen velger en tilfeldig bro-server, men servere har en større sannsynlighet desto nærmere de er deg."
 
@@ -1990,11 +2005,19 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s-innstillinger"
 
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr "%(daita)s (%(daitaFull)s) skjuler mønstre i den krypterte VPN-trafikken. Hvis noen overvåker tilkoblingen din, gjør dette det betydelig vanskeligere for dem å identifisere hvilke nettsteder du besøker. Dette gjøres ved å varsomt legge til nettverksstøy og gjøre alle nettverkspakker like store."
+
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s-innstillinger"
+
+msgctxt "wireguard-settings-view"
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
+msgstr "Obs: Siden dette øker den totale nettverkstrafikken, bør du være forsiktig hvis du har et abonnement med begrenset data. Det kan også påvirke nettverkshastigheten i negativ retning. Vær oppmerksom på dette hvis du ønsker å aktivere %(daita)s."
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -2055,6 +2078,11 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "Dette gir tilgang til %(wireguard)s for enheter som støtter IPv6."
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "This feature isn't available on all servers. You might need to change location after enabling."
+msgstr "Denne funksjonen er ikke tilgjengelig på alle servere. Det kan hende du må endre plassering etter aktivering."
+
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "Denne funksjonen gjør WireGuard-tunnelen motstandsdyktig mot potensielle angrep fra kvantemaskiner."
@@ -2067,15 +2095,14 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "TCP-porten som UDP-over-TCP-tilsløringen skal koble til på VPN-serveren."
 
-msgctxt "Indicator of that the currently selected element already has been added (directly or indirectly) to a named list (\"%s\")"
 msgid "%s (added)"
 msgstr "%s (lagt til)"
 
-msgctxt "Message notifying the user that a location (first %s) was added to a named list (second %s)."
+msgctxt "A location was added to a custom list"
 msgid "%s was added to \"%s\""
 msgstr "%s ble lagt til «%s»"
 
-msgctxt "Message shown after successfully adding time to the account. %s could be either day(s) or months, for example \"1 day\" or \"6 months\""
+msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
 msgstr "%s ble lagt til kontoen din."
 
@@ -2100,7 +2127,7 @@ msgstr "Kontokreditt utløper snart"
 msgid "Account time reminders"
 msgstr "Påminnelser om tidsavbrudd for konto"
 
-msgctxt "Title of the prompt where the user is asked to add a location (%s) to a list. "
+msgctxt "Add a Country,City, or Server to a custom list"
 msgid "Add %s to list"
 msgstr "Legg til %s i listen"
 
@@ -2239,7 +2266,6 @@ msgstr "Google Play utilgjengelig"
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Hvis funksjonen delt tunnelering brukes, vil appen be systemet ditt om en liste over alle installerte applikasjoner. Denne listen hentes bare i delt tunnelering-visningen. Listen over installerte apper sendes aldri ut fra enheten."
 
-msgctxt "Title of the bottom sheet prompt shown when importing a patch/configuration. The string itself is follwed by a list of import sources."
 msgid "Import new overrides by"
 msgstr "Importer nye overstyringer via"
 
@@ -2309,7 +2335,7 @@ msgstr "Overstyringer inaktive"
 msgid "Paste or write overrides to be imported"
 msgstr "Lim eller skriv inn overstyringer som skal importeres"
 
-msgctxt "Message shown if the provided configuration file/text (\"patch\") format doesn't match the requirements and therefore couldn't be applied."
+msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
 msgid "Patch not matching specification"
 msgstr "Oppdateringen samsvarer ikke med spesifikasjon"
 
@@ -2331,6 +2357,10 @@ msgstr "Rekursjonsgrense"
 msgid "Remove"
 msgstr "Fjern"
 
+msgctxt "Remove a Country, City, or Server from a custom list."
+msgid "Remove %s from list"
+msgstr "Fjern %s fra listen"
+
 msgid "Remove custom port"
 msgstr "Fjern tilpasset port"
 
@@ -2348,9 +2378,6 @@ msgstr "Tilbakestill til standard"
 
 msgid "Secured"
 msgstr "Sikret"
-
-msgid "Server Ip overrides"
-msgstr "Overstyringer av server-IP"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "Angi WireGuard MTU-verdi. Verdiområde: %d–%d."
@@ -2412,7 +2439,7 @@ msgstr "Kunne ikke starte tunneltilkobling. Deaktiver VPN som alltid er på, for
 msgid "Undo"
 msgstr "Angre"
 
-msgctxt "Error message shown when failing to parse a configuration file/text. The key variable (%s) is a an identifier used within the configuration file/text. "
+msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
 msgid "Unknown or prohibited key \"%s\""
 msgstr "Ukjent eller forbudt nøkkel «%s»"
 
