@@ -175,7 +175,7 @@ val uiModule = module {
     }
     viewModel { parameters -> DeviceListViewModel(get(), parameters.get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }
-    viewModel { MtuDialogViewModel(get()) }
+    viewModel { parameters -> MtuDialogViewModel(get(), parameters.getOrNull()) }
     viewModel { parameters ->
         DnsDialogViewModel(get(), get(), parameters.getOrNull(), parameters.getOrNull())
     }
@@ -185,7 +185,7 @@ val uiModule = module {
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
-    viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
+    viewModel { VpnSettingsViewModel(get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }

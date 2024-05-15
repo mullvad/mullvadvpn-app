@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.DnsState
+import net.mullvad.mullvadvpn.model.Mtu
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.Settings
@@ -51,7 +52,7 @@ class SettingsRepository(
 
     suspend fun addCustomDns(address: InetAddress) = managementService.addCustomDns(address)
 
-    suspend fun setWireguardMtu(value: Int) = managementService.setWireguardMtu(value)
+    suspend fun setWireguardMtu(mtu: Mtu) = managementService.setWireguardMtu(mtu.value)
 
     suspend fun clearWireguardMtu() = managementService.setWireguardMtu(null)
 

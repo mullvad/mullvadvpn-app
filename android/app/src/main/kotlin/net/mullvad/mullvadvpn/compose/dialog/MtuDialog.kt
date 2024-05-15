@@ -8,8 +8,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,22 +27,25 @@ import net.mullvad.mullvadvpn.constant.MTU_MIN_VALUE
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
-import net.mullvad.mullvadvpn.util.isValidMtu
+import net.mullvad.mullvadvpn.model.Mtu
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogSideEffect
+import net.mullvad.mullvadvpn.viewmodel.MtuDialogUiState
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
 private fun PreviewMtuDialog() {
-    AppTheme { MtuDialog(mtuInitial = 1234, EmptyResultBackNavigator()) }
+    AppTheme { MtuDialog(mtuInitial = Mtu(1234), EmptyResultBackNavigator()) }
 }
 
 @Destination(style = DestinationStyle.Dialog::class)
 @Composable
-fun MtuDialog(mtuInitial: Int?, navigator: ResultBackNavigator<Boolean>) {
-    val viewModel = koinViewModel<MtuDialogViewModel>()
+fun MtuDialog(mtuInitial: Mtu?, navigator: ResultBackNavigator<Boolean>) {
+    val viewModel = koinViewModel<MtuDialogViewModel>(parameters = { parametersOf(mtuInitial) })
 
+    val uiState by viewModel.uiState.collectAsState()
     LaunchedEffectCollect(viewModel.uiSideEffect) {
         when (it) {
             MtuDialogSideEffect.Complete -> navigator.navigateBack(result = true)
@@ -50,24 +53,22 @@ fun MtuDialog(mtuInitial: Int?, navigator: ResultBackNavigator<Boolean>) {
         }
     }
     MtuDialog(
-        mtuInitial = mtuInitial,
+        uiState,
+        onInputChanged = viewModel::onInputChanged,
         onSaveMtu = viewModel::onSaveClick,
         onResetMtu = viewModel::onRestoreClick,
-        onDismiss = navigator::navigateBack
+        onDismiss = { navigator.navigateBack(true) }
     )
 }
 
 @Composable
 fun MtuDialog(
-    mtuInitial: Int?,
-    onSaveMtu: (Int) -> Unit,
+    state: MtuDialogUiState,
+    onInputChanged: (String) -> Unit,
+    onSaveMtu: (String) -> Unit,
     onResetMtu: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-
-    val mtu = remember { mutableStateOf(mtuInitial?.toString() ?: "") }
-    val isValidMtu = mtu.value.toIntOrNull()?.isValidMtu() == true
-
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -79,18 +80,13 @@ fun MtuDialog(
         text = {
             Column {
                 MtuTextField(
-                    value = mtu.value,
-                    onValueChanged = { newMtuValue -> mtu.value = newMtuValue },
-                    onSubmit = { newMtuValue ->
-                        val mtuInt = newMtuValue.toIntOrNull()
-                        if (mtuInt?.isValidMtu() == true) {
-                            onSaveMtu(mtuInt)
-                        }
-                    },
+                    value = state.mtuInput,
+                    onValueChanged = onInputChanged,
+                    onSubmit = onSaveMtu,
                     isEnabled = true,
                     placeholderText = stringResource(R.string.enter_value_placeholder),
                     maxCharLength = 4,
-                    isValidValue = isValidMtu,
+                    isValidValue = state.isValidInput,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -111,17 +107,12 @@ fun MtuDialog(
             Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
-                    isEnabled = isValidMtu,
+                    isEnabled = state.isValidInput,
                     text = stringResource(R.string.submit_button),
-                    onClick = {
-                        val mtuInt = mtu.value.toIntOrNull()
-                        if (mtuInt?.isValidMtu() == true) {
-                            onSaveMtu(mtuInt)
-                        }
-                    }
+                    onClick = { onSaveMtu(state.mtuInput) }
                 )
 
-                if (mtuInitial != null) {
+                if (state.showResetToDefault) {
                     NegativeButton(
                         modifier = Modifier.fillMaxWidth(),
                         text = stringResource(R.string.reset_to_default_button),
