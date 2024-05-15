@@ -56,7 +56,7 @@ class SplashViewModel(
             onTimeout(ACCOUNT_EXPIRY_TIMEOUT_MS) { null }
         }
 
-        return if (accountData != null && accountData.expiryDate.isAfterNow) {
+        return if (accountData != null && accountData.expiryDate.isBeforeNow) {
                 SplashUiSideEffect.NavigateToOutOfTime
             } else {
             SplashUiSideEffect.NavigateToConnect
