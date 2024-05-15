@@ -30,13 +30,12 @@ class ServiceConnectionManager(private val context: Context) {
             override fun onServiceDisconnected(name: ComponentName?) {}
 
             override fun onNullBinding(name: ComponentName?) {
-                error("Received onNullBinding, why u do this to me?")
+                error("Received onNullBinding")
             }
         }
 
     fun bind(apiEndpointConfiguration: ApiEndpointConfiguration?) {
         if (_connectionState.value is ServiceConnectionState.Unbound) {
-            //            this.vpnPermissionRequestHandler = vpnPermissionRequestHandler
             val intent = Intent(context, MullvadVpnService::class.java)
 
             if (BuildConfig.DEBUG && apiEndpointConfiguration != null) {
@@ -74,16 +73,4 @@ class ServiceConnectionManager(private val context: Context) {
             Log.e("ServiceConnectionManager", "We are already unbound")
         }
     }
-
-    //    fun onVpnPermissionResult(isGranted: Boolean) {
-    //        _connectionState.value.let { state ->
-    //            if (state is ServiceConnectionState.ConnectedReady) {
-    //                state.container.vpnPermission.grant(isGranted)
-    //            }
-    //        }
-    //    }
-
-    //    private fun handleVpnPermissionRequest() {
-    //        vpnPermissionRequestHandler?.invoke()
-    //    }
 }

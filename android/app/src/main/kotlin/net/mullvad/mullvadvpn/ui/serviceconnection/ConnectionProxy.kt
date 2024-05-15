@@ -26,11 +26,7 @@ class ConnectionProxy(
         }
     }
 
-    suspend fun disconnect() {
-        managementService.disconnect()
-    }
+    suspend fun disconnect() = managementService.disconnect()
 
-    suspend fun reconnect() {
-        managementService.reconnect()
-    }
+    suspend fun reconnect() = managementService.reconnect()
 }
