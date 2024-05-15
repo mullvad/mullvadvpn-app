@@ -339,8 +339,6 @@ dependencies {
     implementation(Dependencies.Compose.destinations)
     ksp(Dependencies.Compose.destinationsKsp)
 
-    implementation("androidx.activity:activity-ktx:1.9.0")
-
     implementation(Dependencies.jodaTime)
     implementation(Dependencies.Koin.core)
     implementation(Dependencies.Koin.android)
