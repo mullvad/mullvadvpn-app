@@ -30,7 +30,7 @@ import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.repository.SelectedLocationRepository
+import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
@@ -50,7 +50,7 @@ class SelectLocationViewModelTest {
     private val mockCustomListsRelayItemUseCase: CustomListsRelayItemUseCase = mockk()
     private val mockSelectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase = mockk()
     private val mockFilteredRelayListUseCase: FilteredRelayListUseCase = mockk()
-    private val mockSelectedLocationRepository: SelectedLocationRepository = mockk()
+    private val mockRelayListRepository: RelayListRepository = mockk()
 
     private lateinit var viewModel: SelectLocationViewModel
 
@@ -84,7 +84,7 @@ class SelectLocationViewModelTest {
                 selectedLocationRelayItemUseCase = mockSelectedLocationRelayItemUseCase,
                 customListActionUseCase = mockCustomListActionUseCase,
                 filteredRelayListUseCase = mockFilteredRelayListUseCase,
-                selectedLocationRepository = mockSelectedLocationRepository
+                relayListRepository = mockRelayListRepository
             )
     }
 
@@ -143,7 +143,7 @@ class SelectLocationViewModelTest {
         val mockRelayItem: RelayItem.Location.Country = mockk()
         val relayItemId: GeoLocationId.Country = mockk(relaxed = true)
         every { mockRelayItem.id } returns relayItemId
-        coEvery { mockSelectedLocationRepository.updateSelectedRelayLocation(relayItemId) } returns
+        coEvery { mockRelayListRepository.updateSelectedRelayLocation(relayItemId) } returns
             Unit.right()
 
         // Act, Assert
@@ -151,7 +151,7 @@ class SelectLocationViewModelTest {
             viewModel.selectRelay(mockRelayItem)
             // Await an empty item
             assertEquals(SelectLocationSideEffect.CloseScreen, awaitItem())
-            coVerify { mockSelectedLocationRepository.updateSelectedRelayLocation(relayItemId) }
+            coVerify { mockRelayListRepository.updateSelectedRelayLocation(relayItemId) }
         }
     }
 
