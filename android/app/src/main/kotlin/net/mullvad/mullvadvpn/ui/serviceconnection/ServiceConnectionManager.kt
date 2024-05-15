@@ -42,6 +42,7 @@ class ServiceConnectionManager(private val context: Context) {
                 intent.putApiEndpointConfigurationExtra(apiEndpointConfiguration)
             }
 
+            // We set BIND_AUTO_CREATE so that the service is started if it is not already running
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 context.bindService(
                     intent,
