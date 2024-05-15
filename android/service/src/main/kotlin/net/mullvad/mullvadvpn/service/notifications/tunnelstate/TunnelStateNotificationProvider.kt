@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.service.notifications.tunnelstate
 
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
