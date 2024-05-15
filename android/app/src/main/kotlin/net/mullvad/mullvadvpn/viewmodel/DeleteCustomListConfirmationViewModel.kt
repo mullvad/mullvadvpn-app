@@ -36,7 +36,7 @@ class DeleteCustomListConfirmationViewModel(
 
     fun deleteCustomList() {
         viewModelScope.launch {
-            _error.tryEmit(null)
+            _error.emit(null)
             customListActionUseCase
                 .performAction(CustomListAction.Delete(customListId))
                 .fold(
