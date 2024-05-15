@@ -85,7 +85,10 @@ impl IOSRuntime {
         });
     }
 
-    pub async fn ios_tcp_client(
+    /// Creates a `RelayConfigService` using the in-tunnel TCP Connection provided by the Packet Tunnel Provider
+    /// # Safety
+    /// It is unsafe to call this with an already used `SwiftContext`
+    async unsafe fn ios_tcp_client(
         ctx: SwiftContext,
     ) -> Result<(RelayConfigService, IosTcpShutdownHandle), Error> {
         let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
@@ -117,16 +120,14 @@ impl IOSRuntime {
 
         let packet_tunnel_ptr = self.packet_tunnel.packet_tunnel;
         runtime.block_on(async move {
-            let (async_provider, shutdown_handle) = match Self::ios_tcp_client(self.packet_tunnel).await {
+            let (async_provider, shutdown_handle) = unsafe { match Self::ios_tcp_client(self.packet_tunnel).await {
                 Ok(result) => result,
                 Err(error) => {
                     log::error!("Failed to create iOS TCP client: {error}");
-                    unsafe {
                         swift_post_quantum_key_ready(packet_tunnel_ptr, ptr::null(), ptr::null());
-                    }
                     return;
                 }
-            };
+            }};
             let ephemeral_pub_key = PrivateKey::from(self.ephemeral_key).public_key();
 
             tokio::select! {
