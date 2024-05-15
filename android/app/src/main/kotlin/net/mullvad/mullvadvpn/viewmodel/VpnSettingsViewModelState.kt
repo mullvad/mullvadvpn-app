@@ -3,13 +3,14 @@ package net.mullvad.mullvadvpn.viewmodel
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
+import net.mullvad.mullvadvpn.model.Mtu
 import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 
 data class VpnSettingsViewModelState(
-    val mtuValue: String,
+    val mtuValue: Mtu?,
     val isAutoConnectEnabled: Boolean,
     val isLocalNetworkSharingEnabled: Boolean,
     val isCustomDnsEnabled: Boolean,
@@ -39,11 +40,9 @@ data class VpnSettingsViewModelState(
         )
 
     companion object {
-        private const val EMPTY_STRING = ""
-
         fun default() =
             VpnSettingsViewModelState(
-                mtuValue = EMPTY_STRING,
+                mtuValue = null,
                 isAutoConnectEnabled = false,
                 isLocalNetworkSharingEnabled = false,
                 isCustomDnsEnabled = false,

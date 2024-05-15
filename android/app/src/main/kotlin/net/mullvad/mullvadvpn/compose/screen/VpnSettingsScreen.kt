@@ -87,6 +87,7 @@ import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.Mtu
 import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.QuantumResistantState
@@ -107,7 +108,7 @@ private fun PreviewVpnSettings() {
             state =
                 VpnSettingsUiState.createDefault(
                     isAutoConnectEnabled = true,
-                    mtu = "1337",
+                    mtu = Mtu(1337),
                     isCustomDnsEnabled = true,
                     customDnsItems = listOf(CustomDnsItem("0.0.0.0", false)),
                 ),
@@ -287,7 +288,7 @@ fun VpnSettingsScreen(
     onToggleBlockAdultContent: (Boolean) -> Unit = {},
     onToggleBlockGambling: (Boolean) -> Unit = {},
     onToggleBlockSocialMedia: (Boolean) -> Unit = {},
-    navigateToMtuDialog: (mtu: Int?) -> Unit = {},
+    navigateToMtuDialog: (mtu: Mtu?) -> Unit = {},
     navigateToDns: (index: Int?, address: String?) -> Unit = { _, _ -> },
     onToggleDnsClick: (Boolean) -> Unit = {},
     onBackClick: () -> Unit = {},
@@ -617,10 +618,7 @@ fun VpnSettingsScreen(
             }
 
             item {
-                MtuComposeCell(
-                    mtuValue = state.mtu,
-                    onEditMtu = { navigateToMtuDialog(state.mtu.toIntOrNull()) }
-                )
+                MtuComposeCell(mtuValue = state.mtu, onEditMtu = { navigateToMtuDialog(state.mtu) })
             }
             item {
                 MtuSubtitle(modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG))

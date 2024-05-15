@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
+import net.mullvad.mullvadvpn.model.Mtu
 import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.QuantumResistantState
@@ -9,7 +10,7 @@ import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 
 data class VpnSettingsUiState(
-    val mtu: String,
+    val mtu: Mtu?,
     val isAutoConnectEnabled: Boolean,
     val isLocalNetworkSharingEnabled: Boolean,
     val isCustomDnsEnabled: Boolean,
@@ -25,7 +26,7 @@ data class VpnSettingsUiState(
 
     companion object {
         fun createDefault(
-            mtu: String = "",
+            mtu: Mtu? = null,
             isAutoConnectEnabled: Boolean = false,
             isLocalNetworkSharingEnabled: Boolean = false,
             isCustomDnsEnabled: Boolean = false,

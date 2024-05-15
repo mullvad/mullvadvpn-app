@@ -25,7 +25,8 @@ class SettingsViewModel(
                 SettingsUiState(
                     isLoggedIn = accountState is DeviceState.LoggedIn,
                     appVersion = BuildConfig.VERSION_NAME,
-                    isUpdateAvailable = versionInfo.let { it.isSupported.not() || it.isUpdateAvailable },
+                    isUpdateAvailable =
+                        versionInfo.let { it.isSupported.not() || it.isUpdateAvailable },
                     isPlayBuild = isPlayBuild
                 )
             }
