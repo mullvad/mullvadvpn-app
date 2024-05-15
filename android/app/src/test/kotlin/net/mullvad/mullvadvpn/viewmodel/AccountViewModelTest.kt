@@ -46,7 +46,7 @@ class AccountViewModelTest {
 
     private val dummyDevice =
         Device(
-            id = DeviceId.fromString(UUID.randomUUID().toString()),
+            id = DeviceId(UUID.randomUUID()),
             name = "fake_name",
             pubkey = byteArrayOf(),
             created = DateTime.now()
