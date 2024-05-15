@@ -84,6 +84,9 @@ function build_unix {
         TAGS=()
         if [[ "$DAITA" == "true" ]]; then
             TAGS+=(--tags daita)
+            pushd wireguard-go
+            make maybenot.h
+            popd
         fi
 
         # TODO: pass OUT_DIR as an arg maybe? instead of relying on cargo setting it globally?
