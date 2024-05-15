@@ -53,7 +53,7 @@ class SettingsRepository(
 
     suspend fun setWireguardMtu(value: Int) = managementService.setWireguardMtu(value)
 
-    suspend fun clearWireguardMtu() = managementService.setWireguardMtu(0)
+    suspend fun clearWireguardMtu() = managementService.setWireguardMtu(null)
 
     suspend fun setWireguardQuantumResistant(value: QuantumResistantState) =
         managementService.setWireguardQuantumResistant(value)
