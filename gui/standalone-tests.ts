@@ -22,6 +22,9 @@ async function main() {
 
 function getTarBin() {
   if (process.platform === 'win32') {
+    if (process.env.windir) {
+      return path.join(process.env.windir, 'System32', 'tar.exe');
+    }
     return 'tar.exe';
   } else {
     return 'tar';
