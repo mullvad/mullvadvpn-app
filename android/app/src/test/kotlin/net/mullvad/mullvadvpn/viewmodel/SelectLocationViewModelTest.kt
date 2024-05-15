@@ -103,7 +103,6 @@ class SelectLocationViewModelTest {
     fun `given relayListWithSelection emits update uiState should contain new update`() = runTest {
         // Arrange
         val mockCountries = listOf<RelayItem.Location.Country>(mockk(), mockk())
-        // val mockCustomList = listOf<RelayItem.CustomList>(mockk(relaxed = true))
         val selectedItem: RelayItem = mockk()
         every { mockCountries.filterOnSearchTerm(any(), selectedItem) } returns mockCountries
         filteredRelayList.value = mockCountries

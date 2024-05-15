@@ -20,7 +20,7 @@ class CustomListsViewModel(
     val uiState =
         customListsRepository.customLists
             .filterNotNull()
-            .map { CustomListsUiState.Content(it) }
+            .map(CustomListsUiState::Content)
             .stateIn(
                 viewModelScope,
                 started = SharingStarted.WhileSubscribed(),
