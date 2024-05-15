@@ -37,13 +37,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          submodules: true
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout submodules
+        run: |
+          git submodule update --init --depth=1 dist-assets/binaries
+          git submodule update --init --recursive --depth=1 wireguard-go-rs/libwg/wireguard-go
 
       - uses: actions-rs/toolchain@v1.0.6
         with:
