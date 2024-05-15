@@ -10,22 +10,22 @@ import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 
 class SettingsViewModel(
     accountRepository: AccountRepository,
-    appVersionInfoCache: AppVersionInfoCache,
+    appVersionInfoRepository: AppVersionInfoRepository,
     isPlayBuild: Boolean
 ) : ViewModel() {
 
     private val vmState: StateFlow<SettingsUiState> =
-        combine(accountRepository.accountState, appVersionInfoCache.versionInfo()) {
+        combine(accountRepository.accountState, appVersionInfoRepository.versionInfo()) {
                 accountState,
                 versionInfo ->
                 SettingsUiState(
                     isLoggedIn = accountState is DeviceState.LoggedIn,
                     appVersion = BuildConfig.VERSION_NAME,
-                    isUpdateAvailable = versionInfo.let { it.isSupported.not() || it.isOutdated },
+                    isUpdateAvailable = versionInfo.let { it.isSupported.not() || it.isUpdateAvailable },
                     isPlayBuild = isPlayBuild
                 )
             }

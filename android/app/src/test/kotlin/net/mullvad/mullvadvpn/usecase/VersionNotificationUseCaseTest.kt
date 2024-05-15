@@ -12,7 +12,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.VersionInfo
-import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class VersionNotificationUseCaseTest {
 
-    private val mockAppVersionInfoCache: AppVersionInfoCache = mockk()
+    private val mockAppVersionInfoRepository: AppVersionInfoRepository = mockk()
 
     private val versionInfo =
         MutableStateFlow(
@@ -32,11 +32,11 @@ class VersionNotificationUseCaseTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        every { mockAppVersionInfoCache.versionInfo() } returns versionInfo
+        every { mockAppVersionInfoRepository.versionInfo() } returns versionInfo
 
         versionNotificationUseCase =
             VersionNotificationUseCase(
-                appVersionInfoCache = mockAppVersionInfoCache,
+                appVersionInfoRepository = mockAppVersionInfoRepository,
                 isVersionInfoNotificationEnabled = true
             )
     }

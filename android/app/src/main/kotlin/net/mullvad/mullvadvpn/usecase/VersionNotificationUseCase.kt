@@ -4,15 +4,15 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.VersionInfo
-import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 
 class VersionNotificationUseCase(
-    private val appVersionInfoCache: AppVersionInfoCache,
+    private val appVersionInfoRepository: AppVersionInfoRepository,
     private val isVersionInfoNotificationEnabled: Boolean,
 ) {
 
     fun notifications() =
-        appVersionInfoCache
+        appVersionInfoRepository
             .versionInfo()
             .map { versionInfo ->
                 listOfNotNull(
@@ -27,7 +27,7 @@ class VersionNotificationUseCase(
             return null
         }
 
-        return if (versionInfo.isOutdated) {
+        return if (versionInfo.isUpdateAvailable) {
             InAppNotification.UpdateAvailable(versionInfo)
         } else null
     }

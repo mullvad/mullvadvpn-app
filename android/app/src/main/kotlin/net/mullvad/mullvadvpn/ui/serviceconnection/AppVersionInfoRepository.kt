@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.ui.VersionInfo
 
-class AppVersionInfoCache(private val managementService: ManagementService) {
+class AppVersionInfoRepository(private val managementService: ManagementService) {
     fun versionInfo(): Flow<VersionInfo> =
         combine(
             managementService.versionInfo,
