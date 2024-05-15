@@ -3,12 +3,15 @@ package net.mullvad.mullvadvpn.repository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.model.RelayItemId
 import net.mullvad.mullvadvpn.model.WireguardConstraints
@@ -36,6 +39,9 @@ class RelayListRepository(
         managementService.settings
             .map { it.relaySettings.relayConstraints.location }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
+
+    val portRanges: Flow<List<PortRange>> =
+        wireguardEndpointData.map { it.portRanges }.distinctUntilChanged()
 
     suspend fun updateSelectedRelayLocation(value: RelayItemId) =
         managementService.setRelayLocation(value)
