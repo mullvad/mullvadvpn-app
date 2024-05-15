@@ -100,7 +100,7 @@ class OutOfTimeViewModelTest {
     @Test
     fun `when clicking on site payment then open website account view`() = runTest {
         // Arrange
-        val mockToken = WwwAuthToken("4444 5555 6666 7777")
+        val mockToken = WwwAuthToken("767b3b8d63944e5ab8751c382ad3b30f")
         coEvery { mockAccountRepository.getWwwAuthToken() } returns mockToken
 
         // Act, Assert
