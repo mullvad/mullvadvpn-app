@@ -58,8 +58,8 @@ jobs:
           sudo apt-get install libdbus-1-dev
 
       - name: Install Go
-        if: matrix.os == 'macos-latest'
-        uses: actions/setup-go@v3
+        if: matrix.os == 'linux-latest' || matrix.os == 'macos-latest'
+        uses: actions/setup-go@v5
         with:
           go-version: 1.21.3
 
