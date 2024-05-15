@@ -66,12 +66,4 @@ class ServiceConnectionManager(private val context: Context) {
             error("Service is not bound")
         }
     }
-
-    fun onDestroy() {
-        try {
-            unbind()
-        } catch (e: java.lang.IllegalStateException) {
-            Log.e("ServiceConnectionManager", "We are already unbound")
-        }
-    }
 }

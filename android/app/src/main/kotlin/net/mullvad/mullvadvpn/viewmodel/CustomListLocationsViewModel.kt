@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
-import net.mullvad.mullvadvpn.lib.common.util.firstOrNullWithTimeout
 import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
@@ -197,15 +197,14 @@ class CustomListLocationsViewModel(
         _selectedLocations.value =
             customListRelayItemsUseCase
                 .getRelayItemLocationsForCustomList(customListId)
-                .firstOrNullWithTimeout(GET_CUSTOM_LIST_TIMEOUT_MS)
-                ?.withDescendants()
-                ?.toSet()
-                .apply { _initialLocations.value = this ?: emptySet() }
+                .first()
+                .withDescendants()
+                .toSet()
+                .apply { _initialLocations.value = this }
     }
 
     companion object {
         private const val EMPTY_SEARCH_TERM = ""
-        private const val GET_CUSTOM_LIST_TIMEOUT_MS = 5000L
 
         private const val TAG = "CustomListLocationsViewModel"
     }

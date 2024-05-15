@@ -89,7 +89,6 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
-        serviceConnectionManager.onDestroy()
         lifecycle.removeObserver(noDaemonViewModel)
         super.onDestroy()
     }
