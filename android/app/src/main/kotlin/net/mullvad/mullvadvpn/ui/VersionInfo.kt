@@ -7,5 +7,5 @@ data class VersionInfo(
     val isSupported: Boolean,
     val currentVersion: String = BuildConfig.VERSION_NAME
 ) {
-    val isOutdated: Boolean = suggestedUpgradeVersion != null
+    val isUpdateAvailable: Boolean = suggestedUpgradeVersion != null
 }

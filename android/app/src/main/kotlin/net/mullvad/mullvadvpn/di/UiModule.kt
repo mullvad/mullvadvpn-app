@@ -24,7 +24,7 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
@@ -152,7 +152,7 @@ val uiModule = module {
     single { ProblemReportRepository() }
 
     single { ConnectionProxy(get(), get()) }
-    single { AppVersionInfoCache(get()) }
+    single { AppVersionInfoRepository(get()) }
 
     // View models
     viewModel { AccountViewModel(get(), get(), IS_PLAY_BUILD) }

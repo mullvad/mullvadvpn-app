@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.lib.account.AccountRepository
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.ui.VersionInfo
-import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SettingsViewModelTest {
 
     private val mockAccountRepository: AccountRepository = mockk()
-    private val mockAppVersionInfoCache: AppVersionInfoCache = mockk()
+    private val mockAppVersionInfoRepository: AppVersionInfoRepository = mockk()
 
     private val versionInfo =
         MutableStateFlow(
@@ -37,12 +37,12 @@ class SettingsViewModelTest {
         val accountState = MutableStateFlow<DeviceState>(DeviceState.LoggedOut)
 
         every { mockAccountRepository.accountState } returns accountState
-        every { mockAppVersionInfoCache.versionInfo() } returns versionInfo
+        every { mockAppVersionInfoRepository.versionInfo() } returns versionInfo
 
         viewModel =
             SettingsViewModel(
                 accountRepository = mockAccountRepository,
-                appVersionInfoCache = mockAppVersionInfoCache,
+                appVersionInfoRepository = mockAppVersionInfoRepository,
                 isPlayBuild = false
             )
     }
