@@ -137,7 +137,7 @@ private fun PreviewVpnSettings() {
 fun VpnSettings(
     navigator: DestinationsNavigator,
     dnsDialogResult: ResultRecipient<DnsDialogDestination, DnsDialogResult>,
-    customWgPortResult: ResultRecipient<WireguardCustomPortDialogDestination, Int?>,
+    customWgPortResult: ResultRecipient<WireguardCustomPortDialogDestination, Port?>,
     mtuDialogResult: ResultRecipient<MtuDialogDestination, Boolean>,
 ) {
     val vm = koinViewModel<VpnSettingsViewModel>()
@@ -156,7 +156,7 @@ fun VpnSettings(
 
     customWgPortResult.OnNavResultValue { port ->
         if (port != null) {
-            vm.onWireguardPortSelected(Constraint.Only(Port(port)))
+            vm.onWireguardPortSelected(Constraint.Only(port))
         } else {
             vm.resetCustomPort()
         }
