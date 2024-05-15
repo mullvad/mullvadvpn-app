@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Portuguese\n"
 "Language: pt_PT\n"
-"PO-Revision-Date: 2024-03-13 08:24\n"
+"PO-Revision-Date: 2024-05-15 07:28\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -64,6 +64,10 @@ msgstr "Berlim"
 msgid "Bogota"
 msgstr "Bogotá"
 
+#. FR BOD
+msgid "Bordeaux"
+msgstr "Bordéus"
+
 #. US BOS
 msgid "Boston, MA"
 msgstr "Boston, MA"
@@ -115,6 +119,10 @@ msgstr "Charlotte, NC"
 #. US CHI
 msgid "Chicago, IL"
 msgstr "Chicago, IL"
+
+#. CL
+msgid "Chile"
+msgstr "Chile"
 
 #. MD KIV
 msgid "Chisinau"
@@ -224,6 +232,10 @@ msgstr "Hungria"
 msgid "India"
 msgstr "Índia"
 
+#. ID
+msgid "Indonesia"
+msgstr "Indonésia"
+
 #. IE
 msgid "Ireland"
 msgstr "República da Irlanda"
@@ -239,6 +251,10 @@ msgstr "Itália"
 #. US JAN
 msgid "Jackson, MS"
 msgstr "Jackson, MS"
+
+#. ID JPU
+msgid "Jakarta"
+msgstr "Jacarta"
 
 #. JP
 msgid "Japan"
@@ -439,6 +455,10 @@ msgstr "São Francisco, CA"
 #. US SJC
 msgid "San Jose, CA"
 msgstr "Puerto San José, CA"
+
+#. CL SCL
+msgid "Santiago"
+msgstr "Santiago"
 
 #. BR SAO
 msgid "Sao Paulo"

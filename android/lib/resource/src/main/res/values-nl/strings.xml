@@ -11,6 +11,8 @@
     <string name="add_30_days_time_x">30 dagen tijd toevoegen (%1$s)</string>
     <string name="add_a_server">Server toevoegen</string>
     <string name="add_dns_server_dialog_title">DNS-server toevoegen</string>
+    <string name="add_location_to_list">%1$s toevoegen aan lijst</string>
+    <string name="add_locations">Voeg locaties toe</string>
     <string name="add_time_to_account">Koop krediet op onze website of wissel een voucher in.</string>
     <string name="added_to_your_account">%1$s is toegevoegd aan uw account.</string>
     <string name="agree_and_continue">Akkoord en doorgaan</string>
@@ -197,6 +199,7 @@
     <string name="redeem">Inwisselen</string>
     <string name="redeem_voucher">Voucher inwisselen</string>
     <string name="remove_button">Verwijderen</string>
+    <string name="remove_location_from_list">%1$s verwijderen uit lijst</string>
     <string name="rented">Gehuurd</string>
     <string name="rented_only">Alleen gehuurde</string>
     <string name="report_a_problem">Een probleem rapporteren</string>

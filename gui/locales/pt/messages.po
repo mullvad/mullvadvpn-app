@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Portuguese\n"
 "Language: pt_PT\n"
-"PO-Revision-Date: 2024-03-13 08:24\n"
+"PO-Revision-Date: 2024-05-15 07:28\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "foi adicionado %(duration)s, conta paga até %(expiry)s."
@@ -65,9 +65,6 @@ msgstr "Automático"
 
 msgid "Back"
 msgstr "Retroceder"
-
-msgid "BETA"
-msgstr "BETA"
 
 msgid "BLOCKED CONNECTION"
 msgstr "LIGAÇÃO BLOQUEADA"
@@ -261,6 +258,10 @@ msgid "%(title)s, View loaded"
 msgstr "%(title)s, Vista carregada"
 
 msgctxt "accessibility"
+msgid "Add new custom bridge"
+msgstr "Adicionar nova ponte personalizada"
+
+msgctxt "accessibility"
 msgid "Close notification"
 msgstr "Fechar notificação"
 
@@ -273,6 +274,10 @@ msgstr "Comprimir %(location)s"
 msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "Copiar número de conta"
+
+msgctxt "accessibility"
+msgid "Edit custom bridge"
+msgstr "Editar ponte personalizada"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -624,6 +629,12 @@ msgstr "Tem de desativar a opção \"Modo de bloqueio\" para poder aceder à Int
 msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "Está pronto!"
+
+#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
+#. %(daita)s - Will be replaced with "DAITA"
+msgctxt "connection-info"
+msgid "%(hostname)s using %(daita)s"
+msgstr "%(hostname)s a usar %(daita)s"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1326,6 +1337,10 @@ msgid "Relay"
 msgstr "Retransmissão"
 
 msgctxt "select-location-view"
+msgid "Setting: %(settingName)s"
+msgstr "Definição: %(settingName)s"
+
+msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "A aplicação seleciona um servidor ponte aleatório, mas os servidores mais perto de si têm uma probabilidade mais elevada."
 
@@ -1937,11 +1952,19 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "Definições do %(wireguard)s"
 
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr "%(daita)s (%(daitaFull)s) oculta padrões no seu tráfego VPN encriptado. Se alguém estiver a monitorizar a sua ligação, isto dificulta significativamente a identificação dos sites que visita. Para tal, adiciona cuidadosamente ruído de rede e torna todos os pacotes de rede do mesmo tamanho."
+
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
 msgid "%(wireguard)s settings"
 msgstr "Definições do %(wireguard)s"
+
+msgctxt "wireguard-settings-view"
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
+msgstr "Atenção: visto que isto aumenta o tráfego total da sua rede, tenha cuidado se tiver um plano de dados limitado. Também pode afetar negativamente a velocidade da sua rede. Tenha isto em consideração se pretender ativar %(daita)s."
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -2002,6 +2025,11 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "Isto permite o acesso ao %(wireguard)s por dispositivos que suportem apenas IPv6."
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "This feature isn't available on all servers. You might need to change location after enabling."
+msgstr "Esta funcionalidade não está disponível em todos os servidores. Poderá ser necessário alterar a localização após a ativação."
+
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "Esta funcionalidade torna o túnel do WireGuard resistente a potenciais ataques de computadores quânticos."
@@ -2014,7 +2042,14 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "A que porta TCP o protocolo de ofuscação UDP sobre TCP deve ligar-se no servidor VPN."
 
-msgctxt "Message to indicate how much time was added to an account as part of an in-app purchase. Example: \"30 days was added to your account.\""
+msgid "%s (added)"
+msgstr "%s (adicionado)"
+
+msgctxt "A location was added to a custom list"
+msgid "%s was added to \"%s\""
+msgstr "%s foi adicionado a \"%s\""
+
+msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
 msgstr "%s adicionado(s) à sua conta."
 
@@ -2038,6 +2073,10 @@ msgstr "O crédito da conta expira brevemente"
 
 msgid "Account time reminders"
 msgstr "Lembretes de tempo da conta"
+
+msgctxt "Add a Country,City, or Server to a custom list"
+msgid "Add %s to list"
+msgstr "Adicionar %s à lista"
 
 msgid "Add 30 days time"
 msgstr "Adicionar 30 dias"
@@ -2129,6 +2168,15 @@ msgstr "Google Play indisponível"
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Se for utilizada a funcionalidade de divisão do túnel, a app consulta o seu sistema para obter uma lista de todas as aplicações instaladas. Esta lista só é recuperada na vista de divisão do túnel. A lista de aplicações instaladas nunca é enviada pelo dispositivo."
 
+msgid "Import new overrides by"
+msgstr "Importar novas substituições através de"
+
+msgid "Import successful, overrides active"
+msgstr "Importação bem-sucedida: substituições ativas"
+
+msgid "Importing new overrides might replace some previously imported overrides."
+msgstr "A importação de novas substituições pode substituir algumas substituições importadas anteriormente."
+
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Instalar o Mullvad VPN (%s) para ficar atualizado"
 
@@ -2147,6 +2195,31 @@ msgstr "Serviços Mullvad indisponíveis"
 msgid "No internet connection"
 msgstr "Sem ligação à internet"
 
+msgid "No locations found"
+msgstr "Nenhuma localização encontrada"
+
+msgid "Not found"
+msgstr "Não encontrada"
+
+msgid "Overrides active"
+msgstr "Substituições ativas"
+
+msgid "Overrides cleared"
+msgstr "Substituições eliminadas"
+
+msgid "Overrides inactive"
+msgstr "Substituições inativas"
+
+msgid "Paste or write overrides to be imported"
+msgstr "Cole ou introduza substituições a importar"
+
+msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
+msgid "Patch not matching specification"
+msgstr "A correção não corresponde à especificação"
+
+msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
+msgstr "Alternativamente, utilize a definição de sistema <b>Sempre ligada</b>, seguindo o guia em <b>%s</b> acima."
+
 msgid "Preferences"
 msgstr "Preferências"
 
@@ -2158,6 +2231,10 @@ msgstr "Política de privacidade"
 
 msgid "Remove"
 msgstr "Remover"
+
+msgctxt "Remove a Country, City, or Server from a custom list."
+msgid "Remove %s from list"
+msgstr "Remover %s da lista"
 
 msgid "Remove custom port"
 msgstr "Remover porta personalizada"
@@ -2215,6 +2292,13 @@ msgstr "Não foi possível aplicar as regras de firewall. Experimente a resoluç
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Não foi possível iniciar a ligação de túnel. Desative a VPN sempre ligada para <b>%s</b> antes de utilizar a Mullvad VPN."
+
+msgid "Undo"
+msgstr "Anular"
+
+msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
+msgid "Unknown or prohibited key \"%s\""
+msgstr "Chave \"%s\" desconhecida ou proibida"
 
 msgid "Unsecured"
 msgstr "Inseguro"

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2024-03-13 08:24\n"
+"PO-Revision-Date: 2024-05-15 07:28\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "已添加 %(duration)s，帐户到期时间为 %(expiry)s。"
@@ -59,9 +59,6 @@ msgstr "自动"
 
 msgid "Back"
 msgstr "返回"
-
-msgid "BETA"
-msgstr "BETA"
 
 msgid "BLOCKED CONNECTION"
 msgstr "已阻止连接"
@@ -255,6 +252,10 @@ msgid "%(title)s, View loaded"
 msgstr "%(title)s，已加载视图"
 
 msgctxt "accessibility"
+msgid "Add new custom bridge"
+msgstr "添加新的自定义网桥"
+
+msgctxt "accessibility"
 msgid "Close notification"
 msgstr "关闭通知"
 
@@ -267,6 +268,10 @@ msgstr "折叠 %(location)s"
 msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "复制帐号"
+
+msgctxt "accessibility"
+msgid "Edit custom bridge"
+msgstr "编辑自定义网桥"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -618,6 +623,12 @@ msgstr "您需要禁用“锁定模式”来访问网络以增加时间。"
 msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "您已设置完毕！"
+
+#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
+#. %(daita)s - Will be replaced with "DAITA"
+msgctxt "connection-info"
+msgid "%(hostname)s using %(daita)s"
+msgstr "%(hostname)s，使用 %(daita)s"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1320,6 +1331,10 @@ msgid "Relay"
 msgstr "中继"
 
 msgctxt "select-location-view"
+msgid "Setting: %(settingName)s"
+msgstr "设置：%(settingName)s"
+
+msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "应用会随机选择一个桥接服务器，但服务器离您越近，被选中的概率就越高。"
 
@@ -1931,11 +1946,19 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s 设置"
 
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr "%(daita)s（%(daitaFull)s）会在您的加密 VPN 流量中隐藏模式。如果有人在监视您的连接，这可以让他们很难识别您正在访问的网站。它的实现方法是小心地添加网络噪声并使所有网络数据包的大小都相同。"
+
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s 设置"
+
+msgctxt "wireguard-settings-view"
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
+msgstr "注意：这会增加您的总网络流量，因此如果您的流量套餐有限，请谨慎使用。它还会对您的网速产生负面影响。如果要启用 %(daita)s，请考虑到这一点。"
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -1996,6 +2019,11 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "这可以让仅支持 IPv6 的设备访问 %(wireguard)s。"
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "This feature isn't available on all servers. You might need to change location after enabling."
+msgstr "此功能并非在所有服务器上都可用。启用后，您可能需要更改位置。"
+
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "借助此功能，WireGuard 隧道能够抵抗可能通过量子计算机发起的攻击。"
@@ -2008,7 +2036,14 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。"
 
-msgctxt "Message to indicate how much time was added to an account as part of an in-app purchase. Example: \"30 days was added to your account.\""
+msgid "%s (added)"
+msgstr "%s（已添加）"
+
+msgctxt "A location was added to a custom list"
+msgid "%s was added to \"%s\""
+msgstr "%s已添加到“%s”中"
+
+msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
 msgstr "%s已添加到您的帐户中。"
 
@@ -2032,6 +2067,10 @@ msgstr "帐户额度即将到期"
 
 msgid "Account time reminders"
 msgstr "帐户时间提醒"
+
+msgctxt "Add a Country,City, or Server to a custom list"
+msgid "Add %s to list"
+msgstr "将%s添加到列表中"
 
 msgid "Add 30 days time"
 msgstr "增加 30 天"
@@ -2123,6 +2162,15 @@ msgstr "Google Play 不可用"
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "如果使用拆分隧道功能，应用会向您的系统查询所有已安装应用程序的列表。此列表仅在拆分隧道视图中检索。有关已安装应用程序的信息永远不会离开设备。"
 
+msgid "Import new overrides by"
+msgstr "导入新覆盖设置的方式"
+
+msgid "Import successful, overrides active"
+msgstr "导入成功，覆盖设置已激活"
+
+msgid "Importing new overrides might replace some previously imported overrides."
+msgstr "导入新覆盖设置可能会替换一些先前导入的覆盖设置。"
+
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "安装 Mullvad VPN (%s) 以保持最新状态"
 
@@ -2141,6 +2189,31 @@ msgstr "Mullvad 服务不可用"
 msgid "No internet connection"
 msgstr "没有互联网连接"
 
+msgid "No locations found"
+msgstr "找不到位置"
+
+msgid "Not found"
+msgstr "找不到"
+
+msgid "Overrides active"
+msgstr "覆盖设置已激活"
+
+msgid "Overrides cleared"
+msgstr "覆盖设置已清除"
+
+msgid "Overrides inactive"
+msgstr "覆盖设置未激活"
+
+msgid "Paste or write overrides to be imported"
+msgstr "粘贴或编写要导入的覆盖设置"
+
+msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
+msgid "Patch not matching specification"
+msgstr "补丁与规范不匹配"
+
+msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
+msgstr "请按照上述<b>%s</b>中的指南操作，改用<b>始终开启</b>系统设置。"
+
 msgid "Preferences"
 msgstr "偏好设置"
 
@@ -2152,6 +2225,10 @@ msgstr "隐私政策"
 
 msgid "Remove"
 msgstr "移除"
+
+msgctxt "Remove a Country, City, or Server from a custom list."
+msgid "Remove %s from list"
+msgstr "从列表中移除%s"
 
 msgid "Remove custom port"
 msgstr "移除自定义端口"
@@ -2209,6 +2286,13 @@ msgstr "无法应用防火墙规则。请排查问题或发送问题报告。"
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "无法启动隧道连接。在使用 Mullvad VPN 之前，请为 <b>%s</b> 禁用“始终开启的 VPN”。"
+
+msgid "Undo"
+msgstr "撤消"
+
+msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
+msgid "Unknown or prohibited key \"%s\""
+msgstr "未知或禁止的键“%s”"
 
 msgid "Unsecured"
 msgstr "未受保护"

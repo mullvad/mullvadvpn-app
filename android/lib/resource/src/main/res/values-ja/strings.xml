@@ -12,7 +12,7 @@
     <string name="add_a_server">サーバーを追加</string>
     <string name="add_dns_server_dialog_title">DNS サーバーを追加</string>
     <string name="add_time_to_account">当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。</string>
-    <string name="added_to_your_account">%1$sがアカウントに追加されました。</string>
+    <string name="added_to_your_account">%1$s がご利用のアカウントに追加されました。</string>
     <string name="agree_and_continue">同意して続行</string>
     <string name="all_applications">すべてのアプリケーション</string>
     <string name="all_locations">すべての場所</string>
@@ -197,6 +197,7 @@
     <string name="redeem">使用する</string>
     <string name="redeem_voucher">バウチャーを使用する</string>
     <string name="remove_button">削除</string>
+    <string name="remove_location_from_list">%1$s をリストから削除する</string>
     <string name="rented">レンタルサーバー</string>
     <string name="rented_only">レンタルサーバーのみ</string>
     <string name="report_a_problem">問題を報告する</string>

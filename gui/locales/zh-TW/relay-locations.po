@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2024-03-13 08:24\n"
+"PO-Revision-Date: 2024-05-15 07:28\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -64,6 +64,10 @@ msgstr "柏林"
 msgid "Bogota"
 msgstr "波哥大"
 
+#. FR BOD
+msgid "Bordeaux"
+msgstr "波爾多"
+
 #. US BOS
 msgid "Boston, MA"
 msgstr "麻州，波士頓"
@@ -115,6 +119,10 @@ msgstr "北卡羅來納州，夏洛特"
 #. US CHI
 msgid "Chicago, IL"
 msgstr "伊利諾州，芝加哥"
+
+#. CL
+msgid "Chile"
+msgstr "智利"
 
 #. MD KIV
 msgid "Chisinau"
@@ -224,6 +232,10 @@ msgstr "匈牙利"
 msgid "India"
 msgstr "印度"
 
+#. ID
+msgid "Indonesia"
+msgstr "印尼"
+
 #. IE
 msgid "Ireland"
 msgstr "愛爾蘭"
@@ -239,6 +251,10 @@ msgstr "義大利"
 #. US JAN
 msgid "Jackson, MS"
 msgstr "密西西比州，傑克遜"
+
+#. ID JPU
+msgid "Jakarta"
+msgstr "雅加達"
 
 #. JP
 msgid "Japan"
@@ -439,6 +455,10 @@ msgstr "加州，舊金山"
 #. US SJC
 msgid "San Jose, CA"
 msgstr "加州，聖荷西"
+
+#. CL SCL
+msgid "Santiago"
+msgstr "聖地亞哥"
 
 #. BR SAO
 msgid "Sao Paulo"

@@ -11,6 +11,8 @@
     <string name="add_30_days_time_x">Добавить 30 дней (%1$s)</string>
     <string name="add_a_server">Добавить сервер</string>
     <string name="add_dns_server_dialog_title">Добавить DNS-сервер</string>
+    <string name="add_location_to_list">Добавление местоположения %1$s к списку</string>
+    <string name="add_locations">Добавление местоположений</string>
     <string name="add_time_to_account">Пополните баланс у нас на сайте или погасите ваучер.</string>
     <string name="added_to_your_account">На учетную запись добавлено время: %1$s.</string>
     <string name="agree_and_continue">Согласиться и продолжить</string>
@@ -197,6 +199,7 @@
     <string name="redeem">Погасить</string>
     <string name="redeem_voucher">Погасить ваучер</string>
     <string name="remove_button">Удалить</string>
+    <string name="remove_location_from_list">Удаление местоположения %1$s из списка</string>
     <string name="rented">Арендованные</string>
     <string name="rented_only">Только арендованные</string>
     <string name="report_a_problem">Сообщение о проблеме</string>

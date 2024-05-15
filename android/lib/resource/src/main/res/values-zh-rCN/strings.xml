@@ -197,6 +197,7 @@
     <string name="redeem">兑换</string>
     <string name="redeem_voucher">兑换优惠券</string>
     <string name="remove_button">移除</string>
+    <string name="remove_location_from_list">从列表中移除%1$s</string>
     <string name="rented">租用</string>
     <string name="rented_only">仅租用</string>
     <string name="report_a_problem">报告问题</string>
@@ -225,6 +226,12 @@
     <string name="settings_account">帐户</string>
     <string name="settings_changes_effect_warning_content_blocker">由于缓存结果，对 DNS 相关设置的更改可能不会立即生效。</string>
     <string name="settings_changes_effect_warning_short">DNS 设置可能不会立即生效</string>
+    <string name="settings_patch_error_failed_to_apply_patch">无法应用补丁</string>
+    <string name="settings_patch_error_invalid_or_missing_value">值“%1$s”无效或者缺失</string>
+    <string name="settings_patch_error_recursion_limit">递归限制</string>
+    <string name="settings_patch_error_unable_to_parse">无法解析补丁</string>
+    <string name="settings_patch_error_unknown_or_prohibited_key">未知或禁止的键“%1$s”</string>
+    <string name="settings_patch_success">导入成功，覆盖设置已激活</string>
     <string name="settings_preferences">偏好设置</string>
     <string name="settings_vpn">VPN 设置</string>
     <string name="show_account_number">显示帐号</string>

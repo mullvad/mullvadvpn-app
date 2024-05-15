@@ -136,6 +136,10 @@
     <string name="local_network_sharing">Uso compartido de la red local</string>
     <string name="local_network_sharing_additional_info">Lo realiza permitiendo la comnunicación de red fuera del túnel hacia rangos de emisión y multidifusión locales y también hacia y desde estos rangos de IP privados:</string>
     <string name="local_network_sharing_info">Esta característica permite el acceso a otros dispositivos de la red local, como para compartir, imprimir, transmitir, etc.</string>
+    <string name="location_added">%1$s (añadido)</string>
+    <string name="location_was_added_to_list">%1$s se ha añadido a «%2$s»</string>
+    <string name="locations">Ubicaciones</string>
+    <string name="locations_were_changed_for">Se han cambiado las ubicaciones para «%1$s»</string>
     <string name="log_out">Cerrar sesión</string>
     <string name="logged_in_description">Número de cuenta válido</string>
     <string name="logged_in_title">Sesión iniciada</string>
@@ -197,6 +201,7 @@
     <string name="redeem">Canjear</string>
     <string name="redeem_voucher">Canjear cupón</string>
     <string name="remove_button">Quitar</string>
+    <string name="remove_location_from_list">Quitar %1$s de la lista</string>
     <string name="rented">Alquilados</string>
     <string name="rented_only">Solo alquilados</string>
     <string name="report_a_problem">Informar de un problema</string>
