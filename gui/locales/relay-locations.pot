@@ -62,6 +62,10 @@ msgstr ""
 msgid "Bogota"
 msgstr ""
 
+#. FR BOD
+msgid "Bordeaux"
+msgstr ""
+
 #. US BOS
 msgid "Boston, MA"
 msgstr ""
@@ -112,6 +116,10 @@ msgstr ""
 
 #. US CHI
 msgid "Chicago, IL"
+msgstr ""
+
+#. CL
+msgid "Chile"
 msgstr ""
 
 #. MD KIV
@@ -226,6 +234,10 @@ msgstr ""
 msgid "India"
 msgstr ""
 
+#. ID
+msgid "Indonesia"
+msgstr ""
+
 #. IE
 msgid "Ireland"
 msgstr ""
@@ -240,6 +252,10 @@ msgstr ""
 
 #. US JAN
 msgid "Jackson, MS"
+msgstr ""
+
+#. ID JPU
+msgid "Jakarta"
 msgstr ""
 
 #. JP
@@ -448,6 +464,10 @@ msgstr ""
 
 #. US SJC
 msgid "San Jose, CA"
+msgstr ""
+
+#. CL SCL
+msgid "Santiago"
 msgstr ""
 
 #. BR SAO

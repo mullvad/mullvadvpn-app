@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2024-04-25 08:25\n"
+"PO-Revision-Date: 2024-05-15 07:28\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s is toegevoegd, account betaald tot %(expiry)s."
@@ -65,9 +65,6 @@ msgstr "Automatisch"
 
 msgid "Back"
 msgstr "Terug"
-
-msgid "BETA"
-msgstr "BETA"
 
 msgid "BLOCKED CONNECTION"
 msgstr "VERBINDING GEBLOKKEERD"
@@ -275,6 +272,10 @@ msgid "%(title)s, View loaded"
 msgstr "%(title)s, weergave geladen"
 
 msgctxt "accessibility"
+msgid "Add new custom bridge"
+msgstr "Nieuwe aangepaste bridge toevoegen"
+
+msgctxt "accessibility"
 msgid "Close notification"
 msgstr "Melding sluiten"
 
@@ -287,6 +288,10 @@ msgstr "%(location)s samenvouwen"
 msgctxt "accessibility"
 msgid "Copy account number"
 msgstr "Accountnummer kopiëren"
+
+msgctxt "accessibility"
+msgid "Edit custom bridge"
+msgstr "Aangepaste bridge bewerken"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -639,6 +644,12 @@ msgstr "U moet \"Lockdownmodus\" uitschakelen voor toegang tot het internet om t
 msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "U bent er helemaal klaar voor!"
+
+#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
+#. %(daita)s - Will be replaced with "DAITA"
+msgctxt "connection-info"
+msgid "%(hostname)s using %(daita)s"
+msgstr "%(hostname)s via %(daita)s"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -1379,6 +1390,10 @@ msgid "Relay"
 msgstr "Relay"
 
 msgctxt "select-location-view"
+msgid "Setting: %(settingName)s"
+msgstr "Instelling: %(settingName)s"
+
+msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr "De app kiest een willekeurige brugserver, maar hoe dichter de server in de buurt staat, hoe groter de kans dat deze wordt gekozen."
 
@@ -1990,11 +2005,19 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s-instellingen"
 
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr "%(daita)s (%(daitaFull)s) verbergt patronen in het versleutelde VPN-verkeer. Als iemand de verbinding in de gaten houdt, maakt dit het aanzienlijk moeilijker voor diegene om te zien welke websites u bezoekt. Dit wordt gedaan door zorgvuldig netwerkruis toe te voegen en alle netwerkpakketten even groot te maken."
+
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)s-instellingen"
+
+msgctxt "wireguard-settings-view"
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
+msgstr "Let op: omdat dit het totale netwerkverkeer verhoogt, moet u voorzichtig zijn als u een beperkt data-abonnement hebt. Ook kan het uw netwerksnelheid negatief beïnvloeden. Houd hier rekening mee als u %(daita)s wilt inschakelen."
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -2055,6 +2078,11 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "Hiermee krijgen apparaten die alleen IPv6 ondersteunen toegang tot %(wireguard)s."
 
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "This feature isn't available on all servers. You might need to change location after enabling."
+msgstr "Deze functie is niet op alle servers beschikbaar. Mogelijk moet u na het inschakelen van locatie veranderen."
+
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "Deze eigenschap maakt de WireGuard-tunnel bestand tegen mogelijke aanvallen met kwantumcomputers."
@@ -2067,15 +2095,14 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Met welke TCP-poort moet het UDP-over-TCP-obfuscatieprotocol verbinding maken op de VPN-server."
 
-msgctxt "Indicator of that the currently selected element already has been added (directly or indirectly) to a named list (\"%s\")"
 msgid "%s (added)"
 msgstr "%s (toegevoegd)"
 
-msgctxt "Message notifying the user that a location (first %s) was added to a named list (second %s)."
+msgctxt "A location was added to a custom list"
 msgid "%s was added to \"%s\""
 msgstr "%s is toegevoegd aan \"%s\""
 
-msgctxt "Message shown after successfully adding time to the account. %s could be either day(s) or months, for example \"1 day\" or \"6 months\""
+msgctxt "Shown as a toast when user added e.g 30 days or 3 months of time to their account"
 msgid "%s was added to your account."
 msgstr "%s is toegevoegd aan uw account."
 
@@ -2100,9 +2127,9 @@ msgstr "Accountkrediet verloopt binnenkort"
 msgid "Account time reminders"
 msgstr "Accounttijdherinneringen"
 
-msgctxt "Title of the prompt where the user is asked to add a location (%s) to a list. "
+msgctxt "Add a Country,City, or Server to a custom list"
 msgid "Add %s to list"
-msgstr "Voeg %s toe aan lijst"
+msgstr "%s toevoegen aan lijst"
 
 msgid "Add 30 days time"
 msgstr "30 dagen tijd toevoegen"
@@ -2239,7 +2266,6 @@ msgstr "Google Play niet beschikbaar"
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Als de split-tunnelingfunctie wordt gebruikt, vraagt de app het systeem om een lijst van alle geïnstalleerde toepassingen. Deze lijst wordt alleen opgehaald in de split-tunnelingweergave. De lijst van geïnstalleerde toepassingen wordt nooit verzonden vanaf het apparaat."
 
-msgctxt "Title of the bottom sheet prompt shown when importing a patch/configuration. The string itself is follwed by a list of import sources."
 msgid "Import new overrides by"
 msgstr "Nieuwe overschrijvingen importeren vanuit"
 
@@ -2309,7 +2335,7 @@ msgstr "Overschrijvingen inactief"
 msgid "Paste or write overrides to be imported"
 msgstr "Plak of schrijf overschrijvingen om te importeren"
 
-msgctxt "Message shown if the provided configuration file/text (\"patch\") format doesn't match the requirements and therefore couldn't be applied."
+msgctxt "The patch is a partial settings file that can be applied to the users' list of servers, overriding some of the values for the servers. This is part of Server IP overrides."
 msgid "Patch not matching specification"
 msgstr "Patch komt niet overeen met specificatie"
 
@@ -2331,6 +2357,10 @@ msgstr "Recursielimiet"
 msgid "Remove"
 msgstr "Verwijderen"
 
+msgctxt "Remove a Country, City, or Server from a custom list."
+msgid "Remove %s from list"
+msgstr "%s verwijderen uit lijst"
+
 msgid "Remove custom port"
 msgstr "Aangepaste poort verwijderen"
 
@@ -2348,9 +2378,6 @@ msgstr "Standaardwaarde herstellen"
 
 msgid "Secured"
 msgstr "Beveiligd"
-
-msgid "Server Ip overrides"
-msgstr "Overschrijvingen van server-IP-adressen"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "Stel de MTU-waarde voor WireGuard in. Geldig bereik: %d - %d."
@@ -2412,7 +2439,7 @@ msgstr "Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voor <b
 msgid "Undo"
 msgstr "Ongedaan maken"
 
-msgctxt "Error message shown when failing to parse a configuration file/text. The key variable (%s) is a an identifier used within the configuration file/text. "
+msgctxt "Key is refering to a JSON key. The user selected a file or written/pasted a Server IP Override patch that was missing or using an invalid key."
 msgid "Unknown or prohibited key \"%s\""
 msgstr "Onbekende of verboden sleutel \"%s\""
 

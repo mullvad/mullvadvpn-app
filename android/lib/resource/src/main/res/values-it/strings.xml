@@ -226,6 +226,7 @@
     <string name="redeem">Riscatta</string>
     <string name="redeem_voucher">Riscatta voucher</string>
     <string name="remove_button">Rimuovi</string>
+    <string name="remove_location_from_list">Rimuovi %1$s dall\'elenco</string>
     <string name="rented">Noleggiato</string>
     <string name="rented_only">Solo noleggiati</string>
     <string name="report_a_problem">Segnala un problema</string>
@@ -246,7 +247,7 @@
     <string name="sent_thanks">Grazie!</string>
     <string name="server_ip_overrides">Sovrascritture IP server</string>
     <string name="server_ip_overrides_active">Sovrascritture attive</string>
-    <string name="server_ip_overrides_import_by">Importa nuove sovrascritture da</string>
+    <string name="server_ip_overrides_import_by">Importa nuove sovrascritture tramite</string>
     <string name="server_ip_overrides_import_by_file">File</string>
     <string name="server_ip_overrides_import_by_text">Testo</string>
     <string name="server_ip_overrides_inactive">Sovrascritture inattive</string>
