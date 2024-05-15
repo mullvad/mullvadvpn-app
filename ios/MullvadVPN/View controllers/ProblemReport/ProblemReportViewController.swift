@@ -130,9 +130,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     }
 
     @objc func handleViewLogsButtonTap() {
-        let reviewController = ProblemReportReviewViewController(
-            reportString: interactor.reportString
-        )
+        let reviewController = ProblemReportReviewViewController(interactor: interactor)
         let navigationController = UINavigationController(rootViewController: reviewController)
 
         present(navigationController, animated: true)

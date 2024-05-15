@@ -10,10 +10,10 @@ import UIKit
 
 class ProblemReportReviewViewController: UIViewController {
     private var textView = UITextView()
-    private let reportString: String
+    private let interactor: ProblemReportInteractor
 
-    init(reportString: String) {
-        self.reportString = reportString
+    init(interactor: ProblemReportInteractor) {
+        self.interactor = interactor
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -48,7 +48,6 @@ class ProblemReportReviewViewController: UIViewController {
         #endif
 
         textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.text = reportString
         textView.isEditable = false
         textView.font = UIFont.monospacedSystemFont(
             ofSize: UIFont.systemFontSize,
@@ -68,16 +67,33 @@ class ProblemReportReviewViewController: UIViewController {
         // Used to layout constraints so that navigation controller could properly adjust the text
         // view insets.
         view.layoutIfNeeded()
+
+        loadLogs()
     }
 
     override func selectAll(_ sender: Any?) {
         textView.selectAll(sender)
     }
 
+    private func loadLogs() {
+        let presentation = AlertPresentation(
+            id: "problem-report-load",
+            icon: .spinner,
+            buttons: []
+        )
+
+        let alertController = AlertViewController(presentation: presentation)
+
+        present(alertController, animated: true) {
+            self.textView.text = self.interactor.reportString
+            self.dismiss(animated: true)
+        }
+    }
+
     #if DEBUG
     private func share() {
         let activityController = UIActivityViewController(
-            activityItems: [reportString],
+            activityItems: [interactor.reportString],
             applicationActivities: nil
         )
 

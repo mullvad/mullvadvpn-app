@@ -135,8 +135,9 @@ class AlertViewController: UIViewController {
             )
         }
 
-        // Icon only alerts should have equal top and bottom margin.
-        if presentation.icon != nil, contentView.arrangedSubviews.count == 1 {
+        // Icon only spinner alerts should have no background and equal top and bottom margins.
+        if presentation.icon == .spinner, contentView.arrangedSubviews.count == 1 {
+            viewContainer.backgroundColor = .clear
             contentView.directionalLayoutMargins.bottom = UIMetrics.CustomAlert.containerMargins.top
         }
     }
