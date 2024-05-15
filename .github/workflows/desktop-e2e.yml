@@ -159,10 +159,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Checkout submodules
-       # TODO: should this specify a path? We don't want to pull `wireguard-go`
-        run: git submodule update --init --depth=1
+        uses: actions/checkout@v4
+        with:
+          submodules: true
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
         with:
@@ -232,10 +231,9 @@ jobs:
     runs-on: [self-hosted, desktop-test, macOS] # app-test-macos-arm
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Checkout submodules
-        # TODO: see windows build
-        run: git submodule update --init --depth=1
+        uses: actions/checkout@v4
+        with:
+          submodules: true
       - name: Install Go
         uses: actions/setup-go@v3
         with:

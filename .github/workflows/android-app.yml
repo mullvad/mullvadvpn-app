@@ -118,12 +118,8 @@ jobs:
       - name: Checkout repository
         if: steps.cache-relay-list.outputs.cache-hit != 'true'
         uses: actions/checkout@v4
-
-      - name: Checkout wireguard-go submodule
-        if: steps.cache-relay-list.outputs.cache-hit != 'true'
-        run: |
-          git config --global --add safe.directory $(pwd)
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+        with:
+          submodules: true
 
       - name: Generate
         if: steps.cache-relay-list.outputs.cache-hit != 'true'
@@ -170,6 +166,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Calculate native lib cache hash
         id: native-lib-cache-hash
@@ -181,9 +179,6 @@ jobs:
             | sha1sum \
             | awk '{print $1}')"
           echo "native_lib_hash=$non_android_hash" >> $GITHUB_OUTPUT
-
-      - name: Checkout wireguard-go submodule
-        run: git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - name: Cache native libraries
         uses: actions/cache@v4
@@ -241,11 +236,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Checkout wireguard-go submodule
-        run: |
-          git config --global --add safe.directory $(pwd)
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+        with:
+          submodules: true
 
       - name: Run gradle task
         uses: burrunan/gradle-cache-action@v1
@@ -273,11 +265,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Checkout wireguard-go submodule
-        run: |
-          git config --global --add safe.directory $(pwd)
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+        with:
+          submodules: true
 
       - uses: actions/download-artifact@v4
         with:
@@ -382,11 +371,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Checkout wireguard-go submodule
-        run: |
-          git config --global --add safe.directory $(pwd)
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+        with:
+          submodules: true
 
       - uses: actions/download-artifact@v4
         with:
