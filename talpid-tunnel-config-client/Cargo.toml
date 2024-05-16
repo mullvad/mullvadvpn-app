@@ -41,4 +41,4 @@ cbindgen = { version = "0.24.3", default-features = false }
 oslog = "0.2"
 
 [lib]
-crate-type = ["staticlib"]
+crate-type = ["staticlib", "rlib"]
