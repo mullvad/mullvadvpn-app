@@ -23,7 +23,7 @@ use super::{network, VmInstance};
 const LOG_PREFIX: &str = "[qemu] ";
 const STDERR_LOG_LEVEL: log::Level = log::Level::Error;
 const STDOUT_LOG_LEVEL: log::Level = log::Level::Debug;
-const OBTAIN_IP_TIMEOUT: Duration = Duration::from_secs(60);
+const OBTAIN_IP_TIMEOUT: Duration = Duration::from_secs(180);
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
