@@ -29,6 +29,7 @@ public class ShadowsocksLoader: ShadowsocksLoaderProtocol {
         self.relayCache = relayCache
         self.constraintsUpdater = constraintsUpdater
         constraintsUpdater.onNewConstraints = { [weak self] newConstraints in
+            // TODO: update closet relay if multihop state gets updated
             self?.relayConstraints = newConstraints
         }
     }
@@ -55,12 +56,15 @@ public class ShadowsocksLoader: ShadowsocksLoaderProtocol {
     /// Returns a randomly selected shadowsocks configuration.
     private func create() throws -> ShadowsocksConfiguration {
         let cachedRelays = try relayCache.read()
-        let bridgeConfiguration = RelaySelector.shadowsocksTCPBridge(from: cachedRelays.relays)
-        let closestRelay = RelaySelector.closestShadowsocksRelayConstrained(
-            by: relayConstraints,
+        let bridgeConfiguration = RelaySelector.Shadowsocks.tcpBridge(from: cachedRelays.relays)
+
+        // TODO: pick entry if multi hop is enabled otherwise pick exit entry
+        let closestRelay = RelaySelector.Shadowsocks.closestRelay(
+            location: relayConstraints.exitLocations,
+            port: relayConstraints.port,
+            filter: relayConstraints.filter,
             in: cachedRelays.relays
         )
-
         guard let bridgeAddress = closestRelay?.ipv4AddrIn, let bridgeConfiguration else { throw POSIXError(.ENOENT) }
 
         return ShadowsocksConfiguration(
