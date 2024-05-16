@@ -60,7 +60,7 @@ class MtuDialogViewModel(
     fun onRestoreClick() =
         viewModelScope.launch(dispatcher) {
             repository
-                .resetWireguardMtu()
+                .clearWireguardMtu()
                 .fold(
                     { _uiSideEffect.send(MtuDialogSideEffect.Error) },
                     { _uiSideEffect.send(MtuDialogSideEffect.Complete) }
