@@ -300,6 +300,8 @@ extension PacketTunnelProvider: PostQuantumKeyReceiving {
 
     func keyExchangeFailed() {
         postQuantumActor.endCurrentNegotiation()
-        actor.reconnect(to: .current)
+        // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
+        // and it will not try to reconnect
+        actor.reconnect(to: .random)
     }
 }
