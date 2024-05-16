@@ -359,7 +359,7 @@ class ManagementService(
             .mapLeft(SetWireguardMtuError::Unknown)
             .mapEmpty()
 
-    suspend fun clearWireguardMtu(): Either<SetWireguardMtuError, Unit> =
+    suspend fun resetWireguardMtu(): Either<SetWireguardMtuError, Unit> =
         Either.catch { grpc.setWireguardMtu(UInt32Value.newBuilder().clearValue().build()) }
             .mapLeft(SetWireguardMtuError::Unknown)
             .mapEmpty()
