@@ -31,10 +31,9 @@ use libc::setsockopt;
 #[cfg(not(any(target_os = "windows", target_os = "ios")))]
 mod sys {
     pub use libc::{socklen_t, IPPROTO_TCP, TCP_MAXSEG};
-    pub use std::os::fd::RawFd;
+    pub use std::os::fd::{AsRawFd, RawFd};
 }
-#[cfg(not(target_os = "ios"))]
-pub use std::os::fd::AsRawFd;
+
 #[cfg(target_os = "windows")]
 mod sys {
     pub use std::os::windows::io::{AsRawSocket, RawSocket};
