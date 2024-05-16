@@ -8,4 +8,4 @@ sealed interface UpdateCustomListError : ModifyCustomListError {
 
 sealed interface ModifyCustomListError
 
-data class GetCustomListError(val id: CustomListId) : ModifyCustomListError
+data object GetCustomListError : ModifyCustomListError
