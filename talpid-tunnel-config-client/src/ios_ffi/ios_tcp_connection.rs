@@ -3,9 +3,9 @@ use std::{
     io::{self, Result},
     sync::{
         atomic::{self, AtomicBool},
-        Arc, Weak,
+        Arc, Mutex, Weak,
     },
-    task::Poll,
+    task::{Poll, Waker},
 };
 use tokio::{
     io::{AsyncRead, AsyncWrite},
@@ -53,10 +53,12 @@ pub struct IosTcpProvider {
     read_in_progress: bool,
     write_in_progress: bool,
     shutdown: Arc<AtomicBool>,
+    waker: Arc<Mutex<Option<Waker>>>,
 }
 
 pub struct IosTcpShutdownHandle {
     shutdown: Arc<AtomicBool>,
+    waker: Arc<Mutex<Option<Waker>>>,
 }
 
 impl IosTcpProvider {
@@ -68,6 +70,7 @@ impl IosTcpProvider {
         let (tx, rx) = mpsc::unbounded_channel();
         let (recv_tx, recv_rx) = mpsc::unbounded_channel();
         let shutdown = Arc::new(AtomicBool::new(false));
+        let waker = Arc::new(Mutex::new(None));
 
         (
             Self {
@@ -79,19 +82,29 @@ impl IosTcpProvider {
                 read_in_progress: false,
                 write_in_progress: false,
                 shutdown: shutdown.clone(),
+                waker: waker.clone(),
             },
-            IosTcpShutdownHandle { shutdown },
+            IosTcpShutdownHandle { shutdown, waker },
         )
     }
 
     fn is_shutdown(&self) -> bool {
         self.shutdown.load(atomic::Ordering::SeqCst)
     }
+
+    fn maybe_set_waker(&self, new_waker: Waker) {
+        if let Ok(mut waker) = self.waker.lock() {
+            *waker = Some(new_waker);
+        }
+    }
 }
 
 impl IosTcpShutdownHandle {
     pub fn shutdown(&self) {
         self.shutdown.store(true, atomic::Ordering::SeqCst);
+        if let Some(waker) = self.waker.lock().ok().and_then(|mut waker| waker.take()) {
+            waker.wake();
+        }
     }
 }
 
@@ -101,6 +114,7 @@ impl AsyncWrite for IosTcpProvider {
         cx: &mut std::task::Context<'_>,
         buf: &[u8],
     ) -> std::task::Poll<Result<usize>> {
+        self.maybe_set_waker(cx.waker().clone());
         match self.write_rx.poll_recv(cx) {
             std::task::Poll::Ready(Some(bytes_sent)) => {
                 self.write_in_progress = false;

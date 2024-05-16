@@ -58,6 +58,8 @@ pub unsafe extern "C" fn drop_post_quantum_key_exchange_token(
 /// Called by Swift whenever data has been written to the in-tunnel TCP connection when exchanging
 /// quantum-resistant pre shared keys.
 ///
+/// If `bytes_sent` is 0, this indicates that the connection was closed or that an error occurred.
+///
 /// # Safety
 /// `sender` must be pointing to a valid instance of a `write_tx` created by the `IosTcpProvider`
 /// Callback to call when the TCP connection has written data.
@@ -72,14 +74,20 @@ pub unsafe extern "C" fn handle_sent(bytes_sent: usize, sender: *const c_void) {
 /// Called by Swift whenever data has been read from the in-tunnel TCP connection when exchanging
 /// quantum-resistant pre shared keys.
 ///
+/// If `data` is null or empty, this indicates that the connection was closed or that an error occurred.
+/// An empty buffer is sent to the underlying reader to signal EOF.
+///
 /// # Safety
 /// `sender` must be pointing to a valid instance of a `read_tx` created by the `IosTcpProvider`
 ///
 /// Callback to call when the TCP connection has received data.
 #[no_mangle]
-pub unsafe extern "C" fn handle_recv(data: *const u8, data_len: usize, sender: *const c_void) {
+pub unsafe extern "C" fn handle_recv(data: *const u8, mut data_len: usize, sender: *const c_void) {
     let weak_tx: Weak<mpsc::UnboundedSender<Box<[u8]>>> = unsafe { Weak::from_raw(sender as _) };
 
+    if data.is_null() {
+        data_len = 0;
+    }
     let mut bytes = vec![0u8; data_len];
     if !data.is_null() {
         std::ptr::copy_nonoverlapping(data, bytes.as_mut_ptr(), data_len);

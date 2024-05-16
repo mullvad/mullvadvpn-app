@@ -26,6 +26,7 @@ class PostQuantumKeyExchangeActor {
 
     unowned let packetTunnel: PacketTunnelProvider
     private var negotiation: Negotiation?
+    private var timer: DispatchSourceTimer?
 
     // Callback in the event of the negotiation failing on startup
     var onFailure: () -> Void
@@ -55,12 +56,17 @@ class PostQuantumKeyExchangeActor {
         // This will become the new private key of the device
         let ephemeralSharedKey = PrivateKey()
 
+        // If the connection never becomes viable, force a reconnection after 10 seconds
+        scheduleInTunnelConnectionTimeout(startTime: .now() + 10)
+
         let tcpConnectionObserver = inTunnelTCPConnection.observe(\.isViable, options: [
             .initial,
             .new,
         ]) { [weak self] observedConnection, _ in
             guard let self, observedConnection.isViable else { return }
             self.negotiation?.tcpConnectionObserver.invalidate()
+            self.timer?.cancel()
+
             if !negotiator.startNegotiation(
                 gatewayIP: IPv4Gateway,
                 devicePublicKey: privateKey.publicKey,
@@ -69,6 +75,7 @@ class PostQuantumKeyExchangeActor {
                 tcpConnection: inTunnelTCPConnection
             ) {
                 self.negotiation = nil
+                self.timer?.cancel()
                 self.onFailure()
             }
         }
@@ -82,5 +89,20 @@ class PostQuantumKeyExchangeActor {
     func endCurrentNegotiation() {
         negotiation?.cancel()
         negotiation = nil
+    }
+
+    private func scheduleInTunnelConnectionTimeout(startTime: DispatchWallTime) {
+        let newTimer = DispatchSource.makeTimerSource()
+
+        newTimer.setEventHandler { [weak self] in
+            self?.onFailure()
+            self?.timer?.cancel()
+        }
+
+        newTimer.schedule(wallDeadline: startTime)
+        newTimer.activate()
+
+        timer?.cancel()
+        timer = newTimer
     }
 }
