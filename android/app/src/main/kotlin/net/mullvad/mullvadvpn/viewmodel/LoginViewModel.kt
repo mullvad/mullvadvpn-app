@@ -6,18 +6,17 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.timeout
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.LoginError
@@ -115,15 +114,7 @@ class LoginViewModel(
                     .fold(
                         { it.toUiState() },
                         {
-                            newDeviceNotificationUseCase.newDeviceCreated()
-                            launch {
-                                val isOutOfTime = isOutOfTime()
-                                if (isOutOfTime) {
-                                    _uiSideEffect.send(LoginUiSideEffect.NavigateToOutOfTime)
-                                } else {
-                                    _uiSideEffect.send(LoginUiSideEffect.NavigateToConnect)
-                                }
-                            }
+                            onSuccessfulLogin()
                             Success
                         }
                     )
@@ -132,13 +123,27 @@ class LoginViewModel(
         }
     }
 
-    private suspend fun isOutOfTime(): Boolean = coroutineScope {
-        val isOutOfTimeDeferred = async {
-            accountRepository.accountData.filterNotNull().map { it.expiryDate.isBeforeNow }.first()
+    private suspend fun onSuccessfulLogin() {
+        newDeviceNotificationUseCase.newDeviceCreated()
+
+        viewModelScope.launch(dispatcher) {
+            // Find if user is out of time
+            val isOutOfTimeDeferred = async {
+                accountRepository.accountData.mapNotNull { it?.expiryDate?.isBeforeNow }.first()
+            }
+
+            // Always show successful login for some time.
+            delay(SHOW_SUCCESSFUL_LOGIN_MILLIS)
+
+            // Get the result of isOutOfTime or assume not out of time
+            val isOutOfTime = isOutOfTimeDeferred.getOrDefault(false)
+
+            if (isOutOfTime) {
+                _uiSideEffect.send(LoginUiSideEffect.NavigateToOutOfTime)
+            } else {
+                _uiSideEffect.send(LoginUiSideEffect.NavigateToConnect)
+            }
         }
-        delay(1000)
-        val result = isOutOfTimeDeferred.getOrDefault(false)
-        result
     }
 
     fun onAccountNumberChange(accountNumber: String) {
@@ -158,5 +163,9 @@ class LoginViewModel(
 
     private fun isInternetAvailable(): Boolean {
         return connectivityUseCase.isInternetAvailable()
+    }
+
+    companion object {
+        private const val SHOW_SUCCESSFUL_LOGIN_MILLIS = 1000L
     }
 }
