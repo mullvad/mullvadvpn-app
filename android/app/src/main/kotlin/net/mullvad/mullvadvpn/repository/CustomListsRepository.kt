@@ -54,9 +54,10 @@ class CustomListsRepository(
         either {
                 customLists
                     .mapNotNull { it?.find { customList -> customList.id == id } }
-                    .firstOrNullWithTimeout(GET_CUSTOM_LIST_TIMEOUT_MS) ?: raise(GetCustomListError)
+                    .firstOrNullWithTimeout(GET_CUSTOM_LIST_TIMEOUT_MS)
+                    ?: raise(GetCustomListError(id))
             }
-            .mapLeft { GetCustomListError }
+            .mapLeft { GetCustomListError(id) }
 
     companion object {
         private const val GET_CUSTOM_LIST_TIMEOUT_MS = 5000L

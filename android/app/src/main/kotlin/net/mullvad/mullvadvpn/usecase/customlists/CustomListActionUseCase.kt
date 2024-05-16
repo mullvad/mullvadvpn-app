@@ -17,7 +17,9 @@ class CustomListActionUseCase(
     private val customListsRepository: CustomListsRepository,
     private val relayListRepository: RelayListRepository
 ) {
-    suspend fun performAction(action: CustomListAction): Either<Any, CustomListResult> {
+    suspend fun performAction(
+        action: CustomListAction
+    ): Either<CustomListActionError, CustomListResult> {
         return when (action) {
             is CustomListAction.Create -> {
                 performAction(action)
@@ -36,10 +38,11 @@ class CustomListActionUseCase(
 
     suspend fun performAction(
         action: CustomListAction.Rename
-    ): Either<ModifyCustomListError, CustomListResult.Renamed> =
-        customListsRepository.updateCustomListName(action.id, action.newName).map {
-            CustomListResult.Renamed(undo = action.not())
-        }
+    ): Either<RenameCustomListError, CustomListResult.Renamed> =
+        customListsRepository
+            .updateCustomListName(action.id, action.newName)
+            .map { CustomListResult.Renamed(undo = action.not()) }
+            .mapLeft(RenameCustomListError::Modify)
 
     suspend fun performAction(
         action: CustomListAction.Create
@@ -54,7 +57,7 @@ class CustomListActionUseCase(
             if (action.locations.isNotEmpty()) {
                 customListsRepository
                     .updateCustomListLocations(customListId, action.locations)
-                    .mapLeft(CreateCustomListWithLocationsError::Update)
+                    .mapLeft(CreateCustomListWithLocationsError::Modify)
                     .bind()
 
                 relayListRepository.relayList
@@ -93,9 +96,16 @@ class CustomListActionUseCase(
 
     suspend fun performAction(
         action: CustomListAction.UpdateLocations
-    ): Either<ModifyCustomListError, CustomListResult.LocationsChanged> = either {
-        val customList = customListsRepository.getCustomListById(action.id).bind()
-        customListsRepository.updateCustomListLocations(action.id, action.locations).bind()
+    ): Either<UpdateLocationsCustomListError, CustomListResult.LocationsChanged> = either {
+        val customList =
+            customListsRepository
+                .getCustomListById(action.id)
+                .mapLeft(UpdateLocationsCustomListError::Get)
+                .bind()
+        customListsRepository
+            .updateCustomListLocations(action.id, action.locations)
+            .mapLeft(UpdateLocationsCustomListError::Modify)
+            .bind()
         CustomListResult.LocationsChanged(
             name = customList.name,
             undo = action.not(locations = customList.locations)
@@ -103,16 +113,28 @@ class CustomListActionUseCase(
     }
 }
 
-sealed interface CreateCustomListWithLocationsError {
+sealed interface CustomListActionError
+
+sealed interface CreateCustomListWithLocationsError : CustomListActionError {
     data class Create(val error: CreateCustomListError) : CreateCustomListWithLocationsError
 
-    data class Update(val error: ModifyCustomListError) : CreateCustomListWithLocationsError
+    data class Modify(val error: ModifyCustomListError) : CreateCustomListWithLocationsError
 
     data object UnableToFetchRelayList : CreateCustomListWithLocationsError
 }
 
-sealed interface DeleteCustomListWithUndoError {
+sealed interface DeleteCustomListWithUndoError : CustomListActionError {
     data class Delete(val error: DeleteCustomListError) : DeleteCustomListWithUndoError
 
     data class Get(val error: GetCustomListError) : DeleteCustomListWithUndoError
+}
+
+sealed interface RenameCustomListError : CustomListActionError {
+    data class Modify(val error: ModifyCustomListError) : RenameCustomListError
+}
+
+sealed interface UpdateLocationsCustomListError : CustomListActionError {
+    data class Modify(val error: ModifyCustomListError) : UpdateLocationsCustomListError
+
+    data class Get(val error: GetCustomListError) : UpdateLocationsCustomListError
 }
