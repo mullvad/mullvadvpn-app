@@ -1,7 +1,7 @@
 use ipnetwork::IpNetwork;
-#[cfg(any(target_os = "windows", target_os = "linux"))]
+#[cfg(daita)]
 use once_cell::sync::OnceCell;
-#[cfg(any(target_os = "windows", target_os = "linux"))]
+#[cfg(daita)]
 use std::{ffi::CString, fs, path::PathBuf};
 use std::{
     future::Future,
@@ -25,11 +25,11 @@ use crate::logging::{clean_up_logging, initialize_logging};
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 /// Maximum number of events that can be stored in the underlying buffer
-#[cfg(any(target_os = "windows", target_os = "linux"))]
+#[cfg(daita)]
 const DAITA_EVENTS_CAPACITY: u32 = 1000;
 
 /// Maximum number of actions that can be stored in the underlying buffer
-#[cfg(any(target_os = "windows", target_os = "linux"))]
+#[cfg(daita)]
 const DAITA_ACTIONS_CAPACITY: u32 = 1000;
 
 type Result<T> = std::result::Result<T, TunnelError>;
@@ -52,9 +52,9 @@ pub struct WgGoTunnel {
     _logging_context: LoggingContext,
     #[cfg(target_os = "android")]
     tun_provider: Arc<Mutex<TunProvider>>,
-    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    #[cfg(daita)]
     resource_dir: PathBuf,
-    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    #[cfg(daita)]
     config: Config,
 }
 
@@ -64,7 +64,7 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
-        #[cfg(any(target_os = "windows", target_os = "linux"))] resource_dir: &Path,
+        #[cfg(daita)] resource_dir: &Path,
     ) -> Result<Self> {
         #[cfg(target_os = "android")]
         let tun_provider_clone = tun_provider.clone();
@@ -101,9 +101,9 @@ impl WgGoTunnel {
             _logging_context: logging_context,
             #[cfg(target_os = "android")]
             tun_provider: tun_provider_clone,
-            #[cfg(any(target_os = "windows", target_os = "linux"))]
+            #[cfg(daita)]
             resource_dir: resource_dir.to_owned(),
-            #[cfg(any(target_os = "windows", target_os = "linux"))]
+            #[cfg(daita)]
             config: config.clone(),
         })
     }
@@ -242,7 +242,7 @@ impl Tunnel for WgGoTunnel {
         })
     }
 
-    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    #[cfg(daita)]
     fn start_daita(&mut self) -> Result<()> {
         static MAYBENOT_MACHINES: OnceCell<CString> = OnceCell::new();
         let machines = MAYBENOT_MACHINES.get_or_try_init(|| {

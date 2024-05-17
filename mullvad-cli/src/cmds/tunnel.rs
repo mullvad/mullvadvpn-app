@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
-#[cfg(any(target_os = "windows", target_os = "linux"))]
+#[cfg(daita)]
 use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
     constraints::Constraint,
@@ -41,7 +41,7 @@ pub enum TunnelOptions {
         #[arg(long)]
         quantum_resistant: Option<QuantumResistantState>,
         /// Configure whether to enable DAITA
-        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        #[cfg(daita)]
         #[arg(long)]
         daita: Option<BooleanOption>,
         /// The key rotation interval. Number of hours, or 'any'
@@ -101,7 +101,7 @@ impl Tunnel {
             tunnel_options.wireguard.quantum_resistant,
         );
 
-        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        #[cfg(daita)]
         print_option!("DAITA", tunnel_options.wireguard.daita.enabled);
 
         let key = rpc.get_wireguard_key().await?;
@@ -138,7 +138,7 @@ impl Tunnel {
             TunnelOptions::Wireguard {
                 mtu,
                 quantum_resistant,
-                #[cfg(any(target_os = "windows", target_os = "linux"))]
+                #[cfg(daita)]
                 daita,
                 rotation_interval,
                 rotate_key,
@@ -146,7 +146,7 @@ impl Tunnel {
                 Self::handle_wireguard(
                     mtu,
                     quantum_resistant,
-                    #[cfg(any(target_os = "windows", target_os = "linux"))]
+                    #[cfg(daita)]
                     daita,
                     rotation_interval,
                     rotate_key,
@@ -178,7 +178,7 @@ impl Tunnel {
     async fn handle_wireguard(
         mtu: Option<Constraint<u16>>,
         quantum_resistant: Option<QuantumResistantState>,
-        #[cfg(any(target_os = "windows", target_os = "linux"))] daita: Option<BooleanOption>,
+        #[cfg(daita)] daita: Option<BooleanOption>,
         rotation_interval: Option<Constraint<RotationInterval>>,
         rotate_key: Option<RotateKey>,
     ) -> Result<()> {
@@ -194,7 +194,7 @@ impl Tunnel {
             println!("Quantum resistant setting has been updated");
         }
 
-        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        #[cfg(daita)]
         if let Some(daita) = daita {
             rpc.set_daita_settings(DaitaSettings { enabled: *daita })
                 .await?;
