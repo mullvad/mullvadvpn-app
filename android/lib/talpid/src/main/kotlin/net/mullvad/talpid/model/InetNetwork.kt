@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.model
+package net.mullvad.talpid.model
 
 import java.net.Inet6Address
 import java.net.InetAddress

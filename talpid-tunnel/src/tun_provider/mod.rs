@@ -33,7 +33,7 @@ cfg_if! {
 /// Configuration for creating a tunnel device.
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.model"))]
 pub struct TunConfig {
     /// IP addresses for the tunnel interface.
     pub addresses: Vec<IpAddr>,
@@ -64,7 +64,7 @@ pub struct TunConfig {
 
 #[cfg(target_os = "android")]
 #[derive(IntoJava)]
-#[jnix(package = "net.mullvad.mullvadvpn.model")]
+#[jnix(package = "net.mullvad.talpid.model")]
 struct InetNetwork {
     address: IpAddr,
     prefix: i16,

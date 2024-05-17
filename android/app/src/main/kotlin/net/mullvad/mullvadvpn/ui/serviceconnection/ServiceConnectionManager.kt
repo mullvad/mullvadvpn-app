@@ -9,9 +9,6 @@ import android.os.Build
 import android.os.IBinder
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
-import net.mullvad.mullvadvpn.lib.endpoint.BuildConfig
-import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
 import net.mullvad.mullvadvpn.service.MullvadVpnService
 
 class ServiceConnectionManager(private val context: Context) {
