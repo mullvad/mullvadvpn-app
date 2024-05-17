@@ -16,10 +16,6 @@ value class Mtu(val value: Int) : Parcelable {
             Mtu(number)
         }
 
-        private fun Int.isValidMtu(): Boolean {
-            return this in 1280..1420
-        }
-
         const val MIN_MTU = 1280
         const val MAX_MTU = 1420
     }
