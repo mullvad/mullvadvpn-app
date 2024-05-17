@@ -210,8 +210,8 @@ impl AndroidTunProvider {
 
         let result = self.call_method(
             "getTun",
-            "(Lnet/mullvad/mullvadvpn/model/TunConfig;)Lnet/mullvad/talpid/CreateTunResult;",
-            JavaType::Object("net/mullvad/talpid/CreateTunResult".to_owned()),
+            "(Lnet/mullvad/talpid/model/TunConfig;)Lnet/mullvad/talpid/model/CreateTunResult;",
+            JavaType::Object("net/mullvad/talpid/model/CreateTunResult".to_owned()),
             &[JValue::Object(java_config.as_obj())],
         )?;
 
@@ -231,7 +231,7 @@ impl AndroidTunProvider {
 
         let result = self.call_method(
             "recreateTunIfOpen",
-            "(Lnet/mullvad/mullvadvpn/model/TunConfig;)V",
+            "(Lnet/mullvad/talpid/model/TunConfig;)V",
             JavaType::Primitive(Primitive::Void),
             &[JValue::Object(java_config.as_obj())],
         )?;
@@ -436,7 +436,7 @@ impl Default for TunConfig {
 }
 
 #[derive(FromJava)]
-#[jnix(package = "net.mullvad.talpid")]
+#[jnix(package = "net.mullvad.talpid.model")]
 enum CreateTunResult {
     Success { tun_fd: i32 },
     InvalidDnsServers { addresses: Vec<IpAddr> },
