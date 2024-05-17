@@ -28,6 +28,7 @@
 /android/play-api-key.json
 /wireguard/libwg/libwg.exp
 /wireguard/libwg/exports.def
+/wireguard-go-rs/libwg/libwg.a
 **/.vs/
 *.bak
 android/.idea

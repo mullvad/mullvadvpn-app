@@ -541,14 +541,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cmaybenot"
-version = "0.1.0"
-dependencies = [
- "maybenot",
- "thiserror",
-]
-
-[[package]]
 name = "colorchoice"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5095,10 +5087,7 @@ dependencies = [
 
 [[package]]
 name = "wireguard-go-rs"
-version = "0.1.0"
-dependencies = [
- "cmaybenot",
-]
+version = "0.0.0"
 
 [[package]]
 name = "x25519-dalek"
