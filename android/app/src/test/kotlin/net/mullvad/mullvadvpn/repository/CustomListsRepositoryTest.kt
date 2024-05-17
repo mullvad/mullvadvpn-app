@@ -82,7 +82,7 @@ class CustomListsRepositoryTest {
             val result = customListsRepository.getCustomListById(otherCustomListId)
 
             // Assert
-            assertEquals(GetCustomListError, result.leftOrNull())
+            assertEquals(GetCustomListError(customListId), result.leftOrNull())
         }
 
     @Test
@@ -117,7 +117,7 @@ class CustomListsRepositoryTest {
         }
 
     @Test
-    fun `update custom list name should return either right unit when successful`() = runTest {
+    fun `update custom list name should return success when call managementService is successful`() = runTest {
         // Arrange
         val customListId = CustomListId("1")
         val expectedResult = Unit.right()
@@ -183,7 +183,7 @@ class CustomListsRepositoryTest {
     }
 
     @Test
-    fun `update custom list locations should return Either right when list exists and update is successful`() =
+    fun `update custom list locations should return successful when list exists and update is successful`() =
         runTest {
             // Arrange
             val expectedResult = Unit.right()
@@ -212,10 +212,10 @@ class CustomListsRepositoryTest {
     fun `update custom list locations should return get custom list error when list does not exist`() =
         runTest {
             // Arrange
-            val expectedResult = GetCustomListError.left()
             val mockSettings: Settings = mockk()
             val customListId = CustomListId("1")
             val otherCustomListId = CustomListId("2")
+            val expectedResult = GetCustomListError(customListId).left()
             val mockCustomList =
                 CustomList(
                     id = customListId,

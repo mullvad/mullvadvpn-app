@@ -46,7 +46,7 @@ class CustomListLocationsViewModelTest {
     }
 
     @Test
-    fun `given new list false state should return new list false`() = runTest {
+    fun `given new list false state uiState newList should be false`() = runTest {
         // Arrange
         val newList = false
         val customList =

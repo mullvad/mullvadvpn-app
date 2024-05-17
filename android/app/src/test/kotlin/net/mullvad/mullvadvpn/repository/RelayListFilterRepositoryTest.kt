@@ -70,7 +70,7 @@ class RelayListFilterRepositoryTest {
     }
 
     @Test
-    fun `when successfully updating selected ownership and filter should return unit`() = runTest {
+    fun `when successfully updating selected ownership and filter should return successful`() = runTest {
         // Arrange
         val ownership = Constraint.Any
         val providers = Constraint.Any
@@ -109,7 +109,7 @@ class RelayListFilterRepositoryTest {
         }
 
     @Test
-    fun `when successfully updating selected ownership should return unit`() = runTest {
+    fun `when successfully updating selected ownership should return successful`() = runTest {
         // Arrange
         val ownership = Constraint.Only(Ownership.Rented)
         coEvery { mockManagementService.setOwnership(ownership) } returns Unit.right()
@@ -139,7 +139,7 @@ class RelayListFilterRepositoryTest {
         }
 
     @Test
-    fun `when successfully updating selected providers should return unit`() = runTest {
+    fun `when successfully updating selected providers should return successful`() = runTest {
         // Arrange
         val providers = Constraint.Only(Providers(setOf(ProviderId("Mopp"))))
         coEvery { mockManagementService.setProviders(providers) } returns Unit.right()
