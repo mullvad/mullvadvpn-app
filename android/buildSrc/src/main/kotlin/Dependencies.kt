@@ -121,7 +121,7 @@ object Dependencies {
         const val billingLib = ":lib:billing"
         const val paymentLib = ":lib:payment"
         const val mapLib = ":lib:map"
-        const val accountLib = ":lib:account"
+        const val sharedLib = ":lib:shared"
         const val intentLib = ":lib:intent-provider"
         const val vpnPermissionLib = ":lib:vpn-permission"
     }

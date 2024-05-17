@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.PaymentState
-import net.mullvad.mullvadvpn.lib.account.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.model.WwwAuthToken
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase

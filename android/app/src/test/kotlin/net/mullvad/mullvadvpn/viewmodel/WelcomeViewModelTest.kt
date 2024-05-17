@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.model.WwwAuthToken
-import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.account.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase

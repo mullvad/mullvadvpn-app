@@ -15,7 +15,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
-import net.mullvad.mullvadvpn.lib.account.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.ConnectError
 import net.mullvad.mullvadvpn.model.DeviceState
@@ -23,7 +24,7 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.model.WwwAuthToken
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
-import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
@@ -45,6 +46,7 @@ class ConnectViewModel(
     private val paymentUseCase: PaymentUseCase,
     private val connectionProxy: ConnectionProxy,
     lastKnownLocationUseCase: LastKnownLocationUseCase,
+    private val vpnPermissionRepository: VpnPermissionRepository,
     private val isPlayBuild: Boolean
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
@@ -132,15 +134,23 @@ class ConnectViewModel(
                 when (connectError) {
                     ConnectError.NoVpnPermission -> _uiSideEffect.send(UiSideEffect.NoVpnPermission)
                     is ConnectError.Unknown -> {
-                        /* Do nothing */
+                        _uiSideEffect.send(UiSideEffect.ConnectError.Generic)
                     }
                 }
             }
         }
     }
 
-    fun connectUnsafe() {
-        viewModelScope.launch { connectionProxy.connectWithoutPermissionCheck() }
+    fun requestVpnPermissionResult(hasVpnPermission: Boolean) {
+        viewModelScope.launch {
+            if (hasVpnPermission) {
+                connectionProxy.connect()
+            } else {
+                vpnPermissionRepository.getAlwaysOnVpnAppName()?.let {
+                    _uiSideEffect.send(UiSideEffect.ConnectError.AlwaysOnVpn(it))
+                } ?: _uiSideEffect.send(UiSideEffect.ConnectError.NoVpnPermission)
+            }
+        }
     }
 
     fun onCancelClick() {
@@ -175,6 +185,14 @@ class ConnectViewModel(
         data object RevokedDevice : UiSideEffect
 
         data object NoVpnPermission : UiSideEffect
+
+        sealed interface ConnectError : UiSideEffect {
+            data object Generic : ConnectError
+
+            data object NoVpnPermission : ConnectError
+
+            data class AlwaysOnVpn(val appName: String) : ConnectError
+        }
     }
 
     companion object {

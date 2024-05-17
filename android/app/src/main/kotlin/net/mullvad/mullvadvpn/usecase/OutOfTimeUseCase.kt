@@ -13,14 +13,14 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
-import net.mullvad.mullvadvpn.lib.account.AccountRepository
-import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.model.ErrorStateCause
 import net.mullvad.mullvadvpn.model.TunnelState
 import org.joda.time.DateTime
 
 class OutOfTimeUseCase(
-    private val managementService: ManagementService,
+    private val connectionProxy: ConnectionProxy,
     private val repository: AccountRepository,
     scope: CoroutineScope
 ) {
@@ -44,7 +44,7 @@ class OutOfTimeUseCase(
         }
 
     private fun isTunnelBlockedBecauseOutOfTime(): Flow<Boolean> =
-        managementService.tunnelState
+        connectionProxy.tunnelState
             .map { it.isTunnelErrorStateDueToExpiredAccount() }
             .onStart { emit(false) }
 
