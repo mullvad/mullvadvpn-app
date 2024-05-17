@@ -1,5 +1,3 @@
-#[cfg(target_os = "android")]
-use jnix::IntoJava;
 use obfuscation::ObfuscatorConfig;
 use serde::{Deserialize, Serialize};
 #[cfg(windows)]
@@ -260,8 +258,6 @@ impl fmt::Display for ObfuscationEndpoint {
 
 /// Represents a network layer IP address together with the transport layer protocol and port.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.model"))]
 pub struct Endpoint {
     /// The socket address for the endpoint
     pub address: SocketAddr,
@@ -459,8 +455,6 @@ pub struct IpVersionParseError;
 /// Representation of a transport protocol, either UDP or TCP.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.model"))]
 pub enum TransportProtocol {
     /// Represents the UDP transport protocol.
     Udp,
