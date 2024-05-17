@@ -4,6 +4,8 @@ use std::{env, path::PathBuf};
 fn main() {
     let out_dir = env::var("OUT_DIR").expect("Missing OUT_DIR");
     eprintln!("OUT_DIR: {out_dir}");
+    // Add DAITA as a conditional configuration
+    println!("cargo::rustc-check-cfg=cfg(daita)");
 
     let target_os = env::var("CARGO_CFG_TARGET_OS").expect("Missing 'CARGO_CFG_TARGET_OS");
     let mut cmd = std::process::Command::new("bash");
@@ -12,7 +14,7 @@ fn main() {
     match target_os.as_str() {
         "linux" => {
             // Enable DAITA & Tell rustc to link libmaybenot
-            println!("cargo::rustc-link-lib=static=maybenot");
+            println!(r#"cargo::rustc-cfg=daita"#);
             // Tell the build script to build wireguard-go with DAITA support
             cmd.arg("--daita");
         }
