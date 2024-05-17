@@ -125,13 +125,11 @@ class ManagementService(
     private val grpc =
         ManagementServiceGrpcKt.ManagementServiceCoroutineStub(channel)
             .withExecutor(Dispatchers.IO.asExecutor())
-            .withInterceptors(
+            .let {
                 if (extensiveLogging) {
-                    LogInterceptor(TAG)
-                } else {
-                    null
-                }
-            )
+                    it.withInterceptors(LogInterceptor(TAG))
+                } else it
+            }
             .withWaitForReady()
 
     private val _mutableDeviceState = MutableStateFlow<ModelDeviceState?>(null)
