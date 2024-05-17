@@ -15,8 +15,8 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import net.mullvad.mullvadvpn.lib.account.AccountRepository
-import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.ErrorState
 import net.mullvad.mullvadvpn.model.ErrorStateCause
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test
 
 class OutOfTimeUseCaseTest {
     private val mockAccountRepository: AccountRepository = mockk()
-    private val mockManagementService: ManagementService = mockk()
+    private val mockConnectionProxy: ConnectionProxy = mockk()
 
     private lateinit var events: MutableSharedFlow<TunnelState>
     private lateinit var expiry: MutableStateFlow<AccountData?>
@@ -43,12 +43,12 @@ class OutOfTimeUseCaseTest {
         events = MutableSharedFlow()
         expiry = MutableStateFlow(null)
         every { mockAccountRepository.accountData } returns expiry
-        every { mockManagementService.tunnelState } returns events
+        every { mockConnectionProxy.tunnelState } returns events
 
         Dispatchers.setMain(dispatcher)
 
         outOfTimeUseCase =
-            OutOfTimeUseCase(mockManagementService, mockAccountRepository, scope.backgroundScope)
+            OutOfTimeUseCase(mockConnectionProxy, mockAccountRepository, scope.backgroundScope)
     }
 
     @AfterEach

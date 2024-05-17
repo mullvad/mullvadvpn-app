@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.account
+package net.mullvad.mullvadvpn.lib.shared
 
 import arrow.core.Either
 import kotlinx.coroutines.CoroutineScope

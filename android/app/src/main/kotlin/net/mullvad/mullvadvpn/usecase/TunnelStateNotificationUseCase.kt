@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.InAppNotification
-import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 
 class TunnelStateNotificationUseCase(private val connectionProxy: ConnectionProxy) {
     fun notifications(): Flow<List<InAppNotification>> =

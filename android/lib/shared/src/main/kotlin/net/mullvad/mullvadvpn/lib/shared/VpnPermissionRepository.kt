@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.permission
+package net.mullvad.mullvadvpn.lib.shared
 
 import android.content.Context
 import android.net.VpnService

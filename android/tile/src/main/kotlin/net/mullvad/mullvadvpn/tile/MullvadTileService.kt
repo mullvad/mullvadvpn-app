@@ -28,9 +28,10 @@ import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.setSubtitleIfSupported
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.TunnelState
-import org.koin.android.ext.android.getKoin
+import org.koin.android.ext.android.get
 
 class MullvadTileService : TileService() {
     private var job: Job? = null
@@ -38,13 +39,12 @@ class MullvadTileService : TileService() {
     private lateinit var securedIcon: Icon
     private lateinit var unsecuredIcon: Icon
 
-    private lateinit var managementService: ManagementService
+    private val connectionProxy = get<ConnectionProxy>()
+    private val managementService = get<ManagementService>()
 
     override fun onCreate() {
         securedIcon = Icon.createWithResource(this, R.drawable.small_logo_white)
         unsecuredIcon = Icon.createWithResource(this, R.drawable.small_logo_black)
-
-        with(getKoin()) { managementService = get() }
     }
 
     override fun onClick() {
@@ -141,12 +141,12 @@ class MullvadTileService : TileService() {
     @OptIn(FlowPreview::class)
     private suspend fun launchListenToTunnelState() {
         combine(
-                managementService.tunnelState.onStart { emit(TunnelState.Disconnected(null)) },
+                connectionProxy.tunnelState.onStart { emit(TunnelState.Disconnected(null)) },
                 managementService.connectionState
             ) { tunnelState, connectionState ->
                 tunnelState to connectionState
             }
-            .debounce(300L)
+            .debounce(TUNNEL_STATE_DEBOUNCE_MS)
             .map { (tunnelState, connectionState) -> mapToTileState(tunnelState, connectionState) }
             .collect { updateTileState(it) }
     }
@@ -197,5 +197,6 @@ class MullvadTileService : TileService() {
 
     companion object {
         private const val TAG = "MullvadTileService"
+        private const val TUNNEL_STATE_DEBOUNCE_MS = 300L
     }
 }

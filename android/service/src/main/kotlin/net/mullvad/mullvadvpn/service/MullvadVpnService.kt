@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.intent.IntentProvider
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.di.apiEndpointModule
 import net.mullvad.mullvadvpn.service.di.vpnServiceModule
@@ -45,6 +46,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     private lateinit var managementService: ManagementService
     private lateinit var migrateSplitTunneling: MigrateSplitTunneling
     private lateinit var intentProvider: IntentProvider
+    private lateinit var connectionProxy: ConnectionProxy
 
     private lateinit var foregroundNotificationHandler: ForegroundNotificationManager
 
@@ -67,6 +69,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             apiEndpointConfiguration = get()
             migrateSplitTunneling = get()
             intentProvider = get()
+            connectionProxy = get()
         }
 
         keyguardManager = getSystemService<KeyguardManager>()!!
@@ -103,10 +106,10 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
             }
             intent.isFromSystem() || intent?.action == KEY_CONNECT_ACTION -> {
                 _shouldBeOnForeground.update { true }
-                lifecycleScope.launch { managementService.connect() }
+                lifecycleScope.launch { connectionProxy.connectWithoutPermissionCheck() }
             }
             intent?.action == KEY_DISCONNECT_ACTION -> {
-                lifecycleScope.launch { managementService.disconnect() }
+                lifecycleScope.launch { connectionProxy.disconnect() }
             }
         }
 
@@ -130,7 +133,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
     }
 
     override fun onRevoke() {
-        runBlocking { managementService.disconnect() }
+        runBlocking { connectionProxy.disconnect() }
     }
 
     override fun onUnbind(intent: Intent): Boolean {
@@ -147,7 +150,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
                 Log.d(TAG, "Waiting for disconnected state")
                 // TODO This needs reworking, we should not wait for the disconnected state, what we
                 // want is the notification of disconnected to go out before we start shutting down
-                managementService.tunnelState
+                connectionProxy.tunnelState
                     .filter {
                         it is TunnelState.Disconnected ||
                             (it is TunnelState.Error && !it.errorState.isBlocking)
