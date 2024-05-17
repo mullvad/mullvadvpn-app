@@ -137,7 +137,7 @@ class ConnectViewModel(
         }
     }
 
-    fun onConnectUnsafe() {
+    fun connectUnsafe() {
         viewModelScope.launch { connectionProxy.connectWithoutPermissionCheck() }
     }
 

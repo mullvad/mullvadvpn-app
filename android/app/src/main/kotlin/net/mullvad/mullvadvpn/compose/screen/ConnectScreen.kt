@@ -123,7 +123,7 @@ fun Connect(
 
     val launchVpnPermission =
         rememberLauncherForActivityResult(RequestVpnPermission()) {
-            connectViewModel.onConnectUnsafe()
+            connectViewModel.connectUnsafe()
         }
 
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
