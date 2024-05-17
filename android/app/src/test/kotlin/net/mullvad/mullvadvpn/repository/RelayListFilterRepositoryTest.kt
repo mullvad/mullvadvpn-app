@@ -70,21 +70,25 @@ class RelayListFilterRepositoryTest {
     }
 
     @Test
-    fun `when successfully updating selected ownership and filter should return successful`() = runTest {
-        // Arrange
-        val ownership = Constraint.Any
-        val providers = Constraint.Any
-        coEvery { mockManagementService.setOwnershipAndProviders(ownership, providers) } returns
-            Unit.right()
+    fun `when successfully updating selected ownership and filter should return successful`() =
+        runTest {
+            // Arrange
+            val ownership = Constraint.Any
+            val providers = Constraint.Any
+            coEvery { mockManagementService.setOwnershipAndProviders(ownership, providers) } returns
+                Unit.right()
 
-        // Act
-        val result =
-            relayListFilterRepository.updateSelectedOwnershipAndProviderFilter(ownership, providers)
+            // Act
+            val result =
+                relayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
+                    ownership,
+                    providers
+                )
 
-        // Assert
-        coVerify { mockManagementService.setOwnershipAndProviders(ownership, providers) }
-        assertEquals(Unit.right(), result)
-    }
+            // Assert
+            coVerify { mockManagementService.setOwnershipAndProviders(ownership, providers) }
+            assertEquals(Unit.right(), result)
+        }
 
     @Test
     fun `when failing to update selected ownership and filter should return SetWireguardConstraintsError`() =

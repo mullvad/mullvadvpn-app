@@ -117,28 +117,30 @@ class CustomListsRepositoryTest {
         }
 
     @Test
-    fun `update custom list name should return success when call managementService is successful`() = runTest {
-        // Arrange
-        val customListId = CustomListId("1")
-        val expectedResult = Unit.right()
-        val customListName = CustomListName.fromString("CUSTOM")
-        val mockSettings: Settings = mockk()
-        val mockCustomList =
-            CustomList(
-                id = customListId,
-                name = mockk(relaxed = true),
-                locations = mockk(relaxed = true)
-            )
-        every { mockSettings.customLists } returns listOf(mockCustomList)
-        settingsFlow.value = mockSettings
-        coEvery { mockManagementService.updateCustomList(any<CustomList>()) } returns expectedResult
+    fun `update custom list name should return success when call managementService is successful`() =
+        runTest {
+            // Arrange
+            val customListId = CustomListId("1")
+            val expectedResult = Unit.right()
+            val customListName = CustomListName.fromString("CUSTOM")
+            val mockSettings: Settings = mockk()
+            val mockCustomList =
+                CustomList(
+                    id = customListId,
+                    name = mockk(relaxed = true),
+                    locations = mockk(relaxed = true)
+                )
+            every { mockSettings.customLists } returns listOf(mockCustomList)
+            settingsFlow.value = mockSettings
+            coEvery { mockManagementService.updateCustomList(any<CustomList>()) } returns
+                expectedResult
 
-        // Act
-        val result = customListsRepository.updateCustomListName(customListId, customListName)
+            // Act
+            val result = customListsRepository.updateCustomListName(customListId, customListName)
 
-        // Assert
-        assertEquals(expectedResult, result)
-    }
+            // Assert
+            assertEquals(expectedResult, result)
+        }
 
     @Test
     fun `update custom list name should return list exists error when list exists error is received`() =

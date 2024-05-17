@@ -124,9 +124,9 @@ class ConnectViewModel(
         viewModelScope.launch { connectionProxy.reconnect() }
     }
 
-    fun onConnectClick(ignorePermission: Boolean = false) {
+    fun onConnectClick() {
         viewModelScope.launch {
-            connectionProxy.connect(ignorePermission).onLeft { connectError ->
+            connectionProxy.connect().onLeft { connectError ->
                 when (connectError) {
                     ConnectError.NoVpnPermission -> _uiSideEffect.send(UiSideEffect.NoVpnPermission)
                     is ConnectError.Unknown -> {
@@ -135,6 +135,10 @@ class ConnectViewModel(
                 }
             }
         }
+    }
+
+    fun onConnectUnsafe() {
+        viewModelScope.launch { connectionProxy.connectWithoutPermissionCheck() }
     }
 
     fun onCancelClick() {
