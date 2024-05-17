@@ -83,8 +83,7 @@ function build_unix {
     pushd libwg
     if [[ "$DAITA" == "true" ]]; then
         pushd wireguard-go
-        # TODO: Rename `ARCHIVEDEST`
-        make libmaybenot.a ARCHIVEDEST="$OUT_DIR"
+        make libmaybenot.a LIBDEST="$OUT_DIR"
         popd
         go build -v --tags daita -o "$OUT_DIR"/libwg.a -buildmode c-archive
     else
