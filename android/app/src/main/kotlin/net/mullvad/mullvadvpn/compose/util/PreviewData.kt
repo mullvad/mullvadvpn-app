@@ -90,7 +90,6 @@ fun generateDevice(
     Device(
         id = id,
         name = name ?: "Device ${id.value.toString().take(DEVICE_SUFFIX_LENGTH)}",
-        byteArrayOf(),
         DateTime.now()
     )
 
