@@ -8,7 +8,7 @@
 #     -v $GRADLE_CACHE_VOLUME_NAME:/root/.gradle:Z \
 #     -v $ANDROID_CREDENTIALS_DIR:/build/android/credentials:Z \
 #     -v /path/to/repository_root:/build:Z \
-#     mullvadvpn-app-build-android ./build-apk.sh --dev-build --no-docker
+#     mullvadvpn-app-build-android ./build-apk.sh --dev-build
 #
 # See the base image Dockerfile in the repository root (../../Dockerfile)
 # for more information.
