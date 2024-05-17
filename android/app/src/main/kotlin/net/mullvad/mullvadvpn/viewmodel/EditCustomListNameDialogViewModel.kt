@@ -12,11 +12,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
-import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
+import net.mullvad.mullvadvpn.compose.state.EditCustomListNameUiState
 import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.ModifyCustomListError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.RenameCustomListError
 
 class EditCustomListNameDialogViewModel(
     private val customListId: CustomListId,
@@ -28,15 +28,15 @@ class EditCustomListNameDialogViewModel(
         Channel<EditCustomListNameDialogSideEffect>(1, BufferOverflow.DROP_OLDEST)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val _error = MutableStateFlow<ModifyCustomListError?>(null)
+    private val _error = MutableStateFlow<RenameCustomListError?>(null)
 
     val uiState =
         _error
-            .map { UpdateCustomListUiState(name = initialName, error = it) }
+            .map { EditCustomListNameUiState(name = initialName, error = it) }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                UpdateCustomListUiState(name = initialName)
+                EditCustomListNameUiState(name = initialName)
             )
 
     fun updateCustomListName(name: String) {

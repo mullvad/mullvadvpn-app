@@ -6,9 +6,11 @@ import kotlinx.coroutines.flow.firstOrNull
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.model.CreateCustomListError
+import net.mullvad.mullvadvpn.model.CustomListId
 import net.mullvad.mullvadvpn.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.model.GetCustomListError
 import net.mullvad.mullvadvpn.model.ModifyCustomListError
+import net.mullvad.mullvadvpn.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.relaylist.getRelayItemsByCodes
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
@@ -42,7 +44,15 @@ class CustomListActionUseCase(
         customListsRepository
             .updateCustomListName(action.id, action.newName)
             .map { CustomListResult.Renamed(undo = action.not()) }
-            .mapLeft(RenameCustomListError::Modify)
+            .mapLeft {
+                when (it) {
+                    is GetCustomListError -> RenameCustomListError.NotFound(action.id)
+                    is UpdateCustomListError.NameAlreadyExists ->
+                        RenameCustomListError.NameAlreadyExists(action.newName.value)
+                    is UpdateCustomListError.Unknown ->
+                        RenameCustomListError.Unknown(it.throwable.message ?: "", it.throwable)
+                }
+            }
 
     suspend fun performAction(
         action: CustomListAction.Create
@@ -130,7 +140,12 @@ sealed interface DeleteCustomListWithUndoError : CustomListActionError {
 }
 
 sealed interface RenameCustomListError : CustomListActionError {
-    data class Modify(val error: ModifyCustomListError) : RenameCustomListError
+    data class NotFound(val id: CustomListId) : RenameCustomListError
+
+    data class NameAlreadyExists(val name: String) : RenameCustomListError
+
+    data class Unknown(val message: String, val throwable: Throwable? = null) :
+        RenameCustomListError
 }
 
 sealed interface UpdateLocationsCustomListError : CustomListActionError {
