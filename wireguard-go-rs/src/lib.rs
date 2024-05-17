@@ -6,6 +6,7 @@ pub type LoggingCallback =
     unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: *mut c_void);
 
 // Needed to link libwg with cmaybenot
+#[cfg(feature = "daita")]
 use cmaybenot as _;
 
 extern "C" {
@@ -51,13 +52,14 @@ extern "C" {
     /// - `machines` must point to a null-terminated UTF-8 string.
     /// - Neither pointer will be written to by `wgActivateDaita`.
     /// - Neither pointer will be read from after `wgActivateDaita` has returned.
+    #[cfg(daita)]
     pub fn wgActivateDaita(
         tunnel_handle: i32,
         peer_public_key: *const u8,
         machines: *const c_char,
         events_capacity: u32,
         actions_capacity: u32,
-    ) -> bool;
+    ) -> i32;
 
     // Frees a pointer allocated by the go runtime - useful to free return value of wgGetConfig
     pub fn wgFreePtr(ptr: *mut c_void);
