@@ -1,30 +1,27 @@
 #!/usr/bin/env bash
 
 # This script is used to build wireguard-go libraries for all the platforms.
+#
+# If "DAITA" support should be enabled, pass the `--daita` flag when invoking this script.
 
 set -eu
 
-function is_android_build {
-    for arg in "$@"
-    do
-        case "$arg" in
-            "--android")
-                return 0
-        esac
-    done
-    return 1
-}
+# If Wireguard-go should be built with DAITA-support.
+DAITA="false"
+# If the target OS is Adnroid.
+ANDROID="false"
 
-function is_docker_build {
-    for arg in "$@"
-    do
-        case "$arg" in
-            "--no-docker")
-                return 1
-        esac
-    done
-    return 0
-}
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --android) ANDROID="true";;
+        --daita)   DAITA="true";;
+        *)
+            log_error "Unknown parameter: $1"
+            exit 1
+            ;;
+    esac
+    shift
+done
 
 function unix_target_triple {
     local platform
@@ -48,6 +45,7 @@ function unix_target_triple {
 
 
 function build_unix {
+    # TODO: consider using `log_header` here
     echo "Building wireguard-go for $1"
 
     # Flags for cross compiling
@@ -81,31 +79,34 @@ function build_unix {
     fi
 
 
+    # Build wiregaurd-go as a library
     pushd libwg
-        # TODO: pass OUT_DIR as an arg maybe? instead of relying on cargo setting it globally?
-        go build -v -tags daita -o "$OUT_DIR"/libwg.a -buildmode c-archive
+    if [[ "$DAITA" == "true" ]]; then
+        pushd wireguard-go
+        make libmaybenot.a LIBDEST="$OUT_DIR"
+        popd
+        go build -v --tags daita -o "$OUT_DIR"/libwg.a -buildmode c-archive
+    else
+        go build -v -o "$OUT_DIR"/libwg.a -buildmode c-archive
+    fi
     popd
 }
 
 function build_android {
-    echo "Building for android"
+    echo "Building wireguard-go for android"
 
-    if is_docker_build "$@"; then
-        ../building/container-run.sh android wireguard-go-rs/libwg/build-android.sh
-    else
-        ./libwg/build-android.sh
-    fi
+    ./libwg/build-android.sh
 }
 
 function build_wireguard_go {
-    if is_android_build "$@"; then
+    if [[ "$ANDROID" == "true" ]]; then
         build_android "$@"
         return
     fi
 
     local platform
     platform="$(uname -s)";
-    case  "$platform" in
+    case "$platform" in
         Linux*|Darwin*) build_unix "${1:-$(unix_target_triple)}";;
         *)
             echo "Unsupported platform"

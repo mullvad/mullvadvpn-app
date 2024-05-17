@@ -29,7 +29,8 @@ tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 rand = "0.8.5"
 surge-ping = "0.8.0"
-maybenot = "1.1"
+
+[target.'cfg(not(windows))'.dependencies]
 wireguard-go-rs = { path = "../wireguard-go-rs"}
 
 [target.'cfg(target_os="android")'.dependencies]
@@ -45,6 +46,8 @@ tokio-stream = { version = "0.1", features = ["io-util"] }
 nix = "0.23"
 
 [target.'cfg(target_os = "linux")'.dependencies]
+wireguard-go-rs = { path = "../wireguard-go-rs" }
+
 rtnetlink = "0.11"
 netlink-packet-core = "0.4.2"
 netlink-packet-route = "0.13"

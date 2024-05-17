@@ -1,10 +1,5 @@
 [package]
 name = "wireguard-go-rs"
 description = "Rust bindings to wireguard-go with DAITA support"
-version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[target.'cfg(unix)'.dependencies]
-cmaybenot = { path = "libwg/wireguard-go/cmaybenot" }
+license.workspace = true
