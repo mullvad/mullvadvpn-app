@@ -118,6 +118,8 @@ jobs:
       - name: Checkout repository
         if: steps.cache-relay-list.outputs.cache-hit != 'true'
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Generate
         if: steps.cache-relay-list.outputs.cache-hit != 'true'
@@ -164,6 +166,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Calculate native lib cache hash
         id: native-lib-cache-hash
@@ -195,7 +199,6 @@ jobs:
           UNSTRIPPED_LIB_PATH="$CARGO_TARGET_DIR/${{ matrix.target }}/$BUILD_TYPE/libmullvad_jni.so"
           STRIPPED_LIB_PATH="./android/app/build/extraJni/${{ matrix.abi }}/libmullvad_jni.so"
           NDK_TOOLCHAIN_STRIP_TOOL="$NDK_TOOLCHAIN_DIR/llvm-strip"
-          ./wireguard/build-wireguard-go.sh --android --no-docker
           cargo build --target ${{ matrix.target }} --verbose --package mullvad-jni --features api-override
           $NDK_TOOLCHAIN_STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
 
@@ -235,6 +238,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Run gradle task
         uses: burrunan/gradle-cache-action@v1
@@ -262,6 +267,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - uses: actions/download-artifact@v4
         with:
@@ -366,6 +373,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - uses: actions/download-artifact@v4
         with:
