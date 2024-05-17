@@ -31,7 +31,7 @@ open class TalpidVpnService : LifecycleVpnService() {
 
     private var currentTunConfig = defaultTunConfig()
 
-    val connectivityListener = ConnectivityListener()
+    private val connectivityListener = ConnectivityListener()
 
     @CallSuper
     override fun onCreate() {
