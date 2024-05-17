@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 env:
   # Pinning nightly just to avoid random breakage. It's fine to bump this at any time
-  RUST_NIGHTLY_TOOLCHAIN: nightly-2024-02-06
+  RUST_NIGHTLY_TOOLCHAIN: nightly-2024-05-07
 jobs:
   prepare-containers:
     runs-on: ubuntu-latest
@@ -41,17 +41,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Checkout binaries submodule
+      - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init --depth=1 dist-assets/binaries
+          git submodule update --init --depth=1 dist-assets/binaries wireguard-go-rs/libwg/wireguard-go
 
       - name: Install nightly Rust toolchain
         run: rustup default $RUST_NIGHTLY_TOOLCHAIN
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-udeps
+          tool: cargo-udeps@0.1.48
 
       - name: Check for unused dependencies
         shell: bash
@@ -72,6 +72,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Checkout wireguard-go submodule
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --depth=1 wireguard-go-rs/libwg/wireguard-go
+
       - name: Install nightly Rust toolchain
         run: |
           rustup default $RUST_NIGHTLY_TOOLCHAIN
@@ -79,20 +84,24 @@ jobs:
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-udeps
+          tool: cargo-udeps@0.1.48
 
       - name: Check for unused dependencies
         run: cargo udeps --target aarch64-linux-android --package mullvad-jni
 
+  cargo-udeps-windows:
+    runs-on: windows-latest
+
   cargo-udeps:
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
+        os: [windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
@@ -108,7 +117,13 @@ jobs:
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-udeps
+          tool: cargo-udeps@0.1.48
+
+      - name: Install Go
+        if: matrix.os == 'macos-latest'
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21.3
 
       - name: Check for unused dependencies
         shell: bash
