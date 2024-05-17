@@ -401,6 +401,7 @@ mod test {
     use crate::{
         config::Config,
         stats::{self, Stats},
+        Tunnel,
     };
     use std::{
         pin::Pin,
@@ -613,7 +614,7 @@ mod test {
             Box::pin(async { Ok(()) })
         }
 
-        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        #[cfg(daita)]
         fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
             Ok(())
         }

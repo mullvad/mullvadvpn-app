@@ -111,9 +111,9 @@ impl Tunnel for NetworkManagerTunnel {
         })
     }
 
-    // TODO: We shouldn't force `NetworkManagerTunnel` tunnel to implement `start_daita`
+    /// Outright fail to start - this tunnel type does not support DAITA.
     fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
-        unreachable!("NetworkManager tunnel does not support DAITA")
+        Err(TunnelError::DaitaNotSupported)
     }
 }
 
