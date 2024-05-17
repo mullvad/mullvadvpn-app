@@ -55,7 +55,9 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
 
         loadKoinModules(listOf(vpnServiceModule, apiEndpointModule))
         with(getKoin()) {
+            // Needed to create all the notification channels
             get<ChannelFactory>()
+
             managementService = get()
 
             foregroundNotificationHandler =
