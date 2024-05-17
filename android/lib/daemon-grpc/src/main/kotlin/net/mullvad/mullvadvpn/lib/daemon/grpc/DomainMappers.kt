@@ -632,12 +632,7 @@ internal fun Ownership.fromDomain(): ManagementInterface.Ownership =
     }
 
 internal fun ManagementInterface.Device.toDomain(): Device =
-    Device(
-        DeviceId.fromString(id),
-        name,
-        pubkey.toByteArray(),
-        Instant.ofEpochSecond(created.seconds).toDateTime()
-    )
+    Device(DeviceId.fromString(id), name, Instant.ofEpochSecond(created.seconds).toDateTime())
 
 internal fun ManagementInterface.DeviceState.toDomain(): DeviceState =
     when (state) {
