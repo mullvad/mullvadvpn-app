@@ -79,19 +79,17 @@ function build_unix {
     fi
 
 
+    # Build wiregaurd-go as a library
     pushd libwg
-        # Enable DAITA if needed
-        TAGS=()
-        if [[ "$DAITA" == "true" ]]; then
-            TAGS+=(--tags daita)
-            pushd wireguard-go
-            make maybenot.h
-            popd
-        fi
-
-        # TODO: pass OUT_DIR as an arg maybe? instead of relying on cargo setting it globally?
-        # This weird array expansion is due to macOS shipping with a medieval version of bash: https://stackoverflow.com/a/61551944
-        go build -v ${TAGS[@]+"${TAGS[@]}"} -o "$OUT_DIR"/libwg.a -buildmode c-archive
+    if [[ "$DAITA" == "true" ]]; then
+        pushd wireguard-go
+        # TODO: Rename `ARCHIVEDEST`
+        make libmaybenot.a ARCHIVEDEST="$OUT_DIR"
+        popd
+        go build -v --tags daita -o "$OUT_DIR"/libwg.a -buildmode c-archive
+    else
+        go build -v -o "$OUT_DIR"/libwg.a -buildmode c-archive
+    fi
     popd
 }
 

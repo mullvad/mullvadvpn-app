@@ -14,11 +14,10 @@ fn main() {
 
     match target_os.as_str() {
         "linux" => {
-            // Enable DAITA
+            // Enable DAITA & Tell rustc to link libmaybenot
             println!(r#"cargo::rustc-cfg=daita"#);
-            // Build libmaybenot ..
-            build_maybenot_lib(&out_dir);
-            // .. before building wireguard-go with DAITA support
+            println!("cargo::rustc-link-lib=static=maybenot");
+            // Tell the build script to build wireguard-go with DAITA support
             cmd.arg("--daita");
         }
         "android" => {
@@ -52,37 +51,6 @@ fn main() {
     }
 
     println!("cargo::rerun-if-changed=libwg");
-}
-
-/// Build maybenot as a library by invoking the Makefile in `maybenot-ffi`.
-///
-/// `out_dir`: The folder where the `libmaybenot.a` will be placed.
-fn build_maybenot_lib(out_dir: &str) {
-    let mut maybenot_build_cmd = std::process::Command::new("make");
-    maybenot_build_cmd
-        .args([
-            "--directory",
-            "libwg/wireguard-go/maybenot/crates/maybenot-ffi",
-        ])
-        .arg(format!("DESTINATION={out_dir}"));
-
-    let output = maybenot_build_cmd
-        .output()
-        .expect("Something failed while building maybenot-ffi");
-
-    if !output.status.success() {
-        let stdout = str::from_utf8(&output.stdout).unwrap();
-        let stderr = str::from_utf8(&output.stderr).unwrap();
-        eprintln!("Invoking make on maybenot-ffi/Makefile failed.");
-        eprintln!("stdout:\n{stdout}");
-        eprintln!("stderr:\n{stderr}");
-        panic!();
-    }
-
-    // Link against the static `maybenot` library.
-    if cfg!(not(target_os = "android")) {
-        println!("cargo::rustc-link-lib=static=maybenot");
-    }
 }
 
 /// Tell linker to check `base`/$TARGET for shared libraries.
