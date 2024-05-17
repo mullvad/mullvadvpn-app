@@ -16,6 +16,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Checkout wireguard-go submodule
+        run: git submodule update --init --depth=1 wireguard-go-rs/libwg/wireguard-go
+
       - name: Run cargo deny
         uses: EmbarkStudios/cargo-deny-action@v1
         with:
