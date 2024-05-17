@@ -33,13 +33,9 @@ class ServiceConnectionManager(private val context: Context) {
             }
         }
 
-    fun bind(apiEndpointConfiguration: ApiEndpointConfiguration?) {
+    fun bind() {
         if (_connectionState.value is ServiceConnectionState.Unbound) {
             val intent = Intent(context, MullvadVpnService::class.java)
-
-            if (BuildConfig.DEBUG && apiEndpointConfiguration != null) {
-                intent.putApiEndpointConfigurationExtra(apiEndpointConfiguration)
-            }
 
             // We set BIND_AUTO_CREATE so that the service is started if it is not already running
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
