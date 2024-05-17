@@ -1,4 +1,4 @@
-package net.mullvad.talpid
+package net.mullvad.talpid.model
 
 import java.net.InetAddress
 
