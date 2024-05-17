@@ -1,11 +1,9 @@
 fn main() {
-    tonic_build::compile_protos("proto/management_interface.proto").unwrap();
-
     let target_os = std::env::var("CARGO_CFG_TARGET_OS").expect("CARGO_CFG_TARGET_OS not set");
 
     // Enable Daita by default on Linux and Windows.
-    println!("cargo:rustc-check-cfg=cfg(daita)");
+    println!("cargo::rustc-check-cfg=cfg(daita)");
     if let "linux" | "windows" = target_os.as_str() {
-        println!(r#"cargo:rustc-cfg=daita"#);
+        println!(r#"cargo::rustc-cfg=daita"#);
     }
 }

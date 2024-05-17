@@ -1,3 +1,24 @@
+use ipnetwork::IpNetwork;
+#[cfg(daita)]
+use once_cell::sync::OnceCell;
+#[cfg(daita)]
+use std::{ffi::CString, fs, path::PathBuf};
+use std::{
+    ffi::{c_char, c_void, CStr},
+    future::Future,
+    net::IpAddr,
+    os::unix::io::{AsRawFd, RawFd},
+    path::Path,
+    pin::Pin,
+    sync::{Arc, Mutex},
+};
+#[cfg(target_os = "android")]
+use talpid_tunnel::tun_provider::Error as TunProviderError;
+use talpid_tunnel::tun_provider::{Tun, TunConfig, TunProvider};
+use talpid_types::BoxedError;
+use zeroize::Zeroize;
+
+#[cfg(daita)]
 mod daita;
 
 use super::{
@@ -5,35 +26,12 @@ use super::{
     Config, Tunnel, TunnelError,
 };
 use crate::logging::{clean_up_logging, initialize_logging};
-use ipnetwork::IpNetwork;
-use once_cell::sync::OnceCell;
-use std::{
-    ffi::{c_char, c_void, CStr, CString},
-    fs,
-    future::Future,
-    path::{Path, PathBuf},
-    pin::Pin,
-};
-use talpid_tunnel::tun_provider::TunProvider;
-use talpid_types::BoxedError;
-use zeroize::Zeroize;
-
-#[cfg(target_os = "android")]
-use talpid_tunnel::tun_provider;
-
-use std::{
-    net::IpAddr,
-    os::unix::io::{AsRawFd, RawFd},
-};
-use talpid_tunnel::tun_provider::{Tun, TunConfig};
-
-type Result<T> = std::result::Result<T, TunnelError>;
-
-use std::sync::{Arc, Mutex};
 
 use wireguard_go_rs::*;
 
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
+
+type Result<T> = std::result::Result<T, TunnelError>;
 
 struct LoggingContext(u32);
 
@@ -53,8 +51,11 @@ pub struct WgGoTunnel {
     _logging_context: LoggingContext,
     #[cfg(target_os = "android")]
     tun_provider: Arc<Mutex<TunProvider>>,
+    #[cfg(daita)]
     daita_handle: Option<daita::Session>,
+    #[cfg(daita)]
     resource_dir: PathBuf,
+    #[cfg(daita)]
     config: Config,
 }
 
@@ -64,7 +65,7 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
-        resource_dir: &Path,
+        #[cfg(daita)] resource_dir: &Path,
     ) -> Result<Self> {
         #[cfg(target_os = "android")]
         let tun_provider_clone = tun_provider.clone();
@@ -103,8 +104,11 @@ impl WgGoTunnel {
             _logging_context: logging_context,
             #[cfg(target_os = "android")]
             tun_provider: tun_provider_clone,
+            #[cfg(daita)]
             resource_dir: resource_dir.to_owned(),
+            #[cfg(daita)]
             daita_handle: None,
+            #[cfg(daita)]
             config: config.clone(),
         })
     }
@@ -139,7 +143,7 @@ impl WgGoTunnel {
     fn bypass_tunnel_sockets(
         tunnel_device: &mut Tun,
         handle: i32,
-    ) -> std::result::Result<(), tun_provider::Error> {
+    ) -> std::result::Result<(), TunProviderError> {
         let socket_v4 = unsafe { wgGetSocketV4(handle) };
         let socket_v6 = unsafe { wgGetSocketV6(handle) };
 
@@ -265,6 +269,7 @@ impl Tunnel for WgGoTunnel {
         })
     }
 
+    #[cfg(daita)]
     fn start_daita(&mut self) -> Result<()> {
         if let Some(_handle) = self.daita_handle.take() {
             log::info!("Stopping previous DAITA machines");

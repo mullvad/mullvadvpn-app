@@ -66,6 +66,10 @@ use self::wireguard_go::WgGoTunnel;
 type Result<T> = std::result::Result<T, Error>;
 type EventCallback = Box<dyn (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Sync + 'static>;
 
+/// TODO: Document
+/// TODO: Rename
+pub(crate) type TunnelT = Box<dyn Tunnel>;
+
 /// Errors that can happen in the Wireguard tunnel monitor.
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -144,7 +148,7 @@ impl Error {
 pub struct WireguardMonitor {
     runtime: tokio::runtime::Handle,
     /// Tunnel implementation
-    tunnel: Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+    tunnel: Arc<Mutex<Option<TunnelT>>>,
     /// Callback to signal tunnel events
     event_callback: EventCallback,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
@@ -385,7 +389,7 @@ impl WireguardMonitor {
                 let config = config.clone();
                 let iface_name = iface_name.clone();
                 tokio::task::spawn(async move {
-                    #[cfg(target_os = "windows")]
+                    #[cfg(daita)]
                     if config.daita {
                         // TODO: For now, we assume the MTU during the tunnel lifetime.
                         // We could instead poke maybenot whenever we detect changes to it.
@@ -473,7 +477,7 @@ impl WireguardMonitor {
 
     #[allow(clippy::too_many_arguments)]
     async fn config_ephemeral_peers<F>(
-        tunnel: &Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+        tunnel: &Arc<Mutex<Option<TunnelT>>>,
         config: &mut Config,
         retry_attempt: u32,
         on_event: F,
@@ -558,7 +562,7 @@ impl WireguardMonitor {
         }
 
         config.exit_peer_mut().psk = exit_psk;
-        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        #[cfg(daita)]
         if config.daita {
             log::trace!("Enabling constant packet size for entry peer");
             config.entry_peer.constant_packet_size = true;
@@ -576,7 +580,7 @@ impl WireguardMonitor {
         )
         .await?;
 
-        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        #[cfg(daita)]
         if config.daita {
             // Start local DAITA machines
             let mut tunnel = tunnel.lock().unwrap();
@@ -601,7 +605,7 @@ impl WireguardMonitor {
     /// Reconfigures the tunnel to use the provided config while potentially modifying the config
     /// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
     async fn reconfigure_tunnel(
-        tunnel: &Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+        tunnel: &Arc<Mutex<Option<TunnelT>>>,
         mut config: Config,
         obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
         close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
@@ -818,6 +822,7 @@ impl WireguardMonitor {
                     log_path,
                     tun_provider,
                     routes,
+                    #[cfg(daita)]
                     resource_dir,
                 )
                 .map_err(Error::TunnelError)?,
@@ -1031,7 +1036,8 @@ pub(crate) trait Tunnel: Send {
         &self,
         _config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>>;
-    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    #[cfg(daita)]
+    /// A [`Tunnel`] capable of using DAITA.
     fn start_daita(&mut self) -> std::result::Result<(), TunnelError>;
 }
 
@@ -1111,11 +1117,18 @@ pub enum TunnelError {
     LoggingError(#[source] logging::Error),
 
     /// Failed to receive DAITA event
+    #[cfg(daita)]
     #[error("Failed to receive DAITA event")]
     DaitaReceiveEvent(i32),
+
+    /// This tunnel does not support DAITA.
+    #[cfg(daita)]
+    #[error("Failed to start DAITA - tunnel implemenation does not support DAITA")]
+    DaitaNotSupported,
 }
 
 #[cfg(target_os = "linux")]
+#[allow(dead_code)]
 fn will_nm_manage_dns() -> bool {
     use talpid_dbus::network_manager::NetworkManager;
 

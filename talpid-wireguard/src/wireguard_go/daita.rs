@@ -1,3 +1,4 @@
+#![cfg(daita)]
 use std::{ffi::CStr, io};
 
 use talpid_types::net::wireguard::PublicKey;
@@ -33,9 +34,10 @@ impl Session {
                 ACTIONS_CAPACITY,
             )
         };
-        if !res {
+
+        if res != 0 {
             // TODO: return error
-            panic!("Failed to activate DAITA on tunnel {tunnel_handle}")
+            panic!("Failed to activate DAITA on tunnel {tunnel_handle}, error code: {res}");
         }
         Ok(Self {
             _tunnel_handle: tunnel_handle,

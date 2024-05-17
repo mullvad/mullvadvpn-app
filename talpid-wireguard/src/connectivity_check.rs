@@ -9,7 +9,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use super::{Tunnel, TunnelError};
+use super::{TunnelError, TunnelT};
 
 /// Sleep time used when initially establishing connectivity
 const DELAY_ON_INITIAL_SETUP: Duration = Duration::from_millis(50);
@@ -70,7 +70,7 @@ pub enum Error {
 /// Once a connection established, a connection is only considered broken once the connectivity
 /// monitor has started pinging and no traffic has been received for a duration of `PING_TIMEOUT`.
 pub struct ConnectivityMonitor {
-    tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
+    tunnel_handle: Weak<Mutex<Option<TunnelT>>>,
     conn_state: ConnState,
     initial_ping_timestamp: Option<Instant>,
     num_pings_sent: u32,
@@ -82,7 +82,7 @@ impl ConnectivityMonitor {
     pub(super) fn new(
         addr: Ipv4Addr,
         #[cfg(any(target_os = "macos", target_os = "linux"))] interface: String,
-        tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
+        tunnel_handle: Weak<Mutex<Option<TunnelT>>>,
         close_receiver: mpsc::Receiver<()>,
     ) -> Result<Self, Error> {
         let pinger = new_pinger(
@@ -401,6 +401,7 @@ mod test {
     use crate::{
         config::Config,
         stats::{self, Stats},
+        Tunnel,
     };
     use std::{
         pin::Pin,
@@ -580,13 +581,8 @@ mod test {
         }
 
         #[allow(clippy::type_complexity)]
-        fn into_locked(
-            self,
-        ) -> (
-            Arc<Mutex<Option<Box<dyn Tunnel>>>>,
-            Weak<Mutex<Option<Box<dyn Tunnel>>>>,
-        ) {
-            let dyn_tunnel: Box<dyn Tunnel> = Box::new(self);
+        fn into_locked(self) -> (Arc<Mutex<Option<TunnelT>>>, Weak<Mutex<Option<TunnelT>>>) {
+            let dyn_tunnel: TunnelT = Box::new(self);
             let arc = Arc::new(Mutex::new(Some(dyn_tunnel)));
             let weak_ref = Arc::downgrade(&arc);
             (arc, weak_ref)
@@ -613,7 +609,7 @@ mod test {
             Box::pin(async { Ok(()) })
         }
 
-        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        #[cfg(daita)]
         fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
             Ok(())
         }
@@ -622,7 +618,7 @@ mod test {
     fn mock_monitor(
         now: Instant,
         pinger: Box<dyn Pinger>,
-        tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
+        tunnel_handle: Weak<Mutex<Option<TunnelT>>>,
         close_receiver: mpsc::Receiver<()>,
     ) -> ConnectivityMonitor {
         ConnectivityMonitor {
