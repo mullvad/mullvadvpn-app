@@ -13,7 +13,6 @@ import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermissionIfMissing
-import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.intent.IntentProvider
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
@@ -78,9 +77,7 @@ class MainActivity : ComponentActivity() {
 
     fun startServiceSuspend() {
         requestNotificationPermissionIfMissing(requestNotificationPermissionLauncher)
-        serviceConnectionManager.bind(
-            apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
-        )
+        serviceConnectionManager.bind()
     }
 
     override fun onStop() {
