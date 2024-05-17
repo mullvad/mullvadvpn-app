@@ -25,7 +25,7 @@ class VpnPermissionViewModel(
             .shareIn(viewModelScope, SharingStarted.WhileSubscribed())
 
     fun connect() {
-        viewModelScope.launch { connectionProxy.connect(ignorePermission = true) }
+        viewModelScope.launch { connectionProxy.connectWithoutPermissionCheck() }
     }
 }
 
