@@ -6,8 +6,6 @@ pub const CLASSES: &[&str] = &[
     "java/util/HashSet",
     "net/mullvad/mullvadvpn/service/MullvadDaemon",
     "net/mullvad/mullvadvpn/service/MullvadVpnService",
-    "net/mullvad/talpid/model/Endpoint",
-    "net/mullvad/talpid/model/TransportProtocol",
     "net/mullvad/talpid/model/InetNetwork",
     "net/mullvad/talpid/model/TunConfig",
     "net/mullvad/talpid/model/CreateTunResult$Success",
