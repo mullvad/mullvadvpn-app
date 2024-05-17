@@ -100,9 +100,9 @@ impl From<&mullvad_types::settings::TunnelOptions> for proto::TunnelOptions {
                         .expect("Failed to convert std::time::Duration to prost_types::Duration for tunnel_options.wireguard.rotation_interval")
                 }),
                 quantum_resistant: Some(proto::QuantumResistantState::from(options.wireguard.quantum_resistant)),
-                #[cfg(any(target_os = "windows", target_os = "linux"))]
+                #[cfg(daita)]
                 daita: Some(proto::DaitaSettings::from(options.wireguard.daita.clone())),
-                #[cfg(not(any(target_os = "windows", target_os = "linux")))]
+                #[cfg(not(daita))]
                 daita: None,
             }),
             generic: Some(proto::tunnel_options::GenericOptions {
@@ -283,7 +283,7 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
                     .ok_or(FromProtobufTypeError::InvalidArgument(
                         "missing quantum resistant state",
                     ))??,
-                #[cfg(any(target_os = "windows", target_os = "linux"))]
+                #[cfg(daita)]
                 daita: wireguard_options
                     .daita
                     .map(mullvad_types::wireguard::DaitaSettings::from)

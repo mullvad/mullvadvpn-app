@@ -330,7 +330,7 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    #[cfg(daita)]
     async fn set_daita_settings(
         &self,
         request: Request<types::DaitaSettings>,
@@ -344,7 +344,7 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    #[cfg(not(any(target_os = "windows", target_os = "linux")))]
+    #[cfg(not(daita))]
     async fn set_daita_settings(&self, _: Request<types::DaitaSettings>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
