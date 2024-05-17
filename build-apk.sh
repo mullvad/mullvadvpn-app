@@ -16,7 +16,6 @@ GRADLE_BUILD_TYPE="release"
 GRADLE_TASKS=(createOssProdReleaseDistApk createPlayProdReleaseDistApk)
 BUNDLE_TASKS=(createPlayProdReleaseDistBundle)
 CARGO_ARGS=( "--release" )
-EXTRA_WGGO_ARGS=""
 BUILD_BUNDLE="no"
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
 SKIP_STRIPPING=${SKIP_STRIPPING:-"no"}
@@ -32,11 +31,8 @@ while [ -n "${1:-""}" ]; do
         GRADLE_BUILD_TYPE="fdroid"
         GRADLE_TASKS=(createOssProdFdroidDistApk)
         BUNDLE_TASKS=(createOssProdFdroidDistBundle)
-        EXTRA_WGGO_ARGS="--no-docker"
     elif [[ "${1:-""}" == "--app-bundle" ]]; then
         BUILD_BUNDLE="yes"
-    elif [[ "${1:-""}" == "--no-docker" ]]; then
-        EXTRA_WGGO_ARGS="--no-docker"
     elif [[ "${1:-""}" == "--skip-stripping" ]]; then
         SKIP_STRIPPING="yes"
     fi
@@ -79,8 +75,6 @@ fi
 $GRADLE_CMD --console plain clean
 mkdir -p "app/build/extraJni"
 popd
-
-./wireguard/build-wireguard-go.sh --android $EXTRA_WGGO_ARGS
 
 for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     case "$ARCHITECTURE" in
