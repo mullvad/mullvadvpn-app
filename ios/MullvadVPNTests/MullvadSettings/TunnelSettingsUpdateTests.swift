@@ -48,7 +48,7 @@ final class TunnelSettingsUpdateTests: XCTestCase {
 
         // When:
         let relayConstraints = RelayConstraints(
-            locations: .only(UserSelectedRelays(locations: [.country("zz")])),
+            exitLocations: .only(UserSelectedRelays(locations: [.country("zz")])),
             port: .only(9999),
             filter: .only(.init(ownership: .rented, providers: .only(["foo", "bar"])))
         )

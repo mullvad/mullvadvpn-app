@@ -79,11 +79,11 @@ final class AppMessageHandlerTests: XCTestCase {
         let appMessageHandler = createAppMessageHandler(actor: actor)
 
         let relayConstraints = RelayConstraints(
-            locations: .only(UserSelectedRelays(locations: [.hostname("se", "sto", "se6-wireguard")]))
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "sto", "se6-wireguard")]))
         )
-        let selectorResult = try XCTUnwrap(try? RelaySelector.evaluate(
-            relays: ServerRelaysResponseStubs.sampleRelays,
-            constraints: relayConstraints,
+        let selectorResult = try XCTUnwrap(try? RelaySelector.WireGuard.evaluateForSingleHop(
+            by: relayConstraints,
+            in: ServerRelaysResponseStubs.sampleRelays,
             numberOfFailedAttempts: 0
         ))
 

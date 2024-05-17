@@ -20,7 +20,7 @@ final class RelayConstraintsTests: XCTestCase {
         let constraintsFromJson = try parseData(from: constraintsV1)
 
         let constraintsFromInit = RelayConstraints(
-            locations: .only(UserSelectedRelays(locations: [.city("se", "got")])),
+            exitLocations: .only(UserSelectedRelays(locations: [.city("se", "got")])),
             port: .only(80),
             filter: .only(RelayFilter(ownership: .rented, providers: .any))
         )
