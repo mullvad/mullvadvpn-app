@@ -10,9 +10,9 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
-import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
+import net.mullvad.mullvadvpn.compose.state.EditCustomListNameUiState
 import net.mullvad.mullvadvpn.compose.test.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
-import net.mullvad.mullvadvpn.model.UpdateCustomListError
+import net.mullvad.mullvadvpn.usecase.customlists.RenameCustomListError
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -32,7 +32,7 @@ class EditCustomListNameDialogTest {
     fun givenNoErrorShouldShowNoErrorMessage() =
         composeExtension.use {
             // Arrange
-            val state = UpdateCustomListUiState(error = null)
+            val state = EditCustomListNameUiState(error = null)
             setContentWithTheme { EditCustomListNameDialog(state = state) }
 
             // Assert
@@ -45,7 +45,7 @@ class EditCustomListNameDialogTest {
         composeExtension.use {
             // Arrange
             val state =
-                UpdateCustomListUiState(error = UpdateCustomListError.NameAlreadyExists("name"))
+                EditCustomListNameUiState(error = RenameCustomListError.NameAlreadyExists("name"))
             setContentWithTheme { EditCustomListNameDialog(state = state) }
 
             // Assert
@@ -57,7 +57,7 @@ class EditCustomListNameDialogTest {
     fun givenOtherCustomListErrorShouldShowAnErrorOccurredErrorText() =
         composeExtension.use {
             // Arrange
-            val state = UpdateCustomListUiState(error = UpdateCustomListError.Unknown(Throwable()))
+            val state = EditCustomListNameUiState(error = RenameCustomListError.Unknown(""))
             setContentWithTheme { EditCustomListNameDialog(state = state) }
 
             // Assert
@@ -70,7 +70,7 @@ class EditCustomListNameDialogTest {
         composeExtension.use {
             // Arrange
             val mockedOnDismiss: () -> Unit = mockk(relaxed = true)
-            val state = UpdateCustomListUiState()
+            val state = EditCustomListNameUiState()
             setContentWithTheme {
                 EditCustomListNameDialog(state = state, onDismiss = mockedOnDismiss)
             }
@@ -87,7 +87,7 @@ class EditCustomListNameDialogTest {
         composeExtension.use {
             // Arrange
             val mockedUpdateName: (String) -> Unit = mockk(relaxed = true)
-            val state = UpdateCustomListUiState()
+            val state = EditCustomListNameUiState()
             setContentWithTheme {
                 EditCustomListNameDialog(state = state, updateName = mockedUpdateName)
             }
@@ -105,7 +105,7 @@ class EditCustomListNameDialogTest {
             // Arrange
             val mockedUpdateName: (String) -> Unit = mockk(relaxed = true)
             val inputText = "NEW NAME"
-            val state = UpdateCustomListUiState()
+            val state = EditCustomListNameUiState()
             setContentWithTheme {
                 EditCustomListNameDialog(state = state, updateName = mockedUpdateName)
             }
@@ -124,7 +124,7 @@ class EditCustomListNameDialogTest {
             // Arrange
             val mockedOnInputChanged: () -> Unit = mockk(relaxed = true)
             val inputText = "NEW NAME"
-            val state = UpdateCustomListUiState()
+            val state = EditCustomListNameUiState()
             setContentWithTheme {
                 EditCustomListNameDialog(state = state, onInputChanged = mockedOnInputChanged)
             }
