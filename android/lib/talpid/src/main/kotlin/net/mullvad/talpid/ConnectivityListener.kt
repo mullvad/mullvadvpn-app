@@ -20,7 +20,7 @@ class ConnectivityListener {
 
             override fun onLost(network: Network) {
                 availableNetworks.remove(network)
-                isConnected = !availableNetworks.isEmpty()
+                isConnected = availableNetworks.isNotEmpty()
             }
         }
 
