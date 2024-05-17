@@ -40,18 +40,23 @@ public struct Settings {
     /// Obfuscation settings
     public var obfuscation: WireGuardObfuscationSettings
 
+    /// Whether Multi-hop is enabled.
+    public var multihopState: MultihopState
+
     public init(
         privateKey: PrivateKey,
         interfaceAddresses: [IPAddressRange],
         relayConstraints: RelayConstraints,
         dnsServers: SelectedDNSServers,
-        obfuscation: WireGuardObfuscationSettings
+        obfuscation: WireGuardObfuscationSettings,
+        multihopState: MultihopState
     ) {
         self.privateKey = privateKey
         self.interfaceAddresses = interfaceAddresses
         self.relayConstraints = relayConstraints
         self.dnsServers = dnsServers
         self.obfuscation = obfuscation
+        self.multihopState = multihopState
     }
 }
 

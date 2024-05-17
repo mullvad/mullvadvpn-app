@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadSettings
 import MullvadTypes
 
 public protocol ShadowsocksLoaderProtocol {
@@ -19,6 +20,11 @@ public class ShadowsocksLoader: ShadowsocksLoaderProtocol {
     private let relayCache: RelayCacheProtocol
     private var relayConstraints = RelayConstraints()
     private let constraintsUpdater: RelayConstraintsUpdater
+    private let tunnelSettings: LatestTunnelSettings? = try? SettingsManager.readSettings()
+
+    private var location: RelayConstraint<UserSelectedRelays> {
+        tunnelSettings?.tunnelMultihopState == .on ? relayConstraints.entryLocations : relayConstraints.exitLocations
+    }
 
     public init(
         shadowsocksCache: ShadowsocksConfigurationCache,
@@ -55,12 +61,15 @@ public class ShadowsocksLoader: ShadowsocksLoaderProtocol {
     /// Returns a randomly selected shadowsocks configuration.
     private func create() throws -> ShadowsocksConfiguration {
         let cachedRelays = try relayCache.read()
-        let bridgeConfiguration = RelaySelector.shadowsocksTCPBridge(from: cachedRelays.relays)
-        let closestRelay = RelaySelector.closestShadowsocksRelayConstrained(
-            by: relayConstraints,
+        let bridgeConfiguration = RelaySelector.Shadowsocks.tcpBridge(from: cachedRelays.relays)
+
+        // TODO: pick entry if multi hop is enabled otherwise pick exit entry
+        let closestRelay = RelaySelector.Shadowsocks.closestRelay(
+            location: location,
+            port: relayConstraints.port,
+            filter: relayConstraints.filter,
             in: cachedRelays.relays
         )
-
         guard let bridgeAddress = closestRelay?.ipv4AddrIn, let bridgeConfiguration else { throw POSIXError(.ENOENT) }
 
         return ShadowsocksConfiguration(
