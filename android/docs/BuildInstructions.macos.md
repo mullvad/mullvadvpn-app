@@ -65,7 +65,7 @@ export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/x86_64-linux
 Run the build script in the root of the project to assemble all the native libraries and the app:
 
 ```bash
-./build-apk.sh --dev-build --no-docker
+./build-apk.sh --dev-build
 ```
 
 Once the build is complete you should receive a message looking similar to this:
