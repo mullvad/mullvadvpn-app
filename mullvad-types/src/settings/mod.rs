@@ -9,8 +9,6 @@ use crate::{
     },
     wireguard,
 };
-#[cfg(target_os = "android")]
-use jnix::IntoJava;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use std::collections::HashSet;
@@ -261,16 +259,12 @@ impl Settings {
 /// TunnelOptions holds configuration data that applies to all kinds of tunnels.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct TunnelOptions {
     /// openvpn holds OpenVPN specific tunnel options.
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub openvpn: openvpn::TunnelOptions,
     /// Contains wireguard tunnel options.
     pub wireguard: wireguard::TunnelOptions,
     /// Contains generic tunnel options that may apply to more than a single tunnel type.
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub generic: GenericTunnelOptions,
     /// DNS options.
     pub dns_options: DnsOptions,

@@ -1,7 +1,5 @@
 //! General constraints.
 
-#[cfg(target_os = "android")]
-use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 
@@ -10,9 +8,6 @@ use crate::Intersection;
 /// Limits the set of [`crate::relay_list::Relay`]s that a `RelaySelector` may select.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
-#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
-#[cfg_attr(target_os = "android", jnix(bounds = "T: android.os.Parcelable"))]
 pub enum Constraint<T> {
     Any,
     Only(T),
