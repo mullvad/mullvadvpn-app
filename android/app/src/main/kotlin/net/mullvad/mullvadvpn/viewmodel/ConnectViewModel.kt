@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -51,6 +52,7 @@ class ConnectViewModel(
     val uiSideEffect =
         merge(_uiSideEffect.receiveAsFlow(), outOfTimeEffect(), revokedDeviceEffect())
 
+    @OptIn(FlowPreview::class)
     val uiState: StateFlow<ConnectUiState> =
         combine(
                 selectedLocationRelayItemUseCase.selectedRelayItemTitle(),
