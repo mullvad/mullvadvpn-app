@@ -385,7 +385,7 @@ impl WireguardMonitor {
                 let config = config.clone();
                 let iface_name = iface_name.clone();
                 tokio::task::spawn(async move {
-                    #[cfg(target_os = "windows")]
+                    #[cfg(daita)]
                     if config.daita {
                         // TODO: For now, we assume the MTU during the tunnel lifetime.
                         // We could instead poke maybenot whenever we detect changes to it.
@@ -558,7 +558,7 @@ impl WireguardMonitor {
         }
 
         config.exit_peer_mut().psk = exit_psk;
-        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        #[cfg(daita)]
         if config.daita {
             log::trace!("Enabling constant packet size for entry peer");
             config.entry_peer.constant_packet_size = true;
@@ -576,7 +576,7 @@ impl WireguardMonitor {
         )
         .await?;
 
-        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        #[cfg(daita)]
         if config.daita {
             // Start local DAITA machines
             let mut tunnel = tunnel.lock().await;
@@ -825,7 +825,7 @@ impl WireguardMonitor {
     fn open_wireguard_go_tunnel(
         config: &Config,
         log_path: Option<&Path>,
-        #[cfg(any(target_os = "windows", target_os = "linux"))] resource_dir: &Path,
+        #[cfg(daita)] resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
     ) -> Result<WgGoTunnel> {
         let routes = Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
@@ -838,7 +838,7 @@ impl WireguardMonitor {
             log_path,
             tun_provider,
             routes,
-            #[cfg(any(target_os = "windows", target_os = "linux"))]
+            #[cfg(daita)]
             resource_dir,
         )
         .map_err(Error::TunnelError)?;
@@ -1055,7 +1055,7 @@ pub(crate) trait Tunnel: Send {
         &'a mut self,
         _config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'a>>;
-    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    #[cfg(daita)]
     /// A [`Tunnel`] capable of using DAITA.
     fn start_daita(&mut self) -> std::result::Result<(), TunnelError>;
 }
@@ -1133,17 +1133,18 @@ pub enum TunnelError {
     LoggingError(#[source] logging::Error),
 
     /// Failed to receive DAITA event
-    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    #[cfg(daita)]
     #[error("Failed to start DAITA")]
     StartDaita(#[source] Box<dyn std::error::Error + Send>),
 
     /// This tunnel does not support DAITA.
-    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    #[cfg(daita)]
     #[error("Failed to start DAITA - tunnel implemenation does not support DAITA")]
     DaitaNotSupported,
 }
 
 #[cfg(target_os = "linux")]
+#[allow(dead_code)]
 fn will_nm_manage_dns() -> bool {
     use talpid_dbus::network_manager::NetworkManager;
 
