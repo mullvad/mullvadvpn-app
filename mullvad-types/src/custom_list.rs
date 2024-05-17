@@ -1,9 +1,4 @@
 use crate::relay_constraints::GeographicLocationConstraint;
-#[cfg(target_os = "android")]
-use jnix::{
-    jni::objects::{AutoLocal, JObject, JString},
-    FromJava, IntoJava, JnixEnv,
-};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::BTreeSet,
@@ -50,49 +45,6 @@ impl FromStr for Id {
     }
 }
 
-#[cfg(target_os = "android")]
-impl<'env, 'sub_env> FromJava<'env, JString<'sub_env>> for Id
-where
-    'env: 'sub_env,
-{
-    const JNI_SIGNATURE: &'static str = "Ljava/lang/String;";
-
-    fn from_java(env: &JnixEnv<'env>, source: JString<'sub_env>) -> Self {
-        let s = env
-            .get_string(source)
-            .expect("Failed to convert from Java String");
-        Id::from_str(s.to_str().unwrap()).expect("invalid ID")
-    }
-}
-
-#[cfg(target_os = "android")]
-impl<'env, 'sub_env> FromJava<'env, JObject<'sub_env>> for Id
-where
-    'env: 'sub_env,
-{
-    const JNI_SIGNATURE: &'static str = "Ljava/lang/String;";
-
-    fn from_java(env: &JnixEnv<'env>, source: JObject<'sub_env>) -> Self {
-        Id::from_java(env, JString::from(source))
-    }
-}
-
-#[cfg(target_os = "android")]
-impl<'borrow, 'env: 'borrow> IntoJava<'borrow, 'env> for Id {
-    const JNI_SIGNATURE: &'static str = "Ljava/lang/String;";
-
-    type JavaType = AutoLocal<'env, 'borrow>;
-
-    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
-        let s = self.to_string();
-        let jstring = env.new_string(&s).expect("Failed to create Java String");
-
-        env.auto_local(jstring)
-    }
-}
-
-#[cfg_attr(target_os = "android", derive(IntoJava, FromJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CustomListsSettings {
     custom_lists: Vec<CustomList>,
@@ -185,17 +137,9 @@ impl DerefMut for CustomListsSettings {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct CustomList {
     pub id: Id,
     pub name: String,
-    #[cfg_attr(
-        target_os = "android",
-        jnix(
-            map = "|locations| locations.into_iter().collect::<Vec<GeographicLocationConstraint>>()"
-        )
-    )]
     pub locations: BTreeSet<GeographicLocationConstraint>,
 }
 
@@ -210,42 +154,5 @@ impl CustomList {
             name,
             locations: BTreeSet::new(),
         })
-    }
-}
-
-#[cfg(target_os = "android")]
-impl<'env, 'sub_env> FromJava<'env, JObject<'sub_env>> for CustomList
-where
-    'env: 'sub_env,
-{
-    const JNI_SIGNATURE: &'static str = "Lnet/mullvad/mullvadvpn/model/CustomList;";
-
-    fn from_java(env: &JnixEnv<'env>, source: JObject<'sub_env>) -> Self {
-        let object_id = env
-            .call_method(source, "component1", "()Ljava/lang/String;", &[])
-            .expect("missing CustomList.id")
-            .l()
-            .expect("CustomList.id did not return an object");
-        let id = Id::from_str(&String::from_java(env, object_id)).expect("invalid ID");
-
-        let object_name = env
-            .call_method(source, "component2", "()Ljava/lang/String;", &[])
-            .expect("missing CustomList.name")
-            .l()
-            .expect("CustomList.name did not return an object");
-        let name = String::from_java(env, object_name);
-
-        let object_locations = env
-            .call_method(source, "component3", "()Ljava/util/ArrayList;", &[])
-            .expect("missing CustomList.locations")
-            .l()
-            .expect("CustomList.locations did not return an object");
-        let locations = BTreeSet::from_iter(Vec::from_java(env, object_locations));
-
-        CustomList {
-            id,
-            name,
-            locations,
-        }
     }
 }
