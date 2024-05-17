@@ -77,9 +77,7 @@ fun MullvadApp() {
 
     // Ask for VPN Permission
     val launchVpnPermission =
-        rememberLauncherForActivityResult(RequestVpnPermission()) { result ->
-            permissionVm.connect()
-        }
+        rememberLauncherForActivityResult(RequestVpnPermission()) { _ -> permissionVm.connect() }
     LaunchedEffectCollect(permissionVm.uiSideEffect) {
         if (it is VpnPermissionSideEffect.ShowDialog) {
             launchVpnPermission.launch(Unit)

@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -73,6 +75,7 @@ import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.RequestVpnPermission
+import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
 import net.mullvad.mullvadvpn.constant.UNSECURE_ZOOM
@@ -93,6 +96,7 @@ import net.mullvad.mullvadvpn.model.Latitude
 import net.mullvad.mullvadvpn.model.Longitude
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
+import net.mullvad.mullvadvpn.util.removeHtmlTags
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -121,9 +125,11 @@ fun Connect(
 
     val context = LocalContext.current
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val launchVpnPermission =
         rememberLauncherForActivityResult(RequestVpnPermission()) {
-            connectViewModel.connectUnsafe()
+            connectViewModel.requestVpnPermissionResult(it)
         }
 
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
@@ -146,6 +152,12 @@ fun Connect(
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
             is ConnectViewModel.UiSideEffect.NoVpnPermission -> launchVpnPermission.launch(Unit)
+            is ConnectViewModel.UiSideEffect.ConnectError -> {
+                snackbarHostState.showSnackbarImmediately(
+                    coroutineScope = this,
+                    message = sideEffect.toMessage(context),
+                )
+            }
         }
     }
 
@@ -157,6 +169,7 @@ fun Connect(
 
     ConnectScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
         onDisconnectClick = connectViewModel::onDisconnectClick,
         onReconnectClick = connectViewModel::onReconnectClick,
         onConnectClick = connectViewModel::onConnectClick,
@@ -191,6 +204,7 @@ fun Connect(
 @Composable
 fun ConnectScreen(
     state: ConnectUiState,
+    snackbarHostState: SnackbarHostState = SnackbarHostState(),
     onDisconnectClick: () -> Unit = {},
     onReconnectClick: () -> Unit = {},
     onConnectClick: () -> Unit = {},
@@ -211,7 +225,8 @@ fun ConnectScreen(
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
         deviceName = state.deviceName,
-        timeLeft = state.daysLeftUntilExpiry
+        timeLeft = state.daysLeftUntilExpiry,
+        snackbarHostState = snackbarHostState
     ) {
         var progressIndicatorBias by remember { mutableFloatStateOf(0f) }
 
@@ -443,3 +458,16 @@ fun TunnelState.iconTintColor(): Color =
 
 fun GeoIpLocation.toLatLong() =
     LatLong(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))
+
+private fun ConnectViewModel.UiSideEffect.ConnectError.toMessage(context: Context): String =
+    when (this) {
+        ConnectViewModel.UiSideEffect.ConnectError.NoVpnPermission ->
+            context.getString(R.string.vpn_permission_denied_error)
+        is ConnectViewModel.UiSideEffect.ConnectError.AlwaysOnVpn ->
+            // Snackbar currently do not support annotated string
+            context
+                .getString(R.string.always_on_vpn_error_notification_content, appName)
+                .removeHtmlTags()
+        ConnectViewModel.UiSideEffect.ConnectError.Generic ->
+            context.getString(R.string.error_occurred)
+    }

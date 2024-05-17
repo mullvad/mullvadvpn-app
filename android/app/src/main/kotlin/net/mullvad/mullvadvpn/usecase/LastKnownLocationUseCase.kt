@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 
 class LastKnownLocationUseCase(
     connectionProxy: ConnectionProxy,

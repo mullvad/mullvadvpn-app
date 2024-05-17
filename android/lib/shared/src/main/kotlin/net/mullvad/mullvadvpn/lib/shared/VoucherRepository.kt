@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.account
+package net.mullvad.mullvadvpn.lib.shared
 
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 

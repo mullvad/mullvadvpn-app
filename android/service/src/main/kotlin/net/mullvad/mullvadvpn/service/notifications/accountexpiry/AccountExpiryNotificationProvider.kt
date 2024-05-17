@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.service.notifications.accountexpiry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import net.mullvad.mullvadvpn.lib.account.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.model.ChannelId
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.Notification

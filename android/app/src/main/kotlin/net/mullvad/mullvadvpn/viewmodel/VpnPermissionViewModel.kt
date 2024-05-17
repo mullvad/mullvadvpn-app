@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_REQUEST_VPN_PERMISSION
 import net.mullvad.mullvadvpn.lib.intent.IntentProvider
-import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 
 class VpnPermissionViewModel(
     intentProvider: IntentProvider,

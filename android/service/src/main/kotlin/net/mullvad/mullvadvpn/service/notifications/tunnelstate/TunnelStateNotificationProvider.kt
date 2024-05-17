@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
-import net.mullvad.mullvadvpn.lib.account.AccountRepository
-import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.permission.VpnPermissionRepository
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
 import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.model.ChannelId
 import net.mullvad.mullvadvpn.model.DeviceState
@@ -26,7 +26,7 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 
 class TunnelStateNotificationProvider(
-    managementService: ManagementService,
+    connectionProxy: ConnectionProxy,
     vpnPermissionRepository: VpnPermissionRepository,
     accountRepository: AccountRepository,
     channelId: ChannelId,
@@ -36,8 +36,8 @@ class TunnelStateNotificationProvider(
 
     override val notifications: StateFlow<NotificationUpdate<Notification.Tunnel>> =
         combine(
-                managementService.tunnelState,
-                managementService.tunnelState.actionAfterDisconnect().distinctUntilChanged(),
+                connectionProxy.tunnelState,
+                connectionProxy.tunnelState.actionAfterDisconnect().distinctUntilChanged(),
                 accountRepository.accountState
             ) {
                 tunnelState: TunnelState,

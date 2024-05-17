@@ -319,9 +319,8 @@ dependencies {
     implementation(project(Dependencies.Mullvad.themeLib))
     implementation(project(Dependencies.Mullvad.paymentLib))
     implementation(project(Dependencies.Mullvad.mapLib))
-    implementation(project(Dependencies.Mullvad.accountLib))
+    implementation(project(Dependencies.Mullvad.sharedLib))
     implementation(project(Dependencies.Mullvad.intentLib))
-    implementation(project(Dependencies.Mullvad.vpnPermissionLib))
 
     // Play implementation
     playImplementation(project(Dependencies.Mullvad.billingLib))

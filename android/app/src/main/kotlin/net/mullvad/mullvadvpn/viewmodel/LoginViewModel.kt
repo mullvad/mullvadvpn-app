@@ -24,7 +24,7 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
 import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
 import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
-import net.mullvad.mullvadvpn.lib.account.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.LoginAccountError
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase

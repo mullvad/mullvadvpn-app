@@ -4,7 +4,7 @@ include(
     ":tile"
 )
 include(
-    ":lib:account",
+    ":lib:shared",
     ":lib:common",
     ":lib:endpoint",
     ":lib:intent-provider",
@@ -17,8 +17,7 @@ include(
     ":lib:billing",
     ":lib:payment",
     ":lib:map",
-    ":lib:daemon-grpc",
-    ":lib:vpn-permission"
+    ":lib:daemon-grpc"
 )
 include(
     ":test",

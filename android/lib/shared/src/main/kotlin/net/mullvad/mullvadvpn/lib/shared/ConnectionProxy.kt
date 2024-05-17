@@ -1,10 +1,9 @@
-package net.mullvad.mullvadvpn.ui.serviceconnection
+package net.mullvad.mullvadvpn.lib.shared
 
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.permission.VpnPermissionRepository
 import net.mullvad.mullvadvpn.model.ConnectError
 
 class ConnectionProxy(
