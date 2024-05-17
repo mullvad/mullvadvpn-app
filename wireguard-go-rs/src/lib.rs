@@ -151,7 +151,7 @@ impl Tunnel {
     /// Activate DAITA for the specified peer.
     ///
     /// `machines` is a string containing LF-separated maybenot machines.
-    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    #[cfg(daita)]
     pub fn activate_daita(
         &self,
         peer_public_key: &[u8; 32],
@@ -265,7 +265,7 @@ mod ffi {
         /// - `peer_public_key` must point to a 32 byte array.
         /// - `machines` must point to a null-terminated UTF-8 string.
         /// - Neither pointer will be read from after `wgActivateDaita` has returned.
-        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        #[cfg(daita)]
         pub fn wgActivateDaita(
             tunnel_handle: i32,
             peer_public_key: *const u8,
