@@ -95,7 +95,7 @@ jobs:
 
       - name: Run unit tests
         run: |
-          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+          set -o pipefail && env NSUnbufferedIO=YES xcodebuild -verbose \
             -project MullvadVPN.xcodeproj \
             -scheme MullvadVPN \
             -testPlan MullvadVPNCI \
