@@ -114,8 +114,18 @@ internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
 
 internal fun ManagementInterface.GeoIpLocation.toDomain(): GeoIpLocation =
     GeoIpLocation(
-        ipv4 = InetAddress.getByName(this.ipv4),
-        ipv6 = InetAddress.getByName(this.ipv6),
+        ipv4 =
+            if (hasIpv4()) {
+                InetAddress.getByName(this.ipv4)
+            } else {
+                null
+            },
+        ipv6 =
+            if (hasIpv6()) {
+                InetAddress.getByName(this.ipv6)
+            } else {
+                null
+            },
         country = this.country,
         city = this.city,
         latitude = this.latitude,

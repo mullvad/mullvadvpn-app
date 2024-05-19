@@ -19,19 +19,14 @@
 -keep class org.joda.time.** { *; }
 -keep interface org.joda.time.** { *; }
 
--keep class io.grpc.** { *; }
+# grpc
+-keep class io.grpc.okhttp.OkHttpChannelBuilder { *; }
 -keep class mullvad_daemon.management_interface.** { *; }
--keep class com.google.protobuf.** { *; }
-
+-keep class com.google.protobuf.Timestamp { *; }
 -dontwarn com.google.j2objc.annotations.ReflectionSupport
 -dontwarn com.google.j2objc.annotations.RetainedWith
 -dontwarn com.squareup.okhttp.CipherSuite
 -dontwarn com.squareup.okhttp.ConnectionSpec
 -dontwarn com.squareup.okhttp.TlsVersion
--dontwarn javax.naming.NamingEnumeration
--dontwarn javax.naming.NamingException
--dontwarn javax.naming.directory.Attribute
--dontwarn javax.naming.directory.Attributes
--dontwarn javax.naming.directory.DirContext
--dontwarn javax.naming.directory.InitialDirContext
+
 
