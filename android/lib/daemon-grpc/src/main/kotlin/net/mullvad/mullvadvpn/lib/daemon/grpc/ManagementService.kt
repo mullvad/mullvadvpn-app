@@ -164,10 +164,8 @@ class ManagementService(
     }
 
     fun stop() {
-        if (job == null) {
-            error("ManagementService already stopped")
-        }
-        job!!.cancel(message = "ManagementService stopped")
+        job?.cancel(message = "ManagementService stopped")
+            ?: error("ManagementService already stopped")
         job = null
     }
 
