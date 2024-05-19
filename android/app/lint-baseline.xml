@@ -2,17 +2,6 @@
 <issues format="6" by="lint 8.3.0" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0)" variant="all" version="8.3.0">
 
     <issue
-        id="SdCardPath"
-        message="Do not hardcode &quot;`/data/`&quot;; use `Context.getFilesDir().getPath()` instead"
-        errorLine1="const val GRPC_SOCKET_PATH = &quot;/data/data/net.mullvad.mullvadvpn/rpc-socket&quot;"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/constant/PathConstant.kt"
-            line="3"
-            column="31"/>
-    </issue>
-
-    <issue
         id="UseCheckPermission"
         message="The result of `checkPermission` is not used"
         errorLine1="                    mockedPackageManager.checkPermission(internet, packageName)"
@@ -26,12 +15,12 @@
     <issue
         id="DataExtractionRules"
         message="The attribute `android:allowBackup` is deprecated from Android 12 and higher and may be removed in future versions. Consider adding the attribute `android:dataExtractionRules` specifying an `@xml` resource which configures cloud backups and device transfers on Android 12 and higher."
-        errorLine1="        android:allowBackup=&quot;false&quot;"
-        errorLine2="                             ~~~~~">
+        errorLine1="                 android:allowBackup=&quot;false&quot;"
+        errorLine2="                                      ~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="33"
-            column="30"/>
+            line="23"
+            column="39"/>
     </issue>
 
     <issue
@@ -41,7 +30,7 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="7"
+            line="6"
             column="22"/>
     </issue>
 

@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.di
 
 import kotlinx.coroutines.MainScope
-import net.mullvad.mullvadvpn.constant.GRPC_SOCKET_PATH
+import net.mullvad.mullvadvpn.constant.GRPC_SOCKET_FILE
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.intent.BuildConfig
 import net.mullvad.mullvadvpn.lib.intent.IntentProvider
@@ -14,7 +14,7 @@ import org.koin.dsl.module
 val appModule = module {
     single {
         ManagementService(
-            rpcSocketPath = GRPC_SOCKET_PATH,
+            rpcSocketPath = "${androidContext().dataDir.path}/$GRPC_SOCKET_FILE",
             extensiveLogging = BuildConfig.DEBUG,
             scope = MainScope(),
         )
