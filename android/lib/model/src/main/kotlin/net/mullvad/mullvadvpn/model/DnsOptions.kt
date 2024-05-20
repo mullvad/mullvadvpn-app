@@ -7,7 +7,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 @optics
 data class DnsOptions(
-    val currentDnsOption: DnsState,
+    val state: DnsState,
     val defaultOptions: DefaultDnsOptions,
     val customOptions: CustomDnsOptions
 ) : Parcelable {

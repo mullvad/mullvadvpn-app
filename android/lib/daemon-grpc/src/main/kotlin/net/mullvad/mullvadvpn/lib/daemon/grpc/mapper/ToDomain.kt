@@ -371,7 +371,7 @@ internal fun ManagementInterface.QuantumResistantState.toDomain(): QuantumResist
 
 internal fun ManagementInterface.DnsOptions.toDomain(): DnsOptions =
     DnsOptions(
-        currentDnsOption = state.toDomain(),
+        state = state.toDomain(),
         defaultOptions = defaultOptions.toDomain(),
         customOptions = customOptions.toDomain()
     )
