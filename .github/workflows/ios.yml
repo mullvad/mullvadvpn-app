@@ -93,6 +93,11 @@ jobs:
           brew update
           brew install xcbeautify
 
+      - name: Install protobuf
+        run: |
+          brew update
+          brew install protobuf
+
       - name: Run unit tests
         run: |
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
