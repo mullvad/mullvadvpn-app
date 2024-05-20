@@ -99,12 +99,12 @@ import net.mullvad.mullvadvpn.model.WireguardConstraints as ModelWireguardConstr
 import net.mullvad.mullvadvpn.model.WireguardEndpointData as ModelWireguardEndpointData
 import net.mullvad.mullvadvpn.model.WwwAuthToken
 import net.mullvad.mullvadvpn.model.addresses
-import net.mullvad.mullvadvpn.model.currentDnsOption
 import net.mullvad.mullvadvpn.model.customOptions
 import net.mullvad.mullvadvpn.model.location
 import net.mullvad.mullvadvpn.model.ownership
 import net.mullvad.mullvadvpn.model.providers
 import net.mullvad.mullvadvpn.model.relayConstraints
+import net.mullvad.mullvadvpn.model.state
 import net.mullvad.mullvadvpn.model.wireguardConstraints
 
 @Suppress("TooManyFunctions")
@@ -133,7 +133,6 @@ class ManagementService(
                 } else it
             }
             .withWaitForReady()
-
 
     private val _mutableDeviceState = MutableStateFlow<ModelDeviceState?>(null)
     val deviceState: Flow<ModelDeviceState> = _mutableDeviceState.filterNotNull()
@@ -314,7 +313,7 @@ class ManagementService(
     suspend fun setDnsState(dnsState: ModelDnsState): Either<SetDnsOptionsError, Unit> =
         Either.catch {
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
-                val updated = DnsOptions.currentDnsOption.set(currentDnsOptions, dnsState)
+                val updated = DnsOptions.state.set(currentDnsOptions, dnsState)
                 grpc.setDnsOptions(updated.fromDomain())
             }
             .mapLeft(SetDnsOptionsError::Unknown)
