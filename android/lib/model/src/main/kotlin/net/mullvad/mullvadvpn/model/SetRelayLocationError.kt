@@ -1,5 +1,5 @@
 package net.mullvad.mullvadvpn.model
 
-interface SetRelayLocationError {
+sealed interface SetRelayLocationError {
     data class Unknown(val throwable: Throwable) : SetRelayLocationError
 }

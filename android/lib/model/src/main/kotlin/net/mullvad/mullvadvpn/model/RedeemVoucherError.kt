@@ -1,10 +1,6 @@
 package net.mullvad.mullvadvpn.model
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
-
-@Parcelize
-sealed class RedeemVoucherError : Parcelable {
+sealed class RedeemVoucherError {
     data object InvalidVoucher : RedeemVoucherError()
 
     data object VoucherAlreadyUsed : RedeemVoucherError()

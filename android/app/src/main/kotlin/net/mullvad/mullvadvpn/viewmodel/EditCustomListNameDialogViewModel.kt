@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.RenameCustomListError
 
 class EditCustomListNameDialogViewModel(
     private val customListId: CustomListId,
-    private val initialName: String,
+    private val initialName: CustomListName,
     private val customListActionUseCase: CustomListActionUseCase
 ) : ViewModel() {
 
@@ -32,11 +32,11 @@ class EditCustomListNameDialogViewModel(
 
     val uiState =
         _error
-            .map { EditCustomListNameUiState(name = initialName, error = it) }
+            .map { EditCustomListNameUiState(name = initialName.value, error = it) }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                EditCustomListNameUiState(name = initialName)
+                EditCustomListNameUiState(name = initialName.value)
             )
 
     fun updateCustomListName(name: String) {
@@ -45,7 +45,7 @@ class EditCustomListNameDialogViewModel(
                 .performAction(
                     CustomListAction.Rename(
                         id = customListId,
-                        name = CustomListName.fromString(initialName),
+                        name = initialName,
                         newName = CustomListName.fromString(name)
                     )
                 )
