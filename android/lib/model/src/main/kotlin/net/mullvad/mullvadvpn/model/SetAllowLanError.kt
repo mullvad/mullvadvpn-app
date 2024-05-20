@@ -1,5 +1,5 @@
 package net.mullvad.mullvadvpn.model
 
-interface SetAllowLanError {
+sealed interface SetAllowLanError {
     data class Unknown(val throwable: Throwable) : SetAllowLanError
 }

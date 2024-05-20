@@ -1,4 +1,5 @@
 @file:Suppress("TooManyFunctions")
+
 package net.mullvad.mullvadvpn.lib.daemon.grpc.mapper
 
 import io.grpc.ConnectivityState

@@ -1,5 +1,5 @@
 package net.mullvad.mullvadvpn.model
 
-interface SetWireguardConstraintsError {
+sealed interface SetWireguardConstraintsError {
     data class Unknown(val throwable: Throwable) : SetWireguardConstraintsError
 }

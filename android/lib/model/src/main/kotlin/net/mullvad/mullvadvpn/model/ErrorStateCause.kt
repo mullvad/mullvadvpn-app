@@ -1,11 +1,8 @@
 package net.mullvad.mullvadvpn.model
 
-import android.os.Parcelable
 import java.net.InetAddress
-import kotlinx.parcelize.Parcelize
 
-sealed class ErrorStateCause : Parcelable {
-    @Parcelize
+sealed class ErrorStateCause {
     class AuthFailed(private val reason: String?) : ErrorStateCause() {
         fun isCausedByExpiredAccount(): Boolean {
             return reason == AUTH_FAILED_REASON_EXPIRED_ACCOUNT
@@ -16,23 +13,20 @@ sealed class ErrorStateCause : Parcelable {
         }
     }
 
-    @Parcelize data object Ipv6Unavailable : ErrorStateCause()
+    data object Ipv6Unavailable : ErrorStateCause()
 
-    @Parcelize
     data class SetFirewallPolicyError(val firewallPolicyError: FirewallPolicyError) :
         ErrorStateCause()
 
-    @Parcelize data object SetDnsError : ErrorStateCause()
+    data object SetDnsError : ErrorStateCause()
 
-    @Parcelize
     data class InvalidDnsServers(val addresses: ArrayList<InetAddress>) : ErrorStateCause()
 
-    @Parcelize data object StartTunnelError : ErrorStateCause()
+    data object StartTunnelError : ErrorStateCause()
 
-    @Parcelize
     data class TunnelParameterError(val error: ParameterGenerationError) : ErrorStateCause()
 
-    @Parcelize data object IsOffline : ErrorStateCause()
+    data object IsOffline : ErrorStateCause()
 
-    @Parcelize data object VpnPermissionDenied : ErrorStateCause()
+    data object VpnPermissionDenied : ErrorStateCause()
 }

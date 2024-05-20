@@ -1,25 +1,17 @@
 package net.mullvad.mullvadvpn.model
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+sealed class TunnelState {
+    data class Disconnected(val location: GeoIpLocation? = null) : TunnelState()
 
-sealed class TunnelState : Parcelable {
-    @Parcelize
-    data class Disconnected(val location: GeoIpLocation? = null) : TunnelState(), Parcelable
+    data class Connecting(val endpoint: TunnelEndpoint?, val location: GeoIpLocation?) :
+        TunnelState()
 
-    @Parcelize
-    class Connecting(val endpoint: TunnelEndpoint?, val location: GeoIpLocation?) :
-        TunnelState(), Parcelable
+    data class Connected(val endpoint: TunnelEndpoint, val location: GeoIpLocation?) :
+        TunnelState()
 
-    @Parcelize
-    class Connected(val endpoint: TunnelEndpoint, val location: GeoIpLocation?) :
-        TunnelState(), Parcelable
+    data class Disconnecting(val actionAfterDisconnect: ActionAfterDisconnect) : TunnelState()
 
-    @Parcelize
-    class Disconnecting(val actionAfterDisconnect: ActionAfterDisconnect) :
-        TunnelState(), Parcelable
-
-    @Parcelize class Error(val errorState: ErrorState) : TunnelState(), Parcelable
+    data class Error(val errorState: ErrorState) : TunnelState()
 
     fun location(): GeoIpLocation? {
         return when (this) {

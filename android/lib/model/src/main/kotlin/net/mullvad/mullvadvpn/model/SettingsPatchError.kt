@@ -1,10 +1,6 @@
 package net.mullvad.mullvadvpn.model
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
-
-@Parcelize
-sealed class SettingsPatchError : Parcelable {
+sealed class SettingsPatchError {
     // E.g hostname is number instead of String
     data class InvalidOrMissingValue(val value: String) : SettingsPatchError()
 
