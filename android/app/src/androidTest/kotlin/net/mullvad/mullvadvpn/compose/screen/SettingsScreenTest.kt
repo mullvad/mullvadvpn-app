@@ -7,6 +7,7 @@ import io.mockk.MockKAnnotations
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
+import net.mullvad.mullvadvpn.lib.theme.DarkThemeState
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -32,7 +33,9 @@ class SettingsScreenTest {
                             appVersion = "",
                             isLoggedIn = true,
                             isSupportedVersion = true,
-                            isPlayBuild = false
+                            isPlayBuild = false,
+                            isMaterialYouTheme = false,
+                            darkThemeState = DarkThemeState.OFF
                         ),
                 )
             }
@@ -55,7 +58,9 @@ class SettingsScreenTest {
                             appVersion = "",
                             isLoggedIn = false,
                             isSupportedVersion = true,
-                            isPlayBuild = false
+                            isPlayBuild = false,
+                            isMaterialYouTheme = false,
+                            darkThemeState = DarkThemeState.OFF
                         ),
                 )
             }
