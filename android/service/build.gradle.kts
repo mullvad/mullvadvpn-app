@@ -56,12 +56,12 @@ android {
 
 dependencies {
     implementation(project(Dependencies.Mullvad.commonLib))
-    implementation(project(Dependencies.Mullvad.endpointLib))
-    implementation(project(Dependencies.Mullvad.modelLib))
-    implementation(project(Dependencies.Mullvad.talpidLib))
     implementation(project(Dependencies.Mullvad.daemonGrpc))
-    implementation(project(Dependencies.Mullvad.sharedLib))
+    implementation(project(Dependencies.Mullvad.endpointLib))
     implementation(project(Dependencies.Mullvad.intentLib))
+    implementation(project(Dependencies.Mullvad.modelLib))
+    implementation(project(Dependencies.Mullvad.sharedLib))
+    implementation(project(Dependencies.Mullvad.talpidLib))
 
     implementation(Dependencies.jodaTime)
     implementation(Dependencies.AndroidX.lifecycleService)
