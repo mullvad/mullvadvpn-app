@@ -56,8 +56,8 @@ protobuf {
 }
 
 dependencies {
-    implementation(project(Dependencies.Mullvad.modelLib))
     implementation(project(Dependencies.Mullvad.commonLib))
+    implementation(project(Dependencies.Mullvad.modelLib))
     implementation(project(Dependencies.Mullvad.talpidLib))
 
     implementation(Dependencies.jodaTime)
