@@ -359,7 +359,9 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        nil
+        let view = UIView()
+        view.backgroundColor = tableView.backgroundColor
+        return view
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -370,7 +372,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             return 0
 
         default:
-            return UITableView.automaticDimension
+            return tableView.estimatedRowHeight
         }
     }
 
@@ -380,7 +382,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         return switch sectionIdentifier {
         // 0 due to there already being a separator between .dnsSettings and .ipOverrides.
         case .dnsSettings: 0
-        case .ipOverrides: 10
+        case .ipOverrides: UIMetrics.TableView.sectionSpacing
         default: 0.5
         }
     }
