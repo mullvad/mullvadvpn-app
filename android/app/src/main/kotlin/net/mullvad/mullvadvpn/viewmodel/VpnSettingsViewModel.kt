@@ -274,7 +274,7 @@ class VpnSettingsViewModel(
     private fun Settings.quantumResistant() = tunnelOptions.wireguard.quantumResistant
 
     private fun Settings.isCustomDnsEnabled() =
-        tunnelOptions.dnsOptions.currentDnsOption == DnsState.Custom
+        tunnelOptions.dnsOptions.state == DnsState.Custom
 
     private fun Settings.addresses() = tunnelOptions.dnsOptions.customOptions.addresses
 
