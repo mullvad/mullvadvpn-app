@@ -1,10 +1,7 @@
 package net.mullvad.mullvadvpn.model
 
-import android.os.Parcelable
 import arrow.optics.optics
-import kotlinx.parcelize.Parcelize
 
-@Parcelize
 @optics
 data class DefaultDnsOptions(
     val blockAds: Boolean = false,
@@ -13,7 +10,7 @@ data class DefaultDnsOptions(
     val blockAdultContent: Boolean = false,
     val blockGambling: Boolean = false,
     val blockSocialMedia: Boolean = false,
-) : Parcelable {
+) {
     fun isAnyBlockerEnabled(): Boolean {
         return blockAds ||
             blockTrackers ||

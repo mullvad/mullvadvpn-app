@@ -1,9 +1,5 @@
 package net.mullvad.mullvadvpn.model
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
-
-@Parcelize
-enum class ObfuscationType : Parcelable {
+enum class ObfuscationType {
     Udp2Tcp
 }
