@@ -45,12 +45,6 @@ android {
         }
     }
 
-    packagingOptions {
-        this.excludes.add("META-INF/*")
-        resources { excludes.add("META-INF/*") }
-    }
-    packaging { resources { excludes.add("META-INF/*") } }
-
     buildFeatures { buildConfig = true }
 }
 
