@@ -307,20 +307,19 @@ afterEvaluate {
 play { serviceAccountCredentials.set(file("play-api-key.json")) }
 
 dependencies {
-    implementation(project(Dependencies.Mullvad.daemonGrpc))
-    implementation(project(Dependencies.Mullvad.vpnService))
-    implementation(project(Dependencies.Mullvad.tileService))
-
     implementation(project(Dependencies.Mullvad.commonLib))
+    implementation(project(Dependencies.Mullvad.daemonGrpc))
     implementation(project(Dependencies.Mullvad.endpointLib))
-    implementation(project(Dependencies.Mullvad.modelLib))
-    implementation(project(Dependencies.Mullvad.resourceLib))
-    implementation(project(Dependencies.Mullvad.talpidLib))
-    implementation(project(Dependencies.Mullvad.themeLib))
-    implementation(project(Dependencies.Mullvad.paymentLib))
-    implementation(project(Dependencies.Mullvad.mapLib))
-    implementation(project(Dependencies.Mullvad.sharedLib))
     implementation(project(Dependencies.Mullvad.intentLib))
+    implementation(project(Dependencies.Mullvad.mapLib))
+    implementation(project(Dependencies.Mullvad.modelLib))
+    implementation(project(Dependencies.Mullvad.paymentLib))
+    implementation(project(Dependencies.Mullvad.resourceLib))
+    implementation(project(Dependencies.Mullvad.sharedLib))
+    implementation(project(Dependencies.Mullvad.talpidLib))
+    implementation(project(Dependencies.Mullvad.tileService))
+    implementation(project(Dependencies.Mullvad.themeLib))
+    implementation(project(Dependencies.Mullvad.vpnService))
 
     // Play implementation
     playImplementation(project(Dependencies.Mullvad.billingLib))

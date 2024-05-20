@@ -27,9 +27,9 @@ android {
 }
 
 dependencies {
-    implementation(project(Dependencies.Mullvad.modelLib))
-    implementation(project(Dependencies.Mullvad.daemonGrpc))
     implementation(project(Dependencies.Mullvad.commonLib))
+    implementation(project(Dependencies.Mullvad.daemonGrpc))
+    implementation(project(Dependencies.Mullvad.modelLib))
 
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
