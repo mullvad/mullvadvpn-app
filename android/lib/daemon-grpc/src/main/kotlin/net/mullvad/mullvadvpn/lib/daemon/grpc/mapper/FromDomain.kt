@@ -42,7 +42,7 @@ internal fun Constraint<Providers>.fromDomain(): List<String> =
 
 internal fun DnsOptions.fromDomain(): ManagementInterface.DnsOptions =
     ManagementInterface.DnsOptions.newBuilder()
-        .setState(currentDnsOption.fromDomain())
+        .setState(state.fromDomain())
         .setCustomOptions(customOptions.fromDomain())
         .setDefaultOptions(defaultOptions.fromDomain())
         .build()
