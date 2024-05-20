@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,8 +31,11 @@ import com.ramcosta.composedestinations.generated.destinations.VpnSettingsDestin
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.DefaultExternalLinkView
+import net.mullvad.mullvadvpn.compose.cell.HeaderCell
+import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NavigationCellBody
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
+import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackDownIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
@@ -108,7 +112,13 @@ fun SettingsScreen(
             state = lazyListState
         ) {
             item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
+            item {
+                MaterialYou(state = state, onUseMaterialYouThemeClick = onUseMaterialYouThemeClick)
+            }
+            item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
+            item { DarkTheme(state = state, onDarkThemeStateSelected = onDarkThemeStateSelected) }
             if (state.isLoggedIn) {
+                item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }
                 item {
                     NavigationComposeCell(
                         title = stringResource(id = R.string.settings_vpn),
@@ -217,8 +227,8 @@ private fun FaqAndGuides(context: Context) {
         bodyView =
             @Composable {
                 DefaultExternalLinkView(
-                    faqGuideLabel,
-                    ColorFilter.tint(MaterialTheme.colorScheme.onSecondary)
+                    chevronContentDescription = faqGuideLabel,
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSecondary)
                 )
             },
         onClick = {
@@ -249,4 +259,40 @@ private fun PrivacyPolicy(context: Context, state: SettingsUiState) {
             )
         }
     )
+}
+
+@Composable
+private fun MaterialYou(state: SettingsUiState, onUseMaterialYouThemeClick: (Boolean) -> Unit) {
+    HeaderSwitchComposeCell(
+        title = stringResource(id = R.string.use_material_you),
+        isToggled = state.isMaterialYouTheme,
+        onCellClicked = onUseMaterialYouThemeClick
+    )
+}
+
+@Composable
+private fun DarkTheme(
+    state: SettingsUiState,
+    onDarkThemeStateSelected: (DarkThemeState) -> Unit = {}
+) {
+    Column {
+        HeaderCell(
+            text = stringResource(id = R.string.use_dark_theme),
+        )
+        SelectableCell(
+            title = stringResource(id = R.string.use_system_setting),
+            isSelected = state.darkThemeState == DarkThemeState.SYSTEM,
+            onCellClicked = { onDarkThemeStateSelected(DarkThemeState.SYSTEM) }
+        )
+        SelectableCell(
+            title = stringResource(id = R.string.on),
+            isSelected = state.darkThemeState == DarkThemeState.ON,
+            onCellClicked = { onDarkThemeStateSelected(DarkThemeState.ON) }
+        )
+        SelectableCell(
+            title = stringResource(id = R.string.off),
+            isSelected = state.darkThemeState == DarkThemeState.OFF,
+            onCellClicked = { onDarkThemeStateSelected(DarkThemeState.OFF) }
+        )
+    }
 }
