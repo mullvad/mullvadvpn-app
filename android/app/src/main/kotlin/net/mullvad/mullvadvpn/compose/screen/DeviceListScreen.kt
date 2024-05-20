@@ -101,7 +101,11 @@ private fun PreviewDeviceListLoading() {
 @Composable
 @Preview
 private fun PreviewDeviceListError() {
-    AppTheme { DeviceListScreen(state = DeviceListUiState.Error(GetDeviceListError.Unknown(null))) }
+    AppTheme {
+        DeviceListScreen(
+            state = DeviceListUiState.Error(GetDeviceListError.Unknown(IllegalStateException()))
+        )
+    }
 }
 
 @Destination(style = DefaultTransition::class)
