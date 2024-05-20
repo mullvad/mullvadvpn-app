@@ -1,14 +1,13 @@
 @file:Suppress("TooManyFunctions")
+package net.mullvad.mullvadvpn.lib.daemon.grpc.mapper
 
-package net.mullvad.mullvadvpn.lib.daemon.grpc
-
-import android.net.Uri
-import com.google.protobuf.UInt32Value
 import io.grpc.ConnectivityState
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.util.UUID
 import mullvad_daemon.management_interface.ManagementInterface
+import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
+import net.mullvad.mullvadvpn.lib.daemon.grpc.RelayNameComparator
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.AccountId
 import net.mullvad.mullvadvpn.model.AccountToken
@@ -38,7 +37,6 @@ import net.mullvad.mullvadvpn.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.model.ObfuscationType
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.ParameterGenerationError
-import net.mullvad.mullvadvpn.model.PlayPurchase
 import net.mullvad.mullvadvpn.model.PlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.PortRange
@@ -116,21 +114,21 @@ internal fun ManagementInterface.GeoIpLocation.toDomain(): GeoIpLocation =
     GeoIpLocation(
         ipv4 =
             if (hasIpv4()) {
-                InetAddress.getByName(this.ipv4)
+                InetAddress.getByName(ipv4)
             } else {
                 null
             },
         ipv6 =
             if (hasIpv6()) {
-                InetAddress.getByName(this.ipv6)
+                InetAddress.getByName(ipv6)
             } else {
                 null
             },
-        country = this.country,
-        city = this.city,
-        latitude = this.latitude,
-        longitude = this.longitude,
-        hostname = this.hostname
+        country = country,
+        city = city,
+        latitude = latitude,
+        longitude = longitude,
+        hostname = hostname
     )
 
 internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
@@ -144,10 +142,10 @@ internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
 
                 Endpoint(
                     address = InetSocketAddress(InetAddress.getByName(ipPart), portPart.toInt()),
-                    protocol = this@toDomain.protocol.toDomain()
+                    protocol = protocol.toDomain()
                 )
             },
-        quantumResistant = this.quantumResistant,
+        quantumResistant = quantumResistant,
         obfuscation =
             if (hasObfuscation()) {
                 obfuscation.toDomain()
@@ -159,11 +157,8 @@ internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
 internal fun ManagementInterface.ObfuscationEndpoint.toDomain(): ObfuscationEndpoint =
     ObfuscationEndpoint(
         endpoint =
-            Endpoint(
-                address = InetSocketAddress(address, port),
-                protocol = this.protocol.toDomain()
-            ),
-        obfuscationType = this.obfuscationType.toDomain()
+            Endpoint(address = InetSocketAddress(address, port), protocol = protocol.toDomain()),
+        obfuscationType = obfuscationType.toDomain()
     )
 
 internal fun ManagementInterface.ObfuscationType.toDomain(): ObfuscationType =
@@ -172,12 +167,6 @@ internal fun ManagementInterface.ObfuscationType.toDomain(): ObfuscationType =
         ManagementInterface.ObfuscationType.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized obfuscation type")
     }
-
-internal fun ManagementInterface.Endpoint.toDomain(): Endpoint =
-    Endpoint(
-        address = with(Uri.parse(this.address)) { InetSocketAddress(host, port) },
-        protocol = this.protocol.toDomain()
-    )
 
 internal fun ManagementInterface.TransportProtocol.toDomain(): TransportProtocol =
     when (this) {
@@ -220,11 +209,11 @@ internal fun ManagementInterface.ErrorState.toDomain(): ErrorState =
                 ManagementInterface.ErrorState.Cause.CREATE_TUNNEL_DEVICE ->
                     throw IllegalArgumentException("Unrecognized error state cause")
             },
-        isBlocking = !this.hasBlockingError()
+        isBlocking = !hasBlockingError()
     )
 
 internal fun ManagementInterface.ErrorState.FirewallPolicyError.toDomain(): FirewallPolicyError =
-    when (this.type!!) {
+    when (type!!) {
         ManagementInterface.ErrorState.FirewallPolicyError.ErrorType.GENERIC ->
             FirewallPolicyError.Generic
         ManagementInterface.ErrorState.FirewallPolicyError.ErrorType.LOCKED,
@@ -270,8 +259,7 @@ internal fun ManagementInterface.RelaySettings.toDomain(): RelaySettings =
     when (endpointCase) {
         ManagementInterface.RelaySettings.EndpointCase.CUSTOM ->
             throw IllegalArgumentException("CustomTunnelEndpoint is not supported")
-        ManagementInterface.RelaySettings.EndpointCase.NORMAL ->
-            RelaySettings(this.normal.toDomain())
+        ManagementInterface.RelaySettings.EndpointCase.NORMAL -> RelaySettings(normal.toDomain())
         ManagementInterface.RelaySettings.EndpointCase.ENDPOINT_NOT_SET ->
             throw IllegalArgumentException("RelaySettings endpoint not set")
         else -> throw NullPointerException("RelaySettings endpoint is null")
@@ -295,21 +283,6 @@ internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<Relay
         else -> throw IllegalArgumentException("Location constraint type is null")
     }
 
-internal fun Constraint<RelayItemId>.fromDomain(): ManagementInterface.LocationConstraint =
-    ManagementInterface.LocationConstraint.newBuilder()
-        .apply {
-            when (this@fromDomain) {
-                is Constraint.Any -> {}
-                is Constraint.Only -> {
-                    when (val relayItemId = value) {
-                        is CustomListId -> setCustomList(relayItemId.value)
-                        is GeoLocationId -> setLocation(relayItemId.fromDomain())
-                    }
-                }
-            }
-        }
-        .build()
-
 @Suppress("ReturnCount")
 internal fun ManagementInterface.GeographicLocationConstraint.toDomain(): GeoLocationId {
     val country = GeoLocationId.Country(country)
@@ -325,14 +298,7 @@ internal fun ManagementInterface.GeographicLocationConstraint.toDomain(): GeoLoc
 }
 
 internal fun List<String>.toDomain(): Constraint<Providers> =
-    if (isEmpty()) Constraint.Any
-    else Constraint.Only(Providers(this.map { ProviderId(it) }.toSet()))
-
-internal fun Constraint<Providers>.fromDomain(): List<String> =
-    when (this) {
-        is Constraint.Any -> emptyList()
-        is Constraint.Only -> value.providers.map { it.value }
-    }
+    if (isEmpty()) Constraint.Any else Constraint.Only(Providers(map { ProviderId(it) }.toSet()))
 
 internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConstraints =
     WireguardConstraints(
@@ -356,7 +322,7 @@ internal fun ManagementInterface.Ownership.toDomain(): Constraint<Ownership> =
 internal fun ManagementInterface.ObfuscationSettings.toDomain(): ObfuscationSettings =
     ObfuscationSettings(
         selectedObfuscation = selectedObfuscation.toDomain(),
-        udp2tcp = this.udp2Tcp.toDomain()
+        udp2tcp = udp2Tcp.toDomain()
     )
 
 internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomain():
@@ -371,7 +337,7 @@ internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomai
     }
 
 internal fun ManagementInterface.Udp2TcpObfuscationSettings.toDomain(): Udp2TcpObfuscationSettings =
-    if (this.hasPort()) {
+    if (hasPort()) {
         Udp2TcpObfuscationSettings(Constraint.Only(Port(port)))
     } else {
         Udp2TcpObfuscationSettings(Constraint.Any)
@@ -390,7 +356,7 @@ internal fun ManagementInterface.TunnelOptions.toDomain(): TunnelOptions =
 internal fun ManagementInterface.TunnelOptions.WireguardOptions.toDomain(): WireguardTunnelOptions =
     WireguardTunnelOptions(
         mtu = if (hasMtu()) Mtu(mtu) else null,
-        quantumResistant = this.quantumResistant.toDomain(),
+        quantumResistant = quantumResistant.toDomain(),
     )
 
 internal fun ManagementInterface.QuantumResistantState.toDomain(): QuantumResistantState =
@@ -405,7 +371,7 @@ internal fun ManagementInterface.QuantumResistantState.toDomain(): QuantumResist
 
 internal fun ManagementInterface.DnsOptions.toDomain(): DnsOptions =
     DnsOptions(
-        currentDnsOption = this.state.toDomain(),
+        currentDnsOption = state.toDomain(),
         defaultOptions = defaultOptions.toDomain(),
         customOptions = customOptions.toDomain()
     )
@@ -429,35 +395,7 @@ internal fun ManagementInterface.DefaultDnsOptions.toDomain() =
     )
 
 internal fun ManagementInterface.CustomDnsOptions.toDomain() =
-    CustomDnsOptions(this.addressesList.map { InetAddress.getByName(it) })
-
-internal fun DnsOptions.fromDomain(): ManagementInterface.DnsOptions =
-    ManagementInterface.DnsOptions.newBuilder()
-        .setState(this.currentDnsOption.fromDomain())
-        .setCustomOptions(this.customOptions.fromDomain())
-        .setDefaultOptions(this.defaultOptions.fromDomain())
-        .build()
-
-internal fun DnsState.fromDomain(): ManagementInterface.DnsOptions.DnsState =
-    when (this) {
-        DnsState.Default -> ManagementInterface.DnsOptions.DnsState.DEFAULT
-        DnsState.Custom -> ManagementInterface.DnsOptions.DnsState.CUSTOM
-    }
-
-internal fun CustomDnsOptions.fromDomain(): ManagementInterface.CustomDnsOptions =
-    ManagementInterface.CustomDnsOptions.newBuilder()
-        .addAllAddresses(this.addresses.map { it.hostAddress })
-        .build()
-
-internal fun DefaultDnsOptions.fromDomain(): ManagementInterface.DefaultDnsOptions =
-    ManagementInterface.DefaultDnsOptions.newBuilder()
-        .setBlockAds(blockAds)
-        .setBlockGambling(blockGambling)
-        .setBlockMalware(blockMalware)
-        .setBlockTrackers(blockTrackers)
-        .setBlockAdultContent(blockAdultContent)
-        .setBlockSocialMedia(blockSocialMedia)
-        .build()
+    CustomDnsOptions(addressesList.map { InetAddress.getByName(it) })
 
 internal fun QuantumResistantState.toDomain(): ManagementInterface.QuantumResistantState =
     ManagementInterface.QuantumResistantState.newBuilder()
@@ -470,12 +408,6 @@ internal fun QuantumResistantState.toDomain(): ManagementInterface.QuantumResist
         )
         .build()
 
-internal fun ObfuscationSettings.fromDomain(): ManagementInterface.ObfuscationSettings =
-    ManagementInterface.ObfuscationSettings.newBuilder()
-        .setSelectedObfuscation(this.selectedObfuscation.toDomain())
-        .setUdp2Tcp(this.udp2tcp.toDomain())
-        .build()
-
 internal fun SelectedObfuscation.toDomain():
     ManagementInterface.ObfuscationSettings.SelectedObfuscation =
     when (this) {
@@ -486,7 +418,7 @@ internal fun SelectedObfuscation.toDomain():
     }
 
 internal fun Udp2TcpObfuscationSettings.toDomain(): ManagementInterface.Udp2TcpObfuscationSettings =
-    when (val port = this.port) {
+    when (val port = port) {
         is Constraint.Any ->
             ManagementInterface.Udp2TcpObfuscationSettings.newBuilder().clearPort().build()
         is Constraint.Only ->
@@ -497,7 +429,7 @@ internal fun Udp2TcpObfuscationSettings.toDomain(): ManagementInterface.Udp2TcpO
 
 internal fun ManagementInterface.AppVersionInfo.toDomain(): AppVersionInfo =
     AppVersionInfo(
-        supported = this.supported,
+        supported = supported,
         suggestedUpgrade = if (hasSuggestedUpgrade()) suggestedUpgrade else null
     )
 
@@ -510,37 +442,6 @@ internal fun ConnectivityState.toDomain(): GrpcConnectivityState =
         ConnectivityState.SHUTDOWN -> GrpcConnectivityState.Shutdown
     }
 
-internal fun RelayItemId.fromDomain(): ManagementInterface.LocationConstraint =
-    when (this) {
-        is CustomListId ->
-            ManagementInterface.LocationConstraint.newBuilder().setCustomList(this.value).build()
-        is GeoLocationId ->
-            ManagementInterface.LocationConstraint.newBuilder()
-                .setLocation(this.fromDomain())
-                .build()
-    }
-
-internal fun GeoLocationId.fromDomain(): ManagementInterface.GeographicLocationConstraint =
-    ManagementInterface.GeographicLocationConstraint.newBuilder()
-        .apply {
-            when (val id = this@fromDomain) {
-                is GeoLocationId.Country -> setCountry(id.countryCode)
-                is GeoLocationId.City -> setCountry(id.countryCode.countryCode).setCity(id.cityCode)
-                is GeoLocationId.Hostname ->
-                    setCountry(id.country.countryCode)
-                        .setCity(id.city.cityCode)
-                        .setHostname(id.hostname)
-            }
-        }
-        .build()
-
-internal fun CustomList.fromDomain(): ManagementInterface.CustomList =
-    ManagementInterface.CustomList.newBuilder()
-        .setId(this.id.value)
-        .setName(this.name.value)
-        .addAllLocations(this.locations.map { it.fromDomain() })
-        .build()
-
 internal fun ManagementInterface.RelayList.toDomain(): RelayList =
     RelayList(countriesList.toDomain(), wireguard.toDomain())
 
@@ -548,15 +449,6 @@ internal fun ManagementInterface.WireguardEndpointData.toDomain(): WireguardEndp
     WireguardEndpointData(portRangesList.map { it.toDomain() })
 
 internal fun ManagementInterface.PortRange.toDomain(): PortRange = PortRange(first..last)
-
-internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardConstraints =
-    when (this.port) {
-        is Constraint.Any -> ManagementInterface.WireguardConstraints.newBuilder().build()
-        is Constraint.Only ->
-            ManagementInterface.WireguardConstraints.newBuilder()
-                .setPort((this.port as Constraint.Only<Port>).value.value)
-                .build()
-    }
 
 /**
  * Convert from a list of ManagementInterface.RelayListCountry to a model.RelayList. Non-wireguard
@@ -635,44 +527,18 @@ internal fun List<ManagementInterface.RelayListCountry>.toDomain():
     return relayCountries.toList()
 }
 
-internal fun Ownership.fromDomain(): ManagementInterface.Ownership =
-    when (this) {
-        Ownership.MullvadOwned -> ManagementInterface.Ownership.MULLVAD_OWNED
-        Ownership.Rented -> ManagementInterface.Ownership.RENTED
-    }
-
 internal fun ManagementInterface.Device.toDomain(): Device =
     Device(DeviceId.fromString(id), name, Instant.ofEpochSecond(created.seconds).toDateTime())
 
 internal fun ManagementInterface.DeviceState.toDomain(): DeviceState =
     when (state) {
         ManagementInterface.DeviceState.State.LOGGED_IN ->
-            DeviceState.LoggedIn(AccountToken(this.device.accountToken), device.device.toDomain())
+            DeviceState.LoggedIn(AccountToken(device.accountToken), device.device.toDomain())
         ManagementInterface.DeviceState.State.LOGGED_OUT -> DeviceState.LoggedOut
         ManagementInterface.DeviceState.State.REVOKED -> DeviceState.Revoked
         ManagementInterface.DeviceState.State.UNRECOGNIZED ->
             throw IllegalArgumentException("Non valid device state")
         else -> throw NullPointerException("Device state is null")
-    }
-
-internal fun RelaySettings.fromDomain(): ManagementInterface.RelaySettings =
-    ManagementInterface.RelaySettings.newBuilder()
-        .setNormal(
-            ManagementInterface.NormalRelaySettings.newBuilder()
-                .setTunnelType(ManagementInterface.TunnelType.WIREGUARD)
-                .setWireguardConstraints(relayConstraints.wireguardConstraints.fromDomain())
-                .setOpenvpnConstraints(ManagementInterface.OpenvpnConstraints.getDefaultInstance())
-                .setLocation(this@fromDomain.relayConstraints.location.fromDomain())
-                .setOwnership(relayConstraints.ownership.fromDomain())
-                .addAllProviders(relayConstraints.providers.fromDomain())
-                .build()
-        )
-        .build()
-
-internal fun Constraint<Ownership>.fromDomain(): ManagementInterface.Ownership =
-    when (this) {
-        Constraint.Any -> ManagementInterface.Ownership.ANY
-        is Constraint.Only -> value.fromDomain()
     }
 
 internal fun ManagementInterface.AccountData.toDomain(): AccountData =
@@ -694,22 +560,6 @@ internal fun ManagementInterface.SplitTunnelSettings.toDomain(): SplitTunnelSett
     )
 
 internal fun ManagementInterface.PlayPurchasePaymentToken.toDomain(): PlayPurchasePaymentToken =
-    PlayPurchasePaymentToken(value = this.token)
-
-internal fun PlayPurchasePaymentToken.fromDomain(): ManagementInterface.PlayPurchasePaymentToken =
-    ManagementInterface.PlayPurchasePaymentToken.newBuilder()
-        .setToken(
-            value,
-        )
-        .build()
-
-internal fun PlayPurchase.fromDomain(): ManagementInterface.PlayPurchase =
-    ManagementInterface.PlayPurchase.newBuilder()
-        .setPurchaseToken(purchaseToken.fromDomain())
-        .setProductId(productId)
-        .build()
+    PlayPurchasePaymentToken(value = token)
 
 internal fun String.toDomain(): WwwAuthToken = WwwAuthToken(this)
-
-internal fun Int?.fromDomain(): UInt32Value =
-    UInt32Value.newBuilder().apply { this@fromDomain?.let { setValue(it) } ?: clearValue() }.build()
