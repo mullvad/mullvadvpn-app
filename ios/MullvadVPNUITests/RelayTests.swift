@@ -26,19 +26,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
         }
     }
 
-    func testQQQQQQQQAppConnection() throws {
-        TunnelControlPage(app)
-            .tapSecureConnectionButton()
-
-        allowAddVPNConfigurationsIfAsked()
-
-        TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
-
-        try Networking.verifyCanAccessInternet()
-        try Networking.verifyConnectedThroughMullvad()
-    }
-
     func testAdBlockingViaDNS() throws {
         // Undo enabling block ads in teardown
         addTeardownBlock {
@@ -302,5 +289,18 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapDoneButton()
 
         try Networking.verifyDNSServerProvider(dnsServerProviderName, isMullvad: false)
+    }
+
+    func testQQQQQQQQAppConnection() throws {
+        TunnelControlPage(app)
+            .tapSecureConnectionButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForSecureConnectionLabel()
+
+        try Networking.verifyCanAccessInternet()
+        try Networking.verifyConnectedThroughMullvad()
     }
 }
