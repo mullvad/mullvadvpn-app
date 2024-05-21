@@ -12,12 +12,12 @@ value class Mtu(val value: Int) : Parcelable {
     companion object {
         fun fromString(value: String): Either<ParseMtuError, Mtu> = either {
             val number = value.toIntOrNull() ?: raise(ParseMtuError.NotANumber)
-            ensure(number in MIN_MTU..MAX_MTU) { ParseMtuError.OutOfRange(number) }
+            ensure(number in MIN_VALUE..MAX_VALUE) { ParseMtuError.OutOfRange(number) }
             Mtu(number)
         }
 
-        const val MIN_MTU = 1280
-        const val MAX_MTU = 1420
+        private const val MIN_VALUE = 1280
+        private const val MAX_VALUE = 1420
     }
 }
 
