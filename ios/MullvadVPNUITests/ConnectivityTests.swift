@@ -70,7 +70,7 @@ class ConnectivityTests: LoggedOutUITestCase {
 
             // Reset selected location to Sweden
             SelectLocationPage(self.app)
-                .tapLocationCell(withName: "Sweden")
+                .tapLocationCell(withName: BaseUITestCase.defaultCountry)
 
             self.allowAddVPNConfigurationsIfAsked()
 

@@ -9,11 +9,6 @@
 import Foundation
 import XCTest
 
-private struct RelayInfo {
-    var name: String
-    var ipAddress: String
-}
-
 class RelayTests: LoggedInWithTimeUITestCase {
     var removeFirewallRulesInTearDown = false
 
@@ -98,26 +93,25 @@ class RelayTests: LoggedInWithTimeUITestCase {
                 .tapSelectLocationButton()
 
             SelectLocationPage(self.app)
-                .tapLocationCell(withName: "Sweden")
+                .tapLocationCell(withName: BaseUITestCase.defaultCountry)
 
             TunnelControlPage(self.app)
                 .tapCancelOrDisconnectButton()
         }
 
         // First get relay IP address
-        let relayInfo = getGothenburgRelayInfo()
+        let relayIPAddress = getDefaultRelayIPAddress()
 
         // Run actual test
         try FirewallAPIClient().createRule(
-            FirewallRule.makeBlockAllTrafficRule(toIPAddress: relayInfo.ipAddress)
+            FirewallRule.makeBlockAllTrafficRule(toIPAddress: relayIPAddress)
         )
 
         TunnelControlPage(app)
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
-            .tapLocationCellExpandButton(withName: "Gothenburg")
-            .tapLocationCell(withName: relayInfo.name)
+            .tapLocationCell(withName: BaseUITestCase.defaultRelay)
 
         // Should be two UDP connection attempts but sometimes only one is shown in the UI
         TunnelControlPage(app)
@@ -176,18 +170,18 @@ class RelayTests: LoggedInWithTimeUITestCase {
                 .tapSelectLocationButton()
 
             SelectLocationPage(self.app)
-                .tapLocationCell(withName: "Sweden")
+                .tapLocationCell(withName: BaseUITestCase.defaultCountry)
 
             TunnelControlPage(self.app)
                 .tapCancelOrDisconnectButton()
         }
 
         // First get relay IP address
-        let relayInfo = getGothenburgRelayInfo()
+        let relayIPAddress = getDefaultRelayIPAddress()
 
         // Run actual test
         try FirewallAPIClient().createRule(
-            FirewallRule.makeBlockUDPTrafficRule(toIPAddress: relayInfo.ipAddress)
+            FirewallRule.makeBlockUDPTrafficRule(toIPAddress: relayIPAddress)
         )
 
         HeaderBar(app)
@@ -208,8 +202,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
-            .tapLocationCellExpandButton(withName: "Gothenburg")
-            .tapLocationCell(withName: relayInfo.name)
+            .tapLocationCell(withName: BaseUITestCase.defaultRelay)
 
         // Should be two UDP connection attempts but sometimes only one is shown in the UI
         TunnelControlPage(app)
@@ -248,18 +241,19 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     /// Get Gothenburg relay IP address and name  by connecting to any Gothenburg relay  and checking relay and IP address the app connects to. Assumes user is logged on and at tunnel control page.
-    private func getGothenburgRelayInfo() -> RelayInfo {
+    private func getDefaultRelayIPAddress() -> String {
         TunnelControlPage(app)
             .tapSelectLocationButton()
 
-        if SelectLocationPage(app).locationCellIsExpanded("Sweden") {
+        if SelectLocationPage(app).locationCellIsExpanded(BaseUITestCase.defaultCountry) {
             // Already expanded - just make sure the correct city cell is selected
             SelectLocationPage(app)
-                .tapLocationCell(withName: "Gothenburg")
+                .tapLocationCell(withName: BaseUITestCase.defaultCity)
         } else {
             SelectLocationPage(app)
-                .tapLocationCellExpandButton(withName: "Sweden")
-                .tapLocationCell(withName: "Gothenburg")
+                .tapLocationCellExpandButton(withName: BaseUITestCase.defaultCountry)
+                .tapLocationCellExpandButton(withName: BaseUITestCase.defaultCity)
+                .tapLocationCell(withName: BaseUITestCase.defaultRelay)
         }
 
         allowAddVPNConfigurationsIfAsked()
@@ -269,12 +263,10 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapRelayStatusExpandCollapseButton()
             .getInIPAddressFromConnectionStatus()
 
-        let relayName = TunnelControlPage(app).getCurrentRelayName()
-
         TunnelControlPage(app)
             .tapDisconnectButton()
 
-        return RelayInfo(name: relayName, ipAddress: relayIPAddress)
+        return relayIPAddress
     }
 
     func testCustomDNS() throws {

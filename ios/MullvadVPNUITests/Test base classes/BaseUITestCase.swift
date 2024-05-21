@@ -17,6 +17,15 @@ class BaseUITestCase: XCTestCase {
     static let extremelyLongTimeout = 180.0
     static let shortTimeout = 1.0
 
+    /// Default country to use in tests. This should be same as the app's default country.
+    static let defaultCountry = "Sweden"
+
+    /// Default city to use in tests
+    static let defaultCity = "Gothenburg"
+
+    /// Default relay to use in tests
+    static let defaultRelay = "se-got-wg-001"
+
     // swiftlint:disable force_cast
     let displayName = Bundle(for: BaseUITestCase.self)
         .infoDictionary?["DisplayName"] as! String
@@ -176,10 +185,9 @@ class BaseUITestCase: XCTestCase {
 
     func agreeToTermsOfServiceIfShown() {
         let termsOfServiceIsShown = app.otherElements[
-            AccessibilityIdentifier
-                .termsOfServiceView.rawValue
+            .termsOfServiceView
         ]
-        .waitForExistence(timeout: 1)
+            .waitForExistence(timeout: Self.shortTimeout)
 
         if termsOfServiceIsShown {
             TermsOfServicePage(app)
@@ -189,8 +197,8 @@ class BaseUITestCase: XCTestCase {
 
     func dismissChangeLogIfShown() {
         let changeLogIsShown = app
-            .otherElements[AccessibilityIdentifier.changeLogAlert.rawValue]
-            .waitForExistence(timeout: 1.0)
+            .otherElements[.changeLogAlert]
+            .waitForExistence(timeout: Self.shortTimeout)
 
         if changeLogIsShown {
             ChangeLogAlert(app)
