@@ -7,7 +7,8 @@ import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 sealed interface DeviceListUiState {
     data object Loading : DeviceListUiState
 
-    data class Error(val error: net.mullvad.mullvadvpn.lib.model.GetDeviceListError) : DeviceListUiState
+    data class Error(val error: net.mullvad.mullvadvpn.lib.model.GetDeviceListError) :
+        DeviceListUiState
 
     data class Content(
         val devices: List<Device>,

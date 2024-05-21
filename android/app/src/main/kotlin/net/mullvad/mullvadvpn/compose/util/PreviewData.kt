@@ -73,11 +73,18 @@ fun generateRelayItemRelay(
 private fun String.generateCountryCode() =
     net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country((take(1) + takeLast(1)).lowercase())
 
-private fun String.generateCityCode(countryCode: net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country) =
-    net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(countryCode, take(CITY_CODE_LENGTH).lowercase())
+private fun String.generateCityCode(
+    countryCode: net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country
+) =
+    net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(
+        countryCode,
+        take(CITY_CODE_LENGTH).lowercase()
+    )
 
-private fun generateHostname(city: net.mullvad.mullvadvpn.lib.model.GeoLocationId.City, index: Int) =
-    "${city.countryCode.countryCode}-${city.cityCode}-wg-${index+1}"
+private fun generateHostname(
+    city: net.mullvad.mullvadvpn.lib.model.GeoLocationId.City,
+    index: Int
+) = "${city.countryCode.countryCode}-${city.cityCode}-wg-${index+1}"
 
 private const val CITY_CODE_LENGTH = 3
 

@@ -140,7 +140,8 @@ class CustomListActionUseCaseTest {
     fun `delete action should return successful with deleted list`() = runTest {
         // Arrange
         val mockLocation: net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country = mockk()
-        val mockLocations: List<net.mullvad.mullvadvpn.lib.model.GeoLocationId> = listOf(mockLocation)
+        val mockLocations: List<net.mullvad.mullvadvpn.lib.model.GeoLocationId> =
+            listOf(mockLocation)
         val name = CustomListName.fromString("test")
         val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1")
         val mockCustomList = CustomList(id = customListId, name = name, locations = mockLocations)
@@ -166,9 +167,16 @@ class CustomListActionUseCaseTest {
     fun `update locations action should return success with changed locations`() = runTest {
         // Arrange
         val name = CustomListName.fromString("test")
-        val newLocations = listOf(net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("EF"), net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("GH"))
+        val newLocations =
+            listOf(
+                net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("EF"),
+                net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("GH")
+            )
         val oldLocations: ArrayList<net.mullvad.mullvadvpn.lib.model.GeoLocationId> =
-            arrayListOf(net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("AB"), net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("CD"))
+            arrayListOf(
+                net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("AB"),
+                net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("CD")
+            )
         val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1")
         val customList = CustomList(id = customListId, name = name, locations = oldLocations)
         val action = CustomListAction.UpdateLocations(id = customListId, locations = newLocations)

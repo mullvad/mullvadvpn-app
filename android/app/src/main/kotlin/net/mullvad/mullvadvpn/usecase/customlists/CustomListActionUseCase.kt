@@ -140,7 +140,8 @@ sealed interface DeleteCustomListWithUndoError : CustomListActionError {
 }
 
 sealed interface RenameCustomListError : CustomListActionError {
-    data class NotFound(val id: net.mullvad.mullvadvpn.lib.model.CustomListId) : RenameCustomListError
+    data class NotFound(val id: net.mullvad.mullvadvpn.lib.model.CustomListId) :
+        RenameCustomListError
 
     data class NameAlreadyExists(val name: String) : RenameCustomListError
 

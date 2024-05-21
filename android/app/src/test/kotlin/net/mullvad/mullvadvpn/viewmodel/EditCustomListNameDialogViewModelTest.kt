@@ -84,7 +84,10 @@ class EditCustomListNameDialogViewModelTest {
             }
         }
 
-    private fun createViewModel(customListId: net.mullvad.mullvadvpn.lib.model.CustomListId, initialName: String) =
+    private fun createViewModel(
+        customListId: net.mullvad.mullvadvpn.lib.model.CustomListId,
+        initialName: String
+    ) =
         EditCustomListNameDialogViewModel(
             customListId = customListId,
             initialName = CustomListName.fromString(initialName),

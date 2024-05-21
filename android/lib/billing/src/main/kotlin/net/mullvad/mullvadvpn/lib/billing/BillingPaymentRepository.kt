@@ -15,14 +15,14 @@ import net.mullvad.mullvadvpn.lib.billing.extension.toPaymentStatus
 import net.mullvad.mullvadvpn.lib.billing.extension.toPurchaseResult
 import net.mullvad.mullvadvpn.lib.billing.model.BillingException
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
+import net.mullvad.mullvadvpn.lib.model.PlayPurchase
+import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
 import net.mullvad.mullvadvpn.lib.payment.ProductIds
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
-import net.mullvad.mullvadvpn.lib.model.PlayPurchase
-import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
 
 class BillingPaymentRepository(
     private val billingRepository: BillingRepository,

@@ -33,12 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisconnectButton
 import net.mullvad.mullvadvpn.lib.theme.color.onVariant
 import net.mullvad.mullvadvpn.lib.theme.color.variant
-import net.mullvad.mullvadvpn.lib.model.TunnelState
 
 @Composable
 fun ConnectionButton(

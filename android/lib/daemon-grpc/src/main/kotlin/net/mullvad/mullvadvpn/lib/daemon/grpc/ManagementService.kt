@@ -146,8 +146,10 @@ class ManagementService(
     private val _mutableVersionInfo = MutableStateFlow<ModelAppVersionInfo?>(null)
     val versionInfo: Flow<ModelAppVersionInfo> = _mutableVersionInfo.filterNotNull()
 
-    private val _mutableRelayList = MutableStateFlow<net.mullvad.mullvadvpn.lib.model.RelayList?>(null)
-    val relayList: Flow<net.mullvad.mullvadvpn.lib.model.RelayList> = _mutableRelayList.filterNotNull()
+    private val _mutableRelayList =
+        MutableStateFlow<net.mullvad.mullvadvpn.lib.model.RelayList?>(null)
+    val relayList: Flow<net.mullvad.mullvadvpn.lib.model.RelayList> =
+        _mutableRelayList.filterNotNull()
 
     val relayCountries: Flow<List<RelayItem.Location.Country>> =
         relayList.mapNotNull { it.countries }
@@ -205,7 +207,9 @@ class ManagementService(
             .map { it.toDomain() }
             .mapLeft { GetDeviceStateError.Unknown(it) }
 
-    suspend fun getDeviceList(token: AccountToken): Either<net.mullvad.mullvadvpn.lib.model.GetDeviceListError, List<Device>> =
+    suspend fun getDeviceList(
+        token: AccountToken
+    ): Either<net.mullvad.mullvadvpn.lib.model.GetDeviceListError, List<Device>> =
         Either.catch { grpc.listDevices(StringValue.of(token.value)) }
             .map { it.devicesList.map(ManagementInterface.Device::toDomain) }
             .mapLeft { net.mullvad.mullvadvpn.lib.model.GetDeviceListError.Unknown(it) }
@@ -269,7 +273,8 @@ class ManagementService(
         grpc.clearAccountHistory(Empty.getDefaultInstance())
     }
 
-    suspend fun getAccountHistory(): Either<net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError, AccountToken?> =
+    suspend fun getAccountHistory():
+        Either<net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError, AccountToken?> =
         Either.catch {
                 val history = grpc.getAccountHistory(Empty.getDefaultInstance())
                 if (history.hasToken()) {
@@ -424,7 +429,9 @@ class ManagementService(
             .mapLeft(UpdateCustomListError::Unknown)
             .mapEmpty()
 
-    suspend fun deleteCustomList(id: net.mullvad.mullvadvpn.lib.model.CustomListId): Either<DeleteCustomListError, Unit> =
+    suspend fun deleteCustomList(
+        id: net.mullvad.mullvadvpn.lib.model.CustomListId
+    ): Either<DeleteCustomListError, Unit> =
         Either.catch { grpc.deleteCustomList(StringValue.of(id.value)) }
             .mapLeft(DeleteCustomListError::Unknown)
             .mapEmpty()

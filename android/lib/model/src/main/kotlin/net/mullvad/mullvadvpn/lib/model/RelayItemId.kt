@@ -12,7 +12,8 @@ sealed interface RelayItemId : Parcelable {
 @optics
 @Parcelize
 @JvmInline
-value class CustomListId(val value: String) : net.mullvad.mullvadvpn.lib.model.RelayItemId, Parcelable {
+value class CustomListId(val value: String) :
+    net.mullvad.mullvadvpn.lib.model.RelayItemId, Parcelable {
     companion object
 }
 
@@ -26,15 +27,19 @@ sealed interface GeoLocationId : net.mullvad.mullvadvpn.lib.model.RelayItemId {
 
     @optics
     @Parcelize
-    data class City(val countryCode: net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country, val cityCode: String) :
-        net.mullvad.mullvadvpn.lib.model.GeoLocationId {
+    data class City(
+        val countryCode: net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country,
+        val cityCode: String
+    ) : net.mullvad.mullvadvpn.lib.model.GeoLocationId {
         companion object
     }
 
     @optics
     @Parcelize
-    data class Hostname(val city: net.mullvad.mullvadvpn.lib.model.GeoLocationId.City, val hostname: String) :
-        net.mullvad.mullvadvpn.lib.model.GeoLocationId {
+    data class Hostname(
+        val city: net.mullvad.mullvadvpn.lib.model.GeoLocationId.City,
+        val hostname: String
+    ) : net.mullvad.mullvadvpn.lib.model.GeoLocationId {
         companion object
     }
 

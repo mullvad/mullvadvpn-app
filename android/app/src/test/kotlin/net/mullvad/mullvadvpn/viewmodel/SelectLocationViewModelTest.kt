@@ -140,7 +140,8 @@ class SelectLocationViewModelTest {
     fun `on selectRelay call uiSideEffect should emit CloseScreen and connect`() = runTest {
         // Arrange
         val mockRelayItem: RelayItem.Location.Country = mockk()
-        val relayItemId: net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country = mockk(relaxed = true)
+        val relayItemId: net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country =
+            mockk(relaxed = true)
         every { mockRelayItem.id } returns relayItemId
         coEvery { mockRelayListRepository.updateSelectedRelayLocation(relayItemId) } returns
             Unit.right()

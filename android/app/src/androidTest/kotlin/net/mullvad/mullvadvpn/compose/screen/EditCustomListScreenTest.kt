@@ -119,7 +119,9 @@ class EditCustomListScreenTest {
     fun whenClickingOnNameCellShouldCallOnNameClicked() =
         composeExtension.use {
             // Arrange
-            val mockedOnNameClicked: (net.mullvad.mullvadvpn.lib.model.CustomListId, CustomListName) -> Unit = mockk(relaxed = true)
+            val mockedOnNameClicked:
+                (net.mullvad.mullvadvpn.lib.model.CustomListId, CustomListName) -> Unit =
+                mockk(relaxed = true)
             val customList = DUMMY_CUSTOM_LISTS[0]
             setContentWithTheme {
                 EditCustomListScreen(
@@ -144,7 +146,8 @@ class EditCustomListScreenTest {
     fun whenClickingOnLocationCellShouldCallOnLocationsClicked() =
         composeExtension.use {
             // Arrange
-            val mockedOnLocationsClicked: (net.mullvad.mullvadvpn.lib.model.CustomListId) -> Unit = mockk(relaxed = true)
+            val mockedOnLocationsClicked: (net.mullvad.mullvadvpn.lib.model.CustomListId) -> Unit =
+                mockk(relaxed = true)
             val customList = DUMMY_CUSTOM_LISTS[0]
             setContentWithTheme {
                 EditCustomListScreen(

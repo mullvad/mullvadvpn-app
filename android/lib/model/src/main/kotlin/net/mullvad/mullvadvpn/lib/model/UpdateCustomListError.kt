@@ -8,4 +8,5 @@ sealed interface UpdateCustomListError : ModifyCustomListError {
 
 sealed interface ModifyCustomListError
 
-data class GetCustomListError(val id: net.mullvad.mullvadvpn.lib.model.CustomListId) : ModifyCustomListError
+data class GetCustomListError(val id: net.mullvad.mullvadvpn.lib.model.CustomListId) :
+    ModifyCustomListError

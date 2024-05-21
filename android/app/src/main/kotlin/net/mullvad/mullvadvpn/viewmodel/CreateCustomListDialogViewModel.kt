@@ -69,8 +69,9 @@ class CreateCustomListDialogViewModel(
 
 sealed interface CreateCustomListDialogSideEffect {
 
-    data class NavigateToCustomListLocationsScreen(val customListId: net.mullvad.mullvadvpn.lib.model.CustomListId) :
-        CreateCustomListDialogSideEffect
+    data class NavigateToCustomListLocationsScreen(
+        val customListId: net.mullvad.mullvadvpn.lib.model.CustomListId
+    ) : CreateCustomListDialogSideEffect
 
     data class ReturnWithResult(val result: CustomListResult.Created) :
         CreateCustomListDialogSideEffect

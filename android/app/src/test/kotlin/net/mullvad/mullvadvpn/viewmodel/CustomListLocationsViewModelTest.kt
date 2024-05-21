@@ -244,18 +244,29 @@ class CustomListLocationsViewModelTest {
                             RelayItem.Location.City(
                                 name = "Gothenburg",
                                 expanded = false,
-                                id = net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("SE"), "GBG"),
+                                id =
+                                    net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(
+                                        net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country(
+                                            "SE"
+                                        ),
+                                        "GBG"
+                                    ),
                                 relays =
                                     listOf(
                                         RelayItem.Location.Relay(
                                             id =
-                                                net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname(
-                                                    net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(
-                                                        net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("SE"),
-                                                        "GBG"
+                                                net.mullvad.mullvadvpn.lib.model.GeoLocationId
+                                                    .Hostname(
+                                                        net.mullvad.mullvadvpn.lib.model
+                                                            .GeoLocationId
+                                                            .City(
+                                                                net.mullvad.mullvadvpn.lib.model
+                                                                    .GeoLocationId
+                                                                    .Country("SE"),
+                                                                "GBG"
+                                                            ),
+                                                        "gbg-1"
                                                     ),
-                                                    "gbg-1"
-                                                ),
                                             active = true,
                                             provider =
                                                 Provider(

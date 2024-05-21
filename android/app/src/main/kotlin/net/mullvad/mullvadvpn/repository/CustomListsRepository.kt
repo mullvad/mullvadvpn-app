@@ -29,7 +29,8 @@ class CustomListsRepository(
 
     suspend fun createCustomList(name: CustomListName) = managementService.createCustomList(name)
 
-    suspend fun deleteCustomList(id: net.mullvad.mullvadvpn.lib.model.CustomListId) = managementService.deleteCustomList(id)
+    suspend fun deleteCustomList(id: net.mullvad.mullvadvpn.lib.model.CustomListId) =
+        managementService.deleteCustomList(id)
 
     private suspend fun updateCustomList(customList: CustomList) =
         managementService.updateCustomList(customList)
@@ -50,7 +51,9 @@ class CustomListsRepository(
         updateCustomList(customList.copy(locations = locations)).bind()
     }
 
-    suspend fun getCustomListById(id: net.mullvad.mullvadvpn.lib.model.CustomListId): Either<GetCustomListError, CustomList> =
+    suspend fun getCustomListById(
+        id: net.mullvad.mullvadvpn.lib.model.CustomListId
+    ): Either<GetCustomListError, CustomList> =
         either {
                 customLists
                     .mapNotNull { it?.find { customList -> customList.id == id } }
