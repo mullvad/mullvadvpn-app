@@ -138,14 +138,15 @@ internal fun NavigationCellBody(
     content: String,
     contentBodyDescription: String,
     modifier: Modifier = Modifier,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondary,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
     isExternalLink: Boolean = false
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.wrapContentWidth().wrapContentHeight()
     ) {
-        Text(text = content, style = MaterialTheme.typography.labelMedium, color = contentColor)
+        Text(text = content, style = MaterialTheme.typography.labelMedium, color = textColor)
         Spacer(modifier = Modifier.width(Dimens.sideMargin))
         if (isExternalLink) {
             DefaultExternalLinkView(content, colorFilter = ColorFilter.tint(contentColor))
