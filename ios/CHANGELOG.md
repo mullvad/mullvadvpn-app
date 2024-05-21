@@ -23,6 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add Post-Quantum secure tunnels.
+
+## [2024.3 - 2024-05-13]
+### Added
 - Add ability to create custom lists.
 
 ## [2024.2 - 2024-02-26]
