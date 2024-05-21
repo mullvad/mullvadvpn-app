@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadLogging
+import MullvadPostQuantum
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
@@ -22,9 +23,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private let constraintsUpdater = RelayConstraintsUpdater()
 
     private var actor: PacketTunnelActor!
+    private var postQuantumActor: PostQuantumKeyExchangeActor!
     private var appMessageHandler: AppMessageHandler!
     private var stateObserverTask: AnyTask?
     private var deviceChecker: DeviceChecker!
+    private var adapter: WgAdapter!
+    private var relaySelector: RelaySelectorWrapper!
 
     override init() {
         Self.configureLogging()
@@ -48,7 +52,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             addressCache: addressCache
         )
 
-        let adapter = WgAdapter(packetTunnelProvider: self)
+        adapter = WgAdapter(packetTunnelProvider: self)
 
         let tunnelMonitor = TunnelMonitor(
             eventQueue: internalQueue,
@@ -65,6 +69,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let devicesProxy = proxyFactory.createDevicesProxy()
 
         deviceChecker = DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
+        relaySelector = RelaySelectorWrapper(relayCache: ipOverrideWrapper)
 
         actor = PacketTunnelActor(
             timings: PacketTunnelActorTimings(),
@@ -72,9 +77,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             tunnelMonitor: tunnelMonitor,
             defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self, eventQueue: internalQueue),
             blockedStateErrorMapper: BlockedStateErrorMapper(),
-            relaySelector: RelaySelectorWrapper(relayCache: ipOverrideWrapper),
+            relaySelector: relaySelector,
             settingsReader: SettingsReader(),
             protocolObfuscator: ProtocolObfuscator<UDPOverTCPObfuscator>()
+        )
+
+        postQuantumActor = PostQuantumKeyExchangeActor(
+            packetTunnel: self,
+            onFailure: self.keyExchangeFailed
         )
 
         let urlRequestProxy = URLRequestProxy(dispatchQueue: internalQueue, transportProvider: transportProvider)
@@ -104,6 +114,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 if connectionState.connectionAttemptCount > 1 {
                     return
                 }
+            case .negotiatingPostQuantumKey:
+                // When negotiating post quantum keys, allow the connection to go through immediately.
+                // Otherwise, the in-tunnel TCP connection will never become ready as the OS doesn't let
+                // any traffic through until this function returns, which would prevent negotiating keys
+                // from an unconnected state.
+                return
             default:
                 break
             }
@@ -235,10 +251,9 @@ extension PacketTunnelProvider {
                     // Cache last connection attempt to filter out repeating calls.
                     lastConnectionAttempt = connectionAttempt
 
-                #if DEBUG
-                case .negotiatingKey:
-                    break
-                #endif
+                case let .negotiatingPostQuantumKey(_, privateKey):
+                    postQuantumActor.endCurrentNegotiation()
+                    postQuantumActor.startNegotiation(with: privateKey)
 
                 case .initial, .connected, .disconnecting, .disconnected, .error:
                     break
@@ -283,8 +298,15 @@ extension PacketTunnelProvider {
 }
 
 extension PacketTunnelProvider: PostQuantumKeyReceiving {
-    func receivePostQuantumKey(_ key: PreSharedKey) {
-        // TODO: send the key to the actor
-        actor.replacePreSharedKey(key)
+    func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
+        actor.replacePreSharedKey(key, ephemeralKey: ephemeralKey)
+        postQuantumActor.endCurrentNegotiation()
+    }
+
+    func keyExchangeFailed() {
+        postQuantumActor.endCurrentNegotiation()
+        // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
+        // and it will not try to reconnect
+        actor.reconnect(to: .random)
     }
 }

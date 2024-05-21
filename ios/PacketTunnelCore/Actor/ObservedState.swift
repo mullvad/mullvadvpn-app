@@ -10,15 +10,14 @@ import Combine
 import Foundation
 import MullvadTypes
 import Network
+import WireGuardKitTypes
 
 /// A serializable representation of internal state.
 public enum ObservedState: Equatable, Codable {
     case initial
     case connecting(ObservedConnectionState)
     case reconnecting(ObservedConnectionState)
-    #if DEBUG
-    case negotiatingKey(ObservedConnectionState)
-    #endif
+    case negotiatingPostQuantumKey(ObservedConnectionState, PrivateKey)
     case connected(ObservedConnectionState)
     case disconnecting(ObservedConnectionState)
     case disconnected
@@ -34,6 +33,7 @@ public struct ObservedConnectionState: Equatable, Codable {
     public var transportLayer: TransportLayer
     public var remotePort: UInt16
     public var lastKeyRotation: Date?
+    public let isPostQuantum: Bool
 
     public var isNetworkReachable: Bool {
         networkReachability != .unreachable
@@ -46,7 +46,8 @@ public struct ObservedConnectionState: Equatable, Codable {
         connectionAttemptCount: UInt,
         transportLayer: TransportLayer,
         remotePort: UInt16,
-        lastKeyRotation: Date? = nil
+        lastKeyRotation: Date? = nil,
+        isPostQuantum: Bool
     ) {
         self.selectedRelay = selectedRelay
         self.relayConstraints = relayConstraints
@@ -55,6 +56,7 @@ public struct ObservedConnectionState: Equatable, Codable {
         self.transportLayer = transportLayer
         self.remotePort = remotePort
         self.lastKeyRotation = lastKeyRotation
+        self.isPostQuantum = isPostQuantum
     }
 }
 
@@ -78,6 +80,8 @@ extension State {
             return .reconnecting(connState.observedConnectionState)
         case let .disconnecting(connState):
             return .disconnecting(connState.observedConnectionState)
+        case let .negotiatingPostQuantumKey(connState, privateKey):
+            return .negotiatingPostQuantumKey(connState.observedConnectionState, privateKey)
         case .disconnected:
             return .disconnected
         case let .error(blockedState):
@@ -96,7 +100,8 @@ extension State.ConnectionData {
             connectionAttemptCount: connectionAttemptCount,
             transportLayer: transportLayer,
             remotePort: remotePort,
-            lastKeyRotation: lastKeyRotation
+            lastKeyRotation: lastKeyRotation,
+            isPostQuantum: isPostQuantum
         )
     }
 }

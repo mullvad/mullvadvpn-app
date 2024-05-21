@@ -43,7 +43,7 @@ public actor PacketTunnelActor {
     let tunnelMonitor: TunnelMonitorProtocol
     let defaultPathObserver: DefaultPathObserverProtocol
     let blockedStateErrorMapper: BlockedStateErrorMapperProtocol
-    let relaySelector: RelaySelectorProtocol
+    public let relaySelector: RelaySelectorProtocol
     let settingsReader: SettingsReaderProtocol
     let protocolObfuscator: ProtocolObfuscation
 
@@ -113,8 +113,8 @@ public actor PacketTunnelActor {
                 case let .networkReachability(defaultPath):
                     await handleDefaultPathChange(defaultPath)
 
-                case .replaceDevicePrivateKey:
-                    self.logger.warning("Not yet implemented")
+                case let .replaceDevicePrivateKey(preSharedKey, ephemeralKey):
+                    await postQuantumConnect(with: preSharedKey, privateKey: ephemeralKey)
                 }
             }
         }
@@ -164,7 +164,8 @@ extension PacketTunnelActor {
     /// Stop the tunnel.
     private func stop() async {
         switch state {
-        case let .connected(connState), let .connecting(connState), let .reconnecting(connState):
+        case let .connected(connState), let .connecting(connState), let .reconnecting(connState),
+             let .negotiatingPostQuantumKey(connState, _):
             state = .disconnecting(connState)
             tunnelMonitor.stop()
 
@@ -199,7 +200,9 @@ extension PacketTunnelActor {
     private func reconnect(to nextRelay: NextRelay, reason: ReconnectReason) async {
         do {
             switch state {
-            case .connecting, .connected, .reconnecting, .error:
+            // There is no connection monitoring going on when exchanging keys.
+            // The procedure starts from scratch for each reconnection attempts.
+            case .connecting, .connected, .reconnecting, .error, .negotiatingPostQuantumKey:
                 switch reason {
                 case .connectionLoss:
                     // Tunnel monitor is already paused at this point. Avoid calling stop() to prevent the reset of
@@ -222,9 +225,27 @@ extension PacketTunnelActor {
     }
 
     /**
-     Attempt to start the tunnel by performing the following steps:
+     Entry point for attempting to start the tunnel by performing the following steps:
 
-     - Read settings.
+     - Read settings
+     - Start either a direct connection or the post-quantum key negotiation process, depending on settings.
+     */
+    private func tryStart(
+        nextRelay: NextRelay,
+        reason: ReconnectReason = .userInitiated
+    ) async throws {
+        let settings: Settings = try settingsReader.read()
+
+        if settings.quantumResistance.isEnabled {
+            try await tryStartPostQuantumNegotiation(withSettings: settings, nextRelay: nextRelay, reason: reason)
+        } else {
+            try await tryStartConnection(withSettings: settings, nextRelay: nextRelay, reason: reason)
+        }
+    }
+
+    /**
+     Attempt to start a direct (non-quantum) connection to the tunnel by performing the following steps:
+
      - Determine target state, it can either be `.connecting` or `.reconnecting`. (See `TargetStateForReconnect`)
      - Bail if target state cannot be determined. That means that the actor is past the point when it could logically connect or reconnect, i.e it can already be in
      `.disconnecting` state.
@@ -236,22 +257,15 @@ extension PacketTunnelActor {
          - nextRelay: which relay should be selected next.
          - reason: reason for reconnect
      */
-    private func tryStart(
-        nextRelay: NextRelay = .random,
-        reason: ReconnectReason = .userInitiated
+    private func tryStartConnection(
+        withSettings settings: Settings,
+        nextRelay: NextRelay,
+        reason: ReconnectReason
     ) async throws {
-        let settings: Settings = try settingsReader.read()
-
         guard let connectionState = try obfuscateConnection(nextRelay: nextRelay, settings: settings, reason: reason),
               let targetState = state.targetStateForReconnect else { return }
 
-        let activeKey: PrivateKey
-        switch connectionState.keyPolicy {
-        case .useCurrent:
-            activeKey = settings.privateKey
-        case let .usePrior(priorKey, _):
-            activeKey = priorKey
-        }
+        let activeKey = activeKey(from: connectionState, in: settings)
 
         switch targetState {
         case .connecting:
@@ -300,7 +314,7 @@ extension PacketTunnelActor {
 
      - Returns: New connection state or `nil` if current state is at or past `.disconnecting` phase.
      */
-    private func makeConnectionState(
+    internal func makeConnectionState(
         nextRelay: NextRelay,
         settings: Settings,
         reason: ReconnectReason
@@ -326,6 +340,14 @@ extension PacketTunnelActor {
                 connectionState.incrementAttemptCount()
             }
             fallthrough
+        case var .negotiatingPostQuantumKey(connectionState, _):
+            let selectedRelay = try callRelaySelector(
+                connectionState.selectedRelay,
+                connectionState.connectionAttemptCount
+            )
+            connectionState.selectedRelay = selectedRelay
+            connectionState.relayConstraints = settings.relayConstraints
+            return connectionState
         case var .connected(connectionState):
             let selectedRelay = try callRelaySelector(
                 connectionState.selectedRelay,
@@ -353,11 +375,21 @@ extension PacketTunnelActor {
             lastKeyRotation: lastKeyRotation,
             connectedEndpoint: selectedRelay.endpoint,
             transportLayer: .udp,
-            remotePort: selectedRelay.endpoint.ipv4Relay.port
+            remotePort: selectedRelay.endpoint.ipv4Relay.port,
+            isPostQuantum: settings.quantumResistance.isEnabled
         )
     }
 
-    private func obfuscateConnection(
+    internal func activeKey(from state: State.ConnectionData, in settings: Settings) -> PrivateKey {
+        switch state.keyPolicy {
+        case .useCurrent:
+            settings.privateKey
+        case let .usePrior(priorKey, _):
+            priorKey
+        }
+    }
+
+    internal func obfuscateConnection(
         nextRelay: NextRelay,
         settings: Settings,
         reason: ReconnectReason
@@ -382,7 +414,8 @@ extension PacketTunnelActor {
             lastKeyRotation: connectionState.lastKeyRotation,
             connectedEndpoint: obfuscatedEndpoint,
             transportLayer: transportLayer,
-            remotePort: protocolObfuscator.remotePort
+            remotePort: protocolObfuscator.remotePort,
+            isPostQuantum: settings.quantumResistance.isEnabled
         )
     }
 

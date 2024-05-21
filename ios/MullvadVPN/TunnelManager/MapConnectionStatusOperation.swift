@@ -51,21 +51,19 @@ class MapConnectionStatusOperation: AsyncOperation {
                 switch observedState {
                 case let .connected(connectionState):
                     return connectionState.isNetworkReachable
-                        ? .connected(connectionState.selectedRelay)
+                        ? .connected(connectionState.selectedRelay, isPostQuantum: connectionState.isPostQuantum)
                         : .waitingForConnectivity(.noConnection)
                 case let .connecting(connectionState):
                     return connectionState.isNetworkReachable
-                        ? .connecting(connectionState.selectedRelay)
+                        ? .connecting(connectionState.selectedRelay, isPostQuantum: connectionState.isPostQuantum)
                         : .waitingForConnectivity(.noConnection)
-                #if DEBUG
-                case let .negotiatingKey(connectionState):
+                case let .negotiatingPostQuantumKey(connectionState, privateKey):
                     return connectionState.isNetworkReachable
-                        ? .negotiatingKey(connectionState.selectedRelay)
+                        ? .negotiatingPostQuantumKey(connectionState.selectedRelay, privateKey)
                         : .waitingForConnectivity(.noConnection)
-                #endif
                 case let .reconnecting(connectionState):
                     return connectionState.isNetworkReachable
-                        ? .reconnecting(connectionState.selectedRelay)
+                        ? .reconnecting(connectionState.selectedRelay, isPostQuantum: connectionState.isPostQuantum)
                         : .waitingForConnectivity(.noConnection)
                 case let .error(blockedState):
                     return .error(blockedState.reason)

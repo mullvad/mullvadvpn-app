@@ -9,6 +9,7 @@
 import Foundation
 import MullvadTypes
 import PacketTunnelCore
+import WireGuardKitTypes
 
 /// A struct describing the tunnel status.
 struct TunnelStatus: Equatable, CustomStringConvertible {
@@ -48,15 +49,13 @@ enum TunnelState: Equatable, CustomStringConvertible {
     case pendingReconnect
 
     /// Connecting the tunnel.
-    case connecting(SelectedRelay?)
+    case connecting(SelectedRelay?, isPostQuantum: Bool)
 
-    #if DEBUG
     /// Negotiating a key for post-quantum resistance
-    case negotiatingKey(SelectedRelay)
-    #endif
+    case negotiatingPostQuantumKey(SelectedRelay, PrivateKey)
 
     /// Connected the tunnel
-    case connected(SelectedRelay)
+    case connected(SelectedRelay, isPostQuantum: Bool)
 
     /// Disconnecting the tunnel
     case disconnecting(ActionAfterDisconnect)
@@ -69,7 +68,7 @@ enum TunnelState: Equatable, CustomStringConvertible {
     /// 1. Asking the running tunnel to reconnect to new relay via IPC.
     /// 2. Tunnel attempts to reconnect to new relay as the current relay appears to be
     ///    dysfunctional.
-    case reconnecting(SelectedRelay)
+    case reconnecting(SelectedRelay, isPostQuantum: Bool)
 
     /// Waiting for connectivity to come back up.
     case waitingForConnectivity(WaitingForConnectionReason)
@@ -81,55 +80,45 @@ enum TunnelState: Equatable, CustomStringConvertible {
         switch self {
         case .pendingReconnect:
             "pending reconnect after disconnect"
-        case let .connecting(tunnelRelay):
+        case let .connecting(tunnelRelay, isPostQuantum):
             if let tunnelRelay {
-                "connecting to \(tunnelRelay.hostname)"
+                "connecting \(isPostQuantum ? "(PQ) " : "")to \(tunnelRelay.hostname)"
             } else {
-                "connecting, fetching relay"
+                "connecting\(isPostQuantum ? " (PQ)" : ""), fetching relay"
             }
-        case let .connected(tunnelRelay):
-            "connected to \(tunnelRelay.hostname)"
+        case let .connected(tunnelRelay, isPostQuantum):
+            "connected \(isPostQuantum ? "(PQ) " : "")to \(tunnelRelay.hostname)"
         case let .disconnecting(actionAfterDisconnect):
             "disconnecting and then \(actionAfterDisconnect)"
         case .disconnected:
             "disconnected"
-        case let .reconnecting(tunnelRelay):
-            "reconnecting to \(tunnelRelay.hostname)"
+        case let .reconnecting(tunnelRelay, isPostQuantum):
+            "reconnecting \(isPostQuantum ? "(PQ) " : "")to \(tunnelRelay.hostname)"
         case .waitingForConnectivity:
             "waiting for connectivity"
         case let .error(blockedStateReason):
             "error state: \(blockedStateReason)"
-        #if DEBUG
-        case let .negotiatingKey(tunnelRelay):
+        case let .negotiatingPostQuantumKey(tunnelRelay, _):
             "negotiating key with \(tunnelRelay.hostname)"
-        #endif
         }
     }
 
     var isSecured: Bool {
         switch self {
         case .reconnecting, .connecting, .connected, .waitingForConnectivity(.noConnection), .error(.accountExpired),
-             .error(.deviceRevoked):
+             .error(.deviceRevoked), .negotiatingPostQuantumKey:
             true
         case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork), .error:
             false
-        #if DEBUG
-        case .negotiatingKey:
-            false
-        #endif
         }
     }
 
     var relay: SelectedRelay? {
         switch self {
-        case let .connected(relay), let .reconnecting(relay):
+        case let .connected(relay, _), let .reconnecting(relay, _), let .negotiatingPostQuantumKey(relay, _):
             relay
-        case let .connecting(relay):
+        case let .connecting(relay, _):
             relay
-        #if DEBUG
-        case let .negotiatingKey(relay):
-            relay
-        #endif
         case .disconnecting, .disconnected, .waitingForConnectivity, .pendingReconnect, .error:
             nil
         }
