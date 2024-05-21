@@ -30,7 +30,6 @@ class NewDeviceUseNotificationCaseTest {
             Device(
                 id = DeviceId.fromString(UUID.randomUUID().toString()),
                 name = deviceName,
-                pubkey = byteArrayOf(),
                 created = DateTime.now()
             )
         )
