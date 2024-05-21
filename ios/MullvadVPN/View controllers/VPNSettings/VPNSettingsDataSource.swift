@@ -383,7 +383,13 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         // 0 due to there already being a separator between .dnsSettings and .ipOverrides.
         case .dnsSettings: 0
         case .ipOverrides: UIMetrics.TableView.sectionSpacing
+
+        #if DEBUG
         case .quantumResistance: tableView.estimatedRowHeight
+        #else
+        case .wireGuardObfuscationPort: tableView.estimatedRowHeight
+        #endif
+
         default: 0.5
         }
     }
