@@ -26,7 +26,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         }
     }
 
-    func testAppConnection() throws {
+    func testQQQQQQQQAppConnection() throws {
         TunnelControlPage(app)
             .tapSecureConnectionButton()
 
