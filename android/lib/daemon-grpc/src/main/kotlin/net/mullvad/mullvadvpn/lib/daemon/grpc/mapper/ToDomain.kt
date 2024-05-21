@@ -551,7 +551,7 @@ internal fun ManagementInterface.AccountData.toDomain(): AccountData =
 internal fun ManagementInterface.VoucherSubmission.toDomain(): RedeemVoucherSuccess =
     RedeemVoucherSuccess(
         timeAdded = secondsAdded,
-        newExpiry = Instant.ofEpochSecond(newExpiry.seconds).toDateTime()
+        newExpiryDate = Instant.ofEpochSecond(newExpiry.seconds).toDateTime()
     )
 
 internal fun ManagementInterface.SplitTunnelSettings.toDomain(): SplitTunnelSettings =

@@ -8,6 +8,6 @@ class VoucherRepository(
 ) {
     suspend fun submitVoucher(voucher: String) =
         managementService.submitVoucher(voucher).onRight {
-            accountRepository.onVoucherRedeemed(it.newExpiry)
+            accountRepository.onVoucherRedeemed(it.newExpiryDate)
         }
 }
