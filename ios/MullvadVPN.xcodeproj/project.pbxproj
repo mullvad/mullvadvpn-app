@@ -222,7 +222,6 @@
 		5896AE84246D5889005B36CB /* CustomDateComponentsFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */; };
 		5896CEF226972DEB00B0FAE8 /* AccountContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896CEF126972DEB00B0FAE8 /* AccountContentView.swift */; };
 		5897F1742913EAF800AF5695 /* ExponentialBackoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5897F1732913EAF800AF5695 /* ExponentialBackoff.swift */; };
-		589A455C28E094BF00565204 /* OperationSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF5B7E2852778600E92647 /* OperationSmokeTests.swift */; };
 		589A455D28E094BF00565204 /* OperationObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E1E292848DF67004838B3 /* OperationObserverTests.swift */; };
 		589A455F28E094BF00565204 /* OperationConditionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580CBFB72848D503007878F0 /* OperationConditionTests.swift */; };
 		589C6A782A45AAB700DAD3EF /* tunnel_obfuscator_proxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 584023272A407679007B27AC /* tunnel_obfuscator_proxy.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -1709,7 +1708,6 @@
 		58D229B6298D1D5200BB5A2D /* URLRequestProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestProxy.swift; sourceTree = "<group>"; };
 		58DDA18E2ABC32380039C360 /* Timings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timings.swift; sourceTree = "<group>"; };
 		58DF28A42417CB4B00E836B0 /* StorePaymentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentManager.swift; sourceTree = "<group>"; };
-		58DF5B7E2852778600E92647 /* OperationSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationSmokeTests.swift; sourceTree = "<group>"; };
 		58DFF7CF2B02560400F864E0 /* NSAttributedString+Markdown.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Markdown.swift"; sourceTree = "<group>"; };
 		58DFF7D12B0256A300F864E0 /* MarkdownStylingOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarkdownStylingOptions.swift; sourceTree = "<group>"; };
 		58DFF7D72B02774C00F864E0 /* ListItemPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListItemPickerViewController.swift; sourceTree = "<group>"; };
@@ -3157,7 +3155,6 @@
 				58AFC99629F9753D000829DE /* AsyncResultBlockOperationTests.swift */,
 				580CBFB72848D503007878F0 /* OperationConditionTests.swift */,
 				583E1E292848DF67004838B3 /* OperationObserverTests.swift */,
-				58DF5B7E2852778600E92647 /* OperationSmokeTests.swift */,
 			);
 			path = OperationsTests;
 			sourceTree = "<group>";
@@ -5118,7 +5115,6 @@
 				589A455F28E094BF00565204 /* OperationConditionTests.swift in Sources */,
 				58AFC99529F96F7B000829DE /* AsyncBlockOperationTests.swift in Sources */,
 				58AFC99729F9753D000829DE /* AsyncResultBlockOperationTests.swift in Sources */,
-				589A455C28E094BF00565204 /* OperationSmokeTests.swift in Sources */,
 				589A455D28E094BF00565204 /* OperationObserverTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
