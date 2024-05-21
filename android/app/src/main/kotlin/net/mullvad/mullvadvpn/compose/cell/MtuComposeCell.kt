@@ -38,7 +38,7 @@ private fun MtuTitle(modifier: Modifier) {
     Text(
         text = stringResource(R.string.wireguard_mtu),
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onPrimary,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = modifier
     )
 }
@@ -48,7 +48,7 @@ private fun MtuBodyView(mtuValue: Mtu?, modifier: Modifier) {
     Row(modifier = modifier) {
         Text(
             text = mtuValue?.value?.toString() ?: stringResource(id = R.string.hint_default),
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
