@@ -311,8 +311,8 @@ private fun MapColumn(
         markers = markers,
         globeColors =
             GlobeColors(
-                landColor = MaterialTheme.colorScheme.primary,
-                oceanColor = MaterialTheme.colorScheme.secondary,
+                landColor = MaterialTheme.colorScheme.onSurface,
+                oceanColor = MaterialTheme.colorScheme.surface,
             )
     )
 

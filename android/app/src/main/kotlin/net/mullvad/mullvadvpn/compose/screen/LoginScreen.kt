@@ -420,7 +420,7 @@ private fun CreateAccountPanel(onCreateAccountClick: () -> Unit, isEnabled: Bool
         Text(
             modifier = Modifier.padding(bottom = Dimens.smallPadding),
             text = stringResource(id = R.string.dont_have_an_account),
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = MaterialTheme.colorScheme.onBackground,
         )
         PrimaryButton(
             modifier = Modifier.fillMaxWidth(),

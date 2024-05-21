@@ -100,7 +100,6 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
-import net.mullvad.mullvadvpn.lib.theme.color.Alpha10
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.relaylist.canAddLocation
@@ -305,6 +304,7 @@ fun SelectLocationScreen(
                         .height(Dimens.searchFieldHeight)
                         .padding(horizontal = Dimens.searchFieldHorizontalPadding),
                 textColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
             ) { searchString ->
                 onSearchTermInput.invoke(searchString)
             }
