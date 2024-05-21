@@ -10,7 +10,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 
 class EditCustomListViewModel(
-    private val customListId: net.mullvad.mullvadvpn.lib.model.CustomListId,
+    private val customListId: CustomListId,
     customListsRepository: CustomListsRepository
 ) : ViewModel() {
     val uiState =

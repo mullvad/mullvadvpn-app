@@ -58,15 +58,13 @@ private fun PreviewEditCustomListScreen() {
         EditCustomListScreen(
             state =
                 EditCustomListState.Content(
-                    id = net.mullvad.mullvadvpn.lib.model.CustomListId("id"),
+                    id = CustomListId("id"),
                     name = CustomListName.fromString("Custom list"),
                     locations =
                         listOf(
-                            net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname(
-                                net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(
-                                    net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country(
-                                        "country"
-                                    ),
+                            GeoLocationId.Hostname(
+                                GeoLocationId.City(
+                                    GeoLocationId.Country("country"),
                                     cityCode = "city"
                                 ),
                                 "hostname",
@@ -82,7 +80,7 @@ private fun PreviewEditCustomListScreen() {
 fun EditCustomList(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<CustomListResult.Deleted>,
-    customListId: net.mullvad.mullvadvpn.lib.model.CustomListId,
+    customListId: CustomListId,
     confirmDeleteListResultRecipient:
         ResultRecipient<DeleteCustomListDestination, CustomListResult.Deleted>
 ) {
@@ -128,11 +126,8 @@ fun EditCustomList(
 fun EditCustomListScreen(
     state: EditCustomListState,
     onDeleteList: (name: CustomListName) -> Unit = {},
-    onNameClicked:
-        (id: net.mullvad.mullvadvpn.lib.model.CustomListId, name: CustomListName) -> Unit =
-        { _, _ ->
-        },
-    onLocationsClicked: (net.mullvad.mullvadvpn.lib.model.CustomListId) -> Unit = {},
+    onNameClicked: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },
+    onLocationsClicked: (CustomListId) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val title =

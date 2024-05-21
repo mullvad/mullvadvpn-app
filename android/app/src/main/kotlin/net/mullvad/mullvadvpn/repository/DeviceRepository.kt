@@ -36,8 +36,6 @@ class DeviceRepository(
         deviceId: DeviceId
     ): Either<DeleteDeviceError, Unit> = managementService.removeDevice(accountToken, deviceId)
 
-    suspend fun deviceList(
-        accountToken: AccountToken
-    ): Either<net.mullvad.mullvadvpn.lib.model.GetDeviceListError, List<Device>> =
+    suspend fun deviceList(accountToken: AccountToken): Either<GetDeviceListError, List<Device>> =
         managementService.getDeviceList(accountToken)
 }

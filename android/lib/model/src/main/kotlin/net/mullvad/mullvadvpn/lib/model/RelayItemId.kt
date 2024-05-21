@@ -12,43 +12,36 @@ sealed interface RelayItemId : Parcelable {
 @optics
 @Parcelize
 @JvmInline
-value class CustomListId(val value: String) :
-    net.mullvad.mullvadvpn.lib.model.RelayItemId, Parcelable {
+value class CustomListId(val value: String) : RelayItemId, Parcelable {
     companion object
 }
 
 @optics
-sealed interface GeoLocationId : net.mullvad.mullvadvpn.lib.model.RelayItemId {
+sealed interface GeoLocationId : RelayItemId {
     @optics
     @Parcelize
-    data class Country(val countryCode: String) : net.mullvad.mullvadvpn.lib.model.GeoLocationId {
+    data class Country(val countryCode: String) : GeoLocationId {
         companion object
     }
 
     @optics
     @Parcelize
-    data class City(
-        val countryCode: net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country,
-        val cityCode: String
-    ) : net.mullvad.mullvadvpn.lib.model.GeoLocationId {
+    data class City(val countryCode: Country, val cityCode: String) : GeoLocationId {
         companion object
     }
 
     @optics
     @Parcelize
-    data class Hostname(
-        val city: net.mullvad.mullvadvpn.lib.model.GeoLocationId.City,
-        val hostname: String
-    ) : net.mullvad.mullvadvpn.lib.model.GeoLocationId {
+    data class Hostname(val city: City, val hostname: String) : GeoLocationId {
         companion object
     }
 
-    val country: net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country
+    val country: Country
         get() =
             when (this) {
-                is net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country -> this
-                is net.mullvad.mullvadvpn.lib.model.GeoLocationId.City -> this.countryCode
-                is net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname -> this.city.countryCode
+                is Country -> this
+                is City -> this.countryCode
+                is Hostname -> this.city.countryCode
             }
 
     companion object

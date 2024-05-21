@@ -31,25 +31,25 @@ class SelectedLocationRelayItemUseCase(
         }
 
     private fun findSelectedRelayItemWithTitle(
-        locationConstraint: Constraint<net.mullvad.mullvadvpn.lib.model.RelayItemId>,
+        locationConstraint: Constraint<RelayItemId>,
         relayCountries: List<RelayItem.Location.Country>,
         customLists: List<CustomList>
     ): Pair<RelayItem, String>? {
         return if (locationConstraint is Constraint.Only) {
             when (val location = locationConstraint.value) {
-                is net.mullvad.mullvadvpn.lib.model.CustomListId -> {
+                is CustomListId -> {
                     customLists
                         .firstOrNull { it.id == location }
                         ?.toRelayItemCustomList(relayCountries)
                         ?.withTitle()
                 }
-                is net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname -> {
+                is GeoLocationId.Hostname -> {
                     relayCountries.findItemForGeoLocationId(location.city)?.let { item ->
                         val city = item as RelayItem.Location.City
                         city.relays.firstOrNull { it.id == location }?.withTitle(city.name)
                     }
                 }
-                is net.mullvad.mullvadvpn.lib.model.GeoLocationId -> {
+                is GeoLocationId -> {
                     relayCountries.findItemForGeoLocationId(location)?.withTitle()
                 }
             }

@@ -15,7 +15,7 @@ class CustomListRelayItemsUseCase(
     private val relayListRepository: RelayListRepository
 ) {
     fun getRelayItemLocationsForCustomList(
-        customListId: net.mullvad.mullvadvpn.lib.model.CustomListId
+        customListId: CustomListId
     ): Flow<List<RelayItem.Location>> =
         combine(
             customListsRepository.customLists.mapNotNull { it?.getById(customListId) },

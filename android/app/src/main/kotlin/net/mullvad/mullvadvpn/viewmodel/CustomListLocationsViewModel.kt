@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
 
 class CustomListLocationsViewModel(
-    private val customListId: net.mullvad.mullvadvpn.lib.model.CustomListId,
+    private val customListId: CustomListId,
     private val newList: Boolean,
     relayListRepository: RelayListRepository,
     private val customListRelayItemsUseCase: CustomListRelayItemsUseCase,

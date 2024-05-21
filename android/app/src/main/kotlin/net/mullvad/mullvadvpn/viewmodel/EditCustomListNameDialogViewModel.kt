@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.RenameCustomListError
 
 class EditCustomListNameDialogViewModel(
-    private val customListId: net.mullvad.mullvadvpn.lib.model.CustomListId,
+    private val customListId: CustomListId,
     private val initialName: CustomListName,
     private val customListActionUseCase: CustomListActionUseCase
 ) : ViewModel() {

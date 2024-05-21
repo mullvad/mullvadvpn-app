@@ -32,10 +32,7 @@ class CreateCustomListDialogViewModelTest {
             // Arrange
             val expectedResult: CustomListResult.Created = mockk()
             val customListName = "list"
-            val viewModel =
-                createViewModelWithLocationCode(
-                    net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("AB")
-                )
+            val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
             coEvery {
                 mockCustomListActionUseCase.performAction(any<CustomListAction.Create>())
             } returns expectedResult.right()
@@ -55,7 +52,7 @@ class CreateCustomListDialogViewModelTest {
         runTest {
             // Arrange
             val customListName = CustomListName.fromString("list")
-            val createdId = net.mullvad.mullvadvpn.lib.model.CustomListId("1")
+            val createdId = CustomListId("1")
             val expectedResult =
                 CustomListResult.Created(
                     id = createdId,
@@ -63,10 +60,7 @@ class CreateCustomListDialogViewModelTest {
                     locationNames = emptyList(),
                     undo = CustomListAction.Delete(createdId)
                 )
-            val viewModel =
-                createViewModelWithLocationCode(
-                    net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("AB")
-                )
+            val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
             coEvery {
                 mockCustomListActionUseCase.performAction(any<CustomListAction.Create>())
             } returns expectedResult.right()
@@ -88,10 +82,7 @@ class CreateCustomListDialogViewModelTest {
         val expectedError =
             CreateCustomListWithLocationsError.Create(CreateCustomListError.CustomListAlreadyExists)
         val customListName = "list"
-        val viewModel =
-            createViewModelWithLocationCode(
-                net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("AB")
-            )
+        val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
         coEvery {
             mockCustomListActionUseCase.performAction(any<CustomListAction.Create>())
         } returns expectedError.left()
@@ -113,10 +104,7 @@ class CreateCustomListDialogViewModelTest {
                     CreateCustomListError.CustomListAlreadyExists
                 )
             val customListName = "list"
-            val viewModel =
-                createViewModelWithLocationCode(
-                    net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("AB")
-                )
+            val viewModel = createViewModelWithLocationCode(GeoLocationId.Country("AB"))
             coEvery {
                 mockCustomListActionUseCase.performAction(any<CustomListAction.Create>())
             } returns expectedError.left()
@@ -131,9 +119,7 @@ class CreateCustomListDialogViewModelTest {
             }
         }
 
-    private fun createViewModelWithLocationCode(
-        locationCode: net.mullvad.mullvadvpn.lib.model.GeoLocationId
-    ) =
+    private fun createViewModelWithLocationCode(locationCode: GeoLocationId) =
         CreateCustomListDialogViewModel(
             locationCode = locationCode,
             customListActionUseCase = mockCustomListActionUseCase

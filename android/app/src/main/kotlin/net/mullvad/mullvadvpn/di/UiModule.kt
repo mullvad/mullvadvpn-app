@@ -191,9 +191,7 @@ val uiModule = module {
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get(), get()) }
-    viewModel { (location: net.mullvad.mullvadvpn.lib.model.GeoLocationId?) ->
-        CreateCustomListDialogViewModel(location, get())
-    }
+    viewModel { (location: GeoLocationId?) -> CreateCustomListDialogViewModel(location, get()) }
     viewModel { parameters ->
         CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get(), get())
     }

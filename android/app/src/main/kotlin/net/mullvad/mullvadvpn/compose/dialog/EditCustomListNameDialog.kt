@@ -42,7 +42,7 @@ private fun PreviewEditCustomListNameDialog() {
 @Destination(style = DestinationStyle.Dialog::class)
 fun EditCustomListName(
     backNavigator: ResultBackNavigator<CustomListResult.Renamed>,
-    customListId: net.mullvad.mullvadvpn.lib.model.CustomListId,
+    customListId: CustomListId,
     initialName: CustomListName
 ) {
     val vm: EditCustomListNameDialogViewModel =

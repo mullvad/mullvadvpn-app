@@ -61,7 +61,7 @@ private fun PreviewCreateCustomListDialogError() {
 fun CreateCustomList(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<CustomListResult.Created>,
-    locationCode: net.mullvad.mullvadvpn.lib.model.GeoLocationId? = null
+    locationCode: GeoLocationId? = null
 ) {
     val vm: CreateCustomListDialogViewModel =
         koinViewModel(parameters = { parametersOf(locationCode) })

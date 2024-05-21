@@ -3,9 +3,8 @@ package net.mullvad.mullvadvpn.relaylist
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 
-fun List<RelayItem.Location.Country>.findItemForGeoLocationId(
-    constraint: net.mullvad.mullvadvpn.lib.model.GeoLocationId
-) = withDescendants().firstOrNull { it.id == constraint }
+fun List<RelayItem.Location.Country>.findItemForGeoLocationId(constraint: GeoLocationId) =
+    withDescendants().firstOrNull { it.id == constraint }
 
 /**
  * Filter and expand the list based on search terms If a country is matched, that country and all
@@ -19,11 +18,7 @@ fun List<RelayItem.Location.Country>.filterOnSearchTerm(
     selectedItem: RelayItem?
 ): List<RelayItem.Location.Country> {
     return if (searchTerm.length >= MIN_SEARCH_LENGTH) {
-        val filteredCountries =
-            mutableMapOf<
-                net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country,
-                RelayItem.Location.Country
-            >()
+        val filteredCountries = mutableMapOf<GeoLocationId.Country, RelayItem.Location.Country>()
         this.forEach { relayCountry ->
             val cities = mutableListOf<RelayItem.Location.City>()
 
@@ -136,7 +131,7 @@ private fun List<RelayItem.Location.Country>.expandItemForSelection(
 }
 
 fun List<RelayItem.Location.Country>.getRelayItemsByCodes(
-    codes: List<net.mullvad.mullvadvpn.lib.model.GeoLocationId>
+    codes: List<GeoLocationId>
 ): List<RelayItem.Location> =
     this.filter { codes.contains(it.id) } +
         this.flatMap { it.descendants() }.filter { codes.contains(it.id) }

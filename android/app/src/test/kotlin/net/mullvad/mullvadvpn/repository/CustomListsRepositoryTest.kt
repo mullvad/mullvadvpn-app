@@ -44,7 +44,7 @@ class CustomListsRepositoryTest {
     fun `get custom list by id should return custom list when id matches custom list in settings`() =
         runTest {
             // Arrange
-            val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1")
+            val customListId = CustomListId("1")
             val mockCustomList =
                 CustomList(
                     id = customListId,
@@ -66,7 +66,7 @@ class CustomListsRepositoryTest {
     fun `get custom list by id should return get custom list error when id does not matches custom list in settings`() =
         runTest {
             // Arrange
-            val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1")
+            val customListId = CustomListId("1")
             val mockCustomList =
                 CustomList(
                     id = customListId,
@@ -74,7 +74,7 @@ class CustomListsRepositoryTest {
                     locations = mockk(relaxed = true)
                 )
             val mockSettings: Settings = mockk()
-            val otherCustomListId = net.mullvad.mullvadvpn.lib.model.CustomListId("2")
+            val otherCustomListId = CustomListId("2")
             every { mockSettings.customLists } returns listOf(mockCustomList)
             settingsFlow.value = mockSettings
 
@@ -88,7 +88,7 @@ class CustomListsRepositoryTest {
     @Test
     fun `create custom list should return id when creation is successful`() = runTest {
         // Arrange
-        val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1")
+        val customListId = CustomListId("1")
         val expectedResult = customListId.right()
         val customListName = CustomListName.fromString("CUSTOM")
         coEvery { mockManagementService.createCustomList(customListName) } returns expectedResult
@@ -120,7 +120,7 @@ class CustomListsRepositoryTest {
     fun `update custom list name should return success when call managementService is successful`() =
         runTest {
             // Arrange
-            val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1")
+            val customListId = CustomListId("1")
             val expectedResult = Unit.right()
             val customListName = CustomListName.fromString("CUSTOM")
             val mockSettings: Settings = mockk()
@@ -146,7 +146,7 @@ class CustomListsRepositoryTest {
     fun `update custom list name should return list exists error when list exists error is received`() =
         runTest {
             // Arrange
-            val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1")
+            val customListId = CustomListId("1")
             val customListName = CustomListName.fromString("CUSTOM")
             val expectedResult =
                 UpdateCustomListError.NameAlreadyExists(customListName.value).left()
@@ -174,7 +174,7 @@ class CustomListsRepositoryTest {
     @Test
     fun `when delete custom lists is called a delete custom event should be sent`() = runTest {
         // Arrange
-        val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1")
+        val customListId = CustomListId("1")
         coEvery { mockManagementService.deleteCustomList(customListId) } returns Unit.right()
 
         // Act
@@ -189,9 +189,9 @@ class CustomListsRepositoryTest {
         runTest {
             // Arrange
             val expectedResult = Unit.right()
-            val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1")
+            val customListId = CustomListId("1")
             val customListName = CustomListName.fromString("CUSTOM")
-            val location = net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("se")
+            val location = GeoLocationId.Country("se")
             val mockSettings: Settings = mockk()
             val mockCustomList =
                 CustomList(id = customListId, name = customListName, locations = emptyList())
@@ -215,8 +215,8 @@ class CustomListsRepositoryTest {
         runTest {
             // Arrange
             val mockSettings: Settings = mockk()
-            val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1")
-            val otherCustomListId = net.mullvad.mullvadvpn.lib.model.CustomListId("2")
+            val customListId = CustomListId("1")
+            val otherCustomListId = CustomListId("2")
             val expectedResult = GetCustomListError(customListId).left()
             val mockCustomList =
                 CustomList(
@@ -224,7 +224,7 @@ class CustomListsRepositoryTest {
                     name = CustomListName.fromString("name"),
                     locations = emptyList()
                 )
-            val locationId = net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("se")
+            val locationId = GeoLocationId.Country("se")
             every { mockSettings.customLists } returns listOf(mockCustomList)
             settingsFlow.value = mockSettings
 

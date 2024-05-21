@@ -109,7 +109,7 @@ private fun PreviewSelectLocationScreen() {
             countries =
                 listOf(
                     RelayItem.Location.Country(
-                        net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("Country 1"),
+                        GeoLocationId.Country("Country 1"),
                         "Code 1",
                         false,
                         emptyList()
@@ -610,7 +610,7 @@ private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int =
         -1
     }
 
-private fun RelayItem.countryCode(): net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country =
+private fun RelayItem.countryCode(): GeoLocationId.Country =
     when (this) {
         is RelayItem.Location -> this.id.country
         is RelayItem.CustomList ->

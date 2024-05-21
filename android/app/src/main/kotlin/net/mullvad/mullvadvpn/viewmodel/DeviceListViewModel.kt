@@ -30,7 +30,7 @@ class DeviceListViewModel(
     private val loadingDevices = MutableStateFlow<List<DeviceId>>(emptyList())
     private val deviceList = MutableStateFlow<List<Device>>(emptyList())
     private val loading = MutableStateFlow(true)
-    private val error = MutableStateFlow<net.mullvad.mullvadvpn.lib.model.GetDeviceListError?>(null)
+    private val error = MutableStateFlow<GetDeviceListError?>(null)
 
     private val _uiSideEffect = Channel<DeviceListSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()

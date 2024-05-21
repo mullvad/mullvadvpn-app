@@ -39,7 +39,7 @@ class DeleteCustomListConfirmationViewModelTest {
 
     private fun createViewModel() =
         DeleteCustomListConfirmationViewModel(
-            customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1"),
+            customListId = CustomListId("1"),
             customListActionUseCase = mockCustomListActionUseCase
         )
 }

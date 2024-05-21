@@ -10,7 +10,7 @@ sealed interface CustomListResult : Parcelable {
 
     @Parcelize
     data class Created(
-        val id: net.mullvad.mullvadvpn.lib.model.CustomListId,
+        val id: CustomListId,
         val name: CustomListName,
         val locationNames: List<String>,
         override val undo: CustomListAction.Delete

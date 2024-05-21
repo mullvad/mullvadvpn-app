@@ -29,14 +29,13 @@ class CustomListsRepository(
 
     suspend fun createCustomList(name: CustomListName) = managementService.createCustomList(name)
 
-    suspend fun deleteCustomList(id: net.mullvad.mullvadvpn.lib.model.CustomListId) =
-        managementService.deleteCustomList(id)
+    suspend fun deleteCustomList(id: CustomListId) = managementService.deleteCustomList(id)
 
     private suspend fun updateCustomList(customList: CustomList) =
         managementService.updateCustomList(customList)
 
     suspend fun updateCustomListName(
-        id: net.mullvad.mullvadvpn.lib.model.CustomListId,
+        id: CustomListId,
         name: CustomListName
     ): Either<ModifyCustomListError, Unit> = either {
         val customList = getCustomListById(id).bind()
@@ -44,16 +43,14 @@ class CustomListsRepository(
     }
 
     suspend fun updateCustomListLocations(
-        id: net.mullvad.mullvadvpn.lib.model.CustomListId,
-        locations: List<net.mullvad.mullvadvpn.lib.model.GeoLocationId>
+        id: CustomListId,
+        locations: List<GeoLocationId>
     ): Either<ModifyCustomListError, Unit> = either {
         val customList = getCustomListById(id).bind()
         updateCustomList(customList.copy(locations = locations)).bind()
     }
 
-    suspend fun getCustomListById(
-        id: net.mullvad.mullvadvpn.lib.model.CustomListId
-    ): Either<GetCustomListError, CustomList> =
+    suspend fun getCustomListById(id: CustomListId): Either<GetCustomListError, CustomList> =
         either {
                 customLists
                     .mapNotNull { it?.find { customList -> customList.id == id } }

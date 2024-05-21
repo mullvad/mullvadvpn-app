@@ -71,7 +71,7 @@ fun CustomListLocations(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<CustomListResult.LocationsChanged>,
     discardChangesResultRecipient: ResultRecipient<DiscardChangesDialogDestination, Boolean>,
-    customListId: net.mullvad.mullvadvpn.lib.model.CustomListId,
+    customListId: CustomListId,
     newList: Boolean,
 ) {
     val customListsViewModel =
