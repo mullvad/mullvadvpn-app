@@ -9,19 +9,27 @@ import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 sealed interface CustomListAction : Parcelable {
 
     @Parcelize
-    data class Rename(val id: net.mullvad.mullvadvpn.lib.model.CustomListId, val name: CustomListName, val newName: CustomListName) :
-        CustomListAction {
+    data class Rename(
+        val id: net.mullvad.mullvadvpn.lib.model.CustomListId,
+        val name: CustomListName,
+        val newName: CustomListName
+    ) : CustomListAction {
         fun not() = this.copy(name = newName, newName = name)
     }
 
     @Parcelize
     data class Delete(val id: net.mullvad.mullvadvpn.lib.model.CustomListId) : CustomListAction {
-        fun not(name: CustomListName, locations: List<net.mullvad.mullvadvpn.lib.model.GeoLocationId>) = Create(name, locations)
+        fun not(
+            name: CustomListName,
+            locations: List<net.mullvad.mullvadvpn.lib.model.GeoLocationId>
+        ) = Create(name, locations)
     }
 
     @Parcelize
-    data class Create(val name: CustomListName, val locations: List<net.mullvad.mullvadvpn.lib.model.GeoLocationId>) :
-        CustomListAction {
+    data class Create(
+        val name: CustomListName,
+        val locations: List<net.mullvad.mullvadvpn.lib.model.GeoLocationId>
+    ) : CustomListAction {
         fun not(customListId: net.mullvad.mullvadvpn.lib.model.CustomListId) = Delete(customListId)
     }
 

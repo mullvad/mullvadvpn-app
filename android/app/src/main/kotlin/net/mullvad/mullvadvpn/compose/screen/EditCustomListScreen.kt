@@ -42,11 +42,11 @@ import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -64,7 +64,9 @@ private fun PreviewEditCustomListScreen() {
                         listOf(
                             net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname(
                                 net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(
-                                    net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("country"),
+                                    net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country(
+                                        "country"
+                                    ),
                                     cityCode = "city"
                                 ),
                                 "hostname",
@@ -126,7 +128,10 @@ fun EditCustomList(
 fun EditCustomListScreen(
     state: EditCustomListState,
     onDeleteList: (name: CustomListName) -> Unit = {},
-    onNameClicked: (id: net.mullvad.mullvadvpn.lib.model.CustomListId, name: CustomListName) -> Unit = { _, _ -> },
+    onNameClicked:
+        (id: net.mullvad.mullvadvpn.lib.model.CustomListId, name: CustomListName) -> Unit =
+        { _, _ ->
+        },
     onLocationsClicked: (net.mullvad.mullvadvpn.lib.model.CustomListId) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {

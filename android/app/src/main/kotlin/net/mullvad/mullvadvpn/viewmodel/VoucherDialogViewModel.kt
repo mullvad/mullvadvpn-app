@@ -11,8 +11,8 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
 import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
-import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
+import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
 import net.mullvad.mullvadvpn.util.VoucherRegexHelper
 
 class VoucherDialogViewModel(private val voucherRepository: VoucherRepository) : ViewModel() {

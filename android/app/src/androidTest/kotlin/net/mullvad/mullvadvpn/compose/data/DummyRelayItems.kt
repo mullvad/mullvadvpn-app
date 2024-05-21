@@ -16,7 +16,11 @@ private val DUMMY_RELAY_1 =
     RelayItem.Location.Relay(
         id =
             net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname(
-                city = net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("RCo1"), "Relay City 1"),
+                city =
+                    net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(
+                        net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("RCo1"),
+                        "Relay City 1"
+                    ),
                 "Relay host 1"
             ),
         active = true,
@@ -30,7 +34,11 @@ private val DUMMY_RELAY_2 =
     RelayItem.Location.Relay(
         id =
             net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname(
-                city = net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("RCo2"), "Relay City 2"),
+                city =
+                    net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(
+                        net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("RCo2"),
+                        "Relay City 2"
+                    ),
                 "Relay host 2"
             ),
         active = true,
@@ -40,14 +48,22 @@ private val DUMMY_RELAY_2 =
 private val DUMMY_RELAY_CITY_1 =
     RelayItem.Location.City(
         name = "Relay City 1",
-        id = net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(countryCode = net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("RCo1"), cityCode = "RCi1"),
+        id =
+            net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(
+                countryCode = net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("RCo1"),
+                cityCode = "RCi1"
+            ),
         relays = listOf(DUMMY_RELAY_1),
         expanded = false
     )
 private val DUMMY_RELAY_CITY_2 =
     RelayItem.Location.City(
         name = "Relay City 2",
-        id = net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(countryCode = net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("RCo2"), cityCode = "RCi2"),
+        id =
+            net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(
+                countryCode = net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("RCo2"),
+                cityCode = "RCi2"
+            ),
         relays = listOf(DUMMY_RELAY_2),
         expanded = false
     )

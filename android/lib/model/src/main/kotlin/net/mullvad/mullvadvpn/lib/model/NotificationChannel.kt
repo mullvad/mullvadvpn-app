@@ -11,4 +11,3 @@ sealed interface NotificationChannel {
         override val id: ChannelId = ChannelId("account_updates")
     }
 }
-
