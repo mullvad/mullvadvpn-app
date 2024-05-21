@@ -19,9 +19,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
-import net.mullvad.mullvadvpn.lib.account.AccountRepository
-import net.mullvad.mullvadvpn.lib.account.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
 import net.mullvad.mullvadvpn.model.AccountData
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.ErrorState
@@ -87,6 +88,9 @@ class ConnectViewModelTest {
     // Last known location
     private val mockLastKnownLocationUseCase: LastKnownLocationUseCase = mockk()
 
+    // VpnPermissionRepository
+    private val mockVpnPermissionRepository: VpnPermissionRepository = mockk(relaxed = true)
+
     @BeforeEach
     fun setup() {
         mockkStatic(TUNNEL_ENDPOINT_EXTENSIONS)
@@ -122,6 +126,7 @@ class ConnectViewModelTest {
                 selectedLocationRelayItemUseCase = mockSelectedLocationRelayItemUseCase,
                 connectionProxy = mockConnectionProxy,
                 lastKnownLocationUseCase = mockLastKnownLocationUseCase,
+                vpnPermissionRepository = mockVpnPermissionRepository,
                 isPlayBuild = false
             )
     }

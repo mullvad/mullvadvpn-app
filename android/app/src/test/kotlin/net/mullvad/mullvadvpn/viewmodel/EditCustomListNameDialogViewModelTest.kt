@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.UpdateCustomListError
+import net.mullvad.mullvadvpn.model.CustomListName
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.RenameCustomListError
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -48,8 +48,7 @@ class EditCustomListNameDialogViewModelTest {
         // Arrange
         val customListId = CustomListId("id2")
         val customListName = "list2"
-        val expectedError =
-            RenameCustomListError.Modify(UpdateCustomListError.NameAlreadyExists(customListName))
+        val expectedError = RenameCustomListError.NameAlreadyExists(customListName)
         val viewModel = createViewModel(customListId, customListName)
         coEvery {
             mockCustomListActionUseCase.performAction(any<CustomListAction.Rename>())
@@ -69,10 +68,7 @@ class EditCustomListNameDialogViewModelTest {
             // Arrange
             val customListId = CustomListId("id")
             val customListName = "list"
-            val expectedError =
-                RenameCustomListError.Modify(
-                    UpdateCustomListError.NameAlreadyExists(customListName)
-                )
+            val expectedError = RenameCustomListError.NameAlreadyExists(customListName)
             val viewModel = createViewModel(customListId, customListName)
             coEvery {
                 mockCustomListActionUseCase.performAction(any<CustomListAction.Rename>())
@@ -91,7 +87,7 @@ class EditCustomListNameDialogViewModelTest {
     private fun createViewModel(customListId: CustomListId, initialName: String) =
         EditCustomListNameDialogViewModel(
             customListId = customListId,
-            initialName = initialName,
+            initialName = CustomListName.fromString(initialName),
             customListActionUseCase = mockCustomListActionUseCase
         )
 }
