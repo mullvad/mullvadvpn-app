@@ -15,8 +15,8 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.model.RedeemVoucherError
-import net.mullvad.mullvadvpn.model.RedeemVoucherSuccess
+import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
+import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
 import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.model
+package net.mullvad.mullvadvpn.lib.model
 
 import kotlin.math.absoluteValue
 import kotlin.test.assertEquals

@@ -9,9 +9,9 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.RelayFilterState
-import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.model.Provider
-import net.mullvad.mullvadvpn.model.ProviderId
+import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.Provider
+import net.mullvad.mullvadvpn.lib.model.ProviderId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 

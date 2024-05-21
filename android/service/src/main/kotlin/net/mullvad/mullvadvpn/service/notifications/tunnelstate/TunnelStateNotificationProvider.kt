@@ -13,16 +13,16 @@ import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
-import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
-import net.mullvad.mullvadvpn.model.ChannelId
-import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.model.ErrorStateCause
-import net.mullvad.mullvadvpn.model.Notification
-import net.mullvad.mullvadvpn.model.NotificationAction
-import net.mullvad.mullvadvpn.model.NotificationId
-import net.mullvad.mullvadvpn.model.NotificationTunnelState
-import net.mullvad.mullvadvpn.model.NotificationUpdate
-import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.lib.model.ChannelId
+import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.Notification
+import net.mullvad.mullvadvpn.lib.model.NotificationAction
+import net.mullvad.mullvadvpn.lib.model.NotificationId
+import net.mullvad.mullvadvpn.lib.model.NotificationTunnelState
+import net.mullvad.mullvadvpn.lib.model.NotificationUpdate
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 
 class TunnelStateNotificationProvider(

@@ -2,12 +2,12 @@ package net.mullvad.mullvadvpn.usecase
 
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.CustomList
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.GeoLocationId
-import net.mullvad.mullvadvpn.model.RelayItem
-import net.mullvad.mullvadvpn.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.CustomList
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.relaylist.findItemForGeoLocationId
 import net.mullvad.mullvadvpn.relaylist.toRelayItemCustomList
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
@@ -31,25 +31,25 @@ class SelectedLocationRelayItemUseCase(
         }
 
     private fun findSelectedRelayItemWithTitle(
-        locationConstraint: Constraint<RelayItemId>,
+        locationConstraint: Constraint<net.mullvad.mullvadvpn.lib.model.RelayItemId>,
         relayCountries: List<RelayItem.Location.Country>,
         customLists: List<CustomList>
     ): Pair<RelayItem, String>? {
         return if (locationConstraint is Constraint.Only) {
             when (val location = locationConstraint.value) {
-                is CustomListId -> {
+                is net.mullvad.mullvadvpn.lib.model.CustomListId -> {
                     customLists
                         .firstOrNull { it.id == location }
                         ?.toRelayItemCustomList(relayCountries)
                         ?.withTitle()
                 }
-                is GeoLocationId.Hostname -> {
+                is net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname -> {
                     relayCountries.findItemForGeoLocationId(location.city)?.let { item ->
                         val city = item as RelayItem.Location.City
                         city.relays.firstOrNull { it.id == location }?.withTitle(city.name)
                     }
                 }
-                is GeoLocationId -> {
+                is net.mullvad.mullvadvpn.lib.model.GeoLocationId -> {
                     relayCountries.findItemForGeoLocationId(location)?.withTitle()
                 }
             }

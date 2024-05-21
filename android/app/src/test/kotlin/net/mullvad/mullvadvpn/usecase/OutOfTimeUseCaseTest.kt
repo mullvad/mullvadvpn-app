@@ -17,10 +17,10 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
-import net.mullvad.mullvadvpn.model.AccountData
-import net.mullvad.mullvadvpn.model.ErrorState
-import net.mullvad.mullvadvpn.model.ErrorStateCause
-import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.lib.model.AccountData
+import net.mullvad.mullvadvpn.lib.model.ErrorState
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

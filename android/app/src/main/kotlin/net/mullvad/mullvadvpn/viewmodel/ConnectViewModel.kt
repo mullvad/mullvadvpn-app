@@ -18,11 +18,11 @@ import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
-import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
-import net.mullvad.mullvadvpn.model.ConnectError
-import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.lib.model.ConnectError
+import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.TunnelState
+import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase

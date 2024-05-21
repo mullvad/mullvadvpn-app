@@ -8,10 +8,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.typeface.connectionStatus
-import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
-import net.mullvad.mullvadvpn.model.ErrorState
-import net.mullvad.mullvadvpn.model.ErrorStateCause
-import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.lib.model.ErrorState
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 
 @Preview
 @Composable

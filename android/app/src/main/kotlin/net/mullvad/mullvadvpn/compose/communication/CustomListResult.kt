@@ -2,15 +2,15 @@ package net.mullvad.mullvadvpn.compose.communication
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
 
 sealed interface CustomListResult : Parcelable {
     val undo: CustomListAction
 
     @Parcelize
     data class Created(
-        val id: CustomListId,
+        val id: net.mullvad.mullvadvpn.lib.model.CustomListId,
         val name: CustomListName,
         val locationNames: List<String>,
         override val undo: CustomListAction.Delete

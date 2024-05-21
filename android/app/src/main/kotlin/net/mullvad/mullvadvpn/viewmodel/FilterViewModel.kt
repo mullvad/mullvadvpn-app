@@ -16,8 +16,8 @@ import net.mullvad.mullvadvpn.compose.state.toConstraintProviders
 import net.mullvad.mullvadvpn.compose.state.toNullableOwnership
 import net.mullvad.mullvadvpn.compose.state.toOwnershipConstraint
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
-import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.model.Provider
+import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 

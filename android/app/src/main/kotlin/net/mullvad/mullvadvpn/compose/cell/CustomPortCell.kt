@@ -31,7 +31,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.color.selected
-import net.mullvad.mullvadvpn.model.Port
+import net.mullvad.mullvadvpn.lib.model.Port
 
 @Preview
 @Composable

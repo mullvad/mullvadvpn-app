@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.model.ConnectError
+import net.mullvad.mullvadvpn.lib.model.ConnectError
 
 class ConnectionProxy(
     private val managementService: ManagementService,

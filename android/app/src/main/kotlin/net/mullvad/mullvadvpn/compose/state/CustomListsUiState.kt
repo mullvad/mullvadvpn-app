@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.model.CustomList
+import net.mullvad.mullvadvpn.lib.model.CustomList
 
 interface CustomListsUiState {
     object Loading : CustomListsUiState

@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
-import net.mullvad.mullvadvpn.model.AppId
+import net.mullvad.mullvadvpn.lib.model.AppId
 
 data class SplitTunnelingViewModelState(
     val enabled: Boolean = false,

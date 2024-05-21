@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 
 class MtuDialogViewModel(

@@ -38,7 +38,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisconnectButton
 import net.mullvad.mullvadvpn.lib.theme.color.onVariant
 import net.mullvad.mullvadvpn.lib.theme.color.variant
-import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 
 @Composable
 fun ConnectionButton(

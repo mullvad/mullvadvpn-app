@@ -43,7 +43,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.color.selected
-import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.children
 
 @Composable

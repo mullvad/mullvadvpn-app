@@ -10,12 +10,12 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.PortRange
-import net.mullvad.mullvadvpn.model.RelayItem
-import net.mullvad.mullvadvpn.model.RelayItemId
-import net.mullvad.mullvadvpn.model.WireguardConstraints
-import net.mullvad.mullvadvpn.model.WireguardEndpointData
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.PortRange
+import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
+import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
 
 class RelayListRepository(
     private val managementService: ManagementService,
@@ -35,7 +35,7 @@ class RelayListRepository(
             defaultWireguardEndpointData()
         )
 
-    val selectedLocation: StateFlow<Constraint<RelayItemId>> =
+    val selectedLocation: StateFlow<Constraint<net.mullvad.mullvadvpn.lib.model.RelayItemId>> =
         managementService.settings
             .map { it.relaySettings.relayConstraints.location }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
@@ -43,7 +43,7 @@ class RelayListRepository(
     val portRanges: Flow<List<PortRange>> =
         wireguardEndpointData.map { it.portRanges }.distinctUntilChanged()
 
-    suspend fun updateSelectedRelayLocation(value: RelayItemId) =
+    suspend fun updateSelectedRelayLocation(value: net.mullvad.mullvadvpn.lib.model.RelayItemId) =
         managementService.setRelayLocation(value)
 
     suspend fun updateSelectedWireguardConstraints(value: WireguardConstraints) =

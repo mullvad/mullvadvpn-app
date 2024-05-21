@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.util
 
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
-import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.Port
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.Port
 
 fun Constraint<Port>.hasValue(value: Int) =
     when (this) {

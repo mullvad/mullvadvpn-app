@@ -11,12 +11,12 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.common.util.firstOrNullWithTimeout
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.model.CustomList
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.GeoLocationId
-import net.mullvad.mullvadvpn.model.GetCustomListError
-import net.mullvad.mullvadvpn.model.ModifyCustomListError
+import net.mullvad.mullvadvpn.lib.model.CustomList
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.GetCustomListError
+import net.mullvad.mullvadvpn.lib.model.ModifyCustomListError
 
 class CustomListsRepository(
     private val managementService: ManagementService,
@@ -29,13 +29,13 @@ class CustomListsRepository(
 
     suspend fun createCustomList(name: CustomListName) = managementService.createCustomList(name)
 
-    suspend fun deleteCustomList(id: CustomListId) = managementService.deleteCustomList(id)
+    suspend fun deleteCustomList(id: net.mullvad.mullvadvpn.lib.model.CustomListId) = managementService.deleteCustomList(id)
 
     private suspend fun updateCustomList(customList: CustomList) =
         managementService.updateCustomList(customList)
 
     suspend fun updateCustomListName(
-        id: CustomListId,
+        id: net.mullvad.mullvadvpn.lib.model.CustomListId,
         name: CustomListName
     ): Either<ModifyCustomListError, Unit> = either {
         val customList = getCustomListById(id).bind()
@@ -43,14 +43,14 @@ class CustomListsRepository(
     }
 
     suspend fun updateCustomListLocations(
-        id: CustomListId,
-        locations: List<GeoLocationId>
+        id: net.mullvad.mullvadvpn.lib.model.CustomListId,
+        locations: List<net.mullvad.mullvadvpn.lib.model.GeoLocationId>
     ): Either<ModifyCustomListError, Unit> = either {
         val customList = getCustomListById(id).bind()
         updateCustomList(customList.copy(locations = locations)).bind()
     }
 
-    suspend fun getCustomListById(id: CustomListId): Either<GetCustomListError, CustomList> =
+    suspend fun getCustomListById(id: net.mullvad.mullvadvpn.lib.model.CustomListId): Either<GetCustomListError, CustomList> =
         either {
                 customLists
                     .mapNotNull { it?.find { customList -> customList.id == id } }

@@ -90,11 +90,11 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.mullvadvpn.model.LatLong
-import net.mullvad.mullvadvpn.model.Latitude
-import net.mullvad.mullvadvpn.model.Longitude
-import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
+import net.mullvad.mullvadvpn.lib.model.LatLong
+import net.mullvad.mullvadvpn.lib.model.Latitude
+import net.mullvad.mullvadvpn.lib.model.Longitude
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.util.removeHtmlTags
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel

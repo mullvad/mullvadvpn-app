@@ -43,7 +43,7 @@ import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
-import net.mullvad.mullvadvpn.model.RedeemVoucherError
+import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import org.joda.time.DateTimeConstants
 import org.koin.androidx.compose.koinViewModel

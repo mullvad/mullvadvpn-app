@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "net.mullvad.mullvadvpn.model"
+    namespace = "net.mullvad.mullvadvpn.lib.model"
     compileSdk = Versions.Android.compileSdkVersion
 
     defaultConfig {

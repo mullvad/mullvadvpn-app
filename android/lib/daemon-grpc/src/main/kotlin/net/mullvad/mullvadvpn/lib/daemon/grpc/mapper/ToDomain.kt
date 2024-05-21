@@ -9,61 +9,61 @@ import java.util.UUID
 import mullvad_daemon.management_interface.ManagementInterface
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.RelayNameComparator
-import net.mullvad.mullvadvpn.model.AccountData
-import net.mullvad.mullvadvpn.model.AccountId
-import net.mullvad.mullvadvpn.model.AccountToken
-import net.mullvad.mullvadvpn.model.ActionAfterDisconnect
-import net.mullvad.mullvadvpn.model.AppId
-import net.mullvad.mullvadvpn.model.AppVersionInfo
-import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.CustomDnsOptions
-import net.mullvad.mullvadvpn.model.CustomList
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.DefaultDnsOptions
-import net.mullvad.mullvadvpn.model.Device
-import net.mullvad.mullvadvpn.model.DeviceId
-import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.model.DnsOptions
-import net.mullvad.mullvadvpn.model.DnsState
-import net.mullvad.mullvadvpn.model.Endpoint
-import net.mullvad.mullvadvpn.model.ErrorState
-import net.mullvad.mullvadvpn.model.ErrorStateCause
-import net.mullvad.mullvadvpn.model.FirewallPolicyError
-import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.mullvadvpn.model.GeoLocationId
-import net.mullvad.mullvadvpn.model.Mtu
-import net.mullvad.mullvadvpn.model.ObfuscationEndpoint
-import net.mullvad.mullvadvpn.model.ObfuscationSettings
-import net.mullvad.mullvadvpn.model.ObfuscationType
-import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.model.ParameterGenerationError
-import net.mullvad.mullvadvpn.model.PlayPurchasePaymentToken
-import net.mullvad.mullvadvpn.model.Port
-import net.mullvad.mullvadvpn.model.PortRange
-import net.mullvad.mullvadvpn.model.Provider
-import net.mullvad.mullvadvpn.model.ProviderId
-import net.mullvad.mullvadvpn.model.Providers
-import net.mullvad.mullvadvpn.model.QuantumResistantState
-import net.mullvad.mullvadvpn.model.RedeemVoucherSuccess
-import net.mullvad.mullvadvpn.model.RelayConstraints
-import net.mullvad.mullvadvpn.model.RelayItem
-import net.mullvad.mullvadvpn.model.RelayItemId
-import net.mullvad.mullvadvpn.model.RelayList
-import net.mullvad.mullvadvpn.model.RelayOverride
-import net.mullvad.mullvadvpn.model.RelaySettings
-import net.mullvad.mullvadvpn.model.SelectedObfuscation
-import net.mullvad.mullvadvpn.model.Settings
-import net.mullvad.mullvadvpn.model.SplitTunnelSettings
-import net.mullvad.mullvadvpn.model.TransportProtocol
-import net.mullvad.mullvadvpn.model.TunnelEndpoint
-import net.mullvad.mullvadvpn.model.TunnelOptions
-import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings
-import net.mullvad.mullvadvpn.model.WireguardConstraints
-import net.mullvad.mullvadvpn.model.WireguardEndpointData
-import net.mullvad.mullvadvpn.model.WireguardTunnelOptions
-import net.mullvad.mullvadvpn.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.AccountData
+import net.mullvad.mullvadvpn.lib.model.AccountId
+import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.lib.model.AppId
+import net.mullvad.mullvadvpn.lib.model.AppVersionInfo
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
+import net.mullvad.mullvadvpn.lib.model.CustomList
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
+import net.mullvad.mullvadvpn.lib.model.Device
+import net.mullvad.mullvadvpn.lib.model.DeviceId
+import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.DnsOptions
+import net.mullvad.mullvadvpn.lib.model.DnsState
+import net.mullvad.mullvadvpn.lib.model.Endpoint
+import net.mullvad.mullvadvpn.lib.model.ErrorState
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.FirewallPolicyError
+import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.ObfuscationEndpoint
+import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
+import net.mullvad.mullvadvpn.lib.model.ObfuscationType
+import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
+import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
+import net.mullvad.mullvadvpn.lib.model.Port
+import net.mullvad.mullvadvpn.lib.model.PortRange
+import net.mullvad.mullvadvpn.lib.model.Provider
+import net.mullvad.mullvadvpn.lib.model.ProviderId
+import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
+import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
+import net.mullvad.mullvadvpn.lib.model.RelayConstraints
+import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.RelayList
+import net.mullvad.mullvadvpn.lib.model.RelayOverride
+import net.mullvad.mullvadvpn.lib.model.RelaySettings
+import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
+import net.mullvad.mullvadvpn.lib.model.Settings
+import net.mullvad.mullvadvpn.lib.model.SplitTunnelSettings
+import net.mullvad.mullvadvpn.lib.model.TransportProtocol
+import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
+import net.mullvad.mullvadvpn.lib.model.TunnelOptions
+import net.mullvad.mullvadvpn.lib.model.TunnelState
+import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
+import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
+import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
+import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
+import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
 import org.joda.time.Instant
 
 internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
@@ -274,10 +274,10 @@ internal fun ManagementInterface.NormalRelaySettings.toDomain(): RelayConstraint
         wireguardConstraints = wireguardConstraints.toDomain()
     )
 
-internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<RelayItemId> =
+internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<net.mullvad.mullvadvpn.lib.model.RelayItemId> =
     when (typeCase) {
         ManagementInterface.LocationConstraint.TypeCase.CUSTOM_LIST ->
-            Constraint.Only(CustomListId(customList))
+            Constraint.Only(net.mullvad.mullvadvpn.lib.model.CustomListId(customList))
         ManagementInterface.LocationConstraint.TypeCase.LOCATION ->
             Constraint.Only(location.toDomain())
         ManagementInterface.LocationConstraint.TypeCase.TYPE_NOT_SET -> Constraint.Any
@@ -285,17 +285,17 @@ internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<Relay
     }
 
 @Suppress("ReturnCount")
-internal fun ManagementInterface.GeographicLocationConstraint.toDomain(): GeoLocationId {
-    val country = GeoLocationId.Country(country)
+internal fun ManagementInterface.GeographicLocationConstraint.toDomain(): net.mullvad.mullvadvpn.lib.model.GeoLocationId {
+    val country = net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country(country)
     if (!hasCity()) {
         return country
     }
 
-    val city = GeoLocationId.City(country, city)
+    val city = net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(country, city)
     if (!hasHostname()) {
         return city
     }
-    return GeoLocationId.Hostname(city, hostname)
+    return net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname(city, hostname)
 }
 
 internal fun List<String>.toDomain(): Constraint<Providers> =
@@ -346,7 +346,7 @@ internal fun ManagementInterface.Udp2TcpObfuscationSettings.toDomain(): Udp2TcpO
 
 internal fun ManagementInterface.CustomList.toDomain(): CustomList =
     CustomList(
-        id = CustomListId(id),
+        id = net.mullvad.mullvadvpn.lib.model.CustomListId(id),
         name = CustomListName.fromString(name),
         locations = locationsList.map { it.toDomain() }
     )
@@ -443,8 +443,8 @@ internal fun ConnectivityState.toDomain(): GrpcConnectivityState =
         ConnectivityState.SHUTDOWN -> GrpcConnectivityState.Shutdown
     }
 
-internal fun ManagementInterface.RelayList.toDomain(): RelayList =
-    RelayList(countriesList.toDomain(), wireguard.toDomain())
+internal fun ManagementInterface.RelayList.toDomain(): net.mullvad.mullvadvpn.lib.model.RelayList =
+    net.mullvad.mullvadvpn.lib.model.RelayList(countriesList.toDomain(), wireguard.toDomain())
 
 internal fun ManagementInterface.WireguardEndpointData.toDomain(): WireguardEndpointData =
     WireguardEndpointData(portRangesList.map { it.toDomain() })
@@ -464,7 +464,7 @@ internal fun List<ManagementInterface.RelayListCountry>.toDomain():
                 val cities = mutableListOf<RelayItem.Location.City>()
                 val relayCountry =
                     RelayItem.Location.Country(
-                        GeoLocationId.Country(country.code),
+                        net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country(country.code),
                         country.name,
                         false,
                         cities
@@ -475,7 +475,7 @@ internal fun List<ManagementInterface.RelayListCountry>.toDomain():
                     val relayCity =
                         RelayItem.Location.City(
                             name = city.name,
-                            id = GeoLocationId.City(GeoLocationId.Country(country.code), city.code),
+                            id = net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country(country.code), city.code),
                             expanded = false,
                             relays = relays
                         )
@@ -489,9 +489,9 @@ internal fun List<ManagementInterface.RelayListCountry>.toDomain():
                         relays.add(
                             RelayItem.Location.Relay(
                                 id =
-                                    GeoLocationId.Hostname(
-                                        GeoLocationId.City(
-                                            GeoLocationId.Country(country.code),
+                                    net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname(
+                                        net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(
+                                            net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country(country.code),
                                             city.code
                                         ),
                                         relay.hostname

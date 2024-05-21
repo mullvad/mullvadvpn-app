@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.model.RedeemVoucherError
+import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 
 data class VoucherDialogUiState(
     val voucherInput: String = "",

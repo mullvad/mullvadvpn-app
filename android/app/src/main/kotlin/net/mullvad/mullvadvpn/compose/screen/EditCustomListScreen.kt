@@ -44,9 +44,9 @@ import net.mullvad.mullvadvpn.compose.test.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -58,13 +58,13 @@ private fun PreviewEditCustomListScreen() {
         EditCustomListScreen(
             state =
                 EditCustomListState.Content(
-                    id = CustomListId("id"),
+                    id = net.mullvad.mullvadvpn.lib.model.CustomListId("id"),
                     name = CustomListName.fromString("Custom list"),
                     locations =
                         listOf(
-                            GeoLocationId.Hostname(
-                                GeoLocationId.City(
-                                    GeoLocationId.Country("country"),
+                            net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname(
+                                net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(
+                                    net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("country"),
                                     cityCode = "city"
                                 ),
                                 "hostname",
@@ -80,7 +80,7 @@ private fun PreviewEditCustomListScreen() {
 fun EditCustomList(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<CustomListResult.Deleted>,
-    customListId: CustomListId,
+    customListId: net.mullvad.mullvadvpn.lib.model.CustomListId,
     confirmDeleteListResultRecipient:
         ResultRecipient<DeleteCustomListDestination, CustomListResult.Deleted>
 ) {
@@ -126,8 +126,8 @@ fun EditCustomList(
 fun EditCustomListScreen(
     state: EditCustomListState,
     onDeleteList: (name: CustomListName) -> Unit = {},
-    onNameClicked: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },
-    onLocationsClicked: (CustomListId) -> Unit = {},
+    onNameClicked: (id: net.mullvad.mullvadvpn.lib.model.CustomListId, name: CustomListName) -> Unit = { _, _ -> },
+    onLocationsClicked: (net.mullvad.mullvadvpn.lib.model.CustomListId) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val title =

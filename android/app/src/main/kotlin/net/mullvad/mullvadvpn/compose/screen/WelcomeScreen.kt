@@ -61,7 +61,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
-import net.mullvad.mullvadvpn.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AccountToken
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import org.koin.androidx.compose.koinViewModel
 

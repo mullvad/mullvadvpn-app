@@ -29,8 +29,8 @@ import net.mullvad.mullvadvpn.compose.state.DeleteCustomListUiState
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -51,7 +51,7 @@ private fun PreviewRemoveDeviceConfirmationDialog() {
 @Destination(style = DestinationStyle.Dialog::class)
 fun DeleteCustomList(
     navigator: ResultBackNavigator<CustomListResult.Deleted>,
-    customListId: CustomListId,
+    customListId: net.mullvad.mullvadvpn.lib.model.CustomListId,
     name: CustomListName
 ) {
     val viewModel: DeleteCustomListConfirmationViewModel =

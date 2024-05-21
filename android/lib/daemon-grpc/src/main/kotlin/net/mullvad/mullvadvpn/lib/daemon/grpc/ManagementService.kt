@@ -40,72 +40,72 @@ import net.mullvad.mullvadvpn.lib.daemon.grpc.mapper.fromDomain
 import net.mullvad.mullvadvpn.lib.daemon.grpc.mapper.toDomain
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.LogInterceptor
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.connectivityFlow
-import net.mullvad.mullvadvpn.model.AccountData
-import net.mullvad.mullvadvpn.model.AccountToken
-import net.mullvad.mullvadvpn.model.AddSplitTunnelingAppError
-import net.mullvad.mullvadvpn.model.AppId
-import net.mullvad.mullvadvpn.model.AppVersionInfo as ModelAppVersionInfo
-import net.mullvad.mullvadvpn.model.ClearAllOverridesError
-import net.mullvad.mullvadvpn.model.ConnectError
-import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.CreateAccountError
-import net.mullvad.mullvadvpn.model.CreateCustomListError
-import net.mullvad.mullvadvpn.model.CustomList as ModelCustomList
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.DeleteCustomListError
-import net.mullvad.mullvadvpn.model.DeleteDeviceError
-import net.mullvad.mullvadvpn.model.Device
-import net.mullvad.mullvadvpn.model.DeviceId
-import net.mullvad.mullvadvpn.model.DeviceState as ModelDeviceState
-import net.mullvad.mullvadvpn.model.DnsOptions as ModelDnsOptions
-import net.mullvad.mullvadvpn.model.DnsOptions
-import net.mullvad.mullvadvpn.model.DnsState as ModelDnsState
-import net.mullvad.mullvadvpn.model.GetAccountDataError
-import net.mullvad.mullvadvpn.model.GetAccountHistoryError
-import net.mullvad.mullvadvpn.model.GetDeviceListError
-import net.mullvad.mullvadvpn.model.GetDeviceStateError
-import net.mullvad.mullvadvpn.model.LoginAccountError
-import net.mullvad.mullvadvpn.model.ObfuscationSettings as ModelObfuscationSettings
-import net.mullvad.mullvadvpn.model.Ownership as ModelOwnership
-import net.mullvad.mullvadvpn.model.PlayPurchase
-import net.mullvad.mullvadvpn.model.PlayPurchaseInitError
-import net.mullvad.mullvadvpn.model.PlayPurchasePaymentToken
-import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyError
-import net.mullvad.mullvadvpn.model.Providers
-import net.mullvad.mullvadvpn.model.QuantumResistantState as ModelQuantumResistantState
-import net.mullvad.mullvadvpn.model.RedeemVoucherError
-import net.mullvad.mullvadvpn.model.RedeemVoucherSuccess
-import net.mullvad.mullvadvpn.model.RelayConstraints
-import net.mullvad.mullvadvpn.model.RelayItem
-import net.mullvad.mullvadvpn.model.RelayItemId as ModelRelayItemId
-import net.mullvad.mullvadvpn.model.RelayList as ModelRelayList
-import net.mullvad.mullvadvpn.model.RelayList
-import net.mullvad.mullvadvpn.model.RelaySettings
-import net.mullvad.mullvadvpn.model.RemoveSplitTunnelingAppError
-import net.mullvad.mullvadvpn.model.SetAllowLanError
-import net.mullvad.mullvadvpn.model.SetAutoConnectError
-import net.mullvad.mullvadvpn.model.SetDnsOptionsError
-import net.mullvad.mullvadvpn.model.SetObfuscationOptionsError
-import net.mullvad.mullvadvpn.model.SetRelayLocationError
-import net.mullvad.mullvadvpn.model.SetWireguardConstraintsError
-import net.mullvad.mullvadvpn.model.SetWireguardMtuError
-import net.mullvad.mullvadvpn.model.SetWireguardQuantumResistantError
-import net.mullvad.mullvadvpn.model.Settings as ModelSettings
-import net.mullvad.mullvadvpn.model.SettingsPatchError
-import net.mullvad.mullvadvpn.model.TunnelState as ModelTunnelState
-import net.mullvad.mullvadvpn.model.UpdateCustomListError
-import net.mullvad.mullvadvpn.model.WireguardConstraints as ModelWireguardConstraints
-import net.mullvad.mullvadvpn.model.WireguardEndpointData as ModelWireguardEndpointData
-import net.mullvad.mullvadvpn.model.WwwAuthToken
-import net.mullvad.mullvadvpn.model.addresses
-import net.mullvad.mullvadvpn.model.customOptions
-import net.mullvad.mullvadvpn.model.location
-import net.mullvad.mullvadvpn.model.ownership
-import net.mullvad.mullvadvpn.model.providers
-import net.mullvad.mullvadvpn.model.relayConstraints
-import net.mullvad.mullvadvpn.model.state
-import net.mullvad.mullvadvpn.model.wireguardConstraints
+import net.mullvad.mullvadvpn.lib.model.AccountData
+import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AddSplitTunnelingAppError
+import net.mullvad.mullvadvpn.lib.model.AppId
+import net.mullvad.mullvadvpn.lib.model.AppVersionInfo as ModelAppVersionInfo
+import net.mullvad.mullvadvpn.lib.model.ClearAllOverridesError
+import net.mullvad.mullvadvpn.lib.model.ConnectError
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.CreateAccountError
+import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
+import net.mullvad.mullvadvpn.lib.model.CustomList as ModelCustomList
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
+import net.mullvad.mullvadvpn.lib.model.DeleteDeviceError
+import net.mullvad.mullvadvpn.lib.model.Device
+import net.mullvad.mullvadvpn.lib.model.DeviceId
+import net.mullvad.mullvadvpn.lib.model.DeviceState as ModelDeviceState
+import net.mullvad.mullvadvpn.lib.model.DnsOptions as ModelDnsOptions
+import net.mullvad.mullvadvpn.lib.model.DnsOptions
+import net.mullvad.mullvadvpn.lib.model.DnsState as ModelDnsState
+import net.mullvad.mullvadvpn.lib.model.GetAccountDataError
+import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
+import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
+import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
+import net.mullvad.mullvadvpn.lib.model.LoginAccountError
+import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings as ModelObfuscationSettings
+import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
+import net.mullvad.mullvadvpn.lib.model.PlayPurchase
+import net.mullvad.mullvadvpn.lib.model.PlayPurchaseInitError
+import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
+import net.mullvad.mullvadvpn.lib.model.PlayPurchaseVerifyError
+import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.QuantumResistantState as ModelQuantumResistantState
+import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
+import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
+import net.mullvad.mullvadvpn.lib.model.RelayConstraints
+import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItemId as ModelRelayItemId
+import net.mullvad.mullvadvpn.lib.model.RelayList as ModelRelayList
+import net.mullvad.mullvadvpn.lib.model.RelayList
+import net.mullvad.mullvadvpn.lib.model.RelaySettings
+import net.mullvad.mullvadvpn.lib.model.RemoveSplitTunnelingAppError
+import net.mullvad.mullvadvpn.lib.model.SetAllowLanError
+import net.mullvad.mullvadvpn.lib.model.SetAutoConnectError
+import net.mullvad.mullvadvpn.lib.model.SetDnsOptionsError
+import net.mullvad.mullvadvpn.lib.model.SetObfuscationOptionsError
+import net.mullvad.mullvadvpn.lib.model.SetRelayLocationError
+import net.mullvad.mullvadvpn.lib.model.SetWireguardConstraintsError
+import net.mullvad.mullvadvpn.lib.model.SetWireguardMtuError
+import net.mullvad.mullvadvpn.lib.model.SetWireguardQuantumResistantError
+import net.mullvad.mullvadvpn.lib.model.Settings as ModelSettings
+import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
+import net.mullvad.mullvadvpn.lib.model.TunnelState as ModelTunnelState
+import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
+import net.mullvad.mullvadvpn.lib.model.WireguardConstraints as ModelWireguardConstraints
+import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
+import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.addresses
+import net.mullvad.mullvadvpn.lib.model.customOptions
+import net.mullvad.mullvadvpn.lib.model.location
+import net.mullvad.mullvadvpn.lib.model.ownership
+import net.mullvad.mullvadvpn.lib.model.providers
+import net.mullvad.mullvadvpn.lib.model.relayConstraints
+import net.mullvad.mullvadvpn.lib.model.state
+import net.mullvad.mullvadvpn.lib.model.wireguardConstraints
 
 @Suppress("TooManyFunctions")
 class ManagementService(
@@ -146,8 +146,8 @@ class ManagementService(
     private val _mutableVersionInfo = MutableStateFlow<ModelAppVersionInfo?>(null)
     val versionInfo: Flow<ModelAppVersionInfo> = _mutableVersionInfo.filterNotNull()
 
-    private val _mutableRelayList = MutableStateFlow<RelayList?>(null)
-    val relayList: Flow<RelayList> = _mutableRelayList.filterNotNull()
+    private val _mutableRelayList = MutableStateFlow<net.mullvad.mullvadvpn.lib.model.RelayList?>(null)
+    val relayList: Flow<net.mullvad.mullvadvpn.lib.model.RelayList> = _mutableRelayList.filterNotNull()
 
     val relayCountries: Flow<List<RelayItem.Location.Country>> =
         relayList.mapNotNull { it.countries }
@@ -205,10 +205,10 @@ class ManagementService(
             .map { it.toDomain() }
             .mapLeft { GetDeviceStateError.Unknown(it) }
 
-    suspend fun getDeviceList(token: AccountToken): Either<GetDeviceListError, List<Device>> =
+    suspend fun getDeviceList(token: AccountToken): Either<net.mullvad.mullvadvpn.lib.model.GetDeviceListError, List<Device>> =
         Either.catch { grpc.listDevices(StringValue.of(token.value)) }
             .map { it.devicesList.map(ManagementInterface.Device::toDomain) }
-            .mapLeft { GetDeviceListError.Unknown(it) }
+            .mapLeft { net.mullvad.mullvadvpn.lib.model.GetDeviceListError.Unknown(it) }
 
     suspend fun removeDevice(
         token: AccountToken,
@@ -269,7 +269,7 @@ class ManagementService(
         grpc.clearAccountHistory(Empty.getDefaultInstance())
     }
 
-    suspend fun getAccountHistory(): Either<GetAccountHistoryError, AccountToken?> =
+    suspend fun getAccountHistory(): Either<net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError, AccountToken?> =
         Either.catch {
                 val history = grpc.getAccountHistory(Empty.getDefaultInstance())
                 if (history.hasToken()) {
@@ -278,7 +278,7 @@ class ManagementService(
                     null
                 }
             }
-            .mapLeftStatus { GetAccountHistoryError.Unknown(it) }
+            .mapLeftStatus { net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError.Unknown(it) }
 
     private suspend fun getInitialServiceState() {
         withContext(Dispatchers.IO) {
@@ -409,9 +409,9 @@ class ManagementService(
 
     suspend fun createCustomList(
         name: CustomListName
-    ): Either<CreateCustomListError, CustomListId> =
+    ): Either<CreateCustomListError, net.mullvad.mullvadvpn.lib.model.CustomListId> =
         Either.catch { grpc.createCustomList(StringValue.of(name.value)) }
-            .map { CustomListId(it.value) }
+            .map { net.mullvad.mullvadvpn.lib.model.CustomListId(it.value) }
             .mapLeftStatus {
                 when (it.status.code) {
                     Status.Code.ALREADY_EXISTS -> CreateCustomListError.CustomListAlreadyExists
@@ -424,7 +424,7 @@ class ManagementService(
             .mapLeft(UpdateCustomListError::Unknown)
             .mapEmpty()
 
-    suspend fun deleteCustomList(id: CustomListId): Either<DeleteCustomListError, Unit> =
+    suspend fun deleteCustomList(id: net.mullvad.mullvadvpn.lib.model.CustomListId): Either<DeleteCustomListError, Unit> =
         Either.catch { grpc.deleteCustomList(StringValue.of(id.value)) }
             .mapLeft(DeleteCustomListError::Unknown)
             .mapEmpty()

@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import net.mullvad.mullvadvpn.model.ErrorState
+import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase

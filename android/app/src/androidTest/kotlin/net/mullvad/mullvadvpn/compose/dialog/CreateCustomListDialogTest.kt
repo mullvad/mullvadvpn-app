@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.compose.test.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
-import net.mullvad.mullvadvpn.model.CreateCustomListError
+import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
 import net.mullvad.mullvadvpn.usecase.customlists.CreateCustomListWithLocationsError
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

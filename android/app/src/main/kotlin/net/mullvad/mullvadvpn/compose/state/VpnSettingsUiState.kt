@@ -1,12 +1,12 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.DefaultDnsOptions
-import net.mullvad.mullvadvpn.model.Mtu
-import net.mullvad.mullvadvpn.model.Port
-import net.mullvad.mullvadvpn.model.PortRange
-import net.mullvad.mullvadvpn.model.QuantumResistantState
-import net.mullvad.mullvadvpn.model.SelectedObfuscation
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
+import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.Port
+import net.mullvad.mullvadvpn.lib.model.PortRange
+import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
+import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 
 data class VpnSettingsUiState(

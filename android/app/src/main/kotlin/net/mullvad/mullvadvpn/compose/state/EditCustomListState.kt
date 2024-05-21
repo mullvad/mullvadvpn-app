@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 
 sealed interface EditCustomListState {
     data object Loading : EditCustomListState
@@ -10,8 +10,8 @@ sealed interface EditCustomListState {
     data object NotFound : EditCustomListState
 
     data class Content(
-        val id: CustomListId,
+        val id: net.mullvad.mullvadvpn.lib.model.CustomListId,
         val name: CustomListName,
-        val locations: List<GeoLocationId>
+        val locations: List<net.mullvad.mullvadvpn.lib.model.GeoLocationId>
     ) : EditCustomListState
 }

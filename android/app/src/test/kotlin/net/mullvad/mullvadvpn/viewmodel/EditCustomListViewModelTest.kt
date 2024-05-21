@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.EditCustomListState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.model.CustomList
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.CustomList
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -23,10 +23,10 @@ class EditCustomListViewModelTest {
     @Test
     fun `given a custom list id that does not exists should return not found ui state`() = runTest {
         // Arrange
-        val customListId = CustomListId("2")
+        val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("2")
         val customList =
             CustomList(
-                id = CustomListId("1"),
+                id = net.mullvad.mullvadvpn.lib.model.CustomListId("1"),
                 name = CustomListName.fromString("test"),
                 locations = emptyList()
             )
@@ -43,7 +43,7 @@ class EditCustomListViewModelTest {
     @Test
     fun `given a custom list id that exists should return content ui state`() = runTest {
         // Arrange
-        val customListId = CustomListId("1")
+        val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1")
         val customList =
             CustomList(
                 id = customListId,
@@ -63,7 +63,7 @@ class EditCustomListViewModelTest {
         }
     }
 
-    private fun createViewModel(customListId: CustomListId) =
+    private fun createViewModel(customListId: net.mullvad.mullvadvpn.lib.model.CustomListId) =
         EditCustomListViewModel(
             customListId = customListId,
             customListsRepository = mockCustomListsRepository

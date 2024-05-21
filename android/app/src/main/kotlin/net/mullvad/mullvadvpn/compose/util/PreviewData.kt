@@ -1,13 +1,13 @@
 package net.mullvad.mullvadvpn.compose.util
 
 import java.util.UUID
-import net.mullvad.mullvadvpn.model.Device
-import net.mullvad.mullvadvpn.model.DeviceId
-import net.mullvad.mullvadvpn.model.GeoLocationId
-import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.model.Provider
-import net.mullvad.mullvadvpn.model.ProviderId
-import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.Device
+import net.mullvad.mullvadvpn.lib.model.DeviceId
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.Provider
+import net.mullvad.mullvadvpn.lib.model.ProviderId
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 import org.joda.time.DateTime
 
 fun generateRelayItemCountry(
@@ -36,7 +36,7 @@ fun generateRelayItemCountry(
 
 fun generateRelayItemCity(
     name: String,
-    countryCode: GeoLocationId.Country,
+    countryCode: net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country,
     numberOfRelays: Int,
     active: Boolean = true,
     expanded: Boolean = false,
@@ -56,13 +56,13 @@ fun generateRelayItemCity(
     )
 
 fun generateRelayItemRelay(
-    cityCode: GeoLocationId.City,
+    cityCode: net.mullvad.mullvadvpn.lib.model.GeoLocationId.City,
     hostName: String,
     active: Boolean = true,
 ) =
     RelayItem.Location.Relay(
         id =
-            GeoLocationId.Hostname(
+            net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname(
                 city = cityCode,
                 hostname = hostName,
             ),
@@ -71,12 +71,12 @@ fun generateRelayItemRelay(
     )
 
 private fun String.generateCountryCode() =
-    GeoLocationId.Country((take(1) + takeLast(1)).lowercase())
+    net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country((take(1) + takeLast(1)).lowercase())
 
-private fun String.generateCityCode(countryCode: GeoLocationId.Country) =
-    GeoLocationId.City(countryCode, take(CITY_CODE_LENGTH).lowercase())
+private fun String.generateCityCode(countryCode: net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country) =
+    net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(countryCode, take(CITY_CODE_LENGTH).lowercase())
 
-private fun generateHostname(city: GeoLocationId.City, index: Int) =
+private fun generateHostname(city: net.mullvad.mullvadvpn.lib.model.GeoLocationId.City, index: Int) =
     "${city.countryCode.countryCode}-${city.cityCode}-wg-${index+1}"
 
 private const val CITY_CODE_LENGTH = 3

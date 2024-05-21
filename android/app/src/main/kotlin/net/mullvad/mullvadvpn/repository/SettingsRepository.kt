@@ -8,14 +8,14 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.model.CustomDnsOptions
-import net.mullvad.mullvadvpn.model.DefaultDnsOptions
-import net.mullvad.mullvadvpn.model.DnsOptions
-import net.mullvad.mullvadvpn.model.DnsState
-import net.mullvad.mullvadvpn.model.Mtu
-import net.mullvad.mullvadvpn.model.ObfuscationSettings
-import net.mullvad.mullvadvpn.model.QuantumResistantState
-import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
+import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
+import net.mullvad.mullvadvpn.lib.model.DnsOptions
+import net.mullvad.mullvadvpn.lib.model.DnsState
+import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
+import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
+import net.mullvad.mullvadvpn.lib.model.Settings
 
 class SettingsRepository(
     private val managementService: ManagementService,

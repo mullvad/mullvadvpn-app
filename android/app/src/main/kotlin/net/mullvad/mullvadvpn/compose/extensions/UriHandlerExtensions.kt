@@ -5,7 +5,7 @@ import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.stringResource
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.common.util.createAccountUri
-import net.mullvad.mullvadvpn.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
 
 @Composable
 fun UriHandler.createOpenAccountPageHook(): (WwwAuthToken) -> Unit {

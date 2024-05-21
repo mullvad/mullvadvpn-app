@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.model
+package net.mullvad.mullvadvpn.lib.model
 
 import kotlin.math.sqrt
 import org.junit.jupiter.api.Assertions.assertEquals

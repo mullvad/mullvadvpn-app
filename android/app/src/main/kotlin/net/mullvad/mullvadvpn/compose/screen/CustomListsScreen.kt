@@ -45,7 +45,7 @@ import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha60
-import net.mullvad.mullvadvpn.model.CustomList
+import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.viewmodel.CustomListsViewModel
 import org.koin.androidx.compose.koinViewModel
 

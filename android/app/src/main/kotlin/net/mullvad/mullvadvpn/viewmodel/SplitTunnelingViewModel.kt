@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
-import net.mullvad.mullvadvpn.model.AppId
+import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
 
 class SplitTunnelingViewModel(

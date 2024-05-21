@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.lib.daemon.grpc
 
-import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 
 internal object RelayNameComparator : Comparator<RelayItem.Location.Relay> {
     override fun compare(o1: RelayItem.Location.Relay, o2: RelayItem.Location.Relay): Int {

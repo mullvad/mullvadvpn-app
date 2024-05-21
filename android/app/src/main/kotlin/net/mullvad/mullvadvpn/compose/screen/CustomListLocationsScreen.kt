@@ -52,8 +52,8 @@ import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -71,7 +71,7 @@ fun CustomListLocations(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<CustomListResult.LocationsChanged>,
     discardChangesResultRecipient: ResultRecipient<DiscardChangesDialogDestination, Boolean>,
-    customListId: CustomListId,
+    customListId: net.mullvad.mullvadvpn.lib.model.CustomListId,
     newList: Boolean,
 ) {
     val customListsViewModel =

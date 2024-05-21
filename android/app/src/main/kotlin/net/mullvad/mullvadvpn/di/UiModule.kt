@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
-import net.mullvad.mullvadvpn.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -191,7 +191,7 @@ val uiModule = module {
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get(), get()) }
-    viewModel { (location: GeoLocationId?) -> CreateCustomListDialogViewModel(location, get()) }
+    viewModel { (location: net.mullvad.mullvadvpn.lib.model.GeoLocationId?) -> CreateCustomListDialogViewModel(location, get()) }
     viewModel { parameters ->
         CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get(), get())
     }

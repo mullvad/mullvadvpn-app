@@ -21,10 +21,10 @@ import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
-import net.mullvad.mullvadvpn.model.AccountData
-import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.AccountData
+import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.TunnelState
+import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase

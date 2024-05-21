@@ -13,13 +13,13 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.EditCustomListNameUiState
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.RenameCustomListError
 
 class EditCustomListNameDialogViewModel(
-    private val customListId: CustomListId,
+    private val customListId: net.mullvad.mullvadvpn.lib.model.CustomListId,
     private val initialName: CustomListName,
     private val customListActionUseCase: CustomListActionUseCase
 ) : ViewModel() {
