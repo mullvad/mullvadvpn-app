@@ -23,10 +23,10 @@ class EditCustomListViewModelTest {
     @Test
     fun `given a custom list id that does not exists should return not found ui state`() = runTest {
         // Arrange
-        val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("2")
+        val customListId = CustomListId("2")
         val customList =
             CustomList(
-                id = net.mullvad.mullvadvpn.lib.model.CustomListId("1"),
+                id = CustomListId("1"),
                 name = CustomListName.fromString("test"),
                 locations = emptyList()
             )
@@ -43,7 +43,7 @@ class EditCustomListViewModelTest {
     @Test
     fun `given a custom list id that exists should return content ui state`() = runTest {
         // Arrange
-        val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1")
+        val customListId = CustomListId("1")
         val customList =
             CustomList(
                 id = customListId,
@@ -63,7 +63,7 @@ class EditCustomListViewModelTest {
         }
     }
 
-    private fun createViewModel(customListId: net.mullvad.mullvadvpn.lib.model.CustomListId) =
+    private fun createViewModel(customListId: CustomListId) =
         EditCustomListViewModel(
             customListId = customListId,
             customListsRepository = mockCustomListsRepository

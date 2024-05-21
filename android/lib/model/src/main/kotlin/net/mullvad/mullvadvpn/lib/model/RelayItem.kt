@@ -5,12 +5,12 @@ sealed interface RelayItem {
     val active: Boolean
     val hasChildren: Boolean
 
-    val id: net.mullvad.mullvadvpn.lib.model.RelayItemId
+    val id: RelayItemId
 
     val expanded: Boolean
 
     data class CustomList(
-        override val id: net.mullvad.mullvadvpn.lib.model.CustomListId,
+        override val id: CustomListId,
         val customListName: CustomListName,
         val locations: List<Location>,
         override val expanded: Boolean,
@@ -25,10 +25,10 @@ sealed interface RelayItem {
     }
 
     sealed interface Location : RelayItem {
-        override val id: net.mullvad.mullvadvpn.lib.model.GeoLocationId
+        override val id: GeoLocationId
 
         data class Country(
-            override val id: net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country,
+            override val id: GeoLocationId.Country,
             override val name: String,
             override val expanded: Boolean,
             val cities: List<City>
@@ -43,7 +43,7 @@ sealed interface RelayItem {
         }
 
         data class City(
-            override val id: net.mullvad.mullvadvpn.lib.model.GeoLocationId.City,
+            override val id: GeoLocationId.City,
             override val name: String,
             override val expanded: Boolean,
             val relays: List<Relay>
@@ -57,7 +57,7 @@ sealed interface RelayItem {
         }
 
         data class Relay(
-            override val id: net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname,
+            override val id: GeoLocationId.Hostname,
             val provider: Provider,
             override val active: Boolean,
         ) : Location {

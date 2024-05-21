@@ -151,7 +151,7 @@ fun FilterScreen(
                     Ownership(ownership, state, onSelectedOwnership)
                 }
             }
-            itemWithDivider() { ProvidersHeader(providerExpanded) { providerExpanded = it } }
+            itemWithDivider { ProvidersHeader(providerExpanded) { providerExpanded = it } }
             if (providerExpanded) {
                 itemWithDivider { AllProviders(state, onAllProviderCheckChange) }
                 itemsWithDivider(state.filteredProvidersByOwnership) { provider ->

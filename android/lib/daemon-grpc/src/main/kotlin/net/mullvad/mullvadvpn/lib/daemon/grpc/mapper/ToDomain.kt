@@ -274,11 +274,10 @@ internal fun ManagementInterface.NormalRelaySettings.toDomain(): RelayConstraint
         wireguardConstraints = wireguardConstraints.toDomain()
     )
 
-internal fun ManagementInterface.LocationConstraint.toDomain():
-    Constraint<net.mullvad.mullvadvpn.lib.model.RelayItemId> =
+internal fun ManagementInterface.LocationConstraint.toDomain(): Constraint<RelayItemId> =
     when (typeCase) {
         ManagementInterface.LocationConstraint.TypeCase.CUSTOM_LIST ->
-            Constraint.Only(net.mullvad.mullvadvpn.lib.model.CustomListId(customList))
+            Constraint.Only(CustomListId(customList))
         ManagementInterface.LocationConstraint.TypeCase.LOCATION ->
             Constraint.Only(location.toDomain())
         ManagementInterface.LocationConstraint.TypeCase.TYPE_NOT_SET -> Constraint.Any
@@ -286,18 +285,17 @@ internal fun ManagementInterface.LocationConstraint.toDomain():
     }
 
 @Suppress("ReturnCount")
-internal fun ManagementInterface.GeographicLocationConstraint.toDomain():
-    net.mullvad.mullvadvpn.lib.model.GeoLocationId {
-    val country = net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country(country)
+internal fun ManagementInterface.GeographicLocationConstraint.toDomain(): GeoLocationId {
+    val country = GeoLocationId.Country(country)
     if (!hasCity()) {
         return country
     }
 
-    val city = net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(country, city)
+    val city = GeoLocationId.City(country, city)
     if (!hasHostname()) {
         return city
     }
-    return net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname(city, hostname)
+    return GeoLocationId.Hostname(city, hostname)
 }
 
 internal fun List<String>.toDomain(): Constraint<Providers> =
@@ -348,7 +346,7 @@ internal fun ManagementInterface.Udp2TcpObfuscationSettings.toDomain(): Udp2TcpO
 
 internal fun ManagementInterface.CustomList.toDomain(): CustomList =
     CustomList(
-        id = net.mullvad.mullvadvpn.lib.model.CustomListId(id),
+        id = CustomListId(id),
         name = CustomListName.fromString(name),
         locations = locationsList.map { it.toDomain() }
     )
@@ -445,8 +443,8 @@ internal fun ConnectivityState.toDomain(): GrpcConnectivityState =
         ConnectivityState.SHUTDOWN -> GrpcConnectivityState.Shutdown
     }
 
-internal fun ManagementInterface.RelayList.toDomain(): net.mullvad.mullvadvpn.lib.model.RelayList =
-    net.mullvad.mullvadvpn.lib.model.RelayList(countriesList.toDomain(), wireguard.toDomain())
+internal fun ManagementInterface.RelayList.toDomain(): RelayList =
+    RelayList(countriesList.toDomain(), wireguard.toDomain())
 
 internal fun ManagementInterface.WireguardEndpointData.toDomain(): WireguardEndpointData =
     WireguardEndpointData(portRangesList.map { it.toDomain() })
@@ -466,7 +464,7 @@ internal fun List<ManagementInterface.RelayListCountry>.toDomain():
                 val cities = mutableListOf<RelayItem.Location.City>()
                 val relayCountry =
                     RelayItem.Location.Country(
-                        net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country(country.code),
+                        GeoLocationId.Country(country.code),
                         country.name,
                         false,
                         cities
@@ -477,13 +475,7 @@ internal fun List<ManagementInterface.RelayListCountry>.toDomain():
                     val relayCity =
                         RelayItem.Location.City(
                             name = city.name,
-                            id =
-                                net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(
-                                    net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country(
-                                        country.code
-                                    ),
-                                    city.code
-                                ),
+                            id = GeoLocationId.City(GeoLocationId.Country(country.code), city.code),
                             expanded = false,
                             relays = relays
                         )
@@ -497,11 +489,9 @@ internal fun List<ManagementInterface.RelayListCountry>.toDomain():
                         relays.add(
                             RelayItem.Location.Relay(
                                 id =
-                                    net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname(
-                                        net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(
-                                            net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country(
-                                                country.code
-                                            ),
+                                    GeoLocationId.Hostname(
+                                        GeoLocationId.City(
+                                            GeoLocationId.Country(country.code),
                                             city.code
                                         ),
                                         relay.hostname

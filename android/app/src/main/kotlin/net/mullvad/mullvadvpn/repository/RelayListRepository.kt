@@ -35,7 +35,7 @@ class RelayListRepository(
             defaultWireguardEndpointData()
         )
 
-    val selectedLocation: StateFlow<Constraint<net.mullvad.mullvadvpn.lib.model.RelayItemId>> =
+    val selectedLocation: StateFlow<Constraint<RelayItemId>> =
         managementService.settings
             .map { it.relaySettings.relayConstraints.location }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
@@ -43,7 +43,7 @@ class RelayListRepository(
     val portRanges: Flow<List<PortRange>> =
         wireguardEndpointData.map { it.portRanges }.distinctUntilChanged()
 
-    suspend fun updateSelectedRelayLocation(value: net.mullvad.mullvadvpn.lib.model.RelayItemId) =
+    suspend fun updateSelectedRelayLocation(value: RelayItemId) =
         managementService.setRelayLocation(value)
 
     suspend fun updateSelectedWireguardConstraints(value: WireguardConstraints) =

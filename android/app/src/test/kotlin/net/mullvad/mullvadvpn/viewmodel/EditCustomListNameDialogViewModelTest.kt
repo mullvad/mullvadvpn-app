@@ -27,7 +27,7 @@ class EditCustomListNameDialogViewModelTest {
     fun `when successfully renamed list should emit return with result side effect`() = runTest {
         // Arrange
         val expectedResult: CustomListResult.Renamed = mockk()
-        val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("id")
+        val customListId = CustomListId("id")
         val customListName = "list"
         val viewModel = createViewModel(customListId, customListName)
         coEvery {
@@ -46,7 +46,7 @@ class EditCustomListNameDialogViewModelTest {
     @Test
     fun `when failing to rename a list should update ui state with error`() = runTest {
         // Arrange
-        val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("id2")
+        val customListId = CustomListId("id2")
         val customListName = "list2"
         val expectedError = RenameCustomListError.NameAlreadyExists(customListName)
         val viewModel = createViewModel(customListId, customListName)
@@ -66,7 +66,7 @@ class EditCustomListNameDialogViewModelTest {
     fun `given error state when calling clear error then should update to state without error`() =
         runTest {
             // Arrange
-            val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("id")
+            val customListId = CustomListId("id")
             val customListName = "list"
             val expectedError = RenameCustomListError.NameAlreadyExists(customListName)
             val viewModel = createViewModel(customListId, customListName)
@@ -84,10 +84,7 @@ class EditCustomListNameDialogViewModelTest {
             }
         }
 
-    private fun createViewModel(
-        customListId: net.mullvad.mullvadvpn.lib.model.CustomListId,
-        initialName: String
-    ) =
+    private fun createViewModel(customListId: CustomListId, initialName: String) =
         EditCustomListNameDialogViewModel(
             customListId = customListId,
             initialName = CustomListName.fromString(initialName),

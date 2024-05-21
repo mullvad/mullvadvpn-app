@@ -19,18 +19,15 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 
-internal fun Constraint<net.mullvad.mullvadvpn.lib.model.RelayItemId>.fromDomain():
-    ManagementInterface.LocationConstraint =
+internal fun Constraint<RelayItemId>.fromDomain(): ManagementInterface.LocationConstraint =
     ManagementInterface.LocationConstraint.newBuilder()
         .apply {
             when (this@fromDomain) {
                 is Constraint.Any -> {}
                 is Constraint.Only -> {
                     when (val relayItemId = value) {
-                        is net.mullvad.mullvadvpn.lib.model.CustomListId ->
-                            setCustomList(relayItemId.value)
-                        is net.mullvad.mullvadvpn.lib.model.GeoLocationId ->
-                            setLocation(relayItemId.fromDomain())
+                        is CustomListId -> setCustomList(relayItemId.value)
+                        is GeoLocationId -> setLocation(relayItemId.fromDomain())
                     }
                 }
             }
@@ -77,16 +74,13 @@ internal fun ObfuscationSettings.fromDomain(): ManagementInterface.ObfuscationSe
         .setUdp2Tcp(udp2tcp.toDomain())
         .build()
 
-internal fun net.mullvad.mullvadvpn.lib.model.GeoLocationId.fromDomain():
-    ManagementInterface.GeographicLocationConstraint =
+internal fun GeoLocationId.fromDomain(): ManagementInterface.GeographicLocationConstraint =
     ManagementInterface.GeographicLocationConstraint.newBuilder()
         .apply {
             when (val id = this@fromDomain) {
-                is net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country ->
-                    setCountry(id.countryCode)
-                is net.mullvad.mullvadvpn.lib.model.GeoLocationId.City ->
-                    setCountry(id.countryCode.countryCode).setCity(id.cityCode)
-                is net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname ->
+                is GeoLocationId.Country -> setCountry(id.countryCode)
+                is GeoLocationId.City -> setCountry(id.countryCode.countryCode).setCity(id.cityCode)
+                is GeoLocationId.Hostname ->
                     setCountry(id.country.countryCode)
                         .setCity(id.city.cityCode)
                         .setHostname(id.hostname)

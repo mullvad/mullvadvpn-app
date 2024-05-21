@@ -140,8 +140,7 @@ class SelectLocationViewModelTest {
     fun `on selectRelay call uiSideEffect should emit CloseScreen and connect`() = runTest {
         // Arrange
         val mockRelayItem: RelayItem.Location.Country = mockk()
-        val relayItemId: net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country =
-            mockk(relaxed = true)
+        val relayItemId: GeoLocationId.Country = mockk(relaxed = true)
         every { mockRelayItem.id } returns relayItemId
         coEvery { mockRelayListRepository.updateSelectedRelayLocation(relayItemId) } returns
             Unit.right()
@@ -259,12 +258,12 @@ class SelectLocationViewModelTest {
         // Arrange
         val expectedResult: CustomListResult.LocationsChanged = mockk()
         val location: RelayItem.Location.Country = mockk {
-            every { id } returns net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("se")
+            every { id } returns GeoLocationId.Country("se")
             every { descendants() } returns emptyList()
         }
         val customList =
             RelayItem.CustomList(
-                id = net.mullvad.mullvadvpn.lib.model.CustomListId("1"),
+                id = CustomListId("1"),
                 customListName = CustomListName.fromString("custom"),
                 locations = emptyList(),
                 expanded = false

@@ -10,8 +10,8 @@ sealed interface EditCustomListState {
     data object NotFound : EditCustomListState
 
     data class Content(
-        val id: net.mullvad.mullvadvpn.lib.model.CustomListId,
+        val id: CustomListId,
         val name: CustomListName,
-        val locations: List<net.mullvad.mullvadvpn.lib.model.GeoLocationId>
+        val locations: List<GeoLocationId>
     ) : EditCustomListState
 }

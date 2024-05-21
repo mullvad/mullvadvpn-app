@@ -103,12 +103,7 @@ private fun PreviewDeviceListLoading() {
 private fun PreviewDeviceListError() {
     AppTheme {
         DeviceListScreen(
-            state =
-                DeviceListUiState.Error(
-                    net.mullvad.mullvadvpn.lib.model.GetDeviceListError.Unknown(
-                        IllegalStateException()
-                    )
-                )
+            state = DeviceListUiState.Error(GetDeviceListError.Unknown(IllegalStateException()))
         )
     }
 }

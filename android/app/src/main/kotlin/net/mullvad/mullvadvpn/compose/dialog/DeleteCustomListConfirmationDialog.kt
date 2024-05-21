@@ -51,7 +51,7 @@ private fun PreviewRemoveDeviceConfirmationDialog() {
 @Destination(style = DestinationStyle.Dialog::class)
 fun DeleteCustomList(
     navigator: ResultBackNavigator<CustomListResult.Deleted>,
-    customListId: net.mullvad.mullvadvpn.lib.model.CustomListId,
+    customListId: CustomListId,
     name: CustomListName
 ) {
     val viewModel: DeleteCustomListConfirmationViewModel =
