@@ -46,7 +46,6 @@
 		44B02E3C2BC5B8A5008EDF34 /* Bundle+ProductVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */; };
 		44BB5F972BE527F4002520EB /* TunnelState+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BB5F962BE527F4002520EB /* TunnelState+UI.swift */; };
 		44BB5F982BE527F4002520EB /* TunnelState+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BB5F962BE527F4002520EB /* TunnelState+UI.swift */; };
-		44BB5F9A2BE529FF002520EB /* TunnelStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44BB5F992BE529FE002520EB /* TunnelStateTests.swift */; };
 		44DD7D242B6CFFD70005F67F /* StartTunnelOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D232B6CFFD70005F67F /* StartTunnelOperationTests.swift */; };
 		44DD7D272B6D18FB0005F67F /* MockTunnelInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D262B6D18FB0005F67F /* MockTunnelInteractor.swift */; };
 		44DD7D292B7113CA0005F67F /* MockTunnel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44DD7D282B7113CA0005F67F /* MockTunnel.swift */; };
@@ -829,6 +828,7 @@
 		A9BFB0012BD00B7F00F2BCA1 /* CustomListPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9BFB0002BD00B7F00F2BCA1 /* CustomListPage.swift */; };
 		A9C342C12ACC37E30045F00E /* TunnelStatusBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */; };
 		A9C342C32ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C342C22ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift */; };
+		A9D7E43C2BFCE43200213D55 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = A906F9492BA1E09A002BF22E /* WireGuardKitTypes */; };
 		A9D99B9A2A1F7C3200DE27D3 /* RESTTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67D28F83CA50033DD93 /* RESTTransport.swift */; };
 		A9DF789B2B7D1DF10094E4AD /* mullvad-api.h in Headers */ = {isa = PBXBuildFile; fileRef = 01EF6F2D2B6A51B100125696 /* mullvad-api.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A9DF789D2B7D1E8B0094E4AD /* LoggedInWithTimeUITestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 859089692B61763B003AF5F5 /* LoggedInWithTimeUITestCase.swift */; };
@@ -1231,13 +1231,6 @@
 			remoteGlobalIDString = 5840231E2A406BF5007B27AC;
 			remoteInfo = TunnelObfuscation;
 		};
-		F04F959E2B21D02700431E08 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 58CE5E58224146200008646E /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 06799ABB28F98E1D00ACD94E;
-			remoteInfo = MullvadREST;
-		};
 		F0ACE30E2BE4E478006D5333 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 58CE5E58224146200008646E /* Project object */;
@@ -1339,24 +1332,12 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F0ACE3292BE4E712006D5333 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				A906F94C2BA1E09A002BF22E /* WireGuardKitTypes in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		A906F94B2BA1E09A002BF22E /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				A906F94C2BA1E09A002BF22E /* WireGuardKitTypes in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1368,6 +1349,16 @@
 			dstSubfolderSpec = 10;
 			files = (
 				A9259FD22B8E06E90032C82B /* MullvadPostQuantum.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F0ACE3292BE4E712006D5333 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2349,6 +2340,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A944F2592B8DEFDB00473F4C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A9D7E43C2BFCE43200213D55 /* WireGuardKitTypes in Frameworks */,
+				A9630E432B8E10FB00A65999 /* MullvadTypes.framework in Frameworks */,
+				A944F2722B8E02F600473F4C /* libtalpid_tunnel_config_client.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F0ACE3052BE4E478006D5333 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -2356,16 +2357,6 @@
 				F0ACE3262BE4E6C7006D5333 /* MullvadTypes.framework in Frameworks */,
 				F0ACE3282BE4E712006D5333 /* WireGuardKitTypes in Frameworks */,
 				F0ACE3232BE4E53B006D5333 /* MullvadREST.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A944F2592B8DEFDB00473F4C /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A9630E432B8E10FB00A65999 /* MullvadTypes.framework in Frameworks */,
-				A906F94A2BA1E09A002BF22E /* WireGuardKitTypes in Frameworks */,
-				A944F2722B8E02F600473F4C /* libtalpid_tunnel_config_client.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3446,7 +3437,6 @@
 			children = (
 				58F3C0A824A50C0E003E76BE /* Assets */,
 				58ECD29023F178FD004298B6 /* Configurations */,
-				584F991F2902CBDD001F858D /* Frameworks */,
 				01EF6F2D2B6A51B100125696 /* mullvad-api.h */,
 				8556EB512B9A1C6900D26DD4 /* MullvadApi.swift */,
 				58D223F4294C8FF00029F5F8 /* MullvadLogging */,
@@ -3464,7 +3454,6 @@
 				58CE5E7A224146470008646E /* PacketTunnel */,
 				58C7A4372A863F450060C66F /* PacketTunnelCore */,
 				58C7A4432A863F490060C66F /* PacketTunnelCoreTests */,
-				58CE5E61224146200008646E /* Products */,
 				7A88DCCF2A8FABBE00D2FF0E /* Routing */,
 				7A88DCDD2A8FABBE00D2FF0E /* RoutingTests */,
 				589A454A28DDF59B00565204 /* Shared */,
@@ -4281,20 +4270,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F0ACE3032BE4E478006D5333 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F0ACE30D2BE4E478006D5333 /* MullvadMockData.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		A944F2572B8DEFDB00473F4C /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				A944F25F2B8DEFDB00473F4C /* MullvadPostQuantum.h in Headers */,
 				A9630E3C2B8E0E7B00A65999 /* talpid_tunnel_config_client.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F0ACE3032BE4E478006D5333 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F0ACE30D2BE4E478006D5333 /* MullvadMockData.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4717,28 +4706,6 @@
 			productReference = 852969252B4D9C1F007EAD4C /* MullvadVPNUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		F0ACE3072BE4E478006D5333 /* MullvadMockData */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = F0ACE3162BE4E479006D5333 /* Build configuration list for PBXNativeTarget "MullvadMockData" */;
-			buildPhases = (
-				F0ACE3032BE4E478006D5333 /* Headers */,
-				F0ACE3042BE4E478006D5333 /* Sources */,
-				F0ACE3052BE4E478006D5333 /* Frameworks */,
-				F0ACE3062BE4E478006D5333 /* Resources */,
-				F0ACE3292BE4E712006D5333 /* Embed Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = MullvadMockData;
-			packageProductDependencies = (
-				F0ACE3272BE4E712006D5333 /* WireGuardKitTypes */,
-			);
-			productName = MullvadMockData;
-			productReference = F0ACE3082BE4E478006D5333 /* MullvadMockData.framework */;
-			productType = "com.apple.product-type.framework";
-		};
 		A944F25B2B8DEFDB00473F4C /* MullvadPostQuantum */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A944F2682B8DEFDB00473F4C /* Build configuration list for PBXNativeTarget "MullvadPostQuantum" */;
@@ -4761,6 +4728,28 @@
 			);
 			productName = MullvadPostQuantum;
 			productReference = A944F25C2B8DEFDB00473F4C /* MullvadPostQuantum.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		F0ACE3072BE4E478006D5333 /* MullvadMockData */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F0ACE3162BE4E479006D5333 /* Build configuration list for PBXNativeTarget "MullvadMockData" */;
+			buildPhases = (
+				F0ACE3032BE4E478006D5333 /* Headers */,
+				F0ACE3042BE4E478006D5333 /* Sources */,
+				F0ACE3052BE4E478006D5333 /* Frameworks */,
+				F0ACE3062BE4E478006D5333 /* Resources */,
+				F0ACE3292BE4E712006D5333 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MullvadMockData;
+			packageProductDependencies = (
+				F0ACE3272BE4E712006D5333 /* WireGuardKitTypes */,
+			);
+			productName = MullvadMockData;
+			productReference = F0ACE3082BE4E478006D5333 /* MullvadMockData.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -4849,10 +4838,10 @@
 						CreatedOnToolsVersion = 15.1;
 						TestTargetID = 58CE5E5F224146200008646E;
 					};
-					F0ACE3072BE4E478006D5333 = {
+					A944F25B2B8DEFDB00473F4C = {
 						CreatedOnToolsVersion = 15.2;
 					};
-					A944F25B2B8DEFDB00473F4C = {
+					F0ACE3072BE4E478006D5333 = {
 						CreatedOnToolsVersion = 15.2;
 					};
 				};
@@ -5026,14 +5015,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F0ACE3062BE4E478006D5333 /* Resources */ = {
+		A944F25A2B8DEFDB00473F4C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A944F25A2B8DEFDB00473F4C /* Resources */ = {
+		F0ACE3062BE4E478006D5333 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -6127,6 +6116,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A944F2582B8DEFDB00473F4C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A9630E492B921E6D00A65999 /* PacketTunnelProvider+TCPConnection.swift in Sources */,
+				A944F26A2B8DF32900473F4C /* PostQuantumKeyNegotiator.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F0ACE3042BE4E478006D5333 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -6139,15 +6137,6 @@
 				F0ACE3332BE516F1006D5333 /* RESTRequestExecutor+Stubs.swift in Sources */,
 				F0ACE32D2BE4E784006D5333 /* AccountMock.swift in Sources */,
 				F0ACE32F2BE4EA8B006D5333 /* MockProxyFactory.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A944F2582B8DEFDB00473F4C /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A9630E492B921E6D00A65999 /* PacketTunnelProvider+TCPConnection.swift in Sources */,
-				A944F26A2B8DF32900473F4C /* PostQuantumKeyNegotiator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6365,11 +6354,6 @@
 			isa = PBXTargetDependency;
 			target = 5840231E2A406BF5007B27AC /* TunnelObfuscation */;
 			targetProxy = A9EC20F12A5D79ED0040D56E /* PBXContainerItemProxy */;
-		};
-		F04F959F2B21D02700431E08 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 06799ABB28F98E1D00ACD94E /* MullvadREST */;
-			targetProxy = F04F959E2B21D02700431E08 /* PBXContainerItemProxy */;
 		};
 		F0ACE30F2BE4E478006D5333 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -8308,6 +8292,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -9067,6 +9052,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -9115,7 +9101,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -9381,17 +9367,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F0ACE3162BE4E479006D5333 /* Build configuration list for PBXNativeTarget "MullvadMockData" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				F0ACE3122BE4E478006D5333 /* Debug */,
-				F0ACE3132BE4E478006D5333 /* Staging */,
-				F0ACE3142BE4E478006D5333 /* Release */,
-				F0ACE3152BE4E478006D5333 /* MockRelease */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		A944F2682B8DEFDB00473F4C /* Build configuration list for PBXNativeTarget "MullvadPostQuantum" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -9399,6 +9374,17 @@
 				A944F2652B8DEFDB00473F4C /* Staging */,
 				A944F2662B8DEFDB00473F4C /* Release */,
 				A944F2672B8DEFDB00473F4C /* MockRelease */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F0ACE3162BE4E479006D5333 /* Build configuration list for PBXNativeTarget "MullvadMockData" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F0ACE3122BE4E478006D5333 /* Debug */,
+				F0ACE3132BE4E478006D5333 /* Staging */,
+				F0ACE3142BE4E478006D5333 /* Release */,
+				F0ACE3152BE4E478006D5333 /* MockRelease */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -9475,12 +9461,12 @@
 			package = 58F097482A20C30000DA2DAD /* XCRemoteSwiftPackageReference "wireguard-apple" */;
 			productName = WireGuardKitTypes;
 		};
-		F0ACE3272BE4E712006D5333 /* WireGuardKitTypes */ = {
+		A906F9492BA1E09A002BF22E /* WireGuardKitTypes */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 58F097482A20C30000DA2DAD /* XCRemoteSwiftPackageReference "wireguard-apple" */;
 			productName = WireGuardKitTypes;
 		};
-		A906F9492BA1E09A002BF22E /* WireGuardKitTypes */ = {
+		F0ACE3272BE4E712006D5333 /* WireGuardKitTypes */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 58F097482A20C30000DA2DAD /* XCRemoteSwiftPackageReference "wireguard-apple" */;
 			productName = WireGuardKitTypes;
