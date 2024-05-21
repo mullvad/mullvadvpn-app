@@ -91,8 +91,8 @@ fun HeaderSwitchComposeCell(
     modifier: Modifier = Modifier,
     startPadding: Dp = Dimens.cellStartPadding,
     isEnabled: Boolean = true,
-    background: Color = MaterialTheme.colorScheme.primary,
-    onBackground: Color = MaterialTheme.colorScheme.onPrimary,
+    background: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+    onBackground: Color = MaterialTheme.colorScheme.onSurface,
     onCellClicked: (Boolean) -> Unit = {},
     onInfoClicked: (() -> Unit)? = null,
 ) {
@@ -205,12 +205,16 @@ fun CustomDnsCellSubtitle(isCellClickable: Boolean, modifier: Modifier) {
 fun SwitchComposeSubtitleCell(
     text: String,
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.onSecondary
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
     BaseSubtitleCell(text = text, modifier = modifier, color = color)
 }
 
 @Composable
-fun SwitchComposeSubtitleCell(text: AnnotatedString, modifier: Modifier = Modifier) {
-    BaseSubtitleCell(text = text, modifier = modifier)
+fun SwitchComposeSubtitleCell(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
+    BaseSubtitleCell(text = text, modifier = modifier, color = color)
 }

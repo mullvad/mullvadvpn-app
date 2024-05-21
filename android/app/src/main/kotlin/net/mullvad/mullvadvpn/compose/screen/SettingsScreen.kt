@@ -3,9 +3,9 @@ package net.mullvad.mullvadvpn.compose.screen
 import android.content.Context
 import android.net.Uri
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -180,13 +180,14 @@ private fun AppVersion(context: Context, state: SettingsUiState) {
                     NavigationCellBody(
                         content = state.appVersion,
                         contentBodyDescription = stringResource(id = R.string.app_version),
+                        textColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         isExternalLink = true,
                     )
                 } else {
                     Text(
                         text = state.appVersion,
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             },
@@ -198,9 +199,9 @@ private fun AppVersion(context: Context, state: SettingsUiState) {
         Text(
             text = stringResource(id = R.string.unsupported_version_description),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier =
-                Modifier.background(MaterialTheme.colorScheme.secondary)
+                Modifier.fillMaxWidth()
                     .padding(
                         start = Dimens.cellStartPadding,
                         top = Dimens.cellTopPadding,
@@ -228,7 +229,7 @@ private fun FaqAndGuides(context: Context) {
             @Composable {
                 DefaultExternalLinkView(
                     chevronContentDescription = faqGuideLabel,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSecondary)
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                 )
             },
         onClick = {
@@ -246,7 +247,7 @@ private fun PrivacyPolicy(context: Context, state: SettingsUiState) {
             @Composable {
                 DefaultExternalLinkView(
                     privacyPolicyLabel,
-                    ColorFilter.tint(MaterialTheme.colorScheme.onSecondary)
+                    ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                 )
             },
         onClick = {

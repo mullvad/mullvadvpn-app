@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -48,6 +49,8 @@ fun ExpandableComposeCell(
     isExpanded: Boolean,
     isEnabled: Boolean = true,
     testTag: String = "",
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    background: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
     onCellClicked: (Boolean) -> Unit = {},
     onInfoClicked: (() -> Unit)? = null
 ) {
@@ -60,6 +63,7 @@ fun ExpandableComposeCell(
             BaseCellTitle(
                 title = title,
                 style = MaterialTheme.typography.titleMedium,
+                textColor = textColor,
                 modifier = titleModifier.weight(1f, fill = true)
             )
         },
@@ -71,6 +75,7 @@ fun ExpandableComposeCell(
                 onInfoClicked = onInfoClicked
             )
         },
+        background = background,
         onCellClicked = { onCellClicked(!isExpanded) }
     )
 }
@@ -96,7 +101,7 @@ private fun ExpandableComposeCellBody(
                 Icon(
                     painter = painterResource(id = R.drawable.icon_info),
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -104,7 +109,7 @@ private fun ExpandableComposeCellBody(
         ChevronButton(
             isExpanded = isExpanded,
             onExpand = onExpand,
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
