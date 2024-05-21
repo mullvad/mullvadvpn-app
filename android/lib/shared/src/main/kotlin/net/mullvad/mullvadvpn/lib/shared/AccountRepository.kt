@@ -12,12 +12,12 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.model.AccountData
-import net.mullvad.mullvadvpn.model.AccountToken
-import net.mullvad.mullvadvpn.model.CreateAccountError
-import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.model.LoginAccountError
-import net.mullvad.mullvadvpn.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.AccountData
+import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.CreateAccountError
+import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.LoginAccountError
+import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
 import org.joda.time.DateTime
 
 class AccountRepository(

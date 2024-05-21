@@ -12,7 +12,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
-import net.mullvad.mullvadvpn.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.CustomListName
 
 @Composable
 fun CustomListNameTextField(

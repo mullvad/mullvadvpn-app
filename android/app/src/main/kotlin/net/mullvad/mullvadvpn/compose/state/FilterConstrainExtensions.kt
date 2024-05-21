@@ -1,9 +1,9 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.model.Provider
-import net.mullvad.mullvadvpn.model.Providers
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.Provider
+import net.mullvad.mullvadvpn.lib.model.Providers
 
 fun Constraint<Ownership>.toNullableOwnership(): Ownership? =
     when (this) {

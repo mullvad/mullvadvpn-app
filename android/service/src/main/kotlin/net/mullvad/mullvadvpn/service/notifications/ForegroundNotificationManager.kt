@@ -7,10 +7,10 @@ import android.os.Build
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.model.Notification
-import net.mullvad.mullvadvpn.model.NotificationChannel
-import net.mullvad.mullvadvpn.model.NotificationTunnelState
-import net.mullvad.mullvadvpn.model.NotificationUpdate
+import net.mullvad.mullvadvpn.lib.model.Notification
+import net.mullvad.mullvadvpn.lib.model.NotificationChannel
+import net.mullvad.mullvadvpn.lib.model.NotificationTunnelState
+import net.mullvad.mullvadvpn.lib.model.NotificationUpdate
 import net.mullvad.mullvadvpn.service.MullvadVpnService
 import net.mullvad.mullvadvpn.service.notifications.tunnelstate.TunnelStateNotificationProvider
 import net.mullvad.mullvadvpn.service.notifications.tunnelstate.toNotification

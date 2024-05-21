@@ -8,7 +8,7 @@ import androidx.core.app.NotificationCompat
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.common.util.createAccountUri
-import net.mullvad.mullvadvpn.model.Notification
+import net.mullvad.mullvadvpn.lib.model.Notification
 import net.mullvad.mullvadvpn.service.R
 import org.joda.time.Duration
 

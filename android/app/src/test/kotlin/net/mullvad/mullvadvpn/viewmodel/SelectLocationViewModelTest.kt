@@ -19,14 +19,14 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
-import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.GeoLocationId
-import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.model.Provider
-import net.mullvad.mullvadvpn.model.Providers
-import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.Provider
+import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
@@ -140,7 +140,7 @@ class SelectLocationViewModelTest {
     fun `on selectRelay call uiSideEffect should emit CloseScreen and connect`() = runTest {
         // Arrange
         val mockRelayItem: RelayItem.Location.Country = mockk()
-        val relayItemId: GeoLocationId.Country = mockk(relaxed = true)
+        val relayItemId: net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country = mockk(relaxed = true)
         every { mockRelayItem.id } returns relayItemId
         coEvery { mockRelayListRepository.updateSelectedRelayLocation(relayItemId) } returns
             Unit.right()
@@ -258,12 +258,12 @@ class SelectLocationViewModelTest {
         // Arrange
         val expectedResult: CustomListResult.LocationsChanged = mockk()
         val location: RelayItem.Location.Country = mockk {
-            every { id } returns GeoLocationId.Country("se")
+            every { id } returns net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("se")
             every { descendants() } returns emptyList()
         }
         val customList =
             RelayItem.CustomList(
-                id = CustomListId("1"),
+                id = net.mullvad.mullvadvpn.lib.model.CustomListId("1"),
                 customListName = CustomListName.fromString("custom"),
                 locations = emptyList(),
                 expanded = false

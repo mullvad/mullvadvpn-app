@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.service.di
 
 import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.MainScope
-import net.mullvad.mullvadvpn.model.NotificationChannel
+import net.mullvad.mullvadvpn.lib.model.NotificationChannel
 import net.mullvad.mullvadvpn.service.MigrateSplitTunneling
 import net.mullvad.mullvadvpn.service.notifications.ChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager

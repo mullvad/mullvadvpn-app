@@ -16,10 +16,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
-import net.mullvad.mullvadvpn.model.AccountToken
-import net.mullvad.mullvadvpn.model.Device
-import net.mullvad.mullvadvpn.model.DeviceId
-import net.mullvad.mullvadvpn.model.GetDeviceListError
+import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.Device
+import net.mullvad.mullvadvpn.lib.model.DeviceId
+import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 
 class DeviceListViewModel(
@@ -30,7 +30,7 @@ class DeviceListViewModel(
     private val loadingDevices = MutableStateFlow<List<DeviceId>>(emptyList())
     private val deviceList = MutableStateFlow<List<Device>>(emptyList())
     private val loading = MutableStateFlow(true)
-    private val error = MutableStateFlow<GetDeviceListError?>(null)
+    private val error = MutableStateFlow<net.mullvad.mullvadvpn.lib.model.GetDeviceListError?>(null)
 
     private val _uiSideEffect = Channel<DeviceListSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()

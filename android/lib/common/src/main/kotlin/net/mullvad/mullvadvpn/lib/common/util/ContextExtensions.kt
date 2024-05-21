@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.getInstalledPackagesList
-import net.mullvad.mullvadvpn.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
 
 private const val ALWAYS_ON_VPN_APP = "always_on_vpn_app"
 

@@ -2,9 +2,9 @@ package net.mullvad.mullvadvpn.lib.common.util
 
 import android.content.Context
 import net.mullvad.mullvadvpn.lib.common.R
-import net.mullvad.mullvadvpn.model.ErrorState
-import net.mullvad.mullvadvpn.model.ErrorStateCause
-import net.mullvad.mullvadvpn.model.ParameterGenerationError
+import net.mullvad.mullvadvpn.lib.model.ErrorState
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.talpid.util.addressString
 
 fun ErrorState.getErrorNotificationResources(context: Context): ErrorNotificationMessage {

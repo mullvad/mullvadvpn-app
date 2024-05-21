@@ -91,8 +91,8 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.model.GeoLocationId
-import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.canAddLocation
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
@@ -109,7 +109,7 @@ private fun PreviewSelectLocationScreen() {
             countries =
                 listOf(
                     RelayItem.Location.Country(
-                        GeoLocationId.Country("Country 1"),
+                        net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("Country 1"),
                         "Code 1",
                         false,
                         emptyList()
@@ -610,7 +610,7 @@ private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int =
         -1
     }
 
-private fun RelayItem.countryCode(): GeoLocationId.Country =
+private fun RelayItem.countryCode(): net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country =
     when (this) {
         is RelayItem.Location -> this.id.country
         is RelayItem.CustomList ->

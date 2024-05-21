@@ -21,8 +21,8 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
-import net.mullvad.mullvadvpn.model.PlayPurchase
-import net.mullvad.mullvadvpn.model.PlayPurchasePaymentToken
+import net.mullvad.mullvadvpn.lib.model.PlayPurchase
+import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
 
 class BillingPaymentRepository(
     private val billingRepository: BillingRepository,

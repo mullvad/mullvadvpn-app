@@ -12,12 +12,12 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.DeleteCustomListUiState
-import net.mullvad.mullvadvpn.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.DeleteCustomListWithUndoError
 
 class DeleteCustomListConfirmationViewModel(
-    private val customListId: CustomListId,
+    private val customListId: net.mullvad.mullvadvpn.lib.model.CustomListId,
     private val customListActionUseCase: CustomListActionUseCase
 ) : ViewModel() {
     private val _uiSideEffect = Channel<DeleteCustomListConfirmationSideEffect>(Channel.BUFFERED)

@@ -13,14 +13,14 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.usecase.customlists.CreateCustomListWithLocationsError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 
 class CreateCustomListDialogViewModel(
-    private val locationCode: GeoLocationId?,
+    private val locationCode: net.mullvad.mullvadvpn.lib.model.GeoLocationId?,
     private val customListActionUseCase: CustomListActionUseCase,
 ) : ViewModel() {
 
@@ -69,7 +69,7 @@ class CreateCustomListDialogViewModel(
 
 sealed interface CreateCustomListDialogSideEffect {
 
-    data class NavigateToCustomListLocationsScreen(val customListId: CustomListId) :
+    data class NavigateToCustomListLocationsScreen(val customListId: net.mullvad.mullvadvpn.lib.model.CustomListId) :
         CreateCustomListDialogSideEffect
 
     data class ReturnWithResult(val result: CustomListResult.Created) :

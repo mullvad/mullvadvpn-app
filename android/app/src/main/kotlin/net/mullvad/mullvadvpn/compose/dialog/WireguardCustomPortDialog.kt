@@ -29,8 +29,8 @@ import net.mullvad.mullvadvpn.compose.textfield.CustomPortTextField
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
-import net.mullvad.mullvadvpn.model.Port
-import net.mullvad.mullvadvpn.model.PortRange
+import net.mullvad.mullvadvpn.lib.model.Port
+import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.util.asString
 import net.mullvad.mullvadvpn.util.isPortAnyOfRanges
 

@@ -23,9 +23,9 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
-import net.mullvad.mullvadvpn.model.PlayPurchaseInitError
-import net.mullvad.mullvadvpn.model.PlayPurchasePaymentToken
-import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyError
+import net.mullvad.mullvadvpn.lib.model.PlayPurchaseInitError
+import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
+import net.mullvad.mullvadvpn.lib.model.PlayPurchaseVerifyError
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

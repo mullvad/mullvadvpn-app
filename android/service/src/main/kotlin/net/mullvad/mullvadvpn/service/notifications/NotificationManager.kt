@@ -8,8 +8,8 @@ import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.model.Notification
-import net.mullvad.mullvadvpn.model.NotificationUpdate
+import net.mullvad.mullvadvpn.lib.model.Notification
+import net.mullvad.mullvadvpn.lib.model.NotificationUpdate
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.toNotification
 import net.mullvad.mullvadvpn.service.notifications.tunnelstate.toNotification
 

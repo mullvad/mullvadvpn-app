@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.util
 
-import net.mullvad.mullvadvpn.model.TransportProtocol
-import net.mullvad.mullvadvpn.model.TunnelEndpoint
+import net.mullvad.mullvadvpn.lib.model.TransportProtocol
+import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 
 fun TunnelEndpoint.toInAddress(): Triple<String, Int, TransportProtocol> {
     val relayEndpoint = this.obfuscation?.endpoint ?: this.endpoint

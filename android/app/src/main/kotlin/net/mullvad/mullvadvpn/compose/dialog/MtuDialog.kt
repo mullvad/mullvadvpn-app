@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.constant.MTU_MIN_VALUE
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
-import net.mullvad.mullvadvpn.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogUiState
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel

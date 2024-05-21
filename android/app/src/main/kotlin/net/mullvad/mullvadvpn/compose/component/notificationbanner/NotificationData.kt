@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.extensions.getExpiryQuantityString
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.common.util.getErrorNotificationResources
-import net.mullvad.mullvadvpn.model.ErrorState
+import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.notification.StatusLevel
 

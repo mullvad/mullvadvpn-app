@@ -1,13 +1,13 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.model.Device
-import net.mullvad.mullvadvpn.model.DeviceId
-import net.mullvad.mullvadvpn.model.GetDeviceListError
+import net.mullvad.mullvadvpn.lib.model.Device
+import net.mullvad.mullvadvpn.lib.model.DeviceId
+import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 
 sealed interface DeviceListUiState {
     data object Loading : DeviceListUiState
 
-    data class Error(val error: GetDeviceListError) : DeviceListUiState
+    data class Error(val error: net.mullvad.mullvadvpn.lib.model.GetDeviceListError) : DeviceListUiState
 
     data class Content(
         val devices: List<Device>,

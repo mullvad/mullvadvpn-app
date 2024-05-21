@@ -14,8 +14,8 @@ import net.mullvad.mullvadvpn.compose.state.EditCustomListState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -119,7 +119,7 @@ class EditCustomListScreenTest {
     fun whenClickingOnNameCellShouldCallOnNameClicked() =
         composeExtension.use {
             // Arrange
-            val mockedOnNameClicked: (CustomListId, CustomListName) -> Unit = mockk(relaxed = true)
+            val mockedOnNameClicked: (net.mullvad.mullvadvpn.lib.model.CustomListId, CustomListName) -> Unit = mockk(relaxed = true)
             val customList = DUMMY_CUSTOM_LISTS[0]
             setContentWithTheme {
                 EditCustomListScreen(
@@ -144,7 +144,7 @@ class EditCustomListScreenTest {
     fun whenClickingOnLocationCellShouldCallOnLocationsClicked() =
         composeExtension.use {
             // Arrange
-            val mockedOnLocationsClicked: (CustomListId) -> Unit = mockk(relaxed = true)
+            val mockedOnLocationsClicked: (net.mullvad.mullvadvpn.lib.model.CustomListId) -> Unit = mockk(relaxed = true)
             val customList = DUMMY_CUSTOM_LISTS[0]
             setContentWithTheme {
                 EditCustomListScreen(

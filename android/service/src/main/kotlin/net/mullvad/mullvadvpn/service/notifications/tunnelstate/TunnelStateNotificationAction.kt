@@ -9,9 +9,9 @@ import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_REQUEST_VPN_PERMISSION
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
-import net.mullvad.mullvadvpn.model.Notification
-import net.mullvad.mullvadvpn.model.NotificationAction
-import net.mullvad.mullvadvpn.model.NotificationTunnelState
+import net.mullvad.mullvadvpn.lib.model.Notification
+import net.mullvad.mullvadvpn.lib.model.NotificationAction
+import net.mullvad.mullvadvpn.lib.model.NotificationTunnelState
 import net.mullvad.mullvadvpn.service.R
 
 internal fun Notification.Tunnel.toNotification(context: Context) =

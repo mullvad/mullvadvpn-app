@@ -9,8 +9,8 @@ import io.mockk.MockKAnnotations
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.test.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
-import net.mullvad.mullvadvpn.model.Port
-import net.mullvad.mullvadvpn.model.PortRange
+import net.mullvad.mullvadvpn.lib.model.Port
+import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.onNodeWithTagAndText
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

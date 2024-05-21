@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD_DAYS
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
-import net.mullvad.mullvadvpn.model.AccountData
+import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import org.joda.time.DateTime
 

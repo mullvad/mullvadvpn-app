@@ -9,7 +9,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -39,7 +39,7 @@ class DeleteCustomListConfirmationViewModelTest {
 
     private fun createViewModel() =
         DeleteCustomListConfirmationViewModel(
-            customListId = CustomListId("1"),
+            customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1"),
             customListActionUseCase = mockCustomListActionUseCase
         )
 }

@@ -5,12 +5,12 @@ import arrow.core.raise.either
 import kotlinx.coroutines.flow.firstOrNull
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
-import net.mullvad.mullvadvpn.model.CreateCustomListError
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.DeleteCustomListError
-import net.mullvad.mullvadvpn.model.GetCustomListError
-import net.mullvad.mullvadvpn.model.ModifyCustomListError
-import net.mullvad.mullvadvpn.model.UpdateCustomListError
+import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
+import net.mullvad.mullvadvpn.lib.model.GetCustomListError
+import net.mullvad.mullvadvpn.lib.model.ModifyCustomListError
+import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.relaylist.getRelayItemsByCodes
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
@@ -140,7 +140,7 @@ sealed interface DeleteCustomListWithUndoError : CustomListActionError {
 }
 
 sealed interface RenameCustomListError : CustomListActionError {
-    data class NotFound(val id: CustomListId) : RenameCustomListError
+    data class NotFound(val id: net.mullvad.mullvadvpn.lib.model.CustomListId) : RenameCustomListError
 
     data class NameAlreadyExists(val name: String) : RenameCustomListError
 

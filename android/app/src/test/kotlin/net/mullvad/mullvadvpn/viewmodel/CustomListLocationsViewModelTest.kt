@@ -12,14 +12,14 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.model.CustomList
-import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.GeoLocationId
-import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.model.Provider
-import net.mullvad.mullvadvpn.model.ProviderId
-import net.mullvad.mullvadvpn.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.CustomList
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.Provider
+import net.mullvad.mullvadvpn.lib.model.ProviderId
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
@@ -51,7 +51,7 @@ class CustomListLocationsViewModelTest {
         val newList = false
         val customList =
             CustomList(
-                id = CustomListId("id"),
+                id = net.mullvad.mullvadvpn.lib.model.CustomListId("id"),
                 name = CustomListName.fromString("name"),
                 locations = emptyList()
             )
@@ -66,7 +66,7 @@ class CustomListLocationsViewModelTest {
         runTest {
             // Arrange
             val expectedList = DUMMY_COUNTRIES
-            val customListId = CustomListId("id")
+            val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("id")
             val expectedState =
                 CustomListLocationsUiState.Content.Data(
                     newList = true,
@@ -83,7 +83,7 @@ class CustomListLocationsViewModelTest {
     fun `when selecting parent should select children`() = runTest {
         // Arrange
         val expectedList = DUMMY_COUNTRIES
-        val customListId = CustomListId("id")
+        val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("id")
         val expectedSelection =
             (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.descendants() }).toSet()
         val viewModel = createViewModel(customListId, true)
@@ -109,7 +109,7 @@ class CustomListLocationsViewModelTest {
         val expectedList = DUMMY_COUNTRIES
         val initialSelection =
             (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.descendants() }).toSet()
-        val customListId = CustomListId("id")
+        val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("id")
         val expectedSelection = emptySet<RelayItem>()
         relayListFlow.value = expectedList
         selectedLocationsFlow.value = initialSelection.toList()
@@ -135,7 +135,7 @@ class CustomListLocationsViewModelTest {
         val expectedList = DUMMY_COUNTRIES
         val initialSelection =
             (DUMMY_COUNTRIES + DUMMY_COUNTRIES.flatMap { it.descendants() }).toSet()
-        val customListId = CustomListId("id")
+        val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("id")
         val expectedSelection = emptySet<RelayItem>()
         relayListFlow.value = expectedList
         selectedLocationsFlow.value = initialSelection.toList()
@@ -159,7 +159,7 @@ class CustomListLocationsViewModelTest {
     fun `when selecting child should not select parent`() = runTest {
         // Arrange
         val expectedList = DUMMY_COUNTRIES
-        val customListId = CustomListId("id")
+        val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("id")
         val expectedSelection = DUMMY_COUNTRIES[0].cities[0].relays.toSet()
         val viewModel = createViewModel(customListId, true)
         relayListFlow.value = expectedList
@@ -182,7 +182,7 @@ class CustomListLocationsViewModelTest {
     fun `given new list true when saving successfully should emit close screen side effect`() =
         runTest {
             // Arrange
-            val customListId = CustomListId("1")
+            val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1")
             val newList = true
             val expectedResult: CustomListResult.LocationsChanged = mockk()
             coEvery {
@@ -202,7 +202,7 @@ class CustomListLocationsViewModelTest {
     fun `given new list false when saving successfully should emit return with result side effect`() =
         runTest {
             // Arrange
-            val customListId = CustomListId("1")
+            val customListId = net.mullvad.mullvadvpn.lib.model.CustomListId("1")
             val newList = false
             val expectedResult: CustomListResult.LocationsChanged = mockk()
             coEvery {
@@ -220,7 +220,7 @@ class CustomListLocationsViewModelTest {
         }
 
     private fun createViewModel(
-        customListId: CustomListId,
+        customListId: net.mullvad.mullvadvpn.lib.model.CustomListId,
         newList: Boolean
     ): CustomListLocationsViewModel {
         return CustomListLocationsViewModel(
@@ -237,21 +237,21 @@ class CustomListLocationsViewModelTest {
             listOf(
                 RelayItem.Location.Country(
                     name = "Sweden",
-                    id = GeoLocationId.Country("SE"),
+                    id = net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("SE"),
                     expanded = false,
                     cities =
                         listOf(
                             RelayItem.Location.City(
                                 name = "Gothenburg",
                                 expanded = false,
-                                id = GeoLocationId.City(GeoLocationId.Country("SE"), "GBG"),
+                                id = net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("SE"), "GBG"),
                                 relays =
                                     listOf(
                                         RelayItem.Location.Relay(
                                             id =
-                                                GeoLocationId.Hostname(
-                                                    GeoLocationId.City(
-                                                        GeoLocationId.Country("SE"),
+                                                net.mullvad.mullvadvpn.lib.model.GeoLocationId.Hostname(
+                                                    net.mullvad.mullvadvpn.lib.model.GeoLocationId.City(
+                                                        net.mullvad.mullvadvpn.lib.model.GeoLocationId.Country("SE"),
                                                         "GBG"
                                                     ),
                                                     "gbg-1"
