@@ -31,6 +31,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.color.onSelected
 import net.mullvad.mullvadvpn.lib.theme.color.selected
 
 @Preview
@@ -70,7 +71,7 @@ fun CustomPortCell(
                         if (isSelected) {
                             MaterialTheme.colorScheme.selected
                         } else {
-                            MaterialTheme.colorScheme.primaryContainer
+                            MaterialTheme.colorScheme.surfaceContainerLow
                         }
                     )
                     .padding(start = Dimens.cellStartPadding)
@@ -79,7 +80,7 @@ fun CustomPortCell(
             Icon(
                 painter = painterResource(id = R.drawable.icon_tick),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSecondary,
+                tint = MaterialTheme.colorScheme.onSelected,
                 modifier =
                     Modifier.padding(end = Dimens.selectableCellTextMargin)
                         .alpha(if (isSelected) AlphaVisible else AlphaInvisible)
@@ -89,9 +90,9 @@ fun CustomPortCell(
                 style = MaterialTheme.typography.labelLarge,
                 textAlign = TextAlign.Start,
                 textColor = if (isSelected) {
-                    MaterialTheme.colorScheme.onSecondary
+                    MaterialTheme.colorScheme.onSelected
                 } else {
-                    MaterialTheme.colorScheme.onPrimaryContainer
+                    MaterialTheme.colorScheme.onSurface
                 }
             )
         }
@@ -102,12 +103,12 @@ fun CustomPortCell(
                     .height(Dimens.cellHeight)
                     .wrapContentWidth()
                     .defaultMinSize(minWidth = Dimens.customPortBoxMinWidth)
-                    .background(MaterialTheme.colorScheme.primary)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                     .testTag(numberTestTag)
         ) {
             Text(
                 text = port?.value?.toString() ?: stringResource(id = R.string.port),
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.align(Alignment.Center)
             )
         }
