@@ -57,9 +57,9 @@ fun SelectableCell(
     titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
     startPadding: Dp = Dimens.cellStartPadding,
     selectedColor: Color = MaterialTheme.colorScheme.selected,
-    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
     onSelectedColor: Color = MaterialTheme.colorScheme.onSelected,
-    onBackgroundColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface,
     onCellClicked: () -> Unit = {},
     testTag: String = ""
 ) {
