@@ -38,7 +38,7 @@ import net.mullvad.mullvadvpn.util.toOutAddress
 @Suppress("LongParameterList")
 class ConnectViewModel(
     private val accountRepository: AccountRepository,
-    private val deviceRepository: DeviceRepository,
+    deviceRepository: DeviceRepository,
     inAppNotificationController: InAppNotificationController,
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
     selectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase,
@@ -173,7 +173,7 @@ class ConnectViewModel(
         outOfTimeUseCase.isOutOfTime.filter { it == true }.map { UiSideEffect.OutOfTime }
 
     private fun revokedDeviceEffect() =
-        deviceRepository.deviceState.filterIsInstance<DeviceState.Revoked>().map {
+        accountRepository.accountState.filterIsInstance<DeviceState.Revoked>().map {
             UiSideEffect.RevokedDevice
         }
 
