@@ -20,16 +20,15 @@ import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_ACCOUNT_BUTTON
-import net.mullvad.mullvadvpn.model.GeoIpLocation
-import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.lib.model.ErrorState
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
+import net.mullvad.mullvadvpn.lib.model.TransportProtocol
+import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.VersionInfo
-import net.mullvad.talpid.net.TransportProtocol
-import net.mullvad.talpid.net.TunnelEndpoint
-import net.mullvad.talpid.tunnel.ActionAfterDisconnect
-import net.mullvad.talpid.tunnel.ErrorState
-import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -78,9 +77,8 @@ class ConnectScreenTest {
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connecting(null, null),
-                            tunnelRealState = TunnelState.Connecting(null, null),
+                            selectedRelayItemTitle = null,
+                            tunnelState = TunnelState.Connecting(null, null),
                             inAddress = null,
                             outAddress = "",
                             showLocation = false,
@@ -112,10 +110,8 @@ class ConnectScreenTest {
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = null,
-                            tunnelUiState =
-                                TunnelState.Connecting(endpoint = mockTunnelEndpoint, null),
-                            tunnelRealState =
+                            selectedRelayItemTitle = null,
+                            tunnelState =
                                 TunnelState.Connecting(endpoint = mockTunnelEndpoint, null),
                             inAddress = null,
                             outAddress = "",
@@ -147,9 +143,8 @@ class ConnectScreenTest {
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
-                            tunnelRealState = TunnelState.Connected(mockTunnelEndpoint, null),
+                            selectedRelayItemTitle = null,
+                            tunnelState = TunnelState.Connected(mockTunnelEndpoint, null),
                             inAddress = null,
                             outAddress = "",
                             showLocation = false,
@@ -179,9 +174,8 @@ class ConnectScreenTest {
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
-                            tunnelRealState = TunnelState.Connected(mockTunnelEndpoint, null),
+                            selectedRelayItemTitle = null,
+                            tunnelState = TunnelState.Connected(mockTunnelEndpoint, null),
                             inAddress = null,
                             outAddress = "",
                             showLocation = false,
@@ -204,19 +198,14 @@ class ConnectScreenTest {
     fun testDisconnectingState() {
         composeExtension.use {
             // Arrange
-            val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockSelectedLocation.locationName } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = mockSelectedLocation,
-                            tunnelUiState =
-                                TunnelState.Disconnecting(ActionAfterDisconnect.Nothing),
-                            tunnelRealState =
-                                TunnelState.Disconnecting(ActionAfterDisconnect.Nothing),
+                            selectedRelayItemTitle = mockLocationName,
+                            tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing),
                             inAddress = null,
                             outAddress = "",
                             showLocation = true,
@@ -239,17 +228,14 @@ class ConnectScreenTest {
     fun testDisconnectedState() {
         composeExtension.use {
             // Arrange
-            val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockSelectedLocation.locationName } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = mockSelectedLocation,
-                            tunnelUiState = TunnelState.Disconnected(),
-                            tunnelRealState = TunnelState.Disconnected(),
+                            selectedRelayItemTitle = mockLocationName,
+                            tunnelState = TunnelState.Disconnected(),
                             inAddress = null,
                             outAddress = "",
                             showLocation = true,
@@ -272,20 +258,14 @@ class ConnectScreenTest {
     fun testErrorStateBlocked() {
         composeExtension.use {
             // Arrange
-            val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockSelectedLocation.locationName } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = mockSelectedLocation,
-                            tunnelUiState =
-                                TunnelState.Error(
-                                    ErrorState(ErrorStateCause.StartTunnelError, true)
-                                ),
-                            tunnelRealState =
+                            selectedRelayItemTitle = mockLocationName,
+                            tunnelState =
                                 TunnelState.Error(
                                     ErrorState(ErrorStateCause.StartTunnelError, true)
                                 ),
@@ -315,20 +295,14 @@ class ConnectScreenTest {
     fun testErrorStateNotBlocked() {
         composeExtension.use {
             // Arrange
-            val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockSelectedLocation.locationName } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = mockSelectedLocation,
-                            tunnelUiState =
-                                TunnelState.Error(
-                                    ErrorState(ErrorStateCause.StartTunnelError, false)
-                                ),
-                            tunnelRealState =
+                            selectedRelayItemTitle = mockLocationName,
+                            tunnelState =
                                 TunnelState.Error(
                                     ErrorState(ErrorStateCause.StartTunnelError, false)
                                 ),
@@ -364,10 +338,8 @@ class ConnectScreenTest {
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = null,
-                            tunnelUiState =
-                                TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect),
-                            tunnelRealState =
+                            selectedRelayItemTitle = null,
+                            tunnelState =
                                 TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect),
                             inAddress = null,
                             outAddress = "",
@@ -393,18 +365,14 @@ class ConnectScreenTest {
     fun testDisconnectingBlockState() {
         composeExtension.use {
             // Arrange
-            val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockSelectedLocation.locationName } returns mockLocationName
             setContentWithTheme {
                 ConnectScreen(
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = mockSelectedLocation,
-                            tunnelUiState = TunnelState.Disconnecting(ActionAfterDisconnect.Block),
-                            tunnelRealState =
-                                TunnelState.Disconnecting(ActionAfterDisconnect.Block),
+                            selectedRelayItemTitle = mockLocationName,
+                            tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Block),
                             inAddress = null,
                             outAddress = "",
                             showLocation = true,
@@ -428,18 +396,15 @@ class ConnectScreenTest {
     fun testClickSelectLocationButton() {
         composeExtension.use {
             // Arrange
-            val mockSelectedLocation: RelayItem = mockk(relaxed = true)
             val mockLocationName = "Home"
-            every { mockSelectedLocation.name } returns mockLocationName
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 ConnectScreen(
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = mockSelectedLocation,
-                            tunnelUiState = TunnelState.Disconnected(),
-                            tunnelRealState = TunnelState.Disconnected(),
+                            selectedRelayItemTitle = mockLocationName,
+                            tunnelState = TunnelState.Disconnected(),
                             inAddress = null,
                             outAddress = "",
                             showLocation = false,
@@ -471,9 +436,8 @@ class ConnectScreenTest {
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
-                            tunnelRealState = TunnelState.Connected(mockTunnelEndpoint, null),
+                            selectedRelayItemTitle = null,
+                            tunnelState = TunnelState.Connected(mockTunnelEndpoint, null),
                             inAddress = null,
                             outAddress = "",
                             showLocation = false,
@@ -505,9 +469,8 @@ class ConnectScreenTest {
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
-                            tunnelRealState = TunnelState.Connected(mockTunnelEndpoint, null),
+                            selectedRelayItemTitle = null,
+                            tunnelState = TunnelState.Connected(mockTunnelEndpoint, null),
                             inAddress = null,
                             outAddress = "",
                             showLocation = false,
@@ -538,9 +501,8 @@ class ConnectScreenTest {
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Disconnected(),
-                            tunnelRealState = TunnelState.Disconnected(),
+                            selectedRelayItemTitle = null,
+                            tunnelState = TunnelState.Disconnected(),
                             inAddress = null,
                             outAddress = "",
                             showLocation = false,
@@ -571,9 +533,8 @@ class ConnectScreenTest {
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connecting(null, null),
-                            tunnelRealState = TunnelState.Connecting(null, null),
+                            selectedRelayItemTitle = null,
+                            tunnelState = TunnelState.Connecting(null, null),
                             inAddress = null,
                             outAddress = "",
                             showLocation = false,
@@ -612,9 +573,8 @@ class ConnectScreenTest {
                     state =
                         ConnectUiState(
                             location = mockLocation,
-                            selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
-                            tunnelRealState = TunnelState.Connected(mockTunnelEndpoint, null),
+                            selectedRelayItemTitle = null,
+                            tunnelState = TunnelState.Connected(mockTunnelEndpoint, null),
                             inAddress = mockInAddress,
                             outAddress = mockOutAddress,
                             showLocation = false,
@@ -644,18 +604,16 @@ class ConnectScreenTest {
             val versionInfo =
                 VersionInfo(
                     currentVersion = "1.0",
-                    upgradeVersion = "1.1",
-                    isOutdated = true,
-                    isSupported = true
+                    isSupported = true,
+                    suggestedUpgradeVersion = "1.1"
                 )
             setContentWithTheme {
                 ConnectScreen(
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connecting(null, null),
-                            tunnelRealState = TunnelState.Connecting(null, null),
+                            selectedRelayItemTitle = null,
+                            tunnelState = TunnelState.Connecting(null, null),
                             inAddress = null,
                             outAddress = "",
                             showLocation = false,
@@ -680,18 +638,16 @@ class ConnectScreenTest {
             val versionInfo =
                 VersionInfo(
                     currentVersion = "1.0",
-                    upgradeVersion = "1.1",
-                    isOutdated = true,
-                    isSupported = false
+                    isSupported = false,
+                    suggestedUpgradeVersion = "1.1"
                 )
             setContentWithTheme {
                 ConnectScreen(
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connecting(null, null),
-                            tunnelRealState = TunnelState.Connecting(null, null),
+                            selectedRelayItemTitle = null,
+                            tunnelState = TunnelState.Connecting(null, null),
                             inAddress = null,
                             outAddress = "",
                             showLocation = false,
@@ -722,9 +678,8 @@ class ConnectScreenTest {
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connecting(null, null),
-                            tunnelRealState = TunnelState.Connecting(null, null),
+                            selectedRelayItemTitle = null,
+                            tunnelState = TunnelState.Connecting(null, null),
                             inAddress = null,
                             outAddress = "",
                             showLocation = false,
@@ -749,10 +704,9 @@ class ConnectScreenTest {
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             val versionInfo =
                 VersionInfo(
-                    currentVersion = "1.0",
-                    upgradeVersion = "1.1",
-                    isOutdated = true,
-                    isSupported = false
+                    isSupported = false,
+                    currentVersion = "",
+                    suggestedUpgradeVersion = "1.1"
                 )
             setContentWithTheme {
                 ConnectScreen(
@@ -760,9 +714,8 @@ class ConnectScreenTest {
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connecting(null, null),
-                            tunnelRealState = TunnelState.Connecting(null, null),
+                            selectedRelayItemTitle = null,
+                            tunnelState = TunnelState.Connecting(null, null),
                             inAddress = null,
                             outAddress = "",
                             showLocation = false,
@@ -794,9 +747,8 @@ class ConnectScreenTest {
                     state =
                         ConnectUiState(
                             location = null,
-                            selectedRelayItem = null,
-                            tunnelUiState = TunnelState.Connecting(null, null),
-                            tunnelRealState = TunnelState.Connecting(null, null),
+                            selectedRelayItemTitle = null,
+                            tunnelState = TunnelState.Connecting(null, null),
                             inAddress = null,
                             outAddress = "",
                             showLocation = false,

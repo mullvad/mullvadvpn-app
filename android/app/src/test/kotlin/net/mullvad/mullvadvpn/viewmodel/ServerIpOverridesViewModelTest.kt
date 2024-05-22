@@ -4,6 +4,8 @@ import android.content.ContentResolver
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
+import arrow.core.left
+import arrow.core.right
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -17,13 +19,9 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.lib.ipc.Event
-import net.mullvad.mullvadvpn.model.RelayOverride
-import net.mullvad.mullvadvpn.model.SettingsPatchError
+import net.mullvad.mullvadvpn.lib.model.RelayOverride
+import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
-import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,27 +31,20 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ServerIpOverridesViewModelTest {
     private lateinit var viewModel: ServerIpOverridesViewModel
 
-    private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockRelayOverridesRepository: RelayOverridesRepository = mockk()
-    private val mockSettingsRepository: SettingsRepository = mockk(relaxed = true)
     private val mockContentResolver: ContentResolver = mockk()
 
     private val relayOverrides = MutableStateFlow<List<RelayOverride>?>(null)
-    private val serviceConnectionState =
-        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.ConnectedReady(mockk()))
 
     @BeforeEach
     fun setup() {
         coEvery { mockRelayOverridesRepository.relayOverrides } returns relayOverrides
-        coEvery { mockServiceConnectionManager.connectionState } returns serviceConnectionState
 
         mockkStatic(READ_TEXT)
 
         viewModel =
             ServerIpOverridesViewModel(
-                serviceConnectionManager = mockServiceConnectionManager,
                 relayOverridesRepository = mockRelayOverridesRepository,
-                settingsRepository = mockSettingsRepository,
                 contentResolver = mockContentResolver
             )
     }
@@ -80,10 +71,12 @@ class ServerIpOverridesViewModelTest {
 
     @Test
     fun `when import is finished we should get side effect`() = runTest {
+        // Arrange
         val mockkResult: SettingsPatchError = mockk()
-        coEvery { mockSettingsRepository.applySettingsPatch(TEXT_INPUT) } returns
-            Event.ApplyJsonSettingsResult(mockkResult)
+        coEvery { mockRelayOverridesRepository.applySettingsPatch(TEXT_INPUT) } returns
+            mockkResult.left()
 
+        // Act, Assert
         viewModel.uiSideEffect.test {
             viewModel.importText(TEXT_INPUT)
             assertEquals(ServerIpOverridesUiSideEffect.ImportResult(mockkResult), awaitItem())
@@ -92,22 +85,30 @@ class ServerIpOverridesViewModelTest {
 
     @Test
     fun `ensure import text invokes repository`() = runTest {
+        // Arrange
+        coEvery { mockRelayOverridesRepository.applySettingsPatch(TEXT_INPUT) } returns Unit.right()
+
+        // Act
         viewModel.importText(TEXT_INPUT)
 
-        coVerify { mockSettingsRepository.applySettingsPatch(TEXT_INPUT) }
+        // Assert
+        coVerify { mockRelayOverridesRepository.applySettingsPatch(TEXT_INPUT) }
     }
 
     @Test
     fun `ensure import file invokes repository`() = runTest {
+        // Arrange
         val uri: Uri = mockk()
-
         val mockInputStream: InputStream = mockk()
         every { mockContentResolver.openInputStream(uri) } returns mockInputStream
         every { any<InputStreamReader>().readText() } returns TEXT_INPUT
+        coEvery { mockRelayOverridesRepository.applySettingsPatch(TEXT_INPUT) } returns Unit.right()
 
+        // Act
         viewModel.importFile(uri)
 
-        coVerify { mockSettingsRepository.applySettingsPatch(TEXT_INPUT) }
+        // Assert
+        coVerify { mockRelayOverridesRepository.applySettingsPatch(TEXT_INPUT) }
     }
 
     companion object {

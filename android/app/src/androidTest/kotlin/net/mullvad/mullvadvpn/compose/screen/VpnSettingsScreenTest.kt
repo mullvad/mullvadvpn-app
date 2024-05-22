@@ -20,10 +20,11 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
-import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.Port
-import net.mullvad.mullvadvpn.model.PortRange
-import net.mullvad.mullvadvpn.model.QuantumResistantState
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.Port
+import net.mullvad.mullvadvpn.lib.model.PortRange
+import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.onNodeWithTagAndText
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 import org.junit.jupiter.api.BeforeEach
@@ -49,7 +50,7 @@ class VpnSettingsScreenTest {
                 )
             }
 
-            apply { onNodeWithText("Auto-connect").assertExists() }
+            onNodeWithText("Auto-connect").assertExists()
 
             onNodeWithTag(LAZY_LIST_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
@@ -67,7 +68,10 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme {
                 VpnSettingsScreen(
-                    state = VpnSettingsUiState.createDefault(mtu = VALID_DUMMY_MTU_VALUE),
+                    state =
+                        VpnSettingsUiState.createDefault(
+                            mtu = Mtu.fromString(VALID_DUMMY_MTU_VALUE).getOrNull()!!
+                        ),
                 )
             }
 
@@ -360,7 +364,7 @@ class VpnSettingsScreenTest {
     fun testMtuClick() =
         composeExtension.use {
             // Arrange
-            val mockedClickHandler: (Int?) -> Unit = mockk(relaxed = true)
+            val mockedClickHandler: (Mtu?) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 VpnSettingsScreen(
                     state = VpnSettingsUiState.createDefault(),

@@ -59,6 +59,7 @@ pub struct AndroidTunProvider {
     blocking: bool,
     custom_dns_servers: Option<Vec<IpAddr>>,
     allowed_lan_networks: Vec<IpNetwork>,
+    excluded_apps: Vec<String>,
 }
 
 impl AndroidTunProvider {
@@ -68,6 +69,7 @@ impl AndroidTunProvider {
         allow_lan: bool,
         custom_dns_servers: Option<Vec<IpAddr>>,
         allowed_lan_networks: Vec<IpNetwork>,
+        excluded_apps: Vec<String>,
     ) -> Self {
         let env = JnixEnv::from(
             context
@@ -86,6 +88,7 @@ impl AndroidTunProvider {
             blocking: false,
             custom_dns_servers,
             allowed_lan_networks,
+            excluded_apps,
         }
     }
 
@@ -104,6 +107,17 @@ impl AndroidTunProvider {
             self.recreate_tun_if_open()?;
         }
 
+        Ok(())
+    }
+
+    /// Update the set of excluded paths (split tunnel apps) for the tunnel provider.
+    /// This will cause any pre-existing tunnel to be recreated if necessary. See
+    /// [`AndroidTunProvider::recreate_tun_if_open()`] for details.
+    pub fn set_exclude_apps(&mut self, excluded_apps: Vec<String>) -> Result<(), Error> {
+        if self.excluded_apps != excluded_apps {
+            self.excluded_apps = excluded_apps;
+            self.recreate_tun_if_open()?;
+        }
         Ok(())
     }
 
@@ -185,14 +199,19 @@ impl AndroidTunProvider {
         }
     }
 
+    /// Return a copy of all excluded apps.
+    pub fn get_excluded_apps(&self) -> impl Iterator<Item = String> + '_ {
+        self.excluded_apps.iter().cloned()
+    }
+
     fn get_tun_fd(&mut self, config: TunConfig) -> Result<RawFd, Error> {
         let env = self.env()?;
         let java_config = config.into_java(&env);
 
         let result = self.call_method(
             "getTun",
-            "(Lnet/mullvad/talpid/tun_provider/TunConfig;)Lnet/mullvad/talpid/CreateTunResult;",
-            JavaType::Object("net/mullvad/talpid/CreateTunResult".to_owned()),
+            "(Lnet/mullvad/talpid/model/TunConfig;)Lnet/mullvad/talpid/model/CreateTunResult;",
+            JavaType::Object("net/mullvad/talpid/model/CreateTunResult".to_owned()),
             &[JValue::Object(java_config.as_obj())],
         )?;
 
@@ -212,7 +231,7 @@ impl AndroidTunProvider {
 
         let result = self.call_method(
             "recreateTunIfOpen",
-            "(Lnet/mullvad/talpid/tun_provider/TunConfig;)V",
+            "(Lnet/mullvad/talpid/model/TunConfig;)V",
             JavaType::Primitive(Primitive::Void),
             &[JValue::Object(java_config.as_obj())],
         )?;
@@ -226,6 +245,7 @@ impl AndroidTunProvider {
     fn prepare_tun_config(&mut self, config: &mut TunConfig, blocking: bool) {
         self.blocking = blocking;
         self.prepare_tun_config_for_allow_lan(config);
+        self.prepare_tun_config_for_excluded_apps(config);
         if !blocking {
             self.prepare_tun_config_for_custom_dns(config);
         }
@@ -276,6 +296,10 @@ impl AndroidTunProvider {
         if let Some(custom_dns_servers) = self.custom_dns_servers.clone() {
             config.dns_servers = custom_dns_servers;
         }
+    }
+
+    fn prepare_tun_config_for_excluded_apps(&self, config: &mut TunConfig) {
+        config.excluded_packages = self.excluded_apps.clone();
     }
 
     /// Allow a socket to bypass the tunnel.
@@ -405,13 +429,14 @@ impl Default for TunConfig {
                     .expect("Invalid IP network prefix for IPv6 address"),
             ],
             required_routes: vec![],
+            excluded_packages: vec![],
             mtu: 1380,
         }
     }
 }
 
 #[derive(FromJava)]
-#[jnix(package = "net.mullvad.talpid")]
+#[jnix(package = "net.mullvad.talpid.model")]
 enum CreateTunResult {
     Success { tun_fd: i32 },
     InvalidDnsServers { addresses: Vec<IpAddr> },

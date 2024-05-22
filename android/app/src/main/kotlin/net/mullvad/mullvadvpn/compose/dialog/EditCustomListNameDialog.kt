@@ -18,12 +18,18 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.Renamed
 import net.mullvad.mullvadvpn.compose.component.CustomListNameTextField
-import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
+import net.mullvad.mullvadvpn.compose.state.EditCustomListNameUiState
 import net.mullvad.mullvadvpn.compose.test.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.GetCustomListError
+import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
+import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.usecase.customlists.RenameError
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListNameDialogViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -32,15 +38,15 @@ import org.koin.core.parameter.parametersOf
 @Preview
 @Composable
 private fun PreviewEditCustomListNameDialog() {
-    AppTheme { EditCustomListNameDialog(UpdateCustomListUiState()) }
+    AppTheme { EditCustomListNameDialog(EditCustomListNameUiState()) }
 }
 
 @Composable
 @Destination(style = DestinationStyle.Dialog::class)
 fun EditCustomListName(
-    backNavigator: ResultBackNavigator<CustomListResult.Renamed>,
-    customListId: String,
-    initialName: String
+    backNavigator: ResultBackNavigator<Renamed>,
+    customListId: CustomListId,
+    initialName: CustomListName
 ) {
     val vm: EditCustomListNameDialogViewModel =
         koinViewModel(parameters = { parametersOf(customListId, initialName) })
@@ -63,7 +69,7 @@ fun EditCustomListName(
 
 @Composable
 fun EditCustomListNameDialog(
-    state: UpdateCustomListUiState,
+    state: EditCustomListNameUiState,
     updateName: (String) -> Unit = {},
     onInputChanged: () -> Unit = {},
     onDismiss: () -> Unit = {}
@@ -81,7 +87,7 @@ fun EditCustomListNameDialog(
             CustomListNameTextField(
                 name = name.value,
                 isValidName = isValidName,
-                error = state.error,
+                error = state.error?.errorString(),
                 onSubmit = updateName,
                 onValueChanged = {
                     name.value = it
@@ -105,3 +111,13 @@ fun EditCustomListNameDialog(
         }
     )
 }
+
+@Composable
+private fun RenameError.errorString() =
+    stringResource(
+        when (error) {
+            is NameAlreadyExists -> R.string.custom_list_error_list_exists
+            is GetCustomListError,
+            is UnknownCustomListError -> R.string.error_occurred
+        }
+    )

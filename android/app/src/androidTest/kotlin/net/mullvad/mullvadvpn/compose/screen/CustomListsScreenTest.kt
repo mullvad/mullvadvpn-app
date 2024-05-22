@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.CustomListsUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.NEW_LIST_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.lib.model.CustomList
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -56,8 +56,8 @@ class CustomListsScreenTest {
             }
 
             // Assert
-            onNodeWithText(customLists[0].name).assertExists()
-            onNodeWithText(customLists[1].name).assertExists()
+            onNodeWithText(customLists[0].name.value).assertExists()
+            onNodeWithText(customLists[1].name.value).assertExists()
         }
 
     @Test
@@ -87,7 +87,7 @@ class CustomListsScreenTest {
             // Arrange
             val customLists = DUMMY_CUSTOM_LISTS
             val clickedList = DUMMY_CUSTOM_LISTS[0]
-            val mockedOpenCustomList: (RelayItem.CustomList) -> Unit = mockk(relaxed = true)
+            val mockedOpenCustomList: (CustomList) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 CustomListsScreen(
                     state = CustomListsUiState.Content(customLists = customLists),
@@ -97,7 +97,7 @@ class CustomListsScreenTest {
             }
 
             // Act
-            onNodeWithText(clickedList.name).performClick()
+            onNodeWithText(clickedList.name.value).performClick()
 
             // Assert
             verify { mockedOpenCustomList(clickedList) }

@@ -3,37 +3,11 @@
 package net.mullvad.mullvadvpn.util
 
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.retryWhen
-import kotlinx.coroutines.withTimeoutOrNull
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.talpid.util.EventNotifier
-
-fun <R> Flow<ServiceConnectionState>.flatMapReadyConnectionOrDefault(
-    default: Flow<R>,
-    transform: (value: ServiceConnectionState.ConnectedReady) -> Flow<R>
-): Flow<R> {
-    return flatMapLatest { state ->
-        if (state is ServiceConnectionState.ConnectedReady) {
-            transform.invoke(state)
-        } else {
-            default
-        }
-    }
-}
-
-fun <T> callbackFlowFromNotifier(notifier: EventNotifier<T>) = callbackFlow {
-    val handler: (T) -> Unit = { value -> trySend(value) }
-    notifier.subscribe(this, handler)
-    awaitClose { notifier.unsubscribe(this) }
-}
 
 inline fun <T1, T2, T3, T4, T5, T6, R> combine(
     flow: Flow<T1>,
@@ -110,9 +84,6 @@ inline fun <T1, T2, T3, T4, T5, T6, T7, T8, R> combine(
     }
 }
 
-suspend inline fun <T> Deferred<T>.awaitWithTimeoutOrNull(timeout: Long) =
-    withTimeoutOrNull(timeout) { await() }
-
 fun <T> Deferred<T>.getOrDefault(default: T) =
     try {
         getCompleted()
@@ -150,7 +121,3 @@ suspend inline fun <T> Flow<T>.retryWithExponentialBackOff(
         }
 
 class ExceptionWrapper(val item: Any) : Throwable()
-
-suspend fun <T> Flow<T>.firstOrNullWithTimeout(timeMillis: Long): T? {
-    return withTimeoutOrNull(timeMillis) { firstOrNull() }
-}

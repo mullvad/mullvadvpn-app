@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -21,9 +22,12 @@ import net.mullvad.mullvadvpn.compose.destinations.ConnectDestination
 import net.mullvad.mullvadvpn.compose.destinations.NoDaemonScreenDestination
 import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.RequestVpnPermission
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.DaemonScreenEvent
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
+import net.mullvad.mullvadvpn.viewmodel.VpnPermissionSideEffect
+import net.mullvad.mullvadvpn.viewmodel.VpnPermissionViewModel
 import org.koin.androidx.compose.koinViewModel
 
 private val changeLogDestinations = listOf(ConnectDestination, OutOfTimeDestination)
@@ -35,6 +39,7 @@ fun MullvadApp() {
     val navController: NavHostController = engine.rememberNavController()
 
     val serviceVm = koinViewModel<NoDaemonViewModel>()
+    val permissionVm = koinViewModel<VpnPermissionViewModel>()
 
     DisposableEffect(Unit) {
         navController.addOnDestinationChangedListener(serviceVm)
@@ -45,7 +50,7 @@ fun MullvadApp() {
         modifier = Modifier.semantics { testTagsAsResourceId = true }.fillMaxSize(),
         engine = engine,
         navController = navController,
-        navGraph = NavGraphs.root
+        navGraph = NavGraphs.root,
     )
 
     // Globally handle daemon dropped connection with NoDaemonScreen
@@ -67,5 +72,14 @@ fun MullvadApp() {
             .first { it in changeLogDestinations }
 
         navController.navigate(ChangelogDestination(it).route)
+    }
+
+    // Ask for VPN Permission
+    val launchVpnPermission =
+        rememberLauncherForActivityResult(RequestVpnPermission()) { _ -> permissionVm.connect() }
+    LaunchedEffectCollect(permissionVm.uiSideEffect) {
+        if (it is VpnPermissionSideEffect.ShowDialog) {
+            launchVpnPermission.launch(Unit)
+        }
     }
 }

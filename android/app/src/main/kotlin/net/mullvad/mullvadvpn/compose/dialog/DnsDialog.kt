@@ -20,6 +20,7 @@ import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.compose.textfield.DnsTextField
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -93,7 +94,7 @@ private fun PreviewDnsDialogEditAllowLanDisabled() {
 @Destination(style = DestinationStyle.Dialog::class)
 @Composable
 fun DnsDialog(
-    resultNavigator: ResultBackNavigator<Boolean>,
+    resultNavigator: ResultBackNavigator<DnsDialogResult>,
     index: Int?,
     initialValue: String?,
 ) {
@@ -102,7 +103,10 @@ fun DnsDialog(
 
     LaunchedEffectCollect(viewModel.uiSideEffect) {
         when (it) {
-            DnsDialogSideEffect.Complete -> resultNavigator.navigateBack(result = true)
+            DnsDialogSideEffect.Complete ->
+                resultNavigator.navigateBack(result = DnsDialogResult.Success)
+            DnsDialogSideEffect.Error ->
+                resultNavigator.navigateBack(result = DnsDialogResult.Error)
         }
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -112,7 +116,7 @@ fun DnsDialog(
         viewModel::onDnsInputChange,
         onSaveDnsClick = viewModel::onSaveDnsClick,
         onRemoveDnsClick = viewModel::onRemoveDnsClick,
-        onDismiss = { resultNavigator.navigateBack(result = false) }
+        onDismiss = { resultNavigator.navigateBack(result = DnsDialogResult.Cancel) }
     )
 }
 

@@ -1,5 +1,3 @@
-#[cfg(target_os = "android")]
-use jnix::IntoJava;
 use obfuscation::ObfuscatorConfig;
 use serde::{Deserialize, Serialize};
 #[cfg(windows)]
@@ -172,20 +170,14 @@ pub struct TunnelTypeParseError;
 /// A tunnel endpoint is broadcast during the connecting and connected states of the tunnel state
 /// machine.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 pub struct TunnelEndpoint {
     #[serde(flatten)]
     pub endpoint: Endpoint,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_type: TunnelType,
     pub quantum_resistant: bool,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub proxy: Option<proxy::ProxyEndpoint>,
     pub obfuscation: Option<ObfuscationEndpoint>,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub entry_endpoint: Option<Endpoint>,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_interface: Option<String>,
     #[cfg(target_os = "windows")]
     pub daita: bool,
@@ -219,8 +211,6 @@ impl fmt::Display for TunnelEndpoint {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename = "obfuscation_type")]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 pub enum ObfuscationType {
     #[serde(rename = "udp2tcp")]
     Udp2Tcp,
@@ -236,8 +226,6 @@ impl fmt::Display for ObfuscationType {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename = "obfuscation_endpoint")]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 pub struct ObfuscationEndpoint {
     pub endpoint: Endpoint,
     pub obfuscation_type: ObfuscationType,
@@ -270,8 +258,6 @@ impl fmt::Display for ObfuscationEndpoint {
 
 /// Represents a network layer IP address together with the transport layer protocol and port.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 pub struct Endpoint {
     /// The socket address for the endpoint
     pub address: SocketAddr,
@@ -469,8 +455,6 @@ pub struct IpVersionParseError;
 /// Representation of a transport protocol, either UDP or TCP.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 pub enum TransportProtocol {
     /// Represents the UDP transport protocol.
     Udp,

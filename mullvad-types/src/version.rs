@@ -1,5 +1,3 @@
-#[cfg(target_os = "android")]
-use jnix::IntoJava;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -14,8 +12,6 @@ static DEV_REGEX: Lazy<Regex> =
 /// AppVersionInfo represents the current stable and the current latest release versions of the
 /// Mullvad VPN app.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct AppVersionInfo {
     /// False if Mullvad has stopped supporting the currently running version. This could mean
     /// a number of things. For example:
@@ -25,11 +21,9 @@ pub struct AppVersionInfo {
     /// The user should really upgrade when this is false.
     pub supported: bool,
     /// Latest stable version
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub latest_stable: AppVersion,
     /// Equal to `latest_stable` when the newest release is a stable release. But will contain
     /// beta versions when those are out for testing.
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub latest_beta: AppVersion,
     /// Whether should update to newer version
     pub suggested_upgrade: Option<AppVersion>,

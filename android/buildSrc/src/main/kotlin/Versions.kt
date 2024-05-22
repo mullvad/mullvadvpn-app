@@ -34,12 +34,22 @@ object Versions {
         const val uiautomator = "2.3.0"
     }
 
+    object Arrow {
+        const val base = "1.2.3"
+    }
+
     object Compose {
         const val destinations = "1.10.2"
         const val base = "1.6.3"
         const val constrainLayout = "1.0.1"
         const val foundation = base
         const val material3 = "1.2.1"
+    }
+
+    object Grpc {
+        const val grpcVersion = "1.63.0"
+        const val grpcKotlinVersion = "1.4.1"
+        const val protobufVersion = "3.25.3"
     }
 
     object Plugin {
@@ -49,6 +59,7 @@ object Versions {
         const val android = "8.3.0"
         const val androidAapt = "$android-10880808"
         const val playPublisher = "3.9.0"
+        const val protobuf = "0.9.4"
         const val dependencyCheck = "9.0.9"
         const val detekt = "1.23.5"
         const val gradleVersions = "0.51.0"
