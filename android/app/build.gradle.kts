@@ -183,15 +183,14 @@ android {
 
     applicationVariants.configureEach {
         val alwaysShowChangelog =
-            gradleLocalProperties(rootProject.projectDir, providers).getProperty("ALWAYS_SHOW_CHANGELOG")
-                ?: "false"
+            gradleLocalProperties(rootProject.projectDir, providers)
+                .getProperty("ALWAYS_SHOW_CHANGELOG") ?: "false"
 
         buildConfigField("boolean", "ALWAYS_SHOW_CHANGELOG", alwaysShowChangelog)
 
         val enableInAppVersionNotifications =
             gradleLocalProperties(rootProject.projectDir, providers)
-                .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS")
-                ?: "true"
+                .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS") ?: "true"
 
         buildConfigField(
             "boolean",
@@ -329,6 +328,7 @@ dependencies {
     implementation(Dependencies.AndroidX.lifecycleRuntimeKtx)
     implementation(Dependencies.AndroidX.lifecycleViewmodelKtx)
     implementation(Dependencies.AndroidX.lifecycleRuntimeCompose)
+    implementation(Dependencies.Arrow.core)
     implementation(Dependencies.Compose.constrainLayout)
     implementation(Dependencies.Compose.foundation)
     implementation(Dependencies.Compose.material3)
@@ -344,8 +344,6 @@ dependencies {
     implementation(Dependencies.Kotlin.reflect)
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
-
-    implementation(Dependencies.Arrow.core)
 
     // UI tooling
     implementation(Dependencies.Compose.uiToolingPreview)
