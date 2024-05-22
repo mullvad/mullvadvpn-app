@@ -7,7 +7,6 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -74,23 +73,6 @@ class MtuDialogTest {
         }
 
     @Test
-    fun testMtuDialogTextInput() =
-        composeExtension.use {
-            // Arrange
-            setContentWithTheme {
-                testMtuDialog(
-                    "",
-                )
-            }
-
-            // Act
-            onNodeWithText(EMPTY_STRING).performTextInput(VALID_DUMMY_MTU_VALUE)
-
-            // Assert
-            onNodeWithText(VALID_DUMMY_MTU_VALUE).assertExists()
-        }
-
-    @Test
     fun testMtuDialogSubmitOfValidValue() =
         composeExtension.use {
             // Arrange
@@ -113,11 +95,7 @@ class MtuDialogTest {
     fun testMtuDialogSubmitButtonDisabledWhenInvalidInput() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                testMtuDialog(
-                    INVALID_DUMMY_MTU_VALUE,
-                )
-            }
+            setContentWithTheme { testMtuDialog(INVALID_DUMMY_MTU_VALUE, false) }
 
             // Assert
             onNodeWithText("Submit").assertIsNotEnabled()
