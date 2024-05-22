@@ -17,7 +17,6 @@ import io.grpc.android.UdsChannelBuilder
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.async
@@ -171,7 +170,6 @@ class ManagementService(
         job = null
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun subscribeEvents() =
         withContext(Dispatchers.IO) {
             launch {
@@ -248,7 +246,7 @@ class ManagementService(
     private suspend fun getVersionInfo(): ModelAppVersionInfo =
         grpc.getVersionInfo(Empty.getDefaultInstance()).toDomain()
 
-    suspend fun logoutAccount(): Unit {
+    suspend fun logoutAccount() {
         grpc.logoutAccount(Empty.getDefaultInstance())
     }
 
@@ -265,7 +263,7 @@ class ManagementService(
             }
             .mapEmpty()
 
-    suspend fun clearAccountHistory(): Unit {
+    suspend fun clearAccountHistory() {
         grpc.clearAccountHistory(Empty.getDefaultInstance())
     }
 

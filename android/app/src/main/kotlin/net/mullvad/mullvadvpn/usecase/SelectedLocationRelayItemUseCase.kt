@@ -17,8 +17,6 @@ class SelectedLocationRelayItemUseCase(
     private val customListsRepository: CustomListsRepository,
     private val relayListRepository: RelayListRepository,
 ) {
-    fun selectedRelayItem() = selectedRelayItemWithTitle().map { it?.first }
-
     fun selectedRelayItemTitle() = selectedRelayItemWithTitle().map { it?.second }
 
     private fun selectedRelayItemWithTitle() =
@@ -60,7 +58,7 @@ class SelectedLocationRelayItemUseCase(
 
     private fun RelayItem.withTitle(cityName: String? = null): Pair<RelayItem, String> =
         when (this) {
-            is RelayItem.CustomList -> this to customListName.value
+            is RelayItem.CustomList,
             is RelayItem.Location.City,
             is RelayItem.Location.Country -> this to name
             is RelayItem.Location.Relay -> this to "$cityName ($name)"

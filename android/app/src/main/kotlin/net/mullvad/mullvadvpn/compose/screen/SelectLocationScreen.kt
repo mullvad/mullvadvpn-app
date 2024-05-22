@@ -53,7 +53,6 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterCell
@@ -86,8 +85,10 @@ import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
@@ -305,7 +306,7 @@ fun SelectLocationScreen(
             }
             Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
             val lazyListState = rememberLazyListState()
-            val selectedItemCode = (state as? SelectLocationUiState.Content)?.selectedItem?.id ?: ""
+            val selectedItemCode = (state as? SelectLocationUiState.Content)?.selectedItem ?: ""
             RunOnKeyChange(key = selectedItemCode) {
                 val index = state.indexOfSelectedRelayItem()
 
@@ -425,7 +426,7 @@ private fun LazyListScope.loading() {
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.customLists(
     customLists: List<RelayItem.CustomList>,
-    selectedItem: RelayItem?,
+    selectedItem: RelayItemId?,
     backgroundColor: Color,
     onSelectRelay: (item: RelayItem) -> Unit,
     onShowCustomListBottomSheet: () -> Unit,
@@ -453,7 +454,7 @@ private fun LazyListScope.customLists(
             StatusRelayLocationCell(
                 relay = customList,
                 // Do not show selection for locations in custom lists
-                selectedItem = selectedItem as? RelayItem.CustomList,
+                selectedItem = selectedItem as? CustomListId,
                 onSelectRelay = onSelectRelay,
                 onLongClick = {
                     if (it is RelayItem.CustomList) {
@@ -486,7 +487,7 @@ private fun LazyListScope.customLists(
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.relayList(
     countries: List<RelayItem.Location.Country>,
-    selectedItem: RelayItem?,
+    selectedItem: RelayItemId?,
     onSelectRelay: (item: RelayItem) -> Unit,
     onShowLocationBottomSheet: (item: RelayItem.Location) -> Unit,
 ) {
@@ -595,26 +596,16 @@ private fun BottomSheets(
 private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int =
     if (this is SelectLocationUiState.Content) {
         when (selectedItem) {
-            is RelayItem.Location.Country,
-            is RelayItem.Location.City,
-            is RelayItem.Location.Relay ->
-                countries.indexOfFirst { it.id == selectedItem.countryCode() } +
+            is CustomListId ->
+                filteredCustomLists.indexOfFirst { it.id == selectedItem } + EXTRA_ITEM_CUSTOM_LIST
+            is GeoLocationId ->
+                countries.indexOfFirst { it.id == selectedItem.country } +
                     customLists.size +
                     EXTRA_ITEMS_LOCATION
-            is RelayItem.CustomList ->
-                filteredCustomLists.indexOfFirst { it.id == selectedItem.id } +
-                    EXTRA_ITEM_CUSTOM_LIST
             else -> -1
         }
     } else {
         -1
-    }
-
-private fun RelayItem.countryCode(): GeoLocationId.Country =
-    when (this) {
-        is RelayItem.Location -> this.id.country
-        is RelayItem.CustomList ->
-            throw IllegalArgumentException("Custom list does not have a country code")
     }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -792,7 +783,7 @@ private fun CustomListEntryBottomSheet(
         sheetState = sheetState,
         onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
-    ) { ->
+    ) {
         HeaderCell(
             text = stringResource(id = R.string.remove_location_from_list, item.name),
             background = Color.Unspecified

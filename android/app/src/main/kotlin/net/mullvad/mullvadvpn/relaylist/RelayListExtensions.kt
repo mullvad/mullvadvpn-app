@@ -1,7 +1,14 @@
 package net.mullvad.mullvadvpn.relaylist
 
+import arrow.optics.copy
+import mullvad_daemon.management_interface.ManagementInterface.Relay
+import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.cities
+import net.mullvad.mullvadvpn.lib.model.expanded
+import net.mullvad.mullvadvpn.lib.model.relays
 
 fun List<RelayItem.Location.Country>.findItemForGeoLocationId(constraint: GeoLocationId) =
     withDescendants().firstOrNull { it.id == constraint }
@@ -15,7 +22,7 @@ fun List<RelayItem.Location.Country>.findItemForGeoLocationId(constraint: GeoLoc
 @Suppress("NestedBlockDepth")
 fun List<RelayItem.Location.Country>.filterOnSearchTerm(
     searchTerm: String,
-    selectedItem: RelayItem?
+    selectedItem: RelayItemId?
 ): List<RelayItem.Location.Country> {
     return if (searchTerm.length >= MIN_SEARCH_LENGTH) {
         val filteredCountries = mutableMapOf<GeoLocationId.Country, RelayItem.Location.Country>()
@@ -90,44 +97,34 @@ fun List<RelayItem.Location.Country>.filterOnSearchTerm(
 
 /** Expand the parent(s), if any, for the current selected item */
 private fun List<RelayItem.Location.Country>.expandItemForSelection(
-    selectedItem: RelayItem?
+    selectedItem: RelayItemId?
 ): List<RelayItem.Location.Country> {
-    return selectedItem?.let {
-        when (selectedItem) {
-            is RelayItem.Location.Country -> {
-                this
-            }
-            is RelayItem.Location.City -> {
-                this.map { country ->
-                    if (country.id == selectedItem.id.countryCode) {
-                        country.copy(expanded = true)
-                    } else {
-                        country
-                    }
+    selectedItem ?: return this
+    return when (selectedItem) {
+        is CustomListId,
+        is GeoLocationId.Country -> this
+        is GeoLocationId.City ->
+            map { if (it.id == selectedItem.country) it.copy(expanded = true) else it }
+        is GeoLocationId.Hostname -> {
+            map { country ->
+                if (country.id == selectedItem.country) {
+                    country.copy(
+                        expanded = true,
+                        cities =
+                            country.cities.map { city ->
+                                if (city.id == selectedItem.city) {
+                                    city.copy(expanded = true)
+                                } else {
+                                    city
+                                }
+                            },
+                    )
+                } else {
+                    country
                 }
             }
-            is RelayItem.Location.Relay -> {
-                this.map { country ->
-                    if (country.id == selectedItem.id.country) {
-                        country.copy(
-                            expanded = true,
-                            cities =
-                                country.cities.map { city ->
-                                    if (city.id == selectedItem.id.city) {
-                                        city.copy(expanded = true)
-                                    } else {
-                                        city
-                                    }
-                                },
-                        )
-                    } else {
-                        country
-                    }
-                }
-            }
-            is RelayItem.CustomList -> this
         }
-    } ?: this
+    }
 }
 
 fun List<RelayItem.Location.Country>.getRelayItemsByCodes(
