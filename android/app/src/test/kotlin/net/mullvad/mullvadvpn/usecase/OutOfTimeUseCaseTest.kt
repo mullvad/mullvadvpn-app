@@ -7,8 +7,9 @@ import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
@@ -30,7 +31,7 @@ class OutOfTimeUseCaseTest {
     private val mockAccountRepository: AccountRepository = mockk()
     private val mockConnectionProxy: ConnectionProxy = mockk()
 
-    private lateinit var events: MutableSharedFlow<TunnelState>
+    private lateinit var events: Channel<TunnelState>
     private lateinit var expiry: MutableStateFlow<AccountData?>
 
     private val dispatcher = StandardTestDispatcher()
@@ -40,10 +41,10 @@ class OutOfTimeUseCaseTest {
 
     @BeforeEach
     fun setup() {
-        events = MutableSharedFlow()
+        events = Channel()
         expiry = MutableStateFlow(null)
         every { mockAccountRepository.accountData } returns expiry
-        every { mockConnectionProxy.tunnelState } returns events
+        every { mockConnectionProxy.tunnelState } returns events.consumeAsFlow()
 
         Dispatchers.setMain(dispatcher)
 
@@ -75,7 +76,7 @@ class OutOfTimeUseCaseTest {
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
                 assertEquals(null, awaitItem())
-                events.emit(tunnelStateError)
+                events.send(tunnelStateError)
                 assertEquals(true, awaitItem())
             }
         }
@@ -98,11 +99,11 @@ class OutOfTimeUseCaseTest {
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
                 assertEquals(null, awaitItem())
-                events.emit(tunnelStateChanges.first())
+                events.send(tunnelStateChanges.first())
                 expiry.emit(expiredAccountExpiry)
                 assertEquals(false, awaitItem())
 
-                tunnelStateChanges.forEach { events.emit(it) }
+                tunnelStateChanges.forEach { events.send(it) }
 
                 // Should not emit again
                 expectNoEvents()
