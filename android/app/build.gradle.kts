@@ -346,7 +346,6 @@ dependencies {
     implementation(Dependencies.KotlinX.coroutinesAndroid)
 
     implementation(Dependencies.Arrow.core)
-    implementation(Dependencies.Arrow.optics)
 
     // UI tooling
     implementation(Dependencies.Compose.uiToolingPreview)

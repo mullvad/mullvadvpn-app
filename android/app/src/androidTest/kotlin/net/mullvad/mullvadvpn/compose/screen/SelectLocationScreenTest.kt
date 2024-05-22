@@ -96,7 +96,7 @@ class SelectLocationScreenTest {
                             customLists = emptyList(),
                             filteredCustomLists = emptyList(),
                             countries = updatedDummyList,
-                            selectedItem = updatedDummyList[0].cities[0].relays[0],
+                            selectedItem = updatedDummyList[0].cities[0].relays[0].id,
                             selectedOwnership = null,
                             selectedProvidersCount = 0,
                             searchTerm = ""
