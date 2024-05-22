@@ -141,6 +141,6 @@ fun ViewLogsScreen(
 }
 
 private fun shareText(context: Context, logContent: String) {
-    val shareIntent = context.getLogsShareIntent("Share logs", logContent)
+    val shareIntent = context.getLogsShareIntent(logContent)
     context.startActivity(shareIntent)
 }

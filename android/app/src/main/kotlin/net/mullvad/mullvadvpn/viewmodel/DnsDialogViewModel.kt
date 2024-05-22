@@ -15,13 +15,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.constant.EMPTY_STRING
-import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import org.apache.commons.validator.routines.InetAddressValidator
 
 sealed interface DnsDialogSideEffect {
     data object Complete : DnsDialogSideEffect
+
+    data object Error : DnsDialogSideEffect
 }
 
 data class DnsDialogViewModelState(
@@ -116,25 +117,25 @@ class DnsDialogViewModel(
 
             val address = InetAddress.getByName(uiState.value.ipAddress)
 
-            repository.updateCustomDnsList {
-                it.toMutableList().apply {
-                    if (index != null) {
-                        set(index, address)
-                    } else {
-                        add(address)
-                    }
+            if (index != null) {
+                    repository.setCustomDns(index = index, address = address)
+                } else {
+                    repository.addCustomDns(address = address)
                 }
-            }
-
-            _uiSideEffect.send(DnsDialogSideEffect.Complete)
+                .fold(
+                    { _uiSideEffect.send(DnsDialogSideEffect.Error) },
+                    { _uiSideEffect.send(DnsDialogSideEffect.Complete) }
+                )
         }
 
     fun onRemoveDnsClick() =
         viewModelScope.launch(dispatcher) {
-            repository.updateCustomDnsList {
-                it.filter { it.hostAddress != uiState.value.ipAddress }
-            }
-            _uiSideEffect.send(DnsDialogSideEffect.Complete)
+            repository
+                .deleteCustomDns(InetAddress.getByName(uiState.value.ipAddress))
+                .fold(
+                    { _uiSideEffect.send(DnsDialogSideEffect.Error) },
+                    { _uiSideEffect.send(DnsDialogSideEffect.Complete) }
+                )
         }
 
     private fun String.isValidIp(): Boolean {

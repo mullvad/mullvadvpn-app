@@ -270,6 +270,7 @@ fun ScaffoldWithSmallTopBar(
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     content: @Composable (modifier: Modifier) -> Unit
 ) {
     Scaffold(
@@ -279,6 +280,12 @@ fun ScaffoldWithSmallTopBar(
                 title = appBarTitle,
                 navigationIcon = navigationIcon,
                 actions = actions
+            )
+        },
+        snackbarHost = {
+            SnackbarHost(
+                snackbarHostState,
+                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) }
             )
         },
         content = { content(Modifier.fillMaxSize().padding(it)) }

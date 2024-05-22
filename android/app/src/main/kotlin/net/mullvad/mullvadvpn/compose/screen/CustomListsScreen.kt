@@ -38,15 +38,15 @@ import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.destinations.CreateCustomListDestination
 import net.mullvad.mullvadvpn.compose.destinations.EditCustomListDestination
 import net.mullvad.mullvadvpn.compose.extensions.itemsWithDivider
-import net.mullvad.mullvadvpn.compose.extensions.showSnackbar
 import net.mullvad.mullvadvpn.compose.state.CustomListsUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.NEW_LIST_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha60
-import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.CustomListsViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -76,8 +76,7 @@ fun CustomLists(
             }
             is NavResult.Value -> {
                 scope.launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar(
+                    snackbarHostState.showSnackbarImmediately(
                         message =
                             context.getString(
                                 R.string.delete_custom_list_message,
@@ -116,7 +115,7 @@ fun CustomListsScreen(
     state: CustomListsUiState,
     snackbarHostState: SnackbarHostState,
     addCustomList: () -> Unit = {},
-    openCustomList: (RelayItem.CustomList) -> Unit = {},
+    openCustomList: (CustomList) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     ScaffoldWithMediumTopBar(
@@ -169,15 +168,18 @@ private fun LazyListScope.loading() {
 }
 
 private fun LazyListScope.content(
-    customLists: List<RelayItem.CustomList>,
-    openCustomList: (RelayItem.CustomList) -> Unit
+    customLists: List<CustomList>,
+    openCustomList: (CustomList) -> Unit
 ) {
     itemsWithDivider(
         items = customLists,
-        key = { item: RelayItem.CustomList -> item.id },
+        key = { item: CustomList -> item.id },
         contentType = { ContentType.ITEM }
     ) { customList ->
-        NavigationComposeCell(title = customList.name, onClick = { openCustomList(customList) })
+        NavigationComposeCell(
+            title = customList.name.value,
+            onClick = { openCustomList(customList) }
+        )
     }
 }
 

@@ -1,8 +1,6 @@
 package net.mullvad.mullvadvpn.compose.cell
 
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth as wrapContentWidth1
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,17 +10,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.constant.MTU_MAX_VALUE
 import net.mullvad.mullvadvpn.constant.MTU_MIN_VALUE
+import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
 @Composable
 private fun PreviewMtuComposeCell() {
-    AppTheme { MtuComposeCell(mtuValue = "1300", onEditMtu = {}) }
+    AppTheme { MtuComposeCell(mtuValue = Mtu(1300), onEditMtu = {}) }
 }
 
 @Composable
 fun MtuComposeCell(
-    mtuValue: String,
+    mtuValue: Mtu?,
     onEditMtu: () -> Unit,
 ) {
     val titleModifier = Modifier
@@ -45,10 +44,10 @@ private fun MtuTitle(modifier: Modifier) {
 }
 
 @Composable
-private fun MtuBodyView(mtuValue: String, modifier: Modifier) {
-    Row(modifier = modifier.wrapContentWidth1().wrapContentHeight()) {
+private fun MtuBodyView(mtuValue: Mtu?, modifier: Modifier) {
+    Row(modifier = modifier) {
         Text(
-            text = mtuValue.ifEmpty { stringResource(id = R.string.hint_default) },
+            text = mtuValue?.value?.toString() ?: stringResource(id = R.string.hint_default),
             color = MaterialTheme.colorScheme.onPrimary
         )
     }

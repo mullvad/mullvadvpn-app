@@ -2,19 +2,13 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -22,25 +16,18 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
-import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.repository.AccountRepository
-import net.mullvad.mullvadvpn.repository.DeviceRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
+import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
-import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
-import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.util.toPaymentState
 
-@OptIn(FlowPreview::class)
 class WelcomeViewModel(
     private val accountRepository: AccountRepository,
-    private val deviceRepository: DeviceRepository,
-    private val serviceConnectionManager: ServiceConnectionManager,
+    deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentUseCase,
+    connectionProxy: ConnectionProxy,
     private val pollAccountExpiry: Boolean = true,
     private val isPlayBuild: Boolean
 ) : ViewModel() {
@@ -48,30 +35,18 @@ class WelcomeViewModel(
     val uiSideEffect = merge(_uiSideEffect.receiveAsFlow(), hasAddedTimeEffect())
 
     val uiState =
-        serviceConnectionManager.connectionState
-            .flatMapLatest { state ->
-                if (state is ServiceConnectionState.ConnectedReady) {
-                    flowOf(state.container)
-                } else {
-                    emptyFlow()
-                }
-            }
-            .flatMapLatest { serviceConnection ->
-                combine(
-                    serviceConnection.connectionProxy.tunnelUiStateFlow(),
-                    deviceRepository.deviceState.debounce {
-                        it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS)
-                    },
-                    paymentUseCase.paymentAvailability,
-                ) { tunnelState, deviceState, paymentAvailability ->
-                    WelcomeUiState(
-                        tunnelState = tunnelState,
-                        accountNumber = deviceState.token(),
-                        deviceName = deviceState.deviceName(),
-                        showSitePayment = !isPlayBuild,
-                        billingPaymentState = paymentAvailability?.toPaymentState(),
-                    )
-                }
+        combine(
+                connectionProxy.tunnelState,
+                deviceRepository.deviceState.filterNotNull(),
+                paymentUseCase.paymentAvailability,
+            ) { tunnelState, accountState, paymentAvailability ->
+                WelcomeUiState(
+                    tunnelState = tunnelState,
+                    accountNumber = accountState.token(),
+                    deviceName = accountState.deviceName(),
+                    showSitePayment = !isPlayBuild,
+                    billingPaymentState = paymentAvailability?.toPaymentState(),
+                )
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), WelcomeUiState())
 
@@ -87,22 +62,17 @@ class WelcomeViewModel(
     }
 
     private fun hasAddedTimeEffect() =
-        accountRepository.accountExpiryState
-            .mapNotNull { it.date() }
-            .filter { it.minusHours(MIN_HOURS_PAST_ACCOUNT_EXPIRY).isAfterNow }
+        accountRepository.accountData
+            .filterNotNull()
+            .filter { it.expiryDate.minusHours(MIN_HOURS_PAST_ACCOUNT_EXPIRY).isAfterNow }
             .onEach { paymentUseCase.resetPurchaseResult() }
             .map { UiSideEffect.OpenConnectScreen }
 
-    private fun ConnectionProxy.tunnelUiStateFlow(): Flow<TunnelState> =
-        callbackFlowFromNotifier(this.onUiStateChange)
-
     fun onSitePaymentClick() {
         viewModelScope.launch {
-            _uiSideEffect.send(
-                UiSideEffect.OpenAccountView(
-                    serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
-                )
-            )
+            accountRepository.getWebsiteAuthToken()?.let { token ->
+                _uiSideEffect.send(UiSideEffect.OpenAccountView(token))
+            }
         }
     }
 
@@ -123,7 +93,7 @@ class WelcomeViewModel(
         // If the payment was successful we want to update the account expiry. If not successful we
         // should check payment availability and verify any purchases to handle potential errors.
         if (success) {
-            updateAccountExpiry()
+            viewModelScope.launch { updateAccountExpiry() }
             // Emission of out of time navigation is handled by launch in onStart
         } else {
             fetchPaymentAvailability()
@@ -134,12 +104,12 @@ class WelcomeViewModel(
         }
     }
 
-    private fun updateAccountExpiry() {
-        accountRepository.fetchAccountExpiry()
+    private suspend fun updateAccountExpiry() {
+        accountRepository.getAccountData()
     }
 
     sealed interface UiSideEffect {
-        data class OpenAccountView(val token: String) : UiSideEffect
+        data class OpenAccountView(val token: WebsiteAuthToken) : UiSideEffect
 
         data object OpenConnectScreen : UiSideEffect
     }

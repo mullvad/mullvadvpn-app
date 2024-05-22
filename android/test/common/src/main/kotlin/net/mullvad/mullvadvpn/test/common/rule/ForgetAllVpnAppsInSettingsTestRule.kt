@@ -21,7 +21,7 @@ class ForgetAllVpnAppsInSettingsTestRule : BeforeTestExecutionCallback {
         )
         val vpnSettingsButtons =
             device.findObjects(By.res(SETTINGS_PACKAGE, VPN_SETTINGS_BUTTON_ID))
-        vpnSettingsButtons?.forEach { button ->
+        vpnSettingsButtons.forEach { button ->
             button.click()
             device.findObjectWithTimeout(By.text(FORGET_VPN_VPN_BUTTON_TEXT)).click()
             device.findObjectByCaseInsensitiveText(FORGET_VPN_VPN_CONFIRM_BUTTON_TEXT).click()

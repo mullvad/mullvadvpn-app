@@ -1,3 +1,5 @@
+#[cfg(not(windows))]
+use mullvad_daemon::cleanup_old_rpc_socket;
 use mullvad_daemon::{
     logging,
     management_interface::{ManagementInterfaceEventBroadcaster, ManagementInterfaceServer},
@@ -160,12 +162,8 @@ fn get_log_dir(config: &cli::Config) -> Result<Option<PathBuf>, String> {
 }
 
 async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
-    #[cfg(any(target_os = "macos", target_os = "linux"))]
-    if let Err(err) = tokio::fs::remove_file(mullvad_paths::get_rpc_socket_path()).await {
-        if err.kind() != std::io::ErrorKind::NotFound {
-            log::error!("Failed to remove old RPC socket: {}", err);
-        }
-    }
+    #[cfg(not(windows))]
+    cleanup_old_rpc_socket().await;
 
     if !running_as_admin() {
         log::warn!("Running daemon as a non-administrator user, clients might refuse to connect");

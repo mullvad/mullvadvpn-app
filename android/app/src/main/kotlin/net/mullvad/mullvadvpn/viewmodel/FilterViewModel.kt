@@ -16,12 +16,14 @@ import net.mullvad.mullvadvpn.compose.state.toConstraintProviders
 import net.mullvad.mullvadvpn.compose.state.toNullableOwnership
 import net.mullvad.mullvadvpn.compose.state.toOwnershipConstraint
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
-import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.relaylist.Provider
-import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
+import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.Provider
+import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 
 class FilterViewModel(
-    private val relayListFilterUseCase: RelayListFilterUseCase,
+    private val availableProvidersUseCase: AvailableProvidersUseCase,
+    private val relayListFilterRepository: RelayListFilterRepository
 ) : ViewModel() {
     private val _uiSideEffect = Channel<FilterScreenSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -33,14 +35,14 @@ class FilterViewModel(
         viewModelScope.launch {
             selectedProviders.value =
                 combine(
-                        relayListFilterUseCase.availableProviders(),
-                        relayListFilterUseCase.selectedProviders(),
+                        availableProvidersUseCase.availableProviders(),
+                        relayListFilterRepository.selectedProviders,
                     ) { allProviders, selectedConstraintProviders ->
                         selectedConstraintProviders.toSelectedProviders(allProviders)
                     }
                     .first()
 
-            val ownershipConstraint = relayListFilterUseCase.selectedOwnership().first()
+            val ownershipConstraint = relayListFilterRepository.selectedOwnership.first()
             selectedOwnership.value = ownershipConstraint.toNullableOwnership()
         }
     }
@@ -48,7 +50,7 @@ class FilterViewModel(
     val uiState: StateFlow<RelayFilterState> =
         combine(
                 selectedOwnership,
-                relayListFilterUseCase.availableProviders(),
+                availableProvidersUseCase.availableProviders(),
                 selectedProviders,
             ) { selectedOwnership, allProviders, selectedProviders ->
                 RelayFilterState(
@@ -84,7 +86,7 @@ class FilterViewModel(
         viewModelScope.launch {
             selectedProviders.value =
                 if (isChecked) {
-                    relayListFilterUseCase.availableProviders().first()
+                    availableProvidersUseCase.availableProviders().first()
                 } else {
                     emptyList()
                 }
@@ -97,7 +99,7 @@ class FilterViewModel(
             selectedProviders.value.toConstraintProviders(uiState.value.allProviders)
 
         viewModelScope.launch {
-            relayListFilterUseCase.updateOwnershipAndProviderFilter(
+            relayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
                 newSelectedOwnership,
                 newSelectedProviders
             )

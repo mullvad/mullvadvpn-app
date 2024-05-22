@@ -11,22 +11,18 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
-import net.mullvad.mullvadvpn.model.AccountExpiry
-import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.repository.AccountRepository
-import net.mullvad.mullvadvpn.repository.DeviceRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.toPaymentState
 import org.joda.time.DateTime
 
 class AccountViewModel(
     private val accountRepository: AccountRepository,
-    private val serviceConnectionManager: ServiceConnectionManager,
-    private val paymentUseCase: PaymentUseCase,
     deviceRepository: DeviceRepository,
+    private val paymentUseCase: PaymentUseCase,
     private val isPlayBuild: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
@@ -35,13 +31,13 @@ class AccountViewModel(
     val uiState: StateFlow<AccountUiState> =
         combine(
                 deviceRepository.deviceState,
-                accountRepository.accountExpiryState,
+                accountRepository.accountData,
                 paymentUseCase.paymentAvailability
-            ) { deviceState, accountExpiry, paymentAvailability ->
+            ) { deviceState, accountData, paymentAvailability ->
                 AccountUiState(
-                    deviceName = deviceState.deviceName() ?: "",
-                    accountNumber = deviceState.token() ?: "",
-                    accountExpiry = accountExpiry.date(),
+                    deviceName = deviceState?.deviceName() ?: "",
+                    accountNumber = deviceState?.token()?.value ?: "",
+                    accountExpiry = accountData?.expiryDate,
                     showSitePayment = !isPlayBuild,
                     billingPaymentState = paymentAvailability?.toPaymentState()
                 )
@@ -56,17 +52,17 @@ class AccountViewModel(
 
     fun onManageAccountClick() {
         viewModelScope.launch {
-            _uiSideEffect.send(
-                UiSideEffect.OpenAccountManagementPageInBrowser(
-                    serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
-                )
-            )
+            accountRepository.getWebsiteAuthToken()?.let { wwwAuthToken ->
+                _uiSideEffect.send(UiSideEffect.OpenAccountManagementPageInBrowser(wwwAuthToken))
+            }
         }
     }
 
     fun onLogoutClick() {
-        accountRepository.logout()
-        viewModelScope.launch { _uiSideEffect.send(UiSideEffect.NavigateToLogin) }
+        viewModelScope.launch {
+            accountRepository.logout()
+            _uiSideEffect.send(UiSideEffect.NavigateToLogin)
+        }
     }
 
     fun onCopyAccountNumber(accountNumber: String) {
@@ -105,13 +101,13 @@ class AccountViewModel(
     }
 
     private fun updateAccountExpiry() {
-        accountRepository.fetchAccountExpiry()
+        viewModelScope.launch { accountRepository.getAccountData() }
     }
 
     sealed class UiSideEffect {
         data object NavigateToLogin : UiSideEffect()
 
-        data class OpenAccountManagementPageInBrowser(val token: String) : UiSideEffect()
+        data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken) : UiSideEffect()
 
         data class CopyAccountNumber(val accountNumber: String) : UiSideEffect()
     }
@@ -127,9 +123,9 @@ data class AccountUiState(
     companion object {
         fun default() =
             AccountUiState(
-                deviceName = DeviceState.Unknown.deviceName(),
-                accountNumber = DeviceState.Unknown.token(),
-                accountExpiry = AccountExpiry.Missing.date(),
+                deviceName = null,
+                accountNumber = null,
+                accountExpiry = null,
                 showSitePayment = false,
                 billingPaymentState = PaymentState.Loading,
             )

@@ -126,10 +126,9 @@ fun Payment(productId: ProductId, resultBackNavigator: ResultBackNavigator<Boole
     val vm = koinViewModel<PaymentViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffectCollect(vm.uiSideEffect) {
-        when (it) {
-            is PaymentUiSideEffect.PaymentCancelled ->
-                resultBackNavigator.navigateBack(result = false)
+    LaunchedEffectCollect(vm.uiSideEffect) { sideEffect ->
+        when (sideEffect) {
+            PaymentUiSideEffect.PaymentCancelled -> resultBackNavigator.navigateBack(result = false)
         }
     }
 

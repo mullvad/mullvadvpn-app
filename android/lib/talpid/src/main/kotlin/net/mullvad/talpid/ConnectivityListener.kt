@@ -7,7 +7,6 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import kotlin.properties.Delegates.observable
-import net.mullvad.talpid.util.EventNotifier
 
 class ConnectivityListener {
     private val availableNetworks = HashSet<Network>()
@@ -21,22 +20,19 @@ class ConnectivityListener {
 
             override fun onLost(network: Network) {
                 availableNetworks.remove(network)
-                isConnected = !availableNetworks.isEmpty()
+                isConnected = availableNetworks.isNotEmpty()
             }
         }
 
     private lateinit var connectivityManager: ConnectivityManager
 
-    val connectivityNotifier = EventNotifier(false)
-
+    // Used by JNI
     var isConnected by
         observable(false) { _, oldValue, newValue ->
             if (newValue != oldValue) {
                 if (senderAddress != 0L) {
                     notifyConnectivityChange(newValue, senderAddress)
                 }
-
-                connectivityNotifier.notify(newValue)
             }
         }
 
