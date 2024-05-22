@@ -236,7 +236,7 @@ private fun ImportOverridesByBottomSheet(
     MullvadModalBottomSheet(
         sheetState = sheetState,
         onDismissRequest = { showBottomSheet(false) },
-    ) { ->
+    ) {
         HeaderCell(
             text = stringResource(id = R.string.server_ip_overrides_import_by),
             background = Color.Unspecified

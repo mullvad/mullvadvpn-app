@@ -46,7 +46,7 @@ class SelectLocationViewModel(
         combine(
                 filteredRelayListUseCase.filteredRelayList(),
                 customListsRelayItemUseCase.relayItemCustomLists(),
-                selectedLocationRelayItemUseCase.selectedRelayItem(),
+                relayListRepository.selectedLocation,
                 _searchTerm,
                 relayListFilterRepository.selectedOwnership,
                 availableProvidersUseCase.availableProviders(),
@@ -59,6 +59,7 @@ class SelectLocationViewModel(
                 selectedOwnership,
                 allProviders,
                 selectedConstraintProviders ->
+                val selectRelayItemId = selectedItem.getOrNull()
                 val selectedOwnershipItem = selectedOwnership.toNullableOwnership()
                 val selectedProvidersCount =
                     when (selectedConstraintProviders) {
@@ -72,7 +73,7 @@ class SelectLocationViewModel(
                     }
 
                 val filteredRelayCountries =
-                    relayCountries.filterOnSearchTerm(searchTerm, selectedItem)
+                    relayCountries.filterOnSearchTerm(searchTerm, selectRelayItemId)
 
                 val filteredCustomLists =
                     customLists
@@ -89,7 +90,7 @@ class SelectLocationViewModel(
                     filteredCustomLists = filteredCustomLists,
                     customLists = customLists,
                     countries = filteredRelayCountries,
-                    selectedItem = selectedItem,
+                    selectedItem = selectRelayItemId,
                 )
             }
             .stateIn(

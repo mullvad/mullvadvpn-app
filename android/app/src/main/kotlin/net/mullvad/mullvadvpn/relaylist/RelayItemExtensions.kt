@@ -53,16 +53,6 @@ private fun RelayItem.Location.hasProvider(providersConstraint: Constraint<Provi
         true
     }
 
-fun RelayItem.Location.filterOnOwnershipAndProvider(
-    ownership: Constraint<Ownership>,
-    providers: Constraint<Providers>
-): RelayItem? =
-    when (this) {
-        is RelayItem.Location.City -> filterOnOwnershipAndProvider(ownership, providers)
-        is RelayItem.Location.Country -> filterOnOwnershipAndProvider(ownership, providers)
-        is RelayItem.Location.Relay -> filterOnOwnershipAndProvider(ownership, providers)
-    }
-
 fun RelayItem.CustomList.filterOnOwnershipAndProvider(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>

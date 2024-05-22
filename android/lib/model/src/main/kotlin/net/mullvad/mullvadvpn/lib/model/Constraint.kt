@@ -11,5 +11,11 @@ sealed interface Constraint<out T> {
         companion object
     }
 
+    fun getOrNull(): T? =
+        when (this) {
+            Any -> null
+            is Only -> value
+        }
+
     companion object
 }

@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.retryWhen
-import kotlinx.coroutines.withTimeoutOrNull
 
 inline fun <T1, T2, T3, T4, T5, T6, R> combine(
     flow: Flow<T1>,
@@ -84,9 +83,6 @@ inline fun <T1, T2, T3, T4, T5, T6, T7, T8, R> combine(
         )
     }
 }
-
-suspend inline fun <T> Deferred<T>.awaitWithTimeoutOrNull(timeout: Long) =
-    withTimeoutOrNull(timeout) { await() }
 
 fun <T> Deferred<T>.getOrDefault(default: T) =
     try {
