@@ -29,7 +29,7 @@ import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
+import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.daysFromNow
 import net.mullvad.mullvadvpn.util.toInAddress
@@ -41,7 +41,7 @@ class ConnectViewModel(
     deviceRepository: DeviceRepository,
     inAppNotificationController: InAppNotificationController,
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
-    selectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase,
+    selectedLocationTitleUseCase: SelectedLocationTitleUseCase,
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val paymentUseCase: PaymentUseCase,
     private val connectionProxy: ConnectionProxy,
@@ -57,7 +57,7 @@ class ConnectViewModel(
     @OptIn(FlowPreview::class)
     val uiState: StateFlow<ConnectUiState> =
         combine(
-                selectedLocationRelayItemUseCase.selectedRelayItemTitle(),
+                selectedLocationTitleUseCase.selectedLocationTitle(),
                 inAppNotificationController.notifications,
                 connectionProxy.tunnelState,
                 lastKnownLocationUseCase.lastKnownDisconnectedLocation,

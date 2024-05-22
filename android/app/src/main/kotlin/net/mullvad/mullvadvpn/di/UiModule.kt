@@ -36,7 +36,7 @@ import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
-import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
+import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
@@ -125,7 +125,7 @@ val uiModule = module {
     single { ConnectivityUseCase(get()) }
     single { SystemVpnSettingsUseCase(androidContext()) }
     single { CustomListActionUseCase(get(), get()) }
-    single { SelectedLocationRelayItemUseCase(get(), get()) }
+    single { SelectedLocationTitleUseCase(get(), get()) }
     single { AvailableProvidersUseCase(get()) }
     single { CustomListsRelayItemUseCase(get(), get()) }
     single { CustomListRelayItemsUseCase(get(), get()) }

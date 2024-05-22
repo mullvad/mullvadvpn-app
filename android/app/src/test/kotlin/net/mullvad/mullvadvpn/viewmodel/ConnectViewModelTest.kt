@@ -38,7 +38,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
+import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.util.toInAddress
 import net.mullvad.mullvadvpn.util.toOutAddress
 import org.junit.jupiter.api.AfterEach
@@ -72,7 +72,7 @@ class ConnectViewModelTest {
     private val mockInAppNotificationController: InAppNotificationController = mockk()
 
     // Select location use case
-    private val mockSelectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase = mockk()
+    private val mockSelectedLocationTitleUseCase: SelectedLocationTitleUseCase = mockk()
 
     // Payment use case
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
@@ -111,7 +111,7 @@ class ConnectViewModelTest {
         every { mockLocation.country } returns "dummy country"
 
         // Flows
-        every { mockSelectedLocationRelayItemUseCase.selectedRelayItemTitle() } returns
+        every { mockSelectedLocationTitleUseCase.selectedLocationTitle() } returns
             selectedRelayItemFlow
 
         every { outOfTimeUseCase.isOutOfTime } returns outOfTimeViewFlow
@@ -123,7 +123,7 @@ class ConnectViewModelTest {
                 newDeviceNotificationUseCase = mockk(),
                 outOfTimeUseCase = outOfTimeUseCase,
                 paymentUseCase = mockPaymentUseCase,
-                selectedLocationRelayItemUseCase = mockSelectedLocationRelayItemUseCase,
+                selectedLocationTitleUseCase = mockSelectedLocationTitleUseCase,
                 connectionProxy = mockConnectionProxy,
                 lastKnownLocationUseCase = mockLastKnownLocationUseCase,
                 vpnPermissionRepository = mockVpnPermissionRepository,

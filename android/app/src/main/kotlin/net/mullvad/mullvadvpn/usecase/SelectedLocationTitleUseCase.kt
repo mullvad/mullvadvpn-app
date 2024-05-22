@@ -12,13 +12,11 @@ import net.mullvad.mullvadvpn.relaylist.withDescendants
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 
-class SelectedLocationRelayItemUseCase(
+class SelectedLocationTitleUseCase(
     private val customListsRepository: CustomListsRepository,
     private val relayListRepository: RelayListRepository,
 ) {
-    fun selectedRelayItemTitle() = selectedRelayItemWithTitle()
-
-    private fun selectedRelayItemWithTitle() =
+    fun selectedLocationTitle() =
         combine(
             customListsRepository.customLists,
             relayListRepository.relayList,
