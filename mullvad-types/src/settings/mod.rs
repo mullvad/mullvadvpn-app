@@ -9,11 +9,9 @@ use crate::{
     },
     wireguard,
 };
-#[cfg(target_os = "android")]
-use jnix::IntoJava;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-#[cfg(any(target_os = "windows", target_os = "macos"))]
-use std::{collections::HashSet, path::PathBuf};
+#[cfg(any(windows, target_os = "android", target_os = "macos"))]
+use std::collections::HashSet;
 use talpid_types::net::{openvpn, GenericTunnelOptions};
 
 mod dns;
@@ -22,7 +20,7 @@ mod dns;
 /// latest version that exists in `SettingsVersion`.
 /// This should be bumped when a new version is introduced along with a migration
 /// being added to `mullvad-daemon`.
-pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V9;
+pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V10;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Clone, Copy)]
 #[repr(u32)]
@@ -35,6 +33,7 @@ pub enum SettingsVersion {
     V7 = 7,
     V8 = 8,
     V9 = 9,
+    V10 = 10,
 }
 
 impl<'de> Deserialize<'de> for SettingsVersion {
@@ -51,6 +50,7 @@ impl<'de> Deserialize<'de> for SettingsVersion {
             v if v == SettingsVersion::V7 as u32 => Ok(SettingsVersion::V7),
             v if v == SettingsVersion::V8 as u32 => Ok(SettingsVersion::V8),
             v if v == SettingsVersion::V9 as u32 => Ok(SettingsVersion::V9),
+            v if v == SettingsVersion::V10 as u32 => Ok(SettingsVersion::V10),
             v => Err(serde::de::Error::custom(format!(
                 "{v} is not a valid SettingsVersion"
             ))),
@@ -70,25 +70,19 @@ impl Serialize for SettingsVersion {
 /// Mullvad daemon settings.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct Settings {
     pub relay_settings: RelaySettings,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_settings: BridgeSettings,
     pub obfuscation_settings: ObfuscationSettings,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_state: BridgeState,
     /// All of the custom relay lists
     pub custom_lists: CustomListsSettings,
     /// API access methods
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub api_access_methods: access_method::Settings,
     /// If the daemon should allow communication with private (LAN) networks.
     pub allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
     /// the firewall to not allow any traffic in or out.
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub block_when_disconnected: bool,
     /// If the daemon should connect the VPN tunnel directly on start or not.
     pub auto_connect: bool,
@@ -100,20 +94,84 @@ pub struct Settings {
     /// Whether to notify users of beta updates.
     pub show_beta_releases: bool,
     /// Split tunneling settings
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     pub split_tunnel: SplitTunnelSettings,
     /// Specifies settings schema version
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub settings_version: SettingsVersion,
 }
 
-#[cfg(any(target_os = "windows", target_os = "macos"))]
+#[cfg(any(windows, target_os = "android", target_os = "macos"))]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
 pub struct SplitTunnelSettings {
     /// Toggles split tunneling on or off
     pub enable_exclusions: bool,
-    /// List of applications to exclude from the tunnel.
-    pub apps: HashSet<PathBuf>,
+    /// Set of applications to exclude from the tunnel.
+    pub apps: HashSet<SplitApp>,
+}
+
+/// An application whose traffic should be excluded from any active tunnel.
+#[cfg(any(windows, target_os = "macos"))]
+#[derive(Debug, Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct SplitApp(std::path::PathBuf);
+
+/// An application whose traffic should be excluded from any active tunnel.
+#[cfg(target_os = "android")]
+#[derive(Debug, Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct SplitApp(String);
+
+#[cfg(any(windows, target_os = "macos"))]
+impl SplitApp {
+    /// Convert the underlying path to a [`String`].
+    /// This function will fail if the underlying path string is not valid UTF-8. See [`std::ffi::OsStr::to_str`] for details.
+    pub fn to_string(self) -> Option<String> {
+        self.0.as_os_str().to_str().map(str::to_string)
+    }
+
+    /// This is the String-representation as expected by [`SetExcludedApps`].
+    pub fn to_tunnel_command_repr(self) -> std::ffi::OsString {
+        self.0.as_os_str().to_owned()
+    }
+
+    pub fn display(&self) -> std::path::Display<'_> {
+        self.0.display()
+    }
+}
+
+#[cfg(target_os = "android")]
+impl SplitApp {
+    /// Convert the underlying app name to a [`String`].
+    ///
+    /// # Note
+    /// This function is fallible due to the Window's dito being fallible, and it is convenient to have the same API across all platforms.
+    pub fn to_string(self) -> Option<String> {
+        Some(self.0)
+    }
+
+    /// This is the String-representation as expected by [`SetExcludedApps`].
+    pub fn to_tunnel_command_repr(self) -> String {
+        self.0
+    }
+}
+
+#[cfg(any(windows, target_os = "macos"))]
+impl From<String> for SplitApp {
+    fn from(value: String) -> Self {
+        SplitApp::from(std::path::PathBuf::from(value))
+    }
+}
+
+#[cfg(any(windows, target_os = "macos"))]
+impl From<std::path::PathBuf> for SplitApp {
+    fn from(value: std::path::PathBuf) -> Self {
+        SplitApp(value)
+    }
+}
+
+#[cfg(target_os = "android")]
+impl From<String> for SplitApp {
+    fn from(value: String) -> Self {
+        SplitApp(value)
+    }
 }
 
 impl Default for Settings {
@@ -145,7 +203,7 @@ impl Default for Settings {
             tunnel_options: TunnelOptions::default(),
             relay_overrides: vec![],
             show_beta_releases: false,
-            #[cfg(any(target_os = "windows", target_os = "macos"))]
+            #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
         }
@@ -201,16 +259,12 @@ impl Settings {
 /// TunnelOptions holds configuration data that applies to all kinds of tunnels.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct TunnelOptions {
     /// openvpn holds OpenVPN specific tunnel options.
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub openvpn: openvpn::TunnelOptions,
     /// Contains wireguard tunnel options.
     pub wireguard: wireguard::TunnelOptions,
     /// Contains generic tunnel options that may apply to more than a single tunnel type.
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub generic: GenericTunnelOptions,
     /// DNS options.
     pub dns_options: DnsOptions,

@@ -40,6 +40,7 @@ import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.compose.util.MAX_VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.compose.util.vouchersVisualTransformation
 import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
+import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
@@ -78,7 +79,11 @@ private fun PreviewRedeemVoucherDialogVerifying() {
 private fun PreviewRedeemVoucherDialogError() {
     AppTheme {
         RedeemVoucherDialog(
-            state = VoucherDialogUiState("", VoucherDialogState.Error("An Error message")),
+            state =
+                VoucherDialogUiState(
+                    "",
+                    VoucherDialogState.Error(RedeemVoucherError.InvalidVoucher)
+                ),
             onVoucherInputChange = {},
             onRedeem = {},
             onDismiss = {}
@@ -263,10 +268,18 @@ private fun EnterVoucherBody(
             )
         } else if (state.voucherState is VoucherDialogState.Error) {
             Text(
-                text = state.voucherState.errorMessage,
+                text = stringResource(id = state.voucherState.error.message()),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall
             )
         }
     }
 }
+
+private fun RedeemVoucherError.message(): Int =
+    when (this) {
+        RedeemVoucherError.InvalidVoucher -> R.string.invalid_voucher
+        RedeemVoucherError.VoucherAlreadyUsed -> R.string.voucher_already_used
+        RedeemVoucherError.RpcError,
+        is RedeemVoucherError.Unknown -> R.string.error_occurred
+    }

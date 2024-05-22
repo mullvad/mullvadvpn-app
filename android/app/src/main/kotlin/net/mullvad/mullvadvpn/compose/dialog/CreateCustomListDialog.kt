@@ -20,13 +20,15 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.Created
 import net.mullvad.mullvadvpn.compose.component.CustomListNameTextField
 import net.mullvad.mullvadvpn.compose.destinations.CustomListLocationsDestination
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.compose.test.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.model.CustomListsError
+import net.mullvad.mullvadvpn.usecase.customlists.CreateWithLocationsError
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -43,7 +45,10 @@ private fun PreviewCreateCustomListDialog() {
 private fun PreviewCreateCustomListDialogError() {
     AppTheme {
         CreateCustomListDialog(
-            state = CreateCustomListUiState(error = CustomListsError.CustomListExists)
+            state =
+                CreateCustomListUiState(
+                    error = CreateWithLocationsError.Create(CustomListAlreadyExists)
+                )
         )
     }
 }
@@ -52,8 +57,8 @@ private fun PreviewCreateCustomListDialogError() {
 @Destination(style = DestinationStyle.Dialog::class)
 fun CreateCustomList(
     navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<CustomListResult.Created>,
-    locationCode: String = ""
+    backNavigator: ResultBackNavigator<Created>,
+    locationCode: GeoLocationId? = null
 ) {
     val vm: CreateCustomListDialogViewModel =
         koinViewModel(parameters = { parametersOf(locationCode) })
@@ -106,7 +111,7 @@ fun CreateCustomListDialog(
             CustomListNameTextField(
                 name = name.value,
                 isValidName = isValidName,
-                error = state.error,
+                error = state.error?.errorString(),
                 onSubmit = createCustomList,
                 onValueChanged = {
                     name.value = it
@@ -130,3 +135,13 @@ fun CreateCustomListDialog(
         }
     )
 }
+
+@Composable
+private fun CreateWithLocationsError.errorString() =
+    stringResource(
+        if (this is CreateWithLocationsError.Create && this.error is CustomListAlreadyExists) {
+            R.string.custom_list_error_list_exists
+        } else {
+            R.string.error_occurred
+        }
+    )

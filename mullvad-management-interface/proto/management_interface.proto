@@ -92,12 +92,18 @@ service ManagementService {
   rpc RemoveSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
   rpc ClearSplitTunnelProcesses(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
-  // Split tunneling (Windows, macOS)
+  // Split tunneling (Windows, macOS, Android)
   rpc AddSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc RemoveSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
-  rpc ClearSplitTunnelApps(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc SetSplitTunnelState(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+
+  // Split tunneling (Windows, macOS)
+  rpc ClearSplitTunnelApps(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc GetExcludedProcesses(google.protobuf.Empty) returns (ExcludedProcessList) {}
+
+  // Play payment (Android)
+  rpc InitPlayPurchase(google.protobuf.Empty) returns (PlayPurchasePaymentToken) {}
+  rpc VerifyPlayPurchase(PlayPurchase) returns (google.protobuf.Empty) {}
 
   // Notify the split tunnel monitor that a volume was mounted or dismounted
   // (Windows).
@@ -702,3 +708,10 @@ message RemoveDeviceEvent {
   string account_token = 1;
   repeated Device new_device_list = 2;
 }
+
+message PlayPurchase {
+  string product_id = 1;
+  PlayPurchasePaymentToken purchase_token = 2;
+}
+
+message PlayPurchasePaymentToken { string token = 1; }

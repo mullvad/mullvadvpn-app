@@ -4,17 +4,20 @@ include(
     ":tile"
 )
 include(
-    ":lib:common",
-    ":lib:endpoint",
-    ":lib:ipc",
-    ":lib:model",
-    ":lib:resource",
-    ":lib:talpid",
-    ":lib:theme",
-    ":lib:common-test",
     ":lib:billing",
+    ":lib:common",
+    ":lib:common-test",
+    ":lib:daemon-grpc",
+    ":lib:endpoint",
+    ":lib:intent-provider",
+    ":lib:ipc",
+    ":lib:map",
+    ":lib:model",
     ":lib:payment",
-    ":lib:map"
+    ":lib:resource",
+    ":lib:shared",
+    ":lib:talpid",
+    ":lib:theme"
 )
 include(
     ":test",

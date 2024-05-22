@@ -7,26 +7,25 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
-import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.repository.DeviceRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
+import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 
 class SettingsViewModel(
     deviceRepository: DeviceRepository,
-    serviceConnectionManager: ServiceConnectionManager,
+    appVersionInfoRepository: AppVersionInfoRepository,
     isPlayBuild: Boolean
 ) : ViewModel() {
 
     private val vmState: StateFlow<SettingsUiState> =
-        combine(deviceRepository.deviceState, serviceConnectionManager.connectionState) {
+        combine(deviceRepository.deviceState, appVersionInfoRepository.versionInfo()) {
                 deviceState,
                 versionInfo ->
-                val cachedVersionInfo = versionInfo.readyContainer()?.appVersionInfoCache
                 SettingsUiState(
                     isLoggedIn = deviceState is DeviceState.LoggedIn,
-                    appVersion = cachedVersionInfo?.version ?: "",
+                    appVersion = versionInfo.currentVersion,
                     isUpdateAvailable =
-                        cachedVersionInfo?.let { it.isSupported.not() || it.isOutdated } ?: false,
+                        versionInfo.let { it.isSupported.not() || it.isUpdateAvailable },
                     isPlayBuild = isPlayBuild
                 )
             }

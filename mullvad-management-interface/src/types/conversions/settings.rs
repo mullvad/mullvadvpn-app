@@ -4,24 +4,27 @@ use talpid_types::ErrorExt;
 
 impl From<&mullvad_types::settings::Settings> for proto::Settings {
     fn from(settings: &mullvad_types::settings::Settings) -> Self {
-        #[cfg(any(target_os = "windows", target_os = "macos"))]
+        #[cfg(any(windows, target_os = "android", target_os = "macos"))]
         let split_tunnel = {
-            let mut converted_list = vec![];
-            for path in settings.split_tunnel.apps.clone().iter() {
-                match path.as_path().as_os_str().to_str() {
-                    Some(path) => converted_list.push(path.to_string()),
+            let apps = settings
+                .split_tunnel
+                .apps
+                .iter()
+                .filter_map(|app| match app.clone().to_string() {
                     None => {
-                        log::error!("failed to convert OS string: {:?}", path);
+                        log::error!("Failed to convert application to string: {:?}", app);
+                        None
                     }
-                }
-            }
+                    string => string,
+                })
+                .collect();
 
             Some(proto::SplitTunnelSettings {
                 enable_exclusions: settings.split_tunnel.enable_exclusions,
-                apps: converted_list,
+                apps,
             })
         };
-        #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+        #[cfg(target_os = "linux")]
         let split_tunnel = None;
 
         Self {
@@ -105,10 +108,7 @@ impl From<&mullvad_types::settings::TunnelOptions> for proto::TunnelOptions {
             generic: Some(proto::tunnel_options::GenericOptions {
                 enable_ipv6: options.generic.enable_ipv6,
             }),
-            #[cfg(not(target_os = "android"))]
             dns_options: Some(proto::DnsOptions::from(&options.dns_options)),
-            #[cfg(target_os = "android")]
-            dns_options: None,
         }
     }
 }
@@ -159,7 +159,7 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "missing api access methods settings",
                 ))?;
-        #[cfg(any(target_os = "windows", target_os = "macos"))]
+        #[cfg(any(windows, target_os = "android", target_os = "macos"))]
         let split_tunnel = settings
             .split_tunnel
             .ok_or(FromProtobufTypeError::InvalidArgument(
@@ -184,7 +184,7 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
                 .map(mullvad_types::relay_constraints::RelayOverride::try_from)
                 .collect::<Result<Vec<_>, _>>()?,
             show_beta_releases: settings.show_beta_releases,
-            #[cfg(any(target_os = "windows", target_os = "macos"))]
+            #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             split_tunnel: mullvad_types::settings::SplitTunnelSettings::from(split_tunnel),
             obfuscation_settings: mullvad_types::relay_constraints::ObfuscationSettings::try_from(
                 obfuscation_settings,
@@ -219,16 +219,13 @@ pub fn try_bridge_state_from_i32(
     }
 }
 
-#[cfg(any(target_os = "windows", target_os = "macos"))]
+#[cfg(any(windows, target_os = "android", target_os = "macos"))]
 impl From<proto::SplitTunnelSettings> for mullvad_types::settings::SplitTunnelSettings {
     fn from(value: proto::SplitTunnelSettings) -> Self {
-        mullvad_types::settings::SplitTunnelSettings {
+        use mullvad_types::settings::{SplitApp, SplitTunnelSettings};
+        SplitTunnelSettings {
             enable_exclusions: value.enable_exclusions,
-            apps: value
-                .apps
-                .into_iter()
-                .map(std::path::PathBuf::from)
-                .collect(),
+            apps: value.apps.into_iter().map(SplitApp::from).collect(),
         }
     }
 }
@@ -297,7 +294,6 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
             generic: net::GenericTunnelOptions {
                 enable_ipv6: generic_options.enable_ipv6,
             },
-            #[cfg(not(target_os = "android"))]
             dns_options: mullvad_types::settings::DnsOptions::try_from(dns_options)?,
         })
     }

@@ -33,10 +33,7 @@ cfg_if! {
 /// Configuration for creating a tunnel device.
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(
-    target_os = "android",
-    jnix(package = "net.mullvad.talpid.tun_provider")
-)]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.model"))]
 pub struct TunConfig {
     /// IP addresses for the tunnel interface.
     pub addresses: Vec<IpAddr>,
@@ -56,6 +53,10 @@ pub struct TunConfig {
     #[jnix(skip)]
     pub required_routes: Vec<IpNetwork>,
 
+    /// App packages that should be excluded from the tunnel.
+    #[cfg(target_os = "android")]
+    pub excluded_packages: Vec<String>,
+
     /// Maximum Transmission Unit in the tunnel.
     #[cfg_attr(target_os = "android", jnix(map = "|mtu| mtu as i32"))]
     pub mtu: u16,
@@ -63,7 +64,7 @@ pub struct TunConfig {
 
 #[cfg(target_os = "android")]
 #[derive(IntoJava)]
-#[jnix(package = "net.mullvad.talpid.tun_provider")]
+#[jnix(package = "net.mullvad.talpid.model")]
 struct InetNetwork {
     address: IpAddr,
     prefix: i16,
