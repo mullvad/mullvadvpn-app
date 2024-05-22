@@ -31,17 +31,17 @@ dependencies {
     implementation(project(Dependencies.Mullvad.daemonGrpc))
     implementation(project(Dependencies.Mullvad.modelLib))
 
+    implementation(Dependencies.Arrow.core)
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
-    implementation(Dependencies.Arrow.core)
     implementation(Dependencies.jodaTime)
 
-    testImplementation(project(Dependencies.Mullvad.commonTestLib))
     testImplementation(Dependencies.Kotlin.test)
     testImplementation(Dependencies.KotlinX.coroutinesTest)
     testImplementation(Dependencies.MockK.core)
-    testImplementation(Dependencies.turbine)
     testImplementation(Dependencies.junitApi)
-    testRuntimeOnly(Dependencies.junitEngine)
     testImplementation(Dependencies.junitParams)
+    testImplementation(Dependencies.turbine)
+    testImplementation(project(Dependencies.Mullvad.commonTestLib))
+    testRuntimeOnly(Dependencies.junitEngine)
 }
