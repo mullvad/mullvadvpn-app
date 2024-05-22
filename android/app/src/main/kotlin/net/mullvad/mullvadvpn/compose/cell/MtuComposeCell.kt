@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.compose.cell
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth as wrapContentWidth1
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,7 +46,7 @@ private fun MtuTitle(modifier: Modifier) {
 
 @Composable
 private fun MtuBodyView(mtuValue: Mtu?, modifier: Modifier) {
-    Row(modifier = modifier.wrapContentWidth1().wrapContentHeight()) {
+    Row(modifier = modifier) {
         Text(
             text = mtuValue?.value?.toString() ?: stringResource(id = R.string.hint_default),
             color = MaterialTheme.colorScheme.onPrimary
