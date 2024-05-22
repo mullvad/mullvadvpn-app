@@ -1,6 +1,4 @@
 use chrono::{offset::Utc, DateTime};
-#[cfg(target_os = "android")]
-use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Serialize};
 
 /// Account identifier used for authentication.
@@ -19,12 +17,8 @@ pub type PlayPurchasePaymentToken = String;
 
 /// Account expiration info returned by the API via `/v1/me`.
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct AccountData {
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub id: AccountId,
-    #[cfg_attr(target_os = "android", jnix(map = "|expiry| expiry.to_string()"))]
     pub expiry: DateTime<Utc>,
 }
 
@@ -38,22 +32,16 @@ impl AccountData {
 /// Data structure that's returned from successful invocation of the mullvad API's
 /// `/v1/submit-voucher` RPC.
 #[derive(Deserialize, Serialize, Debug)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct VoucherSubmission {
     /// Amount of time added to the account
-    #[cfg_attr(target_os = "android", jnix(map = "|time_added| time_added as i64"))]
     pub time_added: u64,
     /// Updated expiry time
-    #[cfg_attr(target_os = "android", jnix(map = "|expiry| expiry.to_string()"))]
     pub new_expiry: DateTime<Utc>,
 }
 
 /// `PlayPurchase` is provided to google in order to verify that a google play purchase was
 /// acknowledged.
 #[derive(Deserialize, Serialize, Debug, Clone)]
-#[cfg_attr(target_os = "android", derive(FromJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[cfg(target_os = "android")]
 pub struct PlayPurchase {
     pub product_id: String,

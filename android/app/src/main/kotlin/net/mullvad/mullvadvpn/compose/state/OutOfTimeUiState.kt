@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 
 data class OutOfTimeUiState(
     val tunnelState: TunnelState = TunnelState.Disconnected(),

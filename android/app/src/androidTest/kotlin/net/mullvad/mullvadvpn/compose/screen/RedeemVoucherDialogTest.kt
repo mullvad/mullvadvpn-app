@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
 import net.mullvad.mullvadvpn.compose.test.VOUCHER_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.util.VoucherRegexHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -133,7 +134,8 @@ class RedeemVoucherDialogTest {
                 RedeemVoucherDialog(
                     state =
                         VoucherDialogUiState(
-                            voucherState = VoucherDialogState.Error(ERROR_MESSAGE)
+                            voucherState =
+                                VoucherDialogState.Error(RedeemVoucherError.InvalidVoucher)
                         ),
                     onVoucherInputChange = {},
                     onRedeem = {},
@@ -142,13 +144,13 @@ class RedeemVoucherDialogTest {
             }
 
             // Assert
-            onNodeWithText(ERROR_MESSAGE).assertExists()
+            onNodeWithText(VOUCHER_CODE_INVALID_ERROR_MESSAGE).assertExists()
         }
 
     companion object {
         private const val CANCEL_BUTTON_TEXT = "Cancel"
         private const val GOT_IT_BUTTON_TEXT = "Got it!"
         private const val DUMMY_VOUCHER = "DUMMY____VOUCHER"
-        private const val ERROR_MESSAGE = "error_message"
+        private const val VOUCHER_CODE_INVALID_ERROR_MESSAGE = "Voucher code is invalid."
     }
 }

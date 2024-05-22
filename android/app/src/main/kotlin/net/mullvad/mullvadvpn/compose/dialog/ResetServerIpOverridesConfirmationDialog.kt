@@ -37,6 +37,8 @@ fun ResetServerIpOverridesConfirmation(resultBackNavigator: ResultBackNavigator<
         when (it) {
             ResetServerIpOverridesConfirmationUiSideEffect.OverridesCleared ->
                 resultBackNavigator.navigateBack(result = true)
+            is ResetServerIpOverridesConfirmationUiSideEffect.OverridesError ->
+                resultBackNavigator.navigateBack(result = false)
         }
     }
     ResetServerIpOverridesConfirmationDialog(

@@ -9,16 +9,16 @@ import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
-import net.mullvad.mullvadvpn.compose.data.DUMMY_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_COUNTRIES
+import net.mullvad.mullvadvpn.compose.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.performLongClick
-import net.mullvad.mullvadvpn.relaylist.RelayItem
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -96,7 +96,7 @@ class SelectLocationScreenTest {
                             customLists = emptyList(),
                             filteredCustomLists = emptyList(),
                             countries = updatedDummyList,
-                            selectedItem = updatedDummyList[0].cities[0].relays[0],
+                            selectedItem = updatedDummyList[0].cities[0].relays[0].id,
                             selectedOwnership = null,
                             selectedProvidersCount = 0,
                             searchTerm = ""
@@ -202,7 +202,7 @@ class SelectLocationScreenTest {
                 SelectLocationScreen(
                     state =
                         SelectLocationUiState.Content(
-                            customLists = DUMMY_CUSTOM_LISTS,
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             filteredCustomLists = emptyList(),
                             countries = emptyList(),
                             selectedItem = null,
@@ -222,14 +222,14 @@ class SelectLocationScreenTest {
     fun whenCustomListIsClickedShouldCallOnSelectRelay() =
         composeExtension.use {
             // Arrange
-            val customList = DUMMY_CUSTOM_LISTS[0]
+            val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
             val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 SelectLocationScreen(
                     state =
                         SelectLocationUiState.Content(
-                            customLists = DUMMY_CUSTOM_LISTS,
-                            filteredCustomLists = DUMMY_CUSTOM_LISTS,
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                            filteredCustomLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             countries = emptyList(),
                             selectedItem = null,
                             selectedOwnership = null,
@@ -251,14 +251,14 @@ class SelectLocationScreenTest {
     fun whenCustomListIsLongClickedShouldShowBottomSheet() =
         composeExtension.use {
             // Arrange
-            val customList = DUMMY_CUSTOM_LISTS[0]
+            val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
             val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 SelectLocationScreen(
                     state =
                         SelectLocationUiState.Content(
-                            customLists = DUMMY_CUSTOM_LISTS,
-                            filteredCustomLists = DUMMY_CUSTOM_LISTS,
+                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
+                            filteredCustomLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             countries = emptyList(),
                             selectedItem = null,
                             selectedOwnership = null,

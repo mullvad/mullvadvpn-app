@@ -25,7 +25,6 @@ import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.util.getActivity
-import net.mullvad.mullvadvpn.viewmodel.PaymentUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.PaymentViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -126,12 +125,7 @@ fun Payment(productId: ProductId, resultBackNavigator: ResultBackNavigator<Boole
     val vm = koinViewModel<PaymentViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffectCollect(vm.uiSideEffect) {
-        when (it) {
-            is PaymentUiSideEffect.PaymentCancelled ->
-                resultBackNavigator.navigateBack(result = false)
-        }
-    }
+    LaunchedEffectCollect(vm.uiSideEffect) { resultBackNavigator.navigateBack(result = false) }
 
     val context = LocalContext.current
     LaunchedEffect(Unit) { vm.startBillingPayment(productId) { context.getActivity()!! } }

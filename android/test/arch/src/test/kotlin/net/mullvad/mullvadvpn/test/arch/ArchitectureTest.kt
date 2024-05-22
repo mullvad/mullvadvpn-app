@@ -10,7 +10,7 @@ class ArchitectureTest {
     @Test
     fun `ensure model layer depends on nothing`() =
         Konsist.scopeFromProduction().assertArchitecture {
-            val model = Layer("Model", "net.mullvad.mullvadvpn.model..")
+            val model = Layer("Model", "net.mullvad.mullvadvpn.lib.model..")
 
             model.dependsOnNothing()
         }

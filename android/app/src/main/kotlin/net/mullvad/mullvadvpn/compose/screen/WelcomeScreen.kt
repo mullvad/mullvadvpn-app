@@ -20,7 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,13 +47,14 @@ import net.mullvad.mullvadvpn.compose.destinations.PaymentDestination
 import net.mullvad.mullvadvpn.compose.destinations.RedeemVoucherDestination
 import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
 import net.mullvad.mullvadvpn.compose.destinations.VerificationPendingDialogDestination
+import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
-import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
+import net.mullvad.mullvadvpn.lib.model.AccountToken
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
@@ -71,7 +72,7 @@ private fun PreviewWelcomeScreen() {
         WelcomeScreen(
             state =
                 WelcomeUiState(
-                    accountNumber = "4444555566667777",
+                    accountNumber = AccountToken("4444555566667777"),
                     deviceName = "Happy Mole",
                     billingPaymentState =
                         PaymentState.PaymentAvailable(
@@ -126,13 +127,11 @@ fun Welcome(
         }
     }
 
-    val context = LocalContext.current
-
+    val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     CollectSideEffectWithLifecycle(sideEffect = vm.uiSideEffect, Lifecycle.State.RESUMED) {
         uiSideEffect ->
         when (uiSideEffect) {
-            is WelcomeViewModel.UiSideEffect.OpenAccountView ->
-                context.openAccountPageInBrowser(uiSideEffect.token)
+            is WelcomeViewModel.UiSideEffect.OpenAccountView -> openAccountPage(uiSideEffect.token)
             WelcomeViewModel.UiSideEffect.OpenConnectScreen ->
                 navigator.navigate(ConnectDestination) {
                     launchSingleTop = true
@@ -274,7 +273,7 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: Welcom
     val copiedAccountNumberMessage = stringResource(id = R.string.copied_mullvad_account_number)
     val copyToClipboard = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
     val onCopyToClipboard = {
-        copyToClipboard(state.accountNumber ?: "", copiedAccountNumberMessage)
+        copyToClipboard(state.accountNumber?.value ?: "", copiedAccountNumberMessage)
     }
 
     Row(
@@ -286,7 +285,7 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: Welcom
                 .padding(horizontal = Dimens.sideMargin)
     ) {
         Text(
-            text = state.accountNumber?.groupWithSpaces() ?: "",
+            text = state.accountNumber?.value?.groupWithSpaces() ?: "",
             modifier = Modifier.weight(1f).padding(vertical = Dimens.smallPadding),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onPrimary

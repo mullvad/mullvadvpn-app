@@ -1,44 +1,48 @@
 package net.mullvad.mullvadvpn.di
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.os.Messenger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
-import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
-import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
-import net.mullvad.mullvadvpn.repository.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.ProblemReportRepository
+import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
+import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
+import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
+import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
+import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
-import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
-import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
-import net.mullvad.mullvadvpn.usecase.RelayListUseCase
+import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListRelayItemsUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
@@ -69,6 +73,7 @@ import net.mullvad.mullvadvpn.viewmodel.SplashViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
 import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
+import net.mullvad.mullvadvpn.viewmodel.VpnPermissionViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import org.apache.commons.validator.routines.InetAddressValidator
@@ -76,9 +81,9 @@ import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
-import org.koin.dsl.bind
 import org.koin.dsl.module
 
+@SuppressLint("SdCardPath")
 val uiModule = module {
     single<SharedPreferences>(named(APP_PREFERENCES_NAME)) {
         androidApplication().getSharedPreferences(APP_PREFERENCES_NAME, Context.MODE_PRIVATE)
@@ -90,47 +95,46 @@ val uiModule = module {
     viewModel { SplitTunnelingViewModel(get(), get(), Dispatchers.Default) }
     single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
 
-    single { (messenger: Messenger, dispatcher: EventDispatcher) ->
-        SplitTunneling(messenger, dispatcher)
-    }
-
-    single { ServiceConnectionManager(androidContext()) } bind MessageHandler::class
+    single { ServiceConnectionManager(androidContext()) }
     single { InetAddressValidator.getInstance() }
     single { androidContext().resources }
     single { androidContext().assets }
     single { androidContext().contentResolver }
 
     single { ChangelogRepository(get(named(APP_PREFERENCES_NAME)), get()) }
-
-    single { AccountRepository(get()) }
     single { DeviceRepository(get()) }
     single {
         PrivacyDisclaimerRepository(
-            androidContext().getSharedPreferences(APP_PREFERENCES_NAME, Context.MODE_PRIVATE)
+            androidContext().getSharedPreferences(APP_PREFERENCES_NAME, Context.MODE_PRIVATE),
         )
     }
-    single { SettingsRepository(get(), get()) }
+    single { SettingsRepository(get()) }
     single { MullvadProblemReport(get()) }
-    single { RelayOverridesRepository(get(), get()) }
-    single { CustomListsRepository(get(), get(), get()) }
+    single { RelayOverridesRepository(get()) }
+    single { CustomListsRepository(get()) }
+    single { RelayListRepository(get()) }
+    single { RelayListFilterRepository(get()) }
+    single { VoucherRepository(get(), get()) }
+    single { SplitTunnelingRepository(get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
     single { TunnelStateNotificationUseCase(get()) }
     single { VersionNotificationUseCase(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS) }
     single { NewDeviceNotificationUseCase(get()) }
-    single { PortRangeUseCase(get()) }
-    single { RelayListUseCase(get(), get()) }
     single { OutOfTimeUseCase(get(), get(), MainScope()) }
     single { ConnectivityUseCase(get()) }
     single { SystemVpnSettingsUseCase(androidContext()) }
     single { CustomListActionUseCase(get(), get()) }
+    single { SelectedLocationRelayItemUseCase(get(), get()) }
+    single { AvailableProvidersUseCase(get()) }
+    single { CustomListsRelayItemUseCase(get(), get()) }
+    single { CustomListRelayItemsUseCase(get(), get()) }
+    single { FilteredRelayListUseCase(get(), get()) }
+    single { LastKnownLocationUseCase(get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
 
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
-
-    single { RelayListFilterUseCase(get(), get()) }
-    single { RelayListListener(get()) }
 
     // Will be resolved using from either of the two PaymentModule.kt classes.
     single { PaymentProvider(get()) }
@@ -146,36 +150,50 @@ val uiModule = module {
 
     single { ProblemReportRepository() }
 
+    single { AppVersionInfoRepository(get()) }
+
     // View models
-    viewModel { AccountViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
+    viewModel { AccountViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
     viewModel {
-        ConnectViewModel(get(), get(), get(), get(), get(), get(), get(), get(), IS_PLAY_BUILD)
+        ConnectViewModel(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            IS_PLAY_BUILD
+        )
     }
-    viewModel { DeviceListViewModel(get(), get()) }
+    viewModel { parameters -> DeviceListViewModel(get(), parameters.get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }
-    viewModel { MtuDialogViewModel(get()) }
+    viewModel { parameters -> MtuDialogViewModel(get(), parameters.getOrNull()) }
     viewModel { parameters ->
         DnsDialogViewModel(get(), get(), parameters.getOrNull(), parameters.getOrNull())
     }
-    viewModel { LoginViewModel(get(), get(), get(), get()) }
+    viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
-    viewModel { SelectLocationViewModel(get(), get(), get(), get()) }
+    viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
-    viewModel { SplashViewModel(get(), get(), get()) }
-    viewModel { VoucherDialogViewModel(get(), get()) }
-    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
-    viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
+    viewModel { SplashViewModel(get(), get()) }
+    viewModel { VoucherDialogViewModel(get()) }
+    viewModel { VpnSettingsViewModel(get(), get(), get()) }
+    viewModel { WelcomeViewModel(get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
-    viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
+    viewModel { OutOfTimeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }
-    viewModel { FilterViewModel(get()) }
-    viewModel { parameters -> CreateCustomListDialogViewModel(parameters.get(), get()) }
+    viewModel { FilterViewModel(get(), get()) }
+    viewModel { (location: GeoLocationId?) -> CreateCustomListDialogViewModel(location, get()) }
     viewModel { parameters ->
-        CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get())
+        CustomListLocationsViewModel(parameters.get(), parameters.get(), get(), get(), get())
     }
     viewModel { parameters -> EditCustomListViewModel(parameters.get(), get()) }
     viewModel { parameters ->
@@ -183,8 +201,9 @@ val uiModule = module {
     }
     viewModel { CustomListsViewModel(get(), get()) }
     viewModel { parameters -> DeleteCustomListConfirmationViewModel(parameters.get(), get()) }
-    viewModel { ServerIpOverridesViewModel(get(), get(), get(), get()) }
+    viewModel { ServerIpOverridesViewModel(get(), get()) }
     viewModel { ResetServerIpOverridesConfirmationViewModel(get()) }
+    viewModel { VpnPermissionViewModel(get(), get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { NoDaemonViewModel(get()) }

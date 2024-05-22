@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.content.Context
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,12 +12,16 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,10 +48,12 @@ import net.mullvad.mullvadvpn.compose.test.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
+import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -65,7 +71,7 @@ fun CustomListLocations(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<CustomListResult.LocationsChanged>,
     discardChangesResultRecipient: ResultRecipient<DiscardChangesDialogDestination, Boolean>,
-    customListId: String,
+    customListId: CustomListId,
     newList: Boolean,
 ) {
     val customListsViewModel =
@@ -84,17 +90,26 @@ fun CustomListLocations(
         }
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context: Context = LocalContext.current
     LaunchedEffectCollect(customListsViewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is CustomListLocationsSideEffect.ReturnWithResult ->
                 backNavigator.navigateBack(result = sideEffect.result)
             CustomListLocationsSideEffect.CloseScreen -> backNavigator.navigateBack()
+            CustomListLocationsSideEffect.Error ->
+                snackbarHostState.showSnackbarImmediately(
+                    coroutineScope = this,
+                    message = context.getString(R.string.error_occurred),
+                    duration = SnackbarDuration.Short
+                )
         }
     }
 
     val state by customListsViewModel.uiState.collectAsStateWithLifecycle()
     CustomListLocationsScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
         onSearchTermInput = customListsViewModel::onSearchTermInput,
         onSaveClick = customListsViewModel::save,
         onRelaySelectionClick = customListsViewModel::onRelaySelectionClick,
@@ -108,16 +123,17 @@ fun CustomListLocations(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CustomListLocationsScreen(
     state: CustomListLocationsUiState,
+    snackbarHostState: SnackbarHostState = SnackbarHostState(),
     onSearchTermInput: (String) -> Unit = {},
     onSaveClick: () -> Unit = {},
-    onRelaySelectionClick: (RelayItem, selected: Boolean) -> Unit = { _, _ -> },
+    onRelaySelectionClick: (RelayItem.Location, selected: Boolean) -> Unit = { _, _ -> },
     onBackClick: () -> Unit = {}
 ) {
     ScaffoldWithSmallTopBar(
+        snackbarHostState = snackbarHostState,
         appBarTitle =
             stringResource(
                 if (state.newList) {
@@ -201,7 +217,7 @@ private fun LazyListScope.empty(searchTerm: String) {
 
 private fun LazyListScope.content(
     uiState: CustomListLocationsUiState.Content.Data,
-    onRelaySelectedChanged: (RelayItem, selected: Boolean) -> Unit,
+    onRelaySelectedChanged: (RelayItem.Location, selected: Boolean) -> Unit,
 ) {
     items(
         count = uiState.availableLocations.size,
@@ -212,7 +228,9 @@ private fun LazyListScope.content(
         CheckableRelayLocationCell(
             relay = country,
             modifier = Modifier.animateContentSize(),
-            onRelayCheckedChange = onRelaySelectedChanged,
+            onRelayCheckedChange = { item, isChecked ->
+                onRelaySelectedChanged(item as RelayItem.Location, isChecked)
+            },
             selectedRelays = uiState.selectedLocations,
         )
     }

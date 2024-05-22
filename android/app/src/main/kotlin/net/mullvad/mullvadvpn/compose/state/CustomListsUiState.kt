@@ -1,10 +1,9 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.lib.model.CustomList
 
 interface CustomListsUiState {
     object Loading : CustomListsUiState
 
-    data class Content(val customLists: List<RelayItem.CustomList> = emptyList()) :
-        CustomListsUiState
+    data class Content(val customLists: List<CustomList> = emptyList()) : CustomListsUiState
 }

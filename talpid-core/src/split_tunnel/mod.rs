@@ -2,7 +2,7 @@
 #[path = "linux.rs"]
 mod imp;
 
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 #[path = "windows/mod.rs"]
 mod imp;
 
@@ -10,5 +10,8 @@ mod imp;
 #[path = "macos/mod.rs"]
 mod imp;
 
-#[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
+#[cfg(target_os = "android")]
+#[path = "android.rs"]
+mod imp;
+
 pub use imp::*;

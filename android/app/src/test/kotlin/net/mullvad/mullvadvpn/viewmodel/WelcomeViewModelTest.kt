@@ -13,27 +13,22 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.PaymentState
-import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
+import net.mullvad.mullvadvpn.lib.model.AccountData
+import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.Device
+import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.TunnelState
+import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
-import net.mullvad.mullvadvpn.model.AccountAndDevice
-import net.mullvad.mullvadvpn.model.AccountExpiry
-import net.mullvad.mullvadvpn.model.Device
-import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.repository.AccountRepository
-import net.mullvad.mullvadvpn.repository.DeviceRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
-import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -44,21 +39,19 @@ import org.junit.jupiter.api.extension.ExtendWith
 class WelcomeViewModelTest {
 
     private val serviceConnectionStateFlow =
-        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
-    private val deviceStateFlow = MutableStateFlow<DeviceState>(DeviceState.Initial)
-    private val accountExpiryStateFlow = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
+        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
+    private val accountStateFlow = MutableStateFlow<DeviceState?>(DeviceState.LoggedOut)
+    private val accountExpiryStateFlow = MutableStateFlow<AccountData?>(null)
     private val purchaseResultFlow = MutableStateFlow<PurchaseResult?>(null)
     private val paymentAvailabilityFlow = MutableStateFlow<PaymentAvailability?>(null)
 
-    // Service connections
-    private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
+    // ConnectionProxy
     private val mockConnectionProxy: ConnectionProxy = mockk()
 
     // Event notifiers
-    private val eventNotifierTunnelUiState = EventNotifier<TunnelState>(TunnelState.Disconnected())
+    private val tunnelState = MutableStateFlow<TunnelState>(TunnelState.Disconnected())
 
     private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
-    private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
 
@@ -66,18 +59,15 @@ class WelcomeViewModelTest {
 
     @BeforeEach
     fun setup() {
-        mockkStatic(SERVICE_CONNECTION_MANAGER_EXTENSIONS)
         mockkStatic(PURCHASE_RESULT_EXTENSIONS_CLASS)
 
-        every { mockDeviceRepository.deviceState } returns deviceStateFlow
+        every { mockAccountRepository.accountState } returns accountStateFlow
 
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionStateFlow
 
-        every { mockServiceConnectionContainer.connectionProxy } returns mockConnectionProxy
+        every { mockConnectionProxy.tunnelState } returns tunnelState
 
-        every { mockConnectionProxy.onUiStateChange } returns eventNotifierTunnelUiState
-
-        every { mockAccountRepository.accountExpiryState } returns accountExpiryStateFlow
+        every { mockAccountRepository.accountData } returns accountExpiryStateFlow
 
         coEvery { mockPaymentUseCase.purchaseResult } returns purchaseResultFlow
 
@@ -86,9 +76,8 @@ class WelcomeViewModelTest {
         viewModel =
             WelcomeViewModel(
                 accountRepository = mockAccountRepository,
-                deviceRepository = mockDeviceRepository,
-                serviceConnectionManager = mockServiceConnectionManager,
                 paymentUseCase = mockPaymentUseCase,
+                connectionProxy = mockConnectionProxy,
                 pollAccountExpiry = false,
                 isPlayBuild = false
             )
@@ -103,10 +92,8 @@ class WelcomeViewModelTest {
     @Test
     fun `on onSitePaymentClick call uiSideEffect should emit OpenAccountView`() = runTest {
         // Arrange
-        val mockToken = "4444 5555 6666 7777"
-        val mockAuthTokenCache: AuthTokenCache = mockk(relaxed = true)
-        every { mockServiceConnectionManager.authTokenCache() } returns mockAuthTokenCache
-        coEvery { mockAuthTokenCache.fetchAuthToken() } returns mockToken
+        val mockToken = WwwAuthToken("154c4cc94810fddac78398662b7fa0c7")
+        coEvery { mockAccountRepository.getWwwAuthToken() } returns mockToken
 
         // Act, Assert
         viewModel.uiSideEffect.test {
@@ -124,10 +111,9 @@ class WelcomeViewModelTest {
 
         // Act, Assert
         viewModel.uiState.test {
-            assertEquals(WelcomeUiState(), awaitItem())
-            eventNotifierTunnelUiState.notify(tunnelUiStateTestItem)
-            serviceConnectionStateFlow.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+            // Default state
+            awaitItem()
+            tunnelState.emit(tunnelUiStateTestItem)
             val result = awaitItem()
             assertEquals(tunnelUiStateTestItem, result.tunnelState)
         }
@@ -137,21 +123,17 @@ class WelcomeViewModelTest {
     fun `when DeviceRepository returns LoggedIn uiState should include new accountNumber`() =
         runTest {
             // Arrange
-            val expectedAccountNumber = "4444555566667777"
+            val expectedAccountNumber = AccountToken("4444555566667777")
             val device: Device = mockk()
             every { device.displayName() } returns ""
 
             // Act, Assert
             viewModel.uiState.test {
-                assertEquals(WelcomeUiState(), awaitItem())
+                // Default state
+                awaitItem()
                 paymentAvailabilityFlow.value = null
-                deviceStateFlow.value =
-                    DeviceState.LoggedIn(
-                        accountAndDevice =
-                            AccountAndDevice(account_token = expectedAccountNumber, device = device)
-                    )
-                serviceConnectionStateFlow.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                accountStateFlow.value =
+                    DeviceState.LoggedIn(accountToken = expectedAccountNumber, device = device)
                 assertEquals(expectedAccountNumber, awaitItem().accountNumber)
             }
         }
@@ -159,7 +141,7 @@ class WelcomeViewModelTest {
     @Test
     fun `when user has added time then uiSideEffect should emit OpenConnectScreen`() = runTest {
         // Arrange
-        accountExpiryStateFlow.emit(AccountExpiry.Available(DateTime().plusDays(1)))
+        accountExpiryStateFlow.emit(AccountData(mockk(relaxed = true), DateTime().plusDays(1)))
 
         // Act, Assert
         viewModel.uiSideEffect.test {
@@ -179,8 +161,6 @@ class WelcomeViewModelTest {
                 // Default item
                 awaitItem()
                 paymentAvailabilityFlow.tryEmit(productsUnavailable)
-                serviceConnectionStateFlow.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 val result = awaitItem().billingPaymentState
                 assertIs<PaymentState.NoPayment>(result)
             }
@@ -192,8 +172,6 @@ class WelcomeViewModelTest {
             // Arrange
             val paymentOtherError = PaymentAvailability.Error.Other(mockk())
             paymentAvailabilityFlow.tryEmit(paymentOtherError)
-            serviceConnectionStateFlow.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
 
             // Act, Assert
             viewModel.uiState.test {
@@ -207,8 +185,6 @@ class WelcomeViewModelTest {
         runTest { // Arrange
             val paymentBillingError = PaymentAvailability.Error.BillingUnavailable
             paymentAvailabilityFlow.value = paymentBillingError
-            serviceConnectionStateFlow.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
 
             // Act, Assert
             viewModel.uiState.test {
@@ -225,8 +201,6 @@ class WelcomeViewModelTest {
             val expectedProductList = listOf(mockProduct)
             val productsAvailable = PaymentAvailability.ProductsAvailable(listOf(mockProduct))
             paymentAvailabilityFlow.value = productsAvailable
-            serviceConnectionStateFlow.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
 
             // Act, Assert
             viewModel.uiState.test {
@@ -237,8 +211,6 @@ class WelcomeViewModelTest {
         }
 
     companion object {
-        private const val SERVICE_CONNECTION_MANAGER_EXTENSIONS =
-            "net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManagerExtensionsKt"
         private const val PURCHASE_RESULT_EXTENSIONS_CLASS =
             "net.mullvad.mullvadvpn.util.PurchaseResultExtensionsKt"
     }

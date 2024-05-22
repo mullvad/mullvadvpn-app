@@ -67,10 +67,10 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightLeafTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
-import net.mullvad.mullvadvpn.model.SettingsPatchError
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesViewModel
 import net.mullvad.mullvadvpn.viewmodel.ServerIpOverridesViewState
@@ -119,14 +119,17 @@ fun ServerIpOverrides(
 
     // On successful clear of overrides, show snackbar
     val scope = rememberCoroutineScope()
-    clearOverridesResult.OnNavResultValue {
-        scope.launch {
-            snackbarHostState.showSnackbarImmediately(
-                this,
-                message = context.getString(R.string.overrides_cleared),
-                actionLabel = null
-            )
-        }
+    clearOverridesResult.OnNavResultValue { clearSuccessful ->
+        snackbarHostState.showSnackbarImmediately(
+            scope,
+            message =
+                if (clearSuccessful) {
+                    context.getString(R.string.overrides_cleared)
+                } else {
+                    context.getString(R.string.error_occurred)
+                },
+            actionLabel = null
+        )
     }
 
     val openFileLauncher =
@@ -233,7 +236,7 @@ private fun ImportOverridesByBottomSheet(
     MullvadModalBottomSheet(
         sheetState = sheetState,
         onDismissRequest = { showBottomSheet(false) },
-    ) { ->
+    ) {
         HeaderCell(
             text = stringResource(id = R.string.server_ip_overrides_import_by),
             background = Color.Unspecified

@@ -1,16 +1,17 @@
 package net.mullvad.talpid
 
-import android.net.VpnService
 import android.os.ParcelFileDescriptor
 import android.util.Log
+import androidx.annotation.CallSuper
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 import kotlin.properties.Delegates.observable
-import net.mullvad.talpid.tun_provider.TunConfig
+import net.mullvad.talpid.model.CreateTunResult
+import net.mullvad.talpid.model.TunConfig
 import net.mullvad.talpid.util.TalpidSdkUtils.setMeteredIfSupported
 
-open class TalpidVpnService : VpnService() {
+open class TalpidVpnService : LifecycleVpnService() {
     private var activeTunStatus by
         observable<CreateTunResult?>(null) { _, oldTunStatus, _ ->
             val oldTunFd =
@@ -29,17 +30,19 @@ open class TalpidVpnService : VpnService() {
         get() = activeTunStatus?.isOpen ?: false
 
     private var currentTunConfig = defaultTunConfig()
-    private var tunIsStale = false
 
-    protected var disallowedApps: List<String>? = null
-
+    // Used by JNI
     val connectivityListener = ConnectivityListener()
 
+    @CallSuper
     override fun onCreate() {
+        super.onCreate()
         connectivityListener.register(this)
     }
 
+    @CallSuper
     override fun onDestroy() {
+        super.onDestroy()
         connectivityListener.unregister()
     }
 
@@ -47,14 +50,13 @@ open class TalpidVpnService : VpnService() {
         synchronized(this) {
             val tunStatus = activeTunStatus
 
-            if (config == currentTunConfig && tunIsOpen && !tunIsStale) {
+            if (config == currentTunConfig && tunIsOpen) {
                 return tunStatus!!
             } else {
                 val newTunStatus = createTun(config)
 
                 currentTunConfig = config
                 activeTunStatus = newTunStatus
-                tunIsStale = false
 
                 return newTunStatus
             }
@@ -78,17 +80,13 @@ open class TalpidVpnService : VpnService() {
         synchronized(this) { activeTunStatus = null }
     }
 
-    fun markTunAsStale() {
-        synchronized(this) { tunIsStale = true }
-    }
-
     private fun createTun(config: TunConfig): CreateTunResult {
         if (prepare(this) != null) {
             // VPN permission wasn't granted
             return CreateTunResult.PermissionDenied
         }
 
-        var invalidDnsServerAddresses = ArrayList<InetAddress>()
+        val invalidDnsServerAddresses = ArrayList<InetAddress>()
 
         val builder =
             Builder().apply {
@@ -120,11 +118,7 @@ open class TalpidVpnService : VpnService() {
                     addRoute(route.address, route.prefixLength.toInt())
                 }
 
-                disallowedApps?.let { apps ->
-                    for (app in apps) {
-                        addDisallowedApplication(app)
-                    }
-                }
+                config.excludedPackages.forEach { app -> addDisallowedApplication(app) }
                 setMtu(config.mtu)
                 setBlocking(false)
                 setMeteredIfSupported(false)

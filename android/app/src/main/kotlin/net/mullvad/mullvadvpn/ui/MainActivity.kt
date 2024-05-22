@@ -1,10 +1,7 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.app.Activity
 import android.content.Intent
-import android.net.VpnService
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -12,21 +9,15 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermissionIfMissing
-import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
+import net.mullvad.mullvadvpn.lib.intent.IntentProvider
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.repository.AccountRepository
-import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
@@ -38,12 +29,10 @@ class MainActivity : ComponentActivity() {
             // handling the callback value.
         }
 
-    private lateinit var accountRepository: AccountRepository
-    private lateinit var deviceRepository: DeviceRepository
     private lateinit var privacyDisclaimerRepository: PrivacyDisclaimerRepository
     private lateinit var serviceConnectionManager: ServiceConnectionManager
-    private lateinit var changelogViewModel: ChangelogViewModel
-    private lateinit var serviceConnectionViewModel: NoDaemonViewModel
+    private lateinit var noDaemonViewModel: NoDaemonViewModel
+    private lateinit var intentProvider: IntentProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(listOf(uiModule, paymentModule))
@@ -51,17 +40,19 @@ class MainActivity : ComponentActivity() {
         // Tell the system that we will draw behind the status bar and navigation bar
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        getKoin().apply {
-            accountRepository = get()
-            deviceRepository = get()
+        with(getKoin()) {
             privacyDisclaimerRepository = get()
             serviceConnectionManager = get()
-            changelogViewModel = get()
-            serviceConnectionViewModel = get()
+            noDaemonViewModel = get()
+            intentProvider = get()
         }
-        lifecycle.addObserver(serviceConnectionViewModel)
+        lifecycle.addObserver(noDaemonViewModel)
 
         super.onCreate(savedInstanceState)
+
+        if (savedInstanceState == null) {
+            intentProvider.setStartIntent(intent)
+        }
 
         setContent { AppTheme { MullvadApp() } }
 
@@ -74,56 +65,29 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
-                    startServiceSuspend(waitForConnectedReady = false)
+                    startServiceSuspend()
                 }
             }
         }
     }
 
-    suspend fun startServiceSuspend(waitForConnectedReady: Boolean = true) {
-        requestNotificationPermissionIfMissing(requestNotificationPermissionLauncher)
-        serviceConnectionManager.bind(
-            vpnPermissionRequestHandler = ::requestVpnPermission,
-            apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
-        )
-        if (waitForConnectedReady) {
-            // Ensure we wait until the service is ready
-            serviceConnectionManager.connectionState
-                .filterIsInstance<ServiceConnectionState.ConnectedReady>()
-                .first()
-        }
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        intentProvider.setStartIntent(intent)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        // super call is needed for return value when opening file.
-        super.onActivityResult(requestCode, resultCode, resultData)
-
-        // Ensure we are responding to the correct request
-        if (requestCode == REQUEST_VPN_PERMISSION_RESULT_CODE) {
-            serviceConnectionManager.onVpnPermissionResult(resultCode == Activity.RESULT_OK)
-        }
+    fun startServiceSuspend() {
+        requestNotificationPermissionIfMissing(requestNotificationPermissionLauncher)
+        serviceConnectionManager.bind()
     }
 
     override fun onStop() {
-        Log.d("mullvad", "Stopping main activity")
         super.onStop()
         serviceConnectionManager.unbind()
     }
 
     override fun onDestroy() {
-        serviceConnectionManager.onDestroy()
-        lifecycle.removeObserver(serviceConnectionViewModel)
+        lifecycle.removeObserver(noDaemonViewModel)
         super.onDestroy()
-    }
-
-    @Suppress("DEPRECATION")
-    private fun requestVpnPermission() {
-        val intent = VpnService.prepare(this)
-
-        startActivityForResult(intent, REQUEST_VPN_PERMISSION_RESULT_CODE)
-    }
-
-    companion object {
-        private const val REQUEST_VPN_PERMISSION_RESULT_CODE = 0
     }
 }

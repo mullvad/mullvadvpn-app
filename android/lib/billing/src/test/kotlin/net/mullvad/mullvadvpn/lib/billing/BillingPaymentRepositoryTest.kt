@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.lib.billing
 
 import app.cash.turbine.test
+import arrow.core.left
+import arrow.core.right
 import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
@@ -17,14 +19,13 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.billing.extension.toPaymentProduct
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.model.PlayPurchaseInitError
+import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
+import net.mullvad.mullvadvpn.lib.model.PlayPurchaseVerifyError
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
-import net.mullvad.mullvadvpn.model.PlayPurchaseInitError
-import net.mullvad.mullvadvpn.model.PlayPurchaseInitResult
-import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyError
-import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -170,7 +171,7 @@ class BillingPaymentRepositoryTest {
             coEvery { mockBillingRepository.queryProducts(listOf(mockProductId.value)) } returns
                 mockProductDetailsResult
             coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-                PlayPurchaseInitResult.Error(PlayPurchaseInitError.OtherError)
+                PlayPurchaseInitError.OtherError.left()
 
             // Act, Assert
             paymentRepository.purchaseProduct(mockProductId, mockk()).test {
@@ -206,7 +207,7 @@ class BillingPaymentRepositoryTest {
                 )
             } returns mockBillingResult
             coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-                PlayPurchaseInitResult.Ok("MOCK")
+                PlayPurchasePaymentToken("MOCK").right()
 
             // Act, Assert
             paymentRepository.purchaseProduct(mockProductId, mockk()).test {
@@ -241,7 +242,7 @@ class BillingPaymentRepositoryTest {
             )
         } returns mockBillingResult
         coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-            PlayPurchaseInitResult.Ok(mockObfuscatedId)
+            PlayPurchasePaymentToken(mockObfuscatedId).right()
 
         // Act, Assert
         paymentRepository.purchaseProduct(mockProductId, mockk()).test {
@@ -283,9 +284,9 @@ class BillingPaymentRepositoryTest {
                 )
             } returns mockBillingResult
             coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-                PlayPurchaseInitResult.Ok("MOCK-ID")
+                PlayPurchasePaymentToken("MOCK-ID").right()
             coEvery { mockPlayPurchaseRepository.verifyPlayPurchase(any()) } returns
-                PlayPurchaseVerifyResult.Error(PlayPurchaseVerifyError.OtherError)
+                PlayPurchaseVerifyError.OtherError.left()
 
             // Act, Assert
             paymentRepository.purchaseProduct(mockProductId, mockk()).test {
@@ -326,9 +327,8 @@ class BillingPaymentRepositoryTest {
             )
         } returns mockBillingResult
         coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-            PlayPurchaseInitResult.Ok("MOCK")
-        coEvery { mockPlayPurchaseRepository.verifyPlayPurchase(any()) } returns
-            PlayPurchaseVerifyResult.Ok
+            PlayPurchasePaymentToken("MOCK").right()
+        coEvery { mockPlayPurchaseRepository.verifyPlayPurchase(any()) } returns Unit.right()
 
         // Act, Assert
         paymentRepository.purchaseProduct(mockProductId, mockk()).test {
@@ -368,7 +368,7 @@ class BillingPaymentRepositoryTest {
                 )
             } returns mockBillingResult
             coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-                PlayPurchaseInitResult.Ok("MOCK")
+                PlayPurchasePaymentToken("MOCK").right()
 
             // Act, Assert
             paymentRepository.purchaseProduct(mockProductId, mockk()).test {

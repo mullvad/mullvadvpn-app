@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.lib.map.internal.VERTEX_COMPONENT_SIZE
 import net.mullvad.mullvadvpn.lib.map.internal.initArrayBuffer
 import net.mullvad.mullvadvpn.lib.map.internal.initShaderProgram
 import net.mullvad.mullvadvpn.lib.map.internal.toFloatArray
-import net.mullvad.mullvadvpn.model.LatLong
+import net.mullvad.mullvadvpn.lib.model.LatLong
 
 internal class LocationMarker(val colors: LocationMarkerColors) {
 

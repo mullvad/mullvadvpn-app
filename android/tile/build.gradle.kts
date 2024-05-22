@@ -26,10 +26,14 @@ android {
 
 dependencies {
     implementation(project(Dependencies.Mullvad.commonLib))
-    implementation(project(Dependencies.Mullvad.ipcLib))
+    implementation(project(Dependencies.Mullvad.daemonGrpc))
     implementation(project(Dependencies.Mullvad.modelLib))
     implementation(project(Dependencies.Mullvad.resourceLib))
+    implementation(project(Dependencies.Mullvad.sharedLib))
     implementation(project(Dependencies.Mullvad.talpidLib))
+
+    implementation(Dependencies.Koin.core)
+    implementation(Dependencies.Koin.android)
 
     implementation(Dependencies.AndroidX.appcompat)
     implementation(Dependencies.Kotlin.stdlib)

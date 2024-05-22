@@ -9,13 +9,14 @@ import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.util.Log
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
@@ -25,15 +26,21 @@ import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.setSubtitleIfSupported
-import net.mullvad.mullvadvpn.model.ServiceResult
-import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.lib.model.TunnelState
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import org.koin.android.ext.android.get
 
 class MullvadTileService : TileService() {
-    private var scope: CoroutineScope? = null
+    private var job: Job? = null
 
     private lateinit var securedIcon: Icon
     private lateinit var unsecuredIcon: Icon
+
+    private val connectionProxy = get<ConnectionProxy>()
+    private val managementService = get<ManagementService>()
 
     override fun onCreate() {
         securedIcon = Icon.createWithResource(this, R.drawable.small_logo_white)
@@ -72,11 +79,11 @@ class MullvadTileService : TileService() {
     }
 
     override fun onStartListening() {
-        scope = MainScope().apply { launchListenToTunnelState() }
+        job = MainScope().launch { launchListenToTunnelState() }
     }
 
     override fun onStopListening() {
-        scope?.cancel()
+        job?.cancel()
     }
 
     @SuppressLint("StartActivityAndCollapseDeprecated")
@@ -84,7 +91,7 @@ class MullvadTileService : TileService() {
         val isSetup = VpnService.prepare(applicationContext) == null
         // TODO This logic should be more advanced, we should ensure user has an account setup etc.
         if (!isSetup) {
-            Log.d("MullvadTileService", "VPN service not setup, starting main activity")
+            Log.d(TAG, "VPN service not setup, starting main activity")
 
             val intent =
                 Intent().apply {
@@ -98,7 +105,7 @@ class MullvadTileService : TileService() {
             startActivityAndCollapseCompat(intent)
             return
         } else {
-            Log.d("MullvadTileService", "VPN service is setup")
+            Log.d(TAG, "VPN service is setup")
         }
         val intent =
             Intent().apply {
@@ -132,19 +139,23 @@ class MullvadTileService : TileService() {
     }
 
     @OptIn(FlowPreview::class)
-    private fun CoroutineScope.launchListenToTunnelState() = launch {
-        ServiceConnection(this@MullvadTileService, this)
-            .tunnelState
-            .debounce(300L)
+    private suspend fun launchListenToTunnelState() {
+        combine(
+                connectionProxy.tunnelState.onStart { emit(TunnelState.Disconnected(null)) },
+                managementService.connectionState
+            ) { tunnelState, connectionState ->
+                tunnelState to connectionState
+            }
+            .debounce(TUNNEL_STATE_DEBOUNCE_MS)
             .map { (tunnelState, connectionState) -> mapToTileState(tunnelState, connectionState) }
             .collect { updateTileState(it) }
     }
 
     private fun mapToTileState(
         tunnelState: TunnelState,
-        connectionState: ServiceResult.ConnectionState
+        connectionState: GrpcConnectivityState
     ): Int {
-        return if (connectionState == ServiceResult.ConnectionState.CONNECTED) {
+        return if (connectionState == GrpcConnectivityState.Ready) {
             when (tunnelState) {
                 is TunnelState.Disconnected -> Tile.STATE_INACTIVE
                 is TunnelState.Connecting -> Tile.STATE_ACTIVE
@@ -182,5 +193,10 @@ class MullvadTileService : TileService() {
             }
             updateTile()
         }
+    }
+
+    companion object {
+        private const val TAG = "MullvadTileService"
+        private const val TUNNEL_STATE_DEBOUNCE_MS = 300L
     }
 }

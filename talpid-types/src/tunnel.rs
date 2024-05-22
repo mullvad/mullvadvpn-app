@@ -1,6 +1,4 @@
 use crate::net::TunnelEndpoint;
-#[cfg(target_os = "android")]
-use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 #[cfg(target_os = "android")]
@@ -28,8 +26,6 @@ pub enum TunnelStateTransition {
 /// Action that will be taken after disconnection is complete.
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
 pub enum ActionAfterDisconnect {
     Nothing,
     Block,
@@ -39,8 +35,6 @@ pub enum ActionAfterDisconnect {
 /// Represents the tunnel state machine entering an error state during a [`TunnelStateTransition`].
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
 pub struct ErrorState {
     /// Reason why the tunnel state machine ended up in the error state
     cause: ErrorStateCause,
@@ -49,10 +43,6 @@ pub struct ErrorState {
     /// blocked.
     /// An error value means there was a serious error and the intended security properties are not
     /// being upheld.
-    #[cfg_attr(
-        target_os = "android",
-        jnix(map = "|block_failure| block_failure.is_none()")
-    )]
     block_failure: Option<FirewallPolicyError>,
 }
 
@@ -81,8 +71,6 @@ impl ErrorState {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "reason", content = "details")]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
 pub enum ErrorStateCause {
     /// Authentication with remote server failed.
     AuthFailed(Option<String>),
@@ -122,8 +110,6 @@ impl ErrorStateCause {
 /// Errors that can occur when generating tunnel parameters.
 #[derive(thiserror::Error, Debug, Serialize, Clone, Deserialize)]
 #[serde(rename_all = "snake_case")]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
 pub enum ParameterGenerationError {
     /// Failure to select a matching tunnel relay
     #[error("Failure to select a matching tunnel relay")]
@@ -151,8 +137,6 @@ pub struct BlockingApplication {
 #[derive(thiserror::Error, Debug, Serialize, Clone, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "reason", content = "details")]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
 pub enum FirewallPolicyError {
     /// General firewall failure
     #[error("Failed to set firewall policy")]

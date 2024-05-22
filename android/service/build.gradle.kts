@@ -44,21 +44,25 @@ android {
             buildConfigField("String", "API_ENDPOINT", "\"api.stagemole.eu\"")
         }
     }
-    buildFeatures {
-        buildConfig = true
-    }
+
+    buildFeatures { buildConfig = true }
 }
 
 dependencies {
     implementation(project(Dependencies.Mullvad.commonLib))
+    implementation(project(Dependencies.Mullvad.daemonGrpc))
     implementation(project(Dependencies.Mullvad.endpointLib))
-    implementation(project(Dependencies.Mullvad.ipcLib))
+    implementation(project(Dependencies.Mullvad.intentLib))
     implementation(project(Dependencies.Mullvad.modelLib))
+    implementation(project(Dependencies.Mullvad.sharedLib))
     implementation(project(Dependencies.Mullvad.talpidLib))
 
     implementation(Dependencies.jodaTime)
+    implementation(Dependencies.AndroidX.lifecycleService)
     implementation(Dependencies.Koin.core)
     implementation(Dependencies.Koin.android)
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
+    implementation(Dependencies.Arrow.core)
+    implementation(Dependencies.AndroidX.coreKtx)
 }
