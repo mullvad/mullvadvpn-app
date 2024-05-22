@@ -1,17 +1,12 @@
 package net.mullvad.mullvadvpn.relaylist
 
-import arrow.optics.copy
-import mullvad_daemon.management_interface.ManagementInterface.Relay
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.lib.model.cities
-import net.mullvad.mullvadvpn.lib.model.expanded
-import net.mullvad.mullvadvpn.lib.model.relays
 
-fun List<RelayItem.Location.Country>.findItemForGeoLocationId(constraint: GeoLocationId) =
-    withDescendants().firstOrNull { it.id == constraint }
+fun List<RelayItem.Location.Country>.findItemForGeoLocationId(geoLocationId: GeoLocationId) =
+    withDescendants().firstOrNull { it.id == geoLocationId }
 
 /**
  * Filter and expand the list based on search terms If a country is matched, that country and all
