@@ -81,17 +81,17 @@
     <string name="auto_connect_carousel_first_slide_top_text">The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both.</string>
     <string name="auto_connect_carousel_first_slide_bottom_text">
         <![CDATA[1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name.]]>
-        </string>
+    </string>
     <string name="auto_connect_carousel_second_slide_top_text">Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart.</string>
     <string name="auto_connect_carousel_second_slide_bottom_text">
         <![CDATA[2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>.]]>
-        </string>
+    </string>
     <string name="auto_connect_carousel_third_slide_top_text">
         <![CDATA[The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>.]]>
-        </string>
+    </string>
     <string name="auto_connect_carousel_third_slide_bottom_text">
         <![CDATA[3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.]]>
-        </string>
+    </string>
     <string name="auto_connect_footer">Automatically connect to a server when the app launches.</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Set WireGuard MTU value. Valid range: %1$d - %2$d.</string>
@@ -175,7 +175,7 @@
     <string name="max_devices_resolved_description">You can now continue logging in on this device.</string>
     <string name="max_devices_confirm_removal_description">
         <![CDATA[Are you sure you want to log <b>%s</b> out?]]>
-        </string>
+    </string>
     <string name="confirm_removal">Yes, log out device</string>
     <string name="continue_login">Continue with login</string>
     <string name="failed_to_fetch_devices">Failed to fetch list of devices</string>
@@ -187,13 +187,13 @@
     <string name="always_on_vpn_error_notification_title">Always-on VPN assigned to other app</string>
     <string name="always_on_vpn_error_notification_content">
         <![CDATA[Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN.]]>
-        </string>
+    </string>
     <string name="vpn_permission_error_notification_title">VPN permission error</string>
     <string name="vpn_permission_error_notification_message">Always-on VPN might be enabled for another app</string>
     <string name="new_device_notification_title">NEW DEVICE CREATED</string>
     <string name="new_device_notification_message">
         <![CDATA[Welcome, this device is now called <b>%s</b>. For more details see the info button in Account.]]>
-        </string>
+    </string>
     <string name="agree_and_continue">Agree and continue</string>
     <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_disclaimer_body_first_paragraph">To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.</string>
@@ -210,7 +210,7 @@
     <string name="dns_content_blockers_warning">This might cause issues on certain websites, services, and apps.</string>
     <string name="dns_content_blockers_custom_dns_warning">
         <![CDATA[Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>.]]>
-        </string>
+    </string>
     <string name="block_ads_title">Ads</string>
     <string name="block_trackers_title">Trackers</string>
     <string name="block_malware_title">Malware</string>
@@ -220,10 +220,10 @@
     <string name="block_social_media_title">Social media</string>
     <string name="dns_content_blockers_subtitle">
         <![CDATA[Disable <b>%s</b> below to activate these settings.]]>
-        </string>
+    </string>
     <string name="custom_dns_disable_mode_subtitle">
         <![CDATA[Disable all <b>%s</b> above to activate this setting.]]>
-        </string>
+    </string>
     <string name="settings_changes_effect_warning_short">DNS settings might not go into effect immediately</string>
     <string name="settings_changes_effect_warning_content_blocker">Changes to DNS related settings might not go into effect immediately due to cached results.</string>
     <string name="manage_account">Manage account</string>
@@ -247,7 +247,7 @@
     <string name="search_placeholder">Search for...</string>
     <string name="select_location_empty_text_first_row">
         <![CDATA[No result for <b>%s</b>.]]>
-        </string>
+    </string>
     <string name="select_location_empty_text_second_row">Try a different search.</string>
     <string name="wireguard_port_info_port_range">The custom port can be any value inside the valid ranges: %s.</string>
     <string name="wireguard_custon_port_title">Custom</string>
@@ -282,7 +282,7 @@
     <string name="auto_connect_legacy">Auto-connect (legacy)</string>
     <string name="auto_connect_footer_legacy">
         <![CDATA[Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above.]]>
-        </string>
+    </string>
     <string name="custom_lists">Custom lists</string>
     <string name="all_locations">All locations</string>
     <string name="edit_lists">Edit lists</string>
