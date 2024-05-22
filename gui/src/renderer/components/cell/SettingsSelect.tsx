@@ -87,7 +87,6 @@ interface SettingsSelectProps<T extends string> {
   items: Array<SettingsSelectItem<T>>;
   onUpdate: (value: T) => void;
   direction?: 'down' | 'up';
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   'data-testid'?: string;
 }
 

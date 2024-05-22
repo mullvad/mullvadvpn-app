@@ -16,7 +16,6 @@ export interface SelectorItem<T> {
   label: string;
   value: T;
   disabled?: boolean;
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   'data-testid'?: string;
 }
 
@@ -136,7 +135,6 @@ interface SelectorCellProps<T> {
   onSelect: (value: T) => void;
   children: React.ReactNode | Array<React.ReactNode>;
   forwardedRef?: React.Ref<HTMLButtonElement>;
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   'data-testid'?: string;
 }
 
