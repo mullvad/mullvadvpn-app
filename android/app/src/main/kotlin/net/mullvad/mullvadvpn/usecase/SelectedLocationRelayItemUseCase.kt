@@ -41,11 +41,15 @@ class SelectedLocationRelayItemUseCase(
                     relayCountries
                         .withDescendants()
                         .filterIsInstance<RelayItem.Location.City>()
-                        .firstOrNull { it.id == relayItemId.city } ?: return null
+                        .firstOrNull { it.id == relayItemId.city }
 
-                val relay = city.relays.firstOrNull { it.id == relayItemId } ?: return null
+                val relay = city?.relays?.firstOrNull { it.id == relayItemId }
 
-                "${city.name} (${relay.name})"
+                if (city != null && relay != null) {
+                    "${city.name} (${relay.name})"
+                } else {
+                    null
+                }
             }
             is GeoLocationId.City -> relayCountries.findItemForGeoLocationId(relayItemId)?.name
             is GeoLocationId.Country -> relayCountries.findItemForGeoLocationId(relayItemId)?.name

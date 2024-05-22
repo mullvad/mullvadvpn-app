@@ -34,7 +34,6 @@ import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
-import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import org.junit.jupiter.api.AfterEach
@@ -49,7 +48,6 @@ class SelectLocationViewModelTest {
     private val mockAvailableProvidersUseCase: AvailableProvidersUseCase = mockk(relaxed = true)
     private val mockCustomListActionUseCase: CustomListActionUseCase = mockk(relaxed = true)
     private val mockCustomListsRelayItemUseCase: CustomListsRelayItemUseCase = mockk()
-    private val mockSelectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase = mockk()
     private val mockFilteredRelayListUseCase: FilteredRelayListUseCase = mockk()
     private val mockRelayListRepository: RelayListRepository = mockk()
 
@@ -81,7 +79,6 @@ class SelectLocationViewModelTest {
                 relayListFilterRepository = mockRelayListFilterRepository,
                 availableProvidersUseCase = mockAvailableProvidersUseCase,
                 customListsRelayItemUseCase = mockCustomListsRelayItemUseCase,
-                selectedLocationRelayItemUseCase = mockSelectedLocationRelayItemUseCase,
                 customListActionUseCase = mockCustomListActionUseCase,
                 filteredRelayListUseCase = mockFilteredRelayListUseCase,
                 relayListRepository = mockRelayListRepository

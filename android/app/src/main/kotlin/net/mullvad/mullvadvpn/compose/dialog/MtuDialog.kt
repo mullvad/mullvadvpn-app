@@ -8,11 +8,11 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -45,7 +45,7 @@ private fun PreviewMtuDialog() {
 fun MtuDialog(mtuInitial: Mtu?, navigator: ResultBackNavigator<Boolean>) {
     val viewModel = koinViewModel<MtuDialogViewModel>(parameters = { parametersOf(mtuInitial) })
 
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffectCollect(viewModel.uiSideEffect) {
         when (it) {
             MtuDialogSideEffect.Complete -> navigator.navigateBack(result = true)

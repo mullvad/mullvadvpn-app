@@ -25,7 +25,6 @@ import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
-import net.mullvad.mullvadvpn.usecase.SelectedLocationRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.util.combine
@@ -34,7 +33,6 @@ class SelectLocationViewModel(
     private val relayListFilterRepository: RelayListFilterRepository,
     availableProvidersUseCase: AvailableProvidersUseCase,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
-    selectedLocationRelayItemUseCase: SelectedLocationRelayItemUseCase,
     private val customListActionUseCase: CustomListActionUseCase,
     filteredRelayListUseCase: FilteredRelayListUseCase,
     private val relayListRepository: RelayListRepository

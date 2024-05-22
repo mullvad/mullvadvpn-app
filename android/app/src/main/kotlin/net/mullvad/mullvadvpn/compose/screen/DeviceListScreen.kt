@@ -103,7 +103,8 @@ private fun PreviewDeviceListLoading() {
 private fun PreviewDeviceListError() {
     AppTheme {
         DeviceListScreen(
-            state = DeviceListUiState.Error(GetDeviceListError.Unknown(IllegalStateException()))
+            state =
+                DeviceListUiState.Error(GetDeviceListError.Unknown(IllegalStateException("Error")))
         )
     }
 }
