@@ -1,9 +1,9 @@
 package net.mullvad.mullvadvpn.constant
 
 import androidx.compose.animation.core.Spring
-import net.mullvad.mullvadvpn.model.LatLong
-import net.mullvad.mullvadvpn.model.Latitude
-import net.mullvad.mullvadvpn.model.Longitude
+import net.mullvad.mullvadvpn.lib.model.LatLong
+import net.mullvad.mullvadvpn.lib.model.Latitude
+import net.mullvad.mullvadvpn.lib.model.Longitude
 
 const val MINIMUM_LOADING_TIME_MILLIS = 500L
 

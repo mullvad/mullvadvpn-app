@@ -49,8 +49,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterCell
@@ -73,7 +75,6 @@ import net.mullvad.mullvadvpn.compose.destinations.CustomListsDestination
 import net.mullvad.mullvadvpn.compose.destinations.DeleteCustomListDestination
 import net.mullvad.mullvadvpn.compose.destinations.EditCustomListNameDestination
 import net.mullvad.mullvadvpn.compose.destinations.FilterScreenDestination
-import net.mullvad.mullvadvpn.compose.extensions.showSnackbar
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
@@ -83,12 +84,16 @@ import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
+import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.canAddLocation
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
@@ -102,7 +107,15 @@ private fun PreviewSelectLocationScreen() {
             searchTerm = "",
             selectedOwnership = null,
             selectedProvidersCount = 0,
-            countries = listOf(RelayItem.Country("Country 1", "Code 1", false, emptyList())),
+            countries =
+                listOf(
+                    RelayItem.Location.Country(
+                        GeoLocationId.Country("Country 1"),
+                        "Code 1",
+                        false,
+                        emptyList()
+                    )
+                ),
             selectedItem = null,
             customLists = emptyList(),
             filteredCustomLists = emptyList()
@@ -115,9 +128,11 @@ private fun PreviewSelectLocationScreen() {
 }
 
 @Destination(style = SelectLocationTransition::class)
+@Suppress("LongMethod")
 @Composable
 fun SelectLocation(
     navigator: DestinationsNavigator,
+    backNavigator: ResultBackNavigator<Boolean>,
     createCustomListDialogResultRecipient:
         ResultRecipient<CreateCustomListDestination, CustomListResult.Created>,
     editCustomListNameDialogResultRecipient:
@@ -135,23 +150,30 @@ fun SelectLocation(
 
     LaunchedEffectCollect(vm.uiSideEffect) {
         when (it) {
-            SelectLocationSideEffect.CloseScreen -> navigator.navigateUp()
-            is SelectLocationSideEffect.LocationAddedToCustomList ->
-                launch {
-                    snackbarHostState.showResultSnackbar(
-                        context = context,
-                        result = it.result,
-                        onUndo = vm::performAction
-                    )
-                }
-            is SelectLocationSideEffect.LocationRemovedFromCustomList ->
-                launch {
-                    snackbarHostState.showResultSnackbar(
-                        context = context,
-                        result = it.result,
-                        onUndo = vm::performAction
-                    )
-                }
+            SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true, true)
+            is SelectLocationSideEffect.LocationAddedToCustomList -> {
+                snackbarHostState.showResultSnackbar(
+                    coroutineScope = this,
+                    context = context,
+                    result = it.result,
+                    onUndo = vm::performAction
+                )
+            }
+            is SelectLocationSideEffect.LocationRemovedFromCustomList -> {
+                snackbarHostState.showResultSnackbar(
+                    coroutineScope = this,
+                    context = context,
+                    result = it.result,
+                    onUndo = vm::performAction
+                )
+            }
+            SelectLocationSideEffect.GenericError -> {
+                snackbarHostState.showSnackbarImmediately(
+                    coroutineScope = this,
+                    message = context.getString(R.string.error_occurred),
+                    duration = SnackbarDuration.Short
+                )
+            }
         }
     }
 
@@ -177,10 +199,10 @@ fun SelectLocation(
         snackbarHostState = snackbarHostState,
         onSelectRelay = vm::selectRelay,
         onSearchTermInput = vm::onSearchTermInput,
-        onBackClick = navigator::navigateUp,
+        onBackClick = { backNavigator.navigateBack(true) },
         onFilterClick = { navigator.navigate(FilterScreenDestination, true) },
         onCreateCustomList = { relayItem ->
-            navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.code ?: "")) {
+            navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.id)) {
                 launchSingleTop = true
             }
         },
@@ -191,7 +213,7 @@ fun SelectLocation(
         onRemoveLocationFromList = vm::removeLocationFromList,
         onEditCustomListName = {
             navigator.navigate(
-                EditCustomListNameDestination(customListId = it.id, initialName = it.name)
+                EditCustomListNameDestination(customListId = it.id, initialName = it.customListName)
             )
         },
         onEditLocationsCustomList = {
@@ -200,7 +222,9 @@ fun SelectLocation(
             )
         },
         onDeleteCustomList = {
-            navigator.navigate(DeleteCustomListDestination(customListId = it.id, name = it.name))
+            navigator.navigate(
+                DeleteCustomListDestination(customListId = it.id, name = it.customListName)
+            )
         }
     )
 }
@@ -215,13 +239,15 @@ fun SelectLocationScreen(
     onSearchTermInput: (searchTerm: String) -> Unit = {},
     onBackClick: () -> Unit = {},
     onFilterClick: () -> Unit = {},
-    onCreateCustomList: (location: RelayItem?) -> Unit = {},
+    onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
     onEditCustomLists: () -> Unit = {},
     removeOwnershipFilter: () -> Unit = {},
     removeProviderFilter: () -> Unit = {},
-    onAddLocationToList: (location: RelayItem, customList: RelayItem.CustomList) -> Unit = { _, _ ->
-    },
-    onRemoveLocationFromList: (location: RelayItem, customList: RelayItem.CustomList) -> Unit =
+    onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
+        { _, _ ->
+        },
+    onRemoveLocationFromList:
+        (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
         { _, _ ->
         },
     onEditCustomListName: (RelayItem.CustomList) -> Unit = {},
@@ -252,30 +278,7 @@ fun SelectLocationScreen(
         )
 
         Column(modifier = Modifier.padding(it).background(backgroundColor).fillMaxSize()) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        modifier = Modifier.rotate(270f),
-                        painter = painterResource(id = R.drawable.icon_back),
-                        tint = Color.Unspecified,
-                        contentDescription = null,
-                    )
-                }
-                Text(
-                    text = stringResource(id = R.string.select_location),
-                    modifier = Modifier.align(Alignment.CenterVertically).weight(weight = 1f),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                )
-                IconButton(onClick = onFilterClick) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icons_more_circle),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                    )
-                }
-            }
+            SelectLocationTopBar(onBackClick = onBackClick, onFilterClick = onFilterClick)
 
             when (state) {
                 SelectLocationUiState.Loading -> {}
@@ -303,8 +306,7 @@ fun SelectLocationScreen(
             }
             Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
             val lazyListState = rememberLazyListState()
-            val selectedItemCode =
-                (state as? SelectLocationUiState.Content)?.selectedItem?.code ?: ""
+            val selectedItemCode = (state as? SelectLocationUiState.Content)?.selectedItem ?: ""
             RunOnKeyChange(key = selectedItemCode) {
                 val index = state.indexOfSelectedRelayItem()
 
@@ -345,7 +347,7 @@ fun SelectLocationScreen(
                                         BottomSheetState.ShowEditCustomListBottomSheet(customList)
                                 },
                                 onShowEditCustomListEntryBottomSheet = {
-                                    item: RelayItem,
+                                    item: RelayItem.Location,
                                     customList: RelayItem.CustomList ->
                                     bottomSheetState =
                                         BottomSheetState.ShowCustomListsEntryBottomSheet(
@@ -387,6 +389,34 @@ fun SelectLocationScreen(
     }
 }
 
+@Composable
+private fun SelectLocationTopBar(onBackClick: () -> Unit, onFilterClick: () -> Unit) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        IconButton(onClick = onBackClick) {
+            Icon(
+                modifier = Modifier.rotate(270f),
+                painter = painterResource(id = R.drawable.icon_back),
+                tint = Color.Unspecified,
+                contentDescription = null,
+            )
+        }
+        Text(
+            text = stringResource(id = R.string.select_location),
+            modifier = Modifier.align(Alignment.CenterVertically).weight(weight = 1f),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onPrimary,
+        )
+        IconButton(onClick = onFilterClick) {
+            Icon(
+                painter = painterResource(id = R.drawable.icons_more_circle),
+                contentDescription = null,
+                tint = Color.Unspecified,
+            )
+        }
+    }
+}
+
 private fun LazyListScope.loading() {
     item(contentType = ContentType.PROGRESS) {
         MullvadCircularProgressIndicatorLarge(Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR))
@@ -396,12 +426,12 @@ private fun LazyListScope.loading() {
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.customLists(
     customLists: List<RelayItem.CustomList>,
-    selectedItem: RelayItem?,
+    selectedItem: RelayItemId?,
     backgroundColor: Color,
     onSelectRelay: (item: RelayItem) -> Unit,
     onShowCustomListBottomSheet: () -> Unit,
     onShowEditBottomSheet: (RelayItem.CustomList) -> Unit,
-    onShowEditCustomListEntryBottomSheet: (item: RelayItem, RelayItem.CustomList) -> Unit
+    onShowEditCustomListEntryBottomSheet: (item: RelayItem.Location, RelayItem.CustomList) -> Unit
 ) {
     item(
         contentType = { ContentType.HEADER },
@@ -418,18 +448,18 @@ private fun LazyListScope.customLists(
     if (customLists.isNotEmpty()) {
         items(
             items = customLists,
-            key = { item -> item.code },
+            key = { item -> item.id },
             contentType = { ContentType.ITEM },
         ) { customList ->
             StatusRelayLocationCell(
                 relay = customList,
                 // Do not show selection for locations in custom lists
-                selectedItem = selectedItem as? RelayItem.CustomList,
+                selectedItem = selectedItem as? CustomListId,
                 onSelectRelay = onSelectRelay,
                 onLongClick = {
                     if (it is RelayItem.CustomList) {
                         onShowEditBottomSheet(it)
-                    } else if (it in customList.locations) {
+                    } else if (it is RelayItem.Location && it in customList.locations) {
                         onShowEditCustomListEntryBottomSheet(it, customList)
                     }
                 },
@@ -456,10 +486,10 @@ private fun LazyListScope.customLists(
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.relayList(
-    countries: List<RelayItem.Country>,
-    selectedItem: RelayItem?,
+    countries: List<RelayItem.Location.Country>,
+    selectedItem: RelayItemId?,
     onSelectRelay: (item: RelayItem) -> Unit,
-    onShowLocationBottomSheet: (item: RelayItem) -> Unit,
+    onShowLocationBottomSheet: (item: RelayItem.Location) -> Unit,
 ) {
     item(
         contentType = ContentType.HEADER,
@@ -471,14 +501,14 @@ private fun LazyListScope.relayList(
     }
     items(
         items = countries,
-        key = { item -> item.code },
+        key = { item -> item.id },
         contentType = { ContentType.ITEM },
     ) { country ->
         StatusRelayLocationCell(
             relay = country,
             selectedItem = selectedItem,
             onSelectRelay = onSelectRelay,
-            onLongClick = onShowLocationBottomSheet,
+            onLongClick = { onShowLocationBottomSheet(it as RelayItem.Location) },
             modifier = Modifier.animateContentSize().animateItemPlacement(),
         )
     }
@@ -488,10 +518,10 @@ private fun LazyListScope.relayList(
 @Composable
 private fun BottomSheets(
     bottomSheetState: BottomSheetState?,
-    onCreateCustomList: (RelayItem?) -> Unit,
+    onCreateCustomList: (RelayItem.Location?) -> Unit,
     onEditCustomLists: () -> Unit,
-    onAddLocationToList: (RelayItem, RelayItem.CustomList) -> Unit,
-    onRemoveLocationFromList: (RelayItem, RelayItem.CustomList) -> Unit,
+    onAddLocationToList: (RelayItem.Location, RelayItem.CustomList) -> Unit,
+    onRemoveLocationFromList: (RelayItem.Location, RelayItem.CustomList) -> Unit,
     onEditCustomListName: (RelayItem.CustomList) -> Unit,
     onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
     onDeleteCustomList: (RelayItem.CustomList) -> Unit,
@@ -566,28 +596,16 @@ private fun BottomSheets(
 private fun SelectLocationUiState.indexOfSelectedRelayItem(): Int =
     if (this is SelectLocationUiState.Content) {
         when (selectedItem) {
-            is RelayItem.Country,
-            is RelayItem.City,
-            is RelayItem.Relay ->
-                countries.indexOfFirst { it.code == selectedItem.countryCode() } +
+            is CustomListId ->
+                filteredCustomLists.indexOfFirst { it.id == selectedItem } + EXTRA_ITEM_CUSTOM_LIST
+            is GeoLocationId ->
+                countries.indexOfFirst { it.id == selectedItem.country } +
                     customLists.size +
                     EXTRA_ITEMS_LOCATION
-            is RelayItem.CustomList ->
-                filteredCustomLists.indexOfFirst { it.id == selectedItem.id } +
-                    EXTRA_ITEM_CUSTOM_LIST
             else -> -1
         }
     } else {
         -1
-    }
-
-private fun RelayItem.countryCode(): String =
-    when (this) {
-        is RelayItem.Country -> this.code
-        is RelayItem.City -> this.location.countryCode
-        is RelayItem.Relay -> this.location.countryCode
-        is RelayItem.CustomList ->
-            throw IllegalArgumentException("Custom list does not have a country code")
     }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -604,7 +622,7 @@ private fun CustomListsBottomSheet(
         sheetState = sheetState,
         onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG)
-    ) { ->
+    ) {
         HeaderCell(
             text = stringResource(id = R.string.edit_custom_lists),
             background = Color.Unspecified
@@ -648,9 +666,9 @@ private fun LocationBottomSheet(
     onBackgroundColor: Color,
     sheetState: SheetState,
     customLists: List<RelayItem.CustomList>,
-    item: RelayItem,
-    onCreateCustomList: (relayItem: RelayItem) -> Unit,
-    onAddLocationToList: (location: RelayItem, customList: RelayItem.CustomList) -> Unit,
+    item: RelayItem.Location,
+    onCreateCustomList: (relayItem: RelayItem.Location) -> Unit,
+    onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit
 ) {
     MullvadModalBottomSheet(
@@ -756,15 +774,16 @@ private fun CustomListEntryBottomSheet(
     onBackgroundColor: Color,
     sheetState: SheetState,
     customList: RelayItem.CustomList,
-    item: RelayItem,
-    onRemoveLocationFromList: (location: RelayItem, customList: RelayItem.CustomList) -> Unit,
+    item: RelayItem.Location,
+    onRemoveLocationFromList:
+        (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit
 ) {
     MullvadModalBottomSheet(
         sheetState = sheetState,
         onDismissRequest = { closeBottomSheet(false) },
         modifier = Modifier.testTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG)
-    ) { ->
+    ) {
         HeaderCell(
             text = stringResource(id = R.string.remove_location_from_list, item.name),
             background = Color.Unspecified
@@ -795,13 +814,14 @@ private suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
     }
 }
 
-private suspend fun SnackbarHostState.showResultSnackbar(
+private fun SnackbarHostState.showResultSnackbar(
+    coroutineScope: CoroutineScope,
     context: Context,
     result: CustomListResult,
     onUndo: (CustomListAction) -> Unit
 ) {
-    currentSnackbarData?.dismiss()
-    showSnackbar(
+    showSnackbarImmediately(
+        coroutineScope = coroutineScope,
         message = result.message(context),
         actionLabel = context.getString(R.string.undo),
         duration = SnackbarDuration.Long,
@@ -812,7 +832,9 @@ private suspend fun SnackbarHostState.showResultSnackbar(
 private fun CustomListResult.message(context: Context): String =
     when (this) {
         is CustomListResult.Created ->
-            context.getString(R.string.location_was_added_to_list, locationName, name)
+            locationNames.firstOrNull()?.let { locationName ->
+                context.getString(R.string.location_was_added_to_list, locationName, name)
+            } ?: context.getString(R.string.locations_were_changed_for, name)
         is CustomListResult.Deleted -> context.getString(R.string.delete_custom_list_message, name)
         is CustomListResult.Renamed -> context.getString(R.string.name_was_changed_to, name)
         is CustomListResult.LocationsChanged ->
@@ -834,13 +856,12 @@ private fun <D : DestinationSpec<*>, R : CustomListResult> ResultRecipient<D, R>
             }
             is NavResult.Value -> {
                 // Handle result
-                scope.launch {
-                    snackbarHostState.showResultSnackbar(
-                        context = context,
-                        result = result.value,
-                        onUndo = performAction
-                    )
-                }
+                snackbarHostState.showResultSnackbar(
+                    coroutineScope = scope,
+                    context = context,
+                    result = result.value,
+                    onUndo = performAction
+                )
             }
         }
     }
@@ -856,12 +877,12 @@ sealed interface BottomSheetState {
 
     data class ShowCustomListsEntryBottomSheet(
         val customList: RelayItem.CustomList,
-        val item: RelayItem
+        val item: RelayItem.Location
     ) : BottomSheetState
 
     data class ShowLocationBottomSheet(
         val customLists: List<RelayItem.CustomList>,
-        val item: RelayItem
+        val item: RelayItem.Location
     ) : BottomSheetState
 
     data class ShowEditCustomListBottomSheet(val customList: RelayItem.CustomList) :

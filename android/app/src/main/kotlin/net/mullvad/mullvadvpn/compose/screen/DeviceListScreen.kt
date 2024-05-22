@@ -16,15 +16,19 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -42,85 +46,31 @@ import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
 import net.mullvad.mullvadvpn.compose.destinations.RemoveDeviceConfirmationDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
-import net.mullvad.mullvadvpn.compose.state.DeviceListItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
-import net.mullvad.mullvadvpn.lib.common.util.parseAsDateTime
+import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.compose.util.generateDevices
+import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.Device
+import net.mullvad.mullvadvpn.lib.model.DeviceId
+import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemSubText
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
-import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.util.formatDate
+import net.mullvad.mullvadvpn.viewmodel.DeviceListSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 @Preview
 private fun PreviewDeviceListScreenTooManyDevices() {
-    AppTheme {
-        DeviceListScreen(
-            state =
-                DeviceListUiState(
-                    deviceUiItems =
-                        listOf(
-                            DeviceListItemUiState(
-                                device =
-                                    Device(
-                                        id = "ID1",
-                                        name = "Name1",
-                                        pubkey = ByteArray(10),
-                                        created = "2012-12-12 12:12:12 UTC"
-                                    ),
-                                isLoading = false
-                            ),
-                            DeviceListItemUiState(
-                                device =
-                                    Device(
-                                        id = "ID2",
-                                        name = "Name2",
-                                        pubkey = ByteArray(10),
-                                        created = "2012-12-12 12:12:12 UTC"
-                                    ),
-                                isLoading = false
-                            ),
-                            DeviceListItemUiState(
-                                device =
-                                    Device(
-                                        id = "ID3",
-                                        name = "Name3",
-                                        pubkey = ByteArray(10),
-                                        created = "2012-12-12 12:12:12 UTC"
-                                    ),
-                                isLoading = false
-                            ),
-                            DeviceListItemUiState(
-                                device =
-                                    Device(
-                                        id = "ID4",
-                                        name = "Name4",
-                                        pubkey = ByteArray(10),
-                                        created = "2012-12-12 12:12:12 UTC"
-                                    ),
-                                isLoading = false
-                            ),
-                            DeviceListItemUiState(
-                                device =
-                                    Device(
-                                        id = "ID5",
-                                        name = "Name5",
-                                        pubkey = ByteArray(10),
-                                        created = "2012-12-12 12:12:12 UTC"
-                                    ),
-                                isLoading = true
-                            )
-                        ),
-                    isLoading = false
-                )
-        )
-    }
+    AppTheme { DeviceListScreen(state = DeviceListUiState.Content(devices = generateDevices(4))) }
 }
 
 @Composable
@@ -129,21 +79,8 @@ private fun PreviewDeviceListScreenNotTooManyDevices() {
     AppTheme {
         DeviceListScreen(
             state =
-                DeviceListUiState(
-                    deviceUiItems =
-                        listOf(
-                            DeviceListItemUiState(
-                                device =
-                                    Device(
-                                        id = "ID",
-                                        name = "Name",
-                                        pubkey = ByteArray(10),
-                                        created = "2012-12-12 12:12:12 UTC"
-                                    ),
-                                isLoading = false
-                            )
-                        ),
-                    isLoading = false
+                DeviceListUiState.Content(
+                    devices = listOf(),
                 )
         )
     }
@@ -152,16 +89,23 @@ private fun PreviewDeviceListScreenNotTooManyDevices() {
 @Composable
 @Preview
 private fun PreviewDeviceListScreenEmpty() {
-    AppTheme {
-        DeviceListScreen(state = DeviceListUiState(deviceUiItems = emptyList(), isLoading = false))
-    }
+    AppTheme { DeviceListScreen(state = DeviceListUiState.Content(devices = emptyList())) }
 }
 
 @Composable
 @Preview
 private fun PreviewDeviceListLoading() {
+    AppTheme { DeviceListScreen(state = DeviceListUiState.Loading) }
+}
+
+@Composable
+@Preview
+private fun PreviewDeviceListError() {
     AppTheme {
-        DeviceListScreen(state = DeviceListUiState(deviceUiItems = emptyList(), isLoading = true))
+        DeviceListScreen(
+            state =
+                DeviceListUiState.Error(GetDeviceListError.Unknown(IllegalStateException("Error")))
+        )
     }
 }
 
@@ -170,9 +114,13 @@ private fun PreviewDeviceListLoading() {
 fun DeviceList(
     navigator: DestinationsNavigator,
     accountToken: String,
-    confirmRemoveResultRecipient: ResultRecipient<RemoveDeviceConfirmationDialogDestination, String>
+    confirmRemoveResultRecipient:
+        ResultRecipient<RemoveDeviceConfirmationDialogDestination, DeviceId>
 ) {
-    val viewModel = koinViewModel<DeviceListViewModel>()
+    val viewModel =
+        koinViewModel<DeviceListViewModel>(
+            parameters = { parametersOf(AccountToken(accountToken)) }
+        )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     confirmRemoveResultRecipient.onNavResult {
@@ -181,13 +129,30 @@ fun DeviceList(
                 /* Do nothing */
             }
             is NavResult.Value -> {
-                viewModel.removeDevice(accountToken = accountToken, deviceIdToRemove = it.value)
+                viewModel.removeDevice(deviceIdToRemove = it.value)
+            }
+        }
+    }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    CollectSideEffectWithLifecycle(
+        viewModel.uiSideEffect,
+        minActiveState = Lifecycle.State.RESUMED
+    ) { sideEffect ->
+        when (sideEffect) {
+            DeviceListSideEffect.FailedToRemoveDevice -> {
+                snackbarHostState.showSnackbarImmediately(
+                    coroutineScope = this,
+                    message = context.getString(R.string.failed_to_remove_device)
+                )
             }
         }
     }
 
     DeviceListScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
         onBackClick = navigator::navigateUp,
         onContinueWithLogin = {
             navigator.navigate(LoginDestination(accountToken)) {
@@ -196,6 +161,7 @@ fun DeviceList(
             }
         },
         onSettingsClicked = { navigator.navigate(SettingsDestination) { launchSingleTop = true } },
+        onTryAgainClicked = viewModel::fetchDevices,
         navigateToRemoveDeviceConfirmationDialog = {
             navigator.navigate(RemoveDeviceConfirmationDialogDestination(it)) {
                 launchSingleTop = true
@@ -207,9 +173,11 @@ fun DeviceList(
 @Composable
 fun DeviceListScreen(
     state: DeviceListUiState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBackClick: () -> Unit = {},
     onContinueWithLogin: () -> Unit = {},
     onSettingsClicked: () -> Unit = {},
+    onTryAgainClicked: () -> Unit = {},
     navigateToRemoveDeviceConfirmationDialog: (device: Device) -> Unit = {}
 ) {
 
@@ -218,6 +186,7 @@ fun DeviceListScreen(
         iconTintColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClicked,
         onAccountClicked = null,
+        snackbarHostState = snackbarHostState
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(it),
@@ -233,20 +202,21 @@ fun DeviceListScreen(
                         .weight(1f)
                         .fillMaxWidth(),
                 verticalArrangement =
-                    if (state.isLoading) {
+                    if (state !is DeviceListUiState.Content) {
                         Arrangement.Center
                     } else {
                         Arrangement.Top
                     }
             ) {
-                if (state.isLoading) {
-                    DeviceListLoading()
-                } else {
-                    DeviceListContent(
-                        state = state,
-                        navigateToRemoveDeviceConfirmationDialog =
-                            navigateToRemoveDeviceConfirmationDialog
-                    )
+                when (state) {
+                    is DeviceListUiState.Content ->
+                        DeviceListContent(
+                            state = state,
+                            navigateToRemoveDeviceConfirmationDialog =
+                                navigateToRemoveDeviceConfirmationDialog
+                        )
+                    is DeviceListUiState.Error -> DeviceListError(onTryAgainClicked)
+                    DeviceListUiState.Loading -> DeviceListLoading()
                 }
             }
             DeviceListButtonPanel(state, onContinueWithLogin, onBackClick)
@@ -262,26 +232,45 @@ private fun ColumnScope.DeviceListLoading() {
 }
 
 @Composable
+private fun ColumnScope.DeviceListError(tryAgain: () -> Unit) {
+    Text(
+        text = stringResource(id = R.string.error_occurred),
+        modifier = Modifier.padding(Dimens.smallPadding).align(Alignment.CenterHorizontally)
+    )
+    PrimaryButton(
+        onClick = tryAgain,
+        text = stringResource(id = R.string.try_again),
+        modifier =
+            Modifier.padding(
+                top = Dimens.buttonSpacing,
+                start = Dimens.sideMargin,
+                end = Dimens.sideMargin
+            )
+    )
+}
+
+@Composable
 private fun ColumnScope.DeviceListContent(
-    state: DeviceListUiState,
+    state: DeviceListUiState.Content,
     navigateToRemoveDeviceConfirmationDialog: (Device) -> Unit
 ) {
     DeviceListHeader(state = state)
 
-    state.deviceUiItems.forEachIndexed { index, deviceUiState ->
+    state.devices.forEachIndexed { index, device ->
         DeviceListItem(
-            deviceUiState = deviceUiState,
+            device = device,
+            isLoading = state.loadingDevices.contains(device.id),
         ) {
-            navigateToRemoveDeviceConfirmationDialog(deviceUiState.device)
+            navigateToRemoveDeviceConfirmationDialog(device)
         }
-        if (state.deviceUiItems.lastIndex != index) {
+        if (state.devices.lastIndex != index) {
             HorizontalDivider()
         }
     }
 }
 
 @Composable
-private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
+private fun ColumnScope.DeviceListHeader(state: DeviceListUiState.Content) {
     Image(
         painter =
             painterResource(
@@ -344,26 +333,20 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
 }
 
 @Composable
-private fun DeviceListItem(
-    deviceUiState: DeviceListItemUiState,
-    onDeviceRemovalClicked: () -> Unit
-) {
+private fun DeviceListItem(device: Device, isLoading: Boolean, onDeviceRemovalClicked: () -> Unit) {
     BaseCell(
         isRowEnabled = false,
         headlineContent = {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = deviceUiState.device.displayName(),
+                    text = device.displayName(),
                     style = MaterialTheme.typography.listItemText,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text =
-                        deviceUiState.device.created.parseAsDateTime()?.let { creationDate ->
-                            stringResource(id = R.string.created_x, creationDate.formatDate())
-                        } ?: "",
+                    text = stringResource(id = R.string.created_x, device.creationDate.formatDate()),
                     style = MaterialTheme.typography.listItemSubText,
                     color =
                         MaterialTheme.colorScheme.onPrimary
@@ -373,7 +356,7 @@ private fun DeviceListItem(
             }
         },
         bodyView = {
-            if (deviceUiState.isLoading) {
+            if (isLoading) {
                 MullvadCircularProgressIndicatorMedium(
                     modifier = Modifier.padding(Dimens.smallPadding)
                 )
@@ -410,7 +393,7 @@ private fun DeviceListButtonPanel(
         VariantButton(
             text = stringResource(id = R.string.continue_login),
             onClick = onContinueWithLogin,
-            isEnabled = state.hasTooManyDevices.not() && state.isLoading.not(),
+            isEnabled = state is DeviceListUiState.Content && !state.hasTooManyDevices,
             background = MaterialTheme.colorScheme.secondary
         )
 

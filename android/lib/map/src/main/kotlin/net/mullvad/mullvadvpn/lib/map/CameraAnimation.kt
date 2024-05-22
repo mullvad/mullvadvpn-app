@@ -18,9 +18,9 @@ import net.mullvad.mullvadvpn.lib.map.internal.MAX_ANIMATION_MILLIS
 import net.mullvad.mullvadvpn.lib.map.internal.MAX_MULTIPLIER_PEAK_TIMING
 import net.mullvad.mullvadvpn.lib.map.internal.MIN_ANIMATION_MILLIS
 import net.mullvad.mullvadvpn.lib.map.internal.SHORT_ANIMATION_CUTOFF_MILLIS
-import net.mullvad.mullvadvpn.model.LatLong
-import net.mullvad.mullvadvpn.model.Latitude
-import net.mullvad.mullvadvpn.model.Longitude
+import net.mullvad.mullvadvpn.lib.model.LatLong
+import net.mullvad.mullvadvpn.lib.model.Latitude
+import net.mullvad.mullvadvpn.lib.model.Longitude
 
 @Composable
 fun animatedCameraPosition(

@@ -1,12 +1,13 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import android.content.res.Resources
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
+import arrow.core.right
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
-import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
@@ -14,19 +15,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.Port
-import net.mullvad.mullvadvpn.model.PortRange
-import net.mullvad.mullvadvpn.model.QuantumResistantState
-import net.mullvad.mullvadvpn.model.RelayConstraints
-import net.mullvad.mullvadvpn.model.RelaySettings
-import net.mullvad.mullvadvpn.model.Settings
-import net.mullvad.mullvadvpn.model.TunnelOptions
-import net.mullvad.mullvadvpn.model.WireguardConstraints
-import net.mullvad.mullvadvpn.model.WireguardTunnelOptions
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.Port
+import net.mullvad.mullvadvpn.lib.model.PortRange
+import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
+import net.mullvad.mullvadvpn.lib.model.RelayConstraints
+import net.mullvad.mullvadvpn.lib.model.RelaySettings
+import net.mullvad.mullvadvpn.lib.model.Settings
+import net.mullvad.mullvadvpn.lib.model.TunnelOptions
+import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
+import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
+import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
-import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.usecase.SystemVpnSettingsUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -37,10 +38,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 class VpnSettingsViewModelTest {
 
     private val mockSettingsRepository: SettingsRepository = mockk()
-    private val mockResources: Resources = mockk()
-    private val mockPortRangeUseCase: PortRangeUseCase = mockk()
-    private val mockRelayListUseCase: RelayListUseCase = mockk()
     private val mockSystemVpnSettingsUseCase: SystemVpnSettingsUseCase = mockk(relaxed = true)
+    private val mockRelayListRepository: RelayListRepository = mockk()
 
     private val mockSettingsUpdate = MutableStateFlow<Settings?>(null)
     private val portRangeFlow = MutableStateFlow(emptyList<PortRange>())
@@ -50,15 +49,13 @@ class VpnSettingsViewModelTest {
     @BeforeEach
     fun setup() {
         every { mockSettingsRepository.settingsUpdates } returns mockSettingsUpdate
-        every { mockPortRangeUseCase.portRanges() } returns portRangeFlow
+        every { mockRelayListRepository.portRanges } returns portRangeFlow
 
         viewModel =
             VpnSettingsViewModel(
                 repository = mockSettingsRepository,
-                resources = mockResources,
-                portRangeUseCase = mockPortRangeUseCase,
-                relayListUseCase = mockRelayListUseCase,
                 systemVpnSettingsUseCase = mockSystemVpnSettingsUseCase,
+                relayListRepository = mockRelayListRepository,
                 dispatcher = UnconfinedTestDispatcher()
             )
     }
@@ -73,11 +70,11 @@ class VpnSettingsViewModelTest {
     fun `onSelectQuantumResistanceSetting should invoke setWireguardQuantumResistant on SettingsRepository`() =
         runTest {
             val quantumResistantState = QuantumResistantState.On
-            every {
+            coEvery {
                 mockSettingsRepository.setWireguardQuantumResistant(quantumResistantState)
-            } returns Unit
+            } returns Unit.right()
             viewModel.onSelectQuantumResistanceSetting(quantumResistantState)
-            verify(exactly = 1) {
+            coVerify(exactly = 1) {
                 mockSettingsRepository.setWireguardQuantumResistant(quantumResistantState)
             }
         }
@@ -105,7 +102,8 @@ class VpnSettingsViewModelTest {
             every { mockSettings.tunnelOptions } returns mockTunnelOptions
             every { mockTunnelOptions.wireguard } returns mockWireguardTunnelOptions
             every { mockWireguardTunnelOptions.quantumResistant } returns expectedResistantState
-            every { mockSettings.relaySettings } returns mockk<RelaySettings.Normal>(relaxed = true)
+            every { mockWireguardTunnelOptions.mtu } returns Mtu(0)
+            every { mockSettings.relaySettings } returns mockk<RelaySettings>(relaxed = true)
 
             viewModel.uiState.test {
                 assertEquals(defaultResistantState, awaitItem().quantumResistant)
@@ -120,7 +118,7 @@ class VpnSettingsViewModelTest {
             // Arrange
             val expectedPort: Constraint<Port> = Constraint.Only(Port(99))
             val mockSettings: Settings = mockk(relaxed = true)
-            val mockRelaySettings: RelaySettings.Normal = mockk()
+            val mockRelaySettings: RelaySettings = mockk()
             val mockRelayConstraints: RelayConstraints = mockk()
             val mockWireguardConstraints: WireguardConstraints = mockk()
 
@@ -128,10 +126,19 @@ class VpnSettingsViewModelTest {
             every { mockRelaySettings.relayConstraints } returns mockRelayConstraints
             every { mockRelayConstraints.wireguardConstraints } returns mockWireguardConstraints
             every { mockWireguardConstraints.port } returns expectedPort
+            every { mockSettings.tunnelOptions } returns
+                TunnelOptions(
+                    wireguard =
+                        WireguardTunnelOptions(
+                            mtu = null,
+                            quantumResistant = QuantumResistantState.Off
+                        ),
+                    dnsOptions = mockk(relaxed = true)
+                )
 
             // Act, Assert
             viewModel.uiState.test {
-                assertIs<Constraint.Any<Port>>(awaitItem().selectedWireguardPort)
+                assertIs<Constraint.Any>(awaitItem().selectedWireguardPort)
                 mockSettingsUpdate.value = mockSettings
                 assertEquals(expectedPort, awaitItem().customWireguardPort)
                 assertEquals(expectedPort, awaitItem().selectedWireguardPort)
@@ -144,14 +151,15 @@ class VpnSettingsViewModelTest {
             // Arrange
             val wireguardPort: Constraint<Port> = Constraint.Only(Port(99))
             val wireguardConstraints = WireguardConstraints(port = wireguardPort)
-            every { mockRelayListUseCase.updateSelectedWireguardConstraints(any()) } returns Unit
+            coEvery { mockRelayListRepository.updateSelectedWireguardConstraints(any()) } returns
+                Unit.right()
 
             // Act
             viewModel.onWireguardPortSelected(wireguardPort)
 
             // Assert
-            verify(exactly = 1) {
-                mockRelayListUseCase.updateSelectedWireguardConstraints(wireguardConstraints)
+            coVerify(exactly = 1) {
+                mockRelayListRepository.updateSelectedWireguardConstraints(wireguardConstraints)
             }
         }
 

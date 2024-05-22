@@ -28,6 +28,8 @@ object Dependencies {
             "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.AndroidX.lifecycle}"
         const val lifecycleRuntimeCompose =
             "androidx.lifecycle:lifecycle-runtime-compose:${Versions.AndroidX.lifecycle}"
+        const val lifecycleService =
+            "androidx.lifecycle:lifecycle-service:${Versions.AndroidX.lifecycle}"
         const val espressoCore =
             "androidx.test.espresso:espresso-core:${Versions.AndroidX.espresso}"
         const val testCore = "androidx.test:core:${Versions.AndroidX.test}"
@@ -38,6 +40,12 @@ object Dependencies {
             "androidx.test.uiautomator:uiautomator:${Versions.AndroidX.uiautomator}"
         const val testOrchestrator =
             "androidx.test:orchestrator:${Versions.AndroidX.testOrchestrator}"
+    }
+
+    object Arrow {
+        const val core = "io.arrow-kt:arrow-core:${Versions.Arrow.base}"
+        const val optics = "io.arrow-kt:arrow-optics:${Versions.Arrow.base}"
+        const val opticsKsp = "io.arrow-kt:arrow-optics-ksp-plugin:${Versions.Arrow.base}"
     }
 
     object Compose {
@@ -62,6 +70,15 @@ object Dependencies {
         const val uiUtil = "androidx.compose.ui:ui-util:${Versions.Compose.base}"
     }
 
+    object Grpc {
+        const val grpcOkHttp = "io.grpc:grpc-okhttp:${Versions.Grpc.grpcVersion}"
+        const val grpcAndroid = "io.grpc:grpc-android:${Versions.Grpc.grpcVersion}"
+        const val grpcKotlinStub = "io.grpc:grpc-kotlin-stub:${Versions.Grpc.grpcKotlinVersion}"
+        const val protobufLite = "io.grpc:grpc-protobuf-lite:${Versions.Grpc.grpcVersion}"
+        const val protobufKotlinLite =
+            "com.google.protobuf:protobuf-kotlin-lite:${Versions.Grpc.protobufVersion}"
+    }
+
     object Koin {
         const val core = "io.insert-koin:koin-core:${Versions.Koin.base}"
         const val android = "io.insert-koin:koin-android:${Versions.Koin.base}"
@@ -76,6 +93,8 @@ object Dependencies {
     }
 
     object KotlinX {
+        const val coroutinesCore =
+            "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinx}"
         const val coroutinesAndroid =
             "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.kotlinx}"
         const val coroutinesTest =
@@ -88,12 +107,12 @@ object Dependencies {
     }
 
     object Mullvad {
+        const val daemonGrpc = ":lib:daemon-grpc"
         const val vpnService = ":service"
         const val tileService = ":tile"
 
         const val commonLib = ":lib:common"
         const val endpointLib = ":lib:endpoint"
-        const val ipcLib = ":lib:ipc"
         const val modelLib = ":lib:model"
         const val resourceLib = ":lib:resource"
         const val talpidLib = ":lib:talpid"
@@ -102,6 +121,8 @@ object Dependencies {
         const val billingLib = ":lib:billing"
         const val paymentLib = ":lib:payment"
         const val mapLib = ":lib:map"
+        const val sharedLib = ":lib:shared"
+        const val intentLib = ":lib:intent-provider"
     }
 
     object Plugin {
@@ -130,5 +151,6 @@ object Dependencies {
         const val playPublisher =
             "com.github.triplet.gradle:play-publisher:${Versions.Plugin.playPublisher}"
         const val playPublisherId = "com.github.triplet.play"
+        const val protobufId = "com.google.protobuf"
     }
 }

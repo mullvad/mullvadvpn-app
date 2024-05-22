@@ -25,8 +25,10 @@ import net.mullvad.mullvadvpn.compose.component.CustomListNameTextField
 import net.mullvad.mullvadvpn.compose.destinations.CustomListLocationsDestination
 import net.mullvad.mullvadvpn.compose.state.CreateCustomListUiState
 import net.mullvad.mullvadvpn.compose.test.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.model.CustomListsError
+import net.mullvad.mullvadvpn.usecase.customlists.CreateCustomListWithLocationsError
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -43,7 +45,13 @@ private fun PreviewCreateCustomListDialog() {
 private fun PreviewCreateCustomListDialogError() {
     AppTheme {
         CreateCustomListDialog(
-            state = CreateCustomListUiState(error = CustomListsError.CustomListExists)
+            state =
+                CreateCustomListUiState(
+                    error =
+                        CreateCustomListWithLocationsError.Create(
+                            CreateCustomListError.CustomListAlreadyExists
+                        )
+                )
         )
     }
 }
@@ -53,7 +61,7 @@ private fun PreviewCreateCustomListDialogError() {
 fun CreateCustomList(
     navigator: DestinationsNavigator,
     backNavigator: ResultBackNavigator<CustomListResult.Created>,
-    locationCode: String = ""
+    locationCode: GeoLocationId? = null
 ) {
     val vm: CreateCustomListDialogViewModel =
         koinViewModel(parameters = { parametersOf(locationCode) })
@@ -106,7 +114,7 @@ fun CreateCustomListDialog(
             CustomListNameTextField(
                 name = name.value,
                 isValidName = isValidName,
-                error = state.error,
+                error = state.error?.errorString(),
                 onSubmit = createCustomList,
                 onValueChanged = {
                     name.value = it
@@ -130,3 +138,16 @@ fun CreateCustomListDialog(
         }
     )
 }
+
+@Composable
+private fun CreateCustomListWithLocationsError.errorString() =
+    stringResource(
+        if (
+            this is CreateCustomListWithLocationsError.Create &&
+                this.error is CreateCustomListError.CustomListAlreadyExists
+        ) {
+            R.string.custom_list_error_list_exists
+        } else {
+            R.string.error_occurred
+        }
+    )

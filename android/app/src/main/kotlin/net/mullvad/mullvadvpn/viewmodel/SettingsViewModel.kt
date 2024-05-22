@@ -6,27 +6,27 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
-import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.repository.DeviceRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 
 class SettingsViewModel(
-    deviceRepository: DeviceRepository,
-    serviceConnectionManager: ServiceConnectionManager,
+    accountRepository: AccountRepository,
+    appVersionInfoRepository: AppVersionInfoRepository,
     isPlayBuild: Boolean
 ) : ViewModel() {
 
     private val vmState: StateFlow<SettingsUiState> =
-        combine(deviceRepository.deviceState, serviceConnectionManager.connectionState) {
-                deviceState,
+        combine(accountRepository.accountState, appVersionInfoRepository.versionInfo()) {
+                accountState,
                 versionInfo ->
-                val cachedVersionInfo = versionInfo.readyContainer()?.appVersionInfoCache
                 SettingsUiState(
-                    isLoggedIn = deviceState is DeviceState.LoggedIn,
-                    appVersion = cachedVersionInfo?.version ?: "",
+                    isLoggedIn = accountState is DeviceState.LoggedIn,
+                    appVersion = BuildConfig.VERSION_NAME,
                     isUpdateAvailable =
-                        cachedVersionInfo?.let { it.isSupported.not() || it.isOutdated } ?: false,
+                        versionInfo.let { it.isSupported.not() || it.isUpdateAvailable },
                     isPlayBuild = isPlayBuild
                 )
             }

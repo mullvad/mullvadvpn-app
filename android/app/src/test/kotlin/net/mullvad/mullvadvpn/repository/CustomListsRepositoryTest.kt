@@ -1,102 +1,100 @@
 package net.mullvad.mullvadvpn.repository
 
+import arrow.core.left
+import arrow.core.right
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
-import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.lib.ipc.Event
-import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
-import net.mullvad.mullvadvpn.lib.ipc.Request
-import net.mullvad.mullvadvpn.lib.ipc.events
-import net.mullvad.mullvadvpn.model.CreateCustomListResult
-import net.mullvad.mullvadvpn.model.CustomList
-import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.CustomListsError
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
-import net.mullvad.mullvadvpn.model.RelayList
-import net.mullvad.mullvadvpn.model.Settings
-import net.mullvad.mullvadvpn.model.UpdateCustomListResult
-import net.mullvad.mullvadvpn.relaylist.getGeographicLocationConstraintByCode
-import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
+import net.mullvad.mullvadvpn.lib.model.CustomList
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.GetCustomListError
+import net.mullvad.mullvadvpn.lib.model.Settings
+import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class CustomListsRepositoryTest {
-    private val mockMessageHandler: MessageHandler = mockk()
-    private val mockSettingsRepository: SettingsRepository = mockk()
-    private val mockRelayListListener: RelayListListener = mockk()
-    private val customListsRepository =
-        CustomListsRepository(
-            messageHandler = mockMessageHandler,
-            settingsRepository = mockSettingsRepository,
-            relayListListener = mockRelayListListener
-        )
+    private val mockManagementService: ManagementService = mockk()
+    private lateinit var customListsRepository: CustomListsRepository
 
-    private val settingsFlow: MutableStateFlow<Settings?> = MutableStateFlow(null)
-    private val relayListFlow: MutableStateFlow<RelayList> = MutableStateFlow(mockk())
+    private val settingsFlow: MutableStateFlow<Settings> = MutableStateFlow(mockk(relaxed = true))
 
     @BeforeEach
     fun setup() {
         mockkStatic(RELAY_LIST_EXTENSIONS)
-        every { mockSettingsRepository.settingsUpdates } returns settingsFlow
-        every { mockRelayListListener.relayListEvents } returns relayListFlow
+        every { mockManagementService.settings } returns settingsFlow
+        customListsRepository =
+            CustomListsRepository(
+                managementService = mockManagementService,
+                dispatcher = UnconfinedTestDispatcher()
+            )
     }
 
     @Test
-    fun `get custom list by id should return custom list when id matches custom list in settings`() {
-        // Arrange
-        val mockCustomList: CustomList = mockk()
-        val mockSettings: Settings = mockk()
-        val customListId = "1"
-        settingsFlow.value = mockSettings
-        every { mockSettings.customLists.customLists } returns arrayListOf(mockCustomList)
-        every { mockCustomList.id } returns customListId
+    fun `get custom list by id should return custom list when id matches custom list in settings`() =
+        runTest {
+            // Arrange
+            val customListId = CustomListId("1")
+            val mockCustomList =
+                CustomList(
+                    id = customListId,
+                    name = mockk(relaxed = true),
+                    locations = mockk(relaxed = true)
+                )
+            val mockSettings: Settings = mockk()
+            every { mockSettings.customLists } returns listOf(mockCustomList)
+            settingsFlow.value = mockSettings
 
-        // Act
-        val result = customListsRepository.getCustomListById(customListId)
+            // Act
+            val result = customListsRepository.getCustomListById(customListId)
 
-        // Assert
-        assertEquals(mockCustomList, result)
-    }
-
-    @Test
-    fun `get custom list by id should return null when id does not matches custom list in settings`() {
-        // Arrange
-        val mockCustomList: CustomList = mockk()
-        val mockSettings: Settings = mockk()
-        val customListId = "1"
-        val otherCustomListId = "2"
-        settingsFlow.value = mockSettings
-        every { mockSettings.customLists.customLists } returns arrayListOf(mockCustomList)
-        every { mockCustomList.id } returns customListId
-
-        // Act
-        val result = customListsRepository.getCustomListById(otherCustomListId)
-
-        // Assert
-        assertNull(result)
-    }
+            // Assert
+            assertEquals(mockCustomList, result.getOrNull())
+        }
 
     @Test
-    fun `create custom list should return Ok when creation is successful`() = runTest {
+    fun `get custom list by id should return get custom list error when id does not matches custom list in settings`() =
+        runTest {
+            // Arrange
+            val customListId = CustomListId("1")
+            val mockCustomList =
+                CustomList(
+                    id = customListId,
+                    name = mockk(relaxed = true),
+                    locations = mockk(relaxed = true)
+                )
+            val mockSettings: Settings = mockk()
+            val otherCustomListId = CustomListId("2")
+            every { mockSettings.customLists } returns listOf(mockCustomList)
+            settingsFlow.value = mockSettings
+
+            // Act
+            val result = customListsRepository.getCustomListById(otherCustomListId)
+
+            // Assert
+            assertEquals(GetCustomListError(otherCustomListId), result.leftOrNull())
+        }
+
+    @Test
+    fun `create custom list should return id when creation is successful`() = runTest {
         // Arrange
-        val customListId = "1"
-        val expectedResult = CreateCustomListResult.Ok(customListId)
-        val customListName = "CUSTOM"
-        every {
-            mockMessageHandler.trySendRequest(Request.CreateCustomList(customListName))
-        } returns true
-        every { mockMessageHandler.events<Event.CreateCustomListResultEvent>() } returns
-            flowOf(Event.CreateCustomListResultEvent(expectedResult))
+        val customListId = CustomListId("1")
+        val expectedResult = customListId.right()
+        val customListName = CustomListName.fromString("CUSTOM")
+        coEvery { mockManagementService.createCustomList(customListName) } returns expectedResult
 
         // Act
-        val result =
-            customListsRepository.createCustomList(CustomListName.fromString(customListName))
+        val result = customListsRepository.createCustomList(customListName)
 
         // Assert
         assertEquals(expectedResult, result)
@@ -106,79 +104,68 @@ class CustomListsRepositoryTest {
     fun `create custom list should return lists exists when lists exists error event is received`() =
         runTest {
             // Arrange
-            val expectedResult = CreateCustomListResult.Error(CustomListsError.CustomListExists)
-            val customListName = "CUSTOM"
-            every {
-                mockMessageHandler.trySendRequest(Request.CreateCustomList(customListName))
-            } returns true
-            every { mockMessageHandler.events<Event.CreateCustomListResultEvent>() } returns
-                flowOf(Event.CreateCustomListResultEvent(expectedResult))
+            val expectedResult = CreateCustomListError.CustomListAlreadyExists.left()
+            val customListName = CustomListName.fromString("CUSTOM")
+            coEvery { mockManagementService.createCustomList(customListName) } returns
+                expectedResult
 
             // Act
-            val result =
-                customListsRepository.createCustomList(CustomListName.fromString(customListName))
+            val result = customListsRepository.createCustomList(customListName)
 
             // Assert
             assertEquals(expectedResult, result)
         }
 
     @Test
-    fun `update custom list name should return ok when list updated event is received`() = runTest {
-        // Arrange
-        val customListId = "1"
-        val expectedResult = UpdateCustomListResult.Ok
-        val customListName = "CUSTOM"
-        val mockSettings: Settings = mockk()
-        val mockCustomList: CustomList = mockk()
-        val updatedCustomList: CustomList = mockk()
-        settingsFlow.value = mockSettings
-        every { mockCustomList.id } returns customListId
-        every { mockCustomList.copy(customListId, customListName, any()) } returns updatedCustomList
-        every {
-            mockMessageHandler.trySendRequest(Request.UpdateCustomList(updatedCustomList))
-        } returns true
-        every { mockMessageHandler.events<Event.UpdateCustomListResultEvent>() } returns
-            flowOf(Event.UpdateCustomListResultEvent(expectedResult))
-        every { mockSettings.customLists.customLists } returns arrayListOf(mockCustomList)
+    fun `update custom list name should return success when call managementService is successful`() =
+        runTest {
+            // Arrange
+            val customListId = CustomListId("1")
+            val expectedResult = Unit.right()
+            val customListName = CustomListName.fromString("CUSTOM")
+            val mockSettings: Settings = mockk()
+            val mockCustomList =
+                CustomList(
+                    id = customListId,
+                    name = mockk(relaxed = true),
+                    locations = mockk(relaxed = true)
+                )
+            every { mockSettings.customLists } returns listOf(mockCustomList)
+            settingsFlow.value = mockSettings
+            coEvery { mockManagementService.updateCustomList(any<CustomList>()) } returns
+                expectedResult
 
-        // Act
-        val result =
-            customListsRepository.updateCustomListName(
-                customListId,
-                CustomListName.fromString(customListName)
-            )
+            // Act
+            val result = customListsRepository.updateCustomListName(customListId, customListName)
 
-        // Assert
-        assertEquals(expectedResult, result)
-    }
+            // Assert
+            assertEquals(expectedResult, result)
+        }
 
     @Test
     fun `update custom list name should return list exists error when list exists error is received`() =
         runTest {
             // Arrange
-            val customListId = "1"
-            val expectedResult = UpdateCustomListResult.Error(CustomListsError.CustomListExists)
-            val customListName = "CUSTOM"
+            val customListId = CustomListId("1")
+            val customListName = CustomListName.fromString("CUSTOM")
+            val expectedResult =
+                UpdateCustomListError.NameAlreadyExists(customListName.value).left()
             val mockSettings: Settings = mockk()
-            val mockCustomList: CustomList = mockk()
-            val updatedCustomList: CustomList = mockk()
+            val mockCustomList =
+                CustomList(
+                    id = customListId,
+                    name = CustomListName.fromString("OLD CUSTOM"),
+                    locations = emptyList()
+                )
+            val updatedCustomList =
+                CustomList(id = customListId, name = customListName, locations = emptyList())
+            every { mockSettings.customLists } returns listOf(mockCustomList)
             settingsFlow.value = mockSettings
-            every { mockCustomList.id } returns customListId
-            every { mockCustomList.copy(customListId, customListName, any()) } returns
-                updatedCustomList
-            every {
-                mockMessageHandler.trySendRequest(Request.UpdateCustomList(updatedCustomList))
-            } returns true
-            every { mockMessageHandler.events<Event.UpdateCustomListResultEvent>() } returns
-                flowOf(Event.UpdateCustomListResultEvent(expectedResult))
-            every { mockSettings.customLists.customLists } returns arrayListOf(mockCustomList)
+            coEvery { mockManagementService.updateCustomList(updatedCustomList) } returns
+                expectedResult
 
             // Act
-            val result =
-                customListsRepository.updateCustomListName(
-                    customListId,
-                    CustomListName.fromString(customListName)
-                )
+            val result = customListsRepository.updateCustomListName(customListId, customListName)
 
             // Assert
             assertEquals(expectedResult, result)
@@ -187,85 +174,65 @@ class CustomListsRepositoryTest {
     @Test
     fun `when delete custom lists is called a delete custom event should be sent`() = runTest {
         // Arrange
-        val customListId = "1"
-        every { mockMessageHandler.trySendRequest(Request.DeleteCustomList(customListId)) } returns
-            true
+        val customListId = CustomListId("1")
+        coEvery { mockManagementService.deleteCustomList(customListId) } returns Unit.right()
 
         // Act
         customListsRepository.deleteCustomList(customListId)
 
         // Assert
-        verify { mockMessageHandler.trySendRequest(Request.DeleteCustomList(customListId)) }
+        coVerify { mockManagementService.deleteCustomList(customListId) }
     }
 
     @Test
-    fun `update custom list locations should return ok when list exists and ok updated list event is received`() =
+    fun `update custom list locations should return successful when list exists and update is successful`() =
         runTest {
             // Arrange
-            val expectedResult = UpdateCustomListResult.Ok
-            val customListId = "1"
-            val customListName = "CUSTOM"
-            val locationCode = "AB"
+            val expectedResult = Unit.right()
+            val customListId = CustomListId("1")
+            val customListName = CustomListName.fromString("CUSTOM")
+            val location = GeoLocationId.Country("se")
             val mockSettings: Settings = mockk()
-            val mockRelayList: RelayList = mockk()
-            val mockCustomList: CustomList = mockk()
-            val updatedCustomList: CustomList = mockk()
-            val mockLocationConstraint: GeographicLocationConstraint = mockk()
+            val mockCustomList =
+                CustomList(id = customListId, name = customListName, locations = emptyList())
+            val updatedCustomList =
+                CustomList(id = customListId, name = customListName, locations = listOf(location))
+            every { mockSettings.customLists } returns listOf(mockCustomList)
             settingsFlow.value = mockSettings
-            relayListFlow.value = mockRelayList
-            every { mockCustomList.id } returns customListId
-            every { mockCustomList.name } returns customListName
-            every {
-                mockCustomList.copy(
-                    customListId,
-                    customListName,
-                    arrayListOf(mockLocationConstraint)
-                )
-            } returns updatedCustomList
-            every {
-                mockMessageHandler.trySendRequest(Request.UpdateCustomList(updatedCustomList))
-            } returns true
-            every { mockMessageHandler.events<Event.UpdateCustomListResultEvent>() } returns
-                flowOf(Event.UpdateCustomListResultEvent(expectedResult))
-            every { mockSettings.customLists.customLists } returns arrayListOf(mockCustomList)
-            every { mockRelayList.getGeographicLocationConstraintByCode(locationCode) } returns
-                mockLocationConstraint
+            coEvery { mockManagementService.updateCustomList(updatedCustomList) } returns
+                Unit.right()
 
             // Act
             val result =
-                customListsRepository.updateCustomListLocationsFromCodes(
-                    customListId,
-                    listOf(locationCode)
-                )
+                customListsRepository.updateCustomListLocations(customListId, listOf(location))
 
             // Assert
             assertEquals(expectedResult, result)
         }
 
     @Test
-    fun `update custom list locations should return other error when list does not exist`() =
+    fun `update custom list locations should return get custom list error when list does not exist`() =
         runTest {
             // Arrange
-            val expectedResult = UpdateCustomListResult.Error(CustomListsError.OtherError)
-            val mockCustomList: CustomList = mockk()
             val mockSettings: Settings = mockk()
-            val customListId = "1"
-            val otherCustomListId = "2"
-            val locationCode = "AB"
-            val mockRelayList: RelayList = mockk()
-            val mockLocationConstraint: GeographicLocationConstraint = mockk()
+            val customListId = CustomListId("1")
+            val otherCustomListId = CustomListId("2")
+            val expectedResult = GetCustomListError(otherCustomListId).left()
+            val mockCustomList =
+                CustomList(
+                    id = customListId,
+                    name = CustomListName.fromString("name"),
+                    locations = emptyList()
+                )
+            val locationId = GeoLocationId.Country("se")
+            every { mockSettings.customLists } returns listOf(mockCustomList)
             settingsFlow.value = mockSettings
-            relayListFlow.value = mockRelayList
-            every { mockSettings.customLists.customLists } returns arrayListOf(mockCustomList)
-            every { mockCustomList.id } returns customListId
-            every { mockRelayList.getGeographicLocationConstraintByCode(locationCode) } returns
-                mockLocationConstraint
 
             // Act
             val result =
-                customListsRepository.updateCustomListLocationsFromCodes(
+                customListsRepository.updateCustomListLocations(
                     otherCustomListId,
-                    listOf(locationCode)
+                    listOf(locationId)
                 )
 
             // Assert

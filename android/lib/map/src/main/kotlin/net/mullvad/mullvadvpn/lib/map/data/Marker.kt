@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.lib.map.data
 
 import androidx.compose.runtime.Immutable
-import net.mullvad.mullvadvpn.model.LatLong
+import net.mullvad.mullvadvpn.lib.model.LatLong
 
 @Immutable
 data class Marker(

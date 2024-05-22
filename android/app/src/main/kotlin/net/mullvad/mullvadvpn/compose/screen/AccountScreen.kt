@@ -19,7 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,12 +49,12 @@ import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
 import net.mullvad.mullvadvpn.compose.destinations.PaymentDestination
 import net.mullvad.mullvadvpn.compose.destinations.RedeemVoucherDestination
 import net.mullvad.mullvadvpn.compose.destinations.VerificationPendingDialogDestination
+import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromBottomTransition
 import net.mullvad.mullvadvpn.compose.util.LaunchedEffectCollect
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
-import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
@@ -165,15 +165,15 @@ fun AccountScreen(
     // This will enable SECURE_FLAG while this screen is visible to preview screenshot
     SecureScreenWhileInView()
 
-    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val copyTextString = stringResource(id = R.string.copied_mullvad_account_number)
     val copyToClipboard = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
+    val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     LaunchedEffectCollect(uiSideEffect) { sideEffect ->
         when (sideEffect) {
             AccountViewModel.UiSideEffect.NavigateToLogin -> navigateToLogin()
             is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
-                context.openAccountPageInBrowser(sideEffect.token)
+                openAccountPage(sideEffect.token)
             is AccountViewModel.UiSideEffect.CopyAccountNumber ->
                 launch { copyToClipboard(sideEffect.accountNumber, copyTextString) }
         }

@@ -23,13 +23,13 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 @Preview
 @Composable
 private fun PreviewCheckboxCell() {
-    AppTheme { CheckboxCell(providerName = "Provider 1", checked = false, onCheckedChange = {}) }
+    AppTheme { CheckboxCell(title = "1337", checked = false, onCheckedChange = {}) }
 }
 
 @Composable
 internal fun CheckboxCell(
     modifier: Modifier = Modifier,
-    providerName: String,
+    title: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     background: Color = MaterialTheme.colorScheme.secondaryContainer,
@@ -52,7 +52,7 @@ internal fun CheckboxCell(
         Spacer(modifier = Modifier.size(Dimens.mediumPadding))
 
         Text(
-            text = providerName,
+            text = title,
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onBackground,
             modifier =

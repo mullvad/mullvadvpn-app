@@ -9,8 +9,9 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.RelayFilterState
-import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.relaylist.Provider
+import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.Provider
+import net.mullvad.mullvadvpn.lib.model.ProviderId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -124,7 +125,8 @@ class FilterScreenTest {
                         RelayFilterState(
                             allProviders = listOf(),
                             selectedOwnership = null,
-                            selectedProviders = listOf(Provider("31173", true))
+                            selectedProviders =
+                                listOf(Provider(ProviderId("31173"), Ownership.MullvadOwned))
                         ),
                     onSelectedProvider = { _, _ -> },
                     onApplyClick = mockClickListener
@@ -135,47 +137,46 @@ class FilterScreenTest {
         }
 
     companion object {
-
         private val DUMMY_RELAY_ALL_PROVIDERS =
             listOf(
-                Provider("31173", true),
-                Provider("100TB", false),
-                Provider("Blix", true),
-                Provider("Creanova", true),
-                Provider("DataPacket", false),
-                Provider("HostRoyale", false),
-                Provider("hostuniversal", false),
-                Provider("iRegister", false),
-                Provider("M247", false),
-                Provider("Makonix", false),
-                Provider("PrivateLayer", false),
-                Provider("ptisp", false),
-                Provider("Qnax", false),
-                Provider("Quadranet", false),
-                Provider("techfutures", false),
-                Provider("Tzulo", false),
-                Provider("xtom", false)
+                Provider(ProviderId("31173"), Ownership.MullvadOwned),
+                Provider(ProviderId("100TB"), Ownership.Rented),
+                Provider(ProviderId("Blix"), Ownership.MullvadOwned),
+                Provider(ProviderId("Creanova"), Ownership.MullvadOwned),
+                Provider(ProviderId("DataPacket"), Ownership.Rented),
+                Provider(ProviderId("HostRoyale"), Ownership.Rented),
+                Provider(ProviderId("hostuniversal"), Ownership.Rented),
+                Provider(ProviderId("iRegister"), Ownership.Rented),
+                Provider(ProviderId("M247"), Ownership.Rented),
+                Provider(ProviderId("Makonix"), Ownership.Rented),
+                Provider(ProviderId("PrivateLayer"), Ownership.Rented),
+                Provider(ProviderId("ptisp"), Ownership.Rented),
+                Provider(ProviderId("Qnax"), Ownership.Rented),
+                Provider(ProviderId("Quadranet"), Ownership.Rented),
+                Provider(ProviderId("techfutures"), Ownership.Rented),
+                Provider(ProviderId("Tzulo"), Ownership.Rented),
+                Provider(ProviderId("xtom"), Ownership.Rented)
             )
 
         private val DUMMY_SELECTED_PROVIDERS =
             listOf(
-                Provider("31173", true),
-                Provider("100TB", false),
-                Provider("Blix", true),
-                Provider("Creanova", true),
-                Provider("DataPacket", false),
-                Provider("HostRoyale", false),
-                Provider("hostuniversal", false),
-                Provider("iRegister", false),
-                Provider("M247", false),
-                Provider("Makonix", false),
-                Provider("PrivateLayer", false),
-                Provider("ptisp", false),
-                Provider("Qnax", false),
-                Provider("Quadranet", false),
-                Provider("techfutures", false),
-                Provider("Tzulo", false),
-                Provider("xtom", false)
+                Provider(ProviderId("31173"), Ownership.MullvadOwned),
+                Provider(ProviderId("100TB"), Ownership.Rented),
+                Provider(ProviderId("Blix"), Ownership.MullvadOwned),
+                Provider(ProviderId("Creanova"), Ownership.MullvadOwned),
+                Provider(ProviderId("DataPacket"), Ownership.Rented),
+                Provider(ProviderId("HostRoyale"), Ownership.Rented),
+                Provider(ProviderId("hostuniversal"), Ownership.Rented),
+                Provider(ProviderId("iRegister"), Ownership.Rented),
+                Provider(ProviderId("M247"), Ownership.Rented),
+                Provider(ProviderId("Makonix"), Ownership.Rented),
+                Provider(ProviderId("PrivateLayer"), Ownership.Rented),
+                Provider(ProviderId("ptisp"), Ownership.Rented),
+                Provider(ProviderId("Qnax"), Ownership.Rented),
+                Provider(ProviderId("Quadranet"), Ownership.Rented),
+                Provider(ProviderId("techfutures"), Ownership.Rented),
+                Provider(ProviderId("Tzulo"), Ownership.Rented),
+                Provider(ProviderId("xtom"), Ownership.Rented)
             )
     }
 }

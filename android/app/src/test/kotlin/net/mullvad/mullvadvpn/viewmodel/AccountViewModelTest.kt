@@ -8,7 +8,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
-import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,20 +15,17 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
+import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.Device
+import net.mullvad.mullvadvpn.lib.model.DeviceId
+import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
-import net.mullvad.mullvadvpn.model.AccountAndDevice
-import net.mullvad.mullvadvpn.model.AccountExpiry
-import net.mullvad.mullvadvpn.model.Device
-import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.repository.AccountRepository
-import net.mullvad.mullvadvpn.repository.DeviceRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
+import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -39,44 +35,38 @@ import org.junit.jupiter.api.extension.ExtendWith
 class AccountViewModelTest {
 
     private val mockAccountRepository: AccountRepository = mockk(relaxUnitFun = true)
-    private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
-    private val mockDeviceRepository: DeviceRepository = mockk()
-    private val mockAuthTokenCache: AuthTokenCache = mockk()
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
 
-    private val deviceState: MutableStateFlow<DeviceState> = MutableStateFlow(DeviceState.Initial)
+    private val accountState: MutableStateFlow<DeviceState?> = MutableStateFlow(null)
     private val paymentAvailability = MutableStateFlow<PaymentAvailability?>(null)
     private val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
-    private val accountExpiryState = MutableStateFlow(AccountExpiry.Missing)
+    private val accountExpiryState = MutableStateFlow(null)
 
-    private val dummyAccountAndDevice: AccountAndDevice =
-        AccountAndDevice(
+    private val dummyDevice =
+        Device(
+            id = DeviceId.fromString(java.util.UUID.randomUUID().toString()),
+            name = "fake_name",
+            creationDate = DateTime.now()
+        )
+    private val dummyAccountToken: AccountToken =
+        AccountToken(
             DUMMY_DEVICE_NAME,
-            Device(
-                id = "fake_id",
-                name = "fake_name",
-                pubkey = byteArrayOf(),
-                created = "mock_date"
-            )
         )
 
     private lateinit var viewModel: AccountViewModel
 
     @BeforeEach
     fun setup() {
-        mockkStatic(CACHE_EXTENSION_CLASS)
         mockkStatic(PURCHASE_RESULT_EXTENSIONS_CLASS)
-        every { mockServiceConnectionManager.authTokenCache() } returns mockAuthTokenCache
-        every { mockDeviceRepository.deviceState } returns deviceState
-        every { mockAccountRepository.accountExpiryState } returns accountExpiryState
+        every { mockAccountRepository.accountData } returns accountExpiryState
+        every { mockAccountRepository.accountState } returns accountState
         coEvery { mockPaymentUseCase.purchaseResult } returns purchaseResult
         coEvery { mockPaymentUseCase.paymentAvailability } returns paymentAvailability
+        coEvery { mockAccountRepository.getAccountData() } returns null
 
         viewModel =
             AccountViewModel(
                 accountRepository = mockAccountRepository,
-                serviceConnectionManager = mockServiceConnectionManager,
-                deviceRepository = mockDeviceRepository,
                 paymentUseCase = mockPaymentUseCase,
                 isPlayBuild = false
             )
@@ -92,7 +82,8 @@ class AccountViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             awaitItem() // Default state
-            deviceState.value = DeviceState.LoggedIn(accountAndDevice = dummyAccountAndDevice)
+            accountState.value =
+                DeviceState.LoggedIn(accountToken = dummyAccountToken, device = dummyDevice)
             val result = awaitItem()
             assertEquals(DUMMY_DEVICE_NAME, result.accountNumber)
         }
@@ -104,7 +95,7 @@ class AccountViewModelTest {
         viewModel.onLogoutClick()
 
         // Assert
-        verify { mockAccountRepository.logout() }
+        coVerify { mockAccountRepository.logout() }
     }
 
     @Test
@@ -184,7 +175,7 @@ class AccountViewModelTest {
         viewModel.onClosePurchaseResultDialog(success = true)
 
         // Assert
-        verify { mockAccountRepository.fetchAccountExpiry() }
+        coVerify { mockAccountRepository.getAccountData() }
     }
 
     @Test
@@ -221,7 +212,6 @@ class AccountViewModelTest {
     }
 
     companion object {
-        private const val CACHE_EXTENSION_CLASS = "net.mullvad.mullvadvpn.util.CacheExtensionsKt"
         private const val PURCHASE_RESULT_EXTENSIONS_CLASS =
             "net.mullvad.mullvadvpn.util.PurchaseResultExtensionsKt"
         private const val DUMMY_DEVICE_NAME = "fake_name"

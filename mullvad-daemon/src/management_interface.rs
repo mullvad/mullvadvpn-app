@@ -8,7 +8,6 @@ use mullvad_management_interface::{
     types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, Status,
 };
-#[cfg(not(target_os = "android"))]
 use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     account::AccountToken,
@@ -21,8 +20,6 @@ use mullvad_types::{
     version,
     wireguard::{RotationInterval, RotationIntervalError},
 };
-#[cfg(any(target_os = "windows", target_os = "macos"))]
-use std::path::PathBuf;
 use std::{
     str::FromStr,
     sync::{Arc, Mutex},
@@ -344,7 +341,6 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    #[cfg(not(target_os = "android"))]
     async fn set_dns_options(&self, request: Request<types::DnsOptions>) -> ServiceResult<()> {
         let options = DnsOptions::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
         log::debug!("set_dns_options({:?})", options);
@@ -352,11 +348,6 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetDnsOptions(tx, options))?;
         self.wait_for_result(rx).await??;
-        Ok(Response::new(()))
-    }
-
-    #[cfg(target_os = "android")]
-    async fn set_dns_options(&self, _: Request<types::DnsOptions>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
@@ -831,10 +822,11 @@ impl ManagementService for ManagementServiceImpl {
         }
     }
 
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     async fn add_split_tunnel_app(&self, request: Request<String>) -> ServiceResult<()> {
+        use mullvad_types::settings::SplitApp;
         log::debug!("add_split_tunnel_app");
-        let path = PathBuf::from(request.into_inner());
+        let path = SplitApp::from(request.into_inner());
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::AddSplitTunnelApp(tx, path))?;
         self.wait_for_result(rx)
@@ -842,15 +834,17 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
             .map(Response::new)
     }
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+
+    #[cfg(target_os = "linux")]
     async fn add_split_tunnel_app(&self, _: Request<String>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(windows, target_os = "android", target_os="macos"))]
     async fn remove_split_tunnel_app(&self, request: Request<String>) -> ServiceResult<()> {
+        use mullvad_types::settings::SplitApp;
         log::debug!("remove_split_tunnel_app");
-        let path = PathBuf::from(request.into_inner());
+        let path = SplitApp::from(request.into_inner());
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::RemoveSplitTunnelApp(tx, path))?;
         self.wait_for_result(rx)
@@ -858,12 +852,12 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
             .map(Response::new)
     }
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    #[cfg(target_os = "linux")]
     async fn remove_split_tunnel_app(&self, _: Request<String>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     async fn clear_split_tunnel_apps(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("clear_split_tunnel_apps");
         let (tx, rx) = oneshot::channel();
@@ -873,12 +867,12 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
             .map(Response::new)
     }
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    #[cfg(target_os = "linux")]
     async fn clear_split_tunnel_apps(&self, _: Request<()>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
-    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     async fn set_split_tunnel_state(&self, request: Request<bool>) -> ServiceResult<()> {
         log::debug!("set_split_tunnel_state");
         let enabled = request.into_inner();
@@ -889,7 +883,7 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
             .map(Response::new)
     }
-    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    #[cfg(target_os = "linux")]
     async fn set_split_tunnel_state(&self, _: Request<bool>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
@@ -956,6 +950,60 @@ impl ManagementService for ManagementServiceImpl {
         let blob = self.wait_for_result(rx).await??;
         Ok(Response::new(blob))
     }
+
+    #[cfg(target_os = "android")]
+    async fn init_play_purchase(
+        &self,
+        _request: Request<()>,
+    ) -> ServiceResult<types::PlayPurchasePaymentToken> {
+        log::debug!("init_play_purchase");
+
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::InitPlayPurchase(tx))?;
+
+        let payment_token = self
+            .wait_for_result(rx)
+            .await?
+            .map(types::PlayPurchasePaymentToken::from)
+            .map_err(map_daemon_error)?;
+
+        Ok(Response::new(payment_token))
+    }
+
+    /// On non-Android platforms, the return value will be useless.
+    #[cfg(not(target_os = "android"))]
+    async fn init_play_purchase(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::PlayPurchasePaymentToken> {
+        log::error!("Called `init_play_purchase` on non-Android platform");
+        Ok(Response::new(types::PlayPurchasePaymentToken {
+            token: String::default(),
+        }))
+    }
+
+    #[cfg(target_os = "android")]
+    async fn verify_play_purchase(
+        &self,
+        request: Request<types::PlayPurchase>,
+    ) -> ServiceResult<()> {
+        log::debug!("verify_play_purchase");
+
+        let (tx, rx) = oneshot::channel();
+        let play_purchase = mullvad_types::account::PlayPurchase::try_from(request.into_inner())?;
+
+        self.send_command_to_daemon(DaemonCommand::VerifyPlayPurchase(tx, play_purchase))?;
+
+        self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
+
+        Ok(Response::new(()))
+    }
+
+    #[cfg(not(target_os = "android"))]
+    async fn verify_play_purchase(&self, _: Request<types::PlayPurchase>) -> ServiceResult<()> {
+        log::error!("Called `verify_play_purchase` on non-Android platform");
+        Ok(Response::new(()))
+    }
 }
 
 impl ManagementServiceImpl {
@@ -978,6 +1026,7 @@ impl ManagementInterfaceServer {
         tunnel_tx: DaemonCommandSender,
     ) -> Result<(String, ManagementInterfaceEventBroadcaster), Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
+        log::warn!("ManagementInterfaceService start");
 
         let socket_path = mullvad_paths::get_rpc_socket_path()
             .to_string_lossy()
