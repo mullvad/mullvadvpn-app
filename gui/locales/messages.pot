@@ -2430,6 +2430,9 @@ msgstr ""
 msgid "Unsecured"
 msgstr ""
 
+msgid "Unsecured (No VPN permission)"
+msgstr ""
+
 msgid "Update DNS server"
 msgstr ""
 
