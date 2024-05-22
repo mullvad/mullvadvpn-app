@@ -6,12 +6,11 @@ import io.mockk.Runs
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.just
-import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -25,10 +24,11 @@ class ChangelogViewModelTest {
 
     private lateinit var viewModel: ChangelogViewModel
 
+    private val buildVersion = BuildVersion("1.0", 10)
+
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        mockkStatic(EVENT_NOTIFIER_EXTENSION_CLASS)
         every { mockedChangelogRepository.setVersionCodeOfMostRecentChangelogShowed(any()) } just
             Runs
     }
@@ -42,8 +42,8 @@ class ChangelogViewModelTest {
     fun `given up to date version code uiSideEffect should not emit`() = runTest {
         // Arrange
         every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns
-            buildVersionCode
-        viewModel = ChangelogViewModel(mockedChangelogRepository, buildVersionCode, false)
+            buildVersion.code
+        viewModel = ChangelogViewModel(mockedChangelogRepository, buildVersion, false)
 
         // If we have the most up to date version code, we should not show the changelog dialog
         viewModel.uiSideEffect.test { expectNoEvents() }
@@ -58,13 +58,10 @@ class ChangelogViewModelTest {
             version
         every { mockedChangelogRepository.getLastVersionChanges() } returns changes
 
-        viewModel = ChangelogViewModel(mockedChangelogRepository, buildVersionCode, false)
+        viewModel = ChangelogViewModel(mockedChangelogRepository, buildVersion, false)
         // Given a new version with a change log we should return it
         viewModel.uiSideEffect.test {
-            assertEquals(
-                awaitItem(),
-                Changelog(version = BuildConfig.VERSION_NAME, changes = changes)
-            )
+            assertEquals(awaitItem(), Changelog(version = buildVersion.name, changes = changes))
         }
     }
 
@@ -74,14 +71,8 @@ class ChangelogViewModelTest {
         every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns -1
         every { mockedChangelogRepository.getLastVersionChanges() } returns emptyList()
 
-        viewModel = ChangelogViewModel(mockedChangelogRepository, buildVersionCode, false)
+        viewModel = ChangelogViewModel(mockedChangelogRepository, buildVersion, false)
         // Given a new version with a change log we should not return it
         viewModel.uiSideEffect.test { expectNoEvents() }
-    }
-
-    companion object {
-        private const val EVENT_NOTIFIER_EXTENSION_CLASS =
-            "net.mullvad.talpid.util.EventNotifierExtensionsKt"
-        private const val buildVersionCode = 10
     }
 }

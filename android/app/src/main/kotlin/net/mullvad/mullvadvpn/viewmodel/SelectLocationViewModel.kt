@@ -5,52 +5,59 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.LocationsChanged
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.state.toNullableOwnership
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
-import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.relaylist.Provider
-import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.Provider
+import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.relaylist.filterOnOwnershipAndProvider
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
-import net.mullvad.mullvadvpn.relaylist.toLocationConstraint
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
-import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
-import net.mullvad.mullvadvpn.usecase.RelayListUseCase
+import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
+import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.util.combine
 
 class SelectLocationViewModel(
-    private val serviceConnectionManager: ServiceConnectionManager,
-    private val relayListUseCase: RelayListUseCase,
-    private val relayListFilterUseCase: RelayListFilterUseCase,
-    private val customListActionUseCase: CustomListActionUseCase
+    private val relayListFilterRepository: RelayListFilterRepository,
+    availableProvidersUseCase: AvailableProvidersUseCase,
+    customListsRelayItemUseCase: CustomListsRelayItemUseCase,
+    private val customListActionUseCase: CustomListActionUseCase,
+    filteredRelayListUseCase: FilteredRelayListUseCase,
+    private val relayListRepository: RelayListRepository
 ) : ViewModel() {
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
 
     @Suppress("DestructuringDeclarationWithTooManyEntries")
     val uiState =
         combine(
-                relayListUseCase.relayListWithSelection(),
+                filteredRelayListUseCase.filteredRelayList(),
+                customListsRelayItemUseCase.relayItemCustomLists(),
+                relayListRepository.selectedLocation,
                 _searchTerm,
-                relayListFilterUseCase.selectedOwnership(),
-                relayListFilterUseCase.availableProviders(),
-                relayListFilterUseCase.selectedProviders(),
+                relayListFilterRepository.selectedOwnership,
+                availableProvidersUseCase.availableProviders(),
+                relayListFilterRepository.selectedProviders,
             ) {
-                (customLists, _, relayCountries, selectedItem),
+                relayCountries,
+                customLists,
+                selectedItem,
                 searchTerm,
                 selectedOwnership,
                 allProviders,
                 selectedConstraintProviders ->
+                val selectRelayItemId = selectedItem.getOrNull()
                 val selectedOwnershipItem = selectedOwnership.toNullableOwnership()
                 val selectedProvidersCount =
                     when (selectedConstraintProviders) {
@@ -58,21 +65,21 @@ class SelectLocationViewModel(
                         is Constraint.Only ->
                             filterSelectedProvidersByOwnership(
                                     selectedConstraintProviders.toSelectedProviders(allProviders),
-                                    selectedOwnershipItem
+                                    selectedOwnershipItem,
                                 )
                                 .size
                     }
 
                 val filteredRelayCountries =
-                    relayCountries.filterOnSearchTerm(searchTerm, selectedItem)
+                    relayCountries.filterOnSearchTerm(searchTerm, selectRelayItemId)
 
                 val filteredCustomLists =
-                    customLists.filterOnSearchTerm(searchTerm).map { customList ->
-                        customList.filterOnOwnershipAndProvider(
-                            selectedOwnership,
-                            selectedConstraintProviders
+                    customLists
+                        .filterOnSearchTerm(searchTerm)
+                        .filterOnOwnershipAndProvider(
+                            ownership = selectedOwnership,
+                            providers = selectedConstraintProviders,
                         )
-                    }
 
                 SelectLocationUiState.Content(
                     searchTerm = searchTerm,
@@ -81,7 +88,7 @@ class SelectLocationViewModel(
                     filteredCustomLists = filteredCustomLists,
                     customLists = customLists,
                     countries = filteredRelayCountries,
-                    selectedItem = selectedItem,
+                    selectedItem = selectRelayItemId,
                 )
             }
             .stateIn(
@@ -93,15 +100,16 @@ class SelectLocationViewModel(
     private val _uiSideEffect = Channel<SelectLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    init {
-        viewModelScope.launch { relayListUseCase.fetchRelayList() }
-    }
-
     fun selectRelay(relayItem: RelayItem) {
-        val locationConstraint = relayItem.toLocationConstraint()
-        relayListUseCase.updateSelectedRelayLocation(locationConstraint)
-        serviceConnectionManager.connectionProxy()?.connect()
-        _uiSideEffect.trySend(SelectLocationSideEffect.CloseScreen)
+        viewModelScope.launch {
+            val locationConstraint = relayItem.id
+            relayListRepository
+                .updateSelectedRelayLocation(locationConstraint)
+                .fold(
+                    { _uiSideEffect.trySend(SelectLocationSideEffect.GenericError) },
+                    { _uiSideEffect.trySend(SelectLocationSideEffect.CloseScreen) },
+                )
+        }
     }
 
     fun onSearchTermInput(searchTerm: String) {
@@ -112,41 +120,27 @@ class SelectLocationViewModel(
         selectedProviders: List<Provider>,
         selectedOwnership: Ownership?
     ): List<Provider> =
-        when (selectedOwnership) {
-            Ownership.MullvadOwned -> selectedProviders.filter { it.mullvadOwned }
-            Ownership.Rented -> selectedProviders.filterNot { it.mullvadOwned }
-            else -> selectedProviders
-        }
+        if (selectedOwnership == null) selectedProviders
+        else selectedProviders.filter { it.ownership == selectedOwnership }
 
     fun removeOwnerFilter() {
-        viewModelScope.launch {
-            relayListFilterUseCase.updateOwnershipAndProviderFilter(
-                Constraint.Any(),
-                relayListFilterUseCase.selectedProviders().first(),
-            )
-        }
+        viewModelScope.launch { relayListFilterRepository.updateSelectedOwnership(Constraint.Any) }
     }
 
     fun removeProviderFilter() {
-        viewModelScope.launch {
-            relayListFilterUseCase.updateOwnershipAndProviderFilter(
-                relayListFilterUseCase.selectedOwnership().first(),
-                Constraint.Any(),
-            )
-        }
+        viewModelScope.launch { relayListFilterRepository.updateSelectedProviders(Constraint.Any) }
     }
 
-    fun addLocationToList(item: RelayItem, customList: RelayItem.CustomList) {
+    fun addLocationToList(item: RelayItem.Location, customList: RelayItem.CustomList) {
         viewModelScope.launch {
             val newLocations =
-                (customList.locations + item).filter { it !in item.descendants() }.map { it.code }
-            val result =
-                customListActionUseCase.performAction(
-                    CustomListAction.UpdateLocations(customList.id, newLocations)
+                (customList.locations + item).filter { it !in item.descendants() }.map { it.id }
+            customListActionUseCase
+                .performAction(CustomListAction.UpdateLocations(customList.id, newLocations))
+                .fold(
+                    { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
+                    { _uiSideEffect.send(SelectLocationSideEffect.LocationAddedToCustomList(it)) },
                 )
-            _uiSideEffect.send(
-                SelectLocationSideEffect.LocationAddedToCustomList(result.getOrThrow())
-            )
         }
     }
 
@@ -154,17 +148,27 @@ class SelectLocationViewModel(
         viewModelScope.launch { customListActionUseCase.performAction(action) }
     }
 
-    fun removeLocationFromList(item: RelayItem, customList: RelayItem.CustomList) {
+    fun removeLocationFromList(item: RelayItem.Location, customList: RelayItem.CustomList) {
         viewModelScope.launch {
-            val newLocations = (customList.locations - item).map { it.code }
-            val result =
-                customListActionUseCase.performAction(
-                    CustomListAction.UpdateLocations(customList.id, newLocations)
+            val newLocations = (customList.locations - item).map { it.id }
+            customListActionUseCase
+                .performAction(CustomListAction.UpdateLocations(customList.id, newLocations))
+                .fold(
+                    { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
+                    {
+                        _uiSideEffect.send(
+                            SelectLocationSideEffect.LocationRemovedFromCustomList(it)
+                        )
+                    }
                 )
-            _uiSideEffect.send(
-                SelectLocationSideEffect.LocationRemovedFromCustomList(result.getOrThrow())
-            )
         }
+    }
+
+    private fun List<RelayItem.CustomList>.filterOnOwnershipAndProvider(
+        ownership: Constraint<Ownership>,
+        providers: Constraint<Providers>
+    ): List<RelayItem.CustomList> = map { item ->
+        item.filterOnOwnershipAndProvider(ownership, providers)
     }
 
     companion object {
@@ -175,9 +179,9 @@ class SelectLocationViewModel(
 sealed interface SelectLocationSideEffect {
     data object CloseScreen : SelectLocationSideEffect
 
-    data class LocationAddedToCustomList(val result: CustomListResult.LocationsChanged) :
-        SelectLocationSideEffect
+    data class LocationAddedToCustomList(val result: LocationsChanged) : SelectLocationSideEffect
 
-    class LocationRemovedFromCustomList(val result: CustomListResult.LocationsChanged) :
-        SelectLocationSideEffect
+    class LocationRemovedFromCustomList(val result: LocationsChanged) : SelectLocationSideEffect
+
+    data object GenericError : SelectLocationSideEffect
 }

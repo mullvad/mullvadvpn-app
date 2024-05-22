@@ -11,9 +11,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -24,16 +24,11 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
 import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
 import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
-import net.mullvad.mullvadvpn.constant.LOGIN_TIMEOUT_MILLIS
-import net.mullvad.mullvadvpn.model.AccountCreationResult
-import net.mullvad.mullvadvpn.model.AccountExpiry
-import net.mullvad.mullvadvpn.model.AccountToken
-import net.mullvad.mullvadvpn.model.LoginResult
-import net.mullvad.mullvadvpn.repository.AccountRepository
-import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.LoginAccountError
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
-import net.mullvad.mullvadvpn.util.awaitWithTimeoutOrNull
 import net.mullvad.mullvadvpn.util.getOrDefault
 
 private const val MINIMUM_LOADING_SPINNER_TIME_MILLIS = 500L
@@ -50,7 +45,6 @@ sealed interface LoginUiSideEffect {
 
 class LoginViewModel(
     private val accountRepository: AccountRepository,
-    private val deviceRepository: DeviceRepository,
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
     private val connectivityUseCase: ConnectivityUseCase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -61,27 +55,42 @@ class LoginViewModel(
     private val _uiSideEffect = Channel<LoginUiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
+    private val _mutableAccountHistory: MutableStateFlow<AccountToken?> = MutableStateFlow(null)
+
     private val _uiState =
         combine(
             _loginInput,
-            accountRepository.accountHistory,
+            _mutableAccountHistory,
             _loginState,
-        ) { loginInput, accountHistoryState, loginState ->
-            LoginUiState(
-                loginInput,
-                accountHistoryState.accountToken()?.let(::AccountToken),
-                loginState
-            )
+        ) { loginInput, historyAccountToken, loginState ->
+            LoginUiState(loginInput, historyAccountToken, loginState)
         }
-    val uiState: StateFlow<LoginUiState> =
-        _uiState.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), LoginUiState.INITIAL)
 
-    fun clearAccountHistory() = accountRepository.clearAccountHistory()
+    val uiState: StateFlow<LoginUiState> =
+        _uiState
+            .onStart {
+                viewModelScope.launch {
+                    _mutableAccountHistory.update { accountRepository.fetchAccountHistory() }
+                }
+            }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), LoginUiState.INITIAL)
+
+    fun clearAccountHistory() =
+        viewModelScope.launch {
+            accountRepository.clearAccountHistory()
+            _mutableAccountHistory.update { null }
+            _mutableAccountHistory.update { accountRepository.fetchAccountHistory() }
+        }
 
     fun createAccount() {
         _loginState.value = Loading.CreatingAccount
         viewModelScope.launch(dispatcher) {
-            accountRepository.createAccount().mapToUiState()?.let { _loginState.value = it }
+            accountRepository
+                .createAccount()
+                .fold(
+                    { _loginState.value = Idle(LoginError.UnableToCreateAccount) },
+                    { _uiSideEffect.send(LoginUiSideEffect.NavigateToWelcome) }
+                )
         }
     }
 
@@ -94,57 +103,45 @@ class LoginViewModel(
         viewModelScope.launch(dispatcher) {
             // Ensure we always take at least MINIMUM_LOADING_SPINNER_TIME_MILLIS to show the
             // loading indicator
-            val loginDeferred = async { accountRepository.login(accountToken) }
+            val result = async { accountRepository.login(AccountToken(accountToken)) }
+
             delay(MINIMUM_LOADING_SPINNER_TIME_MILLIS)
 
             val uiState =
-                // If timed out will go to the else branch
-                when (val result = loginDeferred.awaitWithTimeoutOrNull(LOGIN_TIMEOUT_MILLIS)) {
-                    LoginResult.Ok -> {
-                        newDeviceNotificationUseCase.newDeviceCreated()
-                        launch {
-                            val isOutOfTimeDeferred = async {
-                                accountRepository.accountExpiryState
-                                    .filterIsInstance<AccountExpiry.Available>()
-                                    .map { it.expiryDateTime.isBeforeNow }
-                                    .first()
-                            }
-                            delay(1000)
-                            val isOutOfTime = isOutOfTimeDeferred.getOrDefault(false)
-                            if (isOutOfTime) {
-                                _uiSideEffect.send(LoginUiSideEffect.NavigateToOutOfTime)
-                            } else {
-                                _uiSideEffect.send(LoginUiSideEffect.NavigateToConnect)
-                            }
+                result
+                    .await()
+                    .fold(
+                        { it.toUiState() },
+                        {
+                            onSuccessfulLogin()
+                            Success
                         }
-                        Success
-                    }
-                    LoginResult.InvalidAccount -> Idle(LoginError.InvalidCredentials)
-                    LoginResult.MaxDevicesReached -> {
-                        // TODO this refresh process should be handled by DeviceListScreen.
-                        val refreshResult =
-                            deviceRepository.refreshAndAwaitDeviceListWithTimeout(
-                                accountToken = accountToken,
-                                shouldClearCache = true,
-                                shouldOverrideCache = true,
-                                timeoutMillis = 5000L
-                            )
+                    )
 
-                        if (refreshResult.isAvailable()) {
-                            // Navigate to device list
-
-                            _uiSideEffect.send(
-                                LoginUiSideEffect.TooManyDevices(AccountToken(accountToken))
-                            )
-                            Idle()
-                        } else {
-                            // Failed to fetch devices list
-                            Idle(LoginError.Unknown(result.toString()))
-                        }
-                    }
-                    else -> Idle(LoginError.Unknown(result.toString()))
-                }
             _loginState.update { uiState }
+        }
+    }
+
+    private suspend fun onSuccessfulLogin() {
+        newDeviceNotificationUseCase.newDeviceCreated()
+
+        viewModelScope.launch(dispatcher) {
+            // Find if user is out of time
+            val isOutOfTimeDeferred = async {
+                accountRepository.accountData.mapNotNull { it?.expiryDate?.isBeforeNow }.first()
+            }
+
+            // Always show successful login for some time.
+            delay(SHOW_SUCCESSFUL_LOGIN_MILLIS)
+
+            // Get the result of isOutOfTime or assume not out of time
+            val isOutOfTime = isOutOfTimeDeferred.getOrDefault(false)
+
+            if (isOutOfTime) {
+                _uiSideEffect.send(LoginUiSideEffect.NavigateToOutOfTime)
+            } else {
+                _uiSideEffect.send(LoginUiSideEffect.NavigateToConnect)
+            }
         }
     }
 
@@ -154,16 +151,20 @@ class LoginViewModel(
         _loginState.update { if (it is Idle) Idle() else it }
     }
 
-    private suspend fun AccountCreationResult.mapToUiState(): LoginState? {
-        return if (this is AccountCreationResult.Success) {
-            _uiSideEffect.send(LoginUiSideEffect.NavigateToWelcome)
-            null
-        } else {
-            Idle(LoginError.UnableToCreateAccount)
+    private suspend fun LoginAccountError.toUiState(): LoginState =
+        when (this) {
+            LoginAccountError.InvalidAccount -> Idle(LoginError.InvalidCredentials)
+            is LoginAccountError.MaxDevicesReached ->
+                Idle().also { _uiSideEffect.send(LoginUiSideEffect.TooManyDevices(accountToken)) }
+            LoginAccountError.RpcError,
+            is LoginAccountError.Unknown -> Idle(LoginError.Unknown(this.toString()))
         }
-    }
 
     private fun isInternetAvailable(): Boolean {
         return connectivityUseCase.isInternetAvailable()
+    }
+
+    companion object {
+        private const val SHOW_SUCCESSFUL_LOGIN_MILLIS = 1000L
     }
 }

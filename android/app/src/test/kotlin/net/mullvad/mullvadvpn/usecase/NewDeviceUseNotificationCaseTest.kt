@@ -10,11 +10,13 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.model.AccountAndDevice
-import net.mullvad.mullvadvpn.model.Device
-import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.Device
+import net.mullvad.mullvadvpn.lib.model.DeviceId
+import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
+import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -25,9 +27,14 @@ class NewDeviceUseNotificationCaseTest {
 
     private val deviceName = "Frank Zebra"
     private val deviceState =
-        MutableStateFlow<DeviceState>(
+        MutableStateFlow<DeviceState?>(
             DeviceState.LoggedIn(
-                accountAndDevice = AccountAndDevice("", Device("", deviceName, byteArrayOf(), ""))
+                AccountToken("1234123412341234"),
+                Device(
+                    id = DeviceId.fromString(UUID),
+                    name = deviceName,
+                    creationDate = DateTime.now()
+                )
             )
         )
     private lateinit var newDeviceNotificationUseCase: NewDeviceNotificationUseCase
@@ -78,5 +85,9 @@ class NewDeviceUseNotificationCaseTest {
             // Assert
             assertEquals(awaitItem(), emptyList())
         }
+    }
+
+    companion object {
+        private const val UUID = "12345678-1234-5678-1234-567812345678"
     }
 }

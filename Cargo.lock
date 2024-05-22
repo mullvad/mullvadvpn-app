@@ -2366,7 +2366,6 @@ dependencies = [
  "clap",
  "intersection-derive",
  "ipnetwork",
- "jnix",
  "log",
  "once_cell",
  "regex",

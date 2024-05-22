@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.state
 
-import net.mullvad.mullvadvpn.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AccountToken
 
 const val MIN_ACCOUNT_LOGIN_LENGTH = 8
 

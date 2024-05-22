@@ -2,17 +2,17 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
+import arrow.core.right
 import io.mockk.coEvery
-import io.mockk.every
+import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.unmockkAll
-import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.model.RelayOverride
+import net.mullvad.mullvadvpn.lib.model.RelayOverride
 import net.mullvad.mullvadvpn.repository.RelayOverridesRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -44,7 +44,7 @@ class ResetServerIpOverridesConfirmationViewModelTest {
 
     @Test
     fun `successful clear of override should result in side effect`() = runTest {
-        every { mockRelayOverridesRepository.clearAllOverrides() } returns Unit
+        coEvery { mockRelayOverridesRepository.clearAllOverrides() } returns Unit.right()
         viewModel.uiSideEffect.test {
             viewModel.clearAllOverrides()
             assertEquals(
@@ -56,8 +56,8 @@ class ResetServerIpOverridesConfirmationViewModelTest {
 
     @Test
     fun `clear overrides should invoke repository`() = runTest {
-        every { mockRelayOverridesRepository.clearAllOverrides() } returns Unit
+        coEvery { mockRelayOverridesRepository.clearAllOverrides() } returns Unit.right()
         viewModel.clearAllOverrides()
-        verify { mockRelayOverridesRepository.clearAllOverrides() }
+        coVerify { mockRelayOverridesRepository.clearAllOverrides() }
     }
 }

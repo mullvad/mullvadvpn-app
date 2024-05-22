@@ -10,8 +10,8 @@ import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.util.asString
 
 @Preview
@@ -20,7 +20,7 @@ private fun PreviewWireguardPortInfoDialog() {
     AppTheme {
         WireguardPortInfoDialog(
             EmptyDestinationsNavigator,
-            argument = WireguardPortInfoDialogArgument(listOf(PortRange(1, 2)))
+            argument = WireguardPortInfoDialogArgument(listOf(PortRange(1..2)))
         )
     }
 }

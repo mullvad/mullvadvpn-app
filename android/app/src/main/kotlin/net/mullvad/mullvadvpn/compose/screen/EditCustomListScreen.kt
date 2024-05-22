@@ -29,7 +29,7 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
+import net.mullvad.mullvadvpn.compose.communication.Deleted
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
@@ -42,11 +42,11 @@ import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
-import net.mullvad.mullvadvpn.model.Ownership
-import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -58,21 +58,16 @@ private fun PreviewEditCustomListScreen() {
         EditCustomListScreen(
             state =
                 EditCustomListState.Content(
-                    id = "id",
-                    name = "Custom list",
+                    id = CustomListId("id"),
+                    name = CustomListName.fromString("Custom list"),
                     locations =
                         listOf(
-                            RelayItem.Relay(
-                                "Relay",
-                                "Relay",
-                                true,
-                                GeographicLocationConstraint.Hostname(
-                                    "hostname",
-                                    "hostname",
-                                    "hostname"
+                            GeoLocationId.Hostname(
+                                GeoLocationId.City(
+                                    GeoLocationId.Country("country"),
+                                    cityCode = "city"
                                 ),
-                                "Provider",
-                                Ownership.MullvadOwned
+                                "hostname",
                             )
                         )
                 )
@@ -84,10 +79,9 @@ private fun PreviewEditCustomListScreen() {
 @Destination(style = SlideInFromRightTransition::class)
 fun EditCustomList(
     navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<CustomListResult.Deleted>,
-    customListId: String,
-    confirmDeleteListResultRecipient:
-        ResultRecipient<DeleteCustomListDestination, CustomListResult.Deleted>
+    backNavigator: ResultBackNavigator<Deleted>,
+    customListId: CustomListId,
+    confirmDeleteListResultRecipient: ResultRecipient<DeleteCustomListDestination, Deleted>
 ) {
     val viewModel =
         koinViewModel<EditCustomListViewModel>(parameters = { parametersOf(customListId) })
@@ -130,21 +124,21 @@ fun EditCustomList(
 @Composable
 fun EditCustomListScreen(
     state: EditCustomListState,
-    onDeleteList: (name: String) -> Unit = {},
-    onNameClicked: (id: String, name: String) -> Unit = { _, _ -> },
-    onLocationsClicked: (String) -> Unit = {},
+    onDeleteList: (name: CustomListName) -> Unit = {},
+    onNameClicked: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },
+    onLocationsClicked: (CustomListId) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val title =
         when (state) {
             EditCustomListState.Loading,
-            EditCustomListState.NotFound -> ""
+            EditCustomListState.NotFound -> null
             is EditCustomListState.Content -> state.name
         }
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.edit_list),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
-        actions = { Actions(onDeleteList = { onDeleteList(title) }) },
+        actions = { Actions(enabled = title != null, onDeleteList = { onDeleteList(title!!) }) },
     ) { modifier: Modifier ->
         SpacedColumn(modifier = modifier, alignment = Alignment.Top) {
             when (state) {
@@ -165,7 +159,7 @@ fun EditCustomListScreen(
                     // Name cell
                     TwoRowCell(
                         titleText = stringResource(id = R.string.list_name),
-                        subtitleText = state.name,
+                        subtitleText = state.name.value,
                         onCellClicked = { onNameClicked(state.id, state.name) }
                     )
                     // Locations cell
@@ -186,7 +180,7 @@ fun EditCustomListScreen(
 }
 
 @Composable
-private fun Actions(onDeleteList: () -> Unit) {
+private fun Actions(enabled: Boolean, onDeleteList: () -> Unit) {
     var showMenu by remember { mutableStateOf(false) }
     IconButton(
         onClick = { showMenu = true },
@@ -217,6 +211,7 @@ private fun Actions(onDeleteList: () -> Unit) {
                         onDeleteList()
                         showMenu = false
                     },
+                    enabled = enabled,
                     modifier = Modifier.testTag(DELETE_DROPDOWN_MENU_ITEM_TEST_TAG)
                 )
             }

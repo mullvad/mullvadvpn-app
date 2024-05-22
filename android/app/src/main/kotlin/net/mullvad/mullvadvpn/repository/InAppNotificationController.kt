@@ -1,17 +1,16 @@
 package net.mullvad.mullvadvpn.repository
 
-import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
-import net.mullvad.talpid.tunnel.ErrorState
 import org.joda.time.DateTime
 
 enum class StatusLevel {
@@ -21,7 +20,6 @@ enum class StatusLevel {
 }
 
 sealed class InAppNotification {
-    val uuid: UUID = UUID.randomUUID()
     abstract val statusLevel: StatusLevel
     abstract val priority: Long
 

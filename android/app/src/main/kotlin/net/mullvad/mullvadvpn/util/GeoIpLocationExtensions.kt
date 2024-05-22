@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.util
 
-import net.mullvad.mullvadvpn.model.GeoIpLocation
+import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 
 fun GeoIpLocation.toOutAddress(): String =
     when {

@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.Globe
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.LocationMarker
-import net.mullvad.mullvadvpn.model.toRadians
+import net.mullvad.mullvadvpn.lib.model.toRadians
 
 internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.Renderer {
 

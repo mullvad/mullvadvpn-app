@@ -7,37 +7,28 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
-import net.mullvad.mullvadvpn.repository.AccountRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
-import net.mullvad.talpid.util.callbackFlowFromSubscription
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 
-// TODO: Refactor ConnectionProxy to be easily injectable rather than injecting
-//  ServiceConnectionManager here.
 class DeviceRevokedViewModel(
-    private val serviceConnectionManager: ServiceConnectionManager,
     private val accountRepository: AccountRepository,
+    private val connectionProxy: ConnectionProxy,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
     val uiState =
-        serviceConnectionManager.connectionState
-            .map { connectionState -> connectionState.readyContainer()?.connectionProxy }
-            .flatMapLatest { proxy ->
-                proxy?.onUiStateChange?.callbackFlowFromSubscription(this)?.map {
-                    if (it.isSecured()) {
-                        DeviceRevokedUiState.SECURED
-                    } else {
-                        DeviceRevokedUiState.UNSECURED
-                    }
-                } ?: flowOf(DeviceRevokedUiState.UNKNOWN)
+        connectionProxy.tunnelState
+            .map {
+                if (it.isSecured()) {
+                    DeviceRevokedUiState.SECURED
+                } else {
+                    DeviceRevokedUiState.UNSECURED
+                }
             }
             .stateIn(
                 scope = CoroutineScope(dispatcher),
@@ -49,12 +40,10 @@ class DeviceRevokedViewModel(
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     fun onGoToLoginClicked() {
-        serviceConnectionManager.connectionProxy()?.let { proxy ->
-            if (proxy.state.isSecured()) {
-                proxy.disconnect()
-            }
+        viewModelScope.launch {
+            connectionProxy.disconnect()
+            accountRepository.logout()
         }
-        accountRepository.logout()
 
         viewModelScope.launch { _uiSideEffect.send(DeviceRevokedSideEffect.NavigateToLogin) }
     }
