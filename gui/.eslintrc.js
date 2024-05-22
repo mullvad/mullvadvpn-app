@@ -30,6 +30,10 @@ const namingConvention = [
   {
     selector: 'typeProperty',
     format: ['camelCase'],
+    filter: {
+      regex: "^(data-testid|aria-labelledby|aria-describedby)$",
+      match: false,
+    },
   },
   {
     selector: 'typeLike',
