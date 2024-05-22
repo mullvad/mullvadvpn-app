@@ -57,12 +57,12 @@ dependencies {
     implementation(project(Dependencies.Mullvad.sharedLib))
     implementation(project(Dependencies.Mullvad.talpidLib))
 
-    implementation(Dependencies.jodaTime)
+    implementation(Dependencies.AndroidX.coreKtx)
     implementation(Dependencies.AndroidX.lifecycleService)
-    implementation(Dependencies.Koin.core)
+    implementation(Dependencies.Arrow.core)
     implementation(Dependencies.Koin.android)
+    implementation(Dependencies.Koin.core)
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
-    implementation(Dependencies.Arrow.core)
-    implementation(Dependencies.AndroidX.coreKtx)
+    implementation(Dependencies.jodaTime)
 }
