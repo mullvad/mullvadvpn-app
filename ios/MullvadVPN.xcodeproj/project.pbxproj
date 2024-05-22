@@ -686,7 +686,6 @@
 		A917352129FAAA5200D5DCFD /* TransportStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */; };
 		A91D78E32B03BDF200FCD5D3 /* TunnelObfuscation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5840231F2A406BF5007B27AC /* TunnelObfuscation.framework */; };
 		A91D78E42B03C01600FCD5D3 /* MullvadSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */; };
-		A9259FD22B8E06E90032C82B /* MullvadPostQuantum.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A944F25C2B8DEFDB00473F4C /* MullvadPostQuantum.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A93181A12B727ED700E341D2 /* TunnelSettingsV4.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93181A02B727ED700E341D2 /* TunnelSettingsV4.swift */; };
 		A932D9EF2B5ADD0700999395 /* ProxyConfigurationTransportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932D9EE2B5ADD0700999395 /* ProxyConfigurationTransportProvider.swift */; };
 		A932D9F32B5EB61100999395 /* HeadRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932D9F22B5EB61100999395 /* HeadRequestTests.swift */; };
@@ -1338,17 +1337,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A9259FD52B8E06E90032C82B /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				A9259FD22B8E06E90032C82B /* MullvadPostQuantum.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4523,7 +4511,6 @@
 				58CE5E75224146470008646E /* Sources */,
 				58CE5E76224146470008646E /* Frameworks */,
 				58CE5E77224146470008646E /* Resources */,
-				A9259FD52B8E06E90032C82B /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
