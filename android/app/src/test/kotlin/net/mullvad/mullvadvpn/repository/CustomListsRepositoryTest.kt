@@ -82,7 +82,7 @@ class CustomListsRepositoryTest {
             val result = customListsRepository.getCustomListById(otherCustomListId)
 
             // Assert
-            assertEquals(GetCustomListError(customListId), result.leftOrNull())
+            assertEquals(GetCustomListError(otherCustomListId), result.leftOrNull())
         }
 
     @Test
@@ -217,7 +217,7 @@ class CustomListsRepositoryTest {
             val mockSettings: Settings = mockk()
             val customListId = CustomListId("1")
             val otherCustomListId = CustomListId("2")
-            val expectedResult = GetCustomListError(customListId).left()
+            val expectedResult = GetCustomListError(otherCustomListId).left()
             val mockCustomList =
                 CustomList(
                     id = customListId,

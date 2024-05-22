@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.customlists.CreateCustomListWithLocationsError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
+import net.mullvad.mullvadvpn.usecase.customlists.RenameCustomListError
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -124,10 +125,11 @@ class CustomListActionUseCaseTest {
         val newName = CustomListName.fromString("test2")
         val customListId = CustomListId("1")
         val action = CustomListAction.Rename(id = customListId, name = name, newName = newName)
-        val expectedError = UpdateCustomListError.NameAlreadyExists(newName.value).left()
         coEvery {
             mockCustomListsRepository.updateCustomListName(id = customListId, name = newName)
-        } returns expectedError
+        } returns UpdateCustomListError.NameAlreadyExists(newName.value).left()
+
+        val expectedError = RenameCustomListError.NameAlreadyExists(newName.value).left()
 
         // Act
         val result = customListActionUseCase.performAction(action)
