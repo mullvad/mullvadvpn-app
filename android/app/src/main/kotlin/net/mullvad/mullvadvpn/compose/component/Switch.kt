@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -69,28 +68,18 @@ fun mullvadSwitchColors(): SwitchColors =
     SwitchDefaults.colors(
         checkedThumbColor = MaterialTheme.colorScheme.selected,
         checkedTrackColor = Color.Transparent,
-        checkedBorderColor = MaterialTheme.colorScheme.onPrimary,
+        checkedBorderColor = MaterialTheme.colorScheme.onSurface,
         //    checkedIconColor= SwitchTokens.SelectedIconColor.toColor(),
         uncheckedThumbColor = MaterialTheme.colorScheme.error,
         uncheckedTrackColor = Color.Transparent,
-        uncheckedBorderColor = MaterialTheme.colorScheme.onPrimary,
+        uncheckedBorderColor = MaterialTheme.colorScheme.onSurface,
         //    uncheckedIconColor= SwitchTokens.UnselectedIconColor.toColor(),
-        disabledCheckedThumbColor =
-            MaterialTheme.colorScheme.selected
-                .copy(alpha = AlphaDisabled)
-                .compositeOver(MaterialTheme.colorScheme.primary),
+        disabledCheckedThumbColor = MaterialTheme.colorScheme.selected.copy(alpha = AlphaDisabled),
         disabledCheckedTrackColor = Color.Transparent,
         disabledCheckedBorderColor =
-            MaterialTheme.colorScheme.onPrimary
-                .copy(alpha = AlphaDisabled)
-                .compositeOver(MaterialTheme.colorScheme.primary),
-        disabledUncheckedThumbColor =
-            MaterialTheme.colorScheme.error
-                .copy(alpha = AlphaDisabled)
-                .compositeOver(MaterialTheme.colorScheme.primary),
+            MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaDisabled),
+        disabledUncheckedThumbColor = MaterialTheme.colorScheme.error.copy(alpha = AlphaDisabled),
         disabledUncheckedTrackColor = Color.Transparent,
         disabledUncheckedBorderColor =
-            MaterialTheme.colorScheme.onPrimary
-                .copy(alpha = AlphaDisabled)
-                .compositeOver(MaterialTheme.colorScheme.primary),
+            MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaDisabled)
     )

@@ -311,7 +311,7 @@ private fun MapColumn(
         markers = markers,
         globeColors =
             GlobeColors(
-                landColor = MaterialTheme.colorScheme.onSurface,
+                landColor = MaterialTheme.colorScheme.primary,
                 oceanColor = MaterialTheme.colorScheme.surface,
             )
     )
@@ -346,7 +346,7 @@ private fun ConnectionInfo(state: ConnectUiState) {
     Text(
         text = state.location?.country ?: "",
         style = MaterialTheme.typography.headlineLarge,
-        color = MaterialTheme.colorScheme.onPrimary,
+        color = MaterialTheme.colorScheme.onSurface,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier = Modifier.padding(horizontal = Dimens.sideMargin)
@@ -354,7 +354,7 @@ private fun ConnectionInfo(state: ConnectUiState) {
     Text(
         text = state.location?.city ?: "",
         style = MaterialTheme.typography.headlineLarge,
-        color = MaterialTheme.colorScheme.onPrimary,
+        color = MaterialTheme.colorScheme.onSurface,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier = Modifier.padding(horizontal = Dimens.sideMargin)
