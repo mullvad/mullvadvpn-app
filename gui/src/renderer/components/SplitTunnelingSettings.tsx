@@ -446,6 +446,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
       <Accordion expanded={showSplitSection}>
         <Cell.Section sectionTitle={excludedTitle}>
           <ApplicationList
+            data-testid="split-applications"
             applications={filteredSplitApplications}
             rowRenderer={excludedRowRenderer}
           />
@@ -455,6 +456,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
       <Accordion expanded={showNonSplitSection}>
         <Cell.Section sectionTitle={allTitle}>
           <ApplicationList
+            data-testid="non-split-applications"
             applications={filteredNonSplitApplications}
             rowRenderer={includedRowRenderer}
           />
@@ -484,6 +486,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
 interface IApplicationListProps<T extends IApplication> {
   applications: T[] | undefined;
   rowRenderer: (application: T) => React.ReactElement;
+  'data-testid'?: string;
 }
 
 function ApplicationList<T extends IApplication>(props: IApplicationListProps<T>) {
@@ -495,8 +498,9 @@ function ApplicationList<T extends IApplication>(props: IApplicationListProps<T>
     );
   } else {
     return (
-      <StyledListContainer>
+      <StyledListContainer data-testid={props['data-testid']}>
         <List
+          data-testid={props['data-testid']}
           items={props.applications.sort((a, b) => a.name.localeCompare(b.name))}
           getKey={applicationGetKey}>
           {props.rowRenderer}
