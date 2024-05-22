@@ -26,12 +26,13 @@ import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.test.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.CustomPortTextField
+import net.mullvad.mullvadvpn.lib.model.Port
+import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
-import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.util.asString
-import net.mullvad.mullvadvpn.util.isPortInValidRanges
+import net.mullvad.mullvadvpn.util.inAnyOf
 
 @Preview
 @Composable
@@ -40,7 +41,7 @@ private fun PreviewWireguardCustomPortDialog() {
         WireguardCustomPortDialog(
             WireguardCustomPortNavArgs(
                 customPort = null,
-                allowedPortRanges = listOf(PortRange(10, 10), PortRange(40, 50)),
+                allowedPortRanges = listOf(PortRange(10..10), PortRange(40..50)),
             ),
             EmptyResultBackNavigator()
         )
@@ -49,7 +50,7 @@ private fun PreviewWireguardCustomPortDialog() {
 
 @Parcelize
 data class WireguardCustomPortNavArgs(
-    val customPort: Int?,
+    val customPort: Port?,
     val allowedPortRanges: List<PortRange>,
 ) : Parcelable
 
@@ -57,7 +58,7 @@ data class WireguardCustomPortNavArgs(
 @Composable
 fun WireguardCustomPortDialog(
     navArg: WireguardCustomPortNavArgs,
-    backNavigator: ResultBackNavigator<Int?>,
+    backNavigator: ResultBackNavigator<Port?>,
 ) {
     WireguardCustomPortDialog(
         initialPort = navArg.customPort,
@@ -69,12 +70,14 @@ fun WireguardCustomPortDialog(
 
 @Composable
 fun WireguardCustomPortDialog(
-    initialPort: Int?,
+    initialPort: Port?,
     allowedPortRanges: List<PortRange>,
-    onSave: (Int?) -> Unit,
+    onSave: (Port?) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val port = remember { mutableStateOf(initialPort?.toString() ?: "") }
+    val port = remember { mutableStateOf(initialPort?.value?.toString() ?: "") }
+
+    val isValidPort = port.value.toPortOrNull()?.inAnyOf(allowedPortRanges) ?: false
 
     AlertDialog(
         title = {
@@ -86,10 +89,8 @@ fun WireguardCustomPortDialog(
             Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
                 PrimaryButton(
                     text = stringResource(id = R.string.custom_port_dialog_submit),
-                    onClick = { onSave(port.value.toInt()) },
-                    isEnabled =
-                        port.value.isNotEmpty() &&
-                            allowedPortRanges.isPortInValidRanges(port.value.toIntOrNull() ?: 0)
+                    onClick = { onSave(port.value.toPortOrNull()) },
+                    isEnabled = isValidPort
                 )
                 if (initialPort != null) {
                     NegativeButton(
@@ -105,17 +106,12 @@ fun WireguardCustomPortDialog(
                 CustomPortTextField(
                     value = port.value,
                     onSubmit = { input ->
-                        if (
-                            input.isNotEmpty() &&
-                                allowedPortRanges.isPortInValidRanges(input.toIntOrNull() ?: 0)
-                        ) {
-                            onSave(input.toIntOrNull())
+                        if (isValidPort) {
+                            onSave(input.toPortOrNull())
                         }
                     },
                     onValueChanged = { input -> port.value = input },
-                    isValidValue =
-                        port.value.isNotEmpty() &&
-                            allowedPortRanges.isPortInValidRanges(port.value.toIntOrNull() ?: 0),
+                    isValidValue = isValidPort,
                     maxCharLength = 5,
                     modifier = Modifier.testTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).fillMaxWidth()
                 )
@@ -136,3 +132,5 @@ fun WireguardCustomPortDialog(
         onDismissRequest = onDismiss
     )
 }
+
+private fun String.toPortOrNull() = toIntOrNull()?.let { Port(it) }

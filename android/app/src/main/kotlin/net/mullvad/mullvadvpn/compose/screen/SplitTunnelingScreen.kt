@@ -62,24 +62,24 @@ private fun PreviewSplitTunnelingScreen() {
                             AppData(
                                 packageName = "my.package.a",
                                 name = "TitleA",
-                                iconRes = R.drawable.icon_alert
+                                iconRes = R.drawable.icon_alert,
                             ),
                             AppData(
                                 packageName = "my.package.b",
                                 name = "TitleB",
-                                iconRes = R.drawable.icon_chevron
-                            )
+                                iconRes = R.drawable.icon_chevron,
+                            ),
                         ),
                     includedApps =
                         listOf(
                             AppData(
                                 packageName = "my.package.c",
                                 name = "TitleC",
-                                iconRes = R.drawable.icon_alert
-                            )
+                                iconRes = R.drawable.icon_alert,
+                            ),
                         ),
-                    showSystemApps = true
-                )
+                    showSystemApps = true,
+                ),
         )
     }
 }
@@ -91,6 +91,7 @@ fun SplitTunneling(navigator: DestinationsNavigator) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val packageManager = remember(context) { context.packageManager }
+
     SplitTunnelingScreen(
         state = state,
         onEnableSplitTunneling = viewModel::onEnableSplitTunneling,
@@ -100,7 +101,7 @@ fun SplitTunneling(navigator: DestinationsNavigator) {
         onBackClick = navigator::navigateUp,
         onResolveIcon = { packageName ->
             packageManager.getApplicationIconBitmapOrNull(packageName)
-        }
+        },
     )
 }
 
@@ -119,12 +120,12 @@ fun SplitTunnelingScreen(
     ScaffoldWithMediumTopBar(
         modifier = Modifier.fillMaxSize(),
         appBarTitle = stringResource(id = R.string.split_tunneling),
-        navigationIcon = { NavigateBackIconButton(onBackClick) }
+        navigationIcon = { NavigateBackIconButton(onBackClick) },
     ) { modifier, lazyListState ->
         LazyColumn(
             modifier = modifier,
             horizontalAlignment = Alignment.CenterHorizontally,
-            state = lazyListState
+            state = lazyListState,
         ) {
             description()
             enabledToggle(enabled = state.enabled, onEnableSplitTunneling = onEnableSplitTunneling)
@@ -140,7 +141,7 @@ fun SplitTunnelingScreen(
                         onShowSystemAppsClick = onShowSystemAppsClick,
                         onExcludeAppClick = onExcludeAppClick,
                         onIncludeAppClick = onIncludeAppClick,
-                        onResolveIcon = onResolveIcon
+                        onResolveIcon = onResolveIcon,
                     )
                 }
             }
@@ -156,7 +157,7 @@ private fun LazyListScope.enabledToggle(
         HeaderSwitchComposeCell(
             title = textResource(id = R.string.enable),
             isToggled = enabled,
-            onCellClicked = onEnableSplitTunneling
+            onCellClicked = onEnableSplitTunneling,
         )
     }
 }
@@ -168,7 +169,7 @@ private fun LazyListScope.description() {
                 buildString {
                     appendLine(stringResource(id = R.string.split_tunneling_description))
                     append(stringResource(id = R.string.split_tunneling_description_warning))
-                }
+                },
         )
     }
 }
@@ -191,7 +192,7 @@ private fun LazyListScope.appList(
         headerItem(
             key = SplitTunnelingContentKey.EXCLUDED_APPLICATIONS,
             textId = R.string.exclude_applications,
-            enabled = state.enabled
+            enabled = state.enabled,
         )
         appItems(
             apps = state.excludedApps,
@@ -199,19 +200,19 @@ private fun LazyListScope.appList(
             onAppClick = onIncludeAppClick,
             onResolveIcon = onResolveIcon,
             enabled = state.enabled,
-            excluded = true
+            excluded = true,
         )
         spacer()
     }
     systemAppsToggle(
         showSystemApps = state.showSystemApps,
         onShowSystemAppsClick = onShowSystemAppsClick,
-        enabled = state.enabled
+        enabled = state.enabled,
     )
     headerItem(
         key = SplitTunnelingContentKey.INCLUDED_APPLICATIONS,
         textId = R.string.all_applications,
-        enabled = state.enabled
+        enabled = state.enabled,
     )
     appItems(
         apps = state.includedApps,
@@ -219,7 +220,7 @@ private fun LazyListScope.appList(
         onAppClick = onExcludeAppClick,
         onResolveIcon = onResolveIcon,
         enabled = state.enabled,
-        excluded = false
+        excluded = false,
     )
 }
 
@@ -235,7 +236,7 @@ private fun LazyListScope.appItems(
     itemsIndexedWithDivider(
         items = apps,
         key = { _, listItem -> listItem.packageName },
-        contentType = { _, _ -> ContentType.ITEM }
+        contentType = { _, _ -> ContentType.ITEM },
     ) { index, listItem ->
         SplitTunnelingCell(
             title = listItem.name,
@@ -250,9 +251,9 @@ private fun LazyListScope.appItems(
                             AlphaVisible
                         } else {
                             AlphaDisabled
-                        }
+                        },
                     ),
-            onResolveIcon = onResolveIcon
+            onResolveIcon = onResolveIcon,
         ) {
             // Move focus down unless the clicked item was the last in this
             // section.
@@ -278,10 +279,10 @@ private fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean)
                             AlphaVisible
                         } else {
                             AlphaDisabled
-                        }
+                        },
                     ),
             text = stringResource(id = textId),
-            background = MaterialTheme.colorScheme.primary
+            background = MaterialTheme.colorScheme.primary,
         )
     }
 }
@@ -294,7 +295,7 @@ private fun LazyListScope.systemAppsToggle(
 ) {
     itemWithDivider(
         key = SplitTunnelingContentKey.SHOW_SYSTEM_APPLICATIONS,
-        contentType = ContentType.OTHER_ITEM
+        contentType = ContentType.OTHER_ITEM,
     ) {
         HeaderSwitchComposeCell(
             title = stringResource(id = R.string.show_system_apps),
@@ -308,8 +309,8 @@ private fun LazyListScope.systemAppsToggle(
                             AlphaVisible
                         } else {
                             AlphaDisabled
-                        }
-                    )
+                        },
+                    ),
         )
     }
 }

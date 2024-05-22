@@ -1,79 +1,68 @@
 package net.mullvad.mullvadvpn.repository
 
-import kotlinx.coroutines.flow.first
+import arrow.core.Either
+import arrow.core.raise.either
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.mapNotNull
-import net.mullvad.mullvadvpn.lib.ipc.Event
-import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
-import net.mullvad.mullvadvpn.lib.ipc.Request
-import net.mullvad.mullvadvpn.lib.ipc.events
-import net.mullvad.mullvadvpn.model.CreateCustomListResult
-import net.mullvad.mullvadvpn.model.CustomList
-import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.CustomListsError
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
-import net.mullvad.mullvadvpn.model.UpdateCustomListResult
-import net.mullvad.mullvadvpn.relaylist.getGeographicLocationConstraintByCode
-import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
-import net.mullvad.mullvadvpn.util.firstOrNullWithTimeout
+import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.lib.common.util.firstOrNullWithTimeout
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.model.CustomList
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.GetCustomListError
+import net.mullvad.mullvadvpn.lib.model.UpdateCustomListLocationsError
+import net.mullvad.mullvadvpn.lib.model.UpdateCustomListNameError
 
 class CustomListsRepository(
-    private val messageHandler: MessageHandler,
-    private val settingsRepository: SettingsRepository,
-    private val relayListListener: RelayListListener
+    private val managementService: ManagementService,
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
-    suspend fun createCustomList(name: CustomListName): CreateCustomListResult {
-        val result = messageHandler.trySendRequest(Request.CreateCustomList(name.value))
+    val customLists: StateFlow<List<CustomList>?> =
+        managementService.settings
+            .mapNotNull { it.customLists }
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, null)
 
-        return if (result) {
-            messageHandler.events<Event.CreateCustomListResultEvent>().first().result
-        } else {
-            CreateCustomListResult.Error(CustomListsError.OtherError)
-        }
+    suspend fun createCustomList(name: CustomListName) = managementService.createCustomList(name)
+
+    suspend fun deleteCustomList(id: CustomListId) = managementService.deleteCustomList(id)
+
+    private suspend fun updateCustomList(customList: CustomList) =
+        managementService.updateCustomList(customList)
+
+    suspend fun updateCustomListName(
+        id: CustomListId,
+        name: CustomListName
+    ): Either<UpdateCustomListNameError, Unit> = either {
+        val customList = getCustomListById(id).bind()
+        updateCustomList(customList.copy(name = name))
+            .mapLeft(UpdateCustomListNameError::from)
+            .bind()
     }
 
-    fun deleteCustomList(id: String) = messageHandler.trySendRequest(Request.DeleteCustomList(id))
-
-    private suspend fun updateCustomList(customList: CustomList): UpdateCustomListResult {
-        val result = messageHandler.trySendRequest(Request.UpdateCustomList(customList))
-
-        return if (result) {
-            messageHandler.events<Event.UpdateCustomListResultEvent>().first().result
-        } else {
-            UpdateCustomListResult.Error(CustomListsError.OtherError)
-        }
+    suspend fun updateCustomListLocations(
+        id: CustomListId,
+        locations: List<GeoLocationId>
+    ): Either<UpdateCustomListLocationsError, Unit> = either {
+        val customList = getCustomListById(id).bind()
+        updateCustomList(customList.copy(locations = locations))
+            .mapLeft(UpdateCustomListLocationsError::from)
+            .bind()
     }
 
-    suspend fun updateCustomListLocationsFromCodes(
-        id: String,
-        locationCodes: List<String>
-    ): UpdateCustomListResult =
-        updateCustomListLocations(
-            id = id,
-            locations =
-                ArrayList(locationCodes.mapNotNull { getGeographicLocationConstraintByCode(it) })
-        )
-
-    suspend fun updateCustomListName(id: String, name: CustomListName): UpdateCustomListResult =
-        getCustomListById(id)?.let { updateCustomList(it.copy(name = name.value)) }
-            ?: UpdateCustomListResult.Error(CustomListsError.OtherError)
-
-    private suspend fun updateCustomListLocations(
-        id: String,
-        locations: ArrayList<GeographicLocationConstraint>
-    ): UpdateCustomListResult =
-        awaitCustomListById(id)?.let { updateCustomList(it.copy(locations = locations)) }
-            ?: UpdateCustomListResult.Error(CustomListsError.OtherError)
-
-    private suspend fun awaitCustomListById(id: String): CustomList? =
-        settingsRepository.settingsUpdates
-            .mapNotNull { settings -> settings?.customLists?.customLists?.find { it.id == id } }
-            .firstOrNullWithTimeout(GET_CUSTOM_LIST_TIMEOUT_MS)
-
-    fun getCustomListById(id: String): CustomList? =
-        settingsRepository.settingsUpdates.value?.customLists?.customLists?.find { it.id == id }
-
-    private fun getGeographicLocationConstraintByCode(code: String): GeographicLocationConstraint? =
-        relayListListener.relayListEvents.value.getGeographicLocationConstraintByCode(code)
+    suspend fun getCustomListById(id: CustomListId): Either<GetCustomListError, CustomList> =
+        either {
+                customLists
+                    .mapNotNull { it?.find { customList -> customList.id == id } }
+                    .firstOrNullWithTimeout(GET_CUSTOM_LIST_TIMEOUT_MS)
+                    ?: raise(GetCustomListError(id))
+            }
+            .mapLeft { GetCustomListError(id) }
 
     companion object {
         private const val GET_CUSTOM_LIST_TIMEOUT_MS = 5000L

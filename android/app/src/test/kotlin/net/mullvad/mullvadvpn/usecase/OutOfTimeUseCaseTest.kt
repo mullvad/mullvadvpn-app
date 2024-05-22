@@ -9,21 +9,19 @@ import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import net.mullvad.mullvadvpn.lib.ipc.Event
-import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
-import net.mullvad.mullvadvpn.lib.ipc.events
-import net.mullvad.mullvadvpn.model.AccountExpiry
-import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.repository.AccountRepository
-import net.mullvad.talpid.tunnel.ErrorState
-import net.mullvad.talpid.tunnel.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.AccountData
+import net.mullvad.mullvadvpn.lib.model.ErrorState
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.TunnelState
+import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -31,10 +29,10 @@ import org.junit.jupiter.api.Test
 
 class OutOfTimeUseCaseTest {
     private val mockAccountRepository: AccountRepository = mockk()
-    private val mockMessageHandler: MessageHandler = mockk()
+    private val mockConnectionProxy: ConnectionProxy = mockk()
 
-    private lateinit var events: Channel<Event.TunnelStateChange>
-    private lateinit var expiry: MutableStateFlow<AccountExpiry>
+    private lateinit var events: Channel<TunnelState>
+    private lateinit var expiry: MutableStateFlow<AccountData?>
 
     private val dispatcher = StandardTestDispatcher()
     private val scope = TestScope(dispatcher)
@@ -44,15 +42,14 @@ class OutOfTimeUseCaseTest {
     @BeforeEach
     fun setup() {
         events = Channel()
-        expiry = MutableStateFlow(AccountExpiry.Missing)
-        every { mockAccountRepository.accountExpiryState } returns expiry
-        every { mockMessageHandler.events<Event.TunnelStateChange>() } returns
-            events.receiveAsFlow()
+        expiry = MutableStateFlow(null)
+        every { mockAccountRepository.accountData } returns expiry
+        every { mockConnectionProxy.tunnelState } returns events.consumeAsFlow()
 
         Dispatchers.setMain(dispatcher)
 
         outOfTimeUseCase =
-            OutOfTimeUseCase(mockAccountRepository, mockMessageHandler, scope.backgroundScope)
+            OutOfTimeUseCase(mockConnectionProxy, mockAccountRepository, scope.backgroundScope)
     }
 
     @AfterEach
@@ -73,14 +70,13 @@ class OutOfTimeUseCaseTest {
     fun `tunnel is blocking because out of time should emit true`() =
         scope.runTest {
             // Arrange
-            // Act, Assert
             val errorStateCause = ErrorStateCause.AuthFailed("[EXPIRED_ACCOUNT]")
             val tunnelStateError = TunnelState.Error(ErrorState(errorStateCause, true))
-            val errorChange = Event.TunnelStateChange(tunnelStateError)
 
+            // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
                 assertEquals(null, awaitItem())
-                events.send(errorChange)
+                events.send(tunnelStateError)
                 assertEquals(true, awaitItem())
             }
         }
@@ -89,16 +85,16 @@ class OutOfTimeUseCaseTest {
     fun `tunnel is connected should emit false`() =
         scope.runTest {
             // Arrange
-            val expiredAccountExpiry = AccountExpiry.Available(DateTime.now().plusDays(1))
+            val expiredAccountExpiry =
+                AccountData(mockk(relaxed = true), DateTime.now().plusDays(1))
             val tunnelStateChanges =
                 listOf(
-                        TunnelState.Disconnected(),
-                        TunnelState.Connected(mockk(), null),
-                        TunnelState.Connecting(null, null),
-                        TunnelState.Disconnecting(mockk()),
-                        TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError, false)),
-                    )
-                    .map(Event::TunnelStateChange)
+                    TunnelState.Disconnected(),
+                    TunnelState.Connected(mockk(), null),
+                    TunnelState.Connecting(null, null),
+                    TunnelState.Disconnecting(mockk()),
+                    TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError, false)),
+                )
 
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
@@ -118,7 +114,8 @@ class OutOfTimeUseCaseTest {
     fun `account expiry that has expired should emit true`() =
         scope.runTest {
             // Arrange
-            val expiredAccountExpiry = AccountExpiry.Available(DateTime.now().minusDays(1))
+            val expiredAccountExpiry =
+                AccountData(mockk(relaxed = true), DateTime.now().minusDays(1))
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
                 assertEquals(null, awaitItem())
@@ -131,7 +128,8 @@ class OutOfTimeUseCaseTest {
     fun `account expiry that has not expired should emit false`() =
         scope.runTest {
             // Arrange
-            val notExpiredAccountExpiry = AccountExpiry.Available(DateTime.now().plusDays(1))
+            val notExpiredAccountExpiry =
+                AccountData(mockk(relaxed = true), DateTime.now().plusDays(1))
 
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
@@ -145,7 +143,8 @@ class OutOfTimeUseCaseTest {
     fun `account that expires without new expiry event should emit true`() =
         runTest(dispatcher) {
             // Arrange
-            val expiredAccountExpiry = AccountExpiry.Available(DateTime.now().plusSeconds(100))
+            val expiredAccountExpiry =
+                AccountData(mockk(relaxed = true), DateTime.now().plusSeconds(100))
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
                 // Initial event
@@ -167,9 +166,10 @@ class OutOfTimeUseCaseTest {
     @Test
     fun `account that is about to expire but is refilled should emit false`() = runTest {
         // Arrange
-        val initialAccountExpiry = AccountExpiry.Available(DateTime.now().plusSeconds(100))
+        val initialAccountExpiry =
+            AccountData(mockk(relaxed = true), DateTime.now().plusSeconds(100))
         val updatedExpiry =
-            AccountExpiry.Available(initialAccountExpiry.expiryDateTime.plusDays(30))
+            AccountData(mockk(relaxed = true), initialAccountExpiry.expiryDate.plusDays(30))
 
         // Act, Assert
         outOfTimeUseCase.isOutOfTime.test {
@@ -196,9 +196,10 @@ class OutOfTimeUseCaseTest {
     @Test
     fun `expired account that is refilled should emit false`() = runTest {
         // Arrange
-        val initialAccountExpiry = AccountExpiry.Available(DateTime.now().plusSeconds(100))
+        val initialAccountExpiry =
+            AccountData(mockk(relaxed = true), DateTime.now().plusSeconds(100))
         val updatedExpiry =
-            AccountExpiry.Available(initialAccountExpiry.expiryDateTime.plusDays(30))
+            AccountData(mockk(relaxed = true), initialAccountExpiry.expiryDate.plusDays(30))
         // Act, Assert
         outOfTimeUseCase.isOutOfTime.test {
             // Initial event

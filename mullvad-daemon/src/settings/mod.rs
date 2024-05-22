@@ -1,6 +1,5 @@
 #[cfg(not(target_os = "android"))]
 use futures::TryFutureExt;
-#[cfg(not(target_os = "android"))]
 use mullvad_types::custom_list::Error as CustomListError;
 use mullvad_types::{
     relay_constraints::{RelayConstraints, RelaySettings, WireguardConstraints},
@@ -31,7 +30,6 @@ pub enum Error {
     ParseError(#[source] serde_json::Error),
 
     #[error("Unable to remove settings file {0}")]
-    #[cfg(not(target_os = "android"))]
     DeleteError(String, #[source] io::Error),
 
     #[error("Unable to serialize settings to JSON")]
@@ -45,7 +43,6 @@ pub enum Error {
 }
 
 /// Converts an [Error] to a management interface status
-#[cfg(not(target_os = "android"))]
 impl From<Error> for mullvad_management_interface::Status {
     fn from(error: Error) -> mullvad_management_interface::Status {
         use mullvad_management_interface::{Code, Status};
@@ -68,7 +65,6 @@ impl From<Error> for mullvad_management_interface::Status {
     }
 }
 
-#[cfg(not(target_os = "android"))]
 fn handle_custom_list_error(
     custom_list_err: CustomListError,
 ) -> mullvad_management_interface::Status {

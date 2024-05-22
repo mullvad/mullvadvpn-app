@@ -7,12 +7,12 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
-import net.mullvad.mullvadvpn.BuildConfig
+import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 
 class ChangelogViewModel(
     private val changelogRepository: ChangelogRepository,
-    private val buildVersionCode: Int,
+    private val buildVersion: BuildVersion,
     private val alwaysShowChangelog: Boolean
 ) : ViewModel() {
 
@@ -22,18 +22,18 @@ class ChangelogViewModel(
     init {
         if (shouldShowChangelog()) {
             val changelog =
-                Changelog(BuildConfig.VERSION_NAME, changelogRepository.getLastVersionChanges())
+                Changelog(buildVersion.name, changelogRepository.getLastVersionChanges())
             viewModelScope.launch { _uiSideEffect.emit(changelog) }
         }
     }
 
     fun markChangelogAsRead() {
-        changelogRepository.setVersionCodeOfMostRecentChangelogShowed(buildVersionCode)
+        changelogRepository.setVersionCodeOfMostRecentChangelogShowed(buildVersion.code)
     }
 
     private fun shouldShowChangelog(): Boolean =
         alwaysShowChangelog ||
-            (changelogRepository.getVersionCodeOfMostRecentChangelogShowed() < buildVersionCode &&
+            (changelogRepository.getVersionCodeOfMostRecentChangelogShowed() < buildVersion.code &&
                 changelogRepository.getLastVersionChanges().isNotEmpty())
 }
 

@@ -29,15 +29,14 @@ import net.mullvad.mullvadvpn.compose.component.MullvadTopBar
 import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER
 import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER_ACTION
 import net.mullvad.mullvadvpn.compose.util.rememberPrevious
+import net.mullvad.mullvadvpn.lib.model.ErrorState
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.notification.StatusLevel
-import net.mullvad.talpid.tunnel.ErrorState
-import net.mullvad.talpid.tunnel.ErrorStateCause
-import net.mullvad.talpid.tunnel.FirewallPolicyError
 import org.joda.time.DateTime
 
 @Preview
@@ -52,23 +51,16 @@ private fun PreviewNotificationBanner() {
                         InAppNotification.UnsupportedVersion(
                             versionInfo =
                                 VersionInfo(
-                                    currentVersion = null,
-                                    upgradeVersion = null,
-                                    isOutdated = true,
-                                    isSupported = false
+                                    currentVersion = "1.0",
+                                    isSupported = false,
+                                    suggestedUpgradeVersion = null
                                 ),
                         ),
                         InAppNotification.AccountExpiry(expiry = DateTime.now()),
                         InAppNotification.TunnelStateBlocked,
                         InAppNotification.NewDevice("Courageous Turtle"),
                         InAppNotification.TunnelStateError(
-                            error =
-                                ErrorState(
-                                    ErrorStateCause.SetFirewallPolicyError(
-                                        FirewallPolicyError.Generic
-                                    ),
-                                    true
-                                )
+                            error = ErrorState(ErrorStateCause.FirewallPolicyError.Generic, true)
                         )
                     )
                     .map { it.toNotificationData(false, {}, {}, {}) }

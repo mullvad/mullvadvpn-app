@@ -11,16 +11,16 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
-import net.mullvad.mullvadvpn.compose.communication.CustomListResult
-import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
-import net.mullvad.mullvadvpn.model.CustomListName
-import net.mullvad.mullvadvpn.model.CustomListsError
+import net.mullvad.mullvadvpn.compose.communication.Renamed
+import net.mullvad.mullvadvpn.compose.state.EditCustomListNameUiState
+import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListsException
+import net.mullvad.mullvadvpn.usecase.customlists.RenameError
 
 class EditCustomListNameDialogViewModel(
-    private val customListId: String,
-    private val initialName: String,
+    private val customListId: CustomListId,
+    private val initialName: CustomListName,
     private val customListActionUseCase: CustomListActionUseCase
 ) : ViewModel() {
 
@@ -28,15 +28,15 @@ class EditCustomListNameDialogViewModel(
         Channel<EditCustomListNameDialogSideEffect>(1, BufferOverflow.DROP_OLDEST)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val _error = MutableStateFlow<CustomListsError?>(null)
+    private val _error = MutableStateFlow<RenameError?>(null)
 
     val uiState =
         _error
-            .map { UpdateCustomListUiState(name = initialName, error = it) }
+            .map { EditCustomListNameUiState(name = initialName.value, error = it) }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                UpdateCustomListUiState(name = initialName)
+                EditCustomListNameUiState(name = initialName.value)
             )
 
     fun updateCustomListName(name: String) {
@@ -44,24 +44,14 @@ class EditCustomListNameDialogViewModel(
             customListActionUseCase
                 .performAction(
                     CustomListAction.Rename(
-                        customListId = customListId,
-                        name = CustomListName.fromString(initialName),
+                        id = customListId,
+                        name = initialName,
                         newName = CustomListName.fromString(name)
                     )
                 )
                 .fold(
-                    onSuccess = { result ->
-                        _uiSideEffect.send(
-                            EditCustomListNameDialogSideEffect.ReturnWithResult(result)
-                        )
-                    },
-                    onFailure = { exception ->
-                        if (exception is CustomListsException) {
-                            _error.emit(exception.error)
-                        } else {
-                            _error.emit(CustomListsError.OtherError)
-                        }
-                    }
+                    { _error.emit(it) },
+                    { _uiSideEffect.send(EditCustomListNameDialogSideEffect.ReturnWithResult(it)) }
                 )
         }
     }
@@ -72,6 +62,5 @@ class EditCustomListNameDialogViewModel(
 }
 
 sealed interface EditCustomListNameDialogSideEffect {
-    data class ReturnWithResult(val result: CustomListResult.Renamed) :
-        EditCustomListNameDialogSideEffect
+    data class ReturnWithResult(val result: Renamed) : EditCustomListNameDialogSideEffect
 }
