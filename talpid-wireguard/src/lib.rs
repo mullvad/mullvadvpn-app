@@ -66,10 +66,6 @@ use self::wireguard_go::WgGoTunnel;
 type Result<T> = std::result::Result<T, Error>;
 type EventCallback = Box<dyn (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Sync + 'static>;
 
-/// TODO: Document
-/// TODO: Rename
-pub(crate) type TunnelT = Box<dyn Tunnel>;
-
 /// Errors that can happen in the Wireguard tunnel monitor.
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -148,7 +144,7 @@ impl Error {
 pub struct WireguardMonitor {
     runtime: tokio::runtime::Handle,
     /// Tunnel implementation
-    tunnel: Arc<Mutex<Option<TunnelT>>>,
+    tunnel: Arc<Mutex<Option<Box<dyn Tunnel>>>>,
     /// Callback to signal tunnel events
     event_callback: EventCallback,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
@@ -477,7 +473,7 @@ impl WireguardMonitor {
 
     #[allow(clippy::too_many_arguments)]
     async fn config_ephemeral_peers<F>(
-        tunnel: &Arc<Mutex<Option<TunnelT>>>,
+        tunnel: &Arc<Mutex<Option<Box<dyn Tunnel>>>>,
         config: &mut Config,
         retry_attempt: u32,
         on_event: F,
@@ -605,7 +601,7 @@ impl WireguardMonitor {
     /// Reconfigures the tunnel to use the provided config while potentially modifying the config
     /// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
     async fn reconfigure_tunnel(
-        tunnel: &Arc<Mutex<Option<TunnelT>>>,
+        tunnel: &Arc<Mutex<Option<Box<dyn Tunnel>>>>,
         mut config: Config,
         obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
         close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
