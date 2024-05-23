@@ -2,6 +2,7 @@
 name: Android - Build and test
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - '**'
       - '!.github/workflows/**'
@@ -49,6 +50,7 @@ on:
 jobs:
   prepare:
     name: Prepare
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -68,6 +70,7 @@ jobs:
 
   generate-debug-keystore:
     name: Generate debug keystore
+    if: github.event.pull_request.draft == false
     needs: prepare
     runs-on: ubuntu-latest
     steps:
@@ -93,6 +96,7 @@ jobs:
 
   generate-relay-list:
     name: Generate relay list
+    if: github.event.pull_request.draft == false
     needs: prepare
     runs-on: ubuntu-latest
     container:
@@ -137,6 +141,7 @@ jobs:
 
   build-native:
     name: Build native
+    if: github.event.pull_request.draft == false
     needs: prepare
     runs-on: ubuntu-latest
     container:
@@ -209,6 +214,7 @@ jobs:
 
   run-lint-and-tests:
     name: Run lint and test tasks
+    if: github.event.pull_request.draft == false
     needs: [prepare]
     runs-on: ubuntu-latest
     container:
@@ -248,6 +254,7 @@ jobs:
 
   build-app:
     name: Build app
+    if: github.event.pull_request.draft == false
     needs: [prepare, generate-debug-keystore]
     runs-on: ubuntu-latest
     container:
@@ -340,6 +347,7 @@ jobs:
 
   build-instrumented-tests:
     name: Build instrumented test packages
+    if: github.event.pull_request.draft == false
     needs: [prepare, generate-debug-keystore]
     runs-on: ubuntu-latest
     container:
@@ -393,6 +401,7 @@ jobs:
 
   instrumented-tests:
     name: Run instrumented tests
+    if: github.event.pull_request.draft == false
     runs-on: [self-hosted, android-device]
     timeout-minutes: 30
     needs: [build-app, build-instrumented-tests]
@@ -458,7 +467,9 @@ jobs:
   instrumented-e2e-tests:
     name: Run instrumented e2e tests
     runs-on: [self-hosted, android-device]
-    if: github.event_name == 'schedule' || github.event.inputs.run_e2e_tests == 'true'
+    if: >
+      github.event.pull_request.draft == false &&
+      (github.event_name == 'schedule' || github.event.inputs.run_e2e_tests == 'true')
     timeout-minutes: 30
     needs: [build-app, build-instrumented-tests]
     steps:

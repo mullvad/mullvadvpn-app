@@ -2,6 +2,7 @@
 name: Daemon+CLI - Build and test
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - '**'
       - '!**/**.md'
@@ -31,6 +32,7 @@ on:
         required: false
 jobs:
   prepare-linux:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -50,6 +52,7 @@ jobs:
       container_image: ${{ env.inner_container_image }}
 
   build-linux:
+    if: github.event.pull_request.draft == false
     needs: prepare-linux
     runs-on: ubuntu-latest
     container:
@@ -81,6 +84,7 @@ jobs:
         run: ./ci/check-rust.sh
 
   build-macos:
+    if: github.event.pull_request.draft == false
     runs-on: macos-latest
     steps:
       - name: Checkout repository
@@ -106,6 +110,7 @@ jobs:
         run: ./ci/check-rust.sh
 
   build-windows:
+    if: github.event.pull_request.draft == false
     runs-on: windows-latest
     steps:
       - name: Checkout repository

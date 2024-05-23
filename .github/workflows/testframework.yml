@@ -3,6 +3,7 @@
 name: DES Testframework - Build
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - '**'
       - '!**/**.md'
@@ -26,6 +27,7 @@ on:
   workflow_dispatch:
 jobs:
   prepare-build-test-framework-linux:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -46,6 +48,7 @@ jobs:
 
   # Build the test runner + test manager at once.
   build-test-framework-linux:
+    if: github.event.pull_request.draft == false
     needs: prepare-build-test-framework-linux
     runs-on: ubuntu-latest
     container:
@@ -69,6 +72,7 @@ jobs:
 
   # Build the test runner + test manager at once.
   build-test-framework-macos:
+    if: github.event.pull_request.draft == false
     runs-on: macos-latest
     steps:
       - name: Checkout repository
@@ -91,6 +95,7 @@ jobs:
 
   # Build only the test-runner binary on Windows. Windows is not a supported host for test-manager.
   build-test-runner-windows:
+    if: github.event.pull_request.draft == false
     # Cross-compile the test runner for Windows from Linux.
     needs: prepare-build-test-framework-linux
     runs-on: ubuntu-latest

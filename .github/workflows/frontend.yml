@@ -2,6 +2,7 @@
 name: Desktop frontend
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - .github/workflows/frontend.yml
       - gui/**
@@ -10,6 +11,7 @@ on:
 
 jobs:
   check-frontend:
+    if: github.event.pull_request.draft == false
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]

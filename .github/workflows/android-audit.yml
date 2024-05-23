@@ -2,6 +2,7 @@
 name: Android - Audit dependencies
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - .github/workflows/android-audit.yml
       - android/gradle/verification-metadata.xml
@@ -23,6 +24,7 @@ on:
 jobs:
   prepare:
     name: Prepare
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -42,6 +44,7 @@ jobs:
       container_image: ${{ env.inner_container_image }}
 
   owasp-dependency-check:
+    if: github.event.pull_request.draft == false
     needs: prepare
     runs-on: ubuntu-latest
     container:

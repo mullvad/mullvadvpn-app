@@ -2,6 +2,7 @@
 name: Rust - Unused dependencies
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - .github/workflows/rust-unused-dependencies.yml
       - '**/*.rs'
@@ -13,6 +14,7 @@ env:
   RUST_NIGHTLY_TOOLCHAIN: nightly-2024-02-06
 jobs:
   prepare-containers:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -27,6 +29,7 @@ jobs:
       container_image_android: ${{ env.inner_container_image_android }}
 
   cargo-udeps-linux:
+    if: github.event.pull_request.draft == false
     needs: prepare-containers
     runs-on: ubuntu-latest
     container:
@@ -58,6 +61,7 @@ jobs:
         run: source env.sh && cargo udeps --workspace
 
   cargo-udeps-android:
+    if: github.event.pull_request.draft == false
     needs: prepare-containers
     runs-on: ubuntu-latest
     container:
@@ -85,6 +89,7 @@ jobs:
         run: cargo udeps --target aarch64-linux-android --package mullvad-jni
 
   cargo-udeps:
+    if: github.event.pull_request.draft == false
     strategy:
       matrix:
         os: [macos-latest, windows-latest]

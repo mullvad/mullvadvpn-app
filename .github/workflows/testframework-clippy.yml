@@ -3,6 +3,7 @@
 name: DES Testframework - Clippy
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - 'test/**/*.rs'
       - .github/workflows/clippy-test.yml
@@ -11,6 +12,7 @@ on:
 jobs:
   clippy-check-test:
     name: Clippy linting of test workspace
+    if: github.event.pull_request.draft == false
     strategy:
       fail-fast: false
       matrix:
@@ -48,6 +50,7 @@ jobs:
 
   clippy-check-test-windows:
     name: Clippy linting of test workspace (Windows)
+    if: github.event.pull_request.draft == false
     runs-on: windows-latest
     steps:
       - name: Checkout repository

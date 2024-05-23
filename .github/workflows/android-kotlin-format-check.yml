@@ -2,6 +2,7 @@
 name: Android - Check kotlin formatting
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths: [.github/workflows/android-kotlin-format-check.yml, android/**/*.kt]
   workflow_dispatch:
     inputs:
@@ -12,6 +13,7 @@ on:
 jobs:
   prepare:
     name: Prepare
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -31,6 +33,7 @@ jobs:
       container_image: ${{ env.inner_container_image }}
 
   check-formatting:
+    if: github.event.pull_request.draft == false
     needs: prepare
     runs-on: ubuntu-latest
     container:

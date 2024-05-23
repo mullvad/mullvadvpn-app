@@ -2,6 +2,7 @@
 name: Rust - Run Clippy to check lints
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - .github/workflows/clippy.yml
       - clippy.toml
@@ -10,6 +11,7 @@ on:
 jobs:
   prepare-android:
     name: Prepare Android container
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -30,6 +32,7 @@ jobs:
 
   clippy-check-desktop:
     name: Clippy linting, desktop
+    if: github.event.pull_request.draft == false
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -69,6 +72,7 @@ jobs:
 
   clippy-check-android:
     name: Clippy linting, Android
+    if: github.event.pull_request.draft == false
     needs: prepare-android
     runs-on: ubuntu-latest
     container:
