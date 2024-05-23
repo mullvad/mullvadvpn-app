@@ -209,6 +209,10 @@ This can be achieved as follows:
 
 * Shut down.
 
+## Windows Security
+
+Windows Defender ocasionally kills the `test-runner` because it believes it to be a trojan. This can be worked around by excluding `E:` and [the folder containing the standalone e2e GUI test executable](../../gui/README.md) following this guide: https://support.microsoft.com/en-us/windows/add-an-exclusion-to-windows-security-811816c0-4dfd-af4a-47e4-c301afe13b26.
+
 ## Finishing setup
 
 Now you are done! If the VM was configured correctly, `test-manager` will be able to run the test suite using the new OS image.
