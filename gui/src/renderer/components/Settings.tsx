@@ -26,6 +26,7 @@ export default function Support() {
 
   const loginState = useSelector((state) => state.account.status);
   const connectedToDaemon = useSelector((state) => state.userInterface.connectedToDaemon);
+  const isMacOs13OrNewer = useSelector((state) => state.userInterface.isMacOs13OrNewer);
 
   const showSubSettings = loginState.type === 'ok' && connectedToDaemon;
 

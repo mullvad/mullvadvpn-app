@@ -77,6 +77,7 @@ export interface IAppStateSnapshot {
   forceShowChanges: boolean;
   navigationHistory?: IHistoryObject;
   currentApiAccessMethod?: AccessMethodSetting;
+  isMacOs13OrNewer: boolean;
 }
 
 // The different types of requests are:
