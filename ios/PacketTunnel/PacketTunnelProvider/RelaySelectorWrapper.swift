@@ -11,24 +11,37 @@ import MullvadREST
 import MullvadTypes
 import PacketTunnelCore
 
+struct MultihopNotImplementedError: LocalizedError {
+    public var errorDescription: String? {
+        "Picking relays for Multihop is not implemented yet."
+    }
+}
+
 struct RelaySelectorWrapper: RelaySelectorProtocol {
     let relayCache: RelayCacheProtocol
+    let settingsReader: SettingsReaderProtocol
 
     func selectRelay(
         with constraints: RelayConstraints,
         connectionAttemptFailureCount: UInt
     ) throws -> SelectedRelay {
-        let selectorResult = try RelaySelector.evaluate(
-            relays: relayCache.read().relays,
-            constraints: constraints,
-            numberOfFailedAttempts: connectionAttemptFailureCount
-        )
+        switch try settingsReader.read().multihopState {
+        case .off:
+            let selectorResult = try RelaySelector.WireGuard.evaluate(
+                by: constraints,
+                in: relayCache.read().relays,
+                numberOfFailedAttempts: connectionAttemptFailureCount
+            )
 
-        return SelectedRelay(
-            endpoint: selectorResult.endpoint,
-            hostname: selectorResult.relay.hostname,
-            location: selectorResult.location,
-            retryAttempts: connectionAttemptFailureCount
-        )
+            return SelectedRelay(
+                endpoint: selectorResult.endpoint,
+                hostname: selectorResult.relay.hostname,
+                location: selectorResult.location,
+                retryAttempts: connectionAttemptFailureCount
+            )
+
+        case .on:
+            throw MultihopNotImplementedError()
+        }
     }
 }

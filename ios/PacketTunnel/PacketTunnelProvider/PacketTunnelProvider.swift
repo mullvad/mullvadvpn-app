@@ -21,6 +21,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private let internalQueue = DispatchQueue(label: "PacketTunnel-internalQueue")
     private let providerLogger: Logger
     private let constraintsUpdater = RelayConstraintsUpdater()
+    private let multihopUpdater = MultihopStateUpdater()
+    private let settingsReader = SettingsReader()
 
     private var actor: PacketTunnelActor!
     private var postQuantumActor: PostQuantumKeyExchangeActor!
@@ -69,7 +71,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let devicesProxy = proxyFactory.createDevicesProxy()
 
         deviceChecker = DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
-        relaySelector = RelaySelectorWrapper(relayCache: ipOverrideWrapper)
+        relaySelector = RelaySelectorWrapper(relayCache: ipOverrideWrapper, settingsReader: settingsReader)
 
         actor = PacketTunnelActor(
             timings: PacketTunnelActorTimings(),
@@ -77,8 +79,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             tunnelMonitor: tunnelMonitor,
             defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self, eventQueue: internalQueue),
             blockedStateErrorMapper: BlockedStateErrorMapper(),
-            relaySelector: relaySelector,
-            settingsReader: SettingsReader(),
+            relaySelector: RelaySelectorWrapper(relayCache: ipOverrideWrapper, settingsReader: settingsReader),
+            settingsReader: settingsReader,
             protocolObfuscator: ProtocolObfuscator<UDPOverTCPObfuscator>()
         )
 
@@ -156,12 +158,20 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let urlSession = REST.makeURLSession()
         let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: appContainerURL)
+        let settings = try? settingsReader.read()
+
+        let shadowsocksRelaySelector = ShadowsocksRelaySelector(
+            relayCache: ipOverrideWrapper,
+            multihopState: settings?.multihopState ?? .off,
+            multihopStateUpdater: multihopUpdater
+        )
 
         let transportStrategy = TransportStrategy(
             datasource: AccessMethodRepository(),
             shadowsocksLoader: ShadowsocksLoader(
                 shadowsocksCache: shadowsocksCache,
-                relayCache: ipOverrideWrapper,
+                shadowsocksRelaySelector: shadowsocksRelaySelector,
+                relayConstraints: settings?.relayConstraints ?? RelayConstraints(),
                 constraintsUpdater: constraintsUpdater
             )
         )

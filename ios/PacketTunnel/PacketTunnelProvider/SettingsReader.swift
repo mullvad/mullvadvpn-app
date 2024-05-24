@@ -22,7 +22,8 @@ struct SettingsReader: SettingsReaderProtocol {
             relayConstraints: settings.relayConstraints,
             dnsServers: settings.dnsSettings.selectedDNSServers,
             obfuscation: settings.wireGuardObfuscation,
-            quantumResistance: settings.tunnelQuantumResistance
+            quantumResistance: settings.tunnelQuantumResistance,
+            multihopState: settings.tunnelMultihopState
         )
     }
 }
