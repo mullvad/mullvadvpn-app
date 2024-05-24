@@ -3,7 +3,7 @@ use std::{env, path::PathBuf};
 
 fn main() {
     let out_dir = env::var("OUT_DIR").expect("Missing OUT_DIR");
-    eprintln!("OUT_DIR: {out_dir}");
+
     // Add DAITA as a conditional configuration
     println!("cargo::rustc-check-cfg=cfg(daita)");
 
@@ -13,7 +13,7 @@ fn main() {
 
     match target_os.as_str() {
         "linux" => {
-            // Enable DAITA & Tell rustc to link libmaybenot
+            // Enable DAITA
             println!(r#"cargo::rustc-cfg=daita"#);
             // Tell the build script to build wireguard-go with DAITA support
             cmd.arg("--daita");
@@ -36,19 +36,21 @@ fn main() {
         panic!();
     }
 
-    if target_os == "android" {
-        // NOTE: Go programs does not support being statically linked on android
-        // so we need to dynamically link to libwg
-        println!("cargo::rustc-link-lib=wg");
-        declare_libs_dir("../build/lib");
-    } else {
-        // other platforms can statically link to libwg just fine
-        // TODO: consider doing dynamic linking everywhere, to keep things simpler
+    if target_os.as_str() != "android" {
         println!("cargo::rustc-link-lib=static=wg");
-        println!("cargo::rustc-link-search={out_dir}");
+    } else {
+        // NOTE: Link dynamically to libwg on Android, as go cannot produce archives
+        println!("cargo::rustc-link-lib=dylib=wg");
     }
+    declare_libs_dir("../build/lib");
 
     println!("cargo::rerun-if-changed=libwg");
+
+    // Add `OUT_DIR` to the library search path to facilitate linking of libwg for debug artifacts,
+    // such as test binaries.
+    if cfg!(debug_assertions) {
+        println!("cargo::rustc-link-search={out_dir}");
+    }
 }
 
 /// Tell linker to check `base`/$TARGET for shared libraries.

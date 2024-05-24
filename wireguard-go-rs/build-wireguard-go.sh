@@ -1,22 +1,30 @@
 #!/usr/bin/env bash
-
-# This script is used to build wireguard-go libraries for all the platforms.
 #
-# If "DAITA" support should be enabled, pass the `--daita` flag when invoking this script.
+# This script is used to build libwg (wireguard-go as an FFI-friendly library) for different platforms.
+#
+# Supported arguments:
+# * --android
+#   If libwg should be built for an Android target.
+# * --daita
+#   Build libwg with "DAITA" support.
+#
 
 set -eu
 
+# If the target OS is Android.
+ANDROID="false"
 # If Wireguard-go should be built with DAITA-support.
 DAITA="false"
-# If the target OS is Adnroid.
-ANDROID="false"
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BUILD_DIR="$SCRIPT_DIR/../build"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --android) ANDROID="true";;
         --daita)   DAITA="true";;
         *)
-            log_error "Unknown parameter: $1"
+            echo "Unknown parameter: $1"
             exit 1
             ;;
     esac
@@ -45,7 +53,6 @@ function unix_target_triple {
 
 
 function build_unix {
-    # TODO: consider using `log_header` here
     echo "Building wireguard-go for $1"
 
     # Flags for cross compiling
@@ -79,16 +86,16 @@ function build_unix {
     fi
 
 
-    # Build wiregaurd-go as a library
+    # Build wireguard-go as a library
+    mkdir -p "$BUILD_DIR/lib/$TARGET"
     pushd libwg
+
     if [[ "$DAITA" == "true" ]]; then
-        pushd wireguard-go
-        make libmaybenot.a LIBDEST="$OUT_DIR"
-        popd
-        go build -v --tags daita -o "$OUT_DIR"/libwg.a -buildmode c-archive
+        go build -v --tags daita -o "$BUILD_DIR/lib/$TARGET"/libwg.a -buildmode c-archive
     else
-        go build -v -o "$OUT_DIR"/libwg.a -buildmode c-archive
+        go build -v -o "$BUILD_DIR/lib/$TARGET"/libwg.a -buildmode c-archive
     fi
+
     popd
 }
 
@@ -107,7 +114,7 @@ function build_wireguard_go {
     local platform
     platform="$(uname -s)";
     case "$platform" in
-        Linux*|Darwin*) build_unix "${1:-$(unix_target_triple)}";;
+        Linux*|Darwin*) build_unix "${TARGET:-$(unix_target_triple)}";;
         *)
             echo "Unsupported platform"
             return 1
