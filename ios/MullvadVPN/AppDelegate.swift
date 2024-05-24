@@ -407,6 +407,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func setupNotifications() {
+        // We can't close banners in the screenshot tests due to how the NotificationController view
+        // is overridden, so we need this horrible workaround to make sure that no banners are visible.
+        guard launchArguments.target != .screenshots else { return }
+
         NotificationManager.shared.notificationProviders = [
             TunnelStatusNotificationProvider(tunnelManager: tunnelManager),
             AccountExpirySystemNotificationProvider(tunnelManager: tunnelManager),

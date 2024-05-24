@@ -88,7 +88,7 @@ class MullvadVPNScreenshots: XCTestCase {
         // Wait for Disconnect button to appear
         _ = app.buttons[AccessibilityIdentifier.disconnectButton.rawValue].waitForExistence(timeout: 2)
 
-        snapshot("MainSecured")
+        snapshot("ConnectionSecured")
 
         // Re-open Select location controller (iPhone only)
         if case .phone = UIDevice.current.userInterfaceIdiom {
@@ -113,21 +113,27 @@ class MullvadVPNScreenshots: XCTestCase {
         // Tap on VPN settings cell
         _ = app.tables.cells[AccessibilityIdentifier.vpnSettingsCell.rawValue].waitForExistence(timeout: 2)
         app.tables.cells[AccessibilityIdentifier.vpnSettingsCell.rawValue].tap()
+        snapshot("VPNSettings")
 
-        app.tables.element
-            .cells
-            .matching(NSPredicate(format: "identifier BEGINSWITH %@", "mullvadDNS"))
-            .switches
-            .matching(NSPredicate(format: "value = %@", "0"))
-            .allElementsBoundByAccessibilityElement
-            .forEach { $0.tap() }
-        snapshot("VPN Settings")
+        let quantumCell = app.tables.otherElements.containing(
+            .any,
+            identifier: AccessibilityIdentifier.quantumResistantTunnelCell.rawValue
+        )
+        quantumCell.buttons[AccessibilityIdentifier.expandButton.rawValue].tap()
+        app.cells[AccessibilityIdentifier.quantumResistanceOn.rawValue].tap()
 
         // Tap back button
         app.navigationBars.buttons.firstMatch.tap()
 
         // Tap dismiss button
         app.navigationBars.buttons.firstMatch.tap()
+
+        // Acquire a quantum resistant connection
+        app.buttons[AccessibilityIdentifier.disconnectButton.rawValue].tap()
+        app.buttons[AccessibilityIdentifier.secureConnectionButton.rawValue].tap()
+        _ = app.staticTexts[AccessibilityIdentifier.connectionStatusConnectedLabel.rawValue]
+            .waitForExistence(timeout: 5)
+        snapshot("QuantumResistantConnectionSecured")
 
         // Open Account
         app.buttons[AccessibilityIdentifier.accountButton.rawValue].tap()
