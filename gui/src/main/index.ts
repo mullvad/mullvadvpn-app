@@ -71,6 +71,7 @@ const execAsync = util.promisify(exec);
 
 // Only import split tunneling library on correct OS.
 const linuxSplitTunneling = process.platform === 'linux' && require('./linux-split-tunneling');
+// This is used on Windows and macOS and will be undefined on Linux.
 const splitTunneling: ISplitTunnelingAppListRetriever | undefined = importSplitTunneling();
 
 const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
@@ -1108,9 +1109,15 @@ class ApplicationMain
 }
 
 function importSplitTunneling() {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { WindowsSplitTunnelingAppListRetriever } = require('./windows-split-tunneling');
-  return new WindowsSplitTunnelingAppListRetriever();
+  if (process.platform === 'win32') {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { WindowsSplitTunnelingAppListRetriever } = require('./windows-split-tunneling');
+    return new WindowsSplitTunnelingAppListRetriever();
+  } else if (process.platform === 'darwin') {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { MacOsSplitTunnelingAppListRetriever } = require('./macos-split-tunneling');
+    return new MacOsSplitTunnelingAppListRetriever();
+  }
 }
 
 if (CommandLineOptions.help.match) {
