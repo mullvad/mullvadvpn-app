@@ -36,6 +36,17 @@ fn main() {
     if let "linux" | "windows" = target_os.as_str() {
         println!(r#"cargo::rustc-cfg=daita"#);
     }
+
+    // For debug builds, configure rpath to facilitate linking with libwg.so
+    if matches!(target_os.as_str(), "linux" | "macos" | "android") && cfg!(debug_assertions) {
+        let target = std::env::var("TARGET").expect("TARGET not set");
+        let relative = std::path::Path::new("../build/lib/");
+        let absolute = std::fs::canonicalize(relative).unwrap_or_else(|_| {
+            panic!("Could not resolve canonical path for relative path `build/lib/{target}`")
+        });
+        let x = absolute.join(target.clone());
+        println!("cargo::rustc-link-arg=-Wl,-rpath,{}", x.display());
+    }
 }
 
 fn commit_date() -> String {
