@@ -16,13 +16,13 @@ import WireGuardKitTypes
 /**
  Packet tunnel state machine implemented as an actor.
 
- - Actor receives commands for execution over the `CommandChannel`.
+ - Actor receives events for execution over the `EventChannel`.
 
- - Commands are consumed in a detached task via for-await loop over the channel. Each command, once received, is executed in its entirety before the next
-   command is processed. See the implementation of `consumeCommands()` which is the central task dispatcher inside of actor.
+ - Events are consumed in a detached task via for-await loop over the channel. Each event, once received, is executed in its entirety before the next
+   event is processed. See the implementation of `consumeEvents()` which is the central task dispatcher inside of actor.
 
- - Most of calls that actor performs suspend for a very short amount of time. `CommandChannel` proactively discards unwanted tasks as they arrive to prevent
-   future execution, such as repeating commands to reconnect are coalesced and all commands prior to stop are discarded entirely as the outcome would be the
+ - Most of calls that actor performs suspend for a very short amount of time. `EventChannel` proactively discards unwanted tasks as they arrive to prevent
+   future execution, such as repeating commands to reconnect are coalesced and all events prior to stop are discarded entirely as the outcome would be the
    same anyway.
  */
 public actor PacketTunnelActor {
@@ -47,7 +47,7 @@ public actor PacketTunnelActor {
     let settingsReader: SettingsReaderProtocol
     let protocolObfuscator: ProtocolObfuscation
 
-    nonisolated let commandChannel = CommandChannel()
+    nonisolated let eventChannel = EventChannel()
 
     public init(
         timings: PacketTunnelActorTimings,
@@ -68,27 +68,27 @@ public actor PacketTunnelActor {
         self.settingsReader = settingsReader
         self.protocolObfuscator = protocolObfuscator
 
-        consumeCommands(channel: commandChannel)
+        consumeEvents(channel: eventChannel)
     }
 
     deinit {
-        commandChannel.finish()
+        eventChannel.finish()
     }
 
     /**
-     Spawn a detached task that consumes commands from the channel indefinitely until the channel is closed.
-     Commands are processed one at a time, so no suspensions should affect the order of execution and thus guarantee transactional execution.
+     Spawn a detached task that consumes events from the channel indefinitely until the channel is closed.
+     Events are processed one at a time, so no suspensions should affect the order of execution and thus guarantee transactional execution.
 
-     - Parameter channel: command channel.
+     - Parameter channel: event channel.
      */
-    private nonisolated func consumeCommands(channel: CommandChannel) {
+    private nonisolated func consumeEvents(channel: EventChannel) {
         Task.detached { [weak self] in
-            for await command in channel {
+            for await event in channel {
                 guard let self else { return }
 
-                self.logger.debug("Received command: \(command.logFormat())")
+                self.logger.debug("Received event: \(event.logFormat())")
 
-                let effects = await self.runReducer(command)
+                let effects = await self.runReducer(event)
 
                 for effect in effects {
                     await executeEffect(effect)
@@ -124,7 +124,7 @@ public actor PacketTunnelActor {
                 await setErrorStateInternal(with: error)
             }
         case let .reconnect(nextRelay):
-            commandChannel.send(.reconnect(nextRelay))
+            eventChannel.send(.reconnect(nextRelay))
         case .stopTunnelAdapter:
             do {
                 try await tunnelAdapter.stop()

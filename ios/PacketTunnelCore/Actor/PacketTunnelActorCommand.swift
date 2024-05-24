@@ -10,8 +10,8 @@ import Foundation
 import WireGuardKitTypes
 
 extension PacketTunnelActor {
-    /// Describes action that actor can perform.
-    enum Command {
+    /// Describes events that the state machine handles. These can be user commands or non-user-initiated events
+    enum Event {
         /// Start tunnel.
         case start(StartOptions)
 

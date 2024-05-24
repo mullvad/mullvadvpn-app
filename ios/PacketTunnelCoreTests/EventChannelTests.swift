@@ -1,17 +1,18 @@
 //
-//  CommandChannelTests.swift
+//  EventChannelTests.swift
 //  PacketTunnelCoreTests
 //
 //  Created by pronebird on 27/09/2023.
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
+//  Formerly known as CommandChannelTests
 //
 
 @testable import PacketTunnelCore
 import XCTest
 
-final class CommandChannelTests: XCTestCase {
+final class EventChannelTests: XCTestCase {
     func testCoalescingReconnect() async {
-        let channel = PacketTunnelActor.CommandChannel()
+        let channel = PacketTunnelActor.EventChannel()
 
         channel.send(.start(StartOptions(launchSource: .app)))
         channel.send(.reconnect(.random))
@@ -20,14 +21,14 @@ final class CommandChannelTests: XCTestCase {
         channel.send(.reconnect(.current))
         channel.sendEnd()
 
-        let commands = await channel.map { $0.primitiveCommand }.collect()
+        let events = await channel.map { $0.primitiveCommand }.collect()
 
-        XCTAssertEqual(commands, [.start, .switchKey, .reconnect(.current)])
+        XCTAssertEqual(events, [.start, .switchKey, .reconnect(.current)])
     }
 
     /// Test that stops cancels all preceding tasks.
     func testCoalescingStop() async {
-        let channel = PacketTunnelActor.CommandChannel()
+        let channel = PacketTunnelActor.EventChannel()
 
         channel.send(.start(StartOptions(launchSource: .app)))
         channel.send(.reconnect(.random))
@@ -37,14 +38,14 @@ final class CommandChannelTests: XCTestCase {
         channel.send(.switchKey)
         channel.sendEnd()
 
-        let commands = await channel.map { $0.primitiveCommand }.collect()
+        let events = await channel.map { $0.primitiveCommand }.collect()
 
-        XCTAssertEqual(commands, [.stop, .switchKey])
+        XCTAssertEqual(events, [.stop, .switchKey])
     }
 
     /// Test that iterations over the finished channel yield `nil`.
     func testFinishFlushingUnconsumedValues() async {
-        let channel = PacketTunnelActor.CommandChannel()
+        let channel = PacketTunnelActor.EventChannel()
         channel.send(.stop)
         channel.finish()
 
@@ -54,14 +55,14 @@ final class CommandChannelTests: XCTestCase {
 
     /// Test that the call to `finish()` ends the iteration that began prior to that.
     func testFinishEndsAsyncIterator() async throws {
-        let channel = PacketTunnelActor.CommandChannel()
+        let channel = PacketTunnelActor.EventChannel()
         let expectFinish = expectation(description: "Call to finish()")
         let expectEndIteration = expectation(description: "Iteration over channel should end upon call to finish()")
 
-        // Start iterating over commands in channel. The for-await loop should suspend the continuation.
+        // Start iterating over events in channel. The for-await loop should suspend the continuation.
         Task {
-            for await command in channel {
-                print(command)
+            for await event in channel {
+                print(event)
             }
 
             expectEndIteration.fulfill()
@@ -86,13 +87,13 @@ extension AsyncSequence {
     }
 }
 
-/// Primitive version of `Command` that can be used in tests and easily compared against.
-enum PrimitiveCommand: Equatable {
+/// Simplified version of `Event` that can be used in tests and easily compared against.
+enum SimplifiedEvent: Equatable {
     case start, stop, reconnect(NextRelay), switchKey, other
 }
 
-extension PacketTunnelActor.Command {
-    var primitiveCommand: PrimitiveCommand {
+extension PacketTunnelActor.Event {
+    var primitiveCommand: SimplifiedEvent {
         switch self {
         case .start:
             return .start
