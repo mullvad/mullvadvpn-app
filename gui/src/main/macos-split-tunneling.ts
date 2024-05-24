@@ -38,15 +38,14 @@ export class MacOsSplitTunnelingAppListRetriever implements ISplitTunnelingAppLi
       fromCache = false;
 
       const applicationBundlePaths = await this.findApplicationBundlePaths();
-      for (const applicationBundlePath of applicationBundlePaths) {
-        // `getApplication updates the cache so no need to use the result.`
-        await this.getApplication(applicationBundlePath, false);
-      }
-
       const executablePaths = this.additionalApplications.values();
-      for (const executablePath of executablePaths) {
-        await this.getApplication(executablePath, true);
-      }
+      await Promise.all([
+        // `getApplication updates the cache so no need to use the result.`
+        ...applicationBundlePaths.map((applicationBundlePath) =>
+          this.getApplication(applicationBundlePath, false),
+        ),
+        ...executablePaths.map((executablePath) => this.getApplication(executablePath, true)),
+      ]);
     }
 
     // Return applications from cache.
@@ -56,20 +55,19 @@ export class MacOsSplitTunnelingAppListRetriever implements ISplitTunnelingAppLi
   public async getMetadataForApplications(
     applicationPaths: string[],
   ): Promise<{ fromCache: boolean; applications: ISplitTunnelingApplication[] }> {
-    for (const applicationPath of applicationPaths) {
-      if (!this.applicationCache.includes(applicationPath)) {
-        await this.addApplicationPathToCache(applicationPath);
-      }
-    }
+    await Promise.all(
+      applicationPaths
+        .filter((applicationPath) => !this.applicationCache.includes(applicationPath))
+        .map((applicationPath) => this.addApplicationPathToCache(applicationPath)),
+    );
 
     const applications = await this.getApplications();
 
-    applications.applications = applications.applications.filter(
-      (application) =>
-        applicationPaths.find(
-          (applicationPath) =>
-            applicationPath.toLowerCase() === application.absolutepath.toLowerCase(),
-        ) !== undefined,
+    applications.applications = applications.applications.filter((application) =>
+      applicationPaths.some(
+        (applicationPath) =>
+          applicationPath.toLowerCase() === application.absolutepath.toLowerCase(),
+      ),
     );
 
     return applications;
@@ -82,7 +80,7 @@ export class MacOsSplitTunnelingAppListRetriever implements ISplitTunnelingAppLi
 
   public async addApplicationPathToCache(applicationPath: string): Promise<void> {
     const application = await this.getApplication(applicationPath, true);
-    if (application !== undefined && application.deletable) {
+    if (application?.deletable) {
       this.additionalApplications.add(application);
     }
   }
@@ -113,7 +111,7 @@ export class MacOsSplitTunnelingAppListRetriever implements ISplitTunnelingAppLi
   }
 
   private async findApplicationBundlePaths() {
-    const readdirPromises = this.getAppDirectories().map(async (directory) =>
+    const readdirPromises = this.getAppDirectories().map((directory) =>
       this.readDirectory(directory),
     );
     const applicationBundlePaths = (await Promise.all(readdirPromises)).flat();
