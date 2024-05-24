@@ -84,10 +84,11 @@ function build_unix {
     if [[ "$DAITA" == "true" ]]; then
         pushd wireguard-go
         make libmaybenot.a LIBDEST="$OUT_DIR"
+        echo "$OUT_DIR"
         popd
-        go build -v --tags daita -o "$OUT_DIR"/libwg.a -buildmode c-archive
+        go build -v --tags daita -ldflags "-L $OUT_DIR" -o "$OUT_DIR"/libwg.so -buildmode c-shared
     else
-        go build -v -o "$OUT_DIR"/libwg.a -buildmode c-archive
+        go build -v -o "$OUT_DIR"/libwg.so -buildmode c-shared
     fi
     popd
 }
