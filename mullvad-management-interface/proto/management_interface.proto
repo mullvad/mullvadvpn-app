@@ -142,6 +142,7 @@ message ErrorState {
     IS_OFFLINE = 7;
     VPN_PERMISSION_DENIED = 8;
     SPLIT_TUNNEL_ERROR = 9;
+    NEED_FULL_DISK_PERMISSIONS = 10;
   }
 
   enum AuthFailedError {

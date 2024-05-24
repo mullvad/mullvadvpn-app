@@ -353,11 +353,9 @@ impl ConnectedState {
                         }
                     }
                     Err(error) => {
+                        let cause = ErrorStateCause::from(&error);
                         let _ = result_tx.send(Err(error));
-                        return self.disconnect(
-                            shared_values,
-                            AfterDisconnect::Block(ErrorStateCause::SplitTunnelError),
-                        );
+                        return self.disconnect(shared_values, AfterDisconnect::Block(cause));
                     }
                 }
                 SameState(self)

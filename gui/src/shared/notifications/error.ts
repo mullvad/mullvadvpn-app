@@ -183,10 +183,18 @@ function getMessage(errorState: ErrorState): string {
           'Your device is offline. The tunnel will automatically connect once your device is back online.',
         );
       case ErrorStateCause.splitTunnelError:
-        return messages.pgettext(
-          'notifications',
-          'Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report.',
-        );
+        switch (process.platform ?? window.env.platform) {
+          case 'win32':
+            return messages.pgettext(
+              'notifications',
+              'Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report.',
+            );
+          case 'darwin':
+            return messages.pgettext(
+              'notifications',
+              'Failed to enable split tunneling. Please try again or disable it.',
+            );
+        }
     }
   }
 }
@@ -265,6 +273,7 @@ function getActions(errorState: ErrorState): InAppNotificationAction | void {
       },
     };
   } else if (errorState.cause === ErrorStateCause.splitTunnelError) {
+    // TODO: macos: handle this and full disk access error
     return {
       type: 'troubleshoot-dialog',
       troubleshoot: {

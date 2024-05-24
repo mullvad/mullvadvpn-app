@@ -21,6 +21,7 @@ use std::{
     time::Duration,
 };
 use talpid_platform_metadata::MacosVersion;
+use talpid_types::tunnel::ErrorStateCause;
 use tokio::io::{AsyncBufReadExt, BufReader};
 
 const SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(3);
@@ -54,6 +55,15 @@ pub enum Error {
     /// Failed to find path for a process
     #[error("Failed to find path for a process: {}", _0)]
     FindProcessPath(#[source] io::Error, u32),
+}
+
+impl From<&Error> for ErrorStateCause {
+    fn from(value: &Error) -> Self {
+        match value {
+            Error::NeedFullDiskPermissions => ErrorStateCause::NeedFullDiskPermissions,
+            _ => ErrorStateCause::SplitTunnelError,
+        }
+    }
 }
 
 pub struct ProcessMonitor(());
