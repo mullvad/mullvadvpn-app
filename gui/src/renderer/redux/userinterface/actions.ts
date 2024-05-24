@@ -56,6 +56,11 @@ export interface ISetSelectLocationView {
   selectLocationView: LocationType;
 }
 
+export interface ISetIsMacOs13OrNewer {
+  type: 'SET_IS_MACOS13_OR_NEWER';
+  isMacOs13OrNewer: boolean;
+}
+
 export type UserInterfaceAction =
   | IUpdateLocaleAction
   | IUpdateWindowArrowPositionAction
@@ -67,7 +72,8 @@ export type UserInterfaceAction =
   | ISetChangelog
   | ISetForceShowChanges
   | ISetIsPerformingPostUpgrade
-  | ISetSelectLocationView;
+  | ISetSelectLocationView
+  | ISetIsMacOs13OrNewer;
 
 function updateLocale(locale: string): IUpdateLocaleAction {
   return {
@@ -147,6 +153,13 @@ function setSelectLocationView(selectLocationView: LocationType): ISetSelectLoca
   };
 }
 
+function setIsMacOs13OrNewer(isMacOs13OrNewer: boolean): ISetIsMacOs13OrNewer {
+  return {
+    type: 'SET_IS_MACOS13_OR_NEWER',
+    isMacOs13OrNewer,
+  };
+}
+
 export default {
   updateLocale,
   updateWindowArrowPosition,
@@ -159,4 +172,5 @@ export default {
   setForceShowChanges,
   setIsPerformingPostUpgrade,
   setSelectLocationView,
+  setIsMacOs13OrNewer,
 };

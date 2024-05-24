@@ -174,6 +174,7 @@ class ApplicationMain {
       forceShowChanges: false,
       navigationHistory: undefined,
       scrollPositions: {},
+      isMacOs13OrNewer: true,
     }));
 
     IpcMainEventChannel.guiSettings.handleSetPreferredLocale((locale) => {

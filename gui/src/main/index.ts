@@ -55,6 +55,7 @@ import NotificationController, {
   NotificationControllerDelegate,
   NotificationSender,
 } from './notification-controller';
+import { isMacOs13OrNewer } from './platform-version';
 import * as problemReport from './problem-report';
 import { resolveBin } from './proc';
 import ReconnectionBackoff from './reconnection-backoff';
@@ -765,6 +766,7 @@ class ApplicationMain
       forceShowChanges: CommandLineOptions.showChanges.match,
       navigationHistory: this.navigationHistory,
       currentApiAccessMethod: this.currentApiAccessMethod,
+      isMacOs13OrNewer: isMacOs13OrNewer(),
     }));
 
     IpcMainEventChannel.map.handleGetData(async () => ({

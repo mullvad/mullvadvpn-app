@@ -245,6 +245,7 @@ export default class AppRenderer {
     this.storeAutoStart(initialState.autoStart);
     this.setChangelog(initialState.changelog, initialState.forceShowChanges);
     this.setCurrentApiAccessMethod(initialState.currentApiAccessMethod);
+    this.reduxActions.userInterface.setIsMacOs13OrNewer(initialState.isMacOs13OrNewer);
 
     if (initialState.macOsScrollbarVisibility !== undefined) {
       this.reduxActions.userInterface.setMacOsScrollbarVisibility(
