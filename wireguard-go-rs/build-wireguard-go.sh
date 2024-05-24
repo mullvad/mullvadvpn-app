@@ -11,12 +11,15 @@ DAITA="false"
 # If the target OS is Adnroid.
 ANDROID="false"
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BUILD_DIR="$SCRIPT_DIR/../build"
+
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --android) ANDROID="true";;
         --daita)   DAITA="true";;
         *)
-            log_error "Unknown parameter: $1"
+            echo "Unknown parameter: $1"
             exit 1
             ;;
     esac
@@ -45,7 +48,6 @@ function unix_target_triple {
 
 
 function build_unix {
-    # TODO: consider using `log_header` here
     echo "Building wireguard-go for $1"
 
     # Flags for cross compiling
@@ -79,16 +81,20 @@ function build_unix {
     fi
 
 
-    # Build wiregaurd-go as a library
+    # Build wireguard-go as a library
+    mkdir -p "$BUILD_DIR/lib/$TARGET"
     pushd libwg
     if [[ "$DAITA" == "true" ]]; then
         pushd wireguard-go
-        make libmaybenot.a LIBDEST="$OUT_DIR"
+        CARGO_TARGET_DIR="$BUILD_DIR/tmp/" make libmaybenot.a LIBDEST="$BUILD_DIR/lib/$TARGET"
         popd
-        go build -v --tags daita -o "$OUT_DIR"/libwg.a -buildmode c-archive
+        # TODO: This artifact needs to be available in target/<release | debug>
+        CGO_LDFLAGS="-L$BUILD_DIR/lib/$TARGET" go build -v --tags daita -o "$BUILD_DIR/lib/$TARGET/libwg.so" -buildmode c-shared
     else
-        go build -v -o "$OUT_DIR"/libwg.a -buildmode c-archive
+        go build -v -o "$BUILD_DIR/lib/$TARGET/libwg.so" -buildmode c-shared
     fi
+    # Copy libwg to `OUT_DIR` so that we may refer to it via `OUT_DIR` in `build.rs`, which might be handy.
+    cp "$BUILD_DIR/lib/$TARGET/libwg.so" "$OUT_DIR/libwg.so"
     popd
 }
 
@@ -107,7 +113,7 @@ function build_wireguard_go {
     local platform
     platform="$(uname -s)";
     case "$platform" in
-        Linux*|Darwin*) build_unix "${1:-$(unix_target_triple)}";;
+        Linux*|Darwin*) build_unix "${TARGET:-$(unix_target_triple)}";;
         *)
             echo "Unsupported platform"
             return 1
