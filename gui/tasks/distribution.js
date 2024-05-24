@@ -42,7 +42,7 @@ const config = {
     name: 'mullvad-vpn',
     // We have to stick to semver on Windows for now due to:
     // https://github.com/electron-userland/electron-builder/issues/7173
-    version: productVersion(process.platform === 'win32' ? ['semver'] : [])
+    version: productVersion(process.platform === 'win32' ? ['semver'] : []),
   },
 
   files: [
@@ -105,6 +105,7 @@ const config = {
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'apisocks5')), to: '.' },
       { from: distAssets('uninstall_macos.sh'), to: './uninstall.sh' },
+      { from: buildAssets(path.join('lib', '${env.TARGET_TRIPLE}', 'libwg.so')), to: '.' },
       { from: buildAssets('shell-completions/_mullvad'), to: '.' },
       { from: buildAssets('shell-completions/mullvad.fish'), to: '.' },
     ],
@@ -148,7 +149,10 @@ const config = {
       { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/apisocks5.exe'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/wintun/wintun.dll'), to: '.' },
-      { from: distAssets('binaries/x86_64-pc-windows-msvc/split-tunnel/mullvad-split-tunnel.sys'), to: '.' },
+      {
+        from: distAssets('binaries/x86_64-pc-windows-msvc/split-tunnel/mullvad-split-tunnel.sys'),
+        to: '.',
+      },
       {
         from: distAssets('binaries/x86_64-pc-windows-msvc/wireguard-nt/mullvad-wireguard.dll'),
         to: '.',
@@ -175,7 +179,10 @@ const config = {
     extraResources: [
       { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-problem-report')), to: '.' },
       { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-setup')), to: '.' },
-      { from: distAssets(path.join(getLinuxTargetSubdir(), 'libtalpid_openvpn_plugin.so')), to: '.' },
+      {
+        from: distAssets(path.join(getLinuxTargetSubdir(), 'libtalpid_openvpn_plugin.so')),
+        to: '.',
+      },
       { from: distAssets(path.join('linux', 'apparmor_mullvad')), to: '.' },
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
       { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'apisocks5')), to: '.' },
@@ -192,12 +199,15 @@ const config = {
       distAssets('linux/before-install.sh'),
       '--before-remove',
       distAssets('linux/before-remove.sh'),
-      distAssets('linux/mullvad-daemon.service') +'=/usr/lib/systemd/system/mullvad-daemon.service',
-      distAssets('linux/mullvad-early-boot-blocking.service') +'=/usr/lib/systemd/system/mullvad-early-boot-blocking.service',
+      distAssets('linux/mullvad-daemon.service') +
+        '=/usr/lib/systemd/system/mullvad-daemon.service',
+      distAssets('linux/mullvad-early-boot-blocking.service') +
+        '=/usr/lib/systemd/system/mullvad-early-boot-blocking.service',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
+      buildAssets(path.join('lib', `${hostTargetTriple}`, 'libwg.so')) + '=/lib/',
       buildAssets('shell-completions/mullvad.bash') +
         '=/usr/share/bash-completion/completions/mullvad',
       buildAssets('shell-completions/_mullvad') + '=/usr/local/share/zsh/site-functions/_mullvad',
@@ -223,12 +233,15 @@ const config = {
       distAssets('linux/before-remove.sh'),
       '--rpm-posttrans',
       distAssets('linux/post-transaction.sh'),
-      distAssets('linux/mullvad-daemon.service') +'=/usr/lib/systemd/system/mullvad-daemon.service',
-      distAssets('linux/mullvad-early-boot-blocking.service') +'=/usr/lib/systemd/system/mullvad-early-boot-blocking.service',
+      distAssets('linux/mullvad-daemon.service') +
+        '=/usr/lib/systemd/system/mullvad-daemon.service',
+      distAssets('linux/mullvad-early-boot-blocking.service') +
+        '=/usr/lib/systemd/system/mullvad-early-boot-blocking.service',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
+      buildAssets(path.join('lib', `${hostTargetTriple}`, 'libwg.so')) + '=/lib/',
       buildAssets('shell-completions/mullvad.bash') +
         '=/usr/share/bash-completion/completions/mullvad',
       buildAssets('shell-completions/_mullvad') + '=/usr/share/zsh/site-functions/_mullvad',
@@ -261,9 +274,12 @@ function packWin() {
         for (const artifactPath of buildResult.artifactPaths) {
           const artifactDir = path.dirname(artifactPath);
           const artifactSemverFilename = path.basename(artifactPath);
-          const artifactDesiredFilename = artifactSemverFilename.replace(productSemverVersion, productTargetVersion);
+          const artifactDesiredFilename = artifactSemverFilename.replace(
+            productSemverVersion,
+            productTargetVersion,
+          );
           const targetArtifactPath = path.join(artifactDir, artifactDesiredFilename);
-          console.log("Moving", artifactSemverFilename, "=>", artifactDesiredFilename);
+          console.log('Moving', artifactSemverFilename, '=>', artifactDesiredFilename);
           fs.renameSync(artifactPath, targetArtifactPath);
         }
       },
@@ -292,9 +308,8 @@ function packMac() {
             break;
         }
 
-        process.env.BINARIES_PATH = hostTargetTriple !== process.env.TARGET_TRIPLE
-          ? process.env.TARGET_TRIPLE
-          : '';
+        process.env.BINARIES_PATH =
+          hostTargetTriple !== process.env.TARGET_TRIPLE ? process.env.TARGET_TRIPLE : '';
 
         return true;
       },
@@ -304,7 +319,9 @@ function packMac() {
           // if they're present for both targets. So make sure we remove libraries for other archs.
           // Remove the workaround once the issue has been fixed:
           // https://github.com/electron/universal/issues/41#issuecomment-1496288834
-          await fs.promises.rm('node_modules/nseventmonitor/lib/binding/Release', { recursive: true });
+          await fs.promises.rm('node_modules/nseventmonitor/lib/binding/Release', {
+            recursive: true,
+          });
         } catch {}
         config.beforePack?.(context);
       },
@@ -341,7 +358,7 @@ function packLinux() {
   }
 
   if (targets && targets === 'aarch64-unknown-linux-gnu') {
-      config.rpm.fpm.unshift('--architecture', 'aarch64')
+    config.rpm.fpm.unshift('--architecture', 'aarch64');
   }
 
   return builder.build({

@@ -57,8 +57,6 @@ for arch in ${ARCHITECTURES:-armv7 aarch64 x86_64 i686}; do
 
     # Set permissions so that the build server can clean the outputs afterwards
     chmod 777 "$STRIPPED_LIB_PATH"
-
-    rm -rf build
 done
 
 # ensure `git clean -fd` does not require root permissions

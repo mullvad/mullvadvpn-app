@@ -4,7 +4,7 @@ description = "Rust bindings to wireguard-go with DAITA support"
 edition = "2021"
 license.workspace = true
 
-[dependencies]
+[target.'cfg(unix)'.dependencies]
 thiserror.workspace = true
 log.workspace = true
 zeroize = "1.8.1"
