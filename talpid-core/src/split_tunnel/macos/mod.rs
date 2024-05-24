@@ -42,6 +42,16 @@ impl Error {
     }
 }
 
+impl From<&Error> for ErrorStateCause {
+    fn from(value: &Error) -> Self {
+        match value {
+            Error::Process(error) => ErrorStateCause::from(error),
+            _v if _v.is_offline() => ErrorStateCause::IsOffline,
+            _ => ErrorStateCause::SplitTunnelError,
+        }
+    }
+}
+
 /// Split tunneling actor
 pub struct SplitTunnel {
     state: State,
@@ -171,6 +181,10 @@ impl SplitTunnel {
 
     /// Handle process monitor unexpectedly stopping
     fn handle_process_monitor_shutdown(&mut self, result: Result<(), process::Error>) {
+        let cause = match result {
+            Ok(_) => ErrorStateCause::SplitTunnelError,
+            Err(ref error) => ErrorStateCause::from(error),
+        };
         match result {
             Ok(()) => log::error!("Process monitor stopped unexpectedly with no error"),
             Err(error) => {
@@ -185,8 +199,7 @@ impl SplitTunnel {
         // decisions for new processes
         if self.state.active() {
             if let Some(tunnel_tx) = self.tunnel_tx.upgrade() {
-                let _ = tunnel_tx
-                    .unbounded_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
+                let _ = tunnel_tx.unbounded_send(TunnelCommand::Block(cause));
             }
         }
 

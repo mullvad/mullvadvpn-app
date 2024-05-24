@@ -107,6 +107,10 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                             talpid_tunnel::ErrorStateCause::SplitTunnelError => {
                                 i32::from(Cause::SplitTunnelError)
                             }
+                            #[cfg(target_os = "macos")]
+                            talpid_tunnel::ErrorStateCause::NeedFullDiskPermissions => {
+                                i32::from(Cause::NeedFullDiskPermissions)
+                            }
                         },
                         blocking_error: error_state.block_failure().map(map_firewall_error),
                         auth_failed_error: mullvad_types::auth_failed::AuthFailed::try_from(
@@ -325,9 +329,13 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                     Ok(proto::error_state::Cause::VpnPermissionDenied) => {
                         talpid_tunnel::ErrorStateCause::VpnPermissionDenied
                     }
-                    #[cfg(target_os = "windows")]
+                    #[cfg(any(target_os = "windows", target_os = "macos"))]
                     Ok(proto::error_state::Cause::SplitTunnelError) => {
                         talpid_tunnel::ErrorStateCause::SplitTunnelError
+                    }
+                    #[cfg(target_os = "macos")]
+                    Ok(proto::error_state::Cause::NeedFullDiskPermissions) => {
+                        talpid_tunnel::ErrorStateCause::NeedFullDiskPermissions
                     }
                     _ => {
                         return Err(FromProtobufTypeError::InvalidArgument(
