@@ -6,7 +6,7 @@ import { colors, strings } from '../../config.json';
 import {
   IApplication,
   ILinuxSplitTunnelingApplication,
-  IWindowsApplication,
+  ISplitTunnelingApplication,
 } from '../../shared/application-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
@@ -92,7 +92,7 @@ function PlatformSpecificSplitTunnelingSettings(props: IPlatformSplitTunnelingSe
     case 'linux':
       return <LinuxSplitTunnelingSettings {...props} />;
     case 'win32':
-      return <WindowsSplitTunnelingSettings {...props} />;
+      return <SplitTunnelingSettings {...props} />;
     default:
       throw new Error(`Split tunneling not implemented on ${window.env.platform}`);
   }
@@ -300,12 +300,12 @@ function LinuxApplicationRow(props: ILinuxApplicationRowProps) {
   );
 }
 
-export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps) {
+export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps) {
   const {
     addSplitTunnelingApplication,
     removeSplitTunnelingApplication,
     forgetManuallyAddedSplitTunnelingApplication,
-    getWindowsSplitTunnelingApplications,
+    getSplitTunnelingApplications,
     setSplitTunnelingState,
   } = useAppContext();
   const splitTunnelingEnabled = useSelector((state: IReduxState) => state.settings.splitTunneling);
@@ -314,13 +314,13 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
   );
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [applications, setApplications] = useState<IWindowsApplication[]>();
+  const [applications, setApplications] = useState<ISplitTunnelingApplication[]>();
   useAsyncEffect(async () => {
-    const { fromCache, applications } = await getWindowsSplitTunnelingApplications();
+    const { fromCache, applications } = await getSplitTunnelingApplications();
     setApplications(applications);
 
     if (fromCache) {
-      const { applications } = await getWindowsSplitTunnelingApplications(true);
+      const { applications } = await getSplitTunnelingApplications(true);
       setApplications(applications);
     }
   }, []);
@@ -345,7 +345,7 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
   }, [applications, splitTunnelingApplications, searchTerm]);
 
   const addApplication = useCallback(
-    async (application: IWindowsApplication | string) => {
+    async (application: ISplitTunnelingApplication | string) => {
       if (!splitTunnelingEnabled) {
         await setSplitTunnelingState(true);
       }
@@ -354,26 +354,26 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
     [addSplitTunnelingApplication, splitTunnelingEnabled, setSplitTunnelingState],
   );
 
-  const addApplicationAndUpdate = useCallback(
-    async (application: IWindowsApplication | string) => {
+  const addBrowsedForApplication = useCallback(
+    async (application: string) => {
       await addApplication(application);
-      const { applications } = await getWindowsSplitTunnelingApplications();
+      const { applications } = await getSplitTunnelingApplications();
       setApplications(applications);
     },
-    [addApplication, getWindowsSplitTunnelingApplications],
+    [addApplication, getSplitTunnelingApplications],
   );
 
   const forgetManuallyAddedApplicationAndUpdate = useCallback(
-    async (application: IWindowsApplication) => {
+    async (application: ISplitTunnelingApplication) => {
       await forgetManuallyAddedSplitTunnelingApplication(application);
-      const { applications } = await getWindowsSplitTunnelingApplications();
+      const { applications } = await getSplitTunnelingApplications();
       setApplications(applications);
     },
-    [forgetManuallyAddedSplitTunnelingApplication, getWindowsSplitTunnelingApplications],
+    [forgetManuallyAddedSplitTunnelingApplication, getSplitTunnelingApplications],
   );
 
   const removeApplication = useCallback(
-    async (application: IWindowsApplication) => {
+    async (application: ISplitTunnelingApplication) => {
       if (!splitTunnelingEnabled) {
         await setSplitTunnelingState(true);
       }
@@ -395,21 +395,17 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
   }, [filePickerCallback, props.scrollToTop]);
 
   const excludedRowRenderer = useCallback(
-    (application: IWindowsApplication) => (
-      <WindowsApplicationRow application={application} onRemove={removeApplication} />
+    (application: ISplitTunnelingApplication) => (
+      <ApplicationRow application={application} onRemove={removeApplication} />
     ),
     [removeApplication],
   );
 
   const includedRowRenderer = useCallback(
-    (application: IWindowsApplication) => {
+    (application: ISplitTunnelingApplication) => {
       const onForget = application.deletable ? forgetManuallyAddedApplicationAndUpdate : undefined;
       return (
-        <WindowsApplicationRow
-          application={application}
-          onAdd={addApplication}
-          onDelete={onForget}
-        />
+        <ApplicationRow application={application} onAdd={addApplication} onDelete={onForget} />
       );
     },
     [addApplication, forgetManuallyAddedApplicationAndUpdate],
@@ -516,14 +512,14 @@ function applicationGetKey<T extends IApplication>(application: T): string {
   return application.absolutepath;
 }
 
-interface IWindowsApplicationRowProps {
-  application: IWindowsApplication;
-  onAdd?: (application: IWindowsApplication) => void;
-  onRemove?: (application: IWindowsApplication) => void;
-  onDelete?: (application: IWindowsApplication) => void;
+interface IApplicationRowProps {
+  application: ISplitTunnelingApplication;
+  onAdd?: (application: ISplitTunnelingApplication) => void;
+  onRemove?: (application: ISplitTunnelingApplication) => void;
+  onDelete?: (application: ISplitTunnelingApplication) => void;
 }
 
-function WindowsApplicationRow(props: IWindowsApplicationRowProps) {
+function ApplicationRow(props: IApplicationRowProps) {
   const onAdd = useCallback(() => {
     props.onAdd?.(props.application);
   }, [props.onAdd, props.application]);

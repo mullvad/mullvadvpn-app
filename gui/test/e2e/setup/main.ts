@@ -168,7 +168,7 @@ class ApplicationMain {
       upgradeVersion: this.upgradeVersion,
       guiSettings: this.guiSettings,
       translations: this.translations,
-      windowsSplitTunnelingApplications: [],
+      splitTunnelingApplications: [],
       macOsScrollbarVisibility: MacOsScrollbarVisibility.whenScrolling,
       changelog: [],
       forceShowChanges: false,
