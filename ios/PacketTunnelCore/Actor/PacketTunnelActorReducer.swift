@@ -10,6 +10,7 @@ import Foundation
 import WireGuardKitTypes
 
 extension WireGuardKey where Self: Equatable {}
+
 extension PacketTunnelActor {
     ///  A structure encoding an effect; each event will yield zero or more of those, which can then be sequentially executed.
     enum Effect: Equatable {
