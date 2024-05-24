@@ -6,7 +6,10 @@ import util from 'util';
 
 import config from '../config.json';
 import { hasExpired } from '../shared/account-expiry';
-import { IWindowsApplication } from '../shared/application-types';
+import {
+  ISplitTunnelingApplication,
+  ISplitTunnelingAppListRetriever,
+} from '../shared/application-types';
 import {
   AccessMethodSetting,
   DaemonEvent,
@@ -67,7 +70,7 @@ const execAsync = util.promisify(exec);
 
 // Only import split tunneling library on correct OS.
 const linuxSplitTunneling = process.platform === 'linux' && require('./linux-split-tunneling');
-const windowsSplitTunneling = process.platform === 'win32' && require('./windows-split-tunneling');
+const splitTunneling: ISplitTunnelingAppListRetriever | undefined = importSplitTunneling();
 
 const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
 
@@ -110,7 +113,7 @@ class ApplicationMain
   private rendererLog?: Logger;
   private translations: ITranslations = { locale: this.locale };
 
-  private windowsSplitTunnelingApplications?: IWindowsApplication[];
+  private splitTunnelingApplications?: ISplitTunnelingApplication[];
 
   private macOsScrollbarVisibility?: MacOsScrollbarVisibility;
 
@@ -723,9 +726,7 @@ class ApplicationMain
 
     IpcMainEventChannel.settings.notify?.(newSettings);
 
-    if (windowsSplitTunneling) {
-      void this.updateSplitTunnelingApplications(newSettings.splitTunnel.appsList);
-    }
+    void this.updateSplitTunnelingApplications(newSettings.splitTunnel.appsList);
   }
 
   private setRelayList(relayList: IRelayListWithEndpointData) {
@@ -734,12 +735,12 @@ class ApplicationMain
   }
 
   private async updateSplitTunnelingApplications(appList: string[]): Promise<void> {
-    const { applications } = await windowsSplitTunneling.getApplications({
-      applicationPaths: appList,
-    });
-    this.windowsSplitTunnelingApplications = applications;
+    if (splitTunneling) {
+      const { applications } = await splitTunneling.getMetadataForApplications(appList);
+      this.splitTunnelingApplications = applications;
 
-    IpcMainEventChannel.windowsSplitTunneling.notify?.(applications);
+      IpcMainEventChannel.splitTunneling.notify?.(applications);
+    }
   }
 
   private registerIpcListeners() {
@@ -758,7 +759,7 @@ class ApplicationMain
       upgradeVersion: this.version.upgradeVersion,
       guiSettings: this.settings.gui.state,
       translations: this.translations,
-      windowsSplitTunnelingApplications: this.windowsSplitTunnelingApplications,
+      splitTunnelingApplications: this.splitTunnelingApplications,
       macOsScrollbarVisibility: this.macOsScrollbarVisibility,
       changelog: this.changelog ?? [],
       forceShowChanges: CommandLineOptions.showChanges.match,
@@ -789,38 +790,38 @@ class ApplicationMain
     IpcMainEventChannel.linuxSplitTunneling.handleGetApplications(() => {
       return linuxSplitTunneling.getApplications(this.locale);
     });
-    IpcMainEventChannel.windowsSplitTunneling.handleGetApplications((updateCaches: boolean) => {
-      return windowsSplitTunneling.getApplications({ updateCaches });
+    IpcMainEventChannel.splitTunneling.handleGetApplications((updateCaches: boolean) => {
+      return splitTunneling!.getApplications(updateCaches);
     });
     IpcMainEventChannel.linuxSplitTunneling.handleLaunchApplication((application) => {
       return linuxSplitTunneling.launchApplication(application);
     });
 
-    IpcMainEventChannel.windowsSplitTunneling.handleSetState((enabled) => {
+    IpcMainEventChannel.splitTunneling.handleSetState((enabled) => {
       return this.daemonRpc.setSplitTunnelingState(enabled);
     });
-    IpcMainEventChannel.windowsSplitTunneling.handleAddApplication(async (application) => {
+    IpcMainEventChannel.splitTunneling.handleAddApplication(async (application) => {
       // If the applications is a string (path) it's an application picked with the file picker
       // that we want to add to the list of additional applications.
       if (typeof application === 'string') {
         this.settings.gui.addBrowsedForSplitTunnelingApplications(application);
-        const applicationPath = await windowsSplitTunneling.addApplicationPathToCache(application);
-        await this.daemonRpc.addSplitTunnelingApplication(applicationPath);
+        const executablePath = await splitTunneling!.resolveExecutablePath(application);
+        await splitTunneling!.addApplicationPathToCache(application);
+        await this.daemonRpc.addSplitTunnelingApplication(executablePath);
       } else {
         await this.daemonRpc.addSplitTunnelingApplication(application.absolutepath);
       }
     });
-    IpcMainEventChannel.windowsSplitTunneling.handleRemoveApplication((application) => {
+    IpcMainEventChannel.splitTunneling.handleRemoveApplication((application) => {
       return this.daemonRpc.removeSplitTunnelingApplication(
         typeof application === 'string' ? application : application.absolutepath,
       );
     });
-    IpcMainEventChannel.windowsSplitTunneling.handleForgetManuallyAddedApplication(
-      (application) => {
-        this.settings.gui.deleteBrowsedForSplitTunnelingApplications(application.absolutepath);
-        return windowsSplitTunneling.removeApplicationFromCache(application);
-      },
-    );
+    IpcMainEventChannel.splitTunneling.handleForgetManuallyAddedApplication((application) => {
+      this.settings.gui.deleteBrowsedForSplitTunnelingApplications(application.absolutepath);
+      splitTunneling!.removeApplicationFromCache(application);
+      return Promise.resolve();
+    });
 
     IpcMainEventChannel.app.handleQuit(() => this.disconnectAndQuit());
     IpcMainEventChannel.app.handleOpenUrl(async (url) => {
@@ -851,10 +852,10 @@ class ApplicationMain
     this.settings.registerIpcListeners();
     this.account.registerIpcListeners();
 
-    if (windowsSplitTunneling) {
-      this.settings.gui.browsedForSplitTunnelingApplications.forEach(
-        windowsSplitTunneling.addApplicationPathToCache,
-      );
+    if (splitTunneling) {
+      this.settings.gui.browsedForSplitTunnelingApplications.forEach((application) => {
+        void splitTunneling.addApplicationPathToCache(application);
+      });
     }
   }
 
@@ -1102,6 +1103,12 @@ class ApplicationMain
     }
   };
   /* eslint-enable @typescript-eslint/member-ordering */
+}
+
+function importSplitTunneling() {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { WindowsSplitTunnelingAppListRetriever } = require('./windows-split-tunneling');
+  return new WindowsSplitTunnelingAppListRetriever();
 }
 
 if (CommandLineOptions.help.match) {

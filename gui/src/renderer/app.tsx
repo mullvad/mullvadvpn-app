@@ -4,7 +4,10 @@ import { bindActionCreators } from 'redux';
 import { StyleSheetManager } from 'styled-components';
 
 import { closeToExpiry, hasExpired } from '../shared/account-expiry';
-import { ILinuxSplitTunnelingApplication, IWindowsApplication } from '../shared/application-types';
+import {
+  ILinuxSplitTunnelingApplication,
+  ISplitTunnelingApplication,
+} from '../shared/application-types';
 import {
   AccessMethodSetting,
   AccountToken,
@@ -185,7 +188,7 @@ export default class AppRenderer {
       this.storeAutoStart(autoStart);
     });
 
-    IpcRendererEventChannel.windowsSplitTunneling.listen((applications: IWindowsApplication[]) => {
+    IpcRendererEventChannel.splitTunneling.listen((applications: ISplitTunnelingApplication[]) => {
       this.reduxActions.settings.setSplitTunnelingApplications(applications);
     });
 
@@ -258,9 +261,9 @@ export default class AppRenderer {
       this.checkContentHeight(true);
     });
 
-    if (initialState.windowsSplitTunnelingApplications) {
+    if (initialState.splitTunnelingApplications) {
       this.reduxActions.settings.setSplitTunnelingApplications(
-        initialState.windowsSplitTunnelingApplications,
+        initialState.splitTunnelingApplications,
       );
     }
 
@@ -334,11 +337,11 @@ export default class AppRenderer {
   public launchExcludedApplication = (application: ILinuxSplitTunnelingApplication | string) =>
     IpcRendererEventChannel.linuxSplitTunneling.launchApplication(application);
   public setSplitTunnelingState = (state: boolean) =>
-    IpcRendererEventChannel.windowsSplitTunneling.setState(state);
-  public addSplitTunnelingApplication = (application: string | IWindowsApplication) =>
-    IpcRendererEventChannel.windowsSplitTunneling.addApplication(application);
-  public forgetManuallyAddedSplitTunnelingApplication = (application: IWindowsApplication) =>
-    IpcRendererEventChannel.windowsSplitTunneling.forgetManuallyAddedApplication(application);
+    IpcRendererEventChannel.splitTunneling.setState(state);
+  public addSplitTunnelingApplication = (application: string | ISplitTunnelingApplication) =>
+    IpcRendererEventChannel.splitTunneling.addApplication(application);
+  public forgetManuallyAddedSplitTunnelingApplication = (application: ISplitTunnelingApplication) =>
+    IpcRendererEventChannel.splitTunneling.forgetManuallyAddedApplication(application);
   public setObfuscationSettings = (obfuscationSettings: ObfuscationSettings) =>
     IpcRendererEventChannel.settings.setObfuscationSettings(obfuscationSettings);
   public setDaitaSettings = (daitaSettings: IDaitaSettings) =>
@@ -513,12 +516,12 @@ export default class AppRenderer {
     return IpcRendererEventChannel.autoStart.set(autoStart);
   };
 
-  public getWindowsSplitTunnelingApplications(updateCache = false) {
-    return IpcRendererEventChannel.windowsSplitTunneling.getApplications(updateCache);
+  public getSplitTunnelingApplications(updateCache = false) {
+    return IpcRendererEventChannel.splitTunneling.getApplications(updateCache);
   }
 
-  public removeSplitTunnelingApplication(application: IWindowsApplication) {
-    void IpcRendererEventChannel.windowsSplitTunneling.removeApplication(application);
+  public removeSplitTunnelingApplication(application: ISplitTunnelingApplication) {
+    void IpcRendererEventChannel.splitTunneling.removeApplication(application);
   }
 
   public async showLaunchDaemonSettings() {

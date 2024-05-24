@@ -1,6 +1,6 @@
 import { GetTextTranslations } from 'gettext-parser';
 
-import { ILinuxSplitTunnelingApplication, IWindowsApplication } from './application-types';
+import { ILinuxSplitTunnelingApplication, ISplitTunnelingApplication } from './application-types';
 import {
   AccessMethodSetting,
   AccountDataError,
@@ -71,7 +71,7 @@ export interface IAppStateSnapshot {
   upgradeVersion: IAppVersionInfo;
   guiSettings: IGuiSettingsState;
   translations: ITranslations;
-  windowsSplitTunnelingApplications?: IWindowsApplication[];
+  splitTunnelingApplications?: ISplitTunnelingApplication[];
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
   changelog: IChangelog;
   forceShowChanges: boolean;
@@ -238,12 +238,15 @@ export const ipcSchema = {
     getApplications: invoke<void, ILinuxSplitTunnelingApplication[]>(),
     launchApplication: invoke<ILinuxSplitTunnelingApplication | string, LaunchApplicationResult>(),
   },
-  windowsSplitTunneling: {
-    '': notifyRenderer<IWindowsApplication[]>(),
+  splitTunneling: {
+    '': notifyRenderer<ISplitTunnelingApplication[]>(),
     setState: invoke<boolean, void>(),
-    getApplications: invoke<boolean, { fromCache: boolean; applications: IWindowsApplication[] }>(),
-    addApplication: invoke<IWindowsApplication | string, void>(),
-    removeApplication: invoke<IWindowsApplication, void>(),
-    forgetManuallyAddedApplication: invoke<IWindowsApplication, void>(),
+    getApplications: invoke<
+      boolean,
+      { fromCache: boolean; applications: ISplitTunnelingApplication[] }
+    >(),
+    addApplication: invoke<ISplitTunnelingApplication | string, void>(),
+    removeApplication: invoke<ISplitTunnelingApplication, void>(),
+    forgetManuallyAddedApplication: invoke<ISplitTunnelingApplication, void>(),
   },
 };
