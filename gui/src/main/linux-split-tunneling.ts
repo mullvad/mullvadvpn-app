@@ -121,7 +121,6 @@ export async function getApplications(locale: string): Promise<ILinuxSplitTunnel
   const applications = desktopEntries
     .filter(shouldShowApplication)
     .map(addApplicationWarnings)
-    .sort((a, b) => a.name.localeCompare(b.name))
     .map(replaceIconNameWithDataUrl);
 
   return Promise.all(applications);

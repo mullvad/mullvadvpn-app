@@ -502,7 +502,9 @@ function ApplicationList<T extends IApplication>(props: IApplicationListProps<T>
   } else {
     return (
       <StyledListContainer>
-        <List items={props.applications} getKey={applicationGetKey}>
+        <List
+          items={props.applications.sort((a, b) => a.name.localeCompare(b.name))}
+          getKey={applicationGetKey}>
           {props.rowRenderer}
         </List>
       </StyledListContainer>
