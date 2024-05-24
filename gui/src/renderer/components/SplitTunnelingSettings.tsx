@@ -91,10 +91,8 @@ function PlatformSpecificSplitTunnelingSettings(props: IPlatformSplitTunnelingSe
   switch (window.env.platform) {
     case 'linux':
       return <LinuxSplitTunnelingSettings {...props} />;
-    case 'win32':
-      return <SplitTunnelingSettings {...props} />;
     default:
-      throw new Error(`Split tunneling not implemented on ${window.env.platform}`);
+      return <SplitTunnelingSettings {...props} />;
   }
 }
 
@@ -385,8 +383,8 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
   const filePickerCallback = useFilePicker(
     messages.pgettext('split-tunneling-view', 'Add'),
     props.setBrowsing,
-    addApplicationAndUpdate,
-    { name: 'Executables', extensions: ['exe', 'lnk'] },
+    addBrowsedForApplication,
+    getFilePickerOptionsForPlatform(),
   );
 
   const addWithFilePicker = useCallback(async () => {
@@ -573,4 +571,12 @@ function ApplicationRow(props: IApplicationRowProps) {
 
 function includesSearchTerm(application: IApplication, searchTerm: string) {
   return application.name.toLowerCase().includes(searchTerm.toLowerCase());
+}
+
+function getFilePickerOptionsForPlatform():
+  | { name: string; extensions: Array<string> }
+  | undefined {
+  return window.env.platform === 'win32'
+    ? { name: 'Executables', extensions: ['exe', 'lnk'] }
+    : undefined;
 }

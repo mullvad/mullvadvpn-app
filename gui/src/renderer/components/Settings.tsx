@@ -29,6 +29,7 @@ export default function Support() {
   const isMacOs13OrNewer = useSelector((state) => state.userInterface.isMacOs13OrNewer);
 
   const showSubSettings = loginState.type === 'ok' && connectedToDaemon;
+  const showSplitTunneling = window.env.platform !== 'darwin' || isMacOs13OrNewer;
 
   return (
     <BackAction action={history.pop}>
@@ -60,7 +61,7 @@ export default function Support() {
                         <VpnSettingsButton />
                       </Cell.Group>
 
-                      {(window.env.platform === 'linux' || window.env.platform === 'win32') && (
+                      {showSplitTunneling && (
                         <Cell.Group>
                           <SplitTunnelingButton />
                         </Cell.Group>

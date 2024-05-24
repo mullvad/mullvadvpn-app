@@ -1108,9 +1108,15 @@ class ApplicationMain
 }
 
 function importSplitTunneling() {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { WindowsSplitTunnelingAppListRetriever } = require('./windows-split-tunneling');
-  return new WindowsSplitTunnelingAppListRetriever();
+  if (process.platform === 'win32') {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { WindowsSplitTunnelingAppListRetriever } = require('./windows-split-tunneling');
+    return new WindowsSplitTunnelingAppListRetriever();
+  } else if (process.platform === 'darwin') {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { MacOsSplitTunnelingAppListRetriever } = require('./macos-split-tunneling');
+    return new MacOsSplitTunnelingAppListRetriever();
+  }
 }
 
 if (CommandLineOptions.help.match) {
