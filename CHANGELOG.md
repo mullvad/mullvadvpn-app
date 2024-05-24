@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add custom bridge settings in GUI.
+- Bundle https://github.com/mullvad/apisocks5 as a standalone binary.
 
 #### macOS
 - Add support for split tunneling (beta).
