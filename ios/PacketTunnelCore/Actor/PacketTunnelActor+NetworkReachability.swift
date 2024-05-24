@@ -18,11 +18,11 @@ extension PacketTunnelActor {
         logger.trace("Start default path observer.")
 
         defaultPathObserver.start { [weak self] networkPath in
-            self?.commandChannel.send(.networkReachability(networkPath))
+            self?.eventChannel.send(.networkReachability(networkPath))
         }
 
         if notifyObserverWithCurrentPath, let currentPath = defaultPathObserver.defaultPath {
-            commandChannel.send(.networkReachability(currentPath))
+            eventChannel.send(.networkReachability(currentPath))
         }
     }
 

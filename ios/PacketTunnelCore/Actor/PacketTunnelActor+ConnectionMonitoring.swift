@@ -13,7 +13,7 @@ extension PacketTunnelActor {
     func setTunnelMonitorEventHandler() {
         tunnelMonitor.onEvent = { [weak self] event in
             /// Dispatch tunnel monitor events via command channel to guarantee the order of execution.
-            self?.commandChannel.send(.monitorEvent(event))
+            self?.eventChannel.send(.monitorEvent(event))
         }
     }
 
@@ -51,7 +51,7 @@ extension PacketTunnelActor {
     private func onHandleConnectionRecovery() async {
         switch state {
         case .connecting, .reconnecting, .connected:
-            commandChannel.send(.reconnect(.random, reason: .connectionLoss))
+            eventChannel.send(.reconnect(.random, reason: .connectionLoss))
 
         case .initial, .disconnected, .disconnecting, .error, .negotiatingPostQuantumKey:
             break

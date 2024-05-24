@@ -52,8 +52,8 @@ extension PacketTunnelActor {
         }
     }
 
-    static func reducer(_ state: inout State, _ command: Command) -> [Effect] {
-        switch command {
+    static func reducer(_ state: inout State, _ event: Event) -> [Effect] {
+        switch event {
         case let .start(options):
             guard case .initial = state else { return [] }
             return [
@@ -155,7 +155,7 @@ extension PacketTunnelActor {
         }
     }
 
-    func runReducer(_ command: Command) -> [Effect] {
-        PacketTunnelActor.reducer(&state, command)
+    func runReducer(_ event: Event) -> [Effect] {
+        PacketTunnelActor.reducer(&state, event)
     }
 }

@@ -23,14 +23,14 @@ extension PacketTunnelActor {
      - Parameter options: start options.
      */
     nonisolated public func start(options: StartOptions) {
-        commandChannel.send(.start(options))
+        eventChannel.send(.start(options))
     }
 
     /**
      Tell actor to stop the tunnel.
      */
     nonisolated public func stop() {
-        commandChannel.send(.stop)
+        eventChannel.send(.stop)
     }
 
     /**
@@ -39,7 +39,7 @@ extension PacketTunnelActor {
      - Parameter nextRelay: next relay to connect to.
      */
     public nonisolated func reconnect(to nextRelay: NextRelay) {
-        commandChannel.send(.reconnect(nextRelay))
+        eventChannel.send(.reconnect(nextRelay))
     }
 
     /**
@@ -48,7 +48,7 @@ extension PacketTunnelActor {
      - Parameter date: date when last key rotation took place.
      */
     nonisolated public func notifyKeyRotation(date: Date?) {
-        commandChannel.send(.notifyKeyRotated(date))
+        eventChannel.send(.notifyKeyRotated(date))
     }
 
     /**
@@ -57,13 +57,13 @@ extension PacketTunnelActor {
      */
 
     nonisolated public func replacePreSharedKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
-        commandChannel.send(.replaceDevicePrivateKey(key, ephemeralKey: ephemeralKey))
+        eventChannel.send(.replaceDevicePrivateKey(key, ephemeralKey: ephemeralKey))
     }
 
     /**
      Tell actor to enter error state.
      */
     nonisolated public func setErrorState(reason: BlockedStateReason) {
-        commandChannel.send(.error(reason))
+        eventChannel.send(.error(reason))
     }
 }

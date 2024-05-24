@@ -46,7 +46,7 @@ extension PacketTunnelActor {
      */
     func switchToCurrentKey() {
         if switchToCurrentKeyInner() {
-            commandChannel.send(.reconnect(.random))
+            eventChannel.send(.reconnect(.random))
         }
     }
 
@@ -65,7 +65,7 @@ extension PacketTunnelActor {
             try await Task.sleepUsingContinuousClock(for: timings.wgKeyPropagationDelay)
 
             // Enqueue task to change key policy.
-            commandChannel.send(.switchKey)
+            eventChannel.send(.switchKey)
         }
 
         return AutoCancellingTask(task)
