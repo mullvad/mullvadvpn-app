@@ -431,6 +431,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
      the reference.
      */
     private func setNotificationControllerParent(isPrimary: Bool) {
+        // We can't close banners in the screenshot tests due to how the NotificationController view
+        // is overridden, so we need this horrible workaround to make sure that no banners are visible.
+        guard
+            let launchArguments = try? ProcessInfo.processInfo.decode(LaunchArguments.self),
+            launchArguments.target != .screenshots
+        else { return }
+
         if isPrimary {
             secondaryNavigationContainer.notificationController = nil
             primaryNavigationContainer.notificationController = notificationController
