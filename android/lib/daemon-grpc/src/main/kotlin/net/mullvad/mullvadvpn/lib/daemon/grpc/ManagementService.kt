@@ -276,7 +276,7 @@ class ManagementService(
                     null
                 }
             }
-            .mapLeftStatus { GetAccountHistoryError.Unknown(it) }
+            .mapLeft(GetAccountHistoryError::Unknown)
 
     private suspend fun getInitialServiceState() {
         withContext(Dispatchers.IO) {
@@ -294,14 +294,14 @@ class ManagementService(
         accountToken: AccountToken
     ): Either<GetAccountDataError, AccountData> =
         Either.catch { grpc.getAccountData(StringValue.of(accountToken.value)).toDomain() }
-            .mapLeft { GetAccountDataError.Unknown(it) }
+            .mapLeft(GetAccountDataError::Unknown)
 
     suspend fun createAccount(): Either<CreateAccountError, AccountToken> =
         Either.catch {
                 val accountTokenStringValue = grpc.createNewAccount(Empty.getDefaultInstance())
                 AccountToken(accountTokenStringValue.value)
             }
-            .mapLeft { CreateAccountError.Unknown(it) }
+            .mapLeft(CreateAccountError::Unknown)
 
     suspend fun setDnsOptions(dnsOptions: ModelDnsOptions): Either<SetDnsOptionsError, Unit> =
         Either.catch { grpc.setDnsOptions(dnsOptions.fromDomain()) }
@@ -388,9 +388,6 @@ class ManagementService(
         Either.catch { grpc.setAllowLan(BoolValue.of(allow)) }
             .mapLeft(SetAllowLanError::Unknown)
             .mapEmpty()
-
-    suspend fun getCurrentVersion(): String =
-        grpc.getCurrentVersion(Empty.getDefaultInstance()).value
 
     suspend fun setRelayLocation(location: ModelRelayItemId): Either<SetRelayLocationError, Unit> =
         Either.catch {
