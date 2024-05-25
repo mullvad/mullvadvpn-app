@@ -48,8 +48,8 @@ fun ErrorStateCause.errorMessageId(): Int {
         is ErrorStateCause.InvalidDnsServers -> R.string.invalid_dns_servers
         is ErrorStateCause.AuthFailed -> R.string.auth_failed
         is ErrorStateCause.Ipv6Unavailable -> R.string.ipv6_unavailable
-        is ErrorStateCause.SetFirewallPolicyError -> R.string.set_firewall_policy_error
-        is ErrorStateCause.SetDnsError -> R.string.set_dns_error
+        is ErrorStateCause.FirewallPolicyError -> R.string.set_firewall_policy_error
+        is ErrorStateCause.DnsError -> R.string.set_dns_error
         is ErrorStateCause.StartTunnelError -> R.string.start_tunnel_error
         is ErrorStateCause.IsOffline -> R.string.is_offline
         is ErrorStateCause.TunnelParameterError -> {

@@ -31,7 +31,6 @@ import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER_ACTION
 import net.mullvad.mullvadvpn.compose.util.rememberPrevious
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
-import net.mullvad.mullvadvpn.lib.model.FirewallPolicyError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
@@ -61,13 +60,7 @@ private fun PreviewNotificationBanner() {
                         InAppNotification.TunnelStateBlocked,
                         InAppNotification.NewDevice("Courageous Turtle"),
                         InAppNotification.TunnelStateError(
-                            error =
-                                ErrorState(
-                                    ErrorStateCause.SetFirewallPolicyError(
-                                        FirewallPolicyError.Generic
-                                    ),
-                                    true
-                                )
+                            error = ErrorState(ErrorStateCause.FirewallPolicyError.Generic, true)
                         )
                     )
                     .map { it.toNotificationData(false, {}, {}, {}) }

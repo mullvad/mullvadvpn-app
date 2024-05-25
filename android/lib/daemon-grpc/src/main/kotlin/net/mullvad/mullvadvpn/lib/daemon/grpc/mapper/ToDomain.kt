@@ -29,7 +29,6 @@ import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.Endpoint
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
-import net.mullvad.mullvadvpn.lib.model.FirewallPolicyError
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Mtu
@@ -195,8 +194,8 @@ internal fun ManagementInterface.ErrorState.toDomain(): ErrorState =
                 ManagementInterface.ErrorState.Cause.IPV6_UNAVAILABLE ->
                     ErrorStateCause.Ipv6Unavailable
                 ManagementInterface.ErrorState.Cause.SET_FIREWALL_POLICY_ERROR ->
-                    ErrorStateCause.SetFirewallPolicyError(policyError.toDomain())
-                ManagementInterface.ErrorState.Cause.SET_DNS_ERROR -> ErrorStateCause.SetDnsError
+                    policyError.toDomain()
+                ManagementInterface.ErrorState.Cause.SET_DNS_ERROR -> ErrorStateCause.DnsError
                 ManagementInterface.ErrorState.Cause.START_TUNNEL_ERROR ->
                     ErrorStateCause.StartTunnelError
                 ManagementInterface.ErrorState.Cause.TUNNEL_PARAMETER_ERROR ->
@@ -213,10 +212,11 @@ internal fun ManagementInterface.ErrorState.toDomain(): ErrorState =
         isBlocking = !hasBlockingError()
     )
 
-internal fun ManagementInterface.ErrorState.FirewallPolicyError.toDomain(): FirewallPolicyError =
+internal fun ManagementInterface.ErrorState.FirewallPolicyError.toDomain():
+    ErrorStateCause.FirewallPolicyError =
     when (type!!) {
         ManagementInterface.ErrorState.FirewallPolicyError.ErrorType.GENERIC ->
-            FirewallPolicyError.Generic
+            ErrorStateCause.FirewallPolicyError.Generic
         ManagementInterface.ErrorState.FirewallPolicyError.ErrorType.LOCKED,
         ManagementInterface.ErrorState.FirewallPolicyError.ErrorType.UNRECOGNIZED ->
             throw IllegalArgumentException("Unrecognized firewall policy error")

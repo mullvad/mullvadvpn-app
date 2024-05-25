@@ -15,10 +15,11 @@ sealed class ErrorStateCause {
 
     data object Ipv6Unavailable : ErrorStateCause()
 
-    data class SetFirewallPolicyError(val firewallPolicyError: FirewallPolicyError) :
-        ErrorStateCause()
+    sealed class FirewallPolicyError : ErrorStateCause() {
+        data object Generic : FirewallPolicyError()
+    }
 
-    data object SetDnsError : ErrorStateCause()
+    data object DnsError : ErrorStateCause()
 
     data class InvalidDnsServers(val addresses: ArrayList<InetAddress>) : ErrorStateCause()
 
