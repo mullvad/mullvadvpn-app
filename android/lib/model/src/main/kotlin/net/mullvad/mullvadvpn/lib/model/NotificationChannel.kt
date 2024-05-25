@@ -4,10 +4,12 @@ sealed interface NotificationChannel {
     val id: NotificationChannelId
 
     data object TunnelUpdates : NotificationChannel {
-        override val id: NotificationChannelId = NotificationChannelId("tunnel_state_notification")
+        private const val CHANNEL_ID = "tunnel_state_notification"
+        override val id: NotificationChannelId = NotificationChannelId(CHANNEL_ID)
     }
 
     data object AccountUpdates : NotificationChannel {
-        override val id: NotificationChannelId = NotificationChannelId("account_updates")
+        private const val CHANNEL_ID = "account_updates"
+        override val id: NotificationChannelId = NotificationChannelId(CHANNEL_ID)
     }
 }
