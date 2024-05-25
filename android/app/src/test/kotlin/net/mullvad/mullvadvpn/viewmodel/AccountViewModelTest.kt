@@ -46,7 +46,7 @@ class AccountViewModelTest {
         Device(
             id = DeviceId.fromString(java.util.UUID.randomUUID().toString()),
             name = "fake_name",
-            created = DateTime.now()
+            creationDate = DateTime.now()
         )
     private val dummyAccountToken: AccountToken =
         AccountToken(

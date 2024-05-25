@@ -5,8 +5,8 @@ import android.content.res.Resources
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import net.mullvad.mullvadvpn.lib.common.R
-import net.mullvad.mullvadvpn.lib.model.NotificationChannelId
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
+import net.mullvad.mullvadvpn.lib.model.NotificationChannelId
 
 class NotificationChannelFactory(
     private val notificationManagerCompat: NotificationManagerCompat,

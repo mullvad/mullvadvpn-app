@@ -30,7 +30,7 @@ class NewDeviceUseNotificationCaseTest {
             Device(
                 id = DeviceId.fromString(UUID.randomUUID().toString()),
                 name = deviceName,
-                created = DateTime.now()
+                creationDate = DateTime.now()
             )
         )
     private lateinit var newDeviceNotificationUseCase: NewDeviceNotificationUseCase
