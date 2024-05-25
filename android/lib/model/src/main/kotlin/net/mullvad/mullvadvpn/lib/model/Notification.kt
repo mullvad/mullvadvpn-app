@@ -5,17 +5,17 @@ import org.joda.time.Duration
 sealed interface Notification {
     val actions: List<NotificationAction>
     val ongoing: Boolean
-    val channelId: ChannelId
+    val channelId: NotificationChannelId
 
     data class Tunnel(
-        override val channelId: ChannelId,
+        override val channelId: NotificationChannelId,
         val state: NotificationTunnelState,
         override val actions: List<NotificationAction.Tunnel>,
         override val ongoing: Boolean,
     ) : Notification
 
     data class AccountExpiry(
-        override val channelId: ChannelId,
+        override val channelId: NotificationChannelId,
         override val actions: List<NotificationAction.AccountExpiry>,
         val wwwAuthToken: WwwAuthToken?,
         val isPlayBuild: Boolean,

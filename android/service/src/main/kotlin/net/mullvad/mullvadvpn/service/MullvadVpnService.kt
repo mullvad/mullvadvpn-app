@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.service.di.apiEndpointModule
 import net.mullvad.mullvadvpn.service.di.vpnServiceModule
-import net.mullvad.mullvadvpn.service.notifications.ChannelFactory
+import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.ForegroundNotificationManager
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.mullvadvpn.service.notifications.ShouldBeOnForegroundProvider
@@ -58,7 +58,7 @@ class MullvadVpnService : TalpidVpnService(), ShouldBeOnForegroundProvider {
         loadKoinModules(listOf(vpnServiceModule, apiEndpointModule))
         with(getKoin()) {
             // Needed to create all the notification channels
-            get<ChannelFactory>()
+            get<NotificationChannelFactory>()
 
             managementService = get()
 

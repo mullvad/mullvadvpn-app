@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.service.notifications.accountexpiry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import net.mullvad.mullvadvpn.lib.model.ChannelId
+import net.mullvad.mullvadvpn.lib.model.NotificationChannelId
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.Notification
 import net.mullvad.mullvadvpn.lib.model.NotificationId
@@ -15,7 +15,7 @@ import org.joda.time.DateTime
 import org.joda.time.Duration
 
 class AccountExpiryNotificationProvider(
-    channelId: ChannelId,
+    channelId: NotificationChannelId,
     accountRepository: AccountRepository,
 ) : NotificationProvider<Notification.AccountExpiry> {
     private val notificationId = NotificationId(3)

@@ -5,19 +5,19 @@ import android.content.res.Resources
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import net.mullvad.mullvadvpn.lib.common.R
-import net.mullvad.mullvadvpn.lib.model.ChannelId
+import net.mullvad.mullvadvpn.lib.model.NotificationChannelId
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
 
-class ChannelFactory(
+class NotificationChannelFactory(
     private val notificationManagerCompat: NotificationManagerCompat,
     private val resources: Resources,
     channels: List<NotificationChannel>
 ) {
     init {
-        channels.forEach { createChannel(it) }
+        channels.forEach { create(it) }
     }
 
-    private fun createChannel(channel: NotificationChannel): ChannelId {
+    private fun create(channel: NotificationChannel): NotificationChannelId {
         val androidChannel = channel.toAndroidNotificationChannel()
         notificationManagerCompat.createNotificationChannel(androidChannel)
         return channel.id

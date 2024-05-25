@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
-import net.mullvad.mullvadvpn.lib.model.ChannelId
+import net.mullvad.mullvadvpn.lib.model.NotificationChannelId
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.Notification
@@ -29,7 +29,7 @@ class TunnelStateNotificationProvider(
     connectionProxy: ConnectionProxy,
     vpnPermissionRepository: VpnPermissionRepository,
     accountRepository: AccountRepository,
-    channelId: ChannelId,
+    channelId: NotificationChannelId,
     scope: CoroutineScope
 ) : NotificationProvider<Notification.Tunnel> {
     internal val notificationId = NotificationId(2)
