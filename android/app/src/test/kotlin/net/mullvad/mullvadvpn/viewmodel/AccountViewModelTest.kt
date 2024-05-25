@@ -43,11 +43,7 @@ class AccountViewModelTest {
     private val accountExpiryState = MutableStateFlow(null)
 
     private val dummyDevice =
-        Device(
-            id = DeviceId.fromString(java.util.UUID.randomUUID().toString()),
-            name = "fake_name",
-            creationDate = DateTime.now()
-        )
+        Device(id = DeviceId.fromString(UUID), name = "fake_name", creationDate = DateTime.now())
     private val dummyAccountToken: AccountToken =
         AccountToken(
             DUMMY_DEVICE_NAME,
@@ -215,5 +211,6 @@ class AccountViewModelTest {
         private const val PURCHASE_RESULT_EXTENSIONS_CLASS =
             "net.mullvad.mullvadvpn.util.PurchaseResultExtensionsKt"
         private const val DUMMY_DEVICE_NAME = "fake_name"
+        private const val UUID = "12345678-1234-5678-1234-567812345678"
     }
 }

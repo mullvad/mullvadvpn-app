@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.repository
 
-import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -21,7 +20,6 @@ enum class StatusLevel {
 }
 
 sealed class InAppNotification {
-    val uuid: UUID = UUID.randomUUID()
     abstract val statusLevel: StatusLevel
     abstract val priority: Long
 

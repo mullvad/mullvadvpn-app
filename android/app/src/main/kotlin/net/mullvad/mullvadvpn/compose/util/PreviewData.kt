@@ -81,16 +81,18 @@ private fun generateHostname(city: GeoLocationId.City, index: Int) =
 
 private const val CITY_CODE_LENGTH = 3
 
-fun generateDevices(count: Int) = List(count) { generateDevice() }
+fun generateDevices(count: Int) = List(count) { index -> generateDevice(index) }
 
 fun generateDevice(
-    id: DeviceId = DeviceId(UUID.randomUUID()),
+    index: Int,
+    id: String = UUID,
     name: String? = null,
 ) =
     Device(
-        id = id,
-        name = name ?: "Device ${id.value.toString().take(DEVICE_SUFFIX_LENGTH)}",
+        id = DeviceId.fromString(id),
+        name = name ?: "Device $index-${id.take(DEVICE_SUFFIX_LENGTH)}",
         DateTime.now()
     )
 
 private const val DEVICE_SUFFIX_LENGTH = 4
+private const val UUID = "12345678-1234-5678-1234-567812345678"

@@ -33,7 +33,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 @Composable
 private fun PreviewRemoveDeviceConfirmationDialog() {
     AppTheme {
-        RemoveDeviceConfirmationDialog(EmptyResultBackNavigator(), device = generateDevice())
+        RemoveDeviceConfirmationDialog(EmptyResultBackNavigator(), device = generateDevice(0))
     }
 }
 

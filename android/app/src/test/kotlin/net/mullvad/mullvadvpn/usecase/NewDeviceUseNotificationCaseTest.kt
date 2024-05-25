@@ -27,11 +27,7 @@ class NewDeviceUseNotificationCaseTest {
     private val deviceName = "Frank Zebra"
     private val deviceState =
         MutableStateFlow<Device?>(
-            Device(
-                id = DeviceId.fromString(UUID.randomUUID().toString()),
-                name = deviceName,
-                creationDate = DateTime.now()
-            )
+            Device(id = DeviceId.fromString(UUID), name = deviceName, creationDate = DateTime.now())
         )
     private lateinit var newDeviceNotificationUseCase: NewDeviceNotificationUseCase
 
@@ -81,5 +77,9 @@ class NewDeviceUseNotificationCaseTest {
             // Assert
             assertEquals(awaitItem(), emptyList())
         }
+    }
+
+    companion object {
+        private const val UUID = "12345678-1234-5678-1234-567812345678"
     }
 }
