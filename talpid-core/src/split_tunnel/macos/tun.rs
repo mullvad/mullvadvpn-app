@@ -51,9 +51,6 @@ pub enum Error {
     /// Failed to begin capture on split tunnel utun
     #[error("Failed to begin capture on split tunnel utun")]
     CaptureSplitTunnelDevice(#[source] pcap::Error),
-    /// Failed to set direction on capture
-    #[error("Failed to set direction on pcap")]
-    SetDirection(#[source] pcap::Error),
     /// Failed to enable nonblocking I/O
     #[error("Failed to enable nonblocking I/O")]
     EnableNonblock(#[source] pcap::Error),
@@ -72,9 +69,6 @@ pub enum Error {
     /// Failed to configure BPF device for default interface
     #[error("Failed to configure BPF device for default interface")]
     ConfigDefaultBpf(#[source] bpf::Error),
-    /// Failed to retrieve BPF buffer size
-    #[error("Failed to retrieve BPF buffer size")]
-    GetBpfBufferSize(#[source] bpf::Error),
     /// Failed to create BPF device for VPN tunnel
     #[error("Failed to create BPF device for VPN tunnel")]
     CreateVpnBpf(#[source] bpf::Error),
