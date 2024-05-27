@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
@@ -24,7 +23,7 @@ class SettingsViewModel(
                 versionInfo ->
                 SettingsUiState(
                     isLoggedIn = accountState is DeviceState.LoggedIn,
-                    appVersion = BuildConfig.VERSION_NAME,
+                    appVersion = versionInfo.currentVersion,
                     isUpdateAvailable =
                         versionInfo.let { it.isSupported.not() || it.isUpdateAvailable },
                     isPlayBuild = isPlayBuild

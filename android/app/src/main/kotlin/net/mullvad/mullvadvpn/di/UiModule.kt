@@ -148,13 +148,11 @@ val uiModule = module {
 
     single { ProblemReportRepository() }
 
-    single { AppVersionInfoRepository(get()) }
+    single { AppVersionInfoRepository(get(), get()) }
 
     // View models
     viewModel { AccountViewModel(get(), get(), IS_PLAY_BUILD) }
-    viewModel {
-        ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
-    }
+    viewModel { ChangelogViewModel(get(), get(), BuildConfig.ALWAYS_SHOW_CHANGELOG) }
     viewModel {
         ConnectViewModel(
             get(),

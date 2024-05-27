@@ -1,10 +1,11 @@
 package net.mullvad.mullvadvpn.di
 
 import kotlinx.coroutines.MainScope
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.constant.GRPC_SOCKET_FILE_NAME
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.intent.BuildConfig
 import net.mullvad.mullvadvpn.lib.intent.IntentProvider
+import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
@@ -21,6 +22,7 @@ val appModule = module {
             scope = MainScope(),
         )
     }
+    single { BuildVersion(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE) }
     single { IntentProvider() }
     single { AccountRepository(get(), MainScope()) }
     single { VpnPermissionRepository(androidContext()) }
