@@ -25,7 +25,7 @@ class VersionNotificationUseCaseTest {
 
     private val versionInfo =
         MutableStateFlow(
-            VersionInfo(currentVersion = "", suggestedUpgradeVersion = null, isSupported = true)
+            VersionInfo(currentVersion = "", isSupported = true, suggestedUpgradeVersion = null)
         )
     private lateinit var versionNotificationUseCase: VersionNotificationUseCase
 
@@ -60,8 +60,8 @@ class VersionNotificationUseCaseTest {
                 val upgradeVersionInfo =
                     VersionInfo(
                         currentVersion = "1.0",
-                        suggestedUpgradeVersion = "1.1",
-                        isSupported = true
+                        isSupported = true,
+                        suggestedUpgradeVersion = "1.1"
                     )
                 awaitItem()
                 versionInfo.value = upgradeVersionInfo
@@ -82,8 +82,8 @@ class VersionNotificationUseCaseTest {
                 val upgradeVersionInfo =
                     VersionInfo(
                         currentVersion = "1.0",
-                        suggestedUpgradeVersion = null,
-                        isSupported = false
+                        isSupported = false,
+                        suggestedUpgradeVersion = null
                     )
                 awaitItem()
                 versionInfo.value = upgradeVersionInfo

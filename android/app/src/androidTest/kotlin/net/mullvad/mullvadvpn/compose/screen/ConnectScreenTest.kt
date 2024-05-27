@@ -604,8 +604,8 @@ class ConnectScreenTest {
             val versionInfo =
                 VersionInfo(
                     currentVersion = "1.0",
-                    suggestedUpgradeVersion = "1.1",
-                    isSupported = true
+                    isSupported = true,
+                    suggestedUpgradeVersion = "1.1"
                 )
             setContentWithTheme {
                 ConnectScreen(
@@ -638,8 +638,8 @@ class ConnectScreenTest {
             val versionInfo =
                 VersionInfo(
                     currentVersion = "1.0",
-                    suggestedUpgradeVersion = "1.1",
-                    isSupported = false
+                    isSupported = false,
+                    suggestedUpgradeVersion = "1.1"
                 )
             setContentWithTheme {
                 ConnectScreen(
@@ -702,7 +702,7 @@ class ConnectScreenTest {
         composeExtension.use {
             // Arrange
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            val versionInfo = VersionInfo(suggestedUpgradeVersion = "1.1", isSupported = false)
+            val versionInfo = VersionInfo(isSupported = false, suggestedUpgradeVersion = "1.1")
             setContentWithTheme {
                 ConnectScreen(
                     onUpdateVersionClick = mockedClickHandler,

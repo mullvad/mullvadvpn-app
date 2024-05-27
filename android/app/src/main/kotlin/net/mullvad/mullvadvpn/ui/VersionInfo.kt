@@ -3,9 +3,9 @@ package net.mullvad.mullvadvpn.ui
 import net.mullvad.mullvadvpn.BuildConfig
 
 data class VersionInfo(
-    val suggestedUpgradeVersion: String?,
+    val currentVersion: String = BuildConfig.VERSION_NAME,
     val isSupported: Boolean,
-    val currentVersion: String = BuildConfig.VERSION_NAME
+    val suggestedUpgradeVersion: String?
 ) {
     val isUpdateAvailable: Boolean = suggestedUpgradeVersion != null
 }

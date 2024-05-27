@@ -9,8 +9,8 @@ class AppVersionInfoRepository(private val managementService: ManagementService)
     fun versionInfo(): Flow<VersionInfo> =
         managementService.versionInfo.map { appVersionInfo ->
             VersionInfo(
-                suggestedUpgradeVersion = appVersionInfo.suggestedUpgrade,
                 isSupported = appVersionInfo.supported,
+                suggestedUpgradeVersion = appVersionInfo.suggestedUpgrade,
             )
         }
 }

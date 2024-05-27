@@ -27,7 +27,7 @@ class SettingsViewModelTest {
 
     private val versionInfo =
         MutableStateFlow(
-            VersionInfo(currentVersion = "", suggestedUpgradeVersion = null, isSupported = false)
+            VersionInfo(currentVersion = "", isSupported = false, suggestedUpgradeVersion = null)
         )
 
     private lateinit var viewModel: SettingsViewModel
@@ -66,8 +66,8 @@ class SettingsViewModelTest {
             val versionInfoTestItem =
                 VersionInfo(
                     currentVersion = "1.0",
-                    suggestedUpgradeVersion = null,
-                    isSupported = true
+                    isSupported = true,
+                    suggestedUpgradeVersion = null
                 )
 
             // Act, Assert
@@ -85,7 +85,7 @@ class SettingsViewModelTest {
         runTest {
             // Arrange
             val versionInfoTestItem =
-                VersionInfo(currentVersion = "", suggestedUpgradeVersion = "", isSupported = false)
+                VersionInfo(currentVersion = "", isSupported = false, suggestedUpgradeVersion = "")
             versionInfo.value = versionInfoTestItem
 
             // Act, Assert
@@ -100,7 +100,7 @@ class SettingsViewModelTest {
         runTest {
             // Arrange
             val versionInfoTestItem =
-                VersionInfo(currentVersion = "", suggestedUpgradeVersion = "", isSupported = true)
+                VersionInfo(currentVersion = "", isSupported = true, suggestedUpgradeVersion = "")
             versionInfo.value = versionInfoTestItem
 
             // Act, Assert

@@ -52,8 +52,8 @@ private fun PreviewNotificationBanner() {
                             versionInfo =
                                 VersionInfo(
                                     currentVersion = "1.0",
-                                    suggestedUpgradeVersion = null,
-                                    isSupported = false
+                                    isSupported = false,
+                                    suggestedUpgradeVersion = null
                                 ),
                         ),
                         InAppNotification.AccountExpiry(expiry = DateTime.now()),
