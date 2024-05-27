@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.GetCustomListError
-import net.mullvad.mullvadvpn.lib.model.ModifyCustomListError
+import net.mullvad.mullvadvpn.lib.model.PartialUpdateCustomListError
 
 class CustomListsRepository(
     private val managementService: ManagementService,
@@ -37,7 +37,7 @@ class CustomListsRepository(
     suspend fun updateCustomListName(
         id: CustomListId,
         name: CustomListName
-    ): Either<ModifyCustomListError, Unit> = either {
+    ): Either<PartialUpdateCustomListError, Unit> = either {
         val customList = getCustomListById(id).bind()
         updateCustomList(customList.copy(name = name)).bind()
     }
@@ -45,7 +45,7 @@ class CustomListsRepository(
     suspend fun updateCustomListLocations(
         id: CustomListId,
         locations: List<GeoLocationId>
-    ): Either<ModifyCustomListError, Unit> = either {
+    ): Either<PartialUpdateCustomListError, Unit> = either {
         val customList = getCustomListById(id).bind()
         updateCustomList(customList.copy(locations = locations)).bind()
     }

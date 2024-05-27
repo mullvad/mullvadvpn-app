@@ -36,11 +36,12 @@ class DeviceListViewModel(
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     val uiState: StateFlow<DeviceListUiState> =
-        combine(loadingDevices, deviceList.map { it.sortedBy { it.creationDate } }, loading, error) {
+        combine(
                 loadingDevices,
-                devices,
+                deviceList.map { it.sortedBy { it.creationDate } },
                 loading,
-                error ->
+                error
+            ) { loadingDevices, devices, loading, error ->
                 when {
                     loading -> DeviceListUiState.Loading
                     error != null -> DeviceListUiState.Error(error)

@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.lib.model.GetCustomListError
-import net.mullvad.mullvadvpn.lib.model.ModifyCustomListError
+import net.mullvad.mullvadvpn.lib.model.PartialUpdateCustomListError
 import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.relaylist.getRelayItemsByCodes
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
@@ -67,7 +67,7 @@ class CustomListActionUseCase(
             if (action.locations.isNotEmpty()) {
                 customListsRepository
                     .updateCustomListLocations(customListId, action.locations)
-                    .mapLeft(CreateCustomListWithLocationsError::Modify)
+                    .mapLeft(CreateCustomListWithLocationsError::PartialUpdate)
                     .bind()
 
                 relayListRepository.relayList
@@ -110,11 +110,11 @@ class CustomListActionUseCase(
         val customList =
             customListsRepository
                 .getCustomListById(action.id)
-                .mapLeft(UpdateLocationsCustomListError::Get)
+                .mapLeft(UpdateLocationsCustomListError::PartialUpdate)
                 .bind()
         customListsRepository
             .updateCustomListLocations(action.id, action.locations)
-            .mapLeft(UpdateLocationsCustomListError::Modify)
+            .mapLeft(UpdateLocationsCustomListError::PartialUpdate)
             .bind()
         CustomListResult.LocationsChanged(
             name = customList.name,
@@ -128,7 +128,8 @@ sealed interface CustomListActionError
 sealed interface CreateCustomListWithLocationsError : CustomListActionError {
     data class Create(val error: CreateCustomListError) : CreateCustomListWithLocationsError
 
-    data class Modify(val error: ModifyCustomListError) : CreateCustomListWithLocationsError
+    data class PartialUpdate(val error: PartialUpdateCustomListError) :
+        CreateCustomListWithLocationsError
 
     data object UnableToFetchRelayList : CreateCustomListWithLocationsError
 }
@@ -149,7 +150,6 @@ sealed interface RenameCustomListError : CustomListActionError {
 }
 
 sealed interface UpdateLocationsCustomListError : CustomListActionError {
-    data class Modify(val error: ModifyCustomListError) : UpdateLocationsCustomListError
-
-    data class Get(val error: GetCustomListError) : UpdateLocationsCustomListError
+    data class PartialUpdate(val error: PartialUpdateCustomListError) :
+        UpdateLocationsCustomListError
 }
