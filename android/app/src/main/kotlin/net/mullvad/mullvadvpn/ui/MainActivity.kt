@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
-                    startServiceSuspend()
+                    bindService()
                 }
             }
         }
@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
         intentProvider.setStartIntent(intent)
     }
 
-    fun startServiceSuspend() {
+    fun bindService() {
         requestNotificationPermissionIfMissing(requestNotificationPermissionLauncher)
         serviceConnectionManager.bind()
     }
