@@ -190,13 +190,15 @@ class CustomListLocationsViewModel(
     }
 
     private suspend fun fetchInitialSelectedLocations() {
-        _selectedLocations.value =
+        val selectedLocations =
             customListRelayItemsUseCase
                 .getRelayItemLocationsForCustomList(customListId)
                 .first()
                 .withDescendants()
                 .toSet()
-                .apply { _initialLocations.value = this }
+
+        _initialLocations.value = selectedLocations
+        _selectedLocations.value = selectedLocations
     }
 
     companion object {
