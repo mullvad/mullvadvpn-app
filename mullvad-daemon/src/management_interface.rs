@@ -1026,7 +1026,6 @@ impl ManagementInterfaceServer {
         tunnel_tx: DaemonCommandSender,
     ) -> Result<(String, ManagementInterfaceEventBroadcaster), Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
-        log::warn!("ManagementInterfaceService start");
 
         let socket_path = mullvad_paths::get_rpc_socket_path()
             .to_string_lossy()
