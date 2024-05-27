@@ -5,16 +5,16 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.getInstalledPackagesList
-import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 
 private const val ALWAYS_ON_VPN_APP = "always_on_vpn_app"
 
-fun createAccountUri(accountUri: String, wwwAuthToken: WwwAuthToken?): Uri {
+fun createAccountUri(accountUri: String, websiteAuthToken: WebsiteAuthToken?): Uri {
     val urlString = buildString {
         append(accountUri)
-        if (wwwAuthToken != null) {
+        if (websiteAuthToken != null) {
             append("?token=")
-            append(wwwAuthToken.value)
+            append(websiteAuthToken.value)
         }
     }
     return Uri.parse(urlString)

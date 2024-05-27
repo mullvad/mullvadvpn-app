@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
@@ -98,7 +98,7 @@ class OutOfTimeViewModelTest {
     @Test
     fun `when clicking on site payment then open website account view`() = runTest {
         // Arrange
-        val mockToken = WwwAuthToken("154c4cc94810fddac78398662b7fa0c7")
+        val mockToken = WebsiteAuthToken("154c4cc94810fddac78398662b7fa0c7")
         coEvery { mockAccountRepository.getWwwAuthToken() } returns mockToken
 
         // Act, Assert

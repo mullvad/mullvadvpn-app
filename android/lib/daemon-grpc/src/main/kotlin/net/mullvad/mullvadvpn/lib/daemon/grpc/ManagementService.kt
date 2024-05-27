@@ -96,7 +96,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState as ModelTunnelState
 import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints as ModelWireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
-import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.model.addresses
 import net.mullvad.mullvadvpn.lib.model.customOptions
 import net.mullvad.mullvadvpn.lib.model.location
@@ -532,7 +532,7 @@ class ManagementService(
             .mapLeft(RemoveSplitTunnelingAppError::Unknown)
             .mapEmpty()
 
-    suspend fun getWwwAuthToken(): Either<Throwable, WwwAuthToken> =
+    suspend fun getWwwAuthToken(): Either<Throwable, WebsiteAuthToken> =
         Either.catch { grpc.getWwwAuthToken(Empty.getDefaultInstance()) }
             .map { it.value.toDomain() }
 

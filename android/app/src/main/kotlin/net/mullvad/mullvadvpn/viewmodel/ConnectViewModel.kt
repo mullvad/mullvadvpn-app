@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectError
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
@@ -178,7 +178,7 @@ class ConnectViewModel(
         }
 
     sealed interface UiSideEffect {
-        data class OpenAccountManagementPageInBrowser(val token: WwwAuthToken) : UiSideEffect
+        data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken) : UiSideEffect
 
         data object OutOfTime : UiSideEffect
 

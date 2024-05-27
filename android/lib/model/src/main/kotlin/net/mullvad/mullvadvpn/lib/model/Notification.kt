@@ -17,7 +17,7 @@ sealed interface Notification {
     data class AccountExpiry(
         override val channelId: NotificationChannelId,
         override val actions: List<NotificationAction.AccountExpiry>,
-        val wwwAuthToken: WwwAuthToken?,
+        val websiteAuthToken: WebsiteAuthToken?,
         val isPlayBuild: Boolean,
         val durationUntilExpiry: Duration
     ) : Notification {

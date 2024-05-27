@@ -17,7 +17,7 @@ import net.mullvad.mullvadvpn.lib.model.AccountToken
 import net.mullvad.mullvadvpn.lib.model.CreateAccountError
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
-import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import org.joda.time.DateTime
 
 class AccountRepository(
@@ -84,7 +84,7 @@ class AccountRepository(
         }
     }
 
-    suspend fun getWwwAuthToken(): WwwAuthToken? = managementService.getWwwAuthToken().getOrNull()
+    suspend fun getWwwAuthToken(): WebsiteAuthToken? = managementService.getWwwAuthToken().getOrNull()
 
     internal suspend fun onVoucherRedeemed(newExpiry: DateTime) {
         accountData.value?.copy(expiryDate = newExpiry)?.let { _mutableAccountData.emit(it) }

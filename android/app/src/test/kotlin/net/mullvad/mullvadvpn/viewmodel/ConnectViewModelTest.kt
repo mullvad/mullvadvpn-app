@@ -26,7 +26,7 @@ import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
@@ -299,7 +299,7 @@ class ConnectViewModelTest {
     fun `onShowAccountClick call should result in uiSideEffect emitting OpenAccountManagementPageInBrowser`() =
         runTest {
             // Arrange
-            val mockToken = WwwAuthToken("154c4cc94810fddac78398662b7fa0c7")
+            val mockToken = WebsiteAuthToken("154c4cc94810fddac78398662b7fa0c7")
             coEvery { mockAccountRepository.getWwwAuthToken() } returns mockToken
 
             // Act, Assert

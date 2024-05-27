@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
-import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
@@ -107,7 +107,7 @@ class WelcomeViewModel(
     }
 
     sealed interface UiSideEffect {
-        data class OpenAccountView(val token: WwwAuthToken) : UiSideEffect
+        data class OpenAccountView(val token: WebsiteAuthToken) : UiSideEffect
 
         data object OpenConnectScreen : UiSideEffect
     }

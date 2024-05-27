@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.PaymentState
-import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
@@ -105,7 +105,7 @@ class AccountViewModel(
     sealed class UiSideEffect {
         data object NavigateToLogin : UiSideEffect()
 
-        data class OpenAccountManagementPageInBrowser(val token: WwwAuthToken) : UiSideEffect()
+        data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken) : UiSideEffect()
 
         data class CopyAccountNumber(val accountNumber: String) : UiSideEffect()
     }

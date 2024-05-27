@@ -31,7 +31,7 @@ private fun Notification.AccountExpiry.contentIntent(context: Context): PendingI
                 action = Intent.ACTION_MAIN
             }
         } else {
-            val uri = createAccountUri(context.getString(R.string.account_url), wwwAuthToken)
+            val uri = createAccountUri(context.getString(R.string.account_url), websiteAuthToken)
             Intent(Intent.ACTION_VIEW, uri)
         }
     return PendingIntent.getActivity(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())

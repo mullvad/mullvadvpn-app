@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.lib.model.AccountToken
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.model.WwwAuthToken
+import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
@@ -92,7 +92,7 @@ class WelcomeViewModelTest {
     @Test
     fun `on onSitePaymentClick call uiSideEffect should emit OpenAccountView`() = runTest {
         // Arrange
-        val mockToken = WwwAuthToken("154c4cc94810fddac78398662b7fa0c7")
+        val mockToken = WebsiteAuthToken("154c4cc94810fddac78398662b7fa0c7")
         coEvery { mockAccountRepository.getWwwAuthToken() } returns mockToken
 
         // Act, Assert
