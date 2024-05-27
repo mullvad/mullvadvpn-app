@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.sp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
@@ -23,7 +24,7 @@ import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.HtmlText
 import net.mullvad.mullvadvpn.compose.component.textResource
-import net.mullvad.mullvadvpn.compose.util.generateDevice
+import net.mullvad.mullvadvpn.compose.preview.DevicePreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -31,10 +32,10 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Preview
 @Composable
-private fun PreviewRemoveDeviceConfirmationDialog() {
-    AppTheme {
-        RemoveDeviceConfirmationDialog(EmptyResultBackNavigator(), device = generateDevice(0))
-    }
+private fun PreviewRemoveDeviceConfirmationDialog(
+    @PreviewParameter(DevicePreviewParameterProvider::class) device: Device
+) {
+    AppTheme { RemoveDeviceConfirmationDialog(EmptyResultBackNavigator(), device = device) }
 }
 
 @Destination(style = DestinationStyle.Dialog::class)

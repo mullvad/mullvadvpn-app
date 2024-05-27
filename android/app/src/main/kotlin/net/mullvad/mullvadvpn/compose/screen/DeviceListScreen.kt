@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
@@ -46,11 +47,11 @@ import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
 import net.mullvad.mullvadvpn.compose.destinations.RemoveDeviceConfirmationDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
+import net.mullvad.mullvadvpn.compose.preview.DeviceListPreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.DeviceItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.compose.util.generateDevices
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.AccountToken
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -70,28 +71,10 @@ import org.koin.core.parameter.parametersOf
 
 @Composable
 @Preview
-private fun PreviewDeviceListScreenTooManyDevices() {
-    AppTheme {
-        DeviceListScreen(
-            state =
-                DeviceListUiState.Content(
-                    devices = generateDevices(4).map { DeviceItemUiState(it, false) }
-                )
-        )
-    }
-}
-
-@Composable
-@Preview
-private fun PreviewDeviceListScreenNotTooManyDevices() {
-    AppTheme {
-        DeviceListScreen(
-            state =
-                DeviceListUiState.Content(
-                    devices = listOf(),
-                )
-        )
-    }
+private fun PreviewDeviceListScreenContent(
+    @PreviewParameter(DeviceListPreviewParameterProvider::class) devices: List<DeviceItemUiState>
+) {
+    AppTheme { DeviceListScreen(state = DeviceListUiState.Content(devices = devices)) }
 }
 
 @Composable
@@ -219,7 +202,8 @@ fun DeviceListScreen(
                 when (state) {
                     is DeviceListUiState.Content ->
                         DeviceListContent(
-                            state = state,
+                            devices = state.devices,
+                            hasTooManyDevices = state.hasTooManyDevices,
                             navigateToRemoveDeviceConfirmationDialog =
                                 navigateToRemoveDeviceConfirmationDialog
                         )
@@ -259,31 +243,32 @@ private fun ColumnScope.DeviceListError(tryAgain: () -> Unit) {
 
 @Composable
 private fun ColumnScope.DeviceListContent(
-    state: DeviceListUiState.Content,
+    devices: List<DeviceItemUiState>,
+    hasTooManyDevices: Boolean,
     navigateToRemoveDeviceConfirmationDialog: (Device) -> Unit
 ) {
-    DeviceListHeader(state = state)
+    DeviceListHeader(hasTooManyDevices = hasTooManyDevices)
 
-    state.devices.forEachIndexed { index, deviceEntry ->
+    devices.forEachIndexed { index, (device, loading) ->
         DeviceListItem(
-            device = deviceEntry.device,
-            isLoading = deviceEntry.isLoading,
+            device = device,
+            isLoading = loading,
         ) {
-            navigateToRemoveDeviceConfirmationDialog(deviceEntry.device)
+            navigateToRemoveDeviceConfirmationDialog(device)
         }
-        if (state.devices.lastIndex != index) {
+        if (devices.lastIndex != index) {
             HorizontalDivider()
         }
     }
 }
 
 @Composable
-private fun ColumnScope.DeviceListHeader(state: DeviceListUiState.Content) {
+private fun ColumnScope.DeviceListHeader(hasTooManyDevices: Boolean) {
     Image(
         painter =
             painterResource(
                 id =
-                    if (state.hasTooManyDevices) {
+                    if (hasTooManyDevices) {
                         R.drawable.icon_fail
                     } else {
                         R.drawable.icon_success
@@ -300,7 +285,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState.Content) {
         text =
             stringResource(
                 id =
-                    if (state.hasTooManyDevices) {
+                    if (hasTooManyDevices) {
                         R.string.max_devices_warning_title
                     } else {
                         R.string.max_devices_resolved_title
@@ -320,7 +305,7 @@ private fun ColumnScope.DeviceListHeader(state: DeviceListUiState.Content) {
         text =
             stringResource(
                 id =
-                    if (state.hasTooManyDevices) {
+                    if (hasTooManyDevices) {
                         R.string.max_devices_warning_description
                     } else {
                         R.string.max_devices_resolved_description

@@ -32,11 +32,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.Chevron
 import net.mullvad.mullvadvpn.compose.component.MullvadCheckbox
-import net.mullvad.mullvadvpn.compose.util.generateRelayItemCountry
+import net.mullvad.mullvadvpn.compose.preview.RelayItemCheckableCellPreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.preview.RelayItemStatusCellPreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -49,81 +51,26 @@ import net.mullvad.mullvadvpn.relaylist.children
 
 @Composable
 @Preview
-private fun PreviewStatusRelayLocationCell() {
+private fun PreviewStatusRelayLocationCell(
+    @PreviewParameter(RelayItemStatusCellPreviewParameterProvider::class)
+    relayItems: List<RelayItem.Location.Country>
+) {
     AppTheme {
         Column(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            val countryActive =
-                generateRelayItemCountry(
-                    name = "Relay country Active",
-                    cityNames = listOf("Relay city 1", "Relay city 2"),
-                    relaysPerCity = 2
-                )
-            val countryNotActive =
-                generateRelayItemCountry(
-                    name = "Not Enabled Relay country",
-                    cityNames = listOf("Not Enabled city"),
-                    relaysPerCity = 1,
-                    active = false
-                )
-            val countryExpanded =
-                generateRelayItemCountry(
-                    name = "Relay country Expanded",
-                    cityNames = listOf("Normal city"),
-                    relaysPerCity = 2,
-                    expanded = true
-                )
-            val countryAndCityExpanded =
-                generateRelayItemCountry(
-                    name = "Country and city Expanded",
-                    cityNames = listOf("Expanded city A", "Expanded city B"),
-                    relaysPerCity = 2,
-                    expanded = true,
-                    expandChildren = true
-                )
-            // Active relay list not expanded
-            StatusRelayLocationCell(countryActive)
-            // Not Active Relay
-            StatusRelayLocationCell(countryNotActive)
-            // Relay expanded country
-            StatusRelayLocationCell(countryExpanded)
-            // Relay expanded country and cities
-            StatusRelayLocationCell(countryAndCityExpanded)
+            relayItems.map { StatusRelayLocationCell(relay = it) }
         }
     }
 }
 
 @Composable
 @Preview
-private fun PreviewCheckableRelayLocationCell() {
+private fun PreviewCheckableRelayLocationCell(
+    @PreviewParameter(RelayItemCheckableCellPreviewParameterProvider::class)
+    relayItems: List<RelayItem.Location.Country>
+) {
     AppTheme {
         Column(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            val countryActive =
-                generateRelayItemCountry(
-                    name = "Relay country Active",
-                    cityNames = listOf("Relay city 1", "Relay city 2"),
-                    relaysPerCity = 2
-                )
-            val countryExpanded =
-                generateRelayItemCountry(
-                    name = "Relay country Expanded",
-                    cityNames = listOf("Normal city"),
-                    relaysPerCity = 2,
-                    expanded = true
-                )
-            val countryAndCityExpanded =
-                generateRelayItemCountry(
-                    name = "Country and city Expanded",
-                    cityNames = listOf("Expanded city A", "Expanded city B"),
-                    relaysPerCity = 2,
-                    expanded = true,
-                    expandChildren = true
-                )
-            // Active relay list not expanded
-            CheckableRelayLocationCell(countryActive)
-            // Relay expanded country
-            CheckableRelayLocationCell(countryExpanded)
-            // Relay expanded country and cities
-            CheckableRelayLocationCell(countryAndCityExpanded)
+            relayItems.map { CheckableRelayLocationCell(relay = it) }
         }
     }
 }

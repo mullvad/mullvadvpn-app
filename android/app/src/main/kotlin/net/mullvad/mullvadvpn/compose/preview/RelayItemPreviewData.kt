@@ -1,16 +1,12 @@
-package net.mullvad.mullvadvpn.compose.util
+package net.mullvad.mullvadvpn.compose.preview
 
-import java.util.UUID
-import net.mullvad.mullvadvpn.lib.model.Device
-import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import org.joda.time.DateTime
 
-fun generateRelayItemCountry(
+internal fun generateRelayItemCountry(
     name: String,
     cityNames: List<String>,
     relaysPerCity: Int,
@@ -22,19 +18,19 @@ fun generateRelayItemCountry(
         name = name,
         id = name.generateCountryCode(),
         cities =
-            cityNames.map { cityName ->
-                generateRelayItemCity(
-                    cityName,
-                    name.generateCountryCode(),
-                    relaysPerCity,
-                    active,
-                    expandChildren
-                )
-            },
+        cityNames.map { cityName ->
+            generateRelayItemCity(
+                cityName,
+                name.generateCountryCode(),
+                relaysPerCity,
+                active,
+                expandChildren
+            )
+        },
         expanded = expanded,
     )
 
-fun generateRelayItemCity(
+private fun generateRelayItemCity(
     name: String,
     countryCode: GeoLocationId.Country,
     numberOfRelays: Int,
@@ -45,27 +41,27 @@ fun generateRelayItemCity(
         name = name,
         id = name.generateCityCode(countryCode),
         relays =
-            List(numberOfRelays) { index ->
-                generateRelayItemRelay(
-                    name.generateCityCode(countryCode),
-                    generateHostname(name.generateCityCode(countryCode), index),
-                    active
-                )
-            },
+        List(numberOfRelays) { index ->
+            generateRelayItemRelay(
+                name.generateCityCode(countryCode),
+                generateHostname(name.generateCityCode(countryCode), index),
+                active
+            )
+        },
         expanded = expanded,
     )
 
-fun generateRelayItemRelay(
+private fun generateRelayItemRelay(
     cityCode: GeoLocationId.City,
     hostName: String,
     active: Boolean = true,
 ) =
     RelayItem.Location.Relay(
         id =
-            GeoLocationId.Hostname(
-                city = cityCode,
-                hostname = hostName,
-            ),
+        GeoLocationId.Hostname(
+            city = cityCode,
+            hostname = hostName,
+        ),
         active = active,
         provider = Provider(ProviderId("Provider"), Ownership.MullvadOwned),
     )
@@ -80,20 +76,3 @@ private fun generateHostname(city: GeoLocationId.City, index: Int) =
     "${city.countryCode.countryCode}-${city.cityCode}-wg-${index+1}"
 
 private const val CITY_CODE_LENGTH = 3
-
-fun generateDevices(count: Int) = List(count) { index -> generateDevice(index) }
-
-fun generateDevice(
-    index: Int,
-    id: String = UUID,
-    name: String? = null,
-) =
-    Device(
-        id = DeviceId.fromString(id),
-        name = name ?: "Device $index-${id.take(DEVICE_SUFFIX_LENGTH)}",
-        creationDate = DEVICE_CREATION_DATE.plusMonths(index)
-    )
-
-private const val DEVICE_SUFFIX_LENGTH = 4
-private const val UUID = "12345678-1234-5678-1234-567812345678"
-private val DEVICE_CREATION_DATE = DateTime.parse("2024-05-27")

@@ -28,7 +28,7 @@ class DeviceListViewModel(
     private val token: AccountToken,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
-    private val loadingDevices = MutableStateFlow<List<DeviceId>>(emptyList())
+    private val loadingDevices = MutableStateFlow<Set<DeviceId>>(emptySet())
     private val deviceList = MutableStateFlow<List<Device>>(emptyList())
     private val loading = MutableStateFlow(true)
     private val error = MutableStateFlow<GetDeviceListError?>(null)
