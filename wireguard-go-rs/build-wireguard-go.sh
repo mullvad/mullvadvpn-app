@@ -84,12 +84,11 @@ function build_unix {
     if [[ "$DAITA" == "true" ]]; then
         pushd wireguard-go
         make libmaybenot.a
-        echo "$OUT_DIR"
         popd
         # TODO: This artifact needs to be available in target/<release | debug>
-        go build -v --tags daita -o "$OUT_DIR"/libwg.so -buildmode c-shared
+        go build -v --tags daita -o "../../build/lib/$TARGET/libwg.so" -buildmode c-shared
     else
-        go build -v -o "$OUT_DIR"/libwg.so -buildmode c-shared
+        go build -v -o "../../build/lib/$TARGET/libwg.so" -buildmode c-shared
     fi
     popd
 }

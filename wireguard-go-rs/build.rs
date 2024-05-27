@@ -4,6 +4,7 @@ use std::{env, path::PathBuf};
 
 fn main() {
     let out_dir = env::var("OUT_DIR").expect("Missing OUT_DIR");
+
     eprintln!("OUT_DIR: {out_dir}");
     // Add DAITA as a conditional configuration
     println!("cargo::rustc-check-cfg=cfg(daita)");
@@ -43,7 +44,6 @@ fn main() {
     // support being statically linked on android so we need to dynamically link
     // to libwg.
     println!("cargo::rustc-link-lib=wg");
-    println!("cargo::rustc-link-search={out_dir}");
     declare_libs_dir("../build/lib");
 
     println!("cargo::rerun-if-changed=libwg");
@@ -55,6 +55,8 @@ fn declare_libs_dir(base: &str) {
     let lib_dir = manifest_dir().join(base).join(target_triplet);
     println!("cargo::rerun-if-changed={}", lib_dir.display());
     println!("cargo::rustc-link-search={}", lib_dir.display());
+    // TODO: Explain this
+    println!("cargo::rustc-link-arg=-Wl,-rpath={}", lib_dir.display());
 }
 
 /// Get the directory containing `Cargo.toml`
