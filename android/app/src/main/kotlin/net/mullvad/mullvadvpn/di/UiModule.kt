@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.di
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -83,7 +82,6 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-@SuppressLint("SdCardPath")
 val uiModule = module {
     single<SharedPreferences>(named(APP_PREFERENCES_NAME)) {
         androidApplication().getSharedPreferences(APP_PREFERENCES_NAME, Context.MODE_PRIVATE)
