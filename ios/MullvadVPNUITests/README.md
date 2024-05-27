@@ -17,7 +17,7 @@
   - `brew install ios-deploy`
 7. Install Homebrew and dependencies
   - `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
-  - `brew install xcbeautify wget swiftlint`
+  - `brew install xcbeautify wget swiftlint protobuf`
 8. Install Ruby
   - `\curl -sSL https://get.rvm.io | bash`
 9. Install Rust and add iOS targets

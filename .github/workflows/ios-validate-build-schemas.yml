@@ -68,6 +68,11 @@ jobs:
           brew update
           brew install xcbeautify
 
+      - name: Install protobuf
+        run: |
+          brew update
+          brew install protobuf
+
       - name: Run build validation for Staging and MockRelease configurations as well as the MullvadVPNUITests target
         run: |
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
