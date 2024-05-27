@@ -18,6 +18,7 @@ class ServiceConnectionManager(private val context: Context) {
     // Dummy service connection to be able to bind, all communication goes over gRPC.
     private val serviceConnection = EmptyServiceConnection()
 
+    @Synchronized
     fun bind() {
         if (_connectionState.value is ServiceConnectionState.Unbound) {
             val intent = Intent(context, MullvadVpnService::class.java)
@@ -38,6 +39,7 @@ class ServiceConnectionManager(private val context: Context) {
         }
     }
 
+    @Synchronized
     fun unbind() {
         if (_connectionState.value is ServiceConnectionState.Bound) {
             context.unbindService(serviceConnection)
