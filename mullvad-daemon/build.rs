@@ -35,9 +35,12 @@ fn main() {
     println!("cargo::rustc-check-cfg=cfg(daita)");
     if let "linux" | "windows" = target_os.as_str() {
         println!(r#"cargo::rustc-cfg=daita"#);
-        // On some platforms we configure rpath because we dynamically link libwg
-        let target = std::env::var("TARGET").expect("TARGET not set");
-        println!("cargo::rustc-link-arg=-Wl,-rpath=dist-assets/binaries/{target}/");
+
+        // when development, configure rpath to facilitate linking with libwg.so
+        if cfg!(debug_assertions) {
+            let target = std::env::var("TARGET").expect("TARGET not set");
+            println!("cargo::rustc-link-arg=-Wl,-rpath=dist-assets/binaries/{target}/");
+        }
     }
 }
 
