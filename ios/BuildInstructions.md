@@ -17,6 +17,11 @@ the host system.
 
 Once both rust and go are installed, ensure they are available in your path.
 
+A protobuf compiler is also required in order to build some of the rust dependencies.
+```bash
+brew install protobuf
+```
+
 ## Configure Xcode project
 
 Copy template files of Xcode build configuration:
