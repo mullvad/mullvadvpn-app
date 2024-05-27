@@ -16,7 +16,6 @@ fn main() {
         "linux" => {
             // Enable DAITA & Tell rustc to link libmaybenot
             println!(r#"cargo::rustc-cfg=daita"#);
-            println!("cargo::rustc-link-lib=static=maybenot");
             // Tell the build script to build wireguard-go with DAITA support
             cmd.arg("--daita");
         }
@@ -38,17 +37,14 @@ fn main() {
         panic!();
     }
 
-    if target_os == "android" {
-        // NOTE: Go programs does not support being statically linked on android
-        // so we need to dynamically link to libwg
-        println!("cargo::rustc-link-lib=wg");
-        declare_libs_dir("../build/lib");
-    } else {
-        // other platforms can statically link to libwg just fine
-        // TODO: consider doing dynamic linking everywhere, to keep things simpler
-        println!("cargo::rustc-link-lib=static=wg");
-        println!("cargo::rustc-link-search={out_dir}");
-    }
+    // NOTE: Link to libwg dynamically on all platforms.
+    //
+    // LTO breaks when statically linking to libwg & Go programs does not
+    // support being statically linked on android so we need to dynamically link
+    // to libwg.
+    println!("cargo::rustc-link-lib=wg");
+    println!("cargo::rustc-link-search={out_dir}");
+    declare_libs_dir("../build/lib");
 
     println!("cargo::rerun-if-changed=libwg");
 }
