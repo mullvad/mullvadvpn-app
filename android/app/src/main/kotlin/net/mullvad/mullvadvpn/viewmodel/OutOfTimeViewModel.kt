@@ -61,7 +61,7 @@ class OutOfTimeViewModel(
 
     fun onSitePaymentClick() {
         viewModelScope.launch {
-            accountRepository.getWwwAuthToken()?.let { wwwAuthToken ->
+            accountRepository.getWebsiteAuthToken()?.let { wwwAuthToken ->
                 _uiSideEffect.send(UiSideEffect.OpenAccountView(wwwAuthToken))
             }
         }

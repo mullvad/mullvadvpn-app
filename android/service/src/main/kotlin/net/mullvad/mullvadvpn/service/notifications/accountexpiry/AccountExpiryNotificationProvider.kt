@@ -37,7 +37,7 @@ class AccountExpiryNotificationProvider(
                         channelId = channelId,
                         actions = emptyList(),
                         websiteAuthToken =
-                            if (!IS_PLAY_BUILD) accountRepository.getWwwAuthToken() else null,
+                            if (!IS_PLAY_BUILD) accountRepository.getWebsiteAuthToken() else null,
                         durationUntilExpiry = durationUntilExpiry,
                         isPlayBuild = false
                     )

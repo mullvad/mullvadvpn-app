@@ -532,7 +532,7 @@ class ManagementService(
             .mapLeft(RemoveSplitTunnelingAppError::Unknown)
             .mapEmpty()
 
-    suspend fun getWwwAuthToken(): Either<Throwable, WebsiteAuthToken> =
+    suspend fun getWebsiteAuthToken(): Either<Throwable, WebsiteAuthToken> =
         Either.catch { grpc.getWwwAuthToken(Empty.getDefaultInstance()) }
             .map { it.value.toDomain() }
 

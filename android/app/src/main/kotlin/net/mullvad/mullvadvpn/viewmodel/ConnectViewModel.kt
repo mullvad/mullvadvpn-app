@@ -159,7 +159,7 @@ class ConnectViewModel(
 
     fun onManageAccountClick() {
         viewModelScope.launch {
-            accountRepository.getWwwAuthToken()?.let { wwwAuthToken ->
+            accountRepository.getWebsiteAuthToken()?.let { wwwAuthToken ->
                 _uiSideEffect.send(UiSideEffect.OpenAccountManagementPageInBrowser(wwwAuthToken))
             }
         }

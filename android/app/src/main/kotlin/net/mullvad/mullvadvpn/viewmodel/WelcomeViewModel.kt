@@ -68,7 +68,7 @@ class WelcomeViewModel(
 
     fun onSitePaymentClick() {
         viewModelScope.launch {
-            accountRepository.getWwwAuthToken()?.let { token ->
+            accountRepository.getWebsiteAuthToken()?.let { token ->
                 _uiSideEffect.send(UiSideEffect.OpenAccountView(token))
             }
         }
