@@ -193,6 +193,7 @@ const config = {
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
+      distAssets(path.join('binaries', `${hostTargetTriple}`, 'libwg.so')) + '=/lib/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
       buildAssets('shell-completions/mullvad.bash') +
         '=/usr/share/bash-completion/completions/mullvad',
@@ -224,6 +225,7 @@ const config = {
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
       distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
+      distAssets(path.join('binaries', `${hostTargetTriple}`, 'libwg.so')) + '=/lib/',
       distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
       buildAssets('shell-completions/mullvad.bash') +
         '=/usr/share/bash-completion/completions/mullvad',

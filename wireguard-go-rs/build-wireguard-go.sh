@@ -86,9 +86,9 @@ function build_unix {
         make libmaybenot.a
         popd
         # TODO: This artifact needs to be available in target/<release | debug>
-        go build -v --tags daita -o "../../build/lib/$TARGET/libwg.so" -buildmode c-shared
+        go build -v --tags daita -o "../../dist-assets/binaries/$TARGET/libwg.so" -buildmode c-shared
     else
-        go build -v -o "../../build/lib/$TARGET/libwg.so" -buildmode c-shared
+        go build -v -o "../../dist-assets/binaries/$TARGET/libwg.so" -buildmode c-shared
     fi
     popd
 }
