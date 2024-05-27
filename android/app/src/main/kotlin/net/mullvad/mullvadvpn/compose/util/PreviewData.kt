@@ -91,8 +91,9 @@ fun generateDevice(
     Device(
         id = DeviceId.fromString(id),
         name = name ?: "Device $index-${id.take(DEVICE_SUFFIX_LENGTH)}",
-        DateTime.now()
+        creationDate = DEVICE_CREATION_DATE.plusMonths(index)
     )
 
 private const val DEVICE_SUFFIX_LENGTH = 4
 private const val UUID = "12345678-1234-5678-1234-567812345678"
+private val DEVICE_CREATION_DATE = DateTime.parse("2024-05-27")
