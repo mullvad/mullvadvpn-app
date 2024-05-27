@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.preview.DevicePreviewData.generateDevices
 import net.mullvad.mullvadvpn.compose.state.DeviceItemUiState
 
 class DeviceListPreviewParameterProvider : PreviewParameterProvider<List<DeviceItemUiState>> {

@@ -6,29 +6,31 @@ import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 
-internal fun generateRelayItemCountry(
-    name: String,
-    cityNames: List<String>,
-    relaysPerCity: Int,
-    active: Boolean = true,
-    expanded: Boolean = false,
-    expandChildren: Boolean = false,
-) =
-    RelayItem.Location.Country(
-        name = name,
-        id = name.generateCountryCode(),
-        cities =
-        cityNames.map { cityName ->
-            generateRelayItemCity(
-                cityName,
-                name.generateCountryCode(),
-                relaysPerCity,
-                active,
-                expandChildren
-            )
-        },
-        expanded = expanded,
-    )
+internal object RelayItemPreviewData {
+    fun generateRelayItemCountry(
+        name: String,
+        cityNames: List<String>,
+        relaysPerCity: Int,
+        active: Boolean = true,
+        expanded: Boolean = false,
+        expandChildren: Boolean = false,
+    ) =
+        RelayItem.Location.Country(
+            name = name,
+            id = name.generateCountryCode(),
+            cities =
+                cityNames.map { cityName ->
+                    generateRelayItemCity(
+                        cityName,
+                        name.generateCountryCode(),
+                        relaysPerCity,
+                        active,
+                        expandChildren
+                    )
+                },
+            expanded = expanded,
+        )
+}
 
 private fun generateRelayItemCity(
     name: String,
@@ -41,13 +43,13 @@ private fun generateRelayItemCity(
         name = name,
         id = name.generateCityCode(countryCode),
         relays =
-        List(numberOfRelays) { index ->
-            generateRelayItemRelay(
-                name.generateCityCode(countryCode),
-                generateHostname(name.generateCityCode(countryCode), index),
-                active
-            )
-        },
+            List(numberOfRelays) { index ->
+                generateRelayItemRelay(
+                    name.generateCityCode(countryCode),
+                    generateHostname(name.generateCityCode(countryCode), index),
+                    active
+                )
+            },
         expanded = expanded,
     )
 
@@ -58,10 +60,10 @@ private fun generateRelayItemRelay(
 ) =
     RelayItem.Location.Relay(
         id =
-        GeoLocationId.Hostname(
-            city = cityCode,
-            hostname = hostName,
-        ),
+            GeoLocationId.Hostname(
+                city = cityCode,
+                hostname = hostName,
+            ),
         active = active,
         provider = Provider(ProviderId("Provider"), Ownership.MullvadOwned),
     )
