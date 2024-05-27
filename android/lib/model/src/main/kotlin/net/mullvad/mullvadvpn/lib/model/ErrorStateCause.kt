@@ -21,7 +21,8 @@ sealed class ErrorStateCause {
 
     data object DnsError : ErrorStateCause()
 
-    data class InvalidDnsServers(val addresses: ArrayList<InetAddress>) : ErrorStateCause()
+    // Regression
+    data class InvalidDnsServers(val addresses: List<InetAddress>) : ErrorStateCause()
 
     data object StartTunnelError : ErrorStateCause()
 
