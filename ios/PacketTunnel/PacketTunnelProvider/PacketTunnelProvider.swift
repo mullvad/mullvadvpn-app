@@ -21,6 +21,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private let internalQueue = DispatchQueue(label: "PacketTunnel-internalQueue")
     private let providerLogger: Logger
     private let constraintsUpdater = RelayConstraintsUpdater()
+    private let multihopUpdater = MultihopStateUpdater()
+    private let settingsReader = SettingsReader()
 
     private var actor: PacketTunnelActor!
     private var postQuantumActor: PostQuantumKeyExchangeActor!
@@ -69,7 +71,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let devicesProxy = proxyFactory.createDevicesProxy()
 
         deviceChecker = DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
-        relaySelector = RelaySelectorWrapper(relayCache: ipOverrideWrapper)
+        relaySelector = RelaySelectorWrapper(
+            relayCache: ipOverrideWrapper,
+            multihopState: .off,
+            multihopStateUpdater: multihopUpdater
+        )
 
         actor = PacketTunnelActor(
             timings: PacketTunnelActorTimings(),
@@ -78,7 +84,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self, eventQueue: internalQueue),
             blockedStateErrorMapper: BlockedStateErrorMapper(),
             relaySelector: relaySelector,
-            settingsReader: SettingsReader(),
+            settingsReader: settingsReader,
             protocolObfuscator: ProtocolObfuscator<UDPOverTCPObfuscator>()
         )
 
@@ -156,12 +162,18 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let urlSession = REST.makeURLSession()
         let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: appContainerURL)
+        let settings = try? settingsReader.read()
+
+        let shadowsocksRelaySelector = ShadowsocksRelaySelector(
+            relayCache: ipOverrideWrapper,
+            multihopStateUpdater: multihopUpdater
+        )
 
         let transportStrategy = TransportStrategy(
             datasource: AccessMethodRepository(),
             shadowsocksLoader: ShadowsocksLoader(
                 shadowsocksCache: shadowsocksCache,
-                relayCache: ipOverrideWrapper,
+                shadowsocksRelaySelector: shadowsocksRelaySelector,
                 constraintsUpdater: constraintsUpdater
             )
         )
@@ -250,6 +262,9 @@ extension PacketTunnelProvider {
 
                     // Cache last connection attempt to filter out repeating calls.
                     lastConnectionAttempt = connectionAttempt
+
+                    // Pass multi-hop state retrieved during the last read from setting into relay selector.
+                    multihopUpdater.onNewState?(connState.isMultihop ? .on : .off)
 
                 case let .negotiatingPostQuantumKey(_, privateKey):
                     postQuantumActor.endCurrentNegotiation()
