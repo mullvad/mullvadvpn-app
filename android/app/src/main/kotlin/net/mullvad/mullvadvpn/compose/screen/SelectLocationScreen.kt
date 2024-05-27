@@ -52,7 +52,6 @@ import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.spec.DestinationSpec
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.FilterCell
@@ -153,7 +152,6 @@ fun SelectLocation(
             SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true, true)
             is SelectLocationSideEffect.LocationAddedToCustomList -> {
                 snackbarHostState.showResultSnackbar(
-                    coroutineScope = this,
                     context = context,
                     result = it.result,
                     onUndo = vm::performAction
@@ -161,7 +159,6 @@ fun SelectLocation(
             }
             is SelectLocationSideEffect.LocationRemovedFromCustomList -> {
                 snackbarHostState.showResultSnackbar(
-                    coroutineScope = this,
                     context = context,
                     result = it.result,
                     onUndo = vm::performAction
@@ -169,7 +166,6 @@ fun SelectLocation(
             }
             SelectLocationSideEffect.GenericError -> {
                 snackbarHostState.showSnackbarImmediately(
-                    coroutineScope = this,
                     message = context.getString(R.string.error_occurred),
                     duration = SnackbarDuration.Short
                 )
@@ -814,14 +810,12 @@ private suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
     }
 }
 
-private fun SnackbarHostState.showResultSnackbar(
-    coroutineScope: CoroutineScope,
+private suspend fun SnackbarHostState.showResultSnackbar(
     context: Context,
     result: CustomListResult,
     onUndo: (CustomListAction) -> Unit
 ) {
     showSnackbarImmediately(
-        coroutineScope = coroutineScope,
         message = result.message(context),
         actionLabel = context.getString(R.string.undo),
         duration = SnackbarDuration.Long,
@@ -856,12 +850,13 @@ private fun <D : DestinationSpec<*>, R : CustomListResult> ResultRecipient<D, R>
             }
             is NavResult.Value -> {
                 // Handle result
-                snackbarHostState.showResultSnackbar(
-                    coroutineScope = scope,
-                    context = context,
-                    result = result.value,
-                    onUndo = performAction
-                )
+                scope.launch {
+                    snackbarHostState.showResultSnackbar(
+                        context = context,
+                        result = result.value,
+                        onUndo = performAction
+                    )
+                }
             }
         }
     }

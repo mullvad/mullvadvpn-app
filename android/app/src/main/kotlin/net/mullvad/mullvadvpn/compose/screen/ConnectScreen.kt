@@ -154,7 +154,6 @@ fun Connect(
             is ConnectViewModel.UiSideEffect.NoVpnPermission -> launchVpnPermission.launch(Unit)
             is ConnectViewModel.UiSideEffect.ConnectError -> {
                 snackbarHostState.showSnackbarImmediately(
-                    coroutineScope = this,
                     message = sideEffect.toMessage(context),
                 )
             }

@@ -20,4 +20,5 @@ sealed interface DeviceListUiState {
 }
 
 data class DeviceItemUiState(val device: Device, val isLoading: Boolean)
+
 private const val MAXIMUM_DEVICES = 5

@@ -108,7 +108,6 @@ fun ServerIpOverrides(
         when (sideEffect) {
             is ServerIpOverridesUiSideEffect.ImportResult ->
                 snackbarHostState.showSnackbarImmediately(
-                    this,
                     message = sideEffect.error.toString(context),
                     actionLabel = null
                 )
@@ -120,16 +119,17 @@ fun ServerIpOverrides(
     // On successful clear of overrides, show snackbar
     val scope = rememberCoroutineScope()
     clearOverridesResult.OnNavResultValue { clearSuccessful ->
-        snackbarHostState.showSnackbarImmediately(
-            scope,
-            message =
-                if (clearSuccessful) {
-                    context.getString(R.string.overrides_cleared)
-                } else {
-                    context.getString(R.string.error_occurred)
-                },
-            actionLabel = null
-        )
+        scope.launch {
+            snackbarHostState.showSnackbarImmediately(
+                message =
+                    if (clearSuccessful) {
+                        context.getString(R.string.overrides_cleared)
+                    } else {
+                        context.getString(R.string.error_occurred)
+                    },
+                actionLabel = null
+            )
+        }
     }
 
     val openFileLauncher =

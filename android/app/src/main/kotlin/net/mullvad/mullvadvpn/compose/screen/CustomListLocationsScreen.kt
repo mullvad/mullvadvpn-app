@@ -99,7 +99,6 @@ fun CustomListLocations(
             CustomListLocationsSideEffect.CloseScreen -> backNavigator.navigateBack()
             CustomListLocationsSideEffect.Error ->
                 snackbarHostState.showSnackbarImmediately(
-                    coroutineScope = this,
                     message = context.getString(R.string.error_occurred),
                     duration = SnackbarDuration.Short
                 )

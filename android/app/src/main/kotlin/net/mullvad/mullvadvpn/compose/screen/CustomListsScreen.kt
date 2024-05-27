@@ -27,6 +27,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
@@ -74,14 +75,18 @@ fun CustomLists(
                 /* Do nothing */
             }
             is NavResult.Value -> {
-                snackbarHostState.showSnackbarImmediately(
-                    coroutineScope = scope,
-                    message =
-                        context.getString(R.string.delete_custom_list_message, result.value.name),
-                    actionLabel = context.getString(R.string.undo),
-                    duration = SnackbarDuration.Long,
-                    onAction = { viewModel.undoDeleteCustomList(result.value.undo) }
-                )
+                scope.launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            context.getString(
+                                R.string.delete_custom_list_message,
+                                result.value.name
+                            ),
+                        actionLabel = context.getString(R.string.undo),
+                        duration = SnackbarDuration.Long,
+                        onAction = { viewModel.undoDeleteCustomList(result.value.undo) }
+                    )
+                }
             }
         }
     }

@@ -134,7 +134,6 @@ fun DeviceList(
         when (sideEffect) {
             DeviceListSideEffect.FailedToRemoveDevice -> {
                 snackbarHostState.showSnackbarImmediately(
-                    coroutineScope = this,
                     message = context.getString(R.string.failed_to_remove_device)
                 )
             }

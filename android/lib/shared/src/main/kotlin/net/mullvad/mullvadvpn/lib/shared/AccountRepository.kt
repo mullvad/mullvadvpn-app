@@ -84,7 +84,8 @@ class AccountRepository(
         }
     }
 
-    suspend fun getWwwAuthToken(): WebsiteAuthToken? = managementService.getWwwAuthToken().getOrNull()
+    suspend fun getWwwAuthToken(): WebsiteAuthToken? =
+        managementService.getWwwAuthToken().getOrNull()
 
     internal suspend fun onVoucherRedeemed(newExpiry: DateTime) {
         accountData.value?.copy(expiryDate = newExpiry)?.let { _mutableAccountData.emit(it) }

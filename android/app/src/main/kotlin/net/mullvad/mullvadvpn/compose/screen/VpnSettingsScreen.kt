@@ -174,10 +174,7 @@ fun VpnSettings(
     LaunchedEffectCollect(vm.uiSideEffect) {
         when (it) {
             is VpnSettingsSideEffect.ShowToast ->
-                snackbarHostState.showSnackbarImmediately(
-                    coroutineScope = this,
-                    message = it.message(context)
-                )
+                snackbarHostState.showSnackbarImmediately(message = it.message(context))
             VpnSettingsSideEffect.NavigateToDnsDialog ->
                 navigator.navigate(DnsDialogDestination(null, null)) { launchSingleTop = true }
         }
