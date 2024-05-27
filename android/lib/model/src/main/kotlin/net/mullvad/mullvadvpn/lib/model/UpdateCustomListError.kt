@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.lib.model
 
-// Get followed by and update
+// Get followed by update
 sealed interface PartialUpdateCustomListError
 
 sealed interface UpdateCustomListError : PartialUpdateCustomListError {
