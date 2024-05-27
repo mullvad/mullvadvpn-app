@@ -32,7 +32,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.util.asString
-import net.mullvad.mullvadvpn.util.isPortAnyOfRanges
+import net.mullvad.mullvadvpn.util.inAnyOf
 
 @Preview
 @Composable
@@ -77,9 +77,8 @@ fun WireguardCustomPortDialog(
 ) {
     val port = remember { mutableStateOf(initialPort?.value?.toString() ?: "") }
 
-    val isValidPort =
-        port.value.isNotEmpty() &&
-            allowedPortRanges.isPortAnyOfRanges(port = port.value.toPortOrNull() ?: Port(0))
+    val isValidPort = port.value.toPortOrNull()?.inAnyOf(allowedPortRanges) ?: false
+
     AlertDialog(
         title = {
             Text(

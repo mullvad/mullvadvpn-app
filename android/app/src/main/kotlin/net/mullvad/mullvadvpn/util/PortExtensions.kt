@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.util
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
+import net.mullvad.mullvadvpn.lib.model.PortRange
 
 fun Constraint<Port>.hasValue(value: Int) =
     when (this) {
@@ -21,3 +22,8 @@ fun Constraint<Port>.toPortOrNull() =
         is Constraint.Any -> null
         is Constraint.Only -> this.value
     }
+
+fun Port.inAnyOf(portRanges: List<PortRange>): Boolean =
+    portRanges.any { portRange -> this in portRange }
+
+fun List<PortRange>.asString() = joinToString(", ", transform = PortRange::toFormattedString)
