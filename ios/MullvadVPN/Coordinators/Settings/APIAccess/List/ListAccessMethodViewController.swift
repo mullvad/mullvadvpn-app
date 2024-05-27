@@ -180,7 +180,9 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
         itemIdentifier: ListAccessMethodItemIdentifier
     ) -> UITableViewCell {
         let cell = tableView.dequeueReusableView(withIdentifier: CellReuseIdentifier.default, for: indexPath)
-        let item = fetchedItems[indexPath.row]
+        guard let item = fetchedItems.first(where: { $0.id == itemIdentifier.id }) else {
+            fatalError("Unable to find item in fetchedItems")
+        }
 
         var contentConfiguration = ListCellContentConfiguration()
         contentConfiguration.text = item.name
