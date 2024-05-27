@@ -379,20 +379,14 @@ impl State {
     /// Set paths to exclude. For a non-empty path, this will initialize split tunneling if a tunnel
     /// device is also set.
     async fn set_exclude_paths(&mut self, paths: HashSet<PathBuf>) -> Result<(), Error> {
-        let state = self.fail(None);
-        match state.set_exclude_paths_inner(paths).await {
-            Ok(new_state) => {
-                *self = new_state;
-                Ok(())
-            }
-            Err(error) => {
-                self.fail(Some(error.clone()));
-                Err(error)
-            }
-        }
+        self.transition(move |self_| self_.set_exclude_paths_inner(paths))
+            .await
     }
 
-    async fn set_exclude_paths_inner(mut self, paths: HashSet<PathBuf>) -> Result<Self, Error> {
+    async fn set_exclude_paths_inner(
+        mut self,
+        paths: HashSet<PathBuf>,
+    ) -> Result<Self, ErrorWithTransition> {
         match self {
             // If there are currently no paths and no process monitor, initialize it
             State::NoExclusions {
@@ -437,40 +431,44 @@ impl State {
                 })
             }
             // Otherwise, remain in the failed state
-            State::Failed { cause, .. } => Err(cause.unwrap_or(Error::unavailable())),
+            State::Failed { cause, .. } => Err(cause.unwrap_or(Error::unavailable()).into()),
         }
     }
 
     /// Update VPN tunnel interface that non-excluded packets are sent on
     async fn set_tunnel(&mut self, new_vpn_interface: Option<VpnInterface>) -> Result<(), Error> {
-        let state = self.fail(None);
-        match state.set_tunnel_inner(new_vpn_interface).await {
-            Ok(new_state) => {
-                *self = new_state;
-                Ok(())
-            }
-            Err(error) => {
-                self.fail(Some(error.clone()));
-                Err(error)
-            }
-        }
+        self.transition(move |self_| self_.set_tunnel_inner(new_vpn_interface))
+            .await
     }
 
     async fn set_tunnel_inner(
         mut self,
         new_vpn_interface: Option<VpnInterface>,
-    ) -> Result<Self, Error> {
+    ) -> Result<Self, ErrorWithTransition> {
         match self {
             // If split tunneling is already initialized, just update the interfaces
             State::Initialized {
                 route_manager,
                 mut process,
                 tun_handle,
-                vpn_interface: _,
+                vpn_interface,
             } => {
                 // Try to update the default interface first
                 // If this fails, remain in the current state and just fail
-                let default_interface = default::get_default_interface(&route_manager).await?;
+                let default_interface = match default::get_default_interface(&route_manager).await {
+                    Ok(default_interface) => default_interface,
+                    Err(error) => {
+                        return Err(ErrorWithTransition {
+                            error: error.into(),
+                            next_state: Some(State::Initialized {
+                                route_manager,
+                                process,
+                                tun_handle,
+                                vpn_interface,
+                            }),
+                        });
+                    }
+                };
 
                 log::debug!("Updating split tunnel device");
 
@@ -497,7 +495,18 @@ impl State {
             } if new_vpn_interface.is_some() => {
                 // Try to update the default interface first
                 // If this fails, remain in the current state and just fail
-                let default_interface = default::get_default_interface(&route_manager).await?;
+                let default_interface = match default::get_default_interface(&route_manager).await {
+                    Ok(default_interface) => default_interface,
+                    Err(error) => {
+                        return Err(ErrorWithTransition {
+                            error: error.into(),
+                            next_state: Some(State::ProcessMonitorOnly {
+                                route_manager,
+                                process,
+                            }),
+                        });
+                    }
+                };
 
                 log::debug!("Initializing split tunnel device");
 
@@ -548,7 +557,7 @@ impl State {
                 ..
             } if new_vpn_interface.is_some() => {
                 *vpn_interface = new_vpn_interface;
-                Err(cause.clone().unwrap_or(Error::unavailable()))
+                Err(cause.unwrap_or(Error::unavailable()).into())
             }
             // Remain in the failed state without failing otherwise
             State::Failed {
@@ -558,6 +567,50 @@ impl State {
                 *vpn_interface = None;
                 Ok(self)
             }
+        }
+    }
+
+    /// Helper function that tries to perform a state transition using `transition`.
+    /// On error, transition to `next_state` specified alongside the error. If not specified,
+    /// transition to or remain in `State::Failed`.
+    async fn transition<F: std::future::Future<Output = Result<Self, ErrorWithTransition>>>(
+        &mut self,
+        transition: impl FnOnce(Self) -> F,
+    ) -> Result<(), Error> {
+        let state = self.fail(None);
+        match (transition)(state).await {
+            Ok(new_state) => {
+                *self = new_state;
+                Ok(())
+            }
+            Err(ErrorWithTransition {
+                error,
+                next_state: Some(next_state),
+            }) => {
+                *self = next_state;
+                Err(error)
+            }
+            Err(ErrorWithTransition {
+                error,
+                next_state: None,
+            }) => {
+                self.fail(Some(error.clone()));
+                Err(error)
+            }
+        }
+    }
+}
+
+struct ErrorWithTransition {
+    error: Error,
+    next_state: Option<State>,
+}
+
+impl<T: Into<Error>> From<T> for ErrorWithTransition {
+    fn from(error: T) -> Self {
+        Self {
+            error: error.into(),
+            next_state: None,
         }
     }
 }
