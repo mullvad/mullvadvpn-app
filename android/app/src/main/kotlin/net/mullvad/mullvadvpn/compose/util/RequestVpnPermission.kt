@@ -8,7 +8,9 @@ import androidx.activity.result.contract.ActivityResultContract
 
 class RequestVpnPermission : ActivityResultContract<Unit, Boolean>() {
     override fun createIntent(context: Context, input: Unit): Intent {
-        // Returning an empty intent instead of null since create intent requires a non-null intent
+        // We expect this permission to only be requested when the permission is missing, however,
+        // if it for some reason is called incorrectly we should return an empty intent so we avoid
+        // a crash.
         return VpnService.prepare(context) ?: Intent()
     }
 
