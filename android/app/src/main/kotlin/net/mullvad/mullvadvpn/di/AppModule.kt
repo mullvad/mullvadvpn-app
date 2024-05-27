@@ -9,12 +9,14 @@ import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val appModule = module {
+    single(named(RPC_SOCKET_PATH)) { "${androidContext().dataDir.path}/$GRPC_SOCKET_FILE_NAME" }
     single {
         ManagementService(
-            rpcSocketPath = "${androidContext().dataDir.path}/$GRPC_SOCKET_FILE_NAME",
+            rpcSocketPath = get(named(RPC_SOCKET_PATH)),
             extensiveLogging = BuildConfig.DEBUG,
             scope = MainScope(),
         )
@@ -24,3 +26,5 @@ val appModule = module {
     single { VpnPermissionRepository(androidContext()) }
     single { ConnectionProxy(get(), get()) }
 }
+
+const val RPC_SOCKET_PATH = "RPC_SOCKET"
