@@ -3,9 +3,3 @@ rustflags = ["-Ctarget-feature=+crt-static"]
 
 [target.i686-pc-windows-msvc]
 rustflags = ["-Ctarget-feature=+crt-static"]
-
-[target.x86_64-unknown-linux-gnu]
-rustflags = ["-C", "link-arg=-Wl,-rpath=build/lib/x86_64-unknown-linux-gnu"]
-
-[target.aarch64-unknown-linux-gnu]
-rustflags = ["-C", "link-arg=-Wl,-rpath=build/lib/aarch64-unknown-linux-gnu"]

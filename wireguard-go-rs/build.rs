@@ -55,8 +55,6 @@ fn declare_libs_dir(base: &str) {
     let lib_dir = manifest_dir().join(base).join(target_triplet);
     println!("cargo::rerun-if-changed={}", lib_dir.display());
     println!("cargo::rustc-link-search={}", lib_dir.display());
-    // TODO: Explain this
-    println!("cargo::rustc-link-arg=-Wl,-rpath={}", lib_dir.display());
 }
 
 /// Get the directory containing `Cargo.toml`
