@@ -1,12 +1,10 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
-import android.content.ComponentName
 import android.content.Context
 import android.content.Context.BIND_AUTO_CREATE
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
-import android.os.IBinder
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import net.mullvad.mullvadvpn.service.MullvadVpnService
@@ -17,18 +15,8 @@ class ServiceConnectionManager(private val context: Context) {
 
     val connectionState = _connectionState.asStateFlow()
 
-    private val serviceConnection =
-        object : android.content.ServiceConnection {
-            @Suppress("EmptyFunctionBlock")
-            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {}
-
-            @Suppress("EmptyFunctionBlock")
-            override fun onServiceDisconnected(name: ComponentName?) {}
-
-            override fun onNullBinding(name: ComponentName?) {
-                error("Received onNullBinding")
-            }
-        }
+    // Dummy service connection to be able to bind, all communication goes over gRPC.
+    private val serviceConnection = EmptyServiceConnection()
 
     fun bind() {
         if (_connectionState.value is ServiceConnectionState.Unbound) {
