@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadSettings
 import MullvadTypes
 
 public protocol ShadowsocksLoaderProtocol {
@@ -15,20 +16,23 @@ public protocol ShadowsocksLoaderProtocol {
 }
 
 public class ShadowsocksLoader: ShadowsocksLoaderProtocol {
-    private let shadowsocksCache: ShadowsocksConfigurationCache
-    private let relayCache: RelayCacheProtocol
+    let shadowsocksCache: ShadowsocksConfigurationCache
+    let shadowsocksRelaySelector: ShadowsocksRelaySelectorProtocol
+    let constraintsUpdater: RelayConstraintsUpdater
+
     private var relayConstraints = RelayConstraints()
-    private let constraintsUpdater: RelayConstraintsUpdater
 
     public init(
         shadowsocksCache: ShadowsocksConfigurationCache,
-        relayCache: RelayCacheProtocol,
+        shadowsocksRelaySelector: ShadowsocksRelaySelectorProtocol,
         constraintsUpdater: RelayConstraintsUpdater
     ) {
         self.shadowsocksCache = shadowsocksCache
-        self.relayCache = relayCache
+        self.shadowsocksRelaySelector = shadowsocksRelaySelector
         self.constraintsUpdater = constraintsUpdater
+
         constraintsUpdater.onNewConstraints = { [weak self] newConstraints in
+            try? self?.invalidate()
             self?.relayConstraints = newConstraints
         }
     }
@@ -45,7 +49,6 @@ public class ShadowsocksLoader: ShadowsocksLoaderProtocol {
             return try shadowsocksCache.read()
         } catch {
             // There is no previous configuration either if this is the first time this code ran
-            // Or because the previous shadowsocks configuration was invalid, therefore generate a new one.
             let newConfiguration = try create()
             try shadowsocksCache.write(newConfiguration)
             return newConfiguration
@@ -54,14 +57,11 @@ public class ShadowsocksLoader: ShadowsocksLoaderProtocol {
 
     /// Returns a randomly selected shadowsocks configuration.
     private func create() throws -> ShadowsocksConfiguration {
-        let cachedRelays = try relayCache.read()
-        let bridgeConfiguration = RelaySelector.shadowsocksTCPBridge(from: cachedRelays.relays)
-        let closestRelay = RelaySelector.closestShadowsocksRelayConstrained(
-            by: relayConstraints,
-            in: cachedRelays.relays
-        )
+        let bridgeConfiguration = try shadowsocksRelaySelector.getBridges()
+        let closestRelay = try shadowsocksRelaySelector.selectRelay(with: relayConstraints)
 
-        guard let bridgeAddress = closestRelay?.ipv4AddrIn, let bridgeConfiguration else { throw POSIXError(.ENOENT) }
+        guard let bridgeAddress = closestRelay?.ipv4AddrIn,
+              let bridgeConfiguration else { throw POSIXError(.ENOENT) }
 
         return ShadowsocksConfiguration(
             address: .ipv4(bridgeAddress),
@@ -69,5 +69,11 @@ public class ShadowsocksLoader: ShadowsocksLoaderProtocol {
             password: bridgeConfiguration.password,
             cipher: bridgeConfiguration.cipher
         )
+    }
+
+    private func invalidate() throws {
+        // because the previous shadowsocks configuration was invalid, therefore generate a new one.
+        let newConfiguration = try create()
+        try shadowsocksCache.write(newConfiguration)
     }
 }

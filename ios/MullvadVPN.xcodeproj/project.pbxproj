@@ -841,6 +841,7 @@
 		E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
 		E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */; };
 		F006CCFC2B99CC8400C6C2AC /* EditLocationsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F006CCFB2B99CC8400C6C2AC /* EditLocationsCoordinator.swift */; };
+		F01528BB2BFF3FEE00B01D00 /* ShadowsocksRelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01528BA2BFF3FEE00B01D00 /* ShadowsocksRelaySelector.swift */; };
 		F0164EBA2B4456D30020268D /* AccessMethodRepositoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EB92B4456D30020268D /* AccessMethodRepositoryStub.swift */; };
 		F0164EBC2B482E430020268D /* AppStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EBB2B482E430020268D /* AppStorage.swift */; };
 		F0164EBE2B4BFF940020268D /* ShadowsocksLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */; };
@@ -906,6 +907,10 @@
 		F0ACE3362BE517D6006D5333 /* ServerRelaysResponse+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ACE3342BE51745006D5333 /* ServerRelaysResponse+Stubs.swift */; };
 		F0ACE3372BE517F1006D5333 /* ServerRelaysResponse+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ACE3342BE51745006D5333 /* ServerRelaysResponse+Stubs.swift */; };
 		F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */; };
+		F0B894EF2BF751C500817A42 /* RelayWithLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894EE2BF751C500817A42 /* RelayWithLocation.swift */; };
+		F0B894F12BF751E300817A42 /* RelayWithDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F02BF751E300817A42 /* RelayWithDistance.swift */; };
+		F0B894F32BF7526700817A42 /* RelaySelector+Wireguard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */; };
+		F0B894F52BF7528700817A42 /* RelaySelector+Shadowsocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */; };
 		F0BE65372B9F136A005CC385 /* LocationSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BE65362B9F136A005CC385 /* LocationSectionHeaderView.swift */; };
 		F0C2AEFD2A0BB5CC00986207 /* NotificationProviderIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */; };
 		F0C3333C2B31A29C00D1A478 /* MullvadSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */; };
@@ -926,6 +931,8 @@
 		F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4282B220A15006B57A7 /* RelaySelector.swift */; };
 		F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4292B220A15006B57A7 /* Midpoint.swift */; };
 		F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */; };
+		F0E61CAA2BF2911D000C4A95 /* TunnelSettingsV5.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E61CA82BF2911D000C4A95 /* TunnelSettingsV5.swift */; };
+		F0E61CAB2BF2911D000C4A95 /* MultihopSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E61CA92BF2911D000C4A95 /* MultihopSettings.swift */; };
 		F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */; };
 		F0E8CC0A2A4EE127007ED3B4 /* SetupAccountCompletedContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC092A4EE127007ED3B4 /* SetupAccountCompletedContentView.swift */; };
 		F0E8CC0C2A4EE672007ED3B4 /* SetupAccountCompletedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC0B2A4EE672007ED3B4 /* SetupAccountCompletedController.swift */; };
@@ -936,6 +943,8 @@
 		F0E8E4C92A604E7400ED26A3 /* AccountDeletionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C82A604E7400ED26A3 /* AccountDeletionInteractor.swift */; };
 		F0EF50D32A8FA47E0031E8DF /* ChangeLogInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF50D22A8FA47E0031E8DF /* ChangeLogInteractor.swift */; };
 		F0EF50D52A949F8E0031E8DF /* ChangeLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */; };
+		F0F316192BF3572B0078DBCF /* RelaySelectorResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */; };
+		F0F3161B2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */; };
 		F0FADDEA2BE90AAA000D0B02 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */; };
 		F0FADDEB2BE90AAE000D0B02 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */; };
 		F0FADDEC2BE90AB0000D0B02 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */; };
@@ -2077,6 +2086,7 @@
 		E158B35F285381C60002F069 /* String+AccountFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+AccountFormatting.swift"; sourceTree = "<group>"; };
 		E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusActivityView.swift; sourceTree = "<group>"; };
 		F006CCFB2B99CC8400C6C2AC /* EditLocationsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditLocationsCoordinator.swift; sourceTree = "<group>"; };
+		F01528BA2BFF3FEE00B01D00 /* ShadowsocksRelaySelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksRelaySelector.swift; sourceTree = "<group>"; };
 		F0164EB92B4456D30020268D /* AccessMethodRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodRepositoryStub.swift; sourceTree = "<group>"; };
 		F0164EBB2B482E430020268D /* AppStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorage.swift; sourceTree = "<group>"; };
 		F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksLoader.swift; sourceTree = "<group>"; };
@@ -2121,6 +2131,10 @@
 		F0ACE32E2BE4EA8B006D5333 /* MockProxyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockProxyFactory.swift; sourceTree = "<group>"; };
 		F0ACE3342BE51745006D5333 /* ServerRelaysResponse+Stubs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ServerRelaysResponse+Stubs.swift"; sourceTree = "<group>"; };
 		F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Async.swift"; sourceTree = "<group>"; };
+		F0B894EE2BF751C500817A42 /* RelayWithLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayWithLocation.swift; sourceTree = "<group>"; };
+		F0B894F02BF751E300817A42 /* RelayWithDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayWithDistance.swift; sourceTree = "<group>"; };
+		F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelaySelector+Wireguard.swift"; sourceTree = "<group>"; };
+		F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelaySelector+Shadowsocks.swift"; sourceTree = "<group>"; };
 		F0BE65362B9F136A005CC385 /* LocationSectionHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationSectionHeaderView.swift; sourceTree = "<group>"; };
 		F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationProviderIdentifier.swift; sourceTree = "<group>"; };
 		F0C6A8422AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewConfiguration.swift; sourceTree = "<group>"; };
@@ -2137,6 +2151,8 @@
 		F0DDE4282B220A15006B57A7 /* RelaySelector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelector.swift; sourceTree = "<group>"; };
 		F0DDE4292B220A15006B57A7 /* Midpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Midpoint.swift; sourceTree = "<group>"; };
 		F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeContentView.swift; sourceTree = "<group>"; };
+		F0E61CA82BF2911D000C4A95 /* TunnelSettingsV5.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV5.swift; sourceTree = "<group>"; };
+		F0E61CA92BF2911D000C4A95 /* MultihopSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultihopSettings.swift; sourceTree = "<group>"; };
 		F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
 		F0E8CC092A4EE127007ED3B4 /* SetupAccountCompletedContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupAccountCompletedContentView.swift; sourceTree = "<group>"; };
 		F0E8CC0B2A4EE672007ED3B4 /* SetupAccountCompletedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupAccountCompletedController.swift; sourceTree = "<group>"; };
@@ -2148,6 +2164,8 @@
 		F0EF50D22A8FA47E0031E8DF /* ChangeLogInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChangeLogInteractor.swift; sourceTree = "<group>"; };
 		F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogViewModel.swift; sourceTree = "<group>"; };
 		F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArguments.swift; sourceTree = "<group>"; };
+		F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorResult.swift; sourceTree = "<group>"; };
+		F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoRelaysSatisfyingConstraintsError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2636,13 +2654,13 @@
 				5823FA5326CE49F600283BF8 /* TunnelObserver.swift */,
 				58B93A1226C3F13600A55733 /* TunnelState.swift */,
 				44BB5F962BE527F4002520EB /* TunnelState+UI.swift */,
+				A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */,
 				5803B4B12940A48700C23744 /* TunnelStore.swift */,
+				A9E031762ACB08950095D843 /* UIApplication+Extensions.swift */,
 				5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */,
 				58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */,
 				A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */,
 				581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */,
-				A9E031762ACB08950095D843 /* UIApplication+Extensions.swift */,
-				A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */,
 			);
 			path = TunnelManager;
 			sourceTree = "<group>";
@@ -3286,6 +3304,7 @@
 				068CE5732927B7A400A068BB /* Migration.swift */,
 				A9D96B192A8247C100A5C673 /* MigrationManager.swift */,
 				58B2FDD52AA71D2A003EB5C6 /* MullvadSettings.h */,
+				F0E61CA92BF2911D000C4A95 /* MultihopSettings.swift */,
 				586C0D962B04E0AC00E7CDD7 /* PersistentAccessMethod.swift */,
 				44DD7D2C2B74E44A0005F67F /* QuantumResistanceSettings.swift */,
 				58FF2C02281BDE02009EF542 /* SettingsManager.swift */,
@@ -3296,11 +3315,12 @@
 				A92ECC272A7802AB0052F1B1 /* StoredDeviceData.swift */,
 				A97D30162AE6B5E90045C0E4 /* StoredWgKeyData.swift */,
 				A92ECC202A77FFAF0052F1B1 /* TunnelSettings.swift */,
+				449872E02B7BBC5400094DDC /* TunnelSettingsUpdate.swift */,
 				587AD7C523421D7000E93A53 /* TunnelSettingsV1.swift */,
 				580F8B8228197881002E0998 /* TunnelSettingsV2.swift */,
 				A988DF282ADE880300D807EF /* TunnelSettingsV3.swift */,
 				A93181A02B727ED700E341D2 /* TunnelSettingsV4.swift */,
-				449872E02B7BBC5400094DDC /* TunnelSettingsUpdate.swift */,
+				F0E61CA82BF2911D000C4A95 /* TunnelSettingsV5.swift */,
 				A988DF252ADE86ED00D807EF /* WireGuardObfuscationSettings.swift */,
 			);
 			path = MullvadSettings;
@@ -4072,8 +4092,14 @@
 				F0DDE4272B220A15006B57A7 /* Haversine.swift */,
 				7A516C392B7111A700BBD33D /* IPOverrideWrapper.swift */,
 				F0DDE4292B220A15006B57A7 /* Midpoint.swift */,
+				F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */,
 				5820675A26E6576800655B05 /* RelayCache.swift */,
 				F0DDE4282B220A15006B57A7 /* RelaySelector.swift */,
+				F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */,
+				F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */,
+				F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */,
+				F0B894F02BF751E300817A42 /* RelayWithDistance.swift */,
+				F0B894EE2BF751C500817A42 /* RelayWithLocation.swift */,
 			);
 			path = Relay;
 			sourceTree = "<group>";
@@ -4112,6 +4138,7 @@
 				F0DDE4102B220458006B57A7 /* ShadowsocksConfigurationCache.swift */,
 				F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */,
 				F0DDE40F2B220458006B57A7 /* ShadowSocksProxy.swift */,
+				F01528BA2BFF3FEE00B01D00 /* ShadowsocksRelaySelector.swift */,
 				F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */,
 			);
 			path = Shadowsocks;
@@ -5155,8 +5182,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				F05F39982B21C73C006E60A7 /* CachedRelays.swift in Sources */,
+				F0F316192BF3572B0078DBCF /* RelaySelectorResult.swift in Sources */,
 				F05F39972B21C735006E60A7 /* RelayCache.swift in Sources */,
 				A932D9EF2B5ADD0700999395 /* ProxyConfigurationTransportProvider.swift in Sources */,
+				F01528BB2BFF3FEE00B01D00 /* ShadowsocksRelaySelector.swift in Sources */,
 				06799AE728F98E4800ACD94E /* RESTURLSession.swift in Sources */,
 				A90763B52B2857D50045ADF0 /* Socks5Constants.swift in Sources */,
 				A90763BA2B2857D50045ADF0 /* Socks5Error.swift in Sources */,
@@ -5165,6 +5194,7 @@
 				A90763BD2B2857D50045ADF0 /* Socks5Connection.swift in Sources */,
 				06799AEC28F98E4800ACD94E /* RESTTaskIdentifier.swift in Sources */,
 				58E7BA192A975DF70068EC3A /* RESTTransportProvider.swift in Sources */,
+				F0B894F52BF7528700817A42 /* RelaySelector+Shadowsocks.swift in Sources */,
 				06799ADE28F98E4800ACD94E /* RESTRequestHandler.swift in Sources */,
 				F0DDE4162B220458006B57A7 /* TransportProvider.swift in Sources */,
 				06799AEF28F98E4800ACD94E /* RetryStrategy.swift in Sources */,
@@ -5189,12 +5219,15 @@
 				06799AF228F98E4800ACD94E /* RESTAccessTokenManager.swift in Sources */,
 				A90763B12B2857D50045ADF0 /* Socks5Endpoint.swift in Sources */,
 				06799AF328F98E4800ACD94E /* RESTAuthenticationProxy.swift in Sources */,
+				F0B894F12BF751E300817A42 /* RelayWithDistance.swift in Sources */,
 				7A516C3A2B7111A700BBD33D /* IPOverrideWrapper.swift in Sources */,
 				F0DDE4142B220458006B57A7 /* ShadowSocksProxy.swift in Sources */,
 				A90763B62B2857D50045ADF0 /* Socks5ConnectNegotiation.swift in Sources */,
 				F06045E62B231EB700B2D37A /* URLSessionTransport.swift in Sources */,
 				06799AE628F98E4800ACD94E /* ServerRelaysResponse.swift in Sources */,
 				F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */,
+				F0B894F32BF7526700817A42 /* RelaySelector+Wireguard.swift in Sources */,
+				F0B894EF2BF751C500817A42 /* RelayWithLocation.swift in Sources */,
 				F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */,
 				A90763C72B2858DC0045ADF0 /* CancellableChain.swift in Sources */,
 				06799AF128F98E4800ACD94E /* RESTAPIProxy.swift in Sources */,
@@ -5205,6 +5238,7 @@
 				F0164ED12B4F2DCB0020268D /* AccessMethodIterator.swift in Sources */,
 				A9D99B9A2A1F7C3200DE27D3 /* RESTTransport.swift in Sources */,
 				A90763BB2B2857D50045ADF0 /* Socks5AddressType.swift in Sources */,
+				F0F3161B2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift in Sources */,
 				06799AE028F98E4800ACD94E /* RESTCoding.swift in Sources */,
 				A90763B72B2857D50045ADF0 /* Socks5DataStreamHandler.swift in Sources */,
 				A90763B22B2857D50045ADF0 /* Socks5EndpointReader.swift in Sources */,
@@ -5407,6 +5441,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F050AE582B7376C6003F4EDB /* CustomListRepository.swift in Sources */,
+				F0E61CAA2BF2911D000C4A95 /* TunnelSettingsV5.swift in Sources */,
 				7A5869BD2B56EF7300640D27 /* IPOverride.swift in Sources */,
 				58B2FDEE2AA72098003EB5C6 /* ApplicationConfiguration.swift in Sources */,
 				F050AE572B7376C6003F4EDB /* CustomListRepositoryProtocol.swift in Sources */,
@@ -5437,6 +5472,7 @@
 				58B2FDE22AA71D5C003EB5C6 /* StoredAccountData.swift in Sources */,
 				F0D7FF902B31E00B00E0FDE5 /* AccessMethodKind.swift in Sources */,
 				7A5869BC2B56EF3400640D27 /* IPOverrideRepository.swift in Sources */,
+				F0E61CAB2BF2911D000C4A95 /* MultihopSettings.swift in Sources */,
 				58B2FDE82AA71D5C003EB5C6 /* KeychainSettingsStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

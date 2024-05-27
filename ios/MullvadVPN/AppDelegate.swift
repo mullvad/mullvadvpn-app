@@ -40,7 +40,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var relayCacheTracker: RelayCacheTracker!
     private(set) var storePaymentManager: StorePaymentManager!
     private var transportMonitor: TransportMonitor!
-    private var relayConstraintsObserver: TunnelBlockObserver!
+    private var settingsObserver: TunnelBlockObserver!
     private let migrationManager = MigrationManager()
 
     private(set) var accessMethodRepository = AccessMethodRepository()
@@ -90,10 +90,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         tunnelManager = createTunnelManager(application: application)
 
         let constraintsUpdater = RelayConstraintsUpdater()
-        relayConstraintsObserver = TunnelBlockObserver(didUpdateTunnelSettings: { _, settings in
+        let multihopUpdater = MultihopStateUpdater()
+        settingsObserver = TunnelBlockObserver(didUpdateTunnelSettings: { _, settings in
+            multihopUpdater.onNewState?(settings.tunnelMultihopState)
             constraintsUpdater.onNewConstraints?(settings.relayConstraints)
         })
-        tunnelManager.addObserver(relayConstraintsObserver)
+        tunnelManager.addObserver(settingsObserver)
 
         storePaymentManager = StorePaymentManager(
             backgroundTaskProvider: application,
@@ -102,13 +104,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy,
             transactionLog: .default
         )
-
         let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
+        let shadowsocksRelaySelector = ShadowsocksRelaySelector(
+            relayCache: ipOverrideWrapper,
+            multihopStateUpdater: multihopUpdater
+        )
 
         shadowsocksLoader = ShadowsocksLoader(
             shadowsocksCache: shadowsocksCache,
-            relayCache: ipOverrideWrapper,
+            shadowsocksRelaySelector: shadowsocksRelaySelector,
             constraintsUpdater: constraintsUpdater
         )
 

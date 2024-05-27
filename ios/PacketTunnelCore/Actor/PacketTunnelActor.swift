@@ -376,7 +376,8 @@ extension PacketTunnelActor {
             connectedEndpoint: selectedRelay.endpoint,
             transportLayer: .udp,
             remotePort: selectedRelay.endpoint.ipv4Relay.port,
-            isPostQuantum: settings.quantumResistance.isEnabled
+            isPostQuantum: settings.quantumResistance.isEnabled,
+            isMultihop: settings.multihopState.isEnabled
         )
     }
 
@@ -415,7 +416,8 @@ extension PacketTunnelActor {
             connectedEndpoint: obfuscatedEndpoint,
             transportLayer: transportLayer,
             remotePort: protocolObfuscator.remotePort,
-            isPostQuantum: settings.quantumResistance.isEnabled
+            isPostQuantum: settings.quantumResistance.isEnabled,
+            isMultihop: settings.multihopState.isEnabled
         )
     }
 

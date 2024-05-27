@@ -149,6 +149,9 @@ extension State {
 
         /// True if post-quantum key exchange is enabled
         public let isPostQuantum: Bool
+
+        /// True if multi-hop is enabled
+        public let isMultihop: Bool
     }
 
     /// Data associated with error state.

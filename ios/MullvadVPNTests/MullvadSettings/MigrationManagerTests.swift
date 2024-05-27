@@ -119,10 +119,49 @@ final class MigrationManagerTests: XCTestCase {
         wait(for: [failedMigrationExpectation], timeout: 1)
     }
 
+    func testSuccessfulMigrationFromV4ToLatest() throws {
+        var settingsV4 = TunnelSettingsV4()
+        let relayConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
+        )
+
+        settingsV4.relayConstraints = relayConstraints
+        settingsV4.tunnelQuantumResistance = .off
+        settingsV4.wireGuardObfuscation = WireGuardObfuscationSettings(state: .off, port: .automatic)
+
+        try migrateToLatest(settingsV4, version: .v4)
+
+        // Once the migration is done, settings should have been updated to the latest available version
+        // Verify that the old settings are still valid
+        let latestSettings = try SettingsManager.readSettings()
+        XCTAssertEqual(settingsV4.relayConstraints, latestSettings.relayConstraints)
+        XCTAssertEqual(settingsV4.tunnelQuantumResistance, latestSettings.tunnelQuantumResistance)
+        XCTAssertEqual(settingsV4.wireGuardObfuscation, latestSettings.wireGuardObfuscation)
+    }
+
+    func testSuccessfulMigrationFromV3ToLatest() throws {
+        var settingsV3 = TunnelSettingsV3()
+        let relayConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
+        )
+
+        settingsV3.relayConstraints = relayConstraints
+        settingsV3.dnsSettings = DNSSettings()
+        settingsV3.wireGuardObfuscation = WireGuardObfuscationSettings(state: .on, port: .port80)
+
+        try migrateToLatest(settingsV3, version: .v3)
+
+        // Once the migration is done, settings should have been updated to the latest available version
+        // Verify that the old settings are still valid
+        let latestSettings = try SettingsManager.readSettings()
+        XCTAssertEqual(settingsV3.relayConstraints, latestSettings.relayConstraints)
+        XCTAssertEqual(settingsV3.wireGuardObfuscation, latestSettings.wireGuardObfuscation)
+    }
+
     func testSuccessfulMigrationFromV2ToLatest() throws {
         var settingsV2 = TunnelSettingsV2()
         let osakaRelayConstraints = RelayConstraints(
-            locations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
+            exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
         )
 
         settingsV2.relayConstraints = osakaRelayConstraints
@@ -136,7 +175,7 @@ final class MigrationManagerTests: XCTestCase {
     func testSuccessfulMigrationFromV1ToLatest() throws {
         var settingsV1 = TunnelSettingsV1()
         let osakaRelayConstraints = RelayConstraints(
-            locations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
+            exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
         )
 
         settingsV1.relayConstraints = osakaRelayConstraints
