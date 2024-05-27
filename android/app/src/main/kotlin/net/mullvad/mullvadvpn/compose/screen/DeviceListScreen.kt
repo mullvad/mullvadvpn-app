@@ -46,6 +46,7 @@ import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
 import net.mullvad.mullvadvpn.compose.destinations.RemoveDeviceConfirmationDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
+import net.mullvad.mullvadvpn.compose.state.DeviceItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -70,7 +71,14 @@ import org.koin.core.parameter.parametersOf
 @Composable
 @Preview
 private fun PreviewDeviceListScreenTooManyDevices() {
-    AppTheme { DeviceListScreen(state = DeviceListUiState.Content(devices = generateDevices(4))) }
+    AppTheme {
+        DeviceListScreen(
+            state =
+                DeviceListUiState.Content(
+                    devices = generateDevices(4).map { DeviceItemUiState(it, false) }
+                )
+        )
+    }
 }
 
 @Composable
@@ -256,12 +264,12 @@ private fun ColumnScope.DeviceListContent(
 ) {
     DeviceListHeader(state = state)
 
-    state.devices.forEachIndexed { index, device ->
+    state.devices.forEachIndexed { index, deviceEntry ->
         DeviceListItem(
-            device = device,
-            isLoading = state.loadingDevices.contains(device.id),
+            device = deviceEntry.device,
+            isLoading = deviceEntry.isLoading,
         ) {
-            navigateToRemoveDeviceConfirmationDialog(device)
+            navigateToRemoveDeviceConfirmationDialog(deviceEntry.device)
         }
         if (state.devices.lastIndex != index) {
             HorizontalDivider()

@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.compose.state.DeviceItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.lib.model.AccountToken
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -45,7 +46,10 @@ class DeviceListViewModel(
                 when {
                     loading -> DeviceListUiState.Loading
                     error != null -> DeviceListUiState.Error(error)
-                    else -> DeviceListUiState.Content(devices, loadingDevices)
+                    else ->
+                        DeviceListUiState.Content(
+                            devices.map { DeviceItemUiState(it, loadingDevices.contains(it.id)) }
+                        )
                 }
             }
             .onStart { fetchDevices() }
