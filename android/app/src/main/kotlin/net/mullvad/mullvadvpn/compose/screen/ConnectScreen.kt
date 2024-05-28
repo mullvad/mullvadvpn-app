@@ -153,13 +153,12 @@ fun Connect(
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
             is ConnectViewModel.UiSideEffect.NoVpnPermission -> launchVpnPermission.launch(Unit)
-            is ConnectViewModel.UiSideEffect.ConnectError -> {
+            is ConnectViewModel.UiSideEffect.ConnectError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message = sideEffect.toMessage(context),
                     )
                 }
-            }
         }
     }
 

@@ -74,7 +74,7 @@ fun CustomLists(
             NavResult.Canceled -> {
                 /* Do nothing */
             }
-            is NavResult.Value -> {
+            is NavResult.Value ->
                 scope.launch {
                     snackbarHostState.showSnackbarImmediately(
                         message =
@@ -87,7 +87,6 @@ fun CustomLists(
                         onAction = { viewModel.undoDeleteCustomList(result.value.undo) }
                     )
                 }
-            }
         }
     }
 

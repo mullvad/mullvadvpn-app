@@ -150,7 +150,7 @@ fun SelectLocation(
     LaunchedEffectCollect(vm.uiSideEffect) {
         when (it) {
             SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true, true)
-            is SelectLocationSideEffect.LocationAddedToCustomList -> {
+            is SelectLocationSideEffect.LocationAddedToCustomList ->
                 launch {
                     snackbarHostState.showResultSnackbar(
                         context = context,
@@ -158,8 +158,7 @@ fun SelectLocation(
                         onUndo = vm::performAction
                     )
                 }
-            }
-            is SelectLocationSideEffect.LocationRemovedFromCustomList -> {
+            is SelectLocationSideEffect.LocationRemovedFromCustomList ->
                 launch {
                     snackbarHostState.showResultSnackbar(
                         context = context,
@@ -167,15 +166,13 @@ fun SelectLocation(
                         onUndo = vm::performAction
                     )
                 }
-            }
-            SelectLocationSideEffect.GenericError -> {
+            SelectLocationSideEffect.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message = context.getString(R.string.error_occurred),
                         duration = SnackbarDuration.Short
                     )
                 }
-            }
         }
     }
 
