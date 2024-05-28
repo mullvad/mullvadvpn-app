@@ -535,7 +535,7 @@ class ManagementService(
 
     suspend fun getWebsiteAuthToken(): Either<Throwable, WebsiteAuthToken> =
         Either.catch { grpc.getWwwAuthToken(Empty.getDefaultInstance()) }
-            .map { it.value.toDomain() }
+            .map { WebsiteAuthToken.fromString(it.value) }
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 

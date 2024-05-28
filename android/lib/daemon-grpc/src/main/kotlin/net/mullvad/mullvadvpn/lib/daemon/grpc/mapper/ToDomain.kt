@@ -59,7 +59,6 @@ import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelOptions
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
-import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
 import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
@@ -562,5 +561,3 @@ internal fun ManagementInterface.SplitTunnelSettings.toDomain(): SplitTunnelSett
 
 internal fun ManagementInterface.PlayPurchasePaymentToken.toDomain(): PlayPurchasePaymentToken =
     PlayPurchasePaymentToken(value = token)
-
-internal fun String.toDomain(): WebsiteAuthToken = WebsiteAuthToken(this)
