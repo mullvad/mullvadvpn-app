@@ -10,6 +10,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
+import net.mullvad.mullvadvpn.service.migration.MigrateSplitTunneling
 
 private const val RELAYS_FILE = "relays.json"
 
