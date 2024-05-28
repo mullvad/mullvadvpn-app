@@ -40,7 +40,7 @@ fn main() {
     // when development, configure rpath to facilitate linking with libwg.so
     if matches!(target_os.as_str(), "linux" | "macos" | "android") && cfg!(debug_assertions) {
         let target = std::env::var("TARGET").expect("TARGET not set");
-        println!("cargo::rustc-link-arg=-Wl,-rpath=build/lib/{target}/");
+        println!("cargo::rustc-link-arg=-Wl,-rpath,build/lib/{target}/");
     }
 }
 
