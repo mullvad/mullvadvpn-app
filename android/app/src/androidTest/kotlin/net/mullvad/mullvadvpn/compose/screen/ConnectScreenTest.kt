@@ -702,7 +702,12 @@ class ConnectScreenTest {
         composeExtension.use {
             // Arrange
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            val versionInfo = VersionInfo(isSupported = false, suggestedUpgradeVersion = "1.1")
+            val versionInfo =
+                VersionInfo(
+                    isSupported = false,
+                    currentVersion = "",
+                    suggestedUpgradeVersion = "1.1"
+                )
             setContentWithTheme {
                 ConnectScreen(
                     onUpdateVersionClick = mockedClickHandler,

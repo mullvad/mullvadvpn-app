@@ -12,11 +12,13 @@ import kotlinx.coroutines.selects.select
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 
 class SplashViewModel(
     private val privacyDisclaimerRepository: PrivacyDisclaimerRepository,
     private val accountRepository: AccountRepository,
+    private val deviceRepository: DeviceRepository,
 ) : ViewModel() {
 
     val uiSideEffect = flow { emit(getStartDestination()) }
@@ -27,7 +29,7 @@ class SplashViewModel(
         }
 
         val deviceState =
-            accountRepository.accountState
+            deviceRepository.deviceState
                 .map {
                     when (it) {
                         is DeviceState.LoggedIn -> ValidStartDeviceState.LoggedIn

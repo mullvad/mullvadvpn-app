@@ -22,8 +22,8 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
-import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
@@ -38,7 +38,7 @@ import net.mullvad.mullvadvpn.util.toOutAddress
 @Suppress("LongParameterList")
 class ConnectViewModel(
     private val accountRepository: AccountRepository,
-    deviceRepository: DeviceRepository,
+    private val deviceRepository: DeviceRepository,
     inAppNotificationController: InAppNotificationController,
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
     selectedLocationTitleUseCase: SelectedLocationTitleUseCase,
@@ -62,7 +62,7 @@ class ConnectViewModel(
                 connectionProxy.tunnelState,
                 lastKnownLocationUseCase.lastKnownDisconnectedLocation,
                 accountRepository.accountData,
-                deviceRepository.deviceState.map { it?.displayName() }
+                deviceRepository.deviceState.map { it?.deviceName() }
             ) {
                 selectedRelayItemTitle,
                 notifications,
@@ -173,7 +173,7 @@ class ConnectViewModel(
         outOfTimeUseCase.isOutOfTime.filter { it == true }.map { UiSideEffect.OutOfTime }
 
     private fun revokedDeviceEffect() =
-        accountRepository.accountState.filterIsInstance<DeviceState.Revoked>().map {
+        deviceRepository.deviceState.filterIsInstance<DeviceState.Revoked>().map {
             UiSideEffect.RevokedDevice
         }
 

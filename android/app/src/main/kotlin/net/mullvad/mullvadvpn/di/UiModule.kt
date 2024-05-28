@@ -11,10 +11,10 @@ import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
-import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.ProblemReportRepository
@@ -151,7 +151,7 @@ val uiModule = module {
     single { AppVersionInfoRepository(get(), get()) }
 
     // View models
-    viewModel { AccountViewModel(get(), get(), IS_PLAY_BUILD) }
+    viewModel { AccountViewModel(get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { ChangelogViewModel(get(), get(), BuildConfig.ALWAYS_SHOW_CHANGELOG) }
     viewModel {
         ConnectViewModel(
@@ -178,13 +178,13 @@ val uiModule = module {
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
-    viewModel { SplashViewModel(get(), get()) }
+    viewModel { SplashViewModel(get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get()) }
-    viewModel { WelcomeViewModel(get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
+    viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
-    viewModel { OutOfTimeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
+    viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get(), get()) }
     viewModel { (location: GeoLocationId?) -> CreateCustomListDialogViewModel(location, get()) }

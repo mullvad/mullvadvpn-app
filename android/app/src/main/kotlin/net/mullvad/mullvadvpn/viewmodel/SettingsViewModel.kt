@@ -8,21 +8,21 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.lib.model.DeviceState
-import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 
 class SettingsViewModel(
-    accountRepository: AccountRepository,
+    deviceRepository: DeviceRepository,
     appVersionInfoRepository: AppVersionInfoRepository,
     isPlayBuild: Boolean
 ) : ViewModel() {
 
     private val vmState: StateFlow<SettingsUiState> =
-        combine(accountRepository.accountState, appVersionInfoRepository.versionInfo()) {
-                accountState,
+        combine(deviceRepository.deviceState, appVersionInfoRepository.versionInfo()) {
+                deviceState,
                 versionInfo ->
                 SettingsUiState(
-                    isLoggedIn = accountState is DeviceState.LoggedIn,
+                    isLoggedIn = deviceState is DeviceState.LoggedIn,
                     appVersion = versionInfo.currentVersion,
                     isUpdateAvailable =
                         versionInfo.let { it.isSupported.not() || it.isUpdateAvailable },

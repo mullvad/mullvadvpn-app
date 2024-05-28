@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
@@ -54,6 +55,7 @@ class OutOfTimeViewModelTest {
     private val tunnelState = MutableStateFlow<TunnelState>(TunnelState.Disconnected())
 
     private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
+    private val mockDeviceRepository: DeviceRepository = mockk(relaxed = true)
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
     private val mockOutOfTimeUseCase: OutOfTimeUseCase = mockk(relaxed = true)
@@ -70,7 +72,7 @@ class OutOfTimeViewModelTest {
 
         every { mockAccountRepository.accountData } returns accountExpiryStateFlow
 
-        every { mockAccountRepository.accountState } returns accountStateFlow
+        every { mockDeviceRepository.deviceState } returns accountStateFlow
 
         coEvery { mockPaymentUseCase.purchaseResult } returns purchaseResultFlow
 
@@ -81,6 +83,7 @@ class OutOfTimeViewModelTest {
         viewModel =
             OutOfTimeViewModel(
                 accountRepository = mockAccountRepository,
+                deviceRepository = mockDeviceRepository,
                 paymentUseCase = mockPaymentUseCase,
                 outOfTimeUseCase = mockOutOfTimeUseCase,
                 connectionProxy = mockConnectionProxy,

@@ -19,11 +19,13 @@ import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.toPaymentState
 
 class WelcomeViewModel(
     private val accountRepository: AccountRepository,
+    deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentUseCase,
     connectionProxy: ConnectionProxy,
     private val pollAccountExpiry: Boolean = true,
@@ -35,7 +37,7 @@ class WelcomeViewModel(
     val uiState =
         combine(
                 connectionProxy.tunnelState,
-                accountRepository.accountState.filterNotNull(),
+                deviceRepository.deviceState.filterNotNull(),
                 paymentUseCase.paymentAvailability,
             ) { tunnelState, accountState, paymentAvailability ->
                 WelcomeUiState(

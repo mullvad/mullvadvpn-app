@@ -24,7 +24,7 @@ val appModule = module {
     }
     single { BuildVersion(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE) }
     single { IntentProvider() }
-    single { AccountRepository(get(), MainScope()) }
+    single { AccountRepository(get(), get(), MainScope()) }
     single { VpnPermissionRepository(androidContext()) }
     single { ConnectionProxy(get(), get()) }
 }

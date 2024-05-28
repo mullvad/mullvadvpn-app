@@ -1,11 +1,13 @@
 package net.mullvad.mullvadvpn.lib.shared
 
 import arrow.core.Either
+import arrow.core.raise.nullable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -22,18 +24,17 @@ import org.joda.time.DateTime
 
 class AccountRepository(
     private val managementService: ManagementService,
+    private val deviceRepository: DeviceRepository,
     val scope: CoroutineScope
 ) {
-    val accountState =
-        managementService.deviceState.stateIn(scope = scope, SharingStarted.Eagerly, null)
 
-    private val _mutableAccountData: MutableSharedFlow<AccountData> = MutableSharedFlow()
+    private val _mutableAccountDataCache: MutableSharedFlow<AccountData> = MutableSharedFlow()
 
     private val _isNewAccount: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isNewAccount: StateFlow<Boolean> = _isNewAccount
     val accountData: StateFlow<AccountData?> =
         merge(
-                accountState.filterNotNull().map { deviceState ->
+                managementService.deviceState.filterNotNull().map { deviceState ->
                     when (deviceState) {
                         is DeviceState.LoggedIn -> {
                             managementService.getAccountData(deviceState.accountToken).getOrNull()
@@ -42,8 +43,9 @@ class AccountRepository(
                         DeviceState.Revoked -> null
                     }
                 },
-                _mutableAccountData
+                _mutableAccountDataCache
             )
+            .distinctUntilChanged()
             .stateIn(scope = scope, SharingStarted.Eagerly, null)
 
     suspend fun createAccount(): Either<CreateAccountError, AccountToken> =
@@ -54,7 +56,6 @@ class AccountRepository(
 
     suspend fun logout() {
         managementService.logoutAccount()
-        getAccountData()
         _isNewAccount.update { false }
     }
 
@@ -63,31 +64,21 @@ class AccountRepository(
 
     suspend fun clearAccountHistory() = managementService.clearAccountHistory()
 
-    suspend fun getAccountData(): AccountData? {
-        val accountData =
-            if (accountState.value !is DeviceState.LoggedIn) null
-            else {
-                managementService
-                    .getAccountData((accountState.value as DeviceState.LoggedIn).accountToken)
-                    .getOrNull()
-            }
-        if (accountData != null) {
-            _mutableAccountData.emit(accountData)
-        }
-        return accountData
-    }
+    suspend fun getAccountData(): AccountData? = nullable {
+        val deviceState = ensureNotNull(deviceRepository.deviceState.value as? DeviceState.LoggedIn)
 
-    fun getAccountToken(): AccountToken? {
-        return when (val deviceState = accountState.value) {
-            is DeviceState.LoggedIn -> deviceState.accountToken
-            else -> null
-        }
+        val accountData =
+            managementService.getAccountData(deviceState.accountToken).getOrNull().bind()
+
+        // Update stateflow cache
+        _mutableAccountDataCache.emit(accountData)
+        accountData
     }
 
     suspend fun getWebsiteAuthToken(): WebsiteAuthToken? =
         managementService.getWebsiteAuthToken().getOrNull()
 
     internal suspend fun onVoucherRedeemed(newExpiry: DateTime) {
-        accountData.value?.copy(expiryDate = newExpiry)?.let { _mutableAccountData.emit(it) }
+        accountData.value?.copy(expiryDate = newExpiry)?.let { _mutableAccountDataCache.emit(it) }
     }
 }

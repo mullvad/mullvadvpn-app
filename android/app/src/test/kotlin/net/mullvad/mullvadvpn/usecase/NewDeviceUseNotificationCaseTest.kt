@@ -5,15 +5,16 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.model.AccountToken
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
-import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
@@ -26,8 +27,15 @@ class NewDeviceUseNotificationCaseTest {
 
     private val deviceName = "Frank Zebra"
     private val deviceState =
-        MutableStateFlow<Device?>(
-            Device(id = DeviceId.fromString(UUID), name = deviceName, creationDate = DateTime.now())
+        MutableStateFlow<DeviceState?>(
+            DeviceState.LoggedIn(
+                AccountToken("1234123412341234"),
+                Device(
+                    id = DeviceId.fromString(UUID),
+                    name = deviceName,
+                    creationDate = DateTime.now()
+                )
+            )
         )
     private lateinit var newDeviceNotificationUseCase: NewDeviceNotificationUseCase
 

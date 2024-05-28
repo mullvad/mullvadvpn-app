@@ -21,7 +21,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
-import net.mullvad.mullvadvpn.lib.model.Device
+import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
@@ -29,8 +29,8 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
-import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -55,7 +55,7 @@ class ConnectViewModelTest {
     private val serviceConnectionState =
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
     private val accountExpiryState = MutableStateFlow<AccountData?>(null)
-    private val device = MutableStateFlow<Device?>(null)
+    private val device = MutableStateFlow<DeviceState?>(null)
     private val notifications = MutableStateFlow<List<InAppNotification>>(emptyList())
 
     // Service connections

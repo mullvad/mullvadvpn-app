@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.DeviceState
-import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import org.junit.jupiter.api.AfterEach
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(TestCoroutineRule::class)
 class SettingsViewModelTest {
 
-    private val mockAccountRepository: AccountRepository = mockk()
+    private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockAppVersionInfoRepository: AppVersionInfoRepository = mockk()
 
     private val versionInfo =
@@ -34,14 +34,14 @@ class SettingsViewModelTest {
 
     @BeforeEach
     fun setup() {
-        val accountState = MutableStateFlow<DeviceState>(DeviceState.LoggedOut)
+        val deviceState = MutableStateFlow<DeviceState>(DeviceState.LoggedOut)
 
-        every { mockAccountRepository.accountState } returns accountState
+        every { mockDeviceRepository.deviceState } returns deviceState
         every { mockAppVersionInfoRepository.versionInfo() } returns versionInfo
 
         viewModel =
             SettingsViewModel(
-                accountRepository = mockAccountRepository,
+                deviceRepository = mockDeviceRepository,
                 appVersionInfoRepository = mockAppVersionInfoRepository,
                 isPlayBuild = false
             )

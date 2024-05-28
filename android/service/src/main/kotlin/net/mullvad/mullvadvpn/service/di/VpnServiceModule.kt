@@ -33,7 +33,11 @@ val vpnServiceModule = module {
         )
     } bind NotificationProvider::class
     single {
-        AccountExpiryNotificationProvider(get<NotificationChannel.AccountUpdates>().id, get())
+        AccountExpiryNotificationProvider(
+            get<NotificationChannel.AccountUpdates>().id,
+            get(),
+            get()
+        )
     } bind NotificationProvider::class
 
     single {

@@ -20,15 +20,15 @@ import net.mullvad.mullvadvpn.lib.model.NotificationId
 import net.mullvad.mullvadvpn.lib.model.NotificationTunnelState
 import net.mullvad.mullvadvpn.lib.model.NotificationUpdate
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 
 class TunnelStateNotificationProvider(
     connectionProxy: ConnectionProxy,
     vpnPermissionRepository: VpnPermissionRepository,
-    accountRepository: AccountRepository,
+    deviceRepository: DeviceRepository,
     channelId: NotificationChannelId,
     scope: CoroutineScope
 ) : NotificationProvider<Notification.Tunnel> {
@@ -38,12 +38,10 @@ class TunnelStateNotificationProvider(
         combine(
                 connectionProxy.tunnelState,
                 connectionProxy.tunnelState.actionAfterDisconnect().distinctUntilChanged(),
-                accountRepository.accountState
-            ) {
-                tunnelState: TunnelState,
-                actionAfterDisconnect: ActionAfterDisconnect?,
-                accountState ->
-                if (accountState is DeviceState.LoggedOut) {
+                deviceRepository.deviceState
+            ) { tunnelState: TunnelState, actionAfterDisconnect: ActionAfterDisconnect?, deviceState
+                ->
+                if (deviceState is DeviceState.LoggedOut) {
                     return@combine NotificationUpdate.Cancel(notificationId)
                 }
                 val notificationTunnelState =

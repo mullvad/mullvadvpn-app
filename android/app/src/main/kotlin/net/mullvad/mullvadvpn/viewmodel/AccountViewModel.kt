@@ -14,12 +14,14 @@ import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.toPaymentState
 import org.joda.time.DateTime
 
 class AccountViewModel(
     private val accountRepository: AccountRepository,
+    deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentUseCase,
     private val isPlayBuild: Boolean,
 ) : ViewModel() {
@@ -28,7 +30,7 @@ class AccountViewModel(
 
     val uiState: StateFlow<AccountUiState> =
         combine(
-                accountRepository.accountState,
+                deviceRepository.deviceState,
                 accountRepository.accountData,
                 paymentUseCase.paymentAvailability
             ) { deviceState, accountData, paymentAvailability ->

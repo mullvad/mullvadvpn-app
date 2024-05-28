@@ -9,6 +9,7 @@ import net.mullvad.mullvadvpn.lib.model.NotificationChannelId
 import net.mullvad.mullvadvpn.lib.model.NotificationId
 import net.mullvad.mullvadvpn.lib.model.NotificationUpdate
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.service.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 import org.joda.time.DateTime
@@ -17,16 +18,17 @@ import org.joda.time.Duration
 class AccountExpiryNotificationProvider(
     channelId: NotificationChannelId,
     accountRepository: AccountRepository,
+    deviceRepository: DeviceRepository,
 ) : NotificationProvider<Notification.AccountExpiry> {
     private val notificationId = NotificationId(3)
 
     override val notifications: Flow<NotificationUpdate<Notification.AccountExpiry>> =
         combine(
-                accountRepository.accountState,
+                deviceRepository.deviceState,
                 accountRepository.accountData.filterNotNull(),
                 accountRepository.isNewAccount
-            ) { accountState, accountData, isNewAccount ->
-                if (accountState !is DeviceState.LoggedIn) {
+            ) { deviceState, accountData, isNewAccount ->
+                if (deviceState !is DeviceState.LoggedIn) {
                     return@combine NotificationUpdate.Cancel(notificationId)
                 }
 

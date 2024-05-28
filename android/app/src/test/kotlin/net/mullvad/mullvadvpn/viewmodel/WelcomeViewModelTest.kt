@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
@@ -40,7 +41,7 @@ class WelcomeViewModelTest {
 
     private val serviceConnectionStateFlow =
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Unbound)
-    private val accountStateFlow = MutableStateFlow<DeviceState?>(DeviceState.LoggedOut)
+    private val deviceStateFlow = MutableStateFlow<DeviceState?>(DeviceState.LoggedOut)
     private val accountExpiryStateFlow = MutableStateFlow<AccountData?>(null)
     private val purchaseResultFlow = MutableStateFlow<PurchaseResult?>(null)
     private val paymentAvailabilityFlow = MutableStateFlow<PaymentAvailability?>(null)
@@ -52,6 +53,7 @@ class WelcomeViewModelTest {
     private val tunnelState = MutableStateFlow<TunnelState>(TunnelState.Disconnected())
 
     private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
+    private val mockDeviceRepository: DeviceRepository = mockk(relaxed = true)
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
 
@@ -61,7 +63,7 @@ class WelcomeViewModelTest {
     fun setup() {
         mockkStatic(PURCHASE_RESULT_EXTENSIONS_CLASS)
 
-        every { mockAccountRepository.accountState } returns accountStateFlow
+        every { mockDeviceRepository.deviceState } returns deviceStateFlow
 
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionStateFlow
 
@@ -76,6 +78,7 @@ class WelcomeViewModelTest {
         viewModel =
             WelcomeViewModel(
                 accountRepository = mockAccountRepository,
+                deviceRepository = mockDeviceRepository,
                 paymentUseCase = mockPaymentUseCase,
                 connectionProxy = mockConnectionProxy,
                 pollAccountExpiry = false,
@@ -132,7 +135,7 @@ class WelcomeViewModelTest {
                 // Default state
                 awaitItem()
                 paymentAvailabilityFlow.value = null
-                accountStateFlow.value =
+                deviceStateFlow.value =
                     DeviceState.LoggedIn(accountToken = expectedAccountNumber, device = device)
                 assertEquals(expectedAccountNumber, awaitItem().accountNumber)
             }
