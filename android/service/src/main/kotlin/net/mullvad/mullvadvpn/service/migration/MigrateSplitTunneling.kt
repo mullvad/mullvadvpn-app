@@ -3,6 +3,14 @@ package net.mullvad.mullvadvpn.service.migration
 import android.content.Context
 import java.io.File
 
+/**
+ * Migration for split tunneling apps, from Shared Preferences to Daemon.
+ *
+ * Previously apps where stored in Shared Preferences and injected from straight into the tunnel
+ * without the knowledge of the daemon. This migration happens in conjunction with the daemon.
+ *
+ * See: mullvad-daemon/src/migrations/v9.rs
+ */
 class MigrateSplitTunneling(private val context: Context) {
     fun migrate() {
         // Get old settings, if not found return
