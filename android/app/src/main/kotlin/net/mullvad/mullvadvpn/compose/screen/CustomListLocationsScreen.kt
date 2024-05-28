@@ -31,6 +31,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.CheckableRelayLocationCell
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
@@ -98,10 +99,12 @@ fun CustomListLocations(
                 backNavigator.navigateBack(result = sideEffect.result)
             CustomListLocationsSideEffect.CloseScreen -> backNavigator.navigateBack()
             CustomListLocationsSideEffect.Error ->
-                snackbarHostState.showSnackbarImmediately(
-                    message = context.getString(R.string.error_occurred),
-                    duration = SnackbarDuration.Short
-                )
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message = context.getString(R.string.error_occurred),
+                        duration = SnackbarDuration.Short
+                    )
+                }
         }
     }
 

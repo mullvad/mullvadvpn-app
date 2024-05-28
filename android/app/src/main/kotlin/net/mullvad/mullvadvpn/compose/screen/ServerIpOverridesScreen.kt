@@ -107,10 +107,12 @@ fun ServerIpOverrides(
     LaunchedEffectCollect(vm.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is ServerIpOverridesUiSideEffect.ImportResult ->
-                snackbarHostState.showSnackbarImmediately(
-                    message = sideEffect.error.toString(context),
-                    actionLabel = null
-                )
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message = sideEffect.error.toString(context),
+                        actionLabel = null
+                    )
+                }
         }
     }
 

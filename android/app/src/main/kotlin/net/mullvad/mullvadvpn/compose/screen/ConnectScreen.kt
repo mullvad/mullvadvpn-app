@@ -48,6 +48,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
@@ -153,9 +154,11 @@ fun Connect(
                 }
             is ConnectViewModel.UiSideEffect.NoVpnPermission -> launchVpnPermission.launch(Unit)
             is ConnectViewModel.UiSideEffect.ConnectError -> {
-                snackbarHostState.showSnackbarImmediately(
-                    message = sideEffect.toMessage(context),
-                )
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message = sideEffect.toMessage(context),
+                    )
+                }
             }
         }
     }

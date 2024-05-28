@@ -34,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
 import net.mullvad.mullvadvpn.compose.cell.ContentBlockersDisableModeCellSubtitle
@@ -174,7 +175,7 @@ fun VpnSettings(
     LaunchedEffectCollect(vm.uiSideEffect) {
         when (it) {
             is VpnSettingsSideEffect.ShowToast ->
-                snackbarHostState.showSnackbarImmediately(message = it.message(context))
+                launch { snackbarHostState.showSnackbarImmediately(message = it.message(context)) }
             VpnSettingsSideEffect.NavigateToDnsDialog ->
                 navigator.navigate(DnsDialogDestination(null, null)) { launchSingleTop = true }
         }

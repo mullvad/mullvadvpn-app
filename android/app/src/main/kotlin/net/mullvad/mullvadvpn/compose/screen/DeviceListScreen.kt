@@ -36,6 +36,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
@@ -133,9 +134,11 @@ fun DeviceList(
     ) { sideEffect ->
         when (sideEffect) {
             DeviceListSideEffect.FailedToRemoveDevice -> {
-                snackbarHostState.showSnackbarImmediately(
-                    message = context.getString(R.string.failed_to_remove_device)
-                )
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message = context.getString(R.string.failed_to_remove_device)
+                    )
+                }
             }
         }
     }
