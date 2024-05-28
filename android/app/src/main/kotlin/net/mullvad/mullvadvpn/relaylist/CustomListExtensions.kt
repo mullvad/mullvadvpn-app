@@ -8,10 +8,10 @@ fun CustomList.toRelayItemCustomList(
     relayCountries: List<RelayItem.Location.Country>
 ): RelayItem.CustomList =
     RelayItem.CustomList(
-        id = this.id,
+        id = id,
         customListName = name,
         expanded = false,
-        locations = this.locations.mapNotNull { relayCountries.findItemForGeoLocationId(it) },
+        locations = locations.mapNotNull { relayCountries.findByGeoLocationId(it) },
     )
 
 fun List<RelayItem.CustomList>.filterOnSearchTerm(searchTerm: String) =

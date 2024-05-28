@@ -5,8 +5,11 @@ import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 
-fun List<RelayItem.Location.Country>.findItemForGeoLocationId(geoLocationId: GeoLocationId) =
+fun List<RelayItem.Location.Country>.findByGeoLocationId(geoLocationId: GeoLocationId) =
     withDescendants().firstOrNull { it.id == geoLocationId }
+
+fun List<RelayItem.Location.Country>.findByGeoLocationId(geoLocationId: GeoLocationId.City) =
+    flatMap { it.cities }.firstOrNull { it.id == geoLocationId }
 
 /**
  * Filter and expand the list based on search terms If a country is matched, that country and all

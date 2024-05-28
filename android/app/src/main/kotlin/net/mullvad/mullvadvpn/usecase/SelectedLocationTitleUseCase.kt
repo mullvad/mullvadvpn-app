@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.usecase
 
+import arrow.core.raise.nullable
 import kotlinx.coroutines.flow.combine
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomList
@@ -7,8 +8,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.relaylist.findItemForGeoLocationId
-import net.mullvad.mullvadvpn.relaylist.withDescendants
+import net.mullvad.mullvadvpn.relaylist.findByGeoLocationId
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 
@@ -22,35 +22,36 @@ class SelectedLocationTitleUseCase(
             relayListRepository.relayList,
             relayListRepository.selectedLocation
         ) { customLists, relayList, selectedLocation ->
-            findSelectedRelayItemWithTitle(selectedLocation, relayList, customLists ?: emptyList())
+            if (selectedLocation is Constraint.Only) {
+                createRelayItemTitle(selectedLocation.value, relayList, customLists ?: emptyList())
+            } else {
+                null
+            }
         }
 
-    private fun findSelectedRelayItemWithTitle(
-        locationConstraint: Constraint<RelayItemId>,
+    private fun createRelayItemTitle(
+        relayItemId: RelayItemId,
         relayCountries: List<RelayItem.Location.Country>,
         customLists: List<CustomList>
-    ): String? {
-        if (locationConstraint !is Constraint.Only) return null
-
-        return when (val relayItemId = locationConstraint.value) {
+    ): String? =
+        when (relayItemId) {
             is CustomListId -> customLists.firstOrNull { it.id == relayItemId }?.name?.value
-            is GeoLocationId.Hostname -> {
-                val city =
-                    relayCountries
-                        .withDescendants()
-                        .filterIsInstance<RelayItem.Location.City>()
-                        .firstOrNull { it.id == relayItemId.city }
-
-                val relay = city?.relays?.firstOrNull { it.id == relayItemId }
-
-                if (city != null && relay != null) {
-                    "${city.name} (${relay.name})"
-                } else {
-                    null
-                }
-            }
-            is GeoLocationId.City -> relayCountries.findItemForGeoLocationId(relayItemId)?.name
-            is GeoLocationId.Country -> relayCountries.findItemForGeoLocationId(relayItemId)?.name
+            is GeoLocationId.Hostname -> createRelayTitle(relayCountries, relayItemId)
+            is GeoLocationId.City -> relayCountries.findByGeoLocationId(relayItemId)?.name
+            is GeoLocationId.Country -> relayCountries.firstOrNull { it.id == relayItemId }?.name
         }
+
+    private fun createRelayTitle(
+        relayCountries: List<RelayItem.Location.Country>,
+        relayItemId: GeoLocationId.Hostname
+    ): String? = nullable {
+        val city =
+            relayCountries.flatMap { it.cities }.firstOrNull { it.id == relayItemId.city }.bind()
+        val relay = city.relays.firstOrNull { it.id == relayItemId }.bind()
+
+        relay.formatTitle(city)
     }
+
+    private fun RelayItem.Location.Relay.formatTitle(city: RelayItem.Location.City) =
+        "${city.name} (${name})"
 }

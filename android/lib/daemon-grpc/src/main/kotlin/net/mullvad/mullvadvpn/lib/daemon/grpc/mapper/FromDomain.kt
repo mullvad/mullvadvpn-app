@@ -131,11 +131,7 @@ internal fun Constraint<Ownership>.fromDomain(): ManagementInterface.Ownership =
     }
 
 internal fun PlayPurchasePaymentToken.fromDomain(): ManagementInterface.PlayPurchasePaymentToken =
-    ManagementInterface.PlayPurchasePaymentToken.newBuilder()
-        .setToken(
-            value,
-        )
-        .build()
+    ManagementInterface.PlayPurchasePaymentToken.newBuilder().setToken(value).build()
 
 internal fun PlayPurchase.fromDomain(): ManagementInterface.PlayPurchase =
     ManagementInterface.PlayPurchase.newBuilder()
