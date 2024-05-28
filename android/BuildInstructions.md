@@ -105,8 +105,8 @@ Linux distro:
   cd /opt/android     # Or some other directory to place the Android SDK
   export ANDROID_HOME=$PWD
 
-  wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-  unzip commandlinetools-linux-6609375_latest.zip
+  wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+  unzip commandlinetools-linux-11076708_latest.zip
   ./tools/bin/sdkmanager "platforms;android-33" "build-tools;30.0.3" "platform-tools"
   ```
 
