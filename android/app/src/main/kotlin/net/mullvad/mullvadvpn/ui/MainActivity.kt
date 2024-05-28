@@ -50,6 +50,7 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
+        // Needs to be before set content since we want to access the intent in compose
         if (savedInstanceState == null) {
             intentProvider.setStartIntent(intent)
         }
