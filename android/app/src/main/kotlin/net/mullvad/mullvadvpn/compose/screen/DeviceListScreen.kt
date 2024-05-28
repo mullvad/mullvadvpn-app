@@ -194,23 +194,17 @@ fun DeviceListScreen(
                         .verticalScroll(scrollState)
                         .weight(1f)
                         .fillMaxWidth(),
-                verticalArrangement =
-                    if (state !is DeviceListUiState.Content) {
-                        Arrangement.Center
-                    } else {
-                        Arrangement.Top
-                    }
             ) {
+                DeviceListHeader(state)
                 when (state) {
                     is DeviceListUiState.Content ->
                         DeviceListContent(
-                            devices = state.devices,
-                            hasTooManyDevices = state.hasTooManyDevices,
+                            state,
                             navigateToRemoveDeviceConfirmationDialog =
                                 navigateToRemoveDeviceConfirmationDialog
                         )
                     is DeviceListUiState.Error -> DeviceListError(onTryAgainClicked)
-                    DeviceListUiState.Loading -> DeviceListLoading()
+                    DeviceListUiState.Loading -> {}
                 }
             }
             DeviceListButtonPanel(state, onContinueWithLogin, onBackClick)
@@ -219,78 +213,88 @@ fun DeviceListScreen(
 }
 
 @Composable
-private fun ColumnScope.DeviceListLoading() {
-    MullvadCircularProgressIndicatorLarge(
-        modifier = Modifier.padding(Dimens.smallPadding).align(Alignment.CenterHorizontally)
-    )
-}
-
-@Composable
 private fun ColumnScope.DeviceListError(tryAgain: () -> Unit) {
-    Text(
-        text = stringResource(id = R.string.error_occurred),
-        modifier = Modifier.padding(Dimens.smallPadding).align(Alignment.CenterHorizontally)
-    )
-    PrimaryButton(
-        onClick = tryAgain,
-        text = stringResource(id = R.string.try_again),
-        modifier =
-            Modifier.padding(
-                top = Dimens.buttonSpacing,
-                start = Dimens.sideMargin,
-                end = Dimens.sideMargin
-            )
-    )
+    Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+        Text(
+            text = stringResource(id = R.string.failed_to_fetch_devices),
+            modifier = Modifier.padding(Dimens.smallPadding).align(Alignment.CenterHorizontally)
+        )
+        PrimaryButton(
+            onClick = tryAgain,
+            text = stringResource(id = R.string.try_again),
+            modifier =
+                Modifier.padding(
+                    top = Dimens.buttonSpacing,
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin
+                )
+        )
+    }
 }
 
 @Composable
 private fun ColumnScope.DeviceListContent(
-    devices: List<DeviceItemUiState>,
-    hasTooManyDevices: Boolean,
+    state: DeviceListUiState.Content,
     navigateToRemoveDeviceConfirmationDialog: (Device) -> Unit
 ) {
-    DeviceListHeader(hasTooManyDevices = hasTooManyDevices)
-
-    devices.forEachIndexed { index, (device, loading) ->
+    state.devices.forEachIndexed { index, (device, loading) ->
         DeviceListItem(
             device = device,
             isLoading = loading,
         ) {
             navigateToRemoveDeviceConfirmationDialog(device)
         }
-        if (devices.lastIndex != index) {
+        if (state.devices.lastIndex != index) {
             HorizontalDivider()
         }
     }
 }
 
 @Composable
-private fun ColumnScope.DeviceListHeader(hasTooManyDevices: Boolean) {
-    Image(
-        painter =
-            painterResource(
-                id =
-                    if (hasTooManyDevices) {
-                        R.drawable.icon_fail
-                    } else {
-                        R.drawable.icon_success
-                    }
-            ),
-        contentDescription = null, // No meaningful user info or action.
-        modifier =
-            Modifier.align(Alignment.CenterHorizontally)
-                .padding(top = Dimens.iconFailSuccessTopMargin)
-                .size(Dimens.bigIconSize)
-    )
+private fun ColumnScope.DeviceListHeader(state: DeviceListUiState) {
+    when (state) {
+        is DeviceListUiState.Content ->
+            Image(
+                painter =
+                    painterResource(
+                        id =
+                            if (state.hasTooManyDevices) {
+                                R.drawable.icon_fail
+                            } else {
+                                R.drawable.icon_success
+                            }
+                    ),
+                contentDescription = null, // No meaningful user info or action.
+                modifier =
+                    Modifier.align(Alignment.CenterHorizontally)
+                        .padding(top = Dimens.iconFailSuccessTopMargin)
+                        .size(Dimens.bigIconSize)
+            )
+        is DeviceListUiState.Error ->
+            Image(
+                painter = painterResource(id = R.drawable.icon_fail),
+                contentDescription = null, // No meaningful user info or action.
+                modifier =
+                    Modifier.align(Alignment.CenterHorizontally)
+                        .padding(top = Dimens.iconFailSuccessTopMargin)
+                        .size(Dimens.bigIconSize)
+            )
+        DeviceListUiState.Loading ->
+            MullvadCircularProgressIndicatorLarge(
+                modifier =
+                    Modifier.align(Alignment.CenterHorizontally)
+                        .padding(top = Dimens.iconFailSuccessTopMargin)
+            )
+    }
 
     Text(
         text =
             stringResource(
                 id =
-                    if (hasTooManyDevices) {
-                        R.string.max_devices_warning_title
-                    } else {
+                    if (state is DeviceListUiState.Content && !state.hasTooManyDevices) {
                         R.string.max_devices_resolved_title
+                    } else {
+                        R.string.max_devices_warning_title
                     }
             ),
         style = MaterialTheme.typography.headlineSmall,
@@ -303,28 +307,30 @@ private fun ColumnScope.DeviceListHeader(hasTooManyDevices: Boolean) {
             ),
     )
 
-    Text(
-        text =
-            stringResource(
-                id =
-                    if (hasTooManyDevices) {
-                        R.string.max_devices_warning_description
-                    } else {
-                        R.string.max_devices_resolved_description
-                    }
-            ),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onBackground,
-        modifier =
-            Modifier.wrapContentHeight()
-                .animateContentSize()
-                .padding(
-                    top = Dimens.smallPadding,
-                    start = Dimens.sideMargin,
-                    end = Dimens.sideMargin,
-                    bottom = Dimens.spacingAboveButton
-                )
-    )
+    if (state is DeviceListUiState.Content) {
+        Text(
+            text =
+                stringResource(
+                    id =
+                        if (state.hasTooManyDevices) {
+                            R.string.max_devices_warning_description
+                        } else {
+                            R.string.max_devices_resolved_description
+                        }
+                ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier =
+                Modifier.wrapContentHeight()
+                    .animateContentSize()
+                    .padding(
+                        top = Dimens.smallPadding,
+                        start = Dimens.sideMargin,
+                        end = Dimens.sideMargin,
+                        bottom = Dimens.spacingAboveButton
+                    )
+        )
+    }
 }
 
 @Composable
