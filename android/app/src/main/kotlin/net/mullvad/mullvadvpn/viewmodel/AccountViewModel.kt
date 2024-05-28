@@ -35,7 +35,7 @@ class AccountViewModel(
                 paymentUseCase.paymentAvailability
             ) { deviceState, accountData, paymentAvailability ->
                 AccountUiState(
-                    deviceName = deviceState?.deviceName() ?: "",
+                    deviceName = deviceState?.displayName() ?: "",
                     accountNumber = deviceState?.token()?.value ?: "",
                     accountExpiry = accountData?.expiryDate,
                     showSitePayment = !isPlayBuild,

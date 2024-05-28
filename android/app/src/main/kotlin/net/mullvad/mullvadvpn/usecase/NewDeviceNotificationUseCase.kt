@@ -12,7 +12,7 @@ class NewDeviceNotificationUseCase(private val deviceRepository: DeviceRepositor
 
     fun notifications() =
         combine(
-                deviceRepository.deviceState.map { it?.deviceName() },
+                deviceRepository.deviceState.map { it?.displayName() },
                 _mutableShowNewDeviceNotification
             ) { deviceName, newDeviceCreated ->
                 if (newDeviceCreated && deviceName != null) {

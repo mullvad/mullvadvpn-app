@@ -43,7 +43,7 @@ class WelcomeViewModel(
                 WelcomeUiState(
                     tunnelState = tunnelState,
                     accountNumber = accountState.token(),
-                    deviceName = accountState.deviceName(),
+                    deviceName = accountState.displayName(),
                     showSitePayment = !isPlayBuild,
                     billingPaymentState = paymentAvailability?.toPaymentState(),
                 )

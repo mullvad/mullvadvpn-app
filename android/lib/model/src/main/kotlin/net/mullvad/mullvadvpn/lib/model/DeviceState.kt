@@ -11,7 +11,7 @@ sealed class DeviceState : Parcelable {
 
     @Parcelize data object Revoked : DeviceState()
 
-    fun deviceName(): String? {
+    fun displayName(): String? {
         return (this as? LoggedIn)?.device?.displayName()
     }
 
