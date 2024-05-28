@@ -3,6 +3,8 @@ package net.mullvad.mullvadvpn.lib.daemon.grpc
 import android.net.LocalSocketAddress
 import android.util.Log
 import arrow.core.Either
+import arrow.core.raise.either
+import arrow.core.raise.ensure
 import arrow.optics.copy
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
@@ -42,7 +44,11 @@ import net.mullvad.mullvadvpn.lib.daemon.grpc.util.LogInterceptor
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.connectivityFlow
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountToken
+import net.mullvad.mullvadvpn.lib.model.AddApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.AddSplitTunnelingAppError
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodType
 import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.model.AppVersionInfo as ModelAppVersionInfo
 import net.mullvad.mullvadvpn.lib.model.ClearAllOverridesError
@@ -64,10 +70,12 @@ import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState as ModelDnsState
 import net.mullvad.mullvadvpn.lib.model.GetAccountDataError
 import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
+import net.mullvad.mullvadvpn.lib.model.GetCurrentApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
+import net.mullvad.mullvadvpn.lib.model.NewAccessMethod
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
 import net.mullvad.mullvadvpn.lib.model.PlayPurchaseInitError
@@ -84,9 +92,11 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId as ModelRelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayList as ModelRelayList
 import net.mullvad.mullvadvpn.lib.model.RelayList
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
+import net.mullvad.mullvadvpn.lib.model.RemoveApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.RemoveSplitTunnelingAppError
 import net.mullvad.mullvadvpn.lib.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.lib.model.SetAllowLanError
+import net.mullvad.mullvadvpn.lib.model.SetApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.SetAutoConnectError
 import net.mullvad.mullvadvpn.lib.model.SetDnsOptionsError
 import net.mullvad.mullvadvpn.lib.model.SetObfuscationOptionsError
@@ -96,8 +106,10 @@ import net.mullvad.mullvadvpn.lib.model.SetWireguardMtuError
 import net.mullvad.mullvadvpn.lib.model.SetWireguardQuantumResistantError
 import net.mullvad.mullvadvpn.lib.model.Settings as ModelSettings
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
+import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.TunnelState as ModelTunnelState
 import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
+import net.mullvad.mullvadvpn.lib.model.UpdateApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints as ModelWireguardConstraints
@@ -567,6 +579,58 @@ class ManagementService(
     suspend fun getWebsiteAuthToken(): Either<Throwable, WebsiteAuthToken> =
         Either.catch { grpc.getWwwAuthToken(Empty.getDefaultInstance()) }
             .map { WebsiteAuthToken.fromString(it.value) }
+
+    suspend fun addApiAccessMethod(
+        newAccessMethod: NewAccessMethod
+    ): Either<AddApiAccessMethodError, ApiAccessMethodId> =
+        Either.catch { grpc.addApiAccessMethod(newAccessMethod.fromDomain()) }
+            .mapLeft(AddApiAccessMethodError::Unknown)
+            .map { ApiAccessMethodId.fromString(it.value) }
+
+    suspend fun removeApiAccessMethod(
+        apiAccessMethodId: ApiAccessMethodId
+    ): Either<RemoveApiAccessMethodError, Unit> =
+        Either.catch { grpc.removeApiAccessMethod(apiAccessMethodId.fromDomain()) }
+            .mapLeft(RemoveApiAccessMethodError::Unknown)
+            .mapEmpty()
+
+    suspend fun setApiAccessMethod(
+        apiAccessMethodId: ApiAccessMethodId
+    ): Either<SetApiAccessMethodError, Unit> =
+        Either.catch { grpc.setApiAccessMethod(apiAccessMethodId.fromDomain()) }
+            .mapLeft(SetApiAccessMethodError::Unknown)
+            .mapEmpty()
+
+    suspend fun updateApiAccessMethod(
+        apiAccessMethod: ApiAccessMethod
+    ): Either<UpdateApiAccessMethodError, Unit> =
+        Either.catch { grpc.updateApiAccessMethod(apiAccessMethod.fromDomain()) }
+            .mapLeft(UpdateApiAccessMethodError::Unknown)
+            .mapEmpty()
+
+    suspend fun getCurrentApiAccessMethod():
+        Either<GetCurrentApiAccessMethodError, ApiAccessMethod> =
+        Either.catch { grpc.getCurrentApiAccessMethod(Empty.getDefaultInstance()) }
+            .mapLeft(GetCurrentApiAccessMethodError::Unknown)
+            .map { it.toDomain() }
+
+    suspend fun testCustomApiAccessMethod(
+        customProxy: ApiAccessMethodType.CustomProxy
+    ): Either<TestApiAccessMethodError, Unit> =
+        Either.catch { grpc.testCustomApiAccessMethod(customProxy.fromDomain()) }
+            .mapLeftStatus { TestApiAccessMethodError.Grpc }
+            .map { result ->
+                either { ensure(result.value) { TestApiAccessMethodError.CouldNotAccess } }
+            }
+
+    suspend fun testApiAccessMethodById(
+        apiAccessMethodId: ApiAccessMethodId
+    ): Either<TestApiAccessMethodError, Unit> =
+        Either.catch { grpc.testApiAccessMethodById(apiAccessMethodId.fromDomain()) }
+            .mapLeftStatus { TestApiAccessMethodError.Grpc }
+            .map { result ->
+                either { ensure(result.value) { TestApiAccessMethodError.CouldNotAccess } }
+            }
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 
