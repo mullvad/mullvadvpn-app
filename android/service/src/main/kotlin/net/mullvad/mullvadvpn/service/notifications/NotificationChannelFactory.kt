@@ -54,5 +54,4 @@ class NotificationChannelFactory(
             .setShowBadge(true)
             .setVibrationEnabled(true)
             .build()
-    //    NotificationCompat.VISIBILITY_PRIVATE,
 }
