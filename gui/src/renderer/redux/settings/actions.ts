@@ -1,4 +1,4 @@
-import { IWindowsApplication } from '../../../shared/application-types';
+import { ISplitTunnelingApplication } from '../../../shared/application-types';
 import {
   AccessMethodSetting,
   ApiAccessMethodSettings,
@@ -100,7 +100,7 @@ export interface IUpdateSplitTunnelingStateAction {
 
 export interface ISetSplitTunnelingApplicationsAction {
   type: 'SET_SPLIT_TUNNELING_APPLICATIONS';
-  applications: IWindowsApplication[];
+  applications: ISplitTunnelingApplication[];
 }
 
 export interface ISetObfuscationSettings {
@@ -281,7 +281,7 @@ function updateSplitTunnelingState(enabled: boolean): IUpdateSplitTunnelingState
 }
 
 function setSplitTunnelingApplications(
-  applications: IWindowsApplication[],
+  applications: ISplitTunnelingApplication[],
 ): ISetSplitTunnelingApplicationsAction {
   return {
     type: 'SET_SPLIT_TUNNELING_APPLICATIONS',

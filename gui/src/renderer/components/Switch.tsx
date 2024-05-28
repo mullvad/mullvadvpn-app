@@ -5,9 +5,7 @@ import { colors } from '../../config.json';
 
 interface IProps {
   id?: string;
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   'aria-labelledby'?: string;
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   'aria-describedby'?: string;
   isOn: boolean;
   onChange?: (isOn: boolean) => void;

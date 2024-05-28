@@ -1,5 +1,5 @@
 import { getDefaultApiAccessMethods } from '../../../main/default-settings';
-import { IWindowsApplication } from '../../../shared/application-types';
+import { ISplitTunnelingApplication } from '../../../shared/application-types';
 import {
   AccessMethodSetting,
   ApiAccessMethodSettings,
@@ -115,7 +115,7 @@ export interface ISettingsReduxState {
   };
   dns: IDnsOptions;
   splitTunneling: boolean;
-  splitTunnelingApplications: IWindowsApplication[];
+  splitTunnelingApplications: ISplitTunnelingApplication[];
   obfuscationSettings: ObfuscationSettings;
   customLists: CustomLists;
   apiAccessMethods: ApiAccessMethodSettings;

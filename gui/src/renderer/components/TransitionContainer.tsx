@@ -48,7 +48,6 @@ interface StyledTransitionContentProps {
 
 export const StyledTransitionContent = styled.div.attrs<
   StyledTransitionContentProps,
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   { 'data-testid': string }
 >({
   'data-testid': 'transition-content',

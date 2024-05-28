@@ -168,12 +168,13 @@ class ApplicationMain {
       upgradeVersion: this.upgradeVersion,
       guiSettings: this.guiSettings,
       translations: this.translations,
-      windowsSplitTunnelingApplications: [],
+      splitTunnelingApplications: [],
       macOsScrollbarVisibility: MacOsScrollbarVisibility.whenScrolling,
       changelog: [],
       forceShowChanges: false,
       navigationHistory: undefined,
       scrollPositions: {},
+      isMacOs13OrNewer: true,
     }));
 
     IpcMainEventChannel.guiSettings.handleSetPreferredLocale((locale) => {
