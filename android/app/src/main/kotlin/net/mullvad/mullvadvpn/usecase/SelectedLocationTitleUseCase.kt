@@ -45,8 +45,7 @@ class SelectedLocationTitleUseCase(
         relayCountries: List<RelayItem.Location.Country>,
         relayItemId: GeoLocationId.Hostname
     ): String? = nullable {
-        val city =
-            relayCountries.flatMap { it.cities }.firstOrNull { it.id == relayItemId.city }.bind()
+        val city = relayCountries.findByGeoLocationId(relayItemId.city).bind()
         val relay = city.relays.firstOrNull { it.id == relayItemId }.bind()
 
         relay.formatTitle(city)
