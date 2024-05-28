@@ -158,6 +158,7 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
     }
 
     private func updateDataSource(animated: Bool = true) {
+        guard let dataSource else { return }
         fetchedItems = interactor.fetch()
 
         var snapshot = NSDiffableDataSourceSnapshot<ListAccessMethodSectionIdentifier, ListAccessMethodItemIdentifier>()
@@ -168,11 +169,13 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
         }
         snapshot.appendItems(itemIdentifiers, toSection: .primary)
 
-        for item in fetchedItems {
-            snapshot.reloadItems([ListAccessMethodItemIdentifier(id: item.id)])
+        if dataSource.snapshot().numberOfItems == fetchedItems.count {
+            for item in fetchedItems {
+                snapshot.reloadItems([ListAccessMethodItemIdentifier(id: item.id)])
+            }
         }
 
-        dataSource?.apply(snapshot, animatingDifferences: animated)
+        dataSource.apply(snapshot, animatingDifferences: animated)
     }
 
     private func dequeueCell(
@@ -180,9 +183,7 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
         itemIdentifier: ListAccessMethodItemIdentifier
     ) -> UITableViewCell {
         let cell = tableView.dequeueReusableView(withIdentifier: CellReuseIdentifier.default, for: indexPath)
-        guard let item = fetchedItems.first(where: { $0.id == itemIdentifier.id }) else {
-            fatalError("Unable to find item in fetchedItems")
-        }
+        let item = fetchedItems[indexPath.row]
 
         var contentConfiguration = ListCellContentConfiguration()
         contentConfiguration.text = item.name
