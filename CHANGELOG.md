@@ -51,6 +51,7 @@ This release is identical to 2024.3-beta1.
 #### Linux
 - Fix GUI not working on Ubuntu 24.04 by adding an AppArmor profile.
 - Service failed to start when IPv6 was disabled in the kernel.
+- Add wayland support on KDE.
 
 
 ## [2024.2] - 2024-04-29
