@@ -1087,6 +1087,10 @@ msgid "Disconnected and unsecure"
 msgstr ""
 
 msgctxt "notifications"
+msgid "Failed to enable split tunneling. Please try again or disable it."
+msgstr ""
+
+msgctxt "notifications"
 msgid "Lockdown mode active, connection blocked"
 msgstr ""
 
