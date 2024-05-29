@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.compose.cell.NavigationCellBody
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackDownIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.destinations.ApiAccessListDestination
 import net.mullvad.mullvadvpn.compose.destinations.ReportProblemDestination
 import net.mullvad.mullvadvpn.compose.destinations.SplitTunnelingDestination
 import net.mullvad.mullvadvpn.compose.destinations.VpnSettingsDestination
@@ -75,6 +76,9 @@ fun Settings(navigator: DestinationsNavigator) {
         onReportProblemCellClick = {
             navigator.navigate(ReportProblemDestination) { launchSingleTop = true }
         },
+        onApiAccessClick = {
+            navigator.navigate(ApiAccessListDestination) { launchSingleTop = true }
+        },
         onBackClick = navigator::navigateUp
     )
 }
@@ -86,6 +90,7 @@ fun SettingsScreen(
     onVpnSettingCellClick: () -> Unit = {},
     onSplitTunnelingCellClick: () -> Unit = {},
     onReportProblemCellClick: () -> Unit = {},
+    onApiAccessClick: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -110,6 +115,14 @@ fun SettingsScreen(
                 item { SplitTunneling(onSplitTunnelingCellClick) }
                 item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
             }
+
+            item {
+                NavigationComposeCell(
+                    title = stringResource(id = R.string.settings_api_access),
+                    onClick = onApiAccessClick
+                )
+            }
+            item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
 
             item { AppVersion(context, state) }
 
