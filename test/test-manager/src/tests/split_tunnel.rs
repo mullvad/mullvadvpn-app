@@ -7,7 +7,7 @@ use test_rpc::ServiceClient;
 
 use super::{
     helpers::{self, ConnChecker},
-    TestContext,
+    ui, TestContext,
 };
 
 const LEAK_DESTINATION: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1, 1, 1, 1)), 1337);
@@ -23,13 +23,8 @@ pub async fn test_split_tunnel(
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
     // Skip test on macOS 12, since the feature is unsupported
-    match rpc.get_os_version().await.context("Detect OS version")? {
-        OsVersion::Macos(version) if version.major <= 12 => {
-            // TODO: Skip test cleanly, e.g. by returning a result `Pass | Skip`
-            log::info!("Skipping test on macOS 12");
-            return Ok(());
-        }
-        _ => (),
+    if is_macos_12_or_lower(&rpc).await? {
+        return Ok(());
     }
 
     let mut checker = ConnChecker::new(rpc.clone(), mullvad_client.clone(), LEAK_DESTINATION);
@@ -85,4 +80,30 @@ pub async fn test_split_tunnel(
         .with_context(|| "Test connected and being unsplit while running")?;
 
     Ok(())
+}
+
+/// Test that split tunneling works by asserting the following:
+/// - Splitting a process shouldn't do anything if tunnel is not connected.
+/// - A split process should never push traffic through the tunnel.
+/// - Splitting/unsplitting should work regardless if process is running.
+#[test_function(target_os = "macos")]
+pub async fn test_split_tunnel_ui(_ctx: TestContext, rpc: ServiceClient) -> anyhow::Result<()> {
+    // Skip test on macOS 12, since the feature is unsupported
+    if is_macos_12_or_lower(&rpc).await? {
+        return Ok(());
+    }
+
+    let ui_result = ui::run_test(&rpc, &["macos-split-tunneling.spec"])
+        .await
+        .unwrap();
+    assert!(ui_result.success());
+
+    Ok(())
+}
+
+async fn is_macos_12_or_lower(rpc: &ServiceClient) -> anyhow::Result<bool> {
+    match rpc.get_os_version().await.context("Detect OS version")? {
+        OsVersion::Macos(version) if version.major <= 12 => Ok(true),
+        _ => Ok(false),
+    }
 }
